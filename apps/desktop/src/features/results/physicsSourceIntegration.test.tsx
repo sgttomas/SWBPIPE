@@ -19,12 +19,28 @@ import { numericalResultStanding } from "./numericalResultQuality";
 import { analysisRowSemantics, analysisRecordProjection, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
 import { resultSemantics } from './resultSemantics';
 
-afterEach(() => { invokeMock.mockReset(); window.localStorage.clear(); delete (window as any).__TAURI_INTERNALS__; });
+// Test isolation (T0R S5): a case that times out keeps running in the background.
+// Teardown advances the case generation, unmounts every session hook it created,
+// and resets the replay; a stale case body stops at its next checkpoint instead of
+// invoking the next case's replay, and job ids carry the generation so a stale
+// in-flight poll can never match another case's job.
+let caseGeneration = 0;
+const liveHooks = new Set<{ unmount(): void }>();
+function assertLiveCase(generation: number) {
+  if (generation !== caseGeneration) throw new Error("STALE_CASE_AFTER_TEARDOWN");
+}
+afterEach(() => {
+  caseGeneration += 1;
+  for (const hook of liveHooks) { try { hook.unmount(); } catch { /* already unmounted */ } }
+  liveHooks.clear();
+  invokeMock.mockReset(); window.localStorage.clear(); delete (window as any).__TAURI_INTERNALS__;
+});
 const fixturePrefix = "../../../../../fixtures/product_preview/physics_source/";
 const fixtureSources = import.meta.glob("../../../../../fixtures/product_preview/physics_source/*.json", { query: "?raw", import: "default", eager: true }) as Record<string,string>;
 const pairs = ["n05", "n06", "mixed", "fields", "n05_units", "mixed_units", "n05_unicode"].flatMap(name => ["sparse_interactive", "dense_scrutiny"].map(mode => [name, mode] as const));
 function valueBits(value: number) { const bytes = new DataView(new ArrayBuffer(8)); bytes.setFloat64(0,value,false);return bytes.getBigUint64(0,false).toString(16).padStart(16,"0"); }
-async function received(name: string, mode: string) {
+async function received(name: string, mode: string, generation = caseGeneration) {
+  assertLiveCase(generation);
   const sourceText = fixtureSources[`${fixturePrefix}${name}-${mode}.raw.json`];
   const request = JSON.parse(fixtureSources[`${fixturePrefix}${name}.request.json`]);
   const original = JSON.parse(sourceText) as MechanicsResult, model = request.model as PreviewModel;
@@ -32,6 +48,7 @@ async function received(name: string, mode: string) {
   // Unit-only transport replay of the exact separately captured producer pair.
   // Only the production private IPC path can register these delivered bytes.
   invokeMock.mockImplementation(async (command: string, args: any) => {
+    assertLiveCase(generation);
     expect(command).toBe("run_preview_mechanics_with_solver_mode");
     expect(args.solverMode).toBe(mode);
     expect(isDeepStrictEqual({ model: args.model, materials: [] }, request)).toBe(true);
@@ -47,7 +64,8 @@ async function received(name: string, mode: string) {
 // the session's own backend-job solve receives the captured producer bytes for
 // every requested mode. Current standing comes only from the session's solve
 // path and qualification gate. Unit transport replay, NOT a native UI witness.
-async function sessionReceived(name: string, mode: string) {
+async function sessionReceived(name: string, mode: string, generation = caseGeneration) {
+  assertLiveCase(generation);
   const sourceText = fixtureSources[`${fixturePrefix}${name}-${mode}.raw.json`];
   const request = JSON.parse(fixtureSources[`${fixturePrefix}${name}.request.json`]);
   const original = JSON.parse(sourceText) as MechanicsResult;
@@ -55,7 +73,9 @@ async function sessionReceived(name: string, mode: string) {
   delete (window as any).__TAURI_INTERNALS__;
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const scope = "unit_transport_replay_not_native_ui_qualification", started: string[] = [];
+  assertLiveCase(generation);
   invokeMock.mockImplementation(async (command: string, args: any) => {
+    assertLiveCase(generation);
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
@@ -63,18 +83,20 @@ async function sessionReceived(name: string, mode: string) {
     if (command === "start_preview_mechanics_job_with_solver_mode") {
       if (!isDeepStrictEqual({ model: args.model, materials: [] }, request)) throw new Error("REPLAY_REQUEST_MISMATCH");
       started.push(args.solverMode);
-      const job_id = `unit-transport-replay:${name}:${started.length}`;
+      const job_id = `unit-transport-replay:${generation}:${name}:${started.length}`;
       return { job_id, backend_cancellation_token: `${job_id}:token`, state: "queued", cancellation_scope: scope };
     }
-    if (command === "poll_preview_mechanics_job" && args?.jobId === `unit-transport-replay:${name}:${started.length}`) {
+    if (command === "poll_preview_mechanics_job" && args?.jobId === `unit-transport-replay:${generation}:${name}:${started.length}`) {
       return { job_id: args.jobId, state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: scope, result: structuredClone(original), error_message: null };
     }
     throw new Error(`REPLAY_COMMAND_UNSUPPORTED: ${command}`);
   });
   (window as any).__TAURI_INTERNALS__ = {};
   const hook = renderHook(() => useWorkspaceSession());
+  liveHooks.add(hook);
   await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
   await waitFor(() => expect(hook.result.current.model.modelHash).not.toBeNull());
+  assertLiveCase(generation);
   act(() => hook.result.current.results.setSolverMode(mode as "sparse_interactive" | "dense_scrutiny"));
   await act(async () => { await hook.result.current.results.handleRun(); });
   await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
@@ -87,10 +109,11 @@ describe("joined composite native transport unit simulation", () => {
   it.each(pairs)("%s %s binds actual input, Current gates and portable evidence", async (name, mode) => {
     // Direct IPC route premise, as before: the production registrar binds the
     // exact captured pair. Current itself is then reached through the session.
-    const direct = await received(name,mode);
+    const generation = caseGeneration;
+    const direct = await received(name,mode,generation);
     expect(direct.source).toEqual(direct.original);
     expect(hasNativeMechanicsInvocation(direct.source,direct.model,mode)).toBe(true);
-    const args = await sessionReceived(name,mode), {hook,source,model,inputManifest,analysisRun}=args;
+    const args = await sessionReceived(name,mode,generation), {hook,source,model,inputManifest,analysisRun}=args;
     expect(source).toEqual(args.original);
     expect(inputManifest.manifest.solver_basis.solver_mode).toBe(mode);
     expect(source.numerical_quality!.status).not.toBe("checks_passed");
@@ -132,6 +155,7 @@ describe("joined composite native transport unit simulation", () => {
     const otherMode=mode==="sparse_interactive"?"dense_scrutiny":"sparse_interactive";
     expect(hasNativeMechanicsInvocation(source,model,otherMode)).toBe(false);
     expect(physicsSourceModeMatches(source,model,otherMode)).toBe(false);
+    assertLiveCase(generation);
     act(()=>hook.result.current.results.setSolverMode(otherMode));
     await act(async()=>{await hook.result.current.results.handleRun();});
     expect(args.started).toEqual([mode,otherMode]);
@@ -139,7 +163,7 @@ describe("joined composite native transport unit simulation", () => {
     expect(hook.result.current.results.currentSolvedResult).toBeNull();
     expect(hook.result.current.results.solveJob.state).toBe("failed");
     expect(hook.result.current.results.solveJob.events.at(-1)?.message).toContain("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
-    hook.unmount();
+    hook.unmount(); liveHooks.delete(hook);
     expect(source).toEqual(args.original);
     if(process.env.PHYSICS_SOURCE_TS_OUTPUT_DIR){
       const folder=process.env.PHYSICS_SOURCE_TS_OUTPUT_DIR;mkdirSync(folder,{recursive:true});const stem=`${name}-${mode}`;

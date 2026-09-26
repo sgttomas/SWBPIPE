@@ -3,6 +3,7 @@ import { statusChipInputsFromCells, statusChips, statusChipText } from "./featur
 import historicalMechanicsFixture from "../../../fixtures/product_preview/invented_mechanics_result.json";
 import { PRECISION_CONTRACT_ID, PRECISION_CONTRACT_SHA256 } from "./features/results/numericalResultQuality";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "./test/nativeMechanicsReplay";
+import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { analysisRowSemantics, buildAnalysisRunV02, buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunCompatibility";
@@ -57,6 +58,7 @@ import {
 import {
   buildAnalysisRunPreview,
   buildPreviewComparison,
+  runPreviewMechanics,
   loadPreviewModel,
   loadDesignKnowledge,
   loadBundledMechanicsReference,
@@ -220,8 +222,9 @@ async function installPrecisionReplay() {
   // scoped native transport simulation; never invent storage capabilities.
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
-  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" });
-  const mechanics = createNativeMechanicsReplay({ profile: "precision" });
+  // T0R: the fresh ordinary route is preview-physics-1; precision-1 is never Current.
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  const mechanics = createNativeMechanicsReplay({ profile: "preview" });
   const invoke = (command: string, args?: unknown) => {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
@@ -233,6 +236,44 @@ async function installPrecisionReplay() {
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(replay.invoke);
   return { ...pair, replay };
+}
+
+// T0R report-package outage (N-REPORT until T6). The App save path runs only on the
+// session's Current result, and every Current identity is fresh and refused at the
+// availability gate. To keep the save sequencer (handleSaveReportPackage: busy
+// state, generation/basis checks, stale completion) under test, these helpers
+// (a) assert the gate refusal first, then (b) lift the gate in the test only and
+// route assembly below it with the registered historical precision-1 session as
+// data. Production behaviour is unchanged; nothing here is a native witness.
+async function registeredPrecisionReportData() {
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" });
+  const precision = createNativeMechanicsReplay({ profile: "precision" });
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(precision.invoke);
+  const result = await runPreviewMechanics(pair.model);
+  const inputManifest = await buildCurrentSessionInputManifest({
+    model: pair.model,
+    solver: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "open_pipe_stress_product_physics@0.2.0", solver_mode: "sparse_interactive", settings: {} },
+    active_rule_packs: [], external_assets: [],
+  });
+  const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
+  invokeMock.mockReset();
+  return { result, inputManifest, analysisRun };
+}
+async function expectReportPackageGateRefusal() {
+  const report = openWorkspaceSection("report");
+  expect(within(report).getByTestId("report-package-source-unavailable")).toHaveTextContent(N_REPORT);
+  const savesBefore = invokeMock.mock.calls.filter(([command]) => command === "save_report_package").length;
+  act(() => nativeMenuCommand("file.save-report-package"));
+  expect(invokeMock.mock.calls.filter(([command]) => command === "save_report_package")).toHaveLength(savesBefore);
+  expect(within(report).queryByTestId("report-package-save-status")).not.toBeInTheDocument();
+}
+async function liftReportGateForSequencerTest(data: Awaited<ReturnType<typeof registeredPrecisionReportData>>) {
+  const reportPackageModule = await import("./features/report/reportPackageRequest");
+  const gateSpy = vi.spyOn(reportPackageModule, "reportPackageUnavailableReason").mockReturnValue(null);
+  const buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) =>
+    reportPackageModule.assembleReportPackageRequestBelowAvailabilityGate({ ...input, result: data.result, analysisRun: data.analysisRun, inputManifest: data.inputManifest }));
+  return { gateSpy, buildSpy, restore: () => { gateSpy.mockRestore(); buildSpy.mockRestore(); } };
 }
 
 async function runMechanicsButton() {
@@ -14627,25 +14668,20 @@ describe("workflow current and historical result boundaries", () => {
     });
     // Slice B3: with no rule-check aggregate there is no Rule pack chip at all (§5.4 rule 3).
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
+    // T0R: the report package is unavailable for fresh results until T6 (N-REPORT), so the
+    // stale-aggregate rejection is observed through the absent Rule pack chip above and the
+    // refused save, which never reaches the backend.
     const report = openWorkspaceSection("report");
-    const privateIntent = within(report).getByTestId("report-package-private-intent") as HTMLInputElement;
-    if (!privateIntent.checked) fireEvent.click(privateIntent);
+    expect(within(report).getByTestId("report-package-source-unavailable")).toHaveTextContent(N_REPORT);
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     act(() => nativeMenuCommand("file.save-report-package"));
-    await waitFor(() => expect(serializedReportRequest).not.toBeNull());
-    expect(serializedReportRequest).toMatchObject({
-      source_model_ref: { ref_type: "model", ref_id: replacement.model.project.id },
-      rule_check_aggregate: null,
-      solve_rule_check_status: "RULE_INPUTS_INCOMPLETE",
-    });
-    await waitFor(() =>
-      expect(within(report).getByTestId("report-package-save-status")).toHaveTextContent(
-        "fresh-replacement-rule-basis.opsreport",
-      ),
-    );
+    expect(serializedReportRequest).toBeNull();
   });
 
+  // T0R: (a) the gate refuses the fresh Current result; (b) the save sequencer runs
+  // below the gate with the historical precision-1 session as assembly data.
   it("does not start an obsolete report-package save or publish stale build state", async () => {
+    const precisionData = await registeredPrecisionReportData();
     const { model, replay } = await installPrecisionReplay();
     const replacement = inventedOpenEnvelope(model);
     replacement.model = structuredClone(model);
@@ -14656,6 +14692,7 @@ describe("workflow current and historical result boundaries", () => {
     let delayedModelHashCalls = 0;
     let hashSpy: { mockRestore(): void } | null = null;
     let buildSpy: { mockRestore(): void } | null = null;
+    let gateSpy: { mockRestore(): void } | null = null;
     let outerReportBuild: Promise<unknown> | null = null;
 
     try {
@@ -14663,10 +14700,11 @@ describe("workflow current and historical result boundaries", () => {
       await screen.findByTestId("desktop-preview-shell");
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
+      await expectReportPackageGateRefusal();
       const reportPackageModule = await import("./features/report/reportPackageRequest");
-      const buildReportPackageRequest = reportPackageModule.buildReportPackageRequest.bind(reportPackageModule);
+      gateSpy = vi.spyOn(reportPackageModule, "reportPackageUnavailableReason").mockReturnValue(null);
       buildSpy = vi.spyOn(reportPackageModule, "buildReportPackageRequest").mockImplementation((input) => {
-        const pendingBuild = buildReportPackageRequest(input);
+        const pendingBuild = reportPackageModule.assembleReportPackageRequestBelowAvailabilityGate({ ...input, result: precisionData.result, analysisRun: precisionData.analysisRun, inputManifest: precisionData.inputManifest });
         outerReportBuild = pendingBuild;
         return pendingBuild;
       });
@@ -14682,7 +14720,9 @@ describe("workflow current and historical result boundaries", () => {
         delayedModelHashCalls += 1;
         return buildGate.promise.then(() => canonicalSha256Hex(valueJson)) as unknown as string;
       });
+      openWorkspaceSection("solve");
       const report = openWorkspaceSection("report");
+      await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
       invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
@@ -14719,12 +14759,15 @@ describe("workflow current and historical result boundaries", () => {
       buildGate.resolve();
       hashSpy?.mockRestore();
       buildSpy?.mockRestore();
+      gateSpy?.mockRestore();
     }
   });
 
+  // T0R: (a) gate refusal first; (b) the save sequencer below the gate, as above.
   it.each(["success", "error"] as const)(
     "keeps a newer report-package save busy and rejects stale %s completion state",
     async (staleOutcome) => {
+      const precisionData = await registeredPrecisionReportData();
       const { model, replay } = await installPrecisionReplay();
       const replacement = inventedOpenEnvelope(model);
       replacement.model = structuredClone(model);
@@ -14747,7 +14790,12 @@ describe("workflow current and historical result boundaries", () => {
       await screen.findByTestId("desktop-preview-shell");
       fireEvent.click(await runMechanicsButton());
       await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
+      await expectReportPackageGateRefusal();
+      expect(saveCalls).toBe(0);
+      const lifted = await liftReportGateForSequencerTest(precisionData);
+      try {
       let report = openWorkspaceSection("report");
+      await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       act(() => nativeMenuCommand("file.save-report-package"));
@@ -14793,6 +14841,7 @@ describe("workflow current and historical result boundaries", () => {
         expect(within(report).getByTestId("report-package-save-status")).toHaveTextContent("current-route.opsreport"),
       );
       expect(within(report).getByTestId("report-package-save")).toBeEnabled();
+      } finally { lifted.restore(); }
     },
   );
 

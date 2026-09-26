@@ -2816,7 +2816,21 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
         }
         refs.push(json!({"ref_type":"load_case", "ref_id":id}));
     }
-    match open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(envelope, &refs, invocation) {
+    // T0R: only a fresh identity is rule-eligible; precision-1 and mixed
+    // ordinary source-blocks-1 stay readable but need a new solve.
+    // A2 item 10: validate first, so a tampered source is unsupported.
+    let standing = open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(envelope, &refs, invocation);
+    let contract = envelope.pointer("/producer/semantic_contract_id").and_then(Value::as_str).unwrap_or_default();
+    if standing != "unsupported" {
+        if let Some(reason) = open_pipe_stress_result_export::semantic_contract::standing_reason(envelope) {
+            return Err(format!("RULE_NUMERICAL_NEEDS_RECOMPUTE: {reason}"));
+        }
+    }
+    // A legacy 0.1.0 source carries no producer id and stays needs_recompute below.
+    if !contract.is_empty() && !open_pipe_stress_result_export::semantic_contract::is_fresh_identity(contract) {
+        return Err("RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract".into());
+    }
+    match standing {
         "numerically_eligible" => Ok(()),
         "unsupported" => Err("RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract".into()),
         _ => Err("RULE_NUMERICAL_NEEDS_RECOMPUTE: complete passing or source-qualified numerical evidence is required for every current load case".into()),
@@ -2867,14 +2881,21 @@ fn run_rule_checks_core(
     // input when it does not resolve, never a caller rescue). Inputs without an
     // authored reference still bind from caller-supplied selectors (backward
     // compatible: a pack with no authored references behaves exactly as before).
+    let mut refused_solver_results = Vec::new();
     let (mut solver_results, authored_solver_input_ids) =
-        resolve_authored_solver_result_bindings(&rule_pack_document, &envelope);
+        resolve_authored_solver_result_bindings(&rule_pack_document, &envelope, &mut refused_solver_results);
+    let mut caller_refused = Vec::new();
     let caller_solver_results =
-        resolve_solver_result_bindings(solver_result_bindings.as_ref(), &envelope)?;
+        resolve_solver_result_bindings(solver_result_bindings.as_ref(), &envelope, &mut caller_refused)?;
     solver_results.extend(
         caller_solver_results
             .into_iter()
             .filter(|binding| !authored_solver_input_ids.contains(&binding.input_id)),
+    );
+    refused_solver_results.extend(
+        caller_refused
+            .into_iter()
+            .filter(|refusal| !authored_solver_input_ids.contains(&refusal.input_id)),
     );
     let supplied_values = parse_supplied_value_bindings(supplied_value_bindings.as_ref())?;
     let library_values = parse_library_value_bindings(library_value_bindings.as_ref())?;
@@ -2890,6 +2911,7 @@ fn run_rule_checks_core(
     let result = rule_check_runner::run_rule_checks(&rule_check_runner::RuleCheckRunInput {
         rule_pack_document: &rule_pack_document,
         solver_results,
+        refused_solver_results,
         supplied_values,
         library_values,
         current_statuses,
@@ -3180,16 +3202,23 @@ fn parse_library_value_bindings(
 /// row lacks a numeric `value` or a string `unit` — so the caller omits the
 /// binding and the required input stays unsupplied (the check blocks, never a
 /// silent pass). Shared by the caller-supplied selector path and the authored
-/// `solver_result_ref` path so both address result rows identically.
-fn solver_result_row_value(envelope: &Value, result_id: &str) -> Option<(f64, String)> {
-    let row = envelope
+/// `solver_result_ref` path so both address result rows identically. A row the
+/// shared `rule_binding_refusal` helper refuses (T0R) yields `Err(reason)`; the
+/// caller records it as a refused input, reported incomplete with the reason.
+fn solver_result_row_value(envelope: &Value, result_id: &str) -> Result<Option<(f64, String)>, &'static str> {
+    let Some(row) = envelope
         .pointer("/results")
-        .and_then(Value::as_array)?
-        .iter()
-        .find(|row| row.pointer("/id").and_then(Value::as_str) == Some(result_id))?;
-    let value = row.pointer("/value").and_then(Value::as_f64)?;
-    let unit = row.pointer("/unit").and_then(Value::as_str)?.to_string();
-    Some((value, unit))
+        .and_then(Value::as_array)
+        .and_then(|rows| rows.iter().find(|row| row.pointer("/id").and_then(Value::as_str) == Some(result_id)))
+    else {
+        return Ok(None);
+    };
+    if let Some(reason) = open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(envelope, row) {
+        return Err(reason);
+    }
+    let Some(value) = row.pointer("/value").and_then(Value::as_f64) else { return Ok(None) };
+    let Some(unit) = row.pointer("/unit").and_then(Value::as_str) else { return Ok(None) };
+    Ok(Some((value, unit.to_string())))
 }
 
 /// Resolve caller-supplied `{input_id, result_id}` selectors against a solved
@@ -3202,6 +3231,7 @@ fn solver_result_row_value(envelope: &Value, result_id: &str) -> Option<(f64, St
 fn resolve_solver_result_bindings(
     selectors: Option<&Value>,
     envelope: &Value,
+    refused: &mut Vec<rule_check_runner::RefusedSolverResult>,
 ) -> Result<Vec<rule_check_runner::SolverResultBinding>, String> {
     let Some(selectors) = selectors.filter(|value| !value.is_null()) else {
         return Ok(Vec::new());
@@ -3219,13 +3249,18 @@ fn resolve_solver_result_bindings(
             .pointer("/result_id")
             .and_then(Value::as_str)
             .ok_or_else(|| "each solver_result binding requires result_id".to_string())?;
-        if let Some((value, unit)) = solver_result_row_value(envelope, result_id) {
-            bindings.push(rule_check_runner::SolverResultBinding {
+        match solver_result_row_value(envelope, result_id) {
+            Ok(Some((value, unit))) => bindings.push(rule_check_runner::SolverResultBinding {
                 input_id: input_id.to_string(),
                 result_id: result_id.to_string(),
                 value,
                 unit,
-            });
+            }),
+            Ok(None) => {}
+            Err(reason) => refused.push(rule_check_runner::RefusedSolverResult {
+                input_id: input_id.to_string(),
+                reason: reason.to_string(),
+            }),
         }
     }
     Ok(bindings)
@@ -3248,6 +3283,7 @@ fn resolve_solver_result_bindings(
 fn resolve_authored_solver_result_bindings(
     document: &Value,
     envelope: &Value,
+    refused: &mut Vec<rule_check_runner::RefusedSolverResult>,
 ) -> (Vec<rule_check_runner::SolverResultBinding>, HashSet<String>) {
     let mut bindings = Vec::new();
     let mut authored_input_ids = HashSet::new();
@@ -3279,13 +3315,18 @@ fn resolve_authored_solver_result_bindings(
         if result_id.is_empty() {
             continue;
         }
-        if let Some((value, unit)) = solver_result_row_value(envelope, result_id) {
-            bindings.push(rule_check_runner::SolverResultBinding {
+        match solver_result_row_value(envelope, result_id) {
+            Ok(Some((value, unit))) => bindings.push(rule_check_runner::SolverResultBinding {
                 input_id: input_id.to_string(),
                 result_id: result_id.to_string(),
                 value,
                 unit,
-            });
+            }),
+            Ok(None) => {}
+            Err(reason) => refused.push(rule_check_runner::RefusedSolverResult {
+                input_id: input_id.to_string(),
+                reason: reason.to_string(),
+            }),
         }
     }
     (bindings, authored_input_ids)
@@ -4610,7 +4651,9 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
         let quantities = [
             ("result:disp:node-WF-TIP:uy", "mm", uy),
             ("result:disp:node-WF-TIP:rz", "rad", rz),
-            ("result:reaction:support-WF-ROOT", "N", force),
+            // T0R preview-physics-1: signed support-on-pipe components replace the retired resultant.
+            ("result:support-action:7:load:WF:15:support:WF-ROOT:Fy", "N", -force),
+            ("result:support-action:7:load:WF:15:support:WF-ROOT:Mz", "N*m", -force * 3.2),
             ("result:force:pipe-WF:shear-z", "N", force),
             ("result:moment:pipe-WF:bending-y", "N*m", -force * 3.2)
         ];
@@ -4634,7 +4677,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
         "hashes":{"baseline":baseline_hash,"edit":edited_hash,"undo_checkpoint":hash(&undo_model),"redo_checkpoint":hash(&redo_model),"equivalent_agent":hash(&agent_applied["applied_model"]),"human_intent":human_intent_hash,"agent_intent":agent_intent_hash},
         "attachments":attachments,
         "persistence":{"storage":"isolated_file_backed_sqlite","writer_connection_closed_before_restore":true,"restored_value":500,"restored_unit":"N","store_migration":store_migration,"reopen_store_schema_version":reopen_migration.store_schema_version,"historical_result_preserved":true,"unchanged_save_preserves_evidence":true,"analysis_run":"missing_no_native_builder","input_manifest":"missing_not_invented","project_envelope_hash":"missing_preserved"},
-        "solve":{"mechanics":solved["status"]["mechanics"],"model_ref":solved["model_ref"],"result_rows":solved["results"].as_array().map_or(0, Vec::len),"edited_result_differs_from_baseline":true,"fresh_resolve_matches_saved_result_rows":true,"analytical_witnesses":witnesses,"publication_tolerance_declared_units":tolerance,"reaction_transform":"y_reference global Z: local Z=-global Y and local Y=global Z; end-i fz=+F and my=-FL correspond to global root Fy=-F and Mz=-FL; public support row is resultant only"},
+        "solve":{"mechanics":solved["status"]["mechanics"],"model_ref":solved["model_ref"],"result_rows":solved["results"].as_array().map_or(0, Vec::len),"edited_result_differs_from_baseline":true,"fresh_resolve_matches_saved_result_rows":true,"analytical_witnesses":witnesses,"publication_tolerance_declared_units":tolerance,"reaction_transform":"y_reference global Z: local Z=-global Y and local Y=global Z; end-i fz=+F and my=-FL correspond to global root Fy=-F and Mz=-FL; public support rows are signed support-on-pipe global components"},
         "boundary":{"network":false,"telemetry":false,"private_data":false,"protected_content":false,"repository_write":false}
     }))
 }
@@ -4913,13 +4956,23 @@ mod tests {
 
     // Synthetic metadata is exclusively a consumer-policy fixture, never a claim
     // that the product solve below has passed the structural integrity gate.
-    fn precision_policy_envelope(model: &Value) -> Value {
+    // T0R: precision-1 is never rule-eligible, so the policy fixture carries the
+    // fresh preview-physics-1 identity with closed evidence and one table-signed row.
+    fn preview_policy_envelope(model: &Value) -> Value {
+        let cases = model["load_cases"].as_array().unwrap();
         let mut envelope = demo_solved_envelope(0.125);
         envelope["diagnostics"] = json!([]);
         envelope["schema_version"] = json!("0.2.0");
         envelope["model_ref"] = model["project"]["id"].clone();
-        envelope["producer"] = json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":"openpipestress.result_semantics/0.3.0/precision-1"});
-        envelope["formulation_basis"] = json!({"profile_id":"product_preview_mechanics_v1","limitations":["Invented policy fixture; no engineering approval"]});
+        envelope["producer"] = json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":"openpipestress.result_semantics/0.3.0/preview-physics-1"});
+        envelope["formulation_basis"] = json!({"profile_id":"product_preview_mechanics_v1","limitations":open_pipe_stress_result_export::semantic_contract::preview_physics_contract()["supported_profile_limitations"].clone()});
+        envelope["results"][0]["kind"] = json!("global_nodal_rotation_x");
+        envelope["results"][0]["unit"] = json!("rad");
+        envelope["results"][0]["entity_ref"] = json!("node:policy-fixture");
+        envelope["results"][0]["basis_ref"] = json!({"ref_type":"load_case","ref_id":cases[0]["id"]});
+        envelope["results"][0]["metadata"] = json!({"component":"nodal_rotation_x","coordinate_system":"global","location":"node","basis":"invented_policy_fixture","sign_convention":"invented policy fixture; no engineering meaning"});
+        envelope["summary"] = json!({"max_displacement":null,"max_open_formula_stress":null});
+        envelope["contract_evidence"] = json!({"preview_cases":cases.iter().map(|case| json!({"load_case_id":case["id"],"pipe_stress_extrema":[],"stress_maximum_coverage":{"complete":true,"unavailable_pipe_ids":[],"outside_domain_pipe_ids":[]},"support_attribution":{"attributed_support_ids":[],"withheld":[]},"intensified_measures":[]})).collect::<Vec<_>>(),"combination_gates":[]});
         envelope["numerical_quality"] = json!({"value_representation":"finite_binary64","publication_quantization":"none","integrity_policy":"M03-INTEGRITY-v1","status":"checks_passed","cases":model["load_cases"].as_array().unwrap().iter().map(|case| json!({"basis_ref":{"ref_type":"load_case","ref_id":case["id"]},"structural_status":"passive_model_basis","solve_quality":"checks_passed","model_matrix_fidelity":"represented_equations_retained","accuracy_evidence":"not_claimed","evidence_refs":["result:stress:demo"]})).collect::<Vec<_>>()});
         envelope
     }
@@ -4928,8 +4981,13 @@ mod tests {
     fn precision_native_rule_qualification_requires_actual_complete_case_coverage() {
         let mut model = precision_model();
         model["load_cases"].as_array_mut().unwrap().push(json!({"id":"load:second"}));
-        let envelope = precision_policy_envelope(&model);
+        let envelope = preview_policy_envelope(&model);
         qualify_rule_mechanics(&model, &envelope).unwrap();
+        // The same complete evidence under the historical precision-1 identity is refused.
+        let mut historical = envelope.clone();
+        historical["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/precision-1");
+        historical.as_object_mut().unwrap().remove("contract_evidence");
+        assert!(qualify_rule_mechanics(&model, &historical).unwrap_err().contains("PRECISION_1_HISTORICAL_SEMANTICS"));
         for status in ["not_assessed", "unresolved", "failed"] {
             let mut bad = envelope.clone(); bad["numerical_quality"]["status"] = json!(status);
             assert!(qualify_rule_mechanics(&model, &bad).unwrap_err().contains("NEEDS_RECOMPUTE"));
@@ -5001,11 +5059,11 @@ mod tests {
             assert!(value.fract() != 0.0 || value.abs() <= 9_007_199_254_740_991.0);
             let decimal: f64 = serde_json::from_str(vector["decimal"].as_str().unwrap()).unwrap();
             assert_eq!(decimal.to_bits(), bits, "{}", vector["id"]);
-            let mut source = precision_policy_envelope(&model);
+            let mut source = preview_policy_envelope(&model);
             source["results"][0]["value"] = json!(value);
             let output = precision_transport(&model, &source);
             qualify_rule_mechanics(&model, &output).unwrap();
-            let bindings = resolve_solver_result_bindings(Some(&demo_solver_selectors()), &output).unwrap();
+            let bindings = resolve_solver_result_bindings(Some(&demo_solver_selectors()), &output, &mut Vec::new()).unwrap();
             assert_eq!(bindings[0].value.to_bits(), bits, "{}", vector["id"]);
         }
         // Canonical hashing may normalize -0 to +0; all shared nonzero vectors
@@ -5081,7 +5139,8 @@ mod tests {
             assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED");
             assert_eq!(solved["schema_version"], "0.2.0");
             assert_eq!(solved["producer"]["component_version"], "0.2.0");
-            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/precision-1");
+            // T0R: a fresh non-exact solve publishes preview-physics-1.
+            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/preview-physics-1");
             let output = precision_transport(&model, &solved);
             // Elementary Euler-Bernoulli tip-force oracle, independent of solver assembly.
             let inertia = std::f64::consts::PI * (0.114_f64.powi(4) - 0.102_f64.powi(4)) / 64.0;
@@ -5092,7 +5151,7 @@ mod tests {
                 assert!(actual != 0.0 && actual.signum() == force.signum());
                 assert!((actual - expected).abs() <= expected.abs() * 1e-10, "{kind}: {actual} != {expected}");
                 let selectors = json!([{"input_id":"tiny", "result_id":row["id"]}]);
-                let bindings = resolve_solver_result_bindings(Some(&selectors), &output).unwrap();
+                let bindings = resolve_solver_result_bindings(Some(&selectors), &output, &mut Vec::new()).unwrap();
                 assert_eq!(bindings[0].value.to_bits(), actual.to_bits());
             }
             // Preserve the actual gate output; no passing metadata is manufactured.
@@ -6597,8 +6656,13 @@ mod tests {
         execute_solve_job(
             &registry.jobs,
             &receipt.job_id,
-            resolve_solve_model_payload(None),
+            Ok(derived_invented_model()),
             PreviewSolverMode::default(),
+        );
+        // The default payload is the bundled demo, which is refused with its blocking code.
+        assert_bundled_demo_refused(
+            &solve_preview_mechanics(resolve_solve_model_payload(None).expect("bundled demo loads"))
+                .expect("refusal is a published envelope"),
         );
 
         let status = solve_job_status(&registry.jobs, &receipt.job_id).expect("status available");
@@ -6618,8 +6682,9 @@ mod tests {
 
     #[test]
     fn run_preview_mechanics_uses_supplied_model_payload() {
-        let mut model =
-            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        // Without a payload the command solves the bundled demo, which is refused.
+        assert_bundled_demo_refused(&run_preview_mechanics(None).expect("refusal is a published envelope"));
+        let mut model = derived_invented_model();
         model["project"]["id"] = json!("project:edited-solve-command");
         model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
 
@@ -6695,8 +6760,7 @@ mod tests {
     fn solve_job_seam_uses_supplied_model_payload() {
         let registry = SolveJobRegistry::default();
         let receipt = start_solve_job(&registry.jobs).expect("job starts");
-        let mut model =
-            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
+        let mut model = derived_invented_model();
         model["project"]["id"] = json!("project:edited-solve-job");
         model["materials"][0]["elastic_modulus"]["value"] = json!(195000000000.0);
 
@@ -6798,7 +6862,7 @@ mod tests {
         execute_solve_job(
             &registry.jobs,
             &receipt.job_id,
-            resolve_solve_model_payload(None),
+            Ok(derived_invented_model()),
             PreviewSolverMode::default(),
         );
 
@@ -6857,6 +6921,24 @@ mod tests {
         assert_eq!(status.state, "failed");
         assert_eq!(status.result, None);
         assert!(status.error_message.is_some());
+    }
+
+    // T0R (ROOT ruling): the bundled demo keeps nonzero legacy pressure and a
+    // realized user-stiffness joint, so the ordinary route refuses it. Tests that
+    // need a solved invented model use the derived pressure-free, joint-free model.
+    fn derived_invented_model() -> Value {
+        serde_json::from_str(include_str!(
+            "../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json"
+        ))
+        .expect("derived invented model parses")
+    }
+
+    fn assert_bundled_demo_refused(solved: &Value) {
+        assert_eq!(solved["status"]["mechanics"], json!("MODEL_INCOMPLETE"));
+        assert!(solved["diagnostics"].as_array().expect("diagnostics").iter().any(|d| {
+            d["code"] == json!("PRESSURE_MODEL_REAUTHOR_REQUIRED") && d["severity"] == json!("blocking")
+        }));
+        assert!(solved["results"].as_array().expect("result rows").is_empty());
     }
 
     fn fixture_inspector_intent(before: &str, after: &str) -> Value {
@@ -6985,7 +7067,19 @@ mod tests {
             model["materials"][0]["elastic_modulus"]["value"],
             json!(200000000000_i64)
         );
-        let solved = run_preview_mechanics(Some(outcome["applied_model"].clone()))
+        // The edited bundled demo is still refused (legacy pressure); the same
+        // intent applied to the derived model solves through the preview path.
+        assert_bundled_demo_refused(
+            &run_preview_mechanics(Some(outcome["applied_model"].clone()))
+                .expect("refusal is a published envelope"),
+        );
+        let derived = apply_model_operation(
+            derived_invented_model(),
+            fixture_inspector_intent("200000000000", "195000000000"),
+            None,
+        )
+        .expect("command returns outcome");
+        let solved = run_preview_mechanics(Some(derived["applied_model"].clone()))
             .expect("edited model still solves through the preview mechanics path");
         assert!(solved["results"]
             .as_array()
@@ -6998,9 +7092,9 @@ mod tests {
         let mut connection = Connection::open_in_memory().expect("in-memory sqlite opens");
         apply_store_migrations(&connection).expect("store migrations apply");
 
-        let mut model =
-            read_fixture("invented_preview_model.json").expect("bundled preview model loads");
-        solve_preview_mechanics(model.clone()).expect("baseline fixture model solves");
+        let mut model = derived_invented_model();
+        let baseline = solve_preview_mechanics(model.clone()).expect("baseline fixture model solves");
+        assert_eq!(baseline["status"]["mechanics"], json!("MECHANICS_SOLVED"));
         model["project"]["id"] = json!("project:edited-load-roundtrip");
         model["project"]["name"] = json!("Edited Load Roundtrip");
 
@@ -7042,7 +7136,7 @@ mod tests {
             received_envelope_claim.clone(),
         )
         .expect("edited 0.1.0-era model document is ready to persist");
-        // The bundled fixture is a 0.1.0-era document: persisting it walks the
+        // The derived fixture is a 0.1.0-era document: persisting it walks the
         // published DEC-033 no-op chain entry and appends a ledger record.
         assert_eq!(document_status.status, "migrated");
         assert_eq!(
@@ -7712,7 +7806,7 @@ mod tests {
     fn resolve_authored_solver_result_bindings_resolves_ref_and_records_input_id() {
         let pack = pack_with_solver_result_ref("result:stress:demo");
         let envelope = demo_solved_envelope(42.0);
-        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope);
+        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope, &mut Vec::new());
         assert_eq!(bindings.len(), 1);
         assert_eq!(bindings[0].input_id, "demo_actual_quantity");
         assert_eq!(bindings[0].result_id, "result:stress:demo");
@@ -7728,7 +7822,7 @@ mod tests {
         // then blocks, never a silent pass and never a caller rescue.
         let pack = pack_with_solver_result_ref("result:absent");
         let envelope = demo_solved_envelope(42.0);
-        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope);
+        let (bindings, authored_ids) = resolve_authored_solver_result_bindings(&pack, &envelope, &mut Vec::new());
         assert!(bindings.is_empty());
         assert!(authored_ids.contains("demo_actual_quantity"));
     }
@@ -7974,6 +8068,35 @@ mod tests {
         )
         .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+    }
+
+    #[test]
+    fn run_rule_checks_core_refuses_all_selected_source_blocks_summary_with_reason() {
+        // T0R rule_binding_refusal: the abs-sum summary (and the headline's row)
+        // of a non-composite source-blocks-1 envelope is refused on both binding
+        // paths and reported incomplete with the reason; a force row still binds.
+        let mut envelope = demo_solved_envelope(50.0);
+        envelope["producer"] = json!({"semantic_contract_id":"openpipestress.result_semantics/0.3.0/source-blocks-1"});
+        envelope["results"][0]["kind"] = json!("open_formula_stress_summary");
+        envelope["results"].as_array_mut().unwrap().push(json!({"id":"result:force:demo","kind":"element_local_axial_force","value":50.0,"unit":"demo_unit","entity_ref":"pipe:demo"}));
+        envelope["summary"] = json!({"max_open_formula_stress":{"result_ref":"result:stress:demo"}});
+        let reason = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
+        for (pack, selectors) in [
+            (pack_with_solver_result_ref("result:stress:demo"), None),
+            (example_rule_pack_document(), Some(demo_solver_selectors())),
+        ] {
+            let outcome = run_rule_checks_core(pack, None, Some(envelope.clone()), selectors, Some(demo_supplied_values()), None)
+                .expect("rule checks run");
+            assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
+            assert!(outcome["checks"][0]["completeness_findings"].as_array().unwrap().iter().any(|f| f["code"] == json!(reason)));
+        }
+        let mut refused = Vec::new();
+        assert!(resolve_solver_result_bindings(Some(&demo_solver_selectors()), &envelope, &mut refused).unwrap().is_empty());
+        assert_eq!(refused.len(), 1);
+        assert_eq!(refused[0].reason, reason);
+        let outcome = run_rule_checks_core(pack_with_solver_result_ref("result:force:demo"), None, Some(envelope), None, Some(demo_supplied_values()), None)
+            .expect("rule checks run");
+        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
     }
 
     #[test]

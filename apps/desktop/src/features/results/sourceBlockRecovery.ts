@@ -278,9 +278,25 @@ async function validateKnownSourceRecovery(source: MechanicsResult, invocation: 
   return answer;
 }
 
+/** T0R (S1 §10): a non-composite source-blocks-1 receipt with a qualified case
+ * whose selected method is not the retained exact method carries rows with the
+ * retired precision-1 semantics. Derived from the receipt, never a producer
+ * field; physics-source-1 is unaffected. */
+export function sourceBlocksOrdinaryCaseLegacy(source: Pick<MechanicsResult, 'producer' | 'source_block_recovery'>): boolean {
+  if (source.producer?.semantic_contract_id !== SOURCE_BLOCKS_CONTRACT_ID) return false;
+  const cases = (source.source_block_recovery as JsonObject | undefined)?.body?.cases;
+  return Array.isArray(cases) && cases.some((c: JsonObject) => c?.outcome === 'qualified' && c.selected_method !== 'retained_source_blocks_exact_v1');
+}
+
 /** No token is serialized or copied to a cloned/imported historical carrier. */
 export function sourceBlockStanding(source: MechanicsResult, model?: Pick<PreviewModel, 'load_cases'> | null): Validation {
-  return knownSourceStanding(source, model, SOURCE_BLOCKS_CONTRACT_ID);
+  const standing = knownSourceStanding(source, model, SOURCE_BLOCKS_CONTRACT_ID);
+  // A2 10: validation first. A source whose validated registration is absent or
+  // changed stays unsupported (its validation finding only); the standing reason
+  // applies only to a validated source.
+  if (standing.findings.some(f => f.startsWith('SOURCE_BLOCKS_VALIDATED_'))) return standing;
+  if (!sourceBlocksOrdinaryCaseLegacy(source)) return standing;
+  return { eligible: false, findings: [...new Set([...standing.findings, 'SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS'])] };
 }
 export function physicsSourceReceiptStanding(source: MechanicsResult, model?: Pick<PreviewModel, 'load_cases'> | null): Validation {
   return knownSourceStanding(source, model, 'openpipestress.result_semantics/0.3.0/physics-source-1');

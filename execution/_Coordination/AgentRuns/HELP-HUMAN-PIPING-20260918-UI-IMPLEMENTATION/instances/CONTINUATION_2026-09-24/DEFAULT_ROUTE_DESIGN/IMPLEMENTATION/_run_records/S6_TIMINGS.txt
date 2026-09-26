@@ -1,0 +1,34 @@
+T0R S6 physicsSourceIntegration per-case timings (vitest JSON reporter, ms -> s)
+candidate 9ab46503d (worktree /home/user/wt/engine); base 45a5381c8 (sparse worktree /home/user/wt/t0r-base-ts,
+same node_modules, identical wasm engine assets: T0R changes no wasm engine source). Node /opt/node24, vitest 4.1.10.
+Order: base1, cand1, base2, cand2; one file at a time; no other vitest/cargo on the host (T1 light Python only).
+start base1  08:45:58 up  5:11,  0 user,  load average: 2.97, 3.00, 3.24
+end base1 exit 0  08:48:18 up  5:13,  0 user,  load average: 4.28, 3.59, 3.44
+start cand1  08:48:18 up  5:13,  0 user,  load average: 4.28, 3.59, 3.44
+end cand1 exit 0  08:50:37 up  5:16,  0 user,  load average: 2.74, 3.28, 3.34
+start base2  08:50:37 up  5:16,  0 user,  load average: 2.74, 3.28, 3.34
+end base2 exit 0  08:52:59 up  5:18,  0 user,  load average: 2.34, 3.06, 3.26
+start cand2  08:52:59 up  5:18,  0 user,  load average: 2.34, 3.06, 3.26
+end cand2 exit 0  08:55:12 up  5:20,  0 user,  load average: 1.34, 2.41, 2.98
+DONE
+
+passed: {'base1': 17, 'cand1': 17, 'base2': 17, 'cand2': 17}
+case                                                                                                   base1   base2   cand1   cand2  ratio
+n05 sparse_interactive binds actual input, Current gates and portable evidence                          6.76    6.18    6.22    6.06  0.949
+n05 dense_scrutiny binds actual input, Current gates and portable evidence                              6.31    5.80    5.87    5.79  0.962
+n06 sparse_interactive binds actual input, Current gates and portable evidence                          5.70    5.71    5.89    5.44  0.993
+n06 dense_scrutiny binds actual input, Current gates and portable evidence                              5.76    5.78    5.92    5.66  1.003
+mixed sparse_interactive binds actual input, Current gates and portable evidence                       16.29   16.05   15.59   15.70  0.968
+mixed dense_scrutiny binds actual input, Current gates and portable evidence                           16.46   17.52   15.88   15.51  0.924
+fields sparse_interactive binds actual input, Current gates and portable evidence                       5.94    6.21    5.78    5.61  0.937
+fields dense_scrutiny binds actual input, Current gates and portable evidence                           6.18    6.40    6.10    5.90  0.954
+n05_units sparse_interactive binds actual input, Current gates and portable evidence                    5.66    5.90    5.79    5.58  0.984
+n05_units dense_scrutiny binds actual input, Current gates and portable evidence                        5.94    6.14    5.71    5.96  0.966
+mixed_units sparse_interactive binds actual input, Current gates and portable evidence                 15.36   16.75   16.20   15.51  0.988
+mixed_units dense_scrutiny binds actual input, Current gates and portable evidence                     15.74   16.43   17.03   15.84  1.022
+n05_unicode sparse_interactive binds actual input, Current gates and portable evidence                  6.22    5.85    6.08    5.73  0.979
+n05_unicode dense_scrutiny binds actual input, Current gates and portable evidence                      6.27    6.36    6.47    5.76  0.968
+rejects rehashed analysis signatures that substitute ordinary and retained maxima                       0.53    0.51    0.57    0.48  1.002
+preserves UTF8 quoted identifier code points and refuses invalid encoding or record separators          3.43    3.38    3.53    3.33  1.006
+preserves signed-zero sidecars and rejects a coherently rehashed false sign against original source     5.39    5.42    5.40    5.29  0.989
+total mean base 135.2 s, candidate 131.6 s, ratio 0.974

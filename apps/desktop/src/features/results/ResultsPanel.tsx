@@ -1,5 +1,7 @@
 import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { sourceContract } from "./numericalResultQuality";
+import { KnownSemanticNotices } from "./KnownSemanticNotices";
+import { resultRowLabel } from "./knownSemanticLimitations";
 import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
 import { semanticFamily, semanticDimension, semanticCategory } from "./resultSemantics";
@@ -67,6 +69,10 @@ export function ResultsPanel({
     [filteredResults, pageIndex, pageSize]
   );
   const groups = result ? groupResults(page.items, result) : [];
+  // Dispatch once per render; the row labels apply to preview-physics-1 only.
+  const labelSource = useMemo(() => {
+    try { return result && sourceContract(result) === "preview_physics" ? result : null; } catch { return null; }
+  }, [result]);
   const interpretation = result
     ? buildResultInterpretation({ result, resultId: selectedResultId, knowledge, analysisRun })
     : null;
@@ -98,6 +104,7 @@ export function ResultsPanel({
       {result ? (
         <>
           <p data-testid="numerical-result-standing">{sourceContract(result) === "legacy" ? "Historical precision: absolute rounding; integrity not assessed. Needs recompute." : sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : ["source_blocks", "physics_source"].includes(sourceContract(result)) ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
+          <KnownSemanticNotices result={result} testIdPrefix="results" />
           <PhysicsSourceEvidencePanel result={result} />
           <ResultControls
             familyCounts={familyCounts}
@@ -152,7 +159,7 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}<small> {semanticCategory(item, result)}</small></td>
+                          <td>{item.id}<small> {semanticCategory(item, result)}</small>{labelSource && resultRowLabel(item, labelSource) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource)}</small> : null}</td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>

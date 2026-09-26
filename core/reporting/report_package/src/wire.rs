@@ -653,10 +653,44 @@ pub struct LinkedSolverIdentity<'a> {
     pub solver_build_ref: &'a str,
 }
 
+/// T0R: the owner accepted that no fresh result is report-package eligible until
+/// T6. The desktop refuses before building a request; this boundary refuses the
+/// same thing again, from content, because the wire carries no semantic identity.
+pub const FRESH_RESULT_UNAVAILABLE: &str = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results until T6 (owner-accepted outage).";
+
+/// Metadata tokens that only fresh result semantics (preview-physics-1,
+/// physics-1 and their source forms) publish; historical rows never carry them.
+fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
+    matches!(
+        metadata.basis.as_str(),
+        "recovered_from_assembled_support_law"
+            | "nominal_straight_beam_formula_on_arc_resultants"
+            | "user_sif_times_member_section_bending_stress_v1"
+            | "retained_source_endpoint_normal_max_v1"
+    ) || matches!(
+        metadata.component.as_str(),
+        "Fx" | "Fy" | "Fz" | "Mx" | "My" | "Mz"
+            | "force_magnitude"
+            | "moment_magnitude"
+            | "maximum_absolute_normal_stress"
+            | "equal_factor_intensified_bending_stress"
+    ) || metadata.coordinate_system == "arc_chord_frame"
+        || metadata.location == "governing_station"
+}
+
 pub fn assemble_wire_request(
     request: ReportPackageRequest,
     linked_solver: &LinkedSolverIdentity<'_>,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
+    if request.result_envelopes.iter().any(|envelope| {
+        envelope.result_sets.iter().any(|set| {
+            set.values
+                .iter()
+                .any(|value| value.metadata.as_ref().is_some_and(fresh_semantics_metadata))
+        })
+    }) {
+        return Err(FRESH_RESULT_UNAVAILABLE.to_string());
+    }
     if request.rule_check_aggregate.is_some()
         || request.solve_rule_check_status != "RULE_INPUTS_INCOMPLETE"
     {
@@ -842,6 +876,35 @@ mod tests {
             assert!(require_sha256_hex("test", &invalid)
                 .expect_err("malformed SHA-256 must block")
                 .contains("REPORT-PACKAGE-SHA256-INVALID"));
+        }
+    }
+
+    #[test]
+    fn fresh_result_rows_are_refused_until_t6() {
+        let witness = request_with_component_provenance_projection();
+        let values = witness
+            .pointer("/result_envelopes/0/result_sets/0/values")
+            .and_then(|v| v.as_array())
+            .expect("witness result values");
+        assert!(!values.is_empty());
+        // Control: the historical witness still assembles past this gate.
+        let request: ReportPackageRequest = serde_json::from_value(witness.clone()).unwrap();
+        let control = assemble_wire_request(request, &linked_product_solver());
+        assert!(control.as_ref().err().is_none_or(|e| !e.starts_with("REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE")));
+        for (field, token) in [
+            ("basis", "recovered_from_assembled_support_law"),
+            ("component", "maximum_absolute_normal_stress"),
+            ("component", "equal_factor_intensified_bending_stress"),
+            ("coordinate_system", "arc_chord_frame"),
+            ("location", "governing_station"),
+        ] {
+            let mut fresh = witness.clone();
+            let value = fresh.pointer_mut("/result_envelopes/0/result_sets/0/values/0").unwrap();
+            value["metadata"] = serde_json::json!({"component":"axial_force","coordinate_system":"element_local","location":"end_i","basis":"recovered_from_local_element_stiffness","sign_convention":"t0r"});
+            value["metadata"][field] = serde_json::json!(token);
+            let request: ReportPackageRequest = serde_json::from_value(fresh).unwrap();
+            let refused = assemble_wire_request(request, &linked_product_solver()).err().expect("refused");
+            assert_eq!(refused, FRESH_RESULT_UNAVAILABLE, "{field}={token}");
         }
     }
 

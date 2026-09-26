@@ -18,16 +18,20 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 const invokeMock = vi.mocked(invoke);
+import sourceBlocksMulticase from "../../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
+import previewInvented from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
+import { N_RULE_RETIRED, N_SB } from "../results/knownSemanticLimitations";
 
 // A natively invoked, numerically eligible source as the rule service requires:
-// the captured precision producer pair (the pair App.test.tsx uses for Current)
+// the captured preview-physics-1 producer pair (T0R: precision-1 is historical,
+// never rule-eligible)
 // is replayed through mocked IPC and registered only by the production private
 // IPC route. The mock is reset afterwards, so each test's own invoke mock sees
 // the panel's calls only.
 async function nativeSolvedBasis(mode: PreviewSolverMode = "sparse_interactive") {
-  const pair = nativeMechanicsReplayPair(mode, { profile: "precision" });
+  const pair = nativeMechanicsReplayPair(mode, { profile: "preview" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "precision" }).invoke);
+  invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "preview" }).invoke);
   const result = await runPreviewMechanics(pair.model, mode);
   expect(hasNativeMechanicsInvocation(result, pair.model, mode)).toBe(true);
   expect(numericalResultStanding(result, pair.model).eligible).toBe(true);
@@ -293,6 +297,20 @@ describe("RuleCheckRunPanel", () => {
     const browse = screen.getByTestId("rule-check-solver-browse-actual");
     expect(browse.textContent).toContain("result:stress:demo (referenced)");
     expect(browse.textContent).toContain("stress: 50 demo_unit");
+  });
+
+  it("shows the T0R binding reasons before invoking: N-SB on a source-blocks summary, N-RULE-RETIRED on a retired id", () => {
+    const pack = (resultId: string) => JSON.stringify({ metadata: { rule_pack_id: "p" }, required_inputs: [{ input_id: "actual", name: "Actual", source_kind: "solver_result", quantity_intent: { dimension: "stress", unit_ref: "MPa" }, solver_result_ref: { result_id: resultId } }] });
+    const blocks = structuredClone(sourceBlocksMulticase) as unknown as MechanicsResult;
+    const summary = blocks.results.find((row) => row.kind === "open_formula_stress_summary")!;
+    const first = render(<RuleCheckRunPanel model={modelStub} result={blocks} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: pack(summary.id) } });
+    expect(screen.getByTestId("rule-check-binding-precheck").textContent).toContain(`actual -> ${summary.id}: RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE. ${N_SB}`);
+    first.unmount();
+    render(<RuleCheckRunPanel model={modelStub} result={structuredClone(previewInvented) as unknown as MechanicsResult} />);
+    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: pack("result:stress:pipe-P-120") } });
+    expect(screen.getByTestId("rule-check-binding-precheck").textContent).toContain(N_RULE_RETIRED);
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 
   it("reports a missing authored solver_result_ref without inventing a fallback binding", async () => {

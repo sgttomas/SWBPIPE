@@ -1,6 +1,7 @@
 import { retainedPhysicsSourceInvocation } from "../features/results/physicsSourceRecovery";
 import { retainedSourceBlockInvocation } from "../features/results/sourceBlockRecovery";
 import { sourceContract, numericalResultStanding } from "../features/results/numericalResultQuality";
+import { isFreshSemanticResult, isRetiredResultId, ruleBindingRefusal, standingReason, N_P1, N_RULE_RETIRED, N_SB, PRECISION_1_HISTORICAL_SEMANTICS, RULE_BINDS_RETIRED_RESULT } from "../features/results/knownSemanticLimitations";
 import { invoke } from "@tauri-apps/api/core";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument } from "./rulePackService";
@@ -118,6 +119,8 @@ export async function runRuleChecks(args: {
   if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
   const source = args.solvedEnvelope ?? await runPreviewMechanics(args.model);
   if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
+  // T0R: only the static fresh-identity set is rule-eligible; precision-1 is historical.
+  if (!isFreshSemanticResult(source)) throw new Error(standingReason(source) === PRECISION_1_HISTORICAL_SEMANTICS ? `${PRECISION_1_HISTORICAL_SEMANTICS}: ${N_P1}` : "RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
   if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
   if (sourceContract(source) === "source_blocks") invokeArgs.sourceBlockInvocation = retainedSourceBlockInvocation(source, args.model);
@@ -297,4 +300,35 @@ export function classifySolverResultReference(
 ): SolverResultReferenceResolution {
   if (!resultRows || resultRows.length === 0) return "no_result_rows";
   return resultRows.some((row) => row.id === resultId) ? "resolves" : "result_missing";
+}
+
+// --- Binding pre-check (T0R, mirrors result_export::semantic_contract::rule_binding_refusal) ---
+// Display only: the backend enforces the refusal and reports RULE_INPUTS_INCOMPLETE
+// with the reason. The UI shows the reason before invoking; nothing here passes a check.
+export type RuleBindingPrecheckFinding = { input_id: string; result_id: string; reason: string; notice: string };
+
+export function ruleBindingPrecheck(
+  source: MechanicsResult | null | undefined,
+  plan: RuleCheckBindingPlan | null | undefined,
+  solverResultBindings: SolverResultSelector[] = []
+): RuleBindingPrecheckFinding[] {
+  if (!source || !plan) return [];
+  const bindings: SolverResultSelector[] = [
+    ...plan.solverInputs.flatMap((input) => input.solver_result_ref ? [{ input_id: input.input_id, result_id: input.solver_result_ref.result_id }] : []),
+    ...solverResultBindings.filter((b) => !plan.solverInputs.some((input) => input.input_id === b.input_id && input.solver_result_ref))
+  ];
+  let route: ReturnType<typeof sourceContract>;
+  try { route = sourceContract(source); } catch { return []; }
+  const findings: RuleBindingPrecheckFinding[] = [];
+  for (const binding of bindings) {
+    if (!binding.result_id) continue;
+    const row = source.results.find((candidate) => candidate.id === binding.result_id);
+    if (row) {
+      const reason = ruleBindingRefusal(source, row);
+      if (reason) findings.push({ ...binding, reason, notice: N_SB });
+    } else if (route === "preview_physics" && isRetiredResultId(binding.result_id)) {
+      findings.push({ ...binding, reason: RULE_BINDS_RETIRED_RESULT, notice: N_RULE_RETIRED });
+    }
+  }
+  return findings;
 }

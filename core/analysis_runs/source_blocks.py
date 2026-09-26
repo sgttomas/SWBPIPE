@@ -447,6 +447,25 @@ def _required_affine_rows(case: Mapping[str, Any], raw: dict[str, Any], model: M
                 _require(sum(r["entity_ref"] == node["id"] and r["kind"] == kind for r in projected) == 1, "NODAL_PRIMARY_COVERAGE")
 
 
+def ordinary_case_legacy_semantics(source: Mapping[str, Any]) -> bool:
+    """Whether a non-composite source-blocks-1 receipt selected an ordinary case.
+
+    Such a case keeps the retired precision-1 row semantics (norm-only
+    reactions, absolute-sum stress summary), so the envelope is not Current
+    until T3 (standing reason SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS).
+    Derived from the retained receipt only; the composite physics-source-1
+    identity carries ordinary cases under physics-1 semantics and never uses it.
+    """
+    producer = source.get("producer") if isinstance(source, Mapping) else None
+    if not isinstance(producer, Mapping) or producer.get("semantic_contract_id") != CONTRACT_ID:
+        return False
+    receipt = source.get("source_block_recovery")
+    cases = receipt.get("body", {}).get("cases") if isinstance(receipt, Mapping) and isinstance(receipt.get("body"), Mapping) else None
+    if not isinstance(cases, list):
+        return False
+    return any(isinstance(case, Mapping) and case.get("outcome") == "qualified" and case.get("selected_method") != EXACT for case in cases)
+
+
 def validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None = None) -> bool:
     try:
         return _validate_source_blocks(source, actual_invocation)

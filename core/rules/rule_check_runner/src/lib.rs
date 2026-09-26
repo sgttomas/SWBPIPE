@@ -89,6 +89,15 @@ pub struct SolverResultBinding {
     pub unit: String,
 }
 
+/// A `solver_result` input the caller refused to bind, with the refusal reason
+/// (T0R: `result_export::semantic_contract::rule_binding_refusal`). The runner
+/// reports the input as `RULE_INPUTS_INCOMPLETE` with the reason, never a pass.
+#[derive(Debug, Clone, Serialize)]
+pub struct RefusedSolverResult {
+    pub input_id: String,
+    pub reason: String,
+}
+
 /// One user-entered value for a `user_supplied_rule_value` required input or a
 /// `value_slot` limit. `dimension` is the snake_case dimension token (e.g.
 /// `"dimensionless"`, `"stress"`).
@@ -126,6 +135,8 @@ pub struct RuleCheckRunInput<'a> {
     /// references) but does not re-validate the checksum or lifecycle.
     pub rule_pack_document: &'a Value,
     pub solver_results: Vec<SolverResultBinding>,
+    /// Solver-result inputs refused at the binding site; empty when none were.
+    pub refused_solver_results: Vec<RefusedSolverResult>,
     pub supplied_values: Vec<SuppliedValueBinding>,
     /// Values resolved from saved private libraries for `private_library_value`
     /// required inputs (caller-resolved from the local store).
@@ -256,6 +267,11 @@ pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
             .iter()
             .map(|b| (b.input_id.as_str(), b))
             .collect(),
+        refused_by_input: input
+            .refused_solver_results
+            .iter()
+            .map(|r| (r.input_id.as_str(), r))
+            .collect(),
         supplied_by_ref: input
             .supplied_values
             .iter()
@@ -307,6 +323,7 @@ struct RunContext<'a> {
     value_slot_index: HashMap<&'a str, &'a Value>,
     formula_index: HashMap<&'a str, &'a Value>,
     solver_by_input: HashMap<&'a str, &'a SolverResultBinding>,
+    refused_by_input: HashMap<&'a str, &'a RefusedSolverResult>,
     supplied_by_ref: HashMap<&'a str, &'a SuppliedValueBinding>,
     library_by_input: HashMap<&'a str, &'a LibraryValueBinding>,
     current_statuses: &'a [AnalysisStatus],
@@ -431,7 +448,29 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         });
 
         // Resolve the supplied value per source kind.
+        let refused = match source_kind {
+            SourceKind::SolverResult => ctx.refused_by_input.get(ref_id).copied(),
+            _ => None,
+        };
+        if let Some(refusal) = refused {
+            completeness_findings.push(RunFinding {
+                code: refusal.reason.clone(),
+                severity: "blocking".to_string(),
+                subject_id: ref_id.to_string(),
+                message: format!(
+                    "solver result refused for rule binding ({}); the input is treated as unsupplied",
+                    refusal.reason
+                ),
+            });
+        }
         let (raw_value, raw_unit, result_id, binding_source, note) = match source_kind {
+            SourceKind::SolverResult if refused.is_some() => (
+                None,
+                None,
+                None,
+                BindingSource::SolverResultField,
+                refused.map(|r| format!("refused: {}", r.reason)),
+            ),
             SourceKind::SolverResult => match ctx.solver_by_input.get(ref_id) {
                 Some(b) => (
                     Some(b.value),
@@ -1333,6 +1372,7 @@ mod tests {
         run_rule_checks(&RuleCheckRunInput {
             rule_pack_document: pack,
             solver_results,
+            refused_solver_results: Vec::new(),
             supplied_values,
             library_values,
             current_statuses: vec![AnalysisStatus::MechanicsSolved],
@@ -1389,6 +1429,43 @@ mod tests {
         let check = &result.checks[0];
         assert_eq!(check.status, RuleCheckStatus::UserRuleFailed);
         assert_eq!(check.computed_value.as_ref().expect("ratio").value, 1.5);
+    }
+
+    #[test]
+    fn refused_solver_input_reports_incomplete_with_reason_never_a_pass() {
+        let pack = demo_pack();
+        let supplied_values = vec![
+            supplied("limit", 100.0, "demo_unit", "stress"),
+            supplied("ratio_limit", 1.0, "ratio", "dimensionless"),
+        ];
+        // Control: the same binding passes when it is not refused.
+        let control = run(&pack, vec![solver("actual", 50.0)], supplied_values.clone());
+        assert_eq!(control.aggregate_status, RuleCheckStatus::UserRuleChecked);
+        // Even a caller-supplied value cannot rescue a refused input.
+        let result = run_rule_checks(&RuleCheckRunInput {
+            rule_pack_document: &pack,
+            solver_results: vec![solver("actual", 50.0)],
+            refused_solver_results: vec![RefusedSolverResult {
+                input_id: "actual".to_string(),
+                reason: "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE".to_string(),
+            }],
+            supplied_values,
+            library_values: Vec::new(),
+            current_statuses: vec![AnalysisStatus::MechanicsSolved],
+        });
+        assert_eq!(result.aggregate_status, RuleCheckStatus::RuleInputsIncomplete);
+        let check = &result.checks[0];
+        assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
+        assert!(check.computed_value.is_none());
+        assert!(check.completeness_findings.iter().any(|f| f.code
+            == "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
+            && f.severity == "blocking"
+            && f.subject_id == "actual"));
+        let bound = check.bound_inputs.iter().find(|b| b.input_id == "actual").unwrap();
+        assert!(!bound.supplied);
+        assert_eq!(bound.note.as_deref(), Some("refused: RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"));
+        let wire = serde_json::to_value(&result).unwrap();
+        assert!(wire.to_string().contains("RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"));
     }
 
     #[test]

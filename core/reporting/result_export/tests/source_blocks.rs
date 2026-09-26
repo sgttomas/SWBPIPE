@@ -445,3 +445,146 @@ fn actual_pre_repair_producer_stress_range_packets_are_refused_unchanged() {
         );
     }
 }
+
+/// T0R: a received all-selected envelope plus one synthetic ordinary case,
+/// resealed in memory. The frozen raw bytes are untouched. Before T0R this
+/// statement qualified; its ordinary case keeps precision-1 row semantics.
+fn selected_plus_ordinary(source: &Value, context: &Value) -> (Value, Value, Vec<Value>) {
+    let mut source = source.clone();
+    let mut context = context.clone();
+    let mode = context["solver_mode"].as_str().unwrap().to_owned();
+    let case_id = "case:t0r-ordinary";
+    let mut model_case = context["request"]["model"]["load_cases"][0].clone();
+    model_case["id"] = json!(case_id);
+    model_case["primitive_loads"] = json!([]);
+    context["request"]["model"]["load_cases"]
+        .as_array_mut()
+        .unwrap()
+        .push(model_case);
+    let basis = json!({"ref_type":"load_case","ref_id":case_id});
+    let report = format!("diagnostic:numerical-integrity:{case_id}");
+    let mut row = source["results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|r| r["kind"] == "global_nodal_displacement_x")
+        .unwrap()
+        .clone();
+    row["id"] = json!(format!("result:loadcase:{case_id}:disp:ux"));
+    row["basis_ref"] = basis.clone();
+    row["value"] = json!(0.0);
+    source["results"].as_array_mut().unwrap().push(row.clone());
+    source["diagnostics"].as_array_mut().unwrap().push(json!({"id":report,"code":"NUMERICAL_INTEGRITY_CHECKS_PASSED","severity":"info","message":"synthetic ordinary control","source":"core/product_physics","affected_refs":[case_id]}));
+    let quality_index = source["numerical_quality"]["cases"].as_array().unwrap().len();
+    source["numerical_quality"]["cases"].as_array_mut().unwrap().push(json!({"basis_ref":basis,"structural_status":"passive_model_basis","solve_quality":"checks_passed","model_matrix_fidelity":"represented_equations_retained","accuracy_evidence":"not_claimed","evidence_refs":[report]}));
+    source["summary"]["load_case_count"] = json!(quality_index + 1);
+    let method = if mode == "dense_scrutiny" {
+        "ordinary_dense_structural_v1"
+    } else {
+        "ordinary_sparse_structural_v1"
+    };
+    source["source_block_recovery"]["body"]["cases"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"basis_ref":basis,"failure":null,"ordinary_attempt":{"failure":null,"outcome":"checks_passed","quality_case_index":quality_index,"requested_mode":mode,"structural_report_diagnostic_ref":report},"outcome":"qualified","projections":[],"requested_mode":mode,"rows":[{"input_result_ids":[],"projection_id":null,"recipe_id":null,"result_id":row["id"],"treatment":"ordinary_checked"}],"selected_method":method,"source":null,"supports":[],"work":{"charged":0,"limit":0,"rejected_reservation":{"amount":0,"kind":"finite"},"reserved_unobserved_failure":0}}));
+    seal(&mut source, &context);
+    let bases = context["request"]["model"]["load_cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|case| json!({"ref_type":"load_case","ref_id":case["id"]}))
+        .collect();
+    (source, context, bases)
+}
+
+#[test]
+fn selected_plus_ordinary_source_blocks_needs_recompute_with_reason() {
+    for (name, source, context) in received_artifacts() {
+        let (mixed, context, bases) = selected_plus_ordinary(&source, &context);
+        // The statement is internally valid and would have qualified before T0R.
+        assert_eq!(source_blocks::validate(&mixed, Some(&context)), Ok(true), "{name}");
+        assert!(semantic_contract::for_source(&mixed).is_ok(), "{name}");
+        assert!(source_blocks::has_ordinary_qualified_case(&mixed));
+        assert_eq!(
+            semantic_contract::standing_reason(&mixed),
+            Some(semantic_contract::SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS),
+            "{name}"
+        );
+        assert_eq!(
+            semantic_contract::numerical_use_standing_with_context(&mixed, &bases, Some(&context)),
+            "needs_recompute",
+            "{name}"
+        );
+        // The unmodified all-selected received envelope keeps its standing.
+        assert!(!source_blocks::has_ordinary_qualified_case(&source));
+        assert_eq!(semantic_contract::standing_reason(&source), None, "{name}");
+    }
+}
+
+#[test]
+fn physics_source_ordinary_cases_stay_admitted() {
+    let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../fixtures/product_preview/physics_source");
+    for mode in ["dense_scrutiny", "sparse_interactive"] {
+        let read = |file: String| -> Value {
+            serde_json::from_str(&std::fs::read_to_string(directory.join(file)).unwrap()).unwrap()
+        };
+        let source = read(format!("mixed-{mode}.raw.json"));
+        let request = read("mixed.request.json".into());
+        assert!(source["source_block_recovery"]["body"]["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|c| c["outcome"] == "qualified"
+                && c["selected_method"] != "retained_source_blocks_exact_v1"));
+        assert!(!source_blocks::has_ordinary_qualified_case(&source));
+        assert_eq!(semantic_contract::standing_reason(&source), None);
+        let bases = request["model"]["load_cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|case| json!({"ref_type":"load_case","ref_id":case["id"]}))
+            .collect::<Vec<_>>();
+        let context = json!({"request":request,"solver_mode":mode});
+        assert_eq!(
+            semantic_contract::numerical_use_standing_with_context(&source, &bases, Some(&context)),
+            "numerically_eligible",
+            "{mode}"
+        );
+    }
+}
+
+#[test]
+fn rule_binding_refuses_only_the_all_selected_summary() {
+    for (name, source, _) in received_artifacts() {
+        let headline = source["summary"]["max_open_formula_stress"]["result_ref"]
+            .as_str()
+            .unwrap()
+            .to_owned();
+        let mut refused = 0;
+        for row in source["results"].as_array().unwrap() {
+            let expected = (row["kind"] == "open_formula_stress_summary" || row["id"] == headline.as_str())
+                .then_some(semantic_contract::RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE);
+            assert_eq!(semantic_contract::rule_binding_refusal(&source, row), expected, "{name}");
+            refused += usize::from(expected.is_some());
+        }
+        assert!(refused >= 1, "{name}");
+        let force = source["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["kind"] == "element_local_axial_force")
+            .unwrap();
+        assert_eq!(semantic_contract::rule_binding_refusal(&source, force), None);
+        // physics-source-1 (composite) and other identities are never refused here.
+        let mut composite = source.clone();
+        composite["producer"]["semantic_contract_id"] = json!(semantic_contract::PHYSICS_SOURCE_ID);
+        let summary_row = source["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["id"] == headline.as_str())
+            .unwrap();
+        assert_eq!(semantic_contract::rule_binding_refusal(&composite, summary_row), None);
+    }
+}

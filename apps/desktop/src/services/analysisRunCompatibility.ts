@@ -1,5 +1,6 @@
 import { validatePhysicsSourceTransportMetadata } from "../features/results/physicsSourceRecovery";
 import { validatePhysicsEvidence } from "../features/results/physicsResultEvidence";
+import { validatePreviewPhysicsEvidence } from "../features/results/previewPhysicsEvidence";
 import { semanticContractForSource, semanticSourceBasisMatches } from "../features/results/resultSemantics";
 import { sourceContract, sourceSemanticBinding, hasCurrentSourceContract } from "../features/results/numericalResultQuality";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
@@ -73,10 +74,12 @@ export async function buildAnalysisRunV02(result: MechanicsResult, inputManifest
 }
 export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as "precision" | "physics" | "source_blocks" | "physics_source", ruleCheckStatus, loadBasisRefs);
+  return buildAnalysisRecord(result, inputManifest, sourceContract(result) as "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics", ruleCheckStatus, loadBasisRefs);
 }
-async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | "precision" | "physics" | "source_blocks" | "physics_source", ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
+async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: "legacy" | "precision" | "physics" | "source_blocks" | "physics_source" | "preview_physics", ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (sourceContract(result) === "physics") validatePhysicsEvidence(result);
+  // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
+  if (sourceContract(result) === "preview_physics") validatePreviewPhysicsEvidence(result);
   if (route === "source_blocks" || route === "physics_source") await validateRetainedRecoverySource(result);
   if (route !== "legacy") { validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs); }
   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
@@ -149,6 +152,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   };
   if (!hasCurrentSourceContract(source) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   if (sourceContract(source) === "physics") validatePhysicsEvidence(source);
+  if (sourceContract(source) === "preview_physics") validatePreviewPhysicsEvidence(source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
   if (["source_blocks", "physics_source"].includes(sourceContract(source))) {

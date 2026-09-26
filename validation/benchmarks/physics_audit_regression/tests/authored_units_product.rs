@@ -85,7 +85,8 @@ fn check_thermal(project_unit: &str, load_unit: &str, delta: f64, engineering_un
         let root = out
             .results
             .iter()
-            .find(|r| r.entity_ref == "support:anchor" && r.kind == "reaction_resultant")
+            // T0R: the signed support force magnitude replaces the retired norm row.
+            .find(|r| r.entity_ref == "support:anchor" && r.kind == "support_reaction_force_magnitude_v2")
             .unwrap();
         assert_eq!(root.unit, "N");
         assert!(

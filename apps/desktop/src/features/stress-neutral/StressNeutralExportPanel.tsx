@@ -1,8 +1,10 @@
+import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { validatePhysicsSourceTransportMetadata } from "../results/physicsSourceRecovery";
 import { sourceBlockReceiptShape } from "../results/sourceBlockRecovery";
 import { validatePhysicsTransportMetadata } from "../results/physicsResultEvidence";
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
+import { validatePreviewPhysicsTransportMetadata } from "../results/previewPhysicsEvidence";
 import { sourceContract, numericalResultStanding, currentSemanticContract, hasCurrentSourceContract } from "../results/numericalResultQuality";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
@@ -127,6 +129,7 @@ export function StressNeutralExportPanel({
         <FileJson size={16} aria-hidden="true" />
         Stress-neutral CSV/JSON
       </div>
+      <KnownSemanticNotices result={result} testIdPrefix="stress-neutral" />
       {currentPacket ? (
         <>
           <div className="report-actions" onClickCapture={(event) => {
@@ -393,7 +396,7 @@ function buildStressNeutralExportPacketV01({
 const STRICT_MEMBER_NAMES = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"] as const;
 
 function usesUtf8Csv(source: MechanicsResult): boolean {
-  return ["source_blocks", "physics", "physics_source"].includes(sourceContract(source));
+  return ["source_blocks", "physics", "physics_source", "preview_physics"].includes(sourceContract(source));
 }
 function validUtf8Text(text: string): boolean {
   // TextEncoder alone replaces unpaired surrogates. A strict round trip refuses
@@ -486,7 +489,10 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
   let sourceCarrierChecksum;
   if (precision) {
     if (route === "source_blocks" || route === "physics_source") await validateRetainedRecoverySource(args.result);
-    else if (!numericalResultStanding(args.result, args.model).eligible) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+    // Pure packet projection: a readable precision-1 reference keeps its historical
+    // projection (T0R standing reason only); Current export stays gated by the panel's
+    // live binding, which requires full eligibility.
+    else if (numericalResultStanding(args.result, args.model).findings.some(finding => finding !== "PRECISION_1_HISTORICAL_SEMANTICS")) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
     if (args.analysisRun.schema_version !== "0.3.0" || args.analysisRun.analysis_run.run_id !== args.result.run_id || args.model.project.id !== args.result.model_ref
       || args.analysisRun.analysis_run.solver_version?.solver_name !== args.result.producer!.component_name
       || args.analysisRun.analysis_run.solver_version?.solver_version !== args.result.producer!.component_version
@@ -572,7 +578,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     },
   };
   if (route === "source_blocks" || route === "physics_source") packet.source_block_recovery = structuredClone(args.result.source_block_recovery);
-  if (route === "physics" || route === "physics_source") packet.contract_evidence = structuredClone(args.result.contract_evidence);
+  if (route === "physics" || route === "physics_source" || route === "preview_physics") packet.contract_evidence = structuredClone(args.result.contract_evidence);
   if (precision && route !== "precision") packet.source_annotations = await retainedSourceAnnotations(args.result);
   if (utf8) Object.assign(packet.export_profile, { csv_encoding: 'utf-8', csv_row_order: 'unicode_scalar_value_result_id' });
   if (precision) Object.assign(packet, {
@@ -615,7 +621,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     if (["source_blocks", "physics_source"].includes(sourceContract(source))) {
       if (!await same(packet.source_block_recovery, source.source_block_recovery)) throw new Error("SN-SOURCE-RECOVERY-MISMATCH");
     } else if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
-    if (["physics", "physics_source"].includes(sourceContract(source))) {
+    if (["physics", "physics_source", "preview_physics"].includes(sourceContract(source))) {
       if (!await same(packet.contract_evidence, source.contract_evidence)) throw new Error("SN-PHYSICAL-EVIDENCE-MISMATCH");
     } else if (Object.hasOwn(packet, "contract_evidence")) throw new Error("SN-PHYSICAL-EVIDENCE-CONTRADICTION");
     if (sourceContract(source) !== "precision" && !await same(packet.source_annotations, await retainedSourceAnnotations(source))) throw new Error("SN-SOURCE-ANNOTATION-BINDING-MISMATCH");
@@ -1042,13 +1048,14 @@ import { ControlledExportLink } from "../redaction-controls/ControlledExportLink
 
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
-  const paths = { legacy: "semantic_contract_v0_2.json", precision: "semantic_contract_v0_3_precision_1.json", physics: "semantic_contract_v0_3_physics_1.json", source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json" };
+  const paths = { legacy: "semantic_contract_v0_2.json", precision: "semantic_contract_v0_3_precision_1.json", physics: "semantic_contract_v0_3_physics_1.json", source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json", preview_physics: "semantic_contract_v0_3_preview_physics_1.json" };
   if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   return `fixtures/results/${paths[route]}`;
 }
 async function validateNeutralTransportEvidence(header: MechanicsResult): Promise<void> {
   const route = sourceContract(header);
   if (route === "physics") validatePhysicsTransportMetadata(header.contract_evidence);
+  else if (route === "preview_physics") validatePreviewPhysicsTransportMetadata(header);
   else if (route === "physics_source") await validatePhysicsSourceTransportMetadata(header);
   else if (route === "source_blocks") {
     const receipt = header.source_block_recovery as { body: unknown; receipt_sha256: string };

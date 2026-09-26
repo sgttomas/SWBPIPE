@@ -89,10 +89,11 @@ it('rejects duplicate missing path checksum metadata member divergence and packa
 
 // Native IPC simulation only; these exact two modes were emitted from the
 // maintained ordinary input. Neither old legacy rows nor run IDs are rewritten.
+// T0R: the fresh ordinary route is preview-physics-1; precision-1 is never Current.
 async function currentPrecision(mode: "sparse_interactive" | "dense_scrutiny" = "sparse_interactive") {
- const {model}=nativeMechanicsReplayPair(mode,{profile:"precision"});
+ const {model}=nativeMechanicsReplayPair(mode,{profile:"preview"});
  (window as any).__TAURI_INTERNALS__={};
- vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay({profile:"precision"}).invoke);
+ vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay({profile:"preview"}).invoke);
  const result=await runPreviewMechanics(model,mode);
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'unit-transport-replay',solver_mode:mode,settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
@@ -360,4 +361,15 @@ it.each(['json','csv'] as const)('rechecks source and analysis contents at %s ac
   expect(fireEvent.click(link)).toBe(false);expect(saveNativeResultJson).not.toHaveBeenCalled();
   expect(view.queryByTestId(id)).toBeNull();view.unmount();
  }
+});
+
+it('packages a registered preview-physics-1 result with its closed evidence and no UI notice text (N-A)',async()=>{
+ const props=await currentPrecision();
+ expect(props.result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-1');
+ const packet=await buildStressNeutralExportPacket(props);
+ expect(packet.contract_evidence).toEqual(props.result.contract_evidence);
+ expect(packet.semantic_contract.id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-1');
+ expect(packet.export_profile.csv_encoding).toBe('utf-8');
+ expect(JSON.stringify(packet.manifest)).not.toMatch(/maximum elastic normal stress; nominal|Rule checks cannot bind|Historical precision-1/);
+ await expect(validateStressNeutralExportPacket(packet,props.result,props.analysisRun)).resolves.toBeUndefined();
 });
