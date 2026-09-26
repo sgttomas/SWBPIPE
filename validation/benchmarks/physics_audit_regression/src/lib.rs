@@ -103,7 +103,9 @@ mod tests {
             | "global_nodal_displacement_y"
             | "displacement_magnitude"
             | "nonlinear_support_final_displacement" => "mm",
-            "reaction_resultant"
+            // T0R: the force-norm reaction row is retired; its successor is
+            // the magnitude of the signed support-on-pipe force components.
+            "support_reaction_force_magnitude_v2"
             | "nonlinear_support_final_reaction"
             | "element_local_axial_force"
             | "element_local_shear_force_y" => "N",
@@ -127,6 +129,16 @@ mod tests {
         let found = rows(out, entity, kind, case);
         assert_eq!(found.len(), 1, "missing/ambiguous {entity} {kind} {case}");
         checked_value(found[0])
+    }
+    /// Signed support-on-pipe component (preview-physics-1), with its unit checked.
+    fn support_component(out: &MechanicsEnvelope, entity: &str, component: &str, case: &str) -> f64 {
+        let found: Vec<_> = rows(out, entity, "support_reaction_component_v2", case)
+            .into_iter()
+            .filter(|r| r.metadata.as_ref().is_some_and(|m| m.component == component))
+            .collect();
+        assert_eq!(found.len(), 1, "missing/ambiguous {entity} {component} {case}");
+        assert_eq!(found[0].unit, if component.starts_with('F') { "N" } else { "N*m" });
+        found[0].value
     }
     fn station(out: &MechanicsEnvelope, kind: &str, location: &str, case: &str) -> f64 {
         let found: Vec<_> = rows(out, "pipe:beam", kind, case)
@@ -157,7 +169,7 @@ mod tests {
                 point_tip_mm(350.0),
             );
             close(
-                scalar(&out, "support:root", "reaction_resultant", "P"),
+                scalar(&out, "support:root", "support_reaction_force_magnitude_v2", "P"),
                 350.0,
             );
             close(
@@ -181,7 +193,14 @@ mod tests {
     fn pure_moment_does_not_become_force() {
         for mode in MODES {
             let out = solve(model(nodal_case("M", "RZ", 100.0, "moment", "N*m")), mode);
-            close(scalar(&out, "support:root", "reaction_resultant", "M"), 0.0);
+            // Correct physics kept (R-3): a pure couple creates no support force.
+            close(scalar(&out, "support:root", "support_reaction_force_magnitude_v2", "M"), 0.0);
+            // T0R (M05): the support moment is now published, signed
+            // support-on-pipe: Mz = -100 N*m balances the applied +100 N*m.
+            close(support_component(&out, "support:root", "Mz", "M"), -100.0);
+            for component in ["Fx", "Fy", "Fz", "Mx", "My"] {
+                close(support_component(&out, "support:root", component, "M"), 0.0);
+            }
             close(
                 station(&out, "element_local_bending_moment_z", "midspan", "M").abs(),
                 100.0,
@@ -201,11 +220,11 @@ mod tests {
                 1000.0 * u,
             );
             close(
-                scalar(&out, "support:spring", "reaction_resultant", "S"),
+                scalar(&out, "support:spring", "support_reaction_force_magnitude_v2", "S"),
                 1e6 * u,
             );
             close(
-                scalar(&out, "support:root", "reaction_resultant", "S"),
+                scalar(&out, "support:root", "support_reaction_force_magnitude_v2", "S"),
                 350.0 - 1e6 * u,
             );
             close(
@@ -333,7 +352,7 @@ mod tests {
                 close(scalar(&out, "node:tip", kind, "SUM"), 0.0);
             }
             close(
-                scalar(&out, "support:root", "reaction_resultant", "SUM"),
+                scalar(&out, "support:root", "support_reaction_force_magnitude_v2", "SUM"),
                 0.0,
             );
         }
@@ -410,7 +429,7 @@ mod tests {
                 1000.0 * 100.0 * 2.0_f64.powi(4) / (8.0 * 200e9 * section_i()),
             );
             close(
-                scalar(&out, "support:root", "reaction_resultant", "U"),
+                scalar(&out, "support:root", "support_reaction_force_magnitude_v2", "U"),
                 200.0,
             );
             for (location, x) in [("quarter_1", 0.5_f64), ("midspan", 1.0), ("quarter_3", 1.5)] {
@@ -441,7 +460,7 @@ mod tests {
                 tip,
             );
             close(
-                scalar(&out, "support:root", "reaction_resultant", "W"),
+                scalar(&out, "support:root", "support_reaction_force_magnitude_v2", "W"),
                 100.0,
             );
             for (location, x) in [("quarter_1", a), ("midspan", 1.0), ("quarter_3", b)] {

@@ -1,0 +1,14 @@
+# S2a derived fixture capture (actual producer, captured value entry)
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+command (from P/core/product_physics): cargo run --offline --locked -q --example preview_physics_capture -- <sparse|dense> --model <model>
+models:
+dda6f24f80a4cae57c45b11d84ffcc46c9435acd02f11c3d16f55eedf2c02035  fixtures/model_operations/precision_connected_ui_model.json
+9b4a95fbf33c37b018af01b259e8cfb379a0228db599476f74353aba75ecbccf  core/product_physics/tests/fixtures/preview_physics_invented_model.json
+986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c  fixtures/product_preview/invented_preview_model.json
+outputs:
+3c7d299de3e566966fa286249b615a0b682a98048d15365106486eef6ad1e9d3  fixtures/results/preview_physics_connected_dense.json
+b5b9265978176ce80d528f3c775924ffa9d59e1219754bb2b82655ae22ffa0c6  fixtures/results/preview_physics_connected_sparse.json
+b98e7b5a71836ade1c59d81deb9e906f45d2ee0ed72575a9ba4bb95af87fffcc  fixtures/results/preview_physics_invented_dense.json
+a51ca09b8d525aae9d3b3bf5445856fb61db06d363ccb126fa104b8d6d0077cf  fixtures/results/preview_physics_invented_sparse.json
+stderr bytes: 17864
+preview_physics_invented_model.json = invented_preview_model.json with every primitive load of category or dimension 'pressure' removed and a project description note; nothing else changed.

@@ -118,6 +118,21 @@ fn apply_refresh(model: &Value, policy: &str) -> Value {
     assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{outcome}");
     outcome["applied_model"].clone()
 }
+/// T0R (SF-C): the retired force-norm `reaction_resultant` row is replaced by
+/// the signed support-on-pipe component; for these +x beams under y loads the
+/// root Fy carries the whole applied y resultant with the opposite sign.
+fn root_fy(out: &MechanicsEnvelope) -> f64 {
+    let first_case = out.results.iter().find_map(|r| r.basis_ref.as_ref()).expect("case rows").ref_id.clone();
+    let row = |component: &str| {
+        out.results.iter().find(|r| {
+            r.kind == "support_reaction_component_v2" && r.entity_ref == "support:root"
+                && r.basis_ref.as_ref().is_some_and(|b| b.ref_id == first_case)
+                && r.metadata.as_ref().is_some_and(|m| m.component == component)
+        }).unwrap_or_else(|| panic!("missing signed root {component}: {:?}", out.results)).value
+    };
+    assert_eq!((row("Fx"), row("Fz")), (0.0, 0.0), "no out-of-plane root force");
+    row("Fy")
+}
 fn result(out: &MechanicsEnvelope, id: &str) -> f64 {
     out.results.iter().find(|r| r.id == id).unwrap_or_else(|| panic!("missing {id}: {:?}", out.results)).value
 }
@@ -125,7 +140,7 @@ fn equilibrium(out: &MechanicsEnvelope, density: f64, length: f64) {
     let q = weight_per_m(density);
     let total = -(q * length + TIP_FORCE);
     let first_moment = -(q * length * length / 2.0 + TIP_FORCE * length);
-    close("total root reaction", result(out, "result:reaction:support-root"), total);
+    close("total root reaction", root_fy(out), total);
     close("root shear", result(out, "result:force:pipe-beam:shear-y"), total);
     close("root first moment", result(out, "result:moment:pipe-beam:bending-z"), first_moment);
 }
@@ -186,7 +201,7 @@ fn modified_weight_requires_explicit_preservation_and_remains_fixed_manual() {
     let later = edit(&preserved, "Element", "pipe:beam", "section.material_density.value", "1000", 2000.0, "kg/m^3", "density");
     let solved = solve(&reopen(&later));
     assert!(solved.diagnostics.iter().any(|d| d.code == "SELF_WEIGHT_MANUAL_OVERRIDE"));
-    close("explicit fixed manual force", result(&solved, "result:reaction:support-root"), 71.0);
+    close("explicit fixed manual force", root_fy(&solved), 71.0);
     close("explicit fixed manual moment", result(&solved, "result:moment:pipe-beam:bending-z"), 82.0);
 }
 
@@ -224,7 +239,7 @@ fn real_generated_mill_contents_and_insulation_record_refreshes_through_applier(
     // Independent disk/ring geometry with the existing absolute mill deduction.
     let mass = std::f64::consts::PI * (0.009 * 0.091 * 2000.0 + 0.041_f64.powi(2) * 400.0 + 0.01 * 0.11 * 50.0);
     let q = mass * GRAVITY;
-    close("all mass source reaction", result(&solved, "result:reaction:support-root"), -(q*2.0 + TIP_FORCE));
+    close("all mass source reaction", root_fy(&solved), -(q*2.0 + TIP_FORCE));
     close("all mass source first moment", result(&solved, "result:moment:pipe-beam:bending-z"), -(q*2.0 + TIP_FORCE*2.0));
     assert_eq!(refreshed["load_cases"][0]["primitive_loads"][1], original["load_cases"][0]["primitive_loads"][1]);
 }
@@ -244,7 +259,7 @@ fn valid_imported_retarget_can_be_kept_manual_after_old_pipe_is_removed() {
     assert_eq!(preserved["load_cases"][0]["primitive_loads"][0]["target"]["pipe"], "pipe:manual");
     assert_eq!(preserved["load_cases"][0]["primitive_loads"][0]["magnitude"], before["load_cases"][0]["primitive_loads"][0]["magnitude"]);
     let solved = solve(&reopen(&preserved));
-    close("retargeted fixed force", result(&solved, "result:reaction:support-root"), 71.0);
+    close("retargeted fixed force", root_fy(&solved), 71.0);
     close("retargeted fixed first moment", result(&solved, "result:moment:pipe-manual:bending-z"), 82.0);
 }
 
@@ -261,7 +276,7 @@ fn shared_section_edit_propagates_then_requires_weight_refresh() {
     let refreshed = apply_refresh(&changed, "block");
     let solved = solve(&reopen(&refreshed));
     let q = std::f64::consts::PI * 0.01 * 0.19 * 1000.0 * GRAVITY;
-    close("shared section force", result(&solved, "result:reaction:support-root"), -(q*2.0 + TIP_FORCE));
+    close("shared section force", root_fy(&solved), -(q*2.0 + TIP_FORCE));
     close("shared section first moment", result(&solved, "result:moment:pipe-beam:bending-z"), -(q*2.0 + TIP_FORCE*2.0));
     assert_eq!(refreshed["load_cases"][0]["primitive_loads"][1], original["load_cases"][0]["primitive_loads"][1]);
 }
