@@ -1,0 +1,243 @@
+[
+  {
+    "mutant": "G1 gating removed (load-case inputs)",
+    "file": "src/features/load-cases/LoadReferenceStateInputs.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  2 failed | 12 passed (14)"
+    ],
+    "seconds": 5.7
+  },
+  {
+    "mutant": "G2 gating removed (expansion laws)",
+    "file": "src/features/material-temperature/ExpansionLawsEditor.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  1 failed | 13 passed (14)"
+    ],
+    "seconds": 5.7
+  },
+  {
+    "mutant": "G3 version predicate always true",
+    "file": "src/features/load-cases/loadStateAuthoring.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  2 failed | 12 passed (14)"
+    ],
+    "seconds": 5.6
+  },
+  {
+    "mutant": "L1 joined route label loses needs-recompute/not-Current",
+    "file": "src/features/solve/LoadReferenceStatesBlock.tsx",
+    "tests": [
+      "src/features/solve/LoadReferenceStatesBlock.test.tsx",
+      "src/features/solve/LoadReferenceStatesBlock.joinedGuard.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed | 1 passed (2)",
+      "      Tests  10 failed | 11 passed (21)"
+    ],
+    "seconds": 5.5
+  },
+  {
+    "mutant": "L2 case label ignores route and standing (joined labelled from solve quality)",
+    "file": "src/features/solve/LoadReferenceStatesBlock.tsx",
+    "tests": [
+      "src/features/solve/LoadReferenceStatesBlock.test.tsx",
+      "src/features/solve/LoadReferenceStatesBlock.joinedGuard.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  2 failed (2)",
+      "      Tests  4 failed | 17 passed (21)"
+    ],
+    "seconds": 5.7
+  },
+  {
+    "mutant": "L3 sensitive accepted as integrity checked",
+    "file": "src/features/solve/LoadReferenceStatesBlock.tsx",
+    "tests": [
+      "src/features/solve/LoadReferenceStatesBlock.test.tsx",
+      "src/features/solve/LoadReferenceStatesBlock.joinedGuard.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed | 1 passed (2)",
+      "      Tests  2 failed | 19 passed (21)"
+    ],
+    "seconds": 5.7
+  },
+  {
+    "mutant": "L4 joined guard removed (WP2 standing is never eligible for joined; killed by the stubbed-standing guard test)",
+    "file": "src/features/solve/LoadReferenceStatesBlock.tsx",
+    "tests": [
+      "src/features/solve/LoadReferenceStatesBlock.test.tsx",
+      "src/features/solve/LoadReferenceStatesBlock.joinedGuard.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed | 1 passed (2)",
+      "      Tests  1 failed | 20 passed (21)"
+    ],
+    "seconds": 6.1
+  },
+  {
+    "mutant": "L5 values shown without reader admission",
+    "file": "src/features/solve/LoadReferenceStatesBlock.tsx",
+    "tests": [
+      "src/features/solve/LoadReferenceStatesBlock.test.tsx",
+      "src/features/solve/LoadReferenceStatesBlock.joinedGuard.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed | 1 passed (2)",
+      "      Tests  2 failed | 19 passed (21)"
+    ],
+    "seconds": 6.0
+  },
+  {
+    "mutant": "S1 reference-configuration submission removed",
+    "file": "src/features/load-cases/LoadReferenceStateInputs.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  2 failed | 12 passed (14)"
+    ],
+    "seconds": 45.7
+  },
+  {
+    "mutant": "S2 analysis-state submission removed",
+    "file": "src/features/load-cases/LoadReferenceStateInputs.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  4 failed | 10 passed (14)"
+    ],
+    "seconds": 85.9
+  },
+  {
+    "mutant": "S3 expansion-law submission removed",
+    "file": "src/features/material-temperature/ExpansionLawsEditor.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  1 failed | 13 passed (14)"
+    ],
+    "seconds": 25.7
+  },
+  {
+    "mutant": "S4 queue hand-off removed",
+    "file": "src/features/load-cases/loadStateAuthoring.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  4 failed | 10 passed (14)"
+    ],
+    "seconds": 85.8
+  },
+  {
+    "mutant": "S5 engine pre-check bypassed (refusals would be queued)",
+    "file": "src/features/load-cases/loadStateAuthoring.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  5 failed | 9 passed (14)"
+    ],
+    "seconds": 5.4
+  },
+  {
+    "mutant": "S6 removal sends a JSON string instead of not_present",
+    "file": "src/features/load-cases/loadStateAuthoring.tsx",
+    "tests": [
+      "src/features/load-cases/LoadReferenceStateInputs.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  2 failed | 12 passed (14)"
+    ],
+    "seconds": 45.6
+  },
+  {
+    "mutant": "A1 absent label/kind/status guard reverted (LoadCaseManagerPanel)",
+    "file": "src/features/load-cases/LoadCaseManagerPanel.tsx",
+    "tests": [
+      "src/features/load-cases/loadStateFixtures.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  4 failed | 6 passed (10)"
+    ],
+    "seconds": 5.4
+  },
+  {
+    "mutant": "A2 absent model.diagnostics guard reverted (SolvePanel readiness)",
+    "file": "src/features/solve/SolvePanel.tsx",
+    "tests": [
+      "src/features/load-cases/loadStateFixtures.test.tsx",
+      "src/features/solve/LoadReferenceStatesBlock.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  2 failed (2)",
+      "      Tests  11 failed | 19 passed (30)"
+    ],
+    "seconds": 6.7
+  },
+  {
+    "mutant": "A3 absent model.diagnostics guard reverted (SolvePanel job packet)",
+    "file": "src/features/solve/SolvePanel.tsx",
+    "tests": [
+      "src/features/load-cases/loadStateFixtures.test.tsx",
+      "src/features/solve/LoadReferenceStatesBlock.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  2 failed (2)",
+      "      Tests  11 failed | 19 passed (30)"
+    ],
+    "seconds": 6.5
+  },
+  {
+    "mutant": "A4 delete before-value no longer mirrors the engine's TBD for absent fields",
+    "file": "src/features/load-cases/LoadCaseManagerPanel.tsx",
+    "tests": [
+      "src/features/load-cases/loadStateFixtures.test.tsx"
+    ],
+    "status": "killed",
+    "summary": [
+      " Test Files  1 failed (1)",
+      "      Tests  1 failed | 9 passed (10)"
+    ],
+    "seconds": 6.5
+  }
+]

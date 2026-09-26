@@ -1,0 +1,38 @@
+# Addendum base characterization (scratch = clean git archive of 583f5d9fa, before overlaying this change)
+## browser route + buildModelIndex (0.3.0 exact_pressure_connected_request; 0.1.0 invented_dec092_temperature_g_request)
+{
+  "model_030": {
+    "schema_version": "0.3.0",
+    "has_diagnostics": false,
+    "has_data_boundary": false
+  },
+  "buildModelIndex_030": {
+    "message": "Cannot read properties of undefined (reading 'forEach')",
+    "frame": "    at buildModelIndex (<SCRATCH>/projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts:259:21)"
+  },
+  "browser_create_030": {
+    "message": "Model document refused for editing: status=newer_than_supported; source_schema_version=0.3.0; target_schema_version=0.2.0; Model document schema_version 0.3.0 is newer than the supported 0.2.0; refusing to open for editing (no down-migration).",
+    "frame": "    at requireEditableModelDocument (<SCRATCH>/projects/chirality-piping/apps/desktop/src/services/projectService.ts:241:11)"
+  },
+  "model_010": {
+    "schema_version": "0.1.0",
+    "has_diagnostics": false,
+    "has_data_boundary": false
+  },
+  "session_open_010": {
+    "message": "items is not iterable",
+    "frame": "    at duplicateIds (<SCRATCH>/projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts:360:22)"
+  },
+  "session_open_010_window_errors": [],
+  "store_unchanged_010": true
+}
+## native open route (open_local_project invoke returning the 0.3.0 product-shaped model; session handleOpenProject)
+{
+  "session_open_030": {
+    "message": "Cannot read properties of undefined (reading 'forEach')",
+    "frame": "    at buildModelIndex (<SCRATCH>/projects/chirality-piping/apps/desktop/src/features/workspace/modelIndex.ts:259:21)"
+  },
+  "native_commands_invoked": [
+    "open_local_project"
+  ]
+}

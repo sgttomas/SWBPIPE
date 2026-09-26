@@ -166,3 +166,12 @@ A digest-consistent, crate-internal relabel of the solver mode in `QualifiedPrev
 - **F2 (note, taken).** The §14 invariance now also flips booleans, changes counts and runs with a proposal present. Leak mutants are killed.
 - **F3 (note, taken).** A hash-consistent input now reaches `deriveResultDocument`'s own refusal. Its mutant is killed.
 - **F4 (host load).** Resolved by ROOT with the owner's approval. WP7's quiet-host sweep records `/proc/loadavg`.
+
+## 17. WP3 native inputs: product-shaped documents (ROOT, 2026-09-26)
+
+- **Decision.** Option (a), confirmed by ROOT. The capability is reached from desktop-shaped 0.4.0 documents: the blank 0.4.0 model, the joined request models and anything the desktop authors.
+- **Evidence.** A product-shaped model document, one without `data_boundary`, `diagnostics`, `sections` or labels, crashes the workspace for every model version. The base characterization reproduces the crash on 0.3.0 at `modelIndex.ts:259`. The crash writes and corrupts no stored state (harm-check test).
+- **Routing.** This goes to **UI-SUCCESSOR** as desktop import tolerance; the list of unguarded reads is in WP3 RETURN A5.
+- **Coverage in T1.** Opening in a session is proven on eigen_motion. The two ordinary request models are proven at panel level.
+- **Pass-through fields.** Authored fields with no input yet pass through byte-exactly: `analysis_basis_override`, `mass_state_ref`, `base_motion`, `device_reference`, locked components, and predecessor or entered position sources. Editing them goes to UI-SUCCESSOR; the support ones also go to T5.
+- **Witness 2** now reads: "Open a headlessly authored, desktop-shaped 0.4.0 model; inputs shown."

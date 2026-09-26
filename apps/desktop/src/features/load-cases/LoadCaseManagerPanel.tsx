@@ -1,4 +1,5 @@
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
+import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
 import { ListPlus, Scale, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
@@ -494,6 +495,7 @@ export function LoadCaseManagerPanel({
       </p>
 
       <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCaseId={selectedLoadCase?.id} />
+      <LoadReferenceStateInputs model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
       <section className="load-case-create-editor" aria-label="Create load case">
         <div className="load-editor-heading" data-testid="load-manager-create-load-case-heading">
           <ListPlus size={14} aria-hidden="true" />
@@ -808,9 +810,9 @@ export function LoadCaseManagerPanel({
             onClick={() => handleSelectLoadCase(loadCase)}
             type="button"
           >
-            <strong>{loadCase.label}</strong>
+            <strong>{loadCaseLabelDisplay(loadCase)}</strong>
             <small>
-              {loadCase.id}; {loadCase.kind}; {loadCase.status}; primitives={loadCase.primitive_loads?.length ?? 0}
+              {loadCase.id}; {metadataDisplay(loadCase.kind)}; {metadataDisplay(loadCase.status)}; primitives={loadCase.primitive_loads?.length ?? 0}
             </small>
             <small>{loadCase.provenance}</small>
           </button>
@@ -826,7 +828,7 @@ export function LoadCaseManagerPanel({
             <SlidersHorizontal size={14} aria-hidden="true" />
             <strong>{selectedLoadCase.id}</strong>
             <span>
-              field={metadataField}; current={currentMetadataValue}; path={metadataField}
+              field={metadataField}; current={metadataDisplay(currentMetadataValue)}; path={metadataField}
             </span>
           </div>
           <div className="load-metadata-controls">
@@ -1280,12 +1282,32 @@ export function LoadCaseManagerPanel({
   );
 }
 
+/** An absent (or non-text) label, kind or status reads as empty: the panel
+ * shows it as not set and never writes a value for it (T1 WP3 addendum). */
 function loadCaseMetadataValue(loadCase: LoadCase, field: LoadMetadataField): string {
-  return loadCase[field];
+  const value: unknown = loadCase[field];
+  return typeof value === "string" ? value : "";
+}
+
+function metadataDisplay(value: unknown): string {
+  return typeof value === "string" && value !== "" ? value : "not set";
+}
+
+/** Display only: an absent or empty label is shown as the case id. */
+function loadCaseLabelDisplay(loadCase: LoadCase): string {
+  const label: unknown = loadCase.label;
+  return typeof label === "string" && label !== "" ? label : loadCase.id;
+}
+
+/** Mirrors the operation engine's delete before-display
+ * (`load_case_delete_display`), which reads an absent text field as TBD. The
+ * string is a comparison value only; nothing is written to the model. */
+function engineMetadataText(value: unknown): string {
+  return typeof value === "string" ? value : "TBD";
 }
 
 function loadCaseDisplay(loadCase: LoadCase): string {
-  return `${loadCase.id}; ${loadCase.label}; ${loadCase.kind}; ${loadCase.status}; primitives=${
+  return `${loadCase.id}; ${engineMetadataText(loadCase.label)}; ${engineMetadataText(loadCase.kind)}; ${engineMetadataText(loadCase.status)}; primitives=${
     loadCase.primitive_loads?.length ?? 0
   }`;
 }
@@ -1857,7 +1879,7 @@ function buildDeleteLoadCaseIntent({
     change: {
       change_id: `change:load-manager-${operationToken}`,
       change_kind: "delete_load_case",
-      field_label: `${loadCase.label} load case`,
+      field_label: `${loadCaseLabelDisplay(loadCase)} load case`,
       field_path: "load_cases",
       before: loadCaseDisplay(loadCase),
       after: "not_present",

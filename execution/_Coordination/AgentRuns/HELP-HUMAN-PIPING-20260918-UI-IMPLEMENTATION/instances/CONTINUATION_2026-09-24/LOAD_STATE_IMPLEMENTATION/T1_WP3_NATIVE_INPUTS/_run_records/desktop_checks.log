@@ -1,0 +1,96 @@
+# Baseline full desktop vitest (base 1b95d0b66, scratch git archive)
+   × preserves signed-zero sidecars and rejects a coherently rehashed false sign against original source 30591ms
+     × every button is either responsive or disabled with a stated reason 602607ms
+     × 'multicase-dense_scrutiny' connects Current, exports, rule revision and saved history 34968ms
+     × 'multicase-sparse_interactive' connects Current, exports, rule revision and saved history 35488ms
+     × renders the engineering workspace from invented local fixtures 31446ms
+     × round trips preserved historical review proposal operations through local save and open 31777ms
+     × qualifies only a matching captured native unit replay and retires it on reference inspection 15188ms
+     × reviews and queues a hash-bound refresh, then doubles density weight without duplicate or manual/case changes 61ms
+     × blocks a modified generated magnitude until explicit keep, then preserves physical bytes as a manual override 30ms
+     × withdraws a prepared refresh after model changes until generated again 17ms
+     × withdraws a prepared refresh after requestEpoch changes until generated again 17ms
+     × withdraws a prepared refresh after selection changes until generated again 11ms
+     × withdraws a prepared refresh after busy changes until generated again 9ms
+     × withdraws a prepared refresh after inputs changes until generated again 10ms
+     × generates and applies an entire self-weight plan atomically against the original model 87ms
+     × reviews a self-weight plan and queues one batch without changing the model 1503ms
+     × withdraws plans after clear, model, selection or busy changes 1274ms
+     × discards an asynchronous generation response after the user clears the draft 1171ms
+     × requires explicit gravity/selection and surfaces missing density 1260ms
+   × generated shared Wasm artifacts answer batch, conversion and authenticated selfweight planning 42ms
+ FAIL  src/App.deadControls.test.tsx > dead-control audit (TP-APP-R2-UXSHELL-001) > every button is either responsive or disabled with a stated reason
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > renders the engineering workspace from invented local fixtures
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > round trips preserved historical review proposal operations through local save and open
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > qualifies only a matching captured native unit replay and retires it on reference inspection
+ FAIL  src/services/selfWeightPlanService.test.ts > generated shared Wasm artifacts answer batch, conversion and authenticated selfweight planning
+ FAIL  src/features/offline-proposal-intake/workflows.test.tsx > bounded workflow actual engine tests > generates and applies an entire self-weight plan atomically against the original model
+ FAIL  src/features/offline-proposal-intake/workflows.test.tsx > bounded workflow actual engine tests > reviews a self-weight plan and queues one batch without changing the model
+ FAIL  src/features/offline-proposal-intake/workflows.test.tsx > bounded workflow actual engine tests > withdraws plans after clear, model, selection or busy changes
+ FAIL  src/features/offline-proposal-intake/workflows.test.tsx > bounded workflow actual engine tests > discards an asynchronous generation response after the user clears the draft
+ FAIL  src/features/offline-proposal-intake/workflows.test.tsx > bounded workflow actual engine tests > requires explicit gravity/selection and surfaces missing density
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > preserves signed-zero sidecars and rejects a coherently rehashed false sign against original source
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-dense_scrutiny' connects Current, exports, rule revision and saved history
+ FAIL  src/features/results/sourceBlockRecovery.test.ts > genuine full-UI source-block lifecycle through simulated native IPC > 'multicase-sparse_interactive' connects Current, exports, rule revision and saved history
+ FAIL  src/features/self-weight-authoring/SelfWeightRefresh.test.tsx > existing self-weight refresh through real WASM and structured apply > reviews and queues a hash-bound refresh, then doubles density weight without duplicate or manual/case changes
+ FAIL  src/features/self-weight-authoring/SelfWeightRefresh.test.tsx > existing self-weight refresh through real WASM and structured apply > blocks a modified generated magnitude until explicit keep, then preserves physical bytes as a manual override
+ FAIL  src/features/self-weight-authoring/SelfWeightRefresh.test.tsx > existing self-weight refresh through real WASM and structured apply > withdraws a prepared refresh after model changes until generated again
+ FAIL  src/features/self-weight-authoring/SelfWeightRefresh.test.tsx > existing self-weight refresh through real WASM and structured apply > withdraws a prepared refresh after requestEpoch changes until generated again
+ FAIL  src/features/self-weight-authoring/SelfWeightRefresh.test.tsx > existing self-weight refresh through real WASM and structured apply > withdraws a prepared refresh after selection changes until generated again
+ FAIL  src/features/self-weight-authoring/SelfWeightRefresh.test.tsx > existing self-weight refresh through real WASM and structured apply > withdraws a prepared refresh after busy changes until generated again
+ FAIL  src/features/self-weight-authoring/SelfWeightRefresh.test.tsx > existing self-weight refresh through real WASM and structured apply > withdraws a prepared refresh after inputs changes until generated again
+ Test Files  7 failed | 122 passed (129)
+      Tests  20 failed | 2752 passed (2772)
+   Duration  1377.87s (transform 27.03s, setup 39.39s, import 94.27s, tests 3687.89s, environment 219.45s)
+exit=1
+
+# Baseline rerun of the three files that failed only for a missing scratch asset (self-weight engine), after copying it
+ Test Files  3 passed (3)
+      Tests  21 passed (21)
+exit=0
+
+# Base-tree blank builder canonical sha256 (buildBlankLocalModelDocument(2026-06-12T00:00:00Z))
+da4399892d3e025ccf81eb8f2f50c0f339a22bc78f36aa86ebcf34b0e6054f10
+
+# This change: full desktop vitest, run 1 (before the joined-guard test file was added)
+     × mixed sparse_interactive binds actual input, Current gates and portable evidence 30737ms
+     × mixed dense_scrutiny binds actual input, Current gates and portable evidence 37260ms
+     × fields sparse_interactive binds actual input, Current gates and portable evidence 32309ms
+     × mixed_units sparse_interactive binds actual input, Current gates and portable evidence 36284ms
+     × mixed_units dense_scrutiny binds actual input, Current gates and portable evidence 30199ms
+     × renders the engineering workspace from invented local fixtures 33790ms
+     × dispatches packaged native-menu DOM events through the shared command sink 602ms
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > renders the engineering workspace from invented local fixtures
+Error: Test timed out in 30000ms.
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > dispatches packaged native-menu DOM events through the shared command sink
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > fields sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units dense_scrutiny binds actual input, Current gates and portable evidence
+Error: Test timed out in 30000ms.
+ Test Files  2 failed | 130 passed (132)
+      Tests  7 failed | 2804 passed (2811)
+   Duration  766.09s (transform 30.27s, setup 16.42s, import 64.59s, tests 2089.97s, environment 89.19s)
+exit=1
+
+# This change: the two failing files rerun in isolation
+ Test Files  2 passed (2)
+      Tests  242 passed (242)
+exit=0
+
+# npm run build --workspace apps/desktop (scratch copy of this change)
+dist/assets/index-CpdOe7nX.js                                         2,141.25 kB │ gzip: 483.36 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 8.20s
+exit=0
+
+# This change: full desktop vitest, final run (all files, including the joined-guard test)
+ Test Files  133 passed (133)
+      Tests  2812 passed (2812)
+   Duration  495.13s (transform 14.73s, setup 14.44s, import 40.24s, tests 1321.02s, environment 76.36s)
+exit=0

@@ -1,5 +1,6 @@
 import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
+import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
 import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
@@ -25,7 +26,8 @@ export function SolvePanel({
   onRun: () => void;
   onSolverModeChange: (mode: PreviewSolverMode) => void;
 }) {
-  const diagnostics = [...model.diagnostics, ...(result?.diagnostics ?? [])];
+  // An absent model `diagnostics` array means no model diagnostics; the key is never added.
+  const diagnostics = [...(model.diagnostics ?? []), ...(result?.diagnostics ?? [])];
   const readinessItems = readinessSummary({ model, result, diagnostics, solveJob });
   const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
   return (
@@ -64,6 +66,7 @@ export function SolvePanel({
         <SolveLine label="Unit policy" value={unitPolicySummary(packet)} testId="solve-job-unit-policy" />
         <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
       </div>
+      <LoadReferenceStatesBlock result={result} model={model} />
       <div className="solver-mode-control" role="group" aria-label="Solver mode" data-testid="solver-mode-control">
         <button
           aria-pressed={solverMode === "sparse_interactive"}
@@ -318,7 +321,7 @@ function buildSolveJobUnitPolicyEvidence({
 }
 
 function diagnosticsFor(model: PreviewModel, result: MechanicsResult | null): Diagnostic[] {
-  return [...model.diagnostics, ...(result?.diagnostics ?? [])];
+  return [...(model.diagnostics ?? []), ...(result?.diagnostics ?? [])];
 }
 
 function progressSummary(packet: ReturnType<typeof buildSolveJobPacket>): string {

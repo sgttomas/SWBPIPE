@@ -533,6 +533,23 @@ export function buildBlankLocalModelDocument(createdAt: Date = new Date()): Prev
   };
 }
 
+/** T1 WP3 (D3): a blank model 0.4.0 document for load/reference-state work,
+ * beside the unchanged blank path. It declares only the exact pressure contract
+ * that model 0.4.0 requires; it carries no materials, sections, cases or
+ * reference values, and no document is upgraded to produce it. */
+export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = "0.4.0";
+export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "2.0.0", mode: "exact_straight_pressure_v2" } as const;
+export function buildBlankLoadStateModelDocument(createdAt: Date = new Date()): PreviewModel {
+  const { schema_version: blankVersion, ...blank } = buildBlankLocalModelDocument(createdAt);
+  void blankVersion;
+  return {
+    schema_version: BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION,
+    pressure_contract: { ...BLANK_LOAD_STATE_PRESSURE_CONTRACT },
+    ...blank,
+    project: { ...blank.project, name: "Blank Local Model 0.4.0" }
+  };
+}
+
 export async function createLocalProject(
   model: PreviewModel,
   editorIntents: EditorOperationIntent[] = [],
