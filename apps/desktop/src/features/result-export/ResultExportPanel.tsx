@@ -1,3 +1,4 @@
+import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { checkedJsonText } from "../../services/hashService";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { hasCurrentSourceContract, numericalResultStanding } from "../results/numericalResultQuality";
@@ -47,6 +48,7 @@ export function ResultExportPanel({
         <FileJson size={16} aria-hidden="true" />
         Result Export
       </div>
+      <KnownSemanticNotices result={result} testIdPrefix="result-export" />
       {currentPacket ? (
         <>
           <div className="report-actions" onClickCapture={(event) => {

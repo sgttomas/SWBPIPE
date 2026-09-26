@@ -1,3 +1,4 @@
+import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
@@ -56,6 +57,7 @@ export function LocalFeaHandoffPanel({
         <FileJson size={16} aria-hidden="true" />
         Local FEA Handoff
       </div>
+      <KnownSemanticNotices result={result} testIdPrefix="local-fea-handoff" />
       {packet ? (
         <>
           <div className="report-actions">

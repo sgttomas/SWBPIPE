@@ -13,6 +13,7 @@ import {
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
   runRuleChecks,
+  ruleBindingPrecheck,
   type LibraryInputRequirement,
   type LibraryValueRef,
   type RuleCheckBindingPlan,
@@ -698,6 +699,7 @@ export function RuleCheckRunPanel({
     }
   }
 
+  const bindingPrecheck = plan ? ruleBindingPrecheck(result, plan, buildSolverBindings(plan)) : [];
   const runDisabled = !parsed?.ok || inFlight;
   const runDisabledReason = !parsed?.ok ? NO_PACK_REASON : inFlight ? BUSY_REASON : undefined;
 
@@ -717,6 +719,11 @@ export function RuleCheckRunPanel({
             ? `Solved result available (${resultRows.length} result row(s)); mechanics=${result.status.mechanics}.`
             : NO_SOLVE_REASON}
         </small>
+        {bindingPrecheck.length > 0 ? (
+          <small data-testid="rule-check-binding-precheck" role="status">
+            {bindingPrecheck.map((finding) => `${finding.input_id} -> ${finding.result_id}: ${finding.reason}. ${finding.notice}`).join(" ")}
+          </small>
+        ) : null}
       </div>
 
       <div className="report-actions">

@@ -27,11 +27,12 @@ it("keeps solved historical and unassessed carriers out of Current without chang
  expect(result.current.currentSolvedResult).toBeNull();
 });
 
-it("requires actual native invocation plus joined precision analysis and manifest identities before Current", async () => {
+it("requires actual native invocation plus joined preview-physics analysis and manifest identities before Current", async () => {
  // Explicit unit transport simulation over the unchanged, genuinely emitted
- // current ordinary pair. This is not a native UI/host qualification witness.
- const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"precision"});
- const replay = createNativeMechanicsReplay({profile:"precision"});
+ // current ordinary pair (preview-physics-1 since T0R; precision-1 is historical
+ // and is covered by the next test). This is not a native UI/host qualification witness.
+ const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"preview"});
+ const replay = createNativeMechanicsReplay({profile:"preview"});
  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
  invokeMock.mockImplementation(replay.invoke);
  const source = await runPreviewMechanics(pair.model, pair.mode);
@@ -58,6 +59,21 @@ it("requires actual native invocation plus joined precision analysis and manifes
  act(()=>result.current.setResult(source));
  expect(result.current.currentSolvedResult).toBe(source);
  act(()=>result.current.setAnalysisRun({...analysis,schema_version:"0.2.0"}));
+ expect(result.current.currentSolvedResult).toBeNull();
+});
+
+it("never admits a registered precision-1 solve as Current (T0R static fresh-identity set)", async () => {
+ const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"precision"});
+ const replay = createNativeMechanicsReplay({profile:"precision"});
+ (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+ invokeMock.mockImplementation(replay.invoke);
+ const source = await runPreviewMechanics(pair.model, pair.mode);
+ const manifest = await buildCurrentSessionInputManifest({model:pair.model,solver:{solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:actual-core-pair-native-transport-simulation",solver_mode:pair.mode,settings:{}},active_rule_packs:[],external_assets:[]});
+ const analysis = await buildAnalysisRunPreview(source,{inputManifest:manifest});
+ const {result} = renderHook(() => useResultsSessionState());
+ act(()=>{result.current.setResult(source);result.current.setInputManifest(manifest);result.current.setAnalysisRun(analysis);});
+ expect(result.current.result).toBe(source); // readable
+ expect(numericalResultStanding(source, pair.model).findings).toContain("PRECISION_1_HISTORICAL_SEMANTICS");
  expect(result.current.currentSolvedResult).toBeNull();
 });
 

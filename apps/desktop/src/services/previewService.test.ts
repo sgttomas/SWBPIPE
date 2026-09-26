@@ -776,3 +776,26 @@ it.each(["sparse_interactive", "dense_scrutiny"] as const)("explicit ordinary pr
   expect(hasNativeMechanicsInvocation(received, pair.model, mode)).toBe(true);
   await expect(runPreviewMechanics(nativeMechanicsReplayPair(mode).model, mode)).rejects.toThrow("NATIVE_REPLAY_MODEL_MISMATCH");
 });
+
+it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-1 replay registers its %s source only when the closed reader checks pass", async mode => {
+  const pair = nativeMechanicsReplayPair(mode, { profile: "preview" });
+  expect(pair.provenance.source_fixture_ref).toBe(`fixtures/results/preview_physics_connected_${mode === "sparse_interactive" ? "sparse" : "dense"}.json`);
+  expect(sourceContract(pair.source)).toBe("preview_physics");
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  const replay = createNativeMechanicsReplay({ profile: "preview" });
+  invokeMock.mockImplementation(replay.invoke);
+  const received = await runPreviewMechanics(pair.model, mode);
+  expect(received).toEqual(pair.source);
+  expect(hasNativeMechanicsInvocation(received, pair.model, mode)).toBe(true);
+  expect(numericalResultStanding(received, pair.model).eligible).toBe(true);
+  // A dangling result: reference fails the preview-evidence check, so no registration is minted.
+  invokeMock.mockImplementation(async (command: string, args?: unknown) => {
+    const answer = await replay.invoke(command, args);
+    if (command !== "run_preview_mechanics_with_solver_mode") return answer;
+    answer.diagnostics[0].affected_refs = [...(answer.diagnostics[0].affected_refs ?? []), "result:reaction:support-fixture-root"];
+    return answer;
+  });
+  const tampered = await runPreviewMechanics(pair.model, mode);
+  expect(hasNativeMechanicsInvocation(tampered, pair.model, mode)).toBe(false);
+  expect(numericalResultStanding(tampered, pair.model).findings.join(" ")).toContain("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: dangling result reference");
+});

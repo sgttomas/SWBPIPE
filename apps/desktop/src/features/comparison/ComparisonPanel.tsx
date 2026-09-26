@@ -1,5 +1,6 @@
 import { semanticDimension } from "../results/resultSemantics";
 import { sourceContract } from "../results/numericalResultQuality";
+import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { QuantityReadout } from "../display-units";
 import type { MechanicsResult } from "../../types";
 import { GitCompare } from "lucide-react";
@@ -23,6 +24,7 @@ export function ComparisonPanel({
         <GitCompare size={16} aria-hidden="true" />
         Comparison
       </div>
+      <KnownSemanticNotices result={result} testIdPrefix="comparison" />
       {comparison ? (
         <>
           <div className="comparison-summary" data-testid="comparison-summary">
@@ -155,7 +157,7 @@ function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | n
   if (!result) return "unknown";
   const contract = sourceContract(result);
   if (contract === "legacy") return right.dimension ?? "unknown";
-  if (!["precision", "source_blocks", "physics", "physics_source"].includes(contract)) return "unknown";
+  if (!["precision", "source_blocks", "physics", "physics_source", "preview_physics"].includes(contract)) return "unknown";
   const rightDimension = semanticDimension(right, result);
   const leftDimension = left ? semanticDimension(left, result) : null;
   if (!left || !rightDimension || leftDimension !== rightDimension) return "unknown";

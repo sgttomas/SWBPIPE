@@ -1,6 +1,7 @@
 import { validatePhysicsSourceRecovery } from "../features/results/physicsSourceRecovery";
 import { validateSourceBlockRecovery } from "../features/results/sourceBlockRecovery";
 import { sourceContract, hasCurrentSourceContract } from '../features/results/numericalResultQuality';
+import { validatePreviewPhysicsEvidence } from '../features/results/previewPhysicsEvidence';
 import { invoke } from "@tauri-apps/api/core";
 import type {
   AgentProposal,
@@ -115,6 +116,8 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // separately reviewed join is selected; none is inferred from these bytes.
     if (sourceContract(source) === "source_blocks") await validateSourceBlockRecovery(source, capture.invocation, capture.callerModel);
     if (sourceContract(source) === "physics_source") await validatePhysicsSourceRecovery(source, capture.invocation, capture.callerModel);
+    // A preview-physics-1 source registers only when its closed reader checks pass.
+    if (sourceContract(source) === "preview_physics") validatePreviewPhysicsEvidence(source, capture.invocation.request.model);
     await canonicalSha256HexCheckedV1(source);
     if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return;
     nativeSourceInvocations.set(source, { capture, sourceFingerprint });

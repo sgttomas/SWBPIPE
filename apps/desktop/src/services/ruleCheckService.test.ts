@@ -7,8 +7,13 @@ import {
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
   runRuleChecks,
+  ruleBindingPrecheck,
   RULE_CHECK_BACKEND_DIAGNOSTIC
 } from "./ruleCheckService";
+import multicase from "../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
+import previewInvented from "../../../../fixtures/results/preview_physics_invented_sparse.json";
+import { N_RULE_RETIRED, N_SB, N_P1 } from "../features/results/knownSemanticLimitations";
+import type { MechanicsResult } from "../types";
 import type { RulePackDocument } from "./rulePackService";
 
 // Phase C4 GUI slice (TP-C4-CHECKGUI-001). jsdom has no Tauri runtime, so the
@@ -275,5 +280,41 @@ describe("rule source provenance boundary in unit transport replay", () => {
     invokeMock.mockRejectedValue(new Error("simulated native solve failure"));
     await expect(runRuleChecks({rulePackDocument,model:pair.model})).rejects.toThrow("simulated native solve failure");
     expect(invokeMock).toHaveBeenCalledExactlyOnceWith("run_preview_mechanics_with_solver_mode", {model:pair.model,solverMode:"sparse_interactive"});
+  });
+});
+
+
+describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display only)", () => {
+  const solverPack = (resultId?: string): RulePackDocument => ({
+    required_inputs: [
+      { input_id: "authored", name: "Authored", source_kind: "solver_result", ...(resultId ? { solver_result_ref: { result_id: resultId } } : {}) },
+      { input_id: "manual", name: "Manual", source_kind: "solver_result" }
+    ]
+  });
+  it("shows N-SB for a binding to the all-selected source-blocks-1 summary; a force row still binds", () => {
+    const source = structuredClone(multicase) as unknown as MechanicsResult;
+    const summary = source.results.find((r) => r.kind === "open_formula_stress_summary")!;
+    const force = source.results.find((r) => r.kind === "element_local_axial_force")!;
+    const findings = ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(summary.id)), [{ input_id: "manual", result_id: force.id }]);
+    expect(findings).toEqual([{ input_id: "authored", result_id: summary.id, reason: "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE", notice: N_SB }]);
+    const headline = source.summary.max_open_formula_stress!.result_ref;
+    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack()), [{ input_id: "manual", result_id: headline }])[0].reason).toBe("RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE");
+  });
+  it("shows N-RULE-RETIRED for a preview-physics-1 binding to a retired id; the new rows bind", () => {
+    const source = structuredClone(previewInvented) as unknown as MechanicsResult;
+    const findings = ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack("result:reaction:support-S-100")), [{ input_id: "manual", result_id: "result:stress:pipe-P-120" }]);
+    expect(findings.map((f) => [f.input_id, f.reason, f.notice])).toEqual([["authored", "RULE_BINDS_RETIRED_RESULT", N_RULE_RETIRED], ["manual", "RULE_BINDS_RETIRED_RESULT", N_RULE_RETIRED]]);
+    const maximum = source.results.find((r) => r.kind === "pipe_elastic_normal_stress_maximum_v2")!;
+    const intensified = source.results.find((r) => r.kind === "component_equal_factor_intensified_bending_stress_v1")!;
+    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: intensified.id }])).toEqual([]);
+  });
+  it("refuses a registered precision-1 solve before invoking the rule backend", async () => {
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "precision" }), replay = createNativeMechanicsReplay({ profile: "precision" });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation(replay.invoke);
+    const source = await runPreviewMechanics(pair.model);
+    invokeMock.mockClear();
+    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model, solvedEnvelope: source })).rejects.toThrow(`PRECISION_1_HISTORICAL_SEMANTICS: ${N_P1}`);
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 });

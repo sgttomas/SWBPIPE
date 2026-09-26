@@ -1,3 +1,4 @@
+import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { semanticDimension, semanticCategory } from "../results/resultSemantics";
 import { Download, Share2 } from "lucide-react";
 import type {
@@ -76,6 +77,7 @@ export function HandoffPanel({
         <Share2 size={16} aria-hidden="true" />
         Handoff Package
       </div>
+      <KnownSemanticNotices result={result} testIdPrefix="handoff" />
       {handoffPackage ? (
         <>
           <div className="report-actions">

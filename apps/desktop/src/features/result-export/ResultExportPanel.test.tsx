@@ -59,7 +59,8 @@ it('a bundled record stays unavailable even with a correctly bound reference ana
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'reference-only',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
  render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={inputManifest}/>);
- await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_NATIVE_INVOCATION_REQUIRED'));
+ // T0R: the bundled precision-1 reference is now refused at its historical standing, ahead of the invocation gate.
+ await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE'));
  expect(screen.queryByTestId('result-export-link')).toBeNull();
 });
 
