@@ -1,0 +1,10 @@
+
+ RUN  v4.1.10 <SCRATCH>/cand/projects/chirality-piping/apps/desktop
+
+
+ Test Files  4 passed (4)
+      Tests  403 passed (403)
+   Start at  14:27:49
+   Duration  117.49s (transform 3.00s, setup 1.36s, import 4.24s, tests 165.05s, environment 7.14s)
+
+exit=0
