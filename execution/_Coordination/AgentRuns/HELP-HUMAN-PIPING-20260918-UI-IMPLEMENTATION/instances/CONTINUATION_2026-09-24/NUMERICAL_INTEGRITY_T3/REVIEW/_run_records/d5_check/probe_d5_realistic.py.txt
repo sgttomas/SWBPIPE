@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""V1 D5_CHECK: D1's invented realistic models M9 and M11 (ef_realistic.py's inputs) on main's
+emulated product path (probe_d5_check.py: product frame, local K, T^T(KT), springs +=, radix scaling,
+symmetric averaging, dense Cholesky or RCM profile LDL, rcond, residual check and refinement).
+Reports the product-estimated rcond and the first-order ACTUAL error of the published displacements,
+EF_exact = K^-1 (f - K_int u) with the exact residual of the intended system (probe_d5_check shows it
+equals the true error to 1e-7 relative), against 1e-9 * max(|q|, S*_kind). Standard library only."""
+import json
+import sys
+from fractions import Fraction as Fr
+sys.path.insert(0, '.')
+import probe_d5_check as p
+
+DOF = {"UX": 0, "UY": 1, "UZ": 2}
+
+
+def build_chain(points, supports, loads, sec):
+    nn = len(points)
+    n = 6 * nn
+    K = [[0.0] * n for _ in range(n)]
+    Kx = [[Fr(0)] * n for _ in range(n)]
+    for i in range(nn - 1):
+        xi, xj = points[i], points[i + 1]
+        d = [xj[k] - xi[k] for k in range(3)]
+        yr = (0.0, 1.0, 0.0) if d[0] == 0 and d[1] == 0 else (0.0, 0.0, 1.0)
+        Rp, Lp = p.product_frame(xi, xj, yr)
+        Ke = p.TtKT(p.local_K(sec, Lp), p.T12(Rp, 0.0), False)
+        Rx, Lx = p.exact_frame(xi, xj, yr)
+        Kex = p.TtKT(p.local_K(sec, Lx, exact=True), p.T12(Rx, Fr(0)), True)
+        mp = [6 * i + a for a in range(6)] + [6 * (i + 1) + a for a in range(6)]
+        for a in range(12):
+            for b in range(12):
+                K[mp[a]][mp[b]] += Ke[a][b]
+                Kx[mp[a]][mp[b]] += Kex[a][b]
+    restrained = set()
+    springs = []
+    for node, (rigid, spr) in supports.items():
+        for dn in rigid:
+            restrained.add(6 * node + {"UX": 0, "UY": 1, "UZ": 2, "RX": 3, "RY": 4, "RZ": 5}[dn])
+        for dn, k in spr:
+            dd = 6 * node + DOF[dn]
+            K[dd][dd] += k
+            Kx[dd][dd] += Fr(k)
+            springs.append((dd, k))
+    f = [0.0] * n
+    for dof, v in loads:
+        f[dof] += v
+    free = [i for i in range(n) if i not in restrained]
+    xs = [pt[0] for pt in points]; ys = [pt[1] for pt in points]; zs = [pt[2] for pt in points]
+    Lb = ((max(xs) - min(xs)) ** 2 + (max(ys) - min(ys)) ** 2 + (max(zs) - min(zs)) ** 2) ** 0.5
+    return dict(n=n, free=free, K_rep=K, K_int=Kx, f=f, L_b=Lb, springs=springs)
+
+
+def run(name, m):
+    out = {"model": name, "dofs_free": len(m["free"])}
+    for mode in ("dense", "sparse"):
+        sol = p.solve_product(m, mode)
+        if sol is None or sol.get("outcome") == "unresolved":
+            out[mode] = "failed"
+            continue
+        u = sol["u"]
+        uF = [Fr(x) for x in u]
+        n = m["n"]
+        v = [Fr(m["f"][i]) - sum(m["K_int"][i][j] * uF[j] for j in range(n) if uF[j] != 0 and m["K_int"][i][j] != 0)
+             for i in m["free"]]
+        w = p.apply_inverse(sol, v)
+        St = max(abs(u[d]) for d in range(n) if d % 6 < 3)
+        Sr = max(abs(u[d]) for d in range(n) if d % 6 >= 3)
+        S = {"translation": max(St, m["L_b"] * Sr), "rotation": max(Sr, St / m["L_b"])}
+        ratio = max(abs(w[r]) / max(abs(u[m["free"][r]]), S["translation" if m["free"][r] % 6 < 3 else "rotation"])
+                    for r in range(len(w))) / 1e-9
+        out[mode] = {"outcome": sol["outcome"], "rcond": sol["rcond"], "cond": 1 / sol["rcond"],
+                     "refinement_attempts": sol["attempts"],
+                     "actual_error_first_order_ratio_to_1e-9": ratio}
+    return out
+
+
+def main():
+    sec = p.section()
+    A6 = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    res = []
+    for name, pts in (("M9 axis-aligned 60 m", [(2.0 * i, 0.0, 0.0) for i in range(31)]),
+                      ("M11 skew (2,1,0) 60 m", [(2.0 * i, 1.0 * i, 0.0) for i in range(31)])):
+        sup = {0: (A6, [])}
+        for i in range(3, 31, 3):
+            sup[i] = ([], [("UZ", 5e4)])
+        sup[30] = (["UY"], [("UZ", 5e4)])
+        loads = [(6 * i + 2, -1000.0) for i in range(1, 31)] + [(6 * 30 + 1, 100.0)]
+        res.append(run(name, build_chain(pts, sup, loads, sec)))
+    print(json.dumps({"python": sys.version.split()[0], "models": res}, indent=1))
+
+
+if __name__ == "__main__":
+    main()

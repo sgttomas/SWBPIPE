@@ -1,0 +1,41 @@
+{
+ "python": "3.11.15",
+ "models": [
+  {
+   "model": "M9 axis-aligned 60 m",
+   "dofs_free": 179,
+   "dense": {
+    "outcome": "Passed",
+    "rcond": 3.086551952988647e-06,
+    "cond": 323986.12277746364,
+    "refinement_attempts": 0,
+    "actual_error_first_order_ratio_to_1e-9": 5.289743251192965e-05
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "rcond": 3.086551952983933e-06,
+    "cond": 323986.12277795846,
+    "refinement_attempts": 0,
+    "actual_error_first_order_ratio_to_1e-9": 2.852129109302087e-05
+   }
+  },
+  {
+   "model": "M11 skew (2,1,0) 60 m",
+   "dofs_free": 179,
+   "dense": {
+    "outcome": "Passed",
+    "rcond": 3.865504998569254e-07,
+    "cond": 2586984.1078206645,
+    "refinement_attempts": 0,
+    "actual_error_first_order_ratio_to_1e-9": 8.821364125718954e-05
+   },
+   "sparse": {
+    "outcome": "Passed",
+    "rcond": 3.8655049985330945e-07,
+    "cond": 2586984.107844864,
+    "refinement_attempts": 0,
+    "actual_error_first_order_ratio_to_1e-9": 0.00014944069540555403
+   }
+  }
+ ]
+}
