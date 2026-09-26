@@ -114,3 +114,16 @@ REVIEW_B's verdict was FINDINGS, with nothing blocking (`T1_WAVE1_REVIEW_B/RETUR
 | **F7** | Document that the operation-level inverse cannot restore an explicit-null prior. The product refuses explicit null, and desktop Undo is checkpoint-based. Sent to the WP3 author. |
 | **F8** | Fix the stale pin comment. Sent to the WP5 author. |
 | **F9** | Treat 0.4.0 exact-pressure models as the exact profile in `validate_temperature_points`, so no spurious warnings appear. Sent to the WP3 author. |
+
+## 11. WP4 headless: joined canonical document (wave 2, manager ruling)
+
+- **Question (T1_WP4_HEADLESS).** The brief's item 2 said "the canonical document selects the joined branch". Through `result_envelope_binding`, a `load-reference-source-1` solve produces no canonical document and no `QualifiedPreviewEvidence`. The recorded reason is `CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE`: the binding builds only numerically eligible results, and §7 makes joined results never eligible in T1.
+- **Ruling.** Characterize this as designed; no seam is added.
+  - Assert no document and no proof, with the exact unavailability text.
+  - Assert the receipt is bound to the actual invocation and validates through the joined reader.
+  - Assert `needs_recompute` in both readers.
+  - Assert reparsed receipt bytes cannot produce a document.
+  - Emit the joined artifacts without a document.
+  - The committed joined carriers remain the ones from `derive_document` in `load_reference_source_contract.rs`.
+  - A binding route for joined results is T3 work, together with eligibility.
+- **Pre-0.4 controls.** A 0.3.0 document that carries 0.4.0 keys is blocked with `LOAD_STATE_CONTRACT_VERSION_MISMATCH`. Its identity follows its own version and contract: `physics-1` on the exact contract, `preview-physics-1` otherwise. It never carries a T1 identity.
