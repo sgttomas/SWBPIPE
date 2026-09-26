@@ -29,7 +29,12 @@ These terms apply to every T1 wave-1 brief (`T1_*.md`) in this folder.
 - Never populate a material or component library or a code rule, and never add an agent-invented default. All test inputs are invented and marked as such.
 - Never weaken a protected test, tolerance, oracle or reference to get a pass. Never change a reference or a producer fixture to match an observation. A mismatch goes to the manager.
 - Do not write `core/product_physics/**`, `apps/desktop/**`, `core/runner/headless/**` or another TASK's files. If you need a producer seam, ask the manager.
-- These functions are reserved for another tranche (T0R); do not touch them: `straight_summary_extrema`, `open_formula_summary_mpa`, headline/maxima selection, and the reaction-resultant publication.
+- These are reserved for another tranche (T0R); do not touch them:
+  - in the product: `straight_summary_extrema`, `open_formula_summary_mpa`, headline/maxima selection, and the reaction-resultant publication;
+  - the source-blocks readers, `core/reporting/result_export/src/source_blocks.rs` and `core/analysis_runs/source_blocks.py`;
+  - the Current/rule/export standing functions in `semantic_contract.rs` and their Python peers. A T1 change in `semantic_contract.rs` may only add T1 identities to its enumerations and dispatch.
+  (Added 2026-09-26 at ROOT's direction. The wave-1 briefs predate it; the manager relayed it to WP1_JOINED_READERS by message.)
+- **After T0R.** T0R adds a static rule, in all three languages, that precision-1 is never a fresh identity. When T1 rebases after T0R, T1's own identities are added to that set.
 
 ## Build and disk
 

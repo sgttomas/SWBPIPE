@@ -24,6 +24,7 @@ mod boundary_association;
 mod display_units;
 mod geometry_operations;
 mod rich_authoring;
+mod load_state_authoring;
 mod pressure_authoring;
 mod section_bindings;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
@@ -1210,6 +1211,8 @@ fn run_with_context(
         ("Support", "configuration") => Some("update_support"),
         ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
         ("Load", "pressure_regions") => Some("update_load"),
+        ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
+        ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
         _ => None,
     };
@@ -1228,6 +1231,18 @@ fn run_with_context(
         checker.schema_blocked = true;
         checker.push("OP-PRESSURE-MODEL-HASH-REQUIRED", "blocking", "Explicit pressure/material replacements require the current complete model hash.".into(), "Refresh the model basis before review and application.", vec![target_ref.clone()]);
     }
+    if load_state_authoring::owns(&object_type, &field_path)
+        && claimed_model_hash.is_none_or(Value::is_null)
+    {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-LOAD-STATE-MODEL-HASH-REQUIRED",
+            "blocking",
+            "Load/reference-state replacements require the current complete model hash.".into(),
+            "Refresh the model basis before review and application.",
+            vec![target_ref.clone()],
+        );
+    }
     let mut rich_model: Option<Value> = None;
     if let Some(expected_kind) = rich_kind {
         if change_kind != expected_kind {
@@ -1240,7 +1255,13 @@ fn run_with_context(
                 vec![target_ref.clone()],
             );
         } else if !checker.schema_blocked {
-            let resolver = if pressure_authoring::owns(&object_type, &field_path) { pressure_authoring::resolve } else { rich_authoring::resolve };
+            let resolver = if pressure_authoring::owns(&object_type, &field_path) {
+                pressure_authoring::resolve
+            } else if load_state_authoring::owns(&object_type, &field_path) {
+                load_state_authoring::resolve
+            } else {
+                rich_authoring::resolve
+            };
             match resolver(
                 model,
                 &object_type,
@@ -3810,7 +3831,8 @@ fn resolve_delete_pipe_run(
         );
         return None;
     }
-    let references = pipe_primitive_load_references(model, target_ref);
+    let mut references = pipe_primitive_load_references(model, target_ref);
+    references.extend(load_state_authoring::pipe_references(model, target_ref));
     if !references.is_empty() {
         checker.reference_state = "blocked";
         checker.push(
@@ -5935,6 +5957,27 @@ fn resolve_delete_primitive_load(
         );
         return None;
     }
+    let primitive_id = primitive_load
+        .get("id")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let references = load_state_authoring::source_references(load_case, primitive_id);
+    if !references.is_empty() {
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-LOAD-STATE-INBOUND-REFERENCE",
+            "blocking",
+            format!(
+                "Primitive load `{primitive_id}` is still named by the case's load sources: {}.",
+                references.join(", ")
+            ),
+            "Remove the load_sources entry from the case's analysis_state before deleting the primitive load.",
+            std::iter::once(target_ref.to_string())
+                .chain(references)
+                .collect(),
+        );
+        return None;
+    }
 
     checker.reference_state = "passed";
     check_before(&current_display, before, target_ref, field_path, checker);
@@ -6272,6 +6315,7 @@ fn resolve_delete_support(
                     .to_string()
             }),
     );
+    references.extend(load_state_authoring::support_references(model, target_ref));
     if !references.is_empty() {
         checker.reference_state = "blocked";
         checker.push(
