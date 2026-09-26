@@ -349,3 +349,8 @@ Input: [REVIEW/BACKCHECK_R5.md](REVIEW/BACKCHECK_R5.md). Verdict FINDINGS, nothi
 - ROOT agrees with the manager's reading. Generated self-weight is an authoring-time model operation that writes a `distributed_force` intensity into the model document, where the user can see and edit it. It is therefore the model's input, not a solve-time derivation.
 - D-14's exact-from-inputs rule applies only to the solve-time seismic and wind equivalent-static generators. No owner options are needed.
 - The other RF-ELOAD definition answers (`MANAGER_NOTES/RF_ELOAD_DEFINITIONS.md`) are accepted.
+
+## D-14 slice correction and revision 5a (ROOT, 2026-09-26, after `16bcbf369`)
+
+- **Correction.** D-14's equivalent-static extension goes in **F3**, with the W1b element-load work, not F2b. ROOT's "F2b" was a slip: generated equivalent-static loads are uniform element loads and need W1b's element-load machinery. It lands atomic with F3's RF-ELOAD gate. Until then, the case is refused as `equivalent-static unsupported`. D1's revision 5a already places it this way.
+- The rest of D1's revision 5a (`16bcbf369`) stands as ruled. It goes to D2 for revision 5b, then to V1's targeted verification.

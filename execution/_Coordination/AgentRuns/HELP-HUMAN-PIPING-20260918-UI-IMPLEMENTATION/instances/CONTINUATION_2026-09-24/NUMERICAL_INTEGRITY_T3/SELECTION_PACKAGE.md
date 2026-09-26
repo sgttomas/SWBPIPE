@@ -23,9 +23,10 @@ The references are already frozen (`ROOT_SELECTION_REFERENCES.md`). The S11 cont
 
 | Record | Revision / commit | sha256 (prefix) |
 |---|---|---|
-| `DESIGN_NUMERICS/DESIGN.md` (D1) | revision 5 at `490f02982` (5a pending) | `42bba414` |
-| `DESIGN_NUMERICS/S11_CONTAINMENT.md` | revision 5 at `490f02982` (selected at revision 3 plus R3) | `776a6309` |
-| `DESIGN_NUMERICS/D5_TRIGGER.md` | revision 2 at `490f02982` | `da8ce574` |
+| `DESIGN_NUMERICS/DESIGN.md` (D1) | revision 5a at `16bcbf369` | `7decddea` |
+| `DESIGN_NUMERICS/S11_CONTAINMENT.md` | revision 5a at `16bcbf369` (selected at revision 3 plus R3) | `82c1b072` |
+| `DESIGN_NUMERICS/D5_TRIGGER.md` | revision 2a at `16bcbf369` | `f6e24a69` |
+| `DESIGN_NUMERICS/R5_4_CURVED.md` | `4bc3e0696` | `4843c4e9` |
 | `DESIGN_STANDING/DESIGN.md` (D2) | revision 5a at `8bf23f794` (5b pending) | `04a466b1` |
 | `REFERENCES/` (R1, frozen) | `c0f14201c` | `references.json` `7b176dbb` |
 | Reviews | `REVIEW/RETURN.md`, `S11_CHECK.md`, `S11_BACKCHECK.md`, `S11_BACKCHECK_R3.md`, `BACKCHECK_R2.md`, `BACKCHECK_R3.md`, `D5_CHECK.md`, `BACKCHECK_R4.md`, `BACKCHECK_R5.md` | — |
@@ -89,7 +90,7 @@ ROOT ruled on these before the final package, to save a round. They become final
 | D-9 | W4 | As proposed. T4 confirms the curved construction |
 | D-10 | Serialization | As in §4 |
 | D-11 | RF-ELOAD | Commission it now: a product-code-blind author, then a V2-style refutation. It lands before F3. Brief: `TASK_BRIEFS/R1_ADDENDUM_ELOAD.md`, including D-14's generated loads |
-| D-14 | Equivalent-static owner | **T3, as a W1b extension in F2b** (ROOT, 2026-09-26). The generated magnitude is computed exactly from the user's inputs (mass_per_length × g_factor × g; pressure × shape_factor × exposed_diameter) as the intended source, the same principle as re-forming stiffness from inputs. It is not the rounded binary64 product treated as input. The rule covers only the solve-time seismic and wind generators. Generated self-weight is an authoring-time document value, so it is an ordinary input (ROOT, after `28d96084f`). D1 pins this in revision 5a. RF-ELOAD covers generated loads |
+| D-14 | Equivalent-static owner | **T3, as a W1b extension in F3**, with W1b's element-load work and atomic with its RF-ELOAD gate; refused as `equivalent-static unsupported` until then (ROOT, 2026-09-26; "F2b" corrected to F3 after `16bcbf369`). The generated magnitude is computed exactly from the user's inputs (mass_per_length × g_factor × g; pressure × shape_factor × exposed_diameter) as the intended source, the same principle as re-forming stiffness from inputs. It is not the rounded binary64 product treated as input. The rule covers only the solve-time seismic and wind generators. Generated self-weight is an authoring-time document value, so it is an ordinary input (ROOT, after `28d96084f`). D1 pins this in revision 5a. RF-ELOAD covers generated loads |
 | DD-1, DD-2 | Composite finalization | F1 port of SF-1, with R-1a and R-1b open until W1 |
 | DD-3 | TS position | TS-a |
 | DD-4 | Host-rounded exp fields | H-a |
