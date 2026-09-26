@@ -1,0 +1,305 @@
+K8 {'join': ('KILLED', 1), 'all': ('KILLED', 1)}
+    join source_receipt::load_state_join_tests::a_primitive_load_colliding_with_the_reserved_eigen_source_id_is_refused_at_closure
+    all source_receipt::load_state_join_tests::a_primitive_load_colliding_with_the_reserved_eigen_source_id_is_refused_at_closure
+K9 {'join': ('KILLED', 1), 'all': ('KILLED', 1)}
+    join source_receipt::load_state_join_tests::the_mixed_joined_envelope_binds_its_ordinary_pressure_case_record
+    all source_receipt::load_state_join_tests::the_mixed_joined_envelope_binds_its_ordinary_pressure_case_record
+SF1-M1 reservation removed {'fallback': ('KILLED', 1)}
+    fallback source_receipt::load_state_fallback_tests::reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking
+SF1-M2 fallback republication removed {'fallback': ('KILLED', 2)}
+    fallback source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
+    fallback source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route
+SF1-M3 withheld attempt still selects {'fallback': ('KILLED', 2)}
+    fallback source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
+    fallback source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route
+SF1-M4 per-case failure not recorded {'fallback': ('KILLED', 1)}
+    fallback source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
+SF1-M5 invocation failure not recorded {'fallback': ('KILLED', 1)}
+    fallback source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route
+SF1-M6 reservation c<=L {'fallback': ('KILLED', 1)}
+    fallback source_receipt::load_state_fallback_tests::reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking
+R1 pre-0.4 guards removed (wrapper + invocation record) {'fallback': ('SURVIVED', 0), 'lib': ('SURVIVED', 0)}
+R2 pre-0.4 guards removed (wrapper + per-case record) {'lib': ('SURVIVED', 0), 'all': ('SURVIVED', 0)}
+R3 fallback ledger keeps first-run charge {'fallback': ('KILLED', 1), 'join': ('SURVIVED', 0)}
+    fallback source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
+R4 declined attempt debits no work {'fallback': ('KILLED', 1)}
+    fallback source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
+R5 withheld cause omitted from diagnostic {'fallback': ('KILLED', 2)}
+    fallback source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
+    fallback source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route
+R6 reservation strict c<L-c {'fallback': ('SURVIVED', 0), 'join': ('SURVIVED', 0)}
+R7 fallback first failure overwritten by later {'fallback': ('SURVIVED', 0), 'join': ('SURVIVED', 0)}
+ALL RESTORED AND SHA256-VERIFIED
+{
+ "K8": {
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_join_tests::a_primitive_load_colliding_with_the_reserved_eigen_source_id_is_refused_at_closure"
+   ],
+   "results": [
+    "test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.59s"
+   ]
+  },
+  "all": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_join_tests::a_primitive_load_colliding_with_the_reserved_eigen_source_id_is_refused_at_closure"
+   ],
+   "results": [
+    "test result: FAILED. 323 passed; 1 failed; 1 ignored; 0 measured; 5 filtered out; finished in 2.12s"
+   ]
+  }
+ },
+ "K9": {
+  "join": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_join_tests::the_mixed_joined_envelope_binds_its_ordinary_pressure_case_record"
+   ],
+   "results": [
+    "test result: FAILED. 7 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.47s"
+   ]
+  },
+  "all": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_join_tests::the_mixed_joined_envelope_binds_its_ordinary_pressure_case_record"
+   ],
+   "results": [
+    "test result: FAILED. 323 passed; 1 failed; 1 ignored; 0 measured; 5 filtered out; finished in 2.65s"
+   ]
+  }
+ },
+ "SF1-M1 reservation removed": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.25s"
+   ]
+  }
+ },
+ "SF1-M2 fallback republication removed": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back",
+    "source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route"
+   ],
+   "results": [
+    "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.25s"
+   ]
+  }
+ },
+ "SF1-M3 withheld attempt still selects": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back",
+    "source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route"
+   ],
+   "results": [
+    "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.30s"
+   ]
+  }
+ },
+ "SF1-M4 per-case failure not recorded": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.24s"
+   ]
+  }
+ },
+ "SF1-M5 invocation failure not recorded": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.25s"
+   ]
+  }
+ },
+ "SF1-M6 reservation c<=L": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.24s"
+   ]
+  }
+ },
+ "R1 pre-0.4 guards removed (wrapper + invocation record)": {
+  "fallback": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.26s"
+   ]
+  },
+  "lib": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 324 passed; 0 failed; 1 ignored; 0 measured; 5 filtered out; finished in 2.61s"
+   ]
+  }
+ },
+ "R2 pre-0.4 guards removed (wrapper + per-case record)": {
+  "lib": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 324 passed; 0 failed; 1 ignored; 0 measured; 5 filtered out; finished in 2.56s"
+   ]
+  },
+  "all": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 324 passed; 0 failed; 1 ignored; 0 measured; 5 filtered out; finished in 2.20s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.33s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s",
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.44s",
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s",
+    "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s",
+    "test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.52s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s",
+    "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+   ]
+  }
+ },
+ "R3 fallback ledger keeps first-run charge": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.24s"
+   ]
+  },
+  "join": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.55s"
+   ]
+  }
+ },
+ "R4 declined attempt debits no work": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back"
+   ],
+   "results": [
+    "test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.23s"
+   ]
+  }
+ },
+ "R5 withheld cause omitted from diagnostic": {
+  "fallback": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "source_receipt::load_state_fallback_tests::a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back",
+    "source_receipt::load_state_fallback_tests::reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordinary_route"
+   ],
+   "results": [
+    "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.25s"
+   ]
+  }
+ },
+ "R6 reservation strict c<L-c": {
+  "fallback": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.24s"
+   ]
+  },
+  "join": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.63s"
+   ]
+  }
+ },
+ "R7 fallback first failure overwritten by later": {
+  "fallback": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.24s"
+   ]
+  },
+  "join": {
+   "exit": 0,
+   "compile_error": false,
+   "killed": false,
+   "failed": [],
+   "results": [
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.44s"
+   ]
+  }
+ }
+}
+EXIT=0

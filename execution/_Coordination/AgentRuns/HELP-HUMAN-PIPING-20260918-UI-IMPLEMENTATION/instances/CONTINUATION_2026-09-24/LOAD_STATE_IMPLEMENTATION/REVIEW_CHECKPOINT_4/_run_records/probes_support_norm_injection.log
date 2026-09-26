@@ -1,0 +1,125 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (<scratch>/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:12:39
+   |
+12 |     ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
+   |                                       ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8144:4
+     |
+8144 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:69:9
+   |
+68 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+69 |     pub support_id: String,
+   |         ^^^^^^^^^^
+70 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+71 |     pub value: f64,
+   |         ^^^^^
+72 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:94:9
+    |
+ 93 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 94 |     pub dofs: usize,
+    |         ^^^^
+ 95 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 96 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 97 |     pub blocks: usize,
+    |         ^^^^^^
+ 98 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 99 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+100 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+101 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+102 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+103 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+104 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+105 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+106 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+107 |     pub max_relative_projection_error: f64,
+108 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:121:5
+    |
+115 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+121 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:147:12
+    |
+130 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+147 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:512:19
+    |
+447 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+512 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: constant `CASE` is never used
+ --> src/source_receipt/review4_probes.rs:4:7
+  |
+4 | const CASE: &str = "case:join";
+  |       ^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 9 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.31s
+     Running unittests src/lib.rs (<target>/debug/deps/open_pipe_stress_product_physics-fbac0974bf55454c)
+
+running 1 test
+R4PROBE support_norm {"captured":{"diags":[{"code":"SOURCE_BLOCK_RECOVERY_UNAVAILABLE","live_charged":3360029,"msg_tail":"rt { charged: 3360029, rejected: 0, limit: 8000000 } }; the invocation publishes every case on its ordinary route because its selected join could not finalize: case case:join: source functional row binding is not unique: stop/support_reaction_component_v2/node","refs":["case:join"],"reservation":false,"sev":"info","withheld":true},{"code":"LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED","live_charged":null,"msg_tail":"requested_mode=sparse_interactive; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt=unavailable","refs":["case:join"],"reservation":false,"sev":"info","withheld":false}],"label":"openpipestress.result_semantics/0.3.0/load-reference-1","quality":"Sensitive","receipt":null,"records":[["case:join","not_joined","ordinary_sparse_structural_v1"]],"rows":90,"status":"MECHANICS_SOLVED"},"fallback_cause":"case case:join: source functional row binding is not unique: stop/support_reaction_component_v2/node","join_failure":null,"mode":"sparse_interactive","value_route":{"label":"openpipestress.result_semantics/0.3.0/load-reference-1","rows":90,"status":"MECHANICS_SOLVED"}}
+R4PROBE support_norm {"captured":{"diags":[{"code":"SOURCE_BLOCK_RECOVERY_UNAVAILABLE","live_charged":3360029,"msg_tail":"rt { charged: 3360029, rejected: 0, limit: 8000000 } }; the invocation publishes every case on its ordinary route because its selected join could not finalize: case case:join: source functional row binding is not unique: stop/support_reaction_component_v2/node","refs":["case:join"],"reservation":false,"sev":"info","withheld":true},{"code":"LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED","live_charged":null,"msg_tail":"requested_mode=dense_scrutiny; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt=unavailable","refs":["case:join"],"reservation":false,"sev":"info","withheld":false}],"label":"openpipestress.result_semantics/0.3.0/load-reference-1","quality":"Sensitive","receipt":null,"records":[["case:join","not_joined","ordinary_dense_structural_v1"]],"rows":91,"status":"MECHANICS_SOLVED"},"fallback_cause":"case case:join: source functional row binding is not unique: stop/support_reaction_component_v2/node","join_failure":null,"mode":"dense_scrutiny","value_route":{"label":"openpipestress.result_semantics/0.3.0/load-reference-1","rows":91,"status":"MECHANICS_SOLVED"}}
+test source_receipt::review4_probes::r4_support_norm_failure_outcome ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 329 filtered out; finished in 0.11s
+

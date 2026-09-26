@@ -122,4 +122,14 @@ This slice is not a mergeable PR candidate by itself. The T1 PR qualification in
 
 ## 5. Review
 
-(filled after the independent review)
+The independent review is `REVIEW_CHECKPOINT_4/RETURN.md` (candidate `14a74b793`). Its verdict is FINDINGS: one should-fix (SF-1R) and four notes, nothing blocking.
+
+The dispositions, ROOT's rulings (SF-1R option b; the N-2 same-ledger preference) and the repairs are in `CP4_REVIEW_DISPOSITION.md`. That record corrects §1 of this checkpoint and §1.1–1.2 of `CP4_WIRE_ADDENDUM.md`; neither file is rewritten.
+
+**Checks after the repairs.**
+- product_physics: 418 passed, 1 ignored. That is 415 plus three new fallback tests. Warnings are the same by name (`_run_records/session3/cp4r_product_physics_all_tests.log`).
+- Producer raws: 34 of 34 unchanged (`cp4r_regen_compare.log`).
+- SF-1 mutants, re-anchored to the committed bytes: 8 of 8 killed (`cp4r_sf1_mutations.log`, with M1 in `cp4r_sf1_mutations_M1_rerun.log`).
+- The readers and result_export are untouched by the repairs.
+
+The repairs go to the reviewer for a non-author backcheck.
