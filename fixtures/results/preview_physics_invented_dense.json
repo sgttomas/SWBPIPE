@@ -4527,7 +4527,7 @@
     {
       "id": "result:moment:pipe-P-120:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 192.53547637179713,
+      "value": 192.53547637179702,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -4653,7 +4653,7 @@
     {
       "id": "result:stress:pipe-P-120:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 4.985227379044455e-15,
+      "value": 5.816098608885198e-15,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -4869,7 +4869,7 @@
     {
       "id": "result:stress:pipe-P-120:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 1.4071302469748592,
+      "value": 1.4071302469748586,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -10088,7 +10088,7 @@
     {
       "id": "result:loadcase:load-L-200:moment:pipe-P-120:quarter-3:bending-z",
       "kind": "element_local_bending_moment_z",
-      "value": 96.26773818589857,
+      "value": 96.26773818589862,
       "unit": "N*m",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -10214,7 +10214,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:end-j:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 4.1543561492037126e-15,
+      "value": 3.7389205342833415e-15,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -10430,7 +10430,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:quarter-3:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 0.7035651234874296,
+      "value": 0.70356512348743,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {

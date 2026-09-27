@@ -1,6 +1,7 @@
 //! Caller-side provenance for the M03 passive structural gate.
 //! Formation allowances are arithmetic estimates, never physical accuracy proofs.
 use crate::{CurvedBendStiffnessElement, LinearSolveMode};
+use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm};
 use open_pipe_stress_frame_kernel::rigid_body::{
     assess_rigid_body, ObjectiveFamily, RigidBodyStatus,
 };
@@ -20,6 +21,8 @@ pub struct AssemblyEvidence {
     coordinates: Vec<Option<[f64; 3]>>,
     edges: Vec<(usize, usize, bool)>,
     spring_ground: Vec<usize>,
+    /// Identified ledger terms for the load-fidelity audit (S11-K; dormant).
+    force_terms: Option<Vec<ForceTerm>>,
 }
 impl AssemblyEvidence {
     pub fn new(
@@ -37,6 +40,7 @@ impl AssemblyEvidence {
             coordinates: vec![None; node_count],
             edges: Vec::new(),
             spring_ground: Vec::new(),
+            force_terms: None,
         };
         for element in frames {
             let local = element
@@ -249,6 +253,24 @@ impl AssemblyEvidence {
         }
         Ok(())
     }
+    /// Attaches the case's identified ledger terms. `solve` then also runs
+    /// the kernel's load-fidelity audit against the given force vector (the
+    /// C3-detect entry point): a flagged row makes the case Sensitive with a
+    /// `LoadFidelityReport`, never a refusal. The solve itself is unchanged.
+    pub fn with_force_terms(mut self, terms: &[ForceTerm]) -> Self {
+        self.force_terms = Some(terms.to_vec());
+        self
+    }
+
+    fn symmetry_basis(&self) -> String {
+        let family_basis = if self.edges.iter().all(|(_, _, qualified)| *qualified) {
+            "objective welded unreleased straight-frame family"
+        } else {
+            "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory"
+        };
+        format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}")
+    }
+
     pub fn solve(
         &self,
         k: &[Vec<f64>],
@@ -258,12 +280,7 @@ impl AssemblyEvidence {
         mode: LinearSolveMode,
     ) -> Result<StructuralSolution, StructuralError> {
         self.geometry(prescribed)?;
-        let family_basis = if self.edges.iter().all(|(_, _, qualified)| *qualified) {
-            "objective welded unreleased straight-frame family"
-        } else {
-            "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory"
-        };
-        let symmetry_basis = format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}");
+        let symmetry_basis = self.symmetry_basis();
         let system = StructuralSystem {
             stiffness: k,
             force: f,
@@ -276,6 +293,10 @@ impl AssemblyEvidence {
                 basis: &symmetry_basis,
             }),
         };
+        if let Some(terms) = &self.force_terms {
+            let prepared = structural::prepare_structural_with_force_terms(&system, terms)?;
+            return solve_prepared(prepared, mode);
+        }
         match mode {
             LinearSolveMode::DenseScrutiny => structural::solve_structural_dense(&system),
             LinearSolveMode::SparseInteractive => {
@@ -283,6 +304,101 @@ impl AssemblyEvidence {
             }
         }
     }
+
+    /// Named, unchanged binary64 variant of `solve` for the nonlinear active-set
+    /// loop's closed-gap prescribed solves (ROOT option (c) on the S11-K stop
+    /// report): the kernel's right-hand side and refinement residual fold in
+    /// binary64 as before S11-K. Linear callers use `solve` (exact KS1-KS3).
+    pub fn solve_binary64(
+        &self,
+        k: &[Vec<f64>],
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        self.geometry(prescribed)?;
+        let symmetry_basis = self.symmetry_basis();
+        let system = StructuralSystem {
+            stiffness: k,
+            force: f,
+            free_dofs: free,
+            prescribed,
+            contributions: Some(&self.contributions),
+            symmetry: Some(SymmetryEvidence {
+                absolute_roundoff: &self.absolute_roundoff,
+                operation_counts: &self.operation_counts,
+                basis: &symmetry_basis,
+            }),
+        };
+        solve_prepared(structural::prepare_structural_binary64(&system)?, mode)
+    }
+
+    /// Typed sibling of `solve` (S11-K; dormant until S11-F): the force is the
+    /// ledger-built `AssembledForce`, so the kernel's right-hand side (KS1),
+    /// refinement residual (KS3) and load-fidelity audit use its terms.
+    /// ```compile_fail
+    /// use open_pipe_stress_nonlinear_integration::structural_adapter::AssemblyEvidence;
+    /// use open_pipe_stress_nonlinear_integration::LinearSolveMode;
+    /// let evidence = AssemblyEvidence::new(1, &[], &[], &[], &[]).unwrap();
+    /// let k = vec![vec![1.0; 6]; 6];
+    /// let force: Vec<f64> = vec![0.0; 6];
+    /// let _ = evidence.solve_assembled(&k, &force, &[0], &[], LinearSolveMode::DenseScrutiny);
+    /// ```
+    pub fn solve_assembled(
+        &self,
+        k: &[Vec<f64>],
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        self.geometry(prescribed)?;
+        let symmetry_basis = self.symmetry_basis();
+        let system = StructuralSystem::assembled(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(SymmetryEvidence {
+                absolute_roundoff: &self.absolute_roundoff,
+                operation_counts: &self.operation_counts,
+                basis: &symmetry_basis,
+            }),
+        );
+        solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
+    }
+}
+
+/// Named, unchanged binary64 variant of `sparse_direct::structural::
+/// solve_structural_sparse` for the nonlinear active-set loop (ROOT option (c)):
+/// the same prepare, skyline LDL, witness and completion sequence, on the
+/// binary64 kernel path.
+pub fn solve_structural_sparse_binary64(
+    system: &StructuralSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    solve_prepared(
+        structural::prepare_structural_binary64(system)?,
+        LinearSolveMode::SparseInteractive,
+    )
+}
+
+fn solve_prepared(
+    prepared: structural::PreparedSystem<'_>,
+    mode: LinearSolveMode,
+) -> Result<StructuralSolution, StructuralError> {
+    let factor = match mode {
+        LinearSolveMode::DenseScrutiny => structural::factor_structural_cholesky(&prepared),
+        LinearSolveMode::SparseInteractive => {
+            open_pipe_stress_sparse_direct::structural::factor_structural_ldlt(&prepared)
+        }
+    };
+    let factor = match factor {
+        Ok(factor) => factor,
+        Err(error) => return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error)),
+    };
+    structural::finish_structural(&factor)
 }
 
 /// Trace the curved source's *symmetry* formation: the explicitly symmetrized

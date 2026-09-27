@@ -1,0 +1,7 @@
+test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED
+test load_reference_route_tests::joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export_both_modes ... FAILED
+thread 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes' (16046) panicked at src/load_reference_route_tests.rs:212:13:
+assertion `left == right` failed: connected/sparse_interactive: actual producer changed
+thread 'load_reference_route_tests::joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export_both_modes' (16045) panicked at src/load_reference_route_tests.rs:494:13:
+assertion `left == right` failed: eigen_motion/sparse_interactive: actual producer changed
+test result: FAILED. 49 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 57.37s

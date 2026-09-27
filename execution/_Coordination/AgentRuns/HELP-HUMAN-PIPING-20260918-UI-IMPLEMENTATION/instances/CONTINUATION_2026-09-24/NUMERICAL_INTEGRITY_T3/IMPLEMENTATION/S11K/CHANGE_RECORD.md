@@ -1,0 +1,149 @@
+# S11-K: exact load sums in the kernel and recovery (change record / PR body draft)
+
+**PR branch.** `codex/piping-s11k-pr-20260926`, cut at `origin/main` `6bb3ee490` and since merged forward to `f76643235` (ROOT's main merge; no piping change). It was developed on `codex/piping-s11k-20260926` (base `163cd44ab`); see the last section.
+
+**Basis.** S11-K of the selected S11 containment: `T3/DESIGN_NUMERICS/S11_CONTAINMENT.md` **revision 5a.2** (`e6507587`), selected by `T3/ROOT_SELECTION_DESIGNS.md` (C3: S11-K was built to revision 3 plus ROOT's R3 conditions, `T3/ROOT_SELECTION_S11.md`, and is verified against 5a.2), plus ROOT's rulings on the S11-K stop report (option (c); B1 accepted as the intended repair).
+
+**Approvals.** The regeneration, hash-pin and TS-run approvals are recorded in `T3/ROOT_RULINGS_V1.md`, section "S11-K regeneration and hash-pin approvals" (`cef281b21`; RV1-S3).
+
+**Author.** Type 2 TASK I1 (Claude). This is not owner review. It needs independent review of the full diff, hosted CI including the surface-4 dual-viewport dispatch, and a clean DEC-025 sweep.
+
+## What changes
+
+- **One correctly rounded summation function** (`frame_kernel::exact_sum`):
+  - an exact fixed-point accumulator (68 limbs, quantum 2^-2148, so exact products are admitted);
+  - rounded once, to nearest-even, at the binary64 quantum including the subnormal binade;
+  - the power-of-two scale is applied before the single rounding;
+  - an exact zero, or a nonzero net that underflows, gives +0.0: a stated deviation from IEEE for a negative underflow.
+  - `product_physics::pressure_sum` is now a wrapper over it, with its tests unchanged.
+- **Ledger types** (`frame_kernel::load_ledger`, re-exported by `primitive_loads`): `LoadLedger`, `AssembledForce` (buildable only by `finish`), `ReducedForce`. The typed solve seams accept only these types:
+  - `StructuralSystem::assembled` → `AssembledStructuralSystem`;
+  - `reduce_assembled_system*`;
+  - `AssemblyEvidence::solve_assembled`;
+  - the nonlinear `solve_active_set_frame*_assembled` siblings, which require the input force bit for bit.
+  - They are dormant until S11-F, because product_physics still uses the `&[f64]` seams.
+- **Live repairs:**
+  - `straight_pipe` E1–E4 and E6: fixed-end loads, axial-effect pairs, local-minus-loads end forces and station resultants are each one exact sum of their terms, rounded once;
+  - `load_case_algebra` E13: a combination is one exact sum of the exact products c·q;
+  - `frame_kernel` `Expansion::rounded()` is replaced by the correctly rounded `round()` at `exact_scalar`, the absorbed-diagonal screen and the intended-action residual. The residual keeps the −0.0 zero witness only for an exact zero (D-S11-1);
+  - the `exact_boundary` coverage checks also accept the correctly rounded sum;
+  - kernel prescribed motion (KS1–KS3): for linear callers, the reduced right-hand side and the refinement numerator on prescribed-coupled rows are exact sums. This is live only where a prescribed value is nonzero: T1's 0.4.0 support motion.
+- **Nonlinear active-set loop** (ROOT option (c)): the loop's closed-gap prescribed solves call named, unchanged binary64 variants: `reduce_system_with_prescribed_displacements_binary64`, `prepare_structural_binary64`, `solve_structural_dense_binary64`, `AssemblyEvidence::solve_binary64` and `solve_structural_sparse_binary64`. Only the call targets change, and pin tests hold them there. The public `structural::evaluate_original_residual`, which product equilibrium uses, stays today's binary64 evaluation.
+- **Load-fidelity audit** (defence in depth, dormant): `audit_load_fidelity` checks free and restrained rows. A flagged row gives `SolveQuality::Sensitive` plus a `LoadFidelityReport` on `StructuralSolution`, never a refusal. The Debug-published `StructuralReport` is byte-unchanged.
+- **Site test**, S11-K part: a constant table keyed by (file, function, exact match count, disposition), covering every accumulation in FK, SA, the nonlinear crate, SP, CB and `load_case_algebra`.
+
+## Which quantities change bits, and by how much
+
+- **Where bits move in user models:**
+  - straight-member end forces and station resultants whose sum has three or more terms (for example a station with even one element load: M_i, fl(V·d), the load term), when the binary64 fold was not correctly rounded;
+  - load-case combinations with three or more terms or non-unit factors;
+  - results of linear solves with nonzero prescribed motion (the 0.4.0 support-motion route).
+- **The bound in the non-cancelling case.** The published value moves by at most the fold's own rounding error. That is about one rounding of the gross sum: a few units in the last place of the largest term, and relative changes of about 1e-16 in the committed fixtures.
+- **Where a load was being absorbed** (a gross-to-net ratio of about 1e7 or more in an unfavourable order), the exact sum repairs it.
+- **No case changes status unless it was absorbing a load.** No committed fixture changes status or diagnostic code.
+- **No in-band marker** (D-S11-4). The method identity changes in-band only at the F-slices' receipt profile.
+
+## Committed fixture changes (measured, then regenerated by the actual producers)
+
+Pre-registered (R3-1, and ROOT's ruling on the stop report) or accepted as the intended repair (B1). Every other committed request is byte-identical in both modes.
+
+| File | Bytes before → after | Changed leaves | What moves |
+|---|---|---|---|
+| A `fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json` | 246086 → 246182 | 39 | displacement, reactions, axial force and stress, stress extrema (≤3.9e-16); Debug residual text (15 tokens); parity observation |
+| A `…/connected-sparse_interactive.raw.json` | 243535 → 243663 | 37 | as dense, ≤4.3e-16 |
+| A `fixtures/product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json` | 205188 → 205188 | 3 | Debug text (6 tokens), `publication_sha256`, `receipt_sha256` |
+| A `…/eigen_motion-sparse_interactive.raw.json` | 203677 → 203676 | 5 | as dense, plus `invocation_work` charged 7617107 → 7617095 and publication_charged 276924 → 276912 (explained below) |
+| B2 `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json` | 86088 → 86088 | 1 | Debug residual text (6 tokens) |
+| B2 `…/load_reference_fallback_uz-sparse_interactive.raw.json` | 84842 → 84841 | 1 | Debug residual text (6 tokens) |
+| B1 `fixtures/results/preview_physics_invented_dense.json` | 568494 → 568492 | 6 | pipe:P-120 quarter-3 bending moment z in L-100 and L-200 (5.9e-16), the two matching stresses, and end-j bending stress z (roundoff-level near-zero value, 4.985e-15 → 5.816e-15 MPa) |
+| B1 `fixtures/results/preview_physics_invented_sparse.json` | 565864 → 565865 | 6 | as dense |
+| derived `fixtures/results/load_reference_connected_dense.document.json` | 1452801 → 1452871 | 240 | 28 values (≤3.9e-16), 6 extrema values, and their bound checksums |
+| derived `…/load_reference_connected_sparse.document.json` | 1445239 → 1445192 | 234 | as dense, ≤4.3e-16 |
+| derived `…/load_reference_connected_dense.analysis_run.json` | 419656 → 419728 | 34 | diagnostics text, hash refs, hashes |
+| derived `…/load_reference_connected_sparse.analysis_run.json` | 415718 → 415863 | 32 | the same |
+| derived `…/load_reference_connected_dense.stress_neutral.json` | 883762 → 883920 | 194 | rows, CSV, witnesses, value bits, checksums |
+| derived `…/load_reference_connected_sparse.stress_neutral.json` | 876321 → 876244 | 187 | the same |
+| derived `…/load_reference_source_eigen_motion_dense.document.json` | 531385 → 531385 | 6 | receipt and body digests, reproducibility hashes |
+| derived `…/load_reference_source_eigen_motion_sparse.document.json` | 527466 → 527466 | 8 | as dense, plus invocation_work |
+| derived `…/load_reference_source_eigen_motion_dense.analysis_run.json` | 210125 → 210125 | 5 | diagnostics text, digests |
+| derived `…/load_reference_source_eigen_motion_sparse.analysis_run.json` | 208027 → 208026 | 7 | as dense, plus invocation_work |
+| derived `…/load_reference_source_eigen_motion_dense.stress_neutral.json` | 347791 → 347791 | 8 | digests and checksums |
+| derived `…/load_reference_source_eigen_motion_sparse.stress_neutral.json` | 343999 → 343999 | 10 | as dense, plus invocation_work |
+
+- Raw byte counts include the trailing newline; the pre-regeneration report's harness counts omit it.
+- All 20 regenerated files are byte-identical to the scratch measurement made before regeneration. Unaffected carriers (pressure, fields, mixed, n05, n06) and all other raws reproduce unchanged.
+- Producers:
+  - `product_physics` examples `physics_source_connected` (raws) and `preview_physics_capture` (B1);
+  - the `result_export` writer tests (documents);
+  - the Python reader writers (analysis runs);
+  - T1's stress-neutral reproducers.
+- Commands: `_run_records/regeneration_commands.txt`.
+
+**eigen_motion sparse `invocation_work` −12.**
+- The composite receipt reserves publication work as 12 units per byte of published diagnostic text (`source_receipt.rs`: `reserve_publication(size.saturating_mul(12))`, where size is the bytes of each diagnostic's id, code, message and refs).
+- Under S11-K the M03 Debug text of this case prints six residual values that moved in the last bits (KS1–KS3 on the settled rows). Their shortest round-trip renderings changed length by −2, −1, −1, +1, +1 and +1 characters, net −1 byte (8384 → 8383).
+- So `publication_charged` and `charged` both drop by exactly 12.
+- This is expected: a text-length consequence of the pre-registered Debug-text change. No budget rule changes, the dense case's net length change is 0, and the charge there is unchanged.
+
+**Hash pins updated** (test constants; write set extended by ROOT):
+
+| File | Pin | Old → new |
+|---|---|---|
+| `core/reporting/result_export/tests/load_reference_contract.rs` (`frozen_inputs_table_and_schema_are_pinned`) | connected-sparse raw | `915965a446ff04c6c4b7f0209ffff34c4ac040a0d4b8243d875dc7217a9cb74c` → `89bbc3f637664a1fc20378a0865beee364dc92476b7765e9e7a7c4d5171e20c7` |
+| same | connected-dense raw | `3824035cabf2d2a151756e04b46112ccbdcf4ce8237f49e68b5d3b36b8dfb2bf` → `187a6d8dc9c5ff169bff7ca27c7f884f5c5fb66364247bdd9743ad0ad36db575` |
+| `tests/test_load_reference_readers.py` (`FROZEN`) | the same two raws | the same old → new |
+
+## Checks run on the candidate
+
+- **Rust.** Full suites on 1.97.1, run after regeneration with `cargo test --offline --locked --no-fail-fast` in each crate (the script actually run is `_run_records/rv1_fixes/run_suites_final.sh.txt`). The earlier runs recorded in `_run_records/run_suites.sh.txt` used `cargo test --offline --locked` without `--no-fail-fast`. That hid runner/headless's integration binary behind its failing unit tests, which the final run corrects. Every suite passes in the final run:
+  - frame_kernel 116, straight_pipe 39, curved_bend 25, load_case_algebra 21, primitive_loads 49, nonlinear_integration 69, sparse_direct 25, linear_supports 15, nonlinear_supports 22, diagnostics 24, performance_harness 25, stress_recovery 48, user_loads 28, self_weight_wasm 14;
+  - product_physics 448 (1 ignored in source), operation_applier 194, runner/headless 83, result_export 91;
+  - benchmarks: mechanics 41, nonlinear 19 (DEC-046 limits untouched), stress 23, physics_audit_regression 15, numerical_integrity 0;
+  - apps/desktop/src-tauri 114.
+- **Python.** The load-reference, preview-physics, stress-neutral and qualification tests: 1464 passed, 17 skipped. The skips are env-gated evidence lanes.
+- **Desktop.**
+  - vitest: 134 files, 2822 tests, all passing. It ran on Node 24 with the wasm operation engine built from this branch (`npm run build:wasm`). The workspace `node_modules` was linked from a worktree whose `package-lock.json` is byte-identical, and the link was removed afterwards.
+  - `npm run build` (`tsc -b && vite build`): OK. The only warning is the existing chunk-size notice.
+- **Tests added.** K1–K12 per S11 §9 (`exact_sum`, `load_ledger`, `straight_pipe`, `load_case_algebra`, `curved_bend`, `frame_kernel` structural and exact-boundary, `nonlinear_integration`), the option (c) pins, and P1's S11-PROBE-A recovery at G = 1e7 and 1e8. Every kill test asserts its precondition: the binary64 fold differs from the exact net.
+- **Mutations** (scratch copy, one per site, at G = 1e8 and G = 1e80 separately): all killed. The set: M1a E1, M1b E2, M1c E3, M1d E4, M1f E6, M1m E13, M6, M7a/b, M10, M11, M12, M13, M14, M15, M15b.
+- **RV1 fixes (S1, S2), on `f76643235`.**
+  - The option (c) source pin now lexes `nonlinear_integration/src/lib.rs` first, with comments and literals removed and `#[cfg(test)]` items blanked. It then forbids every exact kernel entry point anywhere in the file and requires the four legacy targets as real calls.
+  - A new behavioural pin, `option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path`:
+    - drives the loop's per-iteration solve with a closed-gap boundary, dense and sparse, with and without `AssemblyEvidence`;
+    - first asserts that the binary64 fold of `f − ΣK·g` differs from the exact value;
+    - then checks that displacements, residual rows and the sparse observation are bit-equal to the binary64 legacy values, with the reduced force folded in the test.
+  - `option_c_active_set_loop_first_closed_gap_iteration_is_binary64` does the same through the public active-set loop.
+  - The public-residual pin now asserts its precondition (`assert_ne!` of the binary64 and exact numerators).
+  - RV1's mutants, re-run in scratch:
+    - RV-OPT1, RV-OPT3 and RV-OPT4 are killed by the behavioural test, as well as by the source pin;
+    - RV-PUB is killed by `option_c_public_original_residual_stays_binary64_on_coupled_rows`.
+  - Results: `_run_records/rv1_fixes/`.
+  - Suites: frame_kernel 116, nonlinear_integration 71, benchmarks/nonlinear 19.
+- **Lockfiles.** Eight lockfiles gain one line each (`open_pipe_stress_frame_kernel` in `load_case_algebra`'s dependencies).
+
+## Remaining limits
+
+- **S11-F** carries the facade:
+  - the ledger at every product producer, and the switch to the typed seams;
+  - E5, E7–E12, E15 and E16;
+  - the Sensitive mapping and the product-level site test;
+  - T1's source-recovery and receipt sites;
+  - P1's S11-PROBE-A as product-model tests.
+- **The nonlinear loop** stays binary64 at the kernel's prescribed-motion sums (option (c)). Friction terms (E14) remain T5's open item.
+- `sparse_direct` has no typed sibling. SA reaches the sparse path through `factor_structural_ldlt`.
+- `primitive_loads::global_load_vector` carries no "not for solve input" doc note yet.
+- These two leftovers (the missing `sparse_direct` typed sibling and the missing `global_load_vector` doc note) are items in S11-F's brief (manager, per ROOT).
+
+## PR branch and base (manager, 2026-09-26)
+
+- **PR branch:** `codex/piping-s11k-pr-20260926`, cut at `origin/main` `6bb3ee4903977ed316bcf872c4f04a461349d2fe` (ROOT's decision (b)). It contains only the S11-K commits, cherry-picked with `-x` from the development branch `codex/piping-s11k-20260926`: `14354efdb`, `e517fd9b6`, `41bfcab85`, `9be58ea95` and `65f3dcdef`.
+- **Net diff against the base:** the 52 S11-K code, lockfile, test and fixture files, plus `IMPLEMENTATION/S11K/**` (43 files). Nothing else. Every file is blob-identical to the development head `65f3dcdef`. T1 is already on main (PR963).
+- **Sanity check on this branch** (the full suites ran on the development branch; RV1 and CI re-run them here):
+  - `frame_kernel`: 116 passed (108 + 2 + 6);
+  - `result_export --test load_reference_contract`: 5 passed, including `frozen_inputs_table_and_schema_are_pinned`;
+  - `tests/test_load_reference_readers.py -k frozen`: 1 passed.
+  Toolchain 1.97.1, `--offline --locked`.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+https://claude.ai/code/session_01Lrj9eTaA4WByAAZBRNu7xP

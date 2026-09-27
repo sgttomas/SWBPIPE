@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+"""K3a seeded mutants: apply one patch to wide.rs, run the K3a tests, record the
+failing tests, restore the file. One cargo job at a time (waits on pgrep)."""
+import difflib, json, os, re, subprocess, sys, time
+from pathlib import Path
+
+FK = Path(sys.argv[1])  # <k3a-worktree>/projects/chirality-piping/core/solver/frame_kernel
+OUT = Path(sys.argv[2])
+SRC = FK / "src/structural/retained/wide.rs"
+ENV = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", CARGO_INCREMENTAL="0", RUSTUP_AUTO_INSTALL="0",
+           CARGO_TARGET_DIR=os.environ["K3A_TARGET"])
+CMD = ["cargo", "test", "--offline", "--locked", "--lib", "retained", "--", "--test-threads=4"]
+
+MUTANTS = [
+    ("M5_atan_one_reduction_fewer",
+     "            if reductions == ATAN_MAX_REDUCTIONS {\n                return Err(WideError::ArctangentLimit);\n            }\n",
+     "            if reductions == ATAN_MAX_REDUCTIONS - 1 {\n                break;\n            }\n"),
+    ("M6_atan_truncated_series",
+     "        for n in 1..=ATAN_MAX_TERMS {\n",
+     "        for n in 1..=8 {\n"),
+    ("R1_atan_stop_threshold_off_by_one",
+     "        let threshold = i128::from(t.exponent) - i128::from(self.precision) - 1;\n",
+     "        let threshold = i128::from(t.exponent) - i128::from(self.precision);\n"),
+    ("R2_atan_tail_summed_largest_first",
+     "        for term in terms[1..count].iter().rev() {\n",
+     "        for term in terms[1..count].iter() {\n"),
+]
+
+
+def wait_host():
+    waited = 0
+    while (subprocess.run(["pgrep", "-x", "cargo"], capture_output=True).returncode == 0
+           or subprocess.run(["pgrep", "-f", "python[0-9.]* .*run_evidence_sweep"], capture_output=True).returncode == 0):
+        time.sleep(60)
+        waited += 60
+        if waited > 7200:
+            raise SystemExit("host busy for 2 h")
+    return waited
+
+
+def main():
+    original = SRC.read_text()
+    results = []
+    try:
+        for name, old, new in MUTANTS:
+            assert original.count(old) == 1, name
+            mutated = original.replace(old, new)
+            SRC.write_text(mutated)
+            waited = wait_host()
+            t0 = time.time()
+            proc = subprocess.run(CMD, cwd=FK, env=ENV, capture_output=True, text=True)
+            SRC.write_text(original)
+            text = proc.stdout + proc.stderr
+            (OUT / f"{name}.log").write_text(re.sub(r"/home/\S+?/frame_kernel", "<frame_kernel>", text))
+            failed = sorted(set(re.findall(r"^test (\S+) \.\.\. FAILED", text, re.M)))
+            summary = [l for l in text.splitlines() if l.startswith("test result:")]
+            patch = "".join(difflib.unified_diff(
+                original.splitlines(True), mutated.splitlines(True),
+                "a/src/structural/retained/wide.rs", "b/src/structural/retained/wide.rs", n=1))
+            results.append(dict(mutant=name, patch=patch, command=" ".join(CMD), exit=proc.returncode,
+                                killed=proc.returncode != 0 and bool(failed), killing_tests=failed,
+                                summary=summary, seconds=round(time.time() - t0), waited_for_host=waited))
+            print(name, "KILLED" if results[-1]["killed"] else "SURVIVED", failed, flush=True)
+    finally:
+        SRC.write_text(original)
+    (OUT / "mutation_results.json").write_text(json.dumps(results, indent=1) + "\n")
+
+
+main()

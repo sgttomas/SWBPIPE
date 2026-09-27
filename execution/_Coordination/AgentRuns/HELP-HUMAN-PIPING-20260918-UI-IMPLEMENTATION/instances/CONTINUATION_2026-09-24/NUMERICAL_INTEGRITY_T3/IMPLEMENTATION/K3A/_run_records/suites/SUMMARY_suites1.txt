@@ -1,0 +1,41 @@
+core/solver/frame_kernel exit=0 secs=12 waited=0 passed=135 failed=0 ignored=0
+  disk_free_kb=8590152 target=36220kb
+  pruned own debug output
+core/solver/straight_pipe exit=0 secs=3 waited=0 passed=39 failed=0 ignored=0
+  disk_free_kb=8603856 target=22512kb
+core/solver/curved_bend exit=0 secs=0 waited=0 passed=25 failed=0 ignored=0
+  disk_free_kb=8592936 target=33428kb
+  pruned own debug output
+core/loads/load_case_algebra exit=0 secs=3 waited=0 passed=21 failed=0 ignored=0
+  disk_free_kb=8597432 target=28928kb
+  pruned own debug output
+core/solver/sparse_direct exit=0 secs=3 waited=0 passed=25 failed=0 ignored=0
+  disk_free_kb=8603868 target=22488kb
+core/solver/nonlinear_integration exit=0 secs=10 waited=0 passed=69 failed=0 ignored=0
+  disk_free_kb=8563336 target=63012kb
+  pruned own debug output
+DONE
+core/loads/primitive_loads exit=0 secs=3 waited=0 passed=49 failed=0 ignored=0
+  disk_free_kb=8598808 target=27516kb
+  pruned own debug output
+core/solver/linear_supports exit=0 secs=2 waited=0 passed=15 failed=0 ignored=0
+  disk_free_kb=8605144 target=21176kb
+core/solver/nonlinear_supports exit=0 secs=2 waited=0 passed=22 failed=0 ignored=0
+  disk_free_kb=8584004 target=42312kb
+  pruned own debug output
+core/solver/diagnostics exit=0 secs=2 waited=0 passed=24 failed=0 ignored=0
+  disk_free_kb=8598104 target=28208kb
+  pruned own debug output
+core/solver/performance_harness exit=0 secs=17 waited=0 passed=25 failed=0 ignored=0
+  disk_free_kb=8581580 target=44728kb
+  pruned own debug output
+core/loads/stress_recovery exit=0 secs=3 waited=0 passed=48 failed=0 ignored=0
+  disk_free_kb=8596368 target=29932kb
+  pruned own debug output
+core/loads/user_loads exit=0 secs=3 waited=0 passed=28 failed=0 ignored=0
+  disk_free_kb=8594876 target=31420kb
+  pruned own debug output
+core/loads/self_weight_wasm exit=0 secs=24 waited=0 passed=14 failed=0 ignored=0
+  disk_free_kb=8173044 target=453240kb
+  pruned own debug output
+DONE

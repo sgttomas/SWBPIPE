@@ -267,11 +267,11 @@ fn frozen_inputs_table_and_schema_are_pinned() {
     for (name, digest) in [
         (
             "connected-sparse",
-            "915965a446ff04c6c4b7f0209ffff34c4ac040a0d4b8243d875dc7217a9cb74c",
+            "89bbc3f637664a1fc20378a0865beee364dc92476b7765e9e7a7c4d5171e20c7",
         ),
         (
             "connected-dense",
-            "3824035cabf2d2a151756e04b46112ccbdcf4ce8237f49e68b5d3b36b8dfb2bf",
+            "187a6d8dc9c5ff169bff7ca27c7f884f5c5fb66364247bdd9743ad0ad36db575",
         ),
         (
             "pressure-sparse",

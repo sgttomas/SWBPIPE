@@ -1,0 +1,87 @@
+[
+ {
+  "mutant": "RV-OPT1",
+  "mutation": "option (c): loop reduction switched to the exact KS2",
+  "crate": "solver/nonlinear_integration",
+  "command": "cargo test --offline --locked --lib --no-fail-fast",
+  "exit": 101,
+  "failed_tests": [
+   "s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64",
+   "s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path",
+   "s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path"
+  ],
+  "patch": [
+   {
+    "file": "solver/nonlinear_integration/src/lib.rs",
+    "old": "    let reduced = reduce_system_with_prescribed_displacements_binary64(\n        stiffness,",
+    "new": "    let reduced = open_pipe_stress_frame_kernel::reduce_system_with_prescribed_displacements(\n        stiffness,"
+   }
+  ]
+ },
+ {
+  "mutant": "RV-OPT3",
+  "mutation": "option (c): loop dense and sparse solves (no assembly) switched to the exact solves",
+  "crate": "solver/nonlinear_integration",
+  "command": "cargo test --offline --locked --lib --no-fail-fast",
+  "exit": 101,
+  "failed_tests": [
+   "s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path",
+   "s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path"
+  ],
+  "patch": [
+   {
+    "file": "solver/nonlinear_integration/src/lib.rs",
+    "old": "open_pipe_stress_frame_kernel::structural::solve_structural_dense_binary64(\n                    &original,\n                )?",
+    "new": "open_pipe_stress_frame_kernel::structural::solve_structural_dense(\n                    &original,\n                )?"
+   },
+   {
+    "file": "solver/nonlinear_integration/src/lib.rs",
+    "old": "structural_adapter::solve_structural_sparse_binary64(&original)?",
+    "new": "open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&original)?"
+   }
+  ]
+ },
+ {
+  "mutant": "RV-OPT4",
+  "mutation": "option (c) textual workaround: exact assembly solve through a helper, required text kept in a comment",
+  "crate": "solver/nonlinear_integration",
+  "command": "cargo test --offline --locked --lib --no-fail-fast",
+  "exit": 101,
+  "failed_tests": [
+   "s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64",
+   "s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path",
+   "s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path",
+   "tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt",
+   "tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification"
+  ],
+  "patch": [
+   {
+    "file": "solver/nonlinear_integration/src/lib.rs",
+    "old": "        assembly.solve_binary64(\n",
+    "new": "        // assembly.solve_binary64(\n        exact_solve(assembly,\n"
+   },
+   {
+    "file": "solver/nonlinear_integration/src/lib.rs",
+    "old": "fn solve_linearized_system_evidence(\n",
+    "new": "fn exact_solve(a: &AssemblyEvidence, k: &[Vec<f64>], f: &[f64], free: &[usize], p: &[(usize, f64)], m: LinearSolveMode) -> Result<open_pipe_stress_frame_kernel::structural::StructuralSolution, StructuralError> { a.solve(k, f, free, p, m) }\nfn solve_linearized_system_evidence(\n"
+   }
+  ]
+ },
+ {
+  "mutant": "RV-PUB",
+  "mutation": "public evaluate_original_residual switched to the exact KS3 numerator",
+  "crate": "solver/frame_kernel",
+  "command": "cargo test --offline --locked --lib --no-fail-fast",
+  "exit": 101,
+  "failed_tests": [
+   "structural::s11k_tests::option_c_public_original_residual_stays_binary64_on_coupled_rows"
+  ],
+  "patch": [
+   {
+    "file": "solver/frame_kernel/src/structural.rs",
+    "old": "    evaluate_original_residual_bound(system, ForceBinding::Binary64, u)\n",
+    "new": "    evaluate_original_residual_bound(system, ForceBinding::Legacy, u)\n"
+   }
+  ]
+ }
+]

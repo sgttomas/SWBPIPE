@@ -2137,6 +2137,7 @@ dependencies = [
 name = "open_pipe_stress_load_case_algebra"
 version = "0.1.0"
 dependencies = [
+ "open_pipe_stress_frame_kernel",
  "open_pipe_stress_primitive_loads",
 ]
 

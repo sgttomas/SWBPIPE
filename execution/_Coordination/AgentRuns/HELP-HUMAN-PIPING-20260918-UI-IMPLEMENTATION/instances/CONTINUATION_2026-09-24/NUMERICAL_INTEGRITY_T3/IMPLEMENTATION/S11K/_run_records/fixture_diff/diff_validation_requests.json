@@ -1,0 +1,30 @@
+{
+ "qualification__fixtures__load_reference__prescribed_rotation_free_tip.preview_request.json.dense_scrutiny.out": {
+  "bytes_base": 74052,
+  "bytes_candidate": 74052,
+  "changed_lines": 1,
+  "changed_leaves": 1,
+  "by_kind": {
+   "diagnostics/message": {
+    "count": 1,
+    "max_relative_change": 0.515470855823117,
+    "example_path": "/diagnostics/1/message",
+    "text_numeric_tokens_changed": 3
+   }
+  }
+ },
+ "qualification__fixtures__load_reference__prescribed_rotation_free_tip.preview_request.json.sparse_interactive.out": {
+  "bytes_base": 72714,
+  "bytes_candidate": 72713,
+  "changed_lines": 1,
+  "changed_leaves": 1,
+  "by_kind": {
+   "diagnostics/message": {
+    "count": 1,
+    "max_relative_change": 0.488,
+    "example_path": "/diagnostics/1/message",
+    "text_numeric_tokens_changed": 3
+   }
+  }
+ }
+}

@@ -30,7 +30,7 @@ Implement GLB/glTF review geometry export for lightweight visual inspection of m
 ## Package Reference
 - **Package:** PKG-17 Export Format Interoperability
 - **Package Scope:** Implements deterministic export-format contracts, source-evidence basis, target profiles, stable ID maps, loss reports, external validation harness boundaries, review geometry exports, and adapter SDK surfaces for downstream interoperability.
-- **Package Assigned Scope Items:** SOW-030, SOW-046, SOW-074, SOW-075
+- **Package Assigned Scope Items:** SOW-030 (supporting), SOW-046 (supporting), SOW-074 (supporting), SOW-075 (supporting)
 - **Package Exclusions:** Does not bundle commercial solvers, embed proprietary examples, reverse engineer protected formats, bypass licenses, or claim code compliance, professional acceptance, or formal solver validation.
 
 ## Decomposition Reference
