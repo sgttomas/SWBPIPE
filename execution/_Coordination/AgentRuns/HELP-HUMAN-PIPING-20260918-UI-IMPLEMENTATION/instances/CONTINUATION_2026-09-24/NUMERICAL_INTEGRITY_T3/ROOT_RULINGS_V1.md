@@ -490,3 +490,19 @@ I4's base-against-candidate comparison of the 14 formation rows: UDL-W1e80 is bi
 5. **K-D5 on INPLANE** (1.6× and 2.0× its trigger in D1's recal): I3 confirms on the merged state. If K-D5 does demote them, the overlap is recorded as defence in depth, not a conflict; S11-G's R-b′ still ships.
 
 After V1's PASS, the manager writes the S11-G implementation brief. S11-G goes on main after S11-F merges. I4's formation_rows.json input is pinned by full hash (`c548f51999b4df16…`) in `DESIGN_NUMERICS/_run_records/inputs/` until I4's commit lands.
+
+## S11-G revision 2 after V1's delta check (ROOT, 2026-09-27, on `a3ddc4dea`)
+
+1. **DB-1 accepted as V1 proposes.** The SF-4 floor applies **only to the self-equilibrated part of the defect**, with two exact accumulators, and a net formation defect is never floored.
+   - D1 adds test **T6b** (V1's counterexample: a UDL-type fixed-end defect at a free row, masked by two anchored thermal members; it must fire) and its killing mutation.
+   - **Residual accepted for now:** a junction of self-equilibrated terms only, with a genuine small net, is hidden by any noise-silencing floor. It is disclosed in the note and in S11-G's CHANGE_RECORD, and routed to W1/F2, which removes it.
+2. **DS-1 accepted. Ruling 5 of "S11-G note revision 2" is amended:** K-D5 does **not** demote the INPLANE cases after S11-F. D1's 1.6× and 2.0× came from recal_d5's pre-S11-F folded force, and V1's exact-residual EF with the S11-F force gives 2·EF ≈ 1.3e-6 to 3.2e-6 of the trigger. **R-b′ is the only catch; there is no defence in depth there.**
+   - The note's §1, §5 and §6.4 are corrected.
+   - I3 is told to expect K-D5 to stay silent on these cases, and not to "fix" that.
+   - R-b′'s tests are therefore load-bearing, and the implementation review mutation-checks them hard.
+3. **V1's NOTEs go into the implementation brief:**
+   - the underflow condition on the FMA error term;
+   - the constant 1e-9 made safe by strict rounding or an exact rational;
+   - a source pin tying the routing site to the tested predicate (M7);
+   - a skew-member unit test of the bound (the M14 |Tu| variant).
+4. **Next:** D1 writes revision 2.1, V1 checks the diff only, and on PASS the manager writes the S11-G implementation brief.
