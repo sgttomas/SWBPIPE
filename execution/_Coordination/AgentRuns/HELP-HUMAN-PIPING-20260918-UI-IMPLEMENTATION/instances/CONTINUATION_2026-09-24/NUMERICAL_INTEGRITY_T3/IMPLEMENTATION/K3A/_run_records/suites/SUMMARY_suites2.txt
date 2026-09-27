@@ -1,0 +1,37 @@
+  before core/product_physics: disk_free_kb=10555268
+core/product_physics exit=0 secs=41 waited=0 passed=448 failed=0 ignored=1
+  disk_free_kb=9164532 target=1390548kb
+  pruned own debug output
+  before core/model_operations/operation_applier: disk_free_kb=10555064
+core/model_operations/operation_applier exit=0 secs=28 waited=0 passed=194 failed=0 ignored=0
+  disk_free_kb=9707736 target=847316kb
+  pruned own debug output
+  before core/runner/headless: disk_free_kb=10555036
+core/runner/headless exit=0 secs=125 waited=0 passed=83 failed=0 ignored=0
+  disk_free_kb=10036396 target=980108kb
+  pruned own debug output
+  before core/reporting/result_export: disk_free_kb=11016488
+core/reporting/result_export exit=0 secs=91 waited=0 passed=91 failed=0 ignored=0
+  disk_free_kb=12896828 target=309648kb
+  pruned own debug output
+  before validation/benchmarks/mechanics: disk_free_kb=13206460
+validation/benchmarks/mechanics exit=0 secs=15 waited=0 passed=41 failed=0 ignored=0
+  disk_free_kb=13027396 target=178988kb
+  pruned own debug output
+  before validation/benchmarks/nonlinear: disk_free_kb=13206368
+validation/benchmarks/nonlinear exit=0 secs=6 waited=0 passed=19 failed=0 ignored=0
+  disk_free_kb=13153788 target=52588kb
+  pruned own debug output
+  before validation/benchmarks/stress: disk_free_kb=13206360
+validation/benchmarks/stress exit=0 secs=11 waited=0 passed=23 failed=0 ignored=0
+  disk_free_kb=13050424 target=155916kb
+  pruned own debug output
+  before validation/benchmarks/physics_audit_regression: disk_free_kb=13206324
+validation/benchmarks/physics_audit_regression exit=0 secs=26 waited=0 passed=15 failed=0 ignored=0
+  disk_free_kb=12789028 target=417156kb
+  pruned own debug output
+  before validation/benchmarks/numerical_integrity: disk_free_kb=13206168
+validation/benchmarks/numerical_integrity exit=0 secs=21 waited=0 passed=0 failed=0 ignored=0
+  disk_free_kb=12981524 target=222000kb
+  pruned own debug output
+DONE

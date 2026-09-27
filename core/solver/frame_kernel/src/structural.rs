@@ -1,6 +1,7 @@
 //! M03-INTEGRITY-v1: operational checks of represented passive equations.
 //! No formal inertia certificate or guaranteed forward accuracy is claimed.
 pub mod exact_boundary;
+mod retained;
 
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{AssembledForce, ForceTerm, ForceTermKind};

@@ -1,0 +1,141 @@
+[
+ {
+  "mutant": "M1_round_toward_zero",
+  "patch": "--- a/src/structural/retained/wide.rs\n+++ b/src/structural/retained/wide.rs\n@@ -626,3 +626,3 @@\n     let mut keep = keep;\n-    if round && (rest || keep & 1 == 1) {\n+    if false && round && (rest || keep & 1 == 1) {\n         let (next, overflow) = keep.overflowing_add(1);\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::exponent_extremes_are_refused_never_wrapped",
+   "structural::retained::wide::tests::one_twentieth_threshold_is_decided_exactly",
+   "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::tests::twosum_and_twoproduct_are_error_free_on_binary64_inputs"
+  ],
+  "summary": [
+   "test result: FAILED. 13 passed; 9 failed; 0 ignored; 0 measured; 105 filtered out; finished in 0.22s"
+  ],
+  "seconds": 4,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M2_dropped_sticky",
+  "patch": "--- a/src/structural/retained/wide.rs\n+++ b/src/structural/retained/wide.rs\n@@ -624,3 +624,3 @@\n     let round = m.bit(drop - 1);\n-    let rest = sticky || m.any_below(drop - 1);\n+    let rest = m.any_below(drop - 1);\n     let mut keep = keep;\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::one_twentieth_threshold_is_decided_exactly",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "summary": [
+   "test result: FAILED. 17 passed; 5 failed; 0 ignored; 0 measured; 105 filtered out; finished in 1.74s"
+  ],
+  "seconds": 5,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M3_ties_away_from_zero",
+  "patch": "--- a/src/structural/retained/wide.rs\n+++ b/src/structural/retained/wide.rs\n@@ -626,3 +626,3 @@\n     let mut keep = keep;\n-    if round && (rest || keep & 1 == 1) {\n+    if round {\n         let (next, overflow) = keep.overflowing_add(1);\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "summary": [
+   "test result: FAILED. 16 passed; 6 failed; 0 ignored; 0 measured; 105 filtered out; finished in 0.81s"
+  ],
+  "seconds": 5,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M4_off_by_one_limb_shift",
+  "patch": "--- a/src/structural/retained/wide.rs\n+++ b/src/structural/retained/wide.rs\n@@ -524,3 +524,3 @@\n                     hi: self.hi >> n,\n-                    lo: (self.lo >> n) | (self.hi << (128 - n)),\n+                    lo: (self.lo >> n) | (self.hi << (127 - n)),\n                 },\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::split_is_exact_on_random_and_adversarial_values",
+   "structural::retained::wide::tests::split_vectors_match_and_are_exact_above_min_subnormal",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "summary": [
+   "test result: FAILED. 16 passed; 6 failed; 0 ignored; 0 measured; 105 filtered out; finished in 1.83s"
+  ],
+  "seconds": 5,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M4b_alignment_shift_off_by_one",
+  "patch": "--- a/src/structural/retained/wide.rs\n+++ b/src/structural/retained/wide.rs\n@@ -678,3 +678,3 @@\n     }\n-    .shr_sticky(gap);\n+    .shr_sticky(gap + 1);\n     let scale = i128::from(big.exponent) - 255;\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_domain_is_the_open_interval",
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::exponent_extremes_are_refused_never_wrapped",
+   "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::signs_of_zero_follow_round_to_nearest",
+   "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+   "structural::retained::wide::tests::split_is_exact_on_random_and_adversarial_values",
+   "structural::retained::wide::tests::split_vectors_match_and_are_exact_above_min_subnormal",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::tests::twosum_and_twoproduct_are_error_free_on_binary64_inputs",
+   "structural::retained::wide::tests::work_counter_counts_every_rounded_operation_and_saturates"
+  ],
+  "summary": [
+   "test result: FAILED. 9 passed; 13 failed; 0 ignored; 0 measured; 105 filtered out; finished in 0.20s"
+  ],
+  "seconds": 4,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M5_atan_one_reduction_fewer",
+  "patch": "--- a/src/structural/retained/wide.rs\n+++ b/src/structural/retained/wide.rs\n@@ -925,4 +925,4 @@\n         while at_least_one_twentieth(&t) {\n-            if reductions == ATAN_MAX_REDUCTIONS {\n-                return Err(WideError::ArctangentLimit);\n+            if reductions == ATAN_MAX_REDUCTIONS - 1 {\n+                break;\n             }\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.54s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M6_atan_truncated_series",
+  "patch": "--- a/src/structural/retained/wide.rs\n+++ b/src/structural/retained/wide.rs\n@@ -941,3 +941,3 @@\n         let mut power = t;\n-        for n in 1..=ATAN_MAX_TERMS {\n+        for n in 1..=8 {\n             power = self.mul(&power, &t2)?.neg();\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.60s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 0
+ }
+]

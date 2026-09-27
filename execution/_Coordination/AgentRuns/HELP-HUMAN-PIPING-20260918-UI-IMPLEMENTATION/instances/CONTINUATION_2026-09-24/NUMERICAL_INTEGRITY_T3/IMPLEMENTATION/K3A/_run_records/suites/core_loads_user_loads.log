@@ -1,0 +1,46 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<k3a-worktree>/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<k3a-worktree>/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (<k3a-worktree>/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<k3a-worktree>/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_user_loads v0.1.0 (<k3a-worktree>/projects/chirality-piping/core/loads/user_loads)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.76s
+     Running unittests src/lib.rs (<k3a-target>/debug/deps/open_pipe_stress_user_loads-ffeabbf5adc28eb4)
+
+running 28 tests
+test tests::concentrated_force_maps_to_translational_nodal_dof ... ok
+test tests::concentrated_moment_maps_to_rotational_nodal_dof ... ok
+test tests::distributed_load_can_defer_equivalent_total_until_element_length_known ... ok
+test tests::distributed_user_load_boundary_record_uses_force_per_length_dimension_metadata ... ok
+test tests::contributions_are_sorted_deterministically ... ok
+test tests::generic_station_targets_validate_before_geometry_gap ... ok
+test tests::generic_user_load_application_reports_element_station_geometry_gap ... ok
+test tests::invalid_dimensions_and_directions_are_findings ... ok
+test tests::invalid_span_and_length_are_findings ... ok
+test tests::missing_and_out_of_range_targets_are_findings ... ok
+test tests::missing_quantity_blocks_load_application ... ok
+test tests::non_finite_quantity_is_rejected_at_construction ... ok
+test tests::recovery_hook_boundary_record_rejects_load_case_binding ... ok
+test tests::nodal_user_load_boundary_record_requires_unit_and_model_load_binding ... ok
+test tests::recovery_hook_boundary_record_rejects_load_record_binding ... ok
+test tests::straight_pipe_equivalent_user_loads_include_axial_effects ... ok
+test tests::straight_pipe_equivalent_user_loads_recover_interior_point_force ... ok
+test tests::straight_pipe_equivalent_user_loads_recover_full_span_distribution ... ok
+test tests::straight_pipe_equivalent_user_loads_reject_bad_length_and_rotational_distribution ... ok
+test tests::straight_pipe_equivalent_user_loads_recover_partial_span_distribution ... ok
+test tests::straight_pipe_equivalent_user_loads_reject_invalid_span_and_unsupported_station_moment ... ok
+test tests::straight_pipe_equivalent_user_loads_reject_nonfinite_axial_effect ... ok
+test tests::straight_pipe_equivalent_user_loads_reject_wrong_axial_effect_element ... ok
+test tests::uniform_distributed_load_records_span_and_equivalent_total ... ok
+test tests::straight_pipe_equivalent_user_loads_transform_partial_span_distribution ... ok
+test tests::straight_pipe_equivalent_user_loads_transform_global_load_directions ... ok
+test tests::straight_pipe_equivalent_user_loads_transform_station_point_force ... ok
+test tests::unsupported_target_kind_combinations_are_findings ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests open_pipe_stress_user_loads
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
