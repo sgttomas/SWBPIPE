@@ -7,6 +7,10 @@ out of the S11 list into a separate, exactly pinned FORMATION list (entry, case,
 They were misclassified as S11 class by P1's heuristic and the 2026-09-26 re-pin; they are
 pre-existing on main. The S11 list must be empty after S11-F; the formation list must be empty
 when S11-G lands (or per-row justification to ROOT); any triple outside both lists fails the gate.
+ROOT, 2026-09-27: the S11 list is emptied at the S11-F merge (PR1000, 43b8f83aa), on RV3's F12
+verification (REVIEW/S11F_REVIEW.md, bf82f6cfd): no listed triple remains breached on either entry
+or in either mode. The pre-S11-F pin (221 triples) stays derivable from the same sources and is
+recorded in the file's `emptied` field; any Passed breach outside FORMATION now fails the gate.
 
 Usage (from T3/): python3 GATE/pin_s11_exceptions.py
 Writes GATE/S11_EXCEPTIONS.json and GATE/FORMATION_EXCEPTIONS.json. Source: P1's final record
@@ -64,11 +68,16 @@ def counts(triples):
 
 with open("GATE/S11_EXCEPTIONS.json", "w") as f:
     json.dump({
-        "ruling": "ROOT 2026-09-26 (frozen-reference only, per entry; skew case not an exception); ROOT 2026-09-27 (7 formation-class triples moved to FORMATION_EXCEPTIONS.json). Must be empty after S11-F.",
+        "ruling": "ROOT 2026-09-26 (frozen-reference only, per entry; skew case not an exception); ROOT 2026-09-27 (7 formation-class triples moved to FORMATION_EXCEPTIONS.json). Must be empty after S11-F. ROOT 2026-09-27: emptied at S11-F merge 43b8f83aa on RV3's F12 verification, bf82f6cfd.",
         "source": src,
-        "counts": counts(s11),
+        "emptied": {
+            "at_merge": "43b8f83aa338979055390e0bab923401eea57a85 (PR1000, S11-F)",
+            "verification": "REVIEW/S11F_REVIEW.md (RV3, PASS), commit bf82f6cfd: F12 gate harness passes; none of the pinned triples remains breached on either entry or mode",
+            "pinned_before_s11f": {"counts": counts(s11), "triples_sha256": hashlib.sha256(json.dumps([list(t) for t in s11]).encode()).hexdigest()},
+        },
+        "counts": counts([]),
         "not_exceptions": ["RF-SKEW-T-CANT-OFF-122-r1e-04 (K-D5 required true positive, both entries)"],
-        "triples": [list(t) for t in s11],
+        "triples": [],
     }, f, indent=1)
     f.write("\n")
 
@@ -82,4 +91,4 @@ with open("GATE/FORMATION_EXCEPTIONS.json", "w") as f:
     }, f, indent=1)
     f.write("\n")
 
-print(json.dumps({"s11": counts(s11), "formation_triples": len(FORMATION), "formation_rows": len(form_rows)}))
+print(json.dumps({"s11": counts([]), "s11_pinned_before_s11f": counts(s11), "formation_triples": len(FORMATION), "formation_rows": len(form_rows)}))
