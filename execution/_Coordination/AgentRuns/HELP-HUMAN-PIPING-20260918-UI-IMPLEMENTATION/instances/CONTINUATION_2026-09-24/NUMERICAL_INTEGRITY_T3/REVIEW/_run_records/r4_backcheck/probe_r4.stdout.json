@@ -1,0 +1,46 @@
+{
+ "python": "3.11.15",
+ "P": {
+  "bound": 9.313232407492937e-10,
+  "below_1e-9": true,
+  "margin": 6.867675925070636e-11
+ },
+ "K": {
+  "k_sqrt2": 1.4142135623730951,
+  "equals_math_sqrt2": true,
+  "k_squared_ge_2": true,
+  "i_values_tested": 901,
+  "nearest_vs_upward_disagreements": 455,
+  "examples": [
+   1.03,
+   1.04,
+   1.08,
+   1.09,
+   1.12,
+   1.15,
+   1.16,
+   1.2
+  ]
+ },
+ "J": {
+  "rebuilt_far_end_moment_error_over_eps_mo": 2.0,
+  "rows": {
+   "circular_max_k_sqrt2": {
+    "worst_rel_error_at_threshold": 1.862645149230957e-09,
+    "exceeds_1e-9": true
+   },
+   "circular_max_k_2sqrt2": {
+    "worst_rel_error_at_threshold": 9.313225746154785e-10,
+    "exceeds_1e-9": false
+   },
+   "open_summary_k2": {
+    "worst_rel_error_at_threshold": 1.862645149230957e-09,
+    "exceeds_1e-9": true
+   },
+   "open_summary_k4": {
+    "worst_rel_error_at_threshold": 9.313225746154785e-10,
+    "exceeds_1e-9": false
+   }
+  }
+ }
+}

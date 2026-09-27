@@ -1,0 +1,46 @@
+"""V1 D5_CHECK search: Passed-band breaches of the absorbed-soft-spring class (axis-aligned member,
+root rotational spring k_X partly absorbed by G*J/L) where the trigger as written (binary64 published
+residual) would not fire. Standard library; imports probe_d5_check.py from the same folder."""
+import sys, json
+from fractions import Fraction as Fr
+sys.path.insert(0, '.')
+import probe_d5_check as p
+sec = p.section()
+GJ = sec['G'] * sec['J']
+rows = []
+for iL in range(0, 201):
+    L = 5.0 + iL * 0.005
+    D = GJ / L
+    cands = []
+    for t in range(0, 600):
+        k = (4 * D / 6.6e7) * (1 + t * 1e-3)
+        loss = float(abs(Fr(D + k) - (Fr(D) + Fr(k))) / Fr(k))
+        if loss > 0.9e-9:
+            cands.append((loss, k))
+    cands.sort(reverse=True)
+    for loss, k in cands[:4]:
+        m = p.build((L, 0.0, 0.0), (0.0, 0.0, 1.0), [(3, k), (4, 1e6), (5, 1e6)], [(9, 0.0144), (10, 0.0), (11, 0.0)], sec)
+        u_ex = p.exact_solve(m['K_int'], m['f'], m['free'])
+        th = abs(u_ex[3])
+        a = p.analyse('search', m, {'rotation': float(th), 'translation': float(th) * L})
+        for mode in ('dense', 'sparse'):
+            x = a[mode]
+            if x.get('outcome') != 'Passed' or x['actual_worst_ratio'] <= 1.0:
+                continue
+            e = x['estimators']
+            rows.append(dict(L=L, k=k, mode=mode, cond=x['cond'], actual=x['actual_worst_ratio'],
+                             EF_design=e['EF_design']['EF_ratio_to_1e-9'],
+                             EF_design_global=e['EF_design_global']['EF_ratio_to_1e-9'],
+                             EF_exact=e['EF_exact']['EF_ratio_to_1e-9'], loss=loss))
+miss_e = [r for r in rows if 8 * r['EF_design'] <= 1.0]
+miss_g = [r for r in rows if 8 * r['EF_design_global'] <= 1.0]
+miss_x = [r for r in rows if 8 * r['EF_exact'] <= 1.0]
+under = sorted(rows, key=lambda r: r['EF_design_global'] / r['actual'])[:5]
+print(json.dumps({'passed_band_breaches_found': len(rows),
+                  'missed_by_EF_design_at_8': len(miss_e), 'missed_by_EF_design_global_at_8': len(miss_g),
+                  'missed_by_EF_exact_at_8': len(miss_x),
+                  'min_EF_design_global_over_actual': under[0]['EF_design_global'] / under[0]['actual'] if under else None,
+                  'min_EF_design_over_actual': min((r['EF_design'] / r['actual'] for r in rows), default=None),
+                  'min_EF_exact_over_actual': min((r['EF_exact'] / r['actual'] for r in rows), default=None),
+                  'worst_underestimates_global': under,
+                  'examples_missed_by_EF_design': miss_e[:5]}, indent=1))

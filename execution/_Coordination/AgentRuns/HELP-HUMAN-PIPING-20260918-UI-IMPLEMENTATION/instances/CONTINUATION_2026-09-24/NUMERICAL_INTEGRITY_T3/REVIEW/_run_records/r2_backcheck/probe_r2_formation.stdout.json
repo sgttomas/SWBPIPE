@@ -1,0 +1,51 @@
+{
+ "python": "3.11.15",
+ "case": "RF-RANGE-CHAIN-LEF-small member section",
+ "rows": [
+  {
+   "coefficient": "12EI/L^3",
+   "binary64": "2.5626663618343692e-144",
+   "exact": "2.475401e-144",
+   "intermediate_numerator_binary64": "5e-324",
+   "intermediate_is_subnormal_or_zero": true,
+   "relative_error": 0.03525321613664202
+  },
+  {
+   "coefficient": "6EI/L^2",
+   "binary64": "0.0",
+   "exact": "1.540446e-204",
+   "intermediate_numerator_binary64": "0.0",
+   "intermediate_is_subnormal_or_zero": true,
+   "relative_error": 1.0
+  },
+  {
+   "coefficient": "4EI/L",
+   "binary64": "0.0",
+   "exact": "1.278162e-264",
+   "intermediate_numerator_binary64": "0.0",
+   "intermediate_is_subnormal_or_zero": true,
+   "relative_error": 1.0
+  },
+  {
+   "coefficient": "2EI/L",
+   "binary64": "0.0",
+   "exact": "6.390811e-265",
+   "intermediate_numerator_binary64": "0.0",
+   "intermediate_is_subnormal_or_zero": true,
+   "relative_error": 1.0
+  },
+  {
+   "coefficient": "GJ/L",
+   "binary64": "0.0",
+   "exact": "2.556324e-265",
+   "intermediate_numerator_binary64": "0.0",
+   "intermediate_is_subnormal_or_zero": true,
+   "relative_error": 1.0
+  },
+  {
+   "coefficient": "EA/L",
+   "binary64": "1.8234994709833907e-142",
+   "note": "normal, control"
+  }
+ ]
+}

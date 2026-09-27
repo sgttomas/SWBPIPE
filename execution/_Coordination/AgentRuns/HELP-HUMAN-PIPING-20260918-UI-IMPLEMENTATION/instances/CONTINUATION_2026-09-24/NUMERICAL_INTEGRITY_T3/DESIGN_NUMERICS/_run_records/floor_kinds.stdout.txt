@@ -1,0 +1,10 @@
+RF-CHAIN {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 0}
+RF-SKEW {'B_scale_below': 0, 'C_scale_below': 2, 'D_scale_below': 2, 'E_scale_below': 2, 'F_scale_below': 2, 'F_rec_scale_below': 0}
+RF-WEAK {'B_scale_below': 43, 'C_scale_below': 64, 'D_scale_below': 43, 'E_scale_below': 46, 'F_scale_below': 46, 'F_rec_scale_below': 0}
+RF-LARGE {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 0}
+RF-INVARIANCE {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 0}
+RF-RANGE {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 0}
+RF-ZERO {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 0}
+RF-FINITE {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 0}
+RF-MECH {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 0}
+RF-CANCEL {'B_scale_below': 0, 'C_scale_below': 0, 'D_scale_below': 0, 'E_scale_below': 0, 'F_scale_below': 0, 'F_rec_scale_below': 3}

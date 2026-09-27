@@ -1,0 +1,5025 @@
+{
+ "RF-CHAIN-T-n03-r1e-04": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.4196e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2351e-3"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n03-r1e-06": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.8295e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.1026e-1"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n03-r1e-08": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "6.6667e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.2412e+1"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n03-r1e-10": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.1806e+3"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 18"
+   }
+  }
+ },
+ "RF-CHAIN-T-n03-r1e-12": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.3439e+5"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 18"
+   }
+  }
+ },
+ "RF-CHAIN-T-n05-r1e-04": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.7340e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3802e-3"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n05-r1e-06": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.1473e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.0064e-1"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n05-r1e-08": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "6.6667e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n05-r1e-10": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "2.4347e+3"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 30"
+   }
+  }
+ },
+ "RF-CHAIN-T-n05-r1e-12": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "3.6035e+5"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 30"
+   }
+  }
+ },
+ "RF-CHAIN-T-n10-r1e-04": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.7316e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.1878e-3"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 20,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n10-r1e-06": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.1473e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8141e-1"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 20,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n10-r1e-08": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "5.0000e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 31,
+    "max_ratio_x1e9": "4.8565e+1"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 20,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-T-n10-r1e-10": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 32,
+    "max_ratio_x1e9": "4.2423e+3"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 60"
+   }
+  }
+ },
+ "RF-CHAIN-T-n10-r1e-12": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 32,
+    "max_ratio_x1e9": "5.4112e+5"
+   },
+   "X-J-EQ-I": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 60"
+   }
+  }
+ },
+ "RF-CHAIN-A-n03-r1e-04": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2288e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.9140e-3"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2288e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n03-r1e-06": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.5577e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.9264e-3"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.5577e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n03-r1e-08": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "3.3333e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "9.2956e+0"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7096e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n03-r1e-10": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "2.9271e+3"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.9813e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n03-r1e-12": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.3333e+4"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.6751e-31"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 18"
+   }
+  }
+ },
+ "RF-CHAIN-A-n05-r1e-04": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2280e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.9140e-3"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2280e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n05-r1e-06": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8076e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.1409e-2"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8076e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n05-r1e-08": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "5.0000e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.7805e+1"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.5481e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n05-r1e-10": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "2.9271e+3"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.9813e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n05-r1e-12": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "1.9400e+5"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.4164e-31"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 30"
+   }
+  }
+ },
+ "RF-CHAIN-A-n10-r1e-04": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8005e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.9980e-3"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8005e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n10-r1e-06": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8076e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7993e-1"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8076e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n10-r1e-08": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "3.7500e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 22,
+    "max_ratio_x1e9": "3.2783e+1"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8300e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n10-r1e-10": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 32,
+    "max_ratio_x1e9": "2.9271e+3"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.9813e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CHAIN-A-n10-r1e-12": {
+  "family": "RF-CHAIN",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 32,
+    "max_ratio_x1e9": "3.1187e+5"
+   },
+   "X-J-EQ-I": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.4164e-31"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 60"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-AX-345-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.5778e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.6263e-2"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "7.6792e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-AX-345-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 13,
+    "max_ratio_x1e9": "2.6779e+2"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "7.6800e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-AX-345-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 13,
+    "max_ratio_x1e9": "3.0756e+6"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "7.6800e+8"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 4"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-AX-122-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.3330e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.6201e-3"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "5.9253e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-AX-122-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 18,
+    "max_ratio_x1e9": "2.9606e+1"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "5.9259e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-AX-122-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 18,
+    "max_ratio_x1e9": "4.6474e+5"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "5.9259e+8"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 5"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-OFF-345-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.6553e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.0277e-1"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.6553e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-OFF-345-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 12,
+    "max_ratio_x1e9": "1.0696e+3"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2851e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-OFF-345-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 12,
+    "max_ratio_x1e9": "1.0303e+7"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.7234e-31"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 4"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-OFF-122-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.9861e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.5935e-2"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.9861e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-OFF-122-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 18,
+    "max_ratio_x1e9": "5.4322e+2"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.9861e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-PIN-OFF-122-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 18,
+    "max_ratio_x1e9": "5.5058e+6"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.9861e-32"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 5"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-AX-345-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.8929e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.1182e-2"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "6.1985e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-AX-345-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "2.1398e+2"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "6.1989e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-AX-345-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "2.4825e+6"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "6.1989e+8"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 7"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-AX-122-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7870e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.6305e-4"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "7.1139e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-AX-122-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "8.3479e+0"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "7.1145e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-AX-122-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "1.8631e+5"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "7.1145e+8"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 8"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-OFF-345-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.8602e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "5.3634e-2"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.8602e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-OFF-345-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "5.1033e+2"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.3837e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-OFF-345-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "5.5146e+6"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7067e-32"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 6"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-OFF-122-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.9990e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "5.6177e-1"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.9990e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-OFF-122-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.0000e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-T-CANT-OFF-122-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+7"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.0000e-31"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 6"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-AX-345-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7186e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.8687e-4"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "6.0824e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-AX-345-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7186e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0025e+1"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "6.0828e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-AX-345-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.1851e+4"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "6.0828e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-AX-122-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9371e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.8877e-4"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "5.8617e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-AX-122-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9371e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "3.9724e+0"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "5.8623e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-AX-122-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "8.1085e+4"
+   },
+   "X-UNNORM": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "5.8623e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-OFF-345-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7186e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.2904e-4"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7186e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-OFF-345-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7186e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "4.7942e+0"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7186e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-OFF-345-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "2.4747e+4"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7186e-31"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 6"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-OFF-122-r1e-04": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9371e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.1413e-4"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9371e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-OFF-122-r1e-08": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9371e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.2368e-1"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9371e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-SKEW-A-CANT-OFF-122-r1e-12": {
+  "family": "RF-SKEW",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "2.4065e+4"
+   },
+   "X-UNNORM": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9371e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-AX-rho1e-04": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.9151e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.9528e-6"
+   },
+   "X-GJC0": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-AX-rho1e-08": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 8,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2122e-6"
+   },
+   "X-GJC0": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-AX-rho1e-12": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 12,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.7971e-6"
+   },
+   "X-GJC0": {
+    "caught": true,
+    "violations": 8,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-L-r1e-04": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.8733e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2936e-2"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-L-r1e-08": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "1.3373e+2"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-L-r1e-12": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "1.3854e+6"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 12"
+   }
+  }
+ },
+ "RF-WEAK-W-3D-rho1e-04": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.9460e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.5068e-4"
+   },
+   "X-GJC0": {
+    "caught": true,
+    "violations": 26,
+    "max_ratio_x1e9": "3.1981e+5"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-3D-rho1e-08": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "5.3872e-5"
+   },
+   "X-GJC0": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "3.2000e+1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-WEAK-W-3D-rho1e-12": {
+  "family": "RF-WEAK",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 19,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.8329e-5"
+   },
+   "X-GJC0": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2000e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n00010-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.3119e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.5192e-4"
+   },
+   "X-ONE-LOAD": {
+    "caught": true,
+    "violations": 104,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n00010-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.3119e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.5184e-1"
+   },
+   "X-ONE-LOAD": {
+    "caught": true,
+    "violations": 115,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n00010-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7832e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.4986e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n00010-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7832e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.6639e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n00010-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2942e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7776e-7"
+   },
+   "X-PIN-AS-FIX": {
+    "caught": true,
+    "violations": 74,
+    "max_ratio_x1e9": "9.3832e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n00010-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.9559e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.2729e-5"
+   },
+   "X-PIN-AS-FIX": {
+    "caught": true,
+    "violations": 96,
+    "max_ratio_x1e9": "8.5606e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n00100-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.0937e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.5280e-2"
+   },
+   "X-ONE-LOAD": {
+    "caught": true,
+    "violations": 998,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n00100-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.6487e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 173,
+    "max_ratio_x1e9": "5.2731e+2"
+   },
+   "X-ONE-LOAD": {
+    "caught": true,
+    "violations": 1105,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n00100-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 355,
+    "max_ratio_x1e9": "8.1724e+1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n00100-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.0533e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 744,
+    "max_ratio_x1e9": "1.9602e+1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n00100-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.2129e-1"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.8957e-7"
+   },
+   "X-PIN-AS-FIX": {
+    "caught": true,
+    "violations": 671,
+    "max_ratio_x1e9": "9.3807e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n00100-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "3.8826e+0"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.1420e-5"
+   },
+   "X-PIN-AS-FIX": {
+    "caught": true,
+    "violations": 897,
+    "max_ratio_x1e9": "8.5634e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n01000-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "4.2210e+0"
+   },
+   "X-ONE-LOAD": {
+    "caught": true,
+    "violations": 67,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n01000-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 55,
+    "max_ratio_x1e9": "3.7682e+5"
+   },
+   "X-ONE-LOAD": {
+    "caught": true,
+    "violations": 82,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n01000-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.1039e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 86,
+    "max_ratio_x1e9": "8.4947e+5"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n01000-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.1039e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 148,
+    "max_ratio_x1e9": "2.1823e+5"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n01000-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.7238e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.8957e-7"
+   },
+   "X-PIN-AS-FIX": {
+    "caught": true,
+    "violations": 99,
+    "max_ratio_x1e9": "9.3807e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n01000-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.7238e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.4434e-4"
+   },
+   "X-PIN-AS-FIX": {
+    "caught": true,
+    "violations": 132,
+    "max_ratio_x1e9": "8.5634e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n10000-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 45,
+    "max_ratio_x1e9": "1.5009e+2"
+   }
+  }
+ },
+ "RF-LARGE-CHAIN-n10000-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 77,
+    "max_ratio_x1e9": "7.0627e+7"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n10000-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.9066e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 111,
+    "max_ratio_x1e9": "1.1186e+9"
+   }
+  }
+ },
+ "RF-LARGE-TREE-n10000-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.9414e-32"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 166,
+    "max_ratio_x1e9": "1.4825e+9"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n10000-AX": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.7238e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.8957e-7"
+   }
+  }
+ },
+ "RF-LARGE-CONT-n10000-ROT": {
+  "family": "RF-LARGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.7238e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.6585e-4"
+   }
+  }
+ },
+ "RF-INVARIANCE-PINTOR-BASE": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "1.6954e+0"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-PINTOR-ROT-Q3": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.9576e-32"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 49,
+    "max_ratio_x1e9": "3.1805e+1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.9576e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-PINTOR-ROT-Q9": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.9576e-32"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 43,
+    "max_ratio_x1e9": "2.7241e+1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.9576e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-PINTOR-OFF-1e3": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "1.6954e+0"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-PINTOR-OFF-1e6": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "1.6954e+0"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-PINTOR-RELABEL": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "5.9282e-1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-PINTOR-UNITS-mm": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.2356e-1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.4695e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-LFRAME-BASE": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2393e-2"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-LFRAME-ROT-Q3": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.4433e-32"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 21,
+    "max_ratio_x1e9": "7.8542e+1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.4433e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-LFRAME-ROT-Q9": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.4433e-32"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 15,
+    "max_ratio_x1e9": "7.7903e+0"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.4433e-32"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-LFRAME-OFF-1e3": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2393e-2"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-LFRAME-OFF-1e6": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.2393e-2"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-LFRAME-RELABEL": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.8731e-2"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-LFRAME-UNITS-mm": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.7527e-2"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.8505e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-CONT4-BASE": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.4456e-7"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-CONT4-ROT-Q3": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.7122e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.1481e-4"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.7122e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-CONT4-ROT-Q9": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.6261e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.5417e-5"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.6261e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-CONT4-OFF-1e3": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.4456e-7"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-CONT4-OFF-1e6": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.4456e-7"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-CONT4-RELABEL": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.1501e-7"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-CONT4-UNITS-mm": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.0845e-7"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3600e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-TREE100-BASE": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 355,
+    "max_ratio_x1e9": "8.1724e+1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-TREE100-OFF-1e3": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 355,
+    "max_ratio_x1e9": "8.1724e+1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-TREE100-OFF-1e6": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 355,
+    "max_ratio_x1e9": "8.1724e+1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-INVARIANCE-TREE100-RELABEL": {
+  "family": "RF-INVARIANCE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 354,
+    "max_ratio_x1e9": "6.8957e+1"
+   },
+   "X-COORD32": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.0183e-31"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-L-240": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-L+240": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-E-1000": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.9547e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-E+960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-F-960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-F+960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.4952e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-LEF-small": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "refused: Singular: zero pivot at free dof 1"
+   },
+   "X-SEC64": {
+    "caught": true,
+    "why": [
+     "N.EI=0.0",
+     "N.GJ=0.0"
+    ]
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-LEF-large": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "refused: OverflowError: integer division result too large for a float"
+   },
+   "X-SEC64": {
+    "caught": true,
+    "why": [
+     "N.EI=inf",
+     "N.GJ=inf"
+    ]
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-SIM-a": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 3,
+    "max_ratio_x1e9": "6.6667e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-CHAIN-SIM-b": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "3.0489e+1"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-L-240": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-L+240": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-E-1000": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.9117e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-E+960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-F-960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 13,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 14,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-F+960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2589e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "non-finite value"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-LEF-small": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "refused: Singular: zero pivot at free dof 1"
+   },
+   "X-SEC64": {
+    "caught": true,
+    "why": [
+     "N.EI=0.0",
+     "N.GJ=0.0"
+    ]
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-LEF-large": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "refused: OverflowError: integer division result too large for a float"
+   },
+   "X-SEC64": {
+    "caught": true,
+    "why": [
+     "N.EI=inf",
+     "N.GJ=inf"
+    ]
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-SIM-a": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 5,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-SKEW-SIM-b": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 7,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 17,
+    "max_ratio_x1e9": "5.6177e+3"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-CONT-L-240": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 31,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7776e-7"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-CONT-L+240": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 30,
+    "max_ratio_x1e9": "9.4384e+8"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7776e-7"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-CONT-E-1000": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.8385e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7776e-7"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CONT-E+960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 30,
+    "max_ratio_x1e9": "9.4384e+8"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7776e-7"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CONT-F-960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 73,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 29,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CONT-F+960": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7862e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "non-finite value"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-RANGE-CONT-LEF-small": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 53,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "refused: Singular: zero pivot at free dof 0"
+   },
+   "X-SEC64": {
+    "caught": true,
+    "why": [
+     "S.EI=0.0",
+     "S.GJ=0.0"
+    ]
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-CONT-LEF-large": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 20,
+    "max_ratio_x1e9": "9.3832e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "why": "refused: OverflowError: integer division result too large for a float"
+   },
+   "X-SEC64": {
+    "caught": true,
+    "why": [
+     "S.EI=inf",
+     "S.GJ=inf"
+    ]
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-CONT-SIM-a": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "9.4384e+8"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7776e-7"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 0"
+   }
+  }
+ },
+ "RF-RANGE-CONT-SIM-b": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 43,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7776e-7"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 3"
+   }
+  }
+ },
+ "RF-RANGE-THIN-A": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 8,
+    "max_ratio_x1e9": "9.2843e+8"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "9.2843e+8"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 1"
+   }
+  }
+ },
+ "RF-RANGE-THIN-B": {
+  "family": "RF-RANGE",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 6,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "7.0711e+8"
+   },
+   "X-SEC64": {
+    "caught": false,
+    "why": "every section product is a normal binary64 number (error ~1e-16, not a 1e-9 defect)"
+   },
+   "X-NUMRANK": {
+    "caught": true,
+    "why": "stable model refused: zero pivot at free dof 1"
+   }
+  }
+ },
+ "RF-ZERO-SYM": {
+  "family": "RF-ZERO",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.1232e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "7.7760e-7"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-ZERO-TORSION": {
+  "family": "RF-ZERO",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3303e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.6613e-7"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-ZERO-PLANAR": {
+  "family": "RF-ZERO",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.1706e-5"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-ZERO-TINY": {
+  "family": "RF-ZERO",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "5.5077e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "4.1652e-8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-FINITE-THIRDS-O0": {
+  "family": "RF-FINITE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7116e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.9083e-4"
+   },
+   "X-COORD32": {
+    "caught": true,
+    "violations": 88,
+    "max_ratio_x1e9": "4.7684e+2"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-FINITE-THIRDS-O1e3": {
+  "family": "RF-FINITE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7116e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.2804e-4"
+   },
+   "X-COORD32": {
+    "caught": true,
+    "violations": 97,
+    "max_ratio_x1e9": "1.2207e+5"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-FINITE-THIRDS-O1e6": {
+  "family": "RF-FINITE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7116e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3283e-1"
+   },
+   "X-COORD32": {
+    "caught": true,
+    "violations": 99,
+    "max_ratio_x1e9": "1.2500e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-FINITE-TENTHS-O1e6": {
+  "family": "RF-FINITE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.1351e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.3133e-1"
+   },
+   "X-COORD32": {
+    "caught": true,
+    "violations": 92,
+    "max_ratio_x1e9": "3.7500e+8"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-FINITE-THIRTIETHS-O1e6": {
+  "family": "RF-FINITE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.7116e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 2,
+    "max_ratio_x1e9": "3.2596e+0"
+   },
+   "X-COORD32": {
+    "caught": true,
+    "why": "refused: DivisionByZero: [<class 'decimal.DivisionByZero'>]"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-FINITE-ROT-Q9-NONMULT": {
+  "family": "RF-FINITE",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2863e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.0070e-5"
+   },
+   "X-COORD32": {
+    "caught": true,
+    "violations": 16,
+    "max_ratio_x1e9": "2.9802e+1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-MECH-LINE345-RX-COMPANION": {
+  "family": "RF-MECH",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.5000e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.7071e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e5-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.7013e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+14"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e5-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.4803e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e5-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.7013e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+14"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e6-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.5522e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+15"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e6-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.4803e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e6-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.5522e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+15"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e7-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "2.4835e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+16"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e7-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.4803e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e7-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 9,
+    "max_ratio_x1e9": "2.4835e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+16"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e8-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "9.9341e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+17"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e8-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.4803e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e8-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.2306e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "9.9341e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+17"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e8-GnG-ORTHO": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.8595e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.9802e-2"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+15"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e8-GnG-INPLANE": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "6.9844e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.3283e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "7.8125e+15"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e80-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+97"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e80-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.1476e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.5327e-32"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e80-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+97"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e80-GnG-ORTHO": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.0000e-1"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.0000e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+87"
+   }
+  }
+ },
+ "RF-CANCEL-F-G1e80-GnG-INPLANE": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "3.6927e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.0000e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "8.0000e+87"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e5-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.7005e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+14"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e5-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.3323e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e5-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.7005e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+14"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e6-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.5522e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+15"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e6-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.3323e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e6-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.5522e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+15"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e7-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "2.4835e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+16"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e7-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.3323e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e7-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 10,
+    "max_ratio_x1e9": "2.4835e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+16"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e8-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "9.9341e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+17"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e8-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.3323e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e8-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2710e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "9.9341e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+17"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e8-GnG-ORTHO": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "8.3020e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "5.9604e-2"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "2.0000e+15"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e8-GnG-INPLANE": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.2824e-31"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.8934e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "9.7087e+15"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e80-GnG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+97"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e80-GGn": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.2952e-6"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "5.2963e-32"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e80-nGG": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 4,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+97"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e80-GnG-ORTHO": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.0000e-1"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.0000e-1"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "2.0000e+87"
+   }
+  }
+ },
+ "RF-CANCEL-M-G1e80-GnG-INPLANE": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.1627e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "1.0000e+88"
+   }
+  }
+ },
+ "RF-CANCEL-UDL-W1e5": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.9999e-32"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "9.8657e-3"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "6.7797e+13"
+   }
+  }
+ },
+ "RF-CANCEL-UDL-W1e8": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "1.0000e-31"
+   },
+   "X-BINARY64": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "2.5256e+0"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "6.7797e+16"
+   }
+  }
+ },
+ "RF-CANCEL-UDL-W1e80": {
+  "family": "RF-CANCEL",
+  "defects": {
+   "X-CHOP": {
+    "caught": true,
+    "violations": 1,
+    "max_ratio_x1e9": "1.0000e+9"
+   },
+   "X-BINARY64": {
+    "caught": false,
+    "violations": 0,
+    "max_ratio_x1e9": "2.6341e-7"
+   },
+   "X-NUMRANK": {
+    "caught": false,
+    "why": "no pivot below 1e-12 of the largest diagonal"
+   },
+   "X-OVERWRITE": {
+    "caught": true,
+    "violations": 11,
+    "max_ratio_x1e9": "3.3333e+96"
+   }
+  }
+ },
+ "_summary": {
+  "RF-CHAIN": {
+   "X-CHOP": {
+    "cases": 30,
+    "caught": 18
+   },
+   "X-BINARY64": {
+    "cases": 30,
+    "caught": 18
+   },
+   "X-J-EQ-I": {
+    "cases": 30,
+    "caught": 15
+   },
+   "X-NUMRANK": {
+    "cases": 30,
+    "caught": 9
+   }
+  },
+  "RF-SKEW": {
+   "X-CHOP": {
+    "cases": 36,
+    "caught": 20
+   },
+   "X-BINARY64": {
+    "cases": 36,
+    "caught": 23
+   },
+   "X-UNNORM": {
+    "cases": 36,
+    "caught": 18
+   },
+   "X-NUMRANK": {
+    "cases": 36,
+    "caught": 9
+   }
+  },
+  "RF-WEAK": {
+   "X-CHOP": {
+    "cases": 9,
+    "caught": 6
+   },
+   "X-BINARY64": {
+    "cases": 9,
+    "caught": 2
+   },
+   "X-GJC0": {
+    "cases": 6,
+    "caught": 5
+   },
+   "X-NUMRANK": {
+    "cases": 9,
+    "caught": 1
+   }
+  },
+  "RF-LARGE": {
+   "X-CHOP": {
+    "cases": 24,
+    "caught": 5
+   },
+   "X-BINARY64": {
+    "cases": 24,
+    "caught": 11
+   },
+   "X-ONE-LOAD": {
+    "cases": 6,
+    "caught": 6
+   },
+   "X-NUMRANK": {
+    "cases": 18,
+    "caught": 0
+   },
+   "X-PIN-AS-FIX": {
+    "cases": 6,
+    "caught": 6
+   }
+  },
+  "RF-INVARIANCE": {
+   "X-CHOP": {
+    "cases": 25,
+    "caught": 0
+   },
+   "X-BINARY64": {
+    "cases": 25,
+    "caught": 11
+   },
+   "X-COORD32": {
+    "cases": 25,
+    "caught": 0
+   },
+   "X-NUMRANK": {
+    "cases": 25,
+    "caught": 0
+   }
+  },
+  "RF-RANGE": {
+   "X-CHOP": {
+    "cases": 32,
+    "caught": 26
+   },
+   "X-BINARY64": {
+    "cases": 32,
+    "caught": 26
+   },
+   "X-SEC64": {
+    "cases": 32,
+    "caught": 6
+   },
+   "X-NUMRANK": {
+    "cases": 32,
+    "caught": 20
+   }
+  },
+  "RF-ZERO": {
+   "X-CHOP": {
+    "cases": 4,
+    "caught": 0
+   },
+   "X-BINARY64": {
+    "cases": 4,
+    "caught": 0
+   },
+   "X-NUMRANK": {
+    "cases": 4,
+    "caught": 0
+   }
+  },
+  "RF-FINITE": {
+   "X-CHOP": {
+    "cases": 6,
+    "caught": 0
+   },
+   "X-BINARY64": {
+    "cases": 6,
+    "caught": 1
+   },
+   "X-COORD32": {
+    "cases": 6,
+    "caught": 6
+   },
+   "X-NUMRANK": {
+    "cases": 6,
+    "caught": 0
+   }
+  },
+  "RF-MECH": {
+   "X-CHOP": {
+    "cases": 1,
+    "caught": 0
+   },
+   "X-BINARY64": {
+    "cases": 1,
+    "caught": 0
+   },
+   "X-NUMRANK": {
+    "cases": 1,
+    "caught": 0
+   }
+  },
+  "RF-CANCEL": {
+   "X-CHOP": {
+    "cases": 41,
+    "caught": 7
+   },
+   "X-BINARY64": {
+    "cases": 41,
+    "caught": 14
+   },
+   "X-NUMRANK": {
+    "cases": 41,
+    "caught": 0
+   },
+   "X-OVERWRITE": {
+    "cases": 41,
+    "caught": 31
+   }
+  }
+ }
+}

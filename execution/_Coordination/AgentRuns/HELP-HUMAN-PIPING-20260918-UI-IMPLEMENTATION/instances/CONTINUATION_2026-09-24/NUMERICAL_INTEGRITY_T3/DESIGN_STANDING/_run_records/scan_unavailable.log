@@ -1,0 +1,4 @@
+# python3 scan_unavailable.py <rev>, run in <worktree> (standard library; reads blobs via git show; read-only)
+# python: Python 3.11.15
+c61a540ea {"json": 10314, "with_receipt": 43, "with_unavailable": 0, "unavailable_on_selected": 0}
+f3270ea79 {"json": 10534, "with_receipt": 83, "with_unavailable": 0, "unavailable_on_selected": 0}

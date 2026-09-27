@@ -1,0 +1,12 @@
+new cases: ['RF-ELOAD-CANCEL-SEIS-G1e8-R']  missing: []
+top-level fields changed: ['summary']
+pre-existing rows compared: {'expected': 2111, 'expected_represented': 382, 'rep_vs_int': 382}
+field differences (excluding negative_controls, notes, gross_scale_status): []
+row differences: []
+gross_scale_status added in: ['RF-ELOAD-CANCEL-FEM-G1e5', 'RF-ELOAD-CANCEL-FEM-G1e7', 'RF-ELOAD-CANCEL-FEM-G1e8']
+notes changed in: []
+controls removed: [('RF-ELOAD-TH-SPRING-LEG-r1e-06', 'NC-LOST-SOFT')]
+controls added: []
+control numeric changes: []
+control text changes: 16
+other control field changes: 22 [('NC-BIN64-PRODUCT', 'label'), ('NC-FLOAT-SUM', 'label'), ('NC-FLOAT-SUM-ABn', 'label'), ('NC-FLOAT-SUM-AnB', 'label'), ('NC-FLOAT-SUM-BIN64', 'label'), ('NC-FLOAT-SUM-GmGpn', 'label'), ('NC-FLOAT-SUM-GmnGp', 'label'), ('NC-FLOAT-SUM-nAB', 'label'), ('NC-FLOAT-SUM-nGmGp', 'label')]

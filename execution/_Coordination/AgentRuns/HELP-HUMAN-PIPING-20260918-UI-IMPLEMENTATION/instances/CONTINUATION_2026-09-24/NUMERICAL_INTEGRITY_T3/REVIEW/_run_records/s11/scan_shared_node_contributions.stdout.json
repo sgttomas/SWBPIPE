@@ -1,0 +1,18 @@
+{
+ "stats": {
+  "models": 156,
+  "unique_models": 89,
+  "cases": 173,
+  "dofs_loaded": 1371
+ },
+ "dofs_by_contribution_count(6=6+)": {
+  "1": 1359,
+  "2": 12
+ },
+ "producer_mix_on_3plus_dofs": {},
+ "max_gross_to_net_on_3plus_dofs_with_known_magnitudes": [
+  0.0,
+  null
+ ],
+ "examples": []
+}

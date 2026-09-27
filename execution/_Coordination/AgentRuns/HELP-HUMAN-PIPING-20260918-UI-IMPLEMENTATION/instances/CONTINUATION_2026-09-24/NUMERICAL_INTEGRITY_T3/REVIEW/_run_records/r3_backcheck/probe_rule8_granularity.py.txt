@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""V1 BACKCHECK_R3, check G: granularity of S11 revision 4 rule 8 (site test completeness by constant).
+
+Standard library only. Run from the product root P/ with argument '.'.
+For product_physics/src/lib.rs (PP), counts, per non-test function, the lines that match rule 8's
+pattern (+=, -=, .sum, .sum::<f64>, fold( ). A function-keyed constant admits a new accumulation
+inside any function already listed; this reports how many listed-candidate functions hold more
+than one match, and the largest ones.
+"""
+import json, re, sys, os
+root = sys.argv[1]
+path = os.path.join(root, 'core/product_physics/src/lib.rs')
+src = open(path).read().split('\n')
+cut = next(i + 1 for i, l in enumerate(src) if l.startswith('mod nonlinear_context_passthrough_tests') or l.startswith('mod tests'))
+fn_re = re.compile(r'\s*(?:pub(?:\([a-z]+\))?\s+)?fn\s+([A-Za-z0-9_]+)')
+pat = re.compile(r'(\+=|-=|\.sum\b|\.sum::<f64>|fold\()')
+starts = [(i + 1, m.group(1)) for i, l in enumerate(src[:cut]) if (m := fn_re.match(l))]
+rows = []
+for k, (ln, name) in enumerate(starts):
+    end = starts[k + 1][0] - 1 if k + 1 < len(starts) else cut - 1
+    n = sum(1 for l in src[ln - 1:end] if pat.search(l))
+    if n:
+        rows.append({'fn': name, 'line': ln, 'length': end - ln + 1, 'matches': n})
+rows.sort(key=lambda r: -r['matches'])
+out = {
+    'file': 'core/product_physics/src/lib.rs',
+    'non_test_lines': cut - 1,
+    'functions_with_matches': len(rows),
+    'total_matching_lines': sum(r['matches'] for r in rows),
+    'functions_with_more_than_one_match': sum(1 for r in rows if r['matches'] > 1),
+    'e15_function': next((r for r in rows if r['fn'] == 'pressure_for_pipe'), None),
+    'top_by_matches': rows[:12],
+    'top_by_length': sorted(rows, key=lambda r: -r['length'])[:8],
+}
+print(json.dumps(out, indent=1))

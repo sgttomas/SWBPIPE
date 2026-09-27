@@ -1,0 +1,13 @@
+#!/bin/bash
+# Waits for any other cargo to finish, then builds and runs one probe at a time.
+export CARGO_TARGET_DIR=<t3-target> RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0
+for n in main t1; do
+  while pgrep -x cargo >/dev/null; do sleep 10; done
+  echo "[$(date -u +%H:%M:%S)] build $n start"
+  cd <scratch>/d2_probe-$n
+  cargo build --offline --release -j 2 > <scratch>/build_$n.log 2>&1; echo "build $n exit=$?"
+  bin=$CARGO_TARGET_DIR/release/d2_probe
+  sha256sum $bin > <scratch>/bin_$n.sha256
+  ( time $bin <scratch>/export-$n $n ) > <scratch>/probes_$n.log 2> <scratch>/probes_$n.stderr; echo "run $n exit=$?"
+done
+echo DONE

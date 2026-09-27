@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""V1 S11G_CHECK: the INPLANE rows in the S11-F state with V1's product-faithful solve emulation.
+
+Usage (from T3/):  nice -n 19 python3 <this> <v1_dir> <i4_formation_rows.json> <out.json>
+<v1_dir> holds V1's probe_d5_check.py (prepare/scaling, dense Cholesky, RCM profile LDL^T, residual gate
+and refinement; product_frame, local_K, TtKT). The S11-F force is the correctly rounded exact net at N2
+(identical to a plain authored nodal load of the same value). Recovery is SP `recover_local_forces`
+(local = T u_e, then K_loc local, both binary64 in source order); Mb = hypot of the two bending rows.
+For each row: the emulated published value, I4's measured post-S11-F value (read-only record), the
+exactly rounded recovery from the same binary64 u, and the ratio to R1's criterion.
+"""
+import json
+import math
+import sys
+from fractions import Fraction as Fr
+
+sys.path.insert(0, sys.argv[1])
+import probe_d5_check as p  # noqa: E402
+
+DOF = {"UX": 0, "UY": 1, "UZ": 2, "RX": 3, "RY": 4, "RZ": 5}
+
+
+def num(x):
+    x = str(x)
+    if "*2^" in x:
+        a, k = x.split("*2^")
+        return Fr(a) * Fr(2) ** int(k)
+    return Fr(x)
+
+
+def run(cid, ref, variant):
+    m = ref[cid]["model"]
+    names = list(m["nodes_m"])
+    idx = {nm: i for i, nm in enumerate(names)}
+    n = 6 * len(names)
+    K = [[0.0] * n for _ in range(n)]
+    s = m["sections"]["N"]
+    sec = p.section(float(num(s["OD"])), float(num(s["ID"])), float(num(s["E"])), float(num(s["G"])))
+    elems = []
+    for (mid, a, b, sid) in m["members"]:
+        xi = [float(num(v)) for v in m["nodes_m"][a]]
+        xj = [float(num(v)) for v in m["nodes_m"][b]]
+        R, L = p.product_frame(xi, xj, (0.0, 0.0, 1.0))
+        Kl = p.local_K(sec, L)
+        Ke = p.TtKT(Kl, p.T12(R, 0.0), False)
+        base = [6 * idx[a] + k for k in range(6)] + [6 * idx[b] + k for k in range(6)]
+        for r in range(12):
+            for c in range(12):
+                K[base[r]][base[c]] += Ke[r][c]
+        elems.append((mid, a, b, R, Kl))
+    f = [0.0] * n
+    for nd, ld in m["loads"].items():
+        for key, off in (("F", 0), ("M", 3)):
+            for k, v in enumerate(ld.get(key, [])):
+                f[6 * idx[nd] + off + k] += float(num(v))
+    ex = {}
+    for nd, dn, v in m["load_contributions_in_authored_order"]:
+        d = 6 * idx[nd] + DOF[dn]
+        ex[d] = ex.get(d, Fr(0)) + Fr(float(num(v)))
+    for d, v in ex.items():
+        f[d] = float(Fr(f[d]) + v)
+    free = [i for i in range(n) if i // 6 != idx["N0"]]
+    mm = dict(n=n, free=free, K_rep=K, f=f, springs=[])
+    sol = p.solve_product(mm, "dense" if variant == "dense_scrutiny" else "sparse")
+    u = sol["u"]
+    out = {}
+    for (mid, a, b, R, Kl) in elems:
+        ue = u[6 * idx[a]:6 * idx[a] + 6] + u[6 * idx[b]:6 * idx[b] + 6]
+        T = p.T12(R, 0.0)
+        loc = [0.0] * 12
+        for r in range(12):
+            for c in range(12):
+                loc[r] += T[r][c] * ue[c]
+        fl = [0.0] * 12
+        for r in range(12):
+            for c in range(12):
+                fl[r] += Kl[r][c] * loc[c]
+        locx = [sum(Fr(T[r][c]) * Fr(ue[c]) for c in range(12)) for r in range(12)]
+        flx = [sum(Fr(Kl[r][c]) * locx[c] for c in range(12)) for r in range(12)]
+        for end, (ry, rz) in (("i", (4, 5)), ("j", (10, 11))):
+            out[f"Mb.{mid}.{end}"] = {"emulated": math.hypot(fl[ry], fl[rz]),
+                                      "exact_recovery_from_u": math.hypot(float(flx[ry]), float(flx[rz]))}
+    return out, sol["outcome"]
+
+
+def main():
+    ref = json.load(open("REFERENCES/references.json"))["cases"]
+    i4 = json.load(open(sys.argv[2]))
+    res = {}
+    for row in i4:
+        cid, key, mode = row["case"], row["key"], row["mode"]
+        if "INPLANE" not in cid:
+            continue
+        out, outcome = run(cid, ref, mode)
+        obs = row["cand"]["obs"]
+        obs_v = abs(float(obs.split(",")[1].strip(" )")))
+        exp = float(num(row["exp"]))
+        crit = 1e-9 * exp  # R1's binding net-governed scale equals the expected value here
+        r = out[key]
+        res[f"{cid} {key} {mode}"] = {
+            "i4_published": obs_v, "emulated": r["emulated"], "emulated_equals_i4": r["emulated"] == obs_v,
+            "ratio_published": abs(obs_v - exp) / crit, "ratio_exact_recovery_from_emulated_u": abs(r["exact_recovery_from_u"] - exp) / crit,
+            "outcome": outcome}
+        # the other end at the same node, for label checks
+        res[f"{cid} {key} {mode}"]["all_rows_emulated"] = {k: v["emulated"] for k, v in out.items()}
+    json.dump(res, open(sys.argv[3], "w"), indent=1)
+    for k, v in res.items():
+        print(k, json.dumps({kk: vv for kk, vv in v.items() if kk != "all_rows_emulated"}))
+
+
+if __name__ == "__main__":
+    main()

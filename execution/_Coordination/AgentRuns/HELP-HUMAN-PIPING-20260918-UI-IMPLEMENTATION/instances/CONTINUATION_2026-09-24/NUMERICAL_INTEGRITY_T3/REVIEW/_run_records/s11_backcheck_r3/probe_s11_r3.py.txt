@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""T3 V1 backcheck of S11 revision 3 (standard library only; no product code).
+
+Run from P/ (projects/chirality-piping) with:  python3 <this file> .
+  Z  count committed result values (objects with "kind" and "value") equal to -0.0 under
+     fixtures/, by kind, to check S11 rev 3 section 4.1.3's "941 in 29 files" and "4 spring
+     components"; and the normalized_residual -0.0 strings (245 in 31 files).
+  O  fold order check for the kill cases named in section 9: (G, -G, n) is exact
+     (Sterbenz), (G, n, -G) and (n, G, -G) are not, for G = 1e8 and 1e80, n = 0.3.
+"""
+import json, math, os, re, sys, collections
+from fractions import Fraction as Fr
+
+root = sys.argv[1]
+fx = os.path.join(root, "fixtures")
+neg = collections.Counter()
+files = set()
+spring = 0
+res_strings, res_files = 0, set()
+pat = re.compile(r"normalized_residual: -0\.0[,} ]")
+
+
+def walk(o, path):
+    global spring
+    if isinstance(o, dict):
+        if "kind" in o and isinstance(o.get("value"), float) and o["value"] == 0.0 and math.copysign(1, o["value"]) < 0:
+            neg[o["kind"]] += 1
+            files.add(path)
+        for v in o.values():
+            walk(v, path)
+    elif isinstance(o, list):
+        for v in o:
+            walk(v, path)
+
+
+for d, _, fs in os.walk(fx):
+    for f in fs:
+        if not f.endswith(".json"):
+            continue
+        p = os.path.join(d, f)
+        text = open(p).read()
+        n = len(pat.findall(text))
+        if n:
+            res_strings += n
+            res_files.add(p)
+        try:
+            walk(json.loads(text), p)
+        except Exception:
+            pass
+
+
+def fold(v):
+    s = 0.0
+    for x in v:
+        s += x
+    return s
+
+
+orders = []
+for G in (1e8, 1e80):
+    for name, v in (("(G,-G,n)", [G, -G, 0.3]), ("(G,n,-G)", [G, 0.3, -G]), ("(n,G,-G)", [0.3, G, -G])):
+        ex = float(sum((Fr(x) for x in v), Fr(0)))
+        orders.append({"G": G, "order": name, "fold": fold(v), "correctly_rounded": ex, "fold_differs": fold(v) != ex})
+print(json.dumps({"python": sys.version.split()[0],
+                  "Z_negative_zero_result_values": {"total": sum(neg.values()), "files": len(files), "by_kind": dict(neg.most_common())},
+                  "Z_normalized_residual_negative_zero": {"strings": res_strings, "files": len(res_files)},
+                  "O_fold_orders": orders}, indent=1))

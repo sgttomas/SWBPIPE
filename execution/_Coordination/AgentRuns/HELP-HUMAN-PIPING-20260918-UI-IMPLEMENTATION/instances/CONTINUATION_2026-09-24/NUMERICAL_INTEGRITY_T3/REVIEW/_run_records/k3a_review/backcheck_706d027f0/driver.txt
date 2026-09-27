@@ -1,0 +1,6 @@
+cand_full exit 0 waited 0 min
+R2_atan_tail_summed_largest_first KILLED compiled None
+R1_atan_stop_threshold_off_by_one KILLED compiled None
+M5_atan_one_reduction_fewer KILLED compiled None
+M6_atan_truncated_series KILLED compiled None
+DONE

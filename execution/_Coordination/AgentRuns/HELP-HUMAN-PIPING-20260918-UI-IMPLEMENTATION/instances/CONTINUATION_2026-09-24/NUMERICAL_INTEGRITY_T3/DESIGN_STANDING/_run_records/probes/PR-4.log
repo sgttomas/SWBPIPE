@@ -1,0 +1,5 @@
+## c61a540ea (main)
+PR-4 p3: skipped (fixture absent at this revision)
+## f3270ea79 (t1)
+PR-4 p3 SparseInteractive: Ok semantic=load-reference-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=None cases=None rows=207 blocking=[] info=["SOURCE_BLOCK_RECOVERY_UNAVAILABLE[\"case:join\"]", "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED[\"case:join\"]", "SOURCE_BLOCK_RECOVERY_UNAVAILABLE[\"case:pressure\"]", "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED[\"case:pressure\"]"]
+PR-4 p3 DenseScrutiny: Ok semantic=load-reference-1 mechanics=MECHANICS_SOLVED quality="sensitive" receipt=None cases=None rows=209 blocking=[] info=["SOURCE_BLOCK_RECOVERY_UNAVAILABLE[\"case:join\"]", "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED[\"case:join\"]", "SOURCE_BLOCK_RECOVERY_UNAVAILABLE[\"case:pressure\"]", "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED[\"case:pressure\"]"]

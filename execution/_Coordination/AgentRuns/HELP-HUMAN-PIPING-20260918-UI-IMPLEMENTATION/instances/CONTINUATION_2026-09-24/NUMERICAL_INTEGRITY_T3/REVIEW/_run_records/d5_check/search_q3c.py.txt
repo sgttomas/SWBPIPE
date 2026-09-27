@@ -1,0 +1,28 @@
+"""V1 D5_CHECK search: axis-aligned member, soft root rotational spring partly absorbed by G*J/L;
+finds (L, k) with maximal relative loss of k for which main (sparse) still publishes Passed.
+Standard library; imports probe_d5_check.py from the same folder."""
+import sys
+from fractions import Fraction as Fr
+sys.path.insert(0,'.')
+import probe_d5_check as p
+sec=p.section()
+GJ=sec['G']*sec['J']
+best_overall=[]
+for iL in range(0,301):
+    L=3.0+iL*0.01
+    D=GJ/L
+    cands=[]
+    for t in range(0,2001):
+        k=(4*D/6.6e7)*(1+t*1e-3)
+        if k>4*D/3e7: break
+        loss=float(abs(Fr(D+k)-(Fr(D)+Fr(k)))/Fr(k))
+        cands.append((loss,k))
+    cands.sort(reverse=True)
+    for loss,k in cands[:3]:
+        m=p.build((L,0.0,0.0),(0.0,0.0,1.0),[(3,k),(4,1e6),(5,1e6)],[(9,0.0144),(10,0.0),(11,0.0)],sec)
+        s=p.solve_product(m,'sparse')
+        if s and s.get('outcome')=='Passed':
+            best_overall.append((loss,L,k,s['rcond']))
+            break
+best_overall.sort(reverse=True)
+for r in best_overall[:6]: print(r)

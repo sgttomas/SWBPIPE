@@ -1,0 +1,205 @@
+"""T3 P1 realistic-fixture survey (scratch; committed as survey.py.txt).
+
+Usage: python3 -B survey.py <survey-binary> <export-root> <out.json> <t1-fixture-list.txt>
+
+Runs every committed product-preview request (and every committed preview model document,
+wrapped as {"model": m, "materials": []}) under <export>/projects/chirality-piping/fixtures on
+the captured entry in both modes, in fresh processes under RLIMIT_AS.  From the published
+M03-INTEGRITY-v1 diagnostic of each load case it reads the Hager-Higham reciprocal condition
+estimate, the smallest pivot and the residual rows' guarded_ratio and target, and forms the
+ESTIMATE fe = (1/rcond) * (max guarded_ratio + u), u = 2^-53 (computed from published figures;
+not a bound).  Row counts by kind are recorded per load case.
+"""
+import hashlib
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from run import run_one  # noqa: E402
+
+U = 2.0 ** -53
+MODES = ('sparse_interactive', 'dense_scrutiny')
+
+
+def collect(export):
+    base = os.path.join(export, 'projects/chirality-piping/fixtures')
+    items = []
+    seen = {}
+    for root, _, files in os.walk(base):
+        for f in sorted(files):
+            if not f.endswith('.json'):
+                continue
+            p = os.path.join(root, f)
+            rel = os.path.relpath(p, os.path.join(export, 'projects/chirality-piping'))
+            try:
+                d = json.load(open(p))
+            except Exception:
+                continue
+            reqs = []
+            if isinstance(d, dict) and isinstance(d.get('model'), dict) and \
+                    d['model'].get('document_kind') == 'openpipestress.product_preview.model':
+                reqs.append((rel, d, 'committed request'))
+            elif isinstance(d, dict) and d.get('document_kind') == 'openpipestress.product_preview.model':
+                reqs.append((rel, {'model': d, 'materials': []}, 'committed model document, wrapped'))
+            elif isinstance(d, dict) and rel.endswith('results/invented/result_export_v0_2.json'):
+                for i, pc in enumerate(d.get('producer_cases', [])):
+                    if isinstance(pc.get('model'), dict):
+                        reqs.append(('%s#producer_cases[%d].model' % (rel, i), {'model': pc['model'], 'materials': []},
+                                     'embedded model, wrapped'))
+            elif isinstance(d, dict) and 'contract_corpus' in rel and isinstance(d.get('base_model'), dict):
+                reqs.append(('%s#base_model' % rel, {'model': d['base_model'], 'materials': []}, 'contract-corpus base model, wrapped'))
+            elif isinstance(d, dict) and isinstance(d.get('blank_model'), dict):
+                reqs.append(('%s#blank_model' % rel, {'model': d['blank_model'], 'materials': []}, 'embedded model, wrapped'))
+            for (name, req, how) in reqs:
+                h = hashlib.sha256(json.dumps(req, sort_keys=True).encode()).hexdigest()
+                if h in seen:
+                    seen[h]['duplicates'].append(name)
+                    continue
+                item = {'fixture': name, 'how': how, 'request': req, 'sha256_canonical': h, 'duplicates': []}
+                seen[h] = item
+                items.append(item)
+    return items
+
+
+def parse_integrity(msg):
+    rc = re.search(r'reciprocal_condition_estimate: ([0-9.eE+-]+|NaN|inf)', msg)
+    piv = [float(x) for x in re.findall(r'PivotEvidence \{[^}]*?pivot: ([0-9.eE+-]+)', msg)]
+    gr = [float(x) for x in re.findall(r'guarded_ratio: ([0-9.eE+-]+)', msg)]
+    tg = [float(x) for x in re.findall(r'target: ([0-9.eE+-]+), passed', msg)]
+    fact = re.search(r'factorization: "([^"]*)"', msg)
+    q = re.search(r'quality: (\w+)', msg)
+    out = {'rcond': float(rc.group(1)) if rc else None, 'min_pivot': min(piv) if piv else None,
+           'max_guarded_ratio': max(gr) if gr else None, 'target_at_max': None,
+           'factorization': fact.group(1) if fact else None, 'report_quality': q.group(1) if q else None,
+           'residual_rows': len(gr)}
+    if gr and len(tg) == len(gr):
+        i = gr.index(max(gr))
+        out['target_at_max'] = tg[i]
+        out['max_target'] = max(tg)
+    if out['rcond'] and out['max_guarded_ratio'] is not None:
+        out['fe_estimate'] = (1.0 / out['rcond']) * (out['max_guarded_ratio'] + U)
+    return out
+
+
+ROW_GROUPS = {
+    'reaction_resultant': 'reaction_resultant', 'open_formula_stress_summary': 'open_formula_stress_summary',
+    'support_reaction_component_v2': 'component_reaction',
+}
+
+
+def row_group(kind):
+    if kind in ROW_GROUPS:
+        return ROW_GROUPS[kind]
+    if kind.startswith('global_nodal_displacement') or kind.startswith('global_nodal_rotation') or kind == 'displacement_magnitude':
+        return 'displacement'
+    if kind.startswith('element_local_') and ('force' in kind or 'moment' in kind):
+        return 'member_action'
+    if 'stress' in kind:
+        return 'stress_other'
+    return 'other:' + kind
+
+
+def rel_class(kind, unit):
+    if kind.startswith('global_nodal_displacement'):
+        return 'translation'
+    if kind.startswith('global_nodal_rotation'):
+        return 'rotation'
+    if kind == 'support_reaction_component_v2':
+        return 'support_force' if unit == 'N' else 'support_moment'
+    if kind.startswith('element_local_') and unit == 'N':
+        return 'member_force'
+    if kind.startswith('element_local_') and unit in ('N*m',):
+        return 'member_moment'
+    return None
+
+
+def analyse(run):
+    r = run['run']
+    if not r['ok']:
+        return {'outcome': 'Err', 'error': r['error'][:300]}
+    diags = r['diagnostics']
+    blocking = [d['code'] for d in diags if d['severity'] == 'blocking']
+    out = {'outcome': 'solved' if r['status'].get('mechanics') == 'MECHANICS_SOLVED' else 'blocked',
+           'blocking': sorted(set(blocking))[:8], 'semantic_contract_id': r['producer']['semantic_contract_id'],
+           'quality_status': r['numerical_quality']['status'], 'standing': r['standing'],
+           'receipt': r['receipt'], 'headline_max_stress': r['summary'].get('max_open_formula_stress'),
+           'pressure_route': 'physics' in r['producer']['semantic_contract_id'].split('/')[-1]
+                             and 'preview-physics' not in r['producer']['semantic_contract_id'],
+           'cases': []}
+    for cq in r['numerical_quality']['cases']:
+        cid = cq['basis_ref']['ref_id']
+        d = next((d for d in diags if d['id'] == 'diagnostic:numerical-integrity:' + cid), None)
+        c = {'case': cid, 'solve_quality': cq['solve_quality'], 'integrity_code': d['code'] if d else None}
+        if d:
+            c.update(parse_integrity(d['message']))
+        rows = [x for x in r['results'] if x['basis'] == cid]
+        counts = {}
+        for x in rows:
+            g = row_group(x['kind'])
+            counts[g] = counts.get(g, 0) + 1
+        hl = r['summary'].get('max_open_formula_stress') or {}
+        c['row_counts'] = counts
+        c['headline_is_this_case'] = any(x['id'] == hl.get('result_ref') for x in rows)
+        fe = c.get('fe_estimate')
+        if fe is not None:
+            c['demote_fe_gt_1e-9'] = fe > 1e-9
+            scales = {}
+            for x in rows:
+                k = rel_class(x['kind'], x['unit'])
+                if k and isinstance(x['value'], (int, float)):
+                    scales[k] = max(scales.get(k, 0.0), abs(x['value']))
+            n_rel, n_nz = 0, 0
+            worst = 0.0
+            for x in rows:
+                k = rel_class(x['kind'], x['unit'])
+                if not k or not isinstance(x['value'], (int, float)) or x['value'] == 0 or scales[k] == 0:
+                    continue
+                n_nz += 1
+                est = fe * scales[k] / abs(x['value'])
+                worst = max(worst, est)
+                if est > 1e-9:
+                    n_rel += 1
+            c['rowwise_estimate'] = {'nonzero_rows': n_nz, 'rows_with_fe*scale/|q|_gt_1e-9': n_rel,
+                                     'worst_fe*scale/|q|': worst}
+            c['demote_rowwise'] = n_rel > 0
+        out['cases'].append(c)
+    return out
+
+
+def main():
+    binary, export, out_path, t1_list = sys.argv[1:5]
+    items = collect(export)
+    os.makedirs('survey_in', exist_ok=True)
+    results = []
+    for n, it in enumerate(items):
+        path = os.path.join('survey_in', '%03d.json' % n)
+        json.dump(it['request'], open(path, 'w'))
+        entry = {k: v for k, v in it.items() if k != 'request'}
+        entry['modes'] = {}
+        for mode in MODES:
+            rec = run_one(binary, path, mode, False, 600)
+            m = {'wall_seconds': rec['wall_seconds'], 'peak_rss_kib': rec['peak_rss_kib']}
+            if rec.get('probe'):
+                m.update(analyse(rec['probe']))
+            else:
+                m['outcome'] = 'crashed'
+                m['stderr_tail'] = rec['stderr_tail'][-300:]
+            entry['modes'][mode] = m
+            print(it['fixture'], mode, m.get('outcome'), m.get('quality_status'),
+                  [(c['case'], c.get('rcond'), c.get('fe_estimate')) for c in m.get('cases', [])][:3], flush=True)
+        results.append(entry)
+    t1 = [l.strip() for l in open(t1_list) if l.strip()]
+    json.dump({'u': U, 'fe_definition': 'fe = (1/rcond)*(max guarded_ratio + u), an estimate from published figures, not a bound',
+               'rowwise_definition': 'per nonzero row q: fe*scale/|q| > 1e-9, scale = largest |value| of the row class in the case '
+                                     '(translation, rotation, support force, support moment, member force, member moment); the literal '
+                                     'form fe > 1e-9*scale/|q| is met first at the class-maximum row, where it equals fe > 1e-9',
+               'fixtures': results,
+               't1_load_reference_fixtures_not_authorable': [{'fixture': p, 'not_authorable': 'schema 0.4.0 load-state route '
+                                                              '(T1, f3270ea79); main refuses or cannot author it; T1 code not built'}
+                                                             for p in t1]}, open(out_path, 'w'), indent=1)
+
+
+if __name__ == '__main__':
+    main()

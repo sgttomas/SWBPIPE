@@ -1,0 +1,21 @@
+#!/bin/bash
+# Usage: run_suites.sh <project-root> <log-dir> <crate>...   (one cargo job at a time)
+P=$1; L=$2; shift 2
+export RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 RUSTUP_AUTO_INSTALL=0 CARGO_TARGET_DIR=${K3A_TARGET:?}
+mkdir -p $L
+for c in "$@"; do
+  waited=0
+  while pgrep -x cargo >/dev/null; do sleep 60; waited=$((waited+60)); [ $waited -gt 7200 ] && { echo "$c host busy >2h" >> $L/SUMMARY.txt; exit 3; }; done
+  while [ $(df --output=avail -k <home> | tail -1) -lt ${MIN_FREE_KB:-9300000} ]; do sleep 60; waited=$((waited+60)); [ $waited -gt 7200 ] && { echo "$c disk low >2h" >> $L/SUMMARY.txt; exit 4; }; done
+  name=$(echo $c | tr / _)
+  EXTRA=""; [ "$c" = core/runner/headless ] && EXTRA="--no-fail-fast"
+  echo "  before $c: disk_free_kb=$(df --output=avail -k <home> | tail -1)" >> $L/SUMMARY.txt
+  start=$(date +%s)
+  (cd $P/$c && cargo test --offline --locked $EXTRA > $L/$name.log 2>&1); rc=$?
+  end=$(date +%s)
+  echo "$c exit=$rc secs=$((end-start)) waited=$waited $(grep -E '^test result' $L/$name.log | awk '{p+=$4; f+=$6; i+=$8} END {print "passed="p" failed="f" ignored="i}')" >> $L/SUMMARY.txt
+  avail=$(df --output=avail -k <home> | tail -1)
+  echo "  disk_free_kb=$avail target=$(du -sk $CARGO_TARGET_DIR | cut -f1)kb" >> $L/SUMMARY.txt
+  rm -rf "$CARGO_TARGET_DIR/debug"; echo "  pruned own debug output" >> $L/SUMMARY.txt
+done
+echo DONE >> $L/SUMMARY.txt
