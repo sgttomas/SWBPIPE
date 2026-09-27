@@ -1,0 +1,117 @@
+applied M32a
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv5/copy/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<scratch>/rv5/copy/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<scratch>/rv5/copy/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<scratch>/rv5/copy/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<scratch>/rv5/copy/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<scratch>/rv5/copy/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<scratch>/rv5/copy/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<scratch>/rv5/copy/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.98s
+     Running unittests src/lib.rs (<scratch>/rv5/target/debug/deps/open_pipe_stress_nonlinear_integration-6eddbd23dd7b3568)
+
+running 14 tests
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... 
+thread 's11k_tests::kd5_nonlinear_loop_reaches_no_formation_check' (21361) panicked at src/s11k_tests.rs:993:9:
+assertion `left == right` failed: DenseScrutiny
+  left: Sensitive
+ right: Passed
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<open_pipe_stress_frame_kernel::structural::SolveQuality, open_pipe_stress_frame_kernel::structural::SolveQuality>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_nonlinear_integration::s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check
+             at ./src/s11k_tests.rs:993:9
+   5: open_pipe_stress_nonlinear_integration::s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check::{closure#0}
+             at ./src/s11k_tests.rs:971:51
+   6: <open_pipe_stress_nonlinear_integration::s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+FAILED
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord ... kd5 CSKEW_30_RADIUS_MISMATCH DenseScrutiny actual=Some(0.840453518142279) demoted=true trigger=Some((1.6846555134160721, Some(9)))
+kd5 CSKEW_30_RADIUS_MISMATCH SparseInteractive actual=Some(0.8692332851373538) demoted=true trigger=Some((1.7422150473940623, Some(9)))
+ok
+test structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent ... ok
+test structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion ... kd5 PROBE_D DenseScrutiny actual=Some(2.6503337473236446) demoted=true trigger=Some((5.300667438019611, Some(9)))
+kd5 PROBE_D SparseInteractive actual=Some(2.0132832212939076e-7) demoted=false trigger=None
+kd5 PROBE_C DenseScrutiny actual=Some(3.5411652430507883) demoted=true trigger=Some((7.082330357811425, Some(3)))
+kd5 PROBE_C SparseInteractive actual=Some(1.092492788386626) demoted=true trigger=Some((2.1849854484831033, Some(3)))
+kd5 BENDING_SOFT DenseScrutiny actual=Some(0.13411051010185493) demoted=false trigger=None
+kd5 BENDING_SOFT SparseInteractive actual=Some(0.9313222659453398) demoted=true trigger=Some((1.8626445837530858, Some(10)))
+ok
+test structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed ... ok
+test structural_adapter::kd5_tests::kd5_not_selected_invocation_runs_the_unchanged_solve_assembled ... ok
+test structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote ... kd5 E1 DenseScrutiny actual=Some(0.0009148482587515623) demoted=false trigger=None
+kd5 E1 SparseInteractive actual=Some(0.00018767868046003702) demoted=false trigger=None
+kd5 E6 DenseScrutiny actual=Some(0.000565929332015038) demoted=false trigger=None
+kd5 E6 SparseInteractive actual=Some(0.0019099877141005679) demoted=false trigger=None
+ok
+test structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes ... kd5 F122 DenseScrutiny actual=Some(2.4133641591897357) demoted=true trigger=Some((4.826728293925875, Some(9)))
+kd5 F122 SparseInteractive actual=Some(1.2139461517530596) demoted=true trigger=Some((2.4278923279576334, Some(9)))
+ok
+test structural_adapter::kd5_tests::kd5_skew_345_and_invented_m11_do_not_demote ... kd5 F345 DenseScrutiny actual=Some(0.005855122872041712) demoted=false trigger=None
+kd5 F345 SparseInteractive actual=Some(0.014552152477054199) demoted=false trigger=None
+kd5 M11 DenseScrutiny actual=None demoted=false trigger=None
+kd5 M11 SparseInteractive actual=None demoted=false trigger=None
+ok
+test structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes ... kd5 CSKEW_8_5 DenseScrutiny actual=Some(1.4812897929092501) demoted=true trigger=Some((2.9625797018190316, Some(9)))
+kd5 CSKEW_8_5 SparseInteractive actual=Some(1.0956724303435896) demoted=true trigger=Some((2.191344785949127, Some(3)))
+ok
+test structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed ... ok
+test structural_adapter::kd5_tests::rv5_m31b_counterexample_actual_error_above_criterion_is_demoted ... rv5 RV5_CANT60_PLANAR DenseScrutiny plain=Passed rcond=3.912828852930633e-4 actual=1.101863 demoted=true trigger=Some((2.203725019626506, Some(8), "Estimate"))
+rv5 RV5_CANT60_PLANAR SparseInteractive plain=Passed rcond=3.91282885293068e-4 actual=1.101874 demoted=true trigger=Some((2.2037478659247762, Some(8), "Estimate"))
+rv5 RV5_CANT30_SKEW DenseScrutiny plain=Passed rcond=2.733147731275715e-4 actual=1.900518 demoted=true trigger=Some((3.8010373031495126, Some(6), "Estimate"))
+rv5 RV5_CANT30_SKEW SparseInteractive plain=Passed rcond=2.733147731275605e-4 actual=1.900519 demoted=true trigger=Some((3.801037684401595, Some(6), "Estimate"))
+rv5 RV5_CANT10_SKEW DenseScrutiny plain=Passed rcond=8.818393875723896e-5 actual=6.484158 demoted=true trigger=Some((12.96831583115953, Some(6), "Estimate"))
+rv5 RV5_CANT10_SKEW SparseInteractive plain=Passed rcond=8.818393875725763e-5 actual=6.484149 demoted=true trigger=Some((12.968298455828867, Some(6), "Estimate"))
+rv5 RV5_PP_UTM DenseScrutiny plain=Passed rcond=6.397051264705659e-5 actual=1.126127 demoted=true trigger=Some((2.25225487215844, Some(8), "Estimate"))
+rv5 RV5_PP_UTM SparseInteractive plain=Passed rcond=6.397051264703897e-5 actual=1.126015 demoted=true trigger=Some((2.252029946957487, Some(8), "Estimate"))
+ok
+test structural_adapter::kd5_tests::rv5_m31b_record_all_models ... rv5 RV5_CANT90_PLANAR DenseScrutiny plain=Passed rcond=4.3493183368805105e-4 actual=0.639876 demoted=true trigger=Some((1.2797523609586778, Some(8), "Estimate"))
+rv5 RV5_CANT90_PLANAR SparseInteractive plain=Passed rcond=4.349318336880371e-4 actual=0.639868 demoted=true trigger=Some((1.2797358472025087, Some(8), "Estimate"))
+rv5 RV5_CANT60_PLANAR DenseScrutiny plain=Passed rcond=3.912828852930633e-4 actual=1.101863 demoted=true trigger=Some((2.203725019626506, Some(8), "Estimate"))
+rv5 RV5_CANT60_PLANAR SparseInteractive plain=Passed rcond=3.91282885293068e-4 actual=1.101874 demoted=true trigger=Some((2.2037478659247762, Some(8), "Estimate"))
+rv5 RV5_CANT30_SKEW DenseScrutiny plain=Passed rcond=2.733147731275715e-4 actual=1.900518 demoted=true trigger=Some((3.8010373031495126, Some(6), "Estimate"))
+rv5 RV5_CANT30_SKEW SparseInteractive plain=Passed rcond=2.733147731275605e-4 actual=1.900519 demoted=true trigger=Some((3.801037684401595, Some(6), "Estimate"))
+rv5 RV5_CANT10_SKEW DenseScrutiny plain=Passed rcond=8.818393875723896e-5 actual=6.484158 demoted=true trigger=Some((12.96831583115953, Some(6), "Estimate"))
+rv5 RV5_CANT10_SKEW SparseInteractive plain=Passed rcond=8.818393875725763e-5 actual=6.484149 demoted=true trigger=Some((12.968298455828867, Some(6), "Estimate"))
+rv5 RV5_PP_UTM DenseScrutiny plain=Passed rcond=6.397051264705659e-5 actual=1.126127 demoted=true trigger=Some((2.25225487215844, Some(8), "Estimate"))
+rv5 RV5_PP_UTM SparseInteractive plain=Passed rcond=6.397051264703897e-5 actual=1.126015 demoted=true trigger=Some((2.252029946957487, Some(8), "Estimate"))
+rv5 RV5_CSKEW30_K1000 DenseScrutiny plain=Passed rcond=1.826143642406977e-6 actual=0.433285 demoted=false trigger=None
+rv5 RV5_CSKEW30_K1000 SparseInteractive plain=Passed rcond=1.826143642391305e-6 actual=0.433285 demoted=false trigger=None
+rv5 RV5_CSKEW30_K100 DenseScrutiny plain=Passed rcond=1.8278897511561346e-7 actual=0.433323 demoted=false trigger=None
+rv5 RV5_CSKEW30_K100 SparseInteractive plain=Passed rcond=1.8278897509880568e-7 actual=0.433323 demoted=false trigger=None
+rv5 RV5_CSKEW30_K60 DenseScrutiny plain=Passed rcond=1.0967804597553761e-7 actual=0.486622 demoted=false trigger=None
+rv5 RV5_CSKEW30_K60 SparseInteractive plain=Passed rcond=1.0967804598124335e-7 actual=0.434616 demoted=false trigger=None
+rv5 RV5_CSKEW30_K45 DenseScrutiny plain=Passed rcond=8.225984544713054e-8 actual=0.496227 demoted=false trigger=None
+rv5 RV5_CSKEW30_K45 SparseInteractive plain=Passed rcond=8.225984544028244e-8 actual=0.579489 demoted=true trigger=Some((1.1614760634815933, Some(9), "Estimate"))
+rv5 RV5_CSKEW30_K30 DenseScrutiny plain=Passed rcond=5.484077095124485e-8 actual=0.840454 demoted=true trigger=Some((1.6846555134160721, Some(9), "Estimate"))
+rv5 RV5_CSKEW30_K30 SparseInteractive plain=Passed rcond=5.484077094966758e-8 actual=0.869233 demoted=true trigger=Some((1.7422150473940623, Some(9), "Estimate"))
+rv5 CSKEW_30_RADIUS_MISMATCH DenseScrutiny plain=Passed rcond=5.484077095124485e-8 actual=0.840454 demoted=true trigger=Some((1.6846555134160721, Some(9), "Estimate"))
+rv5 CSKEW_30_RADIUS_MISMATCH SparseInteractive plain=Passed rcond=5.484077094966758e-8 actual=0.869233 demoted=true trigger=Some((1.7422150473940623, Some(9), "Estimate"))
+rv5 CSKEW_8_5 DenseScrutiny plain=Passed rcond=1.5538573393700918e-8 actual=1.481290 demoted=true trigger=Some((2.9625797018190316, Some(9), "Estimate"))
+rv5 CSKEW_8_5 SparseInteractive plain=Passed rcond=1.5538573399692663e-8 actual=1.095672 demoted=true trigger=Some((2.191344785949127, Some(3), "Estimate"))
+rv5 RV5_NEARPI_1E6_MAXMIS DenseScrutiny plain=Passed rcond=1.665186545413424e-3 actual=0.000004 demoted=false trigger=None
+rv5 RV5_NEARPI_1E6_MAXMIS SparseInteractive plain=Passed rcond=1.6651865454134346e-3 actual=0.000005 demoted=false trigger=None
+rv5 RV5_NEARPI_2E9_MAXMIS DenseScrutiny plain=Passed rcond=1.6651864243281422e-3 actual=0.000006 demoted=false trigger=None
+rv5 RV5_NEARPI_2E9_MAXMIS SparseInteractive plain=Passed rcond=1.6651864243281678e-3 actual=0.000014 demoted=false trigger=None
+rv5 RV5_NEARPI_2E9_EXACT DenseScrutiny plain=Passed rcond=1.6651864243281422e-3 actual=0.000006 demoted=false trigger=None
+rv5 RV5_NEARPI_2E9_EXACT SparseInteractive plain=Passed rcond=1.6651864243281678e-3 actual=0.000014 demoted=false trigger=None
+ok
+
+failures:
+
+failures:
+    s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check
+
+test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 70 filtered out; finished in 2.03s
+
+error: test failed, to rerun pass `--lib`

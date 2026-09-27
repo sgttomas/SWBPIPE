@@ -1,0 +1,23 @@
+NEARPI-1e-03-shiftmax                    ok=True phi=3.14059 mis=1.00e-09 Tcorr=0.0004 Tm31b=1.710e-07 |dEF|/crit=0.0002@8 actual=0.0002@8
+NEARPI-1e-03-shift0.0                    ok=True phi=3.14059 mis=1.85e-16 Tcorr=0.0000 Tm31b=1.029e-07 |dEF|/crit=0.0000@7 actual=0.0000@11
+NEARPI-1e-06-shiftmax                    ok=True phi=3.14159 mis=1.00e-09 Tcorr=0.0000 Tm31b=2.278e-07 |dEF|/crit=0.0000@8 actual=0.0000@7
+NEARPI-1e-06-shift0.0                    ok=True phi=3.14159 mis=0.00e+00 Tcorr=0.0000 Tm31b=2.278e-07 |dEF|/crit=0.0000@3 actual=0.0000@10
+NEARPI-1e-08-shiftmax                    ok=True phi=3.14159 mis=1.00e-09 Tcorr=0.0000 Tm31b=1.921e-07 |dEF|/crit=0.0000@8 actual=0.0000@6
+NEARPI-1e-08-shift0.0                    ok=True phi=3.14159 mis=1.85e-16 Tcorr=0.0000 Tm31b=1.247e-07 |dEF|/crit=0.0000@6 actual=0.0000@8
+RL-R30.0-phi0.001                        ok=True phi=0.001 mis=1.00e-09 Tcorr=1987.2052 Tm31b=2.419e-07 |dEF|/crit=993.6026@8 actual=993.6026@8
+RL-R30.0-phi0.05                         ok=True phi=0.05 mis=1.00e-09 Tcorr=30.3823 Tm31b=1.389e-07 |dEF|/crit=15.1912@8 actual=15.1912@8
+RL-R0.01-phi0.524                        ok=True phi=0.523599 mis=1.00e-09 Tcorr=4.5651 Tm31b=2.734e-07 |dEF|/crit=2.2826@8 actual=2.2826@8
+RL-R3.0-phi0.175                         ok=True phi=0.174533 mis=1.00e-09 Tcorr=11.0264 Tm31b=2.560e-07 |dEF|/crit=5.5132@8 actual=5.5132@8
+COMBO-phi60-k[100000000.0, 100.0, 1000000.0] ok=True phi=1.0472 mis=1.00e-09 Tcorr=0.8567 Tm31b=1.169e-07 |dEF|/crit=0.4283@6 actual=0.4283@6
+COMBO-phi60-k[100.0, 100000000.0, 1000000.0] ok=True phi=1.0472 mis=1.00e-09 Tcorr=1.2648 Tm31b=8.985e-08 |dEF|/crit=0.6324@8 actual=0.6324@8
+COMBO-phi60-k[1000000.0, 1000000.0, 100.0] ok=True phi=1.0472 mis=1.00e-09 Tcorr=1.2649 Tm31b=1.600e-07 |dEF|/crit=0.6324@6 actual=0.6324@6
+COMBO-phi60-k[30.0, 1000000.0, 1000000.0] ok=True phi=1.0472 mis=1.00e-09 Tcorr=1.2648 Tm31b=2.006e-07 |dEF|/crit=0.6324@8 actual=0.6324@8
+CHAIN4-60deg-spiral                      ok=True phi=1.0472 mis=1.00e-09 Tcorr=1.2546 Tm31b=1.479e-07 |dEF|/crit=0.6273@14 actual=0.6273@14
+CHAIN4-60deg-zigzag                      ok=True phi=1.0472 mis=1.00e-09 Tcorr=0.4896 Tm31b=1.733e-07 |dEF|/crit=0.2448@20 actual=0.2448@20
+PP-X00e+00-R0.3-phi10                    ok=True phi=0.174533 mis=0.00e+00 Tcorr=0.0000 Tm31b=2.095e-07 |dEF|/crit=0.0000@8 actual=0.0000@8
+PP-X01e+03-R0.3-phi10                    ok=True phi=0.174533 mis=5.72e-14 Tcorr=0.0016 Tm31b=3.054e-07 |dEF|/crit=0.0008@8 actual=0.0008@8
+PP-X01e+05-R0.3-phi10                    ok=True phi=0.174533 mis=3.11e-12 Tcorr=0.4049 Tm31b=1.365e-07 |dEF|/crit=0.2025@8 actual=0.2025@8
+PP-X05e+06-R0.3-phi5                     ok=True phi=0.0872665 mis=9.48e-11 Tcorr=3.2111 Tm31b=2.753e-07 |dEF|/crit=1.6055@8 actual=1.6056@8
+PP-X05e+06-R1.5-phi10                    ok=True phi=0.174533 mis=3.76e-11 Tcorr=0.9446 Tm31b=1.500e-07 |dEF|/crit=0.4723@8 actual=0.4723@8
+PP-X05e+06-R0.3-phi1                     ok=True phi=0.0174533 mis=1.69e-11 Tcorr=110.0224 Tm31b=1.812e-07 |dEF|/crit=55.0112@7 actual=55.0112@7
+PP-X05e+05-R0.3-phi2                     ok=True phi=0.0349066 mis=1.48e-12 Tcorr=4.9987 Tm31b=9.383e-08 |dEF|/crit=2.4993@8 actual=2.4993@8

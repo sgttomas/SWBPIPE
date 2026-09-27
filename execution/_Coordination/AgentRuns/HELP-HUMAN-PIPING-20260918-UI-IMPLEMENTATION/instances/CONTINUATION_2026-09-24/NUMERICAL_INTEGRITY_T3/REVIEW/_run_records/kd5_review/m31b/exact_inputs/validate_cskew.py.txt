@@ -1,0 +1,22 @@
+import json, sys
+sys.path.insert(0, '.')
+import m31b_attack as A
+from decimal import Decimal as D
+for name, centre, k, load, uint in [
+ ("CSKEW_8_5", [0.1, 0.19999999999999998, 0.19999999999999998], 8.5, 8.5e-06,
+  {3: 1e-06, 6: -9.555882713359802e-15, 7: -3.0000012613241705e-07, 8: 5.007701322075519e-14, 9: 1.0000008192123101e-06, 10: -7.484568999892298e-15, 11: 7.397540506642205e-14}),
+ ("CSKEW_30_RADIUS_MISMATCH", [0.09999999986211418, 0.19999999999999998, 0.19999999986211417], 30.0, 2.9999999999999997e-05,
+  {3: 1e-06, 6: -3.372664487158519e-14, 7: -3.0000044517323667e-07, 8: 1.7674239984413735e-13, 9: 1.0000028913375648e-06, 10: -2.6416125754347284e-14, 11: 2.610896649403131e-13})]:
+    m = {"name": name, "section": A.SEC, "nodes": [[0.0,0.0,0.0],[0.3,0.0,0.3]],
+         "members": [{"i":0,"j":1,"y_reference":None,"bend":(centre,1.0)}],
+         "rigid":[0,1,2], "springs":[(3,k),(4,1e6),(5,1e6)], "loads":[(9,load)]}
+    # exact objective solution vs I3's u_int
+    n=12; free=[d for d in range(n) if d not in m["rigid"]]
+    Ka,_=A.assemble(m,"actual"); Kf,_=A.assemble(m,"formula_b64")
+    sub=lambda K:[[K[a][b] for b in free] for a in free]
+    f=[D(0)]*n; f[9]=D(float(load)); fa=[f[a] for a in free]
+    ua=A.solve(sub(Ka),fa); uf=A.solve(sub(Kf),fa)
+    for r,a in enumerate(free):
+        if a in uint:
+            print(name, a, "u_act", float(ua[r]), "I3 u_int", uint[a], "match" if float(ua[r])==uint[a] else "DIFF", " u_formula-u_act", float(uf[r]-ua[r]))
+    print(json.dumps(A.analyse(m)))
