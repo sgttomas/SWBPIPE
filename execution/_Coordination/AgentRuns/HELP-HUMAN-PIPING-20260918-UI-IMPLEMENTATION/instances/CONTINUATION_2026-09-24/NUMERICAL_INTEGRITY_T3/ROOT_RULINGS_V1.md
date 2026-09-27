@@ -451,3 +451,13 @@ I4's base-against-candidate comparison of the 14 formation rows: UDL-W1e80 is bi
 - **The 3% worsening is recorded** in S11-F's CHANGE_RECORD, in the formation list's entry for those rows (`GATE/pin_s11_exceptions.py` and `FORMATION_EXCEPTIONS.json`), and here. The 10 bit-identical-or-better rows are disclosed as such.
 - **S11-G's load-row guard is required to catch all 4 UDL-W1e8 rows** (added to D1's S11-G brief).
 - **N05:** the transverse-tip retained-replay budget overflow is pre-existing on base in both modes, and routed to T3's N05 item. Accepted.
+
+## S11-G note: rulings, conditional on V1's check (ROOT, 2026-09-27, on `633460fb4`)
+
+- **(a) The exact signed defect instead of the a-priori Σ|term|·bound: accepted.** D1 showed the a-priori form fails its own coverage conditions: it demotes UDL-W1e5 and probe A. **The exact defect must itself be computed exactly, with no binary64 intermediate.** V1 confirms that, and confirms that the stated-bound fallback (curved consistent vectors, exact-pressure operands) is conservative.
+- **(b) The 8 INPLANE rows wait for F2: accepted provisionally.** The reopen trigger is met, so this does not rest on D1's word alone. V1 must establish:
+  - (i) that the INPLANE class is reachable only at synthetic scales on the typed entry (the captured entry refuses it), and that D1's scan of realistic and committed models shows no row near the criterion by this mechanism;
+  - (ii) which 16 case-modes R-b would falsely demote, and whether they are realistic or committed models, or synthetic.
+  **If (i) fails, or if R-b's false demotions are all synthetic, R-b ships in S11-G:** fail-closed availability loss on synthetic cases beats wrong Passed values. Otherwise the 8 rows re-point to "F2 (W1a)", F2 is required to empty them, and **F2 is prioritized as the next facade slice after S11-G**.
+- **(c) Case-level demotion (with source_eligible = false for a fired case): accepted.** It fails closed; case-scoped standing is T6's.
+- **The S11-G PR must show a zero regeneration diff, or it stops.**
