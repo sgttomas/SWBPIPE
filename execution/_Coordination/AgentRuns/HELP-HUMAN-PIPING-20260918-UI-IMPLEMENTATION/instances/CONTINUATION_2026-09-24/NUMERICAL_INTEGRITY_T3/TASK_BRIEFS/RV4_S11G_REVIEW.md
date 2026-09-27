@@ -126,3 +126,12 @@ The verdict is **PASS** or **FAIL**. Send the manager a SendMessage summary with
 3. **Path 2 is gone.** Re-run T18 on I5's path-2 model: no refusal, case B SENSITIVE, and bytes equal to main's.
 4. **The residual after 2.2** is only path 1's R-b′ variant. It fails closed: pre-0.4 captured returns `Err` with no envelope, and 0.4.0 republishes. T20 is labelled pre-0.4 only. T19 and T20 may use V1's single-basis construction (N1).
 5. **The tests and mutations of 2.2:** T1's restated diagnostic set, T10/T10b restated, T18–T21, M19–M22, M7 withdrawn, and the D22-1 tests. Also the forecast: zero committed bytes, and UDL-W1e8 captured gaining one info diagnostic.
+
+## Addendum 3 (ROOT, 2026-09-27): T20 and T6a
+
+- **T20** is a characterization of the actual behaviour on I5's constructions: published, no receipt, case B demoted, not refused. The R-b′ path-1 residual is disclosed as "not demonstrated reachable". **Attempt a construction independently:** a selected case A beside a Passed case B that R-b′ demotes. If you find one that refuses, confirm that it fails closed (pre-0.4 captured `Err` with no envelope; 0.4.0 republished). **It is BLOCKING only if it publishes a value.** Report your constructions and their outcomes either way.
+- **T6a's pressure run.** Check I5's resolution:
+  - either the straight-thrust `RoundedProduct` family is exercised end to end through a solve path that reaches it, including a legacy replay;
+  - or its unreachability is evidenced with file:line, a unit-level test covers the family's bound, and the deviation is disclosed in CHANGE_RECORD.
+
+  Independently attempt to reach the family through any entry.
