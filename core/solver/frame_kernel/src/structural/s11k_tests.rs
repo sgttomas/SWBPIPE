@@ -624,14 +624,17 @@ fn option_c_public_original_residual_stays_binary64_on_coupled_rows() {
             contributions: None,
             symmetry: None,
         };
-        // A displacement vector with the prescribed values and an exact-net
-        // free solution; the RZ row (global 11) is coupled to g.
+        // A displacement vector with the prescribed values and the free RZ
+        // rotation at zero (the moment row before any solve); the RZ row
+        // (global 11) is coupled to g through two exact-negative couplings,
+        // so its exact numerator is -m while today's binary64 fold absorbs
+        // bits of m into the gross coupling (RV1-S2: the precondition below
+        // makes this pin discriminate).
         let mut u = vec![0.0; 18];
         for &(c, v) in &p.prescribed {
             u[c] = v;
         }
         u[7] = g;
-        u[11] = M / (2.0 * p.k[11][11] / 2.0);
         let rows = evaluate_original_residual(&system, &u).unwrap();
         let row = rows.iter().find(|r| r.global_dof == 11).unwrap();
         // Today's expression, in the same order, with the row's own exponent.
@@ -642,6 +645,18 @@ fn option_c_public_original_residual_stays_binary64_on_coupled_rows() {
                 r = checked_value(r + normalized_product(k, x, e).unwrap()).unwrap();
             }
         }
+        // Precondition (S11B-6): at this u the binary64 expression and the
+        // correctly rounded exact numerator differ.
+        let mut exact_numerator = ExactAccumulator::new();
+        exact_numerator.add(-M).unwrap();
+        for (&k, &x) in p.k[11].iter().zip(&u) {
+            exact_numerator.add_product(k, x).unwrap();
+        }
+        assert_ne!(
+            r.to_bits(),
+            exact_numerator.round_scaled(-e).unwrap().to_bits(),
+            "precondition g={g}"
+        );
         assert_eq!(row.normalized_residual.to_bits(), r.to_bits());
         // The typed (exact KS3) evaluation of the same row is the exact sum.
         let mut ledger = LoadLedger::new();

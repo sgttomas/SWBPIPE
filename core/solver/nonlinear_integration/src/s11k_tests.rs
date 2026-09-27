@@ -261,34 +261,200 @@ fn k7_adapter_with_force_terms_flags_the_folded_force_in_both_modes() {
 
 // ------------------------------------ ROOT option (c): the loop's legacy pin
 
-/// The nonlinear active-set loop's closed-gap prescribed solves go through
-/// `solve_linearized_system_evidence` (the loop, the influence solves and the
-/// unit-force solves). ROOT's option (c) keeps them on the named, unchanged
-/// binary64 kernel path; this pin fails if a refactor switches any of the four
-/// call targets to an exact KS1-KS3 entry point.
-#[test]
-fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
-    let src = include_str!("lib.rs");
-    let start = src
-        .find("fn solve_linearized_system_evidence(")
-        .expect("function present");
-    let body_start = start + src[start..].find('{').unwrap();
+/// Comment- and string-aware stripper, copied from the S11 site table's `lex`
+/// (`frame_kernel/tests/s11_site_table.rs`; that file is another crate's
+/// integration test and cannot be imported). Comments are removed and string
+/// and char literal contents blanked, keeping line structure (RV1-S1).
+fn lex(src: &str) -> String {
+    let b: Vec<char> = src.chars().collect();
+    let n = b.len();
+    let mut out = String::with_capacity(n);
+    let mut i = 0;
+    let ident = |c: char| c.is_alphanumeric() || c == '_';
+    while i < n {
+        let c = b[i];
+        if c == '/' && i + 1 < n && b[i + 1] == '/' {
+            while i < n && b[i] != '\n' {
+                i += 1;
+            }
+            continue;
+        }
+        if c == '/' && i + 1 < n && b[i + 1] == '*' {
+            let mut depth = 1;
+            i += 2;
+            while i < n && depth > 0 {
+                if b[i] == '/' && i + 1 < n && b[i + 1] == '*' {
+                    depth += 1;
+                    i += 2;
+                } else if b[i] == '*' && i + 1 < n && b[i + 1] == '/' {
+                    depth -= 1;
+                    i += 2;
+                } else {
+                    if b[i] == '\n' {
+                        out.push('\n');
+                    }
+                    i += 1;
+                }
+            }
+            continue;
+        }
+        let prev_ident = i > 0 && ident(b[i - 1]);
+        let raw_start = if !prev_ident && c == 'r' {
+            Some(i + 1)
+        } else if !prev_ident && c == 'b' && i + 1 < n && b[i + 1] == 'r' {
+            Some(i + 2)
+        } else {
+            None
+        };
+        if let Some(mut j) = raw_start {
+            let mut hashes = 0;
+            while j < n && b[j] == '#' {
+                hashes += 1;
+                j += 1;
+            }
+            if j < n && b[j] == '"' {
+                j += 1;
+                loop {
+                    if j >= n {
+                        break;
+                    }
+                    if b[j] == '"' && (0..hashes).all(|h| j + 1 + h < n && b[j + 1 + h] == '#') {
+                        j += 1 + hashes;
+                        break;
+                    }
+                    if b[j] == '\n' {
+                        out.push('\n');
+                    }
+                    j += 1;
+                }
+                out.push_str("\"\"");
+                i = j;
+                continue;
+            }
+        }
+        if c == '"' || (!prev_ident && c == 'b' && i + 1 < n && b[i + 1] == '"') {
+            let mut j = if c == 'b' { i + 2 } else { i + 1 };
+            while j < n && b[j] != '"' {
+                if b[j] == '\\' {
+                    j += 1;
+                }
+                if j < n && b[j] == '\n' {
+                    out.push('\n');
+                }
+                j += 1;
+            }
+            out.push_str("\"\"");
+            i = j + 1;
+            continue;
+        }
+        if c == '\'' {
+            if i + 2 < n && b[i + 1] != '\\' && b[i + 2] == '\'' {
+                out.push_str("' '");
+                i += 3;
+                continue;
+            }
+            if i + 1 < n && b[i + 1] == '\\' {
+                let mut j = i + 2;
+                while j < n && b[j] != '\'' {
+                    j += 1;
+                }
+                out.push_str("' '");
+                i = j + 1;
+                continue;
+            }
+        }
+        out.push(c);
+        i += 1;
+    }
+    out
+}
+
+/// Blanks every `#[cfg(test)]` item (copied from the site table as above).
+fn strip_cfg_test(code: &str) -> String {
+    const ATTR: &str = "#[cfg(test)]";
+    let mut out = String::with_capacity(code.len());
+    let mut rest = code;
+    while let Some(at) = rest.find(ATTR) {
+        out.push_str(&rest[..at]);
+        let item = &rest[at..];
+        let mut depth = 0usize;
+        let mut started = false;
+        let mut end = item.len();
+        for (k, ch) in item.char_indices().skip(ATTR.len()) {
+            match ch {
+                '{' => {
+                    depth += 1;
+                    started = true;
+                }
+                '}' => {
+                    depth -= 1;
+                    if started && depth == 0 {
+                        end = k + 1;
+                        break;
+                    }
+                }
+                ';' if !started => {
+                    end = k + 1;
+                    break;
+                }
+                _ => {}
+            }
+        }
+        out.extend(item[..end].chars().filter(|&c| c == '\n'));
+        rest = &item[end..];
+    }
+    out.push_str(rest);
+    out
+}
+
+fn function_body<'a>(code: &'a str, signature: &str) -> &'a str {
+    let start = code.find(signature).expect("function present");
+    let body_start = start + code[start..].find('{').unwrap();
     let mut depth = 0usize;
-    let mut end = body_start;
-    for (k, ch) in src[body_start..].char_indices() {
+    for (k, ch) in code[body_start..].char_indices() {
         match ch {
             '{' => depth += 1,
             '}' => {
                 depth -= 1;
                 if depth == 0 {
-                    end = body_start + k;
-                    break;
+                    return &code[body_start..body_start + k];
                 }
             }
             _ => {}
         }
     }
-    let body = &src[body_start..end];
+    panic!("unbalanced body of {signature}");
+}
+
+/// Every exact kernel entry point (S11-K KS1-KS3 and the typed seams).
+const EXACT_ENTRY_POINTS: &[&str] = &[
+    "reduce_system_with_prescribed_displacements(",
+    "reduce_assembled_system",
+    ".solve(",
+    ".solve_assembled(",
+    "solve_structural_dense(",
+    "solve_structural_sparse(",
+    "prepare_structural(",
+    "prepare_assembled_structural(",
+    "solve_assembled_structural_dense(",
+    "evaluate_assembled_original_residual(",
+    "_with_force_terms(",
+    "with_force_terms(",
+    "StructuralSystem::assembled(",
+];
+
+/// The nonlinear active-set loop's closed-gap prescribed solves go through
+/// `solve_linearized_system_evidence` (the loop, the influence solves and the
+/// unit-force solves). ROOT's option (c) keeps them on the named, unchanged
+/// binary64 kernel path. The source is lexed first (comments and literals
+/// removed, `#[cfg(test)]` items blanked): the four legacy targets must be
+/// real calls in that function, and no exact kernel entry point may appear
+/// anywhere in `lib.rs` outside test code (RV1-S1), so neither a comment nor a
+/// helper can hide one. The behavioural pin below backs it.
+#[test]
+fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
+    let code = strip_cfg_test(&lex(include_str!("lib.rs")));
+    let body = function_body(&code, "fn solve_linearized_system_evidence(");
     for required in [
         "product_equilibrium::evaluate(",
         "reduce_system_with_prescribed_displacements_binary64(",
@@ -301,19 +467,353 @@ fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
             "missing legacy call target {required}"
         );
     }
-    let stripped = body.replace("_binary64(", "#(");
-    for forbidden in [
-        "reduce_system_with_prescribed_displacements(",
-        "assembly.solve(",
-        "assembly.solve_assembled(",
-        "solve_structural_dense(",
-        "solve_structural_sparse(",
-        "prepare_structural(",
-    ] {
+    for forbidden in EXACT_ENTRY_POINTS {
         assert!(
-            !stripped.contains(forbidden),
-            "exact kernel entry point {forbidden} in the nonlinear loop"
+            !code.contains(forbidden),
+            "exact kernel entry point {forbidden} in nonlinear_integration/src/lib.rs"
         );
+    }
+    // The stripper itself: a commented or quoted call is not a call.
+    let probe =
+        lex("// assembly.solve_binary64(\nlet s = \"solve_structural_dense(\";\na.solve(k)");
+    assert!(!probe.contains("solve_binary64(") && !probe.contains("dense("));
+    assert!(probe.contains(".solve("));
+}
+
+// -------------------------------- ROOT option (c): the behavioural pin
+
+/// A probe-P-like closed-gap active-set case: members of 2 m and 4 m along x,
+/// both end nodes restrained except UY, which is a gap closed at g on the
+/// left and 4g on the right (the loop prescribes UY at DOFs 1 and 13; the
+/// middle RZ row's two couplings, 27 * 2^18 * g and -27 * 2^16 * 4g, are
+/// exact negatives), a 0.0137 N*m moment and a 100 N UY
+/// force at the middle node (the force keeps both gap reactions admissible).
+/// Invented section data (E = 2^38 Pa, Iz = 9 * 2^-19 m^4) make the formed
+/// coefficients exact dyadics. The unequal lengths couple the middle node's
+/// UY and RZ, so the reduced system is not diagonal and the loop's sparse
+/// observation (the only consumer of its reduced force) depends on that
+/// force's bits.
+const PROBE_M: f64 = 0.0137;
+const PROBE_F: f64 = 100.0;
+
+fn probe_p_elements() -> Vec<FrameElement> {
+    let section = FrameSection::new(
+        2.0_f64.powi(38),
+        7.7e10,
+        0.01,
+        1.0e-5,
+        9.0 * 2.0_f64.powi(-19),
+        1.7e-5,
+    )
+    .unwrap();
+    let x = [0.0, 2.0, 6.0];
+    (0..2)
+        .map(|i| {
+            FrameElement::new(
+                FrameNode::new(i, [x[i], 0.0, 0.0]).unwrap(),
+                FrameNode::new(i + 1, [x[i + 1], 0.0, 0.0]).unwrap(),
+                section,
+                [0.0, 1.0, 0.0],
+            )
+            .unwrap()
+        })
+        .collect()
+}
+
+const PROBE_BASE_RESTRAINTS: [usize; 10] = [0, 2, 3, 4, 5, 12, 14, 15, 16, 17];
+
+fn probe_boundary(g: f64) -> BoundaryState {
+    // The loop's active boundary: base restraints at 0.0 plus the two closed
+    // gaps at +g, sorted by DOF (`active_boundary`).
+    let mut pairs: Vec<(usize, f64)> = PROBE_BASE_RESTRAINTS.iter().map(|&d| (d, 0.0)).collect();
+    pairs.push((1, g));
+    pairs.push((13, 4.0 * g));
+    pairs.sort_by_key(|p| p.0);
+    BoundaryState {
+        dofs: pairs.iter().map(|p| p.0).collect(),
+        displacements: pairs.iter().map(|p| p.1).collect(),
+    }
+}
+
+fn probe_force() -> Vec<f64> {
+    let mut force = vec![0.0; 18];
+    force[7] = PROBE_F;
+    force[11] = PROBE_M;
+    force
+}
+
+/// Exact `f_r - sum_c K_rc * g_c`, one exact sum rounded once (S11-K's
+/// accumulator, verified against Fraction references by frame_kernel K1).
+fn exact_reduced_row(k: &[Vec<f64>], f: &[f64], boundary: &BoundaryState, r: usize) -> f64 {
+    let mut acc = open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator::new();
+    acc.add(f[r]).unwrap();
+    for (&c, &g) in boundary.dofs.iter().zip(&boundary.displacements) {
+        acc.add_product(-k[r][c], g).unwrap();
+    }
+    acc.round().unwrap()
+}
+
+/// The legacy reduced system, folded in the test in the legacy order:
+/// `b = f_r; b -= K_rc * g_c` over the boundary in DOF order.
+fn legacy_reduced(
+    k: &[Vec<f64>],
+    f: &[f64],
+    boundary: &BoundaryState,
+) -> (Vec<usize>, Vec<Vec<f64>>, Vec<f64>) {
+    let free: Vec<usize> = (0..f.len())
+        .filter(|d| !boundary.dofs.contains(d))
+        .collect();
+    let mut stiffness = Vec::new();
+    let mut force = Vec::new();
+    for &r in &free {
+        let mut b = f[r];
+        for (&c, &g) in boundary.dofs.iter().zip(&boundary.displacements) {
+            b -= k[r][c] * g;
+        }
+        force.push(b);
+        stiffness.push(free.iter().map(|&c| k[r][c]).collect());
+    }
+    (free, stiffness, force)
+}
+
+struct Expected {
+    displacements: Vec<f64>,
+    residual_rows: String,
+    sparse_evidence: String,
+}
+
+fn expected_binary64(
+    k: &DenseMatrix,
+    f: &[f64],
+    boundary: &BoundaryState,
+    assembly: Option<&AssemblyEvidence>,
+    mode: LinearSolveMode,
+) -> Expected {
+    let (free, reduced_k, reduced_f) = legacy_reduced(k, f, boundary);
+    let prescribed: Vec<(usize, f64)> = boundary
+        .dofs
+        .iter()
+        .copied()
+        .zip(boundary.displacements.iter().copied())
+        .collect();
+    let system = open_pipe_stress_frame_kernel::structural::StructuralSystem {
+        stiffness: k,
+        force: f,
+        free_dofs: &free,
+        prescribed: &prescribed,
+        contributions: None,
+        symmetry: None,
+    };
+    // The legacy kernel path (its right-hand side is pinned to today's fold
+    // by frame_kernel's option_c_binary64_variants_keep_todays_fold_on_probe_p).
+    let checked = match (assembly, mode) {
+        (Some(a), mode) => a.solve_binary64(k, f, &free, &prescribed, mode).unwrap(),
+        (None, LinearSolveMode::DenseScrutiny) => {
+            open_pipe_stress_frame_kernel::structural::solve_structural_dense_binary64(&system)
+                .unwrap()
+        }
+        (None, LinearSolveMode::SparseInteractive) => {
+            crate::structural_adapter::solve_structural_sparse_binary64(&system).unwrap()
+        }
+    };
+    let dense_reference = match mode {
+        LinearSolveMode::DenseScrutiny => {
+            Some(open_pipe_stress_frame_kernel::solve_dense(&reduced_k, &reduced_f).unwrap())
+        }
+        LinearSolveMode::SparseInteractive => None,
+    };
+    let sparse = crate::observe_sparse_linearized_solve(
+        k,
+        &free,
+        &reduced_f,
+        dense_reference.as_deref(),
+        mode,
+    );
+    Expected {
+        displacements: checked.displacements,
+        residual_rows: format!("{:?}", checked.report.residual_rows),
+        sparse_evidence: format!("{sparse:?}"),
+    }
+}
+
+fn bits(values: &[f64]) -> Vec<u64> {
+    values.iter().map(|v| v.to_bits()).collect()
+}
+
+#[test]
+fn option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path() {
+    let elements = probe_p_elements();
+    let k = assemble_global_stiffness(3, &elements).unwrap();
+    let f = probe_force();
+    for g in [0.05, 0.20] {
+        let boundary = probe_boundary(g);
+        // Precondition: the legacy fold of the RZ row differs from the
+        // correctly rounded exact value.
+        let (free, _, legacy_f) = legacy_reduced(&k, &f, &boundary);
+        let rz = free.iter().position(|&d| d == 11).unwrap();
+        let exact_rz = exact_reduced_row(&k, &f, &boundary, 11);
+        assert_ne!(
+            legacy_f[rz].to_bits(),
+            exact_rz.to_bits(),
+            "precondition g={g}"
+        );
+        // The exact path gives a different answer, so the pins discriminate.
+        let exact_reduced =
+            open_pipe_stress_frame_kernel::reduce_system_with_prescribed_displacements(
+                &k,
+                &f,
+                &boundary.dofs,
+                &boundary.displacements,
+            )
+            .unwrap();
+        assert_eq!(exact_reduced.force[rz].to_bits(), exact_rz.to_bits());
+        let assembly = AssemblyEvidence::new(3, &elements, &[], &[], &[]).unwrap();
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            for with_assembly in [false, true] {
+                let a = with_assembly.then_some(&assembly);
+                let expected = expected_binary64(&k, &f, &boundary, a, mode);
+                let ctx = format!("g={g} {mode:?} assembly={with_assembly}");
+                // Discrimination: the exact solve and the exact reduced force
+                // would give different displacements and sparse evidence.
+                let prescribed: Vec<(usize, f64)> = boundary
+                    .dofs
+                    .iter()
+                    .copied()
+                    .zip(boundary.displacements.iter().copied())
+                    .collect();
+                let exact = assembly.solve(&k, &f, &free, &prescribed, mode).unwrap();
+                assert_ne!(
+                    bits(&exact.displacements),
+                    bits(&expected.displacements),
+                    "{ctx}"
+                );
+                let exact_sparse = crate::observe_sparse_linearized_solve(
+                    &k,
+                    &free,
+                    &exact_reduced.force,
+                    None,
+                    LinearSolveMode::SparseInteractive,
+                );
+                let legacy_sparse = crate::observe_sparse_linearized_solve(
+                    &k,
+                    &free,
+                    &legacy_f,
+                    None,
+                    LinearSolveMode::SparseInteractive,
+                );
+                assert_ne!(
+                    format!("{exact_sparse:?}"),
+                    format!("{legacy_sparse:?}"),
+                    "{ctx}"
+                );
+                // The loop's linearized solve.
+                let solved =
+                    crate::solve_linearized_system_evidence(a, &k, &f, &boundary, mode).unwrap();
+                assert_eq!(
+                    bits(&solved.displacements),
+                    bits(&expected.displacements),
+                    "{ctx}"
+                );
+                assert_eq!(
+                    format!("{:?}", solved.structural_report.residual_rows),
+                    expected.residual_rows,
+                    "{ctx}"
+                );
+                assert_eq!(
+                    format!("{:?}", solved.sparse_evidence),
+                    expected.sparse_evidence,
+                    "{ctx}"
+                );
+            }
+        }
+    }
+}
+
+/// The same probe through the public active-set loop: both gaps start closed.
+/// The loop always carries AssemblyEvidence. Its first iteration's ordinary
+/// solve (retained by the strict-gap evidence as `ordinary_displacements`,
+/// before any exact-ratio gap projection replaces the published displacement),
+/// its structural residual rows and its sparse observation equal the binary64
+/// legacy values bit for bit.
+#[test]
+fn option_c_active_set_loop_first_closed_gap_iteration_is_binary64() {
+    let elements = probe_p_elements();
+    let k = assemble_global_stiffness(3, &elements).unwrap();
+    for g in [0.05, 0.20] {
+        let input = NonlinearFrameSolveInput {
+            node_count: 3,
+            elements: elements.clone(),
+            user_stiffness_elements: vec![],
+            curved_bend_elements: vec![],
+            force: probe_force(),
+            base_restrained_dofs: PROBE_BASE_RESTRAINTS.to_vec(),
+            nonlinear_supports: vec![
+                NonlinearSupport::gap(
+                    "gap:i",
+                    0,
+                    FrameDof::Uy,
+                    g,
+                    GapDirection::PositiveDisplacement,
+                )
+                .unwrap(),
+                NonlinearSupport::gap(
+                    "gap:j",
+                    2,
+                    FrameDof::Uy,
+                    4.0 * g,
+                    GapDirection::PositiveDisplacement,
+                )
+                .unwrap(),
+            ],
+            initial_states: vec![
+                SupportStateRecord::new("gap:i", ActiveSetState::Active),
+                SupportStateRecord::new("gap:j", ActiveSetState::Active),
+            ],
+            friction_normal_reactions: vec![],
+            derived_friction_normal_reactions: vec![],
+            convergence: ConvergenceControl::new(
+                "DEC-046-fixture-active-set-count-tightening",
+                ConvergencePolicyStatus::Accepted,
+                0.0,
+                0.0,
+                4,
+            )
+            .unwrap(),
+        };
+        let boundary = probe_boundary(g);
+        let assembly = AssemblyEvidence::new(3, &elements, &[], &[], &[]).unwrap();
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+            let first = &result.iterations[0];
+            assert_eq!(first.active_restrained_dofs, boundary.dofs);
+            assert_eq!(
+                bits(&first.active_prescribed_displacements),
+                bits(&boundary.displacements)
+            );
+            let expected = expected_binary64(&k, &input.force, &boundary, Some(&assembly), mode);
+            let ctx = format!("g={g} {mode:?}");
+            let ordinary = match &first.strict_gap {
+                StrictGapEvidence::Qualified(report) => report.ordinary_displacements.clone(),
+                _ => first.displacements.clone(),
+            };
+            assert_eq!(bits(&ordinary), bits(&expected.displacements), "{ctx}");
+            assert_eq!(
+                format!("{:?}", first.structural_report.residual_rows),
+                expected.residual_rows,
+                "{ctx}"
+            );
+            assert_eq!(
+                format!("{:?}", first.sparse_evidence),
+                expected.sparse_evidence,
+                "{ctx}"
+            );
+        }
     }
 }
 

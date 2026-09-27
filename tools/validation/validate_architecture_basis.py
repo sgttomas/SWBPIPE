@@ -24,8 +24,9 @@ FORMER_PRODUCTION_FILES = (
     "ScopeOfWork.md",
 )
 CONTEXT_NOTICE = "Preserved setup context — superseded for current consumption."
-# The accepted SCA-011 poststate advanced SOFTWARE_DECOMP.md to 0.13.
-EXPECTED_DECOMP_REVISION = "0.13"
+# The accepted SCA-011 poststate advanced SOFTWARE_DECOMP.md to 0.13; the
+# owner-ruled D-77 Package homes (DEC-115) advanced it to 0.14.
+EXPECTED_DECOMP_REVISION = "0.14"
 HISTORICAL_HASH_HEADING = "## Consolidated successors (SHA-256 as committed)"
 CURRENT_HASH_HEADING = "## Current checked successors (SHA-256)"
 

@@ -6,11 +6,12 @@
 - Latest DAG artifact status: approved_active_graph_authority
 - Approved graph authority: `execution/_DAG/DAG-011/`
 - Approved graph record: `execution/_DAG/DAG-011/APPROVAL_RECORD.md`
+- Authority reading: D-GOV-49. The accepted version governs only while current with local `_DEPENDENCIES.md`/`Dependencies.csv` evidence; departures go to a currency audit (`_Evaluation/DAGCurrency/`) and a human decision.
 - Actual adoption decision: `execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md`
 - Current validation/source bindings: `execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/RETURN.md`
 - Basis scope change: accepted SCA-011 ownership amendment; 106 nodes and 1,571 rows. DAG-010's 102 nodes and 1,487 rows remain exact byte prefixes. The 84 added canonical ID/source-quotation repairs were disclosed in the accepted audited state.
-- Approval boundary: the actual Group-3 owner direction adopts DAG-011 dependency authority. All 62 added execution dependencies remain PENDING with ProposedMaturity=TBD. Existing product, source-contract, engineering, privacy/external, native, lifecycle and release holds remain; no draft wire schema is published by graph adoption.
-- Superseded approved graph: `execution/_DAG/DAG-010/` dependency authority
+- Approval boundary: the actual Group-3 owner direction accepts DAG-011 as the current project DAG version. All 62 added execution dependencies remain PENDING with ProposedMaturity=TBD. Existing product, source-contract, engineering, privacy/external, native, lifecycle and release holds remain; no draft wire schema is published by graph adoption.
+- Superseded approved graph: `execution/_DAG/DAG-010/` (accepted version, superseded)
 - Superseded approved graph record: `execution/_DAG/DAG-010/APPROVAL_RECORD.md`
 - Superseded approved graph: `execution/_DAG/DAG-009/` satisfaction-currency authority
 - Superseded approved graph record: `execution/_DAG/DAG-009/APPROVAL_RECORD.md`
