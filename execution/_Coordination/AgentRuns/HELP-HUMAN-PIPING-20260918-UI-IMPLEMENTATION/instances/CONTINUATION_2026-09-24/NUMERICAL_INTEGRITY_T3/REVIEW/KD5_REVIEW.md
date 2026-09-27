@@ -1,6 +1,8 @@
 # RV5: independent complete-diff review of slice K-D5
 
-**Verdict: **NOT PASS**, for head `2409de83ec327d7ec4c67149d60ea3a641d28f89`. There is 1 BLOCKING finding, 3 SHOULD-FIX findings and 7 NOTEs. The blocking finding: M31b is observable at the criterion, so ROOT's equivalence (`c2042fd9c`) does not hold, and M31b and M31b0 must be killed by required tests before merge (RV5-B1). The check itself is correct: it uses the actual chord. The combined-tree gate passes (888 runs, 0 trusted breaches, and 122 is the only change against main). A delta check of I3's repair commit follows, and the final verdict will name that head.**
+**Final verdict (delta check, §12): PASS** for the PR #1017 head `b0a278d6f5a9d4343293101465c0a252a30e1b2b`. The repair commit `67a9558c2` closes RV5-B1, S1, S2 and S3, is tests and records only, and every kill is confirmed by run. The two merges after it (`799b0ef46` and `b0a278d6f`) bring no piping product change. No BLOCKING finding remains.
+
+**Initial verdict (kept as recorded):** NOT PASS for head `2409de83ec327d7ec4c67149d60ea3a641d28f89`. There is 1 BLOCKING finding, 3 SHOULD-FIX findings and 7 NOTEs. The blocking finding: M31b is observable at the criterion, so ROOT's equivalence (`c2042fd9c`) does not hold, and M31b and M31b0 must be killed by required tests before merge (RV5-B1). The check itself is correct: it uses the actual chord. The combined-tree gate passes (888 runs, 0 trusted breaches, and 122 is the only change against main). A delta check of I3's repair commit follows, and the final verdict will name that head.**
 
 **Reviewer.** RV5 is a Type 2 TASK. The brief is `T3/TASK_BRIEFS/RV5_KD5_REVIEW.md` (`512abb123`) with addendum 1 (`c8cd6d1c2`, ROOT's M31b counterexample definition), read with `_COMMON.md` and the manager's spawn updates. Those updates are: check 4 against main's empty lists; the combined tree after the S11-G merge; the M31b attack is required; T9, the comment-only commit and the re-kills; and the performance NOTE.
 - **Independence.** I did not design D-5, R5-4 or K3a, check their designs, or implement K3a or K-D5. This is not owner review.
@@ -226,3 +228,85 @@ This agrees in substance with I3's `callers.txt`, which is stale (RV5-S1).
 - I did not re-kill M26 or M28 (the brief asks for one of (26)–(28); I did M27).
 - I did not build the authority targets: nothing I ran needed them.
 - I did not run GEN-8 on an archive of the candidate (it needs git); I grepped instead.
+
+## 12. Delta check: `2409de83e` → `b0a278d6f5a9d4343293101465c0a252a30e1b2b` (PR #1017 head)
+
+**The chain.** It runs `2409de83e` → `67a9558c2` → `799b0ef46` → `b0a278d6f`.
+- `67a9558c2` is I3R's repair, tree `286d138c…`.
+- `799b0ef46` is ROOT's merge of main: 162 commits since `b24b3d536`, tree `e3cf7e57…`.
+- `b0a278d6f` is ROOT's merge of main at `974bf7da4`. Its parents are `799b0ef46` and `974bf7da4`.
+
+The DEC-025 sweep ran on `799b0ef46` and passed (ROOT, 20:55:48Z). Scope evidence is in `delta_799b0ef46/scope.txt`.
+
+### 12.1 (a) The repair commit `67a9558c2`
+
+**Tests and records only.** Outside `execution/` it touches four test files only: `kd5_tests.rs` (+57), `kd5_models.rs` (+33), `s11k_tests.rs` (+437/−19) and `formation_check_runtime.rs` (+233). There is no product source, Cargo, lock, schema or fixture change.
+
+**RV5-B1: closed.**
+- **Adapter test.** `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error` (`kd5_tests.rs:446-481`) uses the models `CPLANAR_60` and `CSKEW_30_N122`. Their inputs are my `RV5_CANT60_PLANAR` and `RV5_CANT30_SKEW`, and their `u_int` is identical, digit for digit, to my exact-input references. The test's preconditions are Passed and an actual error above 1; it then asserts demotion with EF within 5 %.
+- **Product test.** `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` (`formation_check_runtime.rs`) uses PP-UTM-5E6 at X 5e6, Y 3.5e6, φ 5°. It requires an actual error above 1 and M1 realized as an arc, then asserts SENSITIVE on both entries in both modes.
+- **Controls.** At 5e5 m, both the adapter and the product control assert that the case is not demoted.
+- **References.** The product references `PP_UTM_5E5` and `PP_UTM_5E6` are identical to my exact references, which I recomputed from PP's own centre.
+- **Records.** The equivalence is marked superseded in CHANGE_RECORD and RETURN R-1, citing ROOT's withdrawal (numerics `354702957`).
+
+**RV5-S1: closed.** There is a new `combined/callers_combined.txt` (116 sites, 39 outside tests) with its scripts, and RETURN §5 is corrected. The phase-1 `callers.txt` is kept unchanged because it is hash-bound. I accept that, per the manager and ROOT. It agrees with my scan (§5).
+
+**RV5-S2: closed.**
+- **Source pin.** `kd5_nonlinear_sources_name_no_formation_check_entry_point` now walks the module tree from `lib.rs` (`non_test_modules`, `s11k_tests.rs:908-1018`), for this crate and for product_physics.
+  - Test modules are excluded by their own `#[cfg(test)]` declaration, or by being declared inside a test module, never by path.
+  - Every `.rs` file must be reached.
+  - The formation entry may be named only at its definition; the plumbing may appear only inside that body; and product_physics calls the entry exactly once, in `solve_preview_reduced_system`.
+- **Behavioural pin.** `kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check` (`s11k_tests.rs:1326-1431`) exercises the derived-friction unit-force solves over several iterations, at g = 0.03 and 0.09, in both modes. It asserts that the two paths differ, and that the check is non-vacuous.
+- **Declaration rule verified.** My own `#[path]` test module, appended inside `kd5_tests`, is correctly treated as test: the unpatched run passes.
+
+**RV5-S3: closed.** CHANGE_RECORD records the combined tree, the repair, the large-coordinate class and the measured cost. RETURN's "Combined-tree pass and RV5 repair" (C-1..C-8, R-1..R-7) is complete, with no placeholders.
+
+**NOTEs.**
+- N1: the clean mutation re-run (R-3) has a passing control and kills every mutant.
+- N2: the receipt loop is replaced by an assertion that `source_block_recovery` is null.
+- N3 and N6 are answered in R-6.
+
+**Hygiene.**
+- `IMPLEMENTATION/KD5/SHA256SUMS` verifies 228/228 with full coverage.
+- No machine paths appear in the diff.
+- `git diff --check` is clean on code.
+- Stable rustfmt is clean on the three changed test files.
+
+### 12.2 My runs on `git archive 67a9558c2`
+
+Fresh-mtime copies, one job at a time, in the slot ROOT opened after the sweep. Logs are in `delta_799b0ef46/`.
+
+| Run | Unpatched | M31b | M31b0 | E1 | E2 | E3 | E4 |
+|---|---|---|---|---|---|---|---|
+| NI full suite (87 lib, 4 doc; includes my appended `rv5_` tests) | **87/87, 4/4 pass** | killed: `kd5_admissible_centre_mismatch…`, `rv5_m31b…` | killed: same | killed: both loop pins, source pin, option-(c) pins, gap inspection | killed: same plus `option_c_nonlinear_loop_is_pinned…` | killed: same as E2 | **killed: `kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check` (behavioural), `kd5_nonlinear_sources_name_no_formation_check_entry_point`** |
+| PP `--test formation_check_runtime` (5 tests) | 5/5 pass | killed: `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` | killed: same | | | | |
+| FK `kd5` (5 tests) | 5/5 pass | killed: `kd5_reformed_elements_have_the_rigid_body_null_space` | survives FK (killed in NI and PP) | | | | |
+| PP `--test s11f_site_test` | 11/11 pass | | | | | | |
+
+**An artefact, disclosed.** My first NI pass copied only `core/{solver,loads}`. The new source pin reads `product_physics/src`, so every variant failed it on the missing directory. I re-ran every variant with all of `core` copied, and both passes are in `SUMMARY2.txt`.
+
+**An observation.** M31b was also killed at `2409de83e` by the FK null-space test (a 1e-25 tolerance on the equidistant 139° bend). I3's and my first mutation runs ran only NI tests, so that kill went unseen. M31b0 is not killed there. Criterion-level kills of both now exist in NI and PP.
+
+### 12.3 (b) Merge `799b0ef46`
+
+`git diff --stat 67a9558c2 799b0ef46 -- projects/chirality-piping ':!projects/chirality-piping/execution'` is **empty**. That merge does touch `tools/`, but the DEC-025 sweep ran on `799b0ef46` itself and passed.
+
+### 12.4 (c) Merge `b0a278d6f`
+
+- `799b0ef46..b0a278d6f` changes 59 files, **all under `projects/pec`**.
+- It changes **0** files under `projects/chirality-piping`, `tools/` or `.github/`.
+- The piping product tree of `b0a278d6f` equals that of `67a9558c2` (the diff outside `execution` is empty).
+
+So the sweep on `799b0ef46` and my runs on `67a9558c2` stand for the final head.
+
+### 12.5 Delta verdict
+
+**PASS** for `b0a278d6f5a9d4343293101465c0a252a30e1b2b`. RV5-B1, S1, S2 and S3 are closed. The NOTEs are answered or recorded. The repair is tests and records only, and the check's code is unchanged from the reviewed `2409de83e`. The gate, T9 and composition results of §§6 and 8 therefore carry over, and the merges add no piping product change.
+
+**What I did not re-run for the delta:**
+- the full gate;
+- T9;
+- the suites outside NI, PP `formation_check_runtime`/`s11f_site_test` and FK `kd5`;
+- the E4 variant against the nonlinear benchmark.
+
+The product tree outside tests is identical to `2409de83e`, and the DEC-025 sweep on `799b0ef46` passed.

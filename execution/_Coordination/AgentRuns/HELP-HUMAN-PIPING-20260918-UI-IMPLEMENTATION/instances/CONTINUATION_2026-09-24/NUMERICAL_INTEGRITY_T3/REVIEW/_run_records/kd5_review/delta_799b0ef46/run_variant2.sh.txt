@@ -1,0 +1,15 @@
+#!/bin/bash
+# RV5: one variant = fresh copy of core/{solver,loads} from the candidate tree, optional patch,
+# the RV5 tests appended to kd5_tests.rs, then `cargo test --offline --locked <filter>` in NI.
+# Usage: run_variant.sh <variant-id|base> <filter> [extra cargo test args]
+source "$(dirname "$0")/env.sh"
+V=$1; F=$2; shift 2
+C=$S/copy; rm -rf $C; mkdir -p $C/core
+tar -C $S/cand2/projects/chirality-piping/core --exclude=target -cf - . | tar -C $C/core -xf - --touch  # --touch: fresh mtimes, so no stale artifact of an earlier variant is reused
+if [ "$V" != base ]; then python3 $S/rv5_mutate.py $C/core $V > $S/logs/$V.$F.log 2>&1 || { echo "PATCH FAILED"; exit 9; }; else : > $S/logs/$V.$F.log; fi
+KT=$C/core/solver/nonlinear_integration/src/structural_adapter
+cp $S/rv5_models.rs $KT/rv5_models.rs; cat $S/rv5_test.rs.txt >> $KT/kd5_tests.rs
+waitfree
+(cd $C/core/solver/nonlinear_integration && cargo test --offline --locked $( [ "$F" = all_ni ] || echo "$F" ) "$@" -- --test-threads=1 $NOCAP >> $S/logs/$V.$F.log 2>&1); rc=$?
+echo "$V filter=$F exit=$rc killed_by: $(grep -oE "^test [^ ]+ \.\.\. .*FAILED|panicked at|^test [^ ]+ ... FAILED" $S/logs/$V.$F.log | head -0) $(grep -E "^    [a-z0-9_:]+$" $S/logs/$V.$F.log | tr "\n" " ") compile_errors=$(grep -c "^error\[" $S/logs/$V.$F.log)" | tee -a $S/logs/SUMMARY.txt
+: # keep copy until next variant
