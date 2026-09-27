@@ -1,106 +1,32 @@
 {
- "ruling": "ROOT 2026-09-27 (on I4's F12 stop, option (c)). Pre-existing on main (P1 baseline). Condition amended 2026-09-27: after S11-F each row publishes the correctly rounded net of the represented terms and stays exactly pinned here (10 rows bit-identical or better; the 4 UDL-W1e8 rows 3% worse). Must be empty when S11-G lands, or per-row justification to ROOT for waiting on F2/F3.",
+ "ruling": "ROOT 2026-09-27 (on I4's F12 stop, option (c)). Pre-existing on main (P1 baseline). Condition amended 2026-09-27: after S11-F each row publishes the correctly rounded net of the represented terms and stays exactly pinned here (10 rows bit-identical or better; the 4 UDL-W1e8 rows 3% worse). Must be empty when S11-G lands, or per-row justification to ROOT for waiting on F2/F3. ROOT 2026-09-27: emptied at S11-G on I5's 14-row gate probe; RV4 to verify.",
  "source": {
   "results_json_sha256": "a11886245a94524f7b1baa536844489464027eecc189754639b037469e2129d1",
   "references_json_sha256": "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9"
  },
+ "emptied": {
+  "at": "S11-G, branch codex/piping-s11g-20260927, commit b62e40d4d388ad7d3c20cf67c77c137e0c8bbfd3 (governs once S11-G merges)",
+  "verification": "I5's 14-row gate probe: all 14 rows CHECKS_PASSED -> SENSITIVE (6 load-row, 8 R-b'), both entries and modes; RV4 to verify",
+  "pinned_before_s11g": {
+   "counts": {
+    "triples": 7,
+    "rows_with_mode": 14
+   },
+   "rows_sha256": "70c0ff53f459eb08a24c36d6b1c260b97f4f549bb79b31a063b8c45bc8e304ce",
+   "owners": {
+    "captured | RF-CANCEL-UDL-W1e8 | th.S1.RZ": "load formation (as above); S11-G load-row guard, then F3 (W1b). ROOT 2026-09-27 amendment: after S11-F the published value is the correctly rounded net of the represented terms, 3% worse than base (46.47x -> 47.99x the criterion, both modes); S11-G is required to catch this row",
+    "typed | RF-CANCEL-F-G1e80-GnG-INPLANE | Mb.M1.j": "formed recovery term K_e*u roundoff (S11 s10 item 3); S11-G recovery guard, then F2 (W1a)",
+    "typed | RF-CANCEL-F-G1e80-GnG-INPLANE | Mb.M2.i": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
+    "typed | RF-CANCEL-M-G1e80-GnG-INPLANE | Mb.M2.i": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
+    "typed | RF-CANCEL-M-G1e80-GnG-INPLANE | Mb.M2.j": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
+    "typed | RF-CANCEL-UDL-W1e8 | th.S1.RZ": "load formation (as above); S11-G load-row guard, then F3 (W1b). ROOT 2026-09-27 amendment: after S11-F the published value is the correctly rounded net of the represented terms, 3% worse than base (46.47x -> 47.99x the criterion, both modes); S11-G is required to catch this row",
+    "typed | RF-CANCEL-UDL-W1e80 | th.S1.RZ": "load formation: SP fixed-end coefficients formed by different binary64 expressions at i and j (S11 s2.2, s10 item 2); S11-G load-row guard, then F3 (W1b)"
+   }
+  }
+ },
  "counts": {
-  "triples": 7,
-  "rows_with_mode": 14
+  "triples": 0,
+  "rows_with_mode": 0
  },
- "owners": {
-  "captured | RF-CANCEL-UDL-W1e8 | th.S1.RZ": "load formation (as above); S11-G load-row guard, then F3 (W1b). ROOT 2026-09-27 amendment: after S11-F the published value is the correctly rounded net of the represented terms, 3% worse than base (46.47x -> 47.99x the criterion, both modes); S11-G is required to catch this row",
-  "typed | RF-CANCEL-F-G1e80-GnG-INPLANE | Mb.M1.j": "formed recovery term K_e*u roundoff (S11 s10 item 3); S11-G recovery guard, then F2 (W1a)",
-  "typed | RF-CANCEL-F-G1e80-GnG-INPLANE | Mb.M2.i": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
-  "typed | RF-CANCEL-M-G1e80-GnG-INPLANE | Mb.M2.i": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
-  "typed | RF-CANCEL-M-G1e80-GnG-INPLANE | Mb.M2.j": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
-  "typed | RF-CANCEL-UDL-W1e8 | th.S1.RZ": "load formation (as above); S11-G load-row guard, then F3 (W1b). ROOT 2026-09-27 amendment: after S11-F the published value is the correctly rounded net of the represented terms, 3% worse than base (46.47x -> 47.99x the criterion, both modes); S11-G is required to catch this row",
-  "typed | RF-CANCEL-UDL-W1e80 | th.S1.RZ": "load formation: SP fixed-end coefficients formed by different binary64 expressions at i and j (S11 s2.2, s10 item 2); S11-G load-row guard, then F3 (W1b)"
- },
- "rows": [
-  [
-   "captured",
-   "RF-CANCEL-UDL-W1e8",
-   "th.S1.RZ",
-   "dense_scrutiny"
-  ],
-  [
-   "captured",
-   "RF-CANCEL-UDL-W1e8",
-   "th.S1.RZ",
-   "sparse_interactive"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "Mb.M1.j",
-   "dense_scrutiny"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "Mb.M1.j",
-   "sparse_interactive"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "Mb.M2.i",
-   "dense_scrutiny"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "Mb.M2.i",
-   "sparse_interactive"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "Mb.M2.i",
-   "dense_scrutiny"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "Mb.M2.i",
-   "sparse_interactive"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "Mb.M2.j",
-   "dense_scrutiny"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "Mb.M2.j",
-   "sparse_interactive"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-UDL-W1e8",
-   "th.S1.RZ",
-   "dense_scrutiny"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-UDL-W1e8",
-   "th.S1.RZ",
-   "sparse_interactive"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-UDL-W1e80",
-   "th.S1.RZ",
-   "dense_scrutiny"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-UDL-W1e80",
-   "th.S1.RZ",
-   "sparse_interactive"
-  ]
- ]
+ "rows": []
 }

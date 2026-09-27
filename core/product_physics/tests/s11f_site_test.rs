@@ -75,6 +75,10 @@ const PRODUCT: &[Source] = &[
         name: "PP/self_weight.rs",
         text: include_str!("../src/self_weight.rs"),
     },
+    Source {
+        name: "PP/formation_guard.rs",
+        text: include_str!("../src/formation_guard.rs"),
+    },
 ];
 
 const KERNEL: &[Source] = &[
@@ -202,7 +206,7 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "add_pressure_thrust_loads", "straight thrust pairs: fl(P*x_a) per axis"),
     ("PP/lib.rs", "add_curved_bend_pressure_thrust_load", "curved thrust caps fl(P*t_a) and one term per wall slot"),
     ("PP/lib.rs", "add_thermal_equivalent_loads", "straight thermal pairs and T1 eigen pairs: fl(P*x_a) per axis"),
-    ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", "curved thermal: push_product(K_rc, fl(eps*chord_c)) per nonzero column"),
+    ("PP/lib.rs", "add_curved_bend_thermal_equivalent_load", "curved thermal: push_formed_product(K_rc, fl(eps*chord_c)) per nonzero column (S11-G: the same exact product term)"),
     ("PP/lib.rs", "push_exact_pressure_operands", "exact pressure: each source group's operand"),
     ("PP/lib.rs", "add_constant_effort_support_loads", "constant effort: one term per application"),
     ("PP/source_recovery.rs", "prepare_sources", "T1 site (section 4.5): the retained nodal terms, in a ledger compared with the actual force"),
@@ -962,6 +966,8 @@ fn ledger_pushes(item: &Item) -> usize {
         .map(|r| {
             calls(&item.body, &format!("{r}.push(")).count()
                 + calls(&item.body, &format!("{r}.push_product(")).count()
+                + calls(&item.body, &format!("{r}.push_formed(")).count()
+                + calls(&item.body, &format!("{r}.push_formed_product(")).count()
         })
         .sum()
 }
@@ -1099,8 +1105,11 @@ fn rule_5_the_ledger_producers_are_exactly_the_section_4_2_list() {
     let pp = code_of(PRODUCT[0].text);
     let item = |name: &str| items(&pp).into_iter().find(|i| i.name == name).unwrap();
     let curved = item("add_curved_bend_thermal_equivalent_load");
-    assert!(calls(&curved.body, "ledger.push_product(").next().is_some());
+    assert!(calls(&curved.body, "ledger.push_formed_product(")
+        .next()
+        .is_some());
     assert!(calls(&curved.body, "ledger.push(").next().is_none());
+    assert!(calls(&curved.body, "ledger.push_formed(").next().is_none());
     let pressure = item("push_exact_pressure_operands");
     assert!(pressure.body.contains("assembled_operands"));
     assert!(!pressure.body.contains("assembled_loads"));
@@ -1239,4 +1248,231 @@ fn scanner_self_checks() {
         "fn f(a: &mut [f64], t: &[f64]) { a[0] = a[0] + t[0]; let b = checked_value(b - t[1])?; }",
     );
     assert_eq!(counts.get("f"), Some(&2));
+}
+
+// ------------------------------------------------------------------ S11-G
+
+/// T8 (S11-G section 3.2): every case-force producer is classified. Input
+/// producers push plain terms and no formation record; formed producers push
+/// only `push_formed`/`push_formed_product` terms, with the named formation
+/// families and the self-equilibrated flag of their family. A formed site
+/// using plain `push` fails (M2). (function, class, formation tokens that
+/// must occur, self-equilibrated flag of every formed push.)
+const FORMATION_SITES: &[(&str, &str, &[&str], Option<&[&str]>)] = &[
+    (
+        "push_nodal_loads",
+        "input: nodal loads carry no formation defect",
+        &[],
+        None,
+    ),
+    (
+        "add_constant_effort_support_loads",
+        "input: constant effort carries no formation defect",
+        &[],
+        None,
+    ),
+    (
+        "add_uniform_element_loads",
+        "formed: straight Exact (SP formula), curved CannotBound; not self-equilibrated",
+        &[
+            "equivalent_global_nodal_loads_with_spans_formed(",
+            "Formation::CannotBound",
+        ],
+        Some(&["false"]),
+    ),
+    (
+        "add_pressure_thrust_loads",
+        "formed: straight thrust RoundedProduct fl(P*x_a), self-equilibrated pair",
+        &["Formation::RoundedProduct"],
+        Some(&["true"]),
+    ),
+    (
+        "add_curved_bend_pressure_thrust_load",
+        "formed: cap RoundedProduct (self-equilibrated), wall vector CannotBound",
+        &["Formation::RoundedProduct", "Formation::CannotBound"],
+        Some(&["true", "false"]),
+    ),
+    (
+        "add_thermal_equivalent_loads",
+        "formed: straight thermal and eigen RoundedProduct fl(N*x_a), self-equilibrated pair",
+        &["Formation::RoundedProduct"],
+        Some(&["true"]),
+    ),
+    (
+        "add_curved_bend_thermal_equivalent_load",
+        "formed: K_rc * fl(eps*chord_c), scaled RoundedProduct, self-equilibrated",
+        &["Formation::RoundedProduct"],
+        Some(&["true"]),
+    ),
+    (
+        "push_exact_pressure_operands",
+        "formed: exact-pressure group operand, Bounded (gamma_20, counted from the source)",
+        &["Formation::Bounded", "exact_pressure_operand_bound("],
+        Some(&["false"]),
+    ),
+];
+
+/// The argument text of each call of `needle` in `body` (balanced parens).
+fn call_arguments(body: &str, needle: &str) -> Vec<String> {
+    calls(body, needle)
+        .map(|at| {
+            let start = at + needle.len();
+            let mut depth = 1;
+            let mut end = start;
+            for (offset, c) in body[start..].char_indices() {
+                match c {
+                    '(' | '[' | '{' => depth += 1,
+                    ')' | ']' | '}' => depth -= 1,
+                    _ => {}
+                }
+                if depth == 0 {
+                    end = start + offset;
+                    break;
+                }
+            }
+            body[start..end].to_string()
+        })
+        .collect()
+}
+
+fn last_argument(arguments: &str) -> String {
+    // rustfmt may leave a trailing comma after the last argument.
+    let arguments = arguments.trim_end().trim_end_matches(',');
+    let mut depth = 0;
+    let mut last = 0;
+    for (i, c) in arguments.char_indices() {
+        match c {
+            '(' | '[' | '{' => depth += 1,
+            ')' | ']' | '}' => depth -= 1,
+            ',' if depth == 0 => last = i + 1,
+            _ => {}
+        }
+    }
+    arguments[last..]
+        .trim()
+        .trim_end_matches(',')
+        .trim()
+        .to_string()
+}
+
+#[test]
+fn t8_every_case_force_producer_is_classified() {
+    let pp = code_of(PRODUCT[0].text);
+    let pp_items = items(&pp);
+    for (name, class, tokens, flags) in FORMATION_SITES {
+        assert!(!class.is_empty());
+        let item = pp_items
+            .iter()
+            .find(|i| i.name == *name)
+            .unwrap_or_else(|| panic!("{name}"));
+        let plain = calls(&item.body, "ledger.push(").count()
+            + calls(&item.body, "ledger.push_product(").count();
+        let formed: Vec<String> = call_arguments(&item.body, "ledger.push_formed(")
+            .into_iter()
+            .chain(call_arguments(&item.body, "ledger.push_formed_product("))
+            .collect();
+        match flags {
+            None => {
+                assert!(plain > 0, "{name}: an input producer pushes plain terms");
+                assert!(
+                    formed.is_empty(),
+                    "{name}: an input producer attaches no formation"
+                );
+            }
+            Some(flags) => {
+                assert_eq!(plain, 0, "{name}: a formed site uses plain push (M2)");
+                assert!(!formed.is_empty(), "{name}: no formed push");
+                for token in *tokens {
+                    assert!(item.body.contains(token), "{name}: {token}");
+                }
+                let seen: BTreeSet<String> = formed.iter().map(|a| last_argument(a)).collect();
+                let allowed: BTreeSet<String> = flags.iter().map(|f| f.to_string()).collect();
+                assert_eq!(seen, allowed, "{name}: self-equilibrated flags");
+            }
+        }
+    }
+    // Formed pushes occur nowhere else in the product or the kernel seams.
+    let mut formed_sites = BTreeSet::new();
+    for source in PRODUCT.iter().chain(KERNEL) {
+        for item in items(&code_of(source.text)) {
+            if calls(&item.body, ".push_formed(").next().is_some()
+                || calls(&item.body, ".push_formed_product(").next().is_some()
+            {
+                formed_sites.insert((source.name.to_string(), item.name));
+            }
+        }
+    }
+    let expected: BTreeSet<_> = FORMATION_SITES
+        .iter()
+        .filter(|s| s.3.is_some())
+        .map(|s| ("PP/lib.rs".to_string(), s.0.to_string()))
+        .collect();
+    assert_eq!(formed_sites, expected, "formed push sites");
+}
+
+/// T10b (V1 DN-5; S11G_GUARD revision 2.2 with erratum E-1): the routing
+/// site in `solve_load_case` binds `source_eligible` by one call to main's
+/// predicate (no load-row finding in it: M19), binds `needs_source_recovery`
+/// by the tested predicate with the finding (M20), forms the receipt's
+/// ordinary attempt with the finding (M21), declines a Passed guard-fired case
+/// without an attempt (E-1, M23) and applies the G-3 decline before the
+/// 0.4.0 replay reservation (M22).
+#[test]
+fn t10b_routing_site_calls_the_tested_predicates() {
+    let pp = code_of(PRODUCT[0].text);
+    let pp_items = items(&pp);
+    let body = |name: &str| {
+        pp_items
+            .iter()
+            .find(|i| i.name == name)
+            .unwrap_or_else(|| panic!("{name}"))
+            .body
+            .clone()
+    };
+    let case = body("solve_load_case");
+    let statement = |binding: &str| {
+        let at = case.find(binding).unwrap_or_else(|| panic!("{binding}"));
+        let rest = &case[at + binding.len()..];
+        rest[..rest.find(';').unwrap()].trim().to_string()
+    };
+    // G-1: main's predicate, one call, three arguments, no finding.
+    assert_eq!(calls(&case, "source_eligible(").count(), 1);
+    let eligible = statement("let source_eligible =");
+    assert!(
+        eligible.starts_with("source_eligible(") && eligible.ends_with(')'),
+        "{eligible}"
+    );
+    assert!(!eligible.contains("load_row_finding"), "{eligible}");
+    assert!(!body("source_eligible").contains("load_row_finding"));
+    // G-2: the tested routing predicate carries the finding.
+    let needs = statement("let needs_source_recovery =");
+    assert!(
+        needs.starts_with("needs_source_recovery(") && needs.contains("load_row_finding"),
+        "{needs}"
+    );
+    assert!(body("needs_source_recovery").contains("load_row_finding.is_some()"));
+    assert!(case.contains("if source_eligible && needs_source_recovery"));
+    // G-2: the ordinary attempt records the finding.
+    let passed = call_arguments(&case, "OrdinaryAttempt::passed(");
+    assert_eq!(passed.len(), 1);
+    assert!(
+        passed[0].contains("load_row_finding.is_some()"),
+        "{}",
+        passed[0]
+    );
+    // E-1: a case the ordinary route would not attempt is declined without an
+    // attempt, before any retained-source solve.
+    let zero = case
+        .find("formation_decline_without_attempt()")
+        .expect("E-1 decline");
+    let solve = case.find("source_recovery::solve(").expect("the attempt");
+    assert!(zero < solve);
+    assert!(case[..zero].contains("needs_source_recovery(report_sensitive, attempt_err, None)"));
+    // G-3: the decline precedes the 0.4.0 replay reservation.
+    let decline = case.find("decline_for_formation(").expect("G-3 decline");
+    let reserve = case
+        .find("reserve_captured_replay(")
+        .expect("replay reservation");
+    assert!(solve < decline && decline < reserve);
+    assert!(body("decline_for_formation").contains("decline_formation()"));
 }

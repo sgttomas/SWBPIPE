@@ -5,6 +5,7 @@
 //! code-specific checks, protected standards data, or engineering approval.
 
 use open_pipe_stress_frame_kernel::exact_sum::{ExactAccumulator, SumError};
+use open_pipe_stress_frame_kernel::load_ledger::{gamma, product_upward, round_upward, Formation};
 use open_pipe_stress_frame_kernel::{
     CanonicalDimension, CanonicalModelReference, FrameElement, FrameKernelError,
     FrameKernelUnitBasis, FrameNode, FrameOrientation, FrameSection, Matrix12,
@@ -656,6 +657,105 @@ impl StraightPipeElement {
         let global_loads = transform_local_element_vector_to_global(&orientation, &local_loads);
         validate_finite_array("equivalent_global_nodal_loads", &global_loads)?;
         Ok(global_loads)
+    }
+
+    /// S11-G (`S11G_GUARD.md` section 3.2): today's values of
+    /// `equivalent_global_nodal_loads_with_spans` (called unchanged, so the
+    /// values are bit-identical) plus, per global slot, the formation record
+    /// of the formed value: `Formation::Exact` with the exact scaled intended
+    /// formula `scale * T^T FEM(T q_g)` on the held operands q_g, L, (a, b)
+    /// and T (scale 3 on rotation slots clears the 1/3 and 2/3 of the
+    /// rotation terms; 1 on translation slots). If an exact step leaves the
+    /// binary64 range, every slot falls back to `Formation::Bounded` with
+    /// gamma_16 * sum|monomials| plus an absolute 64 * 2^-1074 (rounded
+    /// upward); a bound that cannot be represented is `+inf`, which fires.
+    pub fn equivalent_global_nodal_loads_with_spans_formed(
+        &self,
+        uniform_loads: &[SpannedGlobalUniformLoad],
+    ) -> Result<([f64; ELEMENT_DOF], Vec<Formation>), StraightPipeError> {
+        let values = self.equivalent_global_nodal_loads_with_spans(uniform_loads, &[])?;
+        let orientation = self.frame_element()?.orientation()?;
+        let length = self.length()?;
+        let formations = match exact_scaled_intended(&orientation, length, uniform_loads) {
+            Some(rows) => rows
+                .into_iter()
+                .enumerate()
+                .map(|(slot, scaled_intended)| Formation::Exact {
+                    scale: slot_scale(slot),
+                    scaled_intended,
+                })
+                .collect(),
+            None => monomial_bounds(&orientation, length, uniform_loads)
+                .into_iter()
+                .map(|bound| Formation::Bounded { bound })
+                .collect(),
+        };
+        Ok((values, formations))
+    }
+
+    /// S11-G R-b' (`S11G_GUARD.md` section 4): for each end (i, j), the
+    /// formation-noise bound of the formed K_e * u bending rows,
+    /// gamma_16 * (sum_k |K[ry][k]| * sum_c |T_kc| |u_c| + the same for rz),
+    /// with the product's own K_loc, T and binary64 u. Each inner sum is
+    /// exact and rounded upward, and so is the final product.
+    pub fn bending_formation_bound(
+        &self,
+        global_model_displacements: &[f64],
+    ) -> Result<[f64; 2], StraightPipeError> {
+        let required = (self.node_i.index.max(self.node_j.index) + 1) * DOF_PER_NODE;
+        if global_model_displacements.len() < required {
+            return Err(StraightPipeError::InvalidDisplacementLength {
+                expected: required,
+                actual: global_model_displacements.len(),
+            });
+        }
+        validate_finite_slice("global_model_displacements", global_model_displacements)?;
+        let mut element_displacements = [0.0; ELEMENT_DOF];
+        copy_node_displacements(
+            global_model_displacements,
+            self.node_i.index,
+            &mut element_displacements[0..DOF_PER_NODE],
+        );
+        copy_node_displacements(
+            global_model_displacements,
+            self.node_j.index,
+            &mut element_displacements[DOF_PER_NODE..ELEMENT_DOF],
+        );
+        let frame_element = self.frame_element()?;
+        let transform = frame_element.orientation()?.transformation_matrix();
+        let stiffness = frame_element.local_stiffness()?;
+        let bound_error = |value: f64| StraightPipeError::NonFiniteInput {
+            name: "bending_formation_bound",
+            value,
+        };
+        let mut local_magnitudes = [0.0; ELEMENT_DOF];
+        for (k, magnitude) in local_magnitudes.iter_mut().enumerate() {
+            let mut accumulator = ExactAccumulator::new();
+            for (c, displacement) in element_displacements.iter().enumerate() {
+                accumulator
+                    .add_product(transform[k][c].abs(), displacement.abs())
+                    .map_err(|_| bound_error(*displacement))?;
+            }
+            *magnitude = round_upward(&accumulator).map_err(|_| bound_error(f64::INFINITY))?;
+        }
+        let mut bounds = [0.0; 2];
+        for (bound, (ry, rz)) in bounds
+            .iter_mut()
+            .zip([(RY, RZ), (DOF_PER_NODE + RY, DOF_PER_NODE + RZ)])
+        {
+            let mut accumulator = ExactAccumulator::new();
+            for (k, magnitude) in local_magnitudes.iter().enumerate() {
+                accumulator
+                    .add_product(stiffness[ry][k].abs(), *magnitude)
+                    .map_err(|_| bound_error(*magnitude))?;
+                accumulator
+                    .add_product(stiffness[rz][k].abs(), *magnitude)
+                    .map_err(|_| bound_error(*magnitude))?;
+            }
+            let row_sum = round_upward(&accumulator).map_err(|_| bound_error(f64::INFINITY))?;
+            *bound = product_upward(gamma(16), row_sum);
+        }
+        Ok(bounds)
     }
 
     /// E2 (S11): each axial effect's pair, summed exactly and rounded once.
@@ -1563,6 +1663,249 @@ fn validate_axial_effect(effect: StraightPipeAxialEffect) -> Result<(), Straight
     validate_finite("axial_force", effect.axial_force)
 }
 
+// ------------------------------------------------ S11-G exact intended formula
+
+/// Local slot of each uniform fixed-end polynomial, per local direction:
+/// (slot, polynomial, sign). Directions: 0 = X, 1 = Y, 2 = Z.
+const UNIFORM_SLOTS: [&[(usize, usize, f64)]; 3] = [
+    &[(UX, 0, 1.0), (DOF_PER_NODE + UX, 1, 1.0)],
+    &[
+        (UY, 2, 1.0),
+        (RZ, 4, 1.0),
+        (DOF_PER_NODE + UY, 3, 1.0),
+        (DOF_PER_NODE + RZ, 5, 1.0),
+    ],
+    &[
+        (UZ, 2, 1.0),
+        (RY, 4, -1.0),
+        (DOF_PER_NODE + UZ, 3, 1.0),
+        (DOF_PER_NODE + RY, 5, -1.0),
+    ],
+];
+
+/// The six uniform fixed-end polynomials of `spanned_uniform_equivalent_terms`
+/// as (coefficient, variable 0 = b or 1 = a, power), with the power of L; the
+/// two rotation polynomials are scaled by 3 (exact coefficients).
+const UNIFORM_POLYNOMIALS: [(u32, &[(f64, usize, i32)]); 6] = [
+    // axial_i = q L ((b - b^2/2) - (a - a^2/2))
+    (1, &[(1.0, 0, 1), (-0.5, 0, 2), (-1.0, 1, 1), (0.5, 1, 2)]),
+    // axial_j = q L (b^2/2 - a^2/2)
+    (1, &[(0.5, 0, 2), (-0.5, 1, 2)]),
+    // transverse_i = q L ((b - b^3 + b^4/2) - (a - a^3 + a^4/2))
+    (
+        1,
+        &[
+            (1.0, 0, 1),
+            (-1.0, 0, 3),
+            (0.5, 0, 4),
+            (-1.0, 1, 1),
+            (1.0, 1, 3),
+            (-0.5, 1, 4),
+        ],
+    ),
+    // transverse_j = q L ((b^3 - b^4/2) - (a^3 - a^4/2))
+    (1, &[(1.0, 0, 3), (-0.5, 0, 4), (-1.0, 1, 3), (0.5, 1, 4)]),
+    // 3 rotation_i = q L^2 ((3b^2/2 - 2b^3 + 3b^4/4) - (same in a))
+    (
+        2,
+        &[
+            (1.5, 0, 2),
+            (-2.0, 0, 3),
+            (0.75, 0, 4),
+            (-1.5, 1, 2),
+            (2.0, 1, 3),
+            (-0.75, 1, 4),
+        ],
+    ),
+    // 3 rotation_j = q L^2 ((-b^3 + 3b^4/4) - (same in a))
+    (2, &[(-1.0, 0, 3), (0.75, 0, 4), (1.0, 1, 3), (-0.75, 1, 4)]),
+];
+
+fn slot_scale(slot: usize) -> f64 {
+    if slot % DOF_PER_NODE >= RX {
+        3.0
+    } else {
+        1.0
+    }
+}
+
+/// Binary64 components whose exact sum is the accumulator's exact value, by
+/// repeated round-and-subtract. `None` when a remainder lies below the
+/// binary64 range or the value lies above it.
+fn expansion_components(mut rest: ExactAccumulator) -> Option<Vec<f64>> {
+    let mut components = Vec::new();
+    for _ in 0..80 {
+        if rest.is_zero() {
+            return Some(components);
+        }
+        let head = rest.round().ok()?;
+        if head == 0.0 {
+            return None;
+        }
+        rest.add(-head).ok()?;
+        components.push(head);
+    }
+    None
+}
+
+/// The exact product of two expansions, as components.
+fn expansion_product(left: &[f64], right: &[f64]) -> Option<Vec<f64>> {
+    let mut accumulator = ExactAccumulator::new();
+    for &x in left {
+        for &y in right {
+            accumulator.add_product(x, y).ok()?;
+        }
+    }
+    expansion_components(accumulator)
+}
+
+/// Components of scale * formula for each global slot; `None` on a range
+/// failure.
+fn exact_scaled_intended(
+    orientation: &FrameOrientation,
+    length: f64,
+    uniform_loads: &[SpannedGlobalUniformLoad],
+) -> Option<Vec<Vec<f64>>> {
+    let mut slot_accumulators: Vec<ExactAccumulator> =
+        (0..ELEMENT_DOF).map(|_| ExactAccumulator::new()).collect();
+    for load in uniform_loads {
+        let variables = [load.span.end_fraction, load.span.start_fraction];
+        // x^p as expansions, p = 1..4, for b and a.
+        let powers = variables
+            .iter()
+            .map(|&variable| {
+                let mut table = vec![vec![variable]];
+                for p in 1..4 {
+                    let next = expansion_product(&table[p - 1], &[variable])?;
+                    table.push(next);
+                }
+                Some(table)
+            })
+            .collect::<Option<Vec<_>>>()?;
+        let mut polynomials = Vec::with_capacity(UNIFORM_POLYNOMIALS.len());
+        for (_, monomials) in UNIFORM_POLYNOMIALS {
+            let mut accumulator = ExactAccumulator::new();
+            for &(coefficient, variable, power) in monomials {
+                for &component in &powers[variable][(power - 1) as usize] {
+                    accumulator.add_product(coefficient, component).ok()?;
+                }
+            }
+            polynomials.push(expansion_components(accumulator)?);
+        }
+        for (direction, slots) in UNIFORM_SLOTS.iter().enumerate() {
+            // The exact local intensity T[d] . q_g.
+            let mut accumulator = ExactAccumulator::new();
+            for (axis, &intensity) in load.force_per_length.iter().enumerate() {
+                accumulator
+                    .add_product(orientation.local_axes[direction][axis], intensity)
+                    .ok()?;
+            }
+            let local = expansion_components(accumulator)?;
+            for &(slot, polynomial, sign) in *slots {
+                let mut term = expansion_product(&local, &polynomials[polynomial])?;
+                for _ in 0..UNIFORM_POLYNOMIALS[polynomial].0 {
+                    term = expansion_product(&term, &[length])?;
+                }
+                for component in term {
+                    slot_accumulators[slot].add(sign * component).ok()?;
+                }
+            }
+        }
+    }
+    let mut local_slots = Vec::with_capacity(ELEMENT_DOF);
+    for accumulator in slot_accumulators {
+        local_slots.push(expansion_components(accumulator)?);
+    }
+    let transform = orientation.transformation_matrix();
+    let mut rows = Vec::with_capacity(ELEMENT_DOF);
+    for row in 0..ELEMENT_DOF {
+        let mut accumulator = ExactAccumulator::new();
+        for (col, components) in local_slots.iter().enumerate() {
+            for &component in components {
+                accumulator
+                    .add_product(transform[col][row], component)
+                    .ok()?;
+            }
+        }
+        rows.push(expansion_components(accumulator)?);
+    }
+    Some(rows)
+}
+
+/// The range fallback: per global slot, gamma_16 * sum|monomials| + an
+/// absolute 64 * 2^-1074, rounded upward (`+inf` when not representable).
+fn monomial_bounds(
+    orientation: &FrameOrientation,
+    length: f64,
+    uniform_loads: &[SpannedGlobalUniformLoad],
+) -> Vec<f64> {
+    let mut slot_magnitudes: Vec<ExactAccumulator> =
+        (0..ELEMENT_DOF).map(|_| ExactAccumulator::new()).collect();
+    let mut failed = false;
+    for load in uniform_loads {
+        let variables = [load.span.end_fraction.abs(), load.span.start_fraction.abs()];
+        for (direction, slots) in UNIFORM_SLOTS.iter().enumerate() {
+            let mut intensity_magnitude = ExactAccumulator::new();
+            for (axis, &intensity) in load.force_per_length.iter().enumerate() {
+                if intensity_magnitude
+                    .add_product(
+                        orientation.local_axes[direction][axis].abs(),
+                        intensity.abs(),
+                    )
+                    .is_err()
+                {
+                    failed = true;
+                }
+            }
+            let local = round_upward(&intensity_magnitude).unwrap_or(f64::INFINITY);
+            for &(slot, polynomial, _) in *slots {
+                let (length_power, monomials) = UNIFORM_POLYNOMIALS[polynomial];
+                let mut scale = local;
+                for _ in 0..length_power {
+                    scale = product_upward(scale, length.abs());
+                }
+                for &(coefficient, variable, power) in monomials {
+                    let mut magnitude = product_upward(scale, coefficient.abs());
+                    for _ in 0..power {
+                        magnitude = product_upward(magnitude, variables[variable]);
+                    }
+                    if slot_magnitudes[slot].add(magnitude).is_err() {
+                        failed = true;
+                    }
+                }
+            }
+        }
+    }
+    let transform = orientation.transformation_matrix();
+    let tiny = f64::from_bits(1);
+    let local: Vec<f64> = slot_magnitudes
+        .iter()
+        .map(|accumulator| round_upward(accumulator).unwrap_or(f64::INFINITY))
+        .collect();
+    (0..ELEMENT_DOF)
+        .map(|row| {
+            if failed {
+                return f64::INFINITY;
+            }
+            let mut accumulator = ExactAccumulator::new();
+            for (col, &magnitude) in local.iter().enumerate() {
+                let part = product_upward(transform[col][row].abs(), magnitude);
+                if accumulator.add(part).is_err() {
+                    return f64::INFINITY;
+                }
+            }
+            let sum = round_upward(&accumulator).unwrap_or(f64::INFINITY);
+            let mut bound = ExactAccumulator::new();
+            if bound.add(product_upward(gamma(16), sum)).is_err()
+                || bound.add_product(64.0, tiny).is_err()
+            {
+                return f64::INFINITY;
+            }
+            round_upward(&bound).unwrap_or(f64::INFINITY)
+        })
+        .collect()
+}
+
 fn validate_finite_slice(name: &'static str, values: &[f64]) -> Result<(), StraightPipeError> {
     for &value in values {
         if !value.is_finite() {
@@ -1613,6 +1956,251 @@ fn validate_station_resultants(resultants: &StationResultants) -> Result<(), Str
 
 #[cfg(test)]
 mod s11k_tests;
+
+/// S11-G tests of the SP part: T7 (the formation variant), T17 (R-b's bound
+/// on a skew member, V1 DN-1) and T14's SP range fallback.
+#[cfg(test)]
+mod s11g_tests {
+    use super::*;
+
+    const INVENTED_SECTION: (f64, f64, f64, f64, f64, f64) = (
+        2.0e11,
+        8.0e10,
+        5.969026041820607e-3,
+        2.701e-5,
+        2.701e-5,
+        5.402e-5,
+    );
+
+    fn member(to: [f64; 3]) -> StraightPipeElement {
+        let (e, g, a, iy, iz, j) = INVENTED_SECTION;
+        StraightPipeElement::new(
+            "invented",
+            FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+            FrameNode::new(1, to).unwrap(),
+            StraightPipeSectionProperties::new(e, g, a, iy, iz, j, None).unwrap(),
+            [0.0, 1.0, 0.0],
+        )
+        .unwrap()
+    }
+
+    fn components(formation: &Formation) -> (f64, Vec<f64>) {
+        match formation {
+            Formation::Exact {
+                scale,
+                scaled_intended,
+            } => (*scale, scaled_intended.clone()),
+            other => panic!("expected Exact, got {other:?}"),
+        }
+    }
+
+    fn exact_equals(parts: &[f64], expected: &[(f64, f64)]) -> bool {
+        let mut accumulator = ExactAccumulator::new();
+        for &c in parts {
+            accumulator.add(c).unwrap();
+        }
+        for &(a, b) in expected {
+            accumulator.add_product(-a, b).unwrap();
+        }
+        accumulator.is_zero()
+    }
+
+    /// T7: the formation variant's values are bit-identical to today's, and
+    /// its intended expansion equals the rational oracle: at b = 1, a = 0 on
+    /// an axis-aligned member, 3 rotation_i = q L^2 / 4, transverse_i = q L / 2,
+    /// 3 rotation_j = -q L^2 / 4 and transverse_j = q L / 2, exactly.
+    #[test]
+    fn t7_formed_variant_values_are_bit_identical_and_intended_is_the_oracle() {
+        let q = 0.1_f64; // inexact intensity, so the formed values carry defects
+        let length = 3.0_f64;
+        let pipe = member([length, 0.0, 0.0]);
+        let load = SpannedGlobalUniformLoad::full([0.0, q, 0.0]).unwrap();
+        let (values, formations) = pipe
+            .equivalent_global_nodal_loads_with_spans_formed(&[load])
+            .unwrap();
+        let today = pipe
+            .equivalent_global_nodal_loads_with_spans(&[load], &[])
+            .unwrap();
+        assert_eq!(values.map(f64::to_bits), today.map(f64::to_bits));
+        assert_eq!(formations.len(), ELEMENT_DOF);
+        // The frame is the identity here (member along x, y_reference y): exact.
+        let (scale, rz_i) = components(&formations[RZ]);
+        assert_eq!(scale, 3.0);
+        assert!(
+            exact_equals(&rz_i, &[(q * 0.25, length * length)])
+                || exact_equals(&rz_i, &[(q, 2.25)])
+        );
+        let (scale, uy_i) = components(&formations[UY]);
+        assert_eq!(scale, 1.0);
+        assert!(exact_equals(&uy_i, &[(q, 1.5)]));
+        let (_, rz_j) = components(&formations[DOF_PER_NODE + RZ]);
+        assert!(exact_equals(&rz_j, &[(-q, 2.25)]));
+        let (_, uy_j) = components(&formations[DOF_PER_NODE + UY]);
+        assert!(exact_equals(&uy_j, &[(q, 1.5)]));
+        for slot in [UX, UZ, RX, RY, DOF_PER_NODE + UX, DOF_PER_NODE + UZ] {
+            let (_, parts) = components(&formations[slot]);
+            assert!(parts.iter().all(|&c| c == 0.0), "slot {slot}: {parts:?}");
+        }
+        // The defect of the formed rotation value is nonzero: formation noise
+        // exists and is measured exactly (value - intended/3).
+        let mut defect = ExactAccumulator::new();
+        defect.add_product(3.0, values[RZ]).unwrap();
+        for &c in &rz_i {
+            defect.add(-c).unwrap();
+        }
+        assert!(
+            !defect.is_zero(),
+            "precondition: the formed rotation term is inexact"
+        );
+        // A skew member with a partial span: values bit-identical, and every
+        // slot's intended value lies within 1e-14 of the formed value.
+        let skew = member([3.0, 1.7, 0.4]);
+        let spanned = SpannedGlobalUniformLoad::new(
+            [12345.678, -2.5e4, 0.3],
+            UniformLoadSpan::new(0.2, 0.9).unwrap(),
+        )
+        .unwrap();
+        let (values, formations) = skew
+            .equivalent_global_nodal_loads_with_spans_formed(&[spanned])
+            .unwrap();
+        let today = skew
+            .equivalent_global_nodal_loads_with_spans(&[spanned], &[])
+            .unwrap();
+        assert_eq!(values.map(f64::to_bits), today.map(f64::to_bits));
+        let peak = values.iter().fold(0.0_f64, |m, v| m.max(v.abs()));
+        for (slot, formation) in formations.iter().enumerate() {
+            let (scale, parts) = components(formation);
+            let intended: f64 = parts.iter().copied().sum::<f64>() / scale;
+            assert!(
+                (intended - values[slot]).abs() <= 1e-14 * peak,
+                "slot {slot}: {intended} vs {}",
+                values[slot]
+            );
+        }
+    }
+
+    /// T14 (SP part): a subnormal intensity whose exact products fall below
+    /// 2^-1074 takes the finite `Bounded` fallback; an overflowing intensity is refused by
+    /// today's value checks before any formation exists. Nothing errs beyond
+    /// today's own value checks.
+    #[test]
+    fn t14_formed_variant_range_fallbacks() {
+        let pipe = member([3.0, 0.0, 0.0]);
+        // An intensity whose formed terms overflow is refused by today's own
+        // value checks before any formation exists (the exact expansion combines
+        // each polynomial before scaling, so it stays in range whenever the
+        // formed values do): the overflow fallback is not reached through SP.
+        let big = SpannedGlobalUniformLoad::full([0.0, 8.0e307, 0.0]).unwrap();
+        assert!(pipe
+            .equivalent_global_nodal_loads_with_spans(&[big], &[])
+            .is_err());
+        assert!(pipe
+            .equivalent_global_nodal_loads_with_spans_formed(&[big])
+            .is_err());
+        // Just inside the range: the formed values are finite and exact.
+        let large = SpannedGlobalUniformLoad::full([0.0, 1.5e307, 0.0]).unwrap();
+        let (values, formations) = pipe
+            .equivalent_global_nodal_loads_with_spans_formed(&[large])
+            .unwrap();
+        assert!(values.iter().all(|v| v.is_finite()));
+        assert!(formations
+            .iter()
+            .all(|f| matches!(f, Formation::Exact { .. })));
+        // A subnormal intensity of three ulps: 3 rotation_i = 2.25 q is not a
+        // multiple of 2^-1074, so the exact expansion leaves the binary64 range
+        // and every slot takes the finite fallback.
+        let tiny = SpannedGlobalUniformLoad::full([0.0, f64::from_bits(3), 0.0]).unwrap();
+        let (_, formations) = pipe
+            .equivalent_global_nodal_loads_with_spans_formed(&[tiny])
+            .unwrap();
+        for formation in &formations {
+            match formation {
+                Formation::Bounded { bound } => assert!(bound.is_finite() && *bound > 0.0),
+                other => panic!("expected the Bounded fallback, got {other:?}"),
+            }
+        }
+    }
+
+    /// T17 (V1 DN-1): on a skew member (direction (3, 1.7, 0.4)) with mixed-sign
+    /// displacements at both ends, B equals the hand-derived
+    /// gamma_16 * sum_k |K[r][k]| * sum_c |T_kc| |u_c| (rows RY, RZ of each end;
+    /// every sum exact and rounded upward) bit for bit, and differs from the
+    /// |T u| variant (M14b), which T11's axis-aligned members cannot see.
+    #[test]
+    fn t17_bending_formation_bound_on_a_skew_member() {
+        let pipe = member([3.0, 1.7, 0.4]);
+        let u = [
+            1.3e-3, -2.1e-3, 0.7e-3, -4.0e-4, 2.5e-4, -1.5e-4, //
+            -0.9e-3, 1.7e-3, -2.2e-3, 3.1e-4, -2.7e-4, 1.1e-4,
+        ];
+        let bound = pipe.bending_formation_bound(&u).unwrap();
+        let t = pipe
+            .frame_element()
+            .unwrap()
+            .orientation()
+            .unwrap()
+            .transformation_matrix();
+        let k = pipe.local_stiffness().unwrap();
+        // Hand derivation.
+        let up = |acc: &ExactAccumulator| {
+            let r = acc.round().unwrap();
+            let mut e = acc.clone();
+            e.add(-r).unwrap();
+            if e.signum() > 0 {
+                r.next_up()
+            } else {
+                r
+            }
+        };
+        let mut abs_tu = [0.0; ELEMENT_DOF];
+        let mut tu_abs = [0.0; ELEMENT_DOF];
+        for row in 0..ELEMENT_DOF {
+            let mut sum_abs = ExactAccumulator::new();
+            let mut signed = ExactAccumulator::new();
+            for col in 0..ELEMENT_DOF {
+                sum_abs
+                    .add_product(t[row][col].abs(), u[col].abs())
+                    .unwrap();
+                signed.add_product(t[row][col], u[col]).unwrap();
+            }
+            abs_tu[row] = up(&sum_abs);
+            tu_abs[row] = signed.round().unwrap().abs();
+        }
+        // Precondition: sum |T||u| differs from |T u| on this member.
+        assert!((0..ELEMENT_DOF).any(|r| abs_tu[r].to_bits() != tu_abs[r].to_bits()));
+        let g16 = {
+            let ku = 16.0 * open_pipe_stress_frame_kernel::load_ledger::UNIT_ROUNDOFF;
+            (ku / (1.0 - ku)).next_up()
+        };
+        for (end, (ry, rz)) in [(RY, RZ), (DOF_PER_NODE + RY, DOF_PER_NODE + RZ)]
+            .into_iter()
+            .enumerate()
+        {
+            let mut sum = ExactAccumulator::new();
+            let mut variant = ExactAccumulator::new();
+            for col in 0..ELEMENT_DOF {
+                sum.add_product(k[ry][col].abs(), abs_tu[col]).unwrap();
+                sum.add_product(k[rz][col].abs(), abs_tu[col]).unwrap();
+                variant.add_product(k[ry][col].abs(), tu_abs[col]).unwrap();
+                variant.add_product(k[rz][col].abs(), tu_abs[col]).unwrap();
+            }
+            let s = up(&sum);
+            let p = g16 * s;
+            let expected = if g16.mul_add(s, -p) > 0.0 {
+                p.next_up()
+            } else {
+                p
+            };
+            assert_eq!(bound[end].to_bits(), expected.to_bits(), "end {end}");
+            let m14b = g16 * up(&variant);
+            assert_ne!(
+                bound[end].to_bits(),
+                m14b.to_bits(),
+                "end {end}: |T u| variant is indistinguishable"
+            );
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

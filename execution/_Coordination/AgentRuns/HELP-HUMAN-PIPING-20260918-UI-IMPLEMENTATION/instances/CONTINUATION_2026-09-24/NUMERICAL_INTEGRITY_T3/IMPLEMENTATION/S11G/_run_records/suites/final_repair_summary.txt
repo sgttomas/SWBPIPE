@@ -1,0 +1,3 @@
+core/product_physics exit=0 16 ok-lines 0 failed-lines
+/dev/vda        252G   27G   11G  73% /
+DONE

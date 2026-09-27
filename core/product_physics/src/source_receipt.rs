@@ -451,13 +451,19 @@ pub(super) struct OrdinaryAttempt {
     expected_code: &'static str,
 }
 impl OrdinaryAttempt {
+    /// `formation_sensitive` (S11-G revision 2.2 G-2): the case's load-row
+    /// formation guard fired, so the published integrity code is
+    /// `NUMERICAL_INTEGRITY_SENSITIVE` whatever the report's own quality; the
+    /// recorded outcome follows the published verdict. The wire form is
+    /// unchanged.
     pub(super) fn passed(
         mode: PreviewSolverMode,
         report: &StructuralReport,
         diagnostic_ref: String,
+        formation_sensitive: bool,
     ) -> Self {
-        let sensitive =
-            report.quality == open_pipe_stress_frame_kernel::structural::SolveQuality::Sensitive;
+        let sensitive = formation_sensitive
+            || report.quality == open_pipe_stress_frame_kernel::structural::SolveQuality::Sensitive;
         Self {
             mode,
             outcome: if sensitive {

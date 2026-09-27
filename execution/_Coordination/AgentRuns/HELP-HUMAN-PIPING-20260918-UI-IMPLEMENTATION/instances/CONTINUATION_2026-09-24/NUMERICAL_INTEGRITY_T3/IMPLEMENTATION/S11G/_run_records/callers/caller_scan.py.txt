@@ -1,0 +1,57 @@
+"""T3 S11-G (I5) caller scan: call sites of the changed or new functions in every Rust
+file under core/, apps/ and validation/ (target/ and node_modules/ skipped), after a
+small lexer strips comments, string and char literals. Standard library only.
+Usage: caller_scan.py <project root>"""
+import os, re, sys
+NAMES = ['OrdinaryAttempt::passed', 'append_integrity_report', 'source_eligible', 'needs_source_recovery',
+         'decline_for_formation', 'decline_formation', 'formation_decline_without_attempt', 'push_formed',
+         'push_formed_product', 'formation_rows', 'has_formation_records',
+         'equivalent_global_nodal_loads_with_spans_formed', 'equivalent_global_nodal_loads_with_spans',
+         'bending_formation_bound', 'load_row_finding', 'recovery_finding', 'amend_integrity_report',
+         'moment_scales', 'demote', 'decide_row', 'row_scales', 'rb_prime_fires']
+def strip(text):
+    out, i, n = [], 0, len(text)
+    while i < n:
+        c = text[i]
+        if text.startswith('//', i):
+            j = text.find('\n', i); i = n if j < 0 else j
+        elif text.startswith('/*', i):
+            depth, i = 1, i + 2
+            while i < n and depth:
+                if text.startswith('/*', i): depth += 1; i += 2
+                elif text.startswith('*/', i): depth -= 1; i += 2
+                else:
+                    if text[i] == '\n': out.append('\n')
+                    i += 1
+        elif c == 'r' and re.match(r'r#*"', text[i:i + 10]) and (i == 0 or not (text[i - 1].isalnum() or text[i - 1] == '_')):
+            hashes = re.match(r'r(#*)"', text[i:]).group(1); end = '"' + hashes
+            j = text.find(end, i + 2 + len(hashes)); seg = text[i:j + len(end)]
+            out.append('\n' * seg.count('\n')); i = j + len(end)
+        elif c == '"':
+            j = i + 1
+            while j < n and text[j] != '"':
+                j += 2 if text[j] == '\\' else 1
+            out.append('\n' * text[i:j].count('\n')); i = j + 1
+        elif c == "'" and re.match(r"'(\\.|[^\\'])'", text[i:i + 4]):
+            i += len(re.match(r"'(\\.[^']*|[^\\'])'", text[i:]).group(0))
+        else:
+            out.append(c); i += 1
+    return ''.join(out)
+root = sys.argv[1]
+hits = {name: [] for name in NAMES}
+for top in ['core', 'apps', 'validation']:
+    for dp, dn, fn in os.walk(os.path.join(root, top)):
+        dn[:] = sorted(d for d in dn if d not in ('target', 'node_modules'))
+        for f in sorted(fn):
+            if not f.endswith('.rs'): continue
+            path = os.path.join(dp, f); code = strip(open(path).read())
+            for name in NAMES:
+                pattern = r'(?<![A-Za-z0-9_])' + re.escape(name) + r'\s*\('
+                for m in re.finditer(pattern, code):
+                    before = code[max(0, m.start() - 8):m.start()]
+                    kind = 'definition' if re.search(r'fn\s+$', before) else 'call'
+                    hits[name].append((os.path.relpath(path, root), code.count('\n', 0, m.start()) + 1, kind))
+for name in NAMES:
+    print(f'## {name}')
+    for path, line, kind in hits[name]:
+        print(f'{path}:{line} {kind}')

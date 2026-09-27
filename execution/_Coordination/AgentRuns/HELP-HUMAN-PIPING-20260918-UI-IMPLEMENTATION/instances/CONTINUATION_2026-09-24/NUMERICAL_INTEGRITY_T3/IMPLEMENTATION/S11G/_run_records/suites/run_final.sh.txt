@@ -1,0 +1,16 @@
+#!/bin/sh
+# T3 S11-G (I5) final rerun of the touched crates, sequential, --no-fail-fast.
+W=<wt>/s11g/projects/chirality-piping
+O=$1
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<s11g-target>
+A=$W/core/serialization/canonical_json/target/checked-json/release
+export OPENPIPESTRESS_CHECKED_JSON_BIN=$A/openpipestress_jcs_ijson OPENPIPESTRESS_BINARY64_JSON_BIN=$A/openpipestress_jcs_binary64
+export OPENPIPESTRESS_UNITS_BIN=$W/core/units/target/units-authority/release/openpipestress_units
+for c in core/solver/frame_kernel core/solver/straight_pipe core/product_physics core/runner/headless; do
+  name=$(echo $c | tr '/' '_')
+  if [ ! -f $W/$c/Cargo.toml ]; then echo "$c: no Cargo.toml" >> $O/summary.txt; continue; fi
+  (cd $W/$c && nice cargo test --offline --locked --no-fail-fast > $O/$name.log 2>&1); rc=$?
+  echo "$c exit=$rc $(grep -c '^test result: ok' $O/$name.log) ok-lines $(grep -c '^test result: FAILED' $O/$name.log) failed-lines" >> $O/summary.txt
+  df -h / | tail -1 >> $O/summary.txt
+done
+echo DONE >> $O/summary.txt

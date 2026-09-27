@@ -1,0 +1,7 @@
+$ patch -p1 -F3 -i RV-M6.patch
+patching file projects/chirality-piping/core/product_physics/src/lib.rs
+Hunk #1 succeeded at 2757 with fuzz 1 (offset 18 lines).
+$ cargo test --offline --locked --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --lib -- --exact s11g_tests::e1_ordinary_err_guard_fired_case_keeps_mains_attempt
+test s11g_tests::e1_ordinary_err_guard_fired_case_keeps_mains_attempt ... FAILED
+thread 's11g_tests::e1_ordinary_err_guard_fired_case_keeps_mains_attempt' (3731) panicked at src/s11g_tests.rs:2532:9:
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 383 filtered out; finished in 0.10s
