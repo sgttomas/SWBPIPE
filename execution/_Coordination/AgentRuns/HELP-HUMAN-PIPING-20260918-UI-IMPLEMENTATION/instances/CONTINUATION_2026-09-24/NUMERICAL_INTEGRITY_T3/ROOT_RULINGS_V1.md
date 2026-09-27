@@ -746,3 +746,9 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
    - CHANGE_RECORD discloses it plainly as **an availability change on admissible but physically absurd inputs, where main's value was accurate.**
    - It is recorded on the K2b and F1b list as a case K2b's scaling should restore.
 3. **The missing lower magnitude bound on inputs** is a finding for the input-validation owner. It is routed out of T3, not fixed here.
+
+## S11-G performance finding withdrawn; the method for performance claims (ROOT, 2026-09-27)
+
+- **Withdrawn:** the S11-G performance finding (about +15–20% on dense 1000-member solves), recorded from the K-D5 timing comparison. It compared the S11-G-bearing probes against I3's earlier, non-interleaved pre-S11-G gate runs (413/423 s), which had different builds and host conditions.
+- **The settling run:** I3R's interleaved comparison of `72d5ff864` against `b24b3d536` on RF-LARGE-CHAIN-n01000-AX and RF-LARGE-TREE-n01000-ROT, dense, with probes built fresh from `git archive`. It shows S11-G's cost within noise: −0.4% (CHAIN-AX) and +0.9% (TREE-ROT), against a same-binary spread of up to 1.8% (`IMPLEMENTATION/S11G_TIMING/`). The item is removed from the T3-close list. `KD5_MERGE/ADDENDUM_1.md` supersedes the statement in the K-D5 merge record.
+- **Method (standing):** performance claims come only from **interleaved runs of probes built fresh from archives,** on a quiet host, with load recorded per run. A comparison against an earlier, non-interleaved run is not evidence.
