@@ -711,3 +711,20 @@ Conflict resolution in the forward merge is I3's. Any design question about how 
 - **F1a starts now** (from main `5ae22926e`, TASK I7): the D-5 evidence line (K-D5's `FormationCheck` rendered as one line in the integrity diagnostic, only when present, composed with S11-G's layout and no-op rule) and SUP-17 (the message text). **SUP-17 committed-byte changes follow the fixture stop rule, and ROOT approves before any regeneration.**
 - **F1b waits for K1 and K2b:** the facade sparse wiring and W2 at formation. It is a later TASK, from the F1b part of `TASK_BRIEFS/I7_F1_IMPLEMENTATION.md`.
 - **The facade path is now:** S11-F ✓ → S11-G ✓ → F1a → (after K1 and K2b) F1b → F2a (with D2's S-G1) → S-I → F2b per domain → F3.
+
+## F1a: D-5 evidence-line format (ROOT, 2026-09-27)
+
+K-D5's `FormationCheck` record, present only when the check demotes, is rendered as **one evidence line** in the integrity diagnostic. The line is modelled on W2's `range_scaling: force_scale_exponent=<b>; basis=exact power-of-two`. The templates, exactly:
+
+- estimate: `formation_check: reason=estimate; row=<node>:<DOF>; doubled_correction=<2|w_i|>; scale=<max(|q_i|,S*)>; trigger_ratio=<2|w_i|/(1e-9*scale)>`
+- unavailable: `formation_check: reason=formation_check_unavailable; detail=<detail>`
+
+**Conditions:**
+1. **The `reason=` tokens** are exactly K-D5's existing reason identifiers: the string form K-D5 already defines if there is one, otherwise the snake_case of the enum variant. None is invented. Each one is pinned by a test against the enum, so a rename breaks the test.
+2. **Field order is fixed** as above. f64 values use `{:?}`, as the Debug report does, including `inf` (the zero-scale clause). `<node>:<DOF>` reuses `integrity_dof_label`, with its `global_dof=<i>` fallback.
+3. **Composition:** the line follows S11-G's guard sentence, if there is one, separated by one space, under S11-G's no-op rule. A case with no `FormationCheck` has diagnostics byte-identical to main, and a test proves it.
+
+**Also agreed:**
+- A private `formation_check: Option<FormationCheck>` on `PreviewLinearSolve`, plus a parameter to `append_integrity_report`, is acceptable only if it appears in no serialized or published shape. I7 shows that no serde derive or JSON output picks it up; an unchanged committed-fixture diff is the proof.
+- Updating the stale comment at K-D5's `tests/formation_check_runtime.rs:88-91` is fine.
+- SUP-17 changes no committed bytes (only product_physics `lib.rs`: the message, a comment and the one pinning test; 52 historical `execution/**` records that nothing reads stay as they are). Nothing is regenerated.
