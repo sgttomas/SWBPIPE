@@ -321,3 +321,79 @@ The same constraints apply: standard-library Python 3.11, `nice 19`, `PYTHONDONT
 | `delta_r2/probe_kd5_inplane.py.txt <v1_dir> <out>` | K-D5 EF on INPLANE in the S11-F state: 2·EF ≤ 3.2e-6 |
 
 Records are in `REVIEW/_run_records/s11g_check/delta_r2/`. Scratch rerun hashes are in `rerun_hashes.txt`. `REVIEW/_run_records/SHA256SUMS` is refreshed.
+
+---
+
+## Delta-2.1 check: S11-G note revision 2.1 (`ba5d26924`)
+
+**Basis.**
+- `DESIGN_NUMERICS/S11G_GUARD.md` revision 2.1 (sha256 `7c052c9e…`); revision 2 is archived as `_run_records/S11G_GUARD_revision2.md`.
+- The updated `s11g_rb_forecast.{py,json,stdout.json}`.
+- ROOT's rulings at `21e1190b9`.
+- D1's `_run_records/SHA256SUMS`, rooted at `DESIGN_NUMERICS/`: 74 entries, all verify.
+
+I checked the diff only, `git diff a5137da0f ba5d26924 -- DESIGN_NUMERICS/S11G_GUARD.md`, hunk by hunk.
+
+### Verdict: PASS
+
+DB-1 and DS-1 are resolved and DN-1 to DN-6 are addressed. Two non-blocking implementation NOTEs follow, on precise wording.
+
+### Items
+
+**1. DB-1: resolved.**
+- **The rule is correct.** It keeps two exact accumulators:
+  - A_net, the defects of the non-self-equilibrated formed terms, judged against the unfloored T0;
+  - A_se, judged against Tf = 10⁻⁹·max(|n|, S\*, 2⁻¹⁰·P).
+
+  The row fires if B ≥ T0, or |A_net| > 12·(T0 − B), or |A_se| > 12·Tf. Each is decided on the exact accumulator.
+- **Why it is sound.**
+  - A net formation defect is never floored.
+  - The two parts are judged separately, so a self-equilibrated defect can no longer cancel or mask a net defect either.
+  - What remains hidden is only the self-equilibrated part. It is at most u·P, which is the DN-4 residual.
+- **Reproduced.** D1's updated forecast reruns byte-identical (JSON `e05cbb99…`, stdout `e57539c5…`). Its Part S matches my own `delta_r2/probe_sf4` to every digit:
+
+  | Probe | Required | Result under the split rule |
+  |---|---|---|
+  | DB-1 counterexamples | fire | 14901×, 14901×, 93× |
+  | Collinear thermal runs | silent | 6.2e-5, 3.2e-5, 0, 3.5e-5 |
+  | Pressure run | silent | 7.4e-5 |
+  | DN-4 junction | hidden (disclosed) | 6.5e-5 |
+
+- **Everything else holds.**
+  - The 6 UDL catches are unchanged, because A_se = 0 and P = 0 on those rows.
+  - SF-3's gate stays unreachable: source-eligible rows have A_net = 0, and A_se reaches at most 1.1e-4 of Tf.
+  - T6b (the counterexample, at N = 1e6 and N = 1e4, with a paths-differ precondition computed from the ledger rows) kills M17.
+  - DN-4 is disclosed in §3.4, §6.7 and §11, and routed to W1/F2 and the CHANGE_RECORD.
+- **Parts C and E are identical to revision 2's.** In Part F, only the K-D5 fields were added; every R-b and R-b′ decision and every B is unchanged.
+
+**2. DS-1: resolved.**
+- §1, §5 (the K-D5 column: "silent", 2·EF = 2.1e-6/3.2e-6 and 1.7e-6/3.1e-6), §6.4 and §11 now state that K-D5 is silent on INPLANE after S11-F and that R-b′ is the only catch. The 1.6 and 2.0 are withdrawn and explained.
+- The figure is recal's `EF_ratio_coupled_with_folded_f` ×2, that is 2.06e-6, 3.16e-6, 1.69e-6 and 3.06e-6. It matches my direct S11-F-state figure (1.3e-6 to 3.2e-6).
+- I3 is told to expect K-D5 silent there.
+
+**3. The NOTEs.**
+- **DN-1:** T17 is a skew member (3, 1.7, 0.4) with mixed-sign u. It asserts Σ|T||u| ≠ |Tu| and kills M14's |Tu| variant.
+- **DN-2:** the FMA exactness condition (|a·b| ≥ 2⁻⁹⁶⁹ or a·b = 0), with a `Bounded` fallback, and the 12× overflow into `SumError` (fires) are stated; T14 is extended.
+  - `ExactAccumulator::add_product` is a fixed-point superaccumulator (quantum 2⁻²¹⁴⁸, `exact_sum.rs` l.231-248), so it needs no underflow condition of its own. Only lo needs one.
+- **DN-3:** RD(10⁻⁹)·max(…), rounded downward, or the exact rational in the exact decision. M18 has a unit test between 10⁻⁹ and fl(1e-9).
+- **DN-5:** T10b is a site-table source pin (function name and call count) at the routing site in `solve_load_case`. M7 is killed by T10 and T10b.
+- **DN-6:** the 1.72 margin is recorded in §5 and §11.
+
+**4. Nothing else changed.** Every hunk belongs to one of the items above, the §10 record list, or the §11 decisions list. §3.2 (families and bounds), §4 (R-b′), §7 (apart from the two-accumulator wording) and §9 are untouched.
+
+### NOTEs for implementation (non-blocking)
+
+| ID | NOTE |
+|---|---|
+| D21-1 | §3.4's exact comparison now reads "a copy of the accumulator receives `add_product(∓12, threshold)`" for \|A_net\| > 12·(T0 − B). Revision 2's "with the difference rounded downward" was dropped. Either state that T0 − B is rounded downward, or, better, add ±12·B and ∓12·T0 into the copy as two exact products, so that \|A_net\| + 12·B > 12·T0 is decided with no rounding at all |
+| D21-2 | The underflow fallback `Bounded { γ₂·\|value\| + 2⁻¹⁰⁷⁴ }` is stated per term. For a scaled RoundedProduct (curved thermal, value = k·fl(a·b), k = K_rc, possibly about 1e8), the absolute part must scale with k: γ₂·\|value\| + \|k\|·2⁻¹⁰⁷⁴. This is immaterial, since it applies only when \|ε·c\| < 2⁻⁹⁶⁹ |
+
+### What I ran (delta 2.1)
+
+| Run | Result |
+|---|---|
+| `DESIGN_NUMERICS/_run_records/s11g_rb_forecast.py ../../../../../../.. DESIGN_NUMERICS/_run_records/inputs/i4_formation_rows.json <scratch>/out` | Byte-identical to D1's revision-2.1 records. Parts C and E equal revision 2's; Part F decisions and B are unchanged, with K-D5 fields added |
+| `sha256sum -c _run_records/SHA256SUMS` (from `DESIGN_NUMERICS/`) | 74 of 74 OK |
+| My `delta_r2/probe_sf4` (unchanged record) | Same figures as D1's Part S under the split rule |
+
+No new probe records were needed. The same constraints apply as before: no Git writes, no cargo, standard-library Python at `nice 19`, and no machine paths.
