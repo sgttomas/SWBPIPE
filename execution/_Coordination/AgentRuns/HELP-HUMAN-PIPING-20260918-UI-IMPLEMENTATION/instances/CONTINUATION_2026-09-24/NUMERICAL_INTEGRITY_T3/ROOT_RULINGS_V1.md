@@ -611,6 +611,13 @@ D1 and V1 do writing and analysis only; no cargo unless the manager grants a slo
 - The finalization item may take the option up, with its own design and check.
 - ROOT selects 2.2 on V1's PASS, by the default rule. I5 implements it in its cargo slot, confirming T18 and the T19/T20 multi-basis selection by run.
 
+**Note (ROOT, 2026-09-27, on RV4's interim finding C1 during the PR1003 review): the R-b′ path-1 residual is reachable. Ruling 3 is unchanged.**
+- **Construction C1 (RV4):** N05's cantilever with per-case modulus bases. Case A, the cancelling tip torques on the base basis, is Sensitive and selected by recovery. Case B, on a soft basis (E = 1 Pa, G = 0.4 Pa), carries only nodal inputs (tip F_y = 1 N, M_z = 1e-7 N·m).
+- **The outcome:** on the captured entry, in both modes, the invocation returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` with no envelope. Case B alone is Passed in its report, and R-b′ demotes it as a true catch (a genuine error of 6.1e-9 relative). With m = 0.5, R-b′ is silent and the invocation returns Ok with a receipt. The typed entry publishes case B as Sensitive.
+- **Ruling 3 stands, and moving R-b′ before routing stays declined for S11-G.** The refusal needs all of the following together: a pre-0.4 captured invocation (0.4.0 republishes), per-case modulus bases, a Sensitive case that recovery selects, and an R-b′ true catch on another case. It fails closed (an `Err` with no envelope; nothing wrong is published), which was the ruling's premise.
+- **Ownership:** the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item owns it, treats it as **demonstrated** with C1 as its test case, and closes it before T3 closes.
+- **The S11-G repair (tests and records only):** T20 is rebuilt around C1, and the disclosures read "reachable (C1), fail-closed, needs per-case modulus bases and a pre-0.4 captured invocation". RV4 delta-checks that commit.
+
 ## Selection: S11-G revision 2.2 (ROOT, 2026-09-27)
 
 **S11G_GUARD revision 2.2 is selected** (`DESIGN_NUMERICS/S11G_GUARD.md`, sha256 `680fecdd…`, commit `3c80158e9`), on V1's delta-2.2 PASS (`REVIEW/S11G_CHECK.md`, sha256 `ec0efce7…`; 1 SHOULD-FIX, 4 NOTE). **D22-1's preferred fix is a binding condition.** 2.2 supersedes 2.1's routing gate. The rest of 2.1 and every earlier S11-G ruling stand.
@@ -651,6 +658,7 @@ This removes path 2 and path 1's load-row variant. Path 1's R-b′ variant stays
   - T20 is rewritten as a characterization of the actual behaviour: published, no receipt, case B demoted, not refused. A comment names the residual and its owner.
   - RETURN records the three constructions and their outcomes.
   - The residual is disclosed as **"not demonstrated reachable"**. It stays under ruling 3, owned by the composite finalization item, which closes before T3 closes.
+  - **Superseded (2026-09-27):** RV4's construction C1 shows the residual is reachable and fails closed. See the C1 note under "S11-G ruling 3, revision 1". T20 is rebuilt around C1, and the disclosure is corrected.
   - **RV4 attempts a construction independently.** If one refuses, RV4 checks that it fails closed (no envelope). It is BLOCKING only if it publishes a value.
   - The work graph notes that K-D5, once merged, may supply a selected case A through its per-case formation check. The finalization item re-attempts the construction then.
 - **T6a's pressure run** (the straight-thrust `RoundedProduct` family, refused on fresh solves with `PRESSURE_MODEL_REAUTHOR_REQUIRED`). The manager's direction is upheld: run it through any solve path, including a legacy replay, that reaches the family. Otherwise record the unreachability with file:line evidence, keep a unit-level test of the family's bound, and disclose the deviation for RV4.
