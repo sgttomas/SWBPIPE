@@ -527,7 +527,6 @@ S11-G is implemented by I5 on main after S11-F merges, and reviewed by RV4.
 
 **Superseded (2026-09-27):** this acceptance is withdrawn. See "K-D5 mutation M31b: equivalence withdrawn" below. The text is kept as the record of the earlier ruling.
 
-
 **The mutant.** M31b is the chord-only form of the design's mutation 31. K_t is still re-formed, but the intended element's H is built from the product's formula chord R(cos φ − 1, R sin φ, 0), using binary64 R, atan2, cos and sin, instead of the actual node chord. The formula evaluated at p (M31b0) also survives. Every other K-D5 mutation is killed: M23, M26, M27, M28, **M31a** (the whole-matrix form, where K_int is the product's binary64 matrix), M32a and M32b.
 
 **Evidence (I3):**
@@ -610,7 +609,7 @@ D1 and V1 do writing and analysis only; no cargo unless the manager grants a slo
 **Note (ROOT, 2026-09-27, on D1's revision 2.2 at `3c80158e9`): moving R-b′ before routing is declined for S11-G.**
 - D1 recorded, without proposing, the option of moving R-b′ before routing so that it feeds `needs_source_recovery`. That would also remove path 1's R-b′ variant.
 - It is declined because it changes R-b′'s semantics, which V1 checked and ROOT selected at 2.1.
-- **The R-b′ variant of path 1 stays a disclosed residual under ruling 3.** It was judged narrow at the time. (Corrected 2026-09-27 by the C1 note below: per-case modulus bases are sufficient; they are not shown to be necessary.) It fails closed: the captured entry returns `Err` and no envelope. It is characterized by T20. It is owned by the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item, which closes before T3 closes.
+- **The R-b′ variant of path 1 stays a disclosed residual under ruling 3.** It was judged narrow at the time. (Corrected 2026-09-27 by the C1 note below: per-case modulus bases are sufficient; they are not shown to be necessary.) (Wording clarified 2026-09-27 on the PR1004 backcheck, B-N1, from "sufficient, not necessary"; the meaning is unchanged.) It fails closed: the captured entry returns `Err` and no envelope. It is characterized by T20. It is owned by the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item, which closes before T3 closes.
 - The finalization item may take the option up, with its own design and check.
 - ROOT selects 2.2 on V1's PASS, by the default rule. I5 implements it in its cargo slot, confirming T18 and the T19/T20 multi-basis selection by run.
 
@@ -705,3 +704,10 @@ Conflict resolution in the forward merge is I3's. Any design question about how 
   - A product-level demotion test at X 5e6, Y 3.5e6, φ 5°, R 0.3. It publishes SENSITIVE, and the M31b patch makes it publish CHECKS_PASSED.
   - A product-level control at PP_UTM (X 5e5): not demoted, with the published error below half the criterion. The earlier 5e5 figure was an artefact of repr-converted inputs.
 - **Records.** K-D5's RETURN §7 and CHANGE_RECORD correct the claim and keep the earlier text marked superseded. **The design claim** — DESIGN.md revision 5a.2 §9 item 31, "build its H from the product's chord … The skew-plane elbow cantilever at k_X = 8.5 (dense) is then missed", with the M31b-equivalence reading of it — **is superseded by this section.** DESIGN.md is hash-pinned by its selection (`fb62ef4a…`), so it is not edited. The chord-only form of mutation 31 is not equivalent, and it is killed by the required tests above.
+
+## F1 split (ROOT, 2026-09-27)
+
+**F1 is split.** The design's §6 places F1 after S11-F, but F1's write set consumes K1 (the kernel sparse assembly) and K2b (formation-time scaling). The kernel order is K2a → K1 → K2b, so F1 as written cannot start yet.
+- **F1a starts now** (from main `5ae22926e`, TASK I7): the D-5 evidence line (K-D5's `FormationCheck` rendered as one line in the integrity diagnostic, only when present, composed with S11-G's layout and no-op rule) and SUP-17 (the message text). **SUP-17 committed-byte changes follow the fixture stop rule, and ROOT approves before any regeneration.**
+- **F1b waits for K1 and K2b:** the facade sparse wiring and W2 at formation. It is a later TASK, from the F1b part of `TASK_BRIEFS/I7_F1_IMPLEMENTATION.md`.
+- **The facade path is now:** S11-F ✓ → S11-G ✓ → F1a → (after K1 and K2b) F1b → F2a (with D2's S-G1) → S-I → F2b per domain → F3.
