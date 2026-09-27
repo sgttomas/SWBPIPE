@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""K-D5 (I3; E4 added by I3R) mutation patches (committed as mutate.py.txt). Usage: python3 mutate.py <core-dir> <id>
+Applies one mutant to a scratch copy of projects/chirality-piping/core; each patch is an exact
+text replacement that must match once. E4 is RV5's evasion of the nonlinear pins (see e4 below)."""
+import sys
+
+core, mid = sys.argv[1], sys.argv[2]
+FC = core + "/solver/frame_kernel/src/structural/formation_check.rs"
+ST = core + "/solver/frame_kernel/src/structural.rs"
+SA = core + "/solver/nonlinear_integration/src/structural_adapter.rs"
+NL = core + "/solver/nonlinear_integration/src/lib.rs"
+
+R64 = """    for (r, &i) in free.iter().enumerate() {
+        let mut b = system.force[i];
+        for j in 0..n {
+            b -= system.stiffness[i][j] * u[j];
+        }
+        rows[r] = ExactAccumulator::new();
+        rows[r].add(b)?;
+    }
+"""
+
+MUTANTS = {
+    # (23) Disable the D-5 trigger.
+    "M23": [(ST, "Some(source) if !ordinary_sensitive => formation_check::check(",
+             "Some(source) if false && !ordinary_sensitive => formation_check::check(")],
+    # (26) EF from the product's binary64 published residual f - K_rep u (no re-formation).
+    "M26": [(FC, "    // Widen a truncated row away from zero by its allowance.\n",
+             "    // MUTANT M26: binary64 published residual replaces the exact intended residual.\n" + R64 +
+             "    // Widen a truncated row away from zero by its allowance.\n")],
+    # (27) EF from element-level Delta K plus the binary64 residual (springs, assembly sums and
+    # the symmetric average left out): rho = r64 + sum_e (K_e,b64 - K_e,int) u.
+    "M27": [(FC, "    // − K_int·u, element by element, each coefficient through its exact split.\n",
+             "    // MUTANT M27: start from the binary64 residual and add each element's binary64 K u.\n" + R64 +
+             """    for e in &source.frames {
+        let kb = e.global_stiffness().map_err(|_| Failure::Shape("mutant"))?;
+        let map = element_dof_map(e.node_i.index, e.node_j.index);
+        for a in 0..ELEMENT_DOF {
+            if let Some(r) = free_index[map[a]] {
+                for b in 0..ELEMENT_DOF {
+                    rows[r].add_product(kb[a][b], u[map[b]])?;
+                }
+            }
+        }
+    }
+    // − K_int·u, element by element, each coefficient through its exact split.
+"""),
+            (FC, """    for &(dof, k) in &source.springs {
+        if dof >= n {""", """    for &(dof, k) in source.springs.iter().filter(|_| false) {
+        if dof >= n {""")],
+    # (28) Frames re-formed from the binary64 local coefficients of `local_stiffness`.
+    "M28": [(FC, "    let [z12, z6, z4, z2] = coefficients(s.second_moment_z)?;\n    let [y12, y6, y4, y2] = coefficients(s.second_moment_y)?;\n",
+             """    let _ = (coefficients(s.second_moment_z)?, coefficients(s.second_moment_y)?);
+    // MUTANT M28: the binary64 local coefficients (12EI/L^3, 6EI/L^2, 4EI/L, 2EI/L, EA/L, GJ/L).
+    let lk = e.local_stiffness().map_err(|_| WideError::NonFinite)?;
+    let (axial, torsion) = (lift(lk[0][0])?, lift(lk[3][3])?);
+    let (z12, z6, z4, z2) = (lift(lk[1][1])?, lift(lk[1][5])?, lift(lk[5][5])?, lift(lk[5][11])?);
+    let (y12, y6, y4, y2) = (lift(lk[2][2])?, lift(-lk[2][4])?, lift(lk[4][4])?, lift(lk[4][10])?);
+""")],
+    # (31b) The curved element's H from the product's chord R(cos phi - 1, R sin phi, 0), formed as
+    # the product forms it (curved_bend geometry(): binary64 radial vectors, R the mean of their
+    # norms, phi = atan2(|ri x rj|, ri.rj), binary64 cos and sin), instead of the actual chord.
+    "M31b": [(FC, "    let chord = [\n        dot3(a, &axes[0], &d)?,\n        dot3(a, &axes[1], &d)?,\n        dot3(a, &axes[2], &d)?,\n    ];\n",
+              """    let _ = d;
+    // MUTANT M31b: the product's binary64 trigonometric chord.
+    let (pi, pj, pc) = (e.coordinates_i, e.coordinates_j, e.center);
+    let ri64 = [pi[0] - pc[0], pi[1] - pc[1], pi[2] - pc[2]];
+    let rj64 = [pj[0] - pc[0], pj[1] - pc[1], pj[2] - pc[2]];
+    let n2 = |v: [f64; 3]| (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+    let r64 = 0.5 * (n2(ri64) + n2(rj64));
+    let cr = [ri64[1] * rj64[2] - ri64[2] * rj64[1], ri64[2] * rj64[0] - ri64[0] * rj64[2], ri64[0] * rj64[1] - ri64[1] * rj64[0]];
+    let phi64 = n2(cr).atan2(ri64[0] * rj64[0] + ri64[1] * rj64[1] + ri64[2] * rj64[2]);
+    let chord = [lift(r64 * (phi64.cos() - 1.0))?, lift(r64 * phi64.sin())?, Wide2::ZERO];
+""")],
+    # (31b0) A near-equivalent variant: the product's chord formula R(cos phi - 1, R sin phi, 0)
+    # evaluated at p from the exact radial vectors (mean R, exact cos and sin).
+    "M31b0": [(FC, "    let chord = [\n        dot3(a, &axes[0], &d)?,\n        dot3(a, &axes[1], &d)?,\n        dot3(a, &axes[2], &d)?,\n    ];\n",
+               """    let _ = d;
+    // MUTANT M31b0: the product's chord formula at p.
+    let cm1 = a.sub(&cos, &one)?;
+    let chord = [a.mul(&radius, &cm1)?, a.mul(&radius, &sin)?, Wide2::ZERO];
+""")],
+    # (31a) The curved element's K_int taken as the product's binary64 matrix (no re-formation).
+    "M31a": [(FC, "    pub out_of_plane_flexibility_factor: f64,\n}\n",
+              "    pub out_of_plane_flexibility_factor: f64,\n    pub shared: crate::Matrix12,\n}\n"),
+             (FC, "fn curved_matrix(a: &mut WideArith, e: &CurvedFormation) -> Result<Element, WideError> {\n",
+              """fn curved_matrix(a: &mut WideArith, e: &CurvedFormation) -> Result<Element, WideError> {
+    // MUTANT M31a: the product's binary64 curved matrix.
+    let _ = a;
+    let mut k = [[Wide2::ZERO; ELEMENT_DOF]; ELEMENT_DOF];
+    for r in 0..12 { for c in 0..12 { k[r][c] = lift(e.shared[r][c])?; } }
+    if true { return Ok(k); }
+"""),
+             (core + "/solver/frame_kernel/src/structural/formation_check_tests.rs",
+              "        out_of_plane_flexibility_factor: 1.0,\n    };",
+              "        out_of_plane_flexibility_factor: 1.0,\n        shared: [[0.0; 12]; 12],\n    };"),
+             # I3R: the second CurvedFormation literal in the FK tests (the first clean run's M31a
+             # did not compile frame_kernel's tests without it).
+             (core + "/solver/frame_kernel/src/structural/formation_check_tests.rs",
+              "        out_of_plane_flexibility_factor: 5.0,\n    };",
+              "        out_of_plane_flexibility_factor: 5.0,\n        shared: [[0.0; 12]; 12],\n    };"),
+             (SA, "                    out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,\n                }),",
+              "                    out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,\n                    shared: slot.global_stiffness,\n                }),")],
+    # (32a) The nonlinear loop's `solve_binary64` routed through the formation check.
+    "M32a": [(SA, "        solve_prepared(structural::prepare_structural_binary64(&system)?, mode)\n    }",
+              "        // MUTANT M32a\n        let source = self.formation_source(&[]);\n        let system = system.with_formation_source(&source);\n        solve_prepared(structural::prepare_formation_checked_structural(&system)?, mode)\n    }")],
+    # (32b) The loop itself calls K-D5's typed linear entry (ledger built from its force).
+    "M32b": [(NL, """        assembly.solve_binary64(
+            stiffness,
+            force,
+            &reduced.free_dofs,
+            &prescribed,
+            linear_solve_mode,
+        )?""", """        {
+            // MUTANT M32b
+            let mut ledger = open_pipe_stress_frame_kernel::load_ledger::LoadLedger::new();
+            for (dof, &v) in force.iter().enumerate() {
+                if v != 0.0 {
+                    ledger.push("mutant", dof, v);
+                }
+            }
+            let typed = ledger.finish(force.len()).unwrap();
+            assembly.solve_assembled_with_formation_check(
+                stiffness,
+                &typed,
+                &reduced.free_dofs,
+                &prescribed,
+                linear_solve_mode,
+                &[],
+                true,
+            )?
+        }""")],
+}
+
+
+def e4(core):
+    """RV5's evasion E4 (T3 REVIEW/_run_records/kd5_review/rust/rv5_mutate.py.txt, reproduced): a
+    neutral-named SA helper calls the typed formation-checked entry, and a sibling module
+    (unit_bridge.rs) routes only the loop's derived-friction unit-force solves through it;
+    lib.rs itself names no formation entry point."""
+    import re
+    helper = """
+    /// RV5 evasion helper: the typed formation-checked entry behind a neutral name.
+    pub(crate) fn solve_binary64_audited(
+        &self,
+        k: &[Vec<f64>],
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        let mut ledger = open_pipe_stress_frame_kernel::load_ledger::LoadLedger::new();
+        for (dof, &v) in f.iter().enumerate() {
+            if v != 0.0 {
+                ledger.push("rv5", dof, v);
+            }
+        }
+        let typed = ledger.finish(f.len()).unwrap();
+        self.solve_assembled_with_formation_check(k, &typed, free, prescribed, mode, &[], true)
+    }
+"""
+    anchor = "    /// Named, unchanged binary64 variant of `solve` for the nonlinear active-set\n"
+    call = """        assembly.solve_binary64(
+            stiffness,
+            force,
+            &reduced.free_dofs,
+            &prescribed,
+            linear_solve_mode,
+        )?"""
+    sa = open(SA).read()
+    assert sa.count(anchor) == 1
+    open(SA, "w").write(sa.replace(anchor, helper + anchor))
+    nl = open(NL).read()
+    m = re.search(r"\nfn solve_linearized_system_evidence\(.*?\n}\n", nl, re.S)
+    body = m.group(0).replace("fn solve_linearized_system_evidence(", "pub(crate) fn solve_linearized_system_evidence_unit(")
+    assert body.count(call) == 1
+    body = body.replace(call, call.replace("assembly.solve_binary64(", "assembly.solve_binary64_audited("))
+    open(core + "/solver/nonlinear_integration/src/unit_bridge.rs", "w").write("#![allow(unused_imports)]\nuse super::*;\n" + body)
+    for old, new in (("pub mod product_equilibrium;\n", "pub mod product_equilibrium;\nmod unit_bridge;\n"),
+                     ("            let unit = solve_linearized_system_evidence(\n                Some(assembly),",
+                      "            let unit = unit_bridge::solve_linearized_system_evidence_unit(\n                Some(assembly),")):
+        assert nl.count(old) == 1, (mid, old)
+        nl = nl.replace(old, new)
+    open(NL, "w").write(nl)
+
+
+if mid == "E4":
+    e4(core)
+else:
+    for path, old, new in MUTANTS[mid]:
+        text = open(path).read()
+        assert text.count(old) == 1, (mid, path, text.count(old))
+        open(path, "w").write(text.replace(old, new))
+print("applied", mid)

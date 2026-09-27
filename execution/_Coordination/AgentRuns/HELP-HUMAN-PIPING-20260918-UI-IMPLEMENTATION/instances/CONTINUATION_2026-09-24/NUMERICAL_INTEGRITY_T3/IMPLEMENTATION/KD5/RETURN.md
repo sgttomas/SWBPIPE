@@ -6,7 +6,9 @@ Type 2 TASK I3, 2026-09-27, for the T3 manager.
 - **Base:** the K3a head `a2e804a757359d589f4c31ea8e36a923f28ccb8c`, on the S11-K head `4912dc636`.
 - **Records:** `T3/IMPLEMENTATION/KD5/`, run records in `_run_records/`, hashes in `SHA256SUMS`.
 
-> **Current state:** the addendum-4 pass on the pre-S11-G tree (`3befacff4` plus the addendum-4 edits) is complete. See **"Addendum-4 pass"** at the end, with records in `_run_records/addendum4/`.
+> **Current state (2026-09-27, latest):** the combined-tree pass (K-D5 with S11-G) and the RV5 repair are recorded at the end, in **"Combined-tree pass and RV5 repair"**, with records in `_run_records/combined/` and `_run_records/repair/`. The earlier state notes below are kept as recorded.
+>
+> **Earlier state:** the addendum-4 pass on the pre-S11-G tree (`3befacff4` plus the addendum-4 edits) is complete. See **"Addendum-4 pass"** at the end, with records in `_run_records/addendum4/`.
 > - The 8 items are done.
 > - Suites: 24/24 crates pass.
 > - Fixture diff against main `72d5ff864`: 112/112 identical.
@@ -25,6 +27,8 @@ Type 2 TASK I3, 2026-09-27, for the T3 manager.
 - Every existing suite in the touched crates and their path dependents passes.
 
 **Mutations:** (23), (26), (27), (28), (31a), (32a) and (32b) are killed. **(31b) survives, and ROOT has accepted it as an equivalent mutant at the 1e-9 criterion** (2026-09-27, `c2042fd9c`; §7).
+
+**Superseded (2026-09-27):** ROOT withdrew the M31b equivalence on RV5's counterexample, confirmed in Rust (`ROOT_RULINGS_V1.md`, "K-D5 mutation M31b: equivalence withdrawn", numerics `3547029576`). M31b and M31b0 are now killed by required tests; see "Combined-tree pass and RV5 repair", R-1 and R-3.
 
 **Next:** the manager commits this tree and merges origin/main (K3a, PR983). I then resolve per addendum 4 and re-verify.
 
@@ -143,17 +147,20 @@ Both scripts were run before and after the edit on `fixtures/product_preview` of
 - The committed tree has 2 hanger-only-stiffness supports; neither is in a selected case.
 - Committed as `d61032f9d`.
 
-## 5. Callers (`_run_records/callers.txt`, lexer scan `scan_callers.py.txt`)
+## 5. Callers (`_run_records/combined/callers_combined.txt`, lexer scan `repair/callers/scan_callers.py.txt`)
 
-100 call sites: 65 in tests and 35 outside tests, each classified.
-- **The check** is reached only through a `PreparedSystem` built from a `FormationCheckedSystem`. Only `solve_with_formation_check` and `solve_assembled_with_formation_check` build one.
-- **The only product call** is PP `solve_preview_reduced_system`. It is reached from `solve_load_case` for every case; `selected` is false with nonlinear supports.
-- **The nonlinear loop** is unchanged, with the details below:
-  - `solve_active_set_frame_with_mode_and_springs` builds `AssemblyEvidence`, which records the primitives but never uses them.
+> **Corrected in the RV5 repair (R-4).** This section first described phase 1: 100 call sites, 65 in tests and 35 outside, with the legacy `solve_with_formation_check` called at PP:3973. That entry and FK's `_with_force_terms` variant were removed in the addendum-4 pass. The list below was regenerated on the combined candidate and added as the new file `_run_records/combined/callers_combined.txt`, which supersedes phase 1's list. The phase 1 files `_run_records/callers.txt` (sha256 `cd8e2ae1…`) and `scan_callers.py.txt` describe phase 1; they are hash-bound and kept unchanged as recorded.
+
+116 call sites: 77 in tests and 39 outside tests, each classified.
+- **The check** (`formation_check::check`) is called only from `finish_checked_factor`. It runs only when the `PreparedSystem` carries a formation source and the case is not already ordinary-Sensitive. Only `prepare_formation_checked_structural` attaches a formation source, and only from a `FormationCheckedSystem`.
+- **The builder.** SA's typed `solve_assembled_with_formation_check` is the only non-test builder of a `FormationCheckedSystem`; `selected = false` returns `solve_assembled`. FK's `solve_formation_checked_structural_dense` has no non-test caller.
+- **The only product call** is PP:4399 in `solve_preview_reduced_system`, with `selected = built.nonlinear_supports.is_empty()`. It is reached from `solve_load_case` (PP:2708) for every case.
+- **The nonlinear loop** is unchanged:
+  - `solve_active_set_frame_with_mode_and_springs` builds `AssemblyEvidence`, which records the primitives but never uses them, and runs `scrutinize_gaps`.
   - `solve_iteration_with_sliding_friction_evidence` → `solve_linearized_system_evidence`: the four option-(c) `_binary64` targets and `product_equilibrium::evaluate`.
   - `scrutinize_gaps` → `product_equilibrium::evaluate` (binary64).
-  - None reaches a formation source.
-- **Others:** `source_recovery` builds `AssemblyEvidence` without solving. `sparse_direct::solve_structural_sparse` is reached only through SA `solve`.
+  - None of them reaches a formation source. The nonlinear pins in `s11k_tests` enforce this: the whole-crate source pin and two behavioural pins, one on the first iteration and one on the derived-friction unit-force solves over several iterations (mutations 32a and 32b, and RV5's E4).
+- **Others:** `source_recovery::prepare_sources` builds `AssemblyEvidence` without solving. `sparse_direct::solve_structural_sparse` and `finish_structural` are the unchanged completion paths.
 
 ## 6. Fixture diff (`_run_records/fixture_diff/`)
 
@@ -178,10 +185,12 @@ Both scripts were run before and after the edit on `fixtures/product_preview` of
 | (27) element-level ΔK plus binary64 residual (springs, assembly and average left out) | ρ = r64 + Σ_e (K_e,b64 − K_e,int)·u | D5C-1 controls (probe C), 122, E1/E6, 8.5 elbow, matching order, joint |
 | (28) binary64 local coefficients | coefficients lifted from `local_stiffness` | D5C-1 controls (bending-soft), 122 |
 | (31a) curved K_int = product's binary64 matrix | `shared` matrix lifted | 8.5 elbow, actual-chord test |
-| **(31b) curved H from the product's chord** | the product's binary64 R(cos φ − 1), R sin φ | **M31b: equivalent at the criterion (ROOT, 2026-09-27, `c2042fd9c`)** |
-| (31b0) the same chord formula evaluated at p | R, cos φ, sin φ at p | not killed (same reason) |
+| **(31b) curved H from the product's chord** | the product's binary64 R(cos φ − 1), R sin φ | **M31b: equivalent at the criterion (ROOT, 2026-09-27, `c2042fd9c`)**. *Superseded: now killed (R-3)* |
+| (31b0) the same chord formula evaluated at p | R, cos φ, sin φ at p | not killed (same reason). *Superseded: now killed (R-3)* |
 | (32a) the loop's `solve_binary64` routed through the check | body → `solve_with_formation_check(…, &[], true)` | `kd5_nonlinear_loop_reaches_no_formation_check` |
 | (32b) the loop calls the new entry | `assembly.solve_binary64(` → `solve_with_formation_check(` | the behavioural pin and the lexed source pin |
+
+**Superseded (2026-09-27):** ROOT withdrew the M31b equivalence on RV5's counterexample, confirmed in Rust (`ROOT_RULINGS_V1.md`, "K-D5 mutation M31b: equivalence withdrawn", numerics `3547029576`). M31b and M31b0 are now killed by required tests; see "Combined-tree pass and RV5 repair", R-1 and R-3. RV-K-D5 (RV5) found the admissible model the condition below anticipated. The M32a and M32b rows above also ran on a runner that could reuse a stale `frame_kernel` build (R-3); the clean re-run supersedes them.
 
 **M31b: equivalent at the criterion (ROOT, 2026-09-27, `c2042fd9c`).** ROOT's conditions:
 - The test `kd5_curved_intended_element_uses_the_actual_chord`, M31a's kill and the actual-chord implementation (R5-4 §2 step 6) stay required. The equivalence concerns the tests' power, not the code.
@@ -405,10 +414,12 @@ The targeted runs before the sweep (`fk`, `NI`, PP `formation_check_runtime` 3/3
 | (27) element ΔK plus binary64 residual | killed | 122, D5C-1, E1/E6, 8.5 elbow, actual chord, matching order, joint, one-ulp slots |
 | (28) binary64 local coefficients | killed | 122, D5C-1 controls |
 | **(31a) curved K_int = product's matrix** | **killed** | **`kd5_curved_intended_element_uses_the_actual_chord`** and the 8.5 elbow |
-| (31b) H from the product's chord | survives | **M31b: equivalent at the criterion (ROOT, `c2042fd9c`)**, recorded as in phase 1 §7 |
-| (31b0) the same chord at p | survives | the same reason |
+| (31b) H from the product's chord | survives | **M31b: equivalent at the criterion (ROOT, `c2042fd9c`)**, recorded as in phase 1 §7. *Superseded: now killed (R-3)* |
+| (31b0) the same chord at p | survives | the same reason. *Superseded: now killed (R-3)* |
 | (32a) `solve_binary64` routed through the check | killed | `s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check` |
 | (32b) the loop calls the typed formation entry | killed | `kd5_nonlinear_loop_reaches_no_formation_check` and `kd5_nonlinear_sources_name_no_formation_check_entry_point` |
+
+**Superseded (2026-09-27):** ROOT withdrew the M31b equivalence on RV5's counterexample, confirmed in Rust (`ROOT_RULINGS_V1.md`, "K-D5 mutation M31b: equivalence withdrawn", numerics `3547029576`). M31b and M31b0 are now killed by required tests; see "Combined-tree pass and RV5 repair", R-1 and R-3. The M32a and M32b rows above ran on the runner that could reuse a stale `frame_kernel` build, i.e. against a `frame_kernel` carrying M31b0; the clean re-run (R-3) supersedes this table.
 
 ### A4-5. The no-Passed-breach gate through both entries (`_run_records/addendum4/gate/`)
 
@@ -460,3 +471,382 @@ Any trusted breach outside the 7 formation triples, including a re-breach of any
   - 24 memory refusals, 166 s.
 - **Runs file:** `runs.jsonl` has 888 lines, sha256 `9b374786…`. It is not committed; its hash is.
 - **Records:** `gate_result.json` and `standing_vs_p1.txt` are committed.
+
+
+## Combined-tree pass and RV5 repair (2026-09-27)
+
+This addendum was written by I3R, the replacement TASK for I3 after a container restart, from I3's on-disk state (brief `TASK_BRIEFS/I3R_KD5_REPAIR_RESUME.md`, numerics `9c266ec77`). I3's uncommitted drafts were read in full, checked, and completed; nothing was taken on trust.
+
+- **Tree:**
+  - `a89fde17b`: the addendum-4 work, committed by the manager;
+  - `fbc9661a4`: the manager's merge of origin/main `b24b3d536` (S11-G, PR1003). It was textually clean, so there was nothing to resolve by hand;
+  - `2409de83e`: the T20 doc-comment correction (C-2), committed on its own;
+  - the repair (R-1 to R-7): tests, generated test models and records only, on `2409de83e`. No product source changes.
+- **Records:** the combined-tree evidence is in `_run_records/combined/`, and the repair's in `_run_records/repair/`. Machine paths are replaced by `<wt>`, `<scratch>` and similar placeholders. No committed, hash-bound record was rewritten: new evidence is in new files, including the regenerated caller list (R-4). Only `SHA256SUMS` is refreshed.
+
+### Status
+
+**Combined tree:** complete and green.
+- The suites pass, 24 of 24, on `fbc9661a4`.
+- T9 against main `b24b3d536` is 112 of 112 byte-identical.
+- The gate union **PASSES**: 888 runs, with 0 trusted breaches against main's empty lists.
+- Against main only 122 differs, and the 34 moves against the pre-S11-G gate are S11-G's own.
+
+**Repair:** complete and green, with tests and records only.
+- The required M31b and M31b0 kills are in, at behavioural assertions, on the adapter and at product level on both entries.
+- The large-coordinate product control does not demote.
+- RV5's E4 is closed by strengthened nonlinear pins.
+- The clean mutation re-run kills all 10 mutants (M23, M26, M27, M28, M31a, M31b, M31b0, M32a, M32b and E4), and the no-patch control passes.
+- The NI suite passes 89 of 89 and the PP suite 516 of 516, with 1 ignored as before.
+- GEN-8 passes on the repair tree with the records in place.
+
+### C-1. Composition check (before any run)
+
+The manager relayed the check; it was accepted with no design decision needed.
+- **Untouched by S11-G.** S11-G left FK `structural.rs`, `structural/*` (formation_check, retained), all of `nonlinear_integration` (SA included) and `sparse_direct` alone: `git diff 72d5ff864 b24b3d536` over them is empty. PP's `solve_preview_reduced_system`, with the K-D5 call, is byte-identical to `a89fde17b`'s.
+- **The integrity diagnostic.**
+  - `append_integrity_report` takes its code from `report.quality`, which carries K-D5's kernel Sensitive.
+  - S11-G's `formation_guard::demote` returns at once unless the code is `NUMERICAL_INTEGRITY_CHECKS_PASSED`. R-b′'s `amend_integrity_report` uses the same `demote`.
+  - So a K-D5-Sensitive case gets no guard sentence and no byte change, and the two demotions cannot stack. K-D5 adds no text of its own (D5C-3).
+- **Routing.**
+  - `report_sensitive` reads `attempted_linear`'s `structural_report.quality`, which is `checked.report`. So a K-D5-Sensitive case routes as Sensitive.
+  - D22-1's `formation_decline_without_attempt` fires only when `needs_source_recovery(report_sensitive, attempt_err, None)` is false (report Passed, no Err). A K-D5-Sensitive case therefore always gets main's real attempt and its receipt entry.
+  - A case on which S11-G's load-row guard also fired is declined by G-3's `decline_for_formation` after the attempt, exactly as main handles any ordinary-Sensitive case with a finding.
+- **Site test.** `git diff b24b3d536 HEAD` of `tests/s11f_site_test.rs` is exactly K-D5's three hunks: the KERNEL append, two `FORCE_FUNCTIONS` rows, and rule 1. S11-G's PRODUCT entry, `push_formed` counting, rule 5 edit, T8 and T10b are intact, and KERNEL indices 4 and 6 are unchanged. Rule 6's exact union passes in the PP suite.
+- **Ledger API.** S11-G's `load_ledger.rs` changes are additive. `formation_check.rs` uses only `ForceTerm`, which is unchanged.
+
+### C-2. The T20 doc-comment correction (`2409de83e`)
+
+This was approved by ROOT and relayed by the manager.
+- **The change.** In `product_physics/src/s11g_tests.rs`, T20's doc comment (`t20_characterization_rb_prime_residual_c1`) said the residual "needs per-case modulus bases and a pre-0.4 captured invocation". It now says:
+  - C1 uses per-case modulus bases;
+  - reach with a single modulus basis (through FK's load audit, or through K-D5's formation check) is not refuted;
+  - the residual needs a pre-0.4 captured invocation.
+- **Scope.** +6 −4, comment-only: no code or assertion change. The manager verified that every changed line is a comment.
+- **Timing.** It was written after the suite run on `fbc9661a4`. T9 and the gate ran on `2409de83e`.
+
+### C-3. Suites on `fbc9661a4` (`_run_records/combined/suites/`)
+
+Every crate passes, 24 of 24, with 0 failures. This run also covers the addendum-4 doc-comment edit to `structural_adapter.rs` (A4-1).
+
+| Crate | Passed | Crate | Passed |
+|---|---|---|---|
+| frame_kernel | 149 | self_weight_wasm | 14 |
+| straight_pipe | 42 | product_physics | 514 (1 ignored: the existing `source_receipt` measurement) |
+| curved_bend | 25 | operation_applier | 194 |
+| load_case_algebra | 21 | headless (`--no-fail-fast`) | 84 |
+| sparse_direct | 25 | result_export | 91 |
+| nonlinear_integration | 86 | mechanics | 41 |
+| primitive_loads | 49 | nonlinear (DEC-046 limits untouched) | 19 |
+| linear_supports | 15 | stress | 23 |
+| nonlinear_supports | 22 | physics_audit_regression | 15 |
+| diagnostics | 24 | numerical_integrity | 0 (observer; builds) |
+| performance_harness | 25 | src-tauri | 114 |
+| stress_recovery | 48 | | |
+| user_loads | 28 | | |
+
+### C-4. T9: the fixture diff against main `b24b3d536` (`_run_records/combined/fixture_diff/`)
+
+- **Method:** S11-K's harness (`ec089c1d…`, unchanged) was built against main `b24b3d536` (a `git archive`) and against `2409de83e`. The two binaries differ.
+- **Inputs:** every committed JSON request or model under `P/fixtures`, `P/validation` and `P/core`, in both modes. The committed inputs are identical in the two trees.
+- **Result: 112 of 112 outputs byte-identical** (fixtures 72, validation 30, core 10), including the 6 outputs that are `ERR` on both trees.
+- **Against the pre-S11-G pass,** none of the 112 outputs changed.
+- **So:** no committed byte changes, and the stop rule did not trigger.
+
+### C-5. The gate on the combined tree: union verdict PASS (`_run_records/combined/gate/`)
+
+**Lists (main's, now):** both from `b24b3d536`:
+- `GATE/S11_EXCEPTIONS.json`: empty, `138515b3…`;
+- `GATE/FORMATION_EXCEPTIONS.json`: empty, `0e110b4b…`;
+- `REFERENCES/references.json`: `7b176dbb…`.
+
+**Zero trusted breaches are allowed.**
+
+**Method.**
+- P1's probe (`8dc727f4…`), `run.py` and `compare.py` are used unchanged.
+- The probe was rebuilt on `2409de83e` with a clean tree: binary sha256 `39791d93…`.
+- `gate_run_parts.py.txt` is `gate_run.py` plus a part filter (ROOT's ruling, numerics `8fcf14d7a`):
+  - Part 1 is every run except the 4 known dense timeouts: RF-LARGE-CHAIN-n01000-ROT and RF-LARGE-TREE-n01000-AX, dense, both entries.
+  - Part 2 is those 4, run on a quiet host with no other cargo, with the load average recorded at the start and end of each run.
+- Both parts use one binary and one runs file. The verdict is the union.
+
+**Part 1: PASS.**
+- 884 runs, from 14:59 to 15:54 UTC. 764 are on frozen-reference cases, and 328 of those are trusted.
+- Trusted breach triples: 0 (captured 0, typed 0).
+
+**Part 2: the 4 dense runs time out at 1800 s, as on main and in every earlier pass.** The host was quiet: the load average stayed between 0.46 and 1.27 at every start and end (`gate_part2.log`). No timeout was raised.
+
+**The union: PASS.**
+- 888 runs, which is 222 cases × 2 modes × 2 entries. 768 are on frozen-reference cases, and 328 of those are trusted.
+- **0 trusted breach triples** against main's empty lists. There are no violations.
+- The runs file has 888 lines, sha256 `e365541b…`. It is not committed; its hash is (`provenance.txt`).
+- **RF-SKEW-T-CANT-OFF-122-r1e-04** is `sensitive` / `needs_recompute` with `NUMERICAL_INTEGRITY_SENSITIVE` on **both entries in both modes**.
+- **RV5's recount** agrees: 888 runs, none missing, the same 4 timeouts, and 836 runs compared with main (numerics `T3/REVIEW/_run_records/kd5_review/gate/rv5_gate_recount.txt`).
+
+### C-6. Attribution against main `b24b3d536`: only 122 differs
+
+- **Method:** the P1 probe was built against main itself (sha256 `12811c32…`), and all 836 runs under 1000 members were run on it, on both entries and in both modes (`gate_run_attrib.py.txt`, `main_small.log`, `main_small_result.json`).
+- **Result:** the candidate differs from main in exactly one case, **122**: `checks_passed` / `numerically_eligible` on main and `sensitive` / `needs_recompute` on the candidate, in all 4 runs. I re-derived this independently (`combined/gate/main_vs_candidate.stdout.txt`). No other outcome, quality or standing differs, and **no published displacement differs in any of the 836 runs**.
+- **So:** on main alone, the empty-list gate **FAILS** on 122's 8 trusted triples (4 per entry: th.N0.RX, th.N1.RX, u.N1.UY, u.N1.UZ; `main_small_result.json`). K-D5 removes exactly those, and changes nothing else on these runs.
+
+### C-7. The 34 S11-G-attributed moves
+
+Against the pre-S11-G gate (A4-5), **34 runs moved from `checks_passed` / `numerically_eligible` to `sensitive` / `needs_recompute`**, with their published displacements identical. I re-derived the list from the two runs files (`combined/gate/moves_vs_pre_s11g.stdout.txt`). They cover 10 cases:
+- **The cases of the 7 former FORMATION triples, 10 runs:** RF-CANCEL-F-G1e80-GnG-INPLANE and RF-CANCEL-M-G1e80-GnG-INPLANE (typed, both modes), RF-CANCEL-UDL-W1e8 (both entries, both modes), and RF-CANCEL-UDL-W1e80 (typed, both modes).
+- **RF-INVARIANCE-LFRAME-{BASE, OFF-1e3, OFF-1e6, RELABEL},** on both entries in both modes: 16 runs.
+- **RF-WEAK-W-{3D, AX}-rho1e-08,** on both entries in both modes: 8 runs.
+
+**ROOT has accepted these as S11-G's forecast demotions.** The FORMATION cases are the ones S11-G was built to demote. LFRAME×4 and WEAK-W-3D/AX-rho1e-08 are R-b′'s disclosed false demotions. Main makes the same 34 moves (C-6). So K-D5 causes none of them.
+
+Against P1's baseline (`final_standing_vs_p1.txt`, 540 runs with a same-entry P1 record), the changes are the subset of these moves that P1 recorded, plus 122.
+
+### C-8. Timing (`_run_records/combined/timing/`)
+
+**Combined tree against the pre-S11-G tree.** At 1000 members the dense runs of the combined gate took about 15% longer than those of the pre-S11-G gate (A4-5), on a quiet host:
+
+| Case | Mode | Combined | Pre-S11-G |
+|---|---|---|---|
+| RF-LARGE-CONT-n01000-AX (Passed, so the check runs) | dense | 212 / 210 s | 190 / 191 s |
+| RF-LARGE-CONT-n01000-ROT | dense | 217 / 208 s | 196 / 191 s |
+| RF-LARGE-CHAIN-n01000-AX | dense | 490 / 481 s | 413 / 407 s |
+| RF-LARGE-TREE-n01000-ROT | dense | 479 / 475 s | 423 / 425 s |
+
+Each cell gives captured / typed. The sparse runs are 17–21 s, against 16–23 s before.
+
+**Main against the candidate, timed and interleaved** (ROOT's request; `timing_compare.py.txt`, `timing.jsonl`). The main probe (`12811c32…`, main `b24b3d536`, S11-G without K-D5) and the candidate probe (`39791d93…`) ran in the order main, candidate, main, candidate on each case. Each run was dense, on the captured entry, in a fresh process with P1's limits, with the load average recorded:
+
+| Case | Rep | Main (S11-G, no K-D5) | Candidate (S11-G + K-D5) | Load average, start → end of the pair |
+|---|---|---|---|---|
+| RF-LARGE-CHAIN-n01000-AX | 1 | 493.9 s | 474.2 s | 1.18 → 1.01 |
+| RF-LARGE-CHAIN-n01000-AX | 2 | 495.4 s | 485.2 s | 1.01 → 1.33 |
+| RF-LARGE-TREE-n01000-ROT | 1 | 498.1 s | 470.8 s | 1.33 → 1.08 |
+| RF-LARGE-TREE-n01000-ROT | 2 | 488.9 s | 469.1 s | 1.08 → 1.00 |
+
+All 8 runs completed with no timeout. Peak RSS was 3.69–3.71 GB in every run, and every run published `sensitive` / `needs_recompute` on both binaries. The load averages are the 1-minute values.
+
+**Reading.**
+- **K-D5 adds no measurable cost on these cases.** On the means, the candidate was 3.0% faster than main on CHAIN-AX and 4.8% faster on TREE-ROT, and it was faster in every pair. These two cases publish Sensitive, so the check does not run on them. The comparison shows that K-D5 leaves the non-Passed path unchanged.
+- **The increase belongs to S11-G.** Both S11-G-bearing probes take about 470–495 s on these cases: main (S11-G without K-D5) takes 489–498 s, and the candidate 469–485 s. The pre-S11-G K-D5 tree took 407–425 s in A4-5. So the increase over the pre-S11-G tree is not K-D5's.
+- **This is recorded as an S11-G performance finding** for the manager to route: S11-G costs about 15–20% on dense 1000-member solves.
+- **Caveat.** The pre-S11-G numbers were not interleaved with these runs; they come from the A4-5 gate on a different occasion. Part of the difference may therefore be host variation.
+
+**K-D5's own cost is well under 1 s per case.** Over the 836 runs under 1000 members (`combined/gate/wall_main_vs_candidate.stdout.txt`):
+- On the 382 runs where the candidate published Passed, so the check ran, the median per-run difference from main is −0.0004 s and the largest is +0.081 s. The totals are 15.04 s for the candidate and 15.54 s for main.
+- On the other 454 runs, the median difference is −0.0004 s and the largest is +0.043 s.
+- These wall times include process start and JSON I/O.
+
+### R-1. M31b: the equivalence is withdrawn, and M31b and M31b0 are now killed
+
+**Superseded.** Phase 1 §7, A4-4 and CHANGE_RECORD claimed that "(31b) is equivalent at the criterion" (ROOT, `c2042fd9c`). **That claim is superseded.** ROOT withdrew the equivalence after RV5's Rust confirmation on `2409de83e`. The record is `ROOT_RULINGS_V1.md`, section "K-D5 mutation M31b: equivalence withdrawn" (numerics `3547029576`), and the `c2042fd9c` section is marked SUPERSEDED there. That section also supersedes DESIGN.md 5a.2 §9 item 31's claim that building H from the product's chord misses only the whole-matrix case. The hash-pinned design itself is not edited. **The emulation in my generator gives the same values as RV5's Rust run:** CANT60 actual 1.1019, trigger 2.2037; CANT30 1.9005, trigger 3.8010; PP_UTM at 5e6 m, φ = 5°, 1.126. RV5's release probes also show the product-level flip: under M31b the 5e6 m case publishes CHECKS_PASSED in all 4 runs, with byte-identical results. The earlier text is kept where it was recorded and is marked superseded there.
+
+**Why the claim failed.** RV5-B1 found that the M31b chord-only mutant survives and that an admissible counterexample exists. The phase 1 argument measured only the max-row trigger shift, about 0.002, on the k_X = 30 mismatch model. It missed the **first-order** translation error that a chord error gives at node j on the stiff rows. ROOT: "No blame attaches to I3's analysis. It answered the question I asked, which was the wrong question."
+
+**The exact references.** They come from the K-D5 generator (`repair/models/kd5_models.py.txt`), not from RV5's files.
+- It uses D1's objective curved re-formation (`curved_ef.py`, `1c862cea…`, imported unchanged) at 60 digits, on **exact** binary64 inputs: `dec` converts each input through `Fraction`, not through its decimal repr.
+- I re-ran it on the candidate: the generated `kd5_models.rs`, the JSON and the stdout are byte-identical to the drafts.
+- The generated u_int of CPLANAR_60 and CSKEW_30_N122, and the product-section u_int of the 5e6 m elbow, equal RV5's independently generated exact-input references (`kd5_review/m31b/exact_inputs/rv5_models.rs.txt`) to every printed digit.
+- The emulated product centre (`pp_centre`) and section (π(od² − id²)/4, π(od⁴ − id⁴)/64 with id = od − 2t) follow PP's binary64 operations in the same order (PP `lib.rs` 6102–6110 and 8472–8476).
+
+**The required tests** (all test-only):
+
+| Test | Level, entries, modes | What it asserts |
+|---|---|---|
+| `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error` | adapter, one entry, both modes | on RV5's admissible given centres, CPLANAR_60 (planar 60°) and CSKEW_30_N122 (skew 30°), each at the edge of the product's 1e-9 radius-match tolerance. **Preconditions:** plain `solve_assembled` publishes Passed, and the actual error is above the criterion. **Behavioural:** demoted only in quality (values and the rest of the report bitwise equal), and EF within 5% of the actual error |
+| `kd5_large_coordinate_pp_route_elbow_does_not_demote` | adapter, both modes | PP_UTM_2 (X = 5e5 m, φ = 2°, PP's own centre): Passed, actual error below half the criterion, and the checked solution byte-identical to the plain one |
+| `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` | product, both entries, both modes | ROOT's required demotion test: X = 5e6 m, Y = 3.5e6 m, R = 0.3 m, φ = 5°, PP's own centre and derived section. **Precondition:** M1 is realized as an arc, and the published error is above the criterion. **Behavioural:** `NUMERICAL_INTEGRITY_SENSITIVE` and `Sensitive` quality |
+| `kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted` | product, both entries, both modes | ROOT's control: X ≈ 5e5 m, φ = 2°. The published error is below half the criterion, and the case publishes `NUMERICAL_INTEGRITY_CHECKS_PASSED` with `ChecksPassed` quality |
+
+The adapter cannot express the designed centres as product requests, because PP computes a bend's centre itself. The product-level, both-entry evidence is therefore the PP-route pair.
+
+**Measured values** (actual error, and the trigger value 2|w|/criterion, as ratios to the criterion):
+
+| Model (test) | Entry | Dense: actual / trigger | Sparse: actual / trigger | Result |
+|---|---|---|---|---|
+| CPLANAR_60 (adapter) | typed adapter | 1.1019 / 2.2037 | 1.1019 / 2.2037 | demoted at row 8 (N1 UZ) in both modes; EF/actual − 1 below 1e-4 |
+| CSKEW_30_N122 (adapter) | typed adapter | 1.9005 / 3.8010 | 1.9005 / 3.8010 | demoted at row 6 (N1 UX) in both modes; EF/actual − 1 below 1e-4 |
+| PP_UTM_2, X = 5e5 m (adapter) | typed adapter | 0.0436 / not demoted | 0.0427 / not demoted | unchanged, byte-identical to the plain solve |
+| PP-UTM-5E6-PHI5 (product) | captured and typed | 1.1257 | 1.1258 | `NUMERICAL_INTEGRITY_SENSITIVE` / `Sensitive` on both entries |
+| PP-UTM-5E5-PHI2 (product) | captured and typed | 0.0441 | 0.0431 | `NUMERICAL_INTEGRITY_CHECKS_PASSED` / `ChecksPassed` on both entries |
+
+These equal the generator's emulation (`kd5_models_emulation.json`) and RV5's Rust values to every printed digit. The adapter log is `repair/tests/ni_kd5.log` and the product log `repair/tests/pp_formation_check_runtime.log`, both run with `--nocapture`.
+
+**The kills** (R-3 has the full table):
+
+- **M31b.**
+  - Adapter: `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error` fails in `assert_demoted_only_in_quality` (`kd5_tests.rs:248`, `assert_eq!(checked.report.quality, SolveQuality::Sensitive)`). The quality is `Passed`.
+  - Product: `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` fails at `formation_check_runtime.rs:386`, where the integrity code is `["NUMERICAL_INTEGRITY_CHECKS_PASSED"]` instead of `["NUMERICAL_INTEGRITY_SENSITIVE"]`. **With the M31b patch applied, the 5e6 m case publishes CHECKS_PASSED.**
+  - FK's `kd5_reformed_elements_have_the_rigid_body_null_space` also fails (`formation_check_tests.rs:141`).
+- **M31b0:** the same adapter assertion (`kd5_tests.rs:248`) and the same product assertion (`formation_check_runtime.rs:386`) fail.
+- **Only behavioural assertions fail.** In both kill tests the preconditions read only the unmutated plain solve (Passed, and actual above the criterion), and they held under both mutants.
+- **The logs:** `repair/mutations/M31b.log` and `M31b0.log`. Every earlier I3 test passes under both mutants, as RV5 found.
+
+**Near π: a NOTE, with no test.** RV5 measured ΔEF ≤ 2e-4 of the criterion there, which is harmless.
+
+### R-1a. RV5's E4: the nonlinear pins strengthened (RV5 SHOULD-FIX, tests only)
+
+**The evasion.** RV5's E4 adds a sibling module to `nonlinear_integration`. The module routes only the derived-friction unit-force solves through `solve_assembled_with_formation_check`, behind a neutral-named SA helper (`solve_binary64_audited`). E4 survived every NI test and the nonlinear benchmark, for three reasons:
+- the source pin scanned only `lib.rs` and `product_equilibrium.rs`;
+- the SA scan did not flag `.solve_assembled_with_formation_check(`;
+- the behavioural pin exercised only the first gap iteration.
+
+**The strengthened pins,** all in `s11k_tests.rs`:
+- **`kd5_nonlinear_sources_name_no_formation_check_entry_point` now scans every non-test module.** A new helper, `non_test_modules`, walks the module tree from `lib.rs` through every `mod name;` declaration, honouring `#[path]` and `mod.rs`.
+  - A module is a test module only when its own declaration is under `#[cfg(test)]`, or it is declared inside a test module. So `s11k_tests`, `kd5_tests` and `kd5_models` are excluded by their declarations, never by file path, and inline `#[cfg(test)]` items are blanked by `strip_cfg_test`.
+  - Every `.rs` file under `src` must be reached, so a new module cannot be skipped.
+  - The same walk is applied to `product_physics/src`.
+  - **In `nonlinear_integration`:** `solve_assembled_with_formation_check` may appear only once, as its definition in `structural_adapter.rs`; any call to it, under any name or in qualified form, fails. `with_formation_source`, `prepare_formation_checked_structural`, `.formation_source(`, `FormationCheckedSystem`, `solve_formation_checked_structural_dense` and `formation_check::` may appear only inside that definition's body. `FormationSource` may appear only in `structural_adapter.rs`, and no `solve_with_formation…` name may appear at all.
+  - **In `product_physics`:** the entry is called exactly once, inside `solve_preview_reduced_system`, and the rest of the plumbing does not appear.
+- **New: `kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check`.** The model is probe P's beam and gaps with a sliding friction support at the middle node's UX, whose normal is derived from the left gap's reaction, and a 50 N UX load. Seeded sliding makes the loop run several iterations; from the second iteration on it performs its derived-friction base and unit-force solves.
+  - For every such iteration, in both modes and at g = 0.03 and 0.09 m, the test recomputes the derived friction force from the loop's own previous iterate and boundary, with base and unit solves on the binary64 path. It then asserts that the loop's applied force is bit-identical to it.
+  - **Precondition (the paths differ):** the same unit solve through `solve_assembled_with_formation_check` gives different displacement bits and a different derived force. The g values were chosen by this precondition: at g = 0.05 and 0.20 m the two paths coincide bitwise after the right gap opens.
+  - It also asserts that at least one iteration after the first carries the derived force, so the test is not vacuous.
+- The first-iteration pin `kd5_nonlinear_loop_reaches_no_formation_check` is kept unchanged.
+
+**The E4 kill:** in the clean run (`repair/mutations/E4.log`), two tests fail.
+- **`kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check`** fails at its behavioural assertion (`s11k_tests.rs:1411`). At g = 0.03, dense, iteration 2, the loop's derived friction force is −29.999999999919282: exactly the formation-checked path's value, where the binary64 path gives −30.00000000000472. Its preconditions held.
+- **`kd5_nonlinear_sources_name_no_formation_check_entry_point`** fails at `s11k_tests.rs:1071`: `structural_adapter.rs` names the formation-checked entry 2 times, where only its definition may name it.
+
+`mutate.py` gains `E4`, which reproduces RV5's patch from `kd5_review/rust/rv5_mutate.py.txt`; it is part of the clean run (R-3).
+
+### R-2. The repr-input artefact; the earlier ~5e5 m figure is superseded
+
+- **The artefact.** RV5's first emulation converted every binary64 input with `Decimal(repr(v))`, the shortest decimal string, not the exact value.
+  - At X ≈ 5e5 m that perturbs a coordinate by up to half an ulp (about 2.9e-11 m). On a 0.0105 m chord that is about 2.5 of the criterion.
+  - Running the generator with `Decimal(repr(x))` inputs (`repair/models/check_repr.py.txt`) reproduces RV5's first PP_UTM u_int.
+- **With exact inputs, and in the product itself,** PP_UTM at 5e5 m is accurate: 0.044 of the criterion. RV5 confirmed this with exact inputs (0.0432).
+- **So the earlier ~5e5 m onset is superseded as a repr-input artefact.** RV5's exact-input coordinate scan puts the onset near 2e6 m: at most 0.36 of the criterion for X ≤ 1e6 m, up to 1.00 at 2e6 m, and 1.13–3.12 at 5e6 m.
+
+### R-3. The clean mutation re-run (`_run_records/repair/mutations/`)
+
+**Stale-build disclosure.** RV5 found that the earlier runner, `run_mutants.sh`, could reuse a stale `frame_kernel` artefact.
+- **The mechanism.** `tar` preserved the worktree's mtimes, and the target dir was shared across mutants. So a mutant that did not touch `frame_kernel` (M32a, M32b) was built against the previous mutant's `frame_kernel`, which was M31b0's.
+- **Affected rows:** M32a and M32b in phase 1 (§7) and in the addendum-4 pass (A4-4). The other rows each patched `frame_kernel`, or ran first.
+- **Those rows are superseded by the table below.** Their logs stay committed as recorded.
+
+**The fix, in `run_mutants_clean.sh`:**
+- every mutant gets a fresh copy of `P/core/{solver,loads,serialization,units,product_physics}`, extracted with `tar -m`;
+- the shared target dir is removed before every mutant and at the end, so nothing is reused;
+- a no-patch control run (NONE) must pass every test.
+- I3R added two things to I3's runner. It also waits for a timed probe comparison (`timing_compare`), anchoring the pattern on the interpreter. And it lists each killer's panic site.
+
+**Tests per mutant:** FK `kd5`, NI `kd5` (which includes the two nonlinear pins in `s11k_tests`), and PP `--test formation_check_runtime`, each with `--test-threads=1`. The patches are those of `mutate.py`, unchanged. Each applies exactly once to the candidate tree; I checked this before the run.
+
+| Mutant | Patch | FK / NI / PP exit | Killed by (failing tests) | Panic sites |
+|---|---|---|---|---|
+| NONE | control, no patch | 0 / 0 / 0 | **none (control passes)** | NONE |
+| M23 | (23) trigger disabled | 101 / 101 / 101 | `kd5_curved_arctangent_domain_errors_fail_closed`, `kd5_unavailable_family_and_wide_error_fail_closed_and_never_err`, `kd5_nonlinear_loop_reaches_no_formation_check`, `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error`, `kd5_curved_intended_element_uses_the_actual_chord`, `kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion`, `kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed`, `kd5_not_selected_invocation_runs_the_unchanged_solve_assembled`, `kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes`, `kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes`, `kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed`, `kd5_nonlinear_support_invocation_is_never_selected`, `kd5_required_true_positive_122_demotes_in_both_modes_on_both_entries`, `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` | src/s11k_tests.rs:1181:9x1; src/structural/formation_check_tests.rs:254:5x1; src/structural/formation_check_tests.rs:339:9x1; src/structural_adapter/kd5_tests.rs:248:5x7; src/structural_adapter/kd5_tests.rs:656:9x1; tests/formation_check_runtime.rs:154:13x1; tests/formation_check_runtime.rs:386:9x1; tests/formation_check_runtime.rs:70:13x1 |
+| M26 | (26) binary64 published residual in place of ρ | 101 / 101 / 101 | `kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force`, `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error`, `kd5_curved_intended_element_uses_the_actual_chord`, `kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion`, `kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes`, `kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes`, `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` | src/structural/formation_check_tests.rs:204:6x1; src/structural_adapter/kd5_tests.rs:248:5x4; src/structural_adapter/kd5_tests.rs:305:9x1; tests/formation_check_runtime.rs:386:9x1 |
+| M27 | (27) element ΔK plus binary64 residual | 101 / 101 / 101 | `kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force`, `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error`, `kd5_curved_intended_element_uses_the_actual_chord`, `kd5_curved_matching_is_order_independent`, `kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion`, `kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed`, `kd5_large_coordinate_pp_route_elbow_does_not_demote`, `kd5_realistic_elbows_e1_and_e6_do_not_demote`, `kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes`, `kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes`, `kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed`, `kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted` | src/structural/formation_check_tests.rs:204:6x1; src/structural_adapter/kd5_tests.rs:248:5x1; src/structural_adapter/kd5_tests.rs:258:5x4; src/structural_adapter/kd5_tests.rs:305:9x1; src/structural_adapter/kd5_tests.rs:411:9x1; src/structural_adapter/kd5_tests.rs:439:9x1; src/structural_adapter/kd5_tests.rs:474:13x1; src/structural_adapter/kd5_tests.rs:512:9x1; tests/formation_check_runtime.rs:362:9x1 |
+| M28 | (28) binary64 local coefficients | 101 / 101 / 0 | `kd5_reformed_elements_have_the_rigid_body_null_space`, `kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion`, `kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes` | src/structural/formation_check_tests.rs:141:13x1; src/structural_adapter/kd5_tests.rs:258:5x1; src/structural_adapter/kd5_tests.rs:305:9x1 |
+| M31b | (31b) curved H from the product's binary64 chord R(cos φ − 1), R sin φ | 101 / 101 / 101 | `kd5_reformed_elements_have_the_rigid_body_null_space`, `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error`, `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` | src/structural/formation_check_tests.rs:141:13x1; src/structural_adapter/kd5_tests.rs:248:5x1; tests/formation_check_runtime.rs:386:9x1 |
+| M31b0 | (31b0) the same chord formula at p | 0 / 101 / 101 | `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error`, `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` | src/structural_adapter/kd5_tests.rs:248:5x1; tests/formation_check_runtime.rs:386:9x1 |
+| M32a | (32a) the loop's `solve_binary64` routed through the check | 0 / 101 / 0 | `kd5_nonlinear_loop_reaches_no_formation_check`, `kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check`, `kd5_nonlinear_sources_name_no_formation_check_entry_point` | src/s11k_tests.rs:1089:13x1; src/s11k_tests.rs:1196:9x1; src/s11k_tests.rs:1391:17x1 |
+| M32b | (32b) the loop calls the typed formation entry | 0 / 101 / 0 | `kd5_nonlinear_loop_reaches_no_formation_check`, `kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check`, `kd5_nonlinear_sources_name_no_formation_check_entry_point` | src/s11k_tests.rs:1071:9x1; src/s11k_tests.rs:1196:9x1; src/s11k_tests.rs:1391:17x1 |
+| E4 | RV5 E4: sibling module routes the derived-friction unit-force solves through the entry via a neutral-named SA helper | 0 / 101 / 0 | `kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check`, `kd5_nonlinear_sources_name_no_formation_check_entry_point` | src/s11k_tests.rs:1071:9x1; src/s11k_tests.rs:1411:17x1 |
+| M31a | (31a) curved K_int = the product's binary64 matrix | 101 / 101 / 101 | `kd5_curved_arctangent_domain_errors_fail_closed`, `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error`, `kd5_curved_intended_element_uses_the_actual_chord`, `kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes`, `kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries` | src/structural/formation_check_tests.rs:307:9x1; src/structural_adapter/kd5_tests.rs:248:5x3; tests/formation_check_runtime.rs:386:9x1 |
+
+**Reading the table.** Every mutant is killed, and the no-patch control passes all three crates. Panic sites are given as file:line×count.
+- **M31b and M31b0:** see R-1.
+- **E4:** see R-1a.
+- **M32a:** all three nonlinear pins fail. The unit-force pin fails at its precondition (`s11k_tests.rs:1391`), because M32a mutates the oracle's own `solve_binary64`. The first-iteration pin (`:1196`) and the source pin (`:1089`) kill it behaviourally and by scan.
+
+**Two disclosures about this run.**
+- **The first attempt failed the control.** It copied only `P/core/{solver,loads,serialization,units,product_physics}`, and product_physics did not compile, because it `include_str!`s non-test files from `P/fixtures/results/` (for example `semantic_contract_v0_3_physics_1.json`). That attempt was stopped after M23 and is superseded. Its control log and summary are committed as `repair/mutations/attempt1_NONE.log` and `attempt1_MUTANTS.txt`. The runner now also copies `P/fixtures`, `P/schemas` and `validation/benchmarks/numerical_integrity/fixtures.json`, and the restarted control passed.
+- **M31a's patch missed a literal.** In the restarted run, M31a failed to compile frame_kernel's tests: `formation_check_tests.rs` holds a second `CurvedFormation` literal (line 104) that the patch did not extend. NI and PP still killed it behaviourally. The patch now covers both literals. M31a was re-run clean, and that result is in the table. The first log is kept as `M31a_first_patch_incomplete.log`.
+
+### R-4. The callers, regenerated (`_run_records/combined/callers_combined.txt`; scripts in `_run_records/repair/callers/`)
+
+**This corrects §5.** §5 described phase 1: 100 sites, the legacy `solve_with_formation_check`, and PP:3973. Both that entry and the `_with_force_terms` variant were removed in the addendum-4 pass.
+- `scan_callers.py` was re-run on the candidate, with its patterns extended by `solve_assembled_with_formation_check(`, `.solve_assembled(` and `FormationCheckedSystem`.
+- `classify_callers.py` classifies every non-test site by file and enclosing function, and fails if any is unclassified.
+- The regenerated list is the new file `combined/callers_combined.txt`, which supersedes phase 1's. The phase 1 `_run_records/callers.txt` (sha256 `cd8e2ae1…`) describes phase 1. It is hash-bound and kept unchanged, because committed evidence is never rewritten (manager and ROOT ruling, which overrides the brief's wording "replace").
+
+**Result: 116 sites, 77 in tests and 39 outside tests, all classified.**
+- The check is reached only from `finish_checked_factor`, through a `PreparedSystem` built by `prepare_formation_checked_structural` from a `FormationCheckedSystem`.
+- SA's `solve_assembled_with_formation_check` is the only non-test builder.
+- FK's `solve_formation_checked_structural_dense` has no non-test caller.
+- The only product call is PP:4399 in `solve_preview_reduced_system`.
+- The option-(c) loop reaches no formation entry point.
+
+This agrees with RV5's scan. The list was generated on `2409de83e` plus the finished repair tree, which is test-only. Its 39 non-test sites are identical to I3's list of 16:42 UTC; the 3 additional test sites are the E4 pin (R-1a).
+
+### R-5. Findings (the manager records them in the work graph)
+
+**1. The gate corpus lacks realized curved bends** (routed to the gate-corpus owner). Curved-bend formation integrity is therefore evidenced by unit and product tests only. The M31b miss is what this gap looks like. My evidence:
+- **None of the 222 authorable gate requests has a component at all** (P1's generator output, re-scanned), so none realizes a curved bend.
+- **No committed JSON request or model** under `P/fixtures`, `P/validation` or `P/core` realizes one.
+  - The committed bend components with a solver consumption are all `mechanics_geometry_only`: `preview_physics_invented_model.json`, `preview_physics_unicode_ids_model.json`, `invented_preview_model.json` and `tp_runner_015_final_cli_solve_input.json`. PP does not build a curved element for that consumption.
+  - `curved_bend_macro_element` appears in a committed JSON document only in `fixtures/results/invented/result_export_v0_2.json`, which is a result-export semantic fixture, not a solve request.
+- **Routing:** a candidate addition of curved-bend references, including large-coordinate ones. K-D5 added no corpus cases.
+
+**2. The product's curved element carries formation error above the criterion at coordinates of about 2e6 m and more** (UTM northing scale; routed to T4/W1c).
+- **The mechanism.** PP computes the arc centre in binary64, so its components are rounded at ulp(X). At large X the centre is still admissible (radius-match tolerance 1e-9) but no longer equidistant. The product's element then uses the formula chord R(cos φ − 1), R sin φ, which differs from the actual chord x_j − x_i.
+- **At 5e5 m** the effect is negligible: 0.044 of the criterion.
+- **At 5e6 m, φ = 5°,** the actual error is 1.126. RV5 also reports 3.12 at 5e6 m with φ = 2°, and 2.28 at 7.3e6 m with φ = 10°.
+- **K-D5 demotes these correctly.** The cost is availability for GIS-scale models with small-angle realized elbows; it is not a K-D5 defect.
+- The earlier ~5e5 m figure is superseded as a repr-input artefact (R-2).
+
+**3. ROOT's fact: no committed fixture or gate case changes standing through this effect.** My evidence:
+- No gate request realizes a curved bend (finding 1).
+- T9 is 112 of 112 byte-identical against main (C-4), and against main only 122 differs in the gate (C-6).
+- **The bend-realizing solve models are all Rust tests, and none is at large coordinates.** ROOT's wording names only the `arc_model` tests at 1.2 m or less. That list is incomplete, but its conclusion holds. The full set is:
+
+| Where | What | Largest coordinate |
+|---|---|---|
+| PP `tests/preview_physics_runtime.rs` | `arc_model` and REF-B2 | 1.2 m |
+| PP `src/s11f_tests.rs` | `curved_bend` (F8) | 2 m chord at the origin |
+| PP `src/lib.rs` tests | `curved_bend_span_request` | 2 m chord at the origin |
+| PP `src/s11g_tests.rs` | `curved_body` | origin 0 or 100 m, so 102 m at most |
+| NI `src/lib.rs` tests | the invented macro element | small |
+| `validation/benchmarks/mechanics` | direct `CurvedBendMacroElement` elements, not through PP | small |
+| K-D5's own tests | E1, E6, the CSKEW models and CPLANAR_60 | 22.2 m or less |
+| K-D5's own tests | PP_UTM_2 and PP-UTM-5E5 | 5e5 m (not demoted) |
+| K-D5's own tests | PP-UTM-5E6 | 5e6 m (demoted, by design) |
+
+### R-6. NOTEs
+
+- **The vacuous loop is fixed.** In PP's `kd5_nonlinear_support_invocation_is_never_selected`, the loop over `source_block_recovery.body.cases` iterated nothing. A nonlinear-support invocation is not source-eligible (`source_eligible(captured, nonlinear, combinations)` is false), so it carries no receipt. The test now asserts that `source_block_recovery` is null on both entries in both modes, which is the state the loop relied on.
+- **The empty nohup logs.** Five committed K-D5 records are empty files (sha256 `e3b0c442…`). They are the runner's empty stdout; every result went to the per-mutant logs, `MUTANTS.txt` and the suite logs:
+  - the four `_run_records/mutations/nohup{,2,3,4}.log` of phase 1;
+  - `_run_records/addendum4/targeted/suites_nohup.log`.
+
+  They are hash-bound, so they are kept as recorded. They are not evidence of anything. No empty file was added in this pass.
+- **Conservative S\*.** The check's body scale S* is formed over free rows only (D1 §4.1.6.1 item 4). Restrained rows, whose displacement is zero or prescribed, never enlarge it, so the rule is at least as strict as a scale taken over all rows.
+
+### R-7. The repair's runs and records
+
+All runs used `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0` and `--offline --locked`, one cargo job at a time. The targeted runs and suites used `<wt>/kd5-target`; the mutation runs used a scratch target that was removed per mutant. Each run started only after checks that no other cargo and no sweep or timing process was running. The logs are in `repair/tests/`, with the scripts `run_repair_tests.sh.txt` and `run_ni_rerun.sh.txt`.
+
+| Run | Result |
+|---|---|
+| NI `cargo test kd5 -- --nocapture` (after the E4 edits) | 15 passed, 0 failed |
+| NI full suite (after the E4 edits) | 89 passed, 0 failed (86 before K-D5's repair, +3: two adapter tests and the E4 unit-force pin) |
+| FK `cargo test kd5` | 5 passed, 0 failed |
+| PP `--test formation_check_runtime -- --nocapture` | 5 passed, 0 failed |
+| PP full suite | 516 passed, 0 failed, 1 ignored (the existing `source_receipt` measurement; 514 before, +2 PP-route tests) |
+| PP `--test s11f_site_test` (after the E4 edits) | 11 passed, 0 failed |
+| Clean mutation run | NONE + 10 mutants; all killed, control passes (R-3) |
+
+The NI kd5 run and NI suite were first run before the E4 edits (14/14 and 88/88); those logs were superseded by the re-runs and are not committed. The PP suite ran before the E4 edits. Those edits touch only `s11k_tests.rs`, a `#[cfg(test)]` module of `nonlinear_integration` that product_physics does not compile. The PP site test was re-run afterwards.
+
+**The files changed by the repair** (all tests or generated test models):
+- `P/core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs`: two tests (R-1);
+- `…/structural_adapter/kd5_models.rs`: three generated exact-reference models appended; the existing constants are byte-identical;
+- `P/core/solver/nonlinear_integration/src/s11k_tests.rs`: the strengthened source pin, with `non_test_modules` and `occurrences_outside`, and the E4 unit-force pin (R-1a);
+- `P/core/product_physics/tests/formation_check_runtime.rs`: the PP-route elbow pair, and the vacuous-loop fix (R-6).
+
+**Formatting.** `kd5_tests.rs`, `formation_check_runtime.rs` and `s11k_tests.rs` were formatted with rustfmt 1.8.0-stable in stdin mode, one file at a time. The 1.97.1 toolchain carries no rustfmt component, so this is the stable toolchain's rustfmt, the same version as `toolchain.txt`. `kd5_models.rs` is generated and carries `rustfmt::skip`. No other file was formatted.
+
+**Records:**
+- `_run_records/combined/`: suites, fixture_diff, gate (with the attribution and move analyses), timing, and `callers_combined.txt`;
+- `_run_records/repair/`: tests, mutations, callers scripts, models (the generator re-run) and product_probe (the pre-repair probe runs of the two PP-route requests);
+- `SHA256SUMS` is refreshed. No committed record was rewritten, and no empty file was added.
+- Machine paths are replaced by placeholders.
+
+**GEN-8** (`pytest tools/practitioner_harness/test_live_baseline.py -k gen8`, from the repository root of `<wt>/kd5`): **1 passed** (`test_live_gen8_semantic_portability_invariants`, not skipped), run with the DEC-025 venv's Python 3.11.15 and pytest 9.1.1 on the repair tree with these records in place.
+
+**What was not done.**
+- No product source was changed. No Git write or index operation was made; the manager commits.
+- No test was skipped, no timeout was raised, and nothing was weakened.
+- Hosted CI, the DEC-025 sweep and the Python and desktop TS suites were not run. No fixture reader was touched.
+- No gate re-run was needed: the repair changes tests only, and the gate probe links no test code.

@@ -1,0 +1,42 @@
+"""K-D5 (I3): annotate scan_callers.py output (committed as classify_callers.py.txt). Every
+non-test site gets a class by (file, enclosing fn); an unclassified non-test site fails."""
+import sys
+C = {
+ ("core/product_physics/src/lib.rs", "solve_load_case"): "LINEAR: PP's linear route calls solve_preview_reduced_system for every case",
+ ("core/product_physics/src/lib.rs", "solve_preview_reduced_system"): "LINEAR: the ONLY product call of the formation-checked entry (selected = built.nonlinear_supports.is_empty())",
+ ("core/product_physics/src/source_recovery.rs", "prepare_sources"): "LINEAR, no solve: builds AssemblyEvidence (records primitives), never calls a solve",
+ ("core/solver/frame_kernel/src/structural.rs", "assembled"): "KERNEL: the FormationCheckedSystem type (the scanner names the preceding fn)",
+ ("core/solver/frame_kernel/src/structural.rs", "with_formation_source"): "KERNEL: the only constructors of FormationCheckedSystem (legacy and typed forms)",
+ ("core/solver/frame_kernel/src/structural.rs", "prepare_formation_checked_structural"): "KERNEL: the only prepare entry that attaches a formation source to a PreparedSystem",
+ ("core/solver/frame_kernel/src/structural.rs", "finish_checked_factor"): "KERNEL: runs the check only when the PreparedSystem carries a formation source and the case is not already ordinary-Sensitive",
+ ("core/solver/frame_kernel/src/structural.rs", "finish_structural"): "KERNEL: common completion of every backend; unchanged",
+ ("core/solver/frame_kernel/src/structural.rs", "solve_formation_checked_structural_dense"): "KERNEL: dense convenience entry taking a FormationCheckedSystem (FK tests only; no non-test caller)",
+ ("core/solver/frame_kernel/src/structural.rs", "solve_prepared_dense"): "KERNEL: dense composition; unchanged",
+ ("core/solver/nonlinear_integration/src/lib.rs", "solve_active_set_frame_with_mode_and_springs"): "LOOP (option (c)): builds AssemblyEvidence and runs T5's gap scrutiny; no formation source",
+ ("core/solver/nonlinear_integration/src/lib.rs", "solve_iteration_with_sliding_friction_evidence"): "LOOP (option (c)): the binary64 linearized solves",
+ ("core/solver/nonlinear_integration/src/lib.rs", "solve_linearized_system_evidence"): "LOOP (option (c)): the four _binary64 targets and product_equilibrium::evaluate; no formation source",
+ ("core/solver/nonlinear_integration/src/product_equilibrium.rs", "evaluate"): "LOOP: binary64 residual evaluation; unchanged",
+ ("core/solver/nonlinear_integration/src/structural_adapter.rs", "solve"): "SA: pub(crate) &[f64] solve (C3-detect when bound); no formation source",
+ ("core/solver/nonlinear_integration/src/structural_adapter.rs", "solve_assembled_with_formation_check"): "SA: the ONLY non-test builder of a FormationCheckedSystem; selected = false returns solve_assembled",
+ ("core/solver/nonlinear_integration/src/structural_adapter.rs", "solve_binary64"): "SA: option (c) binary64 path; no formation source",
+ ("core/solver/nonlinear_integration/src/structural_adapter.rs", "solve_assembled"): "SA: typed exact path without the check; unchanged",
+ ("core/solver/nonlinear_integration/src/structural_adapter.rs", "solve_structural_sparse_binary64"): "SA: option (c) sparse binary64 path; no formation source",
+ ("core/solver/nonlinear_integration/src/structural_adapter.rs", "solve_prepared"): "SA: backend dispatch; unchanged",
+ ("core/solver/nonlinear_integration/src/structural_adapter.rs", "scrutinize_gaps"): "LOOP: T5's in-loop scrutiny (binary64 evaluate); unchanged",
+ ("core/solver/sparse_direct/src/structural.rs", "solve_structural_sparse"): "KERNEL: sparse completion; unchanged",
+}
+out, bad = [], []
+for line in open(sys.argv[1]):
+    line = line.rstrip("\n")
+    path = line.split(":")[0]
+    fn = line.split("[", 1)[1].split("]", 1)[0]
+    kind = line.split("] ", 1)[1].split(" ", 1)[0]
+    if kind == "test":
+        out.append(line + "  ==> TEST")
+    elif (path, fn) in C:
+        out.append(line + "  ==> " + C[(path, fn)])
+    else:
+        bad.append(line)
+if bad:
+    sys.exit("unclassified:\n" + "\n".join(bad))
+print("\n".join(out))

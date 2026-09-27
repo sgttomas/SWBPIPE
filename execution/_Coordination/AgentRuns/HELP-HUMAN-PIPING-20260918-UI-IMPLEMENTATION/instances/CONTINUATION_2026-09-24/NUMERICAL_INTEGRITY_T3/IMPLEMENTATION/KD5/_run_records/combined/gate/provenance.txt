@@ -1,0 +1,12 @@
+Combined-tree gate provenance (I3; recorded by I3R).
+runs.jsonl (not committed; 888 runs) sha256 e365541b6c7e290955b6a09761ec0fb505b8b25538bcc26896dcc56d8aff0096
+main_small_runs.jsonl (not committed; 836 runs) sha256 0874d184c7df57c4d78ae6f782c1d5992acd280c5c0469be90d8499aece075d7
+pre-S11-G runs.jsonl (A4-5; not committed; 888 runs) sha256 9b3747860735a19ea2666dd31a5ce5c1c50def468457548b76d45558ed07a38d
+candidate probe sha256 39791d93e314cb9ba04bc2aebfd634432136dfbe6bae2308c2c9925f80491f5f, built on 2409de83e (clean tree)
+main probe sha256 12811c32d5c86973599b460e7ec81ec29b03f50e8cb062314670a0ada51805ca, built on main b24b3d536 (git archive)
+P1 probe main.rs 8dc727f476ed4ade25b4d4b0310c9dcaa61649a5b1e56c94921c4091f093fcac; run.py 8d9a32a34bc0602f5ba24b72c999068ca8e6ee2c770a1cbdbc217629983816f6; compare.py 1c91b6c687fa1009dbbc9b28b9ee241fcfbab220d020203d003513f686c4318c
+lists at main b24b3d536:
+  138515b3e1f95f969a297d629c1ac0b50c63c3eb546df8a89049b71fda66fe61  S11_EXCEPTIONS.json
+  0e110b4b50415797c835b451f3ceab1597b940fa5fd652fba4e6b15a2538babd  FORMATION_EXCEPTIONS.json
+  7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9  references.json
+Note: gate_run_attrib.py.txt's docstring was copied from gate_run_parts.py; it is the attribution driver (part 'small': every run under 1000 members).

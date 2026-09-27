@@ -444,6 +444,63 @@ fn kd5_curved_intended_element_uses_the_actual_chord() {
 }
 
 #[test]
+fn kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error() {
+    // RV5-B1 (the M31b counterexample, RV5's admissible inputs): one realized
+    // bend on a cantilever with stiff root springs and a tip moment (1, 1, 1),
+    // its binary64 centre moved along the chord to the edge of the product's
+    // radius-match tolerance (1e-9). Planar 60° and skew 30°. The chord error
+    // gives a first-order translation error at node 1 above the criterion,
+    // which the check sees because its H uses the actual chord x_j − x_i.
+    // Mutation 31b (H from the product's chord R(cos φ − 1), R sin φ) sees
+    // none of it and fails the demotion assertion below.
+    for model in [&CPLANAR_60, &CSKEW_30_N122] {
+        let built = Built::from_model(model);
+        for mode in MODES {
+            let plain = built.plain(mode);
+            let actual = actual_ratio(model, &plain.displacements);
+            // Preconditions: main publishes Passed, and its published error
+            // against the exact intended solution is above the criterion.
+            assert_eq!(
+                plain.report.quality,
+                SolveQuality::Passed,
+                "{} {mode:?}",
+                model.name
+            );
+            assert!(actual > 1.0, "{} {mode:?}: actual {actual}", model.name);
+            let checked = built.checked(mode);
+            record(model.name, mode, Some(actual), &checked);
+            assert_demoted_only_in_quality(&plain, &checked);
+            let ef = estimate(&checked) / 2.0;
+            assert!(
+                (ef / actual - 1.0).abs() < 0.05,
+                "{} {mode:?}: EF {ef} actual {actual}",
+                model.name
+            );
+        }
+    }
+}
+
+#[test]
+fn kd5_large_coordinate_pp_route_elbow_does_not_demote() {
+    // RV5-B1's PP-route elbow at X = 5e5 m (R = 0.3 m, φ = 2°), its centre
+    // computed as PP computes it: no designed mismatch. Against the exact
+    // intended solution (exact binary64 inputs) the product's published error
+    // is about 0.04 of the criterion, so a correct check leaves it Passed and
+    // unchanged (ordinary large-coordinate elbows are not falsely demoted).
+    let model = &PP_UTM_2;
+    let built = Built::from_model(model);
+    for mode in MODES {
+        let plain = built.plain(mode);
+        let actual = actual_ratio(model, &plain.displacements);
+        assert_eq!(plain.report.quality, SolveQuality::Passed, "{mode:?}");
+        assert!(actual < 0.5, "{mode:?}: actual {actual}");
+        let checked = built.checked(mode);
+        record(model.name, mode, Some(actual), &checked);
+        assert_unchanged(&plain, &checked);
+    }
+}
+
+#[test]
 fn kd5_curved_matching_is_order_independent() {
     let built = Built::from_model(&E6);
     assert_eq!(built.macros.len(), 4);

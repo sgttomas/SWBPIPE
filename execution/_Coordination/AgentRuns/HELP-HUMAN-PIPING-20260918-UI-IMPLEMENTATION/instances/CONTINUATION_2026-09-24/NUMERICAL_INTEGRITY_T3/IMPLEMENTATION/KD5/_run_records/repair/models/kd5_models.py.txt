@@ -1,0 +1,225 @@
+#!/usr/bin/env python3
+"""K-D5 (I3): generator of the kernel-level test models and their exact references
+(`nonlinear_integration/src/structural_adapter/kd5_models.rs`). Standard library only.
+
+Usage: python3 -B kd5_models.py <v1_dir> <out.rs> <out.json>
+<v1_dir> holds V1's probe_d5_check.py and D1's curved_ef.py (cited, imported unchanged).
+
+Every model input is a binary64 value printed with Python's shortest round-trip repr, so the
+Rust literals are the same doubles. For each model the exact intended free displacements u_int
+are computed from the same binary64 primitives: frames exactly from their primitives (V1's
+exact_frame and exact local coefficients, Fractions), curved bends by D1's objective Decimal
+re-formation at 60 digits (R5_4_CURVED.md section 2), springs exactly. The JSON also records V1's
+product-faithful emulation of both modes (outcome, cond, actual ratio, trigger ratio 2|w|/crit).
+"""
+import json
+import sys
+from fractions import Fraction as Fr
+
+v1, out_rs, out_json = sys.argv[1], sys.argv[2], sys.argv[3]
+sys.path.insert(0, v1)
+sys.argv = [sys.argv[0], v1]
+import probe_d5_check as p  # noqa: E402
+import curved_ef as ce  # noqa: E402
+
+DOFS = "UX UY UZ RX RY RZ".split()
+
+
+def emulate_frame(m, u):
+    out = {}
+    for mode in ("dense", "sparse"):
+        sol = p.solve_product(m, mode)
+        if sol is None or sol.get("outcome") == "unresolved":
+            out[mode] = {"outcome": "failed"}
+            continue
+        uu = sol["u"]
+        S = p.s_star(uu, m["L_b"])
+        Sint = p.s_star([float(x) for x in u], m["L_b"])
+        act = max(abs(Fr(uu[d]) - u[d]) / max(abs(u[d]), Fr(Sint[p.kinds(d)])) for d in m["free"]) * 10**9
+        uF = [Fr(x) for x in uu]
+        v = [Fr(m["f"][i]) - sum(m["K_int"][i][j] * uF[j] for j in range(12)) for i in m["free"]]
+        w = p.apply_inverse(sol, v)
+        trig = max(2 * abs(w[r]) / (1e-9 * max(abs(uu[i]), S[p.kinds(i)])) for r, i in enumerate(m["free"]))
+        out[mode] = {"outcome": sol["outcome"], "cond": 1 / sol["rcond"], "actual_ratio": float(act),
+                     "trigger_ratio": trig}
+    return out
+
+
+def frame_case(name, xj, yref, springs, moments):
+    sec = p.section()
+    m = p.build(xj, yref, springs, moments, sec)
+    u = p.exact_solve(m["K_int"], m["f"], m["free"])
+    data = dict(name=name, nodes=[[0.0, 0.0, 0.0], list(xj)],
+                members=[dict(i=0, j=1, yref=list(yref), bend=None)],
+                rigid=[0, 1, 2], springs=[[d, k] for d, k in springs], loads=[[d, v] for d, v in moments if v != 0.0],
+                u_int=[[i, float(u[i])] for i in m["free"]], section=sec)
+    return data, emulate_frame(m, u)
+
+
+def curved_case(key, name, mdl=None):
+    mdl = mdl or next(x for x in ce.models() if x["name"] == name)
+    m = ce.build(mdl)
+    names = list(mdl["nodes"])
+    idx = {nm: i for i, nm in enumerate(names)}
+    free = m["free"]
+    uI = ce.dsolve([[m["Ki"][i][j] for j in free] for i in free], [ce.dec(m["f"][i]) for i in free])
+    centres = iter(b["centre"] for b in m["info"])
+    members = []
+    for el in mdl["members"]:
+        bend = None
+        if el.get("bend"):
+            bend = dict(centre=list(next(centres)), k=el["bend"].get("k", 1.0))
+        members.append(dict(i=idx[el["i"]], j=idx[el["j"]], yref=list(el["yref"]), bend=bend))
+    rigid = sorted(6 * idx[nm] + DOFS.index(d) for nm, ds in mdl.get("rigid", {}).items() for d in ds)
+    springs = [[6 * idx[nm] + DOFS.index(d), k] for nm, d, k in mdl.get("springs", [])]
+    loads = [[6 * idx[nm] + DOFS.index(d), v] for nm, d, v in mdl.get("loads", [])]
+    data = dict(name=key, nodes=[list(mdl["nodes"][nm]) for nm in names], members=members, rigid=rigid,
+                springs=springs, loads=loads, u_int=[[i, float(uI[r])] for r, i in enumerate(free)],
+                section=p.section(*mdl.get("section", (0.2, 0.18, 200e9, 80e9))))
+    r = ce.analyse(mdl)
+    emu = {}
+    for mode in ("dense", "sparse"):
+        x = r[mode]
+        emu[mode] = {"outcome": x.get("outcome"), "cond": x.get("cond"), "actual_ratio": x.get("actual_ratio"),
+                     "trigger_ratio": x.get("EF_trigger_ratio"), "shared_trigger_ratio": x.get("EF_shared_trigger_ratio")}
+    return data, emu
+
+
+def curved_case_offset_centre(key, name, offset_over_r):
+    """The same model with the product's binary64 centre moved along the chord by offset_over_r*R:
+    the two radial lengths then differ by about 1.4*offset_over_r*R (admissible: the product's
+    radius-match tolerance is 1e-9), so the product's trigonometric chord R(cos phi - 1, R sin phi)
+    no longer equals the actual chord x_j - x_i."""
+    original = ce.pp_centre
+
+    def shifted(xi, xj, yref, radius):
+        c = original(xi, xj, yref, radius)
+        ch = [xj[k] - xi[k] for k in range(3)]
+        n = (ch[0] * ch[0] + ch[1] * ch[1] + ch[2] * ch[2]) ** 0.5
+        return [c[k] + offset_over_r * radius * ch[k] / n for k in range(3)]
+    ce.pp_centre = shifted
+    try:
+        return curved_case(key, name)
+    finally:
+        ce.pp_centre = original
+
+
+def curved_case_given_centre(key, mdl, centre):
+    """A one-bend model whose product binary64 arc centre is given (RV5-B1's admissible inputs,
+    T3 REVIEW/_run_records/kd5_review/m31b: node coordinates and centre as printed there). The
+    product's radius-match and angle checks admit it; the product's trigonometric chord
+    R(cos phi - 1, R sin phi) then differs from the actual chord x_j - x_i."""
+    original = ce.pp_centre
+    ce.pp_centre = lambda xi, xj, yref, radius: list(centre)
+    try:
+        return curved_case(key, None, mdl)
+    finally:
+        ce.pp_centre = original
+
+
+def cantilever_elbow(name, xj, radius, springs, xi=(0.0, 0.0, 0.0), yref=(0.0, 1.0, 0.0),
+                     section=(0.2, 0.18, 200e9, 80e9)):
+    """RV5-B1's cantilever: node 0 translations rigid, rotational springs on node 0, one realized
+    bend to node 1, a tip moment (1, 1, 1) N*m."""
+    return {"name": name, "nodes": {"N0": list(xi), "N1": list(xj)},
+            "members": [dict(i="N0", j="N1", yref=list(yref), bend={"R": radius, "k": 1.0})],
+            "rigid": {"N0": ["UX", "UY", "UZ"]},
+            "springs": [("N0", d, k) for d, k in zip(("RX", "RY", "RZ"), springs)],
+            "loads": [("N1", d, 1.0) for d in ("RX", "RY", "RZ")],
+            "section": section}
+
+
+def m11():
+    sec = p.section()
+    pts = [[2.0 * i, 1.0 * i, 0.0] for i in range(31)]
+    members = [dict(i=i, j=i + 1, yref=[0.0, 0.0, 1.0], bend=None) for i in range(30)]
+    rigid = list(range(6)) + [6 * 30 + 1]
+    springs = [[6 * i + 2, 5e4] for i in range(3, 31, 3)]
+    loads = [[6 * i + 2, -1000.0] for i in range(1, 31)] + [[6 * 30 + 1, 100.0]]
+    return dict(name="M11", nodes=pts, members=members, rigid=rigid, springs=springs, loads=loads, u_int=[],
+                section=sec), {"note": "V1 probe_d5_realistic: Passed both modes, first-order error <= 1.5e-4 of the criterion"}
+
+
+def rs(x):
+    s = repr(float(x))
+    return s if ("." in s or "e" in s) else s + ".0"
+
+
+def emit(models):
+    lines = ["//! Generated by the K-D5 run record `kd5_models.py` (T3 IMPLEMENTATION/KD5/_run_records);",
+             "//! do not edit by hand. Invented inputs only (V1's and D1's probe models, cited there);",
+             "//! u_int is the exact intended solution of each model, rounded once to binary64.",
+             "#![cfg_attr(rustfmt, rustfmt::skip)]",
+             "#![allow(clippy::approx_constant, clippy::excessive_precision)]",
+             "use super::{MemberData, ModelData, SectionData};", ""]
+    for d in models:
+        sec = d["section"]
+        lines.append(f"pub(super) const {d['name']}: ModelData = ModelData {{")
+        lines.append(f"    name: \"{d['name']}\",")
+        lines.append(f"    section: SectionData {{ e: {rs(sec['E'])}, g: {rs(sec['G'])}, a: {rs(sec['A'])}, i: {rs(sec['Iy'])}, j: {rs(sec['J'])} }},")
+        lines.append("    nodes: &[" + ", ".join(f"[{rs(a)}, {rs(b)}, {rs(c)}]" for a, b, c in d["nodes"]) + "],")
+        mem = []
+        for mm in d["members"]:
+            bend = "None" if mm["bend"] is None else f"Some(([{', '.join(rs(v) for v in mm['bend']['centre'])}], {rs(mm['bend']['k'])}))"
+            mem.append(f"MemberData {{ i: {mm['i']}, j: {mm['j']}, y_reference: [{', '.join(rs(v) for v in mm['yref'])}], bend: {bend} }}")
+        lines.append("    members: &[" + ", ".join(mem) + "],")
+        lines.append("    rigid: &[" + ", ".join(str(x) for x in d["rigid"]) + "],")
+        lines.append("    springs: &[" + ", ".join(f"({a}, {rs(b)})" for a, b in d["springs"]) + "],")
+        lines.append("    loads: &[" + ", ".join(f"({a}, {rs(b)})" for a, b in d["loads"]) + "],")
+        lines.append("    u_int: &[" + ", ".join(f"({a}, {rs(b)})" for a, b in d["u_int"]) + "],")
+        lines.append("};")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def main():
+    m122 = [(9, 0.0048), (10, 0.0096), (11, 0.0096)]
+    m345 = [(9, 0.005184), (10, 0.006912), (11, 0.0)]
+    cases = [
+        frame_case("F122", (1.0, 2.0, 2.0), (1.0, 0.0, 0.0), [(3, 144.0), (4, 1e6), (5, 1e6)], m122),
+        frame_case("F345", (3.0, 4.0, 0.0), (0.0, 0.0, 1.0), [(3, 86.4), (4, 1e6), (5, 1e6)], m345),
+        frame_case("PROBE_C", (5.115, 0.0, 0.0), (0.0, 0.0, 1.0), [(3, 0.051614650352348725), (4, 1e6), (5, 1e6)],
+                   [(9, 0.0144)]),
+        frame_case("PROBE_D", (5.015, 0.0, 0.0), (0.0, 0.0, 1.0), [(3, 0.05222604738082737), (4, 1e6), (5, 1e6)],
+                   [(9, 0.0144)]),
+        frame_case("BENDING_SOFT", (3.0, 0.0, 0.0), (0.0, 0.0, 1.0), [(3, 1e6), (4, 2.2), (5, 1e6)], [(10, 0.01)]),
+        curved_case("E1", "E1 L-shape, two anchors, one elbow"),
+        curved_case("E6", "E6 expansion U-loop, four elbows, anchors at both ends, hangers"),
+        curved_case("CSKEW_8_5", "C-skew elbow cantilever, soft root spring k_X = 8.5"),
+        curved_case_offset_centre("CSKEW_30_RADIUS_MISMATCH", "C-skew elbow cantilever, soft root spring k_X = 30", -6.5e-10),
+        m11(),
+        # RV5-B1 (M31b counterexample), admissible given centres: planar 60 degrees and skew 30 degrees.
+        curved_case_given_centre("CPLANAR_60", cantilever_elbow(
+            "CPLANAR_60", (0.25980762113533157, 0.14999999999999997, 0.0), 0.3, (1e6, 1e6, 1e6)),
+            (-2.5980759455784347e-10, 0.29999999985000003, -0.0)),
+        curved_case_given_centre("CSKEW_30_N122", cantilever_elbow(
+            "CSKEW_30_N122", (0.14142135623730948, -0.00693503541210147, -0.06377564270655325), 0.3,
+            (1e6, 1e6, 1e6)),
+            (-5.277917242295149e-10, 0.21213203438184614, -0.21213203411795029)),
+        # RV5-B1's PP-route GIS-scale elbow: the centre as PP computes it (no designed mismatch).
+        curved_case("PP_UTM_2", None, cantilever_elbow(
+            "PP_UTM_2", (500000.010469849, 350000.0001827519, 0.0), 0.3, (1e6, 1e6, 1e6),
+            xi=(500000.0, 350000.0, 0.0))),
+        # The same elbow with PP's derived section (id = od - 2 t), for the product-level test.
+        curved_case("PP_UTM_2_PRODUCT_SECTION", None, cantilever_elbow(
+            "PP_UTM_2_PRODUCT_SECTION", (500000.010469849, 350000.0001827519, 0.0), 0.3, (1e6, 1e6, 1e6),
+            xi=(500000.0, 350000.0, 0.0), section=(0.2, 0.2 - 2.0 * 0.01, 200e9, 80e9))),
+        # RV5-B1's narrowed large-coordinate case (ROOT final ruling): X = 5e6, Y = 3.5e6, R = 0.3,
+        # phi = 5 degrees, PP's own centre and derived section, for the product-level demotion test.
+        curved_case("PP_UTM_5E6_PHI5_PRODUCT_SECTION", None, cantilever_elbow(
+            "PP_UTM_5E6_PHI5_PRODUCT_SECTION", (5000000.026146723, 3500000.0011415905, 0.0), 0.3, (1e6, 1e6, 1e6),
+            xi=(5000000.0, 3500000.0, 0.0), section=(0.2, 0.2 - 2.0 * 0.01, 200e9, 80e9))),
+    ]
+    # PP_UTM_2_PRODUCT_SECTION serves the product-level test only (its u_int is in the JSON).
+    product_only = ("PP_UTM_2_PRODUCT_SECTION", "PP_UTM_5E6_PHI5_PRODUCT_SECTION")
+    open(out_rs, "w").write(emit([c[0] for c in cases if c[0]["name"] not in product_only]))
+    products = [c[0] for c in cases if c[0]["name"] in product_only]
+    json.dump({"python": sys.version.split()[0], "emulation": {c[0]["name"]: c[1] for c in cases},
+               "product_test_models": {d["name"]: {"nodes": d["nodes"], "members": d["members"],
+                                                   "section": d["section"], "u_int": d["u_int"]} for d in products}},
+              open(out_json, "w"), indent=1)
+    for c in cases:
+        print(c[0]["name"], json.dumps(c[1]))
+
+
+main()

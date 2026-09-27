@@ -1,0 +1,10 @@
+ni_kd5.log exit=0 passed=14 failed=0 ignored=0
+fk_kd5.log exit=0 passed=5 failed=0 ignored=0
+pp_formation_check_runtime.log exit=0 passed=5 failed=0 ignored=0
+ni_suite.log exit=0 passed=88 failed=0 ignored=0
+pp_suite.log exit=0 passed=516 failed=0 ignored=1
+DONE
+--- NI re-run after the E4 pins (s11k_tests.rs changed):
+ni_kd5.log exit=0 passed=15 failed=0 ignored=0
+ni_suite.log exit=0 passed=89 failed=0 ignored=0
+DONE
