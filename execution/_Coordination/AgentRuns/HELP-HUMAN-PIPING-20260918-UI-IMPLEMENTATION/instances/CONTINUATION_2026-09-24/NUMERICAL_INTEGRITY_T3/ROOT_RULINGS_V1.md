@@ -522,3 +522,36 @@ V1's two implementation NOTEs go into I5's brief:
 - **D21-2:** the scaled-RoundedProduct underflow fallback is γ2·|value| + |k|·2^-1074.
 
 S11-G is implemented by I5 on main after S11-F merges, and reviewed by RV4.
+
+## K-D5 mutation M31b: accepted as equivalent at the criterion (ROOT, 2026-09-27)
+
+**The mutant.** M31b is the chord-only form of the design's mutation 31. K_t is still re-formed, but the intended element's H is built from the product's formula chord R(cos φ − 1, R sin φ, 0), using binary64 R, atan2, cos and sin, instead of the actual node chord. The formula evaluated at p (M31b0) also survives. Every other K-D5 mutation is killed: M23, M26, M27, M28, **M31a** (the whole-matrix form, where K_int is the product's binary64 matrix), M32a and M32b.
+
+**Evidence (I3):**
+- On CSKEW_8_5, the mutant's trigger equals the correct check's to 4+ digits.
+- Admissible radius-mismatch elbow:
+  - the centre is shifted −6.5e-10·R, giving |ri| − |rj| = 9.2e-10 relative, inside the product's 1e-9 tolerance;
+  - the formula chord differs from the actual chord by about 1.4e-10 m per component, confirmed on an instrumented build;
+  - triggers are 1.681 (mutant) against 1.685 (correct);
+  - the chord error moves EF by about 0.002 of the criterion.
+- **The mechanism:** a rigid-rotation force pair from a chord error has only a second-order net moment on the soft mode.
+- **Consistency:** this agrees with V1's `REVIEW/VERIFY_R5.md` item 16, which reproduced mutation 31 only through the shared matrix.
+
+**Ruling: option (a) accepted.** M31b is recorded as an equivalent mutant at the unchanged 1e-9 criterion. Nothing is weakened. The conditions are:
+1. **What stays required:**
+   - the test `kd5_curved_intended_element_uses_the_actual_chord` (the admissible-mismatch elbow, k_X = 30; it demotes in both modes and kills M31a);
+   - M31a's kill;
+   - the actual-chord implementation (R5-4 §2 step 6).
+
+   The equivalence is about the test's power, not the implementation: the code must still use the actual chord.
+2. **The K-D5 reviewer (RV-K-D5) gets a specific attack:** construct an admissible product model on which M31b is observable at the criterion. Candidates include:
+   - small bend angles;
+   - near-π angles short of the AngleDomain refusal;
+   - extreme R/L;
+   - stiff-X or soft-Y combinations;
+   - the most distorted admissible centre.
+
+   If RV-K-D5 finds such a model, it becomes a required test, and M31b must be killed before merge.
+3. **Records:**
+   - The equivalence is recorded, with these numbers, in K-D5's RETURN and CHANGE_RECORD and here.
+   - The claim in `DESIGN_NUMERICS/R5_4_CURVED.md` and `D5_TRIGGER.md` that "H from the product's chord misses k_X = 8.5" holds only for the whole-matrix form, M31a. It is corrected at the next D1 touch, or noted in the K-D5 record.
