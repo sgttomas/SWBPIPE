@@ -1,0 +1,191 @@
+applied E3_LINE_WITHOUT_RECORD
+   Compiling open_pipe_stress_product_physics v0.2.0 (<scratch>/rv6/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8716:4
+     |
+8716 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:92:9
+   |
+91 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+92 |     pub support_id: String,
+   |         ^^^^^^^^^^
+93 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+94 |     pub value: f64,
+   |         ^^^^^
+95 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:117:9
+    |
+116 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+117 |     pub dofs: usize,
+    |         ^^^^
+118 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+119 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 |     pub blocks: usize,
+    |         ^^^^^^
+121 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+122 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+123 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+124 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+125 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+126 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+127 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+128 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+129 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+130 |     pub max_relative_projection_error: f64,
+131 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:144:5
+    |
+138 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+144 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:170:12
+    |
+153 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+170 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:524:19
+    |
+453 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+524 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.22s
+     Running unittests src/lib.rs (<wt>/rv6-target/debug/deps/open_pipe_stress_product_physics-c73bc7238e6ca494)
+
+running 8 tests
+test f1a_tests::f1a_evidence_line_exact_text ... ok
+test f1a_tests::f1a_kd5_demoted_case_carries_exactly_one_d5_line ... ok
+test f1a_tests::f1a_case_demoted_by_both_kd5_and_s11g_has_the_d5_line_alone ... ok
+test f1a_tests::f1a_reason_tokens_are_the_enum_variants ... ok
+test tests::under_restrained_model_reports_solver_diagnostic ... ok
+test f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule ... FAILED
+test f1a_tests::f1a_no_record_is_byte_identical_to_main ... FAILED
+test f1a_tests::f1a_non_demoted_cases_carry_no_d5_line ... FAILED
+
+failures:
+
+---- f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule stdout ----
+
+thread 'f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule' (20231) panicked at src/f1a_tests.rs:493:5:
+assertion failed: !sensitive.message.contains(D5) && !passed.message.contains(D5)
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:150:5
+   3: open_pipe_stress_product_physics::f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule
+             at ./src/f1a_tests.rs:493:5
+   4: open_pipe_stress_product_physics::f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule::{closure#0}
+             at ./src/f1a_tests.rs:479:53
+   5: <open_pipe_stress_product_physics::f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- f1a_tests::f1a_no_record_is_byte_identical_to_main stdout ----
+
+thread 'f1a_tests::f1a_no_record_is_byte_identical_to_main' (20234) panicked at src/f1a_tests.rs:643:13:
+assertion `left == right` failed: Passed None
+  left: "[{\"id\":\"diagnostic:x\",\"code\":\"X\",\"severity\":\"info\",\"message\":\"x\",\"source\":\"core/product_physics\"},{\"id\":\"diagnostic:numerical-integrity:c\",\"code\":\"NUMERICAL_INTEGRITY_CHECKS_PASSED\",\"severity\":\"info\",\"message\":\"M03-INTEGRITY-v1 represented original-equation structural evidence for load case c: StructuralReport { policy: \\\"M03-INTEGRITY-v1\\\", quality: Passed, factorization: \\\"unit\\\", scale_exponents: [], pivots: [], condition_estimator: \\\"unit\\\", reciprocal_condition_estimate: 0.5, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: None }; global_dof_map=[\\\"N0:UX\\\", \\\"N0:UY\\\", \\\"N0:UZ\\\", \\\"N0:RX\\\", \\\"N0:RY\\\", \\\"N0:RZ\\\", \\\"N1:UX\\\", \\\"N1:UY\\\", \\\"N1:UZ\\\", \\\"N1:RX\\\", \\\"N1:RY\\\", \\\"N1:RZ\\\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed. formation_check: reason=none\",\"source\":\"core/product_physics\",\"affected_refs\":[\"c\"]}]"
+ right: "[{\"id\":\"diagnostic:x\",\"code\":\"X\",\"severity\":\"info\",\"message\":\"x\",\"source\":\"core/product_physics\"},{\"id\":\"diagnostic:numerical-integrity:c\",\"code\":\"NUMERICAL_INTEGRITY_CHECKS_PASSED\",\"severity\":\"info\",\"message\":\"M03-INTEGRITY-v1 represented original-equation structural evidence for load case c: StructuralReport { policy: \\\"M03-INTEGRITY-v1\\\", quality: Passed, factorization: \\\"unit\\\", scale_exponents: [], pivots: [], condition_estimator: \\\"unit\\\", reciprocal_condition_estimate: 0.5, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: None }; global_dof_map=[\\\"N0:UX\\\", \\\"N0:UY\\\", \\\"N0:UZ\\\", \\\"N0:RX\\\", \\\"N0:RY\\\", \\\"N0:RZ\\\", \\\"N1:UX\\\", \\\"N1:UY\\\", \\\"N1:UZ\\\", \\\"N1:RX\\\", \\\"N1:RY\\\", \\\"N1:RZ\\\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.\",\"source\":\"core/product_physics\",\"affected_refs\":[\"c\"]}]"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<alloc::string::String, alloc::string::String>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_product_physics::f1a_tests::f1a_no_record_is_byte_identical_to_main
+             at ./src/f1a_tests.rs:643:13
+   5: open_pipe_stress_product_physics::f1a_tests::f1a_no_record_is_byte_identical_to_main::{closure#0}
+             at ./src/f1a_tests.rs:620:45
+   6: <open_pipe_stress_product_physics::f1a_tests::f1a_no_record_is_byte_identical_to_main::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- f1a_tests::f1a_non_demoted_cases_carry_no_d5_line stdout ----
+
+thread 'f1a_tests::f1a_non_demoted_cases_carry_no_d5_line' (20235) panicked at src/f1a_tests.rs:182:17:
+RF_SKEW_T_CANT_OFF_345_R1E_04 Captured SparseInteractive
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: open_pipe_stress_product_physics::f1a_tests::f1a_non_demoted_cases_carry_no_d5_line
+             at ./src/f1a_tests.rs:182:17
+   3: open_pipe_stress_product_physics::f1a_tests::f1a_non_demoted_cases_carry_no_d5_line::{closure#0}
+             at ./src/f1a_tests.rs:170:44
+   4: <open_pipe_stress_product_physics::f1a_tests::f1a_non_demoted_cases_carry_no_d5_line::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule
+    f1a_tests::f1a_no_record_is_byte_identical_to_main
+    f1a_tests::f1a_non_demoted_cases_carry_no_d5_line
+
+test result: FAILED. 5 passed; 3 failed; 0 ignored; 0 measured; 383 filtered out; finished in 0.12s
+
+error: test failed, to rerun pass `--lib`
