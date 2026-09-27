@@ -79,3 +79,32 @@ Write `T3/REVIEW/S11G_REVIEW.md`, containing:
 - what you did not check.
 
 The verdict is **PASS** or **FAIL**. Send the manager a SendMessage summary with the verdict, the counts and the sha256.
+
+## Addendum 1 (2026-09-27): the I5 rulings
+
+**Basis.** Add `T3/ROOT_RULINGS_V1.md` "S11-G implementation: I5 rulings" to the basis. Where they differ, it takes precedence over the brief and the design.
+
+**Also check:**
+1. **The B = T0 = 0 erratum.**
+   - The first clause is `B > 0 && B ≥ T0`, not revision 2.1's `B ≥ T0`.
+   - The boundary tests exist and pass:
+     - B = T0 = 0 with A = 0 does not fire (T6 stays CHECKS_PASSED);
+     - B = T0 = 0 with A_net ≠ 0 fires;
+     - B = T0 = 0 with |A_se| > 12·Tf fires;
+     - B > 0 with B = T0 fires.
+   - Re-run the mutation that restores `B ≥ T0` and confirm that T6 kills it.
+   - Confirm that D21-1's exact second test and the A_se third test are unchanged.
+   - Confirm that CHANGE_RECORD records the deviation.
+2. **The reader-window condition (ruling 1).**
+   - The load-row finding enters at `append_integrity_report` on both call sites. R-b′ amends the same integrity diagnostic after the recovery loop, and only while it is still CHECKS_PASSED.
+   - Independently enumerate every reader of the diagnostic code, the envelope's `solve_quality` and the case standing between the append and R-b′'s amendment. Cover Sensitive containment and withholding, receipt building, export and qualification gating, and headless digests. **A reader in that window that sees CHECKS_PASSED for a case R-b′ later demotes is BLOCKING.**
+   - Confirm that the R-b′-only test and the both-guards test exist, and that each asserts the final envelope and every downstream view.
+3. **The receipt residual (ruling 3).**
+   - The multi-case captured refusal (`SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`) is accepted as a disclosed, fail-closed availability residual, owned by T3's composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item.
+   - Confirm that it fails closed on **every reachable path**. **Any path that publishes a case value is BLOCKING.**
+   - Confirm that the characterization test is labelled as a known residual, not desired behaviour, and that it asserts:
+     - refusal with the finalization code;
+     - no published case value;
+     - single-case captured invocations demoted and not refused.
+   - Confirm that I5 recorded the reach per slice (through S11-F's and K-D5's demotions as well as S11-G's) as facts, not presumptions.
+   - Confirm that CHANGE_RECORD and the PR-body text disclose it.

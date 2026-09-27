@@ -117,3 +117,21 @@ A fired case is demoted to **Sensitive**: never refused, never `Err`, and no new
 - **No machine paths** in committed files (use `<wt>` and `<scratch>`). The manager runs GEN-8 before committing.
 
 Send the manager a SendMessage summary. Message **at once** if the stop rule triggers, if a design item cannot be implemented as specified, or if the K-D5 boundary cannot be kept. Don't improvise a different design.
+
+## Addendum 1 (ROOT, 2026-09-27): "never refused", qualified
+
+The rulings are recorded in `T3/ROOT_RULINGS_V1.md` under "S11-G implementation: I5 rulings".
+
+**One exception to "never refused".** The multi-case captured receipt refusal is a **disclosed, fail-closed residual** under ruling 3. In a captured invocation in which one case is source-selected, and another is demoted from Passed by a guard, receipt finalization refuses the invocation with `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`. That refusal is accepted for S11-G. The fix, a "demoted-ordinary" receipt form, belongs to T3's composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item and must close before T3 closes. Make no receipt or reader edits.
+
+**Everything else stays never-refuse:** a fired case is demoted to Sensitive, never refused, never `Err`, with no new envelope field.
+
+**Required by ruling 3:**
+- the reach per slice, recorded as facts: through S11-F's `LOAD_CONTRIBUTION_ABSORBED` demotion on main, through K-D5's formation-check demotion, and through S11-G's guards;
+- the characterization test, labelled a known residual, asserting:
+  - refusal with the finalization code;
+  - no published case value;
+  - single-case captured invocations demoted and not refused;
+- disclosure in CHANGE_RECORD and in the PR-body text.
+
+**Also required:** rulings 1 (the reader-window condition, with its tests) and 2 (the `B > 0 && B ≥ T0` erratum, with its boundary tests and mutation).

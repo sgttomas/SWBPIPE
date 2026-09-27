@@ -38,7 +38,7 @@ Your job is to find defects, not to confirm. Report what you find; you fix nothi
    - the S11-G rulings (DS-1: K-D5 is **expected** to stay silent on the INPLANE formation cases after S11-F; don't report that as a defect);
    - **"K-D5 mutation M31b: accepted as equivalent at the criterion"** (`c2042fd9c`).
 6. `T3/REVIEW/VERIFY_R5.md` (item 16), `T3/REVIEW/D5_CHECK.md` and `T3/REVIEW/K3A_REVIEW.md`.
-7. `T3/GATE/S11_EXCEPTIONS.json` (221 triples), `GATE/FORMATION_EXCEPTIONS.json` (7 triples), `T3/REFERENCES/references.json` (`c0f14201c`), and RF-ELOAD (`b6927f783`).
+7. `T3/GATE/S11_EXCEPTIONS.json`, emptied at the S11-F merge (`triples: []`, commit `59fff0d9e`; the pre-S11-F pin of 221 triples is kept in its `emptied` field), `GATE/FORMATION_EXCEPTIONS.json` (7 triples), `T3/REFERENCES/references.json` (`c0f14201c`), and RF-ELOAD (`b6927f783`).
 
 ## What to check (at least)
 
