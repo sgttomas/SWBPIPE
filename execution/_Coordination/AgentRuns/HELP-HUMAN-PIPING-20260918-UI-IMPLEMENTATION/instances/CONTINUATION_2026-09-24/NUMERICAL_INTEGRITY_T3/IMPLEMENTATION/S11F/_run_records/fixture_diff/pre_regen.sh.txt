@@ -1,0 +1,40 @@
+#!/bin/sh
+# T3 S11-F (I4) pre-regeneration measurement by the actual producers, in scratch copies only.
+# <base-export> = git archive 3488a236a (core fixtures schemas validation tests tools); <cand-copy> = a copy
+# of the candidate project with the worktree's core. Nothing in the worktree is written (cargo writes only
+# to CARGO_TARGET_DIR). Stages: build-base | run-base | build-cand | run-cand | writers
+set -e
+S=$1; W=$2; STAGE=$3
+B=$S/basecore/projects/chirality-piping; C=$S/candp/projects/chirality-piping; O=$S/pre
+T1=$W/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/_run_records
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<s11f-target>
+A=$W/core/serialization/canonical_json/target/checked-json/release
+export OPENPIPESTRESS_CHECKED_JSON_BIN=$A/openpipestress_jcs_ijson OPENPIPESTRESS_BINARY64_JSON_BIN=$A/openpipestress_jcs_binary64
+export OPENPIPESTRESS_UNITS_BIN=$W/core/units/target/units-authority/release/openpipestress_units
+PY=<dec025-venv>/bin/python
+mkdir -p $O/base $O/cand $S/prod/base $S/prod/cand
+EX="--example physics_source_connected --example exact_pressure_connected"
+case $STAGE in
+build-base) cd $B/core/product_physics && cargo build --release --offline --locked $EX
+  cp $CARGO_TARGET_DIR/release/examples/physics_source_connected $CARGO_TARGET_DIR/release/examples/exact_pressure_connected $S/prod/base/ ;;
+build-cand) cd $W/core/product_physics && cargo build --release --offline --locked $EX
+  cp $CARGO_TARGET_DIR/release/examples/physics_source_connected $CARGO_TARGET_DIR/release/examples/exact_pressure_connected $S/prod/cand/ ;;
+run-base) cd $B
+  for m in sparse:sparse_interactive dense:dense_scrutiny; do a=${m%%:*}; b=${m##*:}
+    $S/prod/base/physics_source_connected $a fixtures/product_preview/load_reference/connected.request.json > $O/base/connected-$b.raw.json
+    $S/prod/base/physics_source_connected $a fixtures/product_preview/load_reference/pressure.request.json > $O/base/pressure-$b.raw.json
+    $S/prod/base/exact_pressure_connected $a --model fixtures/model_operations/physics_thermal_ui_model.json > $O/base/physics_thermal_ui_mechanics_$a.json
+  done ;;
+run-cand) cd $C
+  for m in sparse:sparse_interactive dense:dense_scrutiny; do a=${m%%:*}; b=${m##*:}
+    $S/prod/cand/physics_source_connected $a fixtures/product_preview/load_reference/connected.request.json > fixtures/product_preview/load_reference/connected-$b.raw.json
+    $S/prod/cand/physics_source_connected $a fixtures/product_preview/load_reference/pressure.request.json > $O/cand/pressure-$b.raw.json
+    $S/prod/cand/exact_pressure_connected $a --model fixtures/model_operations/physics_thermal_ui_model.json > fixtures/results/physics_thermal_ui_mechanics_$a.json
+  done ;;
+writers) cd $C/core/reporting/result_export
+  LOAD_REFERENCE_WRITE_FIXTURES=1 LOAD_REFERENCE_SOURCE_WRITE_FIXTURES=1 cargo test --offline --locked --no-fail-fast --test load_reference_contract --test load_reference_source_contract > $O/cand_result_export_writers.log 2>&1 || echo "result_export writers exit $?"
+  cd $C
+  LOAD_REFERENCE_WRITE_FIXTURES=1 LOAD_REFERENCE_SOURCE_WRITE_FIXTURES=1 $PY -m pytest -q -p no:cacheprovider tests/test_load_reference_readers.py tests/test_load_reference_source_readers.py > $O/cand_pytest_writers.log 2>&1 || echo "pytest writers exit $?"
+  $PY $T1/session2/cp3_stress_neutral_outputs.py . > $O/cand_cp3.json 2>&1 || echo "cp3 exit $?"
+  $PY $T1/session4/t1_joined_stress_neutral_outputs.py . --check > $O/cand_t1_joined_check.json 2>&1 || echo "t1 joined check exit $?" ;;
+esac

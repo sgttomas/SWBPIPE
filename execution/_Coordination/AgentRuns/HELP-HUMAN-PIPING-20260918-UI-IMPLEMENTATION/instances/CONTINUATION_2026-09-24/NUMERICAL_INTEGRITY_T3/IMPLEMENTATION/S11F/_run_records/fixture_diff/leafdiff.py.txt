@@ -1,0 +1,32 @@
+"""T3 S11-F (I4): leaf-level diff of committed vs candidate JSON files (standard library only).
+usage: leafdiff.py <committed root> <candidate root> <out.json> <relpath>...
+For each file: bytes before/after, sha256 before/after, changed leaf count, and each changed leaf
+(path, old, new; strings longer than 160 characters are shown as a length and a sha256)."""
+import hashlib, json, sys, os
+a_root, b_root, out = sys.argv[1], sys.argv[2], sys.argv[3]
+def show(v):
+    if isinstance(v, str) and len(v) > 160:
+        return {"len": len(v), "sha256": hashlib.sha256(v.encode()).hexdigest()}
+    return v
+def walk(a, b, p, acc):
+    if type(a) != type(b) and not (isinstance(a, (int, float)) and isinstance(b, (int, float))):
+        acc.append((p, show(a), show(b))); return
+    if isinstance(a, dict):
+        for k in sorted(set(a) | set(b)):
+            if k not in a or k not in b: acc.append((p + '/' + k, show(a.get(k, '<absent>')), show(b.get(k, '<absent>')))); continue
+            walk(a[k], b[k], p + '/' + k, acc)
+    elif isinstance(a, list):
+        if len(a) != len(b): acc.append((p + '#len', len(a), len(b)))
+        for i, (x, y) in enumerate(zip(a, b)): walk(x, y, '%s/%d' % (p, i), acc)
+    elif a != b or (isinstance(a, float) and repr(a) != repr(b)):
+        acc.append((p, show(a), show(b)))
+res = {}
+for rel in sys.argv[4:]:
+    x = open(os.path.join(a_root, rel), 'rb').read(); y = open(os.path.join(b_root, rel), 'rb').read()
+    acc = []
+    if x != y: walk(json.loads(x), json.loads(y), '', acc)
+    res[rel] = {"bytes": [len(x), len(y)], "sha256": [hashlib.sha256(x).hexdigest(), hashlib.sha256(y).hexdigest()],
+                "identical": x == y, "changed_leaves": len(acc),
+                "leaves": [{"path": p, "old": o, "new": n} for p, o, n in acc]}
+json.dump(res, open(out, 'w'), indent=1)
+for rel, r in res.items(): print(rel, r["bytes"], "identical" if r["identical"] else "%d leaves" % r["changed_leaves"])

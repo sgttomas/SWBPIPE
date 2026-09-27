@@ -1,0 +1,50 @@
+{
+ "fixtures/results/physics_thermal_ui_mechanics_dense.json": {
+  "bytes": [
+   169867,
+   169867
+  ],
+  "sha256": [
+   "38356d7ce4fa16e994f64c50c63dd9101688b77cd967712be75a9d8e977ab24c",
+   "86e1ae6317f8149572943e2faf95e73d2abeaf56e56607b5631496ac214236fc"
+  ],
+  "identical": false,
+  "changed_leaves": 2,
+  "leaves": [
+   {
+    "path": "/results/16/value",
+    "old": 5.820766091346741e-11,
+    "new": 6.639311322942376e-11
+   },
+   {
+    "path": "/results/22/value",
+    "old": 5.820766091346741e-11,
+    "new": 6.639311322942376e-11
+   }
+  ]
+ },
+ "fixtures/results/physics_thermal_ui_mechanics_sparse.json": {
+  "bytes": [
+   167373,
+   167409
+  ],
+  "sha256": [
+   "ed20f1148e247fca99b285fd4f68c19324d3bde66a94e72e90793b1a60af4204",
+   "860594642a48f06a0aafff4613bb0c29301eeed6dc06a0dc58a4d1960c724088"
+  ],
+  "identical": false,
+  "changed_leaves": 2,
+  "leaves": [
+   {
+    "path": "/results/15/value",
+    "old": 0.0,
+    "new": 8.185452315956354e-12
+   },
+   {
+    "path": "/results/21/value",
+    "old": 0.0,
+    "new": 8.185452315956354e-12
+   }
+  ]
+ }
+}
