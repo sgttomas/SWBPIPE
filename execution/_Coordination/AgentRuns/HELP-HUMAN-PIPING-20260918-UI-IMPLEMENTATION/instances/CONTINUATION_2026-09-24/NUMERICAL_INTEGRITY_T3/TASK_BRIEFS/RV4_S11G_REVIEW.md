@@ -108,3 +108,21 @@ The verdict is **PASS** or **FAIL**. Send the manager a SendMessage summary with
      - single-case captured invocations demoted and not refused.
    - Confirm that I5 recorded the reach per slice (through S11-F's and K-D5's demotions as well as S11-G's) as facts, not presumptions.
    - Confirm that CHANGE_RECORD and the PR-body text disclose it.
+
+## Addendum 2 (2026-09-27): revision 2.2 and the D22-1 condition
+
+**Basis.** The design is now **S11G_GUARD revision 2.2** (`680fecdd…`, `3c80158e9`) plus D1's D22-1 erratum (§0.2), as selected in `ROOT_RULINGS_V1.md` "Selection: S11-G revision 2.2". Read it with V1's delta-2.2 section of `REVIEW/S11G_CHECK.md` (`ec0efce7…`). Where they differ, 2.2 replaces 2.1's routing gate and Addendum 1's receipt-residual scope.
+
+**Also check:**
+1. **G-1 to G-3.**
+   - The routing gate is removed.
+   - A load-row finding routes like a Sensitive verdict, with `OrdinaryAttempt`'s outcome sensitive (a constructor argument only; `wire()` and the finalize bodies are unchanged; no receipt contract change).
+   - `decline_formation()` is present, including V1's 0.4.0 subnormal eigen-load corner.
+2. **D22-1, the binding condition.** A Passed, guard-fired case that main would not attempt records a **zero-work** formation decline, not a charged attempt. Check:
+   - the invocation ledger equals main's on such a case;
+   - the result_export and desktop readers accept the entry under WORK_LEDGER and FAILURE_CATEGORY;
+   - already-Sensitive guard-fired cases keep the real attempt;
+   - re-run the mutation that restores the charged attempt, and confirm it is killed.
+3. **Path 2 is gone.** Re-run T18 on I5's path-2 model: no refusal, case B SENSITIVE, and bytes equal to main's.
+4. **The residual after 2.2** is only path 1's R-b′ variant. It fails closed: pre-0.4 captured returns `Err` with no envelope, and 0.4.0 republishes. T20 is labelled pre-0.4 only. T19 and T20 may use V1's single-basis construction (N1).
+5. **The tests and mutations of 2.2:** T1's restated diagnostic set, T10/T10b restated, T18–T21, M19–M22, M7 withdrawn, and the D22-1 tests. Also the forecast: zero committed bytes, and UDL-W1e8 captured gaining one info diagnostic.
