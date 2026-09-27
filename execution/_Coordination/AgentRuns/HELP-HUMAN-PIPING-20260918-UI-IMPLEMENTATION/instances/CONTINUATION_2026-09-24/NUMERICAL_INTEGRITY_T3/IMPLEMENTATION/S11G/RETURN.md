@@ -299,7 +299,7 @@ ROOT's rulings on RV4's review (PASS; 0 BLOCKING, 4 SHOULD-FIX, 10 NOTE; numeric
 
 **A slip, disclosed.** GNU `patch` saved a backup, `core/product_physics/src/lib.rs.orig`, when RV-M6's hunk applied with fuzz. The file sat untracked in the worktree during the runs; it is not a module, so no build reads it. I deleted it before this clean point, and nothing else is left over.
 
-The same five are also added to the §4 driver as anchors (`RV-M1` … `RV-M10`). The driver's M21 anchor is updated for the reformatted `OrdinaryAttempt::passed` call; all anchors check unique.
+The same five are also added as anchors (`RV-M1` … `RV-M10`) in a copy of the §4 driver, `_run_records/mutations/s11g_mutants_rv4_repair.py`, whose M21 anchor is updated for the reformatted `OrdinaryAttempt::passed` call; all anchors check unique. The committed §4 driver `s11g_mutants.py` stays byte-identical to `b62e40d4d` (sha256 `0d091feb…`) as the record of the §4 run; the manager restored it after it had been edited in place, and the updated driver is kept as the new file.
 
 **Layout-only formatting of PP `lib.rs` (RV4-N6).**
 - **What was formatted.** Only the rustfmt hunks overlapping S11-G's own lines. One of them re-indents the body of E-1's else block, which S11-G wrapped.
