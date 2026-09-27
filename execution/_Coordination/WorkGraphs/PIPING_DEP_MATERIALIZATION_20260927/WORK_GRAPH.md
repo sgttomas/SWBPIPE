@@ -1,0 +1,30 @@
+# Work graph — materializer rerun finding (DAG-011)
+
+## Intent and selected route
+
+- Stable run identity: `PIPING_DEP_MATERIALIZATION_20260927`.
+- Owner steering, 2026-09-27 (CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING): "You can take care of those remaining items now.  Include the items with the "other owners".  You can make changes as necessary." The integrating parent session relayed it with this item: the PR #985 review found 93 of 98 Piping `Dependencies.csv` files differing from a default-mode materializer rerun from the accepted DAG.
+- Intended result: reproduce the finding without writing to the tree, classify its cause, and record Piping's disposition under its own rules. Add a Root tool-doc note only if it prevents a false drift reading.
+- Scope: coordination record, this graph and its evidence, one central receipt, and the Root materializer docstring and `tools/REGISTRY.md` note with its tranche manifest and export-manifest hashes. Out of scope: every `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, DAG version and pointer, decomposition, and each deliverable's mode or declarations.
+- DAG route: accepted `execution/_DAG/DAG-011/`. No node or edge is changed.
+
+## Work
+
+| ID / outcome | Scope and owner | Needs | Completion check | State / result |
+|---|---|---|---|---|
+| W1 Reproduce and classify | TASK under the parent session; scratch copies only | Materializer docstring, `tools/REGISTRY.md`, `_DAG/_LATEST.md` | Reruns in both modes on scratch copies; differences classified with counts; direct row and arc comparison with DAG-011 | COMPLETE. Both modes change 93 of 98 files. Causes: header 92 files; row order 68; aggregate `Notes` 480 rows in 49 files; `RETIRED` rows dropped, 83 in 31 files (plus 2 declared with `--canonical-output`). No added row, no core-field difference. Local rows equal DAG-011's 1,571 rows; `accepted_dag` is `NO_DEPARTURE_FOUND`. See [evidence](evidence/). |
+| D1 Disposition | TASK; Piping coordination record | W1 and Piping records (DAG-007 approval, 2026-06-16 rectification plan, D-59, R5 sync, D-78) | Record stating canonical form and why default mode differs | COMPLETE in candidate: [`COORDINATION_RESPONSE_2026-09-27_DEPENDENCY_MATERIALIZATION.md`](../../COORDINATION_RESPONSE_2026-09-27_DEPENDENCY_MATERIALIZATION.md). No register is rewritten. |
+| T1 Root tool-doc note | TASK; materializer docstring, `tools/REGISTRY.md`, tranche manifest, export-manifest hashes | D1 | Doc-only change, G4 manifest present | COMPLETE in candidate. Manifest `PIPING-DEP-MATERIALIZATION-NOTE-20260927`. |
+| V1 Checks | TASK | D1, T1 | Checks in the receipt pass on the candidate | COMPLETE in candidate. See the [receipt](../../AgentRuns/PIPING_DEP_MATERIALIZATION_20260927/RECEIPT.md). |
+| R1 Central receipt | TASK | V1 | One receipt with result, checks, limits and pointers | COMPLETE in candidate. |
+| F1 PR and merge | Integrating parent session under the standing Git authorization | R1; independent review; required CI | Merge verified through Git or the PR service | OPEN. Commits sit on the worktree branch only; the parent session pushes, opens the PR, obtains review and merges. |
+
+No bounded-reconciliation closeout or `MEMORY.md` entry is needed: no deliverable's production commitments, dependencies or status change. No Task Management intake qualifies.
+
+## Current state and recovery
+
+- Basis: `origin/main` at `0adfbc7476df33521883ce1573781237cd24d384`. The committed materializer at that basis has SHA-256 `8a6419920bf962fb8f136f919d9d34e7380f72065391743cd3ad2a05cc1d887c`. The candidate changes only its docstring.
+- Rerun, from the repository root: `python3 projects/chirality-piping/execution/_Coordination/WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/evidence/compare_materializer.py`. It copies the execution tree to a temporary directory and never writes the committed tree. Output recorded in `evidence/comparison.json` (Python 3.11.15).
+- Supplied instruction origins and hashes at start: Root `AGENTS.md` `c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd`; Piping `AGENTS.md` `d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792`; `loop/LOOP_INIT.md` `c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b`. No workflow was selected; this is a proportionate ad hoc plan.
+- Next safe action: the parent session integrates F1. If review changes the disposition, amend D1 and rerun V1.
+- Graph maintainer and integration owner: the integrating parent session.
