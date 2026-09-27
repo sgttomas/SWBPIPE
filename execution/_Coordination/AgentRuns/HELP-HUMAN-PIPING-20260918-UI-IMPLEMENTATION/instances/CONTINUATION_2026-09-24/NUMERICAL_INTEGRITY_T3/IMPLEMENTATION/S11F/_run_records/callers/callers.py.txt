@@ -1,0 +1,62 @@
+"""T3 S11-F (I4): callers of every function S11-F changed, added or removed, by lexer scan.
+Usage (from projects/chirality-piping): python3 callers.py <scan.py dir>
+Every .rs file outside execution/, target/ and node_modules/ is lexed (comments removed, literals
+blanked, as the site tests do); an identifier followed by `(` (after optional `::`/`.` path and generic
+args) is a call. A call inside a `#[cfg(test)]` item, a tests/ file, or a *_tests.rs / tests.rs module
+file is classed as test. Standard library only."""
+import os, re, sys, json
+sys.path.insert(0, sys.argv[1])
+from scan import lex
+NAMES = [
+ # product_physics
+ 'push_nodal_loads','case_force_ledger','nodal_and_eigen_case_force','push_exact_pressure_operands',
+ 'finish_case_ledger','legacy_observation_force','legacy_dense_observation','restrained_reactions',
+ 'exact_straight_end_forces','curved_bend_uniform_intensities_by_pipe','pressure_thrusts_for_pipe',
+ 'append_load_contribution_absorbed','add_uniform_element_loads','add_pressure_thrust_loads',
+ 'add_curved_bend_pressure_thrust_load','add_thermal_equivalent_loads','add_curved_bend_thermal_equivalent_load',
+ 'add_constant_effort_support_loads','recover_curved_bend_local_forces','curved_bend_section_resultants',
+ 'curved_bend_station_resultants','pressure_for_pipe','append_expansion_joint_pressure_thrust_results',
+ 'exact_straight_summary_extrema','solve_preview_reduced_system','append_nonlinear_support_loop_results',
+ 'solve_load_case','finish_source_groups','prepare_sources','close_load_state','check_load_state_input',
+ 'check_input_with_physical',
+ # removed
+ 'corrected_local_forces_for_axial_effects','curved_bend_uniform_intensity_by_pipe','pressure_thrust_for_pipe',
+ # frame_kernel / SA / nonlinear
+ 'audit_load_fidelity','audit_load_row','unaudited_row','row_sources','finish_checked_factor',
+ 'solve','solve_assembled','global_load_vector','evaluate_original_residual',
+]
+def cfg_test_ranges(code):
+    """(start, end) of every #[cfg(test)] item in lexed code (the stripper's rule)."""
+    A = '#[cfg(test)]'; out = []; at = code.find(A)
+    while at >= 0:
+        depth = 0; started = False; end = len(code)
+        for k in range(at + len(A), len(code)):
+            ch = code[k]
+            if ch == '{': depth += 1; started = True
+            elif ch == '}':
+                depth -= 1
+                if started and depth == 0: end = k + 1; break
+            elif ch == ';' and not started: end = k + 1; break
+        out.append((at, end)); at = code.find(A, end)
+    return out
+out = {n: {'nontest': [], 'test': []} for n in NAMES}
+for root, dirs, files in os.walk('.'):
+    dirs[:] = [d for d in dirs if d not in ('execution','target','node_modules','.git')]
+    for f in files:
+        if not f.endswith('.rs'): continue
+        p = os.path.join(root, f)[2:]
+        src = open(p, encoding='utf-8').read()
+        lexed = lex(src); ranges = cfg_test_ranges(lexed)
+        for n in NAMES:
+            pat = re.compile(r'(?<![A-Za-z0-9_])' + re.escape(n) + r'\s*(::\s*<[^()]*>)?\s*\(')
+            for m in pat.finditer(lexed):
+                pre = lexed[max(0, m.start()-3):m.start()]
+                if re.search(r'\bfn\s*$', lexed[max(0, m.start()-4):m.start()]):
+                    continue  # the definition
+                line = lexed.count('\n', 0, m.start()) + 1
+                is_test = ('/tests/' in p or f.endswith('_tests.rs') or f == 'tests.rs'
+                           or any(a <= m.start() < b for a, b in ranges))
+                if n in ('solve',) and not re.search(r'(assembly|evidence|audited|self)\s*\.\s*$|AssemblyEvidence\s*::\s*$', lexed[max(0,m.start()-40):m.start()]):
+                    continue  # only AssemblyEvidence::solve
+                out[n]['test' if is_test else 'nontest'].append('%s:%d' % (p, line))
+print(json.dumps(out, indent=1))

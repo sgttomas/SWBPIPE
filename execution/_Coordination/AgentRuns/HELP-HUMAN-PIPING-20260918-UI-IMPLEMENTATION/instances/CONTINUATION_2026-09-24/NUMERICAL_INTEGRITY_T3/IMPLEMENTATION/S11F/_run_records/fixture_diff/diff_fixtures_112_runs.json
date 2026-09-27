@@ -1,0 +1,66 @@
+{
+ "model_operations__physics_thermal_ui_model.json.dense_scrutiny.out": {
+  "bytes_base": 169866,
+  "bytes_candidate": 169866,
+  "changed_lines": 2,
+  "changed_leaves": 2,
+  "by_kind": {
+   "result:support_reaction_component_v2": {
+    "count": 1,
+    "max_relative_change": 0.1232876712328767,
+    "example_path": "/results/16/value"
+   },
+   "result:support_reaction_force_magnitude_v2": {
+    "count": 1,
+    "max_relative_change": 0.1232876712328767,
+    "example_path": "/results/22/value"
+   }
+  }
+ },
+ "model_operations__physics_thermal_ui_model.json.sparse_interactive.out": {
+  "bytes_base": 167372,
+  "bytes_candidate": 167408,
+  "changed_lines": 2,
+  "changed_leaves": 2,
+  "by_kind": {
+   "result:support_reaction_component_v2": {
+    "count": 1,
+    "max_relative_change": 1.0,
+    "example_path": "/results/15/value"
+   },
+   "result:support_reaction_force_magnitude_v2": {
+    "count": 1,
+    "max_relative_change": 1.0,
+    "example_path": "/results/21/value"
+   }
+  }
+ },
+ "product_preview__load_reference__connected.request.json.dense_scrutiny.out": {
+  "bytes_base": 246181,
+  "bytes_candidate": 246180,
+  "changed_lines": 1,
+  "changed_leaves": 1,
+  "by_kind": {
+   "diagnostics/message": {
+    "count": 1,
+    "max_relative_change": 0.2903778599027541,
+    "example_path": "/diagnostics/5/message",
+    "text_numeric_tokens_changed": 3
+   }
+  }
+ },
+ "product_preview__load_reference__connected.request.json.sparse_interactive.out": {
+  "bytes_base": 243662,
+  "bytes_candidate": 243665,
+  "changed_lines": 1,
+  "changed_leaves": 1,
+  "by_kind": {
+   "diagnostics/message": {
+    "count": 1,
+    "max_relative_change": 1.1214980579446585,
+    "example_path": "/diagnostics/5/message",
+    "text_numeric_tokens_changed": 3
+   }
+  }
+ }
+}

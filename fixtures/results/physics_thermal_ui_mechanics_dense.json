@@ -812,7 +812,7 @@
     {
       "id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:Fx",
       "kind": "support_reaction_component_v2",
-      "value": 5.820766091346741e-11,
+      "value": 6.639311322942376e-11,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {
@@ -920,7 +920,7 @@
     {
       "id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:force_magnitude",
       "kind": "support_reaction_force_magnitude_v2",
-      "value": 5.820766091346741e-11,
+      "value": 6.639311322942376e-11,
       "unit": "N",
       "entity_ref": "support:fixture-root",
       "basis_ref": {

@@ -1,0 +1,63 @@
+"""Summarize base-vs-candidate envelope differences by output kind (standard library only)."""
+import json, re, sys, os, collections
+NUM = re.compile(r'-?\d+(?:\.\d+)?(?:e[-+]?\d+)?')
+def classify(path, node_stack):
+    for n in reversed(node_stack):
+        if isinstance(n, dict) and 'kind' in n and isinstance(n['kind'], str):
+            return 'result:' + n['kind']
+    parts = [p for p in path.split('/') if p and not p.isdigit()]
+    return '/'.join(parts[:3])
+def walk(a, b, path, stack, out):
+    if isinstance(a, dict):
+        for k in sorted(set(a) | set(b)):
+            if k not in a or k not in b: out.append((path + '/' + k, 'key', None, None, classify(path, stack))); continue
+            walk(a[k], b[k], path + '/' + k, stack + [a], out)
+    elif isinstance(a, list):
+        if len(a) != len(b): out.append((path, 'len', len(a), len(b), classify(path, stack)))
+        for i, (x, y) in enumerate(zip(a, b)): walk(x, y, '%s/%d' % (path, i), stack + [a], out)
+    elif a != b:
+        out.append((path, type(a).__name__, a, b, classify(path, stack)))
+def rel(x, y):
+    if isinstance(x, (int, float)) and isinstance(y, (int, float)) and not isinstance(x, bool):
+        s = max(abs(x), abs(y))
+        return abs(x - y) / s if s else 0.0
+    return None
+def text_numeric_changes(x, y):
+    tx, ty = NUM.findall(x), NUM.findall(y)
+    if len(tx) != len(ty): return None, None
+    n = 0; worst = 0.0
+    for p, q in zip(tx, ty):
+        if p != q:
+            n += 1
+            fp, fq = float(p), float(q)
+            s = max(abs(fp), abs(fq)); worst = max(worst, abs(fp - fq) / s if s else 0.0)
+    return n, worst
+report = {}
+base, cand = sys.argv[1], sys.argv[2]
+for name in sorted(os.listdir(base)):
+    a = open(os.path.join(base, name)).read(); b = open(os.path.join(cand, name)).read()
+    if a == b: continue
+    entry = {'bytes_base': len(a), 'bytes_candidate': len(b),
+             'changed_lines': sum(1 for p, q in zip(a.splitlines(), b.splitlines()) if p != q) + abs(len(a.splitlines()) - len(b.splitlines()))}
+    try:
+        ja, jb = json.loads(a), json.loads(b)
+    except Exception:
+        entry['non_json'] = True; report[name] = entry; continue
+    diffs = []; walk(ja, jb, '', [], diffs)
+    kinds = collections.OrderedDict()
+    for path, t, x, y, kind in diffs:
+        k = kinds.setdefault(kind, {'count': 0, 'max_relative_change': 0.0, 'example_path': path})
+        k['count'] += 1
+        r = rel(x, y)
+        if r is not None: k['max_relative_change'] = max(k['max_relative_change'], r)
+        elif isinstance(x, str) and isinstance(y, str):
+            n, w = text_numeric_changes(x, y)
+            k.setdefault('text_numeric_tokens_changed', 0)
+            if n is None: k['text_token_count_changed'] = True
+            else:
+                k['text_numeric_tokens_changed'] += n
+                k['max_relative_change'] = max(k['max_relative_change'], w)
+            if len(x) == 64 and re.fullmatch('[0-9a-f]{64}', x): k['digest'] = True
+    entry['changed_leaves'] = len(diffs); entry['by_kind'] = kinds
+    report[name] = entry
+print(json.dumps(report, indent=1))

@@ -1,0 +1,333 @@
+{
+ "push_nodal_loads": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2226",
+   "core/product_physics/src/lib.rs:2273"
+  ],
+  "test": []
+ },
+ "case_force_ledger": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2478"
+  ],
+  "test": [
+   "core/product_physics/src/s11f_tests.rs:247"
+  ]
+ },
+ "nodal_and_eigen_case_force": {
+  "nontest": [
+   "core/product_physics/src/source_receipt.rs:220",
+   "core/product_physics/src/source_receipt.rs:325"
+  ],
+  "test": [
+   "core/product_physics/src/source_recovery.rs:1557",
+   "core/product_physics/src/source_receipt/load_state_tests.rs:99",
+   "core/product_physics/src/source_receipt/tests.rs:37",
+   "core/product_physics/src/source_receipt/load_state_join_tests.rs:323"
+  ]
+ },
+ "push_exact_pressure_operands": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2255"
+  ],
+  "test": []
+ },
+ "finish_case_ledger": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2489"
+  ],
+  "test": []
+ },
+ "legacy_observation_force": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2552"
+  ],
+  "test": [
+   "core/product_physics/src/s11f_tests.rs:1909"
+  ]
+ },
+ "legacy_dense_observation": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2724"
+  ],
+  "test": []
+ },
+ "restrained_reactions": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2905"
+  ],
+  "test": []
+ },
+ "exact_straight_end_forces": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:3107"
+  ],
+  "test": []
+ },
+ "curved_bend_uniform_intensities_by_pipe": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2471"
+  ],
+  "test": []
+ },
+ "pressure_thrusts_for_pipe": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:3027"
+  ],
+  "test": []
+ },
+ "append_load_contribution_absorbed": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2797"
+  ],
+  "test": []
+ },
+ "add_uniform_element_loads": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2227"
+  ],
+  "test": []
+ },
+ "add_pressure_thrust_loads": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2242"
+  ],
+  "test": [
+   "core/product_physics/src/lib.rs:22000",
+   "core/product_physics/src/lib.rs:22062"
+  ]
+ },
+ "add_curved_bend_pressure_thrust_load": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:8828"
+  ],
+  "test": []
+ },
+ "add_thermal_equivalent_loads": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2248",
+   "core/product_physics/src/lib.rs:2274"
+  ],
+  "test": []
+ },
+ "add_curved_bend_thermal_equivalent_load": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:8905"
+  ],
+  "test": []
+ },
+ "add_constant_effort_support_loads": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2260"
+  ],
+  "test": []
+ },
+ "recover_curved_bend_local_forces": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:3059"
+  ],
+  "test": []
+ },
+ "curved_bend_section_resultants": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:3228",
+   "core/product_physics/src/lib.rs:9260"
+  ],
+  "test": [
+   "core/product_physics/src/lib.rs:13131",
+   "core/product_physics/src/lib.rs:21838"
+  ]
+ },
+ "curved_bend_station_resultants": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:3162"
+  ],
+  "test": []
+ },
+ "pressure_for_pipe": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:3324"
+  ],
+  "test": []
+ },
+ "append_expansion_joint_pressure_thrust_results": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2839"
+  ],
+  "test": []
+ },
+ "exact_straight_summary_extrema": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:3318",
+   "core/product_physics/src/lib.rs:3496",
+   "core/product_physics/src/membrane_publication_range.rs:187"
+  ],
+  "test": []
+ },
+ "solve_preview_reduced_system": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2561"
+  ],
+  "test": [
+   "core/product_physics/src/s11f_tests.rs:1918"
+  ]
+ },
+ "append_nonlinear_support_loop_results": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2747"
+  ],
+  "test": []
+ },
+ "solve_load_case": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:1742",
+   "core/product_physics/src/lib.rs:1771",
+   "core/product_physics/src/lib.rs:1839"
+  ],
+  "test": [
+   "core/product_physics/src/source_receipt/load_state_tests.rs:501",
+   "core/product_physics/src/source_receipt/load_state_join_tests.rs:723"
+  ]
+ },
+ "finish_source_groups": {
+  "nontest": [
+   "core/product_physics/src/pressure_runtime.rs:765"
+  ],
+  "test": []
+ },
+ "prepare_sources": {
+  "nontest": [
+   "core/product_physics/src/source_recovery.rs:244",
+   "core/product_physics/src/source_recovery.rs:265",
+   "core/product_physics/src/source_recovery.rs:1349"
+  ],
+  "test": [
+   "core/product_physics/src/source_recovery.rs:1614",
+   "core/product_physics/src/source_recovery.rs:1642",
+   "core/product_physics/src/source_recovery.rs:1651",
+   "core/product_physics/src/source_recovery.rs:1660",
+   "core/product_physics/src/source_recovery.rs:1676"
+  ]
+ },
+ "close_load_state": {
+  "nontest": [
+   "core/product_physics/src/source_recovery.rs:651"
+  ],
+  "test": []
+ },
+ "check_load_state_input": {
+  "nontest": [
+   "core/product_physics/src/source_receipt.rs:273"
+  ],
+  "test": []
+ },
+ "check_input_with_physical": {
+  "nontest": [
+   "core/product_physics/src/source_receipt.rs:143",
+   "core/product_physics/src/source_receipt/composite.rs:746"
+  ],
+  "test": []
+ },
+ "corrected_local_forces_for_axial_effects": {
+  "nontest": [],
+  "test": []
+ },
+ "curved_bend_uniform_intensity_by_pipe": {
+  "nontest": [],
+  "test": []
+ },
+ "pressure_thrust_for_pipe": {
+  "nontest": [],
+  "test": []
+ },
+ "audit_load_fidelity": {
+  "nontest": [
+   "core/solver/frame_kernel/src/structural.rs:1386"
+  ],
+  "test": [
+   "core/solver/frame_kernel/src/structural/s11f_tests.rs:49",
+   "core/solver/frame_kernel/src/structural/s11f_tests.rs:74"
+  ]
+ },
+ "audit_load_row": {
+  "nontest": [
+   "core/solver/frame_kernel/src/structural.rs:769"
+  ],
+  "test": []
+ },
+ "unaudited_row": {
+  "nontest": [
+   "core/solver/frame_kernel/src/structural.rs:777"
+  ],
+  "test": []
+ },
+ "row_sources": {
+  "nontest": [
+   "core/solver/frame_kernel/src/structural.rs:818",
+   "core/solver/frame_kernel/src/structural.rs:905"
+  ],
+  "test": []
+ },
+ "finish_checked_factor": {
+  "nontest": [
+   "core/solver/frame_kernel/src/structural.rs:1566"
+  ],
+  "test": [
+   "core/solver/frame_kernel/src/structural/s11k_tests.rs:503"
+  ]
+ },
+ "solve": {
+  "nontest": [],
+  "test": [
+   "core/solver/nonlinear_integration/src/s11k_tests.rs:229",
+   "core/solver/nonlinear_integration/src/s11k_tests.rs:230",
+   "core/solver/nonlinear_integration/src/s11k_tests.rs:252",
+   "core/solver/nonlinear_integration/src/s11k_tests.rs:741"
+  ]
+ },
+ "solve_assembled": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:4177"
+  ],
+  "test": [
+   "core/solver/nonlinear_integration/src/s11k_tests.rs:246"
+  ]
+ },
+ "global_load_vector": {
+  "nontest": [
+   "validation/benchmarks/mechanics/src/lib.rs:1074",
+   "validation/benchmarks/mechanics/src/lib.rs:3069",
+   "validation/benchmarks/mechanics/src/lib.rs:4459",
+   "validation/benchmarks/mechanics/src/lib.rs:7010",
+   "validation/benchmarks/mechanics/src/lib.rs:7011"
+  ],
+  "test": [
+   "core/loads/primitive_loads/src/lib.rs:3240",
+   "core/loads/primitive_loads/src/lib.rs:3815",
+   "core/loads/user_loads/src/lib.rs:1288",
+   "core/loads/user_loads/src/lib.rs:1763",
+   "core/loads/user_loads/src/lib.rs:1787",
+   "core/loads/user_loads/src/lib.rs:1812",
+   "core/loads/user_loads/src/lib.rs:1841",
+   "core/loads/user_loads/src/lib.rs:1883",
+   "core/loads/user_loads/src/lib.rs:1965",
+   "core/loads/user_loads/src/lib.rs:1987"
+  ]
+ },
+ "evaluate_original_residual": {
+  "nontest": [
+   "core/solver/nonlinear_integration/src/product_equilibrium.rs:56"
+  ],
+  "test": [
+   "core/product_physics/src/s11f_tests.rs:1947",
+   "core/solver/frame_kernel/src/structural.rs:1904",
+   "core/solver/frame_kernel/src/structural.rs:1910",
+   "core/solver/frame_kernel/src/structural.rs:1912",
+   "core/solver/frame_kernel/src/structural.rs:1927",
+   "core/solver/frame_kernel/src/structural.rs:1928",
+   "core/solver/frame_kernel/src/structural.rs:2028",
+   "core/solver/frame_kernel/src/structural.rs:2033",
+   "core/solver/frame_kernel/src/structural/s11k_tests.rs:638"
+  ]
+ }
+}

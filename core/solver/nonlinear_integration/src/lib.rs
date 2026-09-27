@@ -510,6 +510,15 @@ pub fn solve_active_set_frame_with_mode(
 ///     let _ = solve_active_set_frame_assembled(input, &force);
 /// }
 /// ```
+/// The positive twin (RV1-N8): the same call compiles with a ledger-built
+/// `AssembledForce`, so the failure above is the refused `Vec<f64>`.
+/// ```
+/// use open_pipe_stress_frame_kernel::load_ledger::AssembledForce;
+/// use open_pipe_stress_nonlinear_integration::{solve_active_set_frame_assembled, NonlinearFrameSolveInput};
+/// fn call(input: &NonlinearFrameSolveInput, force: &AssembledForce) {
+///     let _ = solve_active_set_frame_assembled(input, force);
+/// }
+/// ```
 pub fn solve_active_set_frame_assembled(
     input: &NonlinearFrameSolveInput,
     force: &AssembledForce,

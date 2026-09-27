@@ -1,0 +1,6 @@
+     Running unittests src/lib.rs (<s11f-target>/debug/deps/openpipestress_desktop_lib-36dbc7999d771631)
+test result: ok. 114 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.39s
+     Running unittests src/main.rs (<s11f-target>/debug/deps/openpipestress_desktop-1e23b28e70a14351)
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+   Doc-tests openpipestress_desktop_lib
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

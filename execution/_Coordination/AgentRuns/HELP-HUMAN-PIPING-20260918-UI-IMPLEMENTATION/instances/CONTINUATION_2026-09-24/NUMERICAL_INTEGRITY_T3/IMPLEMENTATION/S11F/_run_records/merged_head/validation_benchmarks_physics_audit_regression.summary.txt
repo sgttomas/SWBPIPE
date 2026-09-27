@@ -1,0 +1,6 @@
+     Running unittests src/lib.rs (<s11f-target>/debug/deps/open_pipe_stress_physics_audit_regression-a7b8d239ad1789c4)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+     Running tests/authored_units_product.rs (<s11f-target>/debug/deps/authored_units_product-efdf5a6cf9e1b855)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+   Doc-tests open_pipe_stress_physics_audit_regression
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

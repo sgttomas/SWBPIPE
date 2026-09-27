@@ -1403,6 +1403,14 @@ impl LoadApplication {
         !self.findings.is_empty()
     }
 
+    /// The nodal loads folded in binary64, in contribution order. **Not for
+    /// solve input** (S11 containment, section 4.3): a fold of three or more
+    /// contributions on one DOF is not correctly rounded and can absorb a
+    /// small load between cancelling ones. For review and diagnostics only.
+    /// Solve input is built by `load_ledger::LoadLedger` (each DOF's correctly
+    /// rounded net). Since S11-F no product caller remains: the product's
+    /// case force, retained-source check and receipt replays all use the
+    /// ledger, and `product_physics`'s site test forbids this call there.
     pub fn global_load_vector(&self, node_count: usize) -> Vec<f64> {
         let mut vector = vec![0.0; node_count * DOF_PER_NODE];
         for load in &self.nodal_loads {
