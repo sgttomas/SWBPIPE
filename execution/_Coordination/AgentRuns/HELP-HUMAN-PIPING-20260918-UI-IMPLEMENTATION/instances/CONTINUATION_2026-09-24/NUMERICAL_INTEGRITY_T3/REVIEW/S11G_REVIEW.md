@@ -274,3 +274,126 @@ Environment:
 - A 0.4.0 run of C1 (the republication follows from the code).
 - The frozen-reference false-demotion forecast (LFRAME, WEAK) on the product.
 - CI logs and the DEC-025 sweep result, which are the manager's.
+
+---
+
+## Delta check: 759dccf35..e6f45d30f (the RV4 repair)
+
+**Verdict: PASS**, for head **`e6f45d30ff1593d9032146fe32528cafccda6b2a`**. There are no BLOCKING and no SHOULD-FIX findings; there are 2 NOTEs.
+- The delta contains tests, records and layout only.
+- PP `lib.rs` is token-identical to `b62e40d4d`.
+- **No product behaviour changes, so the no-re-sweep condition holds.**
+
+**What was checked.** The brief was ROOT's delta request (items 1–5), covering:
+- **Range:** `759dccf35..e6f45d30f`, which is two commits.
+  - `6d6d31923`: I5's repair.
+  - `e6f45d30f`: records only. It restores the hash-bound mutation driver and keeps the updated driver as `s11g_mutants_rv4_repair.py`.
+- **How:**
+  - I read the diff from the pushed head (`git ls-remote` confirmed `e6f45d30f`).
+  - I built and tested a fresh `git archive` of `projects/chirality-piping` (excluding `execution/`), with my own target.
+  - Outside `execution/`, `6d6d31923` and `e6f45d30f` are byte-identical (`git diff --quiet`; the `core` tree is `7bd0ca35…` in both).
+- **Records:** in `_run_records/s11g_review/delta_e6f45d30f/`.
+
+### D1. Scope and layout: the no-re-sweep condition (ROOT item 4)
+
+**Which files changed.** Outside the S11G records, `git diff --name-only 759dccf35 e6f45d30f` shows exactly two files: `core/product_physics/src/s11g_tests.rs` and `core/product_physics/src/lib.rs`.
+- **No other product, test, fixture or GATE file changed.** That includes FK, SP, `formation_guard.rs`, `source_recovery.rs`, `source_receipt.rs`, the site test, headless, the schemas and GATE.
+
+**PP `lib.rs` is layout-only.** I checked this independently with `delta_e6f45d30f/layout_check.py` and `layout_check.out.txt`, which walk both files with all whitespace removed.
+- **Result:** against `b62e40d4d` (which equals `759dccf35` for this file), the only differences are **10 commas added before `)` or `}`**. There are no other differences, and both texts are consumed completely.
+- **So no token, comment or string changed.**
+- **rustfmt `--check`** (skip_children, stable 1.8.0), counting Diff-in blocks:
+
+  | Revision | Diff-in count |
+  |---|---|
+  | Repair head | 78 |
+  | Base `72d5ff864` | 78 |
+  | `b62e40d4d` | 87 |
+
+  So RV4-N6 is closed.
+- **`git diff --check 759dccf35 e6f45d30f`:** clean.
+
+### D2. S1: T20 on C1 and the corrected disclosures (ROOT item 1)
+
+**The test.** `t20_characterization_rb_prime_residual_c1` is at `s11g_tests.rs:2261-2326`, with helpers `c1_case_b` and `c1_request`. It is my construction C1 (F = 1 N, m = 1e-7 N·m). In both modes it pins:
+- **the typed entry:**
+  - no receipt;
+  - case B's report is Passed, and R-b′ fires at the tip;
+  - the tip row's relative error exceeds the criterion, computed in the test against the exact |m|;
+  - case B is published demoted (`assert_demoted`, which covers the code, the sentence, `numerical_quality` and "never refused");
+- **case B alone, captured:** demoted and not refused;
+- **the two-case captured invocation:** `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`. The captured entry returns no envelope on `Err`;
+- **the control at m = 0.5:** Ok with a receipt; cases A and B are both `qualified`; case B is `CHECKS_PASSED` with no S11-G text.
+
+**The labelling** is right: it is labelled a characterization of a known residual, and its comment names the owner, the pre-0.4 scope and the 0.4.0 republication.
+
+**The disclosures are corrected.** Each now says reachable and fail-closed, and "not demonstrated reachable" is withdrawn:
+- CHANGE_RECORD "Residuals";
+- RETURN §6a and §12;
+- the test comment;
+- the PR #1003 body.
+
+T20 passes.
+
+### D3. S2–S4, RV-M6 and RV-M10: my patches, re-applied (ROOT item 2)
+
+**How.** I re-applied the same patches, using my driver `mutations/rv4_mutants.py` on an unchanged copy of I5's `b62e40d4d` driver. All five anchors are unique on the repair tree. Each mutant ran the S11-G surface: every `s11g_tests::` test, the site test, and the FK and SP S11-G unit tests. Results are in `delta_e6f45d30f/kills.txt` and `mutations_results.json`.
+
+**Every mutant is killed by a behavioural assertion**, with no compile error and no command that ran 0 tests:
+
+| Patch | Killing test | Failing assertion |
+|---|---|---|
+| RV-M1 (D21-1's +12B dropped) | `d21_1_second_test_adds_the_bound_exactly` | `s11g_tests.rs:700`: `fires` (mutant: `fires: false` at net ratio 1.15) |
+| RV-M2 (exact-pressure bound × 0) | `exact_pressure_operand_bound_is_gamma_20`; `exact_pressure_operand_rows_carry_their_bound` | `:716`, the value pin (left 0.0); `:2372`, a product operand row with bound 0 (`case:cold-pressure`, dof 0) |
+| RV-M3 (curved-thermal operand from the wrong axis) | `curved_thermal_records_name_the_pushed_products` | `:2465`: A_se ≠ the independently formed −12·Σ K_rc·lo(ε, c) (row 0) |
+| RV-M6 (E-1 ignores `attempt_err`) | `e1_ordinary_err_guard_fired_case_keeps_mains_attempt` (also T10b) | `:2532`, the **captured pin** ("main's real attempt, not the zero-work decline"; the mutant's message is `stage: "formation guard"`). This comes **after** the typed-entry precondition, which passes under the mutant: the typed entry has no retained-source route |
+| RV-M10 (restrained rows use the free-row S\*) | `restrained_rows_take_the_all_rows_scale` | `:2595`: root RZ is silent under its own scale (the mutant fires at net ratio 34.1); the product pin follows |
+
+**The new tests are sound.**
+- **S2:** T0 is independent of B and of the defect (the intended net is 1.5 N). B = T0/4 and d = 0.9·T0, so d lies in (T0 − B, T0].
+- **S3:** the product test uses the committed exact-pressure request and the product's own builder and producer, and decides B > 20u·Σ|t| exactly.
+- **S4:** the chord (1.2, 1.6, 0) m makes the two axes' lo values differ, and A_se ≠ 0 is asserted.
+- **RV-M6:** uses N06's model, whose ordinary attempt errs at assembly.
+- **RV-M10:** the precondition shows the free-row scale fires on the same row.
+
+### D4. The NOTEs taken (ROOT item 3)
+
+- **N10: T13's precondition.** T13 now asserts that R-b's two clauses hold at end i (`s11g_tests.rs:1657-1664`).
+- **N5: curved pressure unreachability.** Disclosed as CHANGE_RECORD deviation 5, with the same refusal cited (`pressure_runtime.rs:207-224`). The `CannotBound` record is covered by T15, and the cap record by the ledger unit test.
+- **The stale formation-list wording.** CHANGE_RECORD "The formation list" now says the list is empty at `759dccf35` (`37bdc2edd` on T3).
+- **N3: reservation growth.** Stated in CHANGE_RECORD "What firing does".
+- **N9: 2⁻⁹⁸⁸.** Deviation 6.
+- **Also:** N7 is recorded as deviation 8, and N6 as deviation 7 (see D1). N4 and N8 are left, as ROOT ruled.
+
+### D5. Records (ROOT item 5)
+
+- **SHA256SUMS** (`IMPLEMENTATION/S11G/SHA256SUMS` at `e6f45d30f`): 47 entries for 47 files, all verify.
+- **Hash-bound evidence from `b62e40d4d` is byte-unchanged.** Of the files committed at `b62e40d4d`, only CHANGE_RECORD.md, RETURN.md and SHA256SUMS changed. The run evidence all has its `b62e40d4d` bytes, including:
+  - `mutations/s11g_mutants.py`, restored at `e6f45d30f` to `0d091feb…`;
+  - `mutations/results.json`, `0ee4bd39…`;
+  - `mutations/failing_tests_per_mutant.txt`, `5a4190dd…`;
+  - every fixture-diff, gate, reader, suites and callers record.
+- **Earlier finding closed.** The in-place edit of `s11g_mutants.py` that I raised on `6d6d31923` is fixed by `e6f45d30f`: the updated driver is the new `s11g_mutants_rv4_repair.py`.
+- **Machine paths.** A scan of the S11G records for home, temp and root paths finds none.
+- **GEN-8** passes (below).
+
+### D6. Runs
+
+Environment as in §13: toolchain 1.97.1, `--offline --locked`, my own target with debuginfo off, pruned afterwards. It ran in the manager's cargo slot.
+
+| Run | Result |
+|---|---|
+| Authority builds | exit 0 |
+| `cargo test --offline --locked --no-fail-fast`, product_physics (repair tree) | **511 passed, 0 failed, 1 ignored** (pre-existing). All new tests, T13 and T20 pass |
+| RV-M1, M2, M3, M6 and M10 | all KILLED (D3) |
+| Layout check and rustfmt counts | D1 |
+| `pytest tools/practitioner_harness/test_live_baseline.py -k gen8` (from `<wt>/numerics`) | pass |
+
+**Why not re-run T9, the gate or other crates.** Only `s11g_tests.rs` and a token-identical PP `lib.rs` changed, so the product binary's behaviour is unchanged. The T9, gate, T18 and T23 evidence of §8–§9 carries over.
+
+### Delta findings
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| RV4-D1 | NOTE | PR #1003 body | The status line reads "Status on head `6d6d31923`"; the head is now `e6f45d30f`. The content is otherwise current | Update at the next body edit |
+| RV4-D2 | NOTE | X | The kill is at the assertion that the root row is silent under its own scale. That scale comes from the product's `row_scales`, so it is a behavioural assertion on the guard's decision. The product-level pin (not demoted) follows it. Acceptable. Recorded because the assertion is written with the precondition | None |
