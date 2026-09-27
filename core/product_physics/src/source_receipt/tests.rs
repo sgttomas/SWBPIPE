@@ -7,7 +7,7 @@ struct Fixture {
     model: PreviewModel,
     built: BuiltModel,
     k: Vec<Vec<f64>>,
-    f: Vec<f64>,
+    f: AssembledForce,
     free: Vec<usize>,
     prescribed: Vec<(usize, f64)>,
     springs: Vec<SpringEntry>,
@@ -34,7 +34,7 @@ impl Fixture {
         let primitive =
             build_load_case_primitive_loads(&model, &model.load_cases[0], &mut diagnostics);
         let loads = prepare_loads(built.nodes.len(), built.pipes.len(), &primitive);
-        let f = loads.global_load_vector(built.nodes.len());
+        let f = crate::nodal_and_eigen_case_force(&loads, &[], &built).unwrap();
         let prescribed = boundary.restrained_dofs.iter().map(|d| (*d, 0.0)).collect();
         let free = (0..f.len())
             .filter(|d| !boundary.restrained_dofs.contains(d))

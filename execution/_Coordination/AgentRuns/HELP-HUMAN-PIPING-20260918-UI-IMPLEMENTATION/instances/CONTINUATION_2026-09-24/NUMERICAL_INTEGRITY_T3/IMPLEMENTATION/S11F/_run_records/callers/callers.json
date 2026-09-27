@@ -43,7 +43,7 @@
    "core/product_physics/src/lib.rs:2552"
   ],
   "test": [
-   "core/product_physics/src/s11f_tests.rs:1494"
+   "core/product_physics/src/s11f_tests.rs:1909"
   ]
  },
  "legacy_dense_observation": {
@@ -54,13 +54,13 @@
  },
  "restrained_reactions": {
   "nontest": [
-   "core/product_physics/src/lib.rs:2900"
+   "core/product_physics/src/lib.rs:2905"
   ],
   "test": []
  },
  "exact_straight_end_forces": {
   "nontest": [
-   "core/product_physics/src/lib.rs:3102"
+   "core/product_physics/src/lib.rs:3107"
   ],
   "test": []
  },
@@ -72,7 +72,7 @@
  },
  "pressure_thrusts_for_pipe": {
   "nontest": [
-   "core/product_physics/src/lib.rs:3022"
+   "core/product_physics/src/lib.rs:3027"
   ],
   "test": []
  },
@@ -93,13 +93,13 @@
    "core/product_physics/src/lib.rs:2242"
   ],
   "test": [
-   "core/product_physics/src/lib.rs:21995",
-   "core/product_physics/src/lib.rs:22057"
+   "core/product_physics/src/lib.rs:22000",
+   "core/product_physics/src/lib.rs:22062"
   ]
  },
  "add_curved_bend_pressure_thrust_load": {
   "nontest": [
-   "core/product_physics/src/lib.rs:8823"
+   "core/product_physics/src/lib.rs:8828"
   ],
   "test": []
  },
@@ -112,7 +112,7 @@
  },
  "add_curved_bend_thermal_equivalent_load": {
   "nontest": [
-   "core/product_physics/src/lib.rs:8900"
+   "core/product_physics/src/lib.rs:8905"
   ],
   "test": []
  },
@@ -124,29 +124,29 @@
  },
  "recover_curved_bend_local_forces": {
   "nontest": [
-   "core/product_physics/src/lib.rs:3054"
+   "core/product_physics/src/lib.rs:3059"
   ],
   "test": []
  },
  "curved_bend_section_resultants": {
   "nontest": [
-   "core/product_physics/src/lib.rs:3223",
-   "core/product_physics/src/lib.rs:9255"
+   "core/product_physics/src/lib.rs:3228",
+   "core/product_physics/src/lib.rs:9260"
   ],
   "test": [
-   "core/product_physics/src/lib.rs:13126",
-   "core/product_physics/src/lib.rs:21833"
+   "core/product_physics/src/lib.rs:13131",
+   "core/product_physics/src/lib.rs:21838"
   ]
  },
  "curved_bend_station_resultants": {
   "nontest": [
-   "core/product_physics/src/lib.rs:3157"
+   "core/product_physics/src/lib.rs:3162"
   ],
   "test": []
  },
  "pressure_for_pipe": {
   "nontest": [
-   "core/product_physics/src/lib.rs:3319"
+   "core/product_physics/src/lib.rs:3324"
   ],
   "test": []
  },
@@ -158,8 +158,8 @@
  },
  "exact_straight_summary_extrema": {
   "nontest": [
-   "core/product_physics/src/lib.rs:3313",
-   "core/product_physics/src/lib.rs:3491",
+   "core/product_physics/src/lib.rs:3318",
+   "core/product_physics/src/lib.rs:3496",
    "core/product_physics/src/membrane_publication_range.rs:187"
   ],
   "test": []
@@ -169,7 +169,7 @@
    "core/product_physics/src/lib.rs:2561"
   ],
   "test": [
-   "core/product_physics/src/s11f_tests.rs:1503"
+   "core/product_physics/src/s11f_tests.rs:1918"
   ]
  },
  "append_nonlinear_support_loop_results": {
@@ -287,7 +287,7 @@
  },
  "solve_assembled": {
   "nontest": [
-   "core/product_physics/src/lib.rs:4172"
+   "core/product_physics/src/lib.rs:4177"
   ],
   "test": [
    "core/solver/nonlinear_integration/src/s11k_tests.rs:246"
@@ -319,7 +319,7 @@
    "core/solver/nonlinear_integration/src/product_equilibrium.rs:56"
   ],
   "test": [
-   "core/product_physics/src/s11f_tests.rs:1532",
+   "core/product_physics/src/s11f_tests.rs:1947",
    "core/solver/frame_kernel/src/structural.rs:1904",
    "core/solver/frame_kernel/src/structural.rs:1910",
    "core/solver/frame_kernel/src/structural.rs:1912",

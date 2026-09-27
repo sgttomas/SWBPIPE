@@ -139,12 +139,19 @@ pub struct LoadFidelityRow {
     /// 1e-9: 1e-9 / (64 * gamma(m_i)).
     pub completeness_limit: f64,
     pub sources: Vec<String>,
+    /// RV1-N5: `Some(reason)` when the row's audit arithmetic left the radix
+    /// range. The row is flagged (Sensitive, never a refusal), with an
+    /// infinite ratio; `exact_net_bits` is NaN's when the net is out of range.
+    pub unaudited: Option<&'static str>,
 }
 /// Present only when a row is flagged; never part of `StructuralReport`, so the
 /// Debug-published report is byte-unchanged when nothing is flagged.
 #[derive(Debug, Clone, PartialEq)]
 pub struct LoadFidelityReport {
     pub rows: Vec<LoadFidelityRow>,
+    /// RV1-N5: set when the audit as a whole could not run (an invalid
+    /// identified term). The case is then Sensitive, never a refusal.
+    pub audit_error: Option<String>,
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum StructuralError {
@@ -759,90 +766,145 @@ pub fn audit_load_fidelity(
     let mut rows = Vec::new();
     for i in 0..n {
         let terms = &by_dof[i];
-        let mut net = ExactAccumulator::new();
-        for term in terms {
-            term.accumulate(&mut net, false).map_err(sum_range)?;
-        }
-        let exact_net = net.round().map_err(sum_range)?;
-        let parts: Vec<(f64, f64)> = match &sums {
-            Some(sums) => sums[i]
-                .iter()
-                .zip(u)
-                .flat_map(|(coefficient, &x)| coefficient.terms.iter().map(move |&k| (k, x)))
-                .collect(),
-            None => system.stiffness[i]
-                .iter()
-                .zip(u)
-                .filter(|(&k, _)| k != 0.0)
-                .map(|(&k, &x)| (k, x))
-                .collect(),
+        let row = match audit_load_row(system, u, sums.as_deref(), &restrained, i, terms) {
+            Ok(row) => row,
+            // RV1-N5 (S11 section 6): an auditable row's arithmetic that
+            // leaves the radix range (for example terms more than about
+            // 2^1000 apart, (1e80, -1e80, 1e-300)) never turns the solve into
+            // an error. The row is reported unaudited, which makes the case
+            // Sensitive; the solve's values are unchanged.
+            Err(StructuralError::Range(reason)) => {
+                Some(unaudited_row(system, &restrained, i, terms, reason))
+            }
+            Err(error) => return Err(error),
         };
-        let mut exponent = i32::MIN;
-        for term in terms {
-            if let Some(e) = term_exponent(term) {
-                exponent = exponent.max(e);
-            }
-        }
-        if restrained[i] && system.force[i] != 0.0 {
-            exponent = exponent.max(binary_exponent(system.force[i]));
-        }
-        for &(k, x) in &parts {
-            if k != 0.0 && x != 0.0 {
-                exponent = exponent.max(binary_exponent(k) + binary_exponent(x) + 1);
-            }
-        }
-        if exponent == i32::MIN {
-            exponent = 0;
-        }
-        let mut residual = Expansion::default();
-        if restrained[i] {
-            residual.add(exact_radix(system.force[i], -exponent)?)?;
-        } else {
-            for &(k, x) in &parts {
-                residual.add_product(k, x, -exponent)?;
-            }
-        }
-        for term in terms {
-            subtract_term(&mut residual, term, exponent)?;
-        }
-        let mut denominator = exact_radix(exact_net.abs(), -exponent)?;
-        let mut denominator_operations = 0;
-        for &(k, x) in &parts {
-            denominator =
-                checked_value(denominator + normalized_product(k.abs(), x.abs(), exponent)?)?;
-            denominator_operations += 2;
-        }
-        let operations = (residual.operations + denominator_operations + 2).max(2);
-        let g = gamma(operations);
-        let r = residual.round()?;
-        let ratio = if denominator == 0.0 {
-            if residual.is_zero() {
-                0.0
-            } else {
-                f64::INFINITY
-            }
-        } else {
-            (r.abs() / denominator + g / (1.0 - g)) * (1.0 + g) * (1.0 + 4.0 * f64::EPSILON)
-        };
-        let target = 64.0 * g;
-        if ratio > target {
-            let mut sources: Vec<String> = terms.iter().map(|t| t.source.clone()).collect();
-            sources.sort();
-            sources.dedup();
-            rows.push(LoadFidelityRow {
-                global_dof: i,
-                restrained: restrained[i],
-                exact_net_bits: exact_net.to_bits(),
-                actual_bits: system.force[i].to_bits(),
-                guarded_ratio: ratio,
-                target,
-                operation_count: operations,
-                completeness_limit: 1e-9 / target,
-                sources,
-            });
+        rows.extend(row);
+    }
+    Ok(LoadFidelityReport {
+        rows,
+        audit_error: None,
+    })
+}
+fn row_sources(terms: &[&ForceTerm]) -> Vec<String> {
+    let mut sources: Vec<String> = terms.iter().map(|t| t.source.clone()).collect();
+    sources.sort();
+    sources.dedup();
+    sources
+}
+/// RV1-N5: a row whose audit arithmetic leaves the radix range. It is flagged
+/// (Sensitive, never a refusal) with an infinite ratio and its reason.
+fn unaudited_row(
+    system: &StructuralSystem<'_>,
+    restrained: &[bool],
+    i: usize,
+    terms: &[&ForceTerm],
+    reason: &'static str,
+) -> LoadFidelityRow {
+    let mut net = ExactAccumulator::new();
+    let exact_net = terms
+        .iter()
+        .try_for_each(|term| term.accumulate(&mut net, false))
+        .and_then(|()| net.round())
+        .unwrap_or(f64::NAN);
+    LoadFidelityRow {
+        global_dof: i,
+        restrained: restrained[i],
+        exact_net_bits: exact_net.to_bits(),
+        actual_bits: system.force[i].to_bits(),
+        guarded_ratio: f64::INFINITY,
+        target: 0.0,
+        operation_count: 0,
+        completeness_limit: 0.0,
+        sources: row_sources(terms),
+        unaudited: Some(reason),
+    }
+}
+/// One row of `audit_load_fidelity`: `Some` when flagged.
+fn audit_load_row(
+    system: &StructuralSystem<'_>,
+    u: &[f64],
+    sums: Option<&[Vec<Expansion>]>,
+    restrained: &[bool],
+    i: usize,
+    terms: &[&ForceTerm],
+) -> Result<Option<LoadFidelityRow>, StructuralError> {
+    let mut net = ExactAccumulator::new();
+    for term in terms {
+        term.accumulate(&mut net, false).map_err(sum_range)?;
+    }
+    let exact_net = net.round().map_err(sum_range)?;
+    let parts: Vec<(f64, f64)> = match sums {
+        Some(sums) => sums[i]
+            .iter()
+            .zip(u)
+            .flat_map(|(coefficient, &x)| coefficient.terms.iter().map(move |&k| (k, x)))
+            .collect(),
+        None => system.stiffness[i]
+            .iter()
+            .zip(u)
+            .filter(|(&k, _)| k != 0.0)
+            .map(|(&k, &x)| (k, x))
+            .collect(),
+    };
+    let mut exponent = i32::MIN;
+    for term in terms {
+        if let Some(e) = term_exponent(term) {
+            exponent = exponent.max(e);
         }
     }
-    Ok(LoadFidelityReport { rows })
+    if restrained[i] && system.force[i] != 0.0 {
+        exponent = exponent.max(binary_exponent(system.force[i]));
+    }
+    for &(k, x) in &parts {
+        if k != 0.0 && x != 0.0 {
+            exponent = exponent.max(binary_exponent(k) + binary_exponent(x) + 1);
+        }
+    }
+    if exponent == i32::MIN {
+        exponent = 0;
+    }
+    let mut residual = Expansion::default();
+    if restrained[i] {
+        residual.add(exact_radix(system.force[i], -exponent)?)?;
+    } else {
+        for &(k, x) in &parts {
+            residual.add_product(k, x, -exponent)?;
+        }
+    }
+    for term in terms {
+        subtract_term(&mut residual, term, exponent)?;
+    }
+    let mut denominator = exact_radix(exact_net.abs(), -exponent)?;
+    let mut denominator_operations = 0;
+    for &(k, x) in &parts {
+        denominator = checked_value(denominator + normalized_product(k.abs(), x.abs(), exponent)?)?;
+        denominator_operations += 2;
+    }
+    let operations = (residual.operations + denominator_operations + 2).max(2);
+    let g = gamma(operations);
+    let r = residual.round()?;
+    let ratio = if denominator == 0.0 {
+        if residual.is_zero() {
+            0.0
+        } else {
+            f64::INFINITY
+        }
+    } else {
+        (r.abs() / denominator + g / (1.0 - g)) * (1.0 + g) * (1.0 + 4.0 * f64::EPSILON)
+    };
+    let target = 64.0 * g;
+    Ok((ratio > target).then(|| LoadFidelityRow {
+        global_dof: i,
+        restrained: restrained[i],
+        exact_net_bits: exact_net.to_bits(),
+        actual_bits: system.force[i].to_bits(),
+        guarded_ratio: ratio,
+        target,
+        operation_count: operations,
+        completeness_limit: 1e-9 / target,
+        sources: row_sources(terms),
+        unaudited: None,
+    }))
 }
 /// Nearby radix diagonal equilibration: A = T K_ff T, b = T f_reduced, u_f=T y.
 /// Ideal work-conjugate length/energy scaling cancels in total diagonal equilibration.
@@ -1319,10 +1381,15 @@ where
             }
             // S11 section 6: a detected load loss is Sensitive, never a refusal.
             let load_fidelity = match prepared.force_binding.audit_terms() {
-                Some(terms) => {
-                    let report = audit_load_fidelity(system, &u, terms)?;
-                    (!report.rows.is_empty()).then_some(report)
-                }
+                // RV1-N5: an audit failure is never propagated; it is a
+                // Sensitive report (section 6).
+                Some(terms) => match audit_load_fidelity(system, &u, terms) {
+                    Ok(report) => (!report.rows.is_empty()).then_some(report),
+                    Err(error) => Some(LoadFidelityReport {
+                        rows: Vec::new(),
+                        audit_error: Some(format!("{error:?}")),
+                    }),
+                },
                 None => None,
             };
             return Ok(StructuralSolution {
@@ -1773,6 +1840,8 @@ pub fn negative_pair_witness(
     Ok(None)
 }
 
+#[cfg(test)]
+mod s11f_tests;
 #[cfg(test)]
 mod s11k_tests;
 

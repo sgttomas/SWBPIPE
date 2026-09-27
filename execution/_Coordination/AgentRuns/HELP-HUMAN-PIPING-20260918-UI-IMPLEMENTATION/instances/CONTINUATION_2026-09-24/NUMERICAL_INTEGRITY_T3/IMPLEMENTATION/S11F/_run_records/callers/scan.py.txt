@@ -132,7 +132,7 @@ def bodies(src):
     while i<len(code):
         boundary= i==0 or not ident(code[i-1])
         if boundary and code.startswith('fn',i) and len(code)>i+2 and code[i+2].isspace():
-            m=re.match(r'\s*([A-Za-z0-9_]*)', code[i+2:i+200]); 
+            m=re.match(r'\s*([A-Za-z0-9_]*)', code[i+2:i+200]);
             if m.group(1): pending=m.group(1)
             i+=2; continue
         c=code[i]

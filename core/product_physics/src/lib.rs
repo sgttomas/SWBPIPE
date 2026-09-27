@@ -23,15 +23,21 @@ pub mod self_weight;
 mod source_recovery;
 mod source_receipt;
 #[cfg(test)]
+mod s11f_tests;
+#[cfg(test)]
 mod source_budget_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
-use open_pipe_stress_frame_kernel::structural::{SolveQuality, StructuralError, StructuralReport};
+use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_sum, ExactAccumulator};
+use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, LoadLedger};
+use open_pipe_stress_frame_kernel::structural::{
+    LoadFidelityReport, SolveQuality, StructuralError, StructuralReport,
+};
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, element_dof_map, reduce_system,
-    reduce_system_with_prescribed_displacements, solve_dense,
-    FrameElement, FrameKernelError, FrameNode, Matrix12, UserStiffnessElement, DOF_PER_NODE,
-    ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
+    assemble_global_stiffness_with_user_elements, element_dof_map, reduce_assembled_system,
+    reduce_assembled_system_with_prescribed_displacements, solve_dense, FrameElement,
+    FrameKernelError, FrameNode, Matrix12, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF, RX, RY,
+    RZ, UX, UY, UZ,
 };
 use open_pipe_stress_linear_supports::{
     prepare_boundary, FrameDof, LinearSupport, QuantityDimension, SpringEntry, SupportFamily,
@@ -46,10 +52,11 @@ use open_pipe_stress_nonlinear_integration::structural_adapter::{
     AssemblyEvidence, StrictGapEvidence,
 };
 use open_pipe_stress_nonlinear_integration::{
-    eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs, ConvergenceControl,
-    ConvergencePolicyStatus, CurvedBendStiffnessElement, DerivedFrictionNormalReaction,
-    FrictionNormalReaction, LinearSolveMode, NonlinearFrameSolveInput, NonlinearFrameSolveResult,
-    NonlinearIntegrationError, NonlinearResidualObservation,
+    eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs_assembled,
+    ConvergenceControl, ConvergencePolicyStatus, CurvedBendStiffnessElement,
+    DerivedFrictionNormalReaction, FrictionNormalReaction, LinearSolveMode,
+    NonlinearFrameSolveInput, NonlinearFrameSolveResult, NonlinearIntegrationError,
+    NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
     ActivationSense, ActiveSetState, GapDirection, NonlinearSupport, NonlinearSupportBehavior,
@@ -57,8 +64,8 @@ use open_pipe_stress_nonlinear_supports::{
 };
 use open_pipe_stress_primitive_loads::{
     generate_seismic_equivalent_static_loads, generate_wind_equivalent_static_loads, prepare_loads,
-    ElementExposedDiameter, ElementMassPerLength, EquivalentStaticAxisFactor, LoadDimension,
-    LoadDirection, LoadExtent, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
+    ElementExposedDiameter, ElementMassPerLength, EquivalentStaticAxisFactor, LoadApplication,
+    LoadDimension, LoadDirection, LoadExtent, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
     SeismicEquivalentStaticBasis, WindEquivalentStaticBasis,
 };
 use open_pipe_stress_solver_diagnostics::{
@@ -1059,6 +1066,56 @@ fn append_integrity_report(
         vec![case_id.to_string()]));
 }
 
+/// S11 section 6: a detected load-contribution loss keeps the case Sensitive
+/// (the structural report's quality, published as
+/// `NUMERICAL_INTEGRITY_SENSITIVE`) and adds this warning, whose
+/// `affected_refs` are the case and the ledger sources of the flagged rows
+/// (ROOT's F-1 amendment). An unaudited row (RV1-N5) is named in the message
+/// text only; no envelope field is added (D-S11-4).
+fn append_load_contribution_absorbed(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    report: &LoadFidelityReport,
+) {
+    let mut refs = vec![case_id.to_string()];
+    let mut sources: Vec<&String> = report.rows.iter().flat_map(|row| &row.sources).collect();
+    sources.sort();
+    sources.dedup();
+    refs.extend(sources.into_iter().cloned());
+    let rows = report
+        .rows
+        .iter()
+        .map(|row| match row.unaudited {
+            Some(reason) => format!(
+                "global_dof={} restrained={} unaudited ({reason}); sources={:?}",
+                row.global_dof, row.restrained, row.sources
+            ),
+            None => format!(
+                "global_dof={} restrained={} exact_net_bits={:016x} actual_bits={:016x} guarded_ratio={:?} target={:?} operation_count={} completeness_limit={:?}; sources={:?}",
+                row.global_dof, row.restrained, row.exact_net_bits, row.actual_bits,
+                row.guarded_ratio, row.target, row.operation_count, row.completeness_limit, row.sources
+            ),
+        })
+        .collect::<Vec<_>>();
+    let audit = report
+        .audit_error
+        .as_ref()
+        .map(|error| {
+            format!("; the load-fidelity audit could not run ({error}); the case is unaudited")
+        })
+        .unwrap_or_default();
+    diagnostics.push(diag(
+        &format!("diagnostic:load-fidelity:{}", stable_suffix(case_id)),
+        "LOAD_CONTRIBUTION_ABSORBED",
+        "warning",
+        format!(
+            "Load case {case_id}: the load-fidelity audit flagged force rows whose load term differs from the exact net of their identified contributions, or could not audit them; the case is Sensitive and its rows are kept for inspection. Flagged rows: [{}]{audit}",
+            rows.join("; ")
+        ),
+        refs,
+    ));
+}
+
 fn append_integrity_failure(
     diagnostics: &mut Vec<Diagnostic>,
     case_id: &str,
@@ -1321,9 +1378,12 @@ struct LoadCaseSolve {
     preview: Option<preview_physics::CaseRecord>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 struct ThermalElementLoad {
     element_index: usize,
+    /// Ledger source id (S11 section 4.2): the primitive load id, or the
+    /// resolved eigen source id on the 0.4.0 route.
+    source: String,
     axial_load: f64,
     /// Free thermal strain `alpha * delta_T`; the curved-bend macro span uses
     /// this with the exact free-expansion identity instead of `axial_load`.
@@ -2019,6 +2079,7 @@ fn load_state_eigen_loads(
             let section = built.sections.get(&member.pipe_id).ok_or_else(|| member.pipe_id.clone())?;
             Ok(ThermalElementLoad {
                 element_index: member.pipe_index,
+                source: source_recovery::eigen_source_id(&member.pipe_id),
                 axial_load: member.material.pair.elastic_modulus_pa()
                     * section.area
                     * member.strain.total_eigenstrain,
@@ -2134,6 +2195,170 @@ fn require_finite_mechanics(values: impl IntoIterator<Item = f64>) -> Result<(),
     Ok(())
 }
 
+/// S11 section 4.2: one term per nodal load, as `global_load_vector` added
+/// them (a DOF outside the system is skipped exactly as it did).
+fn push_nodal_loads(ledger: &mut LoadLedger, application: &LoadApplication, node_count: usize) {
+    let size = node_count * DOF_PER_NODE;
+    for load in &application.nodal_loads {
+        if load.global_dof < size {
+            ledger.push(&load.load_id, load.global_dof, load.value);
+        }
+    }
+}
+
+/// The case's load ledger (S11 sections 4.2 and 4.3): every force producer
+/// pushes its contributions, term by term, in this fixed order (nodal loads,
+/// uniform element equivalents, pressure thrust, thermal and eigen
+/// equivalents, exact-pressure group operands, constant effort).
+#[allow(clippy::too_many_arguments)]
+fn case_force_ledger(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    load_application: &LoadApplication,
+    curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
+    pressure_thrust_loads: &[PressureThrustLoad],
+    thermal_loads: &[ThermalElementLoad],
+    exact_pressure: Option<&pressure_runtime::ExactPressureCase>,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> LoadLedger {
+    let mut ledger = LoadLedger::new();
+    push_nodal_loads(&mut ledger, load_application, built.nodes.len());
+    add_uniform_element_loads(
+        &mut ledger,
+        model,
+        &load_application.element_uniform_loads,
+        &built.pipes,
+        curved_bends_by_pipe,
+        load_case_id,
+        diagnostics,
+    );
+    // Pressure thrust on macro-realized bend spans applies the complete
+    // self-equilibrated arc system: end-cap forces along the validated arc
+    // end tangents plus the exact work-equivalent consistent nodal vector of
+    // the outward radial wall load (decision recorded in the curved-bend
+    // review-row basis). Straight spans keep the equal/opposite chord-axial
+    // end forces unchanged.
+    add_pressure_thrust_loads(
+        &mut ledger,
+        pressure_thrust_loads,
+        &built.pipes,
+        curved_bends_by_pipe,
+    );
+    add_thermal_equivalent_loads(
+        &mut ledger,
+        thermal_loads,
+        &built.pipes,
+        curved_bends_by_pipe,
+    );
+    if let Some(exact) = exact_pressure {
+        push_exact_pressure_operands(&mut ledger, exact);
+    }
+    // DEC-049 constant-effort consumption enters here — the one assembled
+    // force-vector seam shared by the dense, sparse, and nonlinear
+    // active-set solve paths.
+    add_constant_effort_support_loads(&mut ledger, model);
+    ledger
+}
+
+/// The retained-source replay's case force (S11 section 4.5): the same live
+/// producer functions as `solve_load_case` (nodal loads, then T1's eigen
+/// equivalents), through the ledger. Retained scope admits no other producer.
+pub(crate) fn nodal_and_eigen_case_force(
+    application: &LoadApplication,
+    eigen: &[ThermalElementLoad],
+    built: &BuiltModel,
+) -> Result<AssembledForce, open_pipe_stress_frame_kernel::load_ledger::LedgerError> {
+    let mut ledger = LoadLedger::new();
+    push_nodal_loads(&mut ledger, application, built.nodes.len());
+    add_thermal_equivalent_loads(&mut ledger, eigen, &built.pipes, &HashMap::new());
+    ledger.finish(built.nodes.len() * DOF_PER_NODE)
+}
+
+/// S11 section 4.2: each exact-pressure source group's operand, never the
+/// group's pre-summed per-DOF total.
+fn push_exact_pressure_operands(
+    ledger: &mut LoadLedger,
+    exact: &pressure_runtime::ExactPressureCase,
+) {
+    for (dof, value, source) in &exact.assembled_operands {
+        ledger.push(source, *dof, *value);
+    }
+}
+
+/// The case force: each DOF's correctly rounded net (S11 section 4.3). A net
+/// outside the binary64 range, or a non-finite term, is the same non-finite
+/// mechanics refusal the folded vector met in `require_finite_mechanics`.
+fn finish_case_ledger(
+    ledger: LoadLedger,
+    node_count: usize,
+) -> Result<AssembledForce, FrameKernelError> {
+    ledger
+        .finish(node_count * DOF_PER_NODE)
+        .map_err(|_| FrameKernelError::NonFiniteInput {
+            name: "computed mechanics",
+            value: f64::INFINITY,
+        })
+}
+
+/// Allow-listed observation lane (S11 section 4.3 limit 2): the legacy
+/// DEC050/053 observation rebuilds a reduced system from a global vector; it
+/// must observe K_ff u_f = f_f - K_fc g_c, never f_f. It reads the ledger's
+/// values and folds in binary64 on purpose; it never reaches a solve seam.
+fn legacy_observation_force(
+    force: &AssembledForce,
+    stiffness: &[Vec<f64>],
+    restrained_dofs: &[usize],
+    prescribed: &[(usize, f64)],
+    coupled: bool,
+) -> Vec<f64> {
+    let mut observation = force.values().to_vec();
+    if coupled {
+        for (row, value) in observation.iter_mut().enumerate() {
+            if restrained_dofs.contains(&row) {
+                continue;
+            }
+            for &(column, displacement) in prescribed {
+                *value -= stiffness[row][column] * displacement;
+            }
+        }
+    }
+    observation
+}
+
+/// Allow-listed observation lane (S11 section 4.3 limits 1 and 2): the
+/// protected DEC050/053 comparison retains the legacy unscaled LU reference on
+/// the reduced system. It never selects a published solution.
+fn legacy_dense_observation(
+    reduced: &open_pipe_stress_frame_kernel::ReducedAssembledSystem,
+) -> Result<Vec<f64>, FrameKernelError> {
+    solve_dense(&reduced.stiffness, reduced.force.values())
+}
+
+/// E12 (S11 section 4.4): each restrained reaction is one exact sum of the
+/// formed `K * u` term (bit-identical to `multiply_matrix_vector`) and minus
+/// every ledger term of that DOF, rounded once.
+fn restrained_reactions(
+    stiffness: &[Vec<f64>],
+    displacements: &[f64],
+    force: &AssembledForce,
+) -> Vec<f64> {
+    multiply_matrix_vector(stiffness, displacements)
+        .into_iter()
+        .enumerate()
+        .map(|(dof, internal)| {
+            let mut accumulator = ExactAccumulator::new();
+            let summed = accumulator
+                .add(internal)
+                .and_then(|()| force.accumulate_dof(dof, &mut accumulator, true))
+                .and_then(|()| accumulator.round());
+            // A non-finite operand or an out-of-range net keeps the non-finite
+            // value, which `require_finite_mechanics` refuses, as before.
+            summed.unwrap_or(f64::NAN)
+        })
+        .collect()
+}
+
 fn solve_load_case(
     model: &PreviewModel,
     built: &BuiltModel,
@@ -2241,54 +2466,34 @@ fn solve_load_case(
         .iter()
         .map(|element| (element.pipe_index, element))
         .collect::<HashMap<_, _>>();
-    let curved_bend_uniform_intensity = curved_bend_uniform_intensity_by_pipe(
+    // E10 removed (S11 section 4.4): recovery uses each uniform load's own
+    // intensity, as the force side forms one equivalent per load.
+    let curved_bend_uniform_intensities = curved_bend_uniform_intensities_by_pipe(
         &load_application.element_uniform_loads,
         &curved_bends_by_pipe,
     );
-    let mut force = load_application.global_load_vector(built.nodes.len());
-    add_uniform_element_loads(
-        &mut force,
+    // S11 sections 4.2 and 4.3: every producer pushes its contributions, term
+    // by term, into one per-case exact ledger; the solve's force vector is
+    // each DOF's correctly rounded net, and it can be built only here.
+    let ledger = case_force_ledger(
         model,
-        &load_application.element_uniform_loads,
-        &built.pipes,
+        built,
+        &load_application,
         &curved_bends_by_pipe,
+        &pressure_thrust_loads,
+        &thermal_loads,
+        exact_pressure.as_ref(),
         &load_case.id,
         diagnostics,
     );
-    // Pressure thrust on macro-realized bend spans applies the complete
-    // self-equilibrated arc system: end-cap forces along the validated arc
-    // end tangents plus the exact work-equivalent consistent nodal vector of
-    // the outward radial wall load (decision recorded in the curved-bend
-    // review-row basis). Straight spans keep the equal/opposite chord-axial
-    // end forces unchanged.
-    add_pressure_thrust_loads(
-        &mut force,
-        &pressure_thrust_loads,
-        &built.pipes,
-        &curved_bends_by_pipe,
-    );
-    add_thermal_equivalent_loads(
-        &mut force,
-        &thermal_loads,
-        &built.pipes,
-        &curved_bends_by_pipe,
-    );
-    if let Some(exact) = &exact_pressure {
-        for (total, pressure_rhs) in force.iter_mut().zip(&exact.assembled_loads) {
-            *total += pressure_rhs;
-        }
-    }
-    // DEC-049 constant-effort consumption enters here — the one assembled
-    // force-vector seam shared by the dense, sparse, and nonlinear
-    // active-set solve paths.
-    add_constant_effort_support_loads(&mut force, model);
+    let force = finish_case_ledger(ledger, built.nodes.len())?;
 
     require_finite_mechanics(
         stiffness
             .iter()
             .flatten()
             .copied()
-            .chain(force.iter().copied()),
+            .chain(force.values().iter().copied()),
     )?;
     // Every restrained DOF is prescribed: explicit zero unless the resolved case
     // supplies an actual support-state motion for that rigid DOF.
@@ -2328,39 +2533,35 @@ fn solve_load_case(
             });
         }
     }
-    let prescribed_values = prescribed.iter().map(|&(_, value)| value).collect::<Vec<_>>();
+    let prescribed_values = prescribed
+        .iter()
+        .map(|&(_, value)| value)
+        .collect::<Vec<_>>();
+    // T1's 0.4.0 prescribed motion reaches the kernel's exact KS2 through the
+    // typed reduction (S11 section 8.2).
     let reduced = if load_state.is_some() {
-        reduce_system_with_prescribed_displacements(
+        reduce_assembled_system_with_prescribed_displacements(
             stiffness,
             &force,
             restrained_dofs,
             &prescribed_values,
         )?
     } else {
-        reduce_system(stiffness, &force, restrained_dofs)?
+        reduce_assembled_system(stiffness, &force, restrained_dofs)?
     };
-    // Legacy DEC050/053 observation lanes rebuild a reduced system from a
-    // global vector; they must observe K_ff u_f = f_f - K_fc g_c, never f_f.
-    let observation_force = if load_state.is_some() {
-        let mut coupled = force.clone();
-        for (row, value) in coupled.iter_mut().enumerate() {
-            if restrained_dofs.contains(&row) {
-                continue;
-            }
-            for &(column, displacement) in &prescribed {
-                *value -= stiffness[row][column] * displacement;
-            }
-        }
-        coupled
-    } else {
-        force.clone()
-    };
+    let observation_force = legacy_observation_force(
+        &force,
+        stiffness,
+        restrained_dofs,
+        &prescribed,
+        load_state.is_some(),
+    );
     // Preliminary linear evidence belongs only to an actual successful solve.
     let mut preliminary_diagnostics = Vec::new();
     let attempted_linear = solve_preview_reduced_system(
         solver_mode,
         stiffness,
-        &reduced.force,
+        reduced.force.values(),
         built,
         spring_entries,
         &force,
@@ -2520,7 +2721,7 @@ fn solve_load_case(
         if solver_mode == PreviewSolverMode::DenseScrutiny {
             // Protected DEC050/053 comparison retains the legacy unscaled LU
             // reference. This observation never selects a published solution.
-            if let Ok(legacy_dense) = solve_dense(&reduced.stiffness, &reduced.force) {
+            if let Ok(legacy_dense) = legacy_dense_observation(&reduced) {
                 append_sparse_live_path_evidence(
                     &mut results,
                     diagnostics,
@@ -2592,6 +2793,9 @@ fn solve_load_case(
                 model,
                 None,
             );
+            if let Some(report) = &linear.load_fidelity {
+                append_load_contribution_absorbed(diagnostics, &load_case.id, report);
+            }
         }
     } else if let Some(iteration) = selected_nonlinear
         .as_ref()
@@ -2690,16 +2894,15 @@ fn solve_load_case(
         }
     }
 
-    let reactions = selected_source.as_ref().map(|recovery| recovery.reactions().to_vec()).or_else(|| selected_nonlinear
+    let reactions = selected_source
         .as_ref()
-        .map(|solve| solve.reactions.clone()))
-        .unwrap_or_else(|| {
-            multiply_matrix_vector(stiffness, &displacements)
-                .into_iter()
-                .zip(force.iter())
-                .map(|(internal, applied)| internal - applied)
-                .collect()
-        });
+        .map(|recovery| recovery.reactions().to_vec())
+        .or_else(|| {
+            selected_nonlinear
+                .as_ref()
+                .map(|solve| solve.reactions.clone())
+        })
+        .unwrap_or_else(|| restrained_reactions(stiffness, &displacements, &force));
     require_finite_mechanics(reactions.iter().copied())?;
     // preview-physics-1 side record; rendered only when no case is source-selected.
     let mut preview_record = (!pressure_runtime::is_exact(model) && selected_source.is_none())
@@ -2817,10 +3020,11 @@ fn solve_load_case(
     let mut component_stress_modifier_count = 0;
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
         let macro_bend = curved_bends_by_pipe.get(&pipe_index).copied();
-        let uniform_intensity = curved_bend_uniform_intensity
+        let uniform_intensities = curved_bend_uniform_intensities
             .get(&pipe_index)
-            .copied()
-            .unwrap_or([0.0; 3]);
+            .map(Vec::as_slice)
+            .unwrap_or(&[]);
+        let pressure_thrusts = pressure_thrusts_for_pipe(pipe_index, &pressure_thrust_loads);
         let straight_loads = if macro_bend.is_none() {
             match straight_local_uniform_loads(
                 pipe,
@@ -2857,8 +3061,8 @@ fn solve_load_case(
                 pipe,
                 &displacements,
                 &thermal_loads,
-                &pressure_thrust_loads,
-                uniform_intensity,
+                &pressure_thrusts,
+                uniform_intensities,
             ) {
                 Ok(local_forces) => local_forces,
                 Err(message) => {
@@ -2886,23 +3090,23 @@ fn solve_load_case(
                     continue;
                 }
             };
-            let equivalent = match pipe.equivalent_nodal_loads_with_spans(&straight_loads, &[]) {
-                Ok(value) => value,
-                Err(error) => {
-                    diagnostics.push(diag(
-                        "diagnostic:load:straight-fixed-end",
-                        "ELEMENT_FORCE_RECOVERY_FAILED",
-                        "blocking",
-                        error.to_string(),
-                        vec![pipe.element_id.clone()],
-                    ));
-                    continue;
-                }
-            };
-            let mechanical =
-                std::array::from_fn::<_, ELEMENT_DOF, _>(|i| local.local_forces[i] - equivalent[i]);
-            let mut wall = corrected_local_forces_for_axial_effects(
-                &mechanical,
+            let equivalent_terms =
+                match pipe.equivalent_nodal_load_terms_with_spans(&straight_loads, &[]) {
+                    Ok(value) => value,
+                    Err(error) => {
+                        diagnostics.push(diag(
+                            "diagnostic:load:straight-fixed-end",
+                            "ELEMENT_FORCE_RECOVERY_FAILED",
+                            "blocking",
+                            error.to_string(),
+                            vec![pipe.element_id.clone()],
+                        ));
+                        continue;
+                    }
+                };
+            let mut wall = exact_straight_end_forces(
+                &local.local_forces,
+                &equivalent_terms,
                 pipe_index,
                 &thermal_loads,
                 if pressure_runtime::is_exact(model) {
@@ -2959,8 +3163,8 @@ fn solve_load_case(
                 bend,
                 pipe,
                 &corrected_local_forces,
-                uniform_intensity,
-                pressure_thrust_for_pipe(pipe_index, &pressure_thrust_loads),
+                uniform_intensities,
+                &pressure_thrusts,
             ) {
                 Ok(stations) => stations.to_vec(),
                 Err(message) => {
@@ -3025,8 +3229,8 @@ fn solve_load_case(
                     bend,
                     pipe,
                     &corrected_local_forces,
-                    uniform_intensity,
-                    pressure_thrust_for_pipe(pipe_index, &pressure_thrust_loads),
+                    uniform_intensities,
+                    &pressure_thrusts,
                     fraction,
                 )
             };
@@ -3118,8 +3322,9 @@ fn solve_load_case(
             });
         }
         let pressure = pressure_for_pipe(model, load_case, pipe_index, &pipe.element_id);
+        // Whether the thrust loads on the pipe have a nonzero exact net.
         let pressure_thrust_active =
-            pressure_thrust_for_pipe(pipe_index, &pressure_thrust_loads) != 0.0;
+            exact_rounded_sum(pressure_thrusts.iter().copied()).map_or(true, |net| net != 0.0);
         let include_pressure_longitudinal = !pressure_thrust_active;
         let end_i_stress = recover_section_stress(&endpoint_resultants[0], section, pressure);
         let end_j_stress = recover_section_stress(&endpoint_resultants[1], section, pressure);
@@ -3578,7 +3783,7 @@ fn append_nonlinear_support_loop_results(
     model: &PreviewModel,
     built: &BuiltModel,
     restrained_dofs: &[usize],
-    force: &[f64],
+    force: &AssembledForce,
     load_case: &PreviewLoadCase,
     solver_mode: PreviewSolverMode,
     spring_entries: &[SpringEntry],
@@ -3621,7 +3826,9 @@ fn append_nonlinear_support_loop_results(
         elements: built.frame_elements.clone(),
         user_stiffness_elements: built.user_stiffness_elements.clone(),
         curved_bend_elements: curved_bend_stiffness_elements,
-        force: force.to_vec(),
+        // The loop's base force is the ledger's net (S11 section 8.2); the
+        // typed entry below checks this copy against it bit for bit.
+        force: force.values().to_vec(),
         base_restrained_dofs: restrained_dofs.to_vec(),
         nonlinear_supports: built.nonlinear_supports.clone(),
         initial_states: built.nonlinear_initial_states.clone(),
@@ -3636,8 +3843,9 @@ fn append_nonlinear_support_loop_results(
         .iter()
         .map(|spring| (spring.node_dof.global_index(), spring.stiffness.value))
         .collect::<Vec<_>>();
-    match solve_active_set_frame_with_mode_and_springs(
+    match solve_active_set_frame_with_mode_and_springs_assembled(
         &input,
+        force,
         solver_mode.nonlinear_mode(),
         &springs,
     ) {
@@ -3905,6 +4113,9 @@ fn product_preview_policy_support_classes(supports: &[NonlinearSupport]) -> Vec<
 #[derive(Debug, Clone)]
 struct PreviewLinearSolve {
     structural_report: StructuralReport,
+    /// S11 section 6: the kernel's load-fidelity findings (a detected loss is
+    /// Sensitive, never a refusal); `None` when nothing is flagged.
+    load_fidelity: Option<LoadFidelityReport>,
     solution: Vec<f64>,
     solution_basis: &'static str,
     sparse_entry_count: Option<usize>,
@@ -3928,7 +4139,7 @@ fn solve_preview_reduced_system(
     _reduced_force: &[f64],
     built: &BuiltModel,
     spring_entries: &[SpringEntry],
-    global_force: &[f64],
+    global_force: &AssembledForce,
     observation_force: &[f64],
     prescribed: &[(usize, f64)],
     _load_case: &PreviewLoadCase,
@@ -3962,7 +4173,8 @@ fn solve_preview_reduced_system(
         PreviewSolverMode::DenseScrutiny => LinearSolveMode::DenseScrutiny,
         PreviewSolverMode::SparseInteractive => LinearSolveMode::SparseInteractive,
     };
-    let checked = assembly.solve(original_stiffness, global_force, &free, prescribed, mode)?;
+    let checked =
+        assembly.solve_assembled(original_stiffness, global_force, &free, prescribed, mode)?;
     // Legacy raw DEC050/053 observations retain their own unscaled algorithm.
     // They neither select the solution nor rescue a rejected structural gate.
     let direct = assemble_reduced_sparse_entry_system(
@@ -3985,6 +4197,7 @@ fn solve_preview_reduced_system(
     Ok(PreviewLinearSolve {
         solution: free.iter().map(|&i| checked.displacements[i]).collect(),
         structural_report: checked.report,
+        load_fidelity: checked.load_fidelity,
         solution_basis: match solver_mode {
             PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
             PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",
@@ -8160,7 +8373,13 @@ fn exact_straight_summary_extrema(
         let h = (b - a) * length;
         let r =
             straight_section_resultants(pipe, end_forces, loads, a).map_err(|e| e.to_string())?;
-        let mut w = [0.0; 3];
+        // E7 (S11 section 4.4): each axis intensity is one exact sum of the
+        // active loads' force_per_length, rounded once.
+        let mut intensity = [
+            ExactAccumulator::new(),
+            ExactAccumulator::new(),
+            ExactAccumulator::new(),
+        ];
         for load in loads
             .iter()
             .filter(|l| l.span.start_fraction <= a && l.span.end_fraction >= b)
@@ -8170,7 +8389,15 @@ fn exact_straight_summary_extrema(
                 LocalLoadDirection::Y => 1,
                 LocalLoadDirection::Z => 2,
             };
-            w[axis] += load.force_per_length;
+            intensity[axis]
+                .add(load.force_per_length)
+                .map_err(|e| format!("span intensity: {e}"))?;
+        }
+        let mut w = [0.0; 3];
+        for (value, accumulator) in w.iter_mut().zip(&intensity) {
+            *value = accumulator
+                .round()
+                .map_err(|e| format!("span intensity: {e}"))?;
         }
         // Direct j-side statics: N'=-wx, My'=Vz, Mz'=-Vy; My''=-wz, Mz''=wy.
         // Convert power coefficients on u in [0,1] to Bernstein controls.
@@ -8306,7 +8533,7 @@ fn straight_summary_extrema(
 }
 
 fn add_uniform_element_loads(
-    force: &mut [f64],
+    ledger: &mut LoadLedger,
     _model: &PreviewModel,
     loads: &[open_pipe_stress_primitive_loads::ElementUniformLoadContribution],
     pipes: &[StraightPipeElement],
@@ -8366,9 +8593,11 @@ fn add_uniform_element_loads(
             };
             match equivalent {
                 Ok(equivalent) => {
+                    // S11 section 4.2: one term per (load, DOF) from this load's
+                    // own consistent equivalent.
                     let dof_map = element_dof_map(bend.node_i, bend.node_j);
                     for (local_dof, &global_dof) in dof_map.iter().enumerate() {
-                        force[global_dof] += equivalent[local_dof];
+                        ledger.push(&load.load_id, global_dof, equivalent[local_dof]);
                     }
                 }
                 Err(message) => {
@@ -8402,11 +8631,13 @@ fn add_uniform_element_loads(
             .and_then(|global| pipe.equivalent_global_nodal_loads_with_spans(&[global], &[]));
         match equivalent {
             Ok(equivalent) => {
+                // One load per call: the SP formula of one load is formation
+                // (E1 for one load is bit-identical); one term per (load, DOF).
                 for (slot, global) in element_dof_map(pipe.node_i.index, pipe.node_j.index)
                     .iter()
                     .enumerate()
                 {
-                    force[*global] += equivalent[slot];
+                    ledger.push(&load.load_id, *global, equivalent[slot]);
                 }
             }
             Err(error) => diagnostics.push(diag(
@@ -8467,6 +8698,7 @@ fn build_thermal_element_loads(
         let epsilon_th = alpha * load.magnitude.value;
         loads.push(ThermalElementLoad {
             element_index,
+            source: load.id.clone(),
             axial_load: material.elastic_modulus.value * section.area * epsilon_th,
             thermal_strain: epsilon_th,
         });
@@ -8586,14 +8818,19 @@ fn expansion_joint_pressure_thrust_inputs_by_pipe(
 }
 
 fn add_pressure_thrust_loads(
-    force: &mut [f64],
+    ledger: &mut LoadLedger,
     pressure_loads: &[PressureThrustLoad],
     pipes: &[StraightPipeElement],
     curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
 ) {
     for load in pressure_loads {
         if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
-            add_curved_bend_pressure_thrust_load(force, bend, load.axial_load);
+            add_curved_bend_pressure_thrust_load(
+                ledger,
+                &load.source_load_id,
+                bend,
+                load.axial_load,
+            );
             continue;
         }
         let Some(pipe) = pipes.get(load.element_index) else {
@@ -8608,9 +8845,11 @@ fn add_pressure_thrust_loads(
         let local_x = orientation.local_axes[0];
         let i_base = pipe.node_i.index * DOF_PER_NODE;
         let j_base = pipe.node_j.index * DOF_PER_NODE;
+        // S11 section 4.2: fl(P * x_a) per axis, one term at each end.
         for axis in 0..3 {
-            force[i_base + axis] -= load.axial_load * local_x[axis];
-            force[j_base + axis] += load.axial_load * local_x[axis];
+            let value = load.axial_load * local_x[axis];
+            ledger.push(&load.source_load_id, i_base + axis, -value);
+            ledger.push(&load.source_load_id, j_base + axis, value);
         }
     }
 }
@@ -8628,7 +8867,8 @@ fn add_pressure_thrust_loads(
 // makes the crate calls infallible on this path; a failure would only
 // repeat a validation already enforced at model build.
 fn add_curved_bend_pressure_thrust_load(
-    force: &mut [f64],
+    ledger: &mut LoadLedger,
+    source: &str,
     bend: &CurvedBendMacroBuild,
     axial_load: f64,
 ) {
@@ -8643,25 +8883,31 @@ fn add_curved_bend_pressure_thrust_load(
     };
     let i_base = bend.node_i * DOF_PER_NODE;
     let j_base = bend.node_j * DOF_PER_NODE;
+    // S11 section 4.2: fl(P * t_a) per axis for the caps; one term per wall slot.
     for axis in 0..3 {
-        force[i_base + axis] -= axial_load * tangent_i[axis];
-        force[j_base + axis] += axial_load * tangent_j[axis];
+        ledger.push(source, i_base + axis, -(axial_load * tangent_i[axis]));
+        ledger.push(source, j_base + axis, axial_load * tangent_j[axis]);
     }
     let dof_map = element_dof_map(bend.node_i, bend.node_j);
     for (local_slot, &global_slot) in dof_map.iter().enumerate() {
-        force[global_slot] += wall_loads[local_slot];
+        ledger.push(source, global_slot, wall_loads[local_slot]);
     }
 }
 
 fn add_thermal_equivalent_loads(
-    force: &mut [f64],
+    ledger: &mut LoadLedger,
     thermal_loads: &[ThermalElementLoad],
     pipes: &[StraightPipeElement],
     curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
 ) {
     for load in thermal_loads {
         if let Some(bend) = curved_bends_by_pipe.get(&load.element_index) {
-            add_curved_bend_thermal_equivalent_load(force, bend, load.thermal_strain);
+            add_curved_bend_thermal_equivalent_load(
+                ledger,
+                &load.source,
+                bend,
+                load.thermal_strain,
+            );
             continue;
         }
         let Some(pipe) = pipes.get(load.element_index) else {
@@ -8676,9 +8922,12 @@ fn add_thermal_equivalent_loads(
         let local_x = orientation.local_axes[0];
         let i_base = pipe.node_i.index * DOF_PER_NODE;
         let j_base = pipe.node_j.index * DOF_PER_NODE;
+        // S11 section 4.2: fl(P * x_a) per axis, one term at each end (the
+        // same terms `source_recovery` pushes for T1's eigen loads).
         for axis in 0..3 {
-            force[i_base + axis] -= load.axial_load * local_x[axis];
-            force[j_base + axis] += load.axial_load * local_x[axis];
+            let value = load.axial_load * local_x[axis];
+            ledger.push(&load.source, i_base + axis, -value);
+            ledger.push(&load.source, j_base + axis, value);
         }
     }
 }
@@ -8687,19 +8936,28 @@ fn add_thermal_equivalent_loads(
 // is stress-free, so the equivalent nodal load is K_macro * u_free with
 // u_free the pure translation field alpha*deltaT*(p - p_i) (zero rotations)
 // evaluated at the two end nodes. No approximation is introduced for the arc.
+// S11 section 4.2 (V1's S11-V3 example): the equivalent is pushed as the exact
+// products K_rc * fl(eps * chord_c), one per nonzero column, never a pre-summed
+// row value, so it is the exact K * u_free of the represented u_free.
 fn add_curved_bend_thermal_equivalent_load(
-    force: &mut [f64],
+    ledger: &mut LoadLedger,
+    source: &str,
     bend: &CurvedBendMacroBuild,
     thermal_strain: f64,
 ) {
     let free_expansion = curved_bend_free_expansion_displacements(bend, thermal_strain);
     let dof_map = element_dof_map(bend.node_i, bend.node_j);
     for (local_row, &global_row) in dof_map.iter().enumerate() {
-        let mut value = 0.0;
-        for (local_col, free_value) in free_expansion.iter().enumerate() {
-            value += bend.global_stiffness[local_row][local_col] * free_value;
+        for (local_col, &free_value) in free_expansion.iter().enumerate() {
+            if free_value != 0.0 {
+                ledger.push_product(
+                    source,
+                    global_row,
+                    bend.global_stiffness[local_row][local_col],
+                    free_value,
+                );
+            }
         }
-        force[global_row] += value;
     }
 }
 
@@ -8718,25 +8976,55 @@ fn curved_bend_free_expansion_displacements(
     free_expansion
 }
 
-fn corrected_local_forces_for_axial_effects(
+/// E5 (S11 section 4.4): each straight end force is one exact sum of the
+/// formed elastic term `local_i`, minus every load's own fixed-end term (SP's
+/// per-load E1 terms), plus each thermal and each pressure-thrust `axial_load`
+/// on the end UX rows (+ at i, - at j), rounded once. This replaces the two
+/// roundings of `mechanical = local - equivalent` and the summed axial
+/// correction. A non-finite or out-of-range sum keeps a non-finite value,
+/// which `require_finite_mechanics` refuses as before.
+fn exact_straight_end_forces(
     local_forces: &[f64],
+    equivalent_terms: &[[f64; ELEMENT_DOF]],
     element_index: usize,
     thermal_loads: &[ThermalElementLoad],
     pressure_loads: &[PressureThrustLoad],
 ) -> Vec<f64> {
-    let mut corrected = local_forces.to_vec();
-    let thermal_axial_load = thermal_loads
+    let axial_loads = thermal_loads
         .iter()
         .filter(|load| load.element_index == element_index)
         .map(|load| load.axial_load)
-        .sum::<f64>();
-    let pressure_axial_load = pressure_thrust_for_pipe(element_index, pressure_loads);
-    let axial_load = thermal_axial_load + pressure_axial_load;
-    if axial_load != 0.0 && corrected.len() >= DOF_PER_NODE + UX + 1 {
-        corrected[UX] += axial_load;
-        corrected[DOF_PER_NODE + UX] -= axial_load;
-    }
-    corrected
+        .chain(
+            pressure_loads
+                .iter()
+                .filter(|load| load.element_index == element_index)
+                .map(|load| load.axial_load),
+        )
+        .collect::<Vec<_>>();
+    (0..local_forces.len())
+        .map(|slot| {
+            let mut accumulator = ExactAccumulator::new();
+            let mut summed = accumulator.add(local_forces[slot]);
+            for term in equivalent_terms {
+                summed = summed.and_then(|()| accumulator.add(-term[slot]));
+            }
+            let sign = if slot == UX {
+                1.0
+            } else if slot == DOF_PER_NODE + UX {
+                -1.0
+            } else {
+                0.0
+            };
+            if sign != 0.0 {
+                for &axial in &axial_loads {
+                    summed = summed.and_then(|()| accumulator.add(sign * axial));
+                }
+            }
+            summed
+                .and_then(|()| accumulator.round())
+                .unwrap_or(f64::NAN)
+        })
+        .collect()
 }
 
 // Macro-span recovery: end forces are K_macro * (d - u_free) minus the
@@ -8757,8 +9045,8 @@ fn recover_curved_bend_local_forces(
     pipe: &StraightPipeElement,
     displacements: &[f64],
     thermal_loads: &[ThermalElementLoad],
-    pressure_loads: &[PressureThrustLoad],
-    uniform_intensity: [f64; 3],
+    pressure_thrusts: &[f64],
+    uniform_intensities: &[[f64; 3]],
 ) -> Result<Vec<f64>, String> {
     let required = (bend.node_i.max(bend.node_j) + 1) * DOF_PER_NODE;
     if displacements.len() < required {
@@ -8775,42 +9063,60 @@ fn recover_curved_bend_local_forces(
                 displacements[node_index * DOF_PER_NODE + dof];
         }
     }
-    let thermal_strain = thermal_loads
+    // E8/E9 (S11 section 4.4): each global end force is one exact sum of the
+    // products K_rc * d_c, minus K_rc * fl(eps_l * chord_c) for each thermal
+    // load l (the force side's exact products), minus each uniform load's own
+    // consistent equivalent and each thrust load's radial-pressure
+    // equivalent, rounded once. The chord rotation below stays a formed
+    // transform.
+    let free_expansions = thermal_loads
         .iter()
         .filter(|load| load.element_index == bend.pipe_index)
-        .map(|load| load.thermal_strain)
-        .sum::<f64>();
-    if thermal_strain != 0.0 {
-        let free_expansion = curved_bend_free_expansion_displacements(bend, thermal_strain);
-        for (entry, free_value) in element_displacements.iter_mut().zip(free_expansion.iter()) {
-            *entry -= free_value;
+        .map(|load| curved_bend_free_expansion_displacements(bend, load.thermal_strain))
+        .collect::<Vec<_>>();
+    let mut equivalents = Vec::new();
+    for &intensity in uniform_intensities {
+        if intensity != [0.0; 3] {
+            equivalents.push(
+                bend.macro_element
+                    .consistent_uniform_nodal_loads(intensity)
+                    .map_err(|error| error.to_string())?,
+            );
         }
     }
-
+    for &thrust in pressure_thrusts {
+        if thrust != 0.0 {
+            equivalents.push(
+                bend.macro_element
+                    .consistent_radial_pressure_nodal_loads(thrust)
+                    .map_err(|error| error.to_string())?,
+            );
+        }
+    }
     let mut global_forces = [0.0; ELEMENT_DOF];
     for (row, force) in global_forces.iter_mut().enumerate() {
-        for (col, displacement) in element_displacements.iter().enumerate() {
-            *force += bend.global_stiffness[row][col] * displacement;
+        let mut accumulator = ExactAccumulator::new();
+        let mut summed = Ok(());
+        for (col, &displacement) in element_displacements.iter().enumerate() {
+            summed = summed.and_then(|()| {
+                accumulator.add_product(bend.global_stiffness[row][col], displacement)
+            });
         }
-    }
-    if uniform_intensity != [0.0; 3] {
-        let equivalent = bend
-            .macro_element
-            .consistent_uniform_nodal_loads(uniform_intensity)
-            .map_err(|error| error.to_string())?;
-        for (force, load) in global_forces.iter_mut().zip(equivalent.iter()) {
-            *force -= load;
+        for free_expansion in &free_expansions {
+            for (col, &free_value) in free_expansion.iter().enumerate() {
+                if free_value != 0.0 {
+                    summed = summed.and_then(|()| {
+                        accumulator.add_product(-bend.global_stiffness[row][col], free_value)
+                    });
+                }
+            }
         }
-    }
-    let pressure_axial_load = pressure_thrust_for_pipe(bend.pipe_index, pressure_loads);
-    if pressure_axial_load != 0.0 {
-        let equivalent = bend
-            .macro_element
-            .consistent_radial_pressure_nodal_loads(pressure_axial_load)
-            .map_err(|error| error.to_string())?;
-        for (force, load) in global_forces.iter_mut().zip(equivalent.iter()) {
-            *force -= load;
+        for equivalent in &equivalents {
+            summed = summed.and_then(|()| accumulator.add(-equivalent[row]));
         }
+        *force = summed
+            .and_then(|()| accumulator.round())
+            .unwrap_or(f64::NAN);
     }
 
     let frame_element = pipe.frame_element().map_err(|error| error.to_string())?;
@@ -8831,15 +9137,16 @@ const SECTION_RESULTANT_BASIS: &str = "recovered_from_local_element_stiffness";
 const STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION: &str = "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions";
 const CURVED_BEND_SECTION_SIGN_CONVENTION: &str = "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions";
 
-// Summed global uniform intensity (force per unit arc length) per realized
-// curved-bend span. The consistent equivalent loads are linear in the
-// intensity, so the sum carries every uniform load on the span; pressure and
-// temperature-change dimensioned loads follow their own dedicated paths.
-fn curved_bend_uniform_intensity_by_pipe(
+// Global uniform intensities (force per unit arc length) per realized
+// curved-bend span, one entry per load (E10 removed, S11 section 4.4): the
+// force side forms one consistent equivalent per load, and recovery uses the
+// same per-load intensities. Pressure and temperature-change dimensioned loads
+// follow their own dedicated paths.
+fn curved_bend_uniform_intensities_by_pipe(
     loads: &[open_pipe_stress_primitive_loads::ElementUniformLoadContribution],
     curved_bends_by_pipe: &HashMap<usize, &CurvedBendMacroBuild>,
-) -> HashMap<usize, [f64; 3]> {
-    let mut intensity_by_pipe: HashMap<usize, [f64; 3]> = HashMap::new();
+) -> HashMap<usize, Vec<[f64; 3]>> {
+    let mut intensities_by_pipe: HashMap<usize, Vec<[f64; 3]>> = HashMap::new();
     for load in loads {
         if matches!(
             load.magnitude.dimension,
@@ -8859,11 +9166,14 @@ fn curved_bend_uniform_intensity_by_pipe(
         if dof >= 3 {
             continue;
         }
-        intensity_by_pipe
+        let mut intensity = [0.0; 3];
+        intensity[dof] = load.magnitude.value;
+        intensities_by_pipe
             .entry(load.element_index)
-            .or_insert([0.0; 3])[dof] += load.magnitude.value;
+            .or_default()
+            .push(intensity);
     }
-    intensity_by_pipe
+    intensities_by_pipe
 }
 
 // Arc sections from the assembled macro-element: rotate the
@@ -8880,8 +9190,8 @@ fn curved_bend_section_resultants(
     bend: &CurvedBendMacroBuild,
     pipe: &StraightPipeElement,
     corrected_local_forces: &[f64],
-    uniform_intensity: [f64; 3],
-    pressure_thrust: f64,
+    uniform_intensities: &[[f64; 3]],
+    pressure_thrusts: &[f64],
     fraction: f64,
 ) -> Result<[f64; 6], String> {
     if corrected_local_forces.len() < ELEMENT_DOF {
@@ -8909,12 +9219,15 @@ fn curved_bend_section_resultants(
             node_j_force[3 * block + component] = value;
         }
     }
+    // E11 (S11 section 4.4): by linearity the section value is the exact sum
+    // of the section function applied to the end-j force alone, to each
+    // load's intensity alone and to each thrust alone, rounded once.
     bend.macro_element
-        .arc_section_resultants_with_radial_pressure(
+        .arc_section_resultant_terms(
             fraction,
             node_j_force,
-            uniform_intensity,
-            pressure_thrust,
+            uniform_intensities,
+            pressure_thrusts,
         )
         .map_err(|error| error.to_string())
 }
@@ -8923,8 +9236,8 @@ fn curved_bend_station_resultants(
     bend: &CurvedBendMacroBuild,
     pipe: &StraightPipeElement,
     corrected_local_forces: &[f64],
-    uniform_intensity: [f64; 3],
-    pressure_thrust: f64,
+    uniform_intensities: &[[f64; 3]],
+    pressure_thrusts: &[f64],
 ) -> Result<[StationResultants; 3], String> {
     let locations: [(&'static str, f64); 3] =
         [("quarter_1", 0.25), ("midspan", 0.5), ("quarter_3", 0.75)];
@@ -8948,26 +9261,32 @@ fn curved_bend_station_resultants(
             bend,
             pipe,
             corrected_local_forces,
-            uniform_intensity,
-            pressure_thrust,
+            uniform_intensities,
+            pressure_thrusts,
             fraction,
         )?;
     }
     Ok(stations)
 }
 
-fn pressure_thrust_for_pipe(element_index: usize, pressure_loads: &[PressureThrustLoad]) -> f64 {
+/// Each pressure-thrust load's axial load on the pipe, one entry per load.
+fn pressure_thrusts_for_pipe(
+    element_index: usize,
+    pressure_loads: &[PressureThrustLoad],
+) -> Vec<f64> {
     pressure_loads
         .iter()
         .filter(|load| load.element_index == element_index)
         .map(|load| load.axial_load)
-        .sum::<f64>()
+        .collect()
 }
 
 #[derive(Debug, Clone)]
 struct ExpansionJointPressureThrustAggregate {
     input: ExpansionJointPressureThrustInput,
-    axial_load: f64,
+    /// E16 (S11 section 4.4): each pressure load's `axial_load`, summed
+    /// exactly and rounded once.
+    axial_loads: Vec<f64>,
     source_load_ids: Vec<String>,
 }
 
@@ -8986,16 +9305,20 @@ fn append_expansion_joint_pressure_thrust_results(
             .entry(input.component_id.clone())
             .or_insert_with(|| ExpansionJointPressureThrustAggregate {
                 input: input.clone(),
-                axial_load: 0.0,
+                axial_loads: Vec::new(),
                 source_load_ids: Vec::new(),
             });
-        entry.axial_load += load.axial_load;
+        entry.axial_loads.push(load.axial_load);
         entry.source_load_ids.push(load.source_load_id.clone());
     }
 
     let mut appended = 0;
     for (_, mut aggregate) in aggregates {
-        if aggregate.axial_load == 0.0 {
+        // A non-finite operand or an out-of-range net keeps a non-finite
+        // value, as the binary64 fold did.
+        let axial_load =
+            exact_rounded_sum(aggregate.axial_loads.iter().copied()).unwrap_or(f64::NAN);
+        if axial_load == 0.0 {
             continue;
         }
         aggregate.source_load_ids.sort();
@@ -9005,7 +9328,7 @@ fn append_expansion_joint_pressure_thrust_results(
         results.push(ResultItem {
             id: result_id.clone(),
             kind: "expansion_joint_pressure_thrust_load_review".to_string(),
-            value: aggregate.axial_load,
+            value: axial_load,
             unit: "N".to_string(),
             entity_ref: aggregate.input.component_id.clone(),
             basis_ref: None,
@@ -10414,11 +10737,15 @@ fn append_constant_effort_consumption_diagnostics(
 /// support contributes its constant nodal force to the per-load-case
 /// assembled force vector, before `reduce_system`, so dense, sparse, and
 /// nonlinear active-set solves consume it identically.
-fn add_constant_effort_support_loads(force: &mut [f64], model: &PreviewModel) {
-    for (_, disposition) in constant_effort_solve_dispositions(model) {
+fn add_constant_effort_support_loads(ledger: &mut LoadLedger, model: &PreviewModel) {
+    for (support, disposition) in constant_effort_solve_dispositions(model) {
         if let Ok(application) = disposition {
-            force[application.node_index * DOF_PER_NODE + dof_index(application.dof)] +=
-                application.force_newtons;
+            // One term per application (S11 section 4.2).
+            ledger.push(
+                &support.id,
+                application.node_index * DOF_PER_NODE + dof_index(application.dof),
+                application.force_newtons,
+            );
         }
     }
 }
@@ -11403,8 +11730,10 @@ fn pressure_for_pipe(
     pipe_index: usize,
     pipe_id: &str,
 ) -> Option<f64> {
-    let mut pressure = 0.0;
-    let mut found = false;
+    // E15 (S11 section 4.4): the pipe's pressure is one exact sum of every
+    // pressure load's magnitude, rounded once; the pressure stresses are then
+    // formed from that net as before.
+    let mut pressures = Vec::new();
     let resolved_pipe_id = model
         .pipe_segments
         .get(pipe_index)
@@ -11415,11 +11744,11 @@ fn pressure_for_pipe(
             continue;
         };
         if target_pipe_id == resolved_pipe_id {
-            pressure += load.magnitude.value;
-            found = true;
+            pressures.push(load.magnitude.value);
         }
     }
-    found.then_some(pressure)
+    (!pressures.is_empty())
+        .then(|| exact_rounded_sum(pressures.iter().copied()).unwrap_or(f64::NAN))
 }
 
 fn displacement_magnitude(displacements: &[f64], node_index: usize) -> f64 {
@@ -12803,8 +13132,8 @@ mod tests {
                 &build,
                 &pipe,
                 &corrected,
-                intensity,
-                pressure_thrust,
+                &[intensity],
+                &[pressure_thrust],
                 fraction,
             )
             .unwrap();
@@ -20763,7 +21092,9 @@ mod tests {
         let stiffness = element.global_stiffness().unwrap();
         let dense: Vec<Vec<f64>> = stiffness.iter().map(|row| row.to_vec()).collect();
         let restrained: Vec<usize> = (0..DOF_PER_NODE).collect();
-        let reduced = reduce_system(&dense, force.as_slice(), &restrained).unwrap();
+        let reduced =
+            open_pipe_stress_frame_kernel::reduce_system(&dense, force.as_slice(), &restrained)
+                .unwrap();
         let solution = solve_dense(&reduced.stiffness, &reduced.force).unwrap();
         let mut displacements = [0.0; ELEMENT_DOF];
         displacements[DOF_PER_NODE..].copy_from_slice(&solution);
@@ -21508,8 +21839,8 @@ mod tests {
                 &build,
                 &pipe,
                 &corrected,
-                intensity,
-                pressure_thrust,
+                &[intensity],
+                &[pressure_thrust],
                 fraction,
             )
             .unwrap();
@@ -21665,8 +21996,10 @@ mod tests {
         ];
         let bends_by_pipe: HashMap<usize, &CurvedBendMacroBuild> =
             [(0usize, &build)].into_iter().collect();
-        let mut force = vec![0.0; 2 * DOF_PER_NODE];
-        add_pressure_thrust_loads(&mut force, &loads, &[], &bends_by_pipe);
+        let mut ledger = LoadLedger::new();
+        add_pressure_thrust_loads(&mut ledger, &loads, &[], &bends_by_pipe);
+        let force = ledger.finish(2 * DOF_PER_NODE).unwrap();
+        let force = force.values();
 
         // Both sources receive the identical arc treatment: the assembled
         // vector is linear in the thrust, so it equals cap pair plus
@@ -21725,9 +22058,11 @@ mod tests {
 
         // No-pressure invariance: an empty pressure-load list leaves the
         // assembled vector untouched on the same macro span.
-        let mut untouched = vec![0.0; 2 * DOF_PER_NODE];
+        let mut untouched = LoadLedger::new();
         add_pressure_thrust_loads(&mut untouched, &[], &[], &bends_by_pipe);
-        assert!(untouched.iter().all(|value| *value == 0.0));
+        assert!(untouched.terms().is_empty());
+        let untouched = untouched.finish(2 * DOF_PER_NODE).unwrap();
+        assert!(untouched.values().iter().all(|value| *value == 0.0));
     }
 
     // THE SHARP CHECK (brief predicate 3): an invented end-supported

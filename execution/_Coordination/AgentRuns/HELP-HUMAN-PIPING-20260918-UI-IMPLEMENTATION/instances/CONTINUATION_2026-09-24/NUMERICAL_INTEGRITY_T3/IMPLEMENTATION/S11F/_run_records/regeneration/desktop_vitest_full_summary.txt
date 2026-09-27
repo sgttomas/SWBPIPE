@@ -1,0 +1,20 @@
+10213:     × qualifies only a matching captured native unit replay and retires it on reference inspection 5620ms
+10259:⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+10261: FAIL  src/App.test.tsx > SWBPIPE desktop preview > qualifies only a matching captured native unit replay and retires it on reference inspection
+10587: Test Files  1 failed | 133 passed (134)
+10588:      Tests  1 failed | 2821 passed (2822)
+ FAIL  src/App.test.tsx > SWBPIPE desktop preview > qualifies only a matching captured native unit replay and retires it on reference inspection
+TestingLibraryElementError: Unable to find an element by: [data-testid="historical-run-context"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"app-shell native-menu"[39m
+      [33mdata-density[39m=[32m"comfortable"[39m
+      [33mdata-testid[39m=[32m"desktop-preview-shell"[39m
+      [33mdata-theme[39m=[32m"light"[39m
+      [33mdata-theme-preference[39m=[32m"system"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33maria-label[39m=[32m"Toolbar"[39m

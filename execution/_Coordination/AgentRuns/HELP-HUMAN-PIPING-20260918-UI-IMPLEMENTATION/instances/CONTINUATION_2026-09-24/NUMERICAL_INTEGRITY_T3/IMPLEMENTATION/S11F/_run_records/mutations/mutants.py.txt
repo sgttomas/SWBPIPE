@@ -1,0 +1,160 @@
+"""T3 S11-F (I4) mutation patches. Each mutant: (id, file relative to projects/chirality-piping/core, anchor, replacement).
+Applied one at a time to a scratch copy; the anchor must occur exactly once."""
+PP = 'product_physics/src/lib.rs'
+MUTANTS = [
+ ('M1f', PP, '''        .collect::<Vec<_>>();
+    (0..local_forces.len())''', '''        .collect::<Vec<_>>();
+    // MUTANT M1f: E5 restored as one binary64 fold in order.
+    if true {
+        return (0..local_forces.len()).map(|slot| {
+            let mut v = local_forces[slot];
+            for term in equivalent_terms { v -= term[slot]; }
+            if slot == UX { for &a in &axial_loads { v += a; } }
+            if slot == DOF_PER_NODE + UX { for &a in &axial_loads { v -= a; } }
+            v
+        }).collect();
+    }
+    (0..local_forces.len())'''),
+ ('M2', PP, '''        .collect::<Vec<_>>();
+    (0..local_forces.len())''', '''        .collect::<Vec<_>>();
+    // MUTANT M2: mechanical = local - equivalent (E1 rounded once), then the
+    // summed axial correction, as two roundings.
+    if true {
+        let mut out: Vec<f64> = (0..local_forces.len()).map(|slot| {
+            let eq = open_pipe_stress_frame_kernel::exact_sum::exact_rounded_sum(equivalent_terms.iter().map(|t| t[slot])).unwrap();
+            local_forces[slot] - eq
+        }).collect();
+        let axial: f64 = axial_loads.iter().sum::<f64>();
+        if axial != 0.0 { out[UX] += axial; out[DOF_PER_NODE + UX] -= axial; }
+        return out;
+    }
+    (0..local_forces.len())'''),
+ ('M1g', PP, '''            *value = accumulator
+                .round()
+                .map_err(|e| format!("span intensity: {e}"))?;
+        }''', '''            *value = accumulator
+                .round()
+                .map_err(|e| format!("span intensity: {e}"))?;
+        }
+        // MUTANT M1g: E7 fold.
+        let mut w = [0.0; 3];
+        for load in loads.iter().filter(|l| l.span.start_fraction <= a && l.span.end_fraction >= b) {
+            let axis = match load.direction { LocalLoadDirection::X => 0, LocalLoadDirection::Y => 1, LocalLoadDirection::Z => 2 };
+            w[axis] += load.force_per_length;
+        }'''),
+ ('M1h', PP, '''    let free_expansions = thermal_loads
+        .iter()
+        .filter(|load| load.element_index == bend.pipe_index)
+        .map(|load| curved_bend_free_expansion_displacements(bend, load.thermal_strain))
+        .collect::<Vec<_>>();''', '''    // MUTANT M1h: E8 pre-summed strain.
+    let summed_strain = thermal_loads.iter().filter(|load| load.element_index == bend.pipe_index).map(|load| load.thermal_strain).sum::<f64>();
+    let free_expansions = if summed_strain != 0.0 { vec![curved_bend_free_expansion_displacements(bend, summed_strain)] } else { vec![] };'''),
+ ('M1i', PP, '''        *force = summed
+            .and_then(|()| accumulator.round())
+            .unwrap_or(f64::NAN);''', '''        let _ = summed;
+        // MUTANT M1i: E9 binary64 fold.
+        let mut v = 0.0;
+        for (col, &d) in element_displacements.iter().enumerate() { v += bend.global_stiffness[row][col] * d; }
+        for fe in &free_expansions { for (col, &f) in fe.iter().enumerate() { v -= bend.global_stiffness[row][col] * f; } }
+        for e in &equivalents { v -= e[row]; }
+        *force = v;'''),
+ ('M1j', PP, '''        intensities_by_pipe
+            .entry(load.element_index)
+            .or_default()
+            .push(intensity);''', '''        // MUTANT M1j: E10 summed intensity.
+        let entry = intensities_by_pipe.entry(load.element_index).or_default();
+        if entry.is_empty() { entry.push([0.0; 3]); }
+        entry[0][dof] += intensity[dof];'''),
+ ('M1k', PP, '''        .arc_section_resultant_terms(
+            fraction,
+            node_j_force,
+            uniform_intensities,
+            pressure_thrusts,
+        )''', '''        // MUTANT M1k: E11 summed inputs in one section evaluation.
+        .arc_section_resultants_with_radial_pressure(fraction, node_j_force,
+            uniform_intensities.iter().fold([0.0; 3], |mut s, i| { for k in 0..3 { s[k] += i[k]; } s }),
+            pressure_thrusts.iter().sum::<f64>())'''),
+ ('M1l', PP, '''            summed.unwrap_or(f64::NAN)
+        })
+        .collect()
+}''', '''            let _ = summed;
+            // MUTANT M1l: E12 with the folded force.
+            let mut folded = 0.0;
+            for t in force.terms_for(dof) { if let open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(v) = t.kind { folded += v; } }
+            internal - folded
+        })
+        .collect()
+}'''),
+ ('M1n', PP, '''    (!pressures.is_empty())
+        .then(|| exact_rounded_sum(pressures.iter().copied()).unwrap_or(f64::NAN))''', '''    // MUTANT M1n: E15 fold.
+    (!pressures.is_empty()).then(|| pressures.iter().fold(0.0, |s, p| s + p))'''),
+ ('M1o', PP, '''        let axial_load =
+            exact_rounded_sum(aggregate.axial_loads.iter().copied()).unwrap_or(f64::NAN);''', '''        // MUTANT M1o: E16 fold.
+        let axial_load = aggregate.axial_loads.iter().fold(0.0, |s, a| s + a);'''),
+ ('M3', PP, '''    add_constant_effort_support_loads(&mut ledger, model);
+    ledger
+}''', '''    add_constant_effort_support_loads(&mut ledger, model);
+    // MUTANT M3: the ledger folded in binary64, one term per DOF.
+    let n = built.nodes.len() * DOF_PER_NODE;
+    let mut folded = vec![0.0; n];
+    for t in ledger.terms() { folded[t.dof] += match t.kind { open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(v) => v, open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Product(a, b) => a * b }; }
+    let mut out = LoadLedger::new();
+    for (d, v) in folded.into_iter().enumerate() { out.push("folded", d, v); }
+    out
+}'''),
+ ('M4a', PP, '''    let force = finish_case_ledger(ledger, built.nodes.len())?;''', '''    let force = finish_case_ledger(ledger, built.nodes.len())?;
+    // MUTANT M4a: a global_load_vector call in PP.
+    let _unused = load_application.global_load_vector(built.nodes.len());'''),
+ ('M4b', PP, '''    let checked =
+        assembly.solve_assembled(original_stiffness, global_force, &free, prescribed, mode)?;''', '''    // MUTANT M4b: a values().to_vec() copy handed to a solve.
+    let copy = global_force.values().to_vec();
+    let checked = assembly.solve(original_stiffness, &copy, &free, prescribed, mode)?;'''),
+ ('M4c', PP, '''    let force = finish_case_ledger(ledger, built.nodes.len())?;''', '''    let force = finish_case_ledger(ledger, built.nodes.len())?;
+    // MUTANT M4c: a force[i] += producer on a copy.
+    let mut extra_force = force.values().to_vec();
+    extra_force[0] += 0.0;
+    let _ = extra_force;'''),
+ ('M5', PP, '''    for (local_row, &global_row) in dof_map.iter().enumerate() {
+        for (local_col, &free_value) in free_expansion.iter().enumerate() {
+            if free_value != 0.0 {
+                ledger.push_product(
+                    source,
+                    global_row,
+                    bend.global_stiffness[local_row][local_col],
+                    free_value,
+                );
+            }
+        }
+    }''', '''    // MUTANT M5: the curved thermal row value pushed pre-summed.
+    for (local_row, &global_row) in dof_map.iter().enumerate() {
+        let mut value = 0.0;
+        for (local_col, free_value) in free_expansion.iter().enumerate() {
+            value += bend.global_stiffness[local_row][local_col] * free_value;
+        }
+        ledger.push(source, global_row, value);
+    }'''),
+ ('M8', 'product_physics/src/source_receipt.rs', '''        let force = nodal_and_eigen_case_force(&application, &[], &built)
+            .map_err(|e| bad(format!("captured load ledger: {e}")))?;''', '''        // MUTANT M8: the pre-0.4 replay on global_load_vector.
+        let force = {
+            let mut l = LoadLedger::new();
+            for (d, v) in application.global_load_vector(built.nodes.len()).into_iter().enumerate() { l.push("folded", d, v); }
+            l.finish(built.nodes.len() * DOF_PER_NODE).unwrap()
+        };'''),
+ ('M9', 'product_physics/src/source_receipt.rs', '''        let force = nodal_and_eigen_case_force(&application, &eigen, built)
+            .map_err(|e| bad(format!("captured load ledger: {e}")))?;''', '''        // MUTANT M9: the 0.4.0 replay folded (nodal fold, then eigen pairs).
+        let force = {
+            let mut v = application.global_load_vector(built.nodes.len());
+            for load in &eigen {
+                let pipe = &built.pipes[load.element_index];
+                let x = pipe.frame_element().unwrap().orientation().unwrap().local_axes[0];
+                for a in 0..3 { v[pipe.node_i.index * 6 + a] -= load.axial_load * x[a]; v[pipe.node_j.index * 6 + a] += load.axial_load * x[a]; }
+            }
+            let mut l = LoadLedger::new();
+            for (d, value) in v.into_iter().enumerate() { l.push("folded", d, value); }
+            l.finish(built.nodes.len() * DOF_PER_NODE).unwrap()
+        };'''),
+ ('M12', 'solver/frame_kernel/src/structural.rs', '''        if !force_binding.binary64()
+            && (force_binding.assembled().is_some() || prescribed_coupled(system, i))
+        {''', '''        // MUTANT M12: KS1 restored as the binary64 fold on every row.
+        if false {'''),
+]

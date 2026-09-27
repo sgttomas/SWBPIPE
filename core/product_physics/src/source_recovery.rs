@@ -9,7 +9,7 @@ use super::{
     parse_load_dimension, support_stiffness_input, AssemblyEvidence, BuiltModel, LoadDimension,
     LoadTargetInput, Matrix12, PressureThrustLoad, PreviewLoadCase, PreviewModel,
     PreviewPrimitiveLoad, PrimitiveLoadCategory, Quantity, SpringEntry, SupportFamily,
-    ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
+    ThermalElementLoad, DOF_PER_NODE,
 };
 use exact::functionals::{
     AffineTerm, AttemptBudget, AttemptStage, FunctionalConvention, FunctionalDescriptor,
@@ -17,6 +17,7 @@ use exact::functionals::{
     RetainedFunctionalSet,
 };
 use open_pipe_stress_frame_kernel::element_dof_map;
+use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, LoadLedger};
 use open_pipe_stress_frame_kernel::structural::{exact_boundary as exact, StructuralSystem};
 use open_pipe_stress_primitive_loads::LoadApplication;
 use std::collections::{HashMap, HashSet};
@@ -31,7 +32,8 @@ pub(super) struct Input<'a> {
     pub model: &'a PreviewModel,
     pub built: &'a BuiltModel,
     pub stiffness: &'a [Vec<f64>],
-    pub force: &'a [f64],
+    /// The ledger-built case force (S11 section 4.3).
+    pub force: &'a AssembledForce,
     pub free: &'a [usize],
     pub prescribed: &'a [(usize, f64)],
     pub spring_entries: &'a [SpringEntry],
@@ -296,7 +298,7 @@ impl Sources {
     fn system<'a>(&'a self, input: &'a Input<'_>) -> StructuralSystem<'a> {
         StructuralSystem {
             stiffness: input.stiffness,
-            force: input.force,
+            force: input.force.values(),
             free_dofs: input.free,
             prescribed: input.prescribed,
             contributions: Some(&self.assembly.contributions),
@@ -606,7 +608,9 @@ fn prepare_sources(
         identity.scalars([load.magnitude.value]);
     }
     let mut seen_loads = HashSet::new();
-    let mut folded_force = vec![0.0; n];
+    // S11 section 4.5: the same nodal and eigen terms as the case ledger, in a
+    // ledger; `finish()`'s correctly rounded nets must equal the actual force.
+    let mut folded_force = LoadLedger::new();
     for load in &input.load_application.nodal_loads {
         charge(budget, load.load_id.len().saturating_mul(4))?;
         let authored = authored_loads
@@ -633,7 +637,7 @@ fn prepare_sources(
         {
             return Err(mismatch("identified load operand/target/coverage"));
         }
-        folded_force[load.global_dof] += load.value;
+        folded_force.push(&load.load_id, load.global_dof, load.value);
         identity.name(&load.load_id, budget)?;
         identity.indices([load.node_index, load.global_dof]);
         identity.scalars([load.value]);
@@ -655,10 +659,15 @@ fn prepare_sources(
         )?,
         None => vec![0.0; member_count],
     };
+    let folded_force = folded_force
+        .finish(n)
+        .map_err(|_| mismatch("complete ordered load fold differs from actual force"))?;
     if seen_loads.len() != authored_loads.len()
+        || folded_force.len() != input.force.len()
         || folded_force
+            .values()
             .iter()
-            .zip(input.force)
+            .zip(input.force.values())
             .any(|(a, b)| !a.is_finite() || a.to_bits() != b.to_bits())
     {
         return Err(mismatch(
@@ -1151,13 +1160,13 @@ pub(super) fn eigen_source_id(pipe_id: &str) -> String {
 
 /// Closes the resolved case against the actual invocation: every member's
 /// pair reached formation, every eigen element load is exactly
-/// `E_member*A_s*eps*` once, and its equivalent nodal action is folded in
-/// the product route's order. Returns each member's eigen axial load.
+/// `E_member*A_s*eps*` once, and its equivalent nodal action is pushed as the
+/// product route's ledger terms. Returns each member's eigen axial load.
 fn close_load_state(
     input: &Input<'_>,
     state: &ResolvedCase,
     authored_loads: &HashMap<&str, &PreviewPrimitiveLoad>,
-    folded_force: &mut [f64],
+    folded_force: &mut LoadLedger,
     force_terms: &mut Vec<exact::ForceContribution>,
     identity: &mut Identity,
     budget: &mut AttemptBudget,
@@ -1267,11 +1276,11 @@ fn close_load_state(
         identity.name(&source, budget)?;
         identity.scalars([load.axial_load]);
         identity.scalars(local_x);
-        // Mirror `add_thermal_equivalent_loads` exactly, after the nodal fold.
+        // Mirror `add_thermal_equivalent_loads`'s ledger terms exactly.
         for axis in 0..3 {
             let value = load.axial_load * local_x[axis];
-            folded_force[i_base + axis] -= value;
-            folded_force[j_base + axis] += value;
+            folded_force.push(&source, i_base + axis, -value);
+            folded_force.push(&source, j_base + axis, value);
             if value != 0.0 {
                 force_terms.push(exact::ForceContribution {
                     source: source.clone(),
@@ -1509,7 +1518,7 @@ mod tests {
         model: PreviewModel,
         built: BuiltModel,
         stiffness: Vec<Vec<f64>>,
-        force: Vec<f64>,
+        force: AssembledForce,
         free: Vec<usize>,
         prescribed: Vec<(usize, f64)>,
         springs: Vec<SpringEntry>,
@@ -1545,7 +1554,7 @@ mod tests {
             );
             let loads =
                 super::super::prepare_loads(built.nodes.len(), built.pipes.len(), &primitives);
-            let force = loads.global_load_vector(built.nodes.len());
+            let force = super::super::nodal_and_eigen_case_force(&loads, &[], &built).unwrap();
             let prescribed: Vec<_> = boundary
                 .restrained_dofs
                 .into_iter()
@@ -1601,7 +1610,10 @@ mod tests {
         spring.id = "second-independent-spring".into();
         model.supports.push(spring);
         let fixture = Fixture::new(model);
-        assert_eq!(fixture.force[9], 0.0);
+        // S11-F: the binary64 fold absorbs the 1.0 (the paths differ), and
+        // the case force is now the correctly rounded net of the three terms.
+        assert_eq!([1.0e16, 1.0, -1.0e16].iter().fold(0.0, |s, v| s + v), 0.0);
+        assert_eq!(fixture.force.values()[9], 1.0);
         let sources = prepare_sources(
             &fixture.input(),
             &mut AttemptBudget::new(exact::Limits::default()),

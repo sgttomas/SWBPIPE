@@ -1,0 +1,609 @@
+{
+ "M1f": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_3_force_bindings_are_mutated_only_in_allow_listed_functions",
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e8",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e80",
+     "s11f_tests::f14_p1_probe_a_cases_publish_the_exact_net_answer_on_both_entries",
+     "s11f_tests::f2_probe_a_through_the_product_g1e8",
+     "s11f_tests::f2_probe_a_through_the_product_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 19,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M2": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_3_force_bindings_are_mutated_only_in_allow_listed_functions",
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e8",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 22,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1g": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f2_probe_a_through_the_product_g1e8",
+     "s11f_tests::f2_probe_a_through_the_product_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 24,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1h": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f8_curved_bend_thermal_cancelling_strains"
+    ],
+    "compile_error": false,
+    "passed": 24,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1i": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f8_curved_bend_thermal_cancelling_strains",
+     "s11f_tests::f8_curved_bend_uniform_g1e8",
+     "s11f_tests::f8_curved_bend_uniform_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 22,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1j": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f8_curved_bend_uniform_g1e8",
+     "s11f_tests::f8_curved_bend_uniform_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 23,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1k": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f8_curved_bend_uniform_g1e8",
+     "s11f_tests::f8_curved_bend_uniform_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 23,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1l": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e8",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e80",
+     "s11f_tests::f14_p1_probe_a_cases_publish_the_exact_net_answer_on_both_entries",
+     "s11f_tests::f2_probe_a_through_the_product_g1e8",
+     "s11f_tests::f2_probe_a_through_the_product_g1e80",
+     "s11f_tests::f8_curved_bend_uniform_g1e8",
+     "s11f_tests::f8_curved_bend_uniform_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 18,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1n": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e8",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 23,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M1o": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e8",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 23,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M3": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_5_the_ledger_producers_are_exactly_the_section_4_2_list",
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e8",
+     "s11f_tests::f10_pressure_and_joint_thrust_g1e80",
+     "s11f_tests::f14_p1_probe_a_cases_publish_the_exact_net_answer_on_both_entries",
+     "s11f_tests::f1_f11_f12_rf_cancel_cases_meet_the_binding_predicate_on_both_entries",
+     "s11f_tests::f2_probe_a_through_the_product_g1e8",
+     "s11f_tests::f2_probe_a_through_the_product_g1e80",
+     "s11f_tests::f3_realistic_hot_run_on_the_0_4_0_eigen_route",
+     "s11f_tests::f3_realistic_hot_run_publishes_the_exact_net_displacement",
+     "s11f_tests::f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net",
+     "s11f_tests::f5_eigen_join_is_selected_and_publishes_the_exact_net",
+     "s11f_tests::f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads",
+     "s11f_tests::f8_curved_bend_thermal_cancelling_strains",
+     "s11f_tests::f8_curved_bend_uniform_g1e8",
+     "s11f_tests::f8_curved_bend_uniform_g1e80"
+    ],
+    "compile_error": false,
+    "passed": 10,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M4a": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams"
+    ],
+    "compile_error": false,
+    "passed": 25,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 1 target failed:"
+    ]
+   }
+  ]
+ },
+ "M4b": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [],
+    "compile_error": true,
+    "passed": 0,
+    "compile_messages": [
+     "error[E0624]: method `solve` is private",
+     "error: could not compile `open_pipe_stress_product_physics` (lib) due to 1 previous error",
+     "error: could not compile `open_pipe_stress_product_physics` (lib test) due to 1 previous error"
+    ]
+   }
+  ]
+ },
+ "M4c": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_2_values_are_copied_only_in_allow_listed_functions",
+     "rule_3_force_bindings_are_mutated_only_in_allow_listed_functions",
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table"
+    ],
+    "compile_error": false,
+    "passed": 23,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 1 target failed:"
+    ]
+   }
+  ]
+ },
+ "M5": {
+  "file": "core/product_physics/src/lib.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_5_the_ledger_producers_are_exactly_the_section_4_2_list",
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f8_curved_bend_thermal_terms_are_exact_products"
+    ],
+    "compile_error": false,
+    "passed": 24,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M8": {
+  "file": "core/product_physics/src/source_receipt.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams",
+     "rule_5_the_ledger_producers_are_exactly_the_section_4_2_list",
+     "s11f_tests::f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net",
+     "s11f_tests::f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads"
+    ],
+    "compile_error": false,
+    "passed": 22,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M9": {
+  "file": "core/product_physics/src/source_receipt.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams",
+     "rule_5_the_ledger_producers_are_exactly_the_section_4_2_list",
+     "rule_8_every_accumulation_in_the_listed_files_is_in_the_table",
+     "s11f_tests::f5_eigen_join_is_selected_and_publishes_the_exact_net"
+    ],
+    "compile_error": false,
+    "passed": 22,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: test failed, to rerun pass `--test s11f_site_test`",
+     "error: 2 targets failed:"
+    ]
+   }
+  ]
+ },
+ "M12": {
+  "file": "core/solver/frame_kernel/src/structural.rs",
+  "killed": true,
+  "runs": [
+   {
+    "cwd": "core/solver/frame_kernel",
+    "args": [
+     "--lib"
+    ],
+    "exit": 101,
+    "failed": [
+     "structural::s11k_tests::k11_dense_profile_and_typed_structural_paths_are_exact",
+     "structural::s11k_tests::option_c_binary64_variants_keep_todays_fold_on_probe_p"
+    ],
+    "compile_error": false,
+    "passed": 109,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: 1 target failed:"
+    ]
+   },
+   {
+    "cwd": "core/product_physics",
+    "args": [
+     "--lib",
+     "--test",
+     "s11f_site_test",
+     "--",
+     "s11f_tests",
+     "rule_",
+     "sparse_direct",
+     "scanner"
+    ],
+    "exit": 101,
+    "failed": [
+     "s11f_tests::f9_support_motion_on_the_0_4_0_route_is_exact"
+    ],
+    "compile_error": false,
+    "passed": 25,
+    "compile_messages": [
+     "error: test failed, to rerun pass `--lib`",
+     "error: 1 target failed:"
+    ]
+   }
+  ]
+ }
+}

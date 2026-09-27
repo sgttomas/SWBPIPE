@@ -432,6 +432,9 @@ const EXACT_ENTRY_POINTS: &[&str] = &[
     "reduce_assembled_system",
     ".solve(",
     ".solve_assembled(",
+    // RV1-B-N1: fully qualified call syntax, `AssemblyEvidence::solve(`.
+    "::solve(",
+    "::solve_assembled(",
     "solve_structural_dense(",
     "solve_structural_sparse(",
     "prepare_structural(",
@@ -451,6 +454,14 @@ const EXACT_ENTRY_POINTS: &[&str] = &[
 /// real calls in that function, and no exact kernel entry point may appear
 /// anywhere in `lib.rs` outside test code (RV1-S1), so neither a comment nor a
 /// helper can hide one. The behavioural pin below backs it.
+///
+/// RV1-B-N1: this is a text scan. The behavioural pins
+/// (`option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path`
+/// and `option_c_active_set_loop_first_closed_gap_iteration_is_binary64`) are
+/// authoritative; a same-named helper defined in another file is caught only
+/// by them. S11-F narrowed `AssemblyEvidence::solve` to `pub(crate)`, which
+/// closes the fully qualified route for callers outside this crate at compile
+/// time, but not inside it, where the behavioural pins remain the guarantee.
 #[test]
 fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
     let code = strip_cfg_test(&lex(include_str!("lib.rs")));
@@ -478,6 +489,49 @@ fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
         lex("// assembly.solve_binary64(\nlet s = \"solve_structural_dense(\";\na.solve(k)");
     assert!(!probe.contains("solve_binary64(") && !probe.contains("dense("));
     assert!(probe.contains(".solve("));
+}
+
+/// RV1-B-N1: the scan extended to `structural_adapter.rs`. Outside the
+/// functions that define the exact variants (`solve`, `solve_assembled` and
+/// the `with_force_terms` C3-detect binding), no exact kernel entry point may
+/// appear, so the named legacy variants (`solve_binary64`,
+/// `solve_structural_sparse_binary64`) and the rest of the adapter reach only
+/// the binary64 kernel path. The behavioural pins remain authoritative.
+#[test]
+fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points() {
+    let mut code = strip_cfg_test(&lex(include_str!("structural_adapter.rs")));
+    for defining in ["fn solve(", "fn solve_assembled(", "fn with_force_terms("] {
+        let body = function_body(&code, defining).to_string();
+        let at = code.find(&body).expect("defining body present");
+        code.replace_range(at..at + body.len(), "{");
+    }
+    for required in ["fn solve_binary64(", "fn solve_structural_sparse_binary64("] {
+        assert!(code.contains(required), "missing legacy variant {required}");
+    }
+    let legacy = function_body(&code, "fn solve_binary64(");
+    assert!(legacy.contains("prepare_structural_binary64("));
+    let sparse = function_body(&code, "fn solve_structural_sparse_binary64(");
+    assert!(sparse.contains("prepare_structural_binary64("));
+    // `.solve(` is replaced by `self.solve(` here: the adapter's
+    // `scrutinize_gaps` calls the exact-boundary retained context's own
+    // `context.solve()` (exact rationals, not a KS1-KS3 entry point).
+    let forbidden_list = EXACT_ENTRY_POINTS
+        .iter()
+        .copied()
+        .filter(|p| *p != ".solve(")
+        .chain(["self.solve("]);
+    for forbidden in forbidden_list {
+        // The defining signatures themselves remain (`fn solve(` is a
+        // definition, not a call); only their bodies were blanked.
+        let hits = code
+            .match_indices(forbidden)
+            .filter(|(at, _)| !code[..*at].trim_end().ends_with("fn"))
+            .count();
+        assert_eq!(
+            hits, 0,
+            "exact kernel entry point {forbidden} in structural_adapter.rs outside the exact variants"
+        );
+    }
 }
 
 // -------------------------------- ROOT option (c): the behavioural pin
