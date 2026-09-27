@@ -85,6 +85,9 @@ fn kd5_required_true_positive_122_demotes_in_both_modes_on_both_entries() {
                 .unwrap()
                 .message;
             assert!(message.contains("quality: Sensitive"), "{ctx}");
+            // Since F1a the record is rendered as one `formation_check:`
+            // evidence line (tests in `src/f1a_tests.rs`); this still guards
+            // against a `FormationCheck` Debug rendering in the message.
             assert!(
                 !message.contains("FormationCheck"),
                 "{ctx}: no in-band marker"
