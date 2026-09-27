@@ -5,6 +5,11 @@
 //! content, proprietary project data, rule-pack checks, or professional
 //! approval.
 
+/// The per-case exact load ledger and its typed force (S11-K). Producers push
+/// each contribution term by term; the solve seams accept only these types.
+pub use open_pipe_stress_frame_kernel::load_ledger::{
+    AssembledForce, ForceTerm, ForceTermKind, LedgerError, LedgerEvidence, LoadLedger, ReducedForce,
+};
 use open_pipe_stress_frame_kernel::{DOF_PER_NODE, UX, UY, UZ};
 use open_pipe_stress_linear_supports::{FrameDof, NodeDof};
 use std::error::Error;

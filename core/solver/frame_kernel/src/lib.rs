@@ -3,6 +3,8 @@
 //! This crate contains open mechanics routines only. It does not encode design
 //! code compliance checks, protected standards content, or private project data.
 
+pub mod exact_sum;
+pub mod load_ledger;
 pub mod structural;
 pub mod rigid_body;
 
@@ -805,13 +807,18 @@ pub fn reduce_system(
     restrained_dofs: &[usize],
 ) -> Result<ReducedSystem, FrameKernelError> {
     let restrained_displacements = vec![0.0; restrained_dofs.len()];
-    reduce_system_for_boundary(
+    let (stiffness, force, free_dofs) = reduce_system_for_boundary(
         stiffness,
-        force,
+        ForceRows::Values(force),
         restrained_dofs,
         &restrained_displacements,
         BoundaryDofKind::Restrained,
-    )
+    )?;
+    Ok(ReducedSystem {
+        stiffness,
+        force,
+        free_dofs,
+    })
 }
 
 pub fn reduce_system_with_prescribed_displacements(
@@ -820,22 +827,151 @@ pub fn reduce_system_with_prescribed_displacements(
     prescribed_dofs: &[usize],
     prescribed_displacements: &[f64],
 ) -> Result<ReducedSystem, FrameKernelError> {
-    reduce_system_for_boundary(
+    let (stiffness, force, free_dofs) = reduce_system_for_boundary(
         stiffness,
-        force,
+        ForceRows::Values(force),
         prescribed_dofs,
         prescribed_displacements,
         BoundaryDofKind::Prescribed,
-    )
+    )?;
+    Ok(ReducedSystem {
+        stiffness,
+        force,
+        free_dofs,
+    })
 }
+
+/// Named, unchanged binary64 variant of `reduce_system_with_prescribed_displacements`:
+/// `f_i - sum_c K_ic * g_c` folded in binary64 in prescribed-list order, as
+/// before S11-K, on every row. It exists for the nonlinear active-set loop's
+/// closed-gap prescribed solves (ROOT ruling on the S11-K stop report, option
+/// (c)); linear callers use the exact KS2 above.
+pub fn reduce_system_with_prescribed_displacements_binary64(
+    stiffness: &[Vec<f64>],
+    force: &[f64],
+    prescribed_dofs: &[usize],
+    prescribed_displacements: &[f64],
+) -> Result<ReducedSystem, FrameKernelError> {
+    let (stiffness, force, free_dofs) = reduce_system_for_boundary(
+        stiffness,
+        ForceRows::Binary64(force),
+        prescribed_dofs,
+        prescribed_displacements,
+        BoundaryDofKind::Prescribed,
+    )?;
+    Ok(ReducedSystem {
+        stiffness,
+        force,
+        free_dofs,
+    })
+}
+
+/// A reduced system whose right-hand side was built exactly from a ledger
+/// force (S11 KS2). It is returned only by the typed reduction functions.
+#[derive(Debug, PartialEq)]
+pub struct ReducedAssembledSystem {
+    pub stiffness: DenseMatrix,
+    pub force: load_ledger::ReducedForce,
+    pub free_dofs: Vec<usize>,
+}
+
+/// Typed sibling of `reduce_system`: the force is a ledger-built
+/// `AssembledForce`, and each reduced row is one exact sum of that DOF's
+/// ledger terms, rounded once.
+/// ```
+/// use open_pipe_stress_frame_kernel::{load_ledger::LoadLedger, reduce_assembled_system};
+/// let mut ledger = LoadLedger::new();
+/// ledger.push("load:a", 1, 2.0);
+/// let force = ledger.finish(2).unwrap();
+/// let k = vec![vec![4.0, 0.0], vec![0.0, 4.0]];
+/// let reduced = reduce_assembled_system(&k, &force, &[0]).unwrap();
+/// assert_eq!(reduced.force.values(), &[2.0]);
+/// ```
+/// A plain vector is refused at compile time:
+/// ```compile_fail
+/// use open_pipe_stress_frame_kernel::reduce_assembled_system;
+/// let k = vec![vec![4.0, 0.0], vec![0.0, 4.0]];
+/// let force: Vec<f64> = vec![0.0, 2.0];
+/// let _ = reduce_assembled_system(&k, &force, &[0]);
+/// ```
+pub fn reduce_assembled_system(
+    stiffness: &[Vec<f64>],
+    force: &load_ledger::AssembledForce,
+    restrained_dofs: &[usize],
+) -> Result<ReducedAssembledSystem, FrameKernelError> {
+    let restrained_displacements = vec![0.0; restrained_dofs.len()];
+    let (stiffness, rows, free_dofs) = reduce_system_for_boundary(
+        stiffness,
+        ForceRows::Assembled(force),
+        restrained_dofs,
+        &restrained_displacements,
+        BoundaryDofKind::Restrained,
+    )?;
+    Ok(ReducedAssembledSystem {
+        stiffness,
+        force: load_ledger::ReducedForce::from_exact_rows(rows),
+        free_dofs,
+    })
+}
+
+/// Typed sibling of `reduce_system_with_prescribed_displacements` (S11 KS2):
+/// each reduced row is one exact sum of the DOF's ledger terms and the exact
+/// products `-K_ic * g_c`, rounded once.
+/// ```compile_fail
+/// use open_pipe_stress_frame_kernel::reduce_assembled_system_with_prescribed_displacements;
+/// let k = vec![vec![4.0, 1.0], vec![1.0, 4.0]];
+/// let force: Vec<f64> = vec![0.0, 2.0];
+/// let _ = reduce_assembled_system_with_prescribed_displacements(&k, &force, &[0], &[0.1]);
+/// ```
+pub fn reduce_assembled_system_with_prescribed_displacements(
+    stiffness: &[Vec<f64>],
+    force: &load_ledger::AssembledForce,
+    prescribed_dofs: &[usize],
+    prescribed_displacements: &[f64],
+) -> Result<ReducedAssembledSystem, FrameKernelError> {
+    let (stiffness, rows, free_dofs) = reduce_system_for_boundary(
+        stiffness,
+        ForceRows::Assembled(force),
+        prescribed_dofs,
+        prescribed_displacements,
+        BoundaryDofKind::Prescribed,
+    )?;
+    Ok(ReducedAssembledSystem {
+        stiffness,
+        force: load_ledger::ReducedForce::from_exact_rows(rows),
+        free_dofs,
+    })
+}
+
+#[derive(Clone, Copy)]
+enum ForceRows<'a> {
+    /// Legacy vector: each DOF's value is its one term.
+    Values(&'a [f64]),
+    /// Legacy vector folded in binary64 on every row (the named legacy variant).
+    Binary64(&'a [f64]),
+    /// Ledger force: each DOF's terms.
+    Assembled(&'a load_ledger::AssembledForce),
+}
+
+impl ForceRows<'_> {
+    fn values(&self) -> &[f64] {
+        match self {
+            Self::Values(values) | Self::Binary64(values) => values,
+            Self::Assembled(force) => force.values(),
+        }
+    }
+}
+
+type ReducedParts = (DenseMatrix, DenseVector, Vec<usize>);
 
 fn reduce_system_for_boundary(
     stiffness: &[Vec<f64>],
-    force: &[f64],
+    force_rows: ForceRows<'_>,
     boundary_dofs: &[usize],
     boundary_displacements: &[f64],
     boundary_kind: BoundaryDofKind,
-) -> Result<ReducedSystem, FrameKernelError> {
+) -> Result<ReducedParts, FrameKernelError> {
+    let force = force_rows.values();
     let size = validate_square_matrix(stiffness)?;
     if force.len() != size {
         return Err(FrameKernelError::InvalidVectorLength {
@@ -868,24 +1004,77 @@ fn reduce_system_for_boundary(
     let mut reduced_force = vec![0.0; free_dofs.len()];
 
     for (reduced_row, &global_row) in free_dofs.iter().enumerate() {
-        let mut adjusted_force = force[global_row];
-        for (&boundary_dof, &boundary_displacement) in
-            boundary_dofs.iter().zip(boundary_displacements.iter())
-        {
-            adjusted_force -= stiffness[global_row][boundary_dof] * boundary_displacement;
-        }
-        reduced_force[reduced_row] = adjusted_force;
+        reduced_force[reduced_row] = reduced_right_hand_side(
+            stiffness,
+            force_rows,
+            global_row,
+            boundary_dofs,
+            boundary_displacements,
+        )?;
         for (reduced_col, &global_col) in free_dofs.iter().enumerate() {
             reduced_stiffness[reduced_row][reduced_col] = stiffness[global_row][global_col];
         }
     }
 
     validate_named_finite_slice("adjusted force", &reduced_force)?;
-    Ok(ReducedSystem {
-        stiffness: reduced_stiffness,
-        force: reduced_force,
-        free_dofs,
-    })
+    Ok((reduced_stiffness, reduced_force, free_dofs))
+}
+
+/// KS2: `f_i - sum_c K_ic * g_c` as one exact sum, rounded once.
+/// Legacy rows with no nonzero prescribed product keep today's binary64
+/// evaluation, which equals the exact value and also keeps the sign of a zero
+/// bit for bit. Ledger rows are always exact (their net is never -0.0).
+fn reduced_right_hand_side(
+    stiffness: &[Vec<f64>],
+    force_rows: ForceRows<'_>,
+    global_row: usize,
+    boundary_dofs: &[usize],
+    boundary_displacements: &[f64],
+) -> Result<f64, FrameKernelError> {
+    let coupled = boundary_dofs
+        .iter()
+        .zip(boundary_displacements)
+        .any(|(&dof, &g)| stiffness[global_row][dof] != 0.0 && g != 0.0);
+    let mut accumulator = exact_sum::ExactAccumulator::new();
+    let sum_error = |_| FrameKernelError::NonFiniteInput {
+        name: "adjusted force",
+        value: f64::INFINITY,
+    };
+    match force_rows {
+        ForceRows::Values(force) | ForceRows::Binary64(force) => {
+            if !coupled || matches!(force_rows, ForceRows::Binary64(_)) {
+                let mut adjusted_force = force[global_row];
+                for (&boundary_dof, &boundary_displacement) in
+                    boundary_dofs.iter().zip(boundary_displacements.iter())
+                {
+                    adjusted_force -= stiffness[global_row][boundary_dof] * boundary_displacement;
+                }
+                return Ok(adjusted_force);
+            }
+            accumulator.add(force[global_row]).map_err(sum_error)?;
+        }
+        ForceRows::Assembled(force) => {
+            force
+                .accumulate_dof(global_row, &mut accumulator, false)
+                .map_err(sum_error)?;
+        }
+    }
+    for (&boundary_dof, &boundary_displacement) in boundary_dofs.iter().zip(boundary_displacements)
+    {
+        accumulator
+            .add_product(-stiffness[global_row][boundary_dof], boundary_displacement)
+            .map_err(sum_error)?;
+    }
+    accumulator
+        .round()
+        .map_err(|_| FrameKernelError::NonFiniteInput {
+            name: "adjusted force",
+            value: if accumulator.signum() < 0 {
+                f64::NEG_INFINITY
+            } else {
+                f64::INFINITY
+            },
+        })
 }
 
 fn boundary_out_of_range_error(

@@ -5,6 +5,7 @@
 //! proprietary project data, rule-pack expression evaluation, or professional
 //! approval.
 
+use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_primitive_loads::{
     BoundaryMetadataError, BoundaryQuantityRecord, BoundaryRecordRef, CanonicalSchemaBinding,
     LoadDimension, QuantityUnitMetadata,
@@ -305,7 +306,11 @@ pub fn evaluate_linear_combination(
     let mut source_operand_ids = Vec::new();
     let mut statuses = Vec::new();
     let mut dimension = None;
-    let mut value = 0.0;
+    // E13 (S11): the combination is one exact sum of the exact products c_i*q_i,
+    // rounded once. The binary64 fold is kept only as today's non-finite path.
+    let mut exact = ExactAccumulator::new();
+    let mut exact_failed = false;
+    let mut fold = 0.0;
 
     for term in terms {
         if !term.factor.is_finite() {
@@ -337,8 +342,12 @@ pub fn evaluate_linear_combination(
         if !same_dimension_or_record(operand, &mut dimension, &mut findings) {
             continue;
         }
-        value += operand.quantity.scaled(term.factor).value;
+        fold += operand.quantity.scaled(term.factor).value;
+        exact_failed |= exact
+            .add_product(term.factor, operand.quantity.value)
+            .is_err();
     }
+    let value = combination_value(&exact, exact_failed, fold);
 
     finalize_result(
         AlgebraOperation::LinearCombination,
@@ -570,6 +579,20 @@ fn collect_statuses(
     }
 }
 
+/// The exact combination rounded once. A non-finite operand keeps today's
+/// non-finite value (the fold); a net outside the binary64 range is the
+/// matching signed infinity, never a finite fold.
+fn combination_value(exact: &ExactAccumulator, exact_failed: bool, fold: f64) -> f64 {
+    if exact_failed {
+        return fold;
+    }
+    match exact.round() {
+        Ok(value) => value,
+        Err(_) if exact.signum() < 0 => f64::NEG_INFINITY,
+        Err(_) => f64::INFINITY,
+    }
+}
+
 fn finalize_result(
     operation: AlgebraOperation,
     quantity: Option<AlgebraQuantity>,
@@ -632,6 +655,9 @@ fn validate_boundary_text(field: &'static str, value: &str) -> Result<(), Bounda
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod s11k_tests;
 
 #[cfg(test)]
 mod tests {

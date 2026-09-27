@@ -1,0 +1,13 @@
+Regeneration (ROOT go-ahead 2026-09-26), run from <s11k-worktree>/projects/chirality-piping, producers only:
+1. cargo +1.97.1 build --release --locked --offline --example physics_source_connected --example preview_physics_capture (core/product_physics)
+   controls: physics_source_connected sparse load_reference/pressure.request.json == committed raw; dense load_reference_source/n05.request.json == committed raw
+   physics_source_connected {sparse,dense} fixtures/product_preview/load_reference/connected.request.json > connected-{mode}.raw.json
+   physics_source_connected {sparse,dense} fixtures/product_preview/load_reference_source/eigen_motion.request.json > eigen_motion-{mode}.raw.json
+   physics_source_connected {sparse,dense} core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json > load_reference_fallback_uz-{mode}.raw.json
+   preview_physics_capture {sparse,dense} --model core/product_physics/tests/fixtures/preview_physics_invented_model.json > fixtures/results/preview_physics_invented_{mode}.json
+2. hash pins: result_export/tests/load_reference_contract.rs, tests/test_load_reference_readers.py (connected raw sha256 old -> new)
+3. core/reporting/result_export: LOAD_REFERENCE_WRITE_FIXTURES=1 LOAD_REFERENCE_SOURCE_WRITE_FIXTURES=1 cargo test --offline --locked --no-fail-fast --test load_reference_contract --test load_reference_source_contract
+4. LOAD_REFERENCE_WRITE_FIXTURES=1 LOAD_REFERENCE_SOURCE_WRITE_FIXTURES=1 <dec025-venv>/bin/python -m pytest -q -p no:cacheprovider tests/test_load_reference_readers.py tests/test_load_reference_source_readers.py
+5. <dec025-venv>/bin/python <T1 LSI>/_run_records/session2/cp3_stress_neutral_outputs.py .
+   <dec025-venv>/bin/python <T1 LSI>/_run_records/session4/t1_joined_stress_neutral_outputs.py .
+All 20 regenerated committed files are byte-identical to the scratch measurement of PRE_REGENERATION_REPORT.md section 5.

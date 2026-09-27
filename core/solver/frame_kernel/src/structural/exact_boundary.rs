@@ -28,6 +28,12 @@ impl From<StructuralError> for Error {
         Self::Arithmetic(e)
     }
 }
+/// S11 section 4.1.2 / 4.5: the coverage checks also accept the correctly
+/// rounded exact sum of the same terms (as a ledger-built force carries it).
+fn correctly_rounded_matches(expansion: &Expansion, stored: f64) -> bool {
+    crate::exact_sum::exact_rounded_sum(expansion.terms.iter().copied())
+        .is_ok_and(|rounded| rounded == stored)
+}
 /// Identity is provenance, not an assertion of primitive engineering exactness.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ForceContribution {
@@ -361,7 +367,8 @@ impl Context {
                 let projected: f64 = k[i][j].terms.iter().sum();
                 if !projected.is_finite()
                     || (projected != system.stiffness[i][j]
-                        && ordered_k[i][j] != system.stiffness[i][j])
+                        && ordered_k[i][j] != system.stiffness[i][j]
+                        && !correctly_rounded_matches(&k[i][j], system.stiffness[i][j]))
                 {
                     return Err(Error::Invalid("stiffness source mismatch"));
                 }
@@ -386,7 +393,9 @@ impl Context {
             for i in 0..n {
                 let projected: f64 = f[i].terms.iter().sum();
                 if !projected.is_finite()
-                    || (projected != system.force[i] && ordered_f[i] != system.force[i])
+                    || (projected != system.force[i]
+                        && ordered_f[i] != system.force[i]
+                        && !correctly_rounded_matches(&f[i], system.force[i]))
                 {
                     return Err(Error::Invalid("force source mismatch"));
                 }
@@ -1652,6 +1661,8 @@ impl RetainedResponse {
     }
 }
 
+#[cfg(test)]
+mod s11k_tests;
 #[cfg(test)]
 mod tests {
     use super::*;

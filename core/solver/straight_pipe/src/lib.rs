@@ -4,6 +4,7 @@
 //! solver boundary. It does not provide pipe tables, material defaults,
 //! code-specific checks, protected standards data, or engineering approval.
 
+use open_pipe_stress_frame_kernel::exact_sum::{ExactAccumulator, SumError};
 use open_pipe_stress_frame_kernel::{
     CanonicalDimension, CanonicalModelReference, FrameElement, FrameKernelError,
     FrameKernelUnitBasis, FrameNode, FrameOrientation, FrameSection, Matrix12,
@@ -565,23 +566,34 @@ impl StraightPipeElement {
         self.equivalent_nodal_loads_with_spans(&spanned_uniforms, point_forces)
     }
 
+    /// E1 (S11): each DOF's fixed-end load is one exact sum of every load's
+    /// own fixed-end term, rounded once. For one load it equals that load's
+    /// term bit for bit.
     pub fn equivalent_nodal_loads_with_spans(
         &self,
         uniform_loads: &[SpannedUniformLocalLoad],
         point_forces: &[PointLocalForce],
     ) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
-        let length = self.length()?;
-        let mut loads = [0.0; ELEMENT_DOF];
+        let terms = self.equivalent_nodal_load_terms_with_spans(uniform_loads, point_forces)?;
+        exact_array_sum("equivalent_nodal_loads", None, &terms, &[])
+    }
 
+    /// One fixed-end term array per load: uniform loads first, then point
+    /// forces, in the given order. Each array is formed from its own load only.
+    pub fn equivalent_nodal_load_terms_with_spans(
+        &self,
+        uniform_loads: &[SpannedUniformLocalLoad],
+        point_forces: &[PointLocalForce],
+    ) -> Result<Vec<[f64; ELEMENT_DOF]>, StraightPipeError> {
+        let length = self.length()?;
+        let mut terms = Vec::with_capacity(uniform_loads.len() + point_forces.len());
         for load in uniform_loads {
-            add_spanned_uniform_equivalent_load(&mut loads, length, *load)?;
+            terms.push(spanned_uniform_equivalent_terms(length, *load)?);
         }
         for load in point_forces {
-            add_point_equivalent_load(&mut loads, length, *load)?;
+            terms.push(point_equivalent_terms(length, *load)?);
         }
-
-        validate_finite_array("equivalent_nodal_loads", &loads)?;
-        Ok(loads)
+        Ok(terms)
     }
 
     pub fn equivalent_global_nodal_loads(
@@ -646,18 +658,13 @@ impl StraightPipeElement {
         Ok(global_loads)
     }
 
+    /// E2 (S11): each axial effect's pair, summed exactly and rounded once.
     pub fn equivalent_local_axial_effect_loads(
         &self,
         axial_effects: &[StraightPipeAxialEffect],
     ) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
-        let mut loads = [0.0; ELEMENT_DOF];
-        for effect in axial_effects {
-            validate_axial_effect(*effect)?;
-            loads[UX] -= effect.axial_force;
-            loads[DOF_PER_NODE + UX] += effect.axial_force;
-        }
-        validate_finite_array("equivalent_local_axial_effect_loads", &loads)?;
-        Ok(loads)
+        let terms = local_axial_effect_terms(axial_effects)?;
+        exact_array_sum("equivalent_local_axial_effect_loads", None, &terms, &[])
     }
 
     pub fn equivalent_global_axial_effect_loads(
@@ -677,9 +684,13 @@ impl StraightPipeElement {
         axial_effects: &[StraightPipeAxialEffect],
     ) -> Result<LocalElementForces, StraightPipeError> {
         let recovered = self.recover_local_forces(global_element_displacements)?;
-        let equivalent_loads = self.equivalent_local_axial_effect_loads(axial_effects)?;
-        let local_forces = subtract_equivalent_loads(&recovered.local_forces, &equivalent_loads);
-        validate_finite_array("axial_effect_corrected_local_forces", &local_forces)?;
+        let local_forces = self.exact_loaded_local_forces(
+            "axial_effect_corrected_local_forces",
+            &recovered.local_forces,
+            &[],
+            &[],
+            axial_effects,
+        )?;
         Ok(LocalElementForces {
             local_displacements: recovered.local_displacements,
             local_forces,
@@ -692,9 +703,13 @@ impl StraightPipeElement {
         axial_effects: &[StraightPipeAxialEffect],
     ) -> Result<LocalElementForces, StraightPipeError> {
         let recovered = self.recover_local_forces_from_global_model(global_model_displacements)?;
-        let equivalent_loads = self.equivalent_local_axial_effect_loads(axial_effects)?;
-        let local_forces = subtract_equivalent_loads(&recovered.local_forces, &equivalent_loads);
-        validate_finite_array("axial_effect_corrected_local_forces", &local_forces)?;
+        let local_forces = self.exact_loaded_local_forces(
+            "axial_effect_corrected_local_forces",
+            &recovered.local_forces,
+            &[],
+            &[],
+            axial_effects,
+        )?;
         Ok(LocalElementForces {
             local_displacements: recovered.local_displacements,
             local_forces,
@@ -942,27 +957,37 @@ impl StraightPipeElement {
         let length = self.length()?;
         let distance = station_fraction * length;
 
-        let mut resultants = StationResultants {
-            station_fraction,
-            distance_from_i: distance,
-            axial_force: i_end.axial_force,
-            shear_force_y: i_end.shear_force_y,
-            shear_force_z: i_end.shear_force_z,
-            torsional_moment: i_end.torsional_moment,
-            bending_moment_y: i_end.bending_moment_y + i_end.shear_force_z * distance,
-            bending_moment_z: i_end.bending_moment_z - i_end.shear_force_y * distance,
-        };
+        // E4/E6 (S11): each component is one exact sum of the i-end action,
+        // fl(V*d) and every load's station term, rounded once.
+        let mut sums = StationSums::default();
+        sums.axial.push(i_end.axial_force);
+        sums.shear_y.push(i_end.shear_force_y);
+        sums.shear_z.push(i_end.shear_force_z);
+        sums.moment_y.push(i_end.bending_moment_y);
+        sums.moment_y.push(i_end.shear_force_z * distance);
+        sums.moment_z.push(i_end.bending_moment_z);
+        sums.moment_z.push(-(i_end.shear_force_y * distance));
 
         for load in uniform_loads {
             validate_spanned_uniform_load(*load)?;
-            accumulate_spanned_uniform_station_resultants(&mut resultants, *load, length, distance);
+            spanned_uniform_station_terms(&mut sums, *load, length, distance);
         }
         for load in point_forces {
             validate_station_fraction("point_force_station_fraction", load.station_fraction)?;
             validate_finite("point_force", load.force)?;
-            accumulate_point_station_resultants(&mut resultants, *load, length, distance);
+            point_station_terms(&mut sums, *load, length, distance);
         }
 
+        let resultants = StationResultants {
+            station_fraction,
+            distance_from_i: distance,
+            axial_force: exact_terms_sum("axial_force", &sums.axial)?,
+            shear_force_y: exact_terms_sum("shear_force_y", &sums.shear_y)?,
+            shear_force_z: exact_terms_sum("shear_force_z", &sums.shear_z)?,
+            torsional_moment: i_end.torsional_moment,
+            bending_moment_y: exact_terms_sum("bending_moment_y", &sums.moment_y)?,
+            bending_moment_z: exact_terms_sum("bending_moment_z", &sums.moment_z)?,
+        };
         validate_station_resultants(&resultants)?;
         Ok(resultants)
     }
@@ -1027,9 +1052,13 @@ impl StraightPipeElement {
         point_forces: &[PointLocalForce],
     ) -> Result<StationResultants, StraightPipeError> {
         let recovered = self.recover_local_forces(global_element_displacements)?;
-        let equivalent_loads =
-            self.equivalent_nodal_loads_with_spans(uniform_loads, point_forces)?;
-        let loaded_forces = subtract_equivalent_loads(&recovered.local_forces, &equivalent_loads);
+        let loaded_forces = self.exact_loaded_local_forces(
+            "loaded_local_forces",
+            &recovered.local_forces,
+            uniform_loads,
+            point_forces,
+            &[],
+        )?;
         let i_end = PipeEndResultants::from_local_forces(&loaded_forces, PipeEnd::I);
         self.station_resultants_from_i_end_with_spans(
             i_end,
@@ -1063,9 +1092,13 @@ impl StraightPipeElement {
         point_forces: &[PointLocalForce],
     ) -> Result<Vec<StationResultants>, StraightPipeError> {
         let recovered = self.recover_local_forces(global_element_displacements)?;
-        let equivalent_loads =
-            self.equivalent_nodal_loads_with_spans(uniform_loads, point_forces)?;
-        let loaded_forces = subtract_equivalent_loads(&recovered.local_forces, &equivalent_loads);
+        let loaded_forces = self.exact_loaded_local_forces(
+            "loaded_local_forces",
+            &recovered.local_forces,
+            uniform_loads,
+            point_forces,
+            &[],
+        )?;
         let i_end = PipeEndResultants::from_local_forces(&loaded_forces, PipeEnd::I);
         self.station_resultant_sweep_from_i_end_with_spans(
             i_end,
@@ -1115,9 +1148,13 @@ impl StraightPipeElement {
         point_forces: &[PointLocalForce],
     ) -> Result<Vec<StationResultants>, StraightPipeError> {
         let recovered = self.recover_local_forces_from_global_model(global_model_displacements)?;
-        let equivalent_loads =
-            self.equivalent_nodal_loads_with_spans(uniform_loads, point_forces)?;
-        let loaded_forces = subtract_equivalent_loads(&recovered.local_forces, &equivalent_loads);
+        let loaded_forces = self.exact_loaded_local_forces(
+            "loaded_local_forces",
+            &recovered.local_forces,
+            uniform_loads,
+            point_forces,
+            &[],
+        )?;
         let i_end = PipeEndResultants::from_local_forces(&loaded_forces, PipeEnd::I);
         self.station_resultant_sweep_from_i_end_with_spans(
             i_end,
@@ -1135,9 +1172,13 @@ impl StraightPipeElement {
         point_forces: &[PointLocalForce],
     ) -> Result<StationResultants, StraightPipeError> {
         let recovered = self.recover_local_forces_from_global_model(global_model_displacements)?;
-        let equivalent_loads =
-            self.equivalent_nodal_loads_with_spans(uniform_loads, point_forces)?;
-        let loaded_forces = subtract_equivalent_loads(&recovered.local_forces, &equivalent_loads);
+        let loaded_forces = self.exact_loaded_local_forces(
+            "loaded_local_forces",
+            &recovered.local_forces,
+            uniform_loads,
+            point_forces,
+            &[],
+        )?;
         let i_end = PipeEndResultants::from_local_forces(&loaded_forces, PipeEnd::I);
         self.station_resultants_from_i_end_with_spans(
             i_end,
@@ -1154,21 +1195,104 @@ impl StraightPipeElement {
         point_forces: &[PointLocalForce],
         axial_effects: &[StraightPipeAxialEffect],
     ) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
-        let load_equivalent =
-            self.equivalent_nodal_loads_with_spans(uniform_loads, point_forces)?;
-        let axial_equivalent = self.equivalent_local_axial_effect_loads(axial_effects)?;
-        let loaded_forces = subtract_equivalent_loads(local_forces, &load_equivalent);
-        let loaded_forces = subtract_equivalent_loads(&loaded_forces, &axial_equivalent);
-        validate_finite_array("load_and_axial_corrected_local_forces", &loaded_forces)?;
-        Ok(loaded_forces)
+        self.exact_loaded_local_forces(
+            "load_and_axial_corrected_local_forces",
+            local_forces,
+            uniform_loads,
+            point_forces,
+            axial_effects,
+        )
+    }
+
+    /// E3 (S11): `local_i - each load term - each axial term`, one exact sum
+    /// per DOF, rounded once (it replaces two roundings).
+    fn exact_loaded_local_forces(
+        &self,
+        name: &'static str,
+        local_forces: &[f64; ELEMENT_DOF],
+        uniform_loads: &[SpannedUniformLocalLoad],
+        point_forces: &[PointLocalForce],
+        axial_effects: &[StraightPipeAxialEffect],
+    ) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
+        let load_terms =
+            self.equivalent_nodal_load_terms_with_spans(uniform_loads, point_forces)?;
+        let axial_terms = local_axial_effect_terms(axial_effects)?;
+        exact_array_sum(name, Some(local_forces), &load_terms, &axial_terms)
     }
 }
 
-fn add_spanned_uniform_equivalent_load(
-    loads: &mut [f64; ELEMENT_DOF],
+/// One exact sum per DOF: `base - sum(first) - sum(second)` when `base` is
+/// given, otherwise `sum(first) + sum(second)`; rounded once (+0.0 for zero).
+fn exact_array_sum(
+    name: &'static str,
+    base: Option<&[f64; ELEMENT_DOF]>,
+    first: &[[f64; ELEMENT_DOF]],
+    second: &[[f64; ELEMENT_DOF]],
+) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
+    let negate = base.is_some();
+    let mut result = [0.0; ELEMENT_DOF];
+    for (dof, value) in result.iter_mut().enumerate() {
+        let mut accumulator = ExactAccumulator::new();
+        let mut add = |x: f64| {
+            accumulator
+                .add(x)
+                .map_err(|error| sum_error(name, error, x))
+        };
+        if let Some(base) = base {
+            add(base[dof])?;
+        }
+        for terms in first.iter().chain(second) {
+            add(if negate { -terms[dof] } else { terms[dof] })?;
+        }
+        *value = rounded(name, &accumulator)?;
+    }
+    Ok(result)
+}
+
+fn sum_error(name: &'static str, error: SumError, value: f64) -> StraightPipeError {
+    StraightPipeError::NonFiniteInput {
+        name,
+        value: match error {
+            SumError::NonFinite => value,
+            _ => f64::INFINITY,
+        },
+    }
+}
+
+/// Rounds once; an out-of-range net maps to today's non-finite error path.
+fn rounded(name: &'static str, accumulator: &ExactAccumulator) -> Result<f64, StraightPipeError> {
+    accumulator
+        .round()
+        .map_err(|_| StraightPipeError::NonFiniteInput {
+            name,
+            value: if accumulator.signum() < 0 {
+                f64::NEG_INFINITY
+            } else {
+                f64::INFINITY
+            },
+        })
+}
+
+/// Per-effect axial pairs: -N at i, +N at j (formation, one source each).
+fn local_axial_effect_terms(
+    axial_effects: &[StraightPipeAxialEffect],
+) -> Result<Vec<[f64; ELEMENT_DOF]>, StraightPipeError> {
+    let mut terms = Vec::with_capacity(axial_effects.len());
+    for effect in axial_effects {
+        validate_axial_effect(*effect)?;
+        let mut pair = [0.0; ELEMENT_DOF];
+        pair[UX] = -effect.axial_force;
+        pair[DOF_PER_NODE + UX] = effect.axial_force;
+        terms.push(pair);
+    }
+    Ok(terms)
+}
+
+/// One uniform load's own fixed-end terms (formation from one source).
+fn spanned_uniform_equivalent_terms(
     length: f64,
     load: SpannedUniformLocalLoad,
-) -> Result<(), StraightPipeError> {
+) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
     validate_spanned_uniform_load(load)?;
     let a = load.span.start_fraction;
     let b = load.span.end_fraction;
@@ -1195,32 +1319,33 @@ fn add_spanned_uniform_equivalent_load(
     validate_finite("spanned_uniform_j_transverse", transverse_j)?;
     validate_finite("spanned_uniform_j_rotation", rotation_j)?;
 
+    let mut terms = [0.0; ELEMENT_DOF];
     match load.direction {
         LocalLoadDirection::X => {
-            loads[UX] += axial_i;
-            loads[DOF_PER_NODE + UX] += axial_j;
+            terms[UX] = axial_i;
+            terms[DOF_PER_NODE + UX] = axial_j;
         }
         LocalLoadDirection::Y => {
-            loads[UY] += transverse_i;
-            loads[RZ] += rotation_i;
-            loads[DOF_PER_NODE + UY] += transverse_j;
-            loads[DOF_PER_NODE + RZ] += rotation_j;
+            terms[UY] = transverse_i;
+            terms[RZ] = rotation_i;
+            terms[DOF_PER_NODE + UY] = transverse_j;
+            terms[DOF_PER_NODE + RZ] = rotation_j;
         }
         LocalLoadDirection::Z => {
-            loads[UZ] += transverse_i;
-            loads[RY] -= rotation_i;
-            loads[DOF_PER_NODE + UZ] += transverse_j;
-            loads[DOF_PER_NODE + RY] -= rotation_j;
+            terms[UZ] = transverse_i;
+            terms[RY] = -rotation_i;
+            terms[DOF_PER_NODE + UZ] = transverse_j;
+            terms[DOF_PER_NODE + RY] = -rotation_j;
         }
     }
-    Ok(())
+    Ok(terms)
 }
 
-fn add_point_equivalent_load(
-    loads: &mut [f64; ELEMENT_DOF],
+/// One point force's own fixed-end terms (formation from one source).
+fn point_equivalent_terms(
     length: f64,
     load: PointLocalForce,
-) -> Result<(), StraightPipeError> {
+) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
     validate_station_fraction("point_force_station_fraction", load.station_fraction)?;
     validate_finite("point_force", load.force)?;
     let r = load.station_fraction;
@@ -1231,29 +1356,50 @@ fn add_point_equivalent_load(
     let h_j = 3.0 * r * r - 2.0 * r * r * r;
     let theta_j = length * (-r * r + r * r * r);
 
+    let mut terms = [0.0; ELEMENT_DOF];
     match load.direction {
         LocalLoadDirection::X => {
-            loads[UX] += load.force * n_i;
-            loads[DOF_PER_NODE + UX] += load.force * n_j;
+            terms[UX] = load.force * n_i;
+            terms[DOF_PER_NODE + UX] = load.force * n_j;
         }
         LocalLoadDirection::Y => {
-            loads[UY] += load.force * h_i;
-            loads[RZ] += load.force * theta_i;
-            loads[DOF_PER_NODE + UY] += load.force * h_j;
-            loads[DOF_PER_NODE + RZ] += load.force * theta_j;
+            terms[UY] = load.force * h_i;
+            terms[RZ] = load.force * theta_i;
+            terms[DOF_PER_NODE + UY] = load.force * h_j;
+            terms[DOF_PER_NODE + RZ] = load.force * theta_j;
         }
         LocalLoadDirection::Z => {
-            loads[UZ] += load.force * h_i;
-            loads[RY] -= load.force * theta_i;
-            loads[DOF_PER_NODE + UZ] += load.force * h_j;
-            loads[DOF_PER_NODE + RY] -= load.force * theta_j;
+            terms[UZ] = load.force * h_i;
+            terms[RY] = -(load.force * theta_i);
+            terms[DOF_PER_NODE + UZ] = load.force * h_j;
+            terms[DOF_PER_NODE + RY] = -(load.force * theta_j);
         }
     }
-    Ok(())
+    Ok(terms)
 }
 
-fn accumulate_spanned_uniform_station_resultants(
-    resultants: &mut StationResultants,
+/// Station terms per component, summed exactly by `exact_terms_sum`.
+#[derive(Default)]
+struct StationSums {
+    axial: Vec<f64>,
+    shear_y: Vec<f64>,
+    shear_z: Vec<f64>,
+    moment_y: Vec<f64>,
+    moment_z: Vec<f64>,
+}
+
+fn exact_terms_sum(name: &'static str, terms: &[f64]) -> Result<f64, StraightPipeError> {
+    let mut accumulator = ExactAccumulator::new();
+    for &term in terms {
+        accumulator
+            .add(term)
+            .map_err(|error| sum_error(name, error, term))?;
+    }
+    rounded(name, &accumulator)
+}
+
+fn spanned_uniform_station_terms(
+    sums: &mut StationSums,
     load: SpannedUniformLocalLoad,
     length: f64,
     distance: f64,
@@ -1270,25 +1416,21 @@ fn accumulate_spanned_uniform_station_resultants(
 
     match load.direction {
         LocalLoadDirection::X => {
-            resultants.axial_force += load.force_per_length * active_length;
+            sums.axial.push(load.force_per_length * active_length);
         }
         LocalLoadDirection::Y => {
-            resultants.shear_force_y += load.force_per_length * active_length;
-            resultants.bending_moment_z -= load.force_per_length * lever_integral;
+            sums.shear_y.push(load.force_per_length * active_length);
+            sums.moment_z
+                .push(-(load.force_per_length * lever_integral));
         }
         LocalLoadDirection::Z => {
-            resultants.shear_force_z += load.force_per_length * active_length;
-            resultants.bending_moment_y += load.force_per_length * lever_integral;
+            sums.shear_z.push(load.force_per_length * active_length);
+            sums.moment_y.push(load.force_per_length * lever_integral);
         }
     }
 }
 
-fn accumulate_point_station_resultants(
-    resultants: &mut StationResultants,
-    load: PointLocalForce,
-    length: f64,
-    distance: f64,
-) {
+fn point_station_terms(sums: &mut StationSums, load: PointLocalForce, length: f64, distance: f64) {
     let load_distance = load.station_fraction * length;
     if load_distance > distance {
         return;
@@ -1296,15 +1438,15 @@ fn accumulate_point_station_resultants(
     let lever = distance - load_distance;
     match load.direction {
         LocalLoadDirection::X => {
-            resultants.axial_force += load.force;
+            sums.axial.push(load.force);
         }
         LocalLoadDirection::Y => {
-            resultants.shear_force_y += load.force;
-            resultants.bending_moment_z -= load.force * lever;
+            sums.shear_y.push(load.force);
+            sums.moment_z.push(-(load.force * lever));
         }
         LocalLoadDirection::Z => {
-            resultants.shear_force_z += load.force;
-            resultants.bending_moment_y += load.force * lever;
+            sums.shear_z.push(load.force);
+            sums.moment_y.push(load.force * lever);
         }
     }
 }
@@ -1357,17 +1499,6 @@ fn multiply_matrix_vector(matrix: &Matrix12, vector: &[f64; ELEMENT_DOF]) -> [f6
         for col in 0..ELEMENT_DOF {
             result[row] += matrix[row][col] * vector[col];
         }
-    }
-    result
-}
-
-fn subtract_equivalent_loads(
-    local_forces: &[f64; ELEMENT_DOF],
-    equivalent_loads: &[f64; ELEMENT_DOF],
-) -> [f64; ELEMENT_DOF] {
-    let mut result = [0.0; ELEMENT_DOF];
-    for index in 0..ELEMENT_DOF {
-        result[index] = local_forces[index] - equivalent_loads[index];
     }
     result
 }
@@ -1479,6 +1610,9 @@ fn validate_station_resultants(resultants: &StationResultants) -> Result<(), Str
     validate_finite("bending_moment_y", resultants.bending_moment_y)?;
     validate_finite("bending_moment_z", resultants.bending_moment_z)
 }
+
+#[cfg(test)]
+mod s11k_tests;
 
 #[cfg(test)]
 mod tests {

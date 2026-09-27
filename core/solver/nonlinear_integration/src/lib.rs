@@ -7,7 +7,10 @@
 //! approval claims.
 
 pub mod product_equilibrium;
+#[cfg(test)]
+mod s11k_tests;
 pub mod structural_adapter;
+use open_pipe_stress_frame_kernel::load_ledger::AssembledForce;
 use open_pipe_stress_frame_kernel::structural::{
     StructuralError, StructuralReport, StructuralSystem,
 };
@@ -16,8 +19,9 @@ use structural_adapter::{AssemblyEvidence, StrictGapEvidence};
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_user_elements, node_dof_index,
-    reduce_system_with_prescribed_displacements, solve_dense, DenseMatrix, DenseVector, FrameDof,
-    FrameElement, FrameKernelError, Matrix12, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF,
+    reduce_system_with_prescribed_displacements_binary64, solve_dense, DenseMatrix, DenseVector,
+    FrameDof, FrameElement, FrameKernelError, Matrix12, UserStiffnessElement, DOF_PER_NODE,
+    ELEMENT_DOF,
 };
 use open_pipe_stress_nonlinear_supports::{
     evaluate_active_set_iteration_with_resolved_friction_states, ActiveSetIteration,
@@ -492,6 +496,68 @@ pub fn solve_active_set_frame_with_mode(
     linear_solve_mode: LinearSolveMode,
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     solve_active_set_frame_with_mode_and_springs(input, linear_solve_mode, &[])
+}
+
+/// Typed sibling of `solve_active_set_frame` (S11-K; signature only, dormant
+/// until S11-F; this crate is serialized with T5, so the loop is unchanged).
+/// `input.force` must equal `force.values()` bit for bit: every entry is
+/// compared by its bits, so a -0.0 against a +0.0 is a difference. Any
+/// difference returns `InvalidInput` and runs nothing.
+/// ```compile_fail
+/// use open_pipe_stress_nonlinear_integration::{solve_active_set_frame_assembled, NonlinearFrameSolveInput};
+/// fn call(input: &NonlinearFrameSolveInput) {
+///     let force: Vec<f64> = input.force.clone();
+///     let _ = solve_active_set_frame_assembled(input, &force);
+/// }
+/// ```
+pub fn solve_active_set_frame_assembled(
+    input: &NonlinearFrameSolveInput,
+    force: &AssembledForce,
+) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
+    require_assembled_force(input, force)?;
+    solve_active_set_frame(input)
+}
+
+/// Typed sibling of `solve_active_set_frame_with_mode`; see
+/// `solve_active_set_frame_assembled` for the bit-for-bit force condition.
+pub fn solve_active_set_frame_with_mode_assembled(
+    input: &NonlinearFrameSolveInput,
+    force: &AssembledForce,
+    linear_solve_mode: LinearSolveMode,
+) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
+    require_assembled_force(input, force)?;
+    solve_active_set_frame_with_mode(input, linear_solve_mode)
+}
+
+/// Typed sibling of `solve_active_set_frame_with_mode_and_springs`; see
+/// `solve_active_set_frame_assembled` for the bit-for-bit force condition.
+pub fn solve_active_set_frame_with_mode_and_springs_assembled(
+    input: &NonlinearFrameSolveInput,
+    force: &AssembledForce,
+    linear_solve_mode: LinearSolveMode,
+    springs: &[(usize, f64)],
+) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
+    require_assembled_force(input, force)?;
+    solve_active_set_frame_with_mode_and_springs(input, linear_solve_mode, springs)
+}
+
+fn require_assembled_force(
+    input: &NonlinearFrameSolveInput,
+    force: &AssembledForce,
+) -> Result<(), NonlinearIntegrationError> {
+    let values = force.values();
+    if input.force.len() != values.len()
+        || input
+            .force
+            .iter()
+            .zip(values)
+            .any(|(a, b)| a.to_bits() != b.to_bits())
+    {
+        return Err(NonlinearIntegrationError::InvalidInput {
+            detail: "input force must equal the ledger-assembled force bit for bit".to_string(),
+        });
+    }
+    Ok(())
 }
 
 /// Compatibility-preserving adapter for validated linear ground springs.
@@ -1899,7 +1965,7 @@ fn solve_linearized_system_evidence(
     boundary: &BoundaryState,
     linear_solve_mode: LinearSolveMode,
 ) -> Result<LinearizedSolve, NonlinearIntegrationError> {
-    let reduced = reduce_system_with_prescribed_displacements(
+    let reduced = reduce_system_with_prescribed_displacements_binary64(
         stiffness,
         force,
         &boundary.dofs,
@@ -1912,7 +1978,7 @@ fn solve_linearized_system_evidence(
         .zip(boundary.displacements.iter().copied())
         .collect::<Vec<_>>();
     let checked = if let Some(assembly) = assembly {
-        assembly.solve(
+        assembly.solve_binary64(
             stiffness,
             force,
             &reduced.free_dofs,
@@ -1930,10 +1996,12 @@ fn solve_linearized_system_evidence(
         };
         match linear_solve_mode {
             LinearSolveMode::DenseScrutiny => {
-                open_pipe_stress_frame_kernel::structural::solve_structural_dense(&original)?
+                open_pipe_stress_frame_kernel::structural::solve_structural_dense_binary64(
+                    &original,
+                )?
             }
             LinearSolveMode::SparseInteractive => {
-                open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&original)?
+                structural_adapter::solve_structural_sparse_binary64(&original)?
             }
         }
     };
