@@ -8,7 +8,7 @@
 
 The PR #985 review ran the materializer over Piping from DAG-011 in default
 mode, and 93 of 98 `Dependencies.csv` files differed. The comparison was
-reproduced on scratch copies in both modes. The differences have four causes:
+reproduced on scratch copies in both modes. The differences had four causes:
 the aggregate header (92 files), row order (68), aggregate `legacy_*` `Notes`
 suffixes (480 rows in 49 files), and `RETIRED` rows left out (83 in 31 files,
 plus DEL-13-04's 2 declared rows with `--canonical-output`). The registers are
@@ -18,22 +18,32 @@ not stale. Their 1,571 rows equal DAG-011's in every core field, and
 Piping builds its DAG from the local registers, keeps retired rows, and applies
 accepted changes as exact field edits. No register is therefore rewritten. The
 [coordination record](../../COORDINATION_RESPONSE_2026-09-27_DEPENDENCY_MATERIALIZATION.md)
-states the canonical form and where the materializer applies. The Root
-materializer docstring and `tools/REGISTRY.md` row now say that a rewrite is not
-a currency check (tranche `PIPING-DEP-MATERIALIZATION-NOTE-20260927`; the export
-manifest hashes were regenerated). Tool behaviour is unchanged.
+states the canonical form and where the materializer applies.
+
+Deleting retired rows broke the rule that rows are retired, never deleted, so
+the Root materializer was fixed in the same candidate. A whole-file rewrite now
+keeps every local `RETIRED` row whose ID the output does not already carry.
+With `--canonical-output`, it also keeps declared `RETIRED` rows. Kept rows are
+sorted by `DependencyID` with the rest; nothing else in the output changes. Over
+Piping, both modes now keep all 83 retired and 183 declared rows and give
+byte-identical output. The remaining differences are header (92 files), row
+order (71) and aggregate `Notes` (480 rows in 49 files). The docstring and
+`tools/REGISTRY.md` row describe the fix and say that a rewrite is not a
+currency check (tranche `PIPING-DEP-MATERIALIZATION-NOTE-20260927`; the export
+manifest hashes were regenerated).
 
 ## Checks and limits
 
-The candidate was examined at `0adfbc747` and rebased onto `8bbd022b9`, which changes only App v4 files. These checks ran on the rebased candidate:
+The candidate was examined at `0adfbc747` and rebased onto `8bbd022b9`, which changes only App v4 files. These checks ran on the final candidate, with diff-based checks against `8bbd022b9`:
 
 - Schema validator: 98/98 local registers PASS (none changed).
 - G0–G3: PASS, exit 0.
 - G4 (`--added-manifests-only`): PASS, exit 0.
 - Conflict markers and run-record leaks: PASS, exit 0.
 - `build_workflow_index.py --check`, `git diff --check` and the Piping receipt validator: exit 0.
-- `run_affected_tests.py --base origin/main` (coordination, practitioner harness, validation): 1,206 passed, exit 0.
+- `run_affected_tests.py` (coordination, practitioner harness, validation): 1,208 passed, exit 0.
 - Harness self-check: exit 0; it raises no finding on the new paths.
+- Materializer tests: the three new tests fail against the tool before the fix (3 failed, 20 passed) and pass with it (23 passed).
 
 No SCC case exists in Piping, so the SCC case validator does not apply. The
 `--refresh-pointers` runs also rewrite `_DEPENDENCIES.md`. That is a separate

@@ -2,7 +2,8 @@
 """Read-only comparison of Piping's local Dependencies.csv files with a
 materializer rerun from the accepted DAG.
 
-The Piping execution tree is copied to a temporary directory; the Root
+The accepted DAG version and every deliverable folder's Dependencies.csv and
+_DEPENDENCIES.md are copied to a temporary directory; the Root
 materializer runs there in default and --canonical-output modes, with
 --refresh-pointers, and each rewritten Dependencies.csv is compared with the
 committed file. The committed tree is never written. The script also compares
@@ -141,13 +142,27 @@ def direct_comparison(dag_dir: Path) -> dict[str, object]:
     }
 
 
+def copy_inputs(dag_dir: Path, scratch: Path) -> None:
+    """Copy only what the materializer reads and writes: the accepted DAG
+    version and each deliverable folder's two dependency files."""
+    shutil.copytree(dag_dir, scratch / dag_dir.relative_to(EXECUTION))
+    for folder in EXECUTION.glob("PKG-*/1_Working/DEL-*"):
+        if not folder.is_dir():
+            continue
+        target = scratch / folder.relative_to(EXECUTION)
+        target.mkdir(parents=True, exist_ok=True)
+        for name in ("Dependencies.csv", "_DEPENDENCIES.md"):
+            if (folder / name).is_file():
+                shutil.copy2(folder / name, target / name)
+
+
 def main() -> int:
     dag_dir = accepted_dag()
     result: dict[str, object] = {"accepted_dag": dag_dir.relative_to(REPO).as_posix()}
     for mode, extra in (("default", []), ("canonical_output", ["--canonical-output"])):
         with tempfile.TemporaryDirectory() as tmp:
             scratch = Path(tmp) / "execution"
-            shutil.copytree(EXECUTION, scratch)
+            copy_inputs(dag_dir, scratch)
             run = subprocess.run(
                 [sys.executable, str(TOOL), "--dag-dir", str(scratch / dag_dir.relative_to(EXECUTION)),
                  "--execution-root", str(scratch), "--refresh-pointers", "--json-out", str(Path(tmp) / "summary.json"), *extra],
