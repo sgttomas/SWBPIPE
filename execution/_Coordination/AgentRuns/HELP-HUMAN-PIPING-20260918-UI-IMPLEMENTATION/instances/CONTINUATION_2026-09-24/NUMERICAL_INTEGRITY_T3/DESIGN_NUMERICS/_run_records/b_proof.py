@@ -101,7 +101,7 @@ def analyse(rows, req):
             effort_nodes.add(n)  # an applied force at a free node: seeded below, never a restraint
             continue
         if not W.is_rigid_support(s):
-            st = s.get("stiffness") or {}
+            st = W.support_stiffness_input(s) or {}  # K-D5 C2: top-level, else hanger.stiffness (PP)
             springs[s["id"]] = 6 * n + COMP[st.get("dof", s["restraints"][0])]
             supports[s["id"]] = ("spring", n, {springs[s["id"]]})
         else:

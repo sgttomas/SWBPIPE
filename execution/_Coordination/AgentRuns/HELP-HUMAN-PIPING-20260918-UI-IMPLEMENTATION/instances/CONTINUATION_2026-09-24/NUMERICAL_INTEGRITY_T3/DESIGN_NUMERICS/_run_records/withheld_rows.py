@@ -55,6 +55,15 @@ def hanger_type(s):
     return t or (s.get("family") or "").strip() or None
 
 
+def support_stiffness_input(s):
+    """PP support_stiffness_input (PP:10253, `support.stiffness.or_else(hanger.stiffness)`): the
+    support's own `stiffness`, else its `hanger.stiffness` (K-D5, ROOT condition C2 / VERIFY_R5
+    NOTE 8). The family rule below does not read stiffness; b_proof.py places a spring's DOF with it."""
+    if s.get("stiffness") is not None:
+        return s["stiffness"]
+    return (s.get("hanger") or {}).get("stiffness")
+
+
 def is_rigid_support(s):
     """Revision 5a.1 (R5-2 as D2's G5c states it from PP:5169-5230, :5279, :10229-10251): a support
     contributes nothing if its hanger type (hanger.hanger_type trimmed, else family trimmed) is
