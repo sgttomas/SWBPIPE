@@ -1,0 +1,106 @@
+{
+ "ruling": "ROOT 2026-09-27 (on I4's F12 stop, option (c)). Pre-existing on main (P1 baseline); S11-F makes none worse. Must be empty when S11-G lands, or per-row justification to ROOT for waiting on F2/F3.",
+ "source": {
+  "results_json_sha256": "a11886245a94524f7b1baa536844489464027eecc189754639b037469e2129d1",
+  "references_json_sha256": "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9"
+ },
+ "counts": {
+  "triples": 7,
+  "rows_with_mode": 14
+ },
+ "owners": {
+  "captured | RF-CANCEL-UDL-W1e8 | th.S1.RZ": "load formation (as above); S11-G load-row guard, then F3 (W1b)",
+  "typed | RF-CANCEL-F-G1e80-GnG-INPLANE | Mb.M1.j": "formed recovery term K_e*u roundoff (S11 s10 item 3); S11-G recovery guard, then F2 (W1a)",
+  "typed | RF-CANCEL-F-G1e80-GnG-INPLANE | Mb.M2.i": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
+  "typed | RF-CANCEL-M-G1e80-GnG-INPLANE | Mb.M2.i": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
+  "typed | RF-CANCEL-M-G1e80-GnG-INPLANE | Mb.M2.j": "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
+  "typed | RF-CANCEL-UDL-W1e8 | th.S1.RZ": "load formation (as above); S11-G load-row guard, then F3 (W1b)",
+  "typed | RF-CANCEL-UDL-W1e80 | th.S1.RZ": "load formation: SP fixed-end coefficients formed by different binary64 expressions at i and j (S11 s2.2, s10 item 2); S11-G load-row guard, then F3 (W1b)"
+ },
+ "rows": [
+  [
+   "captured",
+   "RF-CANCEL-UDL-W1e8",
+   "th.S1.RZ",
+   "dense_scrutiny"
+  ],
+  [
+   "captured",
+   "RF-CANCEL-UDL-W1e8",
+   "th.S1.RZ",
+   "sparse_interactive"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-F-G1e80-GnG-INPLANE",
+   "Mb.M1.j",
+   "dense_scrutiny"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-F-G1e80-GnG-INPLANE",
+   "Mb.M1.j",
+   "sparse_interactive"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-F-G1e80-GnG-INPLANE",
+   "Mb.M2.i",
+   "dense_scrutiny"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-F-G1e80-GnG-INPLANE",
+   "Mb.M2.i",
+   "sparse_interactive"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-M-G1e80-GnG-INPLANE",
+   "Mb.M2.i",
+   "dense_scrutiny"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-M-G1e80-GnG-INPLANE",
+   "Mb.M2.i",
+   "sparse_interactive"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-M-G1e80-GnG-INPLANE",
+   "Mb.M2.j",
+   "dense_scrutiny"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-M-G1e80-GnG-INPLANE",
+   "Mb.M2.j",
+   "sparse_interactive"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-UDL-W1e8",
+   "th.S1.RZ",
+   "dense_scrutiny"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-UDL-W1e8",
+   "th.S1.RZ",
+   "sparse_interactive"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-UDL-W1e80",
+   "th.S1.RZ",
+   "dense_scrutiny"
+  ],
+  [
+   "typed",
+   "RF-CANCEL-UDL-W1e80",
+   "th.S1.RZ",
+   "sparse_interactive"
+  ]
+ ]
+}

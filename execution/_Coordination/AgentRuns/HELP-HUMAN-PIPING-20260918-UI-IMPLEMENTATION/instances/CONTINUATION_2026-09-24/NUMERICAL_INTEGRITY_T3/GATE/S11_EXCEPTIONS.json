@@ -1,59 +1,18 @@
 {
- "ruling": "ROOT 2026-09-26: frozen-reference cases only, per entry; skew case is not an exception",
+ "ruling": "ROOT 2026-09-26 (frozen-reference only, per entry; skew case not an exception); ROOT 2026-09-27 (7 formation-class triples moved to FORMATION_EXCEPTIONS.json). Must be empty after S11-F.",
  "source": {
   "results_json_sha256": "a11886245a94524f7b1baa536844489464027eecc189754639b037469e2129d1",
   "references_json_sha256": "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9"
  },
  "counts": {
   "captured": {
-   "triples": 88,
-   "cases": 13
+   "triples": 87,
+   "cases": 12
   },
   "typed": {
-   "triples": 140,
-   "cases": 22
+   "triples": 134,
+   "cases": 18
   }
- },
- "cases": {
-  "captured": [
-   "RF-CANCEL-F-G1e7-GnG",
-   "RF-CANCEL-F-G1e7-nGG",
-   "RF-CANCEL-F-G1e8-GnG",
-   "RF-CANCEL-F-G1e8-GnG-INPLANE",
-   "RF-CANCEL-F-G1e8-GnG-ORTHO",
-   "RF-CANCEL-F-G1e8-nGG",
-   "RF-CANCEL-M-G1e7-GnG",
-   "RF-CANCEL-M-G1e7-nGG",
-   "RF-CANCEL-M-G1e8-GnG",
-   "RF-CANCEL-M-G1e8-GnG-INPLANE",
-   "RF-CANCEL-M-G1e8-GnG-ORTHO",
-   "RF-CANCEL-M-G1e8-nGG",
-   "RF-CANCEL-UDL-W1e8"
-  ],
-  "typed": [
-   "RF-CANCEL-F-G1e7-GnG",
-   "RF-CANCEL-F-G1e7-nGG",
-   "RF-CANCEL-F-G1e8-GnG",
-   "RF-CANCEL-F-G1e8-GnG-INPLANE",
-   "RF-CANCEL-F-G1e8-GnG-ORTHO",
-   "RF-CANCEL-F-G1e8-nGG",
-   "RF-CANCEL-F-G1e80-GnG",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "RF-CANCEL-F-G1e80-GnG-ORTHO",
-   "RF-CANCEL-F-G1e80-nGG",
-   "RF-CANCEL-M-G1e7-GnG",
-   "RF-CANCEL-M-G1e7-nGG",
-   "RF-CANCEL-M-G1e8-GnG",
-   "RF-CANCEL-M-G1e8-GnG-INPLANE",
-   "RF-CANCEL-M-G1e8-GnG-ORTHO",
-   "RF-CANCEL-M-G1e8-nGG",
-   "RF-CANCEL-M-G1e80-GnG",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "RF-CANCEL-M-G1e80-GnG-ORTHO",
-   "RF-CANCEL-M-G1e80-nGG",
-   "RF-CANCEL-UDL-W1e8",
-   "RF-CANCEL-UDL-W1e80"
-  ]
  },
  "not_exceptions": [
   "RF-SKEW-T-CANT-OFF-122-r1e-04 (K-D5 required true positive, both entries)"
@@ -495,11 +454,6 @@
    "u.N2.UY"
   ],
   [
-   "captured",
-   "RF-CANCEL-UDL-W1e8",
-   "th.S1.RZ"
-  ],
-  [
    "typed",
    "RF-CANCEL-F-G1e7-GnG",
    "Mb.M1.i"
@@ -763,16 +717,6 @@
    "typed",
    "RF-CANCEL-F-G1e80-GnG",
    "u.N2.UY"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "Mb.M1.j"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-F-G1e80-GnG-INPLANE",
-   "Mb.M2.i"
   ],
   [
    "typed",
@@ -1111,16 +1055,6 @@
   ],
   [
    "typed",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "Mb.M2.i"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-M-G1e80-GnG-INPLANE",
-   "Mb.M2.j"
-  ],
-  [
-   "typed",
    "RF-CANCEL-M-G1e80-GnG-ORTHO",
    "R.N0.RZ"
   ],
@@ -1188,16 +1122,6 @@
    "typed",
    "RF-CANCEL-M-G1e80-nGG",
    "u.N2.UY"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-UDL-W1e8",
-   "th.S1.RZ"
-  ],
-  [
-   "typed",
-   "RF-CANCEL-UDL-W1e80",
-   "th.S1.RZ"
   ]
  ]
 }
