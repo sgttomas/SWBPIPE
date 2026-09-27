@@ -1,0 +1,50 @@
+=== solver/nonlinear_integration: cargo test --offline --locked kd5 -- --nocapture --test-threads=1 (start 2026-09-27T19:48:18Z, disk_free_kb=9961304)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (<wt>/kd5-target/debug/deps/open_pipe_stress_nonlinear_integration-565a28a5fd5f4d01)
+
+running 15 tests
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... ok
+test s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check ... ok
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error ... kd5 CPLANAR_60 DenseScrutiny actual=Some(1.101862503485052) demoted=true trigger=Some((2.203725019626506, Some(8)))
+kd5 CPLANAR_60 SparseInteractive actual=Some(1.1018739266342052) demoted=true trigger=Some((2.2037478659247762, Some(8)))
+kd5 CSKEW_30_N122 DenseScrutiny actual=Some(1.9005184468196548) demoted=true trigger=Some((3.8010373031495126, Some(6)))
+kd5 CSKEW_30_N122 SparseInteractive actual=Some(1.900518637445684) demoted=true trigger=Some((3.801037684401595, Some(6)))
+ok
+test structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord ... kd5 CSKEW_30_RADIUS_MISMATCH DenseScrutiny actual=Some(0.840453518142279) demoted=true trigger=Some((1.6846555134160721, Some(9)))
+kd5 CSKEW_30_RADIUS_MISMATCH SparseInteractive actual=Some(0.8692332851373538) demoted=true trigger=Some((1.7422150473940623, Some(9)))
+ok
+test structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent ... ok
+test structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion ... kd5 PROBE_D DenseScrutiny actual=Some(2.6503337473236446) demoted=true trigger=Some((5.300667438019611, Some(9)))
+kd5 PROBE_D SparseInteractive actual=Some(2.0132832212939076e-7) demoted=false trigger=None
+kd5 PROBE_C DenseScrutiny actual=Some(3.5411652430507883) demoted=true trigger=Some((7.082330357811425, Some(3)))
+kd5 PROBE_C SparseInteractive actual=Some(1.092492788386626) demoted=true trigger=Some((2.1849854484831033, Some(3)))
+kd5 BENDING_SOFT DenseScrutiny actual=Some(0.13411051010185493) demoted=false trigger=None
+kd5 BENDING_SOFT SparseInteractive actual=Some(0.9313222659453398) demoted=true trigger=Some((1.8626445837530858, Some(10)))
+ok
+test structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed ... ok
+test structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote ... kd5 PP_UTM_2 DenseScrutiny actual=Some(0.043629386786145766) demoted=false trigger=None
+kd5 PP_UTM_2 SparseInteractive actual=Some(0.042688959694403124) demoted=false trigger=None
+ok
+test structural_adapter::kd5_tests::kd5_not_selected_invocation_runs_the_unchanged_solve_assembled ... ok
+test structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote ... kd5 E1 DenseScrutiny actual=Some(0.0009148482587515623) demoted=false trigger=None
+kd5 E1 SparseInteractive actual=Some(0.00018767868046003702) demoted=false trigger=None
+kd5 E6 DenseScrutiny actual=Some(0.000565929332015038) demoted=false trigger=None
+kd5 E6 SparseInteractive actual=Some(0.0019099877141005679) demoted=false trigger=None
+ok
+test structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes ... kd5 F122 DenseScrutiny actual=Some(2.4133641591897357) demoted=true trigger=Some((4.826728293925875, Some(9)))
+kd5 F122 SparseInteractive actual=Some(1.2139461517530596) demoted=true trigger=Some((2.4278923279576334, Some(9)))
+ok
+test structural_adapter::kd5_tests::kd5_skew_345_and_invented_m11_do_not_demote ... kd5 F345 DenseScrutiny actual=Some(0.005855122872041712) demoted=false trigger=None
+kd5 F345 SparseInteractive actual=Some(0.014552152477054199) demoted=false trigger=None
+kd5 M11 DenseScrutiny actual=None demoted=false trigger=None
+kd5 M11 SparseInteractive actual=None demoted=false trigger=None
+ok
+test structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes ... kd5 CSKEW_8_5 DenseScrutiny actual=Some(1.4812897929092501) demoted=true trigger=Some((2.9625797018190316, Some(9)))
+kd5 CSKEW_8_5 SparseInteractive actual=Some(1.0956724303435896) demoted=true trigger=Some((2.191344785949127, Some(3)))
+ok
+test structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 1.95s
+
+=== exit=0 end 2026-09-27T19:48:20Z

@@ -492,15 +492,22 @@ fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
 }
 
 /// RV1-B-N1: the scan extended to `structural_adapter.rs`. Outside the
-/// functions that define the exact variants (`solve`, `solve_assembled` and
-/// the `with_force_terms` C3-detect binding), no exact kernel entry point may
+/// functions that define the exact variants (`solve`, `solve_assembled`, the
+/// `with_force_terms` C3-detect binding, and K-D5's typed linear entry
+/// `solve_assembled_with_formation_check`, which is `solve_assembled` plus the
+/// D-5 check), no exact kernel entry point may
 /// appear, so the named legacy variants (`solve_binary64`,
 /// `solve_structural_sparse_binary64`) and the rest of the adapter reach only
 /// the binary64 kernel path. The behavioural pins remain authoritative.
 #[test]
 fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points() {
     let mut code = strip_cfg_test(&lex(include_str!("structural_adapter.rs")));
-    for defining in ["fn solve(", "fn solve_assembled(", "fn with_force_terms("] {
+    for defining in [
+        "fn solve(",
+        "fn solve_assembled(",
+        "fn with_force_terms(",
+        "fn solve_assembled_with_formation_check(",
+    ] {
         let body = function_body(&code, defining).to_string();
         let at = code.find(&body).expect("defining body present");
         code.replace_range(at..at + body.len(), "{");
@@ -882,4 +889,543 @@ fn option_c_product_equilibrium_uses_the_binary64_residual() {
     assert!(!src.contains("evaluate_assembled_original_residual"));
     let adapter = include_str!("structural_adapter.rs");
     assert!(adapter.contains("crate::product_equilibrium::evaluate(&system, &u)"));
+}
+
+// ---------------------------- K-D5: the nonlinear loop reaches no formation check
+// (T3 D1 §4.3.1 callers; mutation 32). Source pin backed by a behavioural pin
+// whose precondition shows the formation-checked and loop paths differ.
+
+/// Every K-D5 entry point: none may appear in the loop's sources.
+const FORMATION_ENTRY_POINTS: &[&str] = &[
+    "solve_assembled_with_formation_check",
+    "with_formation_source",
+    "prepare_formation_checked_structural",
+    "solve_formation_checked_structural_dense",
+    "FormationSource",
+    "FormationCheckedSystem",
+];
+
+/// The non-test source of the crate rooted at `src_dir`. The module tree is
+/// walked from `lib.rs` through every `mod name;` declaration (honouring
+/// `#[path]` and `mod.rs`). A module is a test module when it is declared
+/// under `#[cfg(test)]` (the declaration disappears under `strip_cfg_test`)
+/// or declared inside a test module: `s11k_tests`, `kd5_tests` and its
+/// `kd5_models`, and the product crate's test modules are excluded by their
+/// own declarations, never by file path. A non-test module added later is
+/// scanned. Every `.rs` file under `src_dir` must be reached, so nothing is
+/// skipped silently (RV5 E4). Returns (path relative to `src_dir`, non-test
+/// code with comments, literals and `#[cfg(test)]` items blanked).
+fn non_test_modules(src_dir: &std::path::Path) -> Vec<(String, String)> {
+    use std::path::{Path, PathBuf};
+    fn rs_files(dir: &Path, out: &mut Vec<PathBuf>) {
+        for entry in std::fs::read_dir(dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                rs_files(&path, out);
+            } else if path.extension().is_some_and(|e| e == "rs") {
+                out.push(path);
+            }
+        }
+    }
+    // `mod name;` declarations in lexed code: (name, byte offset).
+    fn declarations(code: &str) -> Vec<(String, usize)> {
+        let mut out = Vec::new();
+        for (at, _) in code.match_indices("mod ") {
+            if at > 0 {
+                let prev = code[..at].chars().next_back().unwrap();
+                if prev.is_alphanumeric() || prev == '_' {
+                    continue;
+                }
+            }
+            let rest = code[at + 4..].trim_start();
+            let name: String = rest
+                .chars()
+                .take_while(|c| c.is_alphanumeric() || *c == '_')
+                .collect();
+            if !name.is_empty() && rest[name.len()..].trim_start().starts_with(';') {
+                out.push((name, at));
+            }
+        }
+        out
+    }
+    fn child_dir(file: &Path) -> PathBuf {
+        let stem = file.file_stem().unwrap();
+        if stem == "lib" || stem == "mod" {
+            file.parent().unwrap().to_path_buf()
+        } else {
+            file.with_extension("")
+        }
+    }
+    // The file a declaration names. `lex` keeps line structure, so a
+    // `#[path = "..."]` attribute is read from the raw lines before it.
+    fn target(file: &Path, raw: &str, code: &str, name: &str, at: usize) -> PathBuf {
+        let head = &code[..at];
+        let from = head.rfind([';', '}', '{']).map_or(0, |k| k + 1);
+        if head[from..].contains("#[path") {
+            let line = head.matches('\n').count();
+            let raw_lines: Vec<&str> = raw.lines().collect();
+            let attr = (0..=line)
+                .rev()
+                .map(|l| raw_lines[l])
+                .find(|l| l.contains("#[path"))
+                .unwrap();
+            return file.parent().unwrap().join(attr.split('"').nth(1).unwrap());
+        }
+        let dir = child_dir(file);
+        let flat = dir.join(format!("{name}.rs"));
+        if flat.is_file() {
+            flat
+        } else {
+            dir.join(name).join("mod.rs")
+        }
+    }
+    let mut reached: Vec<(PathBuf, bool, String)> = Vec::new();
+    let mut stack = vec![(src_dir.join("lib.rs"), false)];
+    while let Some((file, test)) = stack.pop() {
+        let raw =
+            std::fs::read_to_string(&file).unwrap_or_else(|e| panic!("{}: {e}", file.display()));
+        let lexed = lex(&raw);
+        let code = strip_cfg_test(&lexed);
+        let non_test: Vec<PathBuf> = declarations(&code)
+            .into_iter()
+            .map(|(name, at)| target(&file, &raw, &code, &name, at))
+            .collect();
+        for (name, at) in declarations(&lexed) {
+            let child = target(&file, &raw, &lexed, &name, at);
+            let child_test = test || !non_test.contains(&child);
+            stack.push((child, child_test));
+        }
+        reached.push((file, test, code));
+    }
+    let mut all = Vec::new();
+    rs_files(src_dir, &mut all);
+    for path in &all {
+        assert!(
+            reached.iter().any(|(f, _, _)| f == path),
+            "{} is not reached from lib.rs by any module declaration",
+            path.display()
+        );
+    }
+    reached
+        .into_iter()
+        .filter(|(_, test, _)| !test)
+        .map(|(f, _, code)| {
+            let rel = f.strip_prefix(src_dir).unwrap().display().to_string();
+            (rel, code)
+        })
+        .collect()
+}
+
+/// Occurrences of `name` in `code` outside the body of the function whose
+/// signature is `allowed_in` (the whole text when `None`).
+fn occurrences_outside(code: &str, name: &str, allowed_in: Option<&str>) -> usize {
+    let mut code = code.to_string();
+    if let Some(signature) = allowed_in {
+        if code.contains(signature) {
+            let body = function_body(&code, signature).to_string();
+            let at = code.find(&body).unwrap();
+            code.replace_range(at..at + body.len(), "{");
+        }
+    }
+    code.matches(name).count()
+}
+
+/// RV5 E4 (strengthened): every non-test module of this crate (not only
+/// `lib.rs` and `product_equilibrium.rs`) and of product_physics is scanned.
+/// - `solve_assembled_with_formation_check` appears once in this crate: its
+///   definition in `structural_adapter.rs`. No call to it exists here, under
+///   any name, helper or fully qualified form.
+/// - The formation-check plumbing (`with_formation_source`,
+///   `prepare_formation_checked_structural`, `.formation_source(`,
+///   `FormationCheckedSystem`, `solve_formation_checked_structural_dense`,
+///   `formation_check::`) appears only inside that definition's body, and
+///   `FormationSource` only in `structural_adapter.rs`. No `solve_with_formation…`
+///   name exists (the legacy entry is removed).
+/// - In product_physics the entry is called exactly once, inside
+///   `solve_preview_reduced_system`.
+/// The behavioural pins below back this scan.
+#[test]
+fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
+    // The stripper itself: a commented, quoted or test-only call is not a call.
+    let control = strip_cfg_test(&lex(
+        "fn a() { b.solve_binary64(); } // solve_assembled_with_formation_check(\n\
+         const S: &str = \"solve_assembled_with_formation_check\";\n\
+         #[cfg(test)]\nmod t { fn c() { d.solve_assembled_with_formation_check(); } }\n",
+    ));
+    assert!(control.contains("solve_binary64("));
+    assert!(!control.contains("solve_assembled_with_formation_check"));
+    const SA_ENTRY: &str = "fn solve_assembled_with_formation_check(";
+    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let modules = non_test_modules(&manifest.join("src"));
+    let names: Vec<&str> = modules.iter().map(|(n, _)| n.as_str()).collect();
+    // The walk reaches the known modules and none of the test modules.
+    for known in ["lib.rs", "product_equilibrium.rs", "structural_adapter.rs"] {
+        assert!(names.contains(&known), "{known} not reached: {names:?}");
+    }
+    assert!(!names
+        .iter()
+        .any(|n| n.contains("tests") || n.contains("kd5_models")));
+    for (name, code) in &modules {
+        let sa = name == "structural_adapter.rs";
+        let defined = if sa { 1 } else { 0 };
+        assert_eq!(
+            code.matches("solve_assembled_with_formation_check").count(),
+            defined,
+            "{name}: the formation-checked entry is named outside its definition"
+        );
+        if sa {
+            assert_eq!(code.matches(SA_ENTRY).count(), 1, "{name}");
+        }
+        for plumbing in FORMATION_ENTRY_POINTS
+            .iter()
+            .copied()
+            .filter(|p| *p != "solve_assembled_with_formation_check" && *p != "FormationSource")
+            .chain([
+                ".formation_source(",
+                "formation_check::",
+                "solve_with_formation",
+            ])
+        {
+            assert_eq!(
+                occurrences_outside(code, plumbing, sa.then_some(SA_ENTRY)),
+                0,
+                "{name} reaches {plumbing} outside the typed formation-checked entry"
+            );
+        }
+        if !sa {
+            assert_eq!(code.matches("FormationSource").count(), 0, "{name}");
+        }
+    }
+    // product_physics: the one product call, inside solve_preview_reduced_system.
+    let product = non_test_modules(&manifest.join("../../product_physics/src"));
+    assert!(product.iter().any(|(n, _)| n == "lib.rs"));
+    let mut calls = 0;
+    for (name, code) in &product {
+        assert_eq!(code.matches("solve_with_formation").count(), 0, "{name}");
+        for plumbing in FORMATION_ENTRY_POINTS
+            .iter()
+            .filter(|p| **p != "solve_assembled_with_formation_check")
+        {
+            assert_eq!(
+                code.matches(plumbing).count(),
+                0,
+                "{name} reaches {plumbing}"
+            );
+        }
+        let here = code
+            .matches("solve_assembled_with_formation_check(")
+            .count();
+        if here > 0 {
+            assert_eq!(name, "lib.rs");
+            let body = function_body(code, "fn solve_preview_reduced_system(");
+            assert_eq!(
+                body.matches(".solve_assembled_with_formation_check(").count(),
+                here,
+                "product_physics calls the formation-checked entry outside solve_preview_reduced_system"
+            );
+        }
+        calls += here;
+    }
+    assert_eq!(
+        calls, 1,
+        "product_physics calls the formation-checked entry {calls} times"
+    );
+    // The loop's structural solve stays the named binary64 variant.
+    let lib = strip_cfg_test(&lex(include_str!("lib.rs")));
+    assert!(lib.contains("assembly.solve_binary64("));
+}
+
+/// P1's 122 skew cantilever with an open gap support at the tip: the loop
+/// solves the same linear system in its first iteration.
+fn kd5_loop_input(built: &crate::structural_adapter::kd5_tests::Built) -> NonlinearFrameSolveInput {
+    NonlinearFrameSolveInput {
+        node_count: 2,
+        elements: built.frames.clone(),
+        user_stiffness_elements: vec![],
+        curved_bend_elements: vec![],
+        force: built.f.clone(),
+        base_restrained_dofs: crate::structural_adapter::kd5_tests::skew_122_rigid().to_vec(),
+        nonlinear_supports: vec![NonlinearSupport::gap(
+            "kd5-open-gap",
+            1,
+            FrameDof::Uz,
+            1.0,
+            GapDirection::PositiveDisplacement,
+        )
+        .unwrap()],
+        initial_states: vec![SupportStateRecord::new(
+            "kd5-open-gap",
+            ActiveSetState::Inactive,
+        )],
+        friction_normal_reactions: vec![],
+        derived_friction_normal_reactions: vec![],
+        convergence: ConvergenceControl::new(
+            "DEC-046-fixture-active-set-count-tightening",
+            ConvergencePolicyStatus::Accepted,
+            0.0,
+            0.0,
+            4,
+        )
+        .unwrap(),
+    }
+}
+
+#[test]
+fn kd5_nonlinear_loop_reaches_no_formation_check() {
+    use crate::structural_adapter::kd5_tests::{bits, skew_122, MODES};
+    let built = skew_122();
+    let input = kd5_loop_input(&built);
+    for mode in MODES {
+        // Precondition: the same linear system demotes through the formation
+        // check and is Passed through the ordinary typed solve.
+        assert_eq!(
+            built.checked(mode).report.quality,
+            SolveQuality::Sensitive,
+            "{mode:?}"
+        );
+        assert_eq!(
+            built.plain(mode).report.quality,
+            SolveQuality::Passed,
+            "{mode:?}"
+        );
+        // The loop: its solve is the unchanged binary64 path, never the check.
+        let result =
+            solve_active_set_frame_with_mode_and_springs(&input, mode, &built.springs).unwrap();
+        assert!(result.converged, "{mode:?}");
+        let first = result.iterations.first().expect("iteration");
+        assert_eq!(
+            first.structural_report.quality,
+            SolveQuality::Passed,
+            "{mode:?}"
+        );
+        let binary64 = built
+            .assembly()
+            .solve_binary64(&built.k, &built.f, &built.free, &built.prescribed, mode)
+            .unwrap();
+        assert_eq!(binary64.formation_check, None);
+        assert_eq!(
+            bits(&first.displacements),
+            bits(&binary64.displacements),
+            "{mode:?}"
+        );
+        assert_eq!(
+            format!("{:?}", first.structural_report),
+            format!("{:?}", binary64.report),
+            "{mode:?}"
+        );
+    }
+}
+
+// ------------- RV5 E4: the derived-friction unit-force solves (behavioural)
+
+/// Probe P's beam and gaps (seeded closed at g and 4g) with a sliding friction
+/// support at the middle node's UX, whose normal is derived from the left
+/// gap's UY reaction, and a 50 N UX load there. Seeded sliding defers the
+/// friction force past the first iterate, so from the second iteration on the
+/// loop runs its derived-friction base and unit-force solves. The right gap
+/// opens after the first iterate; the left stays closed at g, and for
+/// g = 0.03 and 0.09 m its prescribed fold makes the exact and binary64
+/// reductions give different displacement bits (asserted below). Invented
+/// inputs.
+fn kd5_friction_probe_input(g: f64) -> NonlinearFrameSolveInput {
+    let mut force = probe_force();
+    force[6] = 50.0;
+    NonlinearFrameSolveInput {
+        node_count: 3,
+        elements: probe_p_elements(),
+        user_stiffness_elements: vec![],
+        curved_bend_elements: vec![],
+        force,
+        base_restrained_dofs: PROBE_BASE_RESTRAINTS.to_vec(),
+        nonlinear_supports: vec![
+            NonlinearSupport::gap(
+                "gap:i",
+                0,
+                FrameDof::Uy,
+                g,
+                GapDirection::PositiveDisplacement,
+            )
+            .unwrap(),
+            NonlinearSupport::gap(
+                "gap:j",
+                2,
+                FrameDof::Uy,
+                4.0 * g,
+                GapDirection::PositiveDisplacement,
+            )
+            .unwrap(),
+            NonlinearSupport::friction("friction:m", 1, FrameDof::Ux, 0.3).unwrap(),
+        ],
+        initial_states: vec![
+            SupportStateRecord::new("gap:i", ActiveSetState::Active),
+            SupportStateRecord::new("gap:j", ActiveSetState::Active),
+            SupportStateRecord::new("friction:m", ActiveSetState::Sliding),
+        ],
+        friction_normal_reactions: vec![],
+        derived_friction_normal_reactions: vec![
+            DerivedFrictionNormalReaction::from_support_reaction(
+                "friction:m",
+                0,
+                FrameDof::Uy,
+                "gap:i",
+            )
+            .unwrap(),
+        ],
+        convergence: ConvergenceControl::new(
+            "DEC-046-fixture-active-set-count-tightening",
+            ConvergencePolicyStatus::Accepted,
+            0.0,
+            0.0,
+            6,
+        )
+        .unwrap(),
+    }
+}
+
+/// The derived sliding force of one iteration, recomputed from the loop's own
+/// previous iterate and boundary with the given base and unit reactions (the
+/// loop's one-candidate Coulomb coupling, in its operation order).
+fn kd5_derived_force(
+    previous: &NonlinearFrameIteration,
+    base_reactions: &[f64],
+    unit_reactions: &[f64],
+) -> f64 {
+    const TANGENT: usize = 6;
+    const SOURCE: usize = 1;
+    let direction = if previous.displacements[TANGENT] != 0.0 {
+        previous.displacements[TANGENT].signum()
+    } else {
+        -previous.reactions[TANGENT].signum()
+    };
+    // The loop's normalized sign: zero stays zero.
+    let sign = |r: f64| if r == 0.0 { 0.0 } else { r.signum() };
+    let reaction = previous.reactions[SOURCE];
+    let branch = if reaction == 0.0 {
+        sign(base_reactions[SOURCE])
+    } else {
+        sign(reaction)
+    };
+    let c = direction * 0.3 * branch;
+    let right_hand_side = -c * base_reactions[SOURCE];
+    let mut coupling = c * (unit_reactions[SOURCE] - base_reactions[SOURCE]);
+    coupling += 1.0;
+    open_pipe_stress_frame_kernel::solve_dense(&[vec![coupling]], &[right_hand_side]).unwrap()[0]
+}
+
+/// RV5 E4: the loop's derived-friction unit-force solves (and every other
+/// linearized solve over several gap iterations) stay on the binary64 legacy
+/// path and never reach the formation-checked typed entry. For every
+/// iteration after the first that applies the derived friction force, the
+/// force is recomputed from the loop's own previous iterate and boundary with
+/// base and unit solves on the binary64 path (`solve_linearized_system_evidence`,
+/// pinned above). Precondition (the paths differ): the same unit solve through
+/// `solve_assembled_with_formation_check` gives different displacement bits
+/// and a different derived force, so a loop that routed any of these solves
+/// through the formation-checked entry fails the bitwise assertion.
+#[test]
+fn kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check() {
+    const TANGENT: usize = 6;
+    let elements = probe_p_elements();
+    let k = assemble_global_stiffness(3, &elements).unwrap();
+    let assembly = AssemblyEvidence::new(3, &elements, &[], &[], &[]).unwrap();
+    for g in [0.03, 0.09] {
+        let input = kd5_friction_probe_input(g);
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            let ctx = format!("g={g} {mode:?}");
+            let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+            let mut checked_iterations = 0;
+            for pair in result.iterations.windows(2) {
+                let (previous, current) = (&pair[0], &pair[1]);
+                let Some(applied) = current
+                    .applied_sliding_friction_forces
+                    .iter()
+                    .find(|a| a.global_dof == TANGENT)
+                else {
+                    continue;
+                };
+                let boundary = BoundaryState {
+                    dofs: current.active_restrained_dofs.clone(),
+                    displacements: current.active_prescribed_displacements.clone(),
+                };
+                assert!(!boundary.dofs.contains(&TANGENT), "{ctx}: friction sliding");
+                let mut unit_force = input.force.clone();
+                unit_force[TANGENT] += 1.0;
+                let legacy = |force: &Vec<f64>| {
+                    crate::solve_linearized_system_evidence(
+                        Some(&assembly),
+                        &k,
+                        force,
+                        &boundary,
+                        LinearSolveMode::DenseScrutiny,
+                    )
+                    .unwrap()
+                };
+                let base = legacy(&input.force);
+                let unit = legacy(&unit_force);
+                let expected = kd5_derived_force(previous, &base.reactions, &unit.reactions);
+                // Precondition: the formation-checked typed entry gives a
+                // different unit solve and a different derived force.
+                let prescribed: Vec<(usize, f64)> = boundary
+                    .dofs
+                    .iter()
+                    .copied()
+                    .zip(boundary.displacements.iter().copied())
+                    .collect();
+                let free: Vec<usize> = (0..unit_force.len())
+                    .filter(|d| !boundary.dofs.contains(d))
+                    .collect();
+                let checked_unit = assembly
+                    .solve_assembled_with_formation_check(
+                        &k,
+                        &ledger_force(&unit_force),
+                        &free,
+                        &prescribed,
+                        LinearSolveMode::DenseScrutiny,
+                        &[],
+                        true,
+                    )
+                    .unwrap();
+                assert_ne!(
+                    bits(&checked_unit.displacements),
+                    bits(&unit.displacements),
+                    "{ctx}: precondition, the unit solve paths differ"
+                );
+                let checked_reactions: Vec<f64> =
+                    crate::multiply_matrix_vector(&k, &checked_unit.displacements)
+                        .unwrap()
+                        .into_iter()
+                        .zip(&unit_force)
+                        .map(|(internal, applied)| internal - applied)
+                        .collect();
+                let through_check =
+                    kd5_derived_force(previous, &base.reactions, &checked_reactions);
+                assert_ne!(
+                    through_check.to_bits(),
+                    expected.to_bits(),
+                    "{ctx}: precondition, the derived force differs through the check"
+                );
+                // The loop: its derived force is the binary64 path's, bit for bit.
+                assert_eq!(
+                    applied.force.to_bits(),
+                    expected.to_bits(),
+                    "{ctx} iteration {}: derived friction force {} (binary64 path {}, formation-checked path {})",
+                    current.iteration,
+                    applied.force,
+                    expected,
+                    through_check
+                );
+                checked_iterations += 1;
+            }
+            // Not vacuous: the derived-friction solves ran in at least one
+            // iteration after the first.
+            assert!(
+                checked_iterations >= 1 && result.iterations.len() >= 2,
+                "{ctx}: {} iterations, {checked_iterations} with a derived friction force",
+                result.iterations.len()
+            );
+        }
+    }
 }

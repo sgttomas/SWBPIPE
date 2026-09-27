@@ -1,0 +1,9 @@
+[package]
+name = "kd5_fixdiff"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[dependencies]
+open_pipe_stress_product_physics = { path = "<scratch>/base_main/projects/chirality-piping/core/product_physics" }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+[workspace]

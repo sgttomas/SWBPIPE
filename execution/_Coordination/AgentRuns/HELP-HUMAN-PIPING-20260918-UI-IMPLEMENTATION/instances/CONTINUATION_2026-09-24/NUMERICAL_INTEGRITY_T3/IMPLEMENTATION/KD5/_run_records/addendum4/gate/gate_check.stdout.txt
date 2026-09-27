@@ -1,0 +1,12 @@
+{
+ "runs_evaluated": 768,
+ "trusted_runs": 362,
+ "trusted_breach_triples": 7,
+ "by_entry": {
+  "captured": 1,
+  "typed": 6
+ },
+ "violations_outside_pinned_exceptions": [],
+ "pinned_triples_not_breached": 0,
+ "gate": "PASS"
+}

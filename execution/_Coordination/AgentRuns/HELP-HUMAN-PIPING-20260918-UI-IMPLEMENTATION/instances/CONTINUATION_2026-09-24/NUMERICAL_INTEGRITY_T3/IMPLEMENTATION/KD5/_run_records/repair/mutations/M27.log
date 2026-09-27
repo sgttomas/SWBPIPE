@@ -1,0 +1,538 @@
+applied M27
+disk_free_kb=11524008 start=2026-09-27T19:54:26Z
+=== solver/frame_kernel: cargo test kd5
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.58s
+     Running unittests src/lib.rs (<scratch>/i3r/mutc/mut-target/debug/deps/open_pipe_stress_frame_kernel-5a7f9b0c95f83e67)
+
+running 5 tests
+test structural::formation_check::tests::kd5_curved_arctangent_domain_errors_fail_closed ... ok
+test structural::formation_check::tests::kd5_frame_reformation_agrees_with_the_binary64_formation_to_roundoff ... ok
+test structural::formation_check::tests::kd5_reformed_elements_have_the_rigid_body_null_space ... ok
+test structural::formation_check::tests::kd5_unavailable_family_and_wide_error_fail_closed_and_never_err ... ok
+test structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force ... FAILED
+
+failures:
+
+---- structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force stdout ----
+
+thread 'structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force' (6459) panicked at src/structural/formation_check_tests.rs:204:6:
+zero-scale clause
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic_display::<&str>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:259:5
+   3: core::option::expect_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:2257:5
+   4: <core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>>::expect
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:968:21
+   5: open_pipe_stress_frame_kernel::structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force
+             at ./src/structural/formation_check_tests.rs:204:6
+   6: open_pipe_stress_frame_kernel::structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force::{closure#0}
+             at ./src/structural/formation_check_tests.rs:160:82
+   7: <open_pipe_stress_frame_kernel::structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   8: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 135 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `--lib`
+=== solver/nonlinear_integration: cargo test kd5
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<scratch>/i3r/mutc/copy/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.31s
+     Running unittests src/lib.rs (<scratch>/i3r/mutc/mut-target/debug/deps/open_pipe_stress_nonlinear_integration-cafa0e3c14a359af)
+
+running 15 tests
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... ok
+test s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check ... ok
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error ... FAILED
+test structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord ... FAILED
+test structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent ... FAILED
+test structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion ... FAILED
+test structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed ... FAILED
+test structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote ... FAILED
+test structural_adapter::kd5_tests::kd5_not_selected_invocation_runs_the_unchanged_solve_assembled ... ok
+test structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote ... FAILED
+test structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes ... FAILED
+test structural_adapter::kd5_tests::kd5_skew_345_and_invented_m11_do_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes ... FAILED
+test structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed ... FAILED
+
+failures:
+
+---- structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error stdout ----
+kd5 CPLANAR_60 DenseScrutiny actual=Some(1.101862503485052) demoted=true trigger=Some((137175366.08600247, Some(9)))
+
+thread 'structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error' (6589) panicked at src/structural_adapter/kd5_tests.rs:474:13:
+CPLANAR_60 DenseScrutiny: EF 68587683.04300123 actual 1.101862503485052
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error
+             at ./src/structural_adapter/kd5_tests.rs:474:13
+   3: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:447:84
+   4: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord stdout ----
+kd5 CSKEW_30_RADIUS_MISMATCH DenseScrutiny actual=Some(0.840453518142279) demoted=true trigger=Some((5782.969263923454, Some(9)))
+
+thread 'structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord' (6590) panicked at src/structural_adapter/kd5_tests.rs:439:9:
+DenseScrutiny: EF 2891.484631961727 actual 0.840453518142279
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord
+             at ./src/structural_adapter/kd5_tests.rs:439:9
+   3: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:419:55
+   4: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent stdout ----
+
+thread 'structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent' (6591) panicked at src/structural_adapter/kd5_tests.rs:512:9:
+assertion `left == right` failed
+  left: Some(FormationCheck { reason: Estimate, global_dof: Some(33), doubled_correction: 0.0008275451328033195, scale: 0.0031343294364685236, ratio: 264026213.44606388 })
+ right: None
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>, core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent
+             at ./src/structural_adapter/kd5_tests.rs:512:9
+   5: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:504:46
+   6: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion stdout ----
+kd5 PROBE_D DenseScrutiny actual=Some(2.6503337473236446) demoted=false trigger=None
+
+thread 'structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion' (6592) panicked at src/structural_adapter/kd5_tests.rs:248:5:
+assertion `left == right` failed
+  left: Passed
+ right: Sensitive
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<open_pipe_stress_frame_kernel::structural::SolveQuality, open_pipe_stress_frame_kernel::structural::SolveQuality>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::assert_demoted_only_in_quality
+             at ./src/structural_adapter/kd5_tests.rs:248:5
+   5: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion
+             at ./src/structural_adapter/kd5_tests.rs:358:17
+   6: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:335:88
+   7: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   8: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed stdout ----
+
+thread 'structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed' (6593) panicked at src/structural_adapter/kd5_tests.rs:258:5:
+assertion `left == right` failed
+  left: Some(FormationCheck { reason: Estimate, global_dof: Some(10), doubled_correction: 4.198771072731972e-5, scale: 0.00046127039902728057, ratio: 91026241.47541814 })
+ right: None
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>, core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::assert_unchanged
+             at ./src/structural_adapter/kd5_tests.rs:258:5
+   5: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed
+             at ./src/structural_adapter/kd5_tests.rs:637:9
+   6: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:631:92
+   7: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   8: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote stdout ----
+kd5 PP_UTM_2 DenseScrutiny actual=Some(0.043629386786145766) demoted=true trigger=Some((4851091.478481781, Some(9)))
+
+thread 'structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote' (6594) panicked at src/structural_adapter/kd5_tests.rs:258:5:
+assertion `left == right` failed
+  left: Some(FormationCheck { reason: Estimate, global_dof: Some(9), doubled_correction: 4.862886632433871e-9, scale: 1.0024314433162948e-6, ratio: 4851091.478481781 })
+ right: None
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>, core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::assert_unchanged
+             at ./src/structural_adapter/kd5_tests.rs:258:5
+   5: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote
+             at ./src/structural_adapter/kd5_tests.rs:499:9
+   6: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:484:57
+   7: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   8: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote stdout ----
+kd5 E1 DenseScrutiny actual=Some(0.0009148482587515623) demoted=true trigger=Some((61524840.712204546, Some(27)))
+
+thread 'structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote' (6596) panicked at src/structural_adapter/kd5_tests.rs:258:5:
+assertion `left == right` failed
+  left: Some(FormationCheck { reason: Estimate, global_dof: Some(27), doubled_correction: 0.0003127724571731697, scale: 0.005083677642275078, ratio: 61524840.712204546 })
+ right: None
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>, core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::assert_unchanged
+             at ./src/structural_adapter/kd5_tests.rs:258:5
+   5: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote
+             at ./src/structural_adapter/kd5_tests.rs:394:13
+   6: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:378:50
+   7: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   8: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes stdout ----
+kd5 F122 DenseScrutiny actual=Some(2.4133641591897357) demoted=true trigger=Some((3.507944817495065, Some(9)))
+
+thread 'structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes' (6597) panicked at src/structural_adapter/kd5_tests.rs:305:9:
+DenseScrutiny: EF 1.7539724087475326 actual 2.4133641591897357
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes
+             at ./src/structural_adapter/kd5_tests.rs:305:9
+   3: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:292:74
+   4: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes stdout ----
+kd5 CSKEW_8_5 DenseScrutiny actual=Some(1.4812897929092501) demoted=true trigger=Some((1638.903937028878, Some(9)))
+
+thread 'structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes' (6599) panicked at src/structural_adapter/kd5_tests.rs:411:9:
+DenseScrutiny: EF 819.451968514439 actual 1.4812897929092501
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes
+             at ./src/structural_adapter/kd5_tests.rs:411:9
+   3: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:400:69
+   4: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   5: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed stdout ----
+
+thread 'structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed' (6600) panicked at src/structural_adapter/kd5_tests.rs:258:5:
+assertion `left == right` failed
+  left: Some(FormationCheck { reason: Estimate, global_dof: Some(27), doubled_correction: 0.0003127724571731697, scale: 0.005083677642275078, ratio: 61524840.712204546 })
+ right: None
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>, core::option::Option<open_pipe_stress_frame_kernel::structural::formation_check::FormationCheck>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::assert_unchanged
+             at ./src/structural_adapter/kd5_tests.rs:258:5
+   5: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed
+             at ./src/structural_adapter/kd5_tests.rs:528:9
+   6: open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed::{closure#0}
+             at ./src/structural_adapter/kd5_tests.rs:523:65
+   7: <open_pipe_stress_nonlinear_integration::structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   8: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error
+    structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord
+    structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent
+    structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion
+    structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed
+    structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote
+    structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote
+    structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes
+    structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes
+    structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed
+
+test result: FAILED. 5 passed; 10 failed; 0 ignored; 0 measured; 70 filtered out; finished in 1.36s
+
+error: test failed, to rerun pass `--lib`
+=== product_physics: cargo test --test formation_check_runtime
+   Compiling proc-macro2 v1.0.106
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling typenum v1.20.1
+   Compiling generic-array v0.14.7
+   Compiling zmij v1.0.21
+   Compiling serde v1.0.228
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.149
+   Compiling memchr v2.8.0
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling itoa v1.0.18
+   Compiling digest v0.10.7
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/straight_pipe)
+   Compiling cfg-if v1.0.5
+   Compiling cpufeatures v0.2.17
+   Compiling ryu v1.0.23
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (<scratch>/i3r/mutc/copy/core/loads/stress_recovery)
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<scratch>/i3r/mutc/copy/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (<scratch>/i3r/mutc/copy/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (<scratch>/i3r/mutc/copy/core/units)
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_canonical_json v0.1.0 (<scratch>/i3r/mutc/copy/core/serialization/canonical_json)
+   Compiling open_pipe_stress_product_physics v0.2.0 (<scratch>/i3r/mutc/copy/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8668:4
+     |
+8668 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:63:9
+   |
+62 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+63 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:92:9
+   |
+91 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+92 |     pub support_id: String,
+   |         ^^^^^^^^^^
+93 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+94 |     pub value: f64,
+   |         ^^^^^
+95 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:117:9
+    |
+116 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+117 |     pub dofs: usize,
+    |         ^^^^
+118 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+119 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 |     pub blocks: usize,
+    |         ^^^^^^
+121 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+122 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+123 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+124 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+125 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+126 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+127 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+128 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+129 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+130 |     pub max_relative_projection_error: f64,
+131 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:144:5
+    |
+138 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+144 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:170:12
+    |
+153 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+170 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:524:19
+    |
+453 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+524 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.92s
+     Running tests/formation_check_runtime.rs (<scratch>/i3r/mutc/mut-target/debug/deps/formation_check_runtime-ffd79afe32dca2c4)
+
+running 5 tests
+test kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted ... FAILED
+test kd5_nonlinear_support_invocation_is_never_selected ... ok
+test kd5_required_true_positive_122_demotes_in_both_modes_on_both_entries ... ok
+test kd5_skew_345_and_chain_continuity_controls_do_not_demote ... ok
+test kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries ... ok
+
+failures:
+
+---- kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted stdout ----
+kd5 PP-UTM-5E5-PHI2 captured sparse_interactive actual=0.04313277445732374
+kd5 PP-UTM-5E5-PHI2 typed sparse_interactive actual=0.04313277445732374
+kd5 PP-UTM-5E5-PHI2 captured dense_scrutiny actual=0.04408896201649964
+kd5 PP-UTM-5E5-PHI2 typed dense_scrutiny actual=0.04408896201649964
+
+thread 'kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted' (7089) panicked at tests/formation_check_runtime.rs:362:9:
+assertion `left == right` failed: PP-UTM-5E5-PHI2 captured sparse_interactive
+  left: ["NUMERICAL_INTEGRITY_SENSITIVE"]
+ right: ["NUMERICAL_INTEGRITY_CHECKS_PASSED"]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<alloc::vec::Vec<alloc::string::String>, alloc::vec::Vec<&str>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: formation_check_runtime::kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted
+             at ./tests/formation_check_runtime.rs:362:9
+   5: formation_check_runtime::kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted::{closure#0}
+             at ./tests/formation_check_runtime.rs:355:81
+   6: <formation_check_runtime::kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.19s
+
+error: test failed, to rerun pass `--test formation_check_runtime`
+end=2026-09-27T19:55:03Z

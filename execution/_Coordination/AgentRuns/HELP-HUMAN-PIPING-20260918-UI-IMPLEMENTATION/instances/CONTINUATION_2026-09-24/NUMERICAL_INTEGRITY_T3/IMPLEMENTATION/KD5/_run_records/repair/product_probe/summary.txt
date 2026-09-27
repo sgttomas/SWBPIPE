@@ -1,0 +1,12 @@
+K-D5 (I3): PP-route elbow requests run on the candidate probe (2409de83e, sha256 39791d93...), both entries, both modes.
+actual = max over free rows |u_pub - u_int| / (1e-9 max(|u_int|, S*_kind)), u_int from kd5_models.py (exact inputs, PP centre and section).
+PP-UTM-5E5-PHI2 (pp_utm_2.json)
+  dense_scrutiny_captured ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] actual=0.0441
+  dense_scrutiny_typed ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] actual=0.0441
+  sparse_interactive_captured ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] actual=0.0431
+  sparse_interactive_typed ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] actual=0.0431
+PP-UTM-5E6-PHI5 (pp_utm_5e6.json)
+  dense_scrutiny_captured ['NUMERICAL_INTEGRITY_SENSITIVE'] actual=1.1257
+  dense_scrutiny_typed ['NUMERICAL_INTEGRITY_SENSITIVE'] actual=1.1257
+  sparse_interactive_captured ['NUMERICAL_INTEGRITY_SENSITIVE'] actual=1.1258
+  sparse_interactive_typed ['NUMERICAL_INTEGRITY_SENSITIVE'] actual=1.1258

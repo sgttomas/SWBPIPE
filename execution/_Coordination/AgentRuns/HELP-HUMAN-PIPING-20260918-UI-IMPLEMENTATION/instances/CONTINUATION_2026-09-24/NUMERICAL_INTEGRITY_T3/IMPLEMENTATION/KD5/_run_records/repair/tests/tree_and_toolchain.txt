@@ -1,0 +1,10 @@
+HEAD 2409de83ec327d7ec4c67149d60ea3a641d28f89
+ M projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs
+ M projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/kd5_models.rs
+ M projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs
+b7600822dd0981616bb6063a229517fa282f893f4d79ef4ca71121c66a02f7de  core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs
+17a4680c83ff3e940a7dcfd908ef334c8b5a53427b6ff388dafb5888477dca23  core/solver/nonlinear_integration/src/structural_adapter/kd5_models.rs
+c7e892364ca62eff0f616caabe591e2c148e6a2cb5fc63f89cc04e9bb440a2a5  core/product_physics/tests/formation_check_runtime.rs
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo 1.97.1 (c980f4866 2026-06-30)
+RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 RUSTUP_AUTO_INSTALL=0 CARGO_TARGET_DIR=<wt>/kd5-target

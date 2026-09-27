@@ -2245,10 +2245,12 @@ fn c1_request(force: f64, moment: f64) -> Value {
 /// receipt entry then fails the wire binding, and receipt finalization
 /// refuses the invocation. It is REACHABLE (RV4's construction C1),
 /// FAIL-CLOSED (`Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, no envelope and
-/// no published value), and needs per-case modulus bases and a pre-0.4
-/// captured invocation (a 0.4.0 captured invocation is republished under CP3
-/// SF-1). Owner: T3's composite SOURCE_BLOCKS_FINALIZATION_FAILED item (the
-/// "demoted-ordinary" receipt form), which must close before T3 closes.
+/// no published value). C1 uses per-case modulus bases; reach with a single
+/// modulus basis (via FK's load audit, or via K-D5's formation check) is not
+/// refuted. The residual needs a pre-0.4 captured invocation (a 0.4.0
+/// captured invocation is republished under CP3 SF-1). Owner: T3's composite
+/// SOURCE_BLOCKS_FINALIZATION_FAILED item (the "demoted-ordinary" receipt
+/// form), which must close before T3 closes.
 ///
 /// C1 at m = 1e-7 N*m and F = 1 N. The precondition (paths differ): on the
 /// typed entry (no receipt) case B's report is Passed, R-b' fires at the tip

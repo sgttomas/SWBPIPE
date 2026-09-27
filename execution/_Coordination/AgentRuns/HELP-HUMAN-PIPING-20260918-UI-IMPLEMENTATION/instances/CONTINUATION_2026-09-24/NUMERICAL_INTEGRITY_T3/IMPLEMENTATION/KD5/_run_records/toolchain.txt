@@ -1,0 +1,6 @@
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+rustfmt (formatting only, stdin mode, per file): rustfmt 1.8.0-stable (e408947bfd 2026-03-25)
+python: Python 3.11.15 (DEC-025 venv; standard library only for the records' scripts)
+env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<kd5-target>; cargo test --offline --locked (headless --no-fail-fast); scratch harnesses (fixdiff, gate probe) built --release --offline with a copied lockfile
+base: a2e804a757359d589f4c31ea8e36a923f28ccb8c (K3a head, on S11-K head 4912dc636)

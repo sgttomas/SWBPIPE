@@ -1,0 +1,32 @@
+"""K-D5 (I3R): per-run standing moves between the pre-S11-G gate runs file (A4-5) and the
+combined-tree gate runs file, over every (case, mode, entry). Standard library; uses P1's
+compare.py (classify, identity) unchanged. Also reports whether the published displacement
+values are identical. Usage: python3 -B moves_vs_pre_s11g.py <compare_dir> <pre.jsonl> <combined.jsonl>"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import compare as C
+
+def load(path):
+    out = {}
+    for line in open(path):
+        r = json.loads(line)
+        k = (r['case'], r['mode'], r['entry'])
+        o, _ = C.classify(r)
+        run = r.get('probe', {}).get('run', {})
+        env = run.get('envelope') if run.get('ok') else None
+        ident = C.identity(env) if env else {}
+        vals = None
+        if env:
+            vals = json.dumps([(x.get('id'), x.get('value'), x.get('unit')) for x in env.get('results', [])
+                               if str(x.get('id', '')).startswith('result:disp:')])
+        out[k] = (o, ident.get('numerical_quality_status'), ident.get('standing'), vals)
+    return out
+
+pre, comb = load(sys.argv[2]), load(sys.argv[3])
+print('runs: pre-S11-G', len(pre), 'combined', len(comb), 'same keys', set(pre) == set(comb))
+moves = [(k, pre[k][:3], comb[k][:3], pre[k][3] == comb[k][3]) for k in sorted(pre) if pre[k][:3] != comb[k][:3]]
+print('standing/outcome moves:', len(moves))
+for k, a, b, same in moves:
+    print(' ', k, a, '->', b, 'displacements identical' if same else 'DISPLACEMENTS DIFFER')
+cases = sorted({k[0] for k, *_ in moves})
+print('cases moved:', len(cases), cases)

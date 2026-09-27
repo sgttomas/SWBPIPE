@@ -1,0 +1,16 @@
+Gate provenance after the container restart (2026-09-27).
+HEAD a2e804a757359d589f4c31ea8e36a923f28ccb8c
+Candidate source (the product paths of the uncommitted tree; sha256, mtime UTC):
+999196ee23fffb829d03b2ecbd22e079df22ae5d2268f8c21e991ca5357c5a72  2026-09-27 00:11:20  projects/chirality-piping/core/product_physics/src/lib.rs
+8c5b404451a1a3e1628d5f9ca5a972b5921dcddad003c328e121b862cfbc6dbc  2026-09-27 02:26:25  projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs
+40ba85f822bb92aadd1bfeb369b72b88351937e52edcda6fd5b36311a4124feb  2026-09-27 01:12:00  projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+052b093c256ba186bdd0ea66c891660c0dae8a7a344fc1d132a4746afcc00ece  2026-09-27 02:26:25  projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs
+f3f88ddc91e4ed744f8754685adf0acdfbc3007e23ff58ca372845af8aef321e  2026-09-27 02:26:25  projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs
+b5697f57d52034cc37a96d918c344749092a6f774f74aef34f625bdfc90935b2  2026-09-27 02:38:39  projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs
+c0b24c0839867b60da78626557cc188a7ab769fb5374ffb66a95a15220cbb293  2026-09-27 02:26:25  projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
+6937073b4291c884ce3d138af9c65cb051a3b640beae379171c09258e4f248f3  2026-09-27 04:19:19  projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/kd5_models.rs
+d90ba1778b19b86b8a2fd2e2240df7a2e177f20c87673742f6cd9b433bfb07f2  2026-09-27 04:19:35  projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs
+probe binary (built pre-restart from this tree with P1's unchanged probe main.rs): sha256 219d7128d524b820458ed87d34f58fb1d65efce9ede0f7473f919391c16bf3d3, mtime 2026-09-27 04:31:25; every source mtime above precedes it, and no product source changed after it (only KD5 records).
+pre-restart runs.jsonl: 843 lines, all parse; sha256 c8635ba93d984235a2c60528c5952955a59a7194a4388ea377be238eb302c119. The last pre-restart record (RF-LARGE-CHAIN-n01000-ROT dense captured) is a complete 1800 s timeout record, the same outcome P1 recorded on main. The interrupted run (the same case, dense typed) left no record and is re-run in full.
+Correction (checked 05:30 UTC): the gate runner itself was NOT interrupted. Host uptime continued (1 day); the original gate_run.py (started 04:31:33 UTC) and its probe child were still alive, running RF-LARGE-CHAIN-n01000-ROT dense typed (started 05:18:36 UTC). Only my foreground wait shell was killed (exit 137). A second runner I started at 05:30:13 waited on cargo, wrote nothing, and was stopped at once. So the whole gate is one continuous run of one binary; no run is pre/post-restart stitched.
+Final: runs.jsonl 888 lines, sha256 b7e883bfe731dbc774bb6c47c375e152d2176ce0467c8f66725d93c5dd5487d2; gate_check PASS (gate_result.json).

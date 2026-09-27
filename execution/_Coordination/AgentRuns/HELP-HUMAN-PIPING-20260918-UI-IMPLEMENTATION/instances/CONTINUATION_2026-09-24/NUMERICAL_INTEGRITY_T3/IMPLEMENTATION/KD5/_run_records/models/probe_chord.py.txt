@@ -1,0 +1,15 @@
+import sys, json
+v1=sys.argv[1]; sys.path.insert(0,v1); sys.argv=[sys.argv[0],v1]
+import curved_ef as ce
+orig=ce.pp_centre
+for kx in (1e2, 30.0):
+  for off in (0.0, 6.5e-10, -6.5e-10):
+    def shifted(xi,xj,yref,radius,off=off):
+        c=orig(xi,xj,yref,radius); ch=[xj[k]-xi[k] for k in range(3)]; n=sum(x*x for x in ch)**0.5
+        return [c[k]+off*radius*ch[k]/n for k in range(3)]
+    ce.pp_centre=shifted
+    name=f"C-skew elbow cantilever, soft root spring k_X = {kx:g}"
+    mdl=next(m for m in ce.models() if m["name"]==name)
+    r=ce.analyse(mdl)
+    print(kx, off, {md:(r[md]["outcome"], round(r[md]["actual_ratio"],4), round(r[md]["EF_trigger_ratio"],4), round(r[md]["EF_shared_trigger_ratio"],4)) for md in ("dense","sparse")}, flush=True)
+ce.pp_centre=orig

@@ -1,7 +1,13 @@
 //! M03-INTEGRITY-v1: operational checks of represented passive equations.
 //! No formal inertia certificate or guaranteed forward accuracy is claimed.
 pub mod exact_boundary;
+mod formation_check;
 mod retained;
+
+pub use formation_check::{
+    CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, FORMATION_CRITERION,
+    FORMATION_FACTOR, FORMATION_PRECISION,
+};
 
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{AssembledForce, ForceTerm, ForceTermKind};
@@ -78,6 +84,53 @@ impl<'a> StructuralSystem<'a> {
                 symmetry,
             },
             force,
+        }
+    }
+}
+/// A structural system with its formation source (K-D5, D1 §4.3.1): the
+/// primitives of every stiffness contribution, from which the D-5 formation
+/// check re-forms the intended system. Only the linear route builds one
+/// (`solve_assembled_with_formation_check` in the structural adapter); a plain
+/// `StructuralSystem` carries none, so every other caller is unchanged.
+#[derive(Debug)]
+pub struct FormationCheckedSystem<'a> {
+    system: StructuralSystem<'a>,
+    /// The ledger force of a typed system (S11-K); `None` for a legacy vector.
+    force: Option<&'a AssembledForce>,
+    source: &'a FormationSource,
+}
+impl<'a> StructuralSystem<'a> {
+    /// Attaches the formation source the D-5 check re-forms from.
+    pub fn with_formation_source(self, source: &'a FormationSource) -> FormationCheckedSystem<'a> {
+        FormationCheckedSystem {
+            system: self,
+            force: None,
+            source,
+        }
+    }
+}
+impl<'a> AssembledStructuralSystem<'a> {
+    /// Typed sibling of `StructuralSystem::with_formation_source`: KS1, KS3,
+    /// the load audit and the check's ρ use the ledger terms.
+    pub fn with_formation_source(self, source: &'a FormationSource) -> FormationCheckedSystem<'a> {
+        FormationCheckedSystem {
+            system: self.system,
+            force: Some(self.force),
+            source,
+        }
+    }
+}
+impl<'a> FormationCheckedSystem<'a> {
+    pub fn system(&self) -> &StructuralSystem<'a> {
+        &self.system
+    }
+    pub fn source(&self) -> &'a FormationSource {
+        self.source
+    }
+    fn binding(&self) -> ForceBinding<'a> {
+        match self.force {
+            Some(force) => ForceBinding::Assembled(force),
+            None => ForceBinding::Legacy,
         }
     }
 }
@@ -254,11 +307,16 @@ pub struct StructuralSolution {
     /// Load-fidelity audit findings (S11); `None` when nothing is flagged or
     /// when no identified force terms were supplied.
     pub load_fidelity: Option<LoadFidelityReport>,
+    /// The D-5 formation check's record (K-D5); `Some` only when it demoted
+    /// the case from Passed to Sensitive. Never part of `StructuralReport`.
+    pub formation_check: Option<FormationCheck>,
 }
 #[derive(Debug)]
 pub struct PreparedSystem<'s> {
     source: &'s StructuralSystem<'s>,
     force_binding: ForceBinding<'s>,
+    /// K-D5: present only for a `FormationCheckedSystem`.
+    formation: Option<&'s FormationSource>,
     matrix: Vec<Vec<f64>>,
     rhs: Vec<f64>,
     scale_exponents: Vec<i32>,
@@ -923,6 +981,16 @@ pub fn prepare_structural_binary64<'s>(
 ) -> Result<PreparedSystem<'s>, StructuralError> {
     prepare_bound(system, ForceBinding::Binary64)
 }
+/// K-D5 sibling of `prepare_structural` (or of `prepare_assembled_structural`
+/// for a typed system): the same preparation, and the completion runs the
+/// D-5 formation check before publishing Passed.
+pub fn prepare_formation_checked_structural<'s>(
+    system: &'s FormationCheckedSystem<'s>,
+) -> Result<PreparedSystem<'s>, StructuralError> {
+    let mut prepared = prepare_bound(&system.system, system.binding())?;
+    prepared.formation = Some(system.source);
+    Ok(prepared)
+}
 /// Typed sibling of `prepare_structural`: KS1 sums the ledger terms exactly.
 pub fn prepare_assembled_structural<'s>(
     system: &'s AssembledStructuralSystem<'s>,
@@ -1070,6 +1138,7 @@ fn prepare_bound<'s>(
     Ok(PreparedSystem {
         source: system,
         force_binding,
+        formation: None,
         matrix: a,
         rhs,
         scale_exponents: exponents,
@@ -1393,12 +1462,28 @@ where
                 },
                 None => None,
             };
+            let ordinary_sensitive = rcond < f64::EPSILON.sqrt() || load_fidelity.is_some();
+            // K-D5 (D1 §4.3.1): a case that would publish Passed is demoted to
+            // Sensitive when the formation check's estimate exceeds the
+            // criterion or the check cannot re-form it. Values never change.
+            let formation_check = match prepared.formation {
+                Some(source) if !ordinary_sensitive => formation_check::check(
+                    system,
+                    source,
+                    prepared.force_binding.audit_terms(),
+                    &prepared.scale_exponents,
+                    &u,
+                    &solve,
+                ),
+                _ => None,
+            };
             return Ok(StructuralSolution {
                 displacements: u,
                 load_fidelity: load_fidelity.clone(),
+                formation_check: formation_check.clone(),
                 report: StructuralReport {
                     policy: POLICY,
-                    quality: if rcond < f64::EPSILON.sqrt() || load_fidelity.is_some() {
+                    quality: if ordinary_sensitive || formation_check.is_some() {
                         SolveQuality::Sensitive
                     } else {
                         SolveQuality::Passed
@@ -1583,6 +1668,13 @@ pub fn solve_structural_dense_binary64(
     system: &StructuralSystem<'_>,
 ) -> Result<StructuralSolution, StructuralError> {
     solve_prepared_dense(prepare_structural_binary64(system)?)
+}
+/// K-D5 sibling of `solve_structural_dense` (dense Cholesky, with the D-5
+/// formation check before Passed).
+pub fn solve_formation_checked_structural_dense(
+    system: &FormationCheckedSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    solve_prepared_dense(prepare_formation_checked_structural(system)?)
 }
 /// Typed sibling of `solve_structural_dense`.
 pub fn solve_assembled_structural_dense(

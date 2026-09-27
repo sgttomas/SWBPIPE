@@ -1,0 +1,7 @@
+#!/bin/bash
+# Wait (1-minute polls, at most $1 polls) until no cargo and no DEC-025 sweep python runs.
+for i in $(seq 1 ${1:-9}); do
+  if ! pgrep -x cargo >/dev/null && ! pgrep -f 'python[0-9.]* .*run_evidence_sweep' >/dev/null; then echo "free after $i"; exit 0; fi
+  sleep 60
+done
+echo busy; exit 1
