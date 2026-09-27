@@ -135,7 +135,12 @@ They are pinned in `core/reporting/result_export/tests/load_reference_contract.r
 **Pre-existing drift corrected by regeneration (not an S11-F effect).**
 - Where: `physics_thermal_ui_mechanics_sparse.json` line 2709, `results[122]`, the fixture-root force magnitude in case:six-component-load.
 - Values: committed 3741.6573867739435 (`0x1.d3b5094ffcdd2p+11`); regenerated 3741.657386773944 (`0x1.d3b5094ffcdd3p+11`), the correctly rounded norm of the exact 3741.6573867739438… The committed value is one ulp off.
-- Provenance: the file was last regenerated at `22452ecd1` (2026-09-25), when this norm was the binary64 chain `hypot(hypot(fx, fy), fz)`. Then `1792774a2` switched to `source_receipt::composite_support_norms` without regenerating it.
+- Provenance (wording corrected after RV3-N1):
+  - The fixture has been stale since `22452ecd1` (2026-09-25), its last regeneration.
+  - The norm code changed at `1792774a2` (to `source_receipt::composite_support_norms`), and the fixture was not regenerated.
+  - The base producer emits the correctly rounded value.
+  - **The exact `22452ecd1` mechanism is not reproduced on this host.** RV3 found that both the chain `hypot(hypot(fx, fy), fz)` over the published components and `22452ecd1`'s `scaled_norm` give `…944` with glibc 2.39 libm, not the committed `…9435`. So the committed value came from different operands or from another platform's libm, and I did not establish which.
+  - The disclosure itself is unchanged: this is pre-existing drift corrected by regeneration, not an S11-F effect.
 - Base `3488a236a`'s own producer already emits the corrected value, and S11-F does not change it.
 
 **Producers.**
@@ -151,6 +156,15 @@ They are pinned in `core/reporting/result_export/tests/load_reference_contract.r
   - The 12 files were re-verified against the measurement and still match, so no producer was re-run.
   - Re-run in full: the result_export pinning and consumer tests, the Python suites, the headless artifact lane, and the full desktop vitest and build. All are green.
   - The first full desktop vitest, before the restart, had one load-sensitive failure: an `App.test.tsx` `findByTestId` wait, at load average 4.6. That test reads none of the regenerated fixtures. It did not recur after the restart (2822/2822). RETURN §7 and §9 give the details.
+
+## Follow-up after RV3 (test and records only, branch `codex/piping-s11f-s1-20260927`)
+
+- **RV3-S1.** The Sensitive mapping now has two tests:
+  - a unit test of `append_load_contribution_absorbed` over audited, unaudited and audit-error reports;
+  - an end-to-end test with no test hook: an authored unauditable load row (G, −G, 1e-300), published `NUMERICAL_INTEGRITY_SENSITIVE` with the warning on both entries and both modes, and never refused.
+  - Deleting the mapping call (EV5) now fails the end-to-end test.
+- **Records corrected:** the line-2709 mechanism wording (RV3-N1), the caller list (RV3-N2) and the `git diff --check` claim (RV3-N9).
+- No product code or fixture changes (RETURN §11).
 
 ## Limits and follow-ups
 

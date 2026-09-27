@@ -90,6 +90,12 @@ In both modes the only raw leaf that changes is the NUMERICAL_INTEGRITY_CHECKS_P
   - The dense file happens to round the same both ways.
 - Regeneration therefore corrects this drift in passing. The change record discloses it separately, as pre-existing drift corrected by regeneration.
 
+**Correction (after RV3-N1, S11-F follow-up; this report is otherwise kept as measured before regeneration).**
+- The provenance bullets above state a mechanism that does not reproduce. RV3 found that the chain `hypot(hypot(fx, fy), fz)` over these components, and `22452ecd1`'s `scaled_norm`, both give `3741.657386773944` with glibc 2.39 libm, not the committed `…9435`.
+- What is established: the fixture has been stale since `22452ecd1`, the code changed at `1792774a2`, and the base producer emits the correctly rounded value.
+- The exact `22452ecd1` mechanism is unconfirmed: other operands, or another platform's libm.
+- The conclusion (pre-existing drift, not an S11-F effect, disclosed separately) is unchanged.
+
 ## 4. Pins and pinning tests
 
 **Hash pins (A raws), old → new**, edited in the candidate copy only:
@@ -129,7 +135,7 @@ Logs: `_run_records/fixture_diff/logs/`.
 - **B.**
   - The producer is named. It reproduces the committed dense file byte for byte on base.
   - S11-F changes only the listed reaction residue, a restrained-DOF component and its magnitude, at ≤4.2e-15 of the case's load scale, with no status change.
-  - The line-2709 drift is explained by a commit (`22452ecd1` before `1792774a2`) and will be disclosed separately.
+  - The line-2709 drift is traced to its commits (stale since `22452ecd1`, code changed at `1792774a2`) and will be disclosed separately. The exact mechanism is unconfirmed; see the RV3-N1 correction in §3.2.
   - The consumers are green in scratch. The desktop parity test runs after regeneration. **Met**, subject to that run.
 - **Both.** Regeneration will use exactly the commands in `pre_regen.sh.txt` (build-cand, run-cand and writers, pointed at the worktree), plus the two hash-pin edits. The result is then compared with `measurement_sha256.txt`.
 

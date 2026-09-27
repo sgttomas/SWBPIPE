@@ -1,0 +1,8 @@
+EV5b: the mapping function emits nothing (append_load_contribution_absorbed returns at entry), same scratch copy.
+diff <wt>/.../lib.rs <ev5-copy>/.../lib.rs:
+1079a1080,1084
+>     // MUTANT EV5b: the mapping emits nothing.
+>     if true {
+>         let _ = (diagnostics, case_id, report);
+>         return;
+>     }
