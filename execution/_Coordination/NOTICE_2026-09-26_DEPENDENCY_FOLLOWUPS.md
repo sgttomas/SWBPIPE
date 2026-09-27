@@ -63,7 +63,7 @@ Root tranche `PIPING-DEP-MATERIALIZATION-NOTE-20260927` changes how `tools/coord
   - otherwise replaced by the aggregate, which leaves it out, as before. Its ID is now listed per deliverable as `DroppedLocalRows` and counted on the console.
 - **Default mode** still keeps every local declared row, whatever its `Status`.
 - **`--canonical-output`** now keeps declared rows whose `Status` is `ACTIVE` or `RETIRED`. Other declared rows, such as `CANDIDATE`, are still set aside and listed as `SetAsideDeclaredRows`.
-- `Status` is compared trimmed and case-insensitively for these decisions; kept rows keep their own spelling. Written rows are sorted by `DependencyID`. Aggregate row content, header selection and `Notes` handling are unchanged.
+- `Status` is compared trimmed and case-insensitively for these decisions; kept rows keep their own spelling. Written rows are sorted by `DependencyID`. Aggregate row content and `Notes` handling are unchanged; header selection is unchanged except that a column carried only by a kept RETIRED row stays in the header.
 - Piping's DEL-13-04 `RETIRED` declared rows (`DEL-13-04-D001`, `DEL-13-04-D002`) are now kept in both modes; `--canonical-output` no longer drops them.
 
 Piping's disposition of the DAG-011 rerun finding, with the before and after comparison, is in `execution/_Coordination/COORDINATION_RESPONSE_2026-09-27_DEPENDENCY_MATERIALIZATION.md`. No action is required of this loop.
