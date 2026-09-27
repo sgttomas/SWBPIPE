@@ -75,7 +75,7 @@ copies it byte for byte, so changing it needs a coordinated App change.
 - **Parent-Receipt:** none; historical `loop/LOOP_RECEIPTS.md` unchanged.
 - **Owner-Direction:** CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING, 2026-09-27:
   `You can take care of those remaining items now.  Include the items with the "other owners".  You can make changes as necessary.`
-- **Pointers:** PR: `PENDING — PR URL to be bound by the integrating session before final checks`
+- **Pointers:** PR: [#1015](https://github.com/sgttomas/chirality/pull/1015)
   (branch `worktree-agent-a522f6a3bf5db58d9`);
   [work graph](../../WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/WORK_GRAPH.md)
   and its [evidence](../../WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/evidence/).
