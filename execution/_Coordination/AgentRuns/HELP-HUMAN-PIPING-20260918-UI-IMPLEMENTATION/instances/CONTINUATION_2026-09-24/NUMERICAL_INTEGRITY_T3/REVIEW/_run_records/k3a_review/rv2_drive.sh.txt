@@ -1,0 +1,35 @@
+#!/bin/bash
+# RV2 cargo driver (second run): one target directory per scratch copy.
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0
+T=<rv2-target>
+L=<scratch>/work/logs
+FK=projects/chirality-piping/core/solver/frame_kernel
+wait_host() {
+  local n=0
+  while pgrep -x cargo >/dev/null || pgrep -f run_evidence_sweep.py >/dev/null; do
+    sleep 60; n=$((n+1)); if [ $n -gt 240 ]; then echo "host busy 4h" >> $L/driver.txt; exit 3; fi
+  done
+  echo "$(date -u +%FT%TZ) waited ${n} min; $(df -h / | tail -1)" >> $L/driver.txt
+}
+run() { # name target dir args...
+  local name=$1 tgt=$2 dir=$3; shift 3
+  wait_host
+  echo "== $name: (target $tgt) $*" >> $L/driver.txt
+  (cd $dir && CARGO_TARGET_DIR=$T/$tgt "$@") > $L/$name.log 2>&1
+  echo "   exit $?" >> $L/driver.txt
+}
+cargo --version > $L/toolchain.txt; rustc --version >> $L/toolchain.txt
+run cand_full_debug cand <scratch>/cand/$FK cargo test --offline --locked
+run cand_retained_release cand <scratch>/cand/$FK cargo test --offline --locked --release --lib retained -- --nocapture
+run cand_build_lib cand <scratch>/cand/$FK cargo build --offline --locked --lib
+run base_full_debug base <scratch>/base/$FK cargo test --offline --locked
+run base_build_lib base <scratch>/base/$FK cargo build --offline --locked --lib
+export RV2_IN=<scratch>/work/rv2_vectors.txt RV2_OUT=<scratch>/work/rv2_probe_out.txt
+run probe_arith probe <scratch>/probe/$FK cargo test --offline --locked --release --lib rv2_probe
+export RV2_IN=<scratch>/work/rv2_atan_vectors.txt RV2_OUT=<scratch>/work/rv2_atan_out.txt
+run probe_atan probe <scratch>/probe/$FK cargo test --offline --locked --release --lib rv2_probe
+unset RV2_IN RV2_OUT
+wait_host
+<venv>/bin/python <scratch>/work/rv2_mutate.py <scratch>/mut/$FK <scratch>/work/mut > $L/mutations.txt 2>&1
+echo "mutations exit $?" >> $L/driver.txt
+echo DONE >> $L/driver.txt

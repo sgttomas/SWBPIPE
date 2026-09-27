@@ -1,0 +1,194 @@
+[
+ {
+  "mutant": "M2_dropped_sticky (I2)",
+  "old": "    let rest = sticky || m.any_below(drop - 1);\n",
+  "new": "    let rest = m.any_below(drop - 1);\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::one_twentieth_threshold_is_decided_exactly",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "summary": [
+   "test result: FAILED. 17 passed; 5 failed; 0 ignored; 0 measured; 105 filtered out; finished in 1.70s"
+  ],
+  "seconds": 5,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M4_off_by_one_limb_shift (I2)",
+  "old": "                    lo: (self.lo >> n) | (self.hi << (128 - n)),\n",
+  "new": "                    lo: (self.lo >> n) | (self.hi << (127 - n)),\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::split_is_exact_on_random_and_adversarial_values",
+   "structural::retained::wide::tests::split_vectors_match_and_are_exact_above_min_subnormal",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "summary": [
+   "test result: FAILED. 16 passed; 6 failed; 0 ignored; 0 measured; 105 filtered out; finished in 1.71s"
+  ],
+  "seconds": 5,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "M5_atan_one_reduction_fewer (I2)",
+  "old": "            if reductions == ATAN_MAX_REDUCTIONS {\n                return Err(WideError::ArctangentLimit);\n            }\n",
+  "new": "            if reductions == ATAN_MAX_REDUCTIONS - 1 {\n                break;\n            }\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.37s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 540
+ },
+ {
+  "mutant": "M6_atan_truncated_series (I2)",
+  "old": "        for n in 1..=ATAN_MAX_TERMS {\n",
+  "new": "        for n in 1..=8 {\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.28s"
+  ],
+  "seconds": 10,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "R1_atan_stop_threshold_off_by_one (RV2)",
+  "old": "        let threshold = i128::from(t.exponent) - i128::from(self.precision) - 1;\n",
+  "new": "        let threshold = i128::from(t.exponent) - i128::from(self.precision);\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.35s"
+  ],
+  "seconds": 10,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "R2_atan_tail_summed_largest_first (RV2)",
+  "old": "        for term in terms[1..count].iter().rev() {\n",
+  "new": "        for term in terms[1..count].iter() {\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 0,
+  "killed": false,
+  "killing_tests": [],
+  "summary": [
+   "test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.34s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "R3_split_flag_lost_for_wholly_dropped_piece (RV2)",
+  "old": "                if drop >= 64 {\n                    split.truncated_below_min_subnormal = true;\n                    continue;\n",
+  "new": "                if drop >= 64 {\n                    continue;\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::split_is_exact_on_random_and_adversarial_values",
+   "structural::retained::wide::tests::split_vectors_match_and_are_exact_above_min_subnormal"
+  ],
+  "summary": [
+   "test result: FAILED. 20 passed; 2 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.63s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "R4_sub_sticky_borrow_missing (RV2)",
+  "old": "        if sticky {\n            diff = diff.sub(&U256::ONE);\n        }\n",
+  "new": "        if false && sticky {\n            diff = diff.sub(&U256::ONE);\n        }\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "summary": [
+   "test result: FAILED. 20 passed; 2 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.40s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "R5_split_keeps_old_lsb_after_truncation (RV2)",
+  "old": "                chunk >>= drop;\n                lsb = -1074;\n",
+  "new": "                chunk >>= drop;\n                lsb = -1074 + 0 * lsb;\n                lsb -= 1;\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::lift_from_f64_is_exact_for_normal_subnormal_and_signed_zero",
+   "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+   "structural::retained::wide::tests::split_is_exact_on_random_and_adversarial_values",
+   "structural::retained::wide::tests::split_vectors_match_and_are_exact_above_min_subnormal"
+  ],
+  "summary": [
+   "test result: FAILED. 18 passed; 4 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.79s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "R6_atan_domain_zero_denominator_unchecked (RV2)",
+  "old": "        if d.is_zero() || d.negative {\n            return Err(WideError::AngleDomain);\n        }\n        let t = self.div(s, &d)?;\n",
+  "new": "        if d.negative {\n            return Err(WideError::AngleDomain);\n        }\n        let t = self.div(s, &d)?;\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_domain_is_the_open_interval",
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "summary": [
+   "test result: FAILED. 20 passed; 2 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.60s"
+  ],
+  "seconds": 11,
+  "waited_for_host": 0
+ },
+ {
+  "mutant": "R7_sqrt_sticky_dropped (RV2)",
+  "old": "    (root, !remainder.is_zero())\n",
+  "new": "    (root, false)\n",
+  "command": "cargo test --offline --locked --lib retained -- --test-threads=4",
+  "exit": 101,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "summary": [
+   "test result: FAILED. 18 passed; 4 failed; 0 ignored; 0 measured; 105 filtered out; finished in 1.66s"
+  ],
+  "seconds": 5,
+  "waited_for_host": 0
+ }
+]

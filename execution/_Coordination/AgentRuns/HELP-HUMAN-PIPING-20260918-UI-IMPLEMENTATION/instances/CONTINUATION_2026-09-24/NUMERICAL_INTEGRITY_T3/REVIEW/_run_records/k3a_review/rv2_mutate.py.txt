@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""RV2 mutation sample: I2's M2, M4, M5, M6 re-run, plus the reviewer's own mutants.
+Each patch is applied to a scratch copy of wide.rs, the retained tests run, the file
+is restored. Waits for any other cargo process before each run (bounded)."""
+import json, os, re, subprocess, sys, time
+from pathlib import Path
+
+FK = Path(sys.argv[1])
+OUT = Path(sys.argv[2])
+SRC = FK / "src/structural/retained/wide.rs"
+ENV = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", CARGO_INCREMENTAL="0", RUSTUP_AUTO_INSTALL="0",
+           CARGO_TARGET_DIR="<rv2-target>/mut")
+CMD = ["cargo", "test", "--offline", "--locked", "--lib", "retained", "--", "--test-threads=4"]
+
+MUTANTS = [
+    ("M2_dropped_sticky (I2)",
+     "    let rest = sticky || m.any_below(drop - 1);\n",
+     "    let rest = m.any_below(drop - 1);\n"),
+    ("M4_off_by_one_limb_shift (I2)",
+     "                    lo: (self.lo >> n) | (self.hi << (128 - n)),\n",
+     "                    lo: (self.lo >> n) | (self.hi << (127 - n)),\n"),
+    ("M5_atan_one_reduction_fewer (I2)",
+     "            if reductions == ATAN_MAX_REDUCTIONS {\n                return Err(WideError::ArctangentLimit);\n            }\n",
+     "            if reductions == ATAN_MAX_REDUCTIONS - 1 {\n                break;\n            }\n"),
+    ("M6_atan_truncated_series (I2)",
+     "        for n in 1..=ATAN_MAX_TERMS {\n",
+     "        for n in 1..=8 {\n"),
+    ("R1_atan_stop_threshold_off_by_one (RV2)",
+     "        let threshold = i128::from(t.exponent) - i128::from(self.precision) - 1;\n",
+     "        let threshold = i128::from(t.exponent) - i128::from(self.precision);\n"),
+    ("R2_atan_tail_summed_largest_first (RV2)",
+     "        for term in terms[1..count].iter().rev() {\n",
+     "        for term in terms[1..count].iter() {\n"),
+    ("R3_split_flag_lost_for_wholly_dropped_piece (RV2)",
+     "                if drop >= 64 {\n                    split.truncated_below_min_subnormal = true;\n                    continue;\n",
+     "                if drop >= 64 {\n                    continue;\n"),
+    ("R4_sub_sticky_borrow_missing (RV2)",
+     "        if sticky {\n            diff = diff.sub(&U256::ONE);\n        }\n",
+     "        if false && sticky {\n            diff = diff.sub(&U256::ONE);\n        }\n"),
+    ("R5_split_keeps_old_lsb_after_truncation (RV2)",
+     "                chunk >>= drop;\n                lsb = -1074;\n",
+     "                chunk >>= drop;\n                lsb = -1074 + 0 * lsb;\n                lsb -= 1;\n"),
+    ("R6_atan_domain_zero_denominator_unchecked (RV2)",
+     "        if d.is_zero() || d.negative {\n            return Err(WideError::AngleDomain);\n        }\n        let t = self.div(s, &d)?;\n",
+     "        if d.negative {\n            return Err(WideError::AngleDomain);\n        }\n        let t = self.div(s, &d)?;\n"),
+    ("R7_sqrt_sticky_dropped (RV2)",
+     "    (root, !remainder.is_zero())\n",
+     "    (root, false)\n"),
+]
+
+
+def wait_host():
+    waited = 0
+    while True:
+        busy = subprocess.run(["pgrep", "-x", "cargo"], capture_output=True).returncode == 0
+        sweep = subprocess.run(["pgrep", "-f", "python[0-9.]* .*run_evidence_sweep"], capture_output=True).returncode == 0
+        if not busy and not sweep:
+            return waited
+        time.sleep(60)
+        waited += 60
+        if waited > 4 * 3600:
+            raise SystemExit("host busy for 4 h")
+
+
+def main():
+    original = SRC.read_text()
+    results = []
+    try:
+        for name, old, new in MUTANTS:
+            assert original.count(old) == 1, name
+            mutated = original.replace(old, new)
+            SRC.write_text(mutated)
+            waited = wait_host()
+            t0 = time.time()
+            proc = subprocess.run(CMD, cwd=FK, env=ENV, capture_output=True, text=True)
+            SRC.write_text(original)
+            text = proc.stdout + proc.stderr
+            safe = name.split()[0]
+            (OUT / f"{safe}.log").write_text(re.sub(r"<scratch>/mut/\S*?/frame_kernel", "<frame_kernel>", text))
+            failed = sorted(set(re.findall(r"^test (\S+) \.\.\. FAILED", text, re.M)))
+            summary = [l for l in text.splitlines() if l.startswith("test result:")]
+            results.append(dict(mutant=name, old=old, new=new, command=" ".join(CMD), exit=proc.returncode,
+                                killed=proc.returncode != 0 and bool(failed), killing_tests=failed,
+                                summary=summary, seconds=round(time.time() - t0), waited_for_host=waited))
+            print(name, "KILLED" if results[-1]["killed"] else "SURVIVED", len(failed), flush=True)
+    finally:
+        SRC.write_text(original)
+    (OUT / "rv2_mutation_results.json").write_text(json.dumps(results, indent=1) + "\n")
+
+
+main()

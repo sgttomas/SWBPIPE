@@ -1,0 +1,9 @@
+first-order bound max 16.4761 u at theta0 = 0.799334332 (phi = 1.598668663), k = 5
+paper first-order: 2 + 4*5 + 1.5357 = 23.5355 u
+k = 0: max 3.5322 u at phi = 0.099917
+k = 1: max 6.2720 u at phi = 0.199834
+k = 2: max 8.9953 u at phi = 0.199834
+k = 3: max 11.7049 u at phi = 0.399667
+k = 4: max 14.2971 u at phi = 0.799334
+k = 5: max 16.4761 u at phi = 1.598669
+first-order bound in ulp: max 16.1095 ulp at phi = 1.999996788
