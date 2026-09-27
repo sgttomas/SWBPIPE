@@ -93,3 +93,23 @@ This follows ROOT_RULINGS_V1, "K2a product reach: correction (ROOT)".
   - Derive the bound (an exact zero moves a published value by at most about 2^-60 relative) step by step, with each inequality and its source. K2a's reviewer checks it.
 - **The spring-carried test** stays as ruled.
 - **Order:** phase 2 onward (mutations, suites, T9, the two-part gate) resumes when the manager returns the cargo token, after F1a's DEC-025 sweep and RV6's slot.
+
+## Addendum 2 (2026-09-27): the exact-zero and M03 corrections
+
+This follows ROOT_RULINGS_V1, "K2a product reach: correction 2 (ROOT)". It supersedes addendum 1's bound bullet (the ~2^-60 derivation) and its premise that M03 refuses partial underflow.
+- **Add a third product test (reach_zero) and a fourth (reach_lef),** each on both entries and in both modes, built the same way:
+  - in-test arithmetic proving the roundings: (12·E)·I rounds to exactly 0 for reach_zero; for reach_lef, to the least subnormal, with (6·E)·I, (4·E)·I and (2·E)·I rounding to 0;
+  - main's standing pinned with the wrong published value. Pin the linear route (Sensitive) at kernel level: main's K through K-D5, with reason Estimate. Pin the gap route (unresolved) at kernel level if a route exists. Otherwise cite `main_zero_probe.jsonl` and `main_lef_probe.jsonl`, and say so in RETURN;
+  - a Fraction reference, with expected values computed from the actual inputs, and one spring value throughout (reach_zero: 3.7e-289 N/m, P = 9.25e-290 N);
+  - K2a's refusal by name.
+  - Reconcile your message's 1.85e-289 slip in RETURN.
+- **RETURN derives, step by step:**
+  - every `local_stiffness` coefficient with its lift: EA/L, GJ/L, 4EI/L and 2EI/L are 1/L; 6EI/L² is 1/L²; 12EI/L³ is 1/L³;
+  - M03's acceptance floor at about 2^-974.6, from `transform_roundoff` and `checked_value`;
+  - for each coefficient, which zeros or roundings main bounds and which it does not.
+  - **6EI/L²:** the relative effect against the smallest acceptable retained entry can reach about 2^-19.4. Derive whether an admissible input realizes an error above 1e-9, or probe it on the main harness binary (no cargo). Don't assume main is accurate there.
+  - State plainly that no trusted route was found on main, and that the pre-K-D5 (`c61a540ea`) linear standing is not established.
+- **The benefit and the cost in CHANGE_RECORD and RETURN,** as correction 2 ruling 3 states them.
+- **Evidence** goes in `_run_records/product_reach/` (the zero_probe and reach_lef files, and NOTES.txt).
+- **For the T3-close item,** list from your caller scan every stiffness-forming path besides `local_stiffness` (curved_bend, arc_model, and any others) that has terms scaled by 1/L² or 1/L³. Don't fix or probe them in K2a.
+- **Order:** unchanged. You resume after RV6's slot.

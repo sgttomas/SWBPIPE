@@ -755,7 +755,9 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
 - **The settling run:** I3R's interleaved comparison of `72d5ff864` against `b24b3d536` on RF-LARGE-CHAIN-n01000-AX and RF-LARGE-TREE-n01000-ROT, dense, with probes built fresh from `git archive`. It shows S11-G's cost within noise: −0.4% (CHAIN-AX) and +0.9% (TREE-ROT), against a same-binary spread of up to 1.8% (`IMPLEMENTATION/S11G_TIMING/`). The item is removed from the T3-close list. `KD5_MERGE/ADDENDUM_1.md` supersedes the statement in the K-D5 merge record.
 - **Method (standing):** performance claims come only from **interleaved runs of probes built fresh from archives,** on a quiet host, with load recorded per run. A comparison against an earlier, non-interleaved run is not evidence.
 
-## K2a product reach: correction (ROOT, 2026-09-27)
+## K2a product reach: correction (ROOT, 2026-09-27) — bound and M03 clauses SUPERSEDED
+
+**Superseded in part (2026-09-27):** the exact-zero statements below (the ~2^-60 bound, and "checks-passed and accurate" as a general claim) are wrong for 6EI/L² and 12EI/L³. So is the benefit clause's "S11-K's M03 already refuses partial underflow". See "K2a product reach: correction 2 (ROOT)" below. The text is kept as the record of the earlier ruling.
 
 **What is refuted.** Ruling 1 of "K2a: product reach and the availability trade-off" (`81dbd95ac`) assumed a product-level partial-underflow case on which main publishes a *wrong* value. ROOT's directive also quoted a 5.9% error and a nonlinear variant published checks-passed. Both are refuted at product level: they came from formation-level arithmetic, not from product output. ROOT adopted the recommendation before a product run existed. I6's stop, under ruling 1's stop clause, was correct.
 
@@ -763,12 +765,73 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
 - **The drafted case** (5.9% coefficient error) is refused as NUMERICAL_INTEGRITY_UNRESOLVED with `Range("product overflow or underflow")`. Its subnormal coefficients trip M03 `checked_product` (FK `structural.rs:377`). The nonlinear loop's iterations also pass through structural integrity.
 - **The all-final-coefficients-normal pair** (L = 2^-39 m, the smallest dyadic length above the 1e-12 m axis tolerance; coefficient errors 4.3e-6 and 8.0e-9) is refused as UNRESOLVED with `Range("arithmetic outside normal range")`.
 - **The threshold scan** (E scaled by 2^k): main refuses until the smallest coefficient is at least about 2^-972.
-- **Exact zeros** pass M03, because zero entries are exempt. This is the spring-carried case: checks-passed and accurate.
+- **Exact zeros** pass M03, because zero entries are exempt. This is the spring-carried case: checks-passed and accurate. **[Superseded by "K2a product reach: correction 2 (ROOT)" below.]**
 
 **Rulings on the stop:**
 1. **The partial-underflow wrong-value requirement is withdrawn.** The drafted test is kept, restated truthfully: main refuses the case as UNRESOLVED (M03 `Range`) on both variants and in both modes, and K2a refuses it earlier, by name (`NumericalRange`). Its precondition pins main's actual M03 refusal. The L = 2^-39 pair and the threshold scan stay as evidence in `_run_records`.
 2. **The availability trade-off stands, with its benefit restated.** K2a proceeds as designed.
-   - **Benefit:** K2a corrects no published value on the product route; S11-K's M03 already refuses partial underflow. Its value is a formation-layer guarantee that does not depend on M03: a named, earlier refusal, and protection for every consumer of `local_stiffness` that does not pass through M03's check. I6 lists those consumers from its caller scan (for example K-D5's re-formation and curved_bend).
+   - **Benefit:** K2a corrects no published value on the product route; S11-K's M03 already refuses partial underflow. **[Superseded by "K2a product reach: correction 2 (ROOT)" below: M03 does not refuse partial underflow in general, and main can publish grossly wrong values (untrusted) that K2a refuses.]** Its value is a formation-layer guarantee that does not depend on M03: a named, earlier refusal, and protection for every consumer of `local_stiffness` that does not pass through M03's check. I6 lists those consumers from its caller scan (for example K-D5's re-formation and curved_bend).
    - **Cost:** refusing exact-zero cases on physically absurd inputs, where main's value was accurate.
-   - **The bound claim** (an exact zero moves a published value by at most about 2^-60 relative) must be derived step by step in K2a's RETURN, not asserted. K2a's reviewer checks it.
+   - **The bound claim** (an exact zero moves a published value by at most about 2^-60 relative) must be derived step by step in K2a's RETURN, not asserted. K2a's reviewer checks it. **[Superseded by "K2a product reach: correction 2 (ROOT)" below.]**
 3. **Lesson (standing):** a claim about product behaviour needs a product run. This is the counterpart of the performance lesson: formation-level or adapter-level arithmetic is not evidence of what the product publishes.
+
+## K2a product reach: correction 2 (ROOT, 2026-09-27)
+
+**What is superseded.** Two clauses of "K2a product reach: correction" (`bcc84ee06`), each marked in place:
+- **Ruling 2's bound clause:** an exact zero moves a published value by at most about 2^-60 relative.
+- **Ruling 2's benefit clause:** "S11-K's M03 already refuses partial underflow".
+
+Both are generalizations from a few probes that were never derived. I6 found both errors while deriving the bound for RETURN, and reported each before it was relied on.
+
+**The derivations.** Evidence: `IMPLEMENTATION/K2A/_run_records/product_reach/` (the zero_probe and reach_lef probes, and NOTES.txt). K2a's reviewer checks both in RETURN.
+- **Coefficient lifts in `local_stiffness`** (FK `lib.rs:699-747` at `5ae22926e`). Each coefficient is a binary64 product of modulus and section property, divided by a power of L:
+
+  | Coefficient | Numerator (evaluation order) | Lift |
+  |---|---|---|
+  | axial EA/L | E·A | 1/L |
+  | torsion GJ/L | G·J | 1/L |
+  | 4EIy/L, 4EIz/L | (4·E)·I | 1/L |
+  | 2EIy/L, 2EIz/L | (2·E)·I | 1/L |
+  | 6EIy/L², 6EIz/L² | (6·E)·I | 1/L² |
+  | 12EIy/L³, 12EIz/L³ | (12·E)·I | 1/L³ |
+
+  With L ≥ 1e-12 m (the FK axis tolerance), a numerator that rounds to 0, or to the least subnormal 2^-1074, has a true value below about 2^-1074. The true coefficient is then at most about 2^-1074/L^k: about 2^-1034 for k = 1, about 2^-994 for k = 2, and about 2^-955 for k = 3.
+- **M03's acceptance floor** (FK `structural.rs:1832-1866`, `transform_roundoff`). The roundoff bound per axis-aligned entry c is about 2·gamma(24)·|c|, and `checked_value` refuses a subnormal bound. So M03 refuses when a *nonzero* entry is below about 2^-974.6. Exact zeros are exempt. I6's threshold scan agrees: refused at 2^-981.8, passed at 2^-971.8.
+- **Consequence.**
+  - **1/L-lifted coefficients** (EA/L, GJ/L, 4EI/L, 2EI/L): a zeroed or wrongly rounded value has a true value of at most about 2^-1034. Against any retained nonzero entry that passes M03 (at least about 2^-974.6), that is a relative effect of at most about 2^-59.4, below the 1e-9 criterion. This is the only place the ~2^-60 figure holds.
+  - **1/L²-lifted coefficients** (6EI/L²): the true value is at most about 2^-994, also below the floor. But against the smallest acceptable retained entry, the relative effect can reach about 2^-19.4 (about 1.4e-6), above the criterion. Whether an admissible input realizes that is **not established**. Manager's check: the manager, not I6, noticed this while recording. RETURN must derive it or probe it, and must not assume main is accurate there.
+  - **1/L³-lifted coefficients** (12EI/L³): the true value can reach about 2^-955, above the floor. M03 accepts both an exact zero and a normal but grossly wrong value rounded from a least-subnormal numerator (reach_zero and reach_lef below).
+  - **M03 does refuse** a partial underflow that leaves a nonzero subnormal-derived coefficient below the floor.
+
+**Cases on main** (`5ae22926e`, both entries, both modes, linear route and open gap; I6, using the main-built harness binary). Both are one member with L = 2^-39 m, OD 1e-11 m, wall 1e-12 m and G = 1e-100 Pa, with UY at N1 the only free DOF. All inputs are normal binary64.
+- **reach_zero:**
+  - E = 6.4e-280 Pa, so (12·E)·I (about 2.23e-324) rounds to exactly 0. Main's 12EI/L³ is 0 against a true value of about 3.70e-289.
+  - A ground spring of 3.7e-289 N/m carries the load, P = 9.25e-290 N.
+  - Main publishes u_y = 250 mm against an exact 125.03 mm, 99.95% wrong.
+  - I6's message also quoted the spring as 1.85e-289 N/m. That was a slip, which had reached the drafted test constant; I6 has corrected the constant, and RETURN records the reconciliation.
+- **reach_lef** (the LEF-small pattern):
+  - E = 9.6e-280 Pa, with no spring and P = 2.05e-289 N.
+  - (12·E)·I (about 3.34e-324) rounds to the least subnormal, and (6·E)·I, (4·E)·I and (2·E)·I round to 0.
+  - Main's 12EIz/L³ is 8.21e-289, normal but 48% high against a true value of 5.55e-289, and its siblings are exactly 0. M03 accepts.
+  - Main publishes u_y = 249.72 mm against an exact 369.55 mm, 32.4% wrong.
+- **Main's standing** is the same in both cases:
+  - linear route: NUMERICAL_INTEGRITY_SENSITIVE in both modes, from K-D5's re-formation; exact-block recovery is unavailable.
+  - open gap: unresolved (RECOVERY_BASIS_UNQUALIFIED), because the nonlinear proof hits the exact-radix range.
+- **No trusted route was found on main.** On the linear route before K-D5 (`c61a540ea`), main's standing is **not established**. No claim is made either way.
+- **Partial underflow that M03 does refuse:** probes A/B and the drafted partial-underflow case, where a nonzero coefficient is subnormal-derived. Main refuses these as UNRESOLVED (M03 `Range`).
+
+**Rulings:**
+1. **Adopt a third product test (reach_zero) and a fourth (reach_lef),** each on both entries and in both modes, with the same structure:
+   - in-test arithmetic proving the roundings (exactly 0, and the least subnormal with zero siblings);
+   - main's actual standing pinned with the wrong published value: Sensitive on the linear route, and unresolved on the gap route. The linear route is pinned at kernel level through K-D5 on main's K. The gap route is pinned at kernel level if a route exists; otherwise the test cites the main harness records, and RETURN says so;
+   - a Fraction reference, with expected values computed from the actual inputs;
+   - K2a's refusal by name.
+2. **RETURN derives, step by step:** every coefficient with its lift (the table above), the M03 floor at about 2^-974.6, and for each coefficient which zeros or roundings main bounds and which it does not.
+3. **The benefit, restated:**
+   - M03 refuses partial underflow **only when a nonzero coefficient is subnormal-derived** (below about 2^-974.6).
+   - Where a 12EI/L³ numerator rounds to exactly 0, or to the least subnormal with its siblings exactly 0 (the LEF pattern), M03 accepts. Main then publishes a grossly wrong value (99.95% in reach_zero, 32.4% in reach_lef), flagged only downstream: Sensitive through K-D5, or unresolved through the nonlinear proof.
+   - K2a refuses all of these at formation, by name, independent of M03, of K-D5 and of the nonlinear proof.
+   - K2a also refuses a zero in 6EI/L², where main's accuracy is not established (see the consequence above).
+   - **The cost is unchanged:** exact zeros in the 1/L-lifted coefficients (for example the spring-carried GJ/L case), where main was accurate, are now refused.
+4. **A new T3-close item.** K2a covers `local_stiffness` only. Check whether curved-element formation (curved_bend and arc_model), and any other stiffness-forming path, can produce the same unbounded zero or wrong rounding from terms scaled by 1/L² or 1/L³. I6 lists the paths from its caller scan. The item is outside K2a's scope; if reachable, route it to K5 or to its own slice.
+5. **Lesson (standing), added to the product-run lesson:** a bound or general claim inferred from a few probes must be **derived**, and the derivation checked by someone other than its author, before a ruling rests on it. ROOT ruled twice on underived generalizations (the ~2^-60 bound, and M03 refusing partial underflow). There is no blame to I6, who found both errors.
