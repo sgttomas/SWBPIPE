@@ -1,0 +1,16 @@
+#!/bin/sh
+# T3 S11-G (I5) crate suites, sequential, --no-fail-fast.
+W=<wt>/s11g/projects/chirality-piping
+O=$1
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<s11g-target>
+A=$W/core/serialization/canonical_json/target/checked-json/release
+export OPENPIPESTRESS_CHECKED_JSON_BIN=$A/openpipestress_jcs_ijson OPENPIPESTRESS_BINARY64_JSON_BIN=$A/openpipestress_jcs_binary64
+export OPENPIPESTRESS_UNITS_BIN=$W/core/units/target/units-authority/release/openpipestress_units
+for c in core/solver/frame_kernel core/solver/straight_pipe core/solver/curved_bend core/solver/sparse_direct core/solver/linear_supports core/solver/nonlinear_integration core/solver/nonlinear_supports core/solver/performance_harness core/loads/primitive_loads core/product_physics core/runner/headless core/reporting/result_export core/model_operations/operation_applier validation/benchmarks/mechanics validation/benchmarks/nonlinear validation/benchmarks/numerical_integrity apps/desktop/src-tauri; do
+  name=$(echo $c | tr '/' '_')
+  if [ ! -f $W/$c/Cargo.toml ]; then echo "$c: no Cargo.toml" >> $O/summary.txt; continue; fi
+  (cd $W/$c && nice cargo test --offline --locked --no-fail-fast > $O/$name.log 2>&1); rc=$?
+  echo "$c exit=$rc $(grep -c '^test result: ok' $O/$name.log) ok-lines $(grep -c '^test result: FAILED' $O/$name.log) failed-lines" >> $O/summary.txt
+  df -h / | tail -1 >> $O/summary.txt
+done
+echo DONE >> $O/summary.txt
