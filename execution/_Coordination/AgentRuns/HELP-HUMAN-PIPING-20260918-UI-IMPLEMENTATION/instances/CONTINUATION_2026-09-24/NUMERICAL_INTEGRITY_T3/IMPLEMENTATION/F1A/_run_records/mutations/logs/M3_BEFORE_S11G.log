@@ -1,0 +1,233 @@
+M3_BEFORE_S11G: 1 replacement(s)
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling typenum v1.20.1
+   Compiling generic-array v0.14.7
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.149
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/diagnostics)
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling serde_derive v1.0.228
+   Compiling digest v0.10.7
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/curved_bend)
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling ryu v1.0.23
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_product_physics v0.2.0 (<scratch>/i7/mut/tree_M3_BEFORE_S11G/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8711:4
+     |
+8711 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:63:9
+   |
+62 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+63 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:92:9
+   |
+91 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+92 |     pub support_id: String,
+   |         ^^^^^^^^^^
+93 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+94 |     pub value: f64,
+   |         ^^^^^
+95 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:117:9
+    |
+116 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+117 |     pub dofs: usize,
+    |         ^^^^
+118 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+119 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 |     pub blocks: usize,
+    |         ^^^^^^
+121 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+122 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+123 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+124 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+125 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+126 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+127 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+128 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+129 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+130 |     pub max_relative_projection_error: f64,
+131 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:144:5
+    |
+138 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+144 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:170:12
+    |
+153 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+170 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:524:19
+    |
+453 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+524 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings
+warning: `open_pipe_stress_product_physics` (lib test) generated 7 warnings (7 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 30.77s
+     Running unittests src/lib.rs (<wt>/f1a-target/mut_M3_BEFORE_S11G/debug/deps/open_pipe_stress_product_physics-c33f7bec9d2d5467)
+
+running 8 tests
+test f1a_tests::f1a_evidence_line_exact_text ... ok
+test f1a_tests::f1a_kd5_demoted_case_carries_exactly_one_d5_line ... ok
+test f1a_tests::f1a_case_demoted_by_both_kd5_and_s11g_has_the_d5_line_alone ... ok
+test f1a_tests::f1a_reason_tokens_are_the_enum_variants ... ok
+test tests::under_restrained_model_reports_solver_diagnostic ... ok
+test f1a_tests::f1a_no_record_is_byte_identical_to_main ... FAILED
+test f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule ... FAILED
+test f1a_tests::f1a_non_demoted_cases_carry_no_d5_line ... ok
+
+failures:
+
+---- f1a_tests::f1a_no_record_is_byte_identical_to_main stdout ----
+
+thread 'f1a_tests::f1a_no_record_is_byte_identical_to_main' (17778) panicked at src/f1a_tests.rs:657:13:
+assertion `left == right` failed
+  left: "[{\"id\":\"diagnostic:x\",\"code\":\"X\",\"severity\":\"info\",\"message\":\"x\",\"source\":\"core/product_physics\"},{\"id\":\"diagnostic:numerical-integrity:c\",\"code\":\"NUMERICAL_INTEGRITY_SENSITIVE\",\"severity\":\"warning\",\"message\":\"M03-INTEGRITY-v1 represented original-equation structural evidence for load case c: StructuralReport { policy: \\\"M03-INTEGRITY-v1\\\", quality: Passed, factorization: \\\"unit\\\", scale_exponents: [], pivots: [], condition_estimator: \\\"unit\\\", reciprocal_condition_estimate: 0.5, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: None }; global_dof_map=[\\\"N0:UX\\\", \\\"N0:UY\\\", \\\"N0:UZ\\\", \\\"N0:RX\\\", \\\"N0:RY\\\", \\\"N0:RZ\\\", \\\"N1:UX\\\", \\\"N1:UY\\\", \\\"N1:UZ\\\", \\\"N1:RX\\\", \\\"N1:RY\\\", \\\"N1:RZ\\\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed. formation_check: reason=estimate; row=N0:RX; doubled_correction=4e-9; scale=1.0; trigger_ratio=4.0 S11-G formation-noise guard: load case c is Sensitive\",\"source\":\"core/product_physics\",\"affected_refs\":[\"c\"]}]"
+ right: "[{\"id\":\"diagnostic:x\",\"code\":\"X\",\"severity\":\"info\",\"message\":\"x\",\"source\":\"core/product_physics\"},{\"id\":\"diagnostic:numerical-integrity:c\",\"code\":\"NUMERICAL_INTEGRITY_SENSITIVE\",\"severity\":\"warning\",\"message\":\"M03-INTEGRITY-v1 represented original-equation structural evidence for load case c: StructuralReport { policy: \\\"M03-INTEGRITY-v1\\\", quality: Passed, factorization: \\\"unit\\\", scale_exponents: [], pivots: [], condition_estimator: \\\"unit\\\", reciprocal_condition_estimate: 0.5, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: None }; global_dof_map=[\\\"N0:UX\\\", \\\"N0:UY\\\", \\\"N0:UZ\\\", \\\"N0:RX\\\", \\\"N0:RY\\\", \\\"N0:RZ\\\", \\\"N1:UX\\\", \\\"N1:UY\\\", \\\"N1:UZ\\\", \\\"N1:RX\\\", \\\"N1:RY\\\", \\\"N1:RZ\\\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed. S11-G formation-noise guard: load case c is Sensitive formation_check: reason=estimate; row=N0:RX; doubled_correction=4e-9; scale=1.0; trigger_ratio=4.0\",\"source\":\"core/product_physics\",\"affected_refs\":[\"c\"]}]"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<alloc::string::String, alloc::string::String>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_product_physics::f1a_tests::f1a_no_record_is_byte_identical_to_main
+             at ./src/f1a_tests.rs:657:13
+   5: open_pipe_stress_product_physics::f1a_tests::f1a_no_record_is_byte_identical_to_main::{closure#0}
+             at ./src/f1a_tests.rs:620:45
+   6: <open_pipe_stress_product_physics::f1a_tests::f1a_no_record_is_byte_identical_to_main::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule stdout ----
+
+thread 'f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule' (17775) panicked at src/f1a_tests.rs:529:5:
+assertion `left == right` failed
+  left: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case c: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"unit\", scale_exponents: [], pivots: [], condition_estimator: \"unit\", reciprocal_condition_estimate: 0.5, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: None }; global_dof_map=[\"N0:UX\", \"N0:UY\", \"N0:UZ\", \"N0:RX\", \"N0:RY\", \"N0:RZ\", \"N1:UX\", \"N1:UY\", \"N1:UZ\", \"N1:RX\", \"N1:RY\", \"N1:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed. formation_check: reason=estimate; row=N1:UY; doubled_correction=3e-9; scale=1.0; trigger_ratio=3.0 S11-G formation-noise guard: y"
+ right: "M03-INTEGRITY-v1 represented original-equation structural evidence for load case c: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"unit\", scale_exponents: [], pivots: [], condition_estimator: \"unit\", reciprocal_condition_estimate: 0.5, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: None }; global_dof_map=[\"N0:UX\", \"N0:UY\", \"N0:UZ\", \"N0:RX\", \"N0:RY\", \"N0:RZ\", \"N1:UX\", \"N1:UY\", \"N1:UZ\", \"N1:RX\", \"N1:RY\", \"N1:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed. S11-G formation-noise guard: y formation_check: reason=estimate; row=N1:UY; doubled_correction=3e-9; scale=1.0; trigger_ratio=3.0"
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:439:17
+   3: core::panicking::assert_failed::<alloc::string::String, alloc::string::String>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: open_pipe_stress_product_physics::f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule
+             at ./src/f1a_tests.rs:529:5
+   5: open_pipe_stress_product_physics::f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule::{closure#0}
+             at ./src/f1a_tests.rs:479:53
+   6: <open_pipe_stress_product_physics::f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    f1a_tests::f1a_composition_with_s11g_layout_and_no_op_rule
+    f1a_tests::f1a_no_record_is_byte_identical_to_main
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 383 filtered out; finished in 0.27s
+
+error: test failed, to rerun pass `--lib`
+exit=101

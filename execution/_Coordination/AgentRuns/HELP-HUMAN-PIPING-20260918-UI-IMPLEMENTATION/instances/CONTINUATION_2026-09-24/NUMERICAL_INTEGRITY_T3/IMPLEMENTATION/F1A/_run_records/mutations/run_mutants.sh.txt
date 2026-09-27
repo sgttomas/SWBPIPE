@@ -1,0 +1,22 @@
+#!/bin/bash
+# F1a mutation runs (I7): per mutant a fresh copy of the candidate tree (tar -m: fresh mtimes),
+# one mutation applied, a clean target, the targeted tests, then the target and tree removed.
+set -u
+S=<scratch>/i7
+P=<wt>/f1a/projects/chirality-piping
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0
+FILTERS="f1a_ under_restrained_model_reports_solver_diagnostic kd5_required_true_positive"
+mkdir -p $S/mut/logs
+for m in "$@"; do
+  T=$S/mut/tree_$m; TGT=<wt>/f1a-target/mut_$m
+  rm -rf $T $TGT; mkdir -p $T/projects/chirality-piping/validation/benchmarks
+  ( cd $P && tar --exclude=target --exclude=node_modules -cf - core fixtures schemas ) | ( cd $T/projects/chirality-piping && tar -xmf - )
+  ( cd $P/validation/benchmarks && tar --exclude=target -cf - numerical_integrity ) | ( cd $T/projects/chirality-piping/validation/benchmarks && tar -xmf - )
+  python3 -B $S/mut/mutate.py $T/projects/chirality-piping/core $m > $S/mut/logs/$m.log 2>&1 || { echo "$m: mutate failed"; continue; }
+  ( cd $T/projects/chirality-piping/core/product_physics && CARGO_TARGET_DIR=$TGT cargo test --offline --locked --lib --test formation_check_runtime -- $FILTERS ) >> $S/mut/logs/$m.log 2>&1
+  rc=$?
+  echo "exit=$rc" >> $S/mut/logs/$m.log
+  echo "$m exit=$rc failed_tests: $(grep -E '^    [a-z_:0-9]+$' $S/mut/logs/$m.log | tr -d ' ' | tr '\n' ' ')"
+  rm -rf $TGT $T
+  df -h <home> | tail -1
+done
