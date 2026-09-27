@@ -1,0 +1,1363 @@
+{
+ "C_case_envelopes": 87,
+ "C_ends": 248,
+ "C_R_b": [
+  [
+   "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
+   "case:join",
+   "sensitive",
+   [
+    [
+     "member",
+     "i",
+     2.000000000002531e-06,
+     17272.5,
+     57896
+    ]
+   ]
+  ],
+  [
+   "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+   "case:join",
+   "sensitive",
+   [
+    [
+     "member",
+     "i",
+     2.0000000000000025e-06,
+     17272.5,
+     57896
+    ]
+   ]
+  ]
+ ],
+ "C_R_b_prime": [],
+ "C_skipped": [
+  [
+   "core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json",
+   "no committed model with node positions (synthetic receipt control)"
+  ],
+  [
+   "fixtures/product_preview/invented_mechanics_result_preview_physics_1_dense.json",
+   "no nodal displacement rows"
+  ],
+  [
+   "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
+   "no nodal displacement rows"
+  ]
+ ],
+ "E_distinct_models": 96,
+ "E_emulated_case_count": 70,
+ "E_not_emulated": [
+  [
+   "core/product_physics/tests/fixtures/exact_pressure_connected_request.json",
+   "case:closed-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "core/product_physics/tests/fixtures/preview_physics_invented_model.json",
+   "load:L-100",
+   "nonlinear support family nonlinear"
+  ],
+  [
+   "core/product_physics/tests/fixtures/preview_physics_invented_model.json",
+   "load:L-200",
+   "nonlinear support family nonlinear"
+  ],
+  [
+   "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
+   "load:\u00e9",
+   "support family constant_effort_support"
+  ],
+  [
+   "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
+   "load:\ud835\udd2b",
+   "support family constant_effort_support"
+  ],
+  [
+   "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
+   "case:join",
+   "nonlinear support family line_stop"
+  ],
+  [
+   "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case:closed-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "fixtures/model_operations/physics_thermal_ui_model.json",
+   "case:closed-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_02_accept_set_field_element_material_ref.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_03_accept_update_load_status_text.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_04_accept_update_load_primitive_magnitude.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_06_accept_update_support_restraints.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_07_accept_create_node.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_08_accept_connect_pipe_run.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_09_accept_create_load_case.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_09_accept_create_load_case.json",
+   "load:L-2",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_10_accept_create_primitive_load_concentrated_force.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_15_accept_claimed_hash_echo.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_44_block_quantity_object_missing.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_50_accept_delete_primitive_load.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_50_accept_delete_primitive_load.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_55_block_delete_pipe_run_referenced.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_57_block_delete_node_referenced.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+   "load:L-2",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_66_accept_set_field_component_bend_radius_authoring.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_67_accept_set_field_component_expansion_joint_stiffness.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_67_accept_set_field_component_expansion_joint_stiffness.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_68_accept_set_field_element_mill_tolerance_zero.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_69_accept_update_load_modulus_basis_ref.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_70_accept_update_load_wind_exposed_pipe_refs.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_71_accept_update_load_seismic_gravity_authoring.json",
+   "load:L-1",
+   "singular emulated system (mechanism)"
+  ],
+  [
+   "fixtures/product_preview/invented_preview_model.json",
+   "load:L-100",
+   "element load category pressure"
+  ],
+  [
+   "fixtures/product_preview/invented_preview_model.json",
+   "load:L-200",
+   "element load category pressure"
+  ],
+  [
+   "fixtures/product_preview/load_reference/pressure.request.json",
+   "case:cold-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "fixtures/product_preview/load_reference/pressure.request.json",
+   "case:hot-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "fixtures/product_preview/load_reference_source/eigen_motion.request.json",
+   "case:join",
+   "nonlinear support family line_stop"
+  ],
+  [
+   "fixtures/product_preview/load_reference_source/mixed.request.json",
+   "case:ordinary-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "fixtures/product_preview/physics_source/mixed.request.json",
+   "case:ordinary-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "fixtures/product_preview/physics_source/mixed_units.request.json",
+   "case:ordinary-pressure",
+   "pressure regions (not emulated; axial only)"
+  ],
+  [
+   "fixtures/results/invented/result_export_v0_2.json",
+   "load:L-100",
+   "element load category pressure"
+  ],
+  [
+   "fixtures/results/invented/result_export_v0_2.json",
+   "load:L-200",
+   "element load category pressure"
+  ],
+  [
+   "fixtures/results/invented/result_export_v0_2.json",
+   "load:L-100",
+   "element load category pressure"
+  ],
+  [
+   "fixtures/results/invented/result_export_v0_2.json",
+   "load:G-TIP",
+   "nonlinear support family nonlinear"
+  ],
+  [
+   "fixtures/results/invented/result_export_v0_2.json",
+   "load:G-TIP",
+   "nonlinear support family nonlinear"
+  ],
+  [
+   "fixtures/results/invented/result_export_v0_2.json",
+   "load:G-TIP",
+   "nonlinear support family nonlinear"
+  ]
+ ],
+ "E_skipped": [
+  [
+   "apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json",
+   "no member or no load case"
+  ],
+  [
+   "apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json",
+   "no member or no load case"
+  ],
+  [
+   "apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json",
+   "not solved by any committed path (analysis_status.mechanics = not_run_generated_ui_workload)"
+  ],
+  [
+   "apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json",
+   "not solved by any committed path (analysis_status.mechanics = not_run_generated_ui_workload)"
+  ],
+  [
+   "core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json",
+   "no node positions (synthetic receipt control)"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_45_accept_create_support.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_45_accept_create_support.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_46_accept_create_material.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_46_accept_create_material.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_48_accept_delete_support.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_49_block_delete_support_referenced.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_51_accept_delete_combination.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_52_accept_delete_load_case.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_52_accept_delete_load_case.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_54_accept_delete_pipe_run.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_54_accept_delete_pipe_run.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_56_accept_delete_node.json",
+   "no member or no load case"
+  ],
+  [
+   "fixtures/model_operations/contract_corpus/case_56_accept_delete_node.json",
+   "no member or no load case"
+  ]
+ ],
+ "E_R_b": [],
+ "E_R_b_prime": [],
+ "F_evaluated": 196,
+ "F_not_evaluated": [
+  [
+   "RF-LARGE-CHAIN-n01000-AX",
+   "exact displacement set incomplete (large case; P1: mismatch)"
+  ],
+  [
+   "RF-LARGE-CHAIN-n01000-ROT",
+   "exact displacement set incomplete (large case; P1: mismatch,timeout)"
+  ],
+  [
+   "RF-LARGE-TREE-n01000-AX",
+   "exact displacement set incomplete (large case; P1: mismatch,timeout)"
+  ],
+  [
+   "RF-LARGE-TREE-n01000-ROT",
+   "exact displacement set incomplete (large case; P1: mismatch)"
+  ],
+  [
+   "RF-LARGE-CONT-n01000-AX",
+   "exact displacement set incomplete (large case; P1: pass)"
+  ],
+  [
+   "RF-LARGE-CONT-n01000-ROT",
+   "exact displacement set incomplete (large case; P1: pass)"
+  ],
+  [
+   "RF-LARGE-CHAIN-n10000-AX",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-LARGE-CHAIN-n10000-ROT",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-LARGE-TREE-n10000-AX",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-LARGE-TREE-n10000-ROT",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-LARGE-CONT-n10000-AX",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-LARGE-CONT-n10000-ROT",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-LINE122-TORQUE",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-LINE122-PERP",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-LINE122-UNLOADED",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-LINE345-RZ",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-K0",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-DISC-CHAIN100",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-DISC-CHAIN100-SPRING",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ],
+  [
+   "RF-MECH-LINE-IN-CHAIN1000",
+   "no explicit model or no expected values (mechanism or generator case)"
+  ]
+ ],
+ "F_firing": {
+  "RF-SKEW-T-PIN-OFF-345-r1e-08": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M1.i",
+     true,
+     true,
+     2665.51,
+     375163,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       2665.51
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       2665.51
+      ]
+     },
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "sensitive",
+    "sparse_interactive": "sensitive"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M1.i": "breach"
+    },
+    "sparse_interactive": {
+     "Mb.M1.i": "breach"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": true,
+    "sparse_interactive": true
+   }
+  },
+  "RF-SKEW-T-PIN-OFF-122-r1e-08": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M1.i",
+     true,
+     true,
+     6743.26,
+     148296,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       6743.26
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       6743.26
+      ]
+     },
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "sensitive",
+    "sparse_interactive": "sensitive"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M1.i": "breach"
+    },
+    "sparse_interactive": {
+     "Mb.M1.i": "breach"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": true,
+    "sparse_interactive": true
+   }
+  },
+  "RF-WEAK-W-AX-rho1e-08": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.A2.j",
+     true,
+     true,
+     236.85,
+     4222122,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       236.85
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       236.85
+      ]
+     },
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.A2.j": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.A2.j": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": false,
+    "sparse_interactive": false
+   }
+  },
+  "RF-WEAK-W-L-r1e-08": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     2665.51,
+     375163,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       2665.51
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       2665.51
+      ]
+     },
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "sensitive",
+    "sparse_interactive": "sensitive"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "breach"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "breach"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": true,
+    "sparse_interactive": true
+   }
+  },
+  "RF-WEAK-W-3D-rho1e-08": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.A01.j",
+     true,
+     true,
+     197.08,
+     5074050,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       197.08
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       197.08
+      ]
+     },
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.A01.j": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.A01.j": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": false,
+    "sparse_interactive": false
+   }
+  },
+  "RF-LARGE-TREE-n00100-ROT": {
+   "class": "realistic scale",
+   "rows": [
+    [
+     "Mb.Q37.i",
+     true,
+     true,
+     1.05,
+     951696817,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.05
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.05
+      ]
+     },
+     true
+    ],
+    [
+     "Mb.Q39.i",
+     true,
+     true,
+     1.15,
+     872405152,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.15
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.15
+      ]
+     },
+     true
+    ],
+    [
+     "Mb.Q44.i",
+     true,
+     true,
+     1.26,
+     795515200,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.26
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.26
+      ]
+     },
+     true
+    ],
+    [
+     "Mb.Q46.i",
+     true,
+     true,
+     1.35,
+     741096328,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.35
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.35
+      ]
+     },
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "sensitive",
+    "sparse_interactive": "sensitive"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.Q37.i": "correct",
+     "Mb.Q39.i": "correct",
+     "Mb.Q44.i": "correct",
+     "Mb.Q46.i": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.Q37.i": "correct",
+     "Mb.Q39.i": "correct",
+     "Mb.Q44.i": "correct",
+     "Mb.Q46.i": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   }
+  },
+  "RF-LARGE-CONT-n00100-AX": {
+   "class": "realistic scale",
+   "rows": [
+    [
+     "Mb.B14.j",
+     true,
+     false,
+     2531.19,
+     395071,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       2531.19
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       2531.19
+      ]
+     },
+     false
+    ],
+    [
+     "Mb.A15.i",
+     true,
+     false,
+     2531.19,
+     395071,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       2531.19
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       2531.19
+      ]
+     },
+     false
+    ],
+    [
+     "Mb.A37.j",
+     true,
+     false,
+     102.85,
+     9723158,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       102.85
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       102.85
+      ]
+     },
+     false
+    ],
+    [
+     "Mb.B37.i",
+     true,
+     false,
+     102.85,
+     9723159,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       102.85
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       102.85
+      ]
+     },
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.B14.j": "correct",
+     "Mb.A15.i": "correct",
+     "Mb.A37.j": "correct",
+     "Mb.B37.i": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.B14.j": "correct",
+     "Mb.A15.i": "correct",
+     "Mb.A37.j": "correct",
+     "Mb.B37.i": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   }
+  },
+  "RF-LARGE-CONT-n00100-ROT": {
+   "class": "realistic scale",
+   "rows": [
+    [
+     "Mb.B14.j",
+     true,
+     false,
+     2805.39,
+     356456,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       2805.4
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       2805.39
+      ]
+     },
+     false
+    ],
+    [
+     "Mb.A15.i",
+     true,
+     false,
+     2805.39,
+     356456,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       2805.4
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       2805.39
+      ]
+     },
+     false
+    ],
+    [
+     "Mb.A37.j",
+     true,
+     false,
+     135.79,
+     7364105,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       135.79
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       135.79
+      ]
+     },
+     false
+    ],
+    [
+     "Mb.B37.i",
+     true,
+     false,
+     135.79,
+     7364105,
+     {
+      "dense_scrutiny": [
+       true,
+       false,
+       135.79
+      ],
+      "sparse_interactive": [
+       true,
+       false,
+       135.79
+      ]
+     },
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.B14.j": "correct",
+     "Mb.A15.i": "correct",
+     "Mb.A37.j": "correct",
+     "Mb.B37.i": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.B14.j": "correct",
+     "Mb.A15.i": "correct",
+     "Mb.A37.j": "correct",
+     "Mb.B37.i": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   }
+  },
+  "RF-INVARIANCE-LFRAME-BASE": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     1.04,
+     965985644,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.04
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.04
+      ]
+     },
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": false,
+    "sparse_interactive": false
+   }
+  },
+  "RF-INVARIANCE-LFRAME-ROT-Q3": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     1.75,
+     571739698,
+     {},
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "not published on the captured entry (None)"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "not published on the captured entry (None)"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   }
+  },
+  "RF-INVARIANCE-LFRAME-ROT-Q9": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     1.45,
+     688664319,
+     {},
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "not published on the captured entry (None)"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "not published on the captured entry (None)"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   }
+  },
+  "RF-INVARIANCE-LFRAME-OFF-1e3": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     1.04,
+     965985644,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.04
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.04
+      ]
+     },
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": false,
+    "sparse_interactive": false
+   }
+  },
+  "RF-INVARIANCE-LFRAME-OFF-1e6": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     1.04,
+     965985644,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.04
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.04
+      ]
+     },
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": false,
+    "sparse_interactive": false
+   }
+  },
+  "RF-INVARIANCE-LFRAME-RELABEL": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.E1.j",
+     true,
+     true,
+     1.04,
+     965985644,
+     {
+      "dense_scrutiny": [
+       true,
+       true,
+       1.04
+      ],
+      "sparse_interactive": [
+       true,
+       true,
+       1.04
+      ]
+     },
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": "checks_passed",
+    "sparse_interactive": "checks_passed"
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.E1.j": "correct"
+    },
+    "sparse_interactive": {
+     "Mb.E1.j": "correct"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": false,
+    "sparse_interactive": false
+   }
+  },
+  "RF-INVARIANCE-LFRAME-UNITS-mm": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     1.04,
+     965985644,
+     {},
+     true
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "not published on the captured entry (None)"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "not published on the captured entry (None)"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": false,
+    "sparse_interactive": false
+   }
+  },
+  "RF-CANCEL-F-G1e80-GnG-INPLANE": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M1.j",
+     true,
+     true,
+     35527.14,
+     28147,
+     {},
+     false
+    ],
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     88817.84,
+     11259,
+     {},
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M1.j": "breach (formation row, post-S11-F)",
+     "Mb.M2.i": "breach (formation row, post-S11-F)"
+    },
+    "sparse_interactive": {
+     "Mb.M1.j": "breach (formation row, post-S11-F)",
+     "Mb.M2.i": "breach (formation row, post-S11-F)"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": true,
+    "sparse_interactive": true
+   }
+  },
+  "RF-CANCEL-M-G1e80-GnG-INPLANE": {
+   "class": "synthetic",
+   "rows": [
+    [
+     "Mb.M2.i",
+     true,
+     true,
+     63948.85,
+     15637,
+     {},
+     false
+    ],
+    [
+     "Mb.M2.j",
+     true,
+     true,
+     63948.85,
+     15637,
+     {},
+     false
+    ]
+   ],
+   "p1_quality": {
+    "dense_scrutiny": null,
+    "sparse_interactive": null
+   },
+   "today": {
+    "dense_scrutiny": {
+     "Mb.M2.i": "breach (formation row, post-S11-F)",
+     "Mb.M2.j": "breach (formation row, post-S11-F)"
+    },
+    "sparse_interactive": {
+     "Mb.M2.i": "breach (formation row, post-S11-F)",
+     "Mb.M2.j": "breach (formation row, post-S11-F)"
+    }
+   },
+   "K_D5": {
+    "dense_scrutiny": true,
+    "sparse_interactive": true
+   }
+  }
+ },
+ "S": [
+  [
+   [
+    12.0,
+    5.0,
+    0.0
+   ],
+   400000000.0,
+   6.158037043254201e-05
+  ],
+  [
+   [
+    10.0,
+    3.7,
+    2.2
+   ],
+   190913580.24691358,
+   3.193224340638662e-05
+  ],
+  [
+   [
+    6.0,
+    6.0,
+    0.0
+   ],
+   0.0,
+   0.0
+  ],
+  [
+   [
+    9.0,
+    0.0,
+    0.0
+   ],
+   618172839.5061729,
+   3.5139057644424434e-05
+  ],
+  [
+   [
+    12.0,
+    5.0,
+    0.0
+   ],
+   230160824.7378226,
+   7.38964445190504e-05
+  ]
+ ]
+}

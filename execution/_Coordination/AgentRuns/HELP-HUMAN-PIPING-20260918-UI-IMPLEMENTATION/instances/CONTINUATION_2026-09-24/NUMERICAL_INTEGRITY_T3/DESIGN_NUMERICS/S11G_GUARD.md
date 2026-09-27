@@ -1,310 +1,429 @@
-# S11-G — the formation-noise guard (design note)
+# S11-G — the formation-noise guard (design note, revision 2)
 
-D1 (Type 2 design TASK), 2026-09-27. Commissioned by ROOT ("I4's F12 stop", `ROOT_RULINGS_V1.md`, option (c)). Brief: `TASK_BRIEFS/D1_S11G_GUARD_NOTE.md` at `c24f8d5b4`, with ROOT's addendum at `42b300344`.
+D1 (Type 2 design TASK), 2026-09-27. Commissioned by ROOT ("I4's F12 stop", `ROOT_RULINGS_V1.md`, option (c)). Brief: `TASK_BRIEFS/D1_S11G_GUARD_NOTE.md` at `c24f8d5b4`, with ROOT's addendum at `42b300344`. Revision 1 (`633460fb4`, sha256 `5fa3be8f…`) is archived as `_run_records/S11G_GUARD_revision1.md`.
 
-**Basis**
-- Pins: `GATE/FORMATION_EXCEPTIONS.json` (7 triples, 14 rows) and `GATE/S11_EXCEPTIONS.json` (221 triples: 87 captured, 134 typed), as re-pinned at `db665f2cb` and amended at `42b300344`. `DESIGN.md` 5a.2 still quotes the older 228-triple pin; the 221 + 7 split used here supersedes that figure. Updating DESIGN's text is not in this note's scope.
-- Sources: `S11_CONTAINMENT.md` 5a.2 (§2.2 declared formation, §5, §6, §10 items 2 and 3), `DESIGN.md` 5a.2 (§4.1.6 S\* and the floor, §4.1.6.1 body membership and L_b).
-- Code: S11-K on main (`FK/load_ledger.rs`, `FK/exact_sum.rs`, at `3488a236a`), read-only. I4's S11-F candidate on `codex/piping-s11f-20260927`, read-only in I4's worktree. PP line numbers below are that candidate's as read on 2026-09-27; the K-D5 line (PP:3965) is from I3's worktree.
-- Frozen references: R1 (`REFERENCES/references.json`, `7b176dbb…`) and P1 (`DETECTION/results.json`, `a1188624…`).
+## 0. What changed in revision 2
 
-No product code was written or built. The forecast is one standard-library script: `_run_records/s11g_forecast.py` (§10).
+Revision 2 answers:
+- V1's check (`REVIEW/S11G_CHECK.md` at `30233f93a`: NOT READY, B-1 and SF-1 to SF-4);
+- ROOT's rulings ("S11-G note: rulings" and "S11-G after V1's S11G_CHECK", `ROOT_RULINGS_V1.md`);
+- the manager's relays of those rulings.
+
+Everything else in revision 1 is kept.
+
+| ID | Change | Sections |
+|---|---|---|
+| **B-1** | **The recovery guard now ships.** R-b is added to the design, together with the variant R-b′: R-b restricted to rows at or above the DESIGN floor 2⁻³⁴·S\*. See the note after this table. | §1, §4, §5, §6.4, §6.5, §6.6 |
+| SF-1 | The exact defect is **one exact accumulator of 12·Σε with no binary64 intermediate**. The fire decision is made exactly against the threshold. | §3.3, §3.4 |
+| SF-2 | The bound fallbacks are now conservative. Exact-pressure operands use γ₁₆·\|t\| (a products-only chain), not half an ulp. The curved consistent vectors become **cannot-bound**, which demotes (ROOT). | §3.2 |
+| SF-3 | The `source_eligible` gate is **unreachable end to end** once SF-4's floor is in place, and this is shown. It is kept as a defensive invariant with a unit test. T10 and the M7 and M8 claims are restated. | §3.5, §8 |
+| **SF-4** | **Fixed, not only disclosed (ROOT).** A per-row S\* floor is added: 2⁻¹⁰·Σ\|self-equilibrated formed terms\| at the row. V1's collinear straight runs (pure thermal and pure pressure) go silent, with margin ≥ 1.35e4. The six UDL catches are unchanged. No demotion is added. V1's probe becomes a test that must stay silent. | §3.4, §6.7, §8 |
+| NOTEs | **N-1:** the INPLANE per-row labels are re-taken from I4's measured records (F case: M1.j 3635 dense and 2214 sparse; M2.i 628 dense and 4346 sparse). **"The error is in u" is qualified:** exact recovery still leaves 28–2949×, and F2's stop rule resolves it (5.42e-18 < 1e-17). N-3 to N-7 are addressed. | §2, §3.1, §3.3, §4, §5 |
+
+**The B-1 forecast.** Both R-b and R-b′ are forecast by script over three sets:
+- the committed product outputs (every committed result envelope);
+- the committed models without an envelope (by exact emulation);
+- the frozen references, including the 221 and the 8 INPLANE rows.
+
+For each firing row the forecast gives today's predicate, whether the case is Passed today, its class (committed, frozen realistic or synthetic) and K-D5's overlap.
+
+**The B-1 result.**
+- Both variants catch all 8 INPLANE rows.
+- Neither demotes a committed case, and neither touches a committed byte.
+- R-b fires on one committed row, which is correct and sits in an already-Sensitive case. R-b′ fires on none.
+- On the frozen references, R-b falsely demotes 16 Passed case-modes (4 of them realistic) and R-b′ falsely demotes 12 (all synthetic).
+- **ROOT's default therefore selects R-b′.**
+
+**Additions to the basis.**
+- `REVIEW/S11G_CHECK.md` (`fb8a879d`), and V1's probes in `REVIEW/_run_records/s11g_check/`.
+- I4's measured post-S11-F formation rows: `IMPLEMENTATION/S11F/_run_records/formation_rows/formation_rows.json` on the S11-F branch. It was read from I4's worktree, uncommitted, as sha256 `c548f519…`. Every INPLANE figure in §2 and §5 comes from it.
+- `_run_records/recal_d5.json`, for K-D5's overlap.
+
+No product code was written or built.
 
 ---
 
 ## 1. Answer in brief
 
-**The load-row guard catches all 6 load-formation rows, and nothing else.**
-- The 6 rows are UDL-W1e80 th.S1.RZ (typed, both modes) and UDL-W1e8 th.S1.RZ (captured and typed, both modes). The guard runs before the solve, on the ledger, so it fires in every entry and every mode that builds the case.
-- It demotes none of:
-  - the 221 repaired triples;
-  - any frozen-reference case that passes today, including UDL-W1e5;
-  - S11-F's committed probe-A test;
-  - any of the 164 committed model/case entries with formed loads.
-- **No committed byte changes.**
+**The load-row guard.** The design is unchanged; SF-1, SF-2 and SF-4 are repairs.
+- It catches all 6 load-formation rows: UDL-W1e80 (typed) and UDL-W1e8 (captured and typed), in both modes.
+- It demotes none of the following:
+  - the 221;
+  - any frozen-reference row that passes today, including UDL-W1e5;
+  - S11-F's probe A;
+  - V1's collinear straight runs, now silenced by the SF-4 floor;
+  - any committed model.
 
-**It uses signed, exact formation defects instead of a-priori per-term bounds.**
-- Each formed term carries the exact value of its own declared formula on the operands the product holds. The guard sums the signed defects exactly.
-- Where a term has no implemented exact form, it falls back to a stated bound.
-- **Why not a-priori bounds.** The brief's literal Σ|term|·bound form cannot meet its own coverage conditions. A rigorous a-priori bound:
-  - demotes UDL-W1e5, which passes today (bound 2.9× over the threshold);
-  - demotes S11-F's committed probe-A test (G, 0.3, −G on one member), where q and −q give exactly negated terms and exactly negated defects.
-- With signed exact defects, UDL-W1e5 stays silent with a 25× margin and probe A with a margin of about 3e7. UDL-W1e8 fires at 48×, and UDL-W1e80 at 2.6e81×.
-- No envelope field is added. The design uses the existing field set, so there is no stop.
+**The recovery guard R-b′ (B-1; ROOT's default).**
+- **The rule.** R-b′ fires at a straight member end when all three hold:
+  - B > 1e-9·q;
+  - q > 2¹⁰·B;
+  - q ≥ 2⁻³⁴·S\*_moment.
+- **The quantities.** q is the end's published bending magnitude. B is the formation-noise bound of the formed K_e·u.
+- **What it catches.** All 8 INPLANE rows. Each is a published Passed breach under today's predicate, measured by I4 at 628–5767× the criterion.
+- **Committed fixtures.** It fires on no committed product output and no committed model.
+- **Frozen false demotions: 12 synthetic case-modes,** whose rows are correct under today's predicate:
+  - RF-INVARIANCE-LFRAME-BASE, -OFF-1e3, -OFF-1e6 and -RELABEL (8 case-modes, borderline at 1.04× the R-b threshold);
+  - RF-WEAK-W-3D-rho1e-08 and -AX-rho1e-08 (4 case-modes).
 
-**The recovery side: the 4 INPLANE triples (8 rows) cannot be caught in binary64 without demoting passing rows.** Per-row justification for waiting on F2 (W1a) is in §5, for ROOT.
-- Every guard that sees these rows is row-relative. Each such candidate demotes 16 to 90 passing case-modes.
-- The body-scale bound, which is the product's own accuracy contract, sees none of the 8 rows.
-- An exactly rounded recovery from the binary64 displacement would still leave the rows 145–2949× over the criterion. The error is in u, not in the K_e·u arithmetic.
-- S11-G therefore ships no recovery-side demotion.
+**R-b as written** adds to that:
+- 4 realistic-scale false demotions (RF-LARGE-CONT-n00100-AX and -ROT, below the floor), 16 in all;
+- one firing on a committed row, in `load_reference_fallback_uz`. The case is already Sensitive and the row is correct, so no verdict and no byte changes.
 
-**The conflict with K-D5 is disjoint.**
-- K-D5 changes only the solve call inside `solve_preview_reduced_system`, plus FK `finish_checked_factor` and SA.
-- S11-G changes the ledger push sites, a new PP module, the source-recovery eligibility line and `append_integrity_report`.
-- Either may land first (§9).
+**The committed-byte forecast is zero** for the load-row guard plus either recovery variant (§6.6).
+- The load-row guard and R-b′ fire on no committed case.
+- R-b's only committed firing is on an already-Sensitive case. There the demotion is a no-op by rule (§3.5), so no text is appended.
+
+**No envelope field is added, so there was no stop.**
+
+**K-D5 is disjoint** in the PP functions it edits (§9).
+- By `recal_d5.json`, K-D5 would itself demote both INPLANE cases in the S11-F state, at 1.6× and 2.0× its trigger.
+- It does not demote LFRAME or WEAK-W-3D/AX.
+- I3's implementation is the one to confirm the INPLANE figure (§5).
 
 ---
 
-## 2. The seven triples after S11-F
+## 2. The seven triples after S11-F (I4's measured values)
 
-| Triple (entry) | Rows | Class | Published after S11-F | Ratio to the criterion | S11-G |
+| Triple (entry) | Rows | Class | Published after S11-F (I4) | Ratio to the criterion (dense / sparse) | S11-G |
 |---|---|---|---|---|---|
-| UDL-W1e80 th.S1.RZ (typed) | 2 | Load formation | Net of the represented terms 2.63e64; rotation of about 1.2e57 rad | 2.63e81 | **Caught** (load-row guard) |
-| UDL-W1e8 th.S1.RZ (captured, typed) | 4 | Load formation | Net 0.4916666902601719 against the intended 59/120 | 47.99 (ROOT's addendum); guard ratio 47.99 (§6.1) | **Caught** (load-row guard) |
-| F-G1e80-GnG-INPLANE Mb.M1.j (typed) | 2 | Formed K_e·u | 1e-8 N·m ± 6e-15 (emulated) | 628 (emulated) | Waits for F2 (§5) |
-| F-G1e80-GnG-INPLANE Mb.M2.i (typed) | 2 | Formed K_e·u | ± 3.6e-14 (emulated) | 3635 (emulated) | Waits for F2 (§5) |
-| M-G1e80-GnG-INPLANE Mb.M2.i (typed) | 2 | Formed K_e·u | ± 1.5e-14 (emulated) | 1504 (emulated) | Waits for F2 (§5) |
-| M-G1e80-GnG-INPLANE Mb.M2.j (typed) | 2 | Formed K_e·u | ± 6e-15 (emulated) | 628 (emulated) | Waits for F2 (§5) |
+| UDL-W1e80 th.S1.RZ (typed) | 2 | Load formation | 1.2184480799204924e57 rad | 2.63e81 / 2.63e81 | **Caught** (load-row guard) |
+| UDL-W1e8 th.S1.RZ (captured, typed) | 4 | Load formation | 2.2754051790793294e-8 rad | 47.99 / 47.99 | **Caught** (load-row guard) |
+| F-G1e80-GnG-INPLANE Mb.M1.j (typed) | 2 | Formed K_e·u | 1.0000036354540498e-8 / 1.0000022143685783e-8 N·m | **3635 / 2214** | **Caught** (R-b′; R-b) |
+| F-G1e80-GnG-INPLANE Mb.M2.i (typed) | 2 | Formed K_e·u | 9.999993721976352e-9 / 1.0000043459967856e-8 | **628 / 4346** | **Caught** (R-b′; R-b) |
+| M-G1e80-GnG-INPLANE Mb.M2.i (typed) | 2 | Formed K_e·u | 1.000005767082257e-8 / 1.0000043459967856e-8 | 5767 / 4346 | **Caught** (R-b′; R-b) |
+| M-G1e80-GnG-INPLANE Mb.M2.j (typed) | 2 | Formed K_e·u | 9.999993721976352e-9 / 9.999993721976352e-9 | 628 / 628 | **Caught** (R-b′; R-b) |
 
-**The UDL rows.**
-- The published UDL-W1e8 net is reproduced bit for bit by the script: SP's two formulas on the represented operands, summed exactly (§6.1).
-- The UDL coverage does not depend on published response values: the guard acts on the load row before the solve.
-- The script's guard ratio equals the published error ratio of 47.99, because the rotation is linear in the net.
+**Coverage: 14 of 14 formation rows caught.** The formation list can be empty when S11-G lands. ROOT then removes the rows from the pin, since this note does not edit GATE files.
+- **The UDL rows.** The load-row guard acts on the ledger before the solve, so it catches them in every entry and mode that builds the case.
+- **The INPLANE rows.** R-b′ acts on each case-mode's published end actions, so it catches them on the published values above. B is about 3.6e-13 to 8.9e-13. That gives B/(1e-9·q) = 11259–35527 and q/B = 11259–28147, both far from either threshold.
 
-**The INPLANE rows.**
-- The INPLANE figures are D1's emulation of the S11-F state: the exact net at N2, binary64 dense elimination, and binary64 K_e·u.
-- The brief quotes I4's measured errors, up to 1.2e-6 relative. The emulation gives up to 3.6e-6; the elimination order differs.
-- ROOT's addendum asks for coverage against I4's post-S11-F records (`IMPLEMENTATION/S11F/_run_records/formation_rows/`). Those are not yet committed. Once they are, the INPLANE column is re-checked against them (§11 item 1). The conclusion in §5 does not depend on the exact ratios.
+Revision 1's INPLANE per-row labels came from D1's emulation, with the F-case labels swapped. I4's measurement replaces them (V1 N-1).
 
 ---
 
 ## 3. The load-row guard
 
-### 3.1 Formed terms and input terms
+### 3.1 Formed terms and input terms (unchanged)
 
-**The rule.** A ledger term is **formed** when the product computes its binary64 value from other held operands with at least one rounding. Its **formation defect** is:
+- **Formed term.** A ledger term whose binary64 value the product computes from held operands, with at least one rounding. Its **formation defect** is ε_t = value_t − formula_t(held operands), evaluated exactly.
+- **Input term.** Nodal loads and constant effort. It carries no defect.
+- **Held operands.** The SI binary64 values the product holds and uses on both the force side and the recovery side:
+  - `LoadApplication` and resolved-case quantities;
+  - L, (a, b) and T;
+  - a load record's `axial_load`.
 
-  ε_t = value_t − formula_t(held operands), evaluated exactly.
+The consequences are those of revision 1 §3.1:
+- Exact input cancellation (the 221) cannot move the statistic.
+- Same-expression negated terms cancel together with their defects (probe A).
+- Different-expression terms keep their defect (UDL-W1e80).
 
-A term is an **input** when its value is itself a held operand, a correctly represented user or case quantity. It then carries **no defect**, by construction.
+**The held-operand boundary (V1 N-3).** Formation error made before a held operand is invisible to this guard:
+- `axial_load` = fl(E·A·α·ΔT) or fl(p·A);
+- decimal-to-SI conversion;
+- T.
 
-**Held operands** are the binary64 values the product holds and uses on both the force side and the recovery side:
-- the SI load quantities in `LoadApplication` and the resolved case (nodal values, intensities, pressures, temperature intervals, strains);
-- member length L, span fractions (a, b) and transform entries T;
-- a load record's `axial_load`.
+For example, equal intended thermal loads formed through different factorizations can meet at a junction without the guard seeing it. That is W1's class, like the model representation (L, A). Because these chains are products only, a later slice can extend `RoundedProduct` upstream cheaply. S11-G does not.
 
-The guard measures loss **in forming a load term** from those operands, not in representing the model. That is the same boundary as S11's "represented inputs" (§5.3) and K-D5's represented-model stance. Decimal-to-binary parsing and model-geometry formation (L from coordinates, A from OD and t) are shared by K and f. They are W1's class, not S11-G's.
+**A row-wise load criterion (V1 N-4)** does not bound the response error under ill-conditioning. That is K-D5's and F2's concern. K-D5's ρ could later use f − E to become response-level (§9).
 
-**Consequences.**
-- A nodal load, a constant-effort force and every authored nodal (G, n, −G) are inputs: ε = 0.
-- Exact input cancellation (the 221) cannot move the statistic. This holds by construction, not by a margin.
-- Two formed terms produced by the **same expression** on negated operands, such as q and −q on one member (S11-F probe A), or ±P at the two ends of a straight member, are exactly negated. Their defects are exactly negated too, so the signed sum cancels them.
-- Terms produced by **different expressions** do not cancel. UDL-W1e80 is the example: SP's rotation_i polynomial 0.5b² − (2/3)b³ + 0.25b⁴ at one member's i end, against rotation_j −b³/3 + 0.25b⁴ at the other's j end. The signed sum keeps exactly the defect that the formation introduced.
+### 3.2 Per-family formation records (SF-2 applied)
 
-### 3.2 Per-family formation records
+| Site (S11-F candidate) | Family | Class | Defect form | Operand bound β (relative to \|t\|) | Self-equilibrated (SF-4) |
+|---|---|---|---|---|---|
+| `push_nodal_loads` PP:2204 | Nodal loads | Input | none | 0 | — |
+| `add_constant_effort_support_loads` PP:10739 | Constant effort | Input | none | 0 | — |
+| straight `add_uniform_element_loads` PP:8635 | Straight uniform fixed-end terms | Formed | **Exact** (SP formula over exact expansions; scale 3) | 0; γ₄ for generated intensities (self-weight) | no |
+| `add_pressure_thrust_loads` PP:8846–8847 | Straight thrust fl(P_ax·x) | Formed | **Exact** rounded product: −lo(a·b) | 0 | **yes** (±, same member) |
+| `add_thermal_equivalent_loads` PP:8924–8925 | Straight thermal and eigen fl(N·x) | Formed | **Exact** rounded product | 0 | **yes** |
+| curved thermal `push_product` PP:8948 | K_rc·fl(ε·chord_c) | Formed | **Exact** scaled rounded product: −K_rc·lo(ε·c) | 0 | **yes** (K·u_free of a rigid-free field) |
+| curved pressure caps PP:8883–8884 | fl(P_ax·tangent) | Formed | **Exact** rounded product | 0 | **yes** (with the wall vector) |
+| curved uniform PP:8595 and curved wall vector PP:8888 | CB `consistent_uniform_nodal_loads`, `consistent_radial_pressure_nodal_loads` | Formed | **CannotBound** (SF-2, ROOT) | — | no |
+| `push_exact_pressure_operands` PP:2285 | D-14 exact-pressure group operands | Formed | **Bounded**: γ₁₆·\|t\| (SF-2) | — | no |
 
-Every ledger push site in S11-F is listed below with its S11-G class. "Exact" means the defect is computed exactly from the declared formula. "Bound" gives a stated worst-case magnitude.
+**Exact-pressure operands (SF-2).**
+- **The chain.** `pressure_group_value` (`pressure_exact/source_geometry.rs`) forms `fluid_force_scaled(kernel, p)·Scaled(coefficient)·Scaled(direction)`. The coefficient is a correctly rounded sum, and the fluid force is p·A_i from the source bore. `Scaled::mul` rounds its mantissa once per product, and the output is rounded once more.
+- **Why γ₁₆ is sound.** The chain is products only, so its relative error is at most γ_k for k roundings. V1 counts at least 5, and the fluid-force sub-chain adds a few more; γ₁₆ covers k ≤ 16.
+- **The implementation obligation.** It counts k from the source and uses γ₂ₖ if k exceeds 8. Alternatively, it carries the chain as an exact product expansion, which is sound because the chain is products only.
+- **Effect on the forecast.** None. The committed screen already charges every formed term 17·γ₁₆.
 
-| Site (S11-F candidate) | Family | S11-G class | Defect form | Operand bound β (relative to \|t\|) |
-|---|---|---|---|---|
-| `push_nodal_loads` PP:2204 | Nodal loads | Input (`push`) | none | 0 |
-| `add_constant_effort_support_loads` PP:10739 | DEC-049 constant effort (user-entered force) | Input (`push`) | none | 0 |
-| straight `add_uniform_element_loads` PP:8635 (via SP `equivalent_global_nodal_loads_with_spans`) | Straight uniform fixed-end terms, full or spanned | Formed | **Exact**: SP evaluates its own formula a second time over exact expansions. Global = Tᵀ·FEM(T·q_g) on held q_g, L, a, b and T; the constants 1/3 and 2/3 are cleared by scale D = 3 (3·rotation_i = q L²(1.5b² − 2b³ + 0.75b⁴ − …), 3·rotation_j = q L²(−b³ + 0.75b⁴ − …)) | 0; for generated intensities (self-weight before D-14's exact form) γ₄, a same-sign chain: mass sum, ×g-factor, ×g |
-| `add_pressure_thrust_loads` PP:8846–8847 | Straight thrust fl(P_ax·x_a) at each end | Formed | **Exact**: rounded product, ε = fl(a·b) − a·b = −lo(a·b) (one FMA) | 0 (`axial_load` held) |
-| `add_thermal_equivalent_loads` PP:8924–8925 | Straight thermal and eigen axial fl(N·x_a) | Formed | **Exact**: rounded product, as above | 0 (`axial_load` held) |
-| curved thermal `push_product` PP:8948 | K_rc·fl(ε·chord_c) | Formed | **Exact**: scaled rounded product, ε = K_rc·(fl(ε·c) − ε·c) = −K_rc·lo(ε·c) | 0 |
-| curved `add_uniform_element_loads` PP:8595 | CB `consistent_uniform_nodal_loads` | Formed | **Bound**: \|ε\| ≤ γ₆₄·‖f_source‖∞ (the source's own 12-vector) | — |
-| curved pressure PP:8883–8888 | End caps along the arc tangents, plus CB `consistent_radial_pressure_nodal_loads` | Formed | Caps: exact rounded product. Wall vector: bound γ₆₄·‖f_source‖∞ | — |
-| `push_exact_pressure_operands` PP:2285 | D-14 exact-pressure group operands | Formed | **Bound** of half an ulp (2⁻⁵³·\|t\|), if `pressure_runtime` rounds each operand once from its exact value. The implementation confirms this against `pressure_runtime`; if it does not hold, the family bound is that module's own γ count | — |
-| `nodal_and_eigen_case_force` PP:2266 (retained replay) | Same producers | Same classes (shared functions) | — | — |
+**Curved consistent vectors (SF-2; ROOT: cannot bound, which demotes).**
+- **Why no bound is given.** A conservative bound would need three things this note does not have:
+  - cond₁(F) of the arc flexibility (348 for elbows, 1.7e4 for R5-4's small-angle bend);
+  - the cancellation in p_i = H·X + W_i;
+  - a stated accuracy for libm's sin, cos and atan2.
+- **The rule.** Every term of these two families is pushed as `Formation::CannotBound`. A case whose ledger holds any `CannotBound` term demotes to Sensitive, with a reason naming the curved span and the family.
+- **Forecast effect.** No committed model or frozen reference loads a realized curved span, so no forecast changes (§6.3).
+- **Cost, disclosed for ROOT.** An availability loss on real curved spans carrying uniform loads or pressure, until F3 gives an exact form or a proven bound.
 
-**What the classes mean.**
-- **"Stated number of ulp"** (the brief's item 1) is the bound column. For exact families the bound is not needed, because the defect itself is known.
-- **Why the curved families use a bound.** Carrying CB's internal arc integrals exactly is F3's work (W1b). For them, S11-G keeps the γ₆₄ bound on the source vector and sums the bounds without sign, which is conservative. No committed case carries a curved-span load (§6.3).
-- **Short partial spans** (S11 §10 item 2) are covered by the exact family. A span fraction near 1e-8 gives a real defect, and the guard demotes such a case. That is fail-closed and correct. No committed product-path model carries a partial-span load (§6.3).
-
-### 3.3 Carriage in the ledger (FK `load_ledger.rs`); `AssembledForce` unchanged
+### 3.3 Carriage in the ledger; `AssembledForce` unchanged (SF-1 applied)
 
 ```rust
-/// How a formed term's binary64 value relates to its declared formula (S11-G).
 pub enum Formation {
-    /// `scaled_intended` is an exact nonoverlapping expansion of
-    /// scale * formula(held operands); scale is 1, 3 or 12.
+    /// scaled_intended: exact nonoverlapping expansion of scale*formula(held operands); scale is 1 or 3.
     Exact { scale: f64, scaled_intended: Vec<f64> },
-    /// value = k * fl(a * b) with k exact; defect = -k * lo(a * b), exact.
+    /// value = k*fl(a*b), k exact: defect = -k*lo(a*b), exact.
     RoundedProduct { k: f64, a: f64, b: f64 },
-    /// No implemented exact form: |defect| <= bound (rounded upward).
+    /// |defect| <= bound (rounded upward).
     Bounded { bound: f64 },
+    /// No conservative bound is available: the case demotes.
+    CannotBound,
 }
 impl LoadLedger {
-    /// A formed term: `value` is pushed exactly as `push` pushes it today.
     pub fn push_formed(&mut self, source: impl Into<String>, dof: usize, value: f64,
-                       formation: Formation, operand_bound: f64);
+                       formation: Formation, operand_bound: f64, self_equilibrated: bool);
 }
 impl AssembledForce {
-    /// Per DOF with at least one formed term: the exact defect sum (rounded
-    /// once), the bound sum (rounded upward) and the intended net.
     pub fn formation_rows(&self) -> Result<Vec<FormationRow>, SumError>;
 }
 ```
 
-**Storage.** Formation records sit in a vector parallel to `terms`: `formations: Vec<Option<Formation>>`, which is `None` for `push` and `push_product`. The following are unchanged:
-- `ForceTerm`, `ForceTermKind`, `values`, `by_dof` and `evidence`;
-- `finish`'s arithmetic;
-- the absence of any public constructor, `Clone` or `&mut`.
+**Storage and `Debug`.**
+- Formation records sit in vectors parallel to `terms`. `ForceTerm`, `ForceTermKind`, `values`, `by_dof`, `evidence` and `finish` are unchanged.
+- The new vectors are kept out of `AssembledForce`'s `Debug` (V1 N-6). Either `AssembledForce` gets a hand-written `Debug` that prints only today's fields, or the vectors live in a sibling struct without `Debug`. T9 pins zero committed-byte change.
 
-So `AssembledForce`'s exactness, and every `Debug` rendering of a term, are byte-identical. A formed term's value is the value pushed today.
+**One exact accumulator per row (SF-1).** For each DOF d with a formed term, a single `ExactAccumulator` A_d receives 12·Σε exactly:
+- **Exact term:** `add_product(12, value)`, then `add_product(-12/scale, c)` for every component c of `scaled_intended`. The factor 12/scale ∈ {12, 4} is exact.
+- **RoundedProduct term:** three `add_product(-4k, lo)`, with lo = fma(a, b, −fl(a·b)). The factor 4k is exact; if it would overflow, the term becomes `Bounded { bound: γ₂·|value| }`.
 
-**`formation_rows`, per DOF.**
-- **Exact terms.** A12 accumulates (12/scale)·(scale·value − scaled_intended) with `ExactAccumulator::add_product`. That is 12·Σε exactly: 12/scale is an integer, 12·value is one product, and the expansion components are binary64.
-- **Rounded products.** A1 accumulates −k·lo(a·b) with `add_product`, exactly.
-- **The defect.** E = fl(round(A12)/12 + round(A1)). This is a statistic only; its relative error of about 3u is far inside every margin in §6.
-- **The bound sum.** B = Σ bound_t + Σ β_t·|value_t|, rounded upward.
-- **The intended net.** n_int = fl(net − E).
-
-**Exact expansions.** The multi-factor products (q·L²·bᵏ·T·T) are exact nonoverlapping expansions: repeated scale-expansion with an FMA two-product, the primitive FK's `Expansion` already uses.
+**Nothing is rounded before the fire decision (§3.4).** `FormationRow` carries:
+- A_d itself (or equivalently the exact comparison result);
+- round(A_d)/12, for the diagnostic text only;
+- the bound sum B_d, rounded upward;
+- the self-equilibrated sum P_d = Σ|value_t| over self-equilibrated formed terms, rounded upward;
+- the intended net n_d = round(12·Σ values − A_d)/12, used on the threshold side, which is rounded downward (§3.4).
 
 **Range failure is fail-closed; never `Err`.**
-- If an expansion component overflows or underflows, the term falls back to `Bounded { bound: γ₁₆·Σ|monomials| }`.
-- If that bound is itself not finite, the row is treated as firing.
-- If `formation_rows` returns `SumError`, the case is also treated as firing.
+- If an expansion component overflows or underflows, the term becomes `Bounded { γ₁₆·Σ|monomials| }`.
+- If that bound is not finite, or a `SumError` occurs, the row fires.
+- A test pins these paths (V1 N-5).
 
-### 3.4 The statistic, the scale and the threshold
+### 3.4 The statistic, the scale, the S\* floor (SF-4) and the exact decision (SF-1)
 
-For each loaded row d of a connected body (body membership and L_b as in DESIGN §4.1.6.1), the row **fires** when:
+For each loaded row d of a connected body:
 
-  |E_d| + B_d > 1e-9 · max(|n_int,d|, S\*_d)
+  T_d = 1e-9 · max(|n_d|, S\*_d, 2⁻¹⁰·P_d), rounded downward.
 
-**The scale S\*_d uses the DESIGN §4.1.6 coupling on intended ledger nets.**
-- **Free rows.** Let F and M be the largest |n_int| over the body's free force rows (global DOF % 6 < 3) and free moment rows. Then S\* = fo = max(F, M/L_b) for a force row, and S\* = mo = max(M, L_b·F) for a moment row.
-- **Restrained rows.** These feed reaction rows. They use the same formula over all of the body's loaded rows, free and restrained. That scale is at least the free-row scale.
-- **Why free rows use only free rows.** In UDL-W1e80 the fixed-end rows carry 3.3e79. A scale taken over all rows would give a threshold of 3.3e70, above the 2.6e64 defect, and the formation row would escape. Mutation M5 (§8.2) checks this.
+The row fires if either:
+- B_d ≥ T_d; or
+- |A_d| > 12·(T_d − B_d). This comparison is decided exactly: a copy of A_d receives `add_product(∓12, T_d − B_d)`, with the difference rounded downward, and its signum is read.
 
-**Degenerate scale.** If every free row's intended net in the body is exactly zero, S\*_f = 0 and any nonzero free-row defect fires. That is fail-closed. No frozen or committed case is in this state with a free formed row: the 14 committed entries with S\*_f = 0 have no free formed row.
+A `CannotBound` term makes the case fire.
 
-**Precision.** The comparison is binary64. Bounds are rounded upward, and n_int and S\* are rounded to nearest. Nothing here is bit-critical: every forecast row is at least 25× from the threshold on either side.
+**S\* (unchanged).**
+- Free rows use the DESIGN §4.1.6 coupling over the body's free-row intended nets: fo = max(F, M/L_b) and mo = max(M, L_b·F).
+- Restrained rows use the same formula over all of the body's loaded rows.
+- The free-row-only S\* is what makes UDL-W1e80 fire. Its fixed-end rows carry 3.3e79; a threshold over all rows would be 3.3e70, above the 2.6e64 defect.
 
-### 3.5 What firing does: demote to Sensitive, never `Err`, no new field
+**The floor (SF-4, a required fix).** floor_d = 2⁻¹⁰·P_d, where P_d is Σ|t| over the **self-equilibrated formed terms at row d**: the straight thrust, thermal and eigen axial pairs, curved thermal K·u_free, and the curved pressure caps.
 
-1. PP computes `formation = formation_guard(&force, …)` once per case, right after `finish_case_ledger` (PP:2490). The new module `product_physics/src/formation_guard.rs` returns `Option<FormationFinding>`: the first firing rows, their DOF, E, B, n_int, S\* and source ids.
-2. **Routing is unchanged, except for retained-source recovery.**
-   - `source_eligible` gains `&& formation.is_none()`.
-   - Source recovery solves the same `AssembledForce`, so it would reproduce the formation defect. If it were selected, it would restore `numerically_eligible` (P1: every Sensitive case with `recovery_selected` has that standing).
-   - The guard therefore never triggers recovery, and never lets recovery re-qualify a fired case.
-   - The load-state diagnostic then reports `retained_source_attempt=not_eligible`, which is existing text.
-3. **The verdict.** `append_integrity_report` gains `formation: Option<&FormationFinding>`. When it is `Some`:
-   - the code becomes `NUMERICAL_INTEGRITY_SENSITIVE` at severity `warning`, whatever `report.quality` says;
-   - one sentence is appended to the existing message: "Load formation: ledger row(s) … formed-term defect E (+ bound B) exceeds 1e-9 × max(|intended net|, S\*) …; source ids …". The `StructuralReport` is not altered and its `Debug` text stays truthful.
-   - Both call sites change, the linear route (PP:2790) and the nonlinear route (PP:2830).
-   - The `RECOVERY_BASIS_UNQUALIFIED` branches already map to Unresolved, which ranks above Sensitive, so they are left alone.
-4. **The effect.** `assessed_numerical_quality` maps the case to `NumericalQualityStatus::Sensitive`, so the case standing is `needs_recompute` (P1's standing rule). Envelope-level Current is withheld and rows are kept, exactly as S11 §6 describes for a flagged loss. Nothing is refused, no `Err` is returned, and no new envelope field, code or enum value is added.
+**Why the floor is sound.**
+- A self-equilibrated formed term balances within its own element. At a row, its only defect is the final product rounding, |ε_t| ≤ u·|t| (the `RoundedProduct` family).
+- So at any row where only such terms carry defects, |E_d|/T_d ≤ 2⁻⁵³/(1e-9·2⁻¹⁰) ≈ 1.1e-4. Such rows can never fire.
+- In V1's collinear runs, the free-row intended nets are N·Δx, where Δx is a one-ulp difference in held direction cosines. The nets are themselves held-operand noise, and that noise is what collapsed S\*.
+- The physical response there is zero interior displacement with an exact member force N. That force is published and verified on the force-kind scale.
 
-**Granularity is the load case.** Every row of a fired case is demoted, including rows that pass on their own: the 40 passing rows of each UDL-W1e8 case-mode, and every row of UDL-W1e80. A per-row verdict would need a new envelope field (brief item 3). This note does not propose one. If ROOT wants row granularity, that is a separate ruling.
+**What the floor can hide.** A defect below about 1e-12·P_d, at a row carrying self-equilibrated terms.
+- That is a relative perturbation of 1e-12 of an element-level self-equilibrated action. It is 1000 times inside the 1e-9 criterion on the member force it induces.
+- No single-rounding formation error can exceed it. So the floor hides no error the guard exists to catch.
 
----
+**What the floor does not touch.**
+- UDL fixed-end terms and nodal inputs are not self-equilibrated, so P_d = 0 for all 6 UDL rows. Their statistic and threshold are unchanged: 47.99 and 2.6e81 fire; UDL-W1e5 stays at 0.0395; probe A stays silent.
+- The floor only raises thresholds, so it adds no demotion anywhere (§6.7).
 
-## 4. The recovery-side guard: analysis and decision
+**Precision.**
+- T_d is rounded downward and B_d upward.
+- There is no rounding on the defect side: A_d is exact.
+- The decision is therefore conservative (fail-closed) and bit-reproducible.
 
-**Scope examined.** Member end bending actions from the formed K_e·u (the 8 INPLANE rows are all end moments). Station actions derive from the same end actions (S11 §2.2 E4 and E6), so they would inherit any end-action guard.
+### 3.5 What firing does (unchanged, plus the no-op rule and SF-3)
 
-**Candidates.** Each was evaluated on P1's 146 passing case-modes and on the INPLANE rows in the S11-F state. B = γ₁₆·Σ|K_loc||T u|; S\*_moment is the body's coupled moment scale.
+1. **Where the findings are formed.** PP computes the load-row finding after `finish_case_ledger` (PP:2490), and the recovery finding (§4) after the straight end actions are formed. Both go into one `FormationFinding` per case, in the new module `product_physics/src/formation_guard.rs`.
+2. **Routing.** `source_eligible` gains `&& load_row_finding.is_none()`.
+   - **Why it is unreachable end to end (SF-3).** Retained-source recovery admits only nodal loads plus load-state eigen terms, and refuses any other authored family. Its eigen terms are self-equilibrated `RoundedProduct` terms. By §3.4 such a row cannot fire: it reaches at most 1.1e-4 of the threshold, and nodal inputs carry no defect. So the load-row guard never fires on a source-eligible case.
+   - **Why the gate is kept anyway.** It is a defensive invariant for any future family admitted to source recovery. A unit test on the routing predicate pins it (§8).
+   - **The recovery finding is formed after routing and does not enter it.** Where retained-source recovery is selected, the published member rows are its exact projections, not the formed K_e·u. R-b does not apply to them.
+3. **The verdict.** `append_integrity_report` takes `formation: Option<&FormationFinding>`, at both call sites (PP:2790 linear, PP:2830 nonlinear).
+   - When the ordinary code would be `CHECKS_PASSED`, the code becomes `NUMERICAL_INTEGRITY_SENSITIVE` (warning) and one reason sentence is appended to the existing message. The `StructuralReport` stays truthful (`quality: Passed`).
+   - **The no-op rule (new).** If the case is already `SENSITIVE` or weaker, nothing is changed and no sentence is appended. The case's verdict and bytes are exactly today's. This is what keeps R-b's firing on the already-Sensitive committed `load_reference_fallback_uz` byte-neutral (§6.6).
+4. **The effect.** `NumericalQualityStatus::Sensitive`, with standing `needs_recompute`. No refusal, no `Err`, and no new field, code or enum value.
 
-| Candidate | Rule | INPLANE rows caught | Passing case-modes demoted | Cost per member end |
-|---|---|---|---|---|
-| R-a (sound bound, body scale) | B > 1e-9·max(\|q\|, S\*_moment) | **0 of 8** | 4 (8 rows: RF-SKEW-T-CANT-OFF-345, RF-ZERO-TORSION) | 24 multiply-adds |
-| R-b (sound bound, row-relative) | B > 1e-9·\|q\| and \|q\| > 2¹⁰·B | 8 of 8 | **16** (28 rows: RF-INVARIANCE-LFRAME ×4, RF-LARGE-CONT-n00100 ×2, RF-WEAK-W-3D and -AX rho1e-08) | 24 multiply-adds |
-| R-c (actual formation error by exact recomputation, row-relative above the floor 2⁻³⁴·S\*) | \|q − q_exact\| > 1e-9·max(\|q\|, 2⁻³⁴·S\*) | 8 of 8 | **90** (152 rows in 46 cases) | 24 exact products |
-
-**The underlying fact.** Recomputing K_e·u exactly from the binary64 solution leaves the INPLANE rows at 145, 1291, 2949 and 1175× the criterion. The error sits in δu, the solve's ordinary binary64 accuracy: |K|·|δu| is about 1e-14 against a 1e-8 net.
-
-**Why every catching candidate fails.**
-- A guard that catches these rows must judge them relative to their own magnitude.
-- The frozen references use that scale only for RF-CANCEL, R1's net-governed scale. Every other passing row is judged on its class scale.
-- In binary64, the rows R-b and R-c flag carry the same row-relative noise as the INPLANE rows. The product cannot tell which scale a reference chose.
-- Under the product's own contract (DESIGN §4.1.6, the body scale S\*), the INPLANE rows are well inside 1e-9·S\*. The contract is met there only at precision p, by W1.
-
-**Decision.** S11-G ships no recovery-side demotion. The 4 INPLANE triples (8 rows) wait for F2 (W1a), with the justification in §5 going to ROOT. A row-relative recovery guard in binary64 would demote at least 16 passing frozen-reference case-modes, which the brief forbids.
+**Granularity is the load case** (ROOT (c), accepted).
 
 ---
 
-## 5. Per-row justification for ROOT: the INPLANE rows wait for F2 (W1a)
+## 4. The recovery guard R-b and R-b′ (B-1)
 
-**Common facts** for both cases: 2 m cantilever on x, members M1 (N0→N1) and M2 (N1→N2), N0 anchored.
-- **Loads.** The ordinary load is at N1: 50 N in y (F case) or 20 N·m about z (M case). The authored (1e80, 1e-8, −1e80) at N2 is repaired to its exact net 1e-8 by S11-F; this is input cancellation and correct.
-- **The error mechanism.** The expected end moments are net-governed (scale 1e-8). The binary64 solution carries the N1 load's rigid motion of M2. Its relative error δu/u of about 1e-16 becomes |K_e|·|δu|, about 1e-14 N·m, in M2's end actions and in M1's j-end action.
-- **What does not help.** The load-row guard is silent because every N2 term is an input, as it must be for the 221. Exact recovery does not clear the rows (§4). A row-relative guard demotes 16 to 90 passing case-modes (§4).
-- **What repairs them.** F2's W1a: recovery at precision p from u at precision p, under the stop rule |q_p − q_2p| ≤ 2⁻⁶⁴·S\* (DESIGN §4.1.6).
-  - F case: S\*_moment = max(50, L_b·50) = 100 N·m, so the accepted error is at most 2⁻⁶⁴·100 ≈ 5.4e-18 N·m, below the 1e-17 criterion. q = 1e-8 is above the floor 2⁻³⁴·S\* ≈ 5.8e-9, so the row is `relative_verified`.
-  - M case: S\*_moment is about 20 N·m, the error is at most about 1.1e-18, and the floor is about 1.2e-9.
-- **Current standing.** Pre-existing on main (P1 baseline), and made no worse by S11-F (ROOT's ruling).
+**Scope.** The end bending actions of straight members whose published rows come from the formed K_e·u (PP:3075, `recover_local_forces_from_global_model`), on the linear and nonlinear ordinary routes.
 
-| Row (typed, both modes) | Expected | Emulated after S11-F | Ratio | Exactly rounded recovery from binary64 u | R-a | Why it waits |
-|---|---|---|---|---|---|---|
-| F-G1e80-GnG-INPLANE Mb.M1.j | 1e-8 N·m | 9.9999937e-9 | 628 | 145 | silent | δu from the N1 load's rigid motion; no binary64 guard separates it from passing rows; F2 repairs it at 5.4e-18 |
-| F-G1e80-GnG-INPLANE Mb.M2.i | 1e-8 N·m | 1.0000036e-8 | 3635 | 1291 | silent | Same |
-| M-G1e80-GnG-INPLANE Mb.M2.i | 1e-8 N·m | 1.0000015e-8 | 1504 | 2949 | silent | Same; F2 repairs it at about 1.1e-18 |
-| M-G1e80-GnG-INPLANE Mb.M2.j | 1e-8 N·m | 9.9999937e-9 | 628 | 1175 | silent | Same |
+**Not covered:**
+- curved spans (E8/E9), whose recovery is CB's;
+- torsion, axial and shear end rows;
+- station rows, which derive from the end actions;
+- reactions and displacements. V1 N-7: the same mechanism reaches LARGE-CONT's R.S14, R.S34 and u.C37, and F2/W1a is the full repair;
+- member rows published from retained-source projections.
 
-**Until F2 lands:** these 8 rows stay on the formation list. The pin owners are already "S11-G recovery guard, then F2 (W1a)". This note asks ROOT to re-point them to "F2 (W1a)" alone. The gate keeps failing on any triple outside both lists.
+**The rule, per end e ∈ {i, j}:**
+- **q** = hypot(My, Mz), the end's two published bending rows, taken after the exact subtraction of the fixed-end and axial terms (S11-F E5).
+- **B** = γ₁₆·(Σ_k |K_loc[ry][k]|·Σ_c |T_kc|·|u_c| + the same for rz), with the product's own K_loc, T and binary64 u, rounded upward. It bounds the rounding of the formed K_e·u; the exact E5 subtraction adds nothing to it.
+- **R-b** fires when B > 1e-9·q **and** q > 2¹⁰·B. The second clause requires the row to be resolved above noise: a row with q at noise level carries no relative claim for R-b to test.
+- **R-b′** fires when R-b fires **and** q ≥ 2⁻³⁴·S\*_moment.
+  - S\*_moment = max(S(moment), L_b·S(force)) is the body's coupled scale from the case's published rows (DESIGN §4.1.6.1: body membership, closed kind table, L_b).
+  - 2⁻³⁴ is the V1-S8/S8-R floor. Below it, DESIGN guarantees only the absolute bound 2⁻⁶⁴·S\*.
+  - The older constant 2⁻⁶⁴/1e-9 ≈ 5.42e-11 gives the same decision on every forecast row.
+
+**Cost.** Per end: 24 absolute multiply-adds and one hypot, from quantities recovery already forms. S\* is formed once per case from its published rows.
+
+**Where it lives.**
+- SP gains `bending_formation_bound(&self, global_model_displacements) -> [f64; 2]`.
+- PP records (member, end, q, B) at PP:3075, after `exact_straight_end_forces`.
+- `formation_guard.rs` computes S\*_moment from the case's published rows and body membership, and applies the rule.
+
+**What R-b′ is not.** It does not repair the INPLANE rows; F2's W1a does. It withholds them from Current until then.
 
 ---
 
-## 6. Forecast (script `s11g_forecast.py`; output `s11g_forecast.json` and `.stdout.json`)
+## 5. The INPLANE rows are now in S11-G's scope
 
-### 6.1 Frozen references: the formed-load cases (Part A)
+**The mechanism** (V1 (b)(i): independent of G after S11-F, and reachable on the captured entry at realistic scale).
+- A small net (1e-8 N·m) is carried through a body in which the N1 load puts about 1e-13 N·m of formation noise on M2, relative to its rigid motion.
+- Exact recovery from the product's binary64 u still leaves the rows 28–2949× over the criterion: 28–2774 in V1's product-faithful emulation, 145–2949 in D1's revision 1. Formation and u contribute comparably.
+- F2's stop rule repairs them: 2⁻⁶⁴·S\* = 5.42e-18 < 1e-17 in the F case (margin 1.85), and 1.08e-18 in the M case. Their q is above the floor, with margin 1.7 (F) and 8.6 (M).
 
-Only three R1 cases carry element loads: RF-CANCEL-UDL-W1e5, -W1e8 and -W1e80. All other R1 cases have nodal inputs only, so their defects are identically zero and the guard cannot fire on them. That covers every RF-CANCEL nodal case, every RF-SKEW case and the 221.
+**Per row** (I4's measured values; B from R1's exact u):
 
-Free row S1.RZ (S1's RX and RY are free and unloaded):
+| Row (typed, both modes) | I4 ratio (dense / sparse) | Passed breach today | B/(1e-9·q) | q/B | q/S\* (floor 5.82e-11) | R-b | R-b′ | K-D5 (recal, S11-F state) |
+|---|---|---|---|---|---|---|---|---|
+| F Mb.M1.j | 3635 / 2214 | yes | 35527 | 28147 | 1.0e-10 | fires | fires | demotes (2·EF = 1.60) |
+| F Mb.M2.i | 628 / 4346 | yes | 88818 | 11259 | 1.0e-10 | fires | fires | demotes (1.60) |
+| M Mb.M2.i | 5767 / 4346 | yes | 63949 | 15637 | 5.0e-10 | fires | fires | demotes (2.00) |
+| M Mb.M2.j | 628 / 628 | yes | 63949 | 15637 | 5.0e-10 | fires | fires | demotes (2.00) |
 
-| Case | Net of represented terms | Intended net | Exact defect | Threshold | Statistic / threshold | Fires | A-priori c = 16 bound / threshold |
-|---|---|---|---|---|---|---|---|
-| UDL-W1e5 (passes today) | 0.49166666668606923 | 59/120 | 1.94e-11 | 4.92e-10 | **0.0395** | no | 2.89 (a false demotion) |
-| UDL-W1e8 | **0.4916666902601719** | 59/120 | 2.36e-8 | 4.92e-10 | **47.99** | **yes** | 2890 |
-| UDL-W1e80 | 2.6328e64 | 1e-8 | 2.63e64 | 1e-17 | **2.6e81** | **yes** | 1.4e83 |
+**K-D5's overlap.**
+- **What the record says.** `recal_d5.json` gives 2·EF_coupled = 1.60 and 2.00 on the displacement row th.N2.RZ, both above K-D5's trigger of 1. It was computed with a V1-faithful solve emulation on R1's intended basis, which is the exact net S11-F supplies.
+- **If that holds,** K-D5 demotes both INPLANE cases on its own, and R-b′ is redundant but harmless there.
+- **The conflict.** The brief states that K-D5 does not catch these rows, and the margins are thin (1.6 and 2.0).
+- **Who confirms.** I3's implementation, on the merged S11-F state. S11-G does not rely on it.
 
-**Restrained rows** (S0.UY, S0.RZ, S1.UY, S2.UY, S2.RZ) in all three cases fire in none. Their defects are 0 (the transverse terms are exact) or up to 1.7e64 against 3.3e70 for W1e80, and 1.4e-8 against 0.033 for W1e8. That holds even against the smaller free-row scale the script uses.
+---
 
-**Probe A (Part A2).** S11-F's committed test, one member carrying (G, 0.3, −G) and (0.3, G, −G) at G = 1e8 and 1e80, asserts `CHECKS_PASSED`.
-- The exact defects at the tip are 0 (UY) and 1.85e-17 (RZ, the 0.3 term's own defect). The G terms cancel together with their defects. Against thresholds of 3e-10 and 6e-10, the margin is at least 3e7.
-- The a-priori bound fires on every row. This is the second reason §1 gives for using exact defects.
+## 6. Forecast
 
-**Coverage by row.**
-- UDL-W1e8 th.S1.RZ: captured × 2 modes, typed × 2 modes (4 rows).
-- UDL-W1e80 th.S1.RZ: typed × 2 modes (2 rows). Capture still refuses |x| ≥ 2⁵³ until S-H lands.
-- **6 of 6 load-formation rows caught.** The 8 INPLANE rows are covered by §5.
+**Scripts.**
+- `s11g_forecast.py` (revision 1): Parts A, A2, B and C.
+- `s11g_rb_forecast.py` (new): Parts C, E, F and S. It runs from T3/ with `<P>` = `projects/chirality-piping` and I4's formation_rows record, and it is deterministic under different `PYTHONHASHSEED` values.
 
-### 6.2 The 221, RF-CANCEL and RF-SKEW
+### 6.1 Load-row guard on the frozen references (unchanged)
 
-- **The 221 triples** (87 in 12 cases captured, 134 in 18 cases typed) are all nodal-input cancellation. Every term there is an input, E = B = 0, and the statistic is 0. **None is demoted.** This follows by construction, and mutation M3 (§8.2) pins it.
-- **The other RF-CANCEL cases** are nodal only (statistic 0), plus UDL-W1e5 at 0.0395.
-- **RF-SKEW and every other frozen family** are nodal only (statistic 0).
-- **The recovery side** is not shipped (§4), so no RF-SKEW row is touched by it.
+- UDL-W1e8 (47.99) and UDL-W1e80 (2.6e81) fire.
+- UDL-W1e5 (0.0395) and probe A (margin ≥ 3e7) stay silent.
+- Every other R1 case is nodal-only, with E = 0.
+- The SF-4 floor is 0 on all of these rows.
 
-### 6.3 Committed models (Part B)
+### 6.2 The 221 and RF-SKEW
 
-**Scope.** Every committed JSON under `P` was scanned, except `execution/`, `schemas/`, `node_modules/` and `target/`. The scan found:
-- **164 model/case entries in 98 files** that carry formed loads. They cover fixtures, test fixtures, validation qualification inputs, the witness input and result-export fixtures.
-- **622 loaded rows** carrying formed terms: 399 free, 223 restrained.
-- **18 entries** where formed terms meet each other or an input at a free node:
-  - physics_thermal_ui (tip);
-  - invented_preview_model and its copies in test fixtures, result-export fixtures and the witness input (N-110, N-120, N-130, N-140);
-  - connected cold and hot (middle);
-  - eigen_motion and the result-export fallback request (tip);
-  - self-weight wasm (tip);
-  - two contract-corpus cases (N-2).
+- **Load-row guard.** The 221 are nodal-only, so E = B = 0 by construction. RF-SKEW is nodal-only too.
+- **R-b and R-b′ on the 221.** On the 18 cases of the 221, in the post-S11-F state (R1's exact u), they fire on **none**. The two INPLANE cases are not among the 18; their only post-S11-F breaches are the formation rows.
+- **R-b and R-b′ on RF-SKEW.** They fire on RF-SKEW-T-PIN-OFF-122 and -345 at r1e-08. Those rows are breaches today, in cases already Sensitive, and K-D5 demotes them too, so nothing changes. They fire on no other RF-SKEW case.
 
-**The magnitude screen replaces each exact defect with the uniform bound 17·γ₁₆·Σ|formed term|.** That bound exceeds every family's exact defect: SP's worst amplification is 17 and γ₁₆ covers the formation chain. It also exceeds the curved and pressure family bounds.
+### 6.3 Load-row guard on the committed models (unchanged, plus SF-2 and SF-4)
 
-**Result:**
-- The **minimum margin is 1577** (connected, the middle node's UX row). Two identical free-length thermal terms meet there, with the screen's strains overestimated at 1e-2. With signed exact defects these two terms cancel exactly.
-- **Every other entry has margin ≥ 33115**, which equals 1e-9/(17·γ₁₆), the single-term case.
-- There are no screen errors.
-- **No committed case fires.**
+- 164 entries in 98 files carry formed loads (622 rows).
+- The minimum screen margin is 1577 under 17·γ₁₆ per term, and the floor only raises thresholds.
+- **SF-2, curved `CannotBound`.** No committed model realizes a loaded curved span (bends are node markers), so no case is affected.
+- **SF-2, exact pressure at γ₁₆.** This is within the screen's 17·γ₁₆.
 
-**Families covered.** The scan found 90 distributed and 11 weight element loads, 17 element pressure loads, 6 element thermal loads, pressure regions, and 82 free-length, 4 explicit-strain and 4 constant-alpha element states, plus fits.
-- **No curved-bend span carries a load.** Bends in these models are node-marker components.
-- **No product-path model has a partial-span load.** The only `start_fraction` is in a domain model, not a `PreviewModel`.
-- **The numerical-integrity benchmark fixtures** (`FX-*`) carry only `tip_FY_N` nodal loads.
+### 6.4 R-b and R-b′ on the frozen references (Part F: 196 cases evaluated)
 
-### 6.4 Committed-byte forecast: none
+**Not evaluated: 20 cases.**
+- The 6 RF-LARGE-*-n01000 cases: their exact displacement sets are incomplete. P1 records a mismatch or timeout for them, except CONT-n01000, which passes.
+- The 6 n10000 generator cases.
+- The 8 mechanism cases.
 
-- **Ledger.** Values, terms, `ForceTerm`'s `Debug`, `by_dof`, evidence and `finish` arithmetic are unchanged (§3.3).
-- **SP.** The formation variant returns values bit-identical to `equivalent_global_nodal_loads_with_spans`; test T7 pins this. PP pushes the same values it pushes today.
-- **Diagnostics and envelope.** A code and message change only when the guard fires, and §6.1–6.3 forecast that it fires on no committed case. `source_eligible` changes only for fired cases.
-- **Therefore no committed envelope, raw, golden or hash pin changes.** That includes the `load_reference_contract.rs` and `test_load_reference_readers.py` FROZEN hashes and the `n05-*` raws.
-- **The S11-G PR's regeneration must show zero committed-byte diff.** Any diff is a stop and goes to the manager.
-- **What does change** is frozen-reference harness output, which is not committed product bytes. UDL-W1e8 (both entries) and UDL-W1e80 (typed) move from Passed to Sensitive, with standing `needs_recompute`.
+| Case | Class | Rows | B/(1e-9·q) | Today's predicate (P1) | Case Passed today | R-b | R-b′ | K-D5 |
+|---|---|---|---|---|---|---|---|---|
+| F- and M-G1e80-GnG-INPLANE (4 case-modes) | synthetic | 8 formation rows | 11259–88818 | **breach** (I4) | yes | **catches** | **catches** | demotes (recal) |
+| RF-INVARIANCE-LFRAME-BASE, -OFF-1e3, -OFF-1e6, -RELABEL (8) | synthetic | Mb.M2.i / Mb.E1.j | **1.04** (borderline) | correct | yes | false demotion | false demotion | no |
+| RF-WEAK-W-3D-rho1e-08, -AX-rho1e-08 (4) | synthetic | Mb.A01.j, Mb.A2.j | 197, 237 | correct (row-relatively 4–13× wrong, per V1) | yes | false demotion | false demotion | no |
+| RF-LARGE-CONT-n00100-AX, -ROT (4) | **realistic scale** | Mb.B14.j, A15.i, A37.j, B37.i | 103–2805 | correct | yes | false demotion | **silent** (q/S\* = 1.3e-11 to 3.8e-11, below the floor) | not emulated (> 12 members) |
+| RF-LARGE-TREE-n00100-ROT (2) | realistic scale | Mb.Q37/39/44/46.i | 1.05–1.35 (borderline) | correct | **no** (Sensitive) | no change | no change | not emulated |
+| RF-SKEW-T-PIN-OFF-122 and -345 at r1e-08; RF-WEAK-W-L-r1e-08 (6) | synthetic | Mb.M1.i, Mb.M2.i | 2666–6743 | breach | **no** (Sensitive) | no change | no change | demotes |
+| RF-INVARIANCE-LFRAME-ROT-Q3, -ROT-Q9, -UNITS-mm | synthetic | Mb.M2.i | 1.04–1.75 | not authorable (P1 did not run them) | — | no product run | no product run | — |
+
+**Totals.** A false demotion is a row correct under today's predicate, in a case Passed today.
+- **R-b:** 16 case-modes. 12 are synthetic (8 LFRAME, 4 WEAK) and 4 are frozen realistic (LARGE-CONT). This matches V1's 16.
+- **R-b′:** 12 case-modes, all synthetic.
+
+**Borderline.** The LFRAME rows sit at 1.04× R-b's threshold on both R1's exact u and P1's observed u. The product's own B, with its exact K and section, decides them, and they may fall on either side. They are listed as false demotions, which is the conservative choice.
+
+### 6.5 R-b and R-b′ on the committed models
+
+**C: committed product outputs.** This part uses every committed result envelope, with the product's own published u, q and S\* rows.
+- **Coverage.** 87 case-envelopes with member rows, holding 248 straight end rows.
+- **Skipped (3 envelopes).** One synthetic receipt control with no node positions, and two envelopes with no displacement rows.
+- **Result.** R-b fires on exactly one row, in both modes:
+
+| Envelope | Case | Row | q (published) | q (exact) | Row-relative error | B/(1e-9·q) | q/B | Floor | Case today | R-b | R-b′ |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{dense_scrutiny,sparse_interactive}.raw.json` | case:join | member end i | 2.000000000002531e-6 (dense); 2.0000000000000025e-6 (sparse) | 2e-6 | 1.3e-12; 1.2e-15: **correct** | 17272 | 57896 | below (2⁻³⁴·S\* = 1.04e-5) | **Sensitive** (ordinary route, no source recovery) | fires, **no verdict change** (no-op rule) | silent |
+
+**The exact reference for that row.**
+- The model is a 2 m member with a free tip and a root anchor. The root has prescribed motions (UY 1 mm, RZ 1e-4). The tip carries the added UZ load of 1e-6 N and a torque.
+- The prescribed motions and the eigen strain produce only rigid motion and axial response, with no bending, because the cantilever is determinate.
+- So My(root) = 1e-6 × 2 = 2e-6 N·m exactly, and Mz = 0.
+- B is large only because of the millimetre-scale rigid motion times the member stiffness.
+
+**The rest of Part C.**
+- K-D5 adds nothing to this case, which its ordinary report already makes Sensitive.
+- No other committed end row that is resolved above noise (q > 16·B) comes within 10³ of R-b's first threshold (B > 1e-12·q).
+
+**E: committed models without an envelope.** Exact emulation of 96 distinct committed models; 70 load cases were emulated exactly.
+- **Result.** R-b and R-b′ fire on none.
+- **Not emulated,** with the reason for each:
+  - pressure regions and element pressure loads: all these models have committed envelopes, covered in Part C;
+  - nonlinear or `line_stop` supports and constant-effort supports: all covered by envelopes in Part C;
+  - the model-operations contract corpus: a single member pinned in three translations only. That is a mechanism, which the product refuses, so there are no member rows;
+  - models with no member or no load case;
+  - the synthetic receipt control;
+  - the two desktop UI workloads (`analysis_status.mechanics = not_run_generated_ui_workload`), which no committed path solves.
+
+**The committed-fixture answer for ROOT.**
+- R-b′ fires on no committed row.
+- R-b fires on one correct committed row, in a case that is already Sensitive. Under the no-op rule that demotes nothing and changes no byte.
+- **Neither variant demotes a committed row that is correct under today's predicate.**
+
+### 6.6 Committed-byte forecast
+
+**The forecast is zero, for the load-row guard plus either variant.**
+- The ledger and SP values, and their `Debug` output, are unchanged (§3.3).
+- The load-row guard fires on no committed case.
+- R-b′ fires on no committed case.
+- R-b fires only on `load_reference_fallback_uz`, which is already Sensitive. By the no-op rule (§3.5), its code, its message and every other byte stay as they are.
+
+**The zero-regeneration-diff rule stands, and any diff is a stop.** ROOT's B-1 approval is not needed for a committed demotion, because there is none.
+
+**What does change is frozen-reference harness output,** which is not committed bytes:
+- UDL-W1e8 (both entries) and UDL-W1e80 (typed), by the load-row guard;
+- the INPLANE cases (typed), by R-b′;
+- LFRAME ×4 and WEAK-W-3D/AX-rho1e-08, by R-b′ (false demotions);
+- for R-b, add LARGE-CONT-n00100 AX and ROT.
+
+### 6.7 SF-4: V1's collinear runs and the floor (Part S)
+
+| Run (end point; stations) | Load | Worst stat/threshold, without floor | With floor |
+|---|---|---|---|
+| (12, 5, 0); 0, .13, .4, .55, .81, 1 | thermal N = 1.296e6 | 4.0e8 (fires) | **6.2e-5** (silent) |
+| (10, 3.7, 2.2); 0, .3, .55, .7, 1 | thermal | 1.9e8 (fires) | **3.2e-5** |
+| (6, 6, 0); quarters | thermal | 0 | 0 |
+| (9, 0, 0); 0, .13, .4, .55, .81, 1 | thermal | 6.2e8 (fires) | **3.5e-5** |
+| (12, 5, 0); as the first run | pressure thrust 2 MPa·π·0.09² | 2.3e8 (fires) | **7.4e-5** |
+
+**Unchanged by the floor:**
+- UDL-W1e8 (47.99), UDL-W1e80 (2.6e81), UDL-W1e5 (0.0395) and probe A, because P = 0 on their rows;
+- the 221, which are inputs;
+- the committed screen, whose thresholds only rise.
+
+**No demotion is added,** because the floor is monotone.
 
 ---
 
@@ -312,53 +431,63 @@ Free row S1.RZ (S1's RX and RY are free and unloaded):
 
 | File | Change |
 |---|---|
-| `FK/load_ledger.rs` | `Formation`, `push_formed`, parallel `formations`, `AssembledForce::formation_rows`, `FormationRow`; unit tests |
-| `FK/exact_sum.rs` (only if needed) | No change planned. `add_product` covers every accumulation |
+| `FK/load_ledger.rs` | `Formation` (with `CannotBound`), `push_formed(…, self_equilibrated)`, parallel vectors, `formation_rows` (one exact accumulator per row), `FormationRow`, a `Debug` that excludes the new vectors; unit tests |
 | `FK/lib.rs` | Re-export only |
-| `straight_pipe/src/lib.rs` (SP) | `equivalent_global_nodal_loads_with_spans_formed`, returning today's values plus `Formation::Exact` per slot. The existing function is unchanged |
-| `product_physics/src/formation_guard.rs` (new) | Bodies, S\*, the threshold, `FormationFinding`, the reason sentence |
-| `product_physics/src/lib.rs` (PP) | Push sites PP:8595, 8635, 8846–8847, 8883–8888, 8924–8925, 8948 (formed) and 2285 (bound); the guard call after PP:2490; `source_eligible`; `append_integrity_report` and its two call sites |
-| `product_physics/src/s11f_tests.rs` or a new `s11g_tests.rs` | Tests T1–T6 and T10 (§8) |
-| `product_physics/tests/s11f_site_test.rs` | Site table extended with the formed/input/product class for every push (T8) |
-| `T3/GATE/pin_s11_exceptions.py` and `FORMATION_EXCEPTIONS.json` | Not in S11-G's product PR. ROOT decides whether the 6 UDL rows leave the list and whether the 8 INPLANE owners are re-pointed (§5) |
+| `straight_pipe/src/lib.rs` (SP) | `equivalent_global_nodal_loads_with_spans_formed` (today's values plus `Formation::Exact`); `bending_formation_bound` (R-b's B) |
+| `product_physics/src/formation_guard.rs` (new) | The load-row decision (§3.4, exact); the recovery decision (§4: R-b′ by default, R-b if ROOT so rules); body S\*; `FormationFinding`; reason sentences |
+| `product_physics/src/lib.rs` (PP) | Push sites PP:8595, 8635, 8846–8847, 8883–8888, 8924–8925, 8948 and 2285; the guard call after PP:2490; the recovery record at PP:3075; `source_eligible`; `append_integrity_report` (with the no-op rule) and its two call sites |
+| `product_physics/src/s11g_tests.rs` (new) and `tests/s11f_site_test.rs` | The tests in §8 |
 
-No change is made to SA, FK `structural.rs` (`finish_checked_factor`), `solve_preview_reduced_system`, CB, `pressure_runtime` (read only, to confirm §3.2's half-ulp claim) or any library or code-rule data.
+**Not touched:** SA, FK `structural.rs`, `solve_preview_reduced_system`, CB, `pressure_runtime`, the GATE files (ROOT's), and any library or code-rule data.
 
 ---
 
 ## 8. Tests and mutations
 
-Every test that pins a verdict carries a **paths-differ precondition** (RV1's lesson): it first shows that the guarded and unguarded paths would publish different verdicts, or that the case contains the arithmetic the guard must see.
+Every verdict pin carries a **paths-differ precondition**.
 
 ### 8.1 Behavioural tests
 
 | ID | Test | Precondition (paths differ) | Pin |
 |---|---|---|---|
-| T1 | UDL-W1e8 through R1's frozen request, captured and typed, both modes | The ordinary `StructuralReport.quality` is `Passed`. The ledger's S1.RZ exact defect is nonzero and the statistic exceeds the threshold (so without the guard the code would be `CHECKS_PASSED`) | Code `NUMERICAL_INTEGRITY_SENSITIVE`; case quality `sensitive`; standing `needs_recompute`; the reason sentence names S1.RZ and both loads |
-| T2 | UDL-W1e80, typed, both modes (captured asserted to refuse) | As T1. The represented net is 2.63e64 against the intended 1e-8 | As T1 |
-| T3 | UDL-W1e5, captured and typed, both modes | The S1.RZ exact defect is **nonzero** (1.94e-11), so the guard sees a defect and must weigh it | `CHECKS_PASSED`; statistic/threshold < 0.1 |
-| T4 | Nodal (G, n, −G) at a free DOF: RF-CANCEL-F-G1e80-GnG, typed, and F-G1e8-GnG, both entries | The binary64 fold differs from the exact net (S11-F's precondition); `formation_rows()` is empty (every term is an input) | Not demoted by S11-G (the code is whatever S11-F gives today) |
-| T5 | Probe A: S11-F's F2 test, (G, 0.3, −G) and (0.3, G, −G) at 1e8 and 1e80 | The G terms' individual defects are **nonzero** (checked on the ledger), while their signed sum is 0 | `CHECKS_PASSED` (S11-F's assertion is kept) |
-| T6 | A synthetic collinear skew pair (two members with the same direction vector, equal thermal `axial_load`), free middle node, no other free load | fl(N·x) is inexact, so each end term's defect is nonzero | `CHECKS_PASSED` (signed cancellation) |
-| T7 | SP formation variant against the existing function: full-span and spanned loads, several orientations | — | Values bit-identical; the intended expansion equals a rational oracle (hand-derived: 3·rotation_i at b = 1, a = 0 is qL²/4) |
-| T8 | Site table: every `ledger.push*` in PP is classified | — | A formed site using plain `push` fails the test |
-| T9 | Committed regeneration | — | Zero committed-byte diff (the PR precondition, §6.4) |
-| T10 | Source recovery is not selected for a fired case: UDL-W1e8 captured | The case is `source_eligible` apart from the guard (the capture exists, no nonlinear support, no combination) | No `SOURCE_BLOCK_RECOVERY_SELECTED`; standing `needs_recompute` |
-| T11 | I4's F1/F11/F12 test extended | — | Every breach on the formation list is either published non-Passed (the 6 UDL rows) or on ROOT's F2-waiting list (the 8 INPLANE rows) |
+| T1 | UDL-W1e8, captured and typed, both modes | The ordinary report is `Passed`, and A at S1.RZ is nonzero and exceeds the threshold. Without the guard the code would be `CHECKS_PASSED` | Code `SENSITIVE` and standing `needs_recompute`. The message's `StructuralReport` text shows `quality: Passed`. **The diagnostic code set equals the unguarded run's, except for the integrity code** (no `SOURCE_BLOCK_*` diagnostic) |
+| T2 | UDL-W1e80, typed, both modes (captured asserted to refuse) | As T1 | As T1 |
+| T3 | UDL-W1e5, both entries and modes | A ≠ 0 (1.94e-11) | `CHECKS_PASSED`; stat/threshold < 0.1 |
+| T4 | Nodal (G, n, −G) at a free DOF (F-G1e80-GnG typed; F-G1e8-GnG both entries) | The binary64 fold differs from the exact net, and `formation_rows()` has no defect term | Not demoted by the load-row guard |
+| T5 | Probe A: (G, 0.3, −G) and (0.3, G, −G) at 1e8 and 1e80 | The individual G-term defects are nonzero, and their sum is 0 | `CHECKS_PASSED` |
+| T6 | A synthetic collinear skew pair with equal thermal `axial_load` | Each end term's defect is nonzero | `CHECKS_PASSED` (signed cancellation) |
+| **T6a** (SF-4) | **V1's collinear runs (`probe_thermal_skew`) and the pressure run**, as product requests: straight runs between two anchors, with free interior nodes at irregular decimal stations | Without the floor the statistic is ≥ 1.9e8, computed in the test from the ledger rows | `CHECKS_PASSED`; stat/threshold < 1e-3 with the floor |
+| T7 | The SP formation variant against the existing function | — | Values bit-identical; the intended expansion equals the rational oracle (3·rotation_i at b = 1, a = 0 is qL²/4) |
+| T8 | Site table: every `ledger.push*` is classified as input, formed family, self-equilibrated or CannotBound | — | A formed site using plain `push` fails |
+| T9 | Committed regeneration | — | Zero committed-byte diff |
+| **T10** (SF-3, restated) | Unit test on the routing predicate `source_eligible(capture, nonlinear, combinations, load_row_finding)` | With the same inputs and `None`, the predicate is true | False whenever `load_row_finding` is `Some`. The end-to-end path is unreachable (§3.5), and this is stated |
+| **T11** (B-1) | F- and M-G1e80-GnG-INPLANE, typed, both modes | The load-row guard does not fire (all N2 terms are inputs) and the ordinary report is `Passed`. Without R-b′ the case is `CHECKS_PASSED`, with I4's pinned breach values | `SENSITIVE`, with a reason naming the member end, q, B and S\*. I4's `FORMATION_PINS` values stay bit-identical; only the verdict changes |
+| **T12** (B-1) | An accurate small-moment row below the floor: RF-LARGE-CONT-n00100-AX (captured, both modes) | R-b's two clauses hold on the product's B and q, computed in the test, so the two paths differ only by the floor clause | `CHECKS_PASSED` under R-b′. This kills the drop-the-floor mutation |
+| **T13** (B-1) | The committed request `load_reference_fallback_uz`, which is already Sensitive | R-b's clauses hold at end i | The envelope is byte-identical to today's (the no-op rule) |
+| **T14** (N-5) | Range failure: a uniform load near 1e307, whose intended expansion overflows | The expansion overflow is observed | The row falls back to `Bounded`. A non-finite bound fires. `SumError` fires. Never `Err` |
+| **T15** (SF-2) | A realized curved span carrying a uniform load | The ordinary report is `Passed` | `SENSITIVE`, with the `CannotBound` reason |
+| T16 | I4's F1/F11/F12 test, extended | — | Every formation-list breach is published non-Passed: the 6 UDL rows and the 8 INPLANE rows |
 
 ### 8.2 Mutations (each must be killed)
 
 | ID | Mutation | Killed by |
 |---|---|---|
-| M1 | Drop a formed term's defect, so SP's uniform `Formation` reports scaled_intended = scale·value | T1, T2 (not demoted) |
-| M2 | Tag a formed term as input (`push` instead of `push_formed` at PP:8635) | T1, T2, T8 |
-| M3 | Apply the guard to input terms, giving `push` terms a β = u bound | T4 (the statistic becomes u·2e80 ≫ 1e-17, so the 221 class is demoted) |
-| M4 | Replace SP's exact defect with the a-priori c = 16 bound | T3 (UDL-W1e5 demoted), T5 |
-| M5 | Compute S\* for free rows over all rows | T1, T2 (thresholds 0.033 and 3.3e70; not demoted) |
+| M1 | Drop a formed term's defect (scaled_intended = scale·value) | T1, T2 |
+| M2 | Tag a formed term as input (`push` at PP:8635) | T1, T2, T8 |
+| M3 | Give input terms a bound of β = u | T4 |
+| M4 | Replace the exact defect with the a-priori c = 16 bound | T3, T5 |
+| M5 | Take the free-row S\* over all rows | T1, T2 |
 | M6 | Sum \|ε\| instead of Σε | T5, T6 |
-| M7 | Drop the `source_eligible` gate | T10 |
-| M8 | Demote through `report.quality` before routing (so recovery is triggered) | T10 |
-| M9 | Map a fired case to `Err` or a blocking diagnostic | T1 (standing and code), plus the existing no-refusal tests |
+| M7 | Drop the `source_eligible` gate | T10 (unit). **Not observable end to end** (§3.5), which is stated |
+| M8 | Demote through `report.quality` before routing | T1 (report text shows `quality: Passed`). Together with M7: T1 again, because a `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` diagnostic then appears for UDL-W1e8 captured |
+| M9 | Map a fired case to `Err` or a blocking diagnostic | T1 |
+| **M10** (SF-1) | Combine the families in binary64 (revision 1's fl(round(A12)/12 + round(A1))) | A unit test with one Exact term and one RoundedProduct term whose defects cancel to below u·max. The exact decision is silent; the binary64 one fires |
+| **M11** (SF-4) | Drop the floor | T6a |
+| **M12** (SF-4) | Take the floor from all formed terms, not only self-equilibrated ones | T1 (for UDL-W1e8 the floor 2⁻¹⁰·6.7e7 hides the 2.36e-8 defect), T2 |
+| **M13** (B-1) | Drop R-b′'s floor clause, so that R-b ships | T12 |
+| **M14** (B-1) | Drop B's \|T\| factor, or use signed sums in B | T11 (B collapses, and INPLANE goes silent) |
+| **M15** (B-1) | Demote an already-Sensitive case again and append text | T13 |
+| **M16** (SF-2) | Treat CannotBound as a zero defect | T15 |
 
 ---
 
@@ -366,21 +495,14 @@ Every test that pins a verdict carries a **paths-differ precondition** (RV1's le
 
 | | K-D5 (I3) | S11-G |
 |---|---|---|
-| PP | Only the solve call inside `solve_preview_reduced_system` (PP:3965 in I3's tree, where `assembly.solve(...)` becomes `solve_with_formation_check(...)`) | Push sites in `add_uniform_element_loads`, `add_pressure_thrust_loads`, `add_curved_bend_pressure_thrust_load`, `add_thermal_equivalent_loads`, `add_curved_bend_thermal_equivalent_load`, `push_exact_pressure_operands`; one call after `finish_case_ledger`; the `source_eligible` line; `append_integrity_report` and its two calls |
-| FK | `structural.rs` (`finish_checked_factor`), the new `formation_check.rs`, `retained/*` | `load_ledger.rs` only |
+| PP | Only the solve call inside `solve_preview_reduced_system` (PP:3965 in I3's tree) | Ledger push sites; one call after `finish_case_ledger`; the recovery record at PP:3075 (the straight branch of `solve_load_case`'s element recovery loop); the `source_eligible` line; `append_integrity_report` and its two calls |
+| FK | `structural.rs` (`finish_checked_factor`), `formation_check.rs`, `retained/*` | `load_ledger.rs` |
 | SA | `structural_adapter.rs` | none |
-| SP | none | The new formation variant (existing function unchanged) |
+| SP | none | The formation variant; `bending_formation_bound` |
 
-**No function is edited by both slices,** so a textual merge is clean in either order.
-
-**Semantically, the two compose.**
-- K-D5's D-5 check can set `SolveQuality::Sensitive` inside the solve. That triggers the existing source-recovery path, unless S11-G's guard has fired, in which case `source_eligible` is false.
-- S11-G's demotion is applied at the verdict, and demoting an already-Sensitive case is idempotent.
-- Standing is `needs_recompute` whichever lands first.
-
-**The merge-forward note for whichever lands second.**
-- K-D5 on S11-F passes `&force` (`AssembledForce`) where it passes `global_force` today. S11-G does not touch that argument.
-- A later option is to let K-D5's ρ use f_intended = f − E, so that EF sees load formation. It is not proposed here; it would change K-D5's calibration.
+- **No function is edited by both slices,** so the merge is clean in either order.
+- **The two compose semantically.** Demotion is idempotent, and the no-op rule keeps S11-G silent on a case K-D5 has already made Sensitive.
+- **A later option, not proposed here:** K-D5's ρ could use f − E, to become response-level (V1 N-4).
 
 ---
 
@@ -388,19 +510,37 @@ Every test that pins a verdict carries a **paths-differ precondition** (RV1's le
 
 | File | Content |
 |---|---|
-| `s11g_forecast.py` | Standard library, deterministic (checked under two `PYTHONHASHSEED` values). Run from T3/: `PYTHONDONTWRITEBYTECODE=1 nice -n 19 python3 DESIGN_NUMERICS/_run_records/s11g_forecast.py <P> DESIGN_NUMERICS/_run_records/s11g_forecast.json`, with `<P>` = `projects/chirality-piping` (given relatively as `../../../../../../..`). Parts: A (R1 formed-load cases, every loaded row), A2 (S11-F probe A), B (committed models: topology and magnitude screen), C (recovery candidates R-a, R-b, R-c, and INPLANE in the S11-F state) |
-| `s11g_forecast.json` | Full output |
-| `s11g_forecast.stdout.json` | Summary printed by the script |
+| `s11g_forecast.py`, `.json`, `.stdout.json` | Revision 1: load-row guard Parts A, A2, B and C (unchanged) |
+| `s11g_rb_forecast.py` | Revision 2 (new): Part C (committed envelopes, the product's own values); Part E (exact emulation of committed models without an envelope); Part F (frozen references on R1's exact u and P1's observed u, today's predicate, the 221, INPLANE with I4's values, K-D5 from `recal_d5.json`); Part S (the SF-4 floor). Standard library; it imports `withheld_rows.py` and `sweep_d5_r1.py` |
+| `s11g_rb_forecast.json`, `.stdout.json` | Its output. Input: I4's `formation_rows.json`, sha256 `c548f51999b4df161fb6feb1109ec1a8fa7d40f822f9f497aafc050e9a82d200`, read uncommitted from I4's worktree |
+| `S11G_GUARD_revision1.md` | Revision 1, archived |
 
-The script imports `withheld_rows.py` (the support-family rule) and `sweep_d5_r1.py` (the `num` parser) from `_run_records/`. It is Python 3.11.15, as in `python_version.txt`.
+Run from T3/:
+
+    PYTHONDONTWRITEBYTECODE=1 nice -n 19 python3 DESIGN_NUMERICS/_run_records/s11g_rb_forecast.py <P> <formation_rows.json> <out.json>
+
+Here `<P>` is `projects/chirality-piping`, given relatively as `../../../../../../..`. Python 3.11.15.
 
 ---
 
-## 11. Open items
+## 11. Open items and ROOT decisions
 
-1. **Cross-check against I4's records.** When I4's `formation_rows/` records are committed on the S11-F branch, re-run the §2 and §5 INPLANE columns against the published post-S11-F values. The UDL rows need no re-run: the net 0.4916666902601719 already matches ROOT's figure bit for bit.
-2. **The half-ulp claim for exact-pressure operands** (§3.2) is confirmed against `pressure_runtime` during implementation. If it fails, that family takes `pressure_runtime`'s γ count. The committed screen already charges every formed term 17·γ₁₆ (about 272u) and still leaves every committed row at least 1577× below its threshold, so any plausible γ count for that family changes no forecast.
-3. **ROOT decisions requested:**
-   - (a) accept the exact-defect form in place of the brief's literal a-priori bound (evidence in §6.1: UDL-W1e5 and probe A);
-   - (b) the per-row F2 justification for the 8 INPLANE rows (§5), and re-pointing their owners;
-   - (c) case-level granularity of the demotion (§3.5).
+1. **ROOT: choose the recovery variant.**
+   - **R-b′ (recommended; ROOT's default).**
+     - It catches all 8 INPLANE Passed breaches.
+     - It demotes no committed case and changes no committed byte.
+     - It falsely demotes 12 synthetic frozen case-modes: 8 LFRAME (borderline) and 4 WEAK.
+   - **R-b.** Everything R-b′ does, plus:
+     - 4 realistic-scale false demotions (LARGE-CONT-n00100, below the floor);
+     - one byte-neutral firing on an already-Sensitive committed case.
+2. **ROOT: accept two costs.**
+   - The SF-4 floor: 2⁻¹⁰·Σ|self-equilibrated formed terms| per row.
+   - The SF-2 `CannotBound` availability loss on loaded curved spans, until F3.
+3. **I3: confirm K-D5's INPLANE behaviour** on the merged S11-F state. By `recal_d5.json` it demotes both cases, at 1.6× and 2.0× its trigger. If it does, R-b′ is redundant there, but harmless.
+4. **ROOT, as GATE owner: the formation list.** With R-b′ and the load-row guard in place, all 14 formation rows are published non-Passed when S11-G lands. The pin can then be emptied; this note does not edit GATE files.
+5. **Confirmations during implementation.**
+   - The exact-pressure rounding count (§3.2).
+   - The product's own B on the LFRAME rows, which are borderline (§6.4).
+6. **Recorded, no action.**
+   - F2 resolves the INPLANE rows with modest margins (V1 N-2): 1.85 on the stop rule and 1.7 on the floor, in the F case.
+   - R-b′'s coverage limit (V1 N-7) is stated in §4.
