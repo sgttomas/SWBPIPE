@@ -603,3 +603,10 @@ The cargo token order is unchanged: I4, then I3, then I5.
 4. **Condition (a), the corrected reach, is accepted.** It is recorded in the work graph's T3 row once I5's test confirms it, correcting the earlier framing.
 
 D1 and V1 do writing and analysis only; no cargo unless the manager grants a slot. The cargo order stays I3, then I5.
+
+**Note (ROOT, 2026-09-27, on D1's revision 2.2 at `3c80158e9`): moving R-b′ before routing is declined for S11-G.**
+- D1 recorded, without proposing, the option of moving R-b′ before routing so that it feeds `needs_source_recovery`. That would also remove path 1's R-b′ variant.
+- It is declined because it changes R-b′'s semantics, which V1 checked and ROOT selected at 2.1.
+- **The R-b′ variant of path 1 stays a disclosed residual under ruling 3.** It is narrow (it needs per-case modulus bases). It fails closed: the captured entry returns `Err` and no envelope. It is characterized by T20. It is owned by the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item, which closes before T3 closes.
+- The finalization item may take the option up, with its own design and check.
+- ROOT selects 2.2 on V1's PASS, by the default rule. I5 implements it in its cargo slot, confirming T18 and the T19/T20 multi-basis selection by run.
