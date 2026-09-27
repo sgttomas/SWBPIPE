@@ -6,12 +6,12 @@ You must be independent: you did not design W1 or K3a, did not review their desi
 
 ## Candidate
 
-- **Branch:** `codex/piping-k3a-20260926`, in `/home/user/wt/k3a`.
+- **Branch:** `codex/piping-k3a-20260926`, in `<wt>/k3a`.
 - **Candidate head:** `a2e804a757359d589f4c31ea8e36a923f28ccb8c`.
 - **Base:** `4912dc636`, the S11-K PR head at K3a's cut.
 - **Scope:** review the full diff `4912dc636..a2e804a75`. That covers `FK/src/structural.rs` (one line), `FK/src/structural/retained/{mod.rs,wide.rs}`, `FK/tests/retained_wide/**` (tests, generator, vectors, SHA256SUMS), and the records under `T3/IMPLEMENTATION/K3A/**`.
 - K3a's PR opens only after S11-K merges, rebased or merged onto main. This review does not need S11-K merged.
-- **Write set:** `T3/REVIEW/K3A_REVIEW.md` and `T3/REVIEW/_run_records/k3a_review/**` (with its own SHA256SUMS), in the **numerics** worktree (`/home/user/wt/numerics`). Do not write in `/home/user/wt/k3a`. Mutations and builds run in a scratch copy.
+- **Write set:** `T3/REVIEW/K3A_REVIEW.md` and `T3/REVIEW/_run_records/k3a_review/**` (with its own SHA256SUMS), in the **numerics** worktree (`<wt>/numerics`). Do not write in `<wt>/k3a`. Mutations and builds run in a scratch copy.
 
 ## Basis
 
@@ -51,7 +51,7 @@ You must be independent: you did not design W1 or K3a, did not review their desi
 
 ## Running things
 
-- `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked`, and your own `CARGO_TARGET_DIR` under `<scratch>` or `/home/user/wt/rv2-target`, pruned when done.
+- `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked`, and your own `CARGO_TARGET_DIR` under `<scratch>` or `<wt>/rv2-target`, pruned when done.
 - **Cargo priority on the host:** I1's S11-K fixes, then ROOT's DEC-025 sweep, then you, then I3. Check `pgrep -x cargo` before each build, and hold while the sweep runs.
 - Keep free disk above about 8 GB. Skip no tests and raise no timeouts. Make no Git writes.
 

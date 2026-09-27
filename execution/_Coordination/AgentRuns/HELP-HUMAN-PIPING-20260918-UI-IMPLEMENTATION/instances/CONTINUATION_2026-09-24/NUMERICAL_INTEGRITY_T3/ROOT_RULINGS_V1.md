@@ -385,7 +385,7 @@ RF-ELOAD revision 1 at `b6927f783` is selected and frozen: see `ROOT_SELECTION_R
 ## K3a arctangent and host disk (ROOT, 2026-09-26)
 
 - **K3a arctangent: accepted.** I2's proved bound of 23.6 ulp at p = 128 satisfies `ROOT_SELECTION_DESIGNS.md` C1 as a proof. The measured worst, 5.41 ulp over I2's wider angle set (V1 measured 2.69 over 13 angles), is recorded alongside it. The test tolerance covers 5.41 and stays at or below 23.6.
-- **Disk.** ROOT deleted finished scratch (t3-p1, which matches the committed DETECTION/RETURN.md, and T1's WP7 scratch copy). The floor stays at about 8 GB. Once RV1 has returned and no cargo process is using them, the manager may prune `t3-target`, delete t3-s11k scratch if S11-K needs no fixes, and delete `/tmp/rv1-s11k-scratch`. `/home/user/wt/engine` is left alone, because it is the node_modules source for the desktop tests.
+- **Disk.** ROOT deleted finished scratch (t3-p1, which matches the committed DETECTION/RETURN.md, and T1's WP7 scratch copy). The floor stays at about 8 GB. Once RV1 has returned and no cargo process is using them, the manager may prune `t3-target`, delete t3-s11k scratch if S11-K needs no fixes, and delete `/tmp/rv1-s11k-scratch`. `<wt>/engine` is left alone, because it is the node_modules source for the desktop tests.
 
 ## S11-K regeneration and hash-pin approvals (ROOT, 2026-09-26, on I1's pre-regeneration report `14354efdb`)
 

@@ -28,7 +28,7 @@ After S11-F, the pinned S11 exceptions of the "no Passed breach" gate are empty 
 
 ## Base, worktree and branch
 
-- ROOT creates `<s11f-worktree>` (suggested `/home/user/wt/s11f`), on a new branch `codex/piping-s11f-20260927` from **main at `3488a236a` or later**.
+- ROOT creates `<s11f-worktree>` (suggested `<wt>/s11f`), on a new branch `codex/piping-s11f-20260927` from **main at `3488a236a` or later**.
 - Make no Git writes. The manager commits.
 - **Build the two authority targets first,** before any Python run: `tools/serialization/build_checked_json.py` and `tools/units/build_units_authority.py`. **Never delete** `core/serialization/canonical_json/target` or `core/units/target`.
 
@@ -87,11 +87,11 @@ K-D5 (I3, branch `codex/piping-kd5-20260926`, based on K3a) also touches `PP`, a
   - `product_physics`, `runner/headless`, `result_export`, `operation_applier`, `apps/desktop/src-tauri`;
   - `validation/benchmarks/*` (mechanics, nonlinear with DEC-046 unchanged, stress, physics_audit_regression, numerical_integrity);
   - the Python suites (load_reference, preview_physics, stress_neutral, qualification);
-  - the desktop vitest and build if any fixture or reader moves. Link `node_modules` from `/home/user/wt/engine` only after checking that package-lock.json is byte-identical, and remove the links before the manager commits.
+  - the desktop vitest and build if any fixture or reader moves. Link `node_modules` from `<wt>/engine` only after checking that package-lock.json is byte-identical, and remove the links before the manager commits.
 
 ## Build and cargo
 
-- `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked`, and your own `CARGO_TARGET_DIR` (suggested `/home/user/wt/s11f-target`).
+- `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked`, and your own `CARGO_TARGET_DIR` (suggested `<wt>/s11f-target`).
 - **Cargo priority** (ROOT): RV2 (the K3a review) first. Then **you and I3 (K-D5) are equal and alternate by job**: one heavy job each in turn, and never two at once. Check `pgrep -x cargo` before each job. **Hold all cargo while a `run_evidence_sweep.py` process runs.**
 - Keep free disk above about 8 GB. Prune only your own output.
 - Run `cargo fmt` on changed files. Check whitespace with `git diff --no-index --check` per untracked file, or grep. **Make no Git index operations.**

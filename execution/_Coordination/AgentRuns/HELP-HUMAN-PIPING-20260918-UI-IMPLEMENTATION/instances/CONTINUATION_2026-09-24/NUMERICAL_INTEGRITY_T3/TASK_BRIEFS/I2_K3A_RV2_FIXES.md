@@ -8,7 +8,7 @@ RV2's review: `T3/REVIEW/K3A_REVIEW.md` (`9c558f533` on the T3 branch, sha256 `1
 
 ## Worktree
 
-`/home/user/wt/k3a`, branch `codex/piping-k3a-20260926`, at head `43da7a24e` (main already merged in). Make no Git writes; the manager commits.
+`<wt>/k3a`, branch `codex/piping-k3a-20260926`, at head `43da7a24e` (main already merged in). Make no Git writes; the manager commits.
 
 ## Fixes
 

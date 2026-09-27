@@ -9,7 +9,7 @@ A focused follow-up for I1 (resumed). `_COMMON.md` and I1's original brief apply
 
 ## Worktree
 
-`/home/user/wt/s11k-pr`, branch `codex/piping-s11k-pr-20260926`. **First** run `git merge --ff-only origin/codex/piping-s11k-pr-20260926`, which brings it to `f76643235` (ROOT's main merge; no piping change). That is a fast-forward only; make no other Git write. The manager commits.
+`<wt>/s11k-pr`, branch `codex/piping-s11k-pr-20260926`. **First** run `git merge --ff-only origin/codex/piping-s11k-pr-20260926`, which brings it to `f76643235` (ROOT's main merge; no piping change). That is a fast-forward only; make no other Git write. The manager commits.
 
 ## Fixes
 
