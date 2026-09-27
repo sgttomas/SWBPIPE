@@ -118,3 +118,18 @@ K-D5 (I3, branch `codex/piping-kd5-20260926`, based on K3a) also touches `PP`, a
   - what was not done.
 
 Send the manager a SendMessage summary. Message the manager **at once** if the stop rule triggers, if a design item cannot be implemented as specified, or if the K-D5 conflict boundary cannot be kept. Don't improvise a different design.
+
+## Addendum: boundary decisions (manager, 2026-09-27; accepted by ROOT)
+
+1. **Typed PP:3965 and SA `solve` narrowed to `pub(crate)`.** PP's `solve_preview_reduced_system` calls `assembly.solve_assembled(…, &AssembledForce, …)`, with the function's shape unchanged. SA's `&[f64]` `solve` becomes `pub(crate)`.
+   - **Conditions:**
+     - a lexer caller scan across all crates proving no non-test caller of `AssemblyEvidence::solve` / `StructuralAssembly::solve` remains outside `nonlinear_integration`;
+     - every dependent crate compiles and passes;
+     - **the option (c) pins stay green unchanged,** and the nonlinear loop still reaches only the named `_binary64` variants. I1's behavioural tests are not edited.
+   - **On EV4:** the narrowing closes the UFCS `AssemblyEvidence::solve` route **for callers outside `nonlinear_integration`** at compile time, as intended. Within the crate (where RV1's EV4 was written, in `lib.rs`), a `pub(crate)` item is still reachable, so there the behavioural pins remain the guarantee. Record it this way.
+   - K-D5 (I3) is told that its public `solve_with_formation_check` must be typed.
+2. **N6: no rename.** `evaluate_original_residual` keeps its name. It is backed by S11-K's behavioural pin plus a new PP site-test rule that the product never calls the public binary64 residual. **That rule gets its own behavioural test,** with a paths-differ precondition.
+3. **N5: a per-row audit range error becomes a flagged, unaudited row, so the case is Sensitive.** `finish_checked_factor` never propagates an audit error.
+   - Tests: a (1e80, −1e80, 1e-300) row (no `Err`, unaudited, Sensitive, never Passed), and audited rows bit-identical.
+   - **No new envelope field.** If one would be needed, stop, and it goes to ROOT.
+4. **No sparse_direct typed sibling.** The typed path goes through `prepare_assembled_structural`, then `factor_structural_ldlt(&PreparedSystem)` carrying the ledger binding. The reasoning is recorded, with behavioural site-test coverage.
