@@ -113,3 +113,17 @@ This follows ROOT_RULINGS_V1, "K2a product reach: correction 2 (ROOT)". It super
 - **Evidence** goes in `_run_records/product_reach/` (the zero_probe and reach_lef files, and NOTES.txt).
 - **For the T3-close item,** list from your caller scan every stiffness-forming path besides `local_stiffness` (curved_bend, arc_model, and any others) that has terms scaled by 1/L² or 1/L³. Don't fix or probe them in K2a.
 - **Order:** unchanged. You resume after RV6's slot.
+
+## Addendum 3 (2026-09-27): correction 3
+
+This follows ROOT_RULINGS_V1, "K2a product reach: correction 3 (ROOT)".
+- **No fifth test** for 6EI/L².
+- **Your RETURN derivation section is the authoritative statement of K2a's product reach.** Rulings and the work graph cite it by section and no longer restate figures, so make it self-contained. It covers:
+  - every coefficient with its lift;
+  - M03's element-entry floor, and that it does not bound ground springs;
+  - for each coefficient, what main bounds and what it does not;
+  - the 2/L relation between the 12EI/L³ and 6EI/L² defects, not the L = 2^-39-specific "2^40";
+  - reach_zero, reach_lef, reach_six2 and reach_gj;
+  - that trusted publication on the linear route is limited by K-D5's **estimate-based** trigger, not a proved bound. The nonlinear route ended unresolved in every probe, and pre-K-D5 behaviour is not claimed.
+- **The cost clause** in CHANGE_RECORD and RETURN: K2a refuses 1/L-lifted zeros where main's published value was within its K-D5-limited criterion.
+- **K2a's reviewer** checks this section.
