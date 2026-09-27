@@ -3,7 +3,8 @@ Usage (from projects/chirality-piping): python3 callers.py <scan.py dir>
 Every .rs file outside execution/, target/ and node_modules/ is lexed (comments removed, literals
 blanked, as the site tests do); an identifier followed by `(` (after optional `::`/`.` path and generic
 args) is a call. A call inside a `#[cfg(test)]` item, a tests/ file, or a *_tests.rs / tests.rs module
-file is classed as test. Standard library only."""
+file, or a file of a module declared `#[cfg(test)] mod x;`, is classed as test (the last rule, and
+the three extra names, added after RV3-N2). Standard library only."""
 import os, re, sys, json
 sys.path.insert(0, sys.argv[1])
 from scan import lex
@@ -19,6 +20,8 @@ NAMES = [
  'exact_straight_summary_extrema','solve_preview_reduced_system','append_nonlinear_support_loop_results',
  'solve_load_case','finish_source_groups','prepare_sources','close_load_state','check_load_state_input',
  'check_input_with_physical',
+ # added after RV3-N2: changed to fill ThermalElementLoad.source, and Sources::system
+ 'load_state_eigen_loads','build_thermal_element_loads','system',
  # removed
  'corrected_local_forces_for_axial_effects','curved_bend_uniform_intensity_by_pipe','pressure_thrust_for_pipe',
  # frame_kernel / SA / nonlinear
@@ -39,6 +42,21 @@ def cfg_test_ranges(code):
             elif ch == ';' and not started: end = k + 1; break
         out.append((at, end)); at = code.find(A, end)
     return out
+def cfg_test_module_files():
+    """Files of modules declared `#[cfg(test)] mod x;` (RV3-N2: e.g. membrane_publication_range.rs)."""
+    files = set()
+    for root, dirs, fs in os.walk('.'):
+        dirs[:] = [d for d in dirs if d not in ('execution','target','node_modules','.git')]
+        for f in fs:
+            if not f.endswith('.rs'): continue
+            p = os.path.join(root, f)[2:]
+            lexed = lex(open(p, encoding='utf-8').read())
+            base = os.path.dirname(p) if f in ('lib.rs', 'main.rs', 'mod.rs') else os.path.join(os.path.dirname(p), f[:-3])
+            for m in re.finditer(r'#\[cfg\(test\)\]\s*(?:pub(?:\([^)]*\))?\s+)?mod\s+([A-Za-z0-9_]+)\s*;', lexed):
+                for cand in (os.path.join(base, m.group(1) + '.rs'), os.path.join(base, m.group(1), 'mod.rs')):
+                    files.add(os.path.normpath(cand))
+    return files
+TEST_MODULE_FILES = cfg_test_module_files()
 out = {n: {'nontest': [], 'test': []} for n in NAMES}
 for root, dirs, files in os.walk('.'):
     dirs[:] = [d for d in dirs if d not in ('execution','target','node_modules','.git')]
@@ -55,8 +73,13 @@ for root, dirs, files in os.walk('.'):
                     continue  # the definition
                 line = lexed.count('\n', 0, m.start()) + 1
                 is_test = ('/tests/' in p or f.endswith('_tests.rs') or f == 'tests.rs'
+                           or os.path.normpath(p) in TEST_MODULE_FILES
                            or any(a <= m.start() < b for a, b in ranges))
                 if n in ('solve',) and not re.search(r'(assembly|evidence|audited|self)\s*\.\s*$|AssemblyEvidence\s*::\s*$', lexed[max(0,m.start()-40):m.start()]):
                     continue  # only AssemblyEvidence::solve
+                if n == 'system' and not re.search(r'(source|sources|prepared|self)\s*\.\s*$', lexed[max(0,m.start()-40):m.start()]):
+                    continue  # only source_recovery::Sources::system (method calls on a Sources value)
+                if n == 'system' and 'product_physics/src/source_recovery' not in p:
+                    continue
                 out[n]['test' if is_test else 'nontest'].append('%s:%d' % (p, line))
 print(json.dumps(out, indent=1))

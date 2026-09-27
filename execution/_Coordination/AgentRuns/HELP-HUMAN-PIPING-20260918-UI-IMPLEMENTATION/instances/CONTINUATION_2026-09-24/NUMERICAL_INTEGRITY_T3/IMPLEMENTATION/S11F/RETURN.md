@@ -219,7 +219,7 @@ Post-restart, in full: 1705 passed, 5 skipped (environment-gated), 83 subtests. 
 **Toolchain.**
 - Rust 1.97.1 (`RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked`).
 - rustfmt 1.8.0-stable through stdin, because the 1.97.1 toolchain here has no rustfmt. New files are rustfmt-clean. In `product_physics/src/lib.rs`, `pressure_runtime.rs` and `nonlinear_integration/src/lib.rs`, whose base is not rustfmt-clean (110, 5 and 24 hunks), only my hunks are formatted; the module-order hunks are left as base had them.
-- `git diff --check` is clean.
+- `git diff --check` is clean for the product and test files. **Correction (RV3-N9):** it reports "new blank line at EOF" in 3 committed run-record logs: `fixture_diff/logs/cand_consumers_rust.log`, `cand_headless_lane.log` and `cand_result_export_writers.log`. These are raw tool output, kept byte-identical and bound by `_run_records/SHA256SUMS`, so the exception is recorded here instead of trimming them.
 - Python 3.11 with the DEC-025 venv. Node 24.
 
 **Not done:**
@@ -351,3 +351,78 @@ No committed file changed apart from the records named in this return.
 
 - `node_modules` was linked from `<engine-worktree>` (package-lock sha256 identical, `0dd1616e…`), and the links were removed afterwards.
 - My debug output was pruned once to keep free disk above 8 GB.
+
+## 11. The RV3-S1 follow-up (test and records only)
+
+**Branch and basis.**
+- Worktree `<wt>` (s11f-s1), branch `codex/piping-s11f-s1-20260927`, from `43b8f83aa` (PR1000 merged).
+- The review is RV3's `T3/REVIEW/S11F_REVIEW.md` (`bf82f6cfd` in numerics): PASS, with 1 SHOULD-FIX and 9 NOTEs.
+- The authority targets were built in s11f-s1 with the two `tools/…/build_*.py` scripts; both checked-JSON profiles and the units helper are present.
+- Logs are in `_run_records/s1_followup/`.
+
+**Scope.** `core/product_physics/src/s11f_tests.rs` (+209 lines) and the S11F records. No product code, fixture or other test file changed.
+
+### RV3-S1: the Sensitive mapping is now tested
+
+- **`s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing` (unit).** It calls `append_load_contribution_absorbed` with synthetic `LoadFidelityReport`s:
+  - Inputs: an audited flagged row and an unaudited row (`unaudited: Some(..)`) that share a source; and a report with `rows: []` and `audit_error: Some(..)`.
+  - Each report gives exactly one diagnostic, with:
+    - code `LOAD_CONTRIBUTION_ABSORBED`;
+    - severity `warning`;
+    - id `diagnostic:load-fidelity:case-hot`;
+    - source `core/product_physics`;
+    - `affected_refs` = the case followed by the sorted, deduplicated sources;
+    - a message that names the audited row (dof, bits, ratio, sources), the unaudited row with its reason, and the audit error ("could not run … the case is unaudited");
+    - nothing refused: no error or blocking diagnostic, and no other diagnostic.
+  - This covers the audited-row branch, which cannot be reached through the typed seam.
+- **`s1_unauditable_load_row_is_published_sensitive_with_the_warning` (end to end, with no test hook and no production seam).**
+  - Input: an authored cantilever whose tip UY carries the nodal loads (G, −G, 1e-300) N. The net cannot be represented in the audit's radix arithmetic against G's row scale, so FK reports the row unaudited (RV1-N5).
+  - It runs through `solve_load_case` on:
+    - both entries at G = 4e15, which is below the captured entry's 2^53 capture limit;
+    - the typed entry at G = 1e80;
+    - both modes in each case.
+  - Precondition: the kernel's own verdict, integrity code `NUMERICAL_INTEGRITY_SENSITIVE`.
+  - Then:
+    - `MECHANICS_SOLVED`;
+    - exactly one `LOAD_CONTRIBUTION_ABSORBED` warning, id `diagnostic:load-fidelity:case`, refs `[case, load:0, load:1, load:2]`, naming the row as unaudited with its sources;
+    - no error or blocking diagnostic;
+    - the result rows are published.
+  - RV3 thought this path unreachable without a hook. That holds only for the audited-row branch; the unaudited branch is reachable from an authored model.
+
+**EV5 evidence.** Both mutants were applied to a scratch copy, one at a time, with their own target:
+
+| Mutant | Patch | Result on the mutant | Killing test |
+|---|---|---|---|
+| EV5 (RV3): the mapping call in `solve_load_case` deleted | `ev5.patch.txt` | lib 349 passed, **1 failed**, 1 ignored; site test 9 passed (`ev5_run.txt`) | `s1_unauditable_load_row_is_published_sensitive_with_the_warning`: `S1 G=4e15 Captured SparseInteractive`, 0 warnings where 1 was expected |
+| EV5b: the mapping function returns at entry (emits nothing) | `ev5b.patch.txt` | both S1 tests **fail** (`ev5b_run.txt`) | both S1 tests |
+
+On the repair, both tests pass.
+
+### Records corrected
+
+- **RV3-N1 (line 2709).**
+  - The CHANGE_RECORD provenance bullet now says what is established: stale since `22452ecd1`, the code changed at `1792774a2`, and the base producer emits the correctly rounded value.
+  - It also says that the exact `22452ecd1` mechanism is **not reproduced**: RV3 found that both the hypot chain and `22452ecd1`'s `scaled_norm` give `…944` on this host. I did not reproduce the committed `…9435` either.
+  - PRE_REGENERATION_REPORT §3.2 and §5 carry a marked correction, and the rest of that report is kept as measured.
+  - The disclosure and the conclusion are unchanged.
+- **RV3-N2.** `callers.json` was re-run on the final tree with an extended `callers.py.txt`:
+  - it adds `load_state_eigen_loads`, `build_thermal_element_loads` and `source_recovery::Sources::system`;
+  - it classes files of `#[cfg(test)] mod x;` modules as test, so `membrane_publication_range.rs:187` is now test;
+  - the `prepare_sources` test lines are current (1617…);
+  - no new non-test caller of consequence: `system` has 3 non-test callers, all in `source_recovery.rs`.
+- **RV3-N9.** §8's `git diff --check` claim is corrected. It is clean for the product and test files; 3 committed run-record logs end in a blank line, and they stay byte-identical and hash-bound, with the exception recorded.
+- **RV3-N3 to N8** are optional or record-only, and none is taken on this branch:
+  - N3, N5 and N6 are optional test hardening; the behavioural pins already kill the evasions.
+  - N4's extra assertion would sit in `source_recovery.rs`, a product source file outside this branch's scope.
+  - N7 and N8 need no action.
+
+### Runs
+
+| Run | Result |
+|---|---|
+| product_physics, full crate, `--no-fail-fast` | **476 passed, 0 failed, 1 ignored** (the pre-existing `composite_fields_work_measurement`): lib 350 (348 + the 2 S1 tests), s11f_site_test 9, and the other integration tests unchanged (`product_physics_full.txt`) |
+| rustfmt 1.8.0 on `s11f_tests.rs` | clean |
+| `git diff --check` on the branch diff | clean |
+| `_run_records/SHA256SUMS` | refreshed, and verified |
+
+No other crate is touched: the tests use only existing product functions.
