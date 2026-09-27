@@ -215,8 +215,10 @@ impl CapturedInvocation {
         let application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
         let eigen = load_state_eigen_loads(resolved, built)
             .map_err(|pipe| bad(format!("captured eigen member section missing: {pipe}")))?;
-        let mut force = application.global_load_vector(built.nodes.len());
-        add_thermal_equivalent_loads(&mut force, &eigen, &built.pipes, &HashMap::new());
+        // S11 section 4.5: build through the ledger with the live producer
+        // functions (nodal loads, then the eigen equivalents).
+        let force = nodal_and_eigen_case_force(&application, &eigen, built)
+            .map_err(|e| bad(format!("captured load ledger: {e}")))?;
         let prescribed: Vec<_> = boundary
             .restrained_dofs
             .iter()
@@ -317,7 +319,11 @@ impl CapturedInvocation {
         }
         let loads = build_load_case_primitive_loads(&model, case, &mut diagnostics);
         let application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
-        let force = application.global_load_vector(built.nodes.len());
+        // S11 section 4.5: the pre-0.4 replay builds through the ledger too, so
+        // it agrees bit for bit with the case ledger (never a finalization
+        // `Err` from a fold that differs from the exact net).
+        let force = nodal_and_eigen_case_force(&application, &[], &built)
+            .map_err(|e| bad(format!("captured load ledger: {e}")))?;
         let prescribed: Vec<_> = boundary
             .restrained_dofs
             .iter()

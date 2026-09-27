@@ -66,7 +66,7 @@ struct Parts {
     resolved: ResolvedCase,
     built: BuiltModel,
     k: Vec<Vec<f64>>,
-    f: Vec<f64>,
+    f: AssembledForce,
     free: Vec<usize>,
     prescribed: Vec<(usize, f64)>,
     springs: Vec<SpringEntry>,
@@ -96,8 +96,7 @@ impl Parts {
         let primitive = build_load_case_primitive_loads(&model, &resolved.effective_case, &mut d);
         let loads = prepare_loads(built.nodes.len(), built.pipes.len(), &primitive);
         let eigen = load_state_eigen_loads(&resolved, &built).unwrap();
-        let mut f = loads.global_load_vector(built.nodes.len());
-        add_thermal_equivalent_loads(&mut f, &eigen, &built.pipes, &HashMap::new());
+        let f = crate::nodal_and_eigen_case_force(&loads, &eigen, &built).unwrap();
         let prescribed = boundary
             .restrained_dofs
             .iter()
@@ -200,8 +199,8 @@ fn unperturbed_capture_replays_and_binds_the_selected_joined_response() {
     assert!(selected.check_binding_against(parts.input()).is_ok());
     // Eigen load E*A*eps* enters the force once as equal/opposite axial actions.
     let axial = parts.eigen[0].axial_load;
-    assert_eq!(parts.f[0], -axial);
-    assert_eq!(parts.f[6], axial);
+    assert_eq!(parts.f.values()[0], -axial);
+    assert_eq!(parts.f.values()[6], axial);
     // The member-end axial rows carry the exact eigen offset: N = k*delta - a.
     let area = std::f64::consts::PI * (0.1_f64 * 0.1 - 0.09 * 0.09);
     let eps = (1.0 + THERMAL) * (1.0 + FIT) - 1.0;

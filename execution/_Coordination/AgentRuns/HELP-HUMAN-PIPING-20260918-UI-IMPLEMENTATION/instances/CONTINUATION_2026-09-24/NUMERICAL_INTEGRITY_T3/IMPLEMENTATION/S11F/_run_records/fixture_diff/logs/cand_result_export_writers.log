@@ -1,0 +1,45 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_units v0.1.0 (<cand-copy>/core/units)
+   Compiling syn v3.0.6
+   Compiling serde_derive v1.0.229
+   Compiling open_pipe_stress_canonical_json v0.1.0 (<cand-copy>/core/serialization/canonical_json)
+   Compiling open_pipe_stress_result_export v0.1.0 (<cand-copy>/core/reporting/result_export)
+warning: function `derived` is never used
+   --> src/source_blocks.rs:433:4
+    |
+433 | fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    |    ^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_result_export` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.20s
+     Running tests/load_reference_contract.rs (<s11f-target>/debug/deps/load_reference_contract-5bcf4ba32a35ef87)
+
+running 5 tests
+test header_only_dispatch_is_bound_to_one_profile_and_never_qualifies_raw_output ... ok
+test frozen_inputs_table_and_schema_are_pinned ... ok
+test table_bytes_and_transport_cases_match_in_rust ... ok
+test canonical_documents_preserve_source_metadata_and_evidence_verbatim ... ok
+test shared_adversarial_cases_match_in_rust ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.91s
+
+     Running tests/load_reference_source_contract.rs (<s11f-target>/debug/deps/load_reference_source_contract-9792c74851a3616b)
+
+running 5 tests
+test pinned_table_identity_profile_and_policy ... ok
+test header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels ... ok
+test table_bytes_and_transport_cases_match_in_rust ... ok
+test canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim ... ok
+test shared_adversarial_cases_match_in_rust ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.70s
+

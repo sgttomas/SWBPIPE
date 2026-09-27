@@ -1,0 +1,51 @@
+# first full run (fresh target); product_physics re-run after the source_recovery test fix is in SUMMARY_product_physics_rerun.txt
+core/solver/frame_kernel exit=0 secs=4 passed=120 failed=0 ignored=0
+  disk_free=13G
+core/solver/straight_pipe exit=0 secs=3 passed=39 failed=0 ignored=0
+  disk_free=13G
+core/solver/curved_bend exit=0 secs=0 passed=25 failed=0 ignored=0
+  disk_free=13G
+core/loads/load_case_algebra exit=0 secs=2 passed=21 failed=0 ignored=0
+  disk_free=13G
+core/loads/primitive_loads exit=0 secs=1 passed=49 failed=0 ignored=0
+  disk_free=13G
+core/solver/nonlinear_integration exit=0 secs=9 passed=74 failed=0 ignored=0
+  disk_free=13G
+core/solver/sparse_direct exit=0 secs=1 passed=25 failed=0 ignored=0
+  disk_free=13G
+core/solver/linear_supports exit=0 secs=1 passed=15 failed=0 ignored=0
+  disk_free=13G
+core/solver/nonlinear_supports exit=0 secs=1 passed=22 failed=0 ignored=0
+  disk_free=13G
+core/solver/diagnostics exit=0 secs=0 passed=24 failed=0 ignored=0
+  disk_free=13G
+core/solver/performance_harness exit=0 secs=14 passed=25 failed=0 ignored=0
+  disk_free=13G
+core/loads/stress_recovery exit=0 secs=1 passed=48 failed=0 ignored=0
+  disk_free=13G
+core/loads/user_loads exit=0 secs=1 passed=28 failed=0 ignored=0
+  disk_free=13G
+core/loads/self_weight_wasm exit=0 secs=24 passed=14 failed=0 ignored=0
+  disk_free=12G
+core/product_physics exit=101 secs=49 passed=473 failed=1 ignored=1
+  disk_free=11G
+core/model_operations/operation_applier exit=0 secs=25 passed=194 failed=0 ignored=0
+  disk_free=9.7G
+core/runner/headless exit=0 secs=125 passed=83 failed=0 ignored=0
+  disk_free=8.9G
+core/reporting/result_export exit=0 secs=80 passed=91 failed=0 ignored=0
+  disk_free=8.7G
+validation/benchmarks/mechanics exit=0 secs=8 passed=41 failed=0 ignored=0
+  disk_free=8.6G
+  pruned own debug output before validation/benchmarks/nonlinear
+validation/benchmarks/nonlinear exit=0 secs=5 passed=19 failed=0 ignored=0
+  disk_free=13G
+validation/benchmarks/stress exit=0 secs=11 passed=23 failed=0 ignored=0
+  disk_free=13G
+validation/benchmarks/physics_audit_regression exit=0 secs=22 passed=15 failed=0 ignored=0
+  disk_free=12G
+validation/benchmarks/numerical_integrity exit=0 secs=17 passed=0 failed=0 ignored=0
+  disk_free=12G
+apps/desktop/src-tauri exit=0 secs=153 passed=114 failed=0 ignored=0
+  disk_free=8.3G
+DONE

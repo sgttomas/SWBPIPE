@@ -1,0 +1,150 @@
+"""Python port of the S11 site-table scanner (lex, strip_cfg_test, scan + RV1-N1 self-assignment)."""
+import sys, re
+def lex(src):
+    b=src; n=len(b); out=[]; i=0
+    ident=lambda c: c.isalnum() or c=='_'
+    while i<n:
+        c=b[i]
+        if c=='/' and i+1<n and b[i+1]=='/':
+            while i<n and b[i]!='\n': i+=1
+            continue
+        if c=='/' and i+1<n and b[i+1]=='*':
+            d=1;i+=2
+            while i<n and d>0:
+                if b[i]=='/' and i+1<n and b[i+1]=='*': d+=1;i+=2
+                elif b[i]=='*' and i+1<n and b[i+1]=='/': d-=1;i+=2
+                else:
+                    if b[i]=='\n': out.append('\n')
+                    i+=1
+            continue
+        prev=i>0 and ident(b[i-1])
+        rs=None
+        if not prev and c=='r': rs=i+1
+        elif not prev and c=='b' and i+1<n and b[i+1]=='r': rs=i+2
+        if rs is not None:
+            j=rs;h=0
+            while j<n and b[j]=='#': h+=1;j+=1
+            if j<n and b[j]=='"':
+                j+=1
+                while True:
+                    if j>=n: break
+                    if b[j]=='"' and all(j+1+k<n and b[j+1+k]=='#' for k in range(h)):
+                        j+=1+h;break
+                    if b[j]=='\n': out.append('\n')
+                    j+=1
+                out.append('""'); i=j; continue
+        if c=='"' or (not prev and c=='b' and i+1<n and b[i+1]=='"'):
+            j=i+2 if c=='b' else i+1
+            while j<n and b[j]!='"':
+                if b[j]=='\\': j+=1
+                if j<n and b[j]=='\n': out.append('\n')
+                j+=1
+            out.append('""'); i=j+1; continue
+        if c=="'":
+            if i+2<n and b[i+1]!='\\' and b[i+2]=="'":
+                out.append("' '"); i+=3; continue
+            if i+1<n and b[i+1]=='\\':
+                j=i+2
+                while j<n and b[j]!="'": j+=1
+                out.append("' '"); i=j+1; continue
+        out.append(c); i+=1
+    return ''.join(out)
+def strip_cfg_test(code):
+    A='#[cfg(test)]'; out=[]; rest=code
+    while True:
+        at=rest.find(A)
+        if at<0: break
+        out.append(rest[:at]); item=rest[at:]; depth=0; started=False; end=len(item)
+        for k in range(len(A),len(item)):
+            ch=item[k]
+            if ch=='{': depth+=1; started=True
+            elif ch=='}':
+                depth-=1
+                if started and depth==0: end=k+1; break
+            elif ch==';' and not started: end=k+1; break
+        out.append(''.join(c for c in item[:end] if c=='\n')); rest=item[end:]
+    out.append(rest); return ''.join(out)
+def self_assign(code,i):
+    if code[i]!='=': return False
+    prev=code[i-1] if i>0 else ' '
+    nxt=code[i+1] if i+1<len(code) else ' '
+    if prev in '=!<>+-*/%&|^' or nxt in '=>': return False
+    start=max(code.rfind(ch,0,i) for ch in ';{}\n')+1
+    lhs=code[start:i].strip()
+    if lhs.startswith('let '):
+        lhs=lhs[4:].lstrip()
+        if lhs.startswith('mut '): lhs=lhs[4:].lstrip()
+        if ':' in lhs: lhs=lhs[:lhs.index(':')].rstrip()
+    if not lhs or not all(c.isalnum() or c in '_.[]* ' for c in lhs): return False
+    rhs=code[i+1:].lstrip()
+    if rhs.startswith('checked_value('): rhs=rhs[len('checked_value('):].lstrip()
+    if not rhs.startswith(lhs): return False
+    after=rhs[len(lhs):]
+    if after and (after[0].isalnum() or after[0] in '_[.'): return False
+    after=after.lstrip()
+    return after.startswith('+') or (after.startswith('-') and not after.startswith('->'))
+def scan(src, selfassign=True, detail=False):
+    code=strip_cfg_test(lex(src)); counts={}; lines={}; stack=[]; pending=None; depth=0; nest=0; i=0
+    ident=lambda c: c.isalnum() or c=='_'
+    while i<len(code):
+        rest=code[i:i+10]; boundary= i==0 or not ident(code[i-1])
+        if boundary and code.startswith('fn',i) and len(code)>i+2 and code[i+2].isspace():
+            m=re.match(r'\s*([A-Za-z0-9_]*)', code[i+2:i+200]); name=m.group(1)
+            if name: pending=name
+            i+=2; continue
+        L=None
+        for p in ['+=','-=','.sum(','.sum::<']:
+            if code.startswith(p,i): L=len(p); break
+        if L is None and boundary and code.startswith('fold(',i): L=5
+        if L is not None:
+            name=stack[-1][0] if stack else '<module>'
+            counts[name]=counts.get(name,0)+1; lines.setdefault(name,[]).append(code.count('\n',0,i)+1)
+            if code[i:i+L].endswith('('): nest+=1
+            i+=L; continue
+        if selfassign and code[i]=='=' and self_assign(code,i):
+            name=stack[-1][0] if stack else '<module>'
+            counts[name]=counts.get(name,0)+1; lines.setdefault(name,[]).append(('SA',code.count('\n',0,i)+1))
+        c=code[i]
+        if c in '([': nest+=1
+        elif c in ')]': nest=max(0,nest-1)
+        elif c==';' and nest==0: pending=None
+        elif c=='{':
+            depth+=1
+            if pending is not None: stack.append((pending,depth)); pending=None
+        elif c=='}':
+            if stack and stack[-1][1]==depth: stack.pop()
+            depth=max(0,depth-1)
+        i+=1
+    return (counts,lines) if detail else counts
+if __name__=='__main__':
+    for path in sys.argv[1:]:
+        c,l=scan(open(path).read(),True,True)
+        c0=scan(open(path).read(),False)
+        print('==',path)
+        for k in sorted(c):
+            sa=[x for x in l[k] if isinstance(x,tuple)]
+            print(f'  {k}: {c[k]} (compound {c0.get(k,0)}) {"SELF-ASSIGN at "+str([x[1] for x in sa]) if sa else ""}')
+
+def bodies(src):
+    """(name, body) per fn item outside cfg(test), innermost-last."""
+    code=strip_cfg_test(lex(src)); out=[]; stack=[]; pending=None; depth=0; nest=0; i=0
+    ident=lambda c: c.isalnum() or c=='_'
+    while i<len(code):
+        boundary= i==0 or not ident(code[i-1])
+        if boundary and code.startswith('fn',i) and len(code)>i+2 and code[i+2].isspace():
+            m=re.match(r'\s*([A-Za-z0-9_]*)', code[i+2:i+200]);
+            if m.group(1): pending=m.group(1)
+            i+=2; continue
+        c=code[i]
+        if c in '([': nest+=1
+        elif c in ')]': nest=max(0,nest-1)
+        elif c==';' and nest==0: pending=None
+        elif c=='{':
+            depth+=1
+            if pending is not None: stack.append((pending,depth,i)); pending=None
+        elif c=='}':
+            if stack and stack[-1][1]==depth:
+                n,d,st=stack.pop(); out.append((n,code[st:i+1]))
+            depth=max(0,depth-1)
+        i+=1
+    return out

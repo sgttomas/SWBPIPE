@@ -313,7 +313,12 @@ impl AssemblyEvidence {
         format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}")
     }
 
-    pub fn solve(
+    /// The `&[f64]` linear solve (C3-detect when `with_force_terms` is set).
+    /// S11-F narrowed it to `pub(crate)`: the product calls the typed
+    /// `solve_assembled`, and no caller outside this crate remains. Its
+    /// callers are this crate's tests.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn solve(
         &self,
         k: &[Vec<f64>],
         f: &[f64],
@@ -532,6 +537,17 @@ impl AssemblyEvidence {
     /// let evidence = AssemblyEvidence::new(1, &[], &[], &[], &[]).unwrap();
     /// let k = vec![vec![1.0; 6]; 6];
     /// let force: Vec<f64> = vec![0.0; 6];
+    /// let _ = evidence.solve_assembled(&k, &force, &[0], &[], LinearSolveMode::DenseScrutiny);
+    /// ```
+    /// The positive twin (RV1-N8): the same call compiles with a ledger-built
+    /// `AssembledForce`, so the failure above is the refused `Vec<f64>`.
+    /// ```
+    /// use open_pipe_stress_frame_kernel::load_ledger::LoadLedger;
+    /// use open_pipe_stress_nonlinear_integration::structural_adapter::AssemblyEvidence;
+    /// use open_pipe_stress_nonlinear_integration::LinearSolveMode;
+    /// let evidence = AssemblyEvidence::new(1, &[], &[], &[], &[]).unwrap();
+    /// let k = vec![vec![1.0; 6]; 6];
+    /// let force = LoadLedger::new().finish(6).unwrap();
     /// let _ = evidence.solve_assembled(&k, &force, &[0], &[], LinearSolveMode::DenseScrutiny);
     /// ```
     pub fn solve_assembled(

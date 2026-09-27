@@ -55,6 +55,10 @@ pub(crate) struct ExactPressureCase {
     pub eigenloads: Vec<f64>,
     pub cap_loads: Vec<f64>,
     pub assembled_loads: Vec<f64>,
+    /// S11 section 4.2: each source group's value, (dof, value, source), in
+    /// group order. The case ledger pushes these operands, never the
+    /// pre-summed `assembled_loads` total (kept as evidence).
+    pub assembled_operands: Vec<(usize, f64, String)>,
     pub assembly_evidence: Value,
     pub evidence: Vec<Value>,
 }
@@ -446,6 +450,7 @@ pub(crate) fn build_pressure_case_with_members(
         eigenloads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
         cap_loads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
         assembled_loads: vec![0.0; built.nodes.len() * DOF_PER_NODE],
+        assembled_operands: Vec::new(),
         assembly_evidence: Value::Null,
         evidence: Vec::new(),
     };
@@ -868,6 +873,11 @@ fn finish_source_groups(
                 }
             };
         by_dof[dof].push(value);
+        let source = group
+            .terms
+            .first()
+            .map_or_else(|| case.id.clone(), |term| term.1.clone());
+        output.assembled_operands.push((dof, value, source));
         evidence.push(json!({"node_ref":model.nodes[dof/DOF_PER_NODE].id,"component":(["Fx","Fy","Fz"][dof%DOF_PER_NODE]),
             "pressure_bits":format!("{pbits:016x}"),"source_inner_radius_hi_bits":format!("{hi:016x}"),"source_inner_radius_lo_bits":format!("{lo:016x}"),
             "direction_component_magnitude":group.direction,"coefficient_sum":coefficient,"assembled_force_n":value,

@@ -290,7 +290,7 @@ struct Parts {
     resolved: ResolvedCase,
     built: BuiltModel,
     k: Vec<Vec<f64>>,
-    f: Vec<f64>,
+    f: AssembledForce,
     free: Vec<usize>,
     prescribed: Vec<(usize, f64)>,
     springs: Vec<SpringEntry>,
@@ -320,8 +320,7 @@ impl Parts {
         let primitive = build_load_case_primitive_loads(&model, &resolved.effective_case, &mut d);
         let loads = prepare_loads(built.nodes.len(), built.pipes.len(), &primitive);
         let eigen = load_state_eigen_loads(&resolved, &built).unwrap();
-        let mut f = loads.global_load_vector(built.nodes.len());
-        add_thermal_equivalent_loads(&mut f, &eigen, &built.pipes, &HashMap::new());
+        let f = crate::nodal_and_eigen_case_force(&loads, &eigen, &built).unwrap();
         let prescribed = boundary
             .restrained_dofs
             .iter()

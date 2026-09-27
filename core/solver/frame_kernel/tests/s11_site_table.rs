@@ -1,18 +1,34 @@
-//! S11 site test, S11-K part (S11 section 4.3 rule 7, ROOT R3-3, V1 R3B-5).
+//! S11 site test, S11-K part (S11 section 4.3 rule 7, ROOT R3-3, V1 R3B-5;
+//! RV1-N1 in S11-F).
 //!
 //! The section 2.5 table is this test's constant. Outside `#[cfg(test)]` items,
-//! every floating-point or integer compound assignment (`+=`, `-=`) and every
-//! `.sum(` / `.sum::<` / `fold(` in the scanned files is counted per enclosing
-//! function. The table below is keyed by (file, function) and records the exact
-//! count and the disposition of each match: an E-site / KS-site, or an explicit
-//! exemption with its reason. A new accumulation anywhere, including inside an
-//! already-listed function, changes a count and fails the test, so extending
-//! the table is a visible edit. The E-site and KS-site functions of S11-K are
-//! listed with count 0: they sum through `exact_sum::ExactAccumulator`, and a
-//! restored binary64 fold there fails this test as well as the numeric tests.
-//! The `product_physics` part of the site test comes with S11-F.
+//! the scanner counts, per enclosing function:
+//! - every compound assignment (`+=`, `-=`), floating-point or integer;
+//! - every `.sum(`, `.sum::<` and `fold(`;
+//! - (RV1-N1, S11-F) every self-assignment fold written `x = x + ...`,
+//!   `x = x - ...`, `x = checked_value(x + ...)` or `x = checked_value(x - ...)`,
+//!   where `x` is a place expression (an identifier, possibly with `let`,
+//!   `mut`, a type, indexing, field access or a leading `*`) repeated verbatim
+//!   at the start of the right-hand side.
 //!
-//! Limit (S11 section 4.3): this is a source scan, not a type check.
+//! The table below is keyed by (file, function) and records the exact count
+//! and the disposition of each match: an E-site / KS-site, or an explicit
+//! exemption with its reason. A new accumulation of these shapes anywhere,
+//! including inside an already-listed function, changes a count and fails the
+//! test, so extending the table is a visible edit. The E-site functions of
+//! S11-K are listed with count 0: they sum through
+//! `exact_sum::ExactAccumulator`.
+//!
+//! Limits (what the scan cannot see; S11 section 4.3, RV1-N1). It is a source
+//! scan, not a type check. It does not see a fold written in any other shape:
+//! `s = v + s`, `s = t + v` with `t` a copy of `s`, a fold through a helper
+//! function or closure, `iter().product()`, `map(..).collect()` followed by a
+//! later sum, or a sum formed in another file. KS1 and KS3 keep their legacy
+//! binary64 expressions (option (c) and uncoupled rows), so their rows are
+//! nonzero and a restored fold on the exact rows would not change the count:
+//! the numeric K4/K11 tests and the option (c) pins, not this table, kill
+//! those mutants. The `product_physics` part of the site test is
+//! `product_physics/tests/s11f_site_test.rs` (S11-F).
 use std::collections::BTreeMap;
 
 struct Source {
@@ -77,16 +93,20 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural.rs", "add", 1, "integer: expansion operation count"),
     ("FK/structural.rs", "add_product", 1, "integer: expansion operation count"),
     ("FK/structural.rs", "exact_radix", 1, "integer: exponent step"),
-    ("FK/structural.rs", "audit_contributions", 3, "exempt: two descriptive ContributionRounding low-part sums of stiffness expansions and one delta-norm of stiffness differences (section 2.5 contribution_differences)"),
-    ("FK/structural.rs", "audit_intended_action", 1, "integer: denominator operation count (the audit itself is exact, section 4.3 rule 6)"),
-    ("FK/structural.rs", "audit_load_fidelity", 1, "integer: denominator operation count"),
+    ("FK/structural.rs", "audit_contributions", 7, "exempt: two descriptive ContributionRounding low-part sums of stiffness expansions and one delta-norm of stiffness differences (section 2.5 contribution_differences); RV1-N1: the column magnitude/delta norms and the rhs magnitude norms (self-assignment), stiffness and |rhs| norms of the perturbation estimate, not load sums"),
+    ("FK/structural.rs", "audit_intended_action", 2, "integer: denominator operation count (the audit itself is exact, section 4.3 rule 6); RV1-N1: the same-sign denominator |f|+sum|K||u| (a magnitude bound, not a load sum)"),
+    ("FK/structural.rs", "audit_load_row", 2, "integer: denominator operation count; RV1-N1: the same-sign denominator |f_exact|+sum|K||u| (the load term is the exact net)"),
+    ("FK/structural.rs", "cholesky", 2, "RV1-N1: exempt, generic factorization (section 4.3 limit 1): pivot sum and its magnitude scale"),
+    ("FK/structural.rs", "factor_structural_profile", 3, "RV1-N1: exempt, generic skyline factorization (section 4.3 limit 1)"),
+    ("FK/structural.rs", "solve", 4, "RV1-N1: exempt, the dense and profile factors' forward/back substitution (section 4.3 limit 1)"),
+    ("FK/structural.rs", "transform_roundoff", 4, "RV1-N1: exempt, transform roundoff bound (stiffness formation evidence)"),
     ("FK/structural.rs", "physical_residual_record", 1, "integer: exponent step"),
-    ("FK/structural.rs", "evaluate_original_residual_bound", 1, "integer: product count (KS3 numerator is exact on prescribed-coupled rows)"),
-    ("FK/structural.rs", "estimate_rcond", 3, "exempt: condition-estimate probe norms and dot (section 4.3 limit 1)"),
-    ("FK/structural.rs", "finish_checked_factor", 2, "exempt: max fold of residual ratios; integer refinement count"),
-    ("FK/structural.rs", "verify_negative_direction", 1, "integer: term count"),
+    ("FK/structural.rs", "evaluate_original_residual_bound", 3, "integer: product count; RV1-N1: KS3's legacy binary64 numerator `r = r + p` (option (c) Binary64 binding and rows with no nonzero prescribed coupling, whose only load operand is the one force value) and the same-sign denominator d; the numerator is exact on prescribed-coupled rows"),
+    ("FK/structural.rs", "estimate_rcond", 4, "exempt: condition-estimate probe norms and dot (section 4.3 limit 1); RV1-N1: a row 1-norm"),
+    ("FK/structural.rs", "finish_checked_factor", 3, "exempt: max fold of residual ratios; integer refinement count; RV1-N1: the refinement update y = y + delta (a correction of the solution, not a load sum)"),
+    ("FK/structural.rs", "verify_negative_direction", 3, "integer: term count; RV1-N1: energy and magnitude sums of the witness direction (stiffness quadratic form)"),
     ("FK/structural.rs", "exact_scaled_rhs", 0, "KS1: exact accumulator, scaled before one rounding"),
-    ("FK/structural.rs", "prepare_bound", 0, "KS1 dispatch: legacy rows without nonzero prescribed product keep today's checked expression"),
+    ("FK/structural.rs", "prepare_bound", 1, "KS1 dispatch; RV1-N1: the legacy expression `b = checked_value(b - K*u)` kept for the option (c) Binary64 binding and for legacy rows without a nonzero prescribed product (b - (+-0) is exact); ledger and coupled rows use exact_scaled_rhs"),
     // ---- FK/structural/exact_boundary.rs
     ("FK/structural/exact_boundary.rs", "approximate_projection", 2, "exempt: proposal quotient, verified exactly afterwards (section 4.1.2)"),
     ("FK/structural/exact_boundary.rs", "ratio_add", 1, "exempt: exact expansion sum (Context::sum)"),
@@ -333,6 +353,10 @@ fn scan(src: &str) -> BTreeMap<String, usize> {
             i += len;
             continue;
         }
+        if b[i] == b'=' && self_assignment_at(&code, i) {
+            let name = stack.last().map_or("<module>".to_string(), |s| s.0.clone());
+            *counts.entry(name).or_insert(0) += 1;
+        }
         match b[i] {
             b'(' | b'[' => nest += 1,
             b')' | b']' => nest = nest.saturating_sub(1),
@@ -354,6 +378,53 @@ fn scan(src: &str) -> BTreeMap<String, usize> {
         i += 1;
     }
     counts
+}
+
+/// RV1-N1: whether the `=` at `i` is a self-assignment fold `x = x + ...`,
+/// `x = x - ...`, `x = checked_value(x + ...)` or `x = checked_value(x - ...)`.
+fn self_assignment_at(code: &str, i: usize) -> bool {
+    let b = code.as_bytes();
+    let prev = if i > 0 { b[i - 1] } else { b' ' };
+    let next = b.get(i + 1).copied().unwrap_or(b' ');
+    if b"=!<>+-*/%&|^".contains(&prev) || next == b'=' || next == b'>' {
+        return false;
+    }
+    let start = code[..i]
+        .rfind(|c| c == ';' || c == '{' || c == '}' || c == '\n')
+        .map_or(0, |k| k + 1);
+    let mut lhs = code[start..i].trim();
+    if let Some(rest) = lhs.strip_prefix("let ") {
+        lhs = rest.trim_start();
+        if let Some(rest) = lhs.strip_prefix("mut ") {
+            lhs = rest.trim_start();
+        }
+        if let Some(colon) = lhs.find(':') {
+            lhs = lhs[..colon].trim_end();
+        }
+    }
+    if lhs.is_empty()
+        || !lhs
+            .chars()
+            .all(|c| c.is_alphanumeric() || "_.[]* ".contains(c))
+    {
+        return false;
+    }
+    let mut rhs = code[i + 1..].trim_start();
+    if let Some(rest) = rhs.strip_prefix("checked_value(") {
+        rhs = rest.trim_start();
+    }
+    let Some(after) = rhs.strip_prefix(lhs) else {
+        return false;
+    };
+    if after
+        .chars()
+        .next()
+        .is_some_and(|c| c.is_alphanumeric() || c == '_' || c == '[' || c == '.')
+    {
+        return false;
+    }
+    let after = after.trim_start();
+    after.starts_with('+') || (after.starts_with('-') && !after.starts_with("->"))
 }
 
 fn functions(src: &str) -> Vec<String> {
@@ -445,4 +516,23 @@ fn scanner_counts_what_it_claims() {
     assert_eq!(counts.get("c"), None);
     assert_eq!(counts.get("d"), Some(&2));
     assert_eq!(counts.len(), 2);
+}
+
+/// RV1-N1: RV1's mutants RV-M1a, RV-M1c and RV-M1d wrote the fold as a
+/// self-assignment; the scanner now counts that shape, and nothing else.
+#[test]
+fn scanner_counts_self_assignment_folds() {
+    let src = r#"
+        fn e1(a: &mut [f64; 12], t: &[f64; 12]) { for d in 0..12 { a[d] = a[d] + t[d]; } }
+        fn e3(b: f64, k: f64) -> f64 { let mut b = b; b = checked_value(b - k)?; b }
+        fn e4(mut s: f64, v: f64) -> f64 { s = s + v; let s = s - v; *p = *p + 1.0; s }
+        fn controls(s: f64, v: f64) -> bool { let t = s + v; let u = v + s; let w = s.max(v); let q = s_other + v; s == s + v || s <= s - v }
+        fn arrow() -> impl Fn(f64) -> f64 { |x| x }
+    "#;
+    let counts = scan(src);
+    assert_eq!(counts.get("e1"), Some(&1));
+    assert_eq!(counts.get("e3"), Some(&1));
+    assert_eq!(counts.get("e4"), Some(&3));
+    assert_eq!(counts.get("controls"), None);
+    assert_eq!(counts.get("arrow"), None);
 }

@@ -1,0 +1,49 @@
+"""T3 S11-F (I4) mutation driver. One textual patch at a time on a scratch copy of core/.
+usage: run_mutants.py <scratch-copy project root> <out.json> [mutant ids...]
+For each mutant: apply the patch (anchor must occur exactly once), run the killing suites with
+`cargo test --offline --locked --no-fail-fast`, record the failing tests, restore the file."""
+import json, os, re, subprocess, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mutants import MUTANTS
+root, out = sys.argv[1], sys.argv[2]
+only = set(sys.argv[3:])
+env = dict(os.environ, RUSTUP_TOOLCHAIN='1.97.1', RUSTUP_AUTO_INSTALL='0', CARGO_INCREMENTAL='0', CARGO_TARGET_DIR='<s11f-target>')
+PP = os.path.join(root, 'core/product_physics'); FK = os.path.join(root, 'core/solver/frame_kernel')
+def host_free():
+    busy = lambda cmd: subprocess.run(cmd, capture_output=True).returncode == 0
+    return not busy(['pgrep', '-x', 'cargo']) and not busy(['pgrep', '-f', 'python[0-9.]* .*run_evidence_sweep'])
+def wait_host():
+    import time, shutil
+    for _ in range(120):
+        if host_free() and shutil.disk_usage('<home>').free > 8 * 10**9: return
+        time.sleep(60)
+    raise SystemExit('host busy for two hours; stopping')
+def cargo(cwd, args):
+    wait_host()
+    r = subprocess.run(['cargo', 'test', '--offline', '--locked', '--no-fail-fast'] + args, cwd=cwd, env=env,
+                       capture_output=True, text=True)
+    text = r.stdout + r.stderr
+    failed = sorted(set(re.findall(r'^test (\S+) \.\.\. FAILED', text, re.M)))
+    compile_error = 'error[E' in text or 'error: could not compile' in text
+    passed = sum(int(x) for x in re.findall(r'test result: \w+\. (\d+) passed', text))
+    return {'cwd': os.path.relpath(cwd, root), 'args': args, 'exit': r.returncode, 'failed': failed,
+            'compile_error': compile_error, 'passed': passed,
+            'compile_messages': re.findall(r'^error(?:\[E\d+\])?: .*$', text, re.M)[:5]}
+results = json.load(open(out)) if os.path.exists(out) else {}
+for mid, rel, anchor, patch in MUTANTS:
+    if only and mid not in only: continue
+    path = os.path.join(root, 'core', rel)
+    text = open(path).read()
+    assert text.count(anchor) == 1, (mid, text.count(anchor))
+    open(path, 'w').write(text.replace(anchor, patch))
+    try:
+        runs = []
+        if rel.startswith('solver/frame_kernel'):
+            runs.append(cargo(FK, ['--lib']))
+        runs.append(cargo(PP, ['--lib', '--test', 's11f_site_test', '--', 's11f_tests', 'rule_', 'sparse_direct', 'scanner']))
+        killed = any(r['failed'] or r['compile_error'] or r['exit'] != 0 for r in runs)
+        results[mid] = {'file': 'core/' + rel, 'killed': killed, 'runs': runs}
+        print(mid, 'KILLED' if killed else 'SURVIVED', [t for r in runs for t in r['failed']][:8], flush=True)
+    finally:
+        open(path, 'w').write(text)
+    json.dump(results, open(out, 'w'), indent=1)

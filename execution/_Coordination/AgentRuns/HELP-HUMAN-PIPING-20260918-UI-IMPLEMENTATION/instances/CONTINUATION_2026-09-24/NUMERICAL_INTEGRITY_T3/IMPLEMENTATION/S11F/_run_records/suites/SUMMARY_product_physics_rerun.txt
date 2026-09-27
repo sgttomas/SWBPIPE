@@ -1,0 +1,3 @@
+core/product_physics exit=0 secs=50 passed=474 failed=0 ignored=1
+  disk_free=11G
+DONE
