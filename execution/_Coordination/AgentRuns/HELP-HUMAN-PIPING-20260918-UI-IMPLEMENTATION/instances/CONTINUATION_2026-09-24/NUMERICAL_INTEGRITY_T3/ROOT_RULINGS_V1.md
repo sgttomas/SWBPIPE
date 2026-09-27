@@ -847,3 +847,13 @@ Both are generalizations from a few probes that were never derived. I6 found bot
 2. **No fifth test.** The 6EI/L² item produced no admissible case in which main publishes a trusted value wrong beyond the criterion.
 3. **The cost clause, reworded:** K2a refuses 1/L-lifted zeros where main's published value was within its K-D5-limited criterion (for example the spring-carried GJ/L case).
 4. **Process: rulings stop restating numeric bounds on this topic.** The authoritative statement of K2a's product reach is the derivation section of I6's K2a RETURN, checked by K2a's independent reviewer. Rulings and the work graph cite it by section and do not restate its figures. Where the figures in corrections 1 and 2 differ from that section, the RETURN section governs.
+
+## K1: spawn timing and no both-entry gate (ROOT, 2026-09-28)
+
+- **Spawn.** K1 (I8) is spawned now, not when K2a's PR opens, because the write sets are disjoint. K2a writes `FK/lib.rs`, `diagnostics` and new tests. K1 writes `FK/structural.rs`, new `FK/structural/sparse.rs`, `sparse_direct` and `structural_adapter.rs`. The worktree is `<wt>/k1`, on branch `codex/piping-k1-20260928` from main `134eefc24`, with target `<wt>/k1-target`.
+- **The brief's conditions stand** (`TASK_BRIEFS/I8_K1_IMPLEMENTATION.md`):
+  1. K1 does not edit `FK/lib.rs`. If it would need to, it stops, and K1 moves to after K2a's merge.
+  2. K1's PR cannot merge before K2a's.
+- **K2a-interaction tests.** I8 drafts them read-only against K2a's branch, and lands them after K2a merges and main is merged into K1's branch.
+- **No both-entry gate for K1.** K1 is kernel only and changes no published byte. The evidence is the parity tests and T9 (the committed-fixture diff). The gate runs at F1b, when `PP` switches to the sparse representation.
+- **Host.** One heavy job at a time. I6 prunes between phases. I8 builds only named crates in its slot. Before deleting anything hash-cited to free disk, ask ROOT.

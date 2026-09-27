@@ -193,3 +193,11 @@ The assembly entry should take its options in a form that lets K2b add b without
 - The authority targets are prerequisites, never scratch.
 - **Never rewrite committed, hash-bound evidence;** add new files instead.
 - Skip no tests and raise no timeouts.
+
+## Addendum 1 (2026-09-28): spawn and gate rulings
+
+This follows ROOT_RULINGS_V1, "K1: spawn timing and no both-entry gate (ROOT)".
+- **Spawned now,** in `<wt>/k1` on `codex/piping-k1-20260928` from main `134eefc24`, with target `<wt>/k1-target`. Conditions 1 and 2 above stand.
+- **K2a-interaction tests:** draft them read-only against K2a's branch, and land them after K2a merges and main is merged into your branch.
+- **No both-entry gate.** The parity tests and T9 are the evidence. Record this ruling in RETURN, in place of "ROOT's call".
+- **Cargo:** in your slot, build only the named crates you need. Check free disk before each build and prune afterwards.
