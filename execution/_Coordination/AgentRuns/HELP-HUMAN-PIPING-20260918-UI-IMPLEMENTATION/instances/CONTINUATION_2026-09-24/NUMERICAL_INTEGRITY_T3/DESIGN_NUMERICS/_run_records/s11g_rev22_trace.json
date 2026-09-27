@@ -1,0 +1,194 @@
+{
+ "all_true": true,
+ "checks": [
+  {
+   "all_found": true,
+   "claim": "main routing predicate has no finding",
+   "file": "core/product_physics/src/lib.rs",
+   "lines": [
+    2592,
+    2593
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "needs_source_recovery follows the report or an Err",
+   "file": "core/product_physics/src/lib.rs",
+   "lines": [
+    2583,
+    2586
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "a failed attempt records the failure and the UNAVAILABLE diagnostic",
+   "file": "core/product_physics/src/lib.rs",
+   "lines": [
+    2625,
+    2640
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "per-case entry: failed when an attempt failed, else ordinary",
+   "file": "core/product_physics/src/lib.rs",
+   "lines": [
+    3683,
+    3691
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "the ordinary entry refuses a non-checks-passed outcome",
+   "file": "core/product_physics/src/source_receipt.rs",
+   "lines": [
+    710,
+    718
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "the failed entry has no outcome precondition",
+   "file": "core/product_physics/src/source_receipt.rs",
+   "lines": [
+    752,
+    762
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "finalization requires an entry for every case",
+   "file": "core/product_physics/src/source_receipt.rs",
+   "lines": [
+    955,
+    961
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "the wire binds outcome to the published quality and code",
+   "file": "core/product_physics/src/source_receipt.rs",
+   "lines": [
+    527,
+    558
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "OrdinaryAttempt::passed derives its outcome from the report only",
+   "file": "core/product_physics/src/source_receipt.rs",
+   "lines": [
+    454,
+    476
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "finalization failure is a blocking diagnostic",
+   "file": "core/product_physics/src/lib.rs",
+   "lines": [
+    2055,
+    2058
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "the captured entry then returns Err",
+   "file": "core/product_physics/src/lib.rs",
+   "lines": [
+    1483,
+    1488
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "retained scope refuses element uniform loads before charged work",
+   "file": "core/product_physics/src/source_recovery.rs",
+   "lines": [
+    518,
+    528
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "retained scope refuses non-nodal authored families",
+   "file": "core/product_physics/src/source_recovery.rs",
+   "lines": [
+    590,
+    601
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "the existing decline pattern",
+   "file": "core/product_physics/src/source_recovery.rs",
+   "lines": [
+    222,
+    231
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "Unsupported maps to the existing unsupported_family code",
+   "file": "core/product_physics/src/source_receipt/source.rs",
+   "lines": [
+    409,
+    434
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "S11-F's F6: an element-load case beside a selected case finalizes on main",
+   "file": "core/product_physics/src/s11f_tests.rs",
+   "lines": [
+    1236,
+    1276
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "readers bind the ordinary outcome as the wire does",
+   "file": "core/reporting/result_export/src/source_blocks.rs",
+   "lines": [
+    226,
+    252
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "an attempted case must record sensitive or rejected",
+   "file": "core/reporting/result_export/src/physics_source.rs",
+   "lines": [
+    613,
+    620
+   ],
+   "missing": []
+  }
+ ],
+ "files": {
+  "core/product_physics/src/lib.rs": "9c71cafd95ae46d5f60045d8e032e6ad26d3daaf57b5519ff88d9dfa1e229ce8",
+  "core/product_physics/src/s11f_tests.rs": "0caf7311562c00f94a0d79bfd2d1b6b77029d742ca8c7789ecc37a28db57b0d7",
+  "core/product_physics/src/source_receipt.rs": "61d2fccaacd45ee9912917817f6d384dca926cf8b06db31862a05975f29682bf",
+  "core/product_physics/src/source_receipt/source.rs": "7e3bdaa84b3a163a973a6ee93879c734a781d5ed7cfe2084e7c71d533db53104",
+  "core/product_physics/src/source_recovery.rs": "affd83cbc0e055b03576b751473d034acd6a647c3f1e4040db958a38a345eeed",
+  "core/reporting/result_export/src/physics_source.rs": "c4e380ee7c01eb1581930013e8fc77f8be37c68e1978dedbb78ab5d3cd656f37",
+  "core/reporting/result_export/src/source_blocks.rs": "8e86e1514a986b376f4a95dac6d4dcb19ec7bd55675812e800798e284a3438d9"
+ }
+}
