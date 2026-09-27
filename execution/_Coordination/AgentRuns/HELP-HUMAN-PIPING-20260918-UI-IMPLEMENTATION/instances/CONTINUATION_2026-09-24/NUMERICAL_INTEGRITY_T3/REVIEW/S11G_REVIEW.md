@@ -396,4 +396,4 @@ Environment as in §13: toolchain 1.97.1, `--offline --locked`, my own target wi
 | ID | Severity | Site | Evidence | Resolution |
 |---|---|---|---|---|
 | RV4-D1 | NOTE | PR #1003 body | The status line reads "Status on head `6d6d31923`"; the head is now `e6f45d30f`. The content is otherwise current | Update at the next body edit |
-| RV4-D2 | NOTE | X | The kill is at the assertion that the root row is silent under its own scale. That scale comes from the product's `row_scales`, so it is a behavioural assertion on the guard's decision. The product-level pin (not demoted) follows it. Acceptable. Recorded because the assertion is written with the precondition | None |
+| RV4-D2 | NOTE | `s11g_tests.rs:2595` | The kill is at the assertion that the root row is silent under its own scale. That scale comes from the product's `row_scales`, so it is a behavioural assertion on the guard's decision. The product-level pin (not demoted) follows it. Acceptable. Recorded because the assertion is written with the precondition | None |

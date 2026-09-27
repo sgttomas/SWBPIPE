@@ -607,16 +607,16 @@ D1 and V1 do writing and analysis only; no cargo unless the manager grants a slo
 **Note (ROOT, 2026-09-27, on D1's revision 2.2 at `3c80158e9`): moving R-b′ before routing is declined for S11-G.**
 - D1 recorded, without proposing, the option of moving R-b′ before routing so that it feeds `needs_source_recovery`. That would also remove path 1's R-b′ variant.
 - It is declined because it changes R-b′'s semantics, which V1 checked and ROOT selected at 2.1.
-- **The R-b′ variant of path 1 stays a disclosed residual under ruling 3.** It is narrow (it needs per-case modulus bases). It fails closed: the captured entry returns `Err` and no envelope. It is characterized by T20. It is owned by the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item, which closes before T3 closes.
+- **The R-b′ variant of path 1 stays a disclosed residual under ruling 3.** It was judged narrow at the time. (Corrected 2026-09-27 by the C1 note below: per-case modulus bases are sufficient, not necessary.) It fails closed: the captured entry returns `Err` and no envelope. It is characterized by T20. It is owned by the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item, which closes before T3 closes.
 - The finalization item may take the option up, with its own design and check.
 - ROOT selects 2.2 on V1's PASS, by the default rule. I5 implements it in its cargo slot, confirming T18 and the T19/T20 multi-basis selection by run.
 
 **Note (ROOT, 2026-09-27, on RV4's interim finding C1 during the PR1003 review): the R-b′ path-1 residual is reachable. Ruling 3 is unchanged.**
 - **Construction C1 (RV4):** N05's cantilever with per-case modulus bases. Case A, the cancelling tip torques on the base basis, is Sensitive and selected by recovery. Case B, on a soft basis (E = 1 Pa, G = 0.4 Pa), carries only nodal inputs (tip F_y = 1 N, M_z = 1e-7 N·m).
 - **The outcome:** on the captured entry, in both modes, the invocation returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` with no envelope. Case B alone is Passed in its report, and R-b′ demotes it as a true catch (a genuine error of 6.1e-9 relative). With m = 0.5, R-b′ is silent and the invocation returns Ok with a receipt. The typed entry publishes case B as Sensitive.
-- **Ruling 3 stands, and moving R-b′ before routing stays declined for S11-G.** The refusal needs all of the following together: a pre-0.4 captured invocation (0.4.0 republishes), per-case modulus bases, a Sensitive case that recovery selects, and an R-b′ true catch on another case. It fails closed (an `Err` with no envelope; nothing wrong is published), which was the ruling's premise.
-- **Ownership:** the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item owns it, treats it as **demonstrated** with C1 as its test case, and closes it before T3 closes.
-- **The S11-G repair (tests and records only):** T20 is rebuilt around C1, and the disclosures read "reachable (C1), fail-closed, needs per-case modulus bases and a pre-0.4 captured invocation". RV4 delta-checks that commit.
+- **Ruling 3 stands, and moving R-b′ before routing stays declined for S11-G.** C1 uses per-case modulus bases. Single-basis reach through FK's load audit and through K-D5 (V1's N1, the design's E-2) is **not refuted**. The refusal needs a pre-0.4 captured invocation (0.4.0 republishes), a Sensitive source-selected case, and an R-b′ catch on another case. **On that basis the ruling is unchanged:** it fails closed (an `Err` with no envelope; nothing wrong is published), it is confined to the pre-0.4 captured entry, and the finalization item closes it before T3 closes. (Corrected 2026-09-27 on the PR1004 review, S1. The earlier text listed per-case modulus bases as a necessary condition.)
+- **Ownership:** the composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item owns it, treats it as **demonstrated** with C1 as its test case, and closes it before T3 closes. Once K-D5 merges, the item re-attempts a single-basis construction through K-D5's per-case formation check.
+- **The S11-G repair (tests and records only):** T20 is rebuilt around C1, and the disclosures read "reachable (C1), fail-closed, needs per-case modulus bases and a pre-0.4 captured invocation". RV4 delta-checks that commit. (Corrected 2026-09-27: the accurate wording is "reachable (C1, which uses per-case modulus bases; single-basis reach not refuted), fail-closed, confined to a pre-0.4 captured invocation".)
 
 ## Selection: S11-G revision 2.2 (ROOT, 2026-09-27)
 
@@ -651,7 +651,7 @@ This removes path 2 and path 1's load-row variant. Path 1's R-b′ variant stays
 **Note on T18–T20 and T6a (ROOT, 2026-09-27, on I5's first runs):**
 - **The run evidence.** T18 passes by run in both modes: path 2 is removed, the captured invocation publishes with a receipt, and case B keeps today's integrity bytes. T19 passes by run on a per-case modulus-basis construction: path 1's load-row variant is removed, case B gets the zero-work unsupported entry, and nothing is refused. **T19 settles V1's N3: multi-basis selection works.** T21 and T22 pass.
 - **T20: option (a).** I5 could not construct a selected case A beside a case B that R-b′ demotes. It tried three constructions:
-  1. V1's single-basis N1 row (4e15, −4e15, 1e-300): recovery refuses case A on the exact radix.
+  1. A single-basis load-audit row modelled on V1's N1 (V1's row is (1e15, −1e15, 1e-300); I5 used (4e15, −4e15, 1e-300), with PR1002's G = 4e15): recovery refuses case A on the exact radix.
   2. The INPLANE geometry with N05's torsion spring: `UnsupportedBlock { order: 3 }`.
   3. Two disjoint bodies: `UnsupportedBlock { order: 4 }`.
   In each, R-b′ demotes case B without refusal, but no case is selected.

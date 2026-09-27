@@ -33,7 +33,7 @@
   - the production build.
 
   The run window was 11:39:54Z–12:18:39Z, exit 0, recorded in `dec025/meta.txt`; the full log is `dec025/sweep.log`. Machine paths are replaced with `<WORKTREE>`, `<wt>`, `<VENV>` and `<scratch>`. The source_recovery.rs `stage` dead_code warning in the log is also in the S11-F sweep log, so it predates S11-G.
-  - **Why the sweep on `759dccf35` stands for the merged head `e6f45d30f`:** RV4's delta check confirmed that the change after `759dccf35` is tests, records and layout only. Product_physics `lib.rs` is token-identical to `b62e40d4d` apart from 10 rustfmt trailing commas, its rustfmt count equals base's, and no other product file changed. This follows PR1002's precedent.
+  - **Why the sweep on `759dccf35` stands for the merged head `e6f45d30f`:** RV4's delta check confirmed that the change after `759dccf35` is tests, records and layout only. Product_physics `lib.rs` is token-identical to `b62e40d4d` apart from 10 rustfmt trailing commas, its rustfmt count equals base's, and no other product file changed. This follows PR1002's precedent, with one difference: unlike PR1002, this delta changed `lib.rs` bytes (layout only). It therefore stands on RV4's token-level check plus the hosted Numerical cargo suite being green on `e6f45d30f`.
 - **Hosted CI** and the **surface-4 dual-viewport dispatch**, with full-SHA target_base `72d5ff864`: green on `e6f45d30f`, and the PR-event E2E run on `e6f45d30f` is green. An earlier red E2E run on `6d6d31923` was cancelled by the push to `e6f45d30f` and is superseded.
 
 ## What main now carries
