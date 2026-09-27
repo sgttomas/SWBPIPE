@@ -126,3 +126,17 @@ Write `T3/REVIEW/KD5_REVIEW.md` in `<wt>/numerics`, containing:
 Keep machine paths out of the review and its records: use `<wt>/…` and `<scratch>/…`.
 
 The verdict is **PASS** (no unresolved BLOCKING findings) or **FAIL**. Send the manager a SendMessage summary with the verdict, the finding counts, the M31b result and the file's sha256.
+
+## Addendum 1 (ROOT, 2026-09-27): M31b counterexample definition
+
+ROOT has confirmed the definition of a counterexample used in check 2.
+
+**BLOCKING:**
+- **(a)** M31b fails to demote an admissible model whose published value has an actual error, against an exact reference, above the criterion.
+- **(b)** |EF_M31b − EF_correct| ≥ 0.5·criterion.
+
+**NOTE:**
+- **Tuned near-boundary flips:** report the largest |ΔEF|/criterion found.
+- **The reverse direction:** M31b demotes where the correct H would not. This is a false demotion, not a safety issue.
+
+**Fail-closed cases.** The attack must also cover near-π bends and radius-mismatch models on which the correct check must fail closed with `formation_check_unavailable`. If M31b turns a correctly fail-closed case into a completed check that does not demote, that is **BLOCKING under (a)**, even when its EF looks small.
