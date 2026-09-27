@@ -30,7 +30,8 @@ pub struct AssemblyEvidence {
 
 /// The formation source recorded by `AssemblyEvidence::new` (K-D5): the
 /// frame, user and spring primitives as supplied, and for each curved slot
-/// what `solve_with_formation_check` needs to match it to its macro element.
+/// what `solve_assembled_with_formation_check` needs to match it to its macro
+/// element.
 #[derive(Debug, Clone, Default)]
 struct FormationPrimitives {
     node_count: usize,
@@ -352,10 +353,12 @@ impl AssemblyEvidence {
         }
     }
 
-    /// K-D5's linear entry (D1 §4.3.1): `solve`, plus the D-5 formation check
-    /// before a Passed result is published. Called only from the product's
-    /// linear route (`solve_preview_reduced_system`); the nonlinear loop keeps
-    /// the unchanged `solve_binary64` (pinned in `kd5_tests`).
+    /// K-D5's linear entry (D1 §4.3.1): `solve_assembled` (the ledger-built
+    /// `AssembledForce`, S11-F), plus the D-5 formation check before a Passed
+    /// result is published; the check's residual ρ uses the ledger terms.
+    /// Called only from the product's linear route
+    /// (`solve_preview_reduced_system`); the nonlinear loop keeps the unchanged
+    /// `solve_binary64` (pinned in `s11k_tests`).
     ///
     /// - `curved_sources` are the macro elements the curved slots were formed
     ///   from. Each slot is matched by its node indices and by bitwise equality
@@ -364,53 +367,10 @@ impl AssemblyEvidence {
     ///   is demoted with `formation_check_unavailable` (fail closed).
     /// - `selected` is false for an invocation with any nonlinear support: ROOT's
     ///   ruling that such a case is never selected. It then runs the unchanged
-    ///   `solve` and keeps its ordinary result and standing exactly as today.
+    ///   `solve_assembled` and keeps its ordinary result and standing exactly as
+    ///   today.
     ///
     /// Values are never changed; a demoted case differs only in `quality`.
-    #[allow(clippy::too_many_arguments)]
-    pub fn solve_with_formation_check(
-        &self,
-        k: &[Vec<f64>],
-        f: &[f64],
-        free: &[usize],
-        prescribed: &[(usize, f64)],
-        mode: LinearSolveMode,
-        curved_sources: &[CurvedBendMacroElement],
-        selected: bool,
-    ) -> Result<StructuralSolution, StructuralError> {
-        if !selected {
-            return self.solve(k, f, free, prescribed, mode);
-        }
-        self.geometry(prescribed)?;
-        let symmetry_basis = self.symmetry_basis();
-        let source = self.formation_source(curved_sources);
-        let system = StructuralSystem {
-            stiffness: k,
-            force: f,
-            free_dofs: free,
-            prescribed,
-            contributions: Some(&self.contributions),
-            symmetry: Some(SymmetryEvidence {
-                absolute_roundoff: &self.absolute_roundoff,
-                operation_counts: &self.operation_counts,
-                basis: &symmetry_basis,
-            }),
-        }
-        .with_formation_source(&source);
-        let prepared = match &self.force_terms {
-            Some(terms) => {
-                structural::prepare_formation_checked_structural_with_force_terms(&system, terms)?
-            }
-            None => structural::prepare_formation_checked_structural(&system)?,
-        };
-        solve_prepared(prepared, mode)
-    }
-
-    /// Typed sibling of `solve_with_formation_check` (mirrors `solve_assembled`):
-    /// the force is the ledger-built `AssembledForce`, so KS1, KS3, the load
-    /// audit and the check's residual ρ use its terms. `selected` false runs
-    /// the unchanged `solve_assembled`. S11-F's typed product call takes this
-    /// entry at the forward merge.
     #[allow(clippy::too_many_arguments)]
     pub fn solve_assembled_with_formation_check(
         &self,
@@ -1522,7 +1482,7 @@ pub(crate) fn exact_gap_iteration(
 
 #[cfg(test)]
 #[path = "structural_adapter/kd5_tests.rs"]
-mod kd5_tests;
+pub(crate) mod kd5_tests;
 
 #[cfg(test)]
 mod retention_tests {

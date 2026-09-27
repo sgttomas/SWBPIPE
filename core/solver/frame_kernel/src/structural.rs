@@ -90,7 +90,7 @@ impl<'a> StructuralSystem<'a> {
 /// A structural system with its formation source (K-D5, D1 §4.3.1): the
 /// primitives of every stiffness contribution, from which the D-5 formation
 /// check re-forms the intended system. Only the linear route builds one
-/// (`solve_with_formation_check` in the structural adapter); a plain
+/// (`solve_assembled_with_formation_check` in the structural adapter); a plain
 /// `StructuralSystem` carries none, so every other caller is unchanged.
 #[derive(Debug)]
 pub struct FormationCheckedSystem<'a> {
@@ -988,20 +988,6 @@ pub fn prepare_formation_checked_structural<'s>(
     system: &'s FormationCheckedSystem<'s>,
 ) -> Result<PreparedSystem<'s>, StructuralError> {
     let mut prepared = prepare_bound(&system.system, system.binding())?;
-    prepared.formation = Some(system.source);
-    Ok(prepared)
-}
-/// K-D5 sibling of `prepare_structural_with_force_terms` (the check's ρ then
-/// uses the identified terms). A typed system keeps its own ledger terms.
-pub fn prepare_formation_checked_structural_with_force_terms<'s>(
-    system: &'s FormationCheckedSystem<'s>,
-    force_terms: &'s [ForceTerm],
-) -> Result<PreparedSystem<'s>, StructuralError> {
-    let binding = match system.force {
-        Some(force) => ForceBinding::Assembled(force),
-        None => ForceBinding::AuditTerms(force_terms),
-    };
-    let mut prepared = prepare_bound(&system.system, binding)?;
     prepared.formation = Some(system.source);
     Ok(prepared)
 }

@@ -492,15 +492,22 @@ fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
 }
 
 /// RV1-B-N1: the scan extended to `structural_adapter.rs`. Outside the
-/// functions that define the exact variants (`solve`, `solve_assembled` and
-/// the `with_force_terms` C3-detect binding), no exact kernel entry point may
+/// functions that define the exact variants (`solve`, `solve_assembled`, the
+/// `with_force_terms` C3-detect binding, and K-D5's typed linear entry
+/// `solve_assembled_with_formation_check`, which is `solve_assembled` plus the
+/// D-5 check), no exact kernel entry point may
 /// appear, so the named legacy variants (`solve_binary64`,
 /// `solve_structural_sparse_binary64`) and the rest of the adapter reach only
 /// the binary64 kernel path. The behavioural pins remain authoritative.
 #[test]
 fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points() {
     let mut code = strip_cfg_test(&lex(include_str!("structural_adapter.rs")));
-    for defining in ["fn solve(", "fn solve_assembled(", "fn with_force_terms("] {
+    for defining in [
+        "fn solve(",
+        "fn solve_assembled(",
+        "fn with_force_terms(",
+        "fn solve_assembled_with_formation_check(",
+    ] {
         let body = function_body(&code, defining).to_string();
         let at = code.find(&body).expect("defining body present");
         code.replace_range(at..at + body.len(), "{");
@@ -882,4 +889,126 @@ fn option_c_product_equilibrium_uses_the_binary64_residual() {
     assert!(!src.contains("evaluate_assembled_original_residual"));
     let adapter = include_str!("structural_adapter.rs");
     assert!(adapter.contains("crate::product_equilibrium::evaluate(&system, &u)"));
+}
+
+// ---------------------------- K-D5: the nonlinear loop reaches no formation check
+// (T3 D1 §4.3.1 callers; mutation 32). Source pin backed by a behavioural pin
+// whose precondition shows the formation-checked and loop paths differ.
+
+/// Every K-D5 entry point: none may appear in the loop's sources.
+const FORMATION_ENTRY_POINTS: &[&str] = &[
+    "solve_assembled_with_formation_check",
+    "with_formation_source",
+    "prepare_formation_checked_structural",
+    "solve_formation_checked_structural_dense",
+    "FormationSource",
+    "FormationCheckedSystem",
+];
+
+#[test]
+fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
+    // The stripper itself: a commented, quoted or test-only call is not a call.
+    let control = strip_cfg_test(&lex(
+        "fn a() { b.solve_binary64(); } // solve_assembled_with_formation_check(\n\
+         const S: &str = \"solve_assembled_with_formation_check\";\n\
+         #[cfg(test)]\nmod t { fn c() { d.solve_assembled_with_formation_check(); } }\n",
+    ));
+    assert!(control.contains("solve_binary64("));
+    assert!(!control.contains("solve_assembled_with_formation_check"));
+    for (name, text) in [
+        ("nonlinear_integration/src/lib.rs", include_str!("lib.rs")),
+        (
+            "nonlinear_integration/src/product_equilibrium.rs",
+            include_str!("product_equilibrium.rs"),
+        ),
+    ] {
+        let code = strip_cfg_test(&lex(text));
+        for entry in FORMATION_ENTRY_POINTS {
+            assert!(!code.contains(entry), "{name} reaches {entry}");
+        }
+    }
+    // The loop's structural solve stays the named binary64 variant.
+    let lib = strip_cfg_test(&lex(include_str!("lib.rs")));
+    assert!(lib.contains("assembly.solve_binary64("));
+}
+
+/// P1's 122 skew cantilever with an open gap support at the tip: the loop
+/// solves the same linear system in its first iteration.
+fn kd5_loop_input(built: &crate::structural_adapter::kd5_tests::Built) -> NonlinearFrameSolveInput {
+    NonlinearFrameSolveInput {
+        node_count: 2,
+        elements: built.frames.clone(),
+        user_stiffness_elements: vec![],
+        curved_bend_elements: vec![],
+        force: built.f.clone(),
+        base_restrained_dofs: crate::structural_adapter::kd5_tests::skew_122_rigid().to_vec(),
+        nonlinear_supports: vec![NonlinearSupport::gap(
+            "kd5-open-gap",
+            1,
+            FrameDof::Uz,
+            1.0,
+            GapDirection::PositiveDisplacement,
+        )
+        .unwrap()],
+        initial_states: vec![SupportStateRecord::new(
+            "kd5-open-gap",
+            ActiveSetState::Inactive,
+        )],
+        friction_normal_reactions: vec![],
+        derived_friction_normal_reactions: vec![],
+        convergence: ConvergenceControl::new(
+            "DEC-046-fixture-active-set-count-tightening",
+            ConvergencePolicyStatus::Accepted,
+            0.0,
+            0.0,
+            4,
+        )
+        .unwrap(),
+    }
+}
+
+#[test]
+fn kd5_nonlinear_loop_reaches_no_formation_check() {
+    use crate::structural_adapter::kd5_tests::{bits, skew_122, MODES};
+    let built = skew_122();
+    let input = kd5_loop_input(&built);
+    for mode in MODES {
+        // Precondition: the same linear system demotes through the formation
+        // check and is Passed through the ordinary typed solve.
+        assert_eq!(
+            built.checked(mode).report.quality,
+            SolveQuality::Sensitive,
+            "{mode:?}"
+        );
+        assert_eq!(
+            built.plain(mode).report.quality,
+            SolveQuality::Passed,
+            "{mode:?}"
+        );
+        // The loop: its solve is the unchanged binary64 path, never the check.
+        let result =
+            solve_active_set_frame_with_mode_and_springs(&input, mode, &built.springs).unwrap();
+        assert!(result.converged, "{mode:?}");
+        let first = result.iterations.first().expect("iteration");
+        assert_eq!(
+            first.structural_report.quality,
+            SolveQuality::Passed,
+            "{mode:?}"
+        );
+        let binary64 = built
+            .assembly()
+            .solve_binary64(&built.k, &built.f, &built.free, &built.prescribed, mode)
+            .unwrap();
+        assert_eq!(binary64.formation_check, None);
+        assert_eq!(
+            bits(&first.displacements),
+            bits(&binary64.displacements),
+            "{mode:?}"
+        );
+        assert_eq!(
+            format!("{:?}", first.structural_report),
+            format!("{:?}", binary64.report),
+            "{mode:?}"
+        );
+    }
 }

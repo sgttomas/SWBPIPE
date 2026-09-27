@@ -2,17 +2,19 @@
 
 This is the draft PR record for slice K-D5 of T3 (numerical integrity), following `.agents/skills/chirality-change/SKILL.md`. It was implemented by I3 (TASK).
 
-- **Branch:** `codex/piping-kd5-20260926`, from the K3a head `a2e804a75`, which sits on the S11-K head `4912dc636`.
+- **Branch:** `codex/piping-kd5-20260926`. It started from the K3a head `a2e804a75` (on the S11-K head `4912dc636`) and was merged forward onto main:
+  - K3a, `b6156d49d`;
+  - S11-F, PR1000, `8fd409e78`;
+  - PR1002, `3befacff4`.
 - **Landing:**
-  - S11-K has merged (PR973, `3488a236a`). K3a is under review.
-  - S11-F lands first. K-D5 then merges forward onto main, after S11-F and K3a, with its own full-gate PR.
-  - At that merge, the PP call switches to the typed entry (see "Forward merge").
+  - The addendum-4 pass (below) is verified on `3befacff4` plus its edits.
+  - S11-G (PR1003, `b24b3d536`) has since merged to main. The merge of it into this branch, and the combined-tree checks, come next.
 - **Basis:**
   - `ROOT_SELECTION_DESIGNS.md`, conditions C2 and C5;
   - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`): §4.3, §4.3.1, the §6 K-D5 row and §7.3 mutations (23), (26)–(28), (31) and (32);
   - `R5_4_CURVED.md` (`2c9fae78…`);
   - `ROOT_RULINGS_V1.md`: D-5, D5C-1 to D5C-5, R5-4, option (c), and the nonlinear-support ruling;
-  - the I3 brief with addenda 1–3. Addendum 2 records ROOT's acceptance of option B for curved sources, the `selected` flag, pins backed by behavioural tests, and the rule that joints with nonzero lateral stiffness demote.
+  - the I3 brief with addenda 1–4, and the manager's addendum-4 instructions (RV3 `S11F_REVIEW.md` §11). Addendum 2 records ROOT's acceptance of option B for curved sources, the `selected` flag, pins backed by behavioural tests, and the rule that joints with nonzero lateral stiffness demote.
 
 ## What changes
 
@@ -44,7 +46,7 @@ The check fails closed. It never passes a case silently and never turns a solve 
 - **Fail-closed cases.** These cannot arise from any committed model today.
 - **Admissible radius mismatch.** A realized bend whose binary64 centre is admissible but not exactly equidistant (up to the product's 1e-9 tolerance) demotes where the error exceeds half the criterion. The check measures it from the actual chord, as the added test shows.
 - **Not affected:**
-  - invocations with any nonlinear support: never selected, per ROOT, so the unchanged `solve` runs;
+  - invocations with any nonlinear support: never selected, per ROOT, so the unchanged `solve_assembled` runs;
   - the nonlinear active-set loop: unchanged `_binary64` path, pinned;
   - Sensitive, unresolved and refused cases.
 
@@ -64,13 +66,16 @@ RF-SKEW-T-CANT-OFF-122-r1e-04, the confirmed M03 skew breach (2.43e-9 relative),
 
 | File | Change |
 |---|---|
-| `P/core/solver/frame_kernel/src/structural.rs` | `mod formation_check` and re-exports; the `FormationCheckedSystem` wrapper, built by `StructuralSystem::with_formation_source` or typed by `AssembledStructuralSystem::with_formation_source`; a private `formation` field on `PreparedSystem`; `prepare_formation_checked_structural` and its `_with_force_terms` variant; `solve_formation_checked_structural_dense`; the check and the demotion in `finish_checked_factor`; `formation_check` on `StructuralSolution` |
+| `P/core/solver/frame_kernel/src/structural.rs` | `mod formation_check` and re-exports; the `FormationCheckedSystem` wrapper, built by `StructuralSystem::with_formation_source` or typed by `AssembledStructuralSystem::with_formation_source`; a private `formation` field on `PreparedSystem`; `prepare_formation_checked_structural`; `solve_formation_checked_structural_dense`; the check and the demotion in `finish_checked_factor`, after S11-F's N5 block and only for a case that is not already ordinary-Sensitive; `formation_check` on `StructuralSolution` |
 | `…/frame_kernel/src/structural/formation_check.rs` (new) | the check: `Wide<2>` re-formation of frames, curved bends and joints, ρ, w, S* and the rule |
 | `…/frame_kernel/src/structural/formation_check_tests.rs` (new) | kernel-level tests, including the zero-scale clause (N-2) and both AngleDomain cases |
-| `…/frame_kernel/src/structural/retained/mod.rs` | inner `#![allow(dead_code)]` removed (K-D5 is K3a's first caller). On the development branch, `#[cfg_attr(not(test), allow(dead_code))]` on `mod wide;` covers the 13 K3a items unused outside tests (listed in RETURN §2), so that `wide.rs` stays byte-identical to K3a. **At the forward merge (addendum 4)**, this becomes per-item `#[allow(dead_code)]` with a one-line reason each |
-| `P/core/solver/nonlinear_integration/src/structural_adapter.rs` | `AssemblyEvidence::new` records the primitives; `solve_with_formation_check` (legacy force) and `solve_assembled_with_formation_check` (typed) beside the unchanged `solve`, `solve_assembled` and `solve_binary64`; curved matching (option B) |
-| `…/structural_adapter/kd5_tests.rs`, `kd5_models.rs` (new) | adapter tests in both modes, and generated models with exact references |
-| `P/core/product_physics/src/lib.rs` | only the call in `solve_preview_reduced_system` at base line 3965, switched to `solve_with_formation_check(…, &curved_sources, built.nonlinear_supports.is_empty())` |
+| `…/frame_kernel/src/structural/retained/mod.rs` | the inner `#![allow(dead_code)]` is removed, because K-D5 is K3a's first caller. No attribute remains on `mod wide;` |
+| `…/frame_kernel/src/structural/retained/wide.rs` | +13 lines: per-item `#[allow(dead_code)] // <reason>` on the 13 items with no non-test caller (test-only, K3 API or K4 budgets; RETURN A4-1 item 8) |
+| `P/core/solver/nonlinear_integration/src/structural_adapter.rs` | `AssemblyEvidence::new` records the primitives. Adds the typed `solve_assembled_with_formation_check(k, &AssembledForce, free, prescribed, mode, curved_sources, selected)` beside the unchanged `solve`, `solve_assembled` and `solve_binary64`; `selected = false` returns `solve_assembled`. Adds curved matching (option B). There is no legacy `&[f64]` formation entry |
+| `…/structural_adapter/kd5_tests.rs`, `kd5_models.rs` (new) | 10 adapter tests through the typed entry, both modes, and generated models with exact references |
+| `P/core/solver/nonlinear_integration/src/s11k_tests.rs` (I1's) | the SA defining list gains `fn solve_assembled_with_formation_check(`. Adds `FORMATION_ENTRY_POINTS` and the two nonlinear pins (lexed source, and the behavioural loop pin with its paths-differ precondition). `EXACT_ENTRY_POINTS` is unchanged |
+| `P/core/product_physics/src/lib.rs` | only the call in `solve_preview_reduced_system`: `assembly.solve_assembled(…)` becomes `assembly.solve_assembled_with_formation_check(original_stiffness, global_force, &free, prescribed, mode, &curved_sources, built.nonlinear_supports.is_empty())`. `load_fidelity` is still filled from its result |
+| `P/core/product_physics/tests/s11f_site_test.rs` | the `rule_1` pin names the formation-checked typed call, backed behaviourally. `FK/structural/formation_check.rs` is appended to `KERNEL`, and its `check` and `evaluate` are added to rule 6's `FORCE_FUNCTIONS` |
 | `P/core/product_physics/tests/formation_check_runtime.rs` (new) | product tests through both entries and both modes |
 
 Line counts are in RETURN §1. There is no Cargo.toml, lockfile, schema, fixture or committed-output change.
@@ -78,15 +83,17 @@ Line counts are in RETURN §1. There is no Cargo.toml, lockfile, schema, fixture
 ## Measured fixture result
 
 - Every committed JSON request or model under `P/fixtures`, `P/validation` and `P/core` was run through the captured entry in both modes, using S11-K's harness unchanged.
-- **All 112 of 112 outputs are byte-identical to the base.**
+- **All 112 of 112 outputs are byte-identical to the base.** This held in phase 1 against K3a, and again in the addendum-4 pass against main `72d5ff864`, built as a separate harness.
 - So no committed raw, derived document or hash pin changes, and the stop rule did not trigger (RETURN §6).
 
 ## The no-Passed-breach gate (both entries)
 
-- **Result: PASS.** 888 runs: 222 cases × both modes × both entries.
-- The 228 trusted breach triples all lie in the pinned `S11_EXCEPTIONS.json` (221) plus `FORMATION_EXCEPTIONS.json` (7, ROOT's F12 ruling `db665f2cb`); there are no violations.
-- The only standing change against P1's main baseline is RF-SKEW 122 → Sensitive, on both entries.
-- A container restart reported during the run did not interrupt the gate process: it is one continuous run of one binary (RETURN §9).
+- **Addendum-4 pass** (pre-S11-G tree `3befacff4` plus edits; lists as on main, numerics `59fff0d9e`, with S11 empty and FORMATION holding 7 triples): **PASS**.
+  - 888 runs: 222 cases × both modes × both entries.
+  - The trusted breach triples are **exactly the 7 FORMATION triples**. None of the former 221 re-breaches.
+  - 122 is Sensitive on both entries in both modes.
+  - The only standing change against P1's main baseline is 122 → Sensitive (RETURN A4-5).
+- **Phase 1** (base `a2e804a75`, pre-S11-F lists): PASS. Its 228 trusted triples all lay in S11 (221) plus FORMATION (7) (RETURN §9).
 
 ## Cost
 
@@ -95,12 +102,13 @@ Line counts are in RETURN §1. There is no Cargo.toml, lockfile, schema, fixture
 - **Per free row:** one exact sum over the element contributions.
 - **Per case:** one solve pair with the existing factor, run only when the case would publish Passed.
 
-## Forward merge (with S11-F)
+## Forward merge (with S11-F): done in the addendum-4 pass
 
-- S11-F switches PP:3965 to the typed `solve_assembled`, and narrows the legacy `solve` to `pub(crate)`.
-- At the merge, PP calls `solve_assembled_with_formation_check(…, &AssembledForce, …, &curved_sources, built.nonlinear_supports.is_empty())`. ρ then uses the ledger terms.
-- The legacy `solve_with_formation_check` can then be narrowed or removed.
-- The nonlinear pins in `kd5_tests.rs` are to be folded into I1's module (`nonlinear_integration/src/s11k_tests.rs`).
+- PP calls `solve_assembled_with_formation_check(…, &AssembledForce, …, &curved_sources, built.nonlinear_supports.is_empty())`, so ρ starts from the ledger terms.
+- S11-F's N5 audit block runs first, unchanged. The check runs only for a case that would still publish Passed.
+- The legacy `solve_with_formation_check` and FK's `prepare_formation_checked_structural_with_force_terms` are removed; neither had a caller left.
+- The nonlinear pins are folded into I1's `s11k_tests.rs`.
+- Per-item `#[allow(dead_code)]` is on K3a's `wide.rs`.
 
 ## Checks run
 

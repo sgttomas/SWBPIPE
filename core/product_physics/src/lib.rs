@@ -4173,8 +4173,24 @@ fn solve_preview_reduced_system(
         PreviewSolverMode::DenseScrutiny => LinearSolveMode::DenseScrutiny,
         PreviewSolverMode::SparseInteractive => LinearSolveMode::SparseInteractive,
     };
-    let checked =
-        assembly.solve_assembled(original_stiffness, global_force, &free, prescribed, mode)?;
+    // K-D5 (T3 D1 §4.3.1): the linear route's typed solve with the D-5
+    // formation check. An invocation with any nonlinear support is never
+    // selected (ROOT): it runs the unchanged `solve_assembled` and keeps its
+    // ordinary result and standing.
+    let curved_sources = built
+        .curved_bend_elements
+        .iter()
+        .map(|e| e.macro_element)
+        .collect::<Vec<_>>();
+    let checked = assembly.solve_assembled_with_formation_check(
+        original_stiffness,
+        global_force,
+        &free,
+        prescribed,
+        mode,
+        &curved_sources,
+        built.nonlinear_supports.is_empty(),
+    )?;
     // Legacy raw DEC050/053 observations retain their own unscaled algorithm.
     // They neither select the solution nor rescue a rejected structural gate.
     let direct = assemble_reduced_sparse_entry_system(

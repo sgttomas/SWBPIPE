@@ -1,0 +1,28 @@
+applied M31b0
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/mut/copy/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<scratch>/mut/copy/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<scratch>/mut/copy/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<scratch>/mut/copy/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<scratch>/mut/copy/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<scratch>/mut/copy/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<scratch>/mut/copy/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<scratch>/mut/copy/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.34s
+     Running unittests src/lib.rs (<scratch>/mut/mut-target/debug/deps/open_pipe_stress_nonlinear_integration-aba3ada31750b284)
+
+running 12 tests
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... ok
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord ... ok
+test structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent ... ok
+test structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion ... ok
+test structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed ... ok
+test structural_adapter::kd5_tests::kd5_not_selected_invocation_runs_the_unchanged_solve_assembled ... ok
+test structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_skew_345_and_invented_m11_do_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 1.57s
+

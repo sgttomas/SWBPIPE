@@ -9,12 +9,7 @@
 
 // K-D5 uses `Wide2`, `WideArith` (add, sub, mul, div, sqrt, included_angle),
 // `from_f64`, `split_binary64`/`add_product_to`, `mul_pow2`, `neg`, `abs`,
-// `cmp_value`, `is_zero` and `WideError`. The rest of K3a's tested surface has
-// no non-test caller yet (K3/K4 will use it): the arctangent's bound and
-// tolerance constants, WideError::NotNormalized,
-// Binary64Split::truncated_below_min_subnormal, Wide::{from_parts, parts,
-// is_sign_negative, exponent, fits_precision}, WorkCounter::rounded_operations
-// and WideArith::{precision, work, atan_positive}. The allowance is scoped to
-// non-test builds so that `wide.rs` stays byte-identical to K3a.
-#[cfg_attr(not(test), allow(dead_code))]
+// `cmp_value`, `is_zero` and `WideError`. The 13 items of K3a's tested surface
+// with no non-test caller carry their own `#[allow(dead_code)]` in `wide.rs`,
+// each with its reason (test-only, or K3 API for slice K3).
 pub(crate) mod wide;

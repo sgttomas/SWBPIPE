@@ -106,6 +106,13 @@ const KERNEL: &[Source] = &[
         name: "sparse_direct/structural.rs",
         text: include_str!("../../solver/sparse_direct/src/structural.rs"),
     },
+    // K-D5: the D-5 formation check reads the case force (the folded values
+    // or the ledger terms) to form its residual; appended so the indices
+    // above are unchanged.
+    Source {
+        name: "FK/structural/formation_check.rs",
+        text: include_str!("../../solver/frame_kernel/src/structural/formation_check.rs"),
+    },
 ];
 
 const RECOVERY: &[Source] = &[
@@ -382,6 +389,16 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "nonlinear_integration/lib.rs",
         "solve_linearized_system_evidence",
         "the loop's binary64 solves (option (c) pins)",
+    ),
+    (
+        "FK/structural/formation_check.rs",
+        "check",
+        "K-D5: passes the ledger terms (or none) to the evaluation; read-only",
+    ),
+    (
+        "FK/structural/formation_check.rs",
+        "evaluate",
+        "K-D5: the residual rho = f - K_int u starts from the ledger terms, else the folded force, in one exact sum per free row; read-only",
     ),
 ];
 const FORCE_TOKENS: &[&str] = &[
@@ -982,7 +999,16 @@ fn rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams() {
             .unwrap_or_else(|| panic!("{name} present"))
             .body
     };
-    assert!(body("solve_preview_reduced_system").contains("assembly.solve_assembled("));
+    // K-D5: the typed linear solve now goes through the formation-checked
+    // typed entry (`solve_assembled` plus the D-5 check; `selected` false runs
+    // `solve_assembled` unchanged). Behavioural backing: the product tests in
+    // `tests/formation_check_runtime.rs` (122 demotes on both entries, the
+    // controls and the nonlinear-support case do not) and SA's
+    // `kd5_not_selected_invocation_runs_the_unchanged_solve_assembled`.
+    let linear = body("solve_preview_reduced_system");
+    assert!(linear.contains("assembly.solve_assembled_with_formation_check("));
+    assert!(linear.contains("built.nonlinear_supports.is_empty()"));
+    assert!(!linear.contains("assembly.solve_assembled("));
     let case = body("solve_load_case");
     assert!(case.contains("reduce_assembled_system_with_prescribed_displacements("));
     assert!(case.contains("reduce_assembled_system("));
