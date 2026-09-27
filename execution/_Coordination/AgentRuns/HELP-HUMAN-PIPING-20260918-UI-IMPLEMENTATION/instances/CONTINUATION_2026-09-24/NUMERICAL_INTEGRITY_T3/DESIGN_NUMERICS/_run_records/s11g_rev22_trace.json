@@ -113,11 +113,31 @@
   },
   {
    "all_found": true,
-   "claim": "retained scope refuses element uniform loads before charged work",
+   "claim": "retained scope charges its precharge before any scope check",
+   "file": "core/product_physics/src/source_recovery.rs",
+   "lines": [
+    457,
+    473
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "retained scope then refuses element uniform loads (after the precharge)",
    "file": "core/product_physics/src/source_recovery.rs",
    "lines": [
     518,
     528
+   ],
+   "missing": []
+  },
+  {
+   "all_found": true,
+   "claim": "a failed attempt's charged work is debited to the invocation ledger",
+   "file": "core/product_physics/src/lib.rs",
+   "lines": [
+    2626,
+    2628
    ],
    "missing": []
   },

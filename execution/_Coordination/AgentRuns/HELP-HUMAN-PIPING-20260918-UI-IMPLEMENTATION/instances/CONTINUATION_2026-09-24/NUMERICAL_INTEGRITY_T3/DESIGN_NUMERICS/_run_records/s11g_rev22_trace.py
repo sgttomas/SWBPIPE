@@ -8,6 +8,9 @@ Usage (from T3/):
 `72d5ff864` (the numerics worktree after its merge of main; `git diff 72d5ff864 HEAD -- projects/chirality-piping/core`
 is empty). For each claim of S11G_GUARD.md revision 2.2 section 0.2 / 3.5 item 2, the script checks that the cited
 line range contains the cited text, and records the file's sha256. Every check must be true.
+Erratum (V1 D22-1): the check formerly labelled "retained scope refuses element uniform loads before charged work"
+was mislabelled; retained scope charges its precharge (SRec:457-473) before its scope checks. It is relabelled, and
+two checks pin the precharge and the invocation-ledger debit.
 """
 import hashlib
 import json
@@ -40,8 +43,13 @@ CHECKS = [
      ["SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "\"blocking\""]),
     ("the captured entry then returns Err", "lib.rs", 1483, 1488,
      ["result.source_block_recovery.is_none()", "return Err(\"SOURCE_BLOCKS_FINALIZATION_FAILED\".into());"]),
-    ("retained scope refuses element uniform loads before charged work", "source_recovery.rs", 518, 528,
+    # revision 2.2 erratum (V1 D22-1): the refusal comes AFTER a precharge, not before any charged work.
+    ("retained scope charges its precharge before any scope check", "source_recovery.rs", 457, 473,
+     ["// Precharge formation", "charge(", "n.saturating_mul(n)", "member_count.saturating_mul(32_000)"]),
+    ("retained scope then refuses element uniform loads (after the precharge)", "source_recovery.rs", 518, 528,
      ["!input.load_application.element_uniform_loads.is_empty()", "non-nodal load producer present"]),
+    ("a failed attempt's charged work is debited to the invocation ledger", "lib.rs", 2626, 2628,
+     ["Err(failure) =>", "source_budget.debit(failure.work.charged, true);"]),
     ("retained scope refuses non-nodal authored families", "source_recovery.rs", 590, 601,
      ["authored non-nodal load family, including zero-valued inputs"]),
     ("the existing decline pattern", "source_recovery.rs", 222, 231,
