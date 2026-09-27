@@ -133,3 +133,15 @@ Send the manager a SendMessage summary. Message the manager **at once** if the s
    - Tests: a (1e80, −1e80, 1e-300) row (no `Err`, unaudited, Sensitive, never Passed), and audited rows bit-identical.
    - **No new envelope field.** If one would be needed, stop, and it goes to ROOT.
 4. **No sparse_direct typed sibling.** The typed path goes through `prepare_assembled_structural`, then `factor_structural_ldlt(&PreparedSystem)` carrying the ledger binding. The reasoning is recorded, with behavioural site-test coverage.
+
+## Addendum 2: F12 and the formation-class list (ROOT ruling, 2026-09-27, option (c); `db665f2cb`)
+
+- **The S11 list is now 221 triples** (`GATE/S11_EXCEPTIONS.json`: 87 in 12 cases captured, 134 in 18 cases typed). The **7 formation and formed-term triples** move to `GATE/FORMATION_EXCEPTIONS.json` (14 rows with mode):
+  - UDL-W1e80 th.S1.RZ (typed);
+  - UDL-W1e8 th.S1.RZ (captured and typed);
+  - F-G1e80-GnG-INPLANE Mb.M1.j and Mb.M2.i (typed);
+  - M-G1e80-GnG-INPLANE Mb.M2.i and Mb.M2.j (typed).
+- **F12, in its literal form:** after S11-F, the S11 list is empty on both entries and both modes. The gate fails on any breach outside **both** lists. Wire the harness to read both pinned files (by hash), and report each list's residual separately.
+- **The 7 formation rows:** show that each is **bit-identical, or no worse**, between base (main at your cut) and candidate, in every mode. Record obs(base), obs(candidate), exp, ratio(base) and ratio(candidate). S11-F does not repair them; slice S11-G does (a formation-noise guard, designed separately).
+- **F10:** runs under the test-only historical pressure scope, recorded as such.
+- **N05:** confirm the transverse-tip budget overflow on base. If it is pre-existing, record it as routed to T3's N05 item. If it is a regression, stop and report.
