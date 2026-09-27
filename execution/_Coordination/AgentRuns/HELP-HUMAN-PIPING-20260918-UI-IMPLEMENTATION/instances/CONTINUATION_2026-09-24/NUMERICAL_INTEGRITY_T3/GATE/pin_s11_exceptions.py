@@ -11,6 +11,10 @@ ROOT, 2026-09-27: the S11 list is emptied at the S11-F merge (PR1000, 43b8f83aa)
 verification (REVIEW/S11F_REVIEW.md, bf82f6cfd): no listed triple remains breached on either entry
 or in either mode. The pre-S11-F pin (221 triples) stays derivable from the same sources and is
 recorded in the file's `emptied` field; any Passed breach outside FORMATION now fails the gate.
+ROOT, 2026-09-27: the FORMATION list is emptied at S11-G (branch codex/piping-s11g-20260927, commit
+b62e40d4d), on I5's 14-row gate probe (all 14 rows CHECKS_PASSED -> SENSITIVE, 6 load-row, 8 R-b');
+RV4 to verify. The pre-S11-G rows stay derivable from the same sources and are recorded in the
+file's `emptied` field; it governs the gate once S11-G merges. Any Passed breach then fails the gate.
 
 Usage (from T3/): python3 GATE/pin_s11_exceptions.py
 Writes GATE/S11_EXCEPTIONS.json and GATE/FORMATION_EXCEPTIONS.json. Source: P1's final record
@@ -83,12 +87,16 @@ with open("GATE/S11_EXCEPTIONS.json", "w") as f:
 
 with open("GATE/FORMATION_EXCEPTIONS.json", "w") as f:
     json.dump({
-        "ruling": "ROOT 2026-09-27 (on I4's F12 stop, option (c)). Pre-existing on main (P1 baseline). Condition amended 2026-09-27: after S11-F each row publishes the correctly rounded net of the represented terms and stays exactly pinned here (10 rows bit-identical or better; the 4 UDL-W1e8 rows 3% worse). Must be empty when S11-G lands, or per-row justification to ROOT for waiting on F2/F3.",
+        "ruling": "ROOT 2026-09-27 (on I4's F12 stop, option (c)). Pre-existing on main (P1 baseline). Condition amended 2026-09-27: after S11-F each row publishes the correctly rounded net of the represented terms and stays exactly pinned here (10 rows bit-identical or better; the 4 UDL-W1e8 rows 3% worse). Must be empty when S11-G lands, or per-row justification to ROOT for waiting on F2/F3. ROOT 2026-09-27: emptied at S11-G on I5's 14-row gate probe; RV4 to verify.",
         "source": src,
-        "counts": {"triples": len(FORMATION), "rows_with_mode": len(form_rows)},
-        "owners": {" | ".join(k): v for k, v in sorted(FORMATION.items())},
-        "rows": form_rows,
+        "emptied": {
+            "at": "S11-G, branch codex/piping-s11g-20260927, commit b62e40d4d388ad7d3c20cf67c77c137e0c8bbfd3 (governs once S11-G merges)",
+            "verification": "I5's 14-row gate probe: all 14 rows CHECKS_PASSED -> SENSITIVE (6 load-row, 8 R-b'), both entries and modes; RV4 to verify",
+            "pinned_before_s11g": {"counts": {"triples": len(FORMATION), "rows_with_mode": len(form_rows)}, "rows_sha256": hashlib.sha256(json.dumps(form_rows).encode()).hexdigest(), "owners": {" | ".join(k): v for k, v in sorted(FORMATION.items())}},
+        },
+        "counts": {"triples": 0, "rows_with_mode": 0},
+        "rows": [],
     }, f, indent=1)
     f.write("\n")
 
-print(json.dumps({"s11": counts([]), "s11_pinned_before_s11f": counts(s11), "formation_triples": len(FORMATION), "formation_rows": len(form_rows)}))
+print(json.dumps({"s11": counts([]), "s11_pinned_before_s11f": counts(s11), "formation_triples": 0, "formation_rows": 0, "formation_pinned_before_s11g": {"triples": len(FORMATION), "rows": len(form_rows)}}))
