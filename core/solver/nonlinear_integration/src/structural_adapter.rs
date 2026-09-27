@@ -1,13 +1,14 @@
 //! Caller-side provenance for the M03 passive structural gate.
 //! Formation allowances are arithmetic estimates, never physical accuracy proofs.
 use crate::{CurvedBendStiffnessElement, LinearSolveMode};
+use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm};
 use open_pipe_stress_frame_kernel::rigid_body::{
     assess_rigid_body, ObjectiveFamily, RigidBodyStatus,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    self, StiffnessContribution, StructuralError, StructuralSolution, StructuralSystem,
-    SymmetryEvidence,
+    self, CurvedFormation, FormationSource, StiffnessContribution, StructuralError,
+    StructuralSolution, StructuralSystem, SymmetryEvidence,
 };
 use open_pipe_stress_frame_kernel::{
     element_dof_map, FrameElement, Matrix12, UserStiffnessElement,
@@ -23,6 +24,31 @@ pub struct AssemblyEvidence {
     spring_ground: Vec<usize>,
     /// Identified ledger terms for the load-fidelity audit (S11-K; dormant).
     force_terms: Option<Vec<ForceTerm>>,
+    /// K-D5: the primitives the D-5 formation check re-forms from.
+    formation: FormationPrimitives,
+}
+
+/// The formation source recorded by `AssemblyEvidence::new` (K-D5): the
+/// frame, user and spring primitives as supplied, and for each curved slot
+/// what `solve_with_formation_check` needs to match it to its macro element.
+#[derive(Debug, Clone, Default)]
+struct FormationPrimitives {
+    node_count: usize,
+    frames: Vec<FrameElement>,
+    users: Vec<UserStiffnessElement>,
+    curved: Vec<CurvedSlot>,
+    springs: Vec<(usize, f64)>,
+}
+
+#[derive(Debug, Clone)]
+struct CurvedSlot {
+    element_id: String,
+    node_i: usize,
+    node_j: usize,
+    global_stiffness: Matrix12,
+    /// Built by `CurvedBendStiffnessElement::new` (an explicit matrix with no
+    /// traced macro-element source): never re-formable.
+    explicit: bool,
 }
 impl AssemblyEvidence {
     pub fn new(
@@ -41,6 +67,22 @@ impl AssemblyEvidence {
             edges: Vec::new(),
             spring_ground: Vec::new(),
             force_terms: None,
+            formation: FormationPrimitives {
+                node_count,
+                frames: frames.to_vec(),
+                users: users.to_vec(),
+                curved: curved
+                    .iter()
+                    .map(|e| CurvedSlot {
+                        element_id: e.element_id.clone(),
+                        node_i: e.node_i,
+                        node_j: e.node_j,
+                        global_stiffness: e.global_stiffness,
+                        explicit: e.symmetry_formation.is_none(),
+                    })
+                    .collect(),
+                springs: springs.to_vec(),
+            },
         };
         for element in frames {
             let local = element
@@ -303,6 +345,153 @@ impl AssemblyEvidence {
                 open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&system)
             }
         }
+    }
+
+    /// K-D5's linear entry (D1 §4.3.1): `solve`, plus the D-5 formation check
+    /// before a Passed result is published. Called only from the product's
+    /// linear route (`solve_preview_reduced_system`); the nonlinear loop keeps
+    /// the unchanged `solve_binary64` (pinned in `kd5_tests`).
+    ///
+    /// - `curved_sources` are the macro elements the curved slots were formed
+    ///   from. Each slot is matched by its node indices and by bitwise equality
+    ///   of `global_stiffness()` with the slot's matrix, in any order. A slot
+    ///   with no match, or an explicit slot, cannot be re-formed, and the case
+    ///   is demoted with `formation_check_unavailable` (fail closed).
+    /// - `selected` is false for an invocation with any nonlinear support: ROOT's
+    ///   ruling that such a case is never selected. It then runs the unchanged
+    ///   `solve` and keeps its ordinary result and standing exactly as today.
+    ///
+    /// Values are never changed; a demoted case differs only in `quality`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn solve_with_formation_check(
+        &self,
+        k: &[Vec<f64>],
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        selected: bool,
+    ) -> Result<StructuralSolution, StructuralError> {
+        if !selected {
+            return self.solve(k, f, free, prescribed, mode);
+        }
+        self.geometry(prescribed)?;
+        let symmetry_basis = self.symmetry_basis();
+        let source = self.formation_source(curved_sources);
+        let system = StructuralSystem {
+            stiffness: k,
+            force: f,
+            free_dofs: free,
+            prescribed,
+            contributions: Some(&self.contributions),
+            symmetry: Some(SymmetryEvidence {
+                absolute_roundoff: &self.absolute_roundoff,
+                operation_counts: &self.operation_counts,
+                basis: &symmetry_basis,
+            }),
+        }
+        .with_formation_source(&source);
+        let prepared = match &self.force_terms {
+            Some(terms) => {
+                structural::prepare_formation_checked_structural_with_force_terms(&system, terms)?
+            }
+            None => structural::prepare_formation_checked_structural(&system)?,
+        };
+        solve_prepared(prepared, mode)
+    }
+
+    /// Typed sibling of `solve_with_formation_check` (mirrors `solve_assembled`):
+    /// the force is the ledger-built `AssembledForce`, so KS1, KS3, the load
+    /// audit and the check's residual ρ use its terms. `selected` false runs
+    /// the unchanged `solve_assembled`. S11-F's typed product call takes this
+    /// entry at the forward merge.
+    #[allow(clippy::too_many_arguments)]
+    pub fn solve_assembled_with_formation_check(
+        &self,
+        k: &[Vec<f64>],
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        selected: bool,
+    ) -> Result<StructuralSolution, StructuralError> {
+        if !selected {
+            return self.solve_assembled(k, f, free, prescribed, mode);
+        }
+        self.geometry(prescribed)?;
+        let symmetry_basis = self.symmetry_basis();
+        let source = self.formation_source(curved_sources);
+        let system = StructuralSystem::assembled(
+            k,
+            f,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(SymmetryEvidence {
+                absolute_roundoff: &self.absolute_roundoff,
+                operation_counts: &self.operation_counts,
+                basis: &symmetry_basis,
+            }),
+        )
+        .with_formation_source(&source);
+        solve_prepared(
+            structural::prepare_formation_checked_structural(&system)?,
+            mode,
+        )
+    }
+
+    /// The formation source for this assembly, with each curved slot matched
+    /// to its macro element (or named as not re-formable).
+    fn formation_source(&self, curved_sources: &[CurvedBendMacroElement]) -> FormationSource {
+        let primitives = &self.formation;
+        let mut source = FormationSource {
+            node_count: primitives.node_count,
+            frames: primitives.frames.clone(),
+            users: primitives.users.clone(),
+            curved: Vec::new(),
+            springs: primitives.springs.clone(),
+            unavailable: Vec::new(),
+        };
+        for slot in &primitives.curved {
+            if slot.explicit {
+                source
+                    .unavailable
+                    .push(format!("curved_bend_explicit_matrix:{}", slot.element_id));
+                continue;
+            }
+            let matched = curved_sources.iter().find(|m| {
+                m.node_i.index == slot.node_i
+                    && m.node_j.index == slot.node_j
+                    && m.global_stiffness().is_ok_and(|g| {
+                        g.iter()
+                            .flatten()
+                            .zip(slot.global_stiffness.iter().flatten())
+                            .all(|(a, b)| a.to_bits() == b.to_bits())
+                    })
+            });
+            match matched {
+                Some(m) => source.curved.push(CurvedFormation {
+                    node_i: m.node_i.index,
+                    node_j: m.node_j.index,
+                    coordinates_i: m.node_i.coordinates,
+                    coordinates_j: m.node_j.coordinates,
+                    center: m.center,
+                    elastic_modulus: m.elastic_modulus,
+                    shear_modulus: m.shear_modulus,
+                    area: m.area,
+                    second_moment: m.second_moment,
+                    torsion_constant: m.torsion_constant,
+                    in_plane_flexibility_factor: m.in_plane_flexibility_factor,
+                    out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
+                }),
+                None => source
+                    .unavailable
+                    .push(format!("curved_bend_source_unmatched:{}", slot.element_id)),
+            }
+        }
+        source
     }
 
     /// Named, unchanged binary64 variant of `solve` for the nonlinear active-set
@@ -1314,6 +1503,10 @@ pub(crate) fn exact_gap_iteration(
         diagnostics,
     })
 }
+
+#[cfg(test)]
+#[path = "structural_adapter/kd5_tests.rs"]
+mod kd5_tests;
 
 #[cfg(test)]
 mod retention_tests {

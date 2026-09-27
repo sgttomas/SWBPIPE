@@ -1,0 +1,11 @@
+[package]
+name = "kd5_fixdiff"
+version = "0.0.0"
+edition = "2021"
+publish = false
+[dependencies]
+open_pipe_stress_product_physics = { path = "<kd5-worktree>/projects/chirality-piping/core/product_physics" }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+[workspace]
+# src/main.rs = S11-K _run_records/fixture_diff/fixdiff_main.rs.txt (sha256 ec089c1d4a2a46dda689aad3ac55948cf858537ed5c986726c7accdd63cade53), unchanged
+# built: cargo build --release --offline (Cargo.lock copied from core/product_physics); run: kd5_fixdiff <P>/<root> <out> for root in fixtures validation core

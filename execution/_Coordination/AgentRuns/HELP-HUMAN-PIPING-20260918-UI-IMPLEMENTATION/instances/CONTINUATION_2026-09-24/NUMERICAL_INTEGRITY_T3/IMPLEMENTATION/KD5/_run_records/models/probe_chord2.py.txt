@@ -1,0 +1,20 @@
+import sys
+v1=sys.argv[1]; sys.path.insert(0,v1); sys.argv=[sys.argv[0],v1]
+import curved_ef as ce
+orig=ce.pp_centre
+off=-6.5e-10
+def shifted(xi,xj,yref,radius):
+    c=orig(xi,xj,yref,radius); ch=[xj[k]-xi[k] for k in range(3)]; n=sum(x*x for x in ch)**0.5
+    return [c[k]+off*radius*ch[k]/n for k in range(3)]
+ce.pp_centre=shifted
+mdl=next(m for m in ce.models() if m["name"]=="C-skew elbow cantilever, soft root spring k_X = 30")
+res={}
+for obj in (True, False):
+    oc=ce.curved_int
+    ce.curved_int=lambda *a, obj=obj, **k: oc(*a, objective=obj)
+    m=ce.build(mdl); free=m["free"]
+    uI=ce.dsolve([[m["Ki"][i][j] for j in free] for i in free],[ce.dec(m["f"][i]) for i in free])
+    res[obj]=[float(x) for x in uI]
+    ce.curved_int=oc
+St=max(abs(res[True][r]) for r,i in enumerate(free) if i%6<3)
+print('max |u_obj - u_formula| / (1e-9*S_tr):', max(abs(a-b) for a,b in zip(res[True],res[False]))/(1e-9*St))
