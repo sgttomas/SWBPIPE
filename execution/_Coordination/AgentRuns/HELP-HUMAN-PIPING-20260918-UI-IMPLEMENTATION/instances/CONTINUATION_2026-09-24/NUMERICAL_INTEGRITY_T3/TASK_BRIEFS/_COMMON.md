@@ -28,7 +28,7 @@ Every T3 TASK brief is read with this file. Where a brief differs, the brief win
 - When released: Rust uses `RUSTUP_TOOLCHAIN=1.97.1` (matches CI), `CARGO_INCREMENTAL=0`, and T3's own target directory `<t3-target>` (ROOT gives the path). Never use T1's target directory. Python uses the DEC-025 venv (path given at spawn). Node 24 is on the host (path given at spawn).
 - Keep free disk above about 8 GB (`df -h` on the home filesystem). Prune only your own build output.
 - **Never delete or `git clean` `core/serialization/canonical_json/target` or `core/units/target`** in any worktree (added 2026-09-27, after a DEC-025 sweep failed without them). They hold the checked-JSON and units authority executables that the pytest surfaces need. They are prerequisites, never scratch. If they are missing, rebuild them with `tools/serialization/build_checked_json.py` and `tools/units/build_units_authority.py`.
-- While a `run_evidence_sweep` process runs (the DEC-025 sweep), hold all cargo: check `pgrep -f run_evidence_sweep` as well as `pgrep -x cargo`.
+- While a `run_evidence_sweep` process runs (the DEC-025 sweep), hold all cargo: check `pgrep -f 'python[0-9.]* .*run_evidence_sweep'` (this form matches only the python sweep process; a bare `pgrep -f run_evidence_sweep` also matches the waiting shell's own command line and always reads busy) as well as `pgrep -x cargo`.
 
 ## Rules
 
