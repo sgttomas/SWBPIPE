@@ -1,0 +1,6 @@
+$ patch -p1 -F3 -i RV-M10.patch
+patching file projects/chirality-piping/core/product_physics/src/formation_guard.rs
+$ cargo test --offline --locked --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --lib -- --exact s11g_tests::restrained_rows_take_the_all_rows_scale
+test s11g_tests::restrained_rows_take_the_all_rows_scale ... FAILED
+thread 's11g_tests::restrained_rows_take_the_all_rows_scale' (3775) panicked at src/s11g_tests.rs:2595:5:
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 383 filtered out; finished in 0.09s

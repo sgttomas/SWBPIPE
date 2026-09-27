@@ -1,0 +1,35 @@
+
+ RUN  v4.1.10 <scratch>/reader/tree/apps/desktop
+
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > sparse_interactive
+sparse_interactive T18 (main shape): {"eligible":false,"findings":["SOURCE_BLOCKS_CASE_UNQUALIFIED","SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY","SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED"]}
+
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > sparse_interactive
+sparse_interactive T23 candidate (callerModel=false): {"eligible":false,"findings":["SOURCE_BLOCKS_CASE_UNQUALIFIED","SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY","SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED"]}
+
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > sparse_interactive
+sparse_interactive T23 candidate (callerModel=true): {"eligible":false,"findings":["SOURCE_BLOCKS_CASE_UNQUALIFIED","SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY","SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED"]}
+
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > sparse_interactive
+sparse_interactive T23 base: {"eligible":true,"findings":[]}
+
+ ✓ src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > sparse_interactive 245ms
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > dense_scrutiny
+dense_scrutiny T18 (main shape): {"eligible":false,"findings":["SOURCE_BLOCKS_CASE_UNQUALIFIED","SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY","SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED"]}
+
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > dense_scrutiny
+dense_scrutiny T23 candidate (callerModel=false): {"eligible":false,"findings":["SOURCE_BLOCKS_CASE_UNQUALIFIED","SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY","SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED"]}
+
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > dense_scrutiny
+dense_scrutiny T23 candidate (callerModel=true): {"eligible":false,"findings":["SOURCE_BLOCKS_CASE_UNQUALIFIED","SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY","SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED"]}
+
+stdout | src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > dense_scrutiny
+dense_scrutiny T23 base: {"eligible":true,"findings":[]}
+
+ ✓ src/features/results/s11g_reader.scratch.test.ts > S11-G envelopes through the desktop source-blocks reader > dense_scrutiny 178ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  10:51:56
+   Duration  1.79s (transform 412ms, setup 247ms, import 324ms, tests 427ms, environment 558ms)
+

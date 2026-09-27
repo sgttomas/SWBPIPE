@@ -1,0 +1,48 @@
+{
+ "RV-M1": {
+  "exit": 101,
+  "failing_tests": [
+   "s11g_tests::d21_1_second_test_adds_the_bound_exactly"
+  ],
+  "file": "projects/chirality-piping/core/product_physics/src/formation_guard.rs",
+  "patch_sha256": "666c035d905f788f77ac14824265254dc9309b752802c6254205c5eb6c18dd99",
+  "verdict": "KILLED"
+ },
+ "RV-M10": {
+  "exit": 101,
+  "failing_tests": [
+   "s11g_tests::restrained_rows_take_the_all_rows_scale"
+  ],
+  "file": "projects/chirality-piping/core/product_physics/src/formation_guard.rs",
+  "patch_sha256": "b254bc0303dad4ef856979f26e3852e4f358c409f00cdc62b6903809d7bd0f11",
+  "verdict": "KILLED"
+ },
+ "RV-M2": {
+  "exit": 101,
+  "failing_tests": [
+   "s11g_tests::exact_pressure_operand_bound_is_gamma_20",
+   "s11g_tests::exact_pressure_operand_rows_carry_their_bound"
+  ],
+  "file": "projects/chirality-piping/core/product_physics/src/lib.rs",
+  "patch_sha256": "6bc5c5c842078881ea8c24ffcbe05cd073e27c77701559b36228d1a236839660",
+  "verdict": "KILLED"
+ },
+ "RV-M3": {
+  "exit": 101,
+  "failing_tests": [
+   "s11g_tests::curved_thermal_records_name_the_pushed_products"
+  ],
+  "file": "projects/chirality-piping/core/product_physics/src/lib.rs",
+  "patch_sha256": "1696cea2616e62cf9be7cfa2ac50f7b5b46acaff8708415c2c3d429e9e437694",
+  "verdict": "KILLED"
+ },
+ "RV-M6": {
+  "exit": 101,
+  "failing_tests": [
+   "s11g_tests::e1_ordinary_err_guard_fired_case_keeps_mains_attempt"
+  ],
+  "file": "projects/chirality-piping/core/product_physics/src/lib.rs",
+  "patch_sha256": "4b4292b0f71e134017875798c8d9ead2b3d3d07b393a59c9d757d6fbe4ba62dc",
+  "verdict": "KILLED"
+ }
+}

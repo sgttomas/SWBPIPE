@@ -1,0 +1,34 @@
+// T3 S11-G (I5) scratch-only desktop reader run (not committed): the desktop
+// source-blocks reader on live envelopes. T23 = candidate, case B is the zero-work
+// formation decline; T18 = byte-identical on base and candidate, case B is main's
+// real refused attempt (an `unsupported` entry with charged work); T23-base = the
+// same T23 request through base (case B ordinary checks_passed).
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { validateSourceBlockRecovery, sourceBlockReceiptShape } from './sourceBlockRecovery';
+import type { MechanicsResult, PreviewModel } from '../../types';
+const dir = process.env.S11G_ENVELOPE_DIR!;
+const read = (name: string) => JSON.parse(readFileSync(`${dir}/${name}`, 'utf8'));
+const validate = async (raw: MechanicsResult, request: any, mode: 'sparse_interactive' | 'dense_scrutiny', withModel: boolean) =>
+  validateSourceBlockRecovery(structuredClone(raw), { request: structuredClone(request), solver_mode: mode }, withModel ? structuredClone(request.model) as PreviewModel : undefined);
+describe('S11-G envelopes through the desktop source-blocks reader', () => {
+  it.each(['sparse_interactive', 'dense_scrutiny'] as const)('%s', async (mode) => {
+    const t23 = read('t23.request.json'), t18 = read('t18.request.json');
+    const raw = read(`t23.${mode}.raw.json`) as MechanicsResult;
+    const b = (raw.source_block_recovery as any).body.cases.find((c: any) => c.basis_ref.ref_id === 'case-b');
+    expect([b.outcome, b.failure.stage, b.failure.code, b.ordinary_attempt.outcome]).toEqual(['unsupported', 'source_validation', 'unsupported_family', 'sensitive']);
+    expect(b.work).toEqual({ limit: 0, charged: 0, reserved_unobserved_failure: 0, rejected_reservation: { kind: 'finite', amount: 0 } });
+    expect(sourceBlockReceiptShape(structuredClone(raw).source_block_recovery)).toBe(true);
+    const main18 = read(`t18.${mode}.cand.json`) as MechanicsResult;
+    const reference = await validate(main18, t18, mode, false);
+    console.log(mode, 'T18 (main shape):', JSON.stringify(reference));
+    for (const withModel of [false, true]) {
+      const got = await validate(raw, t23, mode, withModel);
+      console.log(mode, `T23 candidate (callerModel=${withModel}):`, JSON.stringify(got));
+      expect(got).toEqual(reference);
+    }
+    const base = await validate(read(`t23.${mode}.base.json`) as MechanicsResult, t23, mode, false);
+    console.log(mode, 'T23 base:', JSON.stringify(base));
+    expect(base).toEqual({ eligible: true, findings: [] });
+  });
+});

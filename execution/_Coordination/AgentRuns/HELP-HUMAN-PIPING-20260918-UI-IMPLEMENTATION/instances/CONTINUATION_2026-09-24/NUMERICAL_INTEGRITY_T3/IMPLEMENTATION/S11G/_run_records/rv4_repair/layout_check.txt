@@ -1,0 +1,7 @@
+byte-equal: False
+equal with all whitespace removed: False
+equal with all whitespace and trailing commas before ) ] } removed: True
+trailing commas added: 10
+rustfmt --check (stable 1.8.0, --edition 2021, skip_children) Diff-in count: candidate 78, base 3d844fea4 78, b62e40d4d 87
+git diff --stat b62e40d4d (lib.rs):  1 file changed, 102 insertions(+), 48 deletions(-)
+git diff -w --stat b62e40d4d (lib.rs):  1 file changed, 68 insertions(+), 14 deletions(-)

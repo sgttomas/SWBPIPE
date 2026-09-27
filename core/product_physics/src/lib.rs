@@ -7,6 +7,7 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
+mod formation_guard;
 // Resolved load/reference-state case (model 0.4.0); one resolved case per load
 // case drives assembly, recovery and published evidence.
 mod case_state;
@@ -25,11 +26,15 @@ mod source_receipt;
 #[cfg(test)]
 mod s11f_tests;
 #[cfg(test)]
+mod s11g_tests;
+#[cfg(test)]
 mod source_budget_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_sum, ExactAccumulator};
-use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, LoadLedger};
+use open_pipe_stress_frame_kernel::load_ledger::{
+    gamma, product_upward, AssembledForce, Formation, LoadLedger,
+};
 use open_pipe_stress_frame_kernel::structural::{
     LoadFidelityReport, SolveQuality, StructuralError, StructuralReport,
 };
@@ -1034,6 +1039,15 @@ fn integrity_dof_map(model: &PreviewModel) -> Vec<String> {
         .collect()
 }
 
+/// One entry of `integrity_dof_map`, formed alone.
+fn integrity_dof_label(model: &PreviewModel, dof: usize) -> String {
+    let name = ["UX", "UY", "UZ", "RX", "RY", "RZ"][dof % DOF_PER_NODE];
+    model.nodes.get(dof / DOF_PER_NODE).map_or_else(
+        || format!("global_dof={dof}"),
+        |node| format!("{}:{name}", node.id),
+    )
+}
+
 // Byte lengths delimit exact source identities without lossy punctuation folding.
 fn exact_source_identity(parts: &[&str]) -> String {
     parts
@@ -1046,6 +1060,11 @@ fn integrity_diagnostic_id(case_id: &str) -> String {
     format!("diagnostic:numerical-integrity:{case_id}")
 }
 
+/// S11-G section 3.5: `formation` is the case's load-row finding. When the
+/// ordinary code would be `CHECKS_PASSED`, a finding demotes it to
+/// `NUMERICAL_INTEGRITY_SENSITIVE` with one reason sentence appended; the
+/// `StructuralReport` text stays truthful. The no-op rule: a case already
+/// Sensitive is left exactly as today (no sentence, no byte change).
 fn append_integrity_report(
     diagnostics: &mut Vec<Diagnostic>,
     case_id: &str,
@@ -1054,6 +1073,7 @@ fn append_integrity_report(
     equilibrium: Option<
         &open_pipe_stress_nonlinear_integration::product_equilibrium::ProductEquilibriumReport,
     >,
+    formation: Option<&formation_guard::FormationFinding>,
 ) {
     let code = if report.quality == SolveQuality::Sensitive {
         "NUMERICAL_INTEGRITY_SENSITIVE"
@@ -1064,6 +1084,95 @@ fn append_integrity_report(
         format!("{} represented original-equation structural evidence for load case {}: {:?}; global_dof_map={:?}. {} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.", report.policy, case_id, report, integrity_dof_map(model),
             equilibrium.map(|e|format!("{} final same-state evaluated equilibrium and derived residual-work evidence: {:?}; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed",e.policy,e)).unwrap_or_else(||"The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable.".into())),
         vec![case_id.to_string()]));
+    if let (Some(finding), Some(record)) = (formation, diagnostics.last_mut()) {
+        formation_guard::demote(record, finding);
+    }
+}
+
+/// The retained-source eligibility predicate (main's; S11-G revision 2.2
+/// G-1 removed 2.1's load-row gate, T10): the captured entry, without
+/// nonlinear supports or combinations.
+fn source_eligible(captured: bool, nonlinear: bool, combinations: bool) -> bool {
+    captured && !nonlinear && !combinations
+}
+
+/// S11-G revision 2.2 G-3 (T21): a retained-source response of a case whose
+/// load-row guard fired is never selected; it is declined into the existing
+/// `failed`/`unsupported` receipt entry, with its executed work charged.
+fn decline_for_formation(
+    recovery: source_recovery::SelectedSourceRecovery,
+    load_row_finding: Option<&formation_guard::FormationFinding>,
+) -> Result<source_recovery::SelectedSourceRecovery, source_recovery::RecoveryFailure> {
+    if load_row_finding.is_some() {
+        Err(recovery.decline_formation())
+    } else {
+        Ok(recovery)
+    }
+}
+
+/// Whether a case routes to retained-source recovery (S11-G revision 2.2
+/// G-2, T10): an ordinary report that is Sensitive, an ordinary attempt that
+/// errs, or a load-row formation finding (which demotes the published
+/// verdict to Sensitive).
+fn needs_source_recovery(
+    report_sensitive: bool,
+    attempt_err: bool,
+    load_row_finding: Option<&formation_guard::FormationFinding>,
+) -> bool {
+    report_sensitive || attempt_err || load_row_finding.is_some()
+}
+
+/// S11-G: each published row's entity (member, support, node) and its body.
+fn formation_entity_bodies(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    bodies: &formation_guard::Bodies,
+) -> HashMap<String, usize> {
+    let mut map = HashMap::new();
+    for pipe in &built.pipes {
+        if let Some(body) = bodies.body_of_node(pipe.node_i.index) {
+            map.insert(pipe.element_id.clone(), body);
+        }
+    }
+    for (index, node) in model.nodes.iter().enumerate() {
+        if let Some(body) = bodies.body_of_node(index) {
+            map.insert(node.id.clone(), body);
+        }
+    }
+    for support in &model.supports {
+        if let Some(body) = node_index(model, &support.node).and_then(|i| bodies.body_of_node(i)) {
+            map.insert(support.id.clone(), body);
+        }
+    }
+    map
+}
+
+/// S11-G: the case's bodies for the guards' scales (DESIGN section 4.1.6.1
+/// item 1: straight members, curved spans and user stiffness elements).
+fn formation_bodies(built: &BuiltModel) -> formation_guard::Bodies {
+    let coordinates = built
+        .nodes
+        .iter()
+        .map(|n| n.coordinates)
+        .collect::<Vec<_>>();
+    let edges = built
+        .pipes
+        .iter()
+        .map(|p| (p.node_i.index, p.node_j.index))
+        .chain(
+            built
+                .curved_bend_elements
+                .iter()
+                .map(|b| (b.node_i, b.node_j)),
+        )
+        .chain(
+            built
+                .user_stiffness_elements
+                .iter()
+                .map(|e| (e.node_i.index, e.node_j.index)),
+        )
+        .collect::<Vec<_>>();
+    formation_guard::Bodies::new(&coordinates, &edges)
 }
 
 /// S11 section 6: a detected load-contribution loss keeps the case Sensitive
@@ -2282,7 +2391,34 @@ fn push_exact_pressure_operands(
     exact: &pressure_runtime::ExactPressureCase,
 ) {
     for (dof, value, source) in &exact.assembled_operands {
-        ledger.push(source, *dof, *value);
+        ledger.push_formed(
+            source,
+            *dof,
+            *value,
+            Formation::Bounded {
+                bound: exact_pressure_operand_bound(*value),
+            },
+            0.0,
+            false,
+        );
+    }
+}
+
+/// S11-G SF-2: the formation bound of one exact-pressure group operand,
+/// `pressure_group_value` = to_f64(p * (PI * r_i * r_i) * c * d) in `Scaled`
+/// arithmetic. Counted from the source, the chain is products only with k = 10
+/// relative roundings: r_i = od*0.5 - wall (1, exact halving; entering twice,
+/// 2), PI (1), PI*r_i and *r_i (2), *p (1), the coefficient's correctly
+/// rounded sum (1), *c (1), *d (1) and the output to_f64 (1). k exceeds 8, so
+/// the design's rule takes gamma_2k = gamma_20 (rounded upward), plus
+/// 2^-1074 when the output is subnormal (the output rounding is then
+/// absolute).
+fn exact_pressure_operand_bound(value: f64) -> f64 {
+    let relative = product_upward(gamma(20), value.abs());
+    if value != 0.0 && value.abs() < f64::MIN_POSITIVE {
+        (relative + f64::from_bits(1)).next_up()
+    } else {
+        relative
     }
 }
 
@@ -2487,6 +2623,17 @@ fn solve_load_case(
         diagnostics,
     );
     let force = finish_case_ledger(ledger, built.nodes.len())?;
+    // S11-G section 3.5: the load-row guard reads the ledger's formation
+    // records once, before the solve; its finding gates retained-source
+    // routing and demotes the published verdict (never a refusal).
+    let formation_bodies = formation_bodies(built);
+    let load_row_finding = formation_guard::load_row_finding(
+        &force,
+        &formation_bodies,
+        restrained_dofs,
+        |dof| integrity_dof_label(model, dof),
+        &load_case.id,
+    );
 
     require_finite_mechanics(
         stiffness
@@ -2570,9 +2717,20 @@ fn solve_load_case(
         load_case,
         &mut preliminary_diagnostics,
     );
+    // S11-G revision 2.2 G-2: the receipt's ordinary outcome follows the
+    // published verdict, which the load-row finding demotes to Sensitive.
     let ordinary_attempt = match &attempted_linear {
-        Ok(solve) => source_receipt::OrdinaryAttempt::passed(solver_mode, &solve.structural_report, integrity_diagnostic_id(&load_case.id)),
-        Err(error) => source_receipt::OrdinaryAttempt::rejected(solver_mode, error, integrity_diagnostic_id(&load_case.id)),
+        Ok(solve) => source_receipt::OrdinaryAttempt::passed(
+            solver_mode,
+            &solve.structural_report,
+            integrity_diagnostic_id(&load_case.id),
+            load_row_finding.is_some(),
+        ),
+        Err(error) => source_receipt::OrdinaryAttempt::rejected(
+            solver_mode,
+            error,
+            integrity_diagnostic_id(&load_case.id),
+        ),
     };
     let recovery_input = || source_recovery::Input {
         model, built, stiffness, force: &force, free: &reduced.free_dofs,
@@ -2580,48 +2738,63 @@ fn solve_load_case(
         thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
         load_state,
     };
-    let needs_source_recovery = match &attempted_linear {
-        Ok(solve) => solve.structural_report.quality == SolveQuality::Sensitive,
-        Err(_) => true,
-    };
+    let report_sensitive = matches!(&attempted_linear, Ok(solve) if solve.structural_report.quality == SolveQuality::Sensitive);
+    let attempt_err = attempted_linear.is_err();
+    let needs_source_recovery =
+        needs_source_recovery(report_sensitive, attempt_err, load_row_finding.as_ref());
     let mut selected_source = None;
     let mut source_failure = None;
     // A resolved case enters retained-source recovery only through its own
     // closed join: the recovery input carries the resolved case, and source
     // closure refuses any eigen load, pair or motion it does not own.
-    let source_eligible = capture.is_some() && built.nonlinear_supports.is_empty() && model.combinations.is_empty();
+    let source_eligible = source_eligible(
+        capture.is_some(),
+        !built.nonlinear_supports.is_empty(),
+        !model.combinations.is_empty(),
+    );
     if source_eligible && needs_source_recovery {
-        source_budget.attempts += 1;
-        let case_limit = source_budget.case_limit();
-        let attempt = source_recovery::solve(
-            recovery_input(),
-            open_pipe_stress_frame_kernel::structural::exact_boundary::Limits {
-                operations: case_limit,
-                ..Default::default()
-            },
-        )
-        .and_then(|recovery| match load_state {
-            // Pre-0.4 selection is unchanged.
-            None => Ok(recovery),
-            // ROOT CP3 SF-1 screen: captured replay repeats the live
-            // attempt's source closure and exact solve in the same ledger, so
-            // selection first reserves an amount equal to the live charge.
-            // This screen does not guarantee finalization (other stages are
-            // charged before replay, and replay may cost slightly more); a
-            // selected join that still cannot finalize is republished on the
-            // ordinary route. The case's own refusal is checked first so
-            // that a republication still reports it.
-            Some(_) => recovery
-                .reserve_captured_replay(case_limit)
-                .and_then(|recovery| {
-                    if source_budget.load_state_join_withheld.is_some() {
-                        // ROOT CP3 SF-1: the invocation publishes ordinarily.
-                        Err(recovery.decline_withheld())
-                    } else {
-                        Ok(recovery)
-                    }
-                }),
-        });
+        // S11-G revision 2.2 with ROOT's D22-1 condition: a case the ordinary
+        // route would not attempt (report Passed, no Err) is declined for its
+        // load-row finding without running an attempt, so the invocation
+        // ledger equals the unguarded one.
+        let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
+            Err(source_recovery::formation_decline_without_attempt())
+        } else {
+            source_budget.attempts += 1;
+            let case_limit = source_budget.case_limit();
+            source_recovery::solve(
+                recovery_input(),
+                open_pipe_stress_frame_kernel::structural::exact_boundary::Limits {
+                    operations: case_limit,
+                    ..Default::default()
+                },
+            )
+            // S11-G revision 2.2 G-3: a guard-fired case is never selected; the
+            // selection is declined before the 0.4.0 replay reservation.
+            .and_then(|recovery| decline_for_formation(recovery, load_row_finding.as_ref()))
+            .and_then(|recovery| match load_state {
+                // Pre-0.4 selection is unchanged.
+                None => Ok(recovery),
+                // ROOT CP3 SF-1 screen: captured replay repeats the live
+                // attempt's source closure and exact solve in the same ledger, so
+                // selection first reserves an amount equal to the live charge.
+                // This screen does not guarantee finalization (other stages are
+                // charged before replay, and replay may cost slightly more); a
+                // selected join that still cannot finalize is republished on the
+                // ordinary route. The case's own refusal is checked first so
+                // that a republication still reports it.
+                Some(_) => recovery
+                    .reserve_captured_replay(case_limit)
+                    .and_then(|recovery| {
+                        if source_budget.load_state_join_withheld.is_some() {
+                            // ROOT CP3 SF-1: the invocation publishes ordinarily.
+                            Err(recovery.decline_withheld())
+                        } else {
+                            Ok(recovery)
+                        }
+                    }),
+            })
+        };
         match attempt {
             Ok(recovery) => selected_source = Some(recovery),
             Err(failure) => {
@@ -2792,6 +2965,7 @@ fn solve_load_case(
                 &linear.structural_report,
                 model,
                 None,
+                load_row_finding.as_ref(),
             );
             if let Some(report) = &linear.load_fidelity {
                 append_load_contribution_absorbed(diagnostics, &load_case.id, report);
@@ -2832,6 +3006,7 @@ fn solve_load_case(
                 &iteration.structural_report,
                 model,
                 Some(&iteration.product_equilibrium),
+                load_row_finding.as_ref(),
             );
         }
     }
@@ -3014,6 +3189,9 @@ fn solve_load_case(
         load_case,
     );
 
+    // S11-G R-b' (section 4): (member, end, q, B) of each straight member end
+    // published from the formed K_e * u, decided after the loop.
+    let mut recovery_records = Vec::new();
     let mut max_stress = None;
     let mut pipe_stress_extrema = Vec::new();
     let mut unavailable_stress_maximum_members = Vec::new();
@@ -3152,6 +3330,22 @@ fn solve_load_case(
             wall
         };
         require_finite_mechanics(corrected_local_forces.iter().copied())?;
+        if recovered_member.is_none() && macro_bend.is_none() {
+            let bounds = pipe
+                .bending_formation_bound(&displacements)
+                .map_err(|error| error.to_string());
+            let end = |offset: usize, index: usize| {
+                (
+                    corrected_local_forces[offset + RY].hypot(corrected_local_forces[offset + RZ]),
+                    bounds.clone().map(|b| b[index]),
+                )
+            };
+            recovery_records.push(formation_guard::RecoveryRecord {
+                member: pipe.element_id.clone(),
+                body: formation_bodies.body_of_node(pipe.node_i.index),
+                ends: [end(0, 0), end(DOF_PER_NODE, 1)],
+            });
+        }
         append_element_force_results(&mut results, &pipe.element_id, &corrected_local_forces);
         // Raw end rows remain node-on-element actions. Stress recovery and
         // station rows consume the common j-side section-cut convention.
@@ -3604,6 +3798,26 @@ fn solve_load_case(
         );
     }
 
+    if !recovery_records.is_empty() {
+        let scales = formation_guard::moment_scales(
+            &results,
+            &formation_entity_bodies(model, built, &formation_bodies),
+            &curved_bends_by_pipe
+                .values()
+                .map(|bend| bend.pipe_id.clone())
+                .collect(),
+            &formation_bodies,
+        );
+        if let Some(finding) =
+            formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)
+        {
+            formation_guard::amend_integrity_report(
+                diagnostics,
+                &integrity_diagnostic_id(&load_case.id),
+                &finding,
+            );
+        }
+    }
     require_finite_mechanics(results.iter().map(|row| row.value))?;
     let pressure_assembly_evidence = exact_pressure.as_ref().map(|p| p.assembly_evidence.clone());
     let pressure_evidence = exact_pressure
@@ -8595,9 +8809,18 @@ fn add_uniform_element_loads(
                 Ok(equivalent) => {
                     // S11 section 4.2: one term per (load, DOF) from this load's
                     // own consistent equivalent.
+                    // S11-G SF-2: a curved consistent vector has no conservative
+                    // formation bound (CannotBound demotes the case).
                     let dof_map = element_dof_map(bend.node_i, bend.node_j);
                     for (local_dof, &global_dof) in dof_map.iter().enumerate() {
-                        ledger.push(&load.load_id, global_dof, equivalent[local_dof]);
+                        ledger.push_formed(
+                            &load.load_id,
+                            global_dof,
+                            equivalent[local_dof],
+                            Formation::CannotBound,
+                            0.0,
+                            false,
+                        );
                     }
                 }
                 Err(message) => {
@@ -8628,16 +8851,36 @@ fn add_uniform_element_loads(
         }
         let pipe = &pipes[load.element_index];
         let equivalent = straight_global_uniform_load(load)
-            .and_then(|global| pipe.equivalent_global_nodal_loads_with_spans(&[global], &[]));
+            .and_then(|global| pipe.equivalent_global_nodal_loads_with_spans_formed(&[global]));
+        // S11-G section 3.2: an equivalent-static generated intensity carries
+        // gamma_4 of operand formation (a same-sign product chain).
+        let generated = load
+            .load_id
+            .starts_with(&format!("{load_case_id}:generated:"));
         match equivalent {
-            Ok(equivalent) => {
+            Ok((equivalent, formations)) => {
                 // One load per call: the SP formula of one load is formation
-                // (E1 for one load is bit-identical); one term per (load, DOF).
-                for (slot, global) in element_dof_map(pipe.node_i.index, pipe.node_j.index)
-                    .iter()
-                    .enumerate()
+                // (E1 for one load is bit-identical); one term per (load, DOF),
+                // each with its exact intended formula (S11-G).
+                for ((slot, global), formation) in
+                    element_dof_map(pipe.node_i.index, pipe.node_j.index)
+                        .iter()
+                        .enumerate()
+                        .zip(formations)
                 {
-                    ledger.push(&load.load_id, *global, equivalent[slot]);
+                    let operand_bound = if generated {
+                        product_upward(gamma(4), equivalent[slot].abs())
+                    } else {
+                        0.0
+                    };
+                    ledger.push_formed(
+                        &load.load_id,
+                        *global,
+                        equivalent[slot],
+                        formation,
+                        operand_bound,
+                        false,
+                    );
                 }
             }
             Err(error) => diagnostics.push(diag(
@@ -8845,11 +9088,28 @@ fn add_pressure_thrust_loads(
         let local_x = orientation.local_axes[0];
         let i_base = pipe.node_i.index * DOF_PER_NODE;
         let j_base = pipe.node_j.index * DOF_PER_NODE;
-        // S11 section 4.2: fl(P * x_a) per axis, one term at each end.
+        // S11 section 4.2: fl(P * x_a) per axis, one term at each end; S11-G:
+        // each is an exact rounded product of a self-equilibrated pair.
         for axis in 0..3 {
-            let value = load.axial_load * local_x[axis];
-            ledger.push(&load.source_load_id, i_base + axis, -value);
-            ledger.push(&load.source_load_id, j_base + axis, value);
+            let (a, b) = (load.axial_load, local_x[axis]);
+            let value = a * b;
+            let product = |k| Formation::RoundedProduct { k, a, b };
+            ledger.push_formed(
+                &load.source_load_id,
+                i_base + axis,
+                -value,
+                product(-1.0),
+                0.0,
+                true,
+            );
+            ledger.push_formed(
+                &load.source_load_id,
+                j_base + axis,
+                value,
+                product(1.0),
+                0.0,
+                true,
+            );
         }
     }
 }
@@ -8884,13 +9144,44 @@ fn add_curved_bend_pressure_thrust_load(
     let i_base = bend.node_i * DOF_PER_NODE;
     let j_base = bend.node_j * DOF_PER_NODE;
     // S11 section 4.2: fl(P * t_a) per axis for the caps; one term per wall slot.
+    // S11-G: the caps are exact rounded products (self-equilibrated with the
+    // wall vector); the wall vector is a curved consistent vector, CannotBound.
     for axis in 0..3 {
-        ledger.push(source, i_base + axis, -(axial_load * tangent_i[axis]));
-        ledger.push(source, j_base + axis, axial_load * tangent_j[axis]);
+        ledger.push_formed(
+            source,
+            i_base + axis,
+            -(axial_load * tangent_i[axis]),
+            Formation::RoundedProduct {
+                k: -1.0,
+                a: axial_load,
+                b: tangent_i[axis],
+            },
+            0.0,
+            true,
+        );
+        ledger.push_formed(
+            source,
+            j_base + axis,
+            axial_load * tangent_j[axis],
+            Formation::RoundedProduct {
+                k: 1.0,
+                a: axial_load,
+                b: tangent_j[axis],
+            },
+            0.0,
+            true,
+        );
     }
     let dof_map = element_dof_map(bend.node_i, bend.node_j);
     for (local_slot, &global_slot) in dof_map.iter().enumerate() {
-        ledger.push(source, global_slot, wall_loads[local_slot]);
+        ledger.push_formed(
+            source,
+            global_slot,
+            wall_loads[local_slot],
+            Formation::CannotBound,
+            0.0,
+            false,
+        );
     }
 }
 
@@ -8923,11 +9214,21 @@ fn add_thermal_equivalent_loads(
         let i_base = pipe.node_i.index * DOF_PER_NODE;
         let j_base = pipe.node_j.index * DOF_PER_NODE;
         // S11 section 4.2: fl(P * x_a) per axis, one term at each end (the
-        // same terms `source_recovery` pushes for T1's eigen loads).
+        // same terms `source_recovery` pushes for T1's eigen loads); S11-G:
+        // each is an exact rounded product of a self-equilibrated pair.
         for axis in 0..3 {
-            let value = load.axial_load * local_x[axis];
-            ledger.push(&load.source, i_base + axis, -value);
-            ledger.push(&load.source, j_base + axis, value);
+            let (a, b) = (load.axial_load, local_x[axis]);
+            let value = a * b;
+            let product = |k| Formation::RoundedProduct { k, a, b };
+            ledger.push_formed(
+                &load.source,
+                i_base + axis,
+                -value,
+                product(-1.0),
+                0.0,
+                true,
+            );
+            ledger.push_formed(&load.source, j_base + axis, value, product(1.0), 0.0, true);
         }
     }
 }
@@ -8950,11 +9251,21 @@ fn add_curved_bend_thermal_equivalent_load(
     for (local_row, &global_row) in dof_map.iter().enumerate() {
         for (local_col, &free_value) in free_expansion.iter().enumerate() {
             if free_value != 0.0 {
-                ledger.push_product(
+                // S11-G: K_rc * fl(eps * chord_c), an exact scaled rounded
+                // product (self-equilibrated: K * u_free of a rigid-free field).
+                let k = bend.global_stiffness[local_row][local_col];
+                ledger.push_formed_product(
                     source,
                     global_row,
-                    bend.global_stiffness[local_row][local_col],
+                    k,
                     free_value,
+                    Formation::RoundedProduct {
+                        k,
+                        a: thermal_strain,
+                        b: bend.chord[local_col - DOF_PER_NODE],
+                    },
+                    0.0,
+                    true,
                 );
             }
         }

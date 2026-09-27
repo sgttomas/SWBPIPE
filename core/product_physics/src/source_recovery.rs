@@ -66,6 +66,27 @@ pub(super) struct RecoveryFailure {
     pub work: exact::WorkReport,
 }
 
+/// S11-G: the unsupported-family reason of a formation-guard decline.
+const FORMATION_GUARD_DECLINE: &str = "the load-row formation guard fired for this case";
+
+/// S11-G revision 2.2 with ROOT's D22-1 condition: a case the ordinary route
+/// would not attempt (report Passed, no `Err`) whose load-row guard fired is
+/// declined without running an attempt, so the invocation ledger equals the
+/// unguarded one: zero work {limit 0, charged 0, rejected 0}, the same stage,
+/// helper stage and error as `decline_formation`.
+pub(super) fn formation_decline_without_attempt() -> RecoveryFailure {
+    RecoveryFailure {
+        stage: "formation guard",
+        helper_stage: AttemptStage::SourceClosure,
+        error: RecoveryError::Unsupported(FORMATION_GUARD_DECLINE),
+        work: exact::WorkReport {
+            charged: 0,
+            rejected: 0,
+            limit: 0,
+        },
+    }
+}
+
 #[derive(Debug, Clone)]
 pub(super) struct SpringAction {
     pub support_id: String,
@@ -226,6 +247,19 @@ impl SelectedSourceRecovery {
             error: RecoveryError::Unsupported(
                 "selected join could not finalize for this invocation",
             ),
+            work: self.summary.work,
+        }
+    }
+
+    /// S11-G revision 2.2 G-3: a selection declined because the case's
+    /// load-row formation guard fired (a guard-fired case is never selected or
+    /// qualified). Mirrors `decline_withheld`: the executed work stays charged;
+    /// the receipt entry is `failed` (`source_validation`, `unsupported_family`).
+    pub fn decline_formation(self) -> RecoveryFailure {
+        RecoveryFailure {
+            stage: "formation guard",
+            helper_stage: AttemptStage::SourceClosure,
+            error: RecoveryError::Unsupported(FORMATION_GUARD_DECLINE),
             work: self.summary.work,
         }
     }
