@@ -147,3 +147,8 @@ Base: branch `codex/piping-k3a-20260926` at `a2e804a757359d589f4c31ea8e36a923f28
 ## Addendum 3: angles near π (ROOT, 2026-09-27, from RV2's K3a review, note N5)
 
 `WideArith::included_angle(s, c)` refuses with `AngleDomain` when 1 + c ≤ 0, which happens for angles within about 1e-19 of π, where c rounds to exactly −1. **That refusal routes to K-D5's "cannot re-form" path:** the case is demoted with `formation_check_unavailable`, and it never passes. Add a test with a curved element at an included angle within 1e-19 of π, asserting the demotion. The accuracy contract you may cite for the arctangent is the **proved 23.6 ulp** (the 6-ulp figure is K3a's regression tolerance only; RV2 S1).
+
+## Addendum 4: dead_code and the Git slip (ROOT, 2026-09-27)
+
+- **The slip** (`git checkout -- …/retained/wide.rs`, discarding I3's own uncommitted edit): accepted as disclosed, and recorded in RETURN. The rule stands: no checkout, restore, reset or stash. To undo an edit, re-apply bytes from `git show HEAD:<path>`.
+- **dead_code.** The module-level `#[cfg_attr(not(test), allow(dead_code))]` on `mod wide;` is acceptable **on the development branch only**. At the forward merge, after K3a is on main, replace it with **per-item `#[allow(dead_code)]` on exactly the items still unused outside tests**, each with a one-line reason ("test-only", or "K3 API, slice K3"). Nothing unused may stay hidden behind a module-wide attribute; that is what fulfils "K-D5 removes the allowance". The K-D5 reviewer checks the list.
