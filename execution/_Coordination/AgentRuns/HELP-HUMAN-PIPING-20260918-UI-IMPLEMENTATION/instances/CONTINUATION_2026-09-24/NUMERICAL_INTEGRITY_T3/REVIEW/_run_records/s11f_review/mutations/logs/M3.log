@@ -1,0 +1,48 @@
+test s11f_tests::f14_p1_probe_a_cases_publish_the_exact_net_answer_on_both_entries ... FAILED
+test s11f_tests::f10_pressure_and_joint_thrust_g1e80 ... FAILED
+test s11f_tests::f10_pressure_and_joint_thrust_g1e8 ... FAILED
+test s11f_tests::f2_probe_a_through_the_product_g1e8 ... FAILED
+test s11f_tests::f2_probe_a_through_the_product_g1e80 ... FAILED
+test s11f_tests::f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net ... FAILED
+test s11f_tests::f3_realistic_hot_run_on_the_0_4_0_eigen_route ... FAILED
+test s11f_tests::f3_realistic_hot_run_publishes_the_exact_net_displacement ... FAILED
+test s11f_tests::f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads ... FAILED
+test s11f_tests::f8_curved_bend_thermal_cancelling_strains ... FAILED
+test s11f_tests::f8_curved_bend_thermal_terms_are_exact_products ... ok
+test s11f_tests::f5_eigen_join_is_selected_and_publishes_the_exact_net ... FAILED
+test s11f_tests::f8_curved_bend_uniform_g1e80 ... FAILED
+test s11f_tests::n6_product_residual_rows_use_the_exact_numerator ... ok
+test s11f_tests::f8_curved_bend_uniform_g1e8 ... FAILED
+test tests::subspan_wind_generation_matches_hand_computed_lever_rule_nodal_forces ... ok
+test s11f_tests::f9_support_motion_on_the_0_4_0_route_is_exact ... ok
+test s11f_tests::f1_f11_f12_rf_cancel_cases_meet_the_binding_predicate_on_both_entries ... FAILED
+thread 's11f_tests::f14_p1_probe_a_cases_publish_the_exact_net_answer_on_both_entries' (30815) panicked at src/s11f_tests.rs:746:5:
+thread 's11f_tests::f10_pressure_and_joint_thrust_g1e80' (30814) panicked at src/s11f_tests.rs:1844:17:
+thread 's11f_tests::f10_pressure_and_joint_thrust_g1e8' (30813) panicked at src/s11f_tests.rs:1844:17:
+thread 's11f_tests::f2_probe_a_through_the_product_g1e8' (30817) panicked at src/s11f_tests.rs:746:5:
+thread 's11f_tests::f2_probe_a_through_the_product_g1e80' (30818) panicked at src/s11f_tests.rs:746:5:
+thread 's11f_tests::f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net' (30821) panicked at src/s11f_tests.rs:1215:9:
+thread 's11f_tests::f3_realistic_hot_run_on_the_0_4_0_eigen_route' (30819) panicked at src/s11f_tests.rs:1468:13:
+thread 's11f_tests::f3_realistic_hot_run_publishes_the_exact_net_displacement' (30820) panicked at src/s11f_tests.rs:1167:13:
+thread 's11f_tests::f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads' (30823) panicked at src/s11f_tests.rs:1265:9:
+thread 's11f_tests::f8_curved_bend_thermal_cancelling_strains' (30824) panicked at src/s11f_tests.rs:1678:13:
+thread 's11f_tests::f5_eigen_join_is_selected_and_publishes_the_exact_net' (30822) panicked at src/s11f_tests.rs:1502:9:
+thread 's11f_tests::f8_curved_bend_uniform_g1e80' (30827) panicked at src/s11f_tests.rs:1644:17:
+thread 's11f_tests::f8_curved_bend_uniform_g1e8' (30826) panicked at src/s11f_tests.rs:1644:17:
+thread 's11f_tests::f1_f11_f12_rf_cancel_cases_meet_the_binding_predicate_on_both_entries' (30816) panicked at src/s11f_tests.rs:593:5:
+test result: FAILED. 4 passed; 14 failed; 0 ignored; 0 measured; 331 filtered out; finished in 1.38s
+test rule_4_generic_kernels_are_called_only_by_observation_lanes ... ok
+test rule_2_values_are_copied_only_in_allow_listed_functions ... ok
+test rule_3_force_bindings_are_mutated_only_in_allow_listed_functions ... ok
+test rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites ... ok
+test scanner_self_checks ... ok
+test sparse_direct_factor_inherits_the_prepared_ledger_binding ... ok
+test rule_5_the_ledger_producers_are_exactly_the_section_4_2_list ... FAILED
+test rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams ... ok
+test rule_8_every_accumulation_in_the_listed_files_is_in_the_table ... FAILED
+thread 'rule_5_the_ledger_producers_are_exactly_the_section_4_2_list' (30836) panicked at tests/s11f_site_test.rs:1068:5:
+thread 'rule_8_every_accumulation_in_the_listed_files_is_in_the_table' (30838) panicked at tests/s11f_site_test.rs:1167:5:
+test result: FAILED. 7 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.48s
+error: test failed, to rerun pass `--lib`
+error: test failed, to rerun pass `--test s11f_site_test`
+error: 2 targets failed:

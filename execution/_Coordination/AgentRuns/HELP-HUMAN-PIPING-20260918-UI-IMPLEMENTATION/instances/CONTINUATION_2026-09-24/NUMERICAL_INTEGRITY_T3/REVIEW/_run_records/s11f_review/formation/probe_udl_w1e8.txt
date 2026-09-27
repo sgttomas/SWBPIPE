@@ -1,0 +1,11 @@
+108 |     pub max_absolute_projection_error: f64,
+109 |     pub max_relative_projection_error: f64,
+RV3TERM load:0 3fc999999999999a 0.2
+RV3TERM udl:1 c17fca0555555553 -33333333.333333325
+RV3TERM udl:2 417fca055a000004 33333333.625000015
+RV3FORCE 3fdf777790cccccd 0.4916666902601719
+RV3ROT Captured SparseInteractive 3e586e960caa2c92 2.2754051790793294e-8
+RV3ROT Typed SparseInteractive 3e586e960caa2c92 2.2754051790793294e-8
+RV3ROT Captured DenseScrutiny 3e586e960caa2c92 2.2754051790793294e-8
+RV3ROT Typed DenseScrutiny 3e586e960caa2c92 2.2754051790793294e-8
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 349 filtered out; finished in 0.08s

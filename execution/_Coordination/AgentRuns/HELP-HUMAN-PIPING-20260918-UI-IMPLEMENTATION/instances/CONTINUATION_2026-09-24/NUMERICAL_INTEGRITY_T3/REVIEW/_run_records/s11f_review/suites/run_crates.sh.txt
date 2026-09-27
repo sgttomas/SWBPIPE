@@ -1,0 +1,12 @@
+#!/bin/bash
+# RV3: full test suites of the touched crates and key dependents, one cargo job at a time.
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<scratch>/rv3-target
+L=<scratch>/rv3/logs
+P=<scratch>/rv3-src/projects/chirality-piping
+for c in core/solver/frame_kernel core/solver/nonlinear_integration core/loads/primitive_loads core/solver/sparse_direct core/solver/curved_bend core/solver/straight_pipe core/reporting/result_export core/runner/headless validation/benchmarks/nonlinear validation/benchmarks/mechanics; do
+  n=$(echo $c | tr / _)
+  while pgrep -f 'python[0-9.]* .*run_evidence_swee[p]' >/dev/null; do sleep 20; done
+  (cd $P/$c && cargo test --offline --locked --no-fail-fast > $L/$n.log 2>&1; echo "exit=$?" >> $L/$n.log)
+  echo "$c $(grep -E '^test result' $L/$n.log | awk '{p+=$4; f+=$6; i+=$8} END {print "passed="p" failed="f" ignored="i}') $(tail -1 $L/$n.log)"
+done
+echo ALLDONE

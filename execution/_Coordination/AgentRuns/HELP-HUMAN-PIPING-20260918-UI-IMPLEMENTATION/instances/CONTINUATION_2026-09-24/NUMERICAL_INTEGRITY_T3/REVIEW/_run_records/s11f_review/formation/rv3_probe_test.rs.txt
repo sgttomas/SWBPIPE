@@ -1,0 +1,27 @@
+
+// ---- RV3 probe (scratch only, never committed): the represented terms of
+// RF-CANCEL-UDL-W1e8 at th.S1.RZ's DOF (node S1 = index 1, RZ), and the
+// case force there, printed as bits for an exact Fraction recomputation.
+#[test]
+fn rv3_probe_udl_w1e8_represented_terms() {
+    use open_pipe_stress_frame_kernel::load_ledger::ForceTermKind;
+    let data = rf_cancel_data();
+    let case = data["cases"].as_array().unwrap().iter()
+        .find(|c| c["id"] == json!("RF-CANCEL-UDL-W1e8")).unwrap();
+    let (terms, force) = case_ledger(&case["request"], 0);
+    let dof = DOF_PER_NODE + RZ;
+    for t in terms.iter().filter(|t| t.dof == dof) {
+        match t.kind {
+            ForceTermKind::Term(v) => println!("RV3TERM {} {:016x} {:?}", t.source, v.to_bits(), v),
+            ForceTermKind::Product(a, b) => println!("RV3PROD {} {:016x} {:016x}", t.source, a.to_bits(), b.to_bits()),
+        }
+    }
+    println!("RV3FORCE {:016x} {:?}", force.values()[dof].to_bits(), force.values()[dof]);
+    for mode in MODES {
+        for entry in [Entry::Captured, Entry::Typed] {
+            let env = solved(entry, &case["request"], mode);
+            let r = row_by_id(&env, "case", "result:disp:S1:rz").unwrap();
+            println!("RV3ROT {entry:?} {mode:?} {:016x} {:?}", r.value.to_bits(), r.value);
+        }
+    }
+}

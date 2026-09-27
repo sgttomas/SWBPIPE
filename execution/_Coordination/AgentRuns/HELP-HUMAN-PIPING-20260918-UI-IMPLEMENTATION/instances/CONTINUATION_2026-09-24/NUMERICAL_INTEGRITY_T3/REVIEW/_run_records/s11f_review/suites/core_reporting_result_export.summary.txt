@@ -1,0 +1,22 @@
+     Running unittests src/lib.rs (<scratch>/rv3-target/debug/deps/open_pipe_stress_result_export-0ba01acc4dd86efe)
+test result: ok. 22 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests/derivative_contract.rs (<scratch>/rv3-target/debug/deps/derivative_contract-fcb7797b832ac6d2)
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.69s
+     Running tests/load_reference_contract.rs (<scratch>/rv3-target/debug/deps/load_reference_contract-1a7ee87835f60abf)
+test frozen_inputs_table_and_schema_are_pinned ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.43s
+     Running tests/load_reference_source_contract.rs (<scratch>/rv3-target/debug/deps/load_reference_source_contract-124e49d21e065df4)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 34.83s
+     Running tests/physics_contract.rs (<scratch>/rv3-target/debug/deps/physics_contract-0821aa8deb5de31d)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.04s
+     Running tests/physics_source_contract.rs (<scratch>/rv3-target/debug/deps/physics_source_contract-dc843831a8a60bcc)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.42s
+     Running tests/precision_contract.rs (<scratch>/rv3-target/debug/deps/precision_contract-1699415b108fd2fd)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+     Running tests/preview_physics_contract.rs (<scratch>/rv3-target/debug/deps/preview_physics_contract-fdc7a05ca53abb54)
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.08s
+     Running tests/source_blocks.rs (<scratch>/rv3-target/debug/deps/source_blocks-63922489d9ce967a)
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.27s
+   Doc-tests open_pipe_stress_result_export
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+exit=0

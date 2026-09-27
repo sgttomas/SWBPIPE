@@ -1,0 +1,5 @@
+     Running unittests src/lib.rs (<scratch>/rv3-target/debug/deps/open_pipe_stress_primitive_loads-f9b2f9156227dd37)
+test result: ok. 49 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+   Doc-tests open_pipe_stress_primitive_loads
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+exit=0

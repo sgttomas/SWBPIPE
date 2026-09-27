@@ -1,0 +1,20 @@
+     Running unittests src/lib.rs (<scratch>/rv3-target/debug/deps/open_pipe_stress_frame_kernel-5a7f9b0c95f83e67)
+test structural::s11f_tests::n5_audit_input_error_is_sensitive_never_an_error ... ok
+test structural::s11f_tests::n5_audited_rows_are_bit_identical_to_the_s11k_audit ... ok
+test structural::s11f_tests::n5_unauditable_ledger_row_is_sensitive_never_an_error ... ok
+test structural::s11k_tests::option_c_binary64_variants_keep_todays_fold_on_probe_p ... ok
+test structural::s11k_tests::option_c_public_original_residual_stays_binary64_on_coupled_rows ... ok
+test result: ok. 130 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.56s
+     Running tests/s11_site_table.rs (<scratch>/rv3-target/debug/deps/s11_site_table-8c5460704b81ada2)
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+   Doc-tests open_pipe_stress_frame_kernel
+test src/structural.rs - structural::AssembledStructuralSystem (line 40) - compile fail ... ok
+test src/lib.rs - reduce_assembled_system (line 891) - compile fail ... ok
+test src/lib.rs - reduce_assembled_system_with_prescribed_displacements (line 920) - compile fail ... ok
+test src/structural.rs - structural::finish_structural (line 1554) - compile fail ... ok
+test src/lib.rs - reduce_assembled_system (line 881) ... ok
+test src/structural.rs - structural::AssembledStructuralSystem (line 46) ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+exit=0

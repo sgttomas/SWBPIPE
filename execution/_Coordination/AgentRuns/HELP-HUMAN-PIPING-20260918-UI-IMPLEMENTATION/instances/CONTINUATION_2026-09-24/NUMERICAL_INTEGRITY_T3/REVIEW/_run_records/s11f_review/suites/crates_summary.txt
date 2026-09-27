@@ -1,0 +1,11 @@
+core/solver/frame_kernel passed=139 failed=0 ignored=0 exit=0
+core/solver/nonlinear_integration passed=74 failed=0 ignored=0 exit=0
+core/loads/primitive_loads passed=49 failed=0 ignored=0 exit=0
+core/solver/sparse_direct passed=25 failed=0 ignored=0 exit=0
+core/solver/curved_bend passed=25 failed=0 ignored=0 exit=0
+core/solver/straight_pipe passed=39 failed=0 ignored=0 exit=0
+core/reporting/result_export passed=91 failed=0 ignored=0 exit=0
+core/runner/headless passed=83 failed=0 ignored=0 exit=0
+validation/benchmarks/nonlinear passed=19 failed=0 ignored=0 exit=0
+validation/benchmarks/mechanics passed=41 failed=0 ignored=0 exit=0
+ALLDONE

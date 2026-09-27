@@ -1,0 +1,5 @@
+     Running unittests src/lib.rs (<scratch>/rv3-target/debug/deps/open_pipe_stress_sparse_direct-a863f5e42fee7f49)
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+   Doc-tests open_pipe_stress_sparse_direct
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+exit=0

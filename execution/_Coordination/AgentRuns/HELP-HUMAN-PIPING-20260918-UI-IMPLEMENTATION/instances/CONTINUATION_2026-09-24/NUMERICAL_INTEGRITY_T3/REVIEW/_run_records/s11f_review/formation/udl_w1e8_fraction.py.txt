@@ -1,0 +1,12 @@
+"""RV3: exact (Fraction) recomputation of RF-CANCEL-UDL-W1e8 th.S1.RZ (terms from probe_udl_w1e8.txt)."""
+from fractions import Fraction as F
+import math
+t = [float.fromhex('0x1.999999999999ap-3'), float.fromhex('-0x1.fca0555555553p+24'), float.fromhex('0x1.fca055a000004p+24')]
+net = sum(F(x) for x in t); print('correctly rounded net', repr(float(net)))
+f = 0.0
+for x in t: f += x
+print('binary64 fold in push order', repr(f))
+exp = F('2.275405069889944947747441610685845536501e-8'); scale = F('2.275405069889944947747442e-8')
+for label, obs in [('candidate', 2.2754051790793294e-08), ('base', 2.2754051756312433e-08)]:
+    print(label, obs, 'ratio', float(abs(F(obs) - exp) / (F(1, 10**9) * max(abs(exp), scale))))
+print('intended net 59/120 =', float(F(59, 120)))

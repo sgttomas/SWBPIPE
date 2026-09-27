@@ -1,0 +1,6 @@
+Python (DEC-025 venv, Python 3.11.15), run in <scratch>/rv3-src/projects/chirality-piping with the scratch authority targets:
+- pytest tests/test_load_reference_readers.py: 239 passed, 1 skipped (57.5 s)  [FROZEN hash pins, analysis_run carriers]
+- pytest tests/test_physics_consumer_contract.py tests/test_physics_source_contract.py tests/test_stress_neutral_physics_source.py tests/test_load_reference_source_readers.py: 367 passed, 4 skipped (341 s)
+- T1 cp3_stress_neutral_outputs.py . --check: exit 0 (producers/cp3_check.json)
+- T1 t1_joined_stress_neutral_outputs.py . --check: exit 0 (producers/t1_joined_check.json)
+Authority targets: built in the scratch worktree with tools/serialization/build_checked_json.py and tools/units/build_units_authority.py (removed with the scratch worktree).
