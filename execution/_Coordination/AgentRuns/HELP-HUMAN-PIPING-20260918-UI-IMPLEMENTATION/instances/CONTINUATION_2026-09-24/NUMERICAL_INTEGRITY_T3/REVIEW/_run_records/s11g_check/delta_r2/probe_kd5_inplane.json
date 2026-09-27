@@ -1,0 +1,26 @@
+{
+ "RF-CANCEL-F-G1e80-GnG-INPLANE dense": {
+  "outcome": "Passed",
+  "worst_row": "N1.RZ",
+  "two_EF_over_criterion": 2.457030647731598e-06,
+  "fires": false
+ },
+ "RF-CANCEL-F-G1e80-GnG-INPLANE sparse": {
+  "outcome": "Passed",
+  "worst_row": "N2.RZ",
+  "two_EF_over_criterion": 3.2004380719647735e-06,
+  "fires": false
+ },
+ "RF-CANCEL-M-G1e80-GnG-INPLANE dense": {
+  "outcome": "Passed",
+  "worst_row": "N1.RZ",
+  "two_EF_over_criterion": 1.261710771761722e-06,
+  "fires": false
+ },
+ "RF-CANCEL-M-G1e80-GnG-INPLANE sparse": {
+  "outcome": "Passed",
+  "worst_row": "N2.RZ",
+  "two_EF_over_criterion": 3.120229331972958e-06,
+  "fires": false
+ }
+}

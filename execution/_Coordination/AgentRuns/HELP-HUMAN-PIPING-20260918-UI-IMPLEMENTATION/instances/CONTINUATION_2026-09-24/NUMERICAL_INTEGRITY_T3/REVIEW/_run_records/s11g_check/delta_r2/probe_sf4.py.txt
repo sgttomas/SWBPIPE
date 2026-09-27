@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""V1 S11G_CHECK delta: SF-4's per-row floor, 2^-10 * sum |self-equilibrated formed terms| (standard library).
+
+Usage: nice -n 19 python3 <this> <out.json>
+
+1. V1's collinear straight runs (thermal) and a pressure-thrust run: silent with the floor.
+2. Counterexample search: a row whose NON-self-equilibrated formed terms carry a real formation defect
+   (a UDL-W1e8-type fixed-end cancellation) at which two self-equilibrated thermal terms also meet and
+   cancel. The thermal pair raises the floor and hides the UDL defect.
+   Model: S0 (0,0,0) and S2 (5,0,0) anchored; S1 (3,0,0) translations free, rotations restrained;
+   S3 (3,-2,0) and S4 (3,2,0) anchored. A: S0->S1 (L = 3), uniform q_A along global y. B: S1->S2 (L = 2),
+   uniform q_B along global y. C: S3->S1 and D: S1->S4 (along y, L = 2), thermal axial_load N each.
+   Nodal input n0 at S1.UY. Only S1.UY is loaded among the free rows; rotations are restrained, so the
+   free-row S* is |n| and S1.UY is the body's only moving DOF: the published displacement's relative error
+   equals the load row's relative error E/n (plus ordinary solve noise).
+   SP terms follow spanned_uniform_equivalent_terms (b = 1, a = 0): transverse_j = (q*L)*0.5 and
+   transverse_i = (q*L)*0.5 (the local sign flips of the frame are exact). Thermal: +-fl(N*x), x = (0,1,0).
+3. The split rule V1 proposes: floor applied only to the self-equilibrated defect component,
+   i.e. fire if |E_nonSE| + B > 1e-9 max(|n|, S*) or |E_SE| > 1e-9 max(|n|, S*, 2^-10 P).
+4. A self-equilibrated-only junction with a genuine small net (two collinear skew thermal members with
+   N1 != N2): what any noise-silencing floor hides.
+"""
+import json, math, sys
+from fractions import Fraction as Fr
+
+U = 2.0 ** -53
+C = Fr(1, 10 ** 9)
+
+
+def frame_x(xi, xj):
+    d = [xj[k] - xi[k] for k in range(3)]
+    s = 1.0 / math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])
+    return [d[0] * s, d[1] * s, d[2] * s]
+
+
+def decide(rows_free, rows_all_key):
+    """rows_free: {key: [(value, intended, self_eq)]}. Returns worst stat/threshold per rule."""
+    nets = {k: sum(i for _, i, _ in v) for k, v in rows_free.items()}
+    F = max(abs(n) for n in nets.values())
+    Sf = F  # translational free rows only in these probes (no free moment rows)
+    out = {}
+    for k, v in rows_free.items():
+        Ese = sum(Fr(t) - i for t, i, se in v if se)
+        Enon = sum(Fr(t) - i for t, i, se in v if not se)
+        P = sum(abs(Fr(t)) for t, _, se in v if se)
+        T0 = C * max(abs(nets[k]), Sf)
+        Tf = C * max(abs(nets[k]), Sf, P / 1024)
+        E = Ese + Enon
+        out[k] = {"E_nonSE": float(Enon), "E_SE": float(Ese), "net": float(nets[k]), "P": float(P),
+                  "no_floor": float(abs(E) / T0) if T0 else (math.inf if E else 0.0),
+                  "d1_floor": float(abs(E) / Tf) if Tf else (math.inf if E else 0.0),
+                  "split_rule": max(float(abs(Enon) / T0) if T0 else (math.inf if Enon else 0.0),
+                                    float(abs(Ese) / Tf) if Tf else (math.inf if Ese else 0.0))}
+    return out
+
+
+def collinear(end, stations, N, family):
+    pts = [[round(float(Fr(str(t)) * Fr(str(e))), 6) for e in end] for t in stations]
+    rows = {}
+    for a in range(len(pts) - 1):
+        x = frame_x(pts[a], pts[a + 1])
+        for node, sg in ((a, -1.0), (a + 1, 1.0)):
+            for k in range(3):
+                rows.setdefault((node, k), []).append((sg * (N * x[k]), Fr(sg) * Fr(N) * Fr(x[k]), True))
+    free = {k: v for k, v in rows.items() if 0 < k[0] < len(pts) - 1}
+    r = decide(free, None)
+    return {"family": family, "end": end, "stations": stations, "N": N,
+            "worst": {rule: max(v[rule] for v in r.values()) for rule in ("no_floor", "d1_floor", "split_rule")}}
+
+
+def counterexample(qA, qB, n0, N):
+    tA = (qA * 3.0) * 0.5
+    tB = (qB * 2.0) * 0.5
+    row = [(n0, Fr(n0), False),                      # nodal input (zero defect)
+           (tA, Fr(qA) * 3 / 2, False),              # A transverse_j, formed (Exact family)
+           (tB, Fr(qB), False),                      # B transverse_i
+           (N * 1.0, Fr(N), True), (-(N * 1.0), -Fr(N), True)]  # C j-end, D i-end thermal (self-equilibrated)
+    r = decide({("S1", "UY"): row}, None)[("S1", "UY")]
+    r.update({"qA": qA, "qB": qB, "n0": n0, "N": N,
+              "published_displacement_relative_error_over_criterion": abs(r["E_nonSE"] / r["net"]) / 1e-9})
+    return r
+
+
+def se_only_junction(N1, N2):
+    # collinear skew members with identical held direction cosines, meeting at a free node
+    x = frame_x([0.0, 0.0, 0.0], [3.0, 1.7, 0.4])
+    row = []
+    for k in range(3):
+        pass
+    rows = {}
+    for k in range(3):
+        rows[("J", k)] = [(N1 * x[k], Fr(N1) * Fr(x[k]), True), (-(N2 * x[k]), -Fr(N2) * Fr(x[k]), True)]
+    r = decide(rows, None)
+    worst = max(r, key=lambda k: r[k]["no_floor"])
+    v = r[worst]
+    v.update({"N1": N1, "N2": N2, "load_relative_error_over_criterion": abs(v["E_SE"] / v["net"]) / 1e-9})
+    return v
+
+
+out = {"collinear": [collinear((12.0, 5.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1), 1.296e6, "thermal"),
+                     collinear((10.0, 3.7, 2.2), (0, 0.3, 0.55, 0.7, 1), 1.296e6, "thermal"),
+                     collinear((9.0, 0.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1), 1.296e6, "thermal"),
+                     collinear((12.0, 5.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1), 2e6 * math.pi * 0.09 ** 2, "pressure thrust")],
+       "counterexample": [counterexample(100000000.1, -150000000.15, 1e-3, 1e6),
+                          counterexample(100000000.1, -150000000.15, 1e-3, 1e4),
+                          counterexample(12345678.9, -18518518.35, 1e-2, 5e5)],
+       "se_only_junction": se_only_junction(1000000.0, 999999.999)}
+json.dump(out, open(sys.argv[1], "w"), indent=1)
+print(json.dumps(out, indent=1))

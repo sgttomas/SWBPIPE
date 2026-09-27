@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""V1 S11G_CHECK delta: R-b and R-b' over every committed result envelope, written independently of D1's
+s11g_rb_forecast.py (standard library only; nothing imported from D1).
+
+Usage (from T3/): nice -n 19 python3 <this> <v1_dir> <P> <out.json>
+<v1_dir> holds V1's probe_d5_check.py (binary64 FK frame and local stiffness emulation). <P> is the project root.
+
+For each committed JSON object with a `results` list and `numerical_quality` (a result envelope), the
+committed solving model (`load_cases` + `pipe_segments`) whose node ids cover the envelope's nodal rows is
+paired with it (same project id first, then the nearest directory). Per case (basis_ref), per straight
+pipe end with both published bending rows:
+  q = hypot(My, Mz) published; u = published global nodal displacements and rotations (mm converted);
+  B = gamma_16 * sum over the two bending rows of sum_k |K_loc[row][k]| * sum_c |T_kc| |u_c|
+      (K_loc from the model's section and material, FK frame from the pipe's y_reference);
+  S*_moment = max(largest published moment-kind row, L_b * largest published force-kind row) of the case;
+  R-b: B > 1e-9 q and q > 2^10 B;  R-b': R-b and q >= 2^-34 S*_moment.
+Also listed: every end with B > 1e-12 q (within 10^3 of R-b's first clause) and q > 16 B.
+"""
+import collections
+import json
+import math
+import os
+import sys
+
+sys.path.insert(0, sys.argv[1])
+import probe_d5_check as p  # noqa: E402
+
+U = 2.0 ** -53
+G16 = 16 * U / (1 - 16 * U)
+FLOOR = 2.0 ** -34
+SKIP = {"execution", "node_modules", "target", ".git", "schemas"}
+UNIT = {"m": 1.0, "mm": 1e-3, "Pa": 1.0, "kPa": 1e3, "MPa": 1e6, "GPa": 1e9, "N": 1.0, "kN": 1e3}
+DISP = {"global_nodal_displacement_x": 0, "global_nodal_displacement_y": 1, "global_nodal_displacement_z": 2,
+        "global_nodal_rotation_x": 3, "global_nodal_rotation_y": 4, "global_nodal_rotation_z": 5}
+
+
+def objects(o, pred, depth=0):
+    if depth > 5:
+        return
+    if isinstance(o, dict):
+        if pred(o):
+            yield o
+            return
+        for v in o.values():
+            yield from objects(v, pred, depth + 1)
+    elif isinstance(o, list):
+        for v in o:
+            yield from objects(v, pred, depth + 1)
+
+
+def val(q):
+    return float(q["value"]) * UNIT[q.get("unit", "m")]
+
+
+def main():
+    root = sys.argv[2]
+    docs = []
+    for dp, dn, fn in os.walk(root):
+        dn[:] = sorted(d for d in dn if d not in SKIP)
+        for f in sorted(fn):
+            if f.endswith(".json"):
+                path = os.path.join(dp, f)
+                if os.path.getsize(path) > 30 * 2 ** 20:
+                    continue
+                try:
+                    docs.append((os.path.relpath(path, root), json.load(open(path))))
+                except Exception:
+                    pass
+    models = [(rp, m, d) for rp, d in docs for m in objects(d, lambda o: isinstance(o.get("load_cases"), list) and "pipe_segments" in o)]
+    out = {"envelopes": 0, "case_envelopes": 0, "end_rows": 0, "skipped": [], "R_b": [], "R_b_prime": [], "near": [], "per_case": []}
+    for rp, d in docs:
+        for env in objects(d, lambda o: isinstance(o.get("results"), list) and "numerical_quality" in o):
+            out["envelopes"] += 1
+            res = env["results"]
+            nodes = {r.get("entity_ref") for r in res if r.get("kind") in DISP}
+            if not nodes:
+                out["skipped"].append([rp, "no nodal rows"])
+                continue
+            cands = [(mp, m, md) for mp, m, md in models
+                     if nodes <= {n["id"] for n in m.get("nodes", [])} and all("position" in n for n in m.get("nodes", []))]
+            if not cands:
+                out["skipped"].append([rp, "no model with positions"])
+                continue
+            same = [c for c in cands if (c[1].get("project") or {}).get("id") == env.get("model_ref")]
+            cands = same or cands
+            cands.sort(key=lambda c: -len(os.path.commonprefix([os.path.dirname(c[0]), os.path.dirname(rp)])))
+            mp, m, md = cands[0]
+            pos = {n["id"]: [float(n["position"][k]) for k in "xyz"] for n in m["nodes"]}
+            mats = {x["id"]: x for x in (m.get("materials") or md.get("materials") or [])}
+            curved = {(c.get("geometry") or {}).get("bend_pipe_ref") for c in (m.get("components") or [])}
+            ext = [max(v[k] for v in pos.values()) - min(v[k] for v in pos.values()) for k in range(3)]
+            Lb = math.sqrt(sum(e * e for e in ext))
+            cases = collections.defaultdict(list)
+            for r in res:
+                br = r.get("basis_ref") or {}
+                if br.get("ref_id"):
+                    cases[br["ref_id"]].append(r)
+            quality = {(c.get("basis_ref") or {}).get("ref_id"): c.get("solve_quality")
+                       for c in (env["numerical_quality"].get("cases") or [])}
+            for case, rows in sorted(cases.items()):
+                u = collections.defaultdict(lambda: [None] * 6)
+                mom = collections.defaultdict(dict)
+                smom = sforce = 0.0
+                for r in rows:
+                    k, unit, v = r.get("kind"), r.get("unit"), r.get("value")
+                    if not isinstance(v, (int, float)):
+                        continue
+                    if k in DISP:
+                        u[r["entity_ref"]][DISP[k]] = v * (1e-3 if unit == "mm" else 1.0)
+                    if k in ("element_local_bending_moment_y", "element_local_bending_moment_z"):
+                        mom[(r["entity_ref"], (r.get("metadata") or {}).get("location"))][k[-1]] = v
+                    if unit == "N*m":
+                        smom = max(smom, abs(v))
+                    elif unit == "N":
+                        sforce = max(sforce, abs(v))
+                sstar = max(smom, Lb * sforce)
+                n_ends = 0
+                for pp in m["pipe_segments"]:
+                    if pp["id"] in curved:
+                        continue
+                    a, b = pp["from"], pp["to"]
+                    if None in u[a] or None in u[b]:
+                        continue
+                    mat = mats.get(pp.get("material"), {})
+                    E = val(mat["elastic_modulus"])
+                    G = val(mat["shear_modulus"]) if "shear_modulus" in mat else E / (2 * (1 + float((mat.get("poisson_ratio") or {}).get("value", 0.3))))
+                    od = val(pp["section"]["outside_diameter"])
+                    t = val(pp["section"]["wall_thickness"])
+                    sec = p.section(od, od - 2 * t, E, G)
+                    yr = pp.get("y_reference") or {"x": 0.0, "y": 0.0, "z": 1.0}
+                    yref = [float(yr[k]) for k in "xyz"]
+                    dvec = [pos[b][k] - pos[a][k] for k in range(3)]
+                    Ld = math.sqrt(sum(x * x for x in dvec))
+                    if abs(sum(yref[k] * dvec[k] for k in range(3))) / Ld > 0.999999:
+                        yref = [0.0, 1.0, 0.0] if abs(dvec[2]) / Ld > 0.9 else [0.0, 0.0, 1.0]
+                    R, L = p.product_frame(pos[a], pos[b], yref)
+                    K = p.local_K(sec, L)
+                    ue = u[a] + u[b]
+                    tabs = [sum(abs(R[r][c]) * abs(ue[3 * blk + c]) for c in range(3)) for blk in range(4) for r in range(3)]
+                    for end, rws in (("i", (4, 5)), ("j", (10, 11))):
+                        mm = mom.get((pp["id"], "end_" + end))
+                        if not mm or "y" not in mm or "z" not in mm:
+                            continue
+                        n_ends += 1
+                        q = math.hypot(mm["y"], mm["z"])
+                        B = G16 * sum(abs(K[rw][k]) * tabs[k] for rw in rws for k in range(12))
+                        rb = B > 1e-9 * q and q > 1024 * B
+                        rec = {"envelope": rp, "model": mp, "case": case, "quality": quality.get(case), "pipe": pp["id"], "end": end,
+                               "q": q, "B": B, "S_star_moment": sstar, "above_floor": q >= FLOOR * sstar}
+                        if rb:
+                            out["R_b"].append(rec)
+                            if q >= FLOOR * sstar:
+                                out["R_b_prime"].append(rec)
+                        elif q and B > 1e-12 * q and q > 16 * B:
+                            out["near"].append(rec)
+                if n_ends:
+                    out["case_envelopes"] += 1
+                    out["end_rows"] += n_ends
+                    out["per_case"].append([rp, case, n_ends])
+    json.dump(out, open(sys.argv[3], "w"), indent=1)
+    print(json.dumps({k: (v if not isinstance(v, list) or k in ("R_b", "R_b_prime") else len(v)) for k, v in out.items()}, indent=1))
+
+
+if __name__ == "__main__":
+    main()

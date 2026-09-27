@@ -1,0 +1,14 @@
+"""RV3: callers of the kernel seams S11-F switched to or narrowed (run inline from the scratch directory;
+reuses only the lexer/helper definitions of rv3_callers.py, i.e. everything above '# 1. changed functions').
+Receivers of `solve(` are filtered to AssemblyEvidence-like bindings (assembly., evidence., audited., AssemblyEvidence::, self., a.)."""
+import re, json, subprocess, sys
+sys.argv = ['x', '<wt>/s11f', 'f0a6159c9', '11ae0667f']
+exec(open('rv3_callers.py').read().split('# 1. changed functions')[0])
+head = '11ae0667f'
+names = ['solve','solve_assembled','solve_binary64','global_load_vector','evaluate_original_residual',
+ 'solve_active_set_frame_with_mode_and_springs_assembled','solve_active_set_frame_with_mode_and_springs',
+ 'solve_active_set_frame_assembled','reduce_assembled_system','reduce_assembled_system_with_prescribed_displacements',
+ 'reduce_system','reduce_system_with_prescribed_displacements','reduce_system_with_prescribed_displacements_binary64',
+ 'solve_structural_dense','solve_structural_sparse','prepare_structural','arc_section_resultant_terms',
+ 'equivalent_nodal_load_terms_with_spans','arc_section_resultants_with_radial_pressure']
+# ... per-file scan identical to rv3_callers.py step 2, output rv3_callers_seams.json (kind, file, line, receiver, enclosing fn)

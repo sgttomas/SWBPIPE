@@ -1,0 +1,9 @@
+EV5 (RV3): delete the Sensitive mapping call in solve_load_case (core/product_physics/src/lib.rs), applied to a scratch copy <ev5-copy> of core/, fixtures/, schemas/, validation/ at the S1 candidate.
+diff <wt>/.../lib.rs <ev5-copy>/.../lib.rs:
+2796,2798c2796,2797
+<             if let Some(report) = &linear.load_fidelity {
+<                 append_load_contribution_absorbed(diagnostics, &load_case.id, report);
+<             }
+---
+>             // MUTANT EV5 (RV3): the Sensitive mapping call deleted.
+>             let _ = &linear.load_fidelity;

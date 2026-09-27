@@ -1,0 +1,4264 @@
+{
+ "python": "3.11.15",
+ "part_c_committed_envelopes": [
+  {
+   "envelope": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
+   "model": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
+   "case": "case:join",
+   "solve_quality": "sensitive",
+   "S_star_moment": 179076.5115196184,
+   "ends": 2,
+   "R_b": [
+    {
+     "pipe": "member",
+     "end": "i",
+     "q": 2.000000000002531e-06,
+     "B": 3.4544965732855024e-11,
+     "My": 1.999999999999998e-06,
+     "Mz": 3.183231456205249e-12,
+     "R_b": true,
+     "R_b_prime": false,
+     "above_floor": false,
+     "B_over_1e9q": 17272.482866405655,
+     "q_over_B": 57895.5560549412
+    }
+   ],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
+   "model": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
+   "case": "case:join",
+   "solve_quality": "sensitive",
+   "S_star_moment": 179076.5115196184,
+   "ends": 2,
+   "R_b": [
+    {
+     "pipe": "member",
+     "end": "i",
+     "q": 2.0000000000000025e-06,
+     "B": 3.4544965732855044e-11,
+     "My": 1.999999999999999e-06,
+     "Mz": 1.1368683772161603e-13,
+     "R_b": true,
+     "R_b_prime": false,
+     "above_floor": false,
+     "B_over_1e9q": 17272.4828664275,
+     "q_over_B": 57895.55605486797
+    }
+   ],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json",
+   "skipped": "no committed model with node positions (synthetic receipt control)"
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+   "model": "fixtures/product_preview/invented_preview_model.json",
+   "case": "combination:C-OPER-ALT",
+   "solve_quality": null,
+   "S_star_moment": 6981.079356331294,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+   "model": "fixtures/product_preview/invented_preview_model.json",
+   "case": "load:L-100",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5584.863485065035,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_precision_1_dense.json",
+   "model": "fixtures/product_preview/invented_preview_model.json",
+   "case": "load:L-200",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 2792.4317425325166,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+   "model": "fixtures/product_preview/invented_preview_model.json",
+   "case": "combination:C-OPER-ALT",
+   "solve_quality": null,
+   "S_star_moment": 6981.079356332385,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+   "model": "fixtures/product_preview/invented_preview_model.json",
+   "case": "load:L-100",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5584.863485065908,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json",
+   "model": "fixtures/product_preview/invented_preview_model.json",
+   "case": "load:L-200",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 2792.431742532954,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_dense.json",
+   "skipped": "no nodal displacement rows"
+  },
+  {
+   "envelope": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
+   "skipped": "no nodal displacement rows"
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference/connected.request.json",
+   "case": "case:cold",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 597150.5355188128,
+   "ends": 4,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference/connected.request.json",
+   "case": "case:hot",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 2344470.2450600425,
+   "ends": 4,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference/connected.request.json",
+   "case": "case:cold",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 597150.5355188131,
+   "ends": 4,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference/connected.request.json",
+   "case": "case:hot",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 2344470.2450600425,
+   "ends": 4,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference/pressure.request.json",
+   "case": "case:cold-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 30536.280592892796,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference/pressure.request.json",
+   "case": "case:hot-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 1417109.614181284,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference/pressure.request.json",
+   "case": "case:cold-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 30536.280592892796,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference/pressure.request.json",
+   "case": "case:hot-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 1417109.614181284,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/eigen_motion.request.json",
+   "case": "case:join",
+   "solve_quality": "sensitive",
+   "S_star_moment": 179076.5115196184,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/eigen_motion-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/eigen_motion.request.json",
+   "case": "case:join",
+   "solve_quality": "sensitive",
+   "S_star_moment": 179076.5115196184,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/fields-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/fields.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 0.0074833147735478825,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/fields-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/fields.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 0.0074833147735478825,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/mixed-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/mixed.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/mixed-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/mixed.request.json",
+   "case": "case:ordinary-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5.089380098815466e-07,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/mixed.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/mixed.request.json",
+   "case": "case:ordinary-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5.089380098815466e-07,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/n05-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/n05.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/n05.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/n06-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/n06.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/load_reference_source/n06-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/load_reference_source/n06.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/fields-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/fields.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 0.0074833147735478825,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/fields-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/fields.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 0.0074833147735478825,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed.request.json",
+   "case": "case:ordinary-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5.089380098815466e-07,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed.request.json",
+   "case": "case:ordinary-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5.089380098815466e-07,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed_units.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed_units-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed_units.request.json",
+   "case": "case:ordinary-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5.089380098815466e-07,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed_units.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/mixed_units.request.json",
+   "case": "case:ordinary-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5.089380098815466e-07,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n05-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/n05.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/n05.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n05_unicode-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/n05_unicode.request.json",
+   "case": "case:\u6e29\u5ea6:\u03b1",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n05_unicode-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/n05_unicode.request.json",
+   "case": "case:\u6e29\u5ea6:\u03b1",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n05_units-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/n05_units.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n05_units-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/n05_units.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n06-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/physics_source/n06.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/physics_source/n06-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/physics_source/n06.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+   "case": "case:signed-companion",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1999.9999999999998,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+   "case": "case:signed-companion",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1999.9999999999998,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/n05-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/n05-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/n05-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/n06-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/n06-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/n06-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/n06-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 2e-282,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 2e-282,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+   "case": "case:signed-companion",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1999.9999999999998,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+   "case": "case:signed-companion",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1999.9999999999998,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "sensitive",
+   "S_star_moment": 1e-08,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.raw.json",
+   "model": "fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.request.json",
+   "case": "case",
+   "solve_quality": "unresolved",
+   "S_star_moment": 9.999999999999999e-17,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_mechanics_dense.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:closed-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 15707.963267948964,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_mechanics_dense.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.657386773939,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_mechanics_sparse.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:closed-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 15707.963267948962,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_mechanics_sparse.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.6573867739435,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_ui_mechanics_dense.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:closed-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 15707.963267948964,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_ui_mechanics_dense.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.657386773939,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_ui_mechanics_sparse.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:closed-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 15707.963267948962,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_connected_ui_mechanics_sparse.json",
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.6573867739435,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_thermal_ui_mechanics_dense.json",
+   "model": "fixtures/model_operations/physics_thermal_ui_model.json",
+   "case": "case:closed-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 15707.963267948897,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_thermal_ui_mechanics_dense.json",
+   "model": "fixtures/model_operations/physics_thermal_ui_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.657386773939,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_thermal_ui_mechanics_sparse.json",
+   "model": "fixtures/model_operations/physics_thermal_ui_model.json",
+   "case": "case:closed-pressure",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 15707.963267948955,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/physics_thermal_ui_mechanics_sparse.json",
+   "model": "fixtures/model_operations/physics_thermal_ui_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.6573867739435,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/precision_connected_ui_mechanics_dense.json",
+   "model": "fixtures/model_operations/precision_connected_ui_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3000.0,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/precision_connected_ui_mechanics_sparse.json",
+   "model": "fixtures/model_operations/precision_connected_ui_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3000.0,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_connected_dense.json",
+   "model": "fixtures/model_operations/precision_connected_ui_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.6573867739417,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_connected_sparse.json",
+   "model": "fixtures/model_operations/precision_connected_ui_model.json",
+   "case": "case:six-component-load",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 3741.6573867739417,
+   "ends": 2,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_invented_dense.json",
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-100",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5564.606785440776,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_invented_dense.json",
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-200",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 2782.303392720388,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_invented_sparse.json",
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-100",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 5564.606785437777,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_invented_sparse.json",
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "case": "load:L-200",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 2782.3033927188885,
+   "ends": 8,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_unicode_ids_sparse.json",
+   "model": "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
+   "case": "combination:\u03a3",
+   "solve_quality": null,
+   "S_star_moment": 1581.1388300841897,
+   "ends": 4,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_unicode_ids_sparse.json",
+   "model": "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
+   "case": "load:\u00e9",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 1414.2135623730978,
+   "ends": 4,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  },
+  {
+   "envelope": "fixtures/results/preview_physics_unicode_ids_sparse.json",
+   "model": "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
+   "case": "load:\ud835\udd2b",
+   "solve_quality": "checks_passed",
+   "S_star_moment": 707.1067811865476,
+   "ends": 4,
+   "R_b": [],
+   "R_b_prime": [],
+   "near": []
+  }
+ ],
+ "part_e_committed_models_emulated": [
+  {
+   "model": "apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json",
+   "copies": [
+    "apps/desktop/e2e/ui-foundation/fixtures/precision-origin-base.model.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json",
+   "copies": [
+    "apps/desktop/e2e/ui-foundation/fixtures/precision-origin-translated.model.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json",
+   "copies": [
+    "apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json"
+   ],
+   "skipped": "not solved by any committed path (analysis_status.mechanics = not_run_generated_ui_workload)"
+  },
+  {
+   "model": "apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json",
+   "copies": [
+    "apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-10000.model.json"
+   ],
+   "skipped": "not solved by any committed path (analysis_status.mechanics = not_run_generated_ui_workload)"
+  },
+  {
+   "model": "core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+   "copies": [
+    "core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json"
+   ],
+   "cases": [
+    {
+     "case": "case:weight",
+     "S_star_moment": 61.58406743523141,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "core/product_physics/tests/fixtures/exact_pressure_connected_request.json",
+   "copies": [
+    "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"
+   ],
+   "cases": [
+    {
+     "case": "case:closed-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    },
+    {
+     "case": "case:six-component-load",
+     "S_star_moment": 3000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "core/product_physics/tests/fixtures/preview_physics_invented_model.json",
+   "copies": [
+    "core/product_physics/tests/fixtures/preview_physics_invented_model.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-100",
+     "not_emulated": "nonlinear support family nonlinear"
+    },
+    {
+     "case": "load:L-200",
+     "not_emulated": "nonlinear support family nonlinear"
+    }
+   ]
+  },
+  {
+   "model": "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json",
+   "copies": [
+    "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:\u00e9",
+     "not_emulated": "support family constant_effort_support"
+    },
+    {
+     "case": "load:\ud835\udd2b",
+     "not_emulated": "support family constant_effort_support"
+    }
+   ]
+  },
+  {
+   "model": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
+   "copies": [
+    "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:join",
+     "not_emulated": "nonlinear support family line_stop"
+    }
+   ]
+  },
+  {
+   "model": "core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json",
+   "copies": [
+    "core/reporting/result_export/tests/fixtures/source_blocks_statement_control.json"
+   ],
+   "skipped": "no node positions (synthetic receipt control)"
+  },
+  {
+   "model": "fixtures/model_operations/exact_pressure_authoring_model.json",
+   "copies": [
+    "fixtures/model_operations/exact_pressure_authoring_model.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:closed-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    },
+    {
+     "case": "case:six-component-load",
+     "S_star_moment": 3000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/physics_thermal_ui_model.json",
+   "copies": [
+    "fixtures/model_operations/physics_thermal_ui_model.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:closed-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    },
+    {
+     "case": "case:six-component-load",
+     "S_star_moment": 3000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/precision_connected_ui_model.json",
+   "copies": [
+    "fixtures/model_operations/precision_connected_ui_model.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:six-component-load",
+     "S_star_moment": 3000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json",
+    "fixtures/model_operations/contract_corpus/case_02_accept_set_field_element_material_ref.json",
+    "fixtures/model_operations/contract_corpus/case_03_accept_update_load_status_text.json",
+    "fixtures/model_operations/contract_corpus/case_04_accept_update_load_primitive_magnitude.json",
+    "fixtures/model_operations/contract_corpus/case_05_accept_update_load_combination_term_factor.json",
+    "fixtures/model_operations/contract_corpus/case_05_accept_update_load_combination_term_factor.json",
+    "fixtures/model_operations/contract_corpus/case_06_accept_update_support_restraints.json",
+    "fixtures/model_operations/contract_corpus/case_07_accept_create_node.json",
+    "fixtures/model_operations/contract_corpus/case_08_accept_connect_pipe_run.json",
+    "fixtures/model_operations/contract_corpus/case_09_accept_create_load_case.json",
+    "fixtures/model_operations/contract_corpus/case_10_accept_create_primitive_load_concentrated_force.json",
+    "fixtures/model_operations/contract_corpus/case_11_accept_create_combination.json",
+    "fixtures/model_operations/contract_corpus/case_11_accept_create_combination.json",
+    "fixtures/model_operations/contract_corpus/case_12_accept_create_combination_term.json",
+    "fixtures/model_operations/contract_corpus/case_12_accept_create_combination_term.json",
+    "fixtures/model_operations/contract_corpus/case_13_accept_delete_combination_term.json",
+    "fixtures/model_operations/contract_corpus/case_13_accept_delete_combination_term.json",
+    "fixtures/model_operations/contract_corpus/case_14_accept_validate_only_node_position.json",
+    "fixtures/model_operations/contract_corpus/case_15_accept_claimed_hash_echo.json",
+    "fixtures/model_operations/contract_corpus/case_16_block_duplicate_id_create_node.json",
+    "fixtures/model_operations/contract_corpus/case_17_block_duplicate_id_create_combination.json",
+    "fixtures/model_operations/contract_corpus/case_18_block_missing_target_set_field.json",
+    "fixtures/model_operations/contract_corpus/case_19_block_missing_target_create_combination_term.json",
+    "fixtures/model_operations/contract_corpus/case_20_block_unit_mismatch_set_field.json",
+    "fixtures/model_operations/contract_corpus/case_21_block_invalid_dimension_set_field.json",
+    "fixtures/model_operations/contract_corpus/case_22_block_stale_before_set_field.json",
+    "fixtures/model_operations/contract_corpus/case_23_block_stale_before_delete_combination_term.json",
+    "fixtures/model_operations/contract_corpus/case_24_block_deferred_component_kind.json",
+    "fixtures/model_operations/contract_corpus/case_25_block_deferred_combination_terms.json",
+    "fixtures/model_operations/contract_corpus/case_26_block_unsupported_field_path.json",
+    "fixtures/model_operations/contract_corpus/case_27_block_unsupported_object_type.json",
+    "fixtures/model_operations/contract_corpus/case_28_block_non_finite_magnitude.json",
+    "fixtures/model_operations/contract_corpus/case_29_block_non_numeric_quantity.json",
+    "fixtures/model_operations/contract_corpus/case_30_block_non_positive_quantity.json",
+    "fixtures/model_operations/contract_corpus/case_31_block_empty_required_text.json",
+    "fixtures/model_operations/contract_corpus/case_32_block_term_factor_dimension_mismatch.json",
+    "fixtures/model_operations/contract_corpus/case_33_block_reference_not_found.json",
+    "fixtures/model_operations/contract_corpus/case_34_block_restraint_token_invalid.json",
+    "fixtures/model_operations/contract_corpus/case_35_block_direct_mutation.json",
+    "fixtures/model_operations/contract_corpus/case_36_block_kind_mismatch.json",
+    "fixtures/model_operations/contract_corpus/case_37_block_unsupported_change_kind.json",
+    "fixtures/model_operations/contract_corpus/case_38_block_missing_intent_fields.json",
+    "fixtures/model_operations/contract_corpus/case_39_block_unit_metadata_missing.json",
+    "fixtures/model_operations/contract_corpus/case_40_block_pipe_endpoint_not_found.json",
+    "fixtures/model_operations/contract_corpus/case_41_block_primitive_load_target_not_found.json",
+    "fixtures/model_operations/contract_corpus/case_42_block_combination_term_duplicate.json",
+    "fixtures/model_operations/contract_corpus/case_43_block_combination_term_load_not_found.json",
+    "fixtures/model_operations/contract_corpus/case_66_accept_set_field_component_bend_radius_authoring.json",
+    "fixtures/model_operations/contract_corpus/case_68_accept_set_field_element_mill_tolerance_zero.json",
+    "fixtures/model_operations/contract_corpus/case_69_accept_update_load_modulus_basis_ref.json",
+    "fixtures/model_operations/contract_corpus/case_70_accept_update_load_wind_exposed_pipe_refs.json",
+    "fixtures/model_operations/contract_corpus/case_71_accept_update_load_seismic_gravity_authoring.json",
+    "fixtures/model_operations/contract_corpus/case_72_block_component_bend_pipe_ref_not_found.json",
+    "fixtures/model_operations/contract_corpus/case_73_block_element_mill_tolerance_negative.json",
+    "fixtures/model_operations/contract_corpus/case_74_block_load_modulus_basis_ref_id_pattern.json",
+    "fixtures/model_operations/contract_corpus/case_75_block_load_wind_direction_enum.json",
+    "fixtures/model_operations/contract_corpus/case_79_block_stale_claimed_model_hash.json",
+    "fixtures/model_operations/contract_corpus/case_80_block_malformed_claimed_model_hash.json",
+    "fixtures/model_operations/contract_corpus/case_81_block_unsupported_claimed_model_hash.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_01_accept_set_field_material_elastic_modulus.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_02_accept_set_field_element_material_ref.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_02_accept_set_field_element_material_ref.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_03_accept_update_load_status_text.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_03_accept_update_load_status_text.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_04_accept_update_load_primitive_magnitude.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_04_accept_update_load_primitive_magnitude.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_06_accept_update_support_restraints.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_06_accept_update_support_restraints.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_07_accept_create_node.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_07_accept_create_node.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_08_accept_connect_pipe_run.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_08_accept_connect_pipe_run.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_09_accept_create_load_case.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_09_accept_create_load_case.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    },
+    {
+     "case": "load:L-2",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_10_accept_create_primitive_load_concentrated_force.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_10_accept_create_primitive_load_concentrated_force.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_15_accept_claimed_hash_echo.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_15_accept_claimed_hash_echo.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_44_block_quantity_object_missing.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_44_block_quantity_object_missing.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_45_accept_create_support.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_45_accept_create_support.json",
+    "fixtures/model_operations/contract_corpus/case_48_accept_delete_support.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_45_accept_create_support.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_45_accept_create_support.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_46_accept_create_material.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_46_accept_create_material.json",
+    "fixtures/model_operations/contract_corpus/case_47_accept_create_section.json",
+    "fixtures/model_operations/contract_corpus/case_47_accept_create_section.json",
+    "fixtures/product_preview/r2_from_blank_rehearsal.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_46_accept_create_material.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_46_accept_create_material.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_48_accept_delete_support.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_48_accept_delete_support.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_49_block_delete_support_referenced.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_49_block_delete_support_referenced.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_50_accept_delete_primitive_load.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_50_accept_delete_primitive_load.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_50_accept_delete_primitive_load.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_50_accept_delete_primitive_load.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_51_accept_delete_combination.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_51_accept_delete_combination.json",
+    "fixtures/model_operations/contract_corpus/case_51_accept_delete_combination.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_52_accept_delete_load_case.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_52_accept_delete_load_case.json",
+    "fixtures/model_operations/contract_corpus/case_53_block_delete_load_case_referenced.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_52_accept_delete_load_case.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_52_accept_delete_load_case.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_54_accept_delete_pipe_run.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_54_accept_delete_pipe_run.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_54_accept_delete_pipe_run.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_54_accept_delete_pipe_run.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_55_block_delete_pipe_run_referenced.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_55_block_delete_pipe_run_referenced.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_56_accept_delete_node.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_56_accept_delete_node.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_56_accept_delete_node.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_56_accept_delete_node.json"
+   ],
+   "skipped": "no member or no load case"
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_57_block_delete_node_referenced.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_57_block_delete_node_referenced.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+    "fixtures/model_operations/contract_corpus/case_58_accept_create_combination_subtraction.json",
+    "fixtures/model_operations/contract_corpus/case_59_accept_create_combination_range_envelope.json",
+    "fixtures/model_operations/contract_corpus/case_59_accept_create_combination_range_envelope.json",
+    "fixtures/model_operations/contract_corpus/case_60_block_create_combination_subtraction_wrong_shape.json",
+    "fixtures/model_operations/contract_corpus/case_61_block_create_combination_range_wrong_shape.json",
+    "fixtures/model_operations/contract_corpus/case_62_block_create_combination_range_mode_unknown.json",
+    "fixtures/model_operations/contract_corpus/case_63_block_create_combination_missing_operand_ref.json",
+    "fixtures/model_operations/contract_corpus/case_64_block_update_combination_basis_unsupported.json",
+    "fixtures/model_operations/contract_corpus/case_65_block_update_combination_basis_shape_mismatch.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    },
+    {
+     "case": "load:L-2",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_66_accept_set_field_component_bend_radius_authoring.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_66_accept_set_field_component_bend_radius_authoring.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_67_accept_set_field_component_expansion_joint_stiffness.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_67_accept_set_field_component_expansion_joint_stiffness.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_67_accept_set_field_component_expansion_joint_stiffness.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_67_accept_set_field_component_expansion_joint_stiffness.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_68_accept_set_field_element_mill_tolerance_zero.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_68_accept_set_field_element_mill_tolerance_zero.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_69_accept_update_load_modulus_basis_ref.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_69_accept_update_load_modulus_basis_ref.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_70_accept_update_load_wind_exposed_pipe_refs.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_70_accept_update_load_wind_exposed_pipe_refs.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/model_operations/contract_corpus/case_71_accept_update_load_seismic_gravity_authoring.json",
+   "copies": [
+    "fixtures/model_operations/contract_corpus/case_71_accept_update_load_seismic_gravity_authoring.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-1",
+     "not_emulated": "singular emulated system (mechanism)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/invented_dec092_temperature_g_request.json",
+   "copies": [
+    "fixtures/product_preview/invented_dec092_temperature_g_request.json"
+   ],
+   "cases": [
+    {
+     "case": "load:L-DEC092-EXACT",
+     "S_star_moment": 12000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "load:L-DEC092-INTERPOLATED",
+     "S_star_moment": 12000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "load:L-DEC092-BASE",
+     "S_star_moment": 12000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/invented_preview_model.json",
+   "copies": [
+    "fixtures/product_preview/invented_preview_model.json",
+    "validation/witness/inputs/tp_runner_015_final_cli_solve_input.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:L-100",
+     "not_emulated": "element load category pressure"
+    },
+    {
+     "case": "load:L-200",
+     "not_emulated": "element load category pressure"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/numerical_sensitive_torsion_model.json",
+   "copies": [
+    "fixtures/product_preview/numerical_sensitive_torsion_model.json"
+   ],
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/load_reference/connected.request.json",
+   "copies": [
+    "fixtures/product_preview/load_reference/connected.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:cold",
+     "S_star_moment": 596902.6041820609,
+     "ends": 4,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:hot",
+     "S_star_moment": 596902.6041820609,
+     "ends": 4,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/load_reference/pressure.request.json",
+   "copies": [
+    "fixtures/product_preview/load_reference/pressure.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:cold-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    },
+    {
+     "case": "case:hot-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/load_reference_source/eigen_motion.request.json",
+   "copies": [
+    "fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:join",
+     "not_emulated": "nonlinear support family line_stop"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/load_reference_source/fields.request.json",
+   "copies": [
+    "fixtures/product_preview/load_reference_source/fields.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 0.006,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/load_reference_source/mixed.request.json",
+   "copies": [
+    "fixtures/product_preview/load_reference_source/mixed.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:ordinary-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/load_reference_source/n05.request.json",
+   "copies": [
+    "fixtures/product_preview/load_reference_source/n05.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/load_reference_source/n06.request.json",
+   "copies": [
+    "fixtures/product_preview/load_reference_source/n06.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-16,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/physics_source/fields.request.json",
+   "copies": [
+    "fixtures/product_preview/physics_source/fields.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 0.006,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/physics_source/mixed.request.json",
+   "copies": [
+    "fixtures/product_preview/physics_source/mixed.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:ordinary-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/physics_source/mixed_units.request.json",
+   "copies": [
+    "fixtures/product_preview/physics_source/mixed_units.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:ordinary-pressure",
+     "not_emulated": "pressure regions (not emulated; axial only)"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/physics_source/n05.request.json",
+   "copies": [
+    "fixtures/product_preview/physics_source/n05.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/physics_source/n05_unicode.request.json",
+   "copies": [
+    "fixtures/product_preview/physics_source/n05_unicode.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case:\u6e29\u5ea6:\u03b1",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/physics_source/n05_units.request.json",
+   "copies": [
+    "fixtures/product_preview/physics_source/n05_units.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/physics_source/n06.request.json",
+   "copies": [
+    "fixtures/product_preview/physics_source/n06.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-16,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+   "copies": [
+    "fixtures/product_preview/source_blocks/multicase-dense_scrutiny.request.json",
+    "fixtures/product_preview/source_blocks/multicase-sparse_interactive.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:signed-companion",
+     "S_star_moment": 2000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/source_blocks/n05-dense_scrutiny.request.json",
+   "copies": [
+    "fixtures/product_preview/source_blocks/n05-dense_scrutiny.request.json",
+    "fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/source_blocks/n06-dense_scrutiny.request.json",
+   "copies": [
+    "fixtures/product_preview/source_blocks/n06-dense_scrutiny.request.json",
+    "fixtures/product_preview/source_blocks/n06-sparse_interactive.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-16,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json",
+   "copies": [
+    "fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json",
+    "fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 2e-282,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+   "copies": [
+    "fixtures/product_preview/source_blocks/ui/multicase-dense_scrutiny.request.json",
+    "fixtures/product_preview/source_blocks/ui/multicase-sparse_interactive.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:signed-companion",
+     "S_star_moment": 2000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.request.json",
+   "copies": [
+    "fixtures/product_preview/source_blocks/ui/n05-dense_scrutiny.request.json",
+    "fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-08,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.request.json",
+   "copies": [
+    "fixtures/product_preview/source_blocks/ui/n06-dense_scrutiny.request.json",
+    "fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.request.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 1e-16,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "copies": [
+    "fixtures/results/invented/result_export_v0_2.json",
+    "fixtures/results/invented/result_export_v0_2.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:L-100",
+     "not_emulated": "element load category pressure"
+    },
+    {
+     "case": "load:L-200",
+     "not_emulated": "element load category pressure"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "copies": [
+    "fixtures/results/invented/result_export_v0_2.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:L-100",
+     "S_star_moment": 2000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "copies": [
+    "fixtures/results/invented/result_export_v0_2.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:L-100",
+     "not_emulated": "element load category pressure"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "copies": [
+    "fixtures/results/invented/result_export_v0_2.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:G-TIP",
+     "not_emulated": "nonlinear support family nonlinear"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "copies": [
+    "fixtures/results/invented/result_export_v0_2.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:G-TIP",
+     "not_emulated": "nonlinear support family nonlinear"
+    }
+   ]
+  },
+  {
+   "model": "fixtures/results/invented/result_export_v0_2.json",
+   "copies": [
+    "fixtures/results/invented/result_export_v0_2.json"
+   ],
+   "covered_by_envelope": true,
+   "cases": [
+    {
+     "case": "load:G-TIP",
+     "not_emulated": "nonlinear support family nonlinear"
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+   "copies": [
+    "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json"
+   ],
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 2000.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+   "copies": [
+    "validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json"
+   ],
+   "cases": [
+    {
+     "case": "case",
+     "S_star_moment": 80.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/coefficient_definition.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/coefficient_definition.preview_request.json",
+    "validation/qualification/fixtures/load_reference/coefficient_definition.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:datum-length-a",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:datum-length-b",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:current-length-a",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:current-length-b",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/constant_alpha_interval.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/constant_alpha_interval.preview_request.json",
+    "validation/qualification/fixtures/load_reference/constant_alpha_interval.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:kelvin-interval",
+     "S_star_moment": 1193805.2083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:celsius-interval",
+     "S_star_moment": 1193805.2083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/multi_segment_free_length.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/multi_segment_free_length.preview_request.json",
+    "validation/qualification/fixtures/load_reference/multi_segment_free_length.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:datum-length-a",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:datum-length-b",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:current-length-a",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:current-length-b",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:dilation-a",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:dilation-b",
+     "S_star_moment": 2669429.597795477,
+     "ends": 6,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/persistent_source_once.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/persistent_source_once.preview_request.json",
+    "validation/qualification/fixtures/load_reference/persistent_source_once.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:combined",
+     "S_star_moment": 299.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:two-equal-actions",
+     "S_star_moment": 400.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.preview_request.json",
+    "validation/qualification/fixtures/load_reference/prescribed_rotation_all_fixed.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:prescribed-root-rotation",
+     "S_star_moment": 16205.905703542943,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.preview_request.json",
+    "validation/qualification/fixtures/load_reference/prescribed_rotation_free_tip.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:prescribed-root-rotation",
+     "S_star_moment": 1.8626451492309567e-12,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.preview_request.json",
+    "validation/qualification/fixtures/load_reference/prescribed_translation_all_fixed.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:prescribed-root-translation",
+     "S_star_moment": 119380.5208364122,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.preview_request.json",
+    "validation/qualification/fixtures/load_reference/prescribed_translation_two_bar.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:prescribed-root-translation",
+     "S_star_moment": 79587.01389094147,
+     "ends": 4,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/shared_material_serial_companion.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/shared_material_serial_companion.preview_request.json",
+    "validation/qualification/fixtures/load_reference/shared_material_serial_companion.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:shared-material",
+     "S_star_moment": 1014734.4271095035,
+     "ends": 4,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.preview_request.json",
+    "validation/qualification/fixtures/load_reference/signed_fit_states.fixed.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:cold",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:hot",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:return",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/signed_fit_states.released.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/signed_fit_states.released.preview_request.json",
+    "validation/qualification/fixtures/load_reference/signed_fit_states.released.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:cold",
+     "S_star_moment": 11938052.083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:hot",
+     "S_star_moment": 11938052.083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:return",
+     "S_star_moment": 11938052.083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/temperature_unit_identity.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/temperature_unit_identity.preview_request.json",
+    "validation/qualification/fixtures/load_reference/temperature_unit_identity.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:minus-50-degC",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:242-degC",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:467p6-degF",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:20-degC-rankine",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:non-equal-control",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.preview_request.json",
+    "validation/qualification/fixtures/load_reference/thermal_datum_ratio.fixed.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:annular-three-point",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:verification-two-point",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:annular-three-point-kelvin",
+     "S_star_moment": 0.0,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  },
+  {
+   "model": "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.preview_request.json",
+   "copies": [
+    "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.preview_request.json",
+    "validation/qualification/fixtures/load_reference/thermal_datum_ratio.free.runner_input.json"
+   ],
+   "cases": [
+    {
+     "case": "case:annular-three-point",
+     "S_star_moment": 1193805.2083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:verification-two-point",
+     "S_star_moment": 1193805.2083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    },
+    {
+     "case": "case:annular-three-point-kelvin",
+     "S_star_moment": 1193805.2083641218,
+     "ends": 2,
+     "R_b": [],
+     "R_b_prime": []
+    }
+   ]
+  }
+ ],
+ "part_f_frozen_references": {
+  "evaluated": 196,
+  "not_evaluated": [
+   [
+    "RF-LARGE-CHAIN-n01000-AX",
+    "exact displacement set incomplete (large case; P1: mismatch)"
+   ],
+   [
+    "RF-LARGE-CHAIN-n01000-ROT",
+    "exact displacement set incomplete (large case; P1: mismatch,timeout)"
+   ],
+   [
+    "RF-LARGE-TREE-n01000-AX",
+    "exact displacement set incomplete (large case; P1: mismatch,timeout)"
+   ],
+   [
+    "RF-LARGE-TREE-n01000-ROT",
+    "exact displacement set incomplete (large case; P1: mismatch)"
+   ],
+   [
+    "RF-LARGE-CONT-n01000-AX",
+    "exact displacement set incomplete (large case; P1: pass)"
+   ],
+   [
+    "RF-LARGE-CONT-n01000-ROT",
+    "exact displacement set incomplete (large case; P1: pass)"
+   ],
+   [
+    "RF-LARGE-CHAIN-n10000-AX",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-LARGE-CHAIN-n10000-ROT",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-LARGE-TREE-n10000-AX",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-LARGE-TREE-n10000-ROT",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-LARGE-CONT-n10000-AX",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-LARGE-CONT-n10000-ROT",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-LINE122-TORQUE",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-LINE122-PERP",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-LINE122-UNLOADED",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-LINE345-RZ",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-K0",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-DISC-CHAIN100",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-DISC-CHAIN100-SPRING",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ],
+   [
+    "RF-MECH-LINE-IN-CHAIN1000",
+    "no explicit model or no expected values (mechanism or generator case)"
+   ]
+  ],
+  "cases": {
+   "RF-SKEW-T-PIN-OFF-345-r1e-08": {
+    "family": "RF-SKEW",
+    "class": "synthetic",
+    "S_star_moment": 1.44e-06,
+    "rows": [
+     {
+      "row": "Mb.M1.i",
+      "q_exact": 1.152e-06,
+      "B": 3.0706636281000005e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 1.1520004359900806e-06,
+        "B_obs": 3.0706645043626975e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 2665.5063734621167,
+        "q_over_B": 375163.23725804524
+       },
+       "sparse_interactive": {
+        "q_obs": 1.1520003188535594e-06,
+        "B_obs": 3.070664160786773e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 2665.5063462505095,
+        "q_over_B": 375163.2410880098
+       }
+      },
+      "borderline": false,
+      "scale": "1.440000000000000000000000e-6",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 2665.5066216145838,
+      "q_over_B": 375163.20233122044
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.M1.i": {
+        "today": "breach",
+        "p1_ratio": 302.771,
+        "row_relative_error_over_1e-9": 378.4636117258616
+       }
+      },
+      "K_D5_demotes": true,
+      "K_D5_2EF": 4.158841071732587
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.M1.i": {
+        "today": "breach",
+        "p1_ratio": 221.426,
+        "row_relative_error_over_1e-9": 276.7826036726256
+       }
+      },
+      "K_D5_demotes": true,
+      "K_D5_2EF": 346.95221350344224
+     }
+    }
+   },
+   "RF-SKEW-T-PIN-OFF-122-r1e-08": {
+    "family": "RF-SKEW",
+    "class": "synthetic",
+    "S_star_moment": 4.32e-06,
+    "rows": [
+     {
+      "row": "Mb.M1.i",
+      "q_exact": 4.072935059634514e-06,
+      "B": 2.7464850429356142e-11,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 4.072932989570294e-06,
+        "B_obs": 2.7464840145761764e-11,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 6743.258535333619,
+        "q_over_B": 148296.25688532577
+       },
+       "sparse_interactive": {
+        "q_obs": 4.072935039459415e-06,
+        "B_obs": 2.746484734855198e-11,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 6743.25690993522,
+        "q_over_B": 148296.29263073805
+       }
+      },
+      "borderline": false,
+      "scale": "4.320000000000000000000000e-6",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 6743.257632941662,
+      "q_over_B": 148296.27673053363
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.M1.i": {
+        "today": "breach",
+        "p1_ratio": 479.182,
+        "row_relative_error_over_1e-9": 508.2487663773587
+       }
+      },
+      "K_D5_demotes": true,
+      "K_D5_2EF": 1007.5554226548804
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.M1.i": {
+        "today": "breach",
+        "p1_ratio": 4.67016,
+        "row_relative_error_over_1e-9": 4.953454658993059
+       }
+      },
+      "K_D5_demotes": true,
+      "K_D5_2EF": 224.34523621428795
+     }
+    }
+   },
+   "RF-WEAK-W-AX-rho1e-08": {
+    "family": "RF-WEAK",
+    "class": "synthetic",
+    "S_star_moment": 4999.999900000004,
+    "rows": [
+     {
+      "row": "Mb.A2.j",
+      "q_exact": 2.399997264003383e-05,
+      "B": 5.684338319160598e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 2.3999972540877934e-05,
+        "B_obs": 5.684338319160595e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 236.84770094960524,
+        "q_over_B": 4222122.469378636
+       },
+       "sparse_interactive": {
+        "q_obs": 2.399997276825161e-05,
+        "B_obs": 5.6843383191605954e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 236.84769870573055,
+        "q_over_B": 4222122.5093786605
+       }
+      },
+      "borderline": false,
+      "scale": "2.061551723825214648397228e+2",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 236.84769997106898,
+      "q_over_B": 4222122.486822334
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.A2.j": {
+        "today": "correct",
+        "p1_ratio": 4.80977e-07,
+        "row_relative_error_over_1e-9": 4.131500377900865
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 2.7413033313881412e-06
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.A2.j": {
+        "today": "correct",
+        "p1_ratio": 6.21948e-07,
+        "row_relative_error_over_1e-9": 5.3424135658156775
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 5.806605296430578e-07
+     }
+    }
+   },
+   "RF-WEAK-W-L-r1e-08": {
+    "family": "RF-WEAK",
+    "class": "synthetic",
+    "S_star_moment": 3.0547012947258856e-06,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 2.16e-06,
+      "B": 5.7574943714453004e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 2.1600001218757825e-06,
+        "B_obs": 5.757495166271247e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 2665.506871023385,
+        "q_over_B": 375163.16722757637
+       },
+       "sparse_interactive": {
+        "q_obs": 2.1600001218757825e-06,
+        "B_obs": 5.757495215080057e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 2665.506893620055,
+        "q_over_B": 375163.1640471538
+       }
+      },
+      "borderline": false,
+      "scale": "3.054701294725885305411648e-6",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 2665.506653446898,
+      "q_over_B": 375163.19785090414
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "breach",
+        "p1_ratio": 39.8978,
+        "row_relative_error_over_1e-9": 56.423973345168825
+       }
+      },
+      "K_D5_demotes": true,
+      "K_D5_2EF": 24.68497084855907
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "breach",
+        "p1_ratio": 39.8978,
+        "row_relative_error_over_1e-9": 56.423973345168825
+       }
+      },
+      "K_D5_demotes": true,
+      "K_D5_2EF": 34.35545625310296
+     }
+    }
+   },
+   "RF-WEAK-W-3D-rho1e-08": {
+    "family": "RF-WEAK",
+    "class": "synthetic",
+    "S_star_moment": 59.99875142363721,
+    "rows": [
+     {
+      "row": "Mb.A01.j",
+      "q_exact": 7.210509295803784e-07,
+      "B": 1.4210559721277723e-13,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 7.210509200184459e-07,
+        "B_obs": 1.4210559721277716e-13,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 197.08122306971305,
+        "q_over_B": 5074050.10190277
+       },
+       "sparse_interactive": {
+        "q_obs": 7.210509239599285e-07,
+        "B_obs": 1.4210559721277726e-13,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 197.08122199240756,
+        "q_over_B": 5074050.12963906
+       }
+      },
+      "borderline": false,
+      "scale": "3.201503450818114483484315e+1",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 197.08122045619822,
+      "q_over_B": 5074050.169190282
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.A01.j": {
+        "today": "correct",
+        "p1_ratio": 2.9867e-07,
+        "row_relative_error_over_1e-9": 13.261105704377618
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 1.0313198585139718e-06
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.A01.j": {
+        "today": "correct",
+        "p1_ratio": 1.75557e-07,
+        "row_relative_error_over_1e-9": 7.79480301232843
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 6.355821005601518e-07
+     }
+    }
+   },
+   "RF-LARGE-TREE-n00100-ROT": {
+    "family": "RF-LARGE",
+    "class": "realistic scale",
+    "S_star_moment": 16.553247710513638,
+    "rows": [
+     {
+      "row": "Mb.Q37.i",
+      "q_exact": 0.140625,
+      "B": 1.477623940032591e-10,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.14062500041283998,
+        "B_obs": 1.47762396945075e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0507548196357788,
+        "q_over_B": 951696800.5406134
+       },
+       "sparse_interactive": {
+        "q_obs": 0.14062499999247852,
+        "B_obs": 1.47762394058742e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0507548022516995,
+        "q_over_B": 951696816.2858402
+       }
+      },
+      "borderline": true,
+      "scale": "7.775176470063235805887503e+0",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.0507548018009536,
+      "q_over_B": 951696816.6940929
+     },
+     {
+      "row": "Mb.Q39.i",
+      "q_exact": 0.140625,
+      "B": 1.6119230796413012e-10,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.14062499986987437,
+        "B_obs": 1.6119231116464057e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.1462564360092296,
+        "q_over_B": 872405134.3009847
+       },
+       "sparse_interactive": {
+        "q_obs": 0.1406250000019694,
+        "B_obs": 1.6119230800870373e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.1462564124902848,
+        "q_over_B": 872405152.2010357
+       }
+      },
+      "borderline": true,
+      "scale": "7.775176470063235805887503e+0",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.1462564121893695,
+      "q_over_B": 872405152.4300593
+     },
+     {
+      "row": "Mb.Q44.i",
+      "q_exact": 0.140625,
+      "B": 1.767722351596994e-10,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.1406250001731007,
+        "B_obs": 1.767722390471946e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.2570470316771474,
+        "q_over_B": 795515183.4421053
+       },
+       "sparse_interactive": {
+        "q_obs": 0.1406250000032393,
+        "B_obs": 1.767722348413772e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.2570470032875039,
+        "q_over_B": 795515201.408333
+       }
+      },
+      "borderline": true,
+      "scale": "7.775176470063235805887503e+0",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.2570470055800844,
+      "q_over_B": 795515199.957486
+     },
+     {
+      "row": "Mb.Q46.i",
+      "q_exact": 0.140625,
+      "B": 1.8975266054337585e-10,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.1406250001780044,
+        "B_obs": 1.8975266469984273e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.3493522806019704,
+        "q_over_B": 741096312.9316251
+       },
+       "sparse_interactive": {
+        "q_obs": 0.1406249999868802,
+        "B_obs": 1.8975266018869585e-10,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.3493522503566155,
+        "q_over_B": 741096329.5430925
+       }
+      },
+      "borderline": true,
+      "scale": "7.775176470063235805887503e+0",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.3493522527528947,
+      "q_over_B": 741096328.226999
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.Q37.i": {
+        "today": "correct",
+        "p1_ratio": 0.0530972,
+        "row_relative_error_over_1e-9": 2.935751000323863
+       },
+       "Mb.Q39.i": {
+        "today": "correct",
+        "p1_ratio": 0.016736,
+        "row_relative_error_over_1e-9": 0.9253378310505568
+       },
+       "Mb.Q44.i": {
+        "today": "correct",
+        "p1_ratio": 0.0222632,
+        "row_relative_error_over_1e-9": 1.2309383142413328
+       },
+       "Mb.Q46.i": {
+        "today": "correct",
+        "p1_ratio": 0.0228939,
+        "row_relative_error_over_1e-9": 1.2658089884906882
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "mismatch",
+      "p1_quality": "sensitive",
+      "rows": {
+       "Mb.Q37.i": {
+        "today": "correct",
+        "p1_ratio": 0.000967372,
+        "row_relative_error_over_1e-9": 0.053486104434341535
+       },
+       "Mb.Q39.i": {
+        "today": "correct",
+        "p1_ratio": 0.000253294,
+        "row_relative_error_over_1e-9": 0.014004599948849417
+       },
+       "Mb.Q44.i": {
+        "today": "correct",
+        "p1_ratio": 0.00041662,
+        "row_relative_error_over_1e-9": 0.023035006001413824
+       },
+       "Mb.Q46.i": {
+        "today": "correct",
+        "p1_ratio": 0.0016874,
+        "row_relative_error_over_1e-9": 0.09329643230810486
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     }
+    }
+   },
+   "RF-LARGE-CONT-n00100-AX": {
+    "family": "RF-LARGE",
+    "class": "realistic scale",
+    "S_star_moment": 61310.858675016,
+    "rows": [
+     {
+      "row": "Mb.B14.j",
+      "q_exact": 7.839593135065253e-07,
+      "B": 1.9843520873523435e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 7.839594233889738e-07,
+        "B_obs": 1.9843520873523415e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2531.192339999176,
+        "q_over_B": 395070.72781372495
+       },
+       "sparse_interactive": {
+        "q_obs": 7.839592482376014e-07,
+        "B_obs": 1.984352087352342e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2531.192905515577,
+        "q_over_B": 395070.63954744715
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 2531.1926947798506,
+      "q_over_B": 395070.67243925284
+     },
+     {
+      "row": "Mb.A15.i",
+      "q_exact": 7.839593135065253e-07,
+      "B": 1.9843520835234642e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 7.839591920712727e-07,
+        "B_obs": 1.984352083523462e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2531.1930819774825,
+        "q_over_B": 395070.6120051319
+       },
+       "sparse_interactive": {
+        "q_obs": 7.839593236032158e-07,
+        "B_obs": 1.9843520835234626e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2531.1926572963366,
+        "q_over_B": 395070.67828971107
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 2531.1926898958222,
+      "q_over_B": 395070.673201556
+     },
+     {
+      "row": "Mb.A37.j",
+      "q_exact": 2.110299827564747e-06,
+      "B": 2.1703851846373278e-13,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 2.110299829993778e-06,
+        "B_obs": 2.170385184637326e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 102.84724254769641,
+        "q_over_B": 9723158.10544206
+       },
+       "sparse_interactive": {
+        "q_obs": 2.1102998264410644e-06,
+        "B_obs": 2.1703851846373263e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 102.84724272084091,
+        "q_over_B": 9723158.089073014
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 102.84724266607736,
+      "q_over_B": 9723158.09425035
+     },
+     {
+      "row": "Mb.B37.i",
+      "q_exact": 2.110299827564747e-06,
+      "B": 2.1703850346915065e-13,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 2.110299829993778e-06,
+        "B_obs": 2.1703850346915047e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 102.84723544226905,
+        "q_over_B": 9723158.777187813
+       },
+       "sparse_interactive": {
+        "q_obs": 2.1102998246647076e-06,
+        "B_obs": 2.170385034691505e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 102.8472357019858,
+        "q_over_B": 9723158.75263424
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 102.84723556065,
+      "q_over_B": 9723158.7659961
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.B14.j": {
+        "today": "correct",
+        "p1_ratio": 3.81572e-07,
+        "row_relative_error_over_1e-9": 140.16345827928612
+       },
+       "Mb.A15.i": {
+        "today": "correct",
+        "p1_ratio": 4.2169e-07,
+        "row_relative_error_over_1e-9": 154.8999425962001
+       },
+       "Mb.A37.j": {
+        "today": "correct",
+        "p1_ratio": 8.43493e-09,
+        "row_relative_error_over_1e-9": 1.1510359075042256
+       },
+       "Mb.B37.i": {
+        "today": "correct",
+        "p1_ratio": 8.43493e-09,
+        "row_relative_error_over_1e-9": 1.1510359075042256
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.B14.j": {
+        "today": "correct",
+        "p1_ratio": 2.2665e-07,
+        "row_relative_error_over_1e-9": 83.25549904782736
+       },
+       "Mb.A15.i": {
+        "today": "correct",
+        "p1_ratio": 3.50613e-08,
+        "row_relative_error_over_1e-9": 12.879100052054872
+       },
+       "Mb.A37.j": {
+        "today": "correct",
+        "p1_ratio": 3.90204e-09,
+        "row_relative_error_over_1e-9": 0.5324754269492659
+       },
+       "Mb.B37.i": {
+        "today": "correct",
+        "p1_ratio": 1.00705e-08,
+        "row_relative_error_over_1e-9": 1.3742310941760116
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     }
+    }
+   },
+   "RF-LARGE-CONT-n00100-ROT": {
+    "family": "RF-LARGE",
+    "class": "realistic scale",
+    "S_star_moment": 55461.57717972414,
+    "rows": [
+     {
+      "row": "Mb.B14.j",
+      "q_exact": 7.839593135065253e-07,
+      "B": 2.199314632007542e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 7.83958626865124e-07,
+        "B_obs": 2.1993146320075394e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2805.396301080465,
+        "q_over_B": 356455.8774155587
+       },
+       "sparse_interactive": {
+        "q_obs": 7.839592923241269e-07,
+        "B_obs": 2.199314632007545e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2805.3939197371506,
+        "q_over_B": 356456.1799911843
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 2805.393843936055,
+      "q_over_B": 356456.1896225483
+     },
+     {
+      "row": "Mb.A15.i",
+      "q_exact": 7.839593135065253e-07,
+      "B": 2.1993146280383544e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 7.839587402957292e-07,
+        "B_obs": 2.199314628038353e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2805.395890106047,
+        "q_over_B": 356455.9296343016
+       },
+       "sparse_interactive": {
+        "q_obs": 7.839594229628212e-07,
+        "B_obs": 2.199314628038358e-12,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 2805.3934471843945,
+        "q_over_B": 356456.24003422406
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 2805.393838873053,
+      "q_over_B": 356456.19026585843
+     },
+     {
+      "row": "Mb.A37.j",
+      "q_exact": 2.110299827564747e-06,
+      "B": 2.8656570612502384e-13,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 2.1103000451352695e-06,
+        "B_obs": 2.865657061250207e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 135.7938207818462,
+        "q_over_B": 7364105.334413615
+       },
+       "sparse_interactive": {
+        "q_obs": 2.1102996180701445e-06,
+        "B_obs": 2.865657061250422e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 135.79384826269586,
+        "q_over_B": 7364103.844126138
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 135.79383478210116,
+      "q_over_B": 7364104.575179203
+     },
+     {
+      "row": "Mb.B37.i",
+      "q_exact": 2.110299827564747e-06,
+      "B": 2.865657038897635e-13,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 2.110300047647417e-06,
+        "B_obs": 2.865657038897601e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 135.79381956097964,
+        "q_over_B": 7364105.400621267
+       },
+       "sparse_interactive": {
+        "q_obs": 2.1102996155579973e-06,
+        "B_obs": 2.8656570388977806e-13,
+        "R_b": true,
+        "R_b_prime": false,
+        "above_floor": false,
+        "B_over_1e9q": 135.79384736513134,
+        "q_over_B": 7364103.892801084
+       }
+      },
+      "borderline": false,
+      "scale": "2.879728044076870918817644e+2",
+      "R_b": true,
+      "R_b_prime": false,
+      "above_floor": false,
+      "B_over_1e9q": 135.79383372288657,
+      "q_over_B": 7364104.632620448
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.B14.j": {
+        "today": "correct",
+        "p1_ratio": 2.3844e-06,
+        "row_relative_error_over_1e-9": 875.8635678192933
+       },
+       "Mb.A15.i": {
+        "today": "correct",
+        "p1_ratio": 1.9905e-06,
+        "row_relative_error_over_1e-9": 731.1741645243749
+       },
+       "Mb.A37.j": {
+        "today": "correct",
+        "p1_ratio": 7.55525e-07,
+        "row_relative_error_over_1e-9": 103.09934134576599
+       },
+       "Mb.B37.i": {
+        "today": "correct",
+        "p1_ratio": 7.64248e-07,
+        "row_relative_error_over_1e-9": 104.28976350584416
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.B14.j": {
+        "today": "correct",
+        "p1_ratio": 7.35569e-08,
+        "row_relative_error_over_1e-9": 27.01976759766743
+       },
+       "Mb.A15.i": {
+        "today": "correct",
+        "p1_ratio": 3.80092e-07,
+        "row_relative_error_over_1e-9": 139.61986801308834
+       },
+       "Mb.A37.j": {
+        "today": "correct",
+        "p1_ratio": 7.27481e-07,
+        "row_relative_error_over_1e-9": 99.27243509927217
+       },
+       "Mb.B37.i": {
+        "today": "correct",
+        "p1_ratio": 7.36204e-07,
+        "row_relative_error_over_1e-9": 100.46285705866016
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     }
+    }
+   },
+   "RF-INVARIANCE-LFRAME-BASE": {
+    "family": "RF-INVARIANCE",
+    "class": "synthetic",
+    "S_star_moment": 0.0087890625,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 0.0012359619140625,
+      "B": 1.27948269406537e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.0012359619143325062,
+        "B_obs": 1.2794826943251127e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720613873,
+        "q_over_B": 965985643.8968388
+       },
+       "sparse_interactive": {
+        "q_obs": 0.001235961914261452,
+        "B_obs": 1.279482694222043e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720375082,
+        "q_over_B": 965985643.919121
+       }
+      },
+      "borderline": true,
+      "scale": "8.789062500000000000000000e-3",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.0352120720773836,
+      "q_over_B": 965985643.8819121
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "correct",
+        "p1_ratio": 0.0307207,
+        "row_relative_error_over_1e-9": 0.21845838169992704
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.04119308198868259
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "correct",
+        "p1_ratio": 0.0226363,
+        "row_relative_error_over_1e-9": 0.16096933388415677
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.15070493919699654
+     }
+    }
+   },
+   "RF-INVARIANCE-LFRAME-ROT-Q3": {
+    "family": "RF-INVARIANCE",
+    "class": "synthetic",
+    "S_star_moment": 0.0087890625,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 0.0012359619140625,
+      "B": 2.1617563357288057e-12,
+      "p1_observed": {},
+      "borderline": true,
+      "scale": "8.789062500000000000000000e-3",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.7490476940533703,
+      "q_over_B": 571739697.7794969
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": null,
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "not published on the captured entry (None)"
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": null,
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "not published on the captured entry (None)"
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     }
+    }
+   },
+   "RF-INVARIANCE-LFRAME-ROT-Q9": {
+    "family": "RF-INVARIANCE",
+    "class": "synthetic",
+    "S_star_moment": 0.0087890625,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 0.0012359619140625,
+      "B": 1.794723321355288e-12,
+      "p1_observed": {},
+      "borderline": true,
+      "scale": "8.789062500000000000000000e-3",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.4520862665227179,
+      "q_over_B": 688664319.0935756
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": null,
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "not published on the captured entry (None)"
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": null,
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "not published on the captured entry (None)"
+       }
+      },
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
+     }
+    }
+   },
+   "RF-INVARIANCE-LFRAME-OFF-1e3": {
+    "family": "RF-INVARIANCE",
+    "class": "synthetic",
+    "S_star_moment": 0.0087890625,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 0.0012359619140625,
+      "B": 1.27948269406537e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.0012359619143325062,
+        "B_obs": 1.2794826943251127e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720613873,
+        "q_over_B": 965985643.8968388
+       },
+       "sparse_interactive": {
+        "q_obs": 0.001235961914261452,
+        "B_obs": 1.279482694222043e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720375082,
+        "q_over_B": 965985643.919121
+       }
+      },
+      "borderline": true,
+      "scale": "8.789062500000000000000000e-3",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.0352120720773836,
+      "q_over_B": 965985643.8819121
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "correct",
+        "p1_ratio": 0.0307207,
+        "row_relative_error_over_1e-9": 0.21845838169992704
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.04119308198868259
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "correct",
+        "p1_ratio": 0.0226363,
+        "row_relative_error_over_1e-9": 0.16096933388415677
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.15070493919699654
+     }
+    }
+   },
+   "RF-INVARIANCE-LFRAME-OFF-1e6": {
+    "family": "RF-INVARIANCE",
+    "class": "synthetic",
+    "S_star_moment": 0.0087890625,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 0.0012359619140625,
+      "B": 1.27948269406537e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.0012359619143325062,
+        "B_obs": 1.2794826943251127e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720613873,
+        "q_over_B": 965985643.8968388
+       },
+       "sparse_interactive": {
+        "q_obs": 0.001235961914261452,
+        "B_obs": 1.279482694222043e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720375082,
+        "q_over_B": 965985643.919121
+       }
+      },
+      "borderline": true,
+      "scale": "8.789062500000000000000000e-3",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.0352120720773836,
+      "q_over_B": 965985643.8819121
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "correct",
+        "p1_ratio": 0.0307207,
+        "row_relative_error_over_1e-9": 0.21845838169992704
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.04119308198868259
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.M2.i": {
+        "today": "correct",
+        "p1_ratio": 0.0226363,
+        "row_relative_error_over_1e-9": 0.16096933388415677
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.15070493919699654
+     }
+    }
+   },
+   "RF-INVARIANCE-LFRAME-RELABEL": {
+    "family": "RF-INVARIANCE",
+    "class": "synthetic",
+    "S_star_moment": 0.0087890625,
+    "rows": [
+     {
+      "row": "Mb.E1.j",
+      "q_exact": 0.0012359619140625,
+      "B": 1.27948269406537e-12,
+      "p1_observed": {
+       "dense_scrutiny": {
+        "q_obs": 0.0012359619141193434,
+        "B_obs": 1.2794826940654006e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720297977,
+        "q_over_B": 965985643.9263159
+       },
+       "sparse_interactive": {
+        "q_obs": 0.0012359619142898737,
+        "B_obs": 1.279482694282159e-12,
+        "R_b": true,
+        "R_b_prime": true,
+        "above_floor": true,
+        "B_over_1e9q": 1.0352120720623421,
+        "q_over_B": 965985643.895948
+       }
+      },
+      "borderline": true,
+      "scale": "8.789062500000000000000000e-3",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.0352120720773836,
+      "q_over_B": 965985643.8819121
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.E1.j": {
+        "today": "correct",
+        "p1_ratio": 0.00646752,
+        "row_relative_error_over_1e-9": 0.045991238252616216
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.39556202439161353
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "pass",
+      "p1_quality": "checks_passed",
+      "rows": {
+       "Mb.E1.j": {
+        "today": "correct",
+        "p1_ratio": 0.0258701,
+        "row_relative_error_over_1e-9": 0.18396495301046487
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.042612725932476565
+     }
+    }
+   },
+   "RF-INVARIANCE-LFRAME-UNITS-mm": {
+    "family": "RF-INVARIANCE",
+    "class": "synthetic",
+    "S_star_moment": 8.7890625,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 1.2359619140625,
+      "B": 1.2794826940653692e-09,
+      "p1_observed": {},
+      "borderline": true,
+      "scale": "8.789062500000000000000000e+0",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 1.0352120720773832,
+      "q_over_B": 965985643.8819127
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": null,
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "not published on the captured entry (None)"
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.03331907628945176
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": null,
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "not published on the captured entry (None)"
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.14468288771173538
+     }
+    }
+   },
+   "RF-CANCEL-F-G1e80-GnG-INPLANE": {
+    "family": "RF-CANCEL",
+    "class": "synthetic",
+    "S_star_moment": 100.00000002,
+    "rows": [
+     {
+      "row": "Mb.M1.j",
+      "q_exact": 1e-08,
+      "B": 3.5527136807545026e-13,
+      "p1_observed": {},
+      "borderline": false,
+      "scale": "1.000000000000000000000000e-8",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 35527.13680754502,
+      "q_over_B": 28147.497655584404
+     },
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 1e-08,
+      "B": 8.881784202507981e-13,
+      "p1_observed": {},
+      "borderline": false,
+      "scale": "1.000000000000000000000000e-8",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 88817.84202507981,
+      "q_over_B": 11258.999061445633
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "refused_capture",
+      "p1_quality": null,
+      "rows": {
+       "Mb.M1.j": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "3635.45"
+       },
+       "Mb.M2.i": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "627.802"
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 1.6 not applicable)",
+      "K_D5_2EF": 2.057066518013155e-06
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "refused_capture",
+      "p1_quality": null,
+      "rows": {
+       "Mb.M1.j": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "2214.37"
+       },
+       "Mb.M2.i": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "4346"
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 1.6 not applicable)",
+      "K_D5_2EF": 3.155221403692935e-06
+     }
+    }
+   },
+   "RF-CANCEL-M-G1e80-GnG-INPLANE": {
+    "family": "RF-CANCEL",
+    "class": "synthetic",
+    "S_star_moment": 20.00000001,
+    "rows": [
+     {
+      "row": "Mb.M2.i",
+      "q_exact": 1e-08,
+      "B": 6.394884625926539e-13,
+      "p1_observed": {},
+      "borderline": false,
+      "scale": "1.000000000000000000000000e-8",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 63948.84625926538,
+      "q_over_B": 15637.498696156892
+     },
+     {
+      "row": "Mb.M2.j",
+      "q_exact": 1e-08,
+      "B": 6.394884626281809e-13,
+      "p1_observed": {},
+      "borderline": false,
+      "scale": "1.000000000000000000000000e-8",
+      "R_b": true,
+      "R_b_prime": true,
+      "above_floor": true,
+      "B_over_1e9q": 63948.846262818086,
+      "q_over_B": 15637.498695288143
+     }
+    ],
+    "modes": {
+     "dense_scrutiny": {
+      "p1_captured_verdict": "refused_capture",
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "5767.08"
+       },
+       "Mb.M2.j": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "627.802"
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 2 not applicable)",
+      "K_D5_2EF": 1.6910148894532275e-06
+     },
+     "sparse_interactive": {
+      "p1_captured_verdict": "refused_capture",
+      "p1_quality": null,
+      "rows": {
+       "Mb.M2.i": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "4346"
+       },
+       "Mb.M2.j": {
+        "today": "breach (formation row, post-S11-F)",
+        "I4_ratio": "627.802"
+       }
+      },
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 2 not applicable)",
+      "K_D5_2EF": 3.063708496552954e-06
+     }
+    }
+   }
+  }
+ },
+ "part_s_sf4_floor": {
+  "collinear_runs_must_stay_silent": [
+   {
+    "family": "thermal",
+    "end": [
+     12.0,
+     5.0,
+     0.0
+    ],
+    "stations": [
+     0,
+     0.13,
+     0.4,
+     0.55,
+     0.81,
+     1
+    ],
+    "N": 1296000.0,
+    "no_floor": 400000000.0,
+    "rev2_whole_row_floor": 6.158037043254201e-05,
+    "rev21_split": 6.158037043254201e-05
+   },
+   {
+    "family": "thermal",
+    "end": [
+     10.0,
+     3.7,
+     2.2
+    ],
+    "stations": [
+     0,
+     0.3,
+     0.55,
+     0.7,
+     1
+    ],
+    "N": 1296000.0,
+    "no_floor": 190913580.24691358,
+    "rev2_whole_row_floor": 3.193224340638662e-05,
+    "rev21_split": 3.193224340638662e-05
+   },
+   {
+    "family": "thermal",
+    "end": [
+     6.0,
+     6.0,
+     0.0
+    ],
+    "stations": [
+     0,
+     0.25,
+     0.5,
+     0.75,
+     1
+    ],
+    "N": 1296000.0,
+    "no_floor": 0.0,
+    "rev2_whole_row_floor": 0.0,
+    "rev21_split": 0.0
+   },
+   {
+    "family": "thermal",
+    "end": [
+     9.0,
+     0.0,
+     0.0
+    ],
+    "stations": [
+     0,
+     0.13,
+     0.4,
+     0.55,
+     0.81,
+     1
+    ],
+    "N": 1296000.0,
+    "no_floor": 618172839.5061729,
+    "rev2_whole_row_floor": 3.5139057644424434e-05,
+    "rev21_split": 3.5139057644424434e-05
+   },
+   {
+    "family": "pressure thrust",
+    "end": [
+     12.0,
+     5.0,
+     0.0
+    ],
+    "stations": [
+     0,
+     0.13,
+     0.4,
+     0.55,
+     0.81,
+     1
+    ],
+    "N": 50893.800988154646,
+    "no_floor": 230160824.7378226,
+    "rev2_whole_row_floor": 7.38964445190504e-05,
+    "rev21_split": 7.38964445190504e-05
+   }
+  ],
+  "db1_counterexamples_must_fire": [
+   {
+    "E_net": -1.4901161193847656e-08,
+    "E_se": 0.0,
+    "net": 0.0009999850988388062,
+    "P": 2000000.0,
+    "no_floor": 14901.383241761352,
+    "rev2_whole_row_floor": 0.00762939453125,
+    "rev21_split": 14901.383241761352,
+    "qA": 100000000.1,
+    "qB": -150000000.15,
+    "n0": 0.001,
+    "N": 1000000.0
+   },
+   {
+    "E_net": -1.4901161193847656e-08,
+    "E_se": 0.0,
+    "net": 0.0009999850988388062,
+    "P": 20000.0,
+    "no_floor": 14901.383241761352,
+    "rev2_whole_row_floor": 0.762939453125,
+    "rev21_split": 14901.383241761352,
+    "qA": 100000000.1,
+    "qB": -150000000.15,
+    "n0": 0.001,
+    "N": 10000.0
+   },
+   {
+    "E_net": 9.313225746154785e-10,
+    "E_se": 0.0,
+    "net": 0.009999999068677426,
+    "P": 1000000.0,
+    "no_floor": 93.13226613516603,
+    "rev2_whole_row_floor": 0.00095367431640625,
+    "rev21_split": 93.13226613516603,
+    "qA": 12345678.9,
+    "qB": -18518518.35,
+    "n0": 0.01,
+    "N": 500000.0
+   }
+  ],
+  "dn4_residual_hidden": {
+   "N1": 1000000.0,
+   "N2": 999999.999,
+   "row": [
+    "J",
+    0
+   ],
+   "E_net": 0.0,
+   "E_se": 1.0920440357638404e-10,
+   "net": 0.0008642268439220866,
+   "P": 1728453.6048828051,
+   "no_floor": 126.36080948467882,
+   "rev2_whole_row_floor": 6.469673756143392e-05,
+   "rev21_split": 6.469673756143392e-05
+  },
+  "udl_rows_unchanged": "UDL-W1e5/-W1e8/-W1e80 and probe A carry no self-equilibrated formed term: E_se = 0 and P = 0, so all three rules reduce to s11g_forecast.py Part A/A2 (W1e8 47.99, W1e80 2.6e81 fire; W1e5 0.0395 and probe A silent).",
+  "sf3_gate_unreachable": "A source-eligible case carries only nodal inputs (E = 0) and self-equilibrated eigen RoundedProduct terms, so E_net = 0 and |E_se| <= u*P < 1e-9*2^-10*P: no row can fire (at most 1.1e-4 of the threshold) under the split rule, as under revision 2."
+ }
+}

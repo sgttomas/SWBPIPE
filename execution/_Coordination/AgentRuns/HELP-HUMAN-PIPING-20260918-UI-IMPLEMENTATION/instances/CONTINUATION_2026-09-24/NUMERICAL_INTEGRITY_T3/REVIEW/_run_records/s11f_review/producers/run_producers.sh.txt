@@ -1,0 +1,17 @@
+#!/bin/bash
+# RV3: re-run the actual producers (candidate = scratch worktree at 11ae0667f; base = main f0a6159c9 export) into scratch output.
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<scratch>/rv3-target
+S=<scratch>/rv3/prod; mkdir -p $S/cand $S/base $S/bin/cand $S/bin/base
+EX="--example physics_source_connected --example exact_pressure_connected"
+for side in cand base; do
+  if [ $side = cand ]; then R=<scratch>/rv3-src/projects/chirality-piping; else R=<scratch>/rv3-main/projects/chirality-piping; fi
+  (cd $R/core/product_physics && cargo build --release --offline --locked $EX) > $S/build_$side.log 2>&1 || { echo "build $side failed"; continue; }
+  cp <scratch>/rv3-target/release/examples/physics_source_connected <scratch>/rv3-target/release/examples/exact_pressure_connected $S/bin/$side/
+  cd $R
+  for m in sparse:sparse_interactive dense:dense_scrutiny; do a=${m%%:*}; b=${m##*:}
+    $S/bin/$side/physics_source_connected $a fixtures/product_preview/load_reference/connected.request.json > $S/$side/connected-$b.raw.json
+    $S/bin/$side/exact_pressure_connected $a --model fixtures/model_operations/physics_thermal_ui_model.json > $S/$side/physics_thermal_ui_mechanics_$a.json
+  done
+  echo "$side done"
+done
+echo PRODDONE

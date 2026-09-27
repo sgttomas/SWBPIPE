@@ -1,0 +1,6 @@
+command (in <ev5-copy>/core/product_physics): RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<s11f-target>/ev5 cargo test --offline --locked --no-fail-fast --lib -- s11f_tests::s1_
+test s11f_tests::s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing ... FAILED
+test s11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning ... FAILED
+thread 's11f_tests::s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing' (2423) panicked at src/s11f_tests.rs:2028:9:
+thread 's11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning' (2424) panicked at src/s11f_tests.rs:2146:17:
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 349 filtered out; finished in 0.12s

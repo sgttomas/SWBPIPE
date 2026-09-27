@@ -29,6 +29,7 @@ Every T3 TASK brief is read with this file. Where a brief differs, the brief win
 - Keep free disk above about 8 GB (`df -h` on the home filesystem). Prune only your own build output.
 - **Never delete or `git clean` `core/serialization/canonical_json/target` or `core/units/target`** in any worktree (added 2026-09-27, after a DEC-025 sweep failed without them). They hold the checked-JSON and units authority executables that the pytest surfaces need. They are prerequisites, never scratch. If they are missing, rebuild them with `tools/serialization/build_checked_json.py` and `tools/units/build_units_authority.py`.
 - While a `run_evidence_sweep` process runs (the DEC-025 sweep), hold all cargo: check `pgrep -f 'python[0-9.]* .*run_evidence_sweep'` (this form matches only the python sweep process; a bare `pgrep -f run_evidence_sweep` also matches the waiting shell's own command line and always reads busy) as well as `pgrep -x cargo`.
+- Wait patterns must not match the waiting shell. A `pgrep -f <name>` inside `bash -c 'until ...'` matches its own command line and never sees the process end. Anchor on the interpreter instead, for example `pgrep -f 'python[0-9.]* .*gate_run'`.
 
 ## Rules
 
@@ -36,6 +37,6 @@ Every T3 TASK brief is read with this file. Where a brief differs, the brief win
 - Frozen references, fixtures, hashes and protected criteria are never edited: N01–N09, R01–R07 and NP-A–NP-D in `P/validation/benchmarks/numerical_integrity/`, the T0R references, T1's references, the analytical 1e-9 relative criterion and the DEC-050/053 observations. A disagreement is reported, never resolved by changing one of them.
 - No skipped tests, raised timeouts, stripped loads or dropped features to make anything pass.
 - Committed records use placeholders (`<worktree>`, `<scratch>`, `<t3-target>`, `{REPO_ROOT}`) instead of machine-specific absolute paths.
-- **Never write a machine-specific absolute path (a home-directory, temp or tool-install path) in a committed record, brief or message text that will be committed** (added 2026-09-27, for PR991's GEN-8 portability check). Worktrees are `<wt>/<name>` (for example `<wt>/numerics`, `<wt>/s11f`), targets `<wt>/<name>-target`, and the session scratchpad `<scratch>`.
+- **Never write a machine-specific absolute path (a home-directory, temp or tool-install path) in a committed record, brief or message text that will be committed** (added 2026-09-27, for PR991's GEN-8 portability check). Worktrees are `<wt>/<name>` (for example `<wt>/numerics`, `<wt>/s11f`), targets `<wt>/<name>-target`, and the session scratchpad `<scratch>`. Before any records commit that will go to main, the manager runs `pytest tools/practitioner_harness/test_live_baseline.py -k gen8` from the repository root; it must pass.
 - Record what you actually read and ran (paths, commits, hashes where they matter) in your return, and state what you did not do.
 - Accepted and historical design records are basis, never evidence that current code is correct. Cite source lines at `c61a540ea`.

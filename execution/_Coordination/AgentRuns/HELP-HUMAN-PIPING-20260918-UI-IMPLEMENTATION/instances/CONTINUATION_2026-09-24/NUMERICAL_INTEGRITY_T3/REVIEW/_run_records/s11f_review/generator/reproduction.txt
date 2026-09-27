@@ -1,0 +1,3 @@
+gen_rf_cancel_cases.py (candidate 11ae0667f) re-run on <wt>/numerics REFERENCES/references.json (7b176dbb...), GATE/S11_EXCEPTIONS.json (1d8979f6...), GATE/FORMATION_EXCEPTIONS.json (454bbc24...); output sha256 = committed core/product_physics/tests/fixtures/s11f/rf_cancel_cases.json sha256:
+b1cc9266b3be9ce0c8ba29f6db43558a0b6e8f4560dc007c3ba6540ee8daee8a  <scratch>/rv3/rf_cancel_regen.json
+b1cc9266b3be9ce0c8ba29f6db43558a0b6e8f4560dc007c3ba6540ee8daee8a  <scratch>/rv3-src/projects/chirality-piping/core/product_physics/tests/fixtures/s11f/rf_cancel_cases.json

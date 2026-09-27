@@ -8,6 +8,7 @@
 use super::*;
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::ForceTerm;
+use open_pipe_stress_frame_kernel::structural::LoadFidelityRow;
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
 
@@ -1966,4 +1967,212 @@ fn n6_product_residual_rows_use_the_exact_numerator() {
         }
     }
     assert_eq!(checked, 4);
+}
+
+// ------------------------------------------ RV3-S1: the Sensitive mapping
+
+fn fidelity_row(dof: usize, sources: &[&str], unaudited: Option<&'static str>) -> LoadFidelityRow {
+    LoadFidelityRow {
+        global_dof: dof,
+        restrained: false,
+        exact_net_bits: 0.3_f64.to_bits(),
+        actual_bits: 0.0_f64.to_bits(),
+        guarded_ratio: if unaudited.is_some() {
+            f64::INFINITY
+        } else {
+            2.5e7
+        },
+        target: 1.0,
+        operation_count: 3,
+        completeness_limit: 1.0e6,
+        sources: sources.iter().map(|s| s.to_string()).collect(),
+        unaudited,
+    }
+}
+
+/// RV3-S1, unit level: `append_load_contribution_absorbed` maps a flagged
+/// load-fidelity report to exactly one `LOAD_CONTRIBUTION_ABSORBED` warning
+/// (S11 section 6, D-S11-4): stable id, refs = the case then the sorted,
+/// deduplicated sources, every row named in the message (an audited row with
+/// its bits and ratio; an unaudited row with its reason), an audit that could
+/// not run named with its error, and nothing refused (no error or blocking
+/// severity, no other diagnostic). The audited-row branch is unreachable
+/// through the typed seam (an `AssembledForce` is always the correctly rounded
+/// net of its own terms), so it is driven here with synthetic reports.
+#[test]
+fn s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing() {
+    let case = "case:hot";
+    // An audited flagged row and an unaudited row sharing a source.
+    let rows_report = LoadFidelityReport {
+        rows: vec![
+            fidelity_row(4, &["load:b", "load:a"], None),
+            fidelity_row(
+                9,
+                &["load:c", "load:a"],
+                Some("exact radix loses representation"),
+            ),
+        ],
+        audit_error: None,
+    };
+    // An audit that could not run at all.
+    let error_report = LoadFidelityReport {
+        rows: vec![],
+        audit_error: Some("identified term dof 12 outside a 6-dof system".to_string()),
+    };
+    for (report, expected_refs) in [
+        (&rows_report, vec![case, "load:a", "load:b", "load:c"]),
+        (&error_report, vec![case]),
+    ] {
+        let mut diagnostics = Vec::new();
+        append_load_contribution_absorbed(&mut diagnostics, case, report);
+        assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
+        let d = &diagnostics[0];
+        assert_eq!(d.code, "LOAD_CONTRIBUTION_ABSORBED");
+        assert_eq!(d.severity, "warning");
+        assert_eq!(d.id, "diagnostic:load-fidelity:case-hot");
+        assert_eq!(d.source.as_deref(), Some("core/product_physics"));
+        assert_eq!(d.affected_refs, expected_refs);
+        assert!(
+            d.message
+                .starts_with("Load case case:hot: the load-fidelity audit flagged"),
+            "{}",
+            d.message
+        );
+        assert!(d.message.contains("the case is Sensitive"), "{}", d.message);
+    }
+    let mut diagnostics = Vec::new();
+    append_load_contribution_absorbed(&mut diagnostics, case, &rows_report);
+    let message = &diagnostics[0].message;
+    assert!(
+        message.contains(&format!(
+            "global_dof=4 restrained=false exact_net_bits={:016x} actual_bits={:016x} guarded_ratio=25000000.0",
+            0.3_f64.to_bits(),
+            0.0_f64.to_bits()
+        )),
+        "{message}"
+    );
+    assert!(
+        message.contains(r#"sources=["load:b", "load:a"]"#),
+        "{message}"
+    );
+    assert!(
+        message.contains(
+            r#"global_dof=9 restrained=false unaudited (exact radix loses representation); sources=["load:c", "load:a"]"#
+        ),
+        "{message}"
+    );
+    assert!(!message.contains("could not run"), "{message}");
+    let mut diagnostics = Vec::new();
+    append_load_contribution_absorbed(&mut diagnostics, case, &error_report);
+    let message = &diagnostics[0].message;
+    assert!(message.contains("Flagged rows: []"), "{message}");
+    assert!(
+        message.ends_with(
+            "; the load-fidelity audit could not run (identified term dof 12 outside a 6-dof system); the case is unaudited"
+        ),
+        "{message}"
+    );
+}
+
+/// A cantilever (probe A's section) with three nodal loads (G, -G, 1e-300) N
+/// at the tip in UY. The net 1e-300 N cannot be represented in the audit's
+/// radix-scaled arithmetic against the row scale of G, so the kernel reports
+/// the row unaudited (RV1-N5) and the case is Sensitive.
+fn unauditable_tip_request(g: f64) -> Value {
+    let mut model = preview_model("unauditable");
+    model["nodes"] = json!([node("root", 0.0, 0.0, 0.0), node("tip", 2.0, 0.0, 0.0)]);
+    model["pipe_segments"] = json!([pipe("pipe", "root", "tip", 0.2, 0.01)]);
+    model["materials"] = json!([material()]);
+    model["supports"] = json!([support(
+        "anchor",
+        "root",
+        "anchor",
+        &["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    )]);
+    model["load_cases"][0]["primitive_loads"] = json!([
+        nodal("load:0", "tip", "UY", g),
+        nodal("load:1", "tip", "UY", -g),
+        nodal("load:2", "tip", "UY", 1e-300)
+    ]);
+    request_of(model)
+}
+
+/// RV3-S1, end to end, with no test hook: an authored unauditable load row
+/// (RV1-N5's route) through `solve_load_case`, on both entries (G = 4e15,
+/// below the captured entry's 2^53 capture limit) and on the typed entry at
+/// G = 1e80, both modes. The kernel's Sensitive quality and load-fidelity
+/// report are the precondition (the facade has a report to map); the case is
+/// then published NUMERICAL_INTEGRITY_SENSITIVE with exactly one
+/// LOAD_CONTRIBUTION_ABSORBED warning naming the row and its sources, the
+/// mechanics solve, and nothing is blocking or refused. Deleting the mapping
+/// call (RV3's EV5) fails this test.
+#[test]
+fn s1_unauditable_load_row_is_published_sensitive_with_the_warning() {
+    for (g, entries) in [
+        (4.0e15_f64, &[Entry::Captured, Entry::Typed][..]),
+        (1.0e80, &[Entry::Typed][..]),
+    ] {
+        let request = unauditable_tip_request(g);
+        // The ledger keeps the three terms and the exact net; the kernel's
+        // own Sensitive verdict (the integrity code below, from `FK`) is the
+        // precondition that the facade has a load-fidelity report to map.
+        let (terms, force) = case_ledger(&request, 0);
+        assert_eq!(
+            terms
+                .iter()
+                .filter(|t| t.source.starts_with("load:"))
+                .count(),
+            3
+        );
+        assert!(
+            force.values().contains(&1e-300),
+            "G={g}: the exact net is kept"
+        );
+        for &entry in entries {
+            for mode in MODES {
+                let label = format!("S1 G={g} {entry:?} {mode:?}");
+                let envelope = solved(entry, &request, mode);
+                assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "{label}");
+                assert_eq!(
+                    integrity_code(&envelope, "case"),
+                    "NUMERICAL_INTEGRITY_SENSITIVE",
+                    "{label}"
+                );
+                let absorbed: Vec<&Diagnostic> = envelope
+                    .diagnostics
+                    .iter()
+                    .filter(|d| d.code == "LOAD_CONTRIBUTION_ABSORBED")
+                    .collect();
+                assert_eq!(absorbed.len(), 1, "{label}: {absorbed:?}");
+                let d = absorbed[0];
+                assert_eq!(d.severity, "warning", "{label}");
+                assert_eq!(d.id, "diagnostic:load-fidelity:case", "{label}");
+                assert_eq!(
+                    d.affected_refs,
+                    vec!["case", "load:0", "load:1", "load:2"],
+                    "{label}"
+                );
+                assert!(
+                    d.message.contains("restrained=false unaudited ("),
+                    "{label}: {}",
+                    d.message
+                );
+                assert!(
+                    d.message
+                        .contains(r#"sources=["load:0", "load:1", "load:2"]"#),
+                    "{label}: {}",
+                    d.message
+                );
+                assert!(
+                    !envelope
+                        .diagnostics
+                        .iter()
+                        .any(|d| d.severity == "error" || d.severity == "blocking"),
+                    "{label}: refused"
+                );
+                // The published rows are kept for inspection.
+                assert!(case_rows(&envelope, "case").count() > 0, "{label}");
+            }
+        }
+    }
 }
