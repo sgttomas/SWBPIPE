@@ -1,6 +1,33 @@
-# S11-G — the formation-noise guard (design note, revision 2.1)
+# S11-G — the formation-noise guard (design note, revision 2.2)
 
-D1 (Type 2 design TASK), 2026-09-27. Commissioned by ROOT ("I4's F12 stop", `ROOT_RULINGS_V1.md`, option (c)). Brief: `TASK_BRIEFS/D1_S11G_GUARD_NOTE.md` at `c24f8d5b4`, with ROOT's addendum at `42b300344`. Revision 1 (`633460fb4`, sha256 `5fa3be8f…`) is archived as `_run_records/S11G_GUARD_revision1.md`. Revision 2 (`a5137da0f`, sha256 `b414b88e…`) is archived as `_run_records/S11G_GUARD_revision2.md`.
+D1 (Type 2 design TASK), 2026-09-27. Commissioned by ROOT ("I4's F12 stop", `ROOT_RULINGS_V1.md`, option (c)). Brief: `TASK_BRIEFS/D1_S11G_GUARD_NOTE.md` at `c24f8d5b4`, with ROOT's addendum at `42b300344`. Revision 1 (`633460fb4`, sha256 `5fa3be8f…`) is archived as `_run_records/S11G_GUARD_revision1.md`. Revision 2 (`a5137da0f`, sha256 `b414b88e…`) is archived as `_run_records/S11G_GUARD_revision2.md`. Revision 2.1 (sha256 `7c052c9e…`) is archived as `_run_records/S11G_GUARD_revision2_1.md`.
+
+## 0.2 What changed in revision 2.2 (the routing gate only)
+
+Revision 2.2 answers ROOT's "S11-G ruling 3, revision 1" and the brief `TASK_BRIEFS/D1_S11G_REV22.md` (both at `70907245b`). It changes only §3.5 item 2 (routing) and what follows from it: two further routing lines, one decline in the attempt chain, and the tests, mutations, write-set rows and forecast notes below. Everything else in revision 2.1 is unchanged.
+
+**The defect in 2.1 (I5's path 2, verified here by code reading on main `72d5ff864`).** The 2.1 gate `source_eligible … && load_row_finding.is_none()` withholds the retained-source *attempt*. On a captured multi-case invocation where one case is source-selected, an already-Sensitive case whose load-row guard fires then gets no failure record, falls to `FinalizedSourceBlockCase::ordinary`, which refuses a non-checks-passed outcome (`source_receipt.rs:716-718`), and so has no receipt entry. `finalize_for` then fails coverage (`source_receipt.rs:955-961`), PP pushes the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` (PP:2057), and the captured entry returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` (PP:1484-1488).
+- **Introduced by S11-G, not on main.** On main the same case is attempted (PP:2592-2593), retained scope refuses its element load (`source_recovery.rs:519-528`, `:590-601`), the `Err(failure)` arm records the failure and its `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` diagnostic (PP:2625-2640), and `FinalizedSourceBlockCase::failed` gives an `unsupported` entry (PP:3684; `source_receipt.rs:752-791`). Coverage holds. This is S11-F's F6 shape (`s11f_tests.rs:1236`, passing on main); path 2 differs only in case B's loads, which make the guard fire and so engage the gate.
+
+| ID | Change | Sections |
+|---|---|---|
+| G-1 | **The gate is removed.** `source_eligible` is main's predicate again (capture, no nonlinear support, no combinations) | §3.5 |
+| G-2 | **A load-row finding routes like an ordinary Sensitive verdict:** `needs_source_recovery = report Sensitive ∨ attempted_linear Err ∨ load_row_finding.is_some()`, and the receipt's `OrdinaryAttempt` records outcome `sensitive` (expected code `NUMERICAL_INTEGRITY_SENSITIVE`) when the finding is `Some`. Both match what the envelope publishes after the guard's demotion | §3.5 |
+| G-3 | **Selection is declined, not the attempt:** if an attempt would be selected while the finding is `Some`, it is converted into a failure through the existing decline pattern (`RecoveryFailure`, `RecoveryError::Unsupported`), giving the existing `failed`/`unsupported` receipt entry. By the admissibility argument this is reachable only in range-fallback corners; it replaces the gate as the defensive invariant | §3.5 |
+| Path 2 | **Removed** (no refusal; the guard-fired case publishes Sensitive; for an already-Sensitive case the bytes equal main's) | §3.5, §8 (T18) |
+| Path 1 | **Load-row variant removed** (G-2). **R-b′ variant remains** a disclosed, fail-closed residual under ruling 3, with a characterization test | §3.5, §8 (T19, T20), §11 |
+| Tests | T1's diagnostic-set pin restated; T10 and T10b restated; new T18 (path 2), T19 (path 1, load-row variant), T20 (R-b′ residual characterization), T21 (decline unit test); M7 withdrawn; new M19 to M22 (each reintroduces path 2 or path 1) | §8 |
+| Evidence | `_run_records/s11g_rev22_trace.py` pins every file:line claim of §0.2 and §3.5 item 2 against the product code of main `72d5ff864` (20 checks after erratum E-4, all true; file hashes recorded) | §10 |
+| Forecast | Committed-byte forecast unchanged (zero). Frozen-reference harness: UDL-W1e8 on the captured entry gains one info diagnostic (`SOURCE_BLOCK_RECOVERY_UNAVAILABLE`, from the zero-work formation decline; erratum E-1); verdict and standing unchanged | §6.6 |
+
+
+**Erratum to revision 2.2 (after V1's delta-2.2 check; ROOT "Selection: S11-G revision 2.2", binding condition D22-1).**
+- **E-1 (D22-1). The claim that retained scope refuses the element load "before any charged work" is false.** `source_recovery.rs` precharges n²·16 + 32000·members + supports·(24n + 512) + 128·(loads + springs) at SRec:457-473, *before* its scope checks (SRec:474-528), and PP debits a failed attempt's charged work into the invocation ledger (PP:2628). As written, G-2's new attempt on a **Passed**, guard-fired case (one main does not attempt) would therefore consume invocation budget that neither main nor 2.1 spends: about 7.2e4 at UDL-W1e8's size, about 2.3e6 for a 40-member model against the 4e6 per-case limit. Near the 64e6 invocation limit, that could cost a later case its selection or refuse the invocation through the publication reservation: the same class of availability regression as path 2.
+- **The fix (binding; V1's preferred remedy).** When main would not attempt the case (report Passed, `attempted_linear` not `Err`) and the load-row finding is `Some`, the formation decline is **recorded without running the attempt**: a zero-work `RecoveryFailure` (stage "formation guard", `AttemptStage::SourceClosure`, `RecoveryError::Unsupported`, work {limit 0, charged 0, rejected 0}), plus the same `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info) diagnostic. `failure_fields` maps it to the existing `source_validation` / `unsupported_family`; the reader accepts it under `WORK_LEDGER` (0 ≤ 0 ≤ limit, rejected 0) and `FAILURE_CATEGORY` (`unsupported_family` ⇔ unsupported). The invocation ledger then equals main's. **Already-Sensitive guard-fired cases keep the real attempt** (main makes it too), so T18's byte-equality with main holds. G-3 stays for the admissible corners (V1 found it load-bearing for a 0.4.0 subnormal eigen load).
+- **Tests added by E-1.** **T22:** on a Passed, guard-fired case (UDL-W1e8, captured), the invocation budget (`charged`, `failed_charged`, `attempts`) equals main's for the same request, and the receipt entry, where a receipt exists, is `unsupported` with zero work. **T23:** the reader (`result_export` and the desktop `sourceBlockRecovery.ts`) accepts the zero-work `unsupported` entry. **M23:** restore the charged attempt for a Passed, guard-fired case; killed by T22.
+- **E-2 (D22-N1). The R-b′ residual's reach is wider than per-case modulus bases.** On main, FK's load audit makes a single case Sensitive whatever the stiffness (`structural.rs:1384-1404`), for example through an unaudited range row such as nodal terms (1e15, −1e15, 1e-300), which the captured entry accepts; after K-D5, its formation check does the same. So a single-basis captured invocation can pair a selected, load-audit-Sensitive case A with an INPLANE-type case B. From the code; not run. T19 and T20 may use this single-basis construction (which also settles D22-N3 if multi-basis selection does not confirm).
+- **E-3 (D22-N4). T20 is pre-0.4 only.** On a 0.4.0 captured invocation the case is republished on the ordinary route (CP3 SF-1), not refused; R-b′ demotes on the rerun. T20 carries that as a comment and a one-line assertion.
+- **E-4.** The trace check formerly labelled "retained scope refuses element uniform loads before charged work" is relabelled, and two checks now pin the precharge (SRec:457-473) and the ledger debit (PP:2626-2628): 20 checks, all true.
 
 ## 0.1 What changed in revision 2.1
 
@@ -266,12 +293,21 @@ Each comparison is decided exactly: a copy of the accumulator receives `add_prod
 - There is no rounding on the defect side: A_net,d and A_se,d are exact.
 - The decision is therefore conservative (fail-closed) and bit-reproducible.
 
-### 3.5 What firing does (unchanged, plus the no-op rule and SF-3)
+### 3.5 What firing does (the no-op rule; routing revised in 2.2)
 
 1. **Where the findings are formed.** PP computes the load-row finding after `finish_case_ledger` (PP:2490), and the recovery finding (§4) after the straight end actions are formed. Both go into one `FormationFinding` per case, in the new module `product_physics/src/formation_guard.rs`.
-2. **Routing.** `source_eligible` gains `&& load_row_finding.is_none()`.
-   - **Why it is unreachable end to end (SF-3).** Retained-source recovery admits only nodal loads plus load-state eigen terms, and refuses any other authored family. Its eigen terms are self-equilibrated `RoundedProduct` terms. By §3.4 such a row cannot fire: A_net = 0 there (nodal inputs carry no defect), and A_se reaches at most 1.1e-4 of its floored threshold. The split rule (DB-1) leaves this unchanged. So the load-row guard never fires on a source-eligible case.
-   - **Why the gate is kept anyway.** It is a defensive invariant for any future family admitted to source recovery. A unit test on the routing predicate pins it (§8).
+2. **Routing (revision 2.2; replaces 2.1's gate).**
+   - **G-1: no gate.** `source_eligible` is main's predicate (`capture.is_some() && built.nonlinear_supports.is_empty() && model.combinations.is_empty()`, PP:2592). The load-row finding does not enter it.
+   - **G-2: the finding routes as Sensitive.** `needs_source_recovery = (report Sensitive) || attempted_linear is Err || load_row_finding.is_some()`, and `ordinary_attempt` is formed with outcome `sensitive` and expected code `NUMERICAL_INTEGRITY_SENSITIVE` when the report is Sensitive **or** the finding is `Some` (a constructor argument on `OrdinaryAttempt::passed`; the wire form is unchanged). The load-row finding is computed before both (after `finish_case_ledger`), so both are known at routing. **Erratum E-1:** for a case main would not attempt (report Passed, no `Err`), the decline is recorded as a zero-work `RecoveryFailure` without running the attempt; only already-Sensitive (or `Err`) cases are attempted, as on main.
+   - **G-3: selection is declined.** In the attempt chain, before the 0.4.0 replay reservation: `.and_then(|recovery| if load_row_finding.is_some() { Err(recovery.decline_formation()) } else { Ok(recovery) })`. `decline_formation` mirrors `decline_withheld` (`source_recovery.rs:222-231`): stage "formation guard", `AttemptStage::SourceClosure`, `RecoveryError::Unsupported`, the executed work kept charged. `failure_fields` maps it to the existing stage `source_validation` and code `unsupported_family`. **No receipt field, code or wire form changes.**
+   - **Why 2.1 withheld the attempt, and why that is not needed.** The gate protected against one event: retained-source recovery *selecting* a guard-fired case. Recovery solves the same represented `AssembledForce`, so a selected case would be receipt-qualified (standing `numerically_eligible`, as P1 shows for every Sensitive case with a selected recovery) while its load row is wrong. SF-3's numeric claim stands: recovery admits only nodal loads and load-state eigen terms (`source_recovery.rs:486-528`, `:590-601`), and on such a case the guard cannot fire (A_net = 0; A_se at most 1.1e-4 of its floored threshold). **SF-3's conclusion was wrong:** eligibility (the gate) is decided *before* admissibility, which is decided *inside* the attempt. The gate is therefore reached on exactly the guard-fired cases recovery would attempt and refuse, and what it withheld was a refused attempt whose `failed` entry keeps receipt coverage. The protected event is prevented instead by admissibility, and, for the range-fallback corners where a self-equilibrated eigen term takes a `Bounded` fallback on the unfloored side (an FMA underflow at |a·b| < 2⁻⁹⁶⁹, or a `SumError` above about 1.5e307), by G-3.
+   - **Soundness of giving the case the attempt (brief item 2).**
+     - *No guard-fired case publishes a value that is Passed or better than Sensitive.* The guard's demotion is applied at `append_integrity_report` whatever the attempt's outcome. If the attempt fails (always, except the corners), publication is the ordinary route with code `SENSITIVE` and a non-qualified (`unsupported`) receipt entry. If it would be selected, G-3 declines it, with the same result. No path selects, qualifies or exports a guard-fired case as better than Sensitive.
+     - *The wire equalities hold.* `OrdinaryAttempt::wire` (`source_receipt.rs:527-563`) requires outcome `sensitive` ⇔ published `solve_quality = sensitive`, and the referenced diagnostic's code equal to `NUMERICAL_INTEGRITY_SENSITIVE`. With G-2, both hold whether the case was Sensitive by its report or by the guard. The readers check the same equalities (`result_export/src/source_blocks.rs:226-260`; the desktop's `sourceBlockRecovery.ts:178-183`), and `physics_source.rs:616`'s `SOURCE_FALLBACK_TRIGGER` requires an attempted case to record `sensitive` or `rejected`, which G-2 guarantees.
+     - *The no-op rule and the diagnostic byte layout are unchanged.* `append_integrity_report` is untouched by 2.2. For an already-Sensitive guard-fired case the rule is a no-op, and the case's diagnostics, rows and receipt entry are exactly main's (the refused attempt main already makes). For a Passed guard-fired case, the demotion and sentence are 2.1's; the only addition is the `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info) diagnostic, on the captured entry only, from the zero-work formation decline recorded without an attempt (erratum E-1).
+   - **Path 1 (brief item 4).** Path 1 needs a guard-demoted Passed case beside a source-selected case, so the second case must have a different ordinary verdict: per-case modulus bases (I5's construction), or a per-case Sensitive from S11-K's load audit or K-D5's formation check (both on the kernel report, per ROOT's corrected reach). From the code, not run.
+     - **The load-row variant is removed by G-2:** the case is attempted, refused (its guard-firing family is outside retained scope), and gets a `failed` entry whose ordinary outcome `sensitive` matches the envelope.
+     - **The R-b′ variant remains.** R-b′ is formed after routing, from the published end actions, so the case's ordinary outcome was recorded `checks_passed` and no attempt was made; the only entry available is `ordinary`, whose wire check then fails ("ordinary outcome changed"). Removing it in-design would need R-b′ before routing (from the ordinary solution, with S\* from recomputed end actions) and would route R-b′-fired nodal-only cases to exact recovery, which may then *select* them: a change of R-b′'s semantics, not a routing-gate delta. It stays a disclosed, fail-closed residual under ruling 3 (owned by `SOURCE_BLOCKS_FINALIZATION_FAILED`), with the characterization test T20; the option is recorded for ROOT (§11).
    - **The recovery finding is formed after routing and does not enter it.** Where retained-source recovery is selected, the published member rows are its exact projections, not the formed K_e·u. R-b does not apply to them.
 3. **The verdict.** `append_integrity_report` takes `formation: Option<&FormationFinding>`, at both call sites (PP:2790 linear, PP:2830 nonlinear).
    - When the ordinary code would be `CHECKS_PASSED`, the code becomes `NUMERICAL_INTEGRITY_SENSITIVE` (warning) and one reason sentence is appended to the existing message. The `StructuralReport` stays truthful (`quality: Passed`).
@@ -433,8 +469,10 @@ Each comparison is decided exactly: a copy of the accumulator receives `add_prod
 
 **The zero-regeneration-diff rule stands, and any diff is a stop.** ROOT's B-1 approval is not needed for a committed demotion, because there is none.
 
+**Revision 2.2 leaves this forecast unchanged.** G-1 to G-3 act only on a case whose load-row guard fires, and the load-row guard fires on no committed case (§6.3), so no committed attempt, receipt entry or diagnostic changes. R-b′ is untouched.
+
 **What does change is frozen-reference harness output,** which is not committed bytes:
-- UDL-W1e8 (both entries) and UDL-W1e80 (typed), by the load-row guard;
+- UDL-W1e8 (both entries) and UDL-W1e80 (typed), by the load-row guard. Revision 2.2 adds, on UDL-W1e8's captured entry only, one `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info) diagnostic from the zero-work formation decline (erratum E-1: recorded without running the attempt, so the invocation ledger equals main's); verdict `SENSITIVE` and standing `needs_recompute` are unchanged. UDL-W1e80 (typed entry, no capture) and the INPLANE cases (typed) are unchanged;
 - the INPLANE cases (typed), by R-b′;
 - LFRAME ×4 and WEAK-W-3D/AX-rho1e-08, by R-b′ (false demotions);
 - for R-b, add LARGE-CONT-n00100 AX and ROT.
@@ -481,7 +519,9 @@ Three rules are evaluated on every probe row: no floor; revision 2's whole-row f
 | `FK/lib.rs` | Re-export only |
 | `straight_pipe/src/lib.rs` (SP) | `equivalent_global_nodal_loads_with_spans_formed` (today's values plus `Formation::Exact`); `bending_formation_bound` (R-b's B) |
 | `product_physics/src/formation_guard.rs` (new) | The load-row decision (§3.4, exact); the recovery decision (§4: R-b′ by default, R-b if ROOT so rules); body S\*; `FormationFinding`; reason sentences |
-| `product_physics/src/lib.rs` (PP) | Push sites PP:8595, 8635, 8846–8847, 8883–8888, 8924–8925, 8948 and 2285; the guard call after PP:2490; the recovery record at PP:3075; `source_eligible`; `append_integrity_report` (with the no-op rule) and its two call sites |
+| `product_physics/src/source_recovery.rs` (revision 2.2) | `decline_formation`, mirroring `decline_withheld` (G-3) |
+| `product_physics/src/source_receipt.rs` (revision 2.2) | `OrdinaryAttempt::passed` takes the formation verdict (G-2); constructor only, the wire form is unchanged |
+| `product_physics/src/lib.rs` (PP) | Push sites PP:8595, 8635, 8846–8847, 8883–8888, 8924–8925, 8948 and 2285; the guard call after PP:2490; the recovery record at PP:3075; the routing lines in `solve_load_case` (revision 2.2: `needs_source_recovery` takes the finding, `ordinary_attempt` takes the finding, `decline_formation` in the attempt chain; `source_eligible` is left as on main); `append_integrity_report` (with the no-op rule) and its two call sites |
 | `product_physics/src/s11g_tests.rs` (new) and `tests/s11f_site_test.rs` | The tests in §8 |
 
 **Not touched:** SA, FK `structural.rs`, `solve_preview_reduced_system`, CB, `pressure_runtime`, the GATE files (ROOT's), and any library or code-rule data.
@@ -496,7 +536,7 @@ Every verdict pin carries a **paths-differ precondition**.
 
 | ID | Test | Precondition (paths differ) | Pin |
 |---|---|---|---|
-| T1 | UDL-W1e8, captured and typed, both modes | The ordinary report is `Passed`, and A at S1.RZ is nonzero and exceeds the threshold. Without the guard the code would be `CHECKS_PASSED` | Code `SENSITIVE` and standing `needs_recompute`. The message's `StructuralReport` text shows `quality: Passed`. **The diagnostic code set equals the unguarded run's, except for the integrity code** (no `SOURCE_BLOCK_*` diagnostic) |
+| T1 | UDL-W1e8, captured and typed, both modes | The ordinary report is `Passed`, and A at S1.RZ is nonzero and exceeds the threshold. Without the guard the code would be `CHECKS_PASSED` | Code `SENSITIVE` and standing `needs_recompute`. The message's `StructuralReport` text shows `quality: Passed`. **Diagnostic code set (revision 2.2):** equal to the unguarded run's except for the integrity code, **plus**, on the captured entry only, one `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info) from the zero-work formation decline (G-2, erratum E-1), and no other `SOURCE_BLOCK_*` diagnostic |
 | T2 | UDL-W1e80, typed, both modes (captured asserted to refuse) | As T1 | As T1 |
 | T3 | UDL-W1e5, both entries and modes | A ≠ 0 (1.94e-11) | `CHECKS_PASSED`; stat/threshold < 0.1 |
 | T4 | Nodal (G, n, −G) at a free DOF (F-G1e80-GnG typed; F-G1e8-GnG both entries) | The binary64 fold differs from the exact net, and `formation_rows()` has no defect term | Not demoted by the load-row guard |
@@ -507,8 +547,8 @@ Every verdict pin carries a **paths-differ precondition**.
 | T7 | The SP formation variant against the existing function | — | Values bit-identical; the intended expansion equals the rational oracle (3·rotation_i at b = 1, a = 0 is qL²/4) |
 | T8 | Site table: every `ledger.push*` is classified as input, formed family, self-equilibrated or CannotBound | — | A formed site using plain `push` fails |
 | T9 | Committed regeneration | — | Zero committed-byte diff |
-| **T10** (SF-3, restated) | Unit test on the routing predicate `source_eligible(capture, nonlinear, combinations, load_row_finding)` | With the same inputs and `None`, the predicate is true | False whenever `load_row_finding` is `Some`. The end-to-end path is unreachable (§3.5), and this is stated |
-| **T10b** (DN-5) | Source pin: the routing site in `solve_load_case` calls the tested predicate `source_eligible(…)` and computes nothing else there (a site-table assertion in `tests/s11f_site_test.rs`, by function name and call count) | — | Fails if the routing site inlines or bypasses the predicate |
+| **T10** (revision 2.2) | Unit tests on the routing predicates: `source_eligible(capture, nonlinear, combinations)` (main's; no finding argument) and `needs_source_recovery(report_quality, attempt_err, load_row_finding)`; and on `OrdinaryAttempt::passed(…, formation_sensitive)` | With the finding `None` and a Passed report, `needs_source_recovery` is false and the outcome is `checks_passed` | With the finding `Some`: `needs_source_recovery` true, outcome `sensitive`, expected code `NUMERICAL_INTEGRITY_SENSITIVE`; `source_eligible` is unaffected by the finding |
+| **T10b** (DN-5, revision 2.2) | Source pin (site table in `tests/s11f_site_test.rs`, by function name and call count): the routing site in `solve_load_case` calls the tested `source_eligible` and `needs_source_recovery`, forms `ordinary_attempt` with the finding, and applies `decline_formation` in the attempt chain before the replay reservation | — | Fails if the routing site inlines, bypasses or reorders any of them, or reintroduces the finding into `source_eligible` |
 | **T11** (B-1) | F- and M-G1e80-GnG-INPLANE, typed, both modes | The load-row guard does not fire (all N2 terms are inputs) and the ordinary report is `Passed`. Without R-b′ the case is `CHECKS_PASSED`, with I4's pinned breach values | `SENSITIVE`, with a reason naming the member end, q, B and S\*. I4's `FORMATION_PINS` values stay bit-identical; only the verdict changes |
 | **T12** (B-1) | An accurate small-moment row below the floor: RF-LARGE-CONT-n00100-AX (captured, both modes) | R-b's two clauses hold on the product's B and q, computed in the test, so the two paths differ only by the floor clause | `CHECKS_PASSED` under R-b′. This kills the drop-the-floor mutation |
 | **T13** (B-1) | The committed request `load_reference_fallback_uz`, which is already Sensitive | R-b's clauses hold at end i | The envelope is byte-identical to today's (the no-op rule) |
@@ -516,6 +556,10 @@ Every verdict pin carries a **paths-differ precondition**.
 | **T15** (SF-2) | A realized curved span carrying a uniform load | The ordinary report is `Passed` | `SENSITIVE`, with the `CannotBound` reason |
 | T16 | I4's F1/F11/F12 test, extended | — | Every formation-list breach is published non-Passed: the 6 UDL rows and the 8 INPLANE rows |
 | **T17** (DN-1) | Unit test of `bending_formation_bound` on a skew member (direction (3, 1.7, 0.4), nonzero u at both ends with mixed signs) | Σ_c\|T_kc\|\|u_c\| differs from \|Σ_c T_kc u_c\| on that member (asserted) | B equals the hand-derived γ₁₆·Σ\|K\|·Σ\|T\|\|u\| (rounded upward) bit for bit |
+| **T18** (path 2, revision 2.2) | I5's path-2 model on the captured entry, both modes: an N05-type invocation (the soft torsion spring makes both cases Sensitive), case A the nodal tip torques (1e8, 0.3, −1e8), case B a uniform load 1e8 N/m along y cancelled at the tip by a nodal −1e8 N, plus a tip RZ moment 1e8/3 + 0.2 N·m | Case B's report is Sensitive and its load-row guard fires (both computed in the test); with 2.1's gate the invocation returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` (M19) | `Ok(envelope)` with a receipt: case A `qualified` (selected), case B `unsupported` with ordinary outcome `sensitive`; no blocking diagnostic; case B's integrity code `SENSITIVE`; case B's diagnostics and rows byte-equal to the same request on the unguarded route (the no-op rule) |
+| **T19** (path 1, load-row variant; revision 2.2) | A two-case captured invocation in which case A is Sensitive and source-selected and case B's report is Passed, with a load-row finding on case B. The second verdict comes from per-case modulus bases (I5's construction) | Case B's report is Passed and its guard fires; the invocation has a selected case. Without G-2 the receipt entry would be `ordinary` with outcome `checks_passed` and the wire check would refuse (M20, M21) | No refusal; case B `SENSITIVE`, receipt entry `unsupported` with ordinary outcome `sensitive`; case A `qualified` |
+| **T20** (residual characterization; ruling 3) | The same two-case construction with case B INPLANE-type (R-b′ fires; the load-row guard is silent). **Labelled a characterization of a known residual, not desired behaviour; its comment references `SOURCE_BLOCKS_FINALIZATION_FAILED`** | R-b′ fires on case B (computed in the test) and case A is selected | The captured invocation returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, no case value is published; the single-case captured invocation of case B alone is demoted (`SENSITIVE`) and not refused |
+| **T21** (G-3, unit) | A recovery input admissible to retained scope (nodal only) with a synthetic `load_row_finding = Some` | Without G-3 the attempt is selected (asserted with the finding `None`) | With the finding `Some`: `Err(RecoveryFailure)`, `failure_fields` gives (`source_validation`, `unsupported_family`); the receipt entry is `failed`; the work stays charged |
 
 ### 8.2 Mutations (each must be killed)
 
@@ -527,8 +571,8 @@ Every verdict pin carries a **paths-differ precondition**.
 | M4 | Replace the exact defect with the a-priori c = 16 bound | T3, T5 |
 | M5 | Take the free-row S\* over all rows | T1, T2 |
 | M6 | Sum \|ε\| instead of Σε | T5, T6 |
-| M7 | Drop the `source_eligible` gate | T10 (unit) and T10b (source pin). **Not observable end to end** (§3.5), which is stated |
-| M8 | Demote through `report.quality` before routing | T1 (report text shows `quality: Passed`). Together with M7: T1 again, because a `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` diagnostic then appears for UDL-W1e8 captured |
+| M7 | *(withdrawn in revision 2.2: the gate no longer exists)* | — |
+| M8 | Demote through `report.quality` before routing | T1 (report text shows `quality: Passed`) |
 | M9 | Map a fired case to `Err` or a blocking diagnostic | T1 |
 | **M10** (SF-1) | Combine the families in binary64 (revision 1's fl(round(A12)/12 + round(A1))) | A unit test with one Exact term and one RoundedProduct term whose defects cancel to below u·max. The exact decision is silent; the binary64 one fires |
 | **M11** (SF-4) | Drop the floor | T6a |
@@ -539,6 +583,10 @@ Every verdict pin carries a **paths-differ precondition**.
 | **M16** (SF-2) | Treat CannotBound as a zero defect | T15 |
 | **M17** (DB-1) | Apply the floor to the whole row's defect (revision 2's rule: \|A_net + A_se\| against the floored threshold) | T6b |
 | **M18** (DN-3) | Use the binary64 literal 1e-9 rounded to nearest in the threshold | A unit test at a row whose exact statistic lies between 10⁻⁹ and fl(1e-9) times the scale: the exact decision fires |
+| **M19** (path 2) | Reintroduce 2.1's gate: `source_eligible … && load_row_finding.is_none()` | T18 (refusal), T10b |
+| **M20** (path 1) | `needs_source_recovery` ignores the finding (report only) | T19 (the case gets an `ordinary` entry with `checks_passed`; the wire check refuses), T10 |
+| **M21** (path 1) | `ordinary_attempt` from the report only (outcome `checks_passed` while the envelope is demoted) | T19 ("ordinary outcome changed"; with an attempt, the readers' `SOURCE_FALLBACK_TRIGGER` too), T10 |
+| **M22** (G-3) | Drop `decline_formation` from the attempt chain | T21 |
 
 ---
 
@@ -546,7 +594,7 @@ Every verdict pin carries a **paths-differ precondition**.
 
 | | K-D5 (I3) | S11-G |
 |---|---|---|
-| PP | Only the solve call inside `solve_preview_reduced_system` (PP:3965 in I3's tree) | Ledger push sites; one call after `finish_case_ledger`; the recovery record at PP:3075 (the straight branch of `solve_load_case`'s element recovery loop); the `source_eligible` line; `append_integrity_report` and its two calls |
+| PP | Only the solve call inside `solve_preview_reduced_system` (PP:3965 in I3's tree) | Ledger push sites; one call after `finish_case_ledger`; the recovery record at PP:3075 (the straight branch of `solve_load_case`'s element recovery loop); the routing lines in `solve_load_case` (`needs_source_recovery`, `ordinary_attempt`, the attempt chain; revision 2.2); `append_integrity_report` and its two calls. Also `source_recovery.rs` (`decline_formation`) and `source_receipt.rs` (`OrdinaryAttempt::passed`), which K-D5 does not edit |
 | FK | `structural.rs` (`finish_checked_factor`), `formation_check.rs`, `retained/*` | `load_ledger.rs` |
 | SA | `structural_adapter.rs` | none |
 | SP | none | The formation variant; `bending_formation_bound` |
@@ -564,7 +612,8 @@ Every verdict pin carries a **paths-differ precondition**.
 | `s11g_forecast.py`, `.json`, `.stdout.json` | Revision 1: load-row guard Parts A, A2, B and C (unchanged) |
 | `s11g_rb_forecast.py` | Revision 2, updated in 2.1: Part C (committed envelopes, the product's own values); Part E (exact emulation of committed models without an envelope); Part F (frozen references on R1's exact u and P1's observed u, today's predicate, the 221, INPLANE with I4's values, K-D5 from `recal_d5.json`, with the S11-F-state figure for the RF-CANCEL cases, DS-1); Part S (the SF-4 floor under three rules: V1's collinear and pressure runs, the DB-1 counterexamples, the DN-4 residual). Standard library; it imports `withheld_rows.py` and `sweep_d5_r1.py` |
 | `s11g_rb_forecast.json`, `.stdout.json` | Its output (revision 2.1). Input: `inputs/i4_formation_rows.json`, I4's record pinned by full hash (sha256 `c548f51999b4df161fb6feb1109ec1a8fa7d40f822f9f497aafc050e9a82d200`) until I4's commit lands |
-| `S11G_GUARD_revision1.md`, `S11G_GUARD_revision2.md` | Revisions 1 and 2, archived |
+| `S11G_GUARD_revision1.md`, `S11G_GUARD_revision2.md`, `S11G_GUARD_revision2_1.md` | Revisions 1, 2 and 2.1, archived |
+| `s11g_rev22_trace.py`, `.json`, `.stdout.json` | Revision 2.2: source-trace pins for the routing-gate analysis, read from the product code of main `72d5ff864`; 20 checks after erratum E-4, all true |
 
 Run from T3/:
 
@@ -584,7 +633,9 @@ Here `<P>` is `projects/chirality-piping`, given relatively as `../../../../../.
 - **K-D5 does not demote the INPLANE cases after S11-F** (DS-1). R-b′ is the only catch; I3 expects K-D5 silent there.
 
 **Open:**
-1. **V1's diff check** of revision 2.1.
+1. **V1's delta check** of revision 2.2 (the routing gate; §0.2).
+1a. **ROOT: path 1's R-b′ variant** remains a disclosed, fail-closed residual under ruling 3 (characterization test T20; owner `SOURCE_BLOCKS_FINALIZATION_FAILED`, closing before T3 closes). The load-row variant is removed by G-2. An option, not proposed here: form R-b′ before routing from the ordinary solution and let it set `needs_source_recovery`, so that R-b′-fired nodal-only cases go to exact retained-source recovery. That would remove the residual and could publish exact values for INPLANE-type rows, but it changes R-b′'s semantics (demotion becomes a recovery route) and its forecast, and belongs to a separate ruling.
+1b. **Runs to confirm** (from the code, not run here): T18 on I5's path-2 model (I5's `ruling3_characterization_multi_case_captured_receipt_residual` becomes T18's paths-differ counterpart), and T19/T20's multi-basis construction, which I5 has not yet shown selects case A.
 2. **For S11-G's CHANGE_RECORD:** the DN-4 residual (self-equilibrated-only junctions with a genuine small net are hidden; routed to W1/F2) and the CannotBound availability loss.
 3. **Confirmations during implementation:** the exact-pressure rounding count (§3.2, V1 counts 9–10 against γ₁₆); the product's own B on the LFRAME rows (borderline, §6.4); the product's S\*_moment = 100 on the F-case INPLANE rows (floor margin 1.72, DN-6).
 4. **Recorded, no action:** F2 resolves the INPLANE rows with modest margins (V1 N-2: 1.85 on the stop rule and 1.7 on the floor, F case). R-b′'s coverage limit (V1 N-7) is stated in §4.

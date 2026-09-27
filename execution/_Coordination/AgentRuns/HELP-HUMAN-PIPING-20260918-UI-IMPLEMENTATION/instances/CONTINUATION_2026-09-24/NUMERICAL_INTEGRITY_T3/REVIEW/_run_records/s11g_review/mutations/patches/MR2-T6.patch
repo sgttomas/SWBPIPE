@@ -1,0 +1,12 @@
+# MR2-T6: ruling 2: restore B >= T0 alone; T6 alone must kill it
+--- a/projects/chirality-piping/core/product_physics/src/formation_guard.rs
++++ b/projects/chirality-piping/core/product_physics/src/formation_guard.rs
+@@ -237,7 +237,7 @@
+         ))
+     } else if !row.formed {
+         None
+-    } else if (row.bound > 0.0 && row.bound >= t0)
++    } else if (row.bound >= t0)
+         || exceeds(&row.net_defect, row.bound, t0)
+         || exceeds(&row.self_equilibrated_defect, 0.0, tf)
+     {

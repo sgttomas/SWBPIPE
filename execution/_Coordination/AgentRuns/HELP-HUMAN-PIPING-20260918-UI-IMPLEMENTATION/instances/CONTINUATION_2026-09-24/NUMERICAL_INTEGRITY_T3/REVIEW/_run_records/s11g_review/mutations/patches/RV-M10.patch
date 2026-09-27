@@ -1,0 +1,16 @@
+# RV-M10: restrained rows take the free-row S* (section 3.4)
+--- a/projects/chirality-piping/core/product_physics/src/formation_guard.rs
++++ b/projects/chirality-piping/core/product_physics/src/formation_guard.rs
+@@ -281,11 +281,7 @@
+         .filter_map(|row| {
+             let body = bodies.body_of_node(row.dof / DOF_PER_NODE)?;
+             let m = maxima[&body];
+-            let (force, moment) = if restrained.contains(&row.dof) {
+-                (m[2], m[3])
+-            } else {
+-                (m[0], m[1])
+-            };
++            let (force, moment) = (m[0], m[1]);
+             let (fo, mo) = coupled(force, moment, bodies.extent(body));
+             let scale = if row.dof % DOF_PER_NODE >= 3 { mo } else { fo };
+             Some((row.dof, scale))

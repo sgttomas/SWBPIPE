@@ -1,0 +1,33 @@
+     Running unittests src/lib.rs (<scratch>/target/debug/deps/open_pipe_stress_product_physics-fed46d055afd7b13)
+test result: ok. 377 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 8.59s
+     Running tests/elastic_extrema_runtime.rs (<scratch>/target/debug/deps/elastic_extrema_runtime-e284a76d8f19855f)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/load_reference_state_runtime.rs (<scratch>/target/debug/deps/load_reference_state_runtime-cd1222709a355735)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+     Running tests/load_reference_state_runtime_extension.rs (<scratch>/target/debug/deps/load_reference_state_runtime_extension-21dc896a7c0948ed)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s
+     Running tests/physics_source_runtime.rs (<scratch>/target/debug/deps/physics_source_runtime-042da0f8df0d779a)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+     Running tests/pressure_grouping_limits.rs (<scratch>/target/debug/deps/pressure_grouping_limits-904dd1619ff7aa9a)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/pressure_membrane_range.rs (<scratch>/target/debug/deps/pressure_membrane_range-5137907c107894c6)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/pressure_runtime.rs (<scratch>/target/debug/deps/pressure_runtime-3a4afc01b6619b0c)
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+     Running tests/pressure_section_geometry.rs (<scratch>/target/debug/deps/pressure_section_geometry-cf2ee9fd4ea67b11)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+     Running tests/preview_physics_runtime.rs (<scratch>/target/debug/deps/preview_physics_runtime-1a9335bc4270e388)
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+     Running tests/represented_gap_publication.rs (<scratch>/target/debug/deps/represented_gap_publication-cd45ebc829e015e6)
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+     Running tests/rv4_probe.rs (<scratch>/target/debug/deps/rv4_probe-52d75d6f8a038142)
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+     Running tests/s11f_site_test.rs (<scratch>/target/debug/deps/s11f_site_test-2a95ecb64f9098dd)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.42s
+     Running tests/source_block_recovery.rs (<scratch>/target/debug/deps/source_block_recovery-b7c03852208a604f)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.75s
+     Running tests/stress_maximum_coverage.rs (<scratch>/target/debug/deps/stress_maximum_coverage-8a5b2079d8ad241d)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+     Running tests/support_reactions_runtime.rs (<scratch>/target/debug/deps/support_reactions_runtime-268ae9f95e9c14cd)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

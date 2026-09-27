@@ -1,0 +1,5 @@
+RV-M1: failing=s11g_tests::d21_1_second_test_adds_the_bound_exactly  at=panicked at src/s11g_tests.rs:700 
+RV-M2: failing=s11g_tests::exact_pressure_operand_bound_is_gamma_20 s11g_tests::exact_pressure_operand_rows_carry_their_bound  at=panicked at src/s11g_tests.rs:2372 panicked at src/s11g_tests.rs:716 
+RV-M3: failing=s11g_tests::curved_thermal_records_name_the_pushed_products  at=panicked at src/s11g_tests.rs:2465 
+RV-M6: failing=s11g_tests::e1_ordinary_err_guard_fired_case_keeps_mains_attempt t10b_routing_site_calls_the_tested_predicates  at=panicked at src/s11g_tests.rs:2532 
+RV-M10: failing=s11g_tests::restrained_rows_take_the_all_rows_scale  at=panicked at src/s11g_tests.rs:2595 

@@ -1,0 +1,4 @@
+#!/bin/bash
+. <scratch>/runs/env.sh
+cd $W && PYTHONPATH=$S/mut PYTHONDONTWRITEBYTECODE=1 nice python3 $S/mut/rv4_mutants.py $S/runs/mut "$@" > $S/runs/mut_driver.log 2>&1
+echo "DONE2 exit=$?" >> $S/runs/mut_driver.log

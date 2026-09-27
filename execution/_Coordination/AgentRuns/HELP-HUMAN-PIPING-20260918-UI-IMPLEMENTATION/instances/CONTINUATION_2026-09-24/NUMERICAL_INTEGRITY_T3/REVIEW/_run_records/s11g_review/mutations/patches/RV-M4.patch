@@ -1,0 +1,14 @@
+# RV-M4: straight thermal/eigen pairs tagged not self-equilibrated (floor bypassed)
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -9173,8 +9173,8 @@
+             let (a, b) = (load.axial_load, local_x[axis]);
+             let value = a * b;
+             let product = |k| Formation::RoundedProduct { k, a, b };
+-            ledger.push_formed(&load.source, i_base + axis, -value, product(-1.0), 0.0, true);
+-            ledger.push_formed(&load.source, j_base + axis, value, product(1.0), 0.0, true);
++            ledger.push_formed(&load.source, i_base + axis, -value, product(-1.0), 0.0, false);
++            ledger.push_formed(&load.source, j_base + axis, value, product(1.0), 0.0, false);
+         }
+     }
+ }

@@ -52,7 +52,7 @@
 - **How.** The code becomes `NUMERICAL_INTEGRITY_SENSITIVE` (warning), and one reason sentence is appended to the existing message. The `StructuralReport` text stays truthful (`quality: Passed`).
 - **The no-op rule.** A case already Sensitive or weaker is left byte for byte as it is.
 - **The receipt's publication reservation (RV4-N3).** In a multi-case captured invocation with a receipt, the added info diagnostic (E-1's decline, `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`) grows the publication reservation by 32 + 12 × its size, plus the difference between the entries. The attempt ledger itself equals main's (T22). This matters only within a few kB of the 64e6 invocation limit.
-- **Nothing else changes.** No value changes, no field or code is added, and the guard itself never produces an `Err`. The one exception is the ruled, fail-closed receipt residual under Residuals below: a pre-0.4 captured invocation with per-case modulus bases can be refused.
+- **Nothing else changes.** No value changes, no field or code is added, and the guard itself never produces an `Err`. The one exception is the ruled, fail-closed receipt residual under Residuals below: a pre-0.4 captured invocation can be refused (C1 shows it with per-case modulus bases; single-basis reach is not refuted).
 
 **Routing (revision 2.2 G-1 to G-3, with erratum E-1 / D22-1).**
 - **G-1.** `source_eligible` is main's predicate (captured, no nonlinear supports, no combinations). Revision 2.1's load-row gate is gone.
@@ -112,7 +112,7 @@
 - **Receipt coverage on the pre-0.4 captured entry (ROOT ruling 3, revision 1; revision 2.2).**
   - **Path 2 (the 2.1 routing gate on an already-Sensitive case) is removed by G-1.** T18 confirms it by run: the invocation is not refused. Case B keeps main's real refused attempt, and T18's whole envelope is byte-identical to base in both modes.
   - **Path 1, load-row variant, is removed by G-2 and E-1.** T19 confirms it by run. It uses per-case modulus bases, and case A is selected, which settles V1's N3. The invocation is not refused; case B is `SENSITIVE`, and its entry is the zero-work `unsupported` decline.
-  - **Path 1, R-b′ variant: a disclosed residual. It is reachable (C1), fail-closed, and needs per-case modulus bases and a pre-0.4 captured invocation** (ROOT: ruling 3 stands).
+  - **Path 1, R-b′ variant: a disclosed residual. It is reachable (C1, which uses per-case modulus bases; single-basis reach through FK's load audit and through K-D5 is not refuted), fail-closed, and confined to a pre-0.4 captured invocation** (ROOT: ruling 3 stands; wording corrected 2026-09-27 on the PR1004 review).
     - **The mechanism.** R-b′ acts after routing. A case whose report is Passed and which R-b′ demotes, beside a source-selected case, keeps an `ordinary` receipt entry whose outcome no longer matches the published verdict. Receipt finalization then fails. The captured entry returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`: no envelope and no published value.
     - **Construction C1, found by RV4 (the independent reviewer).**
       - The model is N05's cantilever with T19's per-case bases.

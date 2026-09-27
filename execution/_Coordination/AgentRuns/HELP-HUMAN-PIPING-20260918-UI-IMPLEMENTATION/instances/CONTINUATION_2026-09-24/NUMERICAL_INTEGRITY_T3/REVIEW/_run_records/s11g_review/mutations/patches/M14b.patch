@@ -1,0 +1,16 @@
+# M14b: |T u| in B
+--- a/projects/chirality-piping/core/solver/straight_pipe/src/lib.rs
++++ b/projects/chirality-piping/core/solver/straight_pipe/src/lib.rs
+@@ -733,10 +733,10 @@
+             let mut accumulator = ExactAccumulator::new();
+             for (c, displacement) in element_displacements.iter().enumerate() {
+                 accumulator
+-                    .add_product(transform[k][c].abs(), displacement.abs())
++                    .add_product(transform[k][c], *displacement)
+                     .map_err(|_| bound_error(*displacement))?;
+             }
+-            *magnitude = round_upward(&accumulator).map_err(|_| bound_error(f64::INFINITY))?;
++            *magnitude = accumulator.round().map_err(|_| bound_error(f64::INFINITY))?.abs();
+         }
+         let mut bounds = [0.0; 2];
+         for (bound, (ry, rz)) in bounds

@@ -1,0 +1,25 @@
+# M14a: signed sums in B
+--- a/projects/chirality-piping/core/solver/straight_pipe/src/lib.rs
++++ b/projects/chirality-piping/core/solver/straight_pipe/src/lib.rs
+@@ -733,7 +733,7 @@
+             let mut accumulator = ExactAccumulator::new();
+             for (c, displacement) in element_displacements.iter().enumerate() {
+                 accumulator
+-                    .add_product(transform[k][c].abs(), displacement.abs())
++                    .add_product(transform[k][c], *displacement)
+                     .map_err(|_| bound_error(*displacement))?;
+             }
+             *magnitude = round_upward(&accumulator).map_err(|_| bound_error(f64::INFINITY))?;
+@@ -746,10 +746,10 @@
+             let mut accumulator = ExactAccumulator::new();
+             for (k, magnitude) in local_magnitudes.iter().enumerate() {
+                 accumulator
+-                    .add_product(stiffness[ry][k].abs(), *magnitude)
++                    .add_product(stiffness[ry][k], *magnitude)
+                     .map_err(|_| bound_error(*magnitude))?;
+                 accumulator
+-                    .add_product(stiffness[rz][k].abs(), *magnitude)
++                    .add_product(stiffness[rz][k], *magnitude)
+                     .map_err(|_| bound_error(*magnitude))?;
+             }
+             let row_sum = round_upward(&accumulator).map_err(|_| bound_error(f64::INFINITY))?;

@@ -1,0 +1,116 @@
+//! RV4 scratch probe (not committed): independent attempts at the R-b' path-1
+//! residual (ROOT addendum 3). Inputs are invented; no library data.
+//!
+//! Construction C1: N05's cantilever (root anchor with a 1e-4 N*m/rad torsion
+//! spring; L = 2 m, OD 0.2 m, wall 0.01 m) with two cases on per-case modulus
+//! bases (T19's mechanism). Case A = N05's cancelling tip torques on the base
+//! basis (Sensitive; source-selected per T19). Case B on an invented soft
+//! basis (E = 1 Pa, G = 0.4 Pa; well conditioned, Passed) carries only nodal
+//! inputs: a tip force F along global y and a small tip moment m about RZ.
+//! At the tip end j the published bending moment is m, while the formed
+//! K_e*u terms are of order F*L, so R-b' fires when m is inside
+//! (1024 B, 1e9 B) and above 2^-34 S*_moment.
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
+    LinearStaticPreviewRequest, PreviewSolverMode,
+};
+use serde_json::{json, Value};
+
+const INVENTED: &str = "invented_rv4_probe_input_not_library_data";
+const MODES: [PreviewSolverMode; 2] = [
+    PreviewSolverMode::SparseInteractive,
+    PreviewSolverMode::DenseScrutiny,
+];
+
+fn nodal(id: &str, node: &str, direction: &str, value: f64) -> Value {
+    let moment = direction.starts_with('R');
+    json!({"id": id, "category": if moment { "concentrated_moment" } else { "concentrated_force" },
+        "target": {"type": "node", "node": node}, "direction": direction,
+        "magnitude": {"value": value, "unit": if moment { "N*m" } else { "N" }},
+        "dimension": if moment { "moment" } else { "force" }, "provenance": INVENTED})
+}
+
+fn torques() -> Value {
+    json!({"id": "case", "label": "torques", "kind": "primitive_user_load", "provenance": INVENTED,
+        "primitive_loads": [nodal("tip:0", "tip", "RX", 1e8), nodal("tip:1", "tip", "RX", 0.3), nodal("tip:2", "tip", "RX", -1e8)]})
+}
+
+fn case_b(force: f64, moment: f64) -> Value {
+    json!({"id": "case-b", "label": "tip force and small moment", "kind": "primitive_user_load",
+        "provenance": INVENTED, "modulus_basis_ref": "point:soft",
+        "primitive_loads": [nodal("b:fy", "tip", "global_y", force), nodal("b:mz", "tip", "RZ", moment)]})
+}
+
+fn request(cases: Vec<Value>) -> Value {
+    let mut model: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/numerical_sensitive_torsion_model.json"
+    ))
+    .unwrap();
+    model["materials"][0]["temperature_points"] = json!([{
+        "id": "point:soft", "temperature": {"value": 20.0, "unit": "degC"},
+        "elastic_modulus": {"value": 1.0, "unit": "Pa"}, "shear_modulus": {"value": 0.4, "unit": "Pa"},
+        "provenance": INVENTED}]);
+    model["load_cases"] = json!(cases);
+    json!({"model": model, "materials": []})
+}
+
+fn integrity<'a>(envelope: &'a Value, case: &str) -> &'a Value {
+    envelope["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|d| d["id"] == json!(format!("diagnostic:numerical-integrity:{case}")))
+        .unwrap_or_else(|| panic!("integrity of {case}"))
+}
+
+fn summary(label: &str, envelope: &Value) {
+    let codes: Vec<String> = envelope["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|d| format!("{}[{}]{}", d["code"], d["severity"], d["affected_refs"]))
+        .collect();
+    eprintln!("RV4 {label}: contract={} receipt={} codes={codes:?}",
+        envelope["producer"]["semantic_contract_id"], !envelope["source_block_recovery"].is_null());
+}
+
+/// C1: the single-case invocation of case B alone is demoted by R-b' (the
+/// precondition that R-b' fires on a Passed case), and the two-case captured
+/// invocation is recorded as it actually behaves.
+#[test]
+fn rv4_c1_rb_prime_residual_construction() {
+    // (1.0, 0.5) is the control: q well resolved, B/(1e-9 q) < 1, R-b' silent.
+    for (force, moment) in [(1.0, 1e-7), (1.0, 1e-9), (10.0, 1e-6), (1.0, 0.5)] {
+        for mode in MODES {
+            let label = format!("C1 F={force} m={moment} {mode:?}");
+            // Precondition: case B alone, captured: Passed ordinary report, R-b' fires.
+            let alone = run_linear_static_preview_value_with_mode(request(vec![case_b(force, moment)]), mode)
+                .unwrap_or_else(|e| panic!("{label}: case B alone refused: {e}"));
+            let alone = serde_json::to_value(&alone).unwrap();
+            let b = integrity(&alone, "case-b");
+            let msg = b["message"].as_str().unwrap();
+            eprintln!("RV4 {label} alone: code={} passed_report={} rb_prime={}", b["code"], msg.contains("quality: Passed"), msg.contains("S11-G recovery guard (R-b')"));
+            if let Some(at) = msg.find("S11-G recovery guard") { eprintln!("RV4 {label} alone sentence: {}", &msg[at..]); }
+            // The two-case captured invocation.
+            let two = request(vec![torques(), case_b(force, moment)]);
+            match run_linear_static_preview_value_with_mode(two.clone(), mode) {
+                Ok(envelope) => {
+                    let v = serde_json::to_value(&envelope).unwrap();
+                    summary(&format!("{label} two-case captured OK"), &v);
+                    if let Some(cases) = v["source_block_recovery"]["body"]["cases"].as_array() {
+                        for c in cases {
+                            eprintln!("RV4 {label} receipt case {} outcome={} ordinary={}", c["basis_ref"]["ref_id"], c["outcome"], c["ordinary_attempt"]["outcome"]);
+                        }
+                    }
+                    let b = integrity(&v, "case-b");
+                    eprintln!("RV4 {label} two-case case-b code={} rb_prime={}", b["code"], b["message"].as_str().unwrap().contains("S11-G recovery guard (R-b')"));
+                }
+                Err(error) => eprintln!("RV4 {label} two-case captured ERR {error}"),
+            }
+            // The typed entry of the same two-case request (no capture, no receipt).
+            let typed: LinearStaticPreviewRequest = serde_json::from_value(two).unwrap();
+            let v = serde_json::to_value(&run_linear_static_preview_with_mode(typed, mode)).unwrap();
+            summary(&format!("{label} two-case typed"), &v);
+        }
+    }
+}

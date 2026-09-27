@@ -1,0 +1,9 @@
+base fixtures exit=0 runs: 140
+base core exit=0 runs: 20
+base validation exit=0 runs: 58
+/dev/vda        252G   27G   11G  73% /
+cand fixtures exit=0 runs: 140
+cand core exit=0 runs: 20
+cand validation exit=0 runs: 58
+/dev/vda        252G   27G   11G  73% /
+DONE3

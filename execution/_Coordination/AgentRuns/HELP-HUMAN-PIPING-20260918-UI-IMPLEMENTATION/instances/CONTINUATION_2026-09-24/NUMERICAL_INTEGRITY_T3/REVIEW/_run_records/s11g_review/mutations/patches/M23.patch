@@ -1,0 +1,12 @@
+# M23: always run the charged attempt on a guard-fired case (E-1 / D22-1)
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -2739,7 +2739,7 @@
+         // route would not attempt (report Passed, no Err) is declined for its
+         // load-row finding without running an attempt, so the invocation
+         // ledger equals the unguarded one.
+-        let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
++        let attempt = if false && !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
+             Err(source_recovery::formation_decline_without_attempt())
+         } else {
+         source_budget.attempts += 1;

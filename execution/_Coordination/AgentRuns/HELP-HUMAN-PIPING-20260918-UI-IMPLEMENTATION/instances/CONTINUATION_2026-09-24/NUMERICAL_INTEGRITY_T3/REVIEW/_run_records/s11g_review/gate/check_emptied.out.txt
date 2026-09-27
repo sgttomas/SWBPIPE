@@ -1,0 +1,9 @@
+previous counts {'triples': 7, 'rows_with_mode': 14} rows 14
+current counts {'triples': 0, 'rows_with_mode': 0} rows 0
+rows_sha256 recomputed 70c0ff53f459eb08a24c36d6b1c260b97f4f549bb79b31a063b8c45bc8e304ce recorded 70c0ff53f459eb08a24c36d6b1c260b97f4f549bb79b31a063b8c45bc8e304ce
+owners equal True counts equal True source equal True
+454bbc24bcbe5e1b97272b4e6d1251ff78b0c98c1e9894876c1f260464a43b5c  prev_formation.json
+0e110b4b50415797c835b451f3ceab1597b940fa5fd652fba4e6b15a2538babd  cur_formation.json
+generator re-run (<venv> python 3.11.15), outputs:
+0e110b4b50415797c835b451f3ceab1597b940fa5fd652fba4e6b15a2538babd  GATE/FORMATION_EXCEPTIONS.json
+138515b3e1f95f969a297d629c1ac0b50c63c3eb546df8a89049b71fda66fe61  GATE/S11_EXCEPTIONS.json
