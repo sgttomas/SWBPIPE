@@ -729,7 +729,9 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
 - Updating the stale comment at K-D5's `tests/formation_check_runtime.rs:88-91` is fine.
 - SUP-17 changes no committed bytes (only product_physics `lib.rs`: the message, a comment and the one pinning test; 52 historical `execution/**` records that nothing reads stay as they are). Nothing is regenerated.
 
-## K2a: product reach and the availability trade-off (ROOT, 2026-09-27)
+## K2a: product reach and the availability trade-off (ROOT, 2026-09-27) — ruling 1 SUPERSEDED
+
+**Superseded in part (2026-09-27):** ruling 1's premise is refuted at product level: main publishes no wrong value through partial underflow. Rulings 2 and 3 stand, and the benefit of the trade-off is restated. See "K2a product reach: correction (ROOT)" below. The text is kept as the record of the earlier ruling.
 
 **I6's finding.** The formation silent zero is **product-reachable on both entries** through material or section values. There is no lower bound on magnitude anywhere on the input path (at `5ae22926e`):
 - **Capture** (captured entry only, `core/serialization/canonical_json/src/lib.rs:94-116`, `validate_checked_value`): values must be finite, and integral floats must satisfy |x| ≤ 2^53 − 1. The typed entry has no checked-JSON step.
@@ -752,3 +754,21 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
 - **Withdrawn:** the S11-G performance finding (about +15–20% on dense 1000-member solves), recorded from the K-D5 timing comparison. It compared the S11-G-bearing probes against I3's earlier, non-interleaved pre-S11-G gate runs (413/423 s), which had different builds and host conditions.
 - **The settling run:** I3R's interleaved comparison of `72d5ff864` against `b24b3d536` on RF-LARGE-CHAIN-n01000-AX and RF-LARGE-TREE-n01000-ROT, dense, with probes built fresh from `git archive`. It shows S11-G's cost within noise: −0.4% (CHAIN-AX) and +0.9% (TREE-ROT), against a same-binary spread of up to 1.8% (`IMPLEMENTATION/S11G_TIMING/`). The item is removed from the T3-close list. `KD5_MERGE/ADDENDUM_1.md` supersedes the statement in the K-D5 merge record.
 - **Method (standing):** performance claims come only from **interleaved runs of probes built fresh from archives,** on a quiet host, with load recorded per run. A comparison against an earlier, non-interleaved run is not evidence.
+
+## K2a product reach: correction (ROOT, 2026-09-27)
+
+**What is refuted.** Ruling 1 of "K2a: product reach and the availability trade-off" (`81dbd95ac`) assumed a product-level partial-underflow case on which main publishes a *wrong* value. ROOT's directive also quoted a 5.9% error and a nonlinear variant published checks-passed. Both are refuted at product level: they came from formation-level arithmetic, not from product output. ROOT adopted the recommendation before a product run existed. I6's stop, under ruling 1's stop clause, was correct.
+
+**I6's product runs on main** (`5ae22926e`, both entries, both modes, linear and nonlinear gap; evidence in `IMPLEMENTATION/K2A/_run_records/product_reach/`):
+- **The drafted case** (5.9% coefficient error) is refused as NUMERICAL_INTEGRITY_UNRESOLVED with `Range("product overflow or underflow")`. Its subnormal coefficients trip M03 `checked_product` (FK `structural.rs:377`). The nonlinear loop's iterations also pass through structural integrity.
+- **The all-final-coefficients-normal pair** (L = 2^-39 m, the smallest dyadic length above the 1e-12 m axis tolerance; coefficient errors 4.3e-6 and 8.0e-9) is refused as UNRESOLVED with `Range("arithmetic outside normal range")`.
+- **The threshold scan** (E scaled by 2^k): main refuses until the smallest coefficient is at least about 2^-972.
+- **Exact zeros** pass M03, because zero entries are exempt. This is the spring-carried case: checks-passed and accurate.
+
+**Rulings on the stop:**
+1. **The partial-underflow wrong-value requirement is withdrawn.** The drafted test is kept, restated truthfully: main refuses the case as UNRESOLVED (M03 `Range`) on both variants and in both modes, and K2a refuses it earlier, by name (`NumericalRange`). Its precondition pins main's actual M03 refusal. The L = 2^-39 pair and the threshold scan stay as evidence in `_run_records`.
+2. **The availability trade-off stands, with its benefit restated.** K2a proceeds as designed.
+   - **Benefit:** K2a corrects no published value on the product route; S11-K's M03 already refuses partial underflow. Its value is a formation-layer guarantee that does not depend on M03: a named, earlier refusal, and protection for every consumer of `local_stiffness` that does not pass through M03's check. I6 lists those consumers from its caller scan (for example K-D5's re-formation and curved_bend).
+   - **Cost:** refusing exact-zero cases on physically absurd inputs, where main's value was accurate.
+   - **The bound claim** (an exact zero moves a published value by at most about 2^-60 relative) must be derived step by step in K2a's RETURN, not asserted. K2a's reviewer checks it.
+3. **Lesson (standing):** a claim about product behaviour needs a product run. This is the counterpart of the performance lesson: formation-level or adapter-level arithmetic is not evidence of what the product publishes.

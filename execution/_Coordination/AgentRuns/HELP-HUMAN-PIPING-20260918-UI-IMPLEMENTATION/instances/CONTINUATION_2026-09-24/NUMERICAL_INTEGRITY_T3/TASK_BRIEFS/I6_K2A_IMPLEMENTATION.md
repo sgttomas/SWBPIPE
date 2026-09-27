@@ -81,3 +81,15 @@ After K2a, any such formation is **refused with a named reason**, never publishe
 - **Mutation runs:** use a clean target per mutant (fresh mtimes; `tar -m`; remove the target), and run a no-mutation control first.
 - **Never rewrite committed, hash-bound evidence;** add new files instead.
 - Skip no tests and raise no timeouts.
+
+## Addendum 1 (2026-09-27): product reach, after I6's stop report
+
+This follows ROOT_RULINGS_V1, "K2a product reach: correction (ROOT)".
+- **The partial-underflow test:** keep it, restated. Main refuses the case as NUMERICAL_INTEGRITY_UNRESOLVED (M03 `Range`) on both variants and in both modes, and K2a refuses it earlier, by name (`NumericalRange`). The precondition pins main's actual M03 refusal. Drop any claim that main publishes a wrong value.
+- **Evidence:** keep the L = 2^-39 all-final-coefficients-normal pair and the threshold scan in `_run_records/product_reach/`.
+- **CHANGE_RECORD and RETURN:**
+  - State the benefit as ROOT restated it: a formation-layer guarantee independent of M03, meaning a named, earlier refusal plus protection for every `local_stiffness` consumer outside M03's check. List those consumers from the caller scan (for example K-D5's re-formation and curved_bend).
+  - State the cost: exact-zero cases on physically absurd inputs, where main was accurate, are now refused.
+  - Derive the bound (an exact zero moves a published value by at most about 2^-60 relative) step by step, with each inequality and its source. K2a's reviewer checks it.
+- **The spring-carried test** stays as ruled.
+- **Order:** phase 2 onward (mutations, suites, T9, the two-part gate) resumes when the manager returns the cargo token, after F1a's DEC-025 sweep and RV6's slot.
