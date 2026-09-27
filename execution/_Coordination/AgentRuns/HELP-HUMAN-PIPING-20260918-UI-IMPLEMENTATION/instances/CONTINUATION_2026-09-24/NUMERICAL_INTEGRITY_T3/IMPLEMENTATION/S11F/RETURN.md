@@ -277,3 +277,77 @@ The container restarted during the Python suite run, and my in-flight processes 
 - the `node_modules` links are gone.
 
 No committed file changed apart from the records named in this return.
+
+## 10. Addendum: the merged head `e46a62f79`
+
+**What the head contains.** The manager committed S11-F as `9398142e4` and merged `origin/main` `c26677c8a` into it, giving `e46a62f79`. The only non-record paths the merge brings in are K3a's in frame_kernel: `structural/retained/`, one `mod retained;` line in `structural.rs` (auto-merged), and `tests/retained_wide/`.
+
+**How the checks ran.**
+- The tree was clean before and after, and I made no Git writes.
+- The authority targets were present and were not rebuilt.
+- The product crates were rebuilt into `<s11f-target>`, one cargo job at a time, holding for any evidence sweep.
+- Logs: `_run_records/merged_head/`.
+
+### Fixture identity
+
+- **The 12 files still match `fixture_diff/measurement_sha256.txt`**, with no regeneration.
+- **The actual producers, re-run on the merged head, reproduce the committed bytes exactly:**
+  - `physics_source_connected`: connected and pressure, both modes;
+  - `exact_pressure_connected`: thermal, both modes;
+  - hashes in `producer_outputs_sha256.txt`.
+- **The derived carriers reproduce:**
+  - the result_export document writer test passes without the write flag;
+  - the Python analysis_run tests pass;
+  - T1's `cp3_stress_neutral_outputs.py --check` and `t1_joined_stress_neutral_outputs.py --check` both exit 0.
+
+### Full Rust suites
+
+`--no-fail-fast`, fresh debug build (`merged_head/SUMMARY.txt`):
+
+| Crate | Passed | Failed |
+|---|---|---|
+| frame_kernel | 139 (lib 130, including K3a's 19 retained_wide tests and the 3 N5 tests; s11_site_table 3; doctests 6) | 0 |
+| straight_pipe | 39 | 0 |
+| curved_bend | 25 | 0 |
+| load_case_algebra | 21 | 0 |
+| primitive_loads | 49 | 0 |
+| nonlinear_integration | 74 (the option (c) pins; doctests 4, including the N8 twins) | 0 |
+| sparse_direct | 25 | 0 |
+| linear_supports | 15 | 0 |
+| nonlinear_supports | 22 | 0 |
+| diagnostics | 24 | 0 |
+| performance_harness | 25 | 0 |
+| stress_recovery | 48 | 0 |
+| user_loads | 28 | 0 |
+| self_weight_wasm | 14 | 0 |
+| **product_physics** | **474** (1 pre-existing ignore; the 17 S11-F tests and the 9 site tests all ok) | 0 |
+| operation_applier | 194 | 0 |
+| runner/headless | 83 | 0 |
+| result_export | 91 | 0 |
+| benchmarks/mechanics | 41 | 0 |
+| benchmarks/nonlinear (DEC-046 `multisupport_acceptance_inventory_uses_narrow_dec_046_policy` ok) | 19 | 0 |
+| benchmarks/stress | 23 | 0 |
+| benchmarks/physics_audit_regression | 15 | 0 |
+| benchmarks/numerical_integrity (no tests) | 0 | 0 |
+| apps/desktop/src-tauri | 114 | 0 |
+
+### The exception lists on the merged head
+
+`f1_f11_f12_rf_cancel_cases_meet_the_binding_predicate_on_both_entries` passes:
+- **the S11 list is still empty:** all 221 triples are published, checked and inside their intervals, on both entries and in both modes;
+- **the 14 formation rows are still pinned** to their exact published bits (`FORMATION_PINS`);
+- no breach occurs outside both lists.
+
+### Other checks
+
+| Check | Result |
+|---|---|
+| Headless lane with the artifact directories set | 83 passed; 28 + 60 artifacts |
+| Python consumers (the brief's list, including the headless-artifacts file run on those artifacts) | 1705 passed, 5 skipped (environment-gated parity and producer-control lanes), 83 subtests passed |
+| `numerical_integrity/test_reference.py` | OK |
+| Desktop wasm engine | rebuilt, because `operation_applier` depends on `product_physics` → `frame_kernel`, which the merge changed |
+| Desktop full vitest | **134/134 files, 2822/2822 tests passed.** Load average 2.51 at start, 5.95 at end. No timeout raised, nothing skipped; the App.test.tsx failure did not recur. |
+| `npm run build` | OK |
+
+- `node_modules` was linked from `<engine-worktree>` (package-lock sha256 identical, `0dd1616e…`), and the links were removed afterwards.
+- My debug output was pruned once to keep free disk above 8 GB.

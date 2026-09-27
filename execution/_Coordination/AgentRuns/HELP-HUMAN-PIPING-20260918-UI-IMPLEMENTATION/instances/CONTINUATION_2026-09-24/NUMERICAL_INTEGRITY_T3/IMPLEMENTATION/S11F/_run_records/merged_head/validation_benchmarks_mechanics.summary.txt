@@ -1,0 +1,4 @@
+     Running unittests src/lib.rs (<s11f-target>/debug/deps/open_pipe_stress_mechanics_benchmarks-304239a9028c5ca4)
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.15s
+   Doc-tests open_pipe_stress_mechanics_benchmarks
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
