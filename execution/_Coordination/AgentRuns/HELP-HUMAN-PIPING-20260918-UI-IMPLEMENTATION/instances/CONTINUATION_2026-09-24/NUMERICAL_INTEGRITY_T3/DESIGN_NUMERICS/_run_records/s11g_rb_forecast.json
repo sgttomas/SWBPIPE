@@ -2696,7 +2696,8 @@
         "row_relative_error_over_1e-9": 378.4636117258616
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": true,
+      "K_D5_2EF": 4.158841071732587
      },
      "sparse_interactive": {
       "p1_captured_verdict": "mismatch",
@@ -2708,7 +2709,8 @@
         "row_relative_error_over_1e-9": 276.7826036726256
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": true,
+      "K_D5_2EF": 346.95221350344224
      }
     }
    },
@@ -2761,7 +2763,8 @@
         "row_relative_error_over_1e-9": 508.2487663773587
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": true,
+      "K_D5_2EF": 1007.5554226548804
      },
      "sparse_interactive": {
       "p1_captured_verdict": "mismatch",
@@ -2773,7 +2776,8 @@
         "row_relative_error_over_1e-9": 4.953454658993059
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": true,
+      "K_D5_2EF": 224.34523621428795
      }
     }
    },
@@ -2826,7 +2830,8 @@
         "row_relative_error_over_1e-9": 4.131500377900865
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 2.7413033313881412e-06
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -2838,7 +2843,8 @@
         "row_relative_error_over_1e-9": 5.3424135658156775
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 5.806605296430578e-07
      }
     }
    },
@@ -2891,7 +2897,8 @@
         "row_relative_error_over_1e-9": 56.423973345168825
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": true,
+      "K_D5_2EF": 24.68497084855907
      },
      "sparse_interactive": {
       "p1_captured_verdict": "mismatch",
@@ -2903,7 +2910,8 @@
         "row_relative_error_over_1e-9": 56.423973345168825
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": true,
+      "K_D5_2EF": 34.35545625310296
      }
     }
    },
@@ -2956,7 +2964,8 @@
         "row_relative_error_over_1e-9": 13.261105704377618
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 1.0313198585139718e-06
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -2968,7 +2977,8 @@
         "row_relative_error_over_1e-9": 7.79480301232843
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 6.355821005601518e-07
      }
     }
    },
@@ -3132,7 +3142,8 @@
         "row_relative_error_over_1e-9": 1.2658089884906882
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      },
      "sparse_interactive": {
       "p1_captured_verdict": "mismatch",
@@ -3159,7 +3170,8 @@
         "row_relative_error_over_1e-9": 0.09329643230810486
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      }
     }
    },
@@ -3323,7 +3335,8 @@
         "row_relative_error_over_1e-9": 1.1510359075042256
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -3350,7 +3363,8 @@
         "row_relative_error_over_1e-9": 1.3742310941760116
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      }
     }
    },
@@ -3514,7 +3528,8 @@
         "row_relative_error_over_1e-9": 104.28976350584416
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -3541,7 +3556,8 @@
         "row_relative_error_over_1e-9": 100.46285705866016
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      }
     }
    },
@@ -3594,7 +3610,8 @@
         "row_relative_error_over_1e-9": 0.21845838169992704
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.04119308198868259
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -3606,7 +3623,8 @@
         "row_relative_error_over_1e-9": 0.16096933388415677
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.15070493919699654
      }
     }
    },
@@ -3638,7 +3656,8 @@
         "today": "not published on the captured entry (None)"
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      },
      "sparse_interactive": {
       "p1_captured_verdict": null,
@@ -3648,7 +3667,8 @@
         "today": "not published on the captured entry (None)"
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      }
     }
    },
@@ -3680,7 +3700,8 @@
         "today": "not published on the captured entry (None)"
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      },
      "sparse_interactive": {
       "p1_captured_verdict": null,
@@ -3690,7 +3711,8 @@
         "today": "not published on the captured entry (None)"
        }
       },
-      "K_D5_demotes": null
+      "K_D5_demotes": null,
+      "K_D5_2EF": null
      }
     }
    },
@@ -3743,7 +3765,8 @@
         "row_relative_error_over_1e-9": 0.21845838169992704
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.04119308198868259
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -3755,7 +3778,8 @@
         "row_relative_error_over_1e-9": 0.16096933388415677
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.15070493919699654
      }
     }
    },
@@ -3808,7 +3832,8 @@
         "row_relative_error_over_1e-9": 0.21845838169992704
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.04119308198868259
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -3820,7 +3845,8 @@
         "row_relative_error_over_1e-9": 0.16096933388415677
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.15070493919699654
      }
     }
    },
@@ -3873,7 +3899,8 @@
         "row_relative_error_over_1e-9": 0.045991238252616216
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.39556202439161353
      },
      "sparse_interactive": {
       "p1_captured_verdict": "pass",
@@ -3885,7 +3912,8 @@
         "row_relative_error_over_1e-9": 0.18396495301046487
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.042612725932476565
      }
     }
    },
@@ -3917,7 +3945,8 @@
         "today": "not published on the captured entry (None)"
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.03331907628945176
      },
      "sparse_interactive": {
       "p1_captured_verdict": null,
@@ -3927,7 +3956,8 @@
         "today": "not published on the captured entry (None)"
        }
       },
-      "K_D5_demotes": false
+      "K_D5_demotes": false,
+      "K_D5_2EF": 0.14468288771173538
      }
     }
    },
@@ -3977,7 +4007,9 @@
         "I4_ratio": "627.802"
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 1.6 not applicable)",
+      "K_D5_2EF": 2.057066518013155e-06
      },
      "sparse_interactive": {
       "p1_captured_verdict": "refused_capture",
@@ -3992,7 +4024,9 @@
         "I4_ratio": "4346"
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 1.6 not applicable)",
+      "K_D5_2EF": 3.155221403692935e-06
      }
     }
    },
@@ -4042,7 +4076,9 @@
         "I4_ratio": "627.802"
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 2 not applicable)",
+      "K_D5_2EF": 1.6910148894532275e-06
      },
      "sparse_interactive": {
       "p1_captured_verdict": "refused_capture",
@@ -4057,15 +4093,18 @@
         "I4_ratio": "627.802"
        }
       },
-      "K_D5_demotes": true
+      "K_D5_demotes": false,
+      "K_D5_basis": "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure 2 not applicable)",
+      "K_D5_2EF": 3.063708496552954e-06
      }
     }
    }
   }
  },
  "part_s_sf4_floor": {
-  "runs": [
+  "collinear_runs_must_stay_silent": [
    {
+    "family": "thermal",
     "end": [
      12.0,
      5.0,
@@ -4080,13 +4119,12 @@
      1
     ],
     "N": 1296000.0,
-    "S_star_free": 3.597122599785507e-10,
-    "worst_without_floor": 400000000.0,
-    "fires_without_floor": true,
-    "worst_with_floor": 6.158037043254201e-05,
-    "fires_with_floor": false
+    "no_floor": 400000000.0,
+    "rev2_whole_row_floor": 6.158037043254201e-05,
+    "rev21_split": 6.158037043254201e-05
    },
    {
+    "family": "thermal",
     "end": [
      10.0,
      3.7,
@@ -4100,13 +4138,12 @@
      1
     ],
     "N": 1296000.0,
-    "S_star_free": 2.877698079828406e-10,
-    "worst_without_floor": 190913580.24691358,
-    "fires_without_floor": true,
-    "worst_with_floor": 3.193224340638662e-05,
-    "fires_with_floor": false
+    "no_floor": 190913580.24691358,
+    "rev2_whole_row_floor": 3.193224340638662e-05,
+    "rev21_split": 3.193224340638662e-05
    },
    {
+    "family": "thermal",
     "end": [
      6.0,
      6.0,
@@ -4120,13 +4157,12 @@
      1
     ],
     "N": 1296000.0,
-    "S_star_free": 0.0,
-    "worst_without_floor": 0.0,
-    "fires_without_floor": false,
-    "worst_with_floor": 0.0,
-    "fires_with_floor": false
+    "no_floor": 0.0,
+    "rev2_whole_row_floor": 0.0,
+    "rev21_split": 0.0
    },
    {
+    "family": "thermal",
     "end": [
      9.0,
      0.0,
@@ -4141,13 +4177,12 @@
      1
     ],
     "N": 1296000.0,
-    "S_star_free": 1.438849039914203e-10,
-    "worst_without_floor": 618172839.5061729,
-    "fires_without_floor": true,
-    "worst_with_floor": 3.5139057644424434e-05,
-    "fires_with_floor": false
+    "no_floor": 618172839.5061729,
+    "rev2_whole_row_floor": 3.5139057644424434e-05,
+    "rev21_split": 3.5139057644424434e-05
    },
    {
+    "family": "pressure thrust",
     "end": [
      12.0,
      5.0,
@@ -4162,13 +4197,68 @@
      1
     ],
     "N": 50893.800988154646,
-    "S_star_free": 1.4125867416934959e-11,
-    "worst_without_floor": 230160824.7378226,
-    "fires_without_floor": true,
-    "worst_with_floor": 7.38964445190504e-05,
-    "fires_with_floor": false
+    "no_floor": 230160824.7378226,
+    "rev2_whole_row_floor": 7.38964445190504e-05,
+    "rev21_split": 7.38964445190504e-05
    }
   ],
-  "udl_rows_unchanged": "UDL-W1e5/-W1e8/-W1e80 and probe A carry no self-equilibrated formed term, so their floor is 0 and their statistic and threshold are those of s11g_forecast.py Part A and A2 (W1e8 47.99, W1e80 2.6e81 fire; W1e5 0.0395 and probe A silent)."
+  "db1_counterexamples_must_fire": [
+   {
+    "E_net": -1.4901161193847656e-08,
+    "E_se": 0.0,
+    "net": 0.0009999850988388062,
+    "P": 2000000.0,
+    "no_floor": 14901.383241761352,
+    "rev2_whole_row_floor": 0.00762939453125,
+    "rev21_split": 14901.383241761352,
+    "qA": 100000000.1,
+    "qB": -150000000.15,
+    "n0": 0.001,
+    "N": 1000000.0
+   },
+   {
+    "E_net": -1.4901161193847656e-08,
+    "E_se": 0.0,
+    "net": 0.0009999850988388062,
+    "P": 20000.0,
+    "no_floor": 14901.383241761352,
+    "rev2_whole_row_floor": 0.762939453125,
+    "rev21_split": 14901.383241761352,
+    "qA": 100000000.1,
+    "qB": -150000000.15,
+    "n0": 0.001,
+    "N": 10000.0
+   },
+   {
+    "E_net": 9.313225746154785e-10,
+    "E_se": 0.0,
+    "net": 0.009999999068677426,
+    "P": 1000000.0,
+    "no_floor": 93.13226613516603,
+    "rev2_whole_row_floor": 0.00095367431640625,
+    "rev21_split": 93.13226613516603,
+    "qA": 12345678.9,
+    "qB": -18518518.35,
+    "n0": 0.01,
+    "N": 500000.0
+   }
+  ],
+  "dn4_residual_hidden": {
+   "N1": 1000000.0,
+   "N2": 999999.999,
+   "row": [
+    "J",
+    0
+   ],
+   "E_net": 0.0,
+   "E_se": 1.0920440357638404e-10,
+   "net": 0.0008642268439220866,
+   "P": 1728453.6048828051,
+   "no_floor": 126.36080948467882,
+   "rev2_whole_row_floor": 6.469673756143392e-05,
+   "rev21_split": 6.469673756143392e-05
+  },
+  "udl_rows_unchanged": "UDL-W1e5/-W1e8/-W1e80 and probe A carry no self-equilibrated formed term: E_se = 0 and P = 0, so all three rules reduce to s11g_forecast.py Part A/A2 (W1e8 47.99, W1e80 2.6e81 fire; W1e5 0.0395 and probe A silent).",
+  "sf3_gate_unreachable": "A source-eligible case carries only nodal inputs (E = 0) and self-equilibrated eigen RoundedProduct terms, so E_net = 0 and |E_se| <= u*P < 1e-9*2^-10*P: no row can fire (at most 1.1e-4 of the threshold) under the split rule, as under revision 2."
  }
 }

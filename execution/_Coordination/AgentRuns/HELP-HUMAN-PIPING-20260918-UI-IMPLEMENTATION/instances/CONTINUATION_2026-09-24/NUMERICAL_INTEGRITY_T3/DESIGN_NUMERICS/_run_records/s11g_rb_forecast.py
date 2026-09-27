@@ -5,8 +5,8 @@ Usage (from T3/):
   PYTHONDONTWRITEBYTECODE=1 nice -n 19 python3 DESIGN_NUMERICS/_run_records/s11g_rb_forecast.py <P> <I4_formation_rows.json> <out.json>
 
 <P> is `projects/chirality-piping` (run records used `../../../../../../..`). <I4_formation_rows.json> is I4's
-S11-F record `IMPLEMENTATION/S11F/_run_records/formation_rows/formation_rows.json` (post-S11-F published values of
-the 14 formation rows; read as sha256 c548f519..., not yet committed); pass `-` to skip.
+S11-F record of the 14 formation rows' post-S11-F published values, pinned by full hash (sha256 c548f519...) as
+`DESIGN_NUMERICS/_run_records/inputs/i4_formation_rows.json` until I4's commit lands; pass `-` to skip.
 
 The guard (S11G_GUARD.md revision 2, section 4). For a straight member end e on the ordinary route, with the
 product's K_loc, frame T and published u:
@@ -31,9 +31,16 @@ Parts
      per row from P1 (`DETECTION/results.json`, captured entry, both modes); for the 18 cases of the 221 the
      post-S11-F state is taken from S11-F's F12 result (every row inside its interval except the 14 formation
      rows); the INPLANE rows use I4's measured post-S11-F values. K-D5 overlap from `recal_d5.json`
-     (K-D5 demotes a case-mode when 2 * EF_ratio_coupled_Sstar > 1; cases above 12 members are not emulated).
-  S. SF-4: V1's collinear straight-run probe (four runs) and the UDL rows, without and with the S* floor
-     (floor_d = 2^-10 * sum of |self-equilibrated formed terms| at row d).
+     (K-D5 demotes a case-mode when 2 * EF_ratio_coupled_Sstar > 1; cases above 12 members are not emulated; for the
+     RF-CANCEL cases, whose recal solve used the pre-S11-F folded force, the S11-F-state figure is
+     EF_ratio_coupled_with_folded_f, revision 2.1 / V1 DS-1).
+  S. SF-4 (revision 2.1, DB-1): the per-row floor 2^-10 * sum|self-equilibrated formed terms| applied only to the
+     self-equilibrated part of the defect (two exact accumulators): fire if |E_net| + B > 1e-9 max(|n|, S*) or
+     |E_se| > 1e-9 max(|n|, S*, 2^-10 P). Evaluated on V1's collinear runs and a pressure-thrust run (must be
+     silent), on V1's DB-1 counterexamples (a UDL-type fixed-end defect at a free row masked by two anchored
+     thermal members; must fire), and on the DN-4 residual (a self-equilibrated-only junction with a genuine small
+     net; hidden, disclosed). Each is reported under three rules: no floor, revision 2's whole-row floor, and the
+     revision 2.1 split rule. D1's own arithmetic (SP operation order); V1's probe is not imported.
 """
 import collections
 import json
@@ -568,53 +575,110 @@ def part_f(T3, I4):
                 else:
                     verdicts[key] = {"today": "not published on the captured entry (%s)" % x.get("verdict")}
             mrec["rows"] = verdicts
-            rr = recal.get(cid, {}).get("dense" if mode == "dense_scrutiny" else "sparse")
-            mrec["K_D5_demotes"] = (2 * rr["EF_ratio_coupled_Sstar"] > 1) if rr and rr.get("EF_ratio_coupled_Sstar") is not None else None
+            rc = recal.get(cid, {})
+            rr = rc.get("dense" if mode == "dense_scrutiny" else "sparse")
+            if rr and rc.get("load_fold_inexact"):
+                # revision 2.1 (V1 DS-1): recal_d5's solve used the pre-S11-F binary64-folded force for these cases, so
+                # its EF_ratio_coupled_Sstar measures the absorbed load S11-F repairs. In the S11-F state the solve sees
+                # the exact net; recal's EF_ratio_coupled_with_folded_f is the matching figure (V1's exact-residual EF
+                # with the S11-F force: 2*EF = 1.3e-6 to 3.2e-6).
+                mrec["K_D5_demotes"] = 2 * rr["EF_ratio_coupled_with_folded_f"] > 1
+                mrec["K_D5_basis"] = "S11-F state (recal EF_ratio_coupled_with_folded_f; pre-S11-F figure %.3g not applicable)" % (2 * rr["EF_ratio_coupled_Sstar"])
+                mrec["K_D5_2EF"] = 2 * rr["EF_ratio_coupled_with_folded_f"]
+            else:
+                mrec["K_D5_demotes"] = (2 * rr["EF_ratio_coupled_Sstar"] > 1) if rr and rr.get("EF_ratio_coupled_Sstar") is not None else None
+                mrec["K_D5_2EF"] = 2 * rr["EF_ratio_coupled_Sstar"] if rr and rr.get("EF_ratio_coupled_Sstar") is not None else None
             rec["modes"][mode] = mrec
         out["cases"][cid] = rec
     return out
 
 
-# ------------------------------------------------------------------ Part S: SF-4 floor
+# ------------------------------------------------------------------ Part S: SF-4 floor (revision 2.1 split rule)
+C9 = Fr(1, 10 ** 9)
+
+
+def rules(rows):
+    """rows: {key: [(value, intended Fraction, self_equilibrated)]} at free translational rows (no free moment rows
+    in these probes, so S*_f = max |intended net|). Returns per-row stat/threshold under the three rules."""
+    nets = {k: sum(i for _, i, _ in v) for k, v in rows.items()}
+    Sf = max(abs(n) for n in nets.values())
+    out = {}
+    for k, v in rows.items():
+        e_se = sum(Fr(t) - i for t, i, se in v if se)          # accumulator 1: self-equilibrated defects
+        e_net = sum(Fr(t) - i for t, i, se in v if not se)     # accumulator 2: net formation defects
+        P = sum(abs(Fr(t)) for t, _, se in v if se)
+        T0 = C9 * max(abs(nets[k]), Sf)
+        Tf = C9 * max(abs(nets[k]), Sf, P / 1024)
+
+        def r(e, t):
+            return float(abs(e) / t) if t else (math.inf if e else 0.0)
+        out[k] = {"E_net": float(e_net), "E_se": float(e_se), "net": float(nets[k]), "P": float(P),
+                  "no_floor": r(e_se + e_net, T0), "rev2_whole_row_floor": r(e_se + e_net, Tf),
+                  "rev21_split": max(r(e_net, T0), r(e_se, Tf))}
+    return out
+
+
 def part_s():
     def frame_x(xi, xj):
         d = [xj[k] - xi[k] for k in range(3)]
         s = 1.0 / math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])
         return [d[0] * s, d[1] * s, d[2] * s]
 
-    def run(end, stations, N):
+    def worst(rr):
+        return {rule: max(v[rule] for v in rr.values()) for rule in ("no_floor", "rev2_whole_row_floor", "rev21_split")}
+
+    def collinear(end, stations, N, family):
         pts = [[round(float(Fr(str(t)) * Fr(str(e))), 6) for e in end] for t in stations]
         rows = {}
         for a in range(len(pts) - 1):
             x = frame_x(pts[a], pts[a + 1])
             for node, sgn in ((a, -1.0), (a + 1, 1.0)):
                 for k in range(3):
-                    v = sgn * (N * x[k])
-                    rows.setdefault((node, k), []).append((v, Fr(sgn) * Fr(N) * Fr(x[k])))
+                    rows.setdefault((node, k), []).append((sgn * (N * x[k]), Fr(sgn) * Fr(N) * Fr(x[k]), True))
         free = {key: val for key, val in rows.items() if 0 < key[0] < len(pts) - 1}
-        nets = {key: sum(i for _, i in val) for key, val in free.items()}
-        Sf = max(abs(v) for v in nets.values())
-        worst_no = worst_floor = 0.0
-        for key, val in free.items():
-            E = sum(Fr(v) - i for v, i in val)
-            thr = Fr(1, 10 ** 9) * max(abs(nets[key]), Sf)
-            floor = Fr(2) ** -10 * sum(abs(Fr(v)) for v, _ in val)  # every term here is a self-equilibrated axial pair term
-            thr_f = Fr(1, 10 ** 9) * max(abs(nets[key]), Sf, floor)
-            worst_no = max(worst_no, float(abs(E) / thr) if thr else (math.inf if E else 0.0))
-            worst_floor = max(worst_floor, float(abs(E) / thr_f) if thr_f else (math.inf if E else 0.0))
-        return {"end": end, "stations": stations, "N": N, "S_star_free": float(Sf),
-                "worst_without_floor": worst_no, "fires_without_floor": worst_no > 1,
-                "worst_with_floor": worst_floor, "fires_with_floor": worst_floor > 1}
-    runs = [run(e, s, 1.296e6) for e, s in (((12.0, 5.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1)),
-                                           ((10.0, 3.7, 2.2), (0, 0.3, 0.55, 0.7, 1)),
-                                           ((6.0, 6.0, 0.0), (0, 0.25, 0.5, 0.75, 1)),
-                                           ((9.0, 0.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1)))]
-    # a pure-pressure run: same geometry, thrust P*A_i = 2 MPa * pi*0.09^2 (the floor argument is identical)
-    runs += [run(e, s, 2e6 * math.pi * 0.09 ** 2) for e, s in (((12.0, 5.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1)),)]
-    return {"runs": runs,
-            "udl_rows_unchanged": "UDL-W1e5/-W1e8/-W1e80 and probe A carry no self-equilibrated formed term, so their floor is 0 "
-                                  "and their statistic and threshold are those of s11g_forecast.py Part A and A2 (W1e8 47.99, "
-                                  "W1e80 2.6e81 fire; W1e5 0.0395 and probe A silent)."}
+        return dict({"family": family, "end": end, "stations": stations, "N": N}, **worst(rules(free)))
+
+    def counterexample(qA, qB, n0, N):
+        """V1's DB-1 model: S0 (0,0,0), S2 (5,0,0), S3 (3,-2,0), S4 (3,2,0) anchored; S1 (3,0,0) translations free,
+        rotations restrained. A: S0->S1 (L=3, q_A along y), B: S1->S2 (L=2, q_B along y), C: S3->S1 and D: S1->S4
+        (along y, thermal axial_load N each). Nodal n0 at S1.UY. Row S1.UY carries: n0 (input), A's transverse_j and
+        B's transverse_i (SP spanned formula at a=0, b=1: q*L*((b^3-0.5b^4)-0) and q*L*((b-b^3+0.5b^4)-0), i.e.
+        fl(fl(q*L)*0.5)), and C's j-end +fl(N*1), D's i-end -fl(N*1) (self-equilibrated, exactly cancelling)."""
+        tA = sp_trans(qA, 3.0)
+        tB = sp_trans(qB, 2.0)
+        row = [(n0, Fr(n0), False), (tA, Fr(qA) * 3 / 2, False), (tB, Fr(qB) * 2 / 2, False),
+               (N * 1.0, Fr(N), True), (-(N * 1.0), -Fr(N), True)]
+        v = rules({("S1", "UY"): row})[("S1", "UY")]
+        v.update({"qA": qA, "qB": qB, "n0": n0, "N": N})
+        return v
+
+    def sp_trans(q, L):
+        b, a = 1.0, 0.0
+        return q * L * ((b ** 3 - 0.5 * b ** 4) - (a ** 3 - 0.5 * a ** 4))
+
+    def se_only_junction(N1, N2):
+        x = frame_x([0.0, 0.0, 0.0], [3.0, 1.7, 0.4])
+        rows = {("J", k): [(N1 * x[k], Fr(N1) * Fr(x[k]), True), (-(N2 * x[k]), -Fr(N2) * Fr(x[k]), True)] for k in range(3)}
+        rr = rules(rows)
+        k = max(rr, key=lambda key: rr[key]["no_floor"])
+        return dict({"N1": N1, "N2": N2, "row": list(k)}, **rr[k])
+
+    runs = [collinear(e, s_, 1.296e6, "thermal") for e, s_ in (((12.0, 5.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1)),
+                                                                ((10.0, 3.7, 2.2), (0, 0.3, 0.55, 0.7, 1)),
+                                                                ((6.0, 6.0, 0.0), (0, 0.25, 0.5, 0.75, 1)),
+                                                                ((9.0, 0.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1)))]
+    runs.append(collinear((12.0, 5.0, 0.0), (0, 0.13, 0.4, 0.55, 0.81, 1), 2e6 * math.pi * 0.09 ** 2, "pressure thrust"))
+    return {"collinear_runs_must_stay_silent": runs,
+            "db1_counterexamples_must_fire": [counterexample(100000000.1, -150000000.15, 1e-3, 1e6),
+                                               counterexample(100000000.1, -150000000.15, 1e-3, 1e4),
+                                               counterexample(12345678.9, -18518518.35, 1e-2, 5e5)],
+            "dn4_residual_hidden": se_only_junction(1000000.0, 999999.999),
+            "udl_rows_unchanged": "UDL-W1e5/-W1e8/-W1e80 and probe A carry no self-equilibrated formed term: E_se = 0 and "
+                                  "P = 0, so all three rules reduce to s11g_forecast.py Part A/A2 (W1e8 47.99, W1e80 2.6e81 "
+                                  "fire; W1e5 0.0395 and probe A silent).",
+            "sf3_gate_unreachable": "A source-eligible case carries only nodal inputs (E = 0) and self-equilibrated eigen "
+                                    "RoundedProduct terms, so E_net = 0 and |E_se| <= u*P < 1e-9*2^-10*P: no row can fire "
+                                    "(at most 1.1e-4 of the threshold) under the split rule, as under revision 2."}
 
 
 def main():
@@ -649,7 +713,9 @@ def main():
                            "p1_quality": {mo: mr["p1_quality"] for mo, mr in r["modes"].items()},
                            "today": {mo: {k: v["today"] for k, v in mr["rows"].items()} for mo, mr in r["modes"].items()},
                            "K_D5": {mo: mr["K_D5_demotes"] for mo, mr in r["modes"].items()}} for cid, r in F["cases"].items()},
-        "S": [[r["end"], r["worst_without_floor"], r["worst_with_floor"]] for r in S["runs"]],
+        "S_collinear": [[r["family"], r["end"], r["no_floor"], r["rev2_whole_row_floor"], r["rev21_split"]] for r in S["collinear_runs_must_stay_silent"]],
+        "S_db1": [[r["N"], r["qA"], r["no_floor"], r["rev2_whole_row_floor"], r["rev21_split"]] for r in S["db1_counterexamples_must_fire"]],
+        "S_dn4": [S["dn4_residual_hidden"][k] for k in ("no_floor", "rev2_whole_row_floor", "rev21_split")],
     }
     print(json.dumps(summ, indent=1))
 
