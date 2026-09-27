@@ -1,0 +1,82 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv5/copyDC/solver/frame_kernel)
+warning: constant `ATAN_REGRESSION_TOLERANCE_TENTH_ULPS` is never used
+   --> src/structural/retained/wide.rs:141:18
+    |
+141 | pub(crate) const ATAN_REGRESSION_TOLERANCE_TENTH_ULPS: u32 = 61;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `ATAN_PROVED_BOUND_TENTH_ULPS` is never used
+   --> src/structural/retained/wide.rs:144:18
+    |
+144 | pub(crate) const ATAN_PROVED_BOUND_TENTH_ULPS: u32 = 236;
+    |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variant `NotNormalized` is never constructed
+   --> src/structural/retained/wide.rs:160:5
+    |
+147 | pub(crate) enum WideError {
+    |                 --------- variant in this enum
+...
+160 |     NotNormalized,
+    |     ^^^^^^^^^^^^^
+    |
+    = note: `WideError` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: method `truncated_below_min_subnormal` is never used
+   --> src/structural/retained/wide.rs:229:19
+    |
+220 | impl Binary64Split {
+    | ------------------ method in this implementation
+...
+229 |     pub(crate) fn truncated_below_min_subnormal(&self) -> bool {
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: associated items `from_parts`, `parts`, `is_sign_negative`, `exponent`, and `fits_precision` are never used
+   --> src/structural/retained/wide.rs:267:19
+    |
+234 | impl Wide<2> {
+    | ------------ associated items in this implementation
+...
+267 |     pub(crate) fn from_parts(
+    |                   ^^^^^^^^^^
+...
+296 |     pub(crate) fn parts(&self) -> (bool, i64, [u64; 2]) {
+    |                   ^^^^^
+...
+329 |     pub(crate) fn is_sign_negative(&self) -> bool {
+    |                   ^^^^^^^^^^^^^^^^
+...
+335 |     pub(crate) fn exponent(&self) -> i64 {
+    |                   ^^^^^^^^
+...
+355 |     pub(crate) fn fits_precision(&self, p: u32) -> bool {
+    |                   ^^^^^^^^^^^^^^
+
+warning: method `rounded_operations` is never used
+   --> src/structural/retained/wide.rs:848:19
+    |
+844 | impl WorkCounter {
+    | ---------------- method in this implementation
+...
+848 |     pub(crate) fn rounded_operations(&self) -> u64 {
+    |                   ^^^^^^^^^^^^^^^^^^
+
+warning: methods `precision`, `work`, and `atan_positive` are never used
+   --> src/structural/retained/wide.rs:876:19
+    |
+864 | impl WideArith {
+    | -------------- methods in this implementation
+...
+876 |     pub(crate) fn precision(&self) -> u32 {
+    |                   ^^^^^^^^^
+...
+881 |     pub(crate) fn work(&self) -> WorkCounter {
+    |                   ^^^^
+...
+928 |     pub(crate) fn atan_positive(&mut self, t: &Wide2) -> Result<Wide2, WideError> {
+    |                   ^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_frame_kernel` (lib) generated 7 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.17s

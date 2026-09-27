@@ -1,0 +1,138 @@
+"""RV5 independent caller scan (standard library only).
+
+Lexes every .rs file under projects/chirality-piping (outside execution/, target/,
+node_modules/): comments, string literals (plain, byte, raw) and char literals are
+blanked (lifetimes kept).  Test code = files under tests/ or benches/, files named
+*tests.rs or *_test.rs, and the brace extent of every item after #[cfg(test)].
+Each call site of a pattern is reported with its enclosing fn and TEST/non-test.
+Usage: rv5_callers.py <repo-root>
+"""
+import os
+import re
+import sys
+
+ROOT = sys.argv[1]
+BASE = os.path.join(ROOT, "projects/chirality-piping")
+PATTERNS = [
+    # changed or added by K-D5
+    "finish_checked_factor", "prepare_formation_checked_structural",
+    "solve_formation_checked_structural_dense", "with_formation_source",
+    "solve_assembled_with_formation_check", "formation_source",
+    "formation_check::check", "evaluate", "FormationCheckedSystem", "FormationSource",
+    "solve_preview_reduced_system", "AssemblyEvidence::new",
+    # named by the brief
+    "evaluate_original_residual", "evaluate_original_residual_bound",
+    "solve_assembled", "solve_binary64", "solve_structural_sparse_binary64",
+    "solve_structural_dense", "solve_structural_sparse", "solve_structural_dense_binary64",
+    "finish_structural", "solve_prepared",
+]
+
+
+def lex(text):
+    out = []
+    i, n = 0, len(text)
+    while i < n:
+        c = text[i]
+        if text.startswith("//", i):
+            j = text.find("\n", i)
+            j = n if j < 0 else j
+            out.append(" " * (j - i)); i = j; continue
+        if text.startswith("/*", i):
+            depth, j = 1, i + 2
+            while j < n and depth:
+                if text.startswith("/*", j): depth += 1; j += 2
+                elif text.startswith("*/", j): depth -= 1; j += 2
+                else: j += 1
+            out.append(re.sub(r"[^\n]", " ", text[i:j])); i = j; continue
+        m = re.match(r'b?r(#*)"', text[i:i + 20])
+        if m and (i == 0 or not (text[i - 1].isalnum() or text[i - 1] == "_")):
+            hashes = m.group(1)
+            end = text.find('"' + hashes, i + m.end())
+            j = n if end < 0 else end + 1 + len(hashes)
+            out.append('"' + re.sub(r"[^\n]", " ", text[i + 1:j - 1]) + '"'); i = j; continue
+        if c == '"' or (c == "b" and i + 1 < n and text[i + 1] == '"' and (i == 0 or not (text[i - 1].isalnum() or text[i - 1] == "_"))):
+            j = i + (2 if c == "b" else 1)
+            while j < n and text[j] != '"':
+                j += 2 if text[j] == "\\" else 1
+            out.append('"' + re.sub(r"[^\n]", " ", text[i + 1:j]) + '"'); i = j + 1; continue
+        if c == "'":
+            m = re.match(r"'(\\.[^']*|[^\\'])'", text[i:i + 12])
+            if m:
+                out.append("' '" + " " * (m.end() - 3)); i += m.end(); continue
+        out.append(c); i += 1
+    return "".join(out)
+
+
+def match_brace(code, at):
+    depth = 0
+    for j in range(at, len(code)):
+        if code[j] == "{": depth += 1
+        elif code[j] == "}":
+            depth -= 1
+            if depth == 0: return j
+    return len(code) - 1
+
+
+def test_ranges(code):
+    ranges = []
+    for m in re.finditer(r"#\[cfg\(test\)\]", code):
+        j = m.end()
+        # the next item: up to its first '{' or ';'
+        k1, k2 = code.find("{", j), code.find(";", j)
+        if k1 < 0 and k2 < 0: continue
+        if k2 >= 0 and (k1 < 0 or k2 < k1):
+            ranges.append((m.start(), k2)); continue
+        ranges.append((m.start(), match_brace(code, k1)))
+    return ranges
+
+
+def enclosing_fn(code, pos):
+    best = None
+    for m in re.finditer(r"\bfn\s+([A-Za-z_][A-Za-z0-9_]*)", code[:pos]):
+        best = m
+    if not best: return "?"
+    b = code.find("{", best.end())
+    if b < 0 or b > pos: return best.group(1) + "(sig)"
+    e = match_brace(code, b)
+    return best.group(1) if e >= pos else "?"
+
+
+rows = []
+for dirpath, dirnames, filenames in os.walk(BASE):
+    rel = os.path.relpath(dirpath, BASE)
+    parts = rel.split(os.sep)
+    if parts[0] == "execution" or "target" in parts or "node_modules" in parts or any(p.endswith("-target") for p in parts):
+        dirnames[:] = []
+        continue
+    for f in filenames:
+        if not f.endswith(".rs"): continue
+        path = os.path.join(dirpath, f)
+        relpath = os.path.relpath(path, BASE)
+        text = open(path, encoding="utf-8", errors="replace").read()
+        code = lex(text)
+        file_test = ("/tests/" in "/" + relpath or "/benches/" in "/" + relpath
+                     or f.endswith("tests.rs") or f.endswith("_test.rs"))
+        tr = test_ranges(code)
+        lines = code.split("\n")
+        starts = [0]
+        for L in lines: starts.append(starts[-1] + len(L) + 1)
+        for p in PATTERNS:
+            rx = re.compile(r"(?<![A-Za-z0-9_])" + re.escape(p) + r"\s*(\(|::<)") if p not in ("FormationCheckedSystem", "FormationSource") else re.compile(r"(?<![A-Za-z0-9_])" + re.escape(p) + r"(?![A-Za-z0-9_])")
+            for m in rx.finditer(code):
+                pos = m.start()
+                # skip definitions
+                pre = code[max(0, pos - 12):pos]
+                if re.search(r"\bfn\s+$", pre):
+                    continue
+                if p == "evaluate":
+                    # only product_equilibrium::evaluate or formation_check-local evaluate
+                    ctx = code[max(0, pos - 40):pos]
+                    if not (ctx.endswith("product_equilibrium::") or relpath.endswith("formation_check.rs")):
+                        continue
+                line = next(k for k in range(len(starts)) if starts[k + 1] > pos) + 1
+                test = file_test or any(a <= pos <= b for a, b in tr)
+                rows.append((relpath, line, enclosing_fn(code, pos), "test" if test else "non-test", p))
+
+rows.sort()
+for r in rows:
+    print(f"{r[0]}:{r[1]} [{r[2]}] {r[3]} {r[4]}")

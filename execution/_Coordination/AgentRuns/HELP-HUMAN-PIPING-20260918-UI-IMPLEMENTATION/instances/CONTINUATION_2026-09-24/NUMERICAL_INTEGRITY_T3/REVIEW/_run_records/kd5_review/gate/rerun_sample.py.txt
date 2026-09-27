@@ -1,0 +1,29 @@
+"""RV5: re-run a sample of gate cases with RV5's own probe build, both modes and entries,
+and compare each envelope with I3's part-1 record byte for byte (sorted-key JSON).
+Usage: rerun_sample.py <probe> <gen_out> <sample.json> <i3 runs.jsonl> <out.jsonl>"""
+import json, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from run import run_one, TIMEOUT_SMALL
+probe, gen, sample, i3runs, outp = sys.argv[1:6]
+want = set(json.load(open(sample)))
+cases = {c['id']: c for c in json.load(open(os.path.join(gen, 'cases.json'))) if 'request_file' in c}
+i3 = {}
+for line in open(i3runs):
+    r = json.loads(line)
+    if r['case'] in want:
+        i3[(r['case'], r['mode'], r['entry'])] = r
+same = diff = 0
+with open(outp, 'w') as fh:
+    for cid in sorted(want):
+        for mode in ('sparse_interactive', 'dense_scrutiny'):
+            for entry, typed in (('captured', False), ('typed', True)):
+                rec = run_one(probe, os.path.join(gen, cases[cid]['request_file']), mode, typed, TIMEOUT_SMALL)
+                rec.update(case=cid, mode=mode, entry=entry)
+                fh.write(json.dumps(rec) + '\n')
+                a = (rec.get('probe') or {}).get('run', {}).get('envelope')
+                b = (i3[(cid, mode, entry)].get('probe') or {}).get('run', {}).get('envelope')
+                eq = json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
+                q = [c.get('solve_quality') for c in a['numerical_quality'].get('cases', [])] if a else None
+                same += eq; diff += (not eq)
+                print(cid, mode, entry, 'IDENTICAL' if eq else 'DIFFERS', q, flush=True)
+print('identical', same, 'differing', diff)
