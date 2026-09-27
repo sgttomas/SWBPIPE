@@ -80,3 +80,13 @@ The kernel order is S11-K → K3a → K-D5 → K2a → **K1 → K2b** → K5. So
 ## Disclosure, return and running things
 
 These are as in `I6_K2A_IMPLEMENTATION.md`: CHANGE_RECORD and RETURN under `T3/IMPLEMENTATION/F1/` (or `F1A/` and `F1B/` if split), sanitized records, SHA256SUMS, GEN-8, the cargo token from the manager, one heavy job at a time, the disk floor, clean mutation targets, no rewriting of committed evidence, and no skipped tests or raised timeouts.
+
+## Addendum 1 (ROOT, 2026-09-27): the LEF expectation for F1b is unreachable as written
+
+I6 (K2a) found that **RF-RANGE LEF-small and LEF-large never reach `local_stiffness` at product level.** LEF-small is refused earlier on geometry (DegenerateAxis, L < 1e-12 m), and LEF-large is refused at capture, consistent with P1. So the design's F1 test "LEF-small and LEF-large solved" (the F1 row of §6, and the F1b tests above) **cannot be met as written at product level.**
+
+**Before F1b spawns,** this brief must restate the LEF expectation at the level where it applies. That is either:
+- kernel level, through K2b's scaled formation; or
+- whatever product-reachable formation-range case K2a's product-reach probe establishes (section or material values with normal geometry).
+
+It is on the T3-close decision list. F1a is unaffected.
