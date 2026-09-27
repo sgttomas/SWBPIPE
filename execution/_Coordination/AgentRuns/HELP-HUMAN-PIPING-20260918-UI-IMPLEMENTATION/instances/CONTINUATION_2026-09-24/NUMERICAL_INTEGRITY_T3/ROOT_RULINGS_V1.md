@@ -480,3 +480,13 @@ I4's base-against-candidate comparison of the 14 formation rows: UDL-W1e80 is bi
   - (i) SF-4 is a required fix: the S* floor, or an equivalent, is in the design. V1's collinear-run probe is a test that stays silent, and all 6 UDL rows stay caught.
   - (ii) R-b is decided on evidence. D1 forecasts at least **R-b** as written and **R-b′**, which is R-b restricted to rows at or above the V1-S8 floor (|q| ≥ about 5.4e-11·S*) or the contract floor at that row. Each is run over the committed fixtures, the frozen references and the 221, reporting: the INPLANE rows caught, and whether each is a Passed breach under today's predicate; the false demotions (rows correct under today's predicate), split committed, frozen-realistic and synthetic; and the overlap with K-D5.
   - **Default:** the variant that catches every INPLANE row that is a published Passed breach under today's predicate, with no committed-fixture demotion of a row correct under that predicate. Otherwise the numbers go to ROOT.
+
+## S11-G note revision 2: rulings, conditional on V1's delta check (ROOT, 2026-09-27, on `a5137da0f`)
+
+1. **R-b′ selected**, by ROOT's default rule. It catches all 8 INPLANE rows, each a Passed breach under today's predicate; it demotes no committed row that is correct today; and its 12 false demotions are all synthetic. V1 confirms the committed forecast (0 firings) and the synthetic classification of the 12.
+2. **SF-4's per-row floor, 2^-10·Σ|self-equilibrated formed terms|: accepted.** V1 confirms that the collinear and pure-pressure runs are silent, that the 6 UDL catches are unchanged, and that the floor cannot be gamed to hide a real formation error (a counterexample search: a row with a real defect below the floor but above the criterion).
+3. **SF-2's CannotBound for curved consistent vectors, with its availability loss: accepted.** Realized curved bends are opt-in, and no committed model uses one. The loss is disclosed in S11-G's CHANGE_RECORD, and W1c with T4 removes it.
+4. **The formation list is emptied when S11-G merges,** provided S11-G's gate run shows all 14 rows published non-Passed on both entries and both modes. Until then it stays pinned.
+5. **K-D5 on INPLANE** (1.6× and 2.0× its trigger in D1's recal): I3 confirms on the merged state. If K-D5 does demote them, the overlap is recorded as defence in depth, not a conflict; S11-G's R-b′ still ships.
+
+After V1's PASS, the manager writes the S11-G implementation brief. S11-G goes on main after S11-F merges. I4's formation_rows.json input is pinned by full hash (`c548f51999b4df16…`) in `DESIGN_NUMERICS/_run_records/inputs/` until I4's commit lands.
