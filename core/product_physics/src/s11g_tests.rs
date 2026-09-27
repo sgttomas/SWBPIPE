@@ -658,6 +658,78 @@ fn rb_prime_clauses_at_their_boundaries() {
     assert!(rb_prime_fires(1.0, f64::INFINITY, 1.0));
 }
 
+/// RV4-S2 (D21-1; kills RV-M1): the second test decides |A_net| + 12B >
+/// 12 T0 exactly, with B inside the sum. A row with an input of 1 N, a
+/// `Bounded` term of 0.5 N (bound B) and an `Exact` term whose formula is 0
+/// (defect d = its value). With B = T0/4 (so the first clause, B >= T0, is
+/// silent) and d = 0.9 T0, d lies in (T0 - B, T0]: the row fires by the
+/// second test alone. The same defect with B = 0 is silent.
+#[test]
+fn d21_1_second_test_adds_the_bound_exactly() {
+    let row_with = |bound: f64, defect: f64| {
+        let mut ledger = LoadLedger::new();
+        ledger.push("n", 0, 1.0);
+        ledger.push_formed("b", 0, 0.5, Formation::Bounded { bound }, 0.0, false);
+        ledger.push_formed(
+            "x",
+            0,
+            defect,
+            Formation::Exact {
+                scale: 1.0,
+                scaled_intended: vec![],
+            },
+            0.0,
+            false,
+        );
+        one_row(ledger)
+    };
+    // T0 depends on the intended net (1.5 N) only, not on d or B.
+    let t0 = decide_row(&row_with(0.0, 0.0), 0.0).t0;
+    assert!(t0 > 0.0);
+    let (bound, defect) = (t0 / 4.0, 0.9 * t0);
+    let row = row_with(bound, defect);
+    let d = decide_row(&row, 0.0);
+    // Preconditions: the same T0; B and d exactly as authored; d in (T0 - B, T0].
+    assert_eq!(d.t0, t0);
+    assert_eq!(row.bound, bound);
+    let mut check = row.net_defect.clone();
+    check.add_product(-12.0, defect).unwrap();
+    assert!(check.is_zero(), "A_net = 12 d");
+    assert!(bound < t0 && defect <= t0 && defect + bound > t0);
+    assert!(row.self_equilibrated_defect.is_zero() && row.cannot_bound_sources.is_empty());
+    assert!(
+        d.fires,
+        "|A_net| + 12B > 12 T0 fires by the second test: {d:?}"
+    );
+    let silent = decide_row(&row_with(0.0, defect), 0.0);
+    assert_eq!(silent.t0, t0);
+    assert!(!silent.fires, "the same defect with B = 0 is below T0");
+}
+
+/// RV4-S3 (kills RV-M2): the exact-pressure operand bound is
+/// RU(gamma_20 |t|), plus 2^-1074 (rounded upward) when the operand is
+/// subnormal; it is never 0 for a nonzero operand.
+#[test]
+fn exact_pressure_operand_bound_is_gamma_20() {
+    for value in [3.7e5, -2.5e-3, 1.0, -8.25e7] {
+        let bound = exact_pressure_operand_bound(value);
+        assert_eq!(bound, product_upward(gamma(20), value.abs()), "{value}");
+        // gamma_20 > 20u, and RN(20u |t|) stays below gamma_20 |t|.
+        assert!(
+            bound > 0.0 && bound >= 20.0 * (f64::EPSILON / 2.0) * value.abs(),
+            "{value}"
+        );
+    }
+    assert_eq!(exact_pressure_operand_bound(0.0), 0.0);
+    let subnormal = f64::from_bits(5);
+    let bound = exact_pressure_operand_bound(subnormal);
+    assert_eq!(
+        bound,
+        (product_upward(gamma(20), subnormal) + f64::from_bits(1)).next_up()
+    );
+    assert!(bound > f64::from_bits(1));
+}
+
 /// M10 (SF-1): the families are combined exactly. Two Exact terms carry
 /// defects +lo_1 and +lo_2, two RoundedProduct terms -lo_1 and -lo_2 (lo_i
 /// the error of fl(a_i b_i)), at a row whose intended net and scale are 0,
@@ -1562,7 +1634,8 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// T13 (B-1): the committed request `load_reference_fallback_uz`, already
 /// Sensitive, through its producer (captured entry, pretty JSON plus a
 /// newline): the envelope is byte-identical to the committed raw file in
-/// both modes (the no-op rule; R-b' is silent there anyway, below its floor).
+/// both modes (the no-op rule). R-b's two clauses hold at end i (the design's
+/// precondition, asserted); R-b' is silent there anyway, below its floor.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
     let request: Value = serde_json::from_str(include_str!(
@@ -1581,6 +1654,14 @@ fn t13_committed_fallback_uz_is_byte_identical() {
             .collect();
         assert!(!sensitive.is_empty(), "{mode:?}: precondition, the case is already Sensitive");
         assert!(sensitive.iter().all(|d| !d.message.contains("S11-G")));
+        // The design's precondition (RV4-N10): R-b's two clauses hold at end
+        // i, so without the no-op rule (and R-b''s floor) the paths differ.
+        let case_id = request["model"]["load_cases"][0]["id"].as_str().unwrap();
+        let ends = rb_view(&request, &envelope, case_id);
+        assert!(
+            ends.iter().any(|e| e.end == "i" && e.rb()),
+            "{mode:?}: precondition, R-b holds at end i: {ends:?}"
+        );
         let text = format!("{}\n", serde_json::to_string_pretty(&envelope).unwrap());
         assert!(text == committed, "{mode:?}: committed bytes changed");
     }
@@ -2009,42 +2090,6 @@ fn with_basis(mut request: Value, case: &str, point: &str, e: f64, g: f64) -> Va
     request
 }
 
-/// The plain INPLANE model (V1 (b)(i)): the F-INPLANE nodes, members and
-/// supports with 50 N at N1 and an authored 1e-8 N at N2 along y, whose case
-/// force equals F-G1e80-GnG-INPLANE's after S11-F.
-fn plain_inplane() -> Value {
-    let mut request = rf_request("RF-CANCEL-F-G1e80-GnG-INPLANE");
-    request["model"]["load_cases"][0]["primitive_loads"] = json!([
-        nodal("load:0", "N1", "global_y", 50.0),
-        nodal("load:1", "N2", "global_y", 1e-8)
-    ]);
-    request
-}
-
-/// Two disjoint bodies in one model: N05's cantilever (`root`-`tip`, its
-/// soft torsion spring makes the base basis Sensitive) and the plain INPLANE
-/// body (N0-N1-N2, anchored at N0). Case A loads N05's tip; case B carries the
-/// plain INPLANE loads.
-fn n05_and_inplane() -> Value {
-    let mut request = n05_request(vec![]);
-    let inplane = plain_inplane();
-    let model = &mut request["model"];
-    for key in ["nodes", "pipe_segments", "supports"] {
-        let extra = inplane["model"][key].as_array().unwrap().clone();
-        model[key].as_array_mut().unwrap().extend(extra);
-    }
-    // One material: the INPLANE members use N05's (same invented E and G).
-    for segment in model["pipe_segments"].as_array_mut().unwrap() {
-        segment["material"] = json!("material");
-    }
-    model["load_cases"] = json!([
-        n05_torques(),
-        {"id": "case-b", "label": "case-b", "kind": "primitive_user_load", "provenance": INVENTED,
-            "primitive_loads": [nodal("b:0", "N1", "global_y", 50.0), nodal("b:1", "N2", "global_y", 1e-8)]}
-    ]);
-    request
-}
-
 /// T18 (path 2, revision 2.2). I5's path-2 model on the captured entry, both
 /// modes: case A (N05's cancelling torques) is source-selected; case B is
 /// already Sensitive (N05's condition) and its load-row guard fires.
@@ -2172,64 +2217,397 @@ fn t19_path1_load_row_variant_is_not_refused() {
     }
 }
 
-/// T20 (ruling 3; S11G_GUARD revision 2.2 with erratum E-2, E-3; ROOT's
-/// note on T20, option (a)): CHARACTERIZATION OF ACTUAL BEHAVIOUR on the
-/// residual's best construction found, NOT DESIRED BEHAVIOUR. The residual
-/// is path 1's R-b' variant (a Passed case demoted by R-b' after routing
-/// beside a source-selected case, whose `ordinary` receipt entry then fails
-/// the wire binding and refuses a pre-0.4 captured invocation). It is owned
-/// by T3's composite SOURCE_BLOCKS_FINALIZATION_FAILED item and stays under
-/// ruling 3, "not demonstrated reachable": no construction tried selected
-/// case A beside an R-b'-firing case B (RETURN records the three). PRE-0.4
-/// ONLY: a 0.4.0 captured invocation is republished (CP3 SF-1), not refused.
+/// Case B of RV4's construction C1: nodal inputs only at N05's tip, a
+/// transverse force (N) along global y and a moment (N*m) about global z.
+fn c1_case_b(force: f64, moment: f64) -> Value {
+    json!({"id": "case-b", "label": "case-b", "kind": "primitive_user_load", "provenance": INVENTED,
+        "primitive_loads": [nodal("b:f", "tip", "global_y", force), nodal("b:m", "tip", "RZ", moment)]})
+}
+
+/// RV4's construction C1: N05's cantilever with T19's per-case modulus bases.
+/// Case A (N05's cancelling tip torques, base basis) is Sensitive by N05's
+/// torsion spring and source-selected; case B (`c1_case_b`) runs on the
+/// invented soft basis E = 1 Pa, G = 0.4 Pa.
+fn c1_request(force: f64, moment: f64) -> Value {
+    with_basis(
+        n05_request(vec![n05_torques(), c1_case_b(force, moment)]),
+        "case-b",
+        "point:soft",
+        1.0,
+        0.4,
+    )
+}
+
+/// T20 (ruling 3, which stands; ROOT's ruling on RV4's finding):
+/// CHARACTERIZATION OF A KNOWN RESIDUAL, NOT DESIRED BEHAVIOUR. The residual
+/// is path 1's R-b' variant: a case whose report is Passed and which R-b'
+/// demotes after routing, beside a source-selected case. Its `ordinary`
+/// receipt entry then fails the wire binding, and receipt finalization
+/// refuses the invocation. It is REACHABLE (RV4's construction C1),
+/// FAIL-CLOSED (`Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, no envelope and
+/// no published value), and needs per-case modulus bases and a pre-0.4
+/// captured invocation (a 0.4.0 captured invocation is republished under CP3
+/// SF-1). Owner: T3's composite SOURCE_BLOCKS_FINALIZATION_FAILED item (the
+/// "demoted-ordinary" receipt form), which must close before T3 closes.
 ///
-/// The construction: one model with two disjoint bodies (N05's cantilever and
-/// the plain INPLANE body). Case A (N05's cancelling torques, base basis) is
-/// Sensitive by N05's torsion spring; case B (the plain INPLANE loads, an
-/// invented soft basis E = 1 Pa, G = 0.4 Pa) is Passed and R-b' fires. What
-/// the code does: retained recovery refuses case A (the INPLANE body's block
-/// structure), no case is selected, no receipt is formed, and the captured
-/// invocation publishes with case B demoted: not refused.
+/// C1 at m = 1e-7 N*m and F = 1 N. The precondition (paths differ): on the
+/// typed entry (no receipt) case B's report is Passed, R-b' fires at the tip
+/// end, and the published tip moment carries a genuine relative error above
+/// the criterion against its exact value |m| (a free tip's end moment
+/// equals the applied tip moment, and its y component is zero). A
+/// single-case captured invocation of case B is demoted and not refused. The
+/// control (m = 0.5, R-b' silent) publishes with a receipt, case A qualified.
 #[test]
-fn t20_characterization_rb_prime_residual_construction() {
-    let request = with_basis(n05_and_inplane(), "case-b", "point:soft", 1.0, 0.4);
+fn t20_characterization_rb_prime_residual_c1() {
+    let (force, moment) = (1.0, 1e-7);
+    let request = c1_request(force, moment);
     let model: PreviewModel = serde_json::from_value(request["model"].clone()).unwrap();
     assert!(!case_state::is_load_state(&model), "pre-0.4 only");
     for mode in MODES {
         let label = format!("T20 {mode:?}");
-        let envelope = solved(Entry::Captured, &request, mode);
-        // Case A: Sensitive, attempted, refused by retained recovery.
+        // Precondition and typed pin: case B Passed in its report, R-b' fires
+        // on a genuinely inaccurate row, published Sensitive, no receipt.
+        let typed = solved(Entry::Typed, &request, mode);
+        assert!(typed.source_block_recovery.is_none(), "{label}");
+        assert_ordinary_passed(&typed, "case-b", &label);
+        let tip = rb_view(&request, &typed, "case-b")
+            .into_iter()
+            .find(|e| e.member == "pipe" && e.end == "j")
+            .expect("the tip end");
+        assert!(tip.rb_prime(), "{label}: R-b' fires at the tip: {tip:?}");
+        // q and |m| lie within a factor of two, so q - m is exact (Sterbenz).
+        let relative = (tip.q - moment).abs() / moment;
         assert!(
-            integrity(&envelope, "case")
-                .message
-                .contains("quality: Sensitive"),
+            relative > formation_guard::CRITERION,
+            "{label}: the tip row's relative error {relative:e} is genuine"
+        );
+        assert_demoted(&typed, "case-b", RECOVERY, &label);
+        // Case B alone on the captured entry: demoted, not refused.
+        let alone = with_basis(
+            n05_request(vec![c1_case_b(force, moment)]),
+            "case-b",
+            "point:soft",
+            1.0,
+            0.4,
+        );
+        let single = solved(Entry::Captured, &alone, mode);
+        assert_ordinary_passed(&single, "case-b", &label);
+        assert_demoted(&single, "case-b", RECOVERY, &label);
+        // The residual: the two-case captured invocation is refused, fail-closed.
+        match run(Entry::Captured, &request, mode) {
+            Err(error) => assert_eq!(error, "SOURCE_BLOCKS_FINALIZATION_FAILED", "{label}"),
+            Ok(_) => {
+                panic!("{label}: the residual is expected to refuse (update T20 when it closes)")
+            }
+        }
+        // Control: m = 0.5 (R-b' silent) publishes with a receipt.
+        let control = solved(Entry::Captured, &c1_request(force, 0.5), mode);
+        assert_eq!(
+            receipt_case(&control, "case")["outcome"],
+            json!("qualified"),
             "{label}"
         );
-        let refusal: Vec<_> = diagnostics_of(&envelope, "case")
+        assert_eq!(
+            receipt_case(&control, "case-b")["outcome"],
+            json!("qualified"),
+            "{label}"
+        );
+        assert_not_demoted_by_s11g(&control, "case-b", &label);
+        assert_eq!(
+            integrity(&control, "case-b").code,
+            "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+            "{label}"
+        );
+    }
+}
+
+/// RV4-S3, product level (with the unit test above, kills RV-M2): the
+/// committed exact-pressure request's cases, through the product's own
+/// exact-pressure builder and operand producer. Every loaded operand row
+/// carries B >= 20u * sum|t| > 0 (gamma_20 > 20u).
+#[test]
+fn exact_pressure_operand_rows_carry_their_bound() {
+    let request: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/load_reference/pressure.request.json"
+    ))
+    .unwrap();
+    let Prepared {
+        model,
+        materials,
+        built,
+        mut diagnostics,
+    } = prepared(&request);
+    let mut checked = 0;
+    for case in &model.load_cases {
+        let exact = pressure_runtime::build_pressure_case_with_members(
+            &model,
+            &built,
+            &materials,
+            case,
+            None,
+            &mut diagnostics,
+        )
+        .unwrap_or_else(|| panic!("{}: an exact-pressure case: {diagnostics:?}", case.id));
+        let mut ledger = LoadLedger::new();
+        push_exact_pressure_operands(&mut ledger, &exact);
+        let force = ledger.finish(built.nodes.len() * DOF_PER_NODE).unwrap();
+        for row in force.formation_rows() {
+            // B - 20u * sum|t| > 0, exactly (20u = 20 * 2^-53 is exact).
+            let mut margin = ExactAccumulator::new();
+            margin.add(row.bound).unwrap();
+            let mut nonzero = false;
+            for term in force.terms().iter().filter(|t| t.dof == row.dof) {
+                if let open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(v) =
+                    term.kind
+                {
+                    nonzero |= v != 0.0;
+                    margin
+                        .add_product(-20.0 * (f64::EPSILON / 2.0), v.abs())
+                        .unwrap();
+                }
+            }
+            if !nonzero {
+                continue;
+            }
+            assert!(
+                row.bound > 0.0 && margin.signum() > 0,
+                "{}: dof {} bound {}",
+                case.id,
+                row.dof,
+                row.bound
+            );
+            checked += 1;
+        }
+    }
+    assert!(checked > 0, "precondition: nonzero operand rows");
+}
+
+/// RV4-S4 (kills RV-M3): a realized curved span (the invented bend, on a
+/// chord (1.2, 1.6, 0) m) carrying a thermal load. Each curved-thermal term
+/// is K_rc * fl(eps * chord_c), and its record must name that product's
+/// operands. The test forms every bend row's self-equilibrated defect
+/// independently, 12 * sum_c -K_rc * lo(eps, chord_c) with lo the exact
+/// rounding error of fl(eps * chord_c), from the bend's own stiffness and
+/// chord and the case's thermal strain, and requires the ledger's A_se to
+/// equal it exactly. The two nonzero chord components round differently, so
+/// an operand taken from another axis changes A_se. The self-equilibrated
+/// floor holds: the case publishes CHECKS_PASSED on both entries and modes.
+#[test]
+fn curved_thermal_records_name_the_pushed_products() {
+    let mut model = preview_model("curved-thermal");
+    model["materials"] = json!([material()]);
+    curved_body(&mut model, "c", 0.0, vec![thermal("t:c", "cbend", 150.0)]);
+    for node in model["nodes"].as_array_mut().unwrap() {
+        if node["id"] == json!("c1") {
+            node["position"] = json!({"x": 1.2, "y": 1.6, "z": 0.0});
+        }
+    }
+    let request = request_of(model);
+    let view = guard_view(&request, 0);
+    let Prepared {
+        model,
+        materials,
+        built,
+        mut diagnostics,
+    } = prepared(&request);
+    let pipe_map = model
+        .pipe_segments
+        .iter()
+        .enumerate()
+        .map(|(i, p)| (p.id.as_str(), i))
+        .collect::<HashMap<_, _>>();
+    let material_map = materials
+        .iter()
+        .map(|m| (m.id.as_str(), m))
+        .collect::<HashMap<_, _>>();
+    let thermal = build_thermal_element_loads(
+        &model,
+        &model.load_cases[0],
+        &material_map,
+        &pipe_map,
+        &built.sections,
+        &mut diagnostics,
+    );
+    assert_eq!(thermal.len(), 1);
+    let eps = thermal[0].thermal_strain;
+    assert_eq!(
+        built.curved_bend_elements.len(),
+        1,
+        "precondition: a realized curved span"
+    );
+    let bend = &built.curved_bend_elements[0];
+    let lo = |c: f64| eps.mul_add(c, -(eps * c));
+    // Precondition: the chord's nonzero components round differently.
+    assert_eq!(bend.chord[2], 0.0);
+    let (lo_x, lo_y) = (lo(bend.chord[0]), lo(bend.chord[1]));
+    assert!(
+        lo_x != 0.0 && lo_y != 0.0 && lo_x != lo_y,
+        "{lo_x:e} {lo_y:e}"
+    );
+    let dof_map = element_dof_map(bend.node_i, bend.node_j);
+    let mut nonzero = 0;
+    for row in &view.rows {
+        let Some(local_row) = dof_map.iter().position(|&d| d == row.dof) else {
+            continue;
+        };
+        // A_se - 12 * sum_c -K_rc * lo_c, with 12 * (-K lo) = 3 * (-4K lo) exactly.
+        let mut difference = row.self_equilibrated_defect.clone();
+        for axis in 0..3 {
+            let c = bend.chord[axis];
+            if eps * c == 0.0 {
+                continue;
+            }
+            let k = bend.global_stiffness[local_row][DOF_PER_NODE + axis];
+            for _ in 0..3 {
+                difference.add_product(4.0 * k, lo(c)).unwrap();
+            }
+        }
+        assert!(
+            difference.is_zero(),
+            "row {}: A_se differs from the pushed products",
+            row.dof
+        );
+        nonzero += usize::from(!row.self_equilibrated_defect.is_zero());
+    }
+    assert!(nonzero > 0, "precondition: A_se != 0 at a bend row");
+    for entry in [Entry::Captured, Entry::Typed] {
+        for mode in MODES {
+            let label = format!("curved thermal {entry:?} {mode:?}");
+            let envelope = solved(entry, &request, mode);
+            assert_ordinary_passed(&envelope, "case", &label);
+            assert_eq!(
+                integrity(&envelope, "case").code,
+                "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+                "{label}"
+            );
+        }
+    }
+}
+
+/// RV4-N2 (behavioural kill of RV-M6; T10b pins the source): E-1's
+/// zero-work decline applies only where the ordinary route would not attempt.
+/// N06's model (its ordinary attempt is rejected at assembly), with one case
+/// carrying N05-style tip formation noise: the case's ordinary attempt errs
+/// and its load-row guard fires, so it keeps main's real retained-source
+/// attempt (retained scope's non-nodal refusal, with its work charged) and
+/// main's blocking integrity failure, not the zero-work formation decline.
+/// The precondition comes from the typed entry, which has no retained-source
+/// route; the pin is on the captured envelope.
+#[test]
+fn e1_ordinary_err_guard_fired_case_keeps_mains_attempt() {
+    let mut request: Value = serde_json::from_str(include_str!(
+        "../../../fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.request.json"
+    ))
+    .unwrap();
+    let w = 1e8_f64;
+    request["model"]["load_cases"] = json!([{"id": "case-b", "label": "case-b",
+    "kind": "primitive_user_load", "provenance": INVENTED,
+    "primitive_loads": [
+        uniform("case-b:w", "independent-member", "global_y", w),
+        nodal("case-b:uy", "independent-tip", "global_y", -w),
+        nodal("case-b:rz", "independent-tip", "RZ", w / 3.0 + 0.2),
+    ]}]);
+    assert!(
+        guard_view(&request, 0).decision("independent-tip:RZ").fires,
+        "precondition: the load-row guard fires"
+    );
+    for mode in MODES {
+        let label = format!("E-1 Err {mode:?}");
+        // Precondition, from the typed entry: the ordinary attempt errs.
+        let typed = run(Entry::Typed, &request, mode).unwrap();
+        assert_eq!(
+            integrity(&typed, "case-b").code,
+            "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
+            "{label}: precondition"
+        );
+        let envelope =
+            run(Entry::Captured, &request, mode).unwrap_or_else(|e| panic!("{label}: {e}"));
+        // Pin: main's real attempt, retained scope's refusal, charged.
+        let unavailable: Vec<_> = diagnostics_of(&envelope, "case-b")
             .into_iter()
             .filter(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE")
             .collect();
-        assert_eq!(refusal.len(), 1, "{label}");
+        assert_eq!(unavailable.len(), 1, "{label}");
+        let message = &unavailable[0].message;
         assert!(
-            refusal[0].message.contains("UnsupportedBlock"),
-            "{label}: {}",
-            refusal[0].message
+            message.contains("non-nodal") && !message.contains("formation guard"),
+            "{label}: main's real attempt, not the zero-work decline: {message}"
         );
         assert!(
-            !codes(&envelope).contains("SOURCE_BLOCK_RECOVERY_SELECTED"),
+            !message.contains("charged: 0,"),
+            "{label}: main's real attempt is charged: {message}"
+        );
+        // Pin: main's blocking integrity failure, not an S11-G record.
+        let failure = envelope
+            .diagnostics
+            .iter()
+            .find(|d| d.id == integrity_diagnostic_id("case-b"))
+            .unwrap_or_else(|| panic!("{label}: the integrity record"));
+        assert_eq!(
+            failure.code, "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED",
             "{label}"
         );
-        // No selection, no receipt, no refusal.
-        assert!(envelope.source_block_recovery.is_none(), "{label}");
-        // Case B: Passed, R-b' fires, demoted.
-        assert_ordinary_passed(&envelope, "case-b", &label);
-        assert!(
-            rb_view(&request, &envelope, "case-b")
-                .iter()
-                .any(EndView::rb_prime),
-            "{label}: R-b' fires"
-        );
-        assert_demoted(&envelope, "case-b", RECOVERY, &label);
+        assert!(!failure.message.contains("S11-G"), "{label}");
+    }
+}
+
+/// RV4-N1 (kills RV-M10): restrained rows take S* over all the body's loaded
+/// rows (section 3.4), free rows over its free rows. A body anchored at
+/// `root` and `mid` with a free `tip`: w = 1e8 N/m on root-mid, whose formed
+/// fixed-end moment at root is cancelled by an authored nodal input to a net
+/// of about 0.2 N*m (its defect about 1.4e-8 N*m), and small tip inputs
+/// (0.1 N, 0.01 N*m). Precondition (paths differ): the root RZ row fires
+/// under the body's free-row moment scale (read at the tip RZ row) and is
+/// silent under its own all-rows scale. Pin: CHECKS_PASSED.
+#[test]
+fn restrained_rows_take_the_all_rows_scale() {
+    let mut model = preview_model("restrained-scale");
+    model["nodes"] = json!([
+        node("root", 0.0, 0.0, 0.0),
+        node("mid", 2.0, 0.0, 0.0),
+        node("tip", 4.0, 0.0, 0.0)
+    ]);
+    model["pipe_segments"] = json!([
+        pipe("m1", "root", "mid", [0.0, 1.0, 0.0]),
+        pipe("m2", "mid", "tip", [0.0, 1.0, 0.0])
+    ]);
+    model["materials"] = json!([material()]);
+    model["supports"] = json!([
+        support("a-root", "root", &ALL),
+        support("a-mid", "mid", &ALL)
+    ]);
+    let w = 1e8_f64;
+    model["load_cases"][0]["primitive_loads"] = json!([
+        uniform("udl", "m1", "global_y", w),
+        nodal("root-rz", "root", "RZ", -(w / 3.0) + 0.2),
+        nodal("tip-uy", "tip", "global_y", 0.1),
+        nodal("tip-rz", "tip", "RZ", 0.01),
+    ]);
+    let request = request_of(model);
+    let view = guard_view(&request, 0);
+    let root = view.row("root:RZ");
+    assert!(
+        root.formed && !root.net_defect.is_zero(),
+        "precondition: a formed defect"
+    );
+    let own = decide_row(root, view.scales[&root.dof]);
+    let free = decide_row(root, view.scales[&view.dof("tip:RZ")]);
+    assert!(
+        !own.fires,
+        "root RZ is silent under the all-rows scale: {own:?}"
+    );
+    assert!(
+        free.fires,
+        "precondition: it fires under the free-row scale: {free:?}"
+    );
+    assert!(!view.any_fires());
+    for entry in [Entry::Captured, Entry::Typed] {
+        for mode in MODES {
+            let label = format!("restrained scale {entry:?} {mode:?}");
+            let envelope = solved(entry, &request, mode);
+            assert_ordinary_passed(&envelope, "case", &label);
+            assert_not_demoted_by_s11g(&envelope, "case", &label);
+        }
     }
 }
 

@@ -1,0 +1,10 @@
+"""T3 S11-G (I5) repair: is PP lib.rs's change against b62e40d4d layout only?
+Usage: layout_check.py <lib.rs at b62e40d4d (git show)> <lib.rs candidate>. Standard library."""
+import re, sys
+a, b = open(sys.argv[1]).read(), open(sys.argv[2]).read()
+na, nb = re.sub(r'\s+', '', a), re.sub(r'\s+', '', b)
+print('byte-equal:', a == b)
+print('equal with all whitespace removed:', na == nb)
+ta, tb = re.sub(r',([)\]}])', r'\1', na), re.sub(r',([)\]}])', r'\1', nb)
+print('equal with all whitespace and trailing commas before ) ] } removed:', ta == tb)
+print('trailing commas added:', len(re.findall(r',[)\]}]', nb)) - len(re.findall(r',[)\]}]', na)))

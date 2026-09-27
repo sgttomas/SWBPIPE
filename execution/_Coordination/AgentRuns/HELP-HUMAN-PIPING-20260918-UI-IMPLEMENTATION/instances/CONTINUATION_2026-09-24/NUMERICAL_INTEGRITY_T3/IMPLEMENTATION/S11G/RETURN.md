@@ -18,10 +18,10 @@ The diff is against `3d844fea4`, from `git diff --numstat` plus untracked files.
 | `core/solver/frame_kernel/src/load_ledger.rs` | +707 −2. `Formation` (l.84); `push_formed` (l.152); `push_formed_product` (l.168); `formation_rows` / `has_formation_records` (l.297/307); `gamma`, directed-rounding helpers (l.330ff); `FormationRow` (l.412); `add_defect`, `add_twelve_value`, `formation_row` (l.470–575); 5 unit tests `s11g_*` (l.719–935) |
 | `core/solver/straight_pipe/src/lib.rs` | +588. `equivalent_global_nodal_loads_with_spans_formed` (l.672); `bending_formation_bound` (l.701); exact-expansion helpers (l.1689ff); `mod s11g_tests` with T7, T14, T17 (l.1963ff) |
 | `core/product_physics/src/formation_guard.rs` | new, 502 lines: the decision, S\*, R-b′, `demote` / `amend_integrity_report` |
-| `core/product_physics/src/lib.rs` | +288 −31: formed pushes at the classified sites; `append_integrity_report(…, formation)`; the routing predicates `source_eligible`, `decline_for_formation`, `needs_source_recovery` (l.1095–1125); the guard call in `solve_load_case` (l.2621); routing (l.2713–2790); R-b′ records and the amendment (l.3317, 3784–3800) |
+| `core/product_physics/src/lib.rs` | +288 −31 at `b62e40d4d` (+372 −61 after the repair's layout-only formatting, §12; line numbers below are as of `b62e40d4d`): formed pushes at the classified sites; `append_integrity_report(…, formation)`; the routing predicates `source_eligible`, `decline_for_formation`, `needs_source_recovery` (l.1095–1125); the guard call in `solve_load_case` (l.2621); routing (l.2713–2790); R-b′ records and the amendment (l.3317, 3784–3800) |
 | `core/product_physics/src/source_recovery.rs` | +34: `FORMATION_GUARD_DECLINE`, `formation_decline_without_attempt` (l.70–85), `decline_formation` (l.258) |
 | `core/product_physics/src/source_receipt.rs` | +8 −2: `OrdinaryAttempt::passed(…, formation_sensitive)` (l.454–470) |
-| `core/product_physics/src/s11g_tests.rs` | new, 2339 lines: 27 product and unit tests (§3) |
+| `core/product_physics/src/s11g_tests.rs` | new, 2717 lines: 33 product and unit tests after the RV4 repair (§3, §12) |
 | `core/product_physics/tests/s11f_site_test.rs` | +238 −2: `formation_guard.rs` in PRODUCT, formed-push counting, T8, T10b |
 | `core/product_physics/tests/fixtures/s11g/rb_controls.json` | new test input (sha256 `c12b3cb9…`), from `generators/gen_rb_controls.py` |
 | `core/runner/headless/tests/s11g_zero_work_receipt.rs` | new (110 lines), T23. The manager extended the write set for it |
@@ -67,11 +67,12 @@ The diff is against `3d844fea4`, from `git diff --numstat` plus untracked files.
 | T16 | PP | the gate: 14 rows non-Passed, the S11 list empty, no breach outside the lists | pass |
 | T18 | PP | path 2 is not refused; case B keeps main's attempt (byte-identical to base, §5a) | pass |
 | T19 | PP | path 1, load-row variant, is not refused; per-case bases select case A (settles N3) | pass |
-| T20 | PP | characterization of the R-b′ residual construction (§6a) | pass |
+| T20 | PP | characterization of the R-b′ residual on RV4's construction C1: reachable, fail-closed (§6a) | pass (§12) |
 | T21 | PP | G-3: a guard-fired selection is declined, with its work charged | pass |
 | T22 | PP | E-1 / D22-1: the invocation ledger equals the unguarded one on a Passed, guard-fired case | pass |
 | T23 | headless | the Rust reader accepts the zero-work decline entry, with and without the invocation | pass |
 | Ruling and unit tests | PP, FK | ruling 1 (both guards), ruling 2 (boundary), no-op rule, M10, M18, **`rb_prime_clauses_at_their_boundaries`** (new; X4 and X7), 5 ledger unit tests | pass |
+| RV4 repair tests (§12) | PP | `d21_1_second_test_adds_the_bound_exactly` (S2), `exact_pressure_operand_bound_is_gamma_20` and `exact_pressure_operand_rows_carry_their_bound` (S3), `curved_thermal_records_name_the_pushed_products` (S4), `e1_ordinary_err_guard_fired_case_keeps_mains_attempt` (N2), `restrained_rows_take_the_all_rows_scale` (N1); T13 gains the design's precondition (N10) | pass |
 
 Every verdict pin asserts its paths-differ precondition inside the test.
 
@@ -164,15 +165,19 @@ It covered every committed request or model under `fixtures/`, `core/` and `vali
 - No output contains "S11-G".
 - 88 outputs carry `NUMERICAL_INTEGRITY_SENSITIVE`, identically on both trees.
 
-### 6a. The R-b′ residual: constructions tried (ruling 3; T20)
+### 6a. The R-b′ residual: reachable (C1), fail-closed (ruling 3; T20)
 
-None selected case A beside an R-b′-firing Passed case B:
+**Corrected disclosure.** The residual is reachable (C1), fail-closed, and needs per-case modulus bases and a pre-0.4 captured invocation.
+- **Found by RV4.** Construction C1: N05's cantilever with T19's per-case bases. Case A has the cancelling tip torques on the base basis (Sensitive, selected). Case B is on the soft basis (E = 1 Pa, G = 0.4 Pa), with nodal inputs only: tip F_y = 1 N and M_z = 1e-7 N·m.
+- **What it does.** On the captured entry, in both modes, the invocation returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` with no envelope. Case B alone is Passed in its report and demoted by R-b′, on a genuine relative error above the criterion.
+- **T20 is rewritten around C1** (§12). ROOT's ruling: ruling 3 stands. The owner is T3's composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item.
+
+**History: I5's earlier constructions**, none of which selected case A beside an R-b′-firing Passed case B:
 1. V1's N1 single-basis construction: case A is refused by retained recovery (exact radix range).
 2. INPLANE loads plus N05's torsion spring in one body: `UnsupportedBlock{order: 3}`.
-3. Two disjoint bodies (N05's cantilever plus the plain INPLANE body), with case B on an invented soft basis: case A is refused with `UnsupportedBlock{order: 4}`.
-   - T20 pins what this construction actually does: no selection, no receipt, and no refusal. The invocation publishes, with case B demoted by R-b′.
+3. Two disjoint bodies (N05's cantilever plus the plain INPLANE body), with case B on an invented soft basis: case A is refused with `UnsupportedBlock{order: 4}`. The earlier T20 characterized this construction (no selection, no receipt, no refusal). It is replaced, along with its two-body helpers.
 
-The residual stays "not demonstrated reachable" and fail-closed if reachable. RV4 tries independently. The owner is the `SOURCE_BLOCKS_FINALIZATION_FAILED` item.
+I5's earlier "not demonstrated reachable" was wrong: C1 differs from construction 3 by keeping case B on N05's own body, with nodal loads only.
 
 ## 7. Reader window (ruling 1)
 
@@ -234,7 +239,7 @@ I reran the touched crates after rustfmt, T4b, the R-b′ clause unit test and t
 - **T6a.** The straight-thrust family is unreachable at a nonzero value on a fresh solve (`pressure_runtime.rs:207-224`; exact profile l.237–240). T6a's thrust run uses the `#[cfg(test)]` historical scope, following S11-F's F10 precedent. The unit test is `s11g_rounded_product_defect_is_exact`.
 - **The desktop coverage gap.** No committed desktop fixture carries a non-qualified receipt entry. It is disclosed in CHANGE_RECORD, and no fixture was added.
 - **Disk.** Free disk touched **4.9 GB** as src-tauri finished, below the 5 GB stop point the manager set mid-run. That job had already completed, so it was not stopped. I then pruned my own `<s11g-target>/debug` (7.0 GB), and free disk returned to 12 GB. The authority targets were not touched.
-- **rustfmt.** The 1.97.1 toolchain has no rustfmt component, and nothing was installed. The stable toolchain's rustfmt 1.8.0 formatted the touched files whose base was clean. PP `lib.rs` was left unformatted, because base has 147 rustfmt diffs across that crate.
+- **rustfmt.** The 1.97.1 toolchain has no rustfmt component, and nothing was installed. The stable toolchain's rustfmt 1.8.0 formatted the touched files whose base was clean. In PP `lib.rs`, the 9 rustfmt diffs on S11-G's own lines (RV4-N6) were formatted in the repair (§12); the rest of that file is left as on main.
 - **The mutation-run slip** (§4) is disclosed and repaired.
 - **The earlier path-2 test.** The rev 2.1 characterization test (`ruling3_characterization_…`, PATH2_CONSTRUCTION.md) was replaced by T18 when rev 2.2 removed the gate. PATH2_CONSTRUCTION.md is kept as the historical record for D1.
 
@@ -249,5 +254,71 @@ I reran the touched crates after rustfmt, T4b, the R-b′ clause unit test and t
 
 - The GATE generator run and its commit (the manager's).
 - A committed desktop-reader test of the zero-work shape (ruled out; coverage gap disclosed).
-- A construction selecting case A beside an R-b′-firing case (the residual, §6a).
+- The repair of the R-b′ residual (§6a). It belongs to the `SOURCE_BLOCKS_FINALIZATION_FAILED` item, not this slice.
 - Formatting PP `lib.rs` (base not rustfmt-clean).
+
+## 12. Repair after RV4 (test and records, plus layout-only formatting)
+
+ROOT's rulings on RV4's review (PASS; 0 BLOCKING, 4 SHOULD-FIX, 10 NOTE; numerics `1724f2ad5`) and on its C1 finding: ruling 3 stands, and the repair is one commit of tests and records. No product behaviour changes.
+
+**S1: T20 on C1.** T20 is rewritten as `t20_characterization_rb_prime_residual_c1`, with helpers `c1_case_b` and `c1_request`. The two-body helpers `plain_inplane` and `n05_and_inplane` are removed; nothing else used them. It asserts, in both modes:
+- on the typed entry (no receipt): case B's report is Passed, R-b′ fires at the tip end, and the tip moment's relative error is above the criterion (computed in the test); case B is published demoted;
+- case B alone, captured: demoted, not refused;
+- the two-case captured invocation: `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`;
+- the control at m = 0.5: Ok with a receipt, both cases qualified, case B CHECKS_PASSED.
+
+§6a and CHANGE_RECORD carry the corrected disclosure.
+
+**S2–S4 and the NOTEs: new tests,** each shown killing RV4's own patch (next table).
+- **S2 (RV-M1):** `d21_1_second_test_adds_the_bound_exactly`. A row where B < T0 and the net defect d lies in (T0 − B, T0] fires by D21-1's second test alone, and is silent with B = 0.
+- **S3 (RV-M2):**
+  - `exact_pressure_operand_bound_is_gamma_20` pins RU(γ₂₀·|t|) and the subnormal branch.
+  - `exact_pressure_operand_rows_carry_their_bound` runs the committed exact-pressure request through the product's own builder and operand producer. Every nonzero operand row carries B > 20u·Σ|t|, decided exactly.
+- **S4 (RV-M3):** `curved_thermal_records_name_the_pushed_products`.
+  - The model: a realized curved span on the chord (1.2, 1.6, 0) m with a thermal load.
+  - The check: each bend row's A_se is formed independently from the bend's stiffness, chord and thermal strain, and must equal the ledger's exactly.
+  - Precondition: the two chord axes round differently, and A_se ≠ 0.
+  - Pin: CHECKS_PASSED on both entries and modes.
+- **N2 (RV-M6):** `e1_ordinary_err_guard_fired_case_keeps_mains_attempt`, on N06 plus a tip-noise case B.
+  - Precondition, from the typed entry: case B's ordinary attempt errs.
+  - Captured: case B keeps main's real attempt (retained scope's non-nodal refusal, charged work) and its blocking integrity failure, not the zero-work decline. Case B has no response, so the invocation carries no receipt; the attempt is read from its diagnostic.
+- **N1 (RV-M10, optional):** `restrained_rows_take_the_all_rows_scale`. A root RZ restrained row with a formed defect of about 1.4e-8 N·m is silent under its all-rows scale and fires under the free-row scale (the precondition). Pin: not demoted.
+- **N10:** T13 now asserts the design's precondition: R-b's two clauses hold at end i.
+
+**RV4's patches,** applied with GNU `patch -p1 -F3` (no Git), one at a time in `<s11g-mut-target>`. Each file was restored and its sha256 verified. Driver: `_run_records/rv4_repair/rv4_patches.py.txt`; results: `rv4_repair/results.json` and per-patch summaries.
+
+| RV4 patch | Change | Killing test and assertion (`rv4_repair/<patch>.kill.txt`) | Verdict |
+|---|---|---|---|
+| RV-M1 | D21-1's +12B dropped from the second test | `d21_1_second_test_adds_the_bound_exactly`: the fire assertion (the mutant gives `fires: false` at net ratio 1.15) | KILLED |
+| RV-M2 | exact-pressure operand bound × 0 | `exact_pressure_operand_bound_is_gamma_20` (the value pin) and `exact_pressure_operand_rows_carry_their_bound` (an operand row with bound 0) | KILLED |
+| RV-M3 | curved thermal operand from the wrong chord axis | `curved_thermal_records_name_the_pushed_products`: the exact A_se equality (row 0) | KILLED |
+| RV-M6 | E-1 ignores `attempt_err` | `e1_ordinary_err_guard_fired_case_keeps_mains_attempt`: the captured pin (`non-nodal`, not `formation guard`), after the typed-entry precondition. The mutant's message is the zero-work decline (`stage: "formation guard"`, charged 0) | KILLED |
+| RV-M10 | restrained rows take the free-row S\* | `restrained_rows_take_the_all_rows_scale`: the pin that root RZ is silent under its own scale (the mutant fires at net ratio 34) | KILLED |
+
+**A test fixed during the repair.** The first draft of the RV-M6 test used N06's two-case request, with the precondition read from the captured envelope. RV-M6 was killed there by that precondition, because under the mutant case B's integrity record was absent. The reason: the mutant also declines case A, which has no finding, and the invocation stops at case A's failure. A kill through a precondition that reads the mutated envelope is not a behavioural kill, so the test is now single-case, with its precondition from the typed entry. The table above is from the fixed test.
+
+**A slip, disclosed.** GNU `patch` saved a backup, `core/product_physics/src/lib.rs.orig`, when RV-M6's hunk applied with fuzz. The file sat untracked in the worktree during the runs; it is not a module, so no build reads it. I deleted it before this clean point, and nothing else is left over.
+
+The same five are also added to the §4 driver as anchors (`RV-M1` … `RV-M10`). The driver's M21 anchor is updated for the reformatted `OrdinaryAttempt::passed` call; all anchors check unique.
+
+**Layout-only formatting of PP `lib.rs` (RV4-N6).**
+- **What was formatted.** Only the rustfmt hunks overlapping S11-G's own lines. One of them re-indents the body of E-1's else block, which S11-G wrapped.
+- **Evidence** (`rv4_repair/layout_check.py.txt`, `layout_check.txt`):
+  - Against `b62e40d4d`, with all whitespace removed, the file differs only by the 10 trailing commas rustfmt adds before `)` or `}`. With those removed, it is equal. (`git diff -w` still lists the reflowed lines, because `-w` does not ignore line breaks: 68 insertions, 14 deletions.)
+  - `rustfmt --check` (skip_children): candidate 78, base `3d844fea4` 78, `b62e40d4d` 87.
+- **Why this matters:** no token, and so no behaviour, changes. That supports needing no DEC-025 re-sweep.
+
+**The other NOTEs, recorded in CHANGE_RECORD.** N3 (the publication reservation), N5 (curved pressure families unreachable, deviation 5), N7 (the operand-bound reading, deviation 8), N9 (R-b′ silent below 2⁻⁹⁸⁸, deviation 6), and N10's stale formation-list wording, now corrected. RV4 flagged trailing whitespace in two records. It is stripped from the new run records. The previously committed, hash-bound raw log `_run_records/mutations/failing_tests_per_mutant.txt` is kept byte-identical to `b62e40d4d` (the manager restored it; evidence bytes are not rewritten), so its trailing whitespace remains. N4 and N8 are left, per ROOT.
+
+**Runs, in the manager's cargo slots:**
+- **The final tree.** The full product_physics crate ran with `cargo test --offline --locked --no-fail-fast`, debuginfo off, in `<s11g-target>`.
+  - Result: exit 0; **511 passed, 0 failed, 1 ignored** (pre-existing).
+  - The sha256 of all 8 touched source files was identical before and after the run (`suites/final_repair_sources.sha256`).
+  - Records: `suites/run_final_repair.sh.txt`, `final_repair_summary.txt`, and `final_repair_s11g_tests.txt` (every s11g test, T8 and T10b pass).
+- **Earlier repair-stage runs**, superseded by the final run and not kept as records:
+  - PP 505 passed on T20-C1 alone;
+  - a run on the formatted tree before the RV-M6 test fix;
+  - a bracketed run that failed the first RV-M6 test draft (see above).
+- **RV4's five patches** against the final tree: all killed (table above).
+- **The §4 mutation table was not re-run.** The repair adds tests, changes only T20 among existing killers (it is no mutant's killer), and changes PP `lib.rs` layout only; the driver's anchors all check unique.
+- **Warnings** are unchanged: the remaining product_physics warnings all exist on base.

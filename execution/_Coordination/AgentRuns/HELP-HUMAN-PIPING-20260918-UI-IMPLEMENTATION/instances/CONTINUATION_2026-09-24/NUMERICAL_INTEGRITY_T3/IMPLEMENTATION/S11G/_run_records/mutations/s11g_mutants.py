@@ -124,8 +124,11 @@ MUTANTS = {
               """    report_sensitive || attempt_err || (load_row_finding.is_some() && false)""")],
             pp('t10_routing_predicates', 't19_path1_load_row_variant_is_not_refused'),
             'the routing predicate ignores the load-row finding (G-2)'),
-    'M21': ([(PP, """integrity_diagnostic_id(&load_case.id), load_row_finding.is_some()),""",
-              """integrity_diagnostic_id(&load_case.id), false),""")],
+    'M21': ([(PP, """            integrity_diagnostic_id(&load_case.id),
+            load_row_finding.is_some(),
+        ),""", """            integrity_diagnostic_id(&load_case.id),
+            false,
+        ),""")],
             pp('t19_path1_load_row_variant_is_not_refused')
             + [SITE + ['--', '--exact', 't10b_routing_site_calls_the_tested_predicates']],
             'the ordinary attempt ignores the finding: passed(..., false) (G-2)'),
@@ -251,6 +254,29 @@ MUTANTS = {
            pp('t11_inplane_rows_are_demoted_by_rb_prime_alone', 't12_accurate_small_moment_rows_below_the_floor_stay_passed',
               'rb_prime_clauses_at_their_boundaries'),
            "R-b's first clause at 1e-6 instead of 1e-9"),
+    # RV4's review mutants (REVIEW/_run_records/s11g_review/mutations/patches), with the
+    # repair's killing tests.
+    'RV-M1': ([(FG, """    if copy.add_product(sign * 12.0, bound).is_err()""",
+                """    if copy.add_product(sign * 12.0, 0.0 * bound).is_err()""")],
+              pp('d21_1_second_test_adds_the_bound_exactly'), "D21-1: the second test ignores B"),
+    'RV-M2': ([(PP, """    let relative = product_upward(gamma(20), value.abs());""",
+                """    let relative = 0.0 * product_upward(gamma(20), value.abs());""")],
+              pp('exact_pressure_operand_bound_is_gamma_20', 'exact_pressure_operand_rows_carry_their_bound'),
+              'exact-pressure operand bound gamma_20 |t| replaced by 0'),
+    'RV-M3': ([(PP, """                        b: bend.chord[local_col - DOF_PER_NODE],""",
+                """                        b: bend.chord[(local_col - DOF_PER_NODE + 1) % 3],""")],
+              pp('curved_thermal_records_name_the_pushed_products'),
+              'curved thermal RoundedProduct operand taken from the wrong chord axis'),
+    'RV-M6': ([(PP, """        let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {""",
+                """        let attempt = if !crate::needs_source_recovery(report_sensitive, false, None) {""")],
+              pp('e1_ordinary_err_guard_fired_case_keeps_mains_attempt'),
+              "E-1: an ordinary-Err guard-fired case gets the zero-work decline"),
+    'RV-M10': ([(FG, """            let (force, moment) = if restrained.contains(&row.dof) {
+                (m[2], m[3])
+            } else {
+                (m[0], m[1])
+            };""", """            let (force, moment) = (m[0], m[1]);""")],
+               pp('restrained_rows_take_the_all_rows_scale'), 'restrained rows take the free-row S*'),
 }
 
 

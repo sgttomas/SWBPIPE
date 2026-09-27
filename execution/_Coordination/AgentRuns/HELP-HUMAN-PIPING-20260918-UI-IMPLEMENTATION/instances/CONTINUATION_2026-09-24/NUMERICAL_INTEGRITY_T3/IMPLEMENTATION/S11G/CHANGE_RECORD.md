@@ -51,7 +51,8 @@
 - **Where.** The load-row finding demotes at `append_integrity_report`, on both the linear and nonlinear calls. The R-b′ finding amends the same integrity record after the recovery loop (ROOT ruling 1).
 - **How.** The code becomes `NUMERICAL_INTEGRITY_SENSITIVE` (warning), and one reason sentence is appended to the existing message. The `StructuralReport` text stays truthful (`quality: Passed`).
 - **The no-op rule.** A case already Sensitive or weaker is left byte for byte as it is.
-- **Nothing else changes.** No value changes, no field or code is added, and the guard itself never produces an `Err`.
+- **The receipt's publication reservation (RV4-N3).** In a multi-case captured invocation with a receipt, the added info diagnostic (E-1's decline, `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`) grows the publication reservation by 32 + 12 × its size, plus the difference between the entries. The attempt ledger itself equals main's (T22). This matters only within a few kB of the 64e6 invocation limit.
+- **Nothing else changes.** No value changes, no field or code is added, and the guard itself never produces an `Err`. The one exception is the ruled, fail-closed receipt residual under Residuals below: a pre-0.4 captured invocation with per-case modulus bases can be refused.
 
 **Routing (revision 2.2 G-1 to G-3, with erratum E-1 / D22-1).**
 - **G-1.** `source_eligible` is main's predicate (captured, no nonlinear supports, no combinations). Revision 2.1's load-row gate is gone.
@@ -95,22 +96,41 @@
    - **Why.** On main a fresh solve refuses any legacy nonzero pressure with `PRESSURE_MODEL_REAUTHOR_REQUIRED` (`pressure_runtime.rs:207-224`), and the exact profile refuses pressure primitives altogether. So the straight-thrust `RoundedProduct` family carries a nonzero value only in the `#[cfg(test)]` historical scope (`lib.rs:97-98`, `historical_pressure_reference.rs:12-22`). A zero-valued legacy pressure gives a thrust of exactly 0 and a zero defect.
    - **What the test does.** T6a's thrust run executes inside `historical_pressure_reference::with_scope`, as S11-F's F10 did. The family's defect is also pinned at unit level (`load_ledger::tests::s11g_rounded_product_defect_is_exact`).
    - **Disclosed:** a fresh-solve run of the thrust family is unreachable, so no test performs one.
-5. **Formatting.** rustfmt ran on the touched files whose base was already clean. PP `lib.rs` was not reformatted: base has 147 rustfmt diffs across that crate, and reformatting would touch unrelated code.
+5. **The curved pressure families are just as unreachable (RV4-N5).** The curved pressure caps (`RoundedProduct`) and the curved wall vector (`CannotBound`), both pushed by `add_curved_bend_pressure_thrust_load` (`lib.rs:9129-9185`), are produced only from the same legacy pressure primitive. A fresh solve refuses that primitive at a nonzero value by the same check (`pressure_runtime.rs:207-224`), and the exact profile refuses it at any value. So they too carry a nonzero value only in the test-only historical scope, and no S11-G product test solves them.
+   - The caps use the same `RoundedProduct` record as the straight thrust, whose defect is pinned at unit level (`load_ledger::tests::s11g_rounded_product_defect_is_exact`).
+   - The wall vector's `CannotBound` handling is pinned by T15 (the curved uniform load, the same record).
+6. **R-b′ is silent below a moment scale of 2⁻⁹⁸⁸ (RV4-N9).**
+   - **The deviation.** When S\*_moment < 2⁻⁹⁸⁸ (about 1.5e-298 N·m), the floor clause is false (`formation_guard.rs:54`, `:430`), so R-b′ never fires. §4's literal rule q ≥ 2⁻³⁴·S\* would still fire there.
+   - **Why.** This keeps 2⁻³⁴·S\* out of the subnormal range. It is fail-open only at an absurd scale, where the guard's own arithmetic loses its relative meaning.
+7. **Formatting.** rustfmt (stable 1.8.0; the pinned 1.97.1 toolchain has no rustfmt, and none was installed) ran on every touched file whose base was clean.
+   - **PP `lib.rs`:** only the hunks that overlap S11-G's own lines were formatted, after RV4 found 9 there (RV4-N6). One of those hunks re-indents the body of E-1's else block, which S11-G wrapped. The file's rustfmt diff count now equals base's (78 with `skip_children`), and the change is whitespace and layout only.
+   - The rest of the file (base: 147 diffs across the crate with its child modules) is left as it is on main.
+8. **Operand bounds of generated loads (RV4-N7, a reading).** The γ₄ operand bound applies to `{case}:generated:` loads, the equivalent-static generated intensities. Applied self-weight loads (`load:self-weight:…`) are stored inputs, behind the held-operand boundary (V1 N-3), and carry none. The bound is additive only, so it can only make the decision stricter.
 
 ## Residuals, disclosed
 
 - **Receipt coverage on the pre-0.4 captured entry (ROOT ruling 3, revision 1; revision 2.2).**
   - **Path 2 (the 2.1 routing gate on an already-Sensitive case) is removed by G-1.** T18 confirms it by run: the invocation is not refused. Case B keeps main's real refused attempt, and T18's whole envelope is byte-identical to base in both modes.
   - **Path 1, load-row variant, is removed by G-2 and E-1.** T19 confirms it by run. It uses per-case modulus bases, and case A is selected, which settles V1's N3. The invocation is not refused; case B is `SENSITIVE`, and its entry is the zero-work `unsupported` decline.
-  - **Path 1, R-b′ variant: a disclosed, fail-closed residual, not demonstrated reachable.**
-    - R-b′ acts after routing, so a case demoted from Passed by R-b′ beside a source-selected case would fail finalization with `SOURCE_BLOCKS_FINALIZATION_FAILED`, and no envelope would be published.
-    - Three constructions failed to select case A: an exact radix-range refusal, `UnsupportedBlock{order: 3}`, and `UnsupportedBlock{order: 4}` (RETURN §6).
-    - T20 characterizes the fourth, a two-body construction. It publishes with no receipt, because case A's recovery reports `UnsupportedBlock`, and case B is demoted by R-b′.
-    - RV4 attempts it independently. The owner is T3's composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item (the "demoted-ordinary" receipt form), which retries once K-D5 merges.
+  - **Path 1, R-b′ variant: a disclosed residual. It is reachable (C1), fail-closed, and needs per-case modulus bases and a pre-0.4 captured invocation** (ROOT: ruling 3 stands).
+    - **The mechanism.** R-b′ acts after routing. A case whose report is Passed and which R-b′ demotes, beside a source-selected case, keeps an `ordinary` receipt entry whose outcome no longer matches the published verdict. Receipt finalization then fails. The captured entry returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`: no envelope and no published value.
+    - **Construction C1, found by RV4 (the independent reviewer).**
+      - The model is N05's cantilever with T19's per-case bases.
+      - Case A has the cancelling tip torques on the base basis, and is Sensitive and selected.
+      - Case B is on the invented soft basis (E = 1 Pa, G = 0.4 Pa), with nodal inputs only: tip F_y = 1 N and M_z = 1e-7 N·m.
+      - Case B alone is Passed in its report and demoted by R-b′ on a genuinely inaccurate tip moment (relative error about 6.1e-9 against the exact 1e-7 N·m).
+    - **Where it does not occur.** The typed entry publishes case B `SENSITIVE`, with no receipt. A single-case captured invocation is demoted and not refused. A 0.4.0 captured invocation is republished under CP3 SF-1.
+    - **T20** now characterizes C1:
+      - the refusal, in both modes;
+      - the precondition, including the genuine relative error computed in the test;
+      - the typed entry and the single-case captured invocation;
+      - the control at m = 0.5 (R-b′ silent), which returns Ok with a receipt.
+    - **History.** I5's three earlier constructions failed to select case A (RETURN §6a). They are superseded by C1.
+    - **Owner.** T3's composite `SOURCE_BLOCKS_FINALIZATION_FAILED` item (the "demoted-ordinary" receipt form), which must close before T3 closes.
   - **Reach per slice (facts from the code).**
     - S11-F's `LOAD_CONTRIBUTION_ABSORBED` and K-D5's formation check both demote at the kernel `StructuralReport`, before routing, so they take retained-source recovery: **no residual.**
     - S11-G's load-row guard now routes the same way (G-2): **no residual.**
-    - Only R-b′ remains, as above.
+    - Only R-b′ remains: reachable (C1) and fail-closed, as above.
 - **Desktop reader coverage (a disclosed gap).**
   - **What exists.** No committed desktop fixture carries a non-qualified source-block receipt entry (`failed` or `unsupported`, of any work shape). Among committed JSON, only the schemas mention those outcomes. The desktop reader's tests therefore never exercise the zero-work decline shape.
   - **What was run instead.**
@@ -125,7 +145,10 @@
 
 ## The formation list
 
-`GATE/FORMATION_EXCEPTIONS.json` is to be emptied by its generator (`GATE/pin_s11_exceptions.py`). S11-G's gate run supports that: T16 passes, and the probe table in RETURN §5 shows all 14 rows published non-Passed on their entries and both modes. The manager runs the generator and commits the GATE change on the T3 branch. S11-F's code-level `FORMATION_PINS` stay bit-identical, since no value changes.
+`GATE/FORMATION_EXCEPTIONS.json` **is empty**. The manager emptied it with its generator (`GATE/pin_s11_exceptions.py`) at `759dccf35` on this branch (`37bdc2edd` on the T3 branch), on S11-G's gate run:
+- T16 passes, and the probe table in RETURN §5 shows all 14 rows published non-Passed on their entries and both modes.
+- RV4 reproduced the emptied file byte for byte.
+- S11-F's code-level `FORMATION_PINS` stay bit-identical, since no value changes.
 
 ## No in-band marker
 

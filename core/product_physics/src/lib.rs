@@ -1042,10 +1042,10 @@ fn integrity_dof_map(model: &PreviewModel) -> Vec<String> {
 /// One entry of `integrity_dof_map`, formed alone.
 fn integrity_dof_label(model: &PreviewModel, dof: usize) -> String {
     let name = ["UX", "UY", "UZ", "RX", "RY", "RZ"][dof % DOF_PER_NODE];
-    model
-        .nodes
-        .get(dof / DOF_PER_NODE)
-        .map_or_else(|| format!("global_dof={dof}"), |node| format!("{}:{name}", node.id))
+    model.nodes.get(dof / DOF_PER_NODE).map_or_else(
+        || format!("global_dof={dof}"),
+        |node| format!("{}:{name}", node.id),
+    )
 }
 
 // Byte lengths delimit exact source identities without lossy punctuation folding.
@@ -1150,12 +1150,21 @@ fn formation_entity_bodies(
 /// S11-G: the case's bodies for the guards' scales (DESIGN section 4.1.6.1
 /// item 1: straight members, curved spans and user stiffness elements).
 fn formation_bodies(built: &BuiltModel) -> formation_guard::Bodies {
-    let coordinates = built.nodes.iter().map(|n| n.coordinates).collect::<Vec<_>>();
+    let coordinates = built
+        .nodes
+        .iter()
+        .map(|n| n.coordinates)
+        .collect::<Vec<_>>();
     let edges = built
         .pipes
         .iter()
         .map(|p| (p.node_i.index, p.node_j.index))
-        .chain(built.curved_bend_elements.iter().map(|b| (b.node_i, b.node_j)))
+        .chain(
+            built
+                .curved_bend_elements
+                .iter()
+                .map(|b| (b.node_i, b.node_j)),
+        )
         .chain(
             built
                 .user_stiffness_elements
@@ -2711,8 +2720,17 @@ fn solve_load_case(
     // S11-G revision 2.2 G-2: the receipt's ordinary outcome follows the
     // published verdict, which the load-row finding demotes to Sensitive.
     let ordinary_attempt = match &attempted_linear {
-        Ok(solve) => source_receipt::OrdinaryAttempt::passed(solver_mode, &solve.structural_report, integrity_diagnostic_id(&load_case.id), load_row_finding.is_some()),
-        Err(error) => source_receipt::OrdinaryAttempt::rejected(solver_mode, error, integrity_diagnostic_id(&load_case.id)),
+        Ok(solve) => source_receipt::OrdinaryAttempt::passed(
+            solver_mode,
+            &solve.structural_report,
+            integrity_diagnostic_id(&load_case.id),
+            load_row_finding.is_some(),
+        ),
+        Err(error) => source_receipt::OrdinaryAttempt::rejected(
+            solver_mode,
+            error,
+            integrity_diagnostic_id(&load_case.id),
+        ),
     };
     let recovery_input = || source_recovery::Input {
         model, built, stiffness, force: &force, free: &reduced.free_dofs,
@@ -2742,40 +2760,40 @@ fn solve_load_case(
         let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
             Err(source_recovery::formation_decline_without_attempt())
         } else {
-        source_budget.attempts += 1;
-        let case_limit = source_budget.case_limit();
-        source_recovery::solve(
-            recovery_input(),
-            open_pipe_stress_frame_kernel::structural::exact_boundary::Limits {
-                operations: case_limit,
-                ..Default::default()
-            },
-        )
-        // S11-G revision 2.2 G-3: a guard-fired case is never selected; the
-        // selection is declined before the 0.4.0 replay reservation.
-        .and_then(|recovery| decline_for_formation(recovery, load_row_finding.as_ref()))
-        .and_then(|recovery| match load_state {
-            // Pre-0.4 selection is unchanged.
-            None => Ok(recovery),
-            // ROOT CP3 SF-1 screen: captured replay repeats the live
-            // attempt's source closure and exact solve in the same ledger, so
-            // selection first reserves an amount equal to the live charge.
-            // This screen does not guarantee finalization (other stages are
-            // charged before replay, and replay may cost slightly more); a
-            // selected join that still cannot finalize is republished on the
-            // ordinary route. The case's own refusal is checked first so
-            // that a republication still reports it.
-            Some(_) => recovery
-                .reserve_captured_replay(case_limit)
-                .and_then(|recovery| {
-                    if source_budget.load_state_join_withheld.is_some() {
-                        // ROOT CP3 SF-1: the invocation publishes ordinarily.
-                        Err(recovery.decline_withheld())
-                    } else {
-                        Ok(recovery)
-                    }
-                }),
-        })
+            source_budget.attempts += 1;
+            let case_limit = source_budget.case_limit();
+            source_recovery::solve(
+                recovery_input(),
+                open_pipe_stress_frame_kernel::structural::exact_boundary::Limits {
+                    operations: case_limit,
+                    ..Default::default()
+                },
+            )
+            // S11-G revision 2.2 G-3: a guard-fired case is never selected; the
+            // selection is declined before the 0.4.0 replay reservation.
+            .and_then(|recovery| decline_for_formation(recovery, load_row_finding.as_ref()))
+            .and_then(|recovery| match load_state {
+                // Pre-0.4 selection is unchanged.
+                None => Ok(recovery),
+                // ROOT CP3 SF-1 screen: captured replay repeats the live
+                // attempt's source closure and exact solve in the same ledger, so
+                // selection first reserves an amount equal to the live charge.
+                // This screen does not guarantee finalization (other stages are
+                // charged before replay, and replay may cost slightly more); a
+                // selected join that still cannot finalize is republished on the
+                // ordinary route. The case's own refusal is checked first so
+                // that a republication still reports it.
+                Some(_) => recovery
+                    .reserve_captured_replay(case_limit)
+                    .and_then(|recovery| {
+                        if source_budget.load_state_join_withheld.is_some() {
+                            // ROOT CP3 SF-1: the invocation publishes ordinarily.
+                            Err(recovery.decline_withheld())
+                        } else {
+                            Ok(recovery)
+                        }
+                    }),
+            })
         };
         match attempt {
             Ok(recovery) => selected_source = Some(recovery),
@@ -9076,8 +9094,22 @@ fn add_pressure_thrust_loads(
             let (a, b) = (load.axial_load, local_x[axis]);
             let value = a * b;
             let product = |k| Formation::RoundedProduct { k, a, b };
-            ledger.push_formed(&load.source_load_id, i_base + axis, -value, product(-1.0), 0.0, true);
-            ledger.push_formed(&load.source_load_id, j_base + axis, value, product(1.0), 0.0, true);
+            ledger.push_formed(
+                &load.source_load_id,
+                i_base + axis,
+                -value,
+                product(-1.0),
+                0.0,
+                true,
+            );
+            ledger.push_formed(
+                &load.source_load_id,
+                j_base + axis,
+                value,
+                product(1.0),
+                0.0,
+                true,
+            );
         }
     }
 }
@@ -9119,7 +9151,11 @@ fn add_curved_bend_pressure_thrust_load(
             source,
             i_base + axis,
             -(axial_load * tangent_i[axis]),
-            Formation::RoundedProduct { k: -1.0, a: axial_load, b: tangent_i[axis] },
+            Formation::RoundedProduct {
+                k: -1.0,
+                a: axial_load,
+                b: tangent_i[axis],
+            },
             0.0,
             true,
         );
@@ -9127,14 +9163,25 @@ fn add_curved_bend_pressure_thrust_load(
             source,
             j_base + axis,
             axial_load * tangent_j[axis],
-            Formation::RoundedProduct { k: 1.0, a: axial_load, b: tangent_j[axis] },
+            Formation::RoundedProduct {
+                k: 1.0,
+                a: axial_load,
+                b: tangent_j[axis],
+            },
             0.0,
             true,
         );
     }
     let dof_map = element_dof_map(bend.node_i, bend.node_j);
     for (local_slot, &global_slot) in dof_map.iter().enumerate() {
-        ledger.push_formed(source, global_slot, wall_loads[local_slot], Formation::CannotBound, 0.0, false);
+        ledger.push_formed(
+            source,
+            global_slot,
+            wall_loads[local_slot],
+            Formation::CannotBound,
+            0.0,
+            false,
+        );
     }
 }
 
@@ -9173,7 +9220,14 @@ fn add_thermal_equivalent_loads(
             let (a, b) = (load.axial_load, local_x[axis]);
             let value = a * b;
             let product = |k| Formation::RoundedProduct { k, a, b };
-            ledger.push_formed(&load.source, i_base + axis, -value, product(-1.0), 0.0, true);
+            ledger.push_formed(
+                &load.source,
+                i_base + axis,
+                -value,
+                product(-1.0),
+                0.0,
+                true,
+            );
             ledger.push_formed(&load.source, j_base + axis, value, product(1.0), 0.0, true);
         }
     }
