@@ -52,3 +52,18 @@ Item 4's second bullet ("With `_DAG/_LATEST.md`, ... It also writes `declared_on
 The `audit-dep-closure` contract and `tools/evaluation/README.md` already describe this behaviour. Root tranche `ROOT-FOLLOWUPS-WAVE1-20260926` records this erratum; the rest of this notice is unchanged.
 
 The erratum changes no tool or workflow behaviour. It asks nothing of this loop beyond reading item 4 as corrected.
+
+## Update (2026-09-27)
+
+Root tranche `PIPING-DEP-MATERIALIZATION-NOTE-20260927` changes how `tools/coordination/materialize_local_dependencies.py` rewrites a `Dependencies.csv`, so that rows are retired, never deleted (`docs/SPEC.md` §6.6). This supersedes the `--canonical-output` sentence in item 3; the rest of this notice is unchanged.
+
+- **Both modes.** Each local row that is not `Origin=DECLARED`, and whose `DependencyID` the output does not already carry, is now:
+  - kept with its field values unchanged if its `Status` is `RETIRED`;
+  - written as the aggregate's `RETIRED` row if the aggregate carries that ID as `RETIRED`;
+  - otherwise replaced by the aggregate, which leaves it out, as before. Its ID is now listed per deliverable as `DroppedLocalRows` and counted on the console.
+- **Default mode** still keeps every local declared row, whatever its `Status`.
+- **`--canonical-output`** now keeps declared rows whose `Status` is `ACTIVE` or `RETIRED`. Other declared rows, such as `CANDIDATE`, are still set aside and listed as `SetAsideDeclaredRows`.
+- `Status` is compared trimmed and case-insensitively for these decisions; kept rows keep their own spelling. Written rows are sorted by `DependencyID`. Aggregate row content, header selection and `Notes` handling are unchanged.
+- Piping's DEL-13-04 `RETIRED` declared rows (`DEL-13-04-D001`, `DEL-13-04-D002`) are now kept in both modes; `--canonical-output` no longer drops them.
+
+Piping's disposition of the DAG-011 rerun finding, with the before and after comparison, is in `execution/_Coordination/COORDINATION_RESPONSE_2026-09-27_DEPENDENCY_MATERIALIZATION.md`. No action is required of this loop.

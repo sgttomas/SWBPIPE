@@ -1,5 +1,6 @@
 {
   "accepted_dag": "projects/chirality-piping/execution/_DAG/DAG-011",
+  "tool_revision": null,
   "default": {
     "exit_code": 0,
     "console": [
@@ -10,6 +11,8 @@
       "Local Origin=DECLARED rows preserved: 183",
       "Local Origin=DECLARED rows set aside by status (--canonical-output only): 0",
       "Local RETIRED rows preserved: 83",
+      "Local rows written as the aggregate's RETIRED row: 0",
+      "Local rows dropped (replaced by the aggregate, which omits them): 0",
       "DeclaredIdCollisions: 9",
       "Canonical output: False canonical_findings=0",
       "Pointer refresh: True",
@@ -35,6 +38,8 @@
       ]
     },
     "set_aside_declared_rows": {},
+    "retired_from_aggregate_rows": {},
+    "dropped_local_rows": {},
     "changed_files_by_kind": {
       "changed": 93,
       "header_adds_extension_columns": 92,
@@ -54,8 +59,8 @@
     "examples": {
       "notes_gain_aggregate_legacy_suffix": [
         "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A001",
-        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A003",
-        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002"
+        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002",
+        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A003"
       ]
     }
   },
@@ -69,6 +74,8 @@
       "Local Origin=DECLARED rows preserved: 183",
       "Local Origin=DECLARED rows set aside by status (--canonical-output only): 0",
       "Local RETIRED rows preserved: 83",
+      "Local rows written as the aggregate's RETIRED row: 0",
+      "Local rows dropped (replaced by the aggregate, which omits them): 0",
       "DeclaredIdCollisions: 9",
       "Canonical output: True canonical_findings=0",
       "Pointer refresh: True",
@@ -94,6 +101,8 @@
       ]
     },
     "set_aside_declared_rows": {},
+    "retired_from_aggregate_rows": {},
+    "dropped_local_rows": {},
     "changed_files_by_kind": {
       "changed": 93,
       "header_adds_extension_columns": 92,
@@ -113,8 +122,8 @@
     "examples": {
       "notes_gain_aggregate_legacy_suffix": [
         "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A001",
-        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A003",
-        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002"
+        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002",
+        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A003"
       ]
     }
   },

@@ -1,5 +1,6 @@
 {
   "accepted_dag": "projects/chirality-piping/execution/_DAG/DAG-011",
+  "tool_revision": "05c0b6e94da8e468e5c639e0f7f9e3d0a59f7546",
   "default": {
     "exit_code": 0,
     "console": [
@@ -34,6 +35,8 @@
       ]
     },
     "set_aside_declared_rows": {},
+    "retired_from_aggregate_rows": {},
+    "dropped_local_rows": {},
     "changed_files_by_kind": {
       "changed": 93,
       "header_adds_extension_columns": 92,
@@ -54,8 +57,8 @@
     ],
     "examples": {
       "notes_gain_aggregate_legacy_suffix": [
-        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002",
         "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A001",
+        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002",
         "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A003"
       ],
       "row_dropped_EXTRACTED_RETIRED": [
@@ -104,6 +107,8 @@
         "DEL-13-04-D002"
       ]
     },
+    "retired_from_aggregate_rows": {},
+    "dropped_local_rows": {},
     "changed_files_by_kind": {
       "changed": 93,
       "header_adds_extension_columns": 92,
@@ -126,8 +131,8 @@
     ],
     "examples": {
       "notes_gain_aggregate_legacy_suffix": [
-        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002",
         "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A001",
+        "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A002",
         "DEL-03-02:SEMREF-2026-06-16-DEL-03-02-A003"
       ],
       "row_dropped_DECLARED_RETIRED": [

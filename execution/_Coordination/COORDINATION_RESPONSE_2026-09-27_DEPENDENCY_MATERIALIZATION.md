@@ -32,7 +32,9 @@ on scratch copies of the materializer's inputs, never on the committed files.
 Both modes were run, each with `--refresh-pointers`. The script and raw outputs
 are in the work graph's [evidence folder](WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/evidence/).
 
-**With the tool as reviewed in PR #985** (`comparison_before_retired_fix.json`),
+**With the tool as reviewed in PR #985** (`comparison_before_retired_fix.json`,
+run with `--tool-revision 05c0b6e94`, whose tool differs from PR #985's only in
+its docstring),
 default and `--canonical-output` runs both changed the same 93 of 98 registers.
 Four kinds of difference accounted for all of them: header (92 files), row
 order (68), aggregate `Notes` (480 rows in 49 files), and `RETIRED` rows
@@ -126,19 +128,30 @@ The integrating session, under the same owner direction, had the materializer
 fixed in this candidate. A whole-file rewrite now keeps rows it used to drop,
 in both modes:
 
-- Every local `RETIRED` row is kept with its field values unchanged, unless the
-  output already carries its `DependencyID` from the aggregate or a kept
-  declared row. The aggregate's own `RETIRED` rows are still not materialized,
-  so each retired row is written once.
+- Each local non-declared row whose `DependencyID` the output does not already
+  carry is kept with its field values unchanged if it is `RETIRED`. If the
+  aggregate carries that ID as `RETIRED`, the aggregate's `RETIRED` row is
+  written, so the row is retired rather than deleted. Any other such row, for
+  example an `ACTIVE` row the aggregate lacks, is still replaced by the
+  aggregate, which is authoritative for extracted rows; its ID is now listed
+  as `DroppedLocalRows` and counted.
 - With `--canonical-output`, declared rows are now kept when `ACTIVE` or
   `RETIRED`, the canonical v3.1 statuses. Other declared rows, such as
   `CANDIDATE`, are still set aside.
+- `Status` is compared trimmed and case-insensitively for these decisions;
+  kept rows keep their own spelling.
 
 Kept rows are sorted by `DependencyID` with the rest, as the tool already sorts
-every row. Aggregate row content, header selection, the order of aggregate rows
-and the `Notes` handling are unchanged. One exception: a local column that only
-a kept retired row carries now stays in the output header, as it already did
-for kept declared rows.
+every row. Aggregate row content, the order of aggregate rows and the `Notes`
+handling are unchanged. The exceptions: a local column that only a kept
+retired row carries stays in the output header, as it already did for kept
+declared rows; `--refresh-pointers` row counts include the kept rows; and a
+local row the aggregate retired is now written as that `RETIRED` row.
+
+Over Piping, the fixed tool writes no aggregate `RETIRED` row in place of a
+local one and drops no local row, so the counts above do not change. The four
+2026-09-26 dependency follow-up notices (Piping, PEC, Runtime, App) each carry
+a dated "Update (2026-09-27)" section describing this.
 
 The docstring and `tools/REGISTRY.md` row also say a rewrite is not a currency
 check, list the remaining effects (header, row order, aggregate `Notes`), and

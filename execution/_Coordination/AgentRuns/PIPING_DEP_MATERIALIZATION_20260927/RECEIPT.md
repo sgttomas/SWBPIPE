@@ -20,17 +20,28 @@ accepted changes as exact field edits. No register is therefore rewritten. The
 [coordination record](../../COORDINATION_RESPONSE_2026-09-27_DEPENDENCY_MATERIALIZATION.md)
 states the canonical form and where the materializer applies.
 
-Deleting retired rows broke the rule that rows are retired, never deleted, so
-the Root materializer was fixed in the same candidate. A whole-file rewrite now
-keeps every local `RETIRED` row whose ID the output does not already carry.
-With `--canonical-output`, it also keeps declared `RETIRED` rows. Kept rows are
-sorted by `DependencyID` with the rest; nothing else in the output changes. Over
-Piping, both modes now keep all 83 retired and 183 declared rows and give
-byte-identical output. The remaining differences are header (92 files), row
+Deleting retired rows broke the rule that rows are retired, never deleted
+(`docs/SPEC.md` §6.6), so the Root materializer was fixed in the same
+candidate. For each local non-declared row whose ID the output does not already
+carry, a rewrite now keeps it if `RETIRED` and writes the aggregate's `RETIRED`
+row if the aggregate retired that ID. Otherwise the aggregate still replaces it,
+and its ID is listed as `DroppedLocalRows`. With `--canonical-output`, declared
+`RETIRED` rows are also kept. `Status` is compared case-insensitively. Kept rows
+are sorted by `DependencyID` with the rest. Aggregate row content and `Notes`
+handling are unchanged. There are three exceptions to "nothing else changes":
+- a column carried only by a kept `RETIRED` row stays in the header;
+- `--refresh-pointers` row counts include the kept rows;
+- a local row the aggregate retired is written as that `RETIRED` row.
+
+Over Piping, both modes now keep all 83 retired and 183 declared rows. No
+aggregate `RETIRED` row replaces a local one and no row is dropped. Both modes
+give byte-identical output. The remaining differences are header (92 files), row
 order (71) and aggregate `Notes` (480 rows in 49 files). The docstring and
 `tools/REGISTRY.md` row describe the fix and say that a rewrite is not a
 currency check (tranche `PIPING-DEP-MATERIALIZATION-NOTE-20260927`; the export
-manifest hashes were regenerated).
+manifest hashes were regenerated). The four 2026-09-26 dependency follow-up
+notices (Piping, PEC, Runtime, App) each carry a dated update routed by that
+tranche.
 
 ## Checks and limits
 
@@ -43,12 +54,19 @@ The candidate was examined at `0adfbc747` and rebased onto `8bbd022b9`, which ch
 - `build_workflow_index.py --check`, `git diff --check` and the Piping receipt validator: exit 0.
 - `run_affected_tests.py` (coordination, practitioner harness, validation): 1,208 passed, exit 0.
 - Harness self-check: exit 0; it raises no finding on the new paths.
-- Materializer tests: the three new tests fail against the tool before the fix (3 failed, 20 passed) and pass with it (23 passed).
+- Materializer tests: the first three new tests fail on the tool at `05c0b6e94` (3 failed, 20 passed). The three review-repair tests fail on the tool at `f32807f11` (3 failed, 23 passed). All 26 pass on the final tool.
+- Evidence: `compare_materializer.py` output is byte-identical across two runs for each tool revision.
 
 No SCC case exists in Piping, so the SCC case validator does not apply. The
 `--refresh-pointers` runs also rewrite `_DEPENDENCIES.md`. That is a separate
 act and is not assessed here. Independent review, CI and merge belong to the
 integrating session. No release is claimed.
+
+Follow-up, not in this candidate: the generated `_DEPENDENCIES.md` register
+section still says the register holds "aggregate rows plus its local
+`Origin=DECLARED` rows" and that declared rows are kept on a rewrite; it does
+not mention kept `RETIRED` rows. It is left unchanged because the App scaffold
+copies it byte for byte, so changing it needs a coordinated App change.
 
 ## Cursor and pointers
 
@@ -57,7 +75,9 @@ integrating session. No release is claimed.
 - **Parent-Receipt:** none; historical `loop/LOOP_RECEIPTS.md` unchanged.
 - **Owner-Direction:** CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING, 2026-09-27:
   `You can take care of those remaining items now.  Include the items with the "other owners".  You can make changes as necessary.`
-- **Pointers:** [work graph](../../WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/WORK_GRAPH.md)
+- **Pointers:** PR: `PENDING — PR URL to be bound by the integrating session before final checks`
+  (branch `worktree-agent-a522f6a3bf5db58d9`);
+  [work graph](../../WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/WORK_GRAPH.md)
   and its [evidence](../../WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/evidence/).
   No deliverable `MEMORY.md` is affected.
 - **Model-Attribution:** a Claude Code TASK subagent of the integrating parent

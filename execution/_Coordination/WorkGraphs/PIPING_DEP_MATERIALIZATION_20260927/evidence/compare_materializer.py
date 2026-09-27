@@ -10,11 +10,16 @@ committed file. The committed tree is never written. The script also compares
 the local rows with the accepted DAG's edge rows directly.
 
 Usage, from the repository root:
-    python3 projects/chirality-piping/execution/_Coordination/WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/evidence/compare_materializer.py
+    python3 projects/chirality-piping/execution/_Coordination/WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/evidence/compare_materializer.py [--tool-revision REV]
+
+With --tool-revision, the materializer and its audit_dag.py module are taken
+from that Git revision instead of the working tree. The output is
+byte-reproducible for the same inputs and tool.
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import io
 import json
@@ -74,12 +79,12 @@ def classify(scratch: Path) -> dict[str, object]:
                 rows[kind] += 1
                 kinds.add(kind)
                 examples.setdefault(kind, []).append(f"{deliverable}:{key}")
-        for key in new_by_id.keys() - old_by_id.keys():
+        for key in sorted(new_by_id.keys() - old_by_id.keys()):
             rows["row_added"] += 1
             kinds.add("row_added")
-        for key in old_by_id.keys() & new_by_id.keys():
+        for key in sorted(old_by_id.keys() & new_by_id.keys()):
             old, new = old_by_id[key], new_by_id[key]
-            columns = [c for c in set(old) | set(new) if c and (old.get(c) or "") != (new.get(c) or "")]
+            columns = sorted(c for c in set(old) | set(new) if c and (old.get(c) or "") != (new.get(c) or ""))
             if not columns:
                 continue
             old_notes, new_notes = old.get("Notes") or "", new.get("Notes") or ""
@@ -156,15 +161,32 @@ def copy_inputs(dag_dir: Path, scratch: Path) -> None:
                 shutil.copy2(folder / name, target / name)
 
 
+def tool_at(revision: str | None, directory: Path) -> Path:
+    """The materializer to run: the working tree's, or one taken from a Git revision."""
+    if revision is None:
+        return TOOL
+    directory.mkdir(parents=True, exist_ok=True)
+    for name in ("materialize_local_dependencies.py", "audit_dag.py"):
+        data = subprocess.run(
+            ["git", "show", f"{revision}:tools/coordination/{name}"], cwd=REPO, capture_output=True, check=True
+        ).stdout
+        (directory / name).write_bytes(data)
+    return directory / "materialize_local_dependencies.py"
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--tool-revision", help="Git revision to take the materializer from (default: working tree).")
+    args = parser.parse_args()
     dag_dir = accepted_dag()
-    result: dict[str, object] = {"accepted_dag": dag_dir.relative_to(REPO).as_posix()}
+    result: dict[str, object] = {"accepted_dag": dag_dir.relative_to(REPO).as_posix(), "tool_revision": args.tool_revision}
     for mode, extra in (("default", []), ("canonical_output", ["--canonical-output"])):
         with tempfile.TemporaryDirectory() as tmp:
             scratch = Path(tmp) / "execution"
             copy_inputs(dag_dir, scratch)
+            tool = tool_at(args.tool_revision, Path(tmp) / "tool")
             run = subprocess.run(
-                [sys.executable, str(TOOL), "--dag-dir", str(scratch / dag_dir.relative_to(EXECUTION)),
+                [sys.executable, str(tool), "--dag-dir", str(scratch / dag_dir.relative_to(EXECUTION)),
                  "--execution-root", str(scratch), "--refresh-pointers", "--json-out", str(Path(tmp) / "summary.json"), *extra],
                 capture_output=True, text=True, check=False,
             )
@@ -176,6 +198,13 @@ def main() -> int:
                 "skipped_status_counts": summary["skipped_status_counts"],
                 "declared_id_collisions": {w["DeliverableID"]: w["DeclaredIdCollisions"] for w in summary["written"] if w["DeclaredIdCollisions"]},
                 "set_aside_declared_rows": {w["DeliverableID"]: w["SetAsideDeclaredRows"] for w in summary["written"] if w["SetAsideDeclaredRows"]},
+                # Summary fields added by later tool revisions; absent from earlier ones.
+                "retired_from_aggregate_rows": {
+                    w["DeliverableID"]: w["RetiredFromAggregateRows"] for w in summary["written"] if w.get("RetiredFromAggregateRows")
+                },
+                "dropped_local_rows": {
+                    w["DeliverableID"]: w["DroppedLocalRows"] for w in summary["written"] if w.get("DroppedLocalRows")
+                },
                 **classify(scratch),
             }
     result["direct_local_vs_accepted_dag"] = direct_comparison(dag_dir)
