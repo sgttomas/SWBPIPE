@@ -728,3 +728,21 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
 - A private `formation_check: Option<FormationCheck>` on `PreviewLinearSolve`, plus a parameter to `append_integrity_report`, is acceptable only if it appears in no serialized or published shape. I7 shows that no serde derive or JSON output picks it up; an unchanged committed-fixture diff is the proof.
 - Updating the stale comment at K-D5's `tests/formation_check_runtime.rs:88-91` is fine.
 - SUP-17 changes no committed bytes (only product_physics `lib.rs`: the message, a comment and the one pinning test; 52 historical `execution/**` records that nothing reads stay as they are). Nothing is regenerated.
+
+## K2a: product reach and the availability trade-off (ROOT, 2026-09-27)
+
+**I6's finding.** The formation silent zero is **product-reachable on both entries** through material or section values. There is no lower bound on magnitude anywhere on the input path (at `5ae22926e`):
+- **Capture** (captured entry only, `core/serialization/canonical_json/src/lib.rs:94-116`, `validate_checked_value`): values must be finite, and integral floats must satisfy |x| ≤ 2^53 − 1. The typed entry has no checked-JSON step.
+- **Unit normalization** (`PP lib.rs:7243`): conversion only.
+- **Section** (`PP lib.rs:8441-8450`, `derive_pipe_section`): OD and wall must be finite and > 0, with 2·wall < OD.
+- **Section properties** (`straight_pipe/src/lib.rs:393-398`): E, G, A, Iy, Iz and J must be positive and finite.
+- **Modulus bases** (`PP lib.rs:8241`, `:8259`): E and G must be finite and > 0.
+- **The only floor is geometric:** FK `AXIS_TOLERANCE` = 1e-12 m. This is what stops RF-RANGE LEF-small (DegenerateAxis). LEF-large is refused at capture.
+
+**The ruling:**
+1. **I6 adds a product-level partial-underflow case.** Main publishes a *wrong* value there (actual error above 1e-9 against an exact or extended-precision reference computed in the test), and K2a refuses it on both entries and in both modes. This case justifies K2a on the product route, and its precondition proves main's value is wrong and by how much. **If no admissible input yields a wrong published value above 1e-9, I6 stops and reports; it does not force one.**
+2. **The spring-carried case stays as a test:** a 2 m member, OD 1e-6 m, wall 1e-7 m, E 2e11 Pa, G 1e-300 Pa. G·J rounds to 0, the spring carries the torque, and main is accurate to 1e-9.
+   - **Its refusal is accepted as K2a's intended interim.** The design forms or publishes no zero or subnormal coefficient, and scaling comes with K2b and F1b.
+   - CHANGE_RECORD discloses it plainly as **an availability change on admissible but physically absurd inputs, where main's value was accurate.**
+   - It is recorded on the K2b and F1b list as a case K2b's scaling should restore.
+3. **The missing lower magnitude bound on inputs** is a finding for the input-validation owner. It is routed out of T3, not fixed here.
