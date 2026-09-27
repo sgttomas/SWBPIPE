@@ -1,0 +1,12 @@
+# RV-M1: D21-1: the second test ignores B (|A_net| > 12 T0 instead of |A_net| + 12B > 12 T0)
+--- a/projects/chirality-piping/core/product_physics/src/formation_guard.rs
++++ b/projects/chirality-piping/core/product_physics/src/formation_guard.rs
+@@ -183,7 +183,7 @@
+     let positive = defect.signum() >= 0;
+     let sign = if positive { 1.0 } else { -1.0 };
+     let mut copy = defect.clone();
+-    if copy.add_product(sign * 12.0, bound).is_err()
++    if copy.add_product(sign * 12.0, 0.0 * bound).is_err()
+         || copy.add_product(-sign * 12.0, threshold).is_err()
+     {
+         return true;

@@ -1,0 +1,14 @@
+# M17: apply the floor to the whole row (revision 2's rule)
+--- a/projects/chirality-piping/core/product_physics/src/formation_guard.rs
++++ b/projects/chirality-piping/core/product_physics/src/formation_guard.rs
+@@ -237,8 +237,8 @@
+         ))
+     } else if !row.formed {
+         None
+-    } else if (row.bound > 0.0 && row.bound >= t0)
+-        || exceeds(&row.net_defect, row.bound, t0)
++    } else if (row.bound > 0.0 && row.bound >= tf)
++        || exceeds(&row.net_defect, row.bound, tf)
+         || exceeds(&row.self_equilibrated_defect, 0.0, tf)
+     {
+         Some(format!(

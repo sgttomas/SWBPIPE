@@ -1,0 +1,12 @@
+# RV-M5: R-b' q from My only (Mz dropped)
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -3318,7 +3318,7 @@
+                 .map_err(|error| error.to_string());
+             let end = |offset: usize, index: usize| {
+                 (
+-                    corrected_local_forces[offset + RY].hypot(corrected_local_forces[offset + RZ]),
++                    corrected_local_forces[offset + RY].hypot(0.0 * corrected_local_forces[offset + RZ]),
+                     bounds.clone().map(|b| b[index]),
+                 )
+             };

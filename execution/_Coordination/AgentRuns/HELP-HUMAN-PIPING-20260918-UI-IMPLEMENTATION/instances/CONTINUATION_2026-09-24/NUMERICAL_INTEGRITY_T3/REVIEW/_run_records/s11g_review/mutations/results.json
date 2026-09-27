@@ -1,0 +1,336 @@
+{
+ "M1": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t1_udl_w1e8_is_demoted_on_both_entries_and_modes s11g_tests::t2_udl_w1e80_is_demoted_on_the_typed_entry"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "drop a formed term defect (Exact defect = 0)"
+ },
+ "M10": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::m10_families_are_combined_exactly"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "combine the Exact and RoundedProduct families in binary64 (revision 1)"
+ },
+ "M12": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t1_udl_w1e8_is_demoted_on_both_entries_and_modes s11g_tests::t2_udl_w1e80_is_demoted_on_the_typed_entry"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "take the floor from all formed terms"
+ },
+ "M13": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t12_accurate_small_moment_rows_below_the_floor_stay_passed"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "drop R-b''s floor clause (R-b ships)"
+ },
+ "M14a": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t11_inplane_rows_are_demoted_by_rb_prime_alone"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "signed sums in B"
+ },
+ "M14b": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- --exact s11g_tests::t17_bending_formation_bound_on_a_skew_member"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "|T u| in B"
+ },
+ "M17": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t6b_floor_never_hides_a_net_defect"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "apply the floor to the whole row (revision 2's rule)"
+ },
+ "M18": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::m18_threshold_constant_is_rounded_down"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "the binary64 literal 1e-9"
+ },
+ "M2": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t1_udl_w1e8_is_demoted_on_both_entries_and_modes s11g_tests::t2_udl_w1e80_is_demoted_on_the_typed_entry",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test -- --exact t8_every_case_force_producer_is_classified"
+  ],
+  "exits": [
+   101,
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "tag the straight uniform formed term as input (plain push)"
+ },
+ "M23": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t22_invocation_budget_equals_main_on_a_passed_guard_fired_case"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "always run the charged attempt on a guard-fired case (E-1 / D22-1)"
+ },
+ "M5": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t1_udl_w1e8_is_demoted_on_both_entries_and_modes s11g_tests::t2_udl_w1e80_is_demoted_on_the_typed_entry"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "take the free-row S* over all rows"
+ },
+ "MR2": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t6_collinear_skew_pair_cancels_signed_defects s11g_tests::ruling2_boundary_of_the_first_clause"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "ruling 2: restore revision 2.1's first clause B >= T0 alone"
+ },
+ "MR2-T6": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- --exact s11g_tests::t6_collinear_skew_pair_cancels_signed_defects"
+  ],
+  "exits": [
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "ruling 2: restore B >= T0 alone; T6 alone must kill it"
+ },
+ "RV-M1": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "verdict": "SURVIVED",
+  "what": "D21-1: the second test ignores B (|A_net| > 12 T0 instead of |A_net| + 12B > 12 T0)"
+ },
+ "RV-M1-ALL": {
+  "commands": [
+   "cargo test --offline --locked --no-fail-fast --manifest-path core/product_physics/Cargo.toml"
+  ],
+  "exits": [
+   0
+  ],
+  "verdict": "SURVIVED (a command ran 0 tests)",
+  "what": "D21-1: the second test ignores B (|A_net| > 12 T0 instead of |A_net| + 12B > 12 T0) (whole PP suite)"
+ },
+ "RV-M10": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "verdict": "SURVIVED",
+  "what": "restrained rows take the free-row S* (section 3.4)"
+ },
+ "RV-M10-ALL": {
+  "commands": [
+   "cargo test --offline --locked --no-fail-fast --manifest-path core/product_physics/Cargo.toml"
+  ],
+  "exits": [
+   0
+  ],
+  "verdict": "SURVIVED (a command ran 0 tests)",
+  "what": "restrained rows take the free-row S* (section 3.4) (whole PP suite)"
+ },
+ "RV-M2": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "verdict": "SURVIVED",
+  "what": "exact-pressure operand bound gamma_20 |t| replaced by 0 (family hidden)"
+ },
+ "RV-M2-ALL": {
+  "commands": [
+   "cargo test --offline --locked --no-fail-fast --manifest-path core/product_physics/Cargo.toml"
+  ],
+  "exits": [
+   0
+  ],
+  "verdict": "SURVIVED (a command ran 0 tests)",
+  "what": "exact-pressure operand bound gamma_20 |t| replaced by 0 (family hidden) (whole PP suite)"
+ },
+ "RV-M3": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "verdict": "SURVIVED",
+  "what": "curved thermal RoundedProduct operand taken from the wrong chord axis"
+ },
+ "RV-M3-ALL": {
+  "commands": [
+   "cargo test --offline --locked --no-fail-fast --manifest-path core/product_physics/Cargo.toml"
+  ],
+  "exits": [
+   0
+  ],
+  "verdict": "SURVIVED (a command ran 0 tests)",
+  "what": "curved thermal RoundedProduct operand taken from the wrong chord axis (whole PP suite)"
+ },
+ "RV-M4": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   101,
+   101,
+   0,
+   0
+  ],
+  "verdict": "KILLED",
+  "what": "straight thermal/eigen pairs tagged not self-equilibrated (floor bypassed)"
+ },
+ "RV-M5": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   101,
+   0,
+   0,
+   0
+  ],
+  "verdict": "KILLED",
+  "what": "R-b' q from My only (Mz dropped)"
+ },
+ "RV-M6": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   0,
+   101,
+   0,
+   0
+  ],
+  "verdict": "KILLED",
+  "what": "E-1: an ordinary-Err guard-fired case gets the zero-work decline instead of main's real attempt"
+ },
+ "RV-M7": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   101,
+   101,
+   0,
+   0
+  ],
+  "verdict": "KILLED",
+  "what": "D22-1: the zero-work decline counts an attempt (ledger differs from main)"
+ },
+ "RV-M8": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/runner/headless/Cargo.toml --test s11g_zero_work_receipt"
+  ],
+  "exits": [
+   101,
+   0,
+   0,
+   0,
+   101
+  ],
+  "verdict": "KILLED",
+  "what": "D22-1: the zero-work decline carries a nonzero limit"
+ },
+ "RV-M9": {
+  "commands": [
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --lib -- s11g_tests::",
+   "cargo test --offline --locked --manifest-path core/product_physics/Cargo.toml --test s11f_site_test",
+   "cargo test --offline --locked --manifest-path core/solver/frame_kernel/Cargo.toml --lib -- s11g",
+   "cargo test --offline --locked --manifest-path core/solver/straight_pipe/Cargo.toml --lib -- s11g_tests::"
+  ],
+  "exits": [
+   0,
+   0,
+   101,
+   0
+  ],
+  "verdict": "KILLED",
+  "what": "DN-2: the FMA underflow fallback removed (lo treated as exact)"
+ }
+}

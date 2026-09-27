@@ -1,0 +1,12 @@
+# RV-M9: DN-2: the FMA underflow fallback removed (lo treated as exact)
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs
+@@ -516,7 +516,7 @@
+             let four_k = 4.0 * k;
+             let p = a * b;
+             let lo = a.mul_add(*b, -p);
+-            let underflow = *a != 0.0 && *b != 0.0 && p.abs() < FMA_EXACT_PRODUCT_MIN;
++            let underflow = false && *a != 0.0 && *b != 0.0 && p.abs() < FMA_EXACT_PRODUCT_MIN;
+             add_twelve_value(term, intended).map_err(|_| "12-scaled value is out of range")?;
+             if !four_k.is_finite() || !p.is_finite() || !lo.is_finite() || underflow {
+                 // DN-2 / D21-2: the defect is bounded, never exact.

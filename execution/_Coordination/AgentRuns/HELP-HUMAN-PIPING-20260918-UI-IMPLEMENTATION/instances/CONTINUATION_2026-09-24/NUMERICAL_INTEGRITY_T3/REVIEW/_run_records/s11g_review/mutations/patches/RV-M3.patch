@@ -1,0 +1,12 @@
+# RV-M3: curved thermal RoundedProduct operand taken from the wrong chord axis
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -9208,7 +9208,7 @@
+                     Formation::RoundedProduct {
+                         k,
+                         a: thermal_strain,
+-                        b: bend.chord[local_col - DOF_PER_NODE],
++                        b: bend.chord[(local_col - DOF_PER_NODE + 1) % 3],
+                     },
+                     0.0,
+                     true,

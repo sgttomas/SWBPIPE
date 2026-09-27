@@ -1,0 +1,12 @@
+#!/bin/bash
+. <scratch>/runs/env.sh
+O=$S/runs/out; mkdir -p $O; cd $W
+( unset CARGO_TARGET_DIR; python3 tools/serialization/build_checked_json.py && python3 tools/serialization/build_checked_json.py --profile openpipestress_jcs_binary64_v1 && python3 tools/units/build_units_authority.py ) > $O/authority.log 2>&1; echo "authority exit=$?" >> $O/summary.txt
+ls -la $A $(dirname $OPENPIPESTRESS_UNITS_BIN) >> $O/authority.log 2>&1
+for c in core/solver/frame_kernel core/solver/straight_pipe core/product_physics core/runner/headless; do
+  name=$(echo $c | tr '/' '_')
+  (cd $W/$c && nice cargo test --offline --locked --no-fail-fast > $O/$name.log 2>&1); rc=$?
+  echo "$c exit=$rc $(grep -c '^test result: ok' $O/$name.log) ok-lines $(grep -c '^test result: FAILED' $O/$name.log) failed-lines" >> $O/summary.txt
+  df -h / | tail -1 >> $O/summary.txt
+done
+echo DONE1 >> $O/summary.txt

@@ -1,0 +1,12 @@
+# M13: drop R-b''s floor clause (R-b ships)
+--- a/projects/chirality-piping/core/product_physics/src/formation_guard.rs
++++ b/projects/chirality-piping/core/product_physics/src/formation_guard.rs
+@@ -427,7 +427,7 @@
+     let first_clause =
+         first.add(bound).is_ok() && first.add_product(-CRITERION, q).is_ok() && first.signum() > 0;
+     let resolved = q > RESOLUTION_FACTOR * bound;
+-    let above_floor = s_star_moment >= DESIGN_FLOOR_MIN_SCALE && q >= DESIGN_FLOOR * s_star_moment;
++    let above_floor = true || (s_star_moment >= DESIGN_FLOOR_MIN_SCALE && q >= DESIGN_FLOOR * s_star_moment);
+     first_clause && resolved && above_floor
+ }
+ 
