@@ -36,5 +36,6 @@ Every T3 TASK brief is read with this file. Where a brief differs, the brief win
 - Frozen references, fixtures, hashes and protected criteria are never edited: N01–N09, R01–R07 and NP-A–NP-D in `P/validation/benchmarks/numerical_integrity/`, the T0R references, T1's references, the analytical 1e-9 relative criterion and the DEC-050/053 observations. A disagreement is reported, never resolved by changing one of them.
 - No skipped tests, raised timeouts, stripped loads or dropped features to make anything pass.
 - Committed records use placeholders (`<worktree>`, `<scratch>`, `<t3-target>`, `{REPO_ROOT}`) instead of machine-specific absolute paths.
+- **Never write a `/home/user/…` (or any other machine-specific absolute) path in a committed record, brief or message text that will be committed** (added 2026-09-27, for PR991's GEN-8 portability check). Worktrees are `<wt>/<name>` (for example `<wt>/numerics`, `<wt>/s11f`), targets `<wt>/<name>-target`, and the session scratchpad `<scratch>`.
 - Record what you actually read and ran (paths, commits, hashes where they matter) in your return, and state what you did not do.
 - Accepted and historical design records are basis, never evidence that current code is correct. Cite source lines at `c61a540ea`.
