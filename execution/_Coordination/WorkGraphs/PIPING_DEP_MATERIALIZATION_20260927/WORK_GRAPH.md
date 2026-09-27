@@ -23,7 +23,7 @@ No bounded-reconciliation closeout or `MEMORY.md` entry is needed: no deliverabl
 
 ## Current state and recovery
 
-- Basis: `origin/main` at `0adfbc7476df33521883ce1573781237cd24d384`. The committed materializer at that basis has SHA-256 `8a6419920bf962fb8f136f919d9d34e7380f72065391743cd3ad2a05cc1d887c`. The candidate changes only its docstring.
+- Basis: `origin/main` at `0adfbc7476df33521883ce1573781237cd24d384`. The committed materializer at that basis has SHA-256 `8a6419920bf962fb8f136f919d9d34e7380f72065391743cd3ad2a05cc1d887c`. The candidate changes only its docstring. The candidate was later rebased onto `8bbd022b98140e2128b6132bf661786ee3a8d108`, which changes only App v4 files; the checks were rerun there.
 - Rerun, from the repository root: `python3 projects/chirality-piping/execution/_Coordination/WorkGraphs/PIPING_DEP_MATERIALIZATION_20260927/evidence/compare_materializer.py`. It copies the execution tree to a temporary directory and never writes the committed tree. Output recorded in `evidence/comparison.json` (Python 3.11.15).
 - Supplied instruction origins and hashes at start: Root `AGENTS.md` `c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd`; Piping `AGENTS.md` `d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792`; `loop/LOOP_INIT.md` `c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b`. No workflow was selected; this is a proportionate ad hoc plan.
 - Next safe action: the parent session integrates F1. If review changes the disposition, amend D1 and rerun V1.
