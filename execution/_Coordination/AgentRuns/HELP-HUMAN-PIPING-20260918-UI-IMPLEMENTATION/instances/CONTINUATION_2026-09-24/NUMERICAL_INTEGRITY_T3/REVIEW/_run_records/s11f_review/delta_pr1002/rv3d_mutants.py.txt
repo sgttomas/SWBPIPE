@@ -1,0 +1,10 @@
+"""RV3 delta check (PR1002): mutants of the Sensitive mapping (core/product_physics/src/lib.rs)."""
+PP = 'product_physics/src/lib.rs'
+MUTANTS = [
+ ('EV5', PP, '''            if let Some(report) = &linear.load_fidelity {
+                append_load_contribution_absorbed(diagnostics, &load_case.id, report);
+            }''', '''            let _ = &linear.load_fidelity; // RV3 EV5: the mapping call deleted'''),
+ ('EV5c', PP, '''"global_dof={} restrained={} unaudited ({reason}); sources={:?}"''', '''"global_dof={} restrained={} ({reason}); sources={:?}"'''),
+ ('EV5d', PP, '''    refs.extend(sources.into_iter().cloned());''', '''    let _ = sources; // RV3 EV5d: sources dropped from affected_refs'''),
+ ('EV5e', PP, '''            format!("; the load-fidelity audit could not run ({error}); the case is unaudited")''', '''            { let _ = error; String::new() } // RV3 EV5e: audit error not named'''),
+]

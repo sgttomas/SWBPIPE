@@ -1,0 +1,56 @@
+{
+ "EV5": {
+  "command": "cargo test --offline --locked --no-fail-fast --lib --test s11f_site_test",
+  "exit": 101,
+  "seconds": 23,
+  "failed": [
+   "s11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning"
+  ],
+  "summaries": [
+   "test result: FAILED. 349 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.33s",
+   "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.26s"
+  ],
+  "compile_error": false
+ },
+ "EV5c": {
+  "command": "cargo test --offline --locked --no-fail-fast --lib --test s11f_site_test",
+  "exit": 101,
+  "seconds": 21,
+  "failed": [
+   "s11f_tests::s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing",
+   "s11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning"
+  ],
+  "summaries": [
+   "test result: FAILED. 348 passed; 2 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.21s",
+   "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.39s"
+  ],
+  "compile_error": false
+ },
+ "EV5d": {
+  "command": "cargo test --offline --locked --no-fail-fast --lib --test s11f_site_test",
+  "exit": 101,
+  "seconds": 22,
+  "failed": [
+   "s11f_tests::s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing",
+   "s11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning"
+  ],
+  "summaries": [
+   "test result: FAILED. 348 passed; 2 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.84s",
+   "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.27s"
+  ],
+  "compile_error": false
+ },
+ "EV5e": {
+  "command": "cargo test --offline --locked --no-fail-fast --lib --test s11f_site_test",
+  "exit": 101,
+  "seconds": 22,
+  "failed": [
+   "s11f_tests::s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing"
+  ],
+  "summaries": [
+   "test result: FAILED. 349 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.42s",
+   "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.33s"
+  ],
+  "compile_error": false
+ }
+}

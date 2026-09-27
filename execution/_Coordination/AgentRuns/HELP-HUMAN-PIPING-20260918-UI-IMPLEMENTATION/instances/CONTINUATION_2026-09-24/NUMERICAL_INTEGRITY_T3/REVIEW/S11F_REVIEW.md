@@ -310,3 +310,55 @@ Run records: `REVIEW/_run_records/s11f_review/`, with its own `SHA256SUMS`.
 - operation_applier, `apps/desktop/src-tauri`, and the stress and physics_audit_regression benchmarks under cargo (covered by ROOT's cargo sweep: pass).
 - The exact 22452ecd1 mechanism of the line-2709 value (RV3-N1).
 - A line-by-line review of the 24130-line generated fixture. It is verified by byte-identical regeneration instead.
+
+## Addendum 1 (2026-09-27): delta check of the RV3-S1 follow-up (PR #1002)
+
+**Verdict: PASS.** RV3-S1 is resolved, and so are N1, N2 and N9. The follow-up adds no new finding. No product code or fixture changes, so no DEC-025 sweep is needed.
+
+**What I reviewed.**
+- ROOT's request: PR #1002, branch `codex/piping-s11f-s1-20260927`, head `79654820159167f9c88e5450ef1b6ab62e18b2cb`.
+- The range is `43b8f83aa..796548201`, one commit on the merge of PR #1000.
+- The PR #1000 merge `43b8f83aa` has parents `b0a9a52b6` (main) and `11ae0667f` (the head reviewed above). Its `projects/chirality-piping` tree is identical to `11ae0667f`'s.
+- I built in a fresh detached scratch worktree at `796548201`, with its own target. The records tree was removed from the scratch copy to save disk. The authority targets were built in the copy.
+- Cargo was product_physics only, one job at a time, in the slot the T3 manager granted.
+- `CARGO_PROFILE_DEV_DEBUG=0` and `CARGO_PROFILE_TEST_DEBUG=0` were set to save disk, with the manager's agreement. They do not change what any test asserts.
+- Records: `_run_records/s11f_review/delta_pr1002/`. The `SHA256SUMS` of `s11f_review/` has been refreshed.
+
+**1. The new tests catch the fault, and pass on the repair.**
+- On `796548201`, the full product_physics crate passes: 476 passed, 0 failed, 1 ignored (the existing `composite_fields_work_measurement`). That is lib 350 (348 plus the 2 S1 tests), the site test 9, and the other integration tests unchanged.
+- Four mutants, applied one at a time to my copy and restored afterwards, are all killed (`delta_pr1002/results.json`):
+
+| Mutant | Change | Killed by |
+|---|---|---|
+| EV5 | the `append_load_contribution_absorbed` call in `solve_load_case` deleted | `s1_unauditable_load_row_is_published_sensitive_with_the_warning` |
+| EV5c | the unaudited-row message wording altered | both S1 tests |
+| EV5d | sources dropped from `affected_refs` | both S1 tests |
+| EV5e | the audit error not named in the message | `s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing` |
+
+- This matches I4's recorded EV5 and EV5b runs.
+
+**2. Coverage of the three branches.**
+- **Audited row:** the unit test checks the full line, with dof, both bit patterns, the ratio and the sources. That branch cannot be reached through the typed seam, which is why it is driven with a synthetic report.
+- **Unaudited row:** the unit test checks it, and so does the end-to-end test. The end-to-end test uses an authored (G, −G, 1e-300) tip load, with no test hook. It runs on both entries at G = 4e15, on the typed entry at G = 1e80, and in both modes.
+- **audit_error:** the unit test checks `Flagged rows: []` and the exact suffix.
+- Both tests also assert:
+  - code `LOAD_CONTRIBUTION_ABSORBED`, severity `warning`, and the stable id;
+  - refs = the case followed by the sorted, deduplicated sources;
+  - exactly one such diagnostic;
+  - no error or blocking diagnostic.
+- The end-to-end test also asserts `MECHANICS_SOLVED`, `NUMERICAL_INTEGRITY_SENSITIVE` (the kernel's verdict, as the precondition) and that the rows are published.
+- In my review I said the path was unreachable without a hook. That is corrected: only the audited branch is unreachable, and the unaudited branch is reachable from an authored model.
+
+**3. The record changes.**
+- **N1.** The CHANGE_RECORD provenance now states only what is established: stale since `22452ecd1`, the code changed at `1792774a2`, and the base producer emits the correctly rounded value. It says the `22452ecd1` mechanism is not reproduced. PRE_REGENERATION_REPORT §3.2 and §5 carry a marked correction and are otherwise kept as measured. The disclosure and the conclusion are unchanged. **Resolved.**
+- **N2.** `callers.json` was re-run on the final tree. It adds `load_state_eigen_loads`, `build_thermal_element_loads` and `Sources::system`, and it now classes files of `#[cfg(test)] mod x;` modules as test (`membrane_publication_range.rs:187` is test). The `prepare_sources` test lines are current (1617…). It agrees with my independent list. **Resolved.**
+- **N9.** RETURN §8 now records the three blank-line-at-EOF run-record logs as a stated exception: they are raw tool output, hash-bound by `SHA256SUMS`. That is acceptable under the brief's "or the exceptions recorded". **Resolved.**
+- The `IMPLEMENTATION/S11F/_run_records/SHA256SUMS` at `796548201` verifies: 131 entries, all OK.
+- RETURN §11 correctly records N3–N8 as not taken on this branch.
+
+**4. Nothing else changed.**
+- `git diff --name-only 43b8f83aa..796548201` lists exactly 12 paths: `core/product_physics/src/s11f_tests.rs` (+209, tests only) and 11 files under `IMPLEMENTATION/S11F/` (`delta_pr1002/range_files.txt`).
+- There is no product source, fixture, schema or other test file, so no DEC-025 sweep is needed.
+- `git diff --check` is clean. The added lines hold no machine paths, and rustfmt 1.8.0 finds `s11f_tests.rs` clean.
+
+**Not checked in this delta:** hosted CI for PR #1002. I also ran no other crate, because the change is confined to one product_physics test module.

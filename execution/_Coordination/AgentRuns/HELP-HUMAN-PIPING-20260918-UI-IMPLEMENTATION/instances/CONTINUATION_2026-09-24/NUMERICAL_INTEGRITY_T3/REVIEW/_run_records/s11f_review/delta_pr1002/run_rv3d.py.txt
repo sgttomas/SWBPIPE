@@ -1,0 +1,23 @@
+"""Apply each mutant to the scratch worktree, run product_physics lib + site tests, restore saved bytes."""
+import json, os, re, subprocess, sys, time
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from rv3d_mutants import MUTANTS
+core, target, out = sys.argv[1:4]
+env = dict(os.environ, RUSTUP_TOOLCHAIN='1.97.1', RUSTUP_AUTO_INSTALL='0', CARGO_INCREMENTAL='0', CARGO_TARGET_DIR=target)
+res = {}
+for mid, f, anchor, rep in MUTANTS:
+    path = os.path.join(core, f); orig = open(path).read()
+    assert orig.count(anchor) == 1, (mid, orig.count(anchor))
+    open(path, 'w').write(orig.replace(anchor, rep))
+    try:
+        cmd = ['cargo', 'test', '--offline', '--locked', '--no-fail-fast', '--lib', '--test', 's11f_site_test']
+        t0 = time.time(); p = subprocess.run(cmd, cwd=os.path.join(core, 'product_physics'), env=env, capture_output=True, text=True)
+        log = p.stdout + p.stderr
+        res[mid] = {'command': ' '.join(cmd), 'exit': p.returncode, 'seconds': round(time.time() - t0),
+                    'failed': sorted(set(re.findall(r'^test (\S+) \.\.\. FAILED', log, re.M))),
+                    'summaries': re.findall(r'^test result: .*$', log, re.M),
+                    'compile_error': 'error[E' in log}
+        print(mid, res[mid]['exit'], res[mid]['failed'], flush=True)
+    finally:
+        open(path, 'w').write(orig)
+    json.dump(res, open(out, 'w'), indent=1)
