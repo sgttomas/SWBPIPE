@@ -991,7 +991,7 @@ fn atan_error(got: &Wide2, hi: &Wide2, lo: &Wide2, p: u32, limit_tenths: u32) ->
 
 #[test]
 fn arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation() {
-    let tol_tenths = ATAN_TOLERANCE_ULPS * 10;
+    let tol_tenths = ATAN_REGRESSION_TOLERANCE_TENTH_ULPS;
     assert!(tol_tenths <= ATAN_PROVED_BOUND_TENTH_ULPS);
     let mut worst: std::collections::BTreeMap<u32, (f64, String)> = Default::default();
     let count = |prefix: &str| {
@@ -1004,6 +1004,10 @@ fn arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation() {
             .count()
     };
     assert_eq!(count("v1:"), 13);
+    // RV2's inputs: the 6.08-ulp input (S1) and the 13 inputs that pin the
+    // smallest-first tail summation against largest first (S2).
+    assert_eq!(count("rv2s1:"), 1);
+    assert_eq!(count("rv2r2:"), 13);
     assert!(count("zero53:") >= 300 && count("zero128:") >= 40 && count("logsmall:") >= 200);
     assert!(count("pi53:") >= 8 && count("pi128:") >= 19 && count("lognearpi:") >= 200);
     assert!(count("farpi:") >= 6 && count("frac:1/2pi") >= 2 && count("rand128:") >= 1500);
@@ -1045,7 +1049,7 @@ fn arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation() {
         assert!(within_proof, "{line}: {ratio} ulp beyond the proved bound");
         assert!(
             within_tol,
-            "{line}: {ratio} ulp beyond the specified tolerance"
+            "{line}: {ratio} ulp beyond the regression tolerance of the committed vectors"
         );
         let entry = worst.entry(p).or_insert((0.0, String::new()));
         if ratio > entry.0 {

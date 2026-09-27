@@ -857,6 +857,30 @@ def split_lines():
 # ----------------------------------------------------------------------------
 # Arctangent vectors
 # ----------------------------------------------------------------------------
+def parse_token(tok):
+    if tok in ("Z+", "Z-"):
+        return W.zero(tok == "Z-")
+    hexpart, e = tok[1:].split("p")
+    return W(tok[0] == "-", int(e), int(hexpart, 16))
+
+
+RV2_R2_INPUTS = [
+    ("angle", 128, ("+afe8cd16013c9f292103f35b822d7f35p-1", "+b9fd2bf4af032d764c3c967ef87dbbc0p-1")),
+    ("angle", 128, ("+d0c689d451a552797c397657df7a910bp-1", "+9426b410e5342962497e78ef8c48c6dep-1")),
+    ("angle", 128, ("+ffc52bb2a14511d872043a2c9e4e3eb5p-1", "-ad839131250967eb3338de0703f6e20cp-5")),
+    ("angle", 128, ("+f33bd063fe3d35c15b3711a27b8b32bbp-2", "+e1446c8d3c36a1a4804a721c0ba007dep-1")),
+    ("angle", 128, ("+ffccc6f6acdd6a7de4d7f808ef5ec424p-1", "+a1e9bb35b0b2ae9c91ba8ae3f28e1d3ep-5")),
+    ("angle", 128, ("+ff7329cf39ddda657d4da133705043e9p-1", "+86315fa38308fb13ffa389c27d14508cp-4")),
+    ("angle", 128, ("+e7b6cc90e2471d7e7bc85930bd6a754fp-1", "-d9aa6eb88b0551b8c19f37e5c5b8fc35p-2")),
+    ("angle", 128, ("+fb12ee04c4494a91c1848bcb9570f2d8p-1", "-c7ea3ad3ec179c47dd9319039a66461ap-3")),
+    ("angle", 128, ("+ca99bd44f6b2a99e7250c8a1ffa14e86p-2", "-eb1ad27bde6ca02be88bd4da7bcd5db8p-1")),
+    ("angle", 65, ("+e06546eac61ed94c25f86b273f5e47aap-1", "+f66f7a2836536e8fa4785f0fb4bcabdcp-2")),
+    ("atanpos", 128, ("+9ec0f1308a9fd4ca0cc1cb4f4f6c9bb3p60",)),
+    ("atanpos", 128, ("+d6b886a36169f14c184c1ba2e170bdedp106",)),
+    ("atanpos", 128, ("+f0d6599fafe8a0e94d0cff86f4e59ba9p24",)),
+]
+
+
 def atan_lines(summary):
     getcontext().prec = DPREC
     R = random.Random(TARGET_SEED + 2)
@@ -976,6 +1000,16 @@ def atan_lines(summary):
         for i in range(60):
             u = Decimal(R.randint(1, 10 ** 30 - 1)) / Decimal(10 ** 30)
             angle_case("p%d:%d" % (p, i), pid * u, 128, p)
+    # independent review inputs (RV2, K3A_REVIEW.md): the S1 input (6.08 ulp at
+    # p = 128) and the 13 inputs that separate the smallest-first tail summation
+    # from largest first (S2, r2_distinguishing_inputs.txt)
+    pair_case("rv2s1:0", parse_token("+ff4014cc2258bc73504f91ab8019dddcp-1"),
+              parse_token("-9c9e9003feb63e97c537ba9a6156981bp-4"), 128)
+    for i, (kind, p_r, args) in enumerate(RV2_R2_INPUTS):
+        if kind == "angle":
+            pair_case("rv2r2:%d" % i, parse_token(args[0]), parse_token(args[1]), p_r)
+        else:
+            t_case("rv2r2:%d" % i, parse_token(args[0]), p_r)
     # domain refusals
     pair_case("refuse:s0", W.zero(False), W.zero(False), 128)
     pair_case("refuse:sneg", W.from_int(True, 1, -3), W.zero(False), 128)
