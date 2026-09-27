@@ -103,3 +103,14 @@ Write `T3/REVIEW/S11F_REVIEW.md` in `<wt>/numerics`, containing:
 - what you did not check.
 
 The verdict is **PASS** (no unresolved BLOCKING findings) or **FAIL**. Send the manager a SendMessage summary with the verdict, the counts and the file's sha256.
+
+## Addendum 1 (2026-09-27): candidate and two specific checks
+
+**Candidate.** Review the head the manager gives you on `codex/piping-s11f-20260927`. The S11-F work is commit `9398142e4`, merged forward onto origin/main in `e46a62f79`, plus I4's RETURN addendum for the merged head. Review the complete diff against the merge base with main.
+
+**Specific checks:**
+1. **The desktop vitest timeout.** Before the restart, I4's full desktop vitest run had one `App.test.tsx` `findByTestId` timeout, at a load average of about 4.6. After the restart, the full run passed 2822/2822. Check whether the failure reproduces on origin/main under similar load, so we know whether it is pre-existing and load-sensitive or introduced by S11-F. Don't raise the timeout, and don't skip or isolate the test. Report what you observed.
+2. **The changed T1 unit test.** I4 changed T1's `source_plan_preserves_absorbed_loads…` test in product_physics to assert the exact net 1.0 at DOF 9, instead of the absorbed 0.0, and added a fold-differs precondition. Confirm that:
+   - the new assertion is the correct exact value;
+   - the precondition makes the test meaningful (it fails on the old folded path);
+   - nothing about the test was weakened.
