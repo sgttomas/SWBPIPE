@@ -523,7 +523,10 @@ V1's two implementation NOTEs go into I5's brief:
 
 S11-G is implemented by I5 on main after S11-F merges, and reviewed by RV4.
 
-## K-D5 mutation M31b: accepted as equivalent at the criterion (ROOT, 2026-09-27)
+## K-D5 mutation M31b: accepted as equivalent at the criterion (ROOT, 2026-09-27) — SUPERSEDED
+
+**Superseded (2026-09-27):** this acceptance is withdrawn. See "K-D5 mutation M31b: equivalence withdrawn" below. The text is kept as the record of the earlier ruling.
+
 
 **The mutant.** M31b is the chord-only form of the design's mutation 31. K_t is still re-formed, but the intended element's H is built from the product's formula chord R(cos φ − 1, R sin φ, 0), using binary64 R, atan2, cos and sin, instead of the actual node chord. The formula evaluated at p (M31b0) also survives. Every other K-D5 mutation is killed: M23, M26, M27, M28, **M31a** (the whole-matrix form, where K_int is the product's binary64 matrix), M32a and M32b.
 
@@ -683,3 +686,22 @@ This removes path 2 and path 1's load-row variant. Path 1's R-b′ variant stays
 **RV5** may be spawned on the combined candidate once part 1, the suites and T9 are green. It reads and traces during part 2, and gets no cargo until part 2 finishes.
 
 Conflict resolution in the forward merge is I3's. Any design question about how K-D5's formation check composes with S11-G's guard (the integrity diagnostic, the no-op rule, routing, D22-1) comes to ROOT.
+
+## K-D5 mutation M31b: equivalence withdrawn (ROOT, 2026-09-27)
+
+**M31b equivalence (`c2042fd9c`) withdrawn on RV5's counterexample, confirmed in Rust. M31b and M31b0 must be killed by a required test before merge.**
+
+- **Why the acceptance was wrong.** It rested on the shift in the maximum-row trigger alone (about 0.002 of the criterion). RV5 showed that the chord error also gives a **first-order** translation error θ·δc at node j on the stiff rows, not only the second-order soft-mode moment. On CSKEW_30_RADIUS_MISMATCH, the row uz at node 1 already carries 0.433 of the criterion from the chord alone. No blame attaches to I3's analysis: it answered the question ROOT asked, which was the wrong question.
+- **The confirmation.** RV5 built a `git archive` copy of `2409de83e` (tree `c954590e…`) and ran NI tests with toolchain 1.97.1, against exact references. Admissible models (mismatch ≤ 1e-9, well conditioned) publish Passed with an actual error above the criterion, and the correct check demotes them in both modes:
+  - CANT60_PLANAR: actual 1.1019, trigger 2.2037;
+  - CANT30_SKEW: actual 1.9005, trigger 3.8010;
+  - CANT10_SKEW: actual 6.484;
+  - PP_UTM (X 5e6, φ 5°, PP's own centre): actual 1.126;
+  - CANT90_PLANAR: actual 0.640, which is condition (b) only.
+
+  **With the M31b patch (and M31b0), none of them demotes, and the published errors are 1.10–6.48 of the criterion.** That is condition (a), a silently wrong Passed value. Near-π admissible models are harmless (actual at most 1.4e-5). The logs are in `REVIEW/_run_records/kd5_review/rust/`.
+- **The required tests (ROOT's item 3, final).** They are test-only: the implementation already uses the actual chord (R5-4 §2 step 6).
+  - The 60° planar and 30° skew cases, with exact references, on both entries and in both modes. The M31b and M31b0 patches each fail at a behavioural assertion.
+  - A product-level demotion test at X 5e6, Y 3.5e6, φ 5°, R 0.3. It publishes SENSITIVE, and the M31b patch makes it publish CHECKS_PASSED.
+  - A product-level control at PP_UTM (X 5e5): not demoted, with the published error below half the criterion. The earlier 5e5 figure was an artefact of repr-converted inputs.
+- **Records.** K-D5's RETURN §7 and CHANGE_RECORD correct the claim and keep the earlier text marked superseded. **The design claim** — DESIGN.md revision 5a.2 §9 item 31, "build its H from the product's chord … The skew-plane elbow cantilever at k_X = 8.5 (dense) is then missed", with the M31b-equivalence reading of it — **is superseded by this section.** DESIGN.md is hash-pinned by its selection (`fb62ef4a…`), so it is not edited. The chord-only form of mutation 31 is not equivalent, and it is killed by the required tests above.
