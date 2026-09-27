@@ -44,3 +44,8 @@ K-D5 does not catch these. Its EF uses the ledger's represented terms and checks
 - Send the manager a SendMessage summary.
 
 V1 then checks the note: all 7 caught; none of the 221 and no RF-CANCEL, RF-SKEW or committed-fixture row demoted; and the committed-byte forecast.
+
+## Addendum (ROOT, 2026-09-27)
+
+- **Required coverage:** S11-G's load-row guard must catch **all 4 UDL-W1e8 th.S1.RZ rows** (captured and typed, dense and sparse). After S11-F these rows publish the correctly rounded net of the represented terms, 0.4916666902601719, which is 47.99× the criterion. That is 3% worse than base's 46.47×, because base's fold happened to land closer. It is the same formation class as UDL-W1e80.
+- Your forecast shows each of the 14 formation rows caught, using the **post-S11-F** published values: I4's `IMPLEMENTATION/S11F/_run_records/formation_rows/` on the S11-F branch, once committed.

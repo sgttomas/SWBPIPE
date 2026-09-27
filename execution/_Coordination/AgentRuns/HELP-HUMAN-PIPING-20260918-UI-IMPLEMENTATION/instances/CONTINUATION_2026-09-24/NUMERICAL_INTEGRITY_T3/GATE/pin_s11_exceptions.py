@@ -22,8 +22,8 @@ REFS = "REFERENCES/references.json"
 # (entry, case, quantity) -> owner and cause (ROOT 2026-09-27)
 FORMATION = {
     ("typed", "RF-CANCEL-UDL-W1e80", "th.S1.RZ"): "load formation: SP fixed-end coefficients formed by different binary64 expressions at i and j (S11 s2.2, s10 item 2); S11-G load-row guard, then F3 (W1b)",
-    ("captured", "RF-CANCEL-UDL-W1e8", "th.S1.RZ"): "load formation (as above); S11-G load-row guard, then F3 (W1b)",
-    ("typed", "RF-CANCEL-UDL-W1e8", "th.S1.RZ"): "load formation (as above); S11-G load-row guard, then F3 (W1b)",
+    ("captured", "RF-CANCEL-UDL-W1e8", "th.S1.RZ"): "load formation (as above); S11-G load-row guard, then F3 (W1b). ROOT 2026-09-27 amendment: after S11-F the published value is the correctly rounded net of the represented terms, 3% worse than base (46.47x -> 47.99x the criterion, both modes); S11-G is required to catch this row",
+    ("typed", "RF-CANCEL-UDL-W1e8", "th.S1.RZ"): "load formation (as above); S11-G load-row guard, then F3 (W1b). ROOT 2026-09-27 amendment: after S11-F the published value is the correctly rounded net of the represented terms, 3% worse than base (46.47x -> 47.99x the criterion, both modes); S11-G is required to catch this row",
     ("typed", "RF-CANCEL-F-G1e80-GnG-INPLANE", "Mb.M1.j"): "formed recovery term K_e*u roundoff (S11 s10 item 3); S11-G recovery guard, then F2 (W1a)",
     ("typed", "RF-CANCEL-F-G1e80-GnG-INPLANE", "Mb.M2.i"): "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
     ("typed", "RF-CANCEL-M-G1e80-GnG-INPLANE", "Mb.M2.i"): "formed recovery term K_e*u roundoff; S11-G recovery guard, then F2 (W1a)",
@@ -74,7 +74,7 @@ with open("GATE/S11_EXCEPTIONS.json", "w") as f:
 
 with open("GATE/FORMATION_EXCEPTIONS.json", "w") as f:
     json.dump({
-        "ruling": "ROOT 2026-09-27 (on I4's F12 stop, option (c)). Pre-existing on main (P1 baseline); S11-F makes none worse. Must be empty when S11-G lands, or per-row justification to ROOT for waiting on F2/F3.",
+        "ruling": "ROOT 2026-09-27 (on I4's F12 stop, option (c)). Pre-existing on main (P1 baseline). Condition amended 2026-09-27: after S11-F each row publishes the correctly rounded net of the represented terms and stays exactly pinned here (10 rows bit-identical or better; the 4 UDL-W1e8 rows 3% worse). Must be empty when S11-G lands, or per-row justification to ROOT for waiting on F2/F3.",
         "source": src,
         "counts": {"triples": len(FORMATION), "rows_with_mode": len(form_rows)},
         "owners": {" | ".join(k): v for k, v in sorted(FORMATION.items())},
