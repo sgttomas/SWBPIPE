@@ -1,0 +1,58 @@
+OK   targeted.txt
+OK   split.txt
+OK   atan.txt
+OK   differential_sample.txt
+OK   differential.txt
+OK   SHA256SUMS
+{
+ "atan_audit_p128": {
+  "max_initial_rel_err_over_u128": 1.781487532665657,
+  "max_reduction_rel_err_over_u128": 2.3905303872425385,
+  "max_reductions": 5,
+  "max_series_rel_err_over_u128": 1.1626783789242925,
+  "max_series_terms": 15,
+  "p128_error_histogram_ulps": {
+   "gt6": 1,
+   "le1": 2066,
+   "le2": 634,
+   "le2.69": 162,
+   "le4": 196,
+   "le6": 7
+  },
+  "vectors_with_reference": 3307
+ },
+ "atan_v1_variant_worst_p128": [
+  7.27835012311417,
+  "rand128:768"
+ ],
+ "atan_worst_ulps": {
+  "100": [
+   3.3142260964877783,
+   "p100:32"
+  ],
+  "127": [
+   2.8145093113914013,
+   "p127:17"
+  ],
+  "128": [
+   6.081825670374884,
+   "rv2s1:0"
+  ],
+  "53": [
+   3.4203105424533797,
+   "p53:17"
+  ],
+  "64": [
+   2.6687123748013053,
+   "p64:59"
+  ],
+  "65": [
+   0.1427026532150997,
+   "rv2r2:9"
+  ]
+ },
+ "diff_mixed_sha256": "f8b008bc06b4688c4b9f9af6c29a853e4f7013be2436aa5f8c02cbd2da443603",
+ "diff_p128_sha256": "b568d2c0de2cbcb8c50a1064e0dff856721f80ec021a1b360f22ac66a31253a2",
+ "targeted_lines": 2072
+}
+<venv>/bin/python -B gen_wide_vectors.py --check  53.18s user 0.04s system 98% cpu 54.049 total

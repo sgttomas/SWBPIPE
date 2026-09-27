@@ -253,3 +253,40 @@ The scripts, logs and outputs, with their hashes, are in `REVIEW/_run_records/k3
 - **Machine checking.** My bound in §4 is a first-order analysis evaluated numerically, not a formal proof. I searched for worst cases by random sampling only, not adversarially.
 - **Out of K3a's scope.** L = 4, 8 and 16, the rounded conversion back to binary64, K-D5's use of the arctangent, and the error in s and c (the proof assumes exact inputs).
 - **Hosted CI.** I did not run it.
+
+## Addendum A: delta backcheck of the RV2 fixes (`43da7a24e..706d027f0`)
+
+**Delta verdict: PASS.**
+- S1 and S2 are resolved. N1, N2, N3 and N7 are resolved.
+- There are no new BLOCKING or SHOULD-FIX findings, and 1 new NOTE (N8).
+- The overall verdict on K3a at `706d027f0` stays **PASS**.
+
+**Scope:**
+- Head `706d027f0077d464d28e678b11d8810b44ba6fc0` is one commit (I2's fixes) over `43da7a24e`.
+- I read the delta read-only from the K3a worktree's object store. I built and ran in fresh `git archive` scratch copies, with a separate target directory per copy, after ROOT's DEC-025 sweep on `706d027f0` had ended.
+- I made no Git writes.
+
+| Item | Result | Evidence |
+|---|---|---|
+| **S1** | **Resolved** | `wide.rs` now names the proved bound "the accuracy contract … the bound K-D5 may cite". It states that `ATAN_REGRESSION_TOLERANCE_TENTH_ULPS` = 61 (6.1 ulp) is "a regression tolerance for the committed vectors only … other inputs may exceed it", and records RV2's input. RETURN §3 and CHANGE_RECORD say the same. The test still asserts both limits on every vector (`tol_tenths ≤ ATAN_PROVED_BOUND_TENTH_ULPS`, `within_proof`, `within_tol`). RV2's 6.0818-ulp input is in `atan.txt` as `rv2s1:0`. The regenerated worst at p = 128 is 6.081825…, the same figure I measured. |
+| **S2** | **Resolved** | The generator adds RV2's 13 R2-distinguishing inputs (`rv2r2:0…12`). They are identical, input for input, to `_run_records/k3a_review/r2_distinguishing_inputs.txt`: 9 angles at p = 128, 1 at p = 65 and 3 `atan_positive`. The test asserts their counts (1 and 13). `atan.txt` changes by additions only (+14 lines, 3,319 vectors, sha256 `55f467cb431dd34c…`). **I re-ran the mutants: R2 is now killed** (`arctangent_vectors_…`, first failing vector `rv2r2:0`). R1 (first at `frac:3/4pi:128`), M5 (`v1:2.0`) and M6 (`v1:0.1`) are still killed. All four logs show the mutated crate compiled, and `wide.rs` was restored afterwards. |
+| **No arithmetic path changed** | Confirmed | With comment lines removed, the only `wide.rs` difference between `43da7a24e` and `706d027f0` is `ATAN_TOLERANCE_ULPS: u32 = 6` → `ATAN_REGRESSION_TOLERANCE_TENTH_ULPS: u32 = 61`, a constant used only by the tests. Nothing else refers to the old name. The delta touches no Cargo.toml, lockfile, fixture, schema or product file. |
+| **Generator** | Byte-identical | `gen_wide_vectors.py --check` on the new head prints `OK` for all six files (54 s, Python 3.11.15). |
+| **frame_kernel** | 135 passed | 127 unit (19 of them `retained::wide`), 2 site-table and 6 doc tests; 0 failed, 0 ignored (toolchain 1.97.1). rustfmt is clean on `wide.rs` and `wide_tests.rs`. |
+| **N1** | Resolved | The records now say 19 new tests and a base total of 116 = 108 + 2 + 6. They explain that the filter's 22 includes 3 pre-existing tests. |
+| **N2** | Resolved | RETURN §7 discloses the raw logs' EOF blank lines: 24 in `suites/`, plus 1 in `rv2_fixes/` (`frame_kernel_full.log`). `git diff --check` over the delta reports exactly that one file. The logs are kept verbatim. |
+| **N3** | Resolved | The bound statement in `wide.rs`, RETURN §3 and CHANGE_RECORD now includes the `ExponentRange` refusals. |
+| **N7** | Resolved (for this stage) | CHANGE_RECORD lists the base, `a2e804a75` and `43da7a24e`, and states "112 of 112 outputs byte-identical". The manager records the final candidate, PR and merge revisions. |
+| **Records** | Verify | `K3A/SHA256SUMS` at `706d027f0` lists 59 files, all OK, matching the 59 tracked files. The delta adds no machine paths; the only match is the sanitizing regex in `mutate_rv2.py.txt`. |
+
+**New NOTE:**
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| N8 | NOTE | `K3A/RETURN.md` §1, §3 and §8; `K3A/CHANGE_RECORD.md` ("Revisions checked") | The fixes are added as a dated "RV2 fixes" section, and several earlier figures are left in place without a pointer to it. RETURN §1 still gives `wide.rs` 966 lines and the generator 1,068. §3 "Measured" still gives the worst as 5.41 ulp over 3,305 vectors. §8 still says the p128 figure was "measured 5.41". CHANGE_RECORD still says the fixes are "applied on `43da7a24e`, uncommitted", but they are committed as `706d027f0`. The current figures (976, 1,102, 6.08 ulp, 3,319) are in the new section and the CHANGE_RECORD table, so nothing is contradicted unannounced. | Optional: mark the superseded lines "(before the RV2 fixes)", and name `706d027f0` in the PR record. |
+
+**NOTEs carried over.** N4 (the proof's slack) and N6 (the rounded error measure) stand as recorded; no action is required. N5 (`AngleDomain` near π) is routed to K-D5 (I3).
+
+**Run records.** They are in `_run_records/k3a_review/backcheck_706d027f0/`: the driver, the generator `--check` output, the full-suite log, and the four mutant logs with their JSON. The existing `SHA256SUMS` of `k3a_review/` is refreshed to include them.
+
+**Not done in this backcheck.** I did not re-run my 17,060 arithmetic or 26,000 arctangent probes, because no arithmetic path changed. I did not re-run the dependent crates or the fixture harness (ROOT's sweep on `706d027f0` covers them), or hosted CI.
