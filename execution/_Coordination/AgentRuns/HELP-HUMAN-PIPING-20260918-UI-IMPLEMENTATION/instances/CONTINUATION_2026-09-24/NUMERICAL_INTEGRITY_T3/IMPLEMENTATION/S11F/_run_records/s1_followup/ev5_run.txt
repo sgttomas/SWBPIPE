@@ -1,0 +1,8 @@
+command (in <ev5-copy>/core/product_physics): RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<s11f-target>/ev5 cargo test --offline --locked --no-fail-fast --lib --test s11f_site_test
+test s11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning ... FAILED
+thread 's11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning' (1045) panicked at src/s11f_tests.rs:2146:17:
+assertion `left == right` failed: S1 G=4000000000000000 Captured SparseInteractive: []
+  left: 0
+ right: 1
+test result: FAILED. 349 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.38s
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.50s

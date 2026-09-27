@@ -11,7 +11,7 @@
    "core/product_physics/src/lib.rs:2478"
   ],
   "test": [
-   "core/product_physics/src/s11f_tests.rs:247"
+   "core/product_physics/src/s11f_tests.rs:248"
   ]
  },
  "nodal_and_eigen_case_force": {
@@ -43,7 +43,7 @@
    "core/product_physics/src/lib.rs:2552"
   ],
   "test": [
-   "core/product_physics/src/s11f_tests.rs:1909"
+   "core/product_physics/src/s11f_tests.rs:1910"
   ]
  },
  "legacy_dense_observation": {
@@ -80,7 +80,11 @@
   "nontest": [
    "core/product_physics/src/lib.rs:2797"
   ],
-  "test": []
+  "test": [
+   "core/product_physics/src/s11f_tests.rs:2027",
+   "core/product_physics/src/s11f_tests.rs:2044",
+   "core/product_physics/src/s11f_tests.rs:2066"
+  ]
  },
  "add_uniform_element_loads": {
   "nontest": [
@@ -159,17 +163,18 @@
  "exact_straight_summary_extrema": {
   "nontest": [
    "core/product_physics/src/lib.rs:3318",
-   "core/product_physics/src/lib.rs:3496",
-   "core/product_physics/src/membrane_publication_range.rs:187"
+   "core/product_physics/src/lib.rs:3496"
   ],
-  "test": []
+  "test": [
+   "core/product_physics/src/membrane_publication_range.rs:187"
+  ]
  },
  "solve_preview_reduced_system": {
   "nontest": [
    "core/product_physics/src/lib.rs:2561"
   ],
   "test": [
-   "core/product_physics/src/s11f_tests.rs:1918"
+   "core/product_physics/src/s11f_tests.rs:1919"
   ]
  },
  "append_nonlinear_support_loop_results": {
@@ -202,11 +207,11 @@
    "core/product_physics/src/source_recovery.rs:1349"
   ],
   "test": [
-   "core/product_physics/src/source_recovery.rs:1614",
-   "core/product_physics/src/source_recovery.rs:1642",
-   "core/product_physics/src/source_recovery.rs:1651",
-   "core/product_physics/src/source_recovery.rs:1660",
-   "core/product_physics/src/source_recovery.rs:1676"
+   "core/product_physics/src/source_recovery.rs:1617",
+   "core/product_physics/src/source_recovery.rs:1645",
+   "core/product_physics/src/source_recovery.rs:1654",
+   "core/product_physics/src/source_recovery.rs:1663",
+   "core/product_physics/src/source_recovery.rs:1679"
   ]
  },
  "close_load_state": {
@@ -228,6 +233,33 @@
   ],
   "test": []
  },
+ "load_state_eigen_loads": {
+  "nontest": [
+   "core/product_physics/src/source_receipt.rs:216",
+   "core/product_physics/src/lib.rs:2427"
+  ],
+  "test": [
+   "core/product_physics/src/source_receipt/load_state_tests.rs:98",
+   "core/product_physics/src/source_receipt/load_state_tests.rs:497",
+   "core/product_physics/src/source_receipt/load_state_join_tests.rs:322"
+  ]
+ },
+ "build_thermal_element_loads": {
+  "nontest": [
+   "core/product_physics/src/lib.rs:2452"
+  ],
+  "test": [
+   "core/product_physics/src/s11f_tests.rs:239"
+  ]
+ },
+ "system": {
+  "nontest": [
+   "core/product_physics/src/source_recovery.rs:247",
+   "core/product_physics/src/source_recovery.rs:269",
+   "core/product_physics/src/source_recovery.rs:1352"
+  ],
+  "test": []
+ },
  "corrected_local_forces_for_axial_effects": {
   "nontest": [],
   "test": []
@@ -242,7 +274,7 @@
  },
  "audit_load_fidelity": {
   "nontest": [
-   "core/solver/frame_kernel/src/structural.rs:1386"
+   "core/solver/frame_kernel/src/structural.rs:1387"
   ],
   "test": [
    "core/solver/frame_kernel/src/structural/s11f_tests.rs:49",
@@ -251,26 +283,26 @@
  },
  "audit_load_row": {
   "nontest": [
-   "core/solver/frame_kernel/src/structural.rs:769"
+   "core/solver/frame_kernel/src/structural.rs:770"
   ],
   "test": []
  },
  "unaudited_row": {
   "nontest": [
-   "core/solver/frame_kernel/src/structural.rs:777"
+   "core/solver/frame_kernel/src/structural.rs:778"
   ],
   "test": []
  },
  "row_sources": {
   "nontest": [
-   "core/solver/frame_kernel/src/structural.rs:818",
-   "core/solver/frame_kernel/src/structural.rs:905"
+   "core/solver/frame_kernel/src/structural.rs:819",
+   "core/solver/frame_kernel/src/structural.rs:906"
   ],
   "test": []
  },
  "finish_checked_factor": {
   "nontest": [
-   "core/solver/frame_kernel/src/structural.rs:1566"
+   "core/solver/frame_kernel/src/structural.rs:1567"
   ],
   "test": [
    "core/solver/frame_kernel/src/structural/s11k_tests.rs:503"
@@ -319,14 +351,14 @@
    "core/solver/nonlinear_integration/src/product_equilibrium.rs:56"
   ],
   "test": [
-   "core/product_physics/src/s11f_tests.rs:1947",
-   "core/solver/frame_kernel/src/structural.rs:1904",
-   "core/solver/frame_kernel/src/structural.rs:1910",
-   "core/solver/frame_kernel/src/structural.rs:1912",
-   "core/solver/frame_kernel/src/structural.rs:1927",
+   "core/product_physics/src/s11f_tests.rs:1948",
+   "core/solver/frame_kernel/src/structural.rs:1905",
+   "core/solver/frame_kernel/src/structural.rs:1911",
+   "core/solver/frame_kernel/src/structural.rs:1913",
    "core/solver/frame_kernel/src/structural.rs:1928",
-   "core/solver/frame_kernel/src/structural.rs:2028",
-   "core/solver/frame_kernel/src/structural.rs:2033",
+   "core/solver/frame_kernel/src/structural.rs:1929",
+   "core/solver/frame_kernel/src/structural.rs:2029",
+   "core/solver/frame_kernel/src/structural.rs:2034",
    "core/solver/frame_kernel/src/structural/s11k_tests.rs:638"
   ]
  }

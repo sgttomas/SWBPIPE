@@ -1,0 +1,40 @@
+command (in <wt>/projects/chirality-piping/core/product_physics): RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<s11f-target> cargo test --offline --locked --no-fail-fast
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+     Running unittests src/lib.rs (<s11f-target>/debug/deps/open_pipe_stress_product_physics-277cc413992bc81b)
+test s11f_tests::s1_sensitive_mapping_names_every_flagged_row_and_refuses_nothing ... ok
+test s11f_tests::s1_unauditable_load_row_is_published_sensitive_with_the_warning ... ok
+test source_receipt::tests::composite_fields_work_measurement ... ignored, bounded resource measurement with private 16M test budget; not public qualification
+test result: ok. 350 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 5.30s
+     Running tests/elastic_extrema_runtime.rs (<s11f-target>/debug/deps/elastic_extrema_runtime-4c9b18c0fa0026a1)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+     Running tests/load_reference_state_runtime.rs (<s11f-target>/debug/deps/load_reference_state_runtime-a114bc52373723cc)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+     Running tests/load_reference_state_runtime_extension.rs (<s11f-target>/debug/deps/load_reference_state_runtime_extension-94584e73ecfba83d)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.72s
+     Running tests/physics_source_runtime.rs (<s11f-target>/debug/deps/physics_source_runtime-ca97da34aa13509a)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.60s
+     Running tests/pressure_grouping_limits.rs (<s11f-target>/debug/deps/pressure_grouping_limits-92615873730d00b0)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/pressure_membrane_range.rs (<s11f-target>/debug/deps/pressure_membrane_range-d7524e2bbef873e5)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/pressure_runtime.rs (<s11f-target>/debug/deps/pressure_runtime-61bdc0d9646fe6a3)
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+     Running tests/pressure_section_geometry.rs (<s11f-target>/debug/deps/pressure_section_geometry-0e9150a17d40b713)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+     Running tests/preview_physics_runtime.rs (<s11f-target>/debug/deps/preview_physics_runtime-ed7661094c4f6a2e)
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.49s
+     Running tests/represented_gap_publication.rs (<s11f-target>/debug/deps/represented_gap_publication-0d4a56b3b45c89c3)
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+     Running tests/s11f_site_test.rs (<s11f-target>/debug/deps/s11f_site_test-0bdcd5c1dd0e4c65)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.54s
+     Running tests/source_block_recovery.rs (<s11f-target>/debug/deps/source_block_recovery-0ed2ea01f55e2aac)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.90s
+     Running tests/stress_maximum_coverage.rs (<s11f-target>/debug/deps/stress_maximum_coverage-59b698029e67d48d)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+     Running tests/support_reactions_runtime.rs (<s11f-target>/debug/deps/support_reactions_runtime-d24beaf1461a02e7)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+   Doc-tests open_pipe_stress_product_physics
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
