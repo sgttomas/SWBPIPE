@@ -1,0 +1,18 @@
+# T3 D2 design probe (scratch only; never a product crate).
+# Drop the .txt suffixes to build. Replace <export> with the root of an exported
+# revision (`git archive <rev> projects/chirality-piping/core projects/chirality-piping/fixtures
+# projects/chirality-piping/schemas | tar -x -C <export>`), made under <scratch>.
+# Build with RUSTUP_TOOLCHAIN=1.97.1, CARGO_INCREMENTAL=0, CARGO_TARGET_DIR=<t3-target>,
+# and `--offline`. Start from a copy of <export>/projects/chirality-piping/core/product_physics/Cargo.lock.
+[package]
+name = "d2_probe"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+open_pipe_stress_product_physics = { path = "<export>/projects/chirality-piping/core/product_physics" }
+open_pipe_stress_operation_applier = { path = "<export>/projects/chirality-piping/core/model_operations/operation_applier" }
+open_pipe_stress_result_export = { path = "<export>/projects/chirality-piping/core/reporting/result_export" }
+open_pipe_stress_canonical_json = { path = "<export>/projects/chirality-piping/core/serialization/canonical_json" }
+serde_json = { version = "1", features = ["float_roundtrip"] }

@@ -1,0 +1,269 @@
+PI_Q check: |PI_Q - pi(Gauss-Legendre, 230 digits)| = 5.49E-191 < 1e-189
+RF-ELOAD-UDL-CANT-FULL-GLOB-AX           basis=intended    values=  31 zeros= 14 finite=1.65176E-16 NC 2/2
+    NC-LUMPED-5050                     FAIL  worst 4.28746E+8 at th.N1.RZ
+    NC-NO-FEC                          FAIL  worst 8.33333E+8 at Mb.M1.j
+RF-ELOAD-UDL-CANT-PART-GLOB-AX           basis=intended    values=  31 zeros= 15 finite=3.35685E-16 NC 5/5
+    NC-GLOBAL-AS-LOCAL                 FAIL  worst 1.37199E+9 at th.N1.RY
+    NC-LUMPED-5050                     FAIL  worst 1.06227E+9 at th.N1.RZ
+    NC-LEVER-RULE                      FAIL  worst 8.70291E+8 at th.N1.RZ
+    NC-PARTIAL-AS-FULL                 FAIL  worst 1.70219E+9 at th.N1.RZ
+    NC-NO-FEC                          FAIL  worst 9.90926E+8 at Mb.M1.j
+RF-ELOAD-UDL-CANT-FULL-LOC-Q3            basis=intended    values=  31 zeros= 12 finite=1.76188E-16 NC 4/4
+    NC-LOCAL-AS-GLOBAL                 FAIL  worst 7.77778E+9 at ext.M1
+    NC-TRANSPOSED-FRAME                FAIL  worst 5.03704E+9 at ext.M1
+    NC-LUMPED-5050                     FAIL  worst 4.57330E+8 at th.N1.RX
+    NC-NO-FEC                          FAIL  worst 8.33333E+8 at Mb.M1.j
+RF-ELOAD-UDL-CANT-PART-LOC-122           basis=intended    values=  31 zeros= 12 finite=1.64323E-16 NC 6/6
+    NC-LOCAL-AS-GLOBAL                 FAIL  worst 6.44444E+9 at ext.M1
+    NC-TRANSPOSED-FRAME                FAIL  worst 1.36296E+10 at ext.M1
+    NC-LUMPED-5050                     FAIL  worst 2.00000E+8 at ext.M1
+    NC-LEVER-RULE                      FAIL  worst 3.17213E+8 at th.N1.RZ
+    NC-PARTIAL-AS-FULL                 FAIL  worst 2.77642E+8 at R.N0.UX
+    NC-NO-FEC                          FAIL  worst 4.31250E+8 at Mb.M1.j
+RF-ELOAD-UDL-CANT-PART-GLOB-345          basis=intended    values=  31 zeros= 14 finite=2.94495E-16 NC 5/5
+    NC-GLOBAL-AS-LOCAL                 FAIL  worst 1.26039E+9 at u.N1.UZ
+    NC-LUMPED-5050                     FAIL  worst 1.96361E+9 at th.N1.RX
+    NC-LEVER-RULE                      FAIL  worst 1.13779E+9 at th.N1.RX
+    NC-PARTIAL-AS-FULL                 FAIL  worst 3.06451E+9 at u.N1.UZ
+    NC-NO-FEC                          FAIL  worst 1.63262E+9 at Mb.M1.j
+RF-ELOAD-UDL-PROP-FULL-AX                basis=intended    values=  34 zeros= 19 finite=1.82741E-16 NC 2/2
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at Mb.M1.i
+    NC-NO-FEC                          FAIL  worst 3.33333E+9 at Mb.M1.j
+RF-ELOAD-UDL-PROP-PART-AX                basis=intended    values=  34 zeros= 22 finite=1.82604E-16 NC 4/4
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at Mb.M1.i
+    NC-LEVER-RULE                      FAIL  worst 1E+9 at Mb.M1.i
+    NC-PARTIAL-AS-FULL                 FAIL  worst 1.78902E+9 at th.N1.RZ
+    NC-NO-FEC                          FAIL  worst 5.36141E+9 at Mb.M1.j
+RF-ELOAD-UDL-CONT2-AX                    basis=intended    values=  56 zeros= 35 finite=1.69333E-16 NC 4/4
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at Mb.M1.j
+    NC-LEVER-RULE                      FAIL  worst 1E+9 at Mb.M1.j
+    NC-PARTIAL-AS-FULL                 FAIL  worst 4.33347E+8 at th.N2.RZ
+    NC-NO-FEC                          FAIL  worst 2.77670E+9 at Mb.M2.j
+RF-ELOAD-UDL-CONT2-Q9                    basis=intended    values=  56 zeros= 29 finite=1.56878E-16 NC 4/4
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at Mb.M1.j
+    NC-LEVER-RULE                      FAIL  worst 1E+9 at Mb.M1.j
+    NC-PARTIAL-AS-FULL                 FAIL  worst 4.08991E+8 at Mb.M1.j
+    NC-NO-FEC                          FAIL  worst 2.77670E+9 at Mb.M2.j
+RF-ELOAD-UDL-LFRAME-3D                   basis=intended    values=  50 zeros= 16 finite=1.92626E-16 NC 4/4
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at tw.M1
+    NC-LEVER-RULE                      FAIL  worst 2.02150E+8 at th.N1.RY
+    NC-PARTIAL-AS-FULL                 FAIL  worst 3.00000E+9 at tw.M1
+    NC-NO-FEC                          FAIL  worst 3.28838E+8 at Mb.M1.j
+RF-ELOAD-UDL-WEIGHT-SKEW                 basis=intended    values=  53 zeros= 21 finite=1.92626E-16 NC 2/2
+    NC-LUMPED-5050                     FAIL  worst 8.43750E+8 at R.N0.RY
+    NC-NO-FEC                          FAIL  worst 3.10708E+9 at Mb.M1.j
+RF-ELOAD-TH-FF-LEG-AX                    basis=intended    values=  37 zeros= 32 finite=1.03488E-16 NC 3/3
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at R.N0.UX
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at R.N0.UX
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 1E+9 at N.M1.i
+RF-ELOAD-TH-FF-RES-122                   basis=intended    values=  37 zeros= 28 finite=6.25106E-17 NC 5/5
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at N.M1.i
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at N.M1.i
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 1E+9 at N.M1.i
+    NC-ALPHA-TIMES-INTERVAL            FAIL  worst 8.73558E+6 at N.M1.i
+    NC-SUBTRACT-DILATIONS              FAIL  worst 115000 at N.M1.i
+RF-ELOAD-TH-SPRING-LEG-r1e-06            basis=intended    values=  37 zeros= 30 finite=2.53343E-17 NC 3/3
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at R.N0.UX
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at u.N1.UX
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 9.94839E+14 at N.M1.i
+RF-ELOAD-TH-SPRING-LEG-r1e-12            basis=intended    values=  37 zeros= 30 finite=7.32559E-17 NC 4/4
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at R.N0.UX
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at u.N1.UX
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 9.94838E+20 at N.M1.i
+    NC-LOST-SOFT                       FAIL  worst 16927.7 at R.N0.UX
+RF-ELOAD-TH-SPRING-RES-r1e-08            basis=intended    values=  37 zeros= 30 finite=1.56433E-17 NC 6/6
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at u.N1.UX
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at u.N1.UX
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 9.94838E+18 at N.M1.i
+    NC-ALPHA-TIMES-INTERVAL            FAIL  worst 8.73558E+6 at u.N1.UX
+    NC-SUBTRACT-DILATIONS              FAIL  worst 115000 at u.N1.UX
+    NC-LOST-SOFT                       FAIL  worst 536.442 at R.N0.UX
+RF-ELOAD-TH-SERIAL-RES-FIT               basis=intended    values=  56 zeros= 45 finite=2.54885E-17 NC 7/7
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at u.N1.UX
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at u.N1.UX
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 1.99790E+9 at N.M1.i
+    NC-ALPHA-TIMES-INTERVAL            FAIL  worst 2.05202E+8 at R.N0.UX
+    NC-SUBTRACT-DILATIONS              FAIL  worst 2.15962E+8 at R.N0.UX
+    NC-FIT-ADDITIVE                    FAIL  worst 607911 at u.N1.UX
+    NC-FIT-OMITTED                     FAIL  worst 2.15822E+8 at R.N0.UX
+RF-ELOAD-TH-LFRAME-LEG                   basis=intended    values=  56 zeros= 29 finite=2.17626E-16 NC 3/3
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at th.N1.RZ
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at th.N1.RZ
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 3.36700E+11 at N.M1.i
+RF-ELOAD-TH-LFRAME-RES                   basis=intended    values=  56 zeros= 29 finite=1.81089E-16 NC 5/5
+    NC-EIGEN-SIGN                      FAIL  worst 2E+9 at th.N1.RZ
+    NC-EIGEN-OMITTED                   FAIL  worst 1E+9 at th.N1.RZ
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 2.94440E+11 at N.M1.i
+    NC-ALPHA-TIMES-INTERVAL            FAIL  worst 8.78024E+6 at R.N2.RZ
+    NC-SUBTRACT-DILATIONS              FAIL  worst 115000 at ext.M1
+RF-ELOAD-PT-FREE-AX                      basis=intended    values=  31 zeros= 29 finite=4.05783E-17 NC 5/5
+    NC-THRUST-NO-FEC                   FAIL  worst 1E+9 at N.M1.i
+    NC-THRUST-SIGN                     FAIL  worst 2E+9 at u.N1.UX
+    NC-THRUST-OMITTED                  FAIL  worst 1E+9 at u.N1.UX
+    NC-THRUST-STEEL-AREA               FAIL  worst 7.65432E+8 at u.N1.UX
+    NC-THRUST-OD-AREA                  FAIL  worst 2.34568E+8 at u.N1.UX
+RF-ELOAD-PT-FF-AX                        basis=intended    values=  37 zeros= 32 finite=1.18732E-16 NC 5/5
+    NC-THRUST-NO-FEC                   FAIL  worst 1E+9 at N.M1.i
+    NC-THRUST-SIGN                     FAIL  worst 2.00000E+9 at R.N0.UX
+    NC-THRUST-OMITTED                  FAIL  worst 1E+9 at R.N0.UX
+    NC-THRUST-STEEL-AREA               FAIL  worst 7.65432E+8 at R.N0.UX
+    NC-THRUST-OD-AREA                  FAIL  worst 2.34568E+8 at R.N0.UX
+RF-ELOAD-PT-FREE-122-MILL                basis=intended    values=  31 zeros= 27 finite=3.97609E-17 NC 6/6
+    NC-THRUST-NO-FEC                   FAIL  worst 1E+9 at N.M1.i
+    NC-THRUST-SIGN                     FAIL  worst 2E+9 at ext.M1
+    NC-THRUST-OMITTED                  FAIL  worst 1E+9 at ext.M1
+    NC-THRUST-STEEL-AREA               FAIL  worst 7.99024E+8 at ext.M1
+    NC-THRUST-OD-AREA                  FAIL  worst 2.00976E+8 at ext.M1
+    NC-NOMINAL-WALL                    FAIL  worst 1.43208E+8 at ext.M1
+RF-ELOAD-PT-LFRAME-FF                    basis=intended    values=  56 zeros= 29 finite=2.32830E-16 NC 5/5
+    NC-THRUST-NO-FEC                   FAIL  worst 2.58422E+11 at N.M1.i
+    NC-THRUST-SIGN                     FAIL  worst 2.00000E+9 at R.N2.RZ
+    NC-THRUST-OMITTED                  FAIL  worst 1E+9 at th.N1.RZ
+    NC-THRUST-STEEL-AREA               FAIL  worst 7.65432E+8 at th.N1.RZ
+    NC-THRUST-OD-AREA                  FAIL  worst 2.34568E+8 at ext.M1
+RF-ELOAD-PT-TH-SPRING                    basis=intended    values=  37 zeros= 30 finite=2.62648E-17 NC 6/6
+    NC-THRUST-NO-FEC                   FAIL  worst 5.56679E+10 at N.M1.i
+    NC-THRUST-SIGN                     FAIL  worst 1.11801E+8 at u.N1.UX
+    NC-THRUST-OMITTED                  FAIL  worst 5.59006E+7 at u.N1.UX
+    NC-EIGEN-SIGN                      FAIL  worst 1.88820E+9 at R.N0.UX
+    NC-EIGEN-OMITTED                   FAIL  worst 9.44099E+8 at R.N0.UX
+    NC-EIGEN-RECOVERY-OMITTED          FAIL  worst 9.40170E+11 at N.M1.i
+RF-ELOAD-CE-ALONE                        basis=intended    values=  31 zeros= 23 finite=1.92626E-16 NC 3/3
+    NC-CE-SIGN                         FAIL  worst 2E+9 at u.N1.UY
+    NC-CE-OMITTED                      FAIL  worst 1E+9 at u.N1.UY
+    NC-CE-AS-RESTRAINT                 FAIL  worst 1E+9 at u.N1.UY
+RF-ELOAD-CE-NODAL                        basis=intended    values=  50 zeros= 18 finite=1.91139E-16 NC 3/3
+    NC-CE-SIGN                         FAIL  worst 5.95367E+9 at th.N2.RY
+    NC-CE-OMITTED                      FAIL  worst 2.97683E+9 at th.N2.RY
+    NC-CE-AS-RESTRAINT                 FAIL  worst 9.92278E+8 at th.N2.RY
+RF-ELOAD-CE-CANCEL-G1e5                  basis=intended    values=  50 zeros= 35 finite=2.29634E-16 NC 4/7
+    NC-FLOAT-SUM-GmnGp                 pass  worst 0.00970128 at th.N2.RZ
+    NC-FLOAT-SUM-GmGpn                 pass  worst 3.70074E-8 at u.N1.UY
+    NC-FLOAT-SUM-nGmGp                 pass  worst 0.00970128 at th.N2.RZ
+    NC-SMALL-DROPPED                   FAIL  worst 1E+9 at u.N1.UY
+    NC-CE-SIGN                         FAIL  worst 6.66667E+14 at th.N2.RZ
+    NC-CE-OMITTED                      FAIL  worst 3.33333E+14 at u.N1.UY
+    NC-CE-AS-RESTRAINT                 FAIL  worst 1E+9 at u.N1.UY
+RF-ELOAD-CE-CANCEL-G1e8                  basis=intended    values=  50 zeros= 35 finite=2.29634E-16 NC 6/7
+    NC-FLOAT-SUM-GmnGp                 FAIL  worst 9.93411 at u.N1.UY
+    NC-FLOAT-SUM-GmGpn                 pass  worst 3.70074E-8 at u.N1.UY
+    NC-FLOAT-SUM-nGmGp                 FAIL  worst 9.93411 at u.N1.UY
+    NC-SMALL-DROPPED                   FAIL  worst 1E+9 at u.N1.UY
+    NC-CE-SIGN                         FAIL  worst 6.66667E+17 at th.N2.RZ
+    NC-CE-OMITTED                      FAIL  worst 3.33333E+17 at th.N2.RZ
+    NC-CE-AS-RESTRAINT                 FAIL  worst 1E+9 at u.N1.UY
+RF-ELOAD-GEN-SEIS-CANT-AX                basis=intended    values=  31 zeros= 14 finite=1.19293E-16 NC 5/6
+    NC-BIN64-PRODUCT                   pass  worst 9.81036E-7 at Mb.M1.i
+    NC-NO-INSULATION-MASS              FAIL  worst 5.11289E+7 at Mb.M1.i
+    NC-NOMINAL-WALL-MASS               FAIL  worst 6.82722E+7 at ext.M1
+    NC-NOMINAL-WALL                    FAIL  worst 6.82722E+7 at Mb.M1.i
+    NC-LUMPED-5050                     FAIL  worst 4.00000E+8 at th.N1.RY
+    NC-NO-FEC                          FAIL  worst 8.33333E+8 at Mb.M1.j
+RF-ELOAD-GEN-SEIS-CONT2-Q9               basis=intended    values=  56 zeros= 25 finite=1.44312E-16 NC 5/6
+    NC-BIN64-PRODUCT                   pass  worst 9.66946E-7 at Mb.M1.j
+    NC-NO-INSULATION-MASS              FAIL  worst 5.11289E+7 at Mb.M1.j
+    NC-NOMINAL-WALL-MASS               FAIL  worst 6.82722E+7 at Mb.M1.j
+    NC-NOMINAL-WALL                    FAIL  worst 6.82722E+7 at Mb.M1.j
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at Mb.M1.j
+    NC-NO-FEC                          FAIL  worst 4.31373E+9 at Mb.M2.j
+RF-ELOAD-GEN-SEIS-WIND-LFRAME-FF         basis=intended    values=  56 zeros= 12 finite=1.06303E-16 NC 7/8
+    NC-BIN64-PRODUCT                   pass  worst 0.00000101346 at ext.M1
+    NC-NO-INSULATION-MASS              FAIL  worst 5.45541E+7 at ext.M1
+    NC-NOMINAL-WALL-MASS               FAIL  worst 7.28459E+7 at ext.M1
+    NC-NOMINAL-WALL                    FAIL  worst 6.71868E+7 at Mb.M2.j
+    NC-NO-INSULATION-DIAMETER          FAIL  worst 4.94539E+7 at R.N0.RZ
+    NC-WIND-UNMARKED                   FAIL  worst 2.26082E+8 at R.N2.UY
+    NC-LUMPED-5050                     FAIL  worst 4.08694E+8 at tw.M2
+    NC-NO-FEC                          FAIL  worst 1.06631E+9 at Mb.M1.j
+RF-ELOAD-GEN-WIND-MARKED-CONT2           basis=intended    values=  56 zeros= 41 finite=1.23639E-16 NC 4/5
+    NC-BIN64-PRODUCT                   pass  worst 1.09961E-7 at R.N0.UY
+    NC-NO-INSULATION-DIAMETER          FAIL  worst 2.30769E+8 at th.N1.RZ
+    NC-WIND-UNMARKED                   FAIL  worst 7.56000E+8 at th.N2.RZ
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at th.N1.RZ
+    NC-NO-FEC                          FAIL  worst 4.09091E+9 at Mb.M1.j
+RF-ELOAD-GEN-WIND-SUBSPAN                basis=intended    values=  56 zeros= 41 finite=2.88410E-16 NC 6/7
+    NC-BIN64-PRODUCT                   pass  worst 1.09961E-7 at th.N2.RZ
+    NC-NO-INSULATION-DIAMETER          FAIL  worst 2.30769E+8 at th.N2.RZ
+    NC-WIND-UNMARKED                   FAIL  worst 3.49634E+9 at R.N0.RZ
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at th.N2.RZ
+    NC-LEVER-RULE                      FAIL  worst 1E+9 at th.N2.RZ
+    NC-PARTIAL-AS-FULL                 FAIL  worst 2.21244E+9 at R.N1.UY
+    NC-NO-FEC                          FAIL  worst 2.81628E+9 at Mb.M2.j
+RF-ELOAD-GEN-WIND-SKEW-PROP              basis=intended    values=  34 zeros= 23 finite=1.23639E-16 NC 4/5
+    NC-BIN64-PRODUCT                   pass  worst 1.09961E-7 at th.N1.RX
+    NC-NO-INSULATION-DIAMETER          FAIL  worst 2.30769E+8 at R.N0.RX
+    NC-PROJECTED-WIND                  FAIL  worst 2E+8 at R.N0.RX
+    NC-LUMPED-5050                     FAIL  worst 1E+9 at th.N1.RX
+    NC-NO-FEC                          FAIL  worst 3.33333E+9 at Mb.M1.j
+RF-ELOAD-PM-SINGLE-FF                    basis=intended    values=  37 zeros= 28 finite=2.13443E-16 NC 2/2
+    NC-PM-OMITTED                      FAIL  worst 1E+9 at u.N1.UY
+    NC-PM-SIGN                         FAIL  worst 2E+9 at u.N1.UY
+RF-ELOAD-PM-ROT-PROP                     basis=intended    values=  34 zeros= 20 finite=2.13443E-16 NC 2/2
+    NC-PM-OMITTED                      FAIL  worst 1E+9 at Mb.M1.i
+    NC-PM-SIGN                         FAIL  worst 1.78885E+9 at th.N0.RZ
+RF-ELOAD-PM-DIFF-CONT2                   basis=intended    values=  56 zeros= 32 finite=2.13443E-16 NC 2/2
+    NC-PM-OMITTED                      FAIL  worst 1E+9 at u.N1.UY
+    NC-PM-SIGN                         FAIL  worst 2E+9 at u.N1.UY
+RF-ELOAD-PM-ELOAD-CONT2                  basis=intended    values=  56 zeros= 32 finite=1.62140E-16 NC 6/6
+    NC-PM-OMITTED                      FAIL  worst 1E+9 at u.N1.UY
+    NC-PM-SIGN                         FAIL  worst 2E+9 at u.N1.UY
+    NC-LUMPED-5050                     FAIL  worst 3.27669E+8 at R.N0.RZ
+    NC-LEVER-RULE                      FAIL  worst 3.27669E+8 at R.N0.RZ
+    NC-PARTIAL-AS-FULL                 FAIL  worst 1.08701E+8 at R.N1.UY
+    NC-NO-FEC                          FAIL  worst 4.63952E+8 at Mb.M1.j
+RF-ELOAD-PM-SKEW-122-FF                  basis=intended    values=  37 zeros=  8 finite=2.36789E-16 NC 2/2
+    NC-PM-OMITTED                      FAIL  worst 1E+9 at th.N1.RX
+    NC-PM-SIGN                         FAIL  worst 2E+9 at th.N1.RX
+RF-ELOAD-CANCEL-FEM-G1e5                 basis=intended    values=  59 zeros= 43 finite=1.63976E-16 NC 3/6
+    NC-FLOAT-SUM-ABn                   pass  worst 2.86509E-8 at th.S1.RZ
+    NC-FLOAT-SUM-AnB                   pass  worst 0.00751067 at th.S1.RZ
+    NC-FLOAT-SUM-nAB                   pass  worst 0.00751067 at th.S1.RZ
+    NC-SMALL-DROPPED                   FAIL  worst 5.16129E+8 at th.S1.RZ
+    NC-LUMPED-5050                     FAIL  worst 1.00000E+9 at R.S0.RZ
+    NC-NO-FEC                          FAIL  worst 2.60009E+10 at Mb.M1.q3
+RF-ELOAD-CANCEL-FEM-G1e7                 basis=intended    values=  59 zeros= 43 finite=1.63976E-16 NC 3/6
+    NC-FLOAT-SUM-ABn                   pass  worst 2.86509E-8 at th.S1.RZ
+    NC-FLOAT-SUM-AnB                   pass  worst 0.480683 at th.S1.RZ
+    NC-FLOAT-SUM-nAB                   pass  worst 0.480683 at th.S1.RZ
+    NC-SMALL-DROPPED                   FAIL  worst 5.16129E+8 at th.S1.RZ
+    NC-LUMPED-5050                     FAIL  worst 1.00000E+9 at R.S0.RZ
+    NC-NO-FEC                          FAIL  worst 2.60000E+10 at Mb.M1.q3
+RF-ELOAD-CANCEL-FEM-G1e8                 basis=intended    values=  59 zeros= 43 finite=1.63976E-16 NC 5/6
+    NC-FLOAT-SUM-ABn                   pass  worst 2.86509E-8 at th.S1.RZ
+    NC-FLOAT-SUM-AnB                   FAIL  worst 7.69092 at th.S1.RZ
+    NC-FLOAT-SUM-nAB                   FAIL  worst 7.69092 at th.S1.RZ
+    NC-SMALL-DROPPED                   FAIL  worst 5.16129E+8 at th.S1.RZ
+    NC-LUMPED-5050                     FAIL  worst 1.00000E+9 at R.S0.RZ
+    NC-NO-FEC                          FAIL  worst 2.60000E+10 at Mb.M1.q3
+RF-ELOAD-CANCEL-SEIS-G1e5                basis=intended    values=  31 zeros= 23 finite=1.42347E-11 NC 1/4
+    NC-BIN64-PRODUCT                   pass  worst 0.0994708 at Mb.M1.q1
+    NC-FLOAT-SUM-BIN64                 pass  worst 0.105140 at Mb.M1.q1
+    NC-FLOAT-SUM                       pass  worst 0.00260101 at Mb.M1.q1
+    NC-NET-DROPPED                     FAIL  worst 1E+9 at u.N1.UZ
+RF-ELOAD-CANCEL-SEIS-G1e7                basis=represented values=  31 zeros= 23 finite=1.12034E-9 NC 3/4
+    NC-BIN64-PRODUCT                   FAIL  worst 9.09051 at R.N0.RY
+    NC-FLOAT-SUM-BIN64                 FAIL  worst 9.09051 at R.N0.RY
+    NC-FLOAT-SUM                       pass  worst 0.0240477 at R.N0.UZ
+    NC-NET-DROPPED                     FAIL  worst 1E+9 at u.N1.UZ
+RF-ELOAD-CANCEL-SEIS-G1e8                basis=represented values=  31 zeros= 23 finite=1.27288E-8 NC 3/4
+    NC-BIN64-PRODUCT                   FAIL  worst 90.9051 at Mb.M1.mid
+    NC-FLOAT-SUM-BIN64                 FAIL  worst 90.9051 at Mb.M1.mid
+    NC-FLOAT-SUM                       pass  worst 0.240477 at Mb.M1.q1
+    NC-NET-DROPPED                     FAIL  worst 1E+9 at u.N1.UZ
+RF-ELOAD-CANCEL-SEIS-G1e8-R              basis=represented values=  31 zeros= 23 finite=8.55448E-9 NC 4/4
+    NC-BIN64-PRODUCT                   FAIL  worst 89.6350 at R.N0.RY
+    NC-FLOAT-SUM-BIN64                 FAIL  worst 89.6350 at R.N0.RY
+    NC-FLOAT-SUM                       FAIL  worst 9.43619 at th.N1.RY
+    NC-NET-DROPPED                     FAIL  worst 1E+9 at u.N1.UZ
+RF-ELOAD-COMB-B-NODAL                    basis=intended    values=  56 zeros= 27 finite=1.92626E-16 NC 0/0
+RF-ELOAD-COMB-SUM                        basis=intended    values=  56 zeros= 27 finite=1.92626E-16 NC 3/3
+    NC-MAG-SUM                         FAIL  worst 1.96577E+7 at Mb.M1.i
+    NC-WRONG-DIFFERENCE                FAIL  worst 2E+9 at tw.M1
+    NC-B-DROPPED                       FAIL  worst 1E+9 at tw.M1
+RF-ELOAD-COMB-DIFF                       basis=intended    values=  56 zeros= 27 finite=1.92626E-16 NC 3/3
+    NC-MAG-SUM                         FAIL  worst 2.25838E+7 at Mb.M1.i
+    NC-WRONG-DIFFERENCE                FAIL  worst 2E+9 at tw.M1
+    NC-B-DROPPED                       FAIL  worst 1E+9 at tw.M1
+summary: 49 cases, 2142 expected values, 413 represented values, 216 negative controls (194 discriminate)
+represented basis: RF-ELOAD-CANCEL-SEIS-G1e7, RF-ELOAD-CANCEL-SEIS-G1e8, RF-ELOAD-CANCEL-SEIS-G1e8-R
+checks: route A == route B exactly and equilibrium residual zero for every intended, represented, net-state and gross-state model; closed forms, rotations and combination linearity asserted

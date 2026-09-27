@@ -188,3 +188,64 @@ Every other committed request is byte-identical in both modes. That includes `fi
 ## 8. Toolchain
 
 Rust 1.97.1 (CI pin). rustfmt 1.8.0-stable (the 1.97.1 toolchain here has no rustfmt): my files were formatted through stdin, and in the two files whose base is not rustfmt-clean (`FK/lib.rs`, `nonlinear_integration/lib.rs`) only my hunks were formatted. Python 3.11 (standard library, and the DEC-025 venv for the K1 generator). The build target is `<t3-target>`; my build output there was pruned.
+
+## RV1 fixes (S1, S2, N4), on `codex/piping-s11k-pr-20260926` at `f76643235`
+
+Brief: `T3/TASK_BRIEFS/I1_S11K_RV1_FIXES.md` (`dccaf5299`). Review: `T3/REVIEW/S11K_REVIEW.md` (`65e98c259`). The worktree was fast-forwarded to `f76643235` first. No other Git write, and no index operation. No production code, fixture or committed output changed.
+
+**Files changed**
+
+| File | Lines (`git diff --numstat`) |
+|---|---|
+| `core/solver/nonlinear_integration/src/s11k_tests.rs` | +528 −28 |
+| `core/solver/frame_kernel/src/structural/s11k_tests.rs` | +18 −3 |
+| `IMPLEMENTATION/S11K/CHANGE_RECORD.md` | N4 header, checks-run command, approvals citation, RV1 test and mutation lines |
+| `IMPLEMENTATION/S11K/RETURN.md` | this section |
+| `_run_records/rv1_fixes/**` | new |
+
+**S1: how the option (c) pin now pins.**
+- **Source pin** (`option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path`).
+  - `lib.rs` is lexed first. `lex` and `strip_cfg_test` are copied from `frame_kernel/tests/s11_site_table.rs`, with a citation: that file is another crate's integration test and cannot be imported.
+  - The five legacy calls must appear as real calls in `solve_linearized_system_evidence`: `product_equilibrium::evaluate(`, `reduce_system_with_prescribed_displacements_binary64(`, `assembly.solve_binary64(`, `structural::solve_structural_dense_binary64(` and `structural_adapter::solve_structural_sparse_binary64(`.
+  - No exact entry point may appear anywhere in `lib.rs` outside test code: `reduce_system_with_prescribed_displacements(`, `reduce_assembled_system`, `.solve(`, `.solve_assembled(`, `solve_structural_dense(`, `solve_structural_sparse(`, `prepare_structural(`, `prepare_assembled_structural(`, `solve_assembled_structural_dense(`, `evaluate_assembled_original_residual(`, `with_force_terms(` and `StructuralSystem::assembled(`.
+  - A self-check shows that a commented or quoted call is not treated as a call.
+- **Behavioural pin** (`option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path`).
+  - **Model.** A probe-P-like closed-gap model:
+    - members of 2 m and 4 m, with E = 2^38 Pa and Iz = 9·2^-19 m^4, so every coefficient is an exact dyadic;
+    - gaps closed at g (left) and 4g (right), so the middle RZ row's couplings are exact negatives;
+    - m = 0.0137 N·m, and 100 N UY at the middle node;
+    - unequal spans, so the reduced system is not diagonal and the loop's sparse observation depends on the reduced force's bits.
+  - **Precondition.** For g ∈ {0.05, 0.20}, the in-test legacy fold of the RZ row (boundary in DOF order, as `active_boundary` sorts it) differs from the correctly rounded exact value.
+  - **Discrimination.** The exact solve's displacements and the exact reduced force's sparse observation each differ from the legacy ones.
+  - **Check.** `crate::solve_linearized_system_evidence` (the loop's per-iteration solve), for dense and sparse, with and without `AssemblyEvidence`: displacements, residual rows and sparse evidence equal the binary64 expected values bit for bit.
+  - **Expected values.**
+    - The reduced force is folded in the test, and the sparse observation is computed from it.
+    - Displacements and rows come from the FK/SA `_binary64` variants, whose right-hand side frame_kernel's `option_c_binary64_variants_keep_todays_fold_on_probe_p` pins to the in-test fold.
+- **Through the public loop** (`option_c_active_set_loop_first_closed_gap_iteration_is_binary64`).
+  - The same model with both gaps initially Active, in both modes.
+  - The first iteration's boundary is checked.
+  - Its ordinary solve (the strict-gap evidence's `ordinary_displacements`, retained before the exact-ratio gap projection replaces the published displacement), its residual rows and its sparse evidence all equal the binary64 expected values.
+
+**S2.** In `option_c_public_original_residual_stays_binary64_on_coupled_rows`:
+- The free RZ rotation is now 0.0: the moment row before any solve. The exact numerator is −m, while the binary64 fold absorbs bits of m into the gross coupling.
+- The test first asserts `assert_ne!(r, exact_numerator.round_scaled(-e))`, then that the public row equals `r`.
+
+**N4.** `CHANGE_RECORD.md` now has:
+- the header: PR branch `codex/piping-s11k-pr-20260926`, base `6bb3ee490` merged forward to `f76643235`, and basis S11_CONTAINMENT revision 5a.2 (`e6507587`) selected by `ROOT_SELECTION_DESIGNS.md`;
+- the approvals citation: `ROOT_RULINGS_V1.md` "S11-K regeneration and hash-pin approvals" (`cef281b21`);
+- "Checks run" stating the command actually run. The earlier `run_suites.sh.txt` ran without `--no-fail-fast`; the final post-regeneration run used `cargo test --offline --locked --no-fail-fast` (`run_suites_final.sh.txt`);
+- the RV1 tests and mutation re-runs.
+
+**Mutation re-runs** (`_run_records/rv1_fixes/rv1_remutate.py.txt` and `rv1_remutate_results.json`)
+- Setup: RV1's patch texts, on a scratch copy of `core/`, command `cargo test --offline --locked --lib --no-fail-fast` in the mutated crate.
+
+| Mutant | Killing tests |
+|---|---|
+| RV-OPT1 (loop reduction → exact KS2) | `option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path`, `option_c_active_set_loop_first_closed_gap_iteration_is_binary64`, and the source pin |
+| RV-OPT3 (loop dense/sparse without assembly → exact) | `option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path` and the source pin |
+| RV-OPT4 (exact solve via a helper, legacy text left in a comment) | both behavioural tests, the source pin, and the two existing `unsupported_gap_inspection_*` tests |
+| RV-PUB (public residual → exact KS3) | `option_c_public_original_residual_stays_binary64_on_coupled_rows` |
+
+**Suites on `f76643235`** (`--offline --locked --no-fail-fast`, 1.97.1): frame_kernel 116 passed, nonlinear_integration 71, `validation/benchmarks/nonlinear` 19 (DEC-046 unchanged).
+
+**Execution note.** Once, early on, my compile-only cargo invocation overlapped with another task's running cargo job (the `pgrep` check printed a PID and I did not wait). That compile failed at once. Every later run waited with an until-loop on `pgrep -x cargo`.

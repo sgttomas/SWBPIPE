@@ -1,0 +1,10 @@
+RF-CHAIN {'A_nonzero_below': 46, 'B_nonzero_below': 0, 'A_scale_below': 90, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-SKEW {'A_nonzero_below': 31, 'B_nonzero_below': 19, 'A_scale_below': 24, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-WEAK {'A_nonzero_below': 80, 'B_nonzero_below': 77, 'A_scale_below': 53, 'B_scale_below': 43, 'cancel_rec_scale_below_A': 0}
+RF-LARGE {'A_nonzero_below': 115, 'B_nonzero_below': 87, 'A_scale_below': 84, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-INVARIANCE {'A_nonzero_below': 0, 'B_nonzero_below': 0, 'A_scale_below': 35, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-RANGE {'A_nonzero_below': 0, 'B_nonzero_below': 0, 'A_scale_below': 62, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-ZERO {'A_nonzero_below': 0, 'B_nonzero_below': 0, 'A_scale_below': 0, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-FINITE {'A_nonzero_below': 0, 'B_nonzero_below': 0, 'A_scale_below': 0, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-MECH {'A_nonzero_below': 0, 'B_nonzero_below': 0, 'A_scale_below': 0, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 0}
+RF-CANCEL {'A_nonzero_below': 3, 'B_nonzero_below': 3, 'A_scale_below': 0, 'B_scale_below': 0, 'cancel_rec_scale_below_A': 3}

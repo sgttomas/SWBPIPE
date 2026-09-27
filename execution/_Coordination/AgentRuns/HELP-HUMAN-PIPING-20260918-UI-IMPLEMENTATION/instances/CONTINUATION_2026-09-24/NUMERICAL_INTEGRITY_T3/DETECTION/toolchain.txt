@@ -1,0 +1,19 @@
+T3 P1 toolchain and build record
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+python: Python 3.11.15 (standard library only)
+build: RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<t3-target> cargo build --release --offline
+--locked: refused (the probe root adds path packages t3_p1_probe / t3_p1_survey and open_pipe_stress_result_export to the lockfile copied from <export>/projects/chirality-piping/core/product_physics/Cargo.lock); registry package versions unchanged:
+  > name = "open_pipe_stress_result_export"
+  > version = "0.1.0"
+  > name = "t3_p1_probe"
+  > version = "0.0.0"
+binaries (sha256):
+  t3_p1_probe  61cbb76f4093457a9c3325b89da04be031bd92054dd95cc2757cb12178daac59
+  t3_p1_survey 111a699ca102b2a6c3399ff08c9da38fab0e5af51f3c1ac180a16528cdc6b630
+export: git archive c61a540ea projects/chirality-piping/core projects/chirality-piping/fixtures projects/chirality-piping/schemas
+references (primary, frozen): c0f14201c references.py 80d473a7351e92a2a903d233b9e633aac794aeff07f3ac41e40d25a0d94fc8a8 references.json 7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9
+references (cross-check): 3592032fa references.py 7fe459b12a02dfc75c9305fcab260ae8c8a528f07f4ac76a5be672547de99701 references.json 57e3254e9ced0fa468945bbfde9d197eecf30bac3bd3e6e35f03739e54468a22
+fixtures.json (c61a540ea): c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e
+process limits: RLIMIT_AS 6442450944 bytes per child; timeout 600 s (1800 s for >= 1000 members); these are the observation harness's limits, not product or test limits
+host: 4 CPUs, 15 GiB RAM, no swap; shared with other T3/T1 tasks

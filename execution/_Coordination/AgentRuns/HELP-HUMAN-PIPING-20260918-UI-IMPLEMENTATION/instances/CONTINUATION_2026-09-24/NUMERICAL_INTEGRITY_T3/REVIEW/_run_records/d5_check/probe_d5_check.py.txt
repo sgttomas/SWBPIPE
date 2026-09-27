@@ -1,0 +1,559 @@
+#!/usr/bin/env python3
+"""V1 D5_CHECK probe (standard library only, single-threaded; no product code imported or run).
+
+Emulates main's binary64 path for one-member R1-style models as the product code reads at c61a540ea:
+  frame      FK/lib.rs FrameOrientation::from_x_axis_and_y_reference (normalize = scale by 1/|v|),
+  local K    FK/lib.rs local_stiffness (left-to-right products and quotients),
+  transform  FK/lib.rs multiply_transpose_left (two-stage T^T(K T), sequential sums from 0.0),
+  assembly   element entries, then springs added with += (PP:1386-1390),
+  prepare    FK/structural.rs prepare_structural: radix diagonal scaling and symmetric averaging
+             a_ij/2 + a_ji/2 where the scaled matrix is not exactly symmetric,
+  factor     dense: FK/structural.rs cholesky (natural free order);
+             sparse: sparse_direct reverse_cuthill_mckee + FK/structural.rs factor_structural_profile,
+  finish     FK/structural.rs finish_checked_factor: estimate_rcond, evaluate_original_residual with
+             its guarded ratio, bounded refinement, quality Passed iff rcond >= sqrt(eps).
+The intended system is formed exactly from the same binary64 primitives (coordinates, E, G, A, I, J,
+y reference): exact frame (square roots at 320 bits), exact local coefficients, exact T^T K T,
+exact assembly and springs. The error of a published nodal quantity is compared with
+1e-9*max(|q_exact|, class scale) (R1's scales for the RF-SKEW cases).
+
+Estimators of D5_TRIGGER (a2), each applied with the product's own factor, in scaled variables:
+  EF_design  K^-1((K_rep_elem - K_int_elem) u + r64), r64 the product's binary64 original residual,
+             i.e. element-level Delta K plus the published residual (D5_TRIGGER s3, s9 as written);
+  EF_design_global  as EF_design with Delta K taken over the assembled matrix (springs included);
+  EF_exact   K^-1(f - K_int u), the whole residual of the intended system in one exact sum;
+  EF_form    K^-1((K_rep - K_int) u), formation only (no residual term);
+  EF_Lshared as EF_exact, but K_int re-formed from the binary64 LOCAL coefficients (shared step);
+  EF_Tshared as EF_exact, but K_int re-formed with the product's rounded frame T (shared step).
+A trigger fires when 8*|EF_q| > 1e-9*max(|q|, S*_kind), S* per DESIGN r3 s4.1.6.1 from the binary64 u.
+"""
+import json
+import math
+import sys
+from fractions import Fraction as Fr
+
+EPS = 2.0 ** -52
+
+
+def gamma(m):
+    x = m * (EPS / 2.0)
+    return x / (1.0 - x)
+
+
+def binexp(v):
+    return math.frexp(abs(v))[1] - 1
+
+
+# ---------------------------------------------------------------- exact helpers
+def fsqrt(x, bits=320):
+    x = Fr(x)
+    if x == 0:
+        return Fr(0)
+    n, d = x.numerator, x.denominator
+    s = math.isqrt(n * d * 4 ** bits)
+    return Fr(s, d * 2 ** bits)
+
+
+def exact_frame(xi, xj, yref):
+    d = [Fr(xj[k]) - Fr(xi[k]) for k in range(3)]
+    L = fsqrt(sum(c * c for c in d))
+    ex = [c / L for c in d]
+    pr = sum(Fr(yref[k]) * ex[k] for k in range(3))
+    yc = [Fr(yref[k]) - pr * ex[k] for k in range(3)]
+    m = fsqrt(sum(c * c for c in yc))
+    ey = [c / m for c in yc]
+    ez = [ex[1] * ey[2] - ex[2] * ey[1], ex[2] * ey[0] - ex[0] * ey[2], ex[0] * ey[1] - ex[1] * ey[0]]
+    return [ex, ey, ez], L
+
+
+# ---------------------------------------------------------------- product binary64 formation
+def norm3(v):
+    return math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+
+
+def normalize(v):
+    s = 1.0 / norm3(v)
+    return [v[0] * s, v[1] * s, v[2] * s]
+
+
+def product_frame(xi, xj, yref):
+    delta = [xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]]
+    x = normalize(delta)
+    pr = yref[0] * x[0] + yref[1] * x[1] + yref[2] * x[2]
+    yc = [yref[0] - x[0] * pr, yref[1] - x[1] * pr, yref[2] - x[2] * pr]
+    y = normalize(yc)
+    z = normalize([x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]])
+    return [x, y, z], norm3(delta)
+
+
+def local_K(sec, L, exact=False):
+    """FK/lib.rs local_stiffness; exact=True forms the same coefficients in exact arithmetic."""
+    e, g, a, iy, iz, j = sec["E"], sec["G"], sec["A"], sec["Iy"], sec["Iz"], sec["J"]
+    if exact:
+        e, g, a, iy, iz, j = Fr(e), Fr(g), Fr(a), Fr(iy), Fr(iz), Fr(j)
+        Lx = Fr(L)
+        L2 = Lx * Lx
+        L3 = L2 * Lx
+        c = dict(ax=e * a / Lx, tor=g * j / Lx,
+                 z12=12 * e * iz / L3, z6=6 * e * iz / L2, z4=4 * e * iz / Lx, z2=2 * e * iz / Lx,
+                 y12=12 * e * iy / L3, y6=6 * e * iy / L2, y4=4 * e * iy / Lx, y2=2 * e * iy / Lx)
+        zero = Fr(0)
+    else:
+        L2 = L * L
+        L3 = L2 * L
+        c = dict(ax=e * a / L, tor=g * j / L,
+                 z12=12.0 * e * iz / L3, z6=6.0 * e * iz / L2, z4=4.0 * e * iz / L, z2=2.0 * e * iz / L,
+                 y12=12.0 * e * iy / L3, y6=6.0 * e * iy / L2, y4=4.0 * e * iy / L, y2=2.0 * e * iy / L)
+        zero = 0.0
+    K = [[zero] * 12 for _ in range(12)]
+
+    def put(r, cc, v):
+        K[r][cc] = v
+        K[cc][r] = v
+    put(0, 6, -c["ax"]); K[0][0] = c["ax"]; K[6][6] = c["ax"]
+    put(3, 9, -c["tor"]); K[3][3] = c["tor"]; K[9][9] = c["tor"]
+    for idx, t in (((1, 5, 7, 11), [[c["z12"], c["z6"], -c["z12"], c["z6"]], [c["z6"], c["z4"], -c["z6"], c["z2"]],
+                                    [-c["z12"], -c["z6"], c["z12"], -c["z6"]], [c["z6"], c["z2"], -c["z6"], c["z4"]]]),
+                   ((2, 4, 8, 10), [[c["y12"], -c["y6"], -c["y12"], -c["y6"]], [-c["y6"], c["y4"], c["y6"], c["y2"]],
+                                    [-c["y12"], c["y6"], c["y12"], c["y6"]], [-c["y6"], c["y2"], c["y6"], c["y4"]]])):
+        for r in range(4):
+            for cc in range(4):
+                K[idx[r]][idx[cc]] = K[idx[r]][idx[cc]] + t[r][cc]
+    return K
+
+
+def T12(R, zero):
+    T = [[zero] * 12 for _ in range(12)]
+    for b in range(4):
+        for r in range(3):
+            for cc in range(3):
+                T[3 * b + r][3 * b + cc] = R[r][cc]
+    return T
+
+
+def TtKT(K, T, exact):
+    z = Fr(0) if exact else 0.0
+    temp = [[z] * 12 for _ in range(12)]
+    for r in range(12):
+        for cc in range(12):
+            s = z
+            for k in range(12):
+                s = s + K[r][k] * T[k][cc]
+            temp[r][cc] = s
+    out = [[z] * 12 for _ in range(12)]
+    for r in range(12):
+        for cc in range(12):
+            s = z
+            for k in range(12):
+                s = s + T[k][r] * temp[k][cc]
+            out[r][cc] = s
+    return out
+
+
+def section(od=0.2, idd=0.18, E=200e9, G=80e9):
+    pi = math.pi
+    area = pi * (od * od - idd * idd) / 4.0
+    i4 = pi * ((od * od) * (od * od) - (idd * idd) * (idd * idd)) / 64.0
+    return dict(E=E, G=G, A=area, Iy=i4, Iz=i4, J=2.0 * i4)
+
+
+# ---------------------------------------------------------------- model
+def build(xj, yref, springs, moment, sec):
+    xi = (0.0, 0.0, 0.0)
+    n = 12
+    Rp, Lp = product_frame(xi, xj, yref)
+    Kl = local_K(sec, Lp)
+    Ke_rep = TtKT(Kl, T12(Rp, 0.0), False)
+    Rx, Lx = exact_frame(xi, xj, yref)
+    Kl_x = local_K(sec, Lx, exact=True)
+    Ke_int = TtKT(Kl_x, T12(Rx, Fr(0)), True)
+    Ke_Lshared = TtKT([[Fr(v) for v in row] for row in Kl], T12(Rx, Fr(0)), True)
+    Ke_Tshared = TtKT(local_K(sec, Lp, exact=True), T12([[Fr(v) for v in r] for r in Rp], Fr(0)), True)
+    K_rep = [[Ke_rep[a][b] for b in range(n)] for a in range(n)]
+    for d, k in springs:
+        K_rep[d][d] += k
+    def with_springs(Ke):
+        M = [[Ke[a][b] for b in range(n)] for a in range(n)]
+        for d, k in springs:
+            M[d][d] += Fr(k)
+        return M
+    f = [0.0] * n
+    for d, v in moment:
+        f[d] += v
+    return dict(n=n, free=list(range(3, 12)), K_rep=K_rep, Ke_rep=Ke_rep, f=f,
+                K_int=with_springs(Ke_int), K_Lshared=with_springs(Ke_Lshared), K_Tshared=with_springs(Ke_Tshared),
+                K_rep_elem_plus_exact_springs=with_springs([[Fr(v) for v in r] for r in Ke_rep]),
+                L_b=float(Lx), springs=springs)
+
+
+# ---------------------------------------------------------------- product solve
+def prepare(m):
+    free = m["free"]
+    K = m["K_rep"]
+    ex = [-(binexp(K[i][i]) // 2) for i in free]
+    n = len(free)
+    a = [[K[free[r]][free[c]] * 2.0 ** (ex[r] + ex[c]) for c in range(n)] for r in range(n)]
+    rhs = [m["f"][free[r]] * 2.0 ** ex[r] for r in range(n)]
+    projected = 0
+    for i in range(n):
+        for j in range(i):
+            if a[i][j] != a[j][i]:
+                avg = a[i][j] / 2.0 + a[j][i] / 2.0
+                a[i][j] = avg
+                a[j][i] = avg
+                projected += 1
+    return a, rhs, ex, projected
+
+
+def cholesky(a):
+    n = len(a)
+    l = [[0.0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(i + 1):
+            s = a[i][j]
+            sc = abs(s)
+            for k in range(j):
+                t = l[i][k] * l[j][k]
+                s = s - t
+                sc = sc + abs(t)
+            if i == j:
+                if s <= 64.0 * gamma(2 * j + 2) * sc:
+                    return None
+                l[i][j] = math.sqrt(s)
+            else:
+                l[i][j] = s / l[j][j]
+
+    def solve(rhs):
+        x = list(rhs)
+        for i in range(n):
+            for j in range(i):
+                x[i] = x[i] - l[i][j] * x[j]
+            x[i] = x[i] / l[i][i]
+        for i in reversed(range(n)):
+            for j in range(i + 1, n):
+                x[i] = x[i] - l[j][i] * x[j]
+            x[i] = x[i] / l[i][i]
+        return x
+    return solve
+
+
+def rcm(a):
+    n = len(a)
+    nb = [[] for _ in range(n)]
+    for r in range(n):
+        for c in range(r):
+            if a[r][c] != 0.0 or a[c][r] != 0.0:
+                nb[r].append(c)
+                nb[c].append(r)
+    nb = [sorted(set(x)) for x in nb]
+    deg = [len(x) for x in nb]
+    nb = [sorted(x, key=lambda v: (deg[v], v)) for x in nb]
+
+    def ecc(start):
+        mark = [False] * n
+        mark[start] = True
+        cur, last, e = [start], [start], 0
+        while True:
+            nxt = []
+            for v in cur:
+                for w in nb[v]:
+                    if not mark[w]:
+                        mark[w] = True
+                        nxt.append(w)
+            if not nxt:
+                return e, last
+            e += 1
+            last = nxt
+            cur = nxt
+    visited = [False] * n
+    order = []
+    for seed in range(n):
+        if visited[seed]:
+            continue
+        comp, q, mark = [seed], [seed], {seed}
+        while q:
+            v = q.pop(0)
+            for w in nb[v]:
+                if w not in mark:
+                    mark.add(w)
+                    comp.append(w)
+                    q.append(w)
+        cand = min(comp, key=lambda v: (deg[v], v))
+        ce, last = ecc(cand)
+        while True:
+            nx = min(last, key=lambda v: (deg[v], v)) if last else None
+            if nx is None:
+                break
+            ne, nl = ecc(nx)
+            if ne > ce:
+                cand, ce, last = nx, ne, nl
+            else:
+                break
+        visited[cand] = True
+        q = [cand]
+        while q:
+            v = q.pop(0)
+            order.append(v)
+            for w in nb[v]:
+                if not visited[w]:
+                    visited[w] = True
+                    q.append(w)
+    order.reverse()
+    return order
+
+
+def profile_ldl(a, order):
+    n = len(a)
+    first = []
+    for r in range(n):
+        fr = r
+        for c in range(r):
+            hi, lo = max(order[r], order[c]), min(order[r], order[c])
+            if a[hi][lo] != 0.0:
+                fr = c
+                break
+        first.append(fr)
+    F = [[0.0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(first[i], i + 1):
+            hi, lo = max(order[i], order[j]), min(order[i], order[j])
+            F[i][j] = a[hi][lo]
+    work = [0.0] * n
+    for i in range(n):
+        for j in range(first[i], i):
+            s = F[i][j]
+            for k in range(max(first[i], first[j]), j):
+                s = s - work[k] * F[j][k]
+            work[j] = s
+            F[i][j] = s / F[j][j]
+        p = F[i][i]
+        sc = abs(p)
+        for k in range(first[i], i):
+            t = work[k] * F[i][k]
+            p = p - t
+            sc = sc + abs(t)
+        if p <= 64.0 * gamma(2 * (i - first[i]) + 2) * sc:
+            return None
+        F[i][i] = p
+
+    def solve(rhs):
+        x = [rhs[o] for o in order]
+        for i in range(n):
+            for j in range(first[i], i):
+                x[i] = x[i] - F[i][j] * x[j]
+        for i in range(n):
+            x[i] = x[i] / F[i][i]
+        for i in reversed(range(n)):
+            v = x[i]
+            for j in range(first[i], i):
+                x[j] = x[j] - F[i][j] * v
+        out = [0.0] * n
+        for i, o in enumerate(order):
+            out[o] = x[i]
+        return out
+    return solve
+
+
+def estimate_rcond(a, solve):
+    n = len(a)
+    nrm = max(sum(abs(a[r][c]) for r in range(n)) for c in range(n))
+    x = [1.0 / n] * n
+    est, prev = 0.0, n
+    for _ in range(5):
+        y = solve(x)
+        cur = sum(abs(v) for v in y)
+        if cur <= est and est != 0.0:
+            break
+        est = cur
+        z = solve([1.0 if v >= 0.0 else -1.0 for v in y])
+        j = max(range(n), key=lambda i: abs(z[i]))
+        dot = sum(zz * xx for zz, xx in zip(z, x))
+        if abs(z[j]) <= dot or j == prev:
+            break
+        prev = j
+        x = [0.0] * n
+        x[j] = 1.0
+    alt = [(1.0 if i % 2 == 0 else -1.0) * (1.0 + i / (n - 1)) for i in range(n)]
+    y = solve(alt)
+    est = max(est, sum(abs(v) for v in y) * 2.0 / (3.0 * n))
+    return min(1.0 / (nrm * est), 1.0)
+
+
+def residual64(m, u):
+    """FK/structural.rs evaluate_original_residual (radix normalisation is rounding-neutral here):
+    returns r = K u - f per free row in binary64, and the guarded ratios."""
+    K, f = m["K_rep"], m["f"]
+    rows, ratios = [], []
+    for i in m["free"]:
+        r = -f[i]
+        d = abs(r)
+        cnt = 0
+        for j in range(m["n"]):
+            if K[i][j] == 0.0:
+                continue
+            cnt += 1
+            p = K[i][j] * u[j]
+            r = r + p
+            d = d + abs(p)
+        g = gamma(2 * cnt + 2)
+        guarded = (abs(r) / d + g / (1 - g)) * (1 + g) * (1 + 4 * EPS) if d else 0.0
+        rows.append(r)
+        ratios.append(guarded / (64 * g))
+    return rows, ratios
+
+
+def solve_product(m, mode):
+    a, rhs, ex, projected = prepare(m)
+    if mode == "dense":
+        solve = cholesky(a)
+    else:
+        solve = profile_ldl(a, rcm(a))
+    if solve is None:
+        return None
+    rc = estimate_rcond(a, solve)
+    y = solve(rhs)
+    attempts, prior = 0, float("inf")
+    while True:
+        u = [0.0] * m["n"]
+        for r, i in enumerate(m["free"]):
+            u[i] = y[r] * 2.0 ** ex[r]
+        rows, ratios = residual64(m, u)
+        worst = max(ratios)
+        if worst <= 1.0:
+            break
+        if attempts == 3 or worst >= prior:
+            return dict(outcome="unresolved")
+        prior = worst
+        corr = [-rows[r] * 2.0 ** ex[r] for r in range(len(rows))]
+        dl = solve(corr)
+        y = [v + d for v, d in zip(y, dl)]
+        attempts += 1
+    return dict(outcome="Passed" if rc >= math.sqrt(EPS) else "Sensitive", rcond=rc, u=u, solve=solve,
+                ex=ex, attempts=attempts, projected=projected, r64=rows, worst_guarded=worst)
+
+
+# ---------------------------------------------------------------- exact reference and estimators
+def exact_solve(M, f, free):
+    n = len(free)
+    A = [[Fr(M[free[r]][free[c]]) for c in range(n)] + [Fr(f[free[r]])] for r in range(n)]
+    for c in range(n):
+        p = next(r for r in range(c, n) if A[r][c] != 0)
+        A[c], A[p] = A[p], A[c]
+        for r in range(n):
+            if r != c and A[r][c] != 0:
+                q = A[r][c] / A[c][c]
+                A[r] = [x - q * y for x, y in zip(A[r], A[c])]
+    u = [Fr(0)] * len(f)
+    for r, i in enumerate(free):
+        u[i] = A[r][n] / A[r][r]
+    return u
+
+
+def apply_inverse(sol, v_free):
+    c = [float(v_free[r]) * 2.0 ** sol["ex"][r] for r in range(len(v_free))]
+    y = sol["solve"](c)
+    return [y[r] * 2.0 ** sol["ex"][r] for r in range(len(y))]
+
+
+def kinds(dof):
+    return "translation" if dof % 6 < 3 else "rotation"
+
+
+def s_star(u, L_b):
+    St = max(abs(u[d]) for d in range(12) if d % 6 < 3)
+    Sr = max(abs(u[d]) for d in range(12) if d % 6 >= 3)
+    return {"translation": max(St, L_b * Sr), "rotation": max(Sr, St / L_b)}
+
+
+def analyse(name, m, scales, modes=("dense", "sparse")):
+    free = m["free"]
+    u_ex = exact_solve(m["K_int"], m["f"], free)
+    out = {"case": name}
+    for mode in modes:
+        sol = solve_product(m, mode)
+        if sol is None or sol.get("outcome") == "unresolved":
+            out[mode] = {"outcome": "factor failed" if sol is None else "unresolved"}
+            continue
+        u = sol["u"]
+        uF = [Fr(x) for x in u]
+        fF = [Fr(x) for x in m["f"]]
+        S = s_star(u, m["L_b"])
+        act = {}
+        for d in free:
+            sc = max(abs(u_ex[d]), Fr(scales[kinds(d)]))
+            if sc:
+                act[d] = float(abs(uF[d] - u_ex[d]) / sc) / 1e-9
+        worst_d = max(act, key=act.get)
+
+        def resid(M):
+            return [fF[i] - sum(Fr(M[i][j]) * uF[j] for j in range(12)) for i in free]
+        v_exact = resid(m["K_int"])
+        dk_elem = [sum((Fr(m["Ke_rep"][i][j]) - (m["K_int"][i][j] - (Fr(dict(m["springs"]).get(i, 0.0)) if i == j else 0))) * uF[j]
+                       for j in range(12)) for i in free]
+        r64 = [-Fr(x) for x in sol["r64"]]  # f - K_rep u, as the product's binary64 rows
+        v_design = [a + b for a, b in zip(dk_elem, r64)]
+        dk_glob = [sum((Fr(m["K_rep"][i][j]) - m["K_int"][i][j]) * uF[j] for j in range(12)) for i in free]
+        v_design_g = [a + b for a, b in zip(dk_glob, r64)]
+        v_form = [sum((Fr(m["K_rep"][i][j]) - m["K_int"][i][j]) * uF[j] for j in range(12)) for i in free]
+        v_L = resid(m["K_Lshared"])
+        v_T = resid(m["K_Tshared"])
+        est = {}
+        for label, v in (("EF_design", v_design), ("EF_design_global", v_design_g), ("EF_exact", v_exact), ("EF_form", v_form),
+                         ("EF_Lshared", v_L), ("EF_Tshared", v_T)):
+            w = apply_inverse(sol, v)
+            ratio = max(abs(w[r]) / max(abs(u[free[r]]), S[kinds(free[r])]) for r in range(len(free))) / 1e-9
+            est[label] = {"EF_ratio_to_1e-9": ratio, "fires_at_8": 8 * ratio > 1.0}
+        err_true = [float(u_ex[d] - uF[d]) for d in free]
+        out[mode] = {"outcome": sol["outcome"], "rcond": sol["rcond"], "cond": 1 / sol["rcond"],
+                     "refinement_attempts": sol["attempts"], "symmetric_averaging_pairs": sol["projected"],
+                     "actual_worst_ratio": act[worst_d], "at_dof": worst_d,
+                     "actual_ratio_th_N0_RX": act.get(3), "actual_ratio_th_N1_RX": act.get(9),
+                     "signed_error_th_N0_RX": err_true[0],
+                     "actual_over_cond_u": act[worst_d] * 1e-9 / ((1 / sol["rcond"]) * 2.0 ** -53),
+                     "estimators": est}
+    # formation only, solved exactly
+    u_rep = exact_solve([[Fr(x) for x in row] for row in m["K_rep"]], m["f"], free)
+    out["represented_solved_exactly_worst_ratio"] = max(
+        float(abs(u_rep[d] - u_ex[d]) / max(abs(u_ex[d]), Fr(scales[kinds(d)]))) / 1e-9 for d in free)
+    return out
+
+
+def main():
+    sec = section()
+    res = {"python": sys.version.split()[0], "section": sec, "cases": []}
+    sc122 = {"translation": 9.426732770800755487431075e-5, "rotation": 3.333667338691237516162852e-5}
+    sc345 = {"translation": 2.399792640000000000000000e-4, "rotation": 6.000599966565434929133425e-5}
+    m122 = [(9, 0.0048), (10, 0.0096), (11, 0.0096)]
+    m345 = [(9, 0.005184), (10, 0.006912), (11, 0.0)]
+    yrefs = [(0.0, 0.0, 1.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0), (0.0, -1.0, 0.0),
+             (-2.0, 1.0, 0.0), (2.0, -2.0, 1.0), (-2.0, -1.0, 2.0), (0.0, 1.0, -1.0), (1.0, 1.0, 1.0)]
+    for y in yrefs:
+        res["cases"].append(analyse(f"OFF-122 k_X=144 yref={y}",
+                                    build((1.0, 2.0, 2.0), y, [(3, 144.0), (4, 1e6), (5, 1e6)], m122, sec), sc122))
+    for y in ((0.0, 0.0, 1.0), (0.0, 1.0, 0.0)):
+        res["cases"].append(analyse(f"OFF-345 k_X=86.4 yref={y}",
+                                    build((3.0, 4.0, 0.0), y, [(3, 86.4), (4, 1e6), (5, 1e6)], m345, sec), sc345))
+    # Q3: a soft spring partly absorbed into a stiff diagonal (axis-aligned member, element formation exact).
+    # L and k were found by search_q3c (maximal absorption with main's outcome Passed); reproduced here.
+    Lax, k = 5.89, 0.04820277966802993
+    D = sec["G"] * sec["J"] / Lax
+    m_ax = build((Lax, 0.0, 0.0), (0.0, 0.0, 1.0), [(3, k), (4, 1e6), (5, 1e6)], [(9, 0.0144), (10, 0.0), (11, 0.0)], sec)
+    u_ex = exact_solve(m_ax["K_int"], m_ax["f"], m_ax["free"])
+    th = abs(u_ex[3])
+    rec = analyse(f"Q3 AXIS ({Lax},0,0) soft k_X={k!r} partly absorbed by GJ/L={D!r}", m_ax,
+                  {"rotation": float(th), "translation": float(th) * Lax})
+    rec["relative_loss_of_k_in_assembly"] = float(abs(Fr(D + k) - (Fr(D) + Fr(k))) / Fr(k))
+    res["cases"].append(rec)
+    # Q2: bending-soft axis-aligned member (T exact): the formation error is in the local coefficients only.
+    for kY in (1e3, 1e2, 10.0, 3.0, 2.2):
+        m_b = build((3.0, 0.0, 0.0), (0.0, 0.0, 1.0), [(3, 1e6), (4, kY), (5, 1e6)], [(9, 0.0), (10, 0.01), (11, 0.0)], sec)
+        u_ex = exact_solve(m_b["K_int"], m_b["f"], m_b["free"])
+        St = max(abs(u_ex[d]) for d in range(12) if d % 6 < 3)
+        Sr = max(abs(u_ex[d]) for d in range(12) if d % 6 >= 3)
+        res["cases"].append(analyse(f"Q2 AXIS (3,0,0) bending-soft k_Y={kY:g}, tip moment about Y", m_b,
+                                    {"rotation": float(max(Sr, St / 3)), "translation": float(max(St, 3 * Sr))}))
+    print(json.dumps(res, indent=1))
+
+
+if __name__ == "__main__":
+    main()

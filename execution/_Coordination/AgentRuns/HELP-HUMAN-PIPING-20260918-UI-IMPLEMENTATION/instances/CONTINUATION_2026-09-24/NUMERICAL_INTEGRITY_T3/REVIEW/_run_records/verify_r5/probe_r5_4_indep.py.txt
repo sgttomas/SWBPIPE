@@ -1,0 +1,291 @@
+#!/usr/bin/env python3
+"""V1 VERIFY_R5: independent re-formation check of D1's R5-4 curved-bend claims.
+
+Standard library only.  Usage (from T3/):
+  nice -n 19 python3 <this> <v1_dir> <out.json>
+<v1_dir> holds V1's probe_d5_check.py (REVIEW/_run_records/d5_check/probe_d5_check.py.txt).
+
+What is reused and what is independent:
+  reused   D1's models() and build() from DESIGN_NUMERICS/_run_records/curved_ef.py for the model
+           definitions, the product's binary64 system K_rep (D1's port of the curved crate, which V1
+           checked line by line against P/core/solver/curved_bend/src/lib.rs) and the arc centre
+           (checked against PP build_curved_bend_macro_elements); V1's own solve_product and
+           apply_inverse for the product solve and for K~^-1.
+  own      the curved element of the intended system, formed differently from D1:
+           * flexibility of the arc by composite Simpson quadrature (N = 4000) of the complementary
+             energy written directly in GLOBAL coordinates from the section resultants
+             m(psi) = M + (x_tip - x(psi)) x P, resolved on (tangent, radial, binormal) at each point
+             (no trig Gram, no unit-action table, no local-frame transform);
+           * X = F^-1 by Decimal Gauss-Jordan (60 digits);
+           * K_e = A^T X A with A the rigid-transport map of the ACTUAL nodes
+             (delta_t = u_j - u_i + d x theta_i, delta_r = theta_j - theta_i, d = x_j - x_i).
+           frames are taken from D1's frame_int (exact frame, not at issue in R5-4).
+           Intended solution by my own Decimal Gaussian elimination.
+  statics  for each C-skew / C cantilever, the root rotation of the intended system is exactly
+           M / k about the sprung axis (statically determinate, pure end moment), independent of the
+           element stiffness; the exact tip response is theta x x_tip + F M.
+  objectivity  max |K_e r| / (max|K_e| max|r|) over the six rigid modes r of the actual nodes, for
+           D1's Decimal curved_int (objective re-formation), mine, and the product's binary64 matrix.
+"""
+import importlib.util
+import json
+import math
+import os
+import sys
+from decimal import Decimal as D, getcontext
+
+getcontext().prec = 60
+V1DIR, OUT = sys.argv[1], sys.argv[2]
+sys.path.insert(0, V1DIR)
+_saved = sys.argv[:]
+sys.argv = [sys.argv[0], V1DIR]
+spec = importlib.util.spec_from_file_location("curved_ef", os.path.join("DESIGN_NUMERICS", "_run_records", "curved_ef.py"))
+cef = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cef)
+sys.argv = _saved
+p = cef.p
+
+DOFS = "UX UY UZ RX RY RZ".split()
+
+
+def dec(x):
+    return cef.dec(x)
+
+
+def cross(a, b):
+    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+
+
+def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+
+def arc_flexibility(xi, xj, c, sec, fin, fout, N=4000):
+    """Tip flexibility (root clamped) in global coordinates by Simpson quadrature, binary64."""
+    ri = [xi[k] - c[k] for k in range(3)]
+    rj = [xj[k] - c[k] for k in range(3)]
+    ni, nj = math.sqrt(dot(ri, ri)), math.sqrt(dot(rj, rj))
+    R = 0.5 * (ni + nj)
+    n = cross(ri, rj)
+    nn = math.sqrt(dot(n, n))
+    phi = math.atan2(nn, dot(ri, rj))
+    ex = [v / ni for v in ri]
+    ez = [v / nn for v in n]
+    ey = cross(ez, ex)
+    EI, GJ, EA = sec["E"] * sec["Iy"], sec["G"] * sec["J"], sec["E"] * sec["A"]
+    h = phi / N
+    acc = [[[] for _ in range(6)] for _ in range(6)]
+    for s in range(N + 1):
+        psi = s * h
+        wgt = (1 if s in (0, N) else (4 if s % 2 else 2)) * h / 3.0 * R
+        cp, sp = math.cos(psi), math.sin(psi)
+        rad = [cp * ex[k] + sp * ey[k] for k in range(3)]
+        tan = [-sp * ex[k] + cp * ey[k] for k in range(3)]
+        x = [c[k] + R * rad[k] for k in range(3)]
+        arm = [xj[k] - x[k] for k in range(3)]
+        res = []
+        for q in range(6):
+            P = [1.0 if q == k else 0.0 for k in range(3)]
+            M = [1.0 if q == 3 + k else 0.0 for k in range(3)]
+            m = [M[k] + v for k, v in enumerate(cross(arm, P))]
+            res.append((dot(P, tan), dot(m, tan), dot(m, ez), dot(m, rad)))
+        for a in range(6):
+            for b in range(6):
+                A_, B_ = res[a], res[b]
+                acc[a][b].append(wgt * (A_[0] * B_[0] / EA + A_[1] * B_[1] / GJ
+                                        + fin * A_[2] * B_[2] / EI + fout * A_[3] * B_[3] / EI))
+    F = [[math.fsum(acc[a][b]) for b in range(6)] for a in range(6)]
+    for a in range(6):
+        for b in range(a + 1, 6):
+            v = 0.5 * (F[a][b] + F[b][a])
+            F[a][b] = F[b][a] = v
+    return F, R, phi
+
+
+def gj_inverse(A):
+    n = len(A)
+    M = [list(row) + [D(1) if i == j else D(0) for j in range(n)] for i, row in enumerate(A)]
+    for k in range(n):
+        piv = max(range(k, n), key=lambda i: abs(M[i][k]))
+        M[k], M[piv] = M[piv], M[k]
+        d = M[k][k]
+        M[k] = [v / d for v in M[k]]
+        for i in range(n):
+            if i != k and M[i][k] != 0:
+                f = M[i][k]
+                M[i] = [a - f * b for a, b in zip(M[i], M[k])]
+    return [row[n:] for row in M]
+
+
+def gauss_solve(A, b):
+    n = len(A)
+    M = [list(A[i]) + [b[i]] for i in range(n)]
+    for k in range(n):
+        piv = max(range(k, n), key=lambda i: abs(M[i][k]))
+        M[k], M[piv] = M[piv], M[k]
+        for i in range(k + 1, n):
+            if M[i][k] != 0:
+                f = M[i][k] / M[k][k]
+                M[i] = [a - f * bb for a, bb in zip(M[i], M[k])]
+    x = [D(0)] * n
+    for i in reversed(range(n)):
+        x[i] = (M[i][n] - sum(M[i][j] * x[j] for j in range(i + 1, n))) / M[i][i]
+    return x
+
+
+def my_curved(xi, xj, c, sec, fin, fout):
+    F, R, phi = arc_flexibility(xi, xj, c, sec, fin, fout)
+    X = gj_inverse([[dec(v) for v in row] for row in F])
+    d = [dec(xj[k]) - dec(xi[k]) for k in range(3)]
+    Z, O = D(0), D(1)
+    # [d]x theta = d x theta
+    dx = [[Z, -d[2], d[1]], [d[2], Z, -d[0]], [-d[1], d[0], Z]]
+    A = [[Z] * 12 for _ in range(6)]
+    for r in range(3):
+        A[r][r] = -O
+        A[r][6 + r] = O
+        for cc in range(3):
+            A[r][3 + cc] = dx[r][cc]
+        A[3 + r][3 + r] = -O
+        A[3 + r][9 + r] = O
+    XA = [[sum(X[r][k] * A[k][cc] for k in range(6)) for cc in range(12)] for r in range(6)]
+    K = [[sum(A[k][r] * XA[k][cc] for k in range(6)) for cc in range(12)] for r in range(12)]
+    return K, F
+
+
+def rigid_modes(xs):
+    """Six rigid modes over the given node list (12 entries for 2 nodes)."""
+    modes = []
+    for k in range(3):
+        v = []
+        for _ in xs:
+            v += [D(1) if q == k else D(0) for q in range(3)] + [D(0)] * 3
+        modes.append(v)
+    for k in range(3):
+        w = [D(1) if q == k else D(0) for q in range(3)]
+        v = []
+        for x in xs:
+            v += cross(w, [dec(t) for t in x]) + w
+        modes.append(v)
+    return modes
+
+
+def objectivity(K, xs):
+    Km = max(abs(v) for row in K for v in row)
+    worst = D(0)
+    for r in rigid_modes(xs):
+        rm = max(abs(v) for v in r)
+        y = max(abs(sum(K[i][j] * r[j] for j in range(12))) for i in range(12))
+        worst = max(worst, y / (Km * rm))
+    return float(worst)
+
+
+def sstar(u, n, Lb):
+    St = max(abs(u[d]) for d in range(n) if d % 6 < 3)
+    Sr = max(abs(u[d]) for d in range(n) if d % 6 >= 3)
+    return {"t": max(St, Lb * Sr), "r": max(Sr, St / Lb if Lb else 0.0)}
+
+
+def analyse(model):
+    m = cef.build(model)
+    names = list(model["nodes"])
+    idx = {nm: i for i, nm in enumerate(names)}
+    n, free = m["n"], m["free"]
+    sec = p.section(*model.get("section", (0.2, 0.18, 200e9, 80e9)))
+    Km = [[D(0)] * n for _ in range(n)]
+    obj = []
+    for el in model["members"]:
+        a, b = el["i"], el["j"]
+        xi, xj = model["nodes"][a], model["nodes"][b]
+        base = [6 * idx[a] + k for k in range(6)] + [6 * idx[b] + k for k in range(6)]
+        if el.get("bend"):
+            kf = el["bend"].get("k", 1.0)
+            ctr = cef.pp_centre(xi, xj, el["yref"], el["bend"]["R"])
+            Ke, F = my_curved(xi, xj, ctr, sec, kf, kf)
+            Kd1 = cef.curved_int(xi, xj, ctr, sec, kf, kf)
+            Kprod, _ = cef.curved_rep(xi, xj, ctr, sec, kf, kf)
+            Kprod = [[dec(v) for v in row] for row in Kprod]
+            scale = max(abs(v) for row in Kd1 for v in row)
+            obj.append(dict(mine=objectivity(Ke, [xi, xj]), d1=objectivity(Kd1, [xi, xj]),
+                            product_binary64=objectivity(Kprod, [xi, xj]),
+                            max_rel_diff_mine_vs_d1=float(max(abs(Ke[r][c] - Kd1[r][c]) for r in range(12) for c in range(12)) / scale)))
+        else:
+            Ke = cef.frame_int(xi, xj, el["yref"], sec)
+        for r in range(12):
+            for cc in range(12):
+                Km[base[r]][base[cc]] += Ke[r][cc]
+    for nm, dname, k in model.get("springs", []):
+        dof = 6 * idx[nm] + DOFS.index(dname)
+        Km[dof][dof] += dec(k)
+    fD = [dec(v) for v in m["f"]]
+    uI = gauss_solve([[Km[i][j] for j in free] for i in free], [fD[i] for i in free])
+    u_int = [0.0] * n
+    for r, i in enumerate(free):
+        u_int[i] = float(uI[r])
+    Sint = sstar(u_int, n, m["Lb"])
+    out = {"name": model["name"], "objectivity": obj}
+    # statics reference for the cantilevers
+    if model["name"].startswith("C"):
+        ld = model["loads"][0]
+        (snm, sdof, sk), = [s for s in model["springs"] if s[1] == ld[1]]
+        exact_root = dec(ld[2]) / dec(sk)
+        rdof = 6 * idx[snm] + DOFS.index(sdof)
+        out["root_rotation_exact_M_over_k"] = float(exact_root)
+        out["root_rotation_mine_rel_err"] = float(abs(uI[free.index(rdof)] - exact_root) / exact_root)
+    for mode in ("dense", "sparse"):
+        sol = p.solve_product(m, mode)
+        if sol is None or sol.get("outcome") == "unresolved":
+            out[mode] = {"outcome": "factor failed" if sol is None else "unresolved"}
+            continue
+        u = sol["u"]
+        S = sstar(u, n, m["Lb"])
+        rho = []
+        for i in free:
+            s = fD[i]
+            for j in range(n):
+                if u[j] != 0.0:
+                    s -= Km[i][j] * dec(u[j])
+            rho.append(s)
+        w = p.apply_inverse(sol, [float(x) for x in rho])
+        ef = [2 * abs(w[r]) / (1e-9 * max(abs(u[i]), S["t" if i % 6 < 3 else "r"])) for r, i in enumerate(free)]
+        act = [abs(u[i] - float(uI[r])) / (1e-9 * max(abs(float(uI[r])), Sint["t" if i % 6 < 3 else "r"])) for r, i in enumerate(free)]
+        ra = max(range(len(free)), key=lambda r: act[r])
+        rec = {"outcome": sol["outcome"], "actual_ratio_mine": max(act), "EF_ratio_mine": max(ef),
+               "worst_row": names[free[ra] // 6] + "." + DOFS[free[ra] % 6], "EF_at_worst_row": ef[ra]}
+        if "root_rotation_exact_M_over_k" in out:
+            rr = free.index(rdof)
+            rec["root_row_ratio_vs_statics"] = abs(u[rdof] - out["root_rotation_exact_M_over_k"]) / (
+                1e-9 * max(abs(out["root_rotation_exact_M_over_k"]), Sint["r"]))
+            rec["EF_at_root_row"] = ef[rr]
+        out[mode] = rec
+    return out
+
+
+def main():
+    res = {"python": sys.version.split()[0], "decimal_digits": getcontext().prec, "models": []}
+    for mdl in cef.models():
+        r = analyse(mdl)
+        res["models"].append(r)
+        print(json.dumps(r), flush=True)
+    passed = [(r, md) for r in res["models"] for md in ("dense", "sparse") if r.get(md, {}).get("outcome") == "Passed"]
+    real = [(r, md) for r, md in passed if r["name"].startswith("E")]
+    res["summary"] = {
+        "passed_case_modes": len(passed),
+        "realistic_passed": len(real),
+        "realistic_max_EF_mine": max(r[md]["EF_ratio_mine"] for r, md in real),
+        "realistic_max_actual_mine": max(r[md]["actual_ratio_mine"] for r, md in real),
+        "realistic_fires_mine": [(r["name"], md) for r, md in real if r[md]["EF_ratio_mine"] > 1.0],
+        "passed_breaches_mine": [(r["name"], md, r[md]["actual_ratio_mine"]) for r, md in passed if r[md]["actual_ratio_mine"] > 1.0],
+        "missed_by_EF_mine": [(r["name"], md) for r, md in passed if r[md]["actual_ratio_mine"] > 1.0 and r[md]["EF_ratio_mine"] <= 1.0],
+        "EF_fires_on_passed_mine": [(r["name"], md) for r, md in passed if r[md]["EF_ratio_mine"] > 1.0],
+        "objectivity_worst": {k: max(o[k] for r in res["models"] for o in r["objectivity"]) for k in ("mine", "d1", "product_binary64")},
+        "objectivity_best_product": min(o["product_binary64"] for r in res["models"] for o in r["objectivity"]),
+        "max_rel_diff_mine_vs_d1": max(o["max_rel_diff_mine_vs_d1"] for r in res["models"] for o in r["objectivity"]),
+        "max_root_rotation_rel_err_mine": max(r.get("root_rotation_mine_rel_err", 0.0) for r in res["models"]),
+    }
+    json.dump(res, open(OUT, "w"), indent=1)
+    print(json.dumps(res["summary"], indent=1))
+
+
+if __name__ == "__main__":
+    main()

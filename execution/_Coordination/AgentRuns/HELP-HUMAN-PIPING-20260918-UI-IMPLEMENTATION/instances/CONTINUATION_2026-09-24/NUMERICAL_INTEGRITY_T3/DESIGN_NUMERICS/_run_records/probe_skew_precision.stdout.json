@@ -1,0 +1,298 @@
+{
+ "python": "3.11.15",
+ "criterion": "1e-9*max(|exp|,coupled class scale)",
+ "stop_rule_probe": "2^-64*max(|q_2p|,coupled class scale)",
+ "cases": [
+  {
+   "case": "AXIS k=1e-4 (N05-class, axis-aligned control)",
+   "dofs": 12,
+   "members": 1,
+   "represented_binary64_exact_solve": {
+    "max_scaled_error": 1.0477286988574405e-05,
+    "at": "Mi:0",
+    "quantities": 22,
+    "failing": 8
+   },
+   "promoted_rounded_matrix_p128": {
+    "max_scaled_error": 1.0477286988574405e-05,
+    "at": "Mi:0",
+    "quantities": 22,
+    "failing": 8
+   },
+   "ordinary_binary64": {
+    "max_scaled_error": 1.05754006652579e-05,
+    "at": "Mi:0",
+    "quantities": 22,
+    "failing": 10
+   },
+   "primitive_basic_p128": {
+    "max_scaled_error": 7.523163845262641e-28,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 431,
+    "min_pivot_screen_margin": 3.4175504185352455e+24
+   },
+   "primitive_basic_p256": {
+    "max_scaled_error": 1.105429575052089e-66,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 431,
+    "min_pivot_screen_margin": 1.1629321454908172e+63
+   },
+   "agreement_p128_vs_p256": {
+    "max_scaled_disagreement": 8.117972229365173e-28,
+    "at": "R:4",
+    "accepted_under_2_pow_minus_64": true
+   }
+  },
+  {
+   "case": "SKEW(3,4,0) k=100 (ordinary companion)",
+   "dofs": 12,
+   "members": 1,
+   "represented_binary64_exact_solve": {
+    "max_scaled_error": 4.656529083006381e-12,
+    "at": "u:1:3",
+    "quantities": 22,
+    "failing": 0
+   },
+   "promoted_rounded_matrix_p128": {
+    "max_scaled_error": 4.656529083006381e-12,
+    "at": "u:1:3",
+    "quantities": 22,
+    "failing": 0
+   },
+   "ordinary_binary64": {
+    "max_scaled_error": 9.401627482098463e-12,
+    "at": "u:1:2",
+    "quantities": 22,
+    "failing": 0
+   },
+   "primitive_basic_p128": {
+    "max_scaled_error": 1.7098099648324185e-34,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 3.4172736572562607e+30
+   },
+   "primitive_basic_p256": {
+    "max_scaled_error": 5.024679886600405e-73,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 1.1628379685077322e+69
+   },
+   "agreement_p128_vs_p256": {
+    "max_scaled_disagreement": 1.9338733041607637e-34,
+    "at": "u:1:4",
+    "accepted_under_2_pow_minus_64": true
+   }
+  },
+  {
+   "case": "SKEW(3,4,0) k=1e-4 (N05-class)",
+   "dofs": 12,
+   "members": 1,
+   "represented_binary64_exact_solve": {
+    "max_scaled_error": 5.505963799028097e-06,
+    "at": "u:1:3",
+    "quantities": 22,
+    "failing": 10
+   },
+   "promoted_rounded_matrix_p128": {
+    "max_scaled_error": 5.505963799028097e-06,
+    "at": "u:1:3",
+    "quantities": 22,
+    "failing": 10
+   },
+   "ordinary_binary64": {
+    "max_scaled_error": 8.683576222142471e-06,
+    "at": "u:1:4",
+    "quantities": 22,
+    "failing": 10
+   },
+   "primitive_basic_p128": {
+    "max_scaled_error": 0.0,
+    "at": null,
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 3.4175504185352455e+24
+   },
+   "primitive_basic_p256": {
+    "max_scaled_error": 5.024679886600405e-67,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 1.1629321454908172e+63
+   },
+   "agreement_p128_vs_p256": {
+    "max_scaled_disagreement": 1.2621179569579812e-28,
+    "at": "u:1:3",
+    "accepted_under_2_pow_minus_64": true
+   }
+  },
+  {
+   "case": "SKEW(3,4,0) k=1e-12 (N06-class)",
+   "dofs": 12,
+   "members": 1,
+   "represented_binary64_exact_solve": "nonpositive pivot",
+   "promoted_rounded_matrix_p128": "nonpositive pivot",
+   "ordinary_binary64": "nonpositive pivot",
+   "primitive_basic_p128": {
+    "max_scaled_error": 0.0,
+    "at": null,
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 3.4175504188120292e+16
+   },
+   "primitive_basic_p256": {
+    "max_scaled_error": 1.004935977320081e-58,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 1.1629321455850018e+55
+   },
+   "agreement_p128_vs_p256": {
+    "max_scaled_disagreement": 1.927015517099068e-20,
+    "at": "u:1:3",
+    "accepted_under_2_pow_minus_64": true
+   }
+  },
+  {
+   "case": "OBLIQUE(2,3,6) y_ref=(6,2,-3) k=1e-4",
+   "dofs": 12,
+   "members": 1,
+   "represented_binary64_exact_solve": {
+    "max_scaled_error": 0.00107496370342397,
+    "at": "Mi:0",
+    "quantities": 22,
+    "failing": 19
+   },
+   "promoted_rounded_matrix_p128": {
+    "max_scaled_error": 0.00107496370342397,
+    "at": "Mi:0",
+    "quantities": 22,
+    "failing": 19
+   },
+   "ordinary_binary64": {
+    "max_scaled_error": 0.0026759039428725377,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 19
+   },
+   "primitive_basic_p128": {
+    "max_scaled_error": 2.569539694362031e-25,
+    "at": "N:0",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 2195,
+    "min_pivot_screen_margin": 6.30979553926028e+24
+   },
+   "primitive_basic_p256": {
+    "max_scaled_error": 1.2158497902443856e-64,
+    "at": "R:0",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 2138,
+    "min_pivot_screen_margin": 2.1471121608866675e+63
+   },
+   "agreement_p128_vs_p256": {
+    "max_scaled_disagreement": 2.569539694362031e-25,
+    "at": "N:0",
+    "accepted_under_2_pow_minus_64": true
+   }
+  },
+  {
+   "case": "SKEW(3,4,0) k=1e-28 (extreme arithmetic stress)",
+   "dofs": 12,
+   "members": 1,
+   "represented_binary64_exact_solve": "nonpositive pivot",
+   "promoted_rounded_matrix_p128": "nonpositive pivot",
+   "ordinary_binary64": "nonpositive pivot",
+   "primitive_basic_p128": {
+    "max_scaled_error": 0.0001826895864733111,
+    "at": "u:0:3",
+    "quantities": 22,
+    "failing": 10,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 3.3809172821910356
+   },
+   "primitive_basic_p256": {
+    "max_scaled_error": 5.0246798866004046e-43,
+    "at": "R:2",
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 1.1629321455850017e+39
+   },
+   "primitive_basic_p512": {
+    "max_scaled_error": 0.0,
+    "at": null,
+    "quantities": 22,
+    "failing": 0,
+    "emulated_operations": 803,
+    "min_pivot_screen_margin": 1.3465834277852211e+116
+   },
+   "agreement_p128_vs_p256": {
+    "max_scaled_disagreement": 0.0001826895864733029,
+    "at": "u:1:3",
+    "accepted_under_2_pow_minus_64": false
+   },
+   "agreement_p256_vs_p512": {
+    "max_scaled_disagreement": 5.280748919984519e-43,
+    "at": "u:1:3",
+    "accepted_under_2_pow_minus_64": true
+   }
+  },
+  {
+   "case": "SKEW(3,4,0) 6-member run k=1e-12 (order 39 block)",
+   "dofs": 42,
+   "members": 6,
+   "represented_binary64_exact_solve": "nonpositive pivot",
+   "promoted_rounded_matrix_p128": "nonpositive pivot",
+   "ordinary_binary64": "nonpositive pivot",
+   "primitive_basic_p128": {
+    "max_scaled_error": 2.0517719577989021e-19,
+    "at": "R:2",
+    "quantities": 72,
+    "failing": 0,
+    "emulated_operations": 5403,
+    "min_pivot_screen_margin": 7886654812643156.0
+   },
+   "primitive_basic_p256": {
+    "max_scaled_error": 0.0,
+    "at": null,
+    "quantities": 72,
+    "failing": 0,
+    "emulated_operations": 5403,
+    "min_pivot_screen_margin": 2.6836895667346195e+54
+   },
+   "agreement_p128_vs_p256": {
+    "max_scaled_disagreement": 2.0517719577989021e-19,
+    "at": "R:2",
+    "accepted_under_2_pow_minus_64": false
+   }
+  }
+ ],
+ "mechanism_control": {
+  "case": "SKEW(3,4,0) k=0 (genuine mechanism: root rotations unrestrained)",
+  "primitive_basic_p128": {
+   "outcome": "nonpositive pivot",
+   "min_pivot_screen_margin": -0.002913327747166674
+  },
+  "primitive_basic_p256": {
+   "outcome": "nonpositive pivot",
+   "min_pivot_screen_margin": -0.0038844369962222317
+  },
+  "primitive_basic_p512": {
+   "outcome": "nonpositive pivot",
+   "min_pivot_screen_margin": -0.005098323557541679
+  }
+ }
+}

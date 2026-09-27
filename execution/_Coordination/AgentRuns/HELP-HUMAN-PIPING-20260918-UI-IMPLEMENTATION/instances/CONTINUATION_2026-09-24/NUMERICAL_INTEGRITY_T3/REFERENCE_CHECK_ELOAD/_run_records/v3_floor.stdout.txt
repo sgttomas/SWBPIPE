@@ -1,0 +1,6 @@
+closest nonzero |q|/S*: {'A': ('4.949e-5', 'RF-ELOAD-CE-NODAL', 'u.N1.UX'), 'B': ('4.949e-5', 'RF-ELOAD-CE-NODAL', 'u.N1.UX')}
+closest comparison scale/S*: {'A': ('9.050e-5', 'RF-ELOAD-PM-SKEW-122-FF', 'tw.M1'), 'B': ('9.050e-5', 'RF-ELOAD-PM-SKEW-122-FF', 'tw.M1')}
+A|2^-34 nonzero below floor: 0  comparisons not covered: 0
+A|2^-64/1e-9 nonzero below floor: 0  comparisons not covered: 0
+B|2^-34 nonzero below floor: 0  comparisons not covered: 0
+B|2^-64/1e-9 nonzero below floor: 0  comparisons not covered: 0

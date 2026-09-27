@@ -1,0 +1,277 @@
+#!/usr/bin/env python3
+"""T3 V1 review probe (standard library only; no product code imported or read).
+
+It reuses D1's own emulation (DESIGN_NUMERICS/_run_records/probe_skew_precision.py,
+imported unchanged) so every finding is stated in D1's own model of its method.
+
+Checks:
+  T  the D1 reference (basic-deformation formation run exactly) equals an exact
+     textbook 12x12 Euler-Bernoulli element transformed exactly (independence of
+     the reference from the formation under test);
+  C  D1 section 3.1 column (C) solves the ASSEMBLED binary64 matrix exactly
+     (represented_f64 sums contributions with binary64 +=, including the spring into
+     a + k). The merged exact-block method sums the represented contributions
+     exactly. This probe adds that missing method (contributions_exact) and reruns
+     D1's own cases with it;
+  O  D1 section 2.3: order <= 2 free blocks cannot carry a bending soft mode, so the
+     exact solve of the represented contributions meets 1e-9 there; a 3-DOF bending
+     block does not (both assembled-matrix and contribution-exact forms reported);
+  L  a load contribution absorbed identically at p and 2p (and at p+64): the stop
+     rule agrees exactly on a wrong answer;
+  W  an attempt at a weakly coupled, legitimately small but nonzero quantity that the
+     stop rule accepts at p = 128 while it misses 1e-9 relative to its own magnitude
+     (recorded whatever the outcome; see RETURN.md).
+
+Run from this folder:  python3 v1_stop_rule_probe.py.txt
+Every input is invented. Nothing here is a frozen reference.
+"""
+import importlib.util
+import json
+import os
+import sys
+from fractions import Fraction as Fr
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+D1 = os.path.join(HERE, "..", "..", "DESIGN_NUMERICS", "_run_records", "probe_skew_precision.py")
+spec = importlib.util.spec_from_file_location("d1probe", D1)
+d1 = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(d1)
+
+CRIT = Fr(1, 10 ** 9)
+
+
+def f64pub(x):
+    return Fr(float(Fr(x)))
+
+
+def strict_relative(pub, ref):
+    """Worst |obs-exp|/|exp| over quantities whose exact value is nonzero,
+    both sides at binary64 publication (no zero scale is used at all)."""
+    worst, at, fails = Fr(0), None, 0
+    for key, (_, _, e) in ref.items():
+        if Fr(e) == 0:
+            continue
+        o = f64pub(pub[key][2])
+        ep = f64pub(e)
+        r = abs(o - ep) / abs(ep)
+        if r > CRIT:
+            fails += 1
+        if r > worst:
+            worst, at = r, key
+    return {"max_relative_error_nonzero": float(worst), "at": at, "failing": fails}
+
+
+def run_prims(case, precisions):
+    ref, err, _ = d1.method_exact_reference(case)
+    assert err is None
+    out = {"reference_body_scale_max": None}
+    prim = {}
+    for p in precisions:
+        pub, err, _ = d1.method_primitive(case, p)
+        prim[p] = pub
+        if err:
+            out[f"p{p}"] = err
+            continue
+        out[f"p{p}"] = {"d1_compare_body_scale": d1.compare(pub, ref, case),
+                        "strict_relative": strict_relative(pub, ref),
+                        "min_pivot_screen_margin": d1.PIVOT_EVIDENCE.get("last")}
+    for p in precisions:
+        if 2 * p in prim and prim[p] is not None and prim[2 * p] is not None:
+            out[f"stop_rule_p{p}_vs_p{2 * p}"] = d1.agreement(prim[p], prim[2 * p], case)
+    nz = [abs(Fr(v)) for (_, _, v) in ref.values()]
+    out["reference_body_scale_max"] = float(max(nz))
+    return out, ref
+
+
+# ------------------------------------------------------------------ T
+def textbook_global(xi, xj, yref):
+    ar = d1.A(None)
+    R, L = d1.element_frame(xi, xj, yref, ar)
+    s = d1.SECTION
+    e, g, a, iy, iz, j = s["E"], s["G"], s["A"], s["Iy"], s["Iz"], s["J"]
+    K = [[Fr(0)] * 12 for _ in range(12)]
+
+    def sym(r, c, v):
+        K[r][c] = v
+        K[c][r] = v
+    ax, tor = e * a / L, g * j / L
+    K[0][0] = K[6][6] = ax
+    sym(0, 6, -ax)
+    K[3][3] = K[9][9] = tor
+    sym(3, 9, -tor)
+    for (v, th, ei, sg) in ((1, 5, iz, 1), (2, 4, iy, -1)):
+        k12, k6, k4, k2 = 12 * e * ei / L ** 3, 6 * e * ei / L ** 2, 4 * e * ei / L, 2 * e * ei / L
+        K[v][v] = K[v + 6][v + 6] = k12
+        sym(v, v + 6, -k12)
+        sym(v, th, sg * k6)
+        sym(v, th + 6, sg * k6)
+        sym(v + 6, th, -sg * k6)
+        sym(v + 6, th + 6, -sg * k6)
+        K[th][th] = K[th + 6][th + 6] = k4
+        sym(th, th + 6, k2)
+    T = d1.transform12(R)
+    Tt = d1.transpose(T)
+    return d1.matmul(Tt, d1.matmul(K, T, ar), ar)
+
+
+def basic_global(xi, xj, yref):
+    ar = d1.A(None)
+    R, L = d1.element_frame(xi, xj, yref, ar)
+    Bg = d1.matmul(d1.basic_B_local(L, ar), d1.transform12(R), ar)
+    D = d1.basic_D(d1.SECTION, L, ar)
+    return d1.matmul(d1.transpose(Bg), d1.matmul(D, Bg, ar), ar)
+
+
+def check_T():
+    out = {}
+    for name, xj, yref in (("axis(5,0,0)", (5.0, 0.0, 0.0), (0.0, 0.0, 1.0)),
+                           ("skew(3,4,0)", (3.0, 4.0, 0.0), (0.0, 0.0, 1.0)),
+                           ("oblique(2,3,6)", (2.0, 3.0, 6.0), (6.0, 2.0, -3.0))):
+        A = textbook_global((0.0, 0.0, 0.0), xj, yref)
+        B = basic_global((0.0, 0.0, 0.0), xj, yref)
+        out[name] = {"entries_differing_exactly": sum(1 for r in range(12) for c in range(12) if A[r][c] != B[r][c])}
+    return out
+
+
+# ------------------------------------------------------------------ C
+def method_contributions_exact(case):
+    """Exact rational solve of the represented binary64 CONTRIBUTIONS: each element's
+    global 12x12 entries are formed in binary64 exactly as represented_f64 forms them,
+    and springs are binary64 inputs, but every contribution is summed exactly (as the
+    merged exact-block method's expansions do). Recovery as D1's recover_represented."""
+    n = case["n"]
+    K = [[Fr(0)] * n for _ in range(n)]
+    elems = []
+    for (i, j, xi, xj, yref) in case["members"]:
+        R, L = d1.f64_frame(xi, xj, yref)
+        Kl = d1.f64_local_K(L)
+        Kg, T = d1.f64_global_K(Kl, R)
+        m = d1.dofmap(i, j)
+        for a in range(12):
+            for b in range(12):
+                K[m[a]][m[b]] += Fr(Kg[a][b])
+        elems.append((m, T, Kl))
+    for dof, k in case["springs"]:
+        K[dof][dof] += Fr(k)
+    f = [Fr(0)] * n
+    for dof, v in case["loads"]:
+        f[dof] += Fr(v)
+    free = [d for d in range(n) if d not in case["restrained"]]
+    x, err = d1.ldl_solve([[K[a][b] for b in free] for a in free], [f[a] for a in free], d1.A(None))
+    if err:
+        return None, err
+    u = [Fr(0)] * n
+    for a, v in zip(free, x):
+        u[a] = v
+    element_F = []
+    for (m, T, Kl) in elems:
+        ue = [u[d] for d in m]
+        dl = [sum(Fr(T[r][c]) * ue[c] for c in range(12)) for r in range(12)]
+        Fl = [sum(Fr(Kl[r][c]) * dl[c] for c in range(12)) for r in range(12)]
+        hyp = lambda a, b: Fr(d1.math.hypot(float(a), float(b)))
+        element_F.append(dict(N=Fl[6], T=Fl[9], Mi=hyp(Fl[5], Fl[4]), Mj=hyp(Fl[11], Fl[10])))
+    reactions = {}
+    for dof, k in case["springs"]:
+        reactions[dof] = -Fr(k) * u[dof]
+    for dof in case["restrained"]:
+        reactions[dof] = sum(K[dof][c] * u[c] for c in range(n)) - f[dof]
+    return d1.published(case, u, element_F, reactions), None
+
+
+def check_C():
+    skew, axis, oblique = (3, 4, 0), (5, 0, 0), (2, 3, 6)
+    mom = lambda k: (1e-8 * k / 1e-4, 2e-8 * k / 1e-4, 0.0)
+    cases = [
+        ("AXIS k=1e-4 (N05-class, axis-aligned control)", d1.pin_case(axis, 1e-4, mom(1e-4))),
+        ("SKEW(3,4,0) k=100 (ordinary companion)", d1.pin_case(skew, 100.0, mom(100.0))),
+        ("SKEW(3,4,0) k=1e-4 (N05-class)", d1.pin_case(skew, 1e-4, mom(1e-4))),
+        ("SKEW(3,4,0) k=1e-12 (N06-class)", d1.pin_case(skew, 1e-12, mom(1e-12))),
+        ("OBLIQUE(2,3,6) y_ref=(6,2,-3) k=1e-4", d1.pin_case(oblique, 1e-4, mom(1e-4), yref=(6.0, 2.0, -3.0))),
+        ("SKEW(3,4,0) k=1e-28 (extreme arithmetic stress)", d1.pin_case(skew, 1e-28, mom(1e-28))),
+        ("SKEW(3,4,0) 6-member run k=1e-12 (order 39 block)", d1.pin_case(skew, 1e-12, mom(1e-12), members=6)),
+    ]
+    out = {}
+    for name, case in cases:
+        ref, err, _ = d1.method_exact_reference(case)
+        assert err is None
+        a, ea = d1.method_represented_exact(case)
+        c, ec = method_contributions_exact(case)
+        out[name] = {"d1_column_C_assembled_matrix_exact": ea or d1.compare(a, ref, case),
+                     "contributions_exact": ec or d1.compare(c, ref, case)}
+    return out
+
+
+# ------------------------------------------------------------------ O
+def axis_block(free, springs, loads):
+    xi, xj = (0.0, 0.0, 0.0), (5.0, 0.0, 0.0)
+    mem = [(0, 1, xi, xj, (0.0, 0.0, 1.0))]
+    restrained = [d for d in range(12) if d not in free]
+    return d1.build_case(mem, springs, restrained, loads, 2)
+
+
+def check_O():
+    k = 1e-4
+    cases = {
+        "2-DOF axial soft mode (root ux spring, tip ux)": axis_block([0, 6], [(0, k)], [(6, 1e-8)]),
+        "2-DOF transverse translation (root uy spring, tip uy; rotations fixed)": axis_block([1, 7], [(1, k)], [(7, 1e-8)]),
+        "2-DOF torsion soft mode (root rx spring, tip rx)": axis_block([3, 9], [(3, k)], [(9, 1e-8)]),
+        "2-DOF rotations (root rz spring, tip rz; tip uy fixed)": axis_block([5, 11], [(5, k)], [(11, 1e-8)]),
+        "3-DOF bending soft mode (root rz spring, tip uy, tip rz)": axis_block([5, 7, 11], [(5, k)], [(11, 1e-8)]),
+    }
+    out = {}
+    for name, case in cases.items():
+        ref, err, _ = d1.method_exact_reference(case)
+        assert err is None, err
+        pub, err = d1.method_represented_exact(case)
+        cpub, cerr = method_contributions_exact(case)
+        out[name] = {"assembled_matrix_exact": err or {"d1_compare_body_scale": d1.compare(pub, ref, case)},
+                     "contributions_exact": cerr or {"d1_compare_body_scale": d1.compare(cpub, ref, case),
+                                                     "strict_relative": strict_relative(cpub, ref)}}
+    return out
+
+
+# ------------------------------------------------------------------ L
+def check_L():
+    base = d1.pin_case((3, 4, 0), 1e-4, (0.0, 2e-8, 0.0))
+    tip = 6
+    lost = [(tip + 3, 1e80), (tip + 3, 1e-8), (tip + 3, -1e80)]  # exact sum 1e-8; absorbed below 293 bits
+    case_mixed = dict(base, loads=base["loads"] + lost)
+    case_only = dict(base, loads=lost)
+    out = {}
+    for name, case in (("N05-class skew, tip my=2e-8 plus mx loads {1e80, 1e-8, -1e80}", case_mixed),
+                       ("N05-class skew, only mx loads {1e80, 1e-8, -1e80}", case_only)):
+        rec, ref = run_prims(case, [128, 256, 512])
+        pub, err = d1.method_binary64(case)
+        rec["ordinary_binary64"] = err or {"d1_compare_body_scale": d1.compare(pub, ref, case)}
+        # D1 4.1.4 evaluates the residual against the system re-formed at p + 64 = 192.
+        ar = d1.A(192)
+        f = Fr(0)
+        for dof, v in case["loads"]:
+            if dof == tip + 3:
+                f = ar.add(f, d1.F(v))
+        rec["tip_mx_load_formed_at_p_plus_64_(192)"] = float(f)
+        out[name] = rec
+    return out
+
+
+# ------------------------------------------------------------------ W
+def check_W():
+    k = 1e-12
+    m = 1e-8 * k / 1e-4
+    case = d1.pin_case((3, 4, 0), k, (m, 2 * m, 1e-15 * m))
+    rec, _ = run_prims(case, [128, 256])
+    return {"N06-class skew, tip moment (m, 2m, 1e-15 m)": rec}
+
+
+def main():
+    res = {"python": sys.version.split()[0], "d1_probe": "DESIGN_NUMERICS/_run_records/probe_skew_precision.py (imported unchanged)",
+           "T_reference_equals_textbook": check_T(),
+           "C_column_C_rerun_with_contributions_exact": check_C(),
+           "O_order_le_2": check_O(),
+           "L_common_mode_lost_load": check_L(),
+           "W_weak_small_nonzero": check_W()}
+    print(json.dumps(res, indent=1))
+
+
+if __name__ == "__main__":
+    main()

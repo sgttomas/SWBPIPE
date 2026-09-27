@@ -1,0 +1,12 @@
+#!/bin/bash
+P=<scratch>/cand/projects/chirality-piping; L=<scratch>/logs
+export RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<t3-target>
+for c in "$@"; do
+  while pgrep -x cargo >/dev/null; do sleep 15; done
+  name=$(echo $c | tr / _)
+  start=$(date +%s)
+  (cd $P/$c && cargo test --offline --locked --no-fail-fast > $L/$name.log 2>&1); rc=$?
+  end=$(date +%s)
+  echo "$c exit=$rc secs=$((end-start)) $(grep -E '^test result' $L/$name.log | awk '{p+=$4; f+=$6; i+=$8} END {print "passed="p" failed="f" ignored="i}') free=$(df -h <home> | tail -1 | awk '{print $4}')" >> $L/SUMMARY.txt
+done
+echo DONE "$@" >> $L/SUMMARY.txt

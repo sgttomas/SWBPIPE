@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""V1 BACKCHECK_R5 check B: soundness of D1's proof-carrying exact-zero exemption (b_proof.py).
+
+Usage: PYTHONDONTWRITEBYTECODE=1 python3 probe_r5_b.py <DESIGN_NUMERICS/_run_records>
+Imports D1's b_proof.analyse unchanged and applies it to two synthetic, product-shaped models whose
+intended reactions are known in closed form:
+  M-UDL  anchors A and B fix all six DOFs at x = 0 and x = 2 m; member A-B carries a uniform load
+         w = -1000 N/m in global z; member B-C (C free at x = 4 m) carries a tip force at C.
+         Intended: the A-end z reaction of member A-B is the fixed-end force w*L/2 = +1000 N (nonzero),
+         whatever the stiffness.
+  M-EIG  the same geometry with a 0.4.0 uniform axial eigen strain on A-B instead of the load.
+         Intended: the x reactions at A and B are -/+ E*A*eps (nonzero).
+b_proof's rule 'support reaction components, from the restrained DOF's element couplings when no
+load acts at that DOF' is evaluated on those reaction rows. A 'proven zero' answer on a nonzero
+intended reaction is an unsound claim.
+"""
+import json
+import sys
+sys.path.insert(0, sys.argv[1])
+import b_proof as B  # noqa: E402  (D1's reference implementation, unchanged)
+
+
+def model(case_loads, state=None):
+    node = lambda i, x: {"id": i, "position": {"x": x, "y": 0.0, "z": 0.0}}
+    seg = lambda i, a, b: {"id": i, "from": a, "to": b, "material": "m",
+                           "section": {"outside_diameter": {"unit": "m", "value": 0.2},
+                                       "wall_thickness": {"unit": "m", "value": 0.01}},
+                           "y_reference": {"x": 0, "y": 1, "z": 0}}
+    lc = {"id": "case", "kind": "primitive_user_load", "primitive_loads": case_loads, "pressure_regions": []}
+    if state is not None:
+        lc["analysis_state"] = state
+    return {"model": {"nodes": [node("A", 0.0), node("B", 2.0), node("C", 4.0)],
+                      "pipe_segments": [seg("AB", "A", "B"), seg("BC", "B", "C")],
+                      "supports": [{"id": "anchorA", "family": "anchor", "node": "A", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]},
+                                   {"id": "anchorB", "family": "anchor", "node": "B", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]}],
+                      "load_cases": [lc], "components": []}}
+
+
+def rows():
+    out = []
+    for sid in ("anchorA", "anchorB"):
+        for comp in ("Fx", "Fy", "Fz", "Mx", "My", "Mz"):
+            out.append({"id": f"r:{sid}:{comp}", "kind": "support_reaction_component_v2", "entity_ref": sid,
+                        "value": 0.0, "unit": "N" if comp[0] == "F" else "N*m",
+                        "metadata": {"component": comp}, "basis_ref": {"ref_id": "case"}})
+    return out
+
+
+tip = {"id": "tip", "category": "concentrated_force", "direction": "UZ", "target": {"type": "node", "node": "C"},
+       "magnitude": {"unit": "N", "value": -10.0}}
+udl = {"id": "udl", "category": "uniform_distributed_load", "direction": "UZ", "target": {"type": "pipe", "pipe": "AB"},
+       "magnitude": {"unit": "N/m", "value": -1000.0}}
+res = {}
+p, why = B.analyse(rows(), model([udl, tip]))
+res["M-UDL"] = {"no_proof_reason": why,
+                "anchorA_Fz_claimed_proven_zero": None if p is None else p["r:anchorA:Fz"],
+                "anchorA_My_claimed_proven_zero": None if p is None else p["r:anchorA:My"],
+                "intended_anchorA_Fz_N": 1000.0, "intended_anchorA_My_Nm": "w*L^2/12 = 333.3 (sign by convention)"}
+eig = {"contract": "x", "element_states": [{"pipe_ref": "AB", "thermal_state": {"kind": "explicit_interval_strain", "strain": {"value": 1e-4}}}],
+       "support_states": [], "load_sources": [], "history": {"kind": "independent_equilibrium"}}
+p2, why2 = B.analyse(rows(), model([tip], eig))
+res["M-EIG"] = {"no_proof_reason": why2,
+                "anchorA_Fx_claimed_proven_zero": None if p2 is None else p2["r:anchorA:Fx"],
+                "anchorB_Fx_claimed_proven_zero": None if p2 is None else p2["r:anchorB:Fx"],
+                "intended_anchorA_Fx": "-E*A*eps (nonzero)"}
+print(json.dumps(res, indent=1))

@@ -1,0 +1,210 @@
+//! RV1 probe: reads one case per line from stdin (f64 values as 16-hex-digit
+//! bit patterns), runs the S11-K code under review, and prints result bits.
+//! The Python checker computes the correctly rounded reference with
+//! fractions.Fraction and compares.
+use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_dot, exact_rounded_sum, ExactAccumulator};
+use open_pipe_stress_frame_kernel::FrameNode;
+use open_pipe_stress_load_case_algebra::{
+    evaluate_expression, AlgebraExpression, AlgebraOperand, AlgebraQuantity, AnalysisStatus,
+    CombinationTerm,
+};
+use open_pipe_stress_primitive_loads::LoadDimension;
+use open_pipe_stress_straight_pipe::{
+    LocalLoadDirection, PipeEnd, PipeEndResultants, PointLocalForce, SpannedUniformLocalLoad,
+    StraightPipeAxialEffect, StraightPipeElement, StraightPipeSectionProperties, UniformLoadSpan,
+};
+use std::io::{self, BufRead, Write};
+
+fn f(h: &str) -> f64 {
+    f64::from_bits(u64::from_str_radix(h, 16).expect("hex"))
+}
+fn h(x: f64) -> String {
+    format!("{:016x}", x.to_bits())
+}
+fn res(r: Result<f64, impl std::fmt::Debug>) -> String {
+    match r {
+        Ok(x) => h(x),
+        Err(e) => format!("ERR:{e:?}"),
+    }
+}
+
+fn pipe() -> StraightPipeElement {
+    StraightPipeElement::new(
+        "rv1",
+        FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+        FrameNode::new(1, [2.0, 0.0, 0.0]).unwrap(),
+        StraightPipeSectionProperties::new(2.0e11, 7.7e10, 0.01, 8.0e-6, 9.0e-6, 1.7e-5, None)
+            .unwrap(),
+        [0.0, 1.0, 0.0],
+    )
+    .unwrap()
+}
+
+fn dir(c: &str) -> LocalLoadDirection {
+    match c {
+        "X" => LocalLoadDirection::X,
+        "Y" => LocalLoadDirection::Y,
+        _ => LocalLoadDirection::Z,
+    }
+}
+
+/// Parses "U:dir:a:b:q" and "P:dir:r:F" tokens.
+fn loads(tokens: &[&str]) -> (Vec<SpannedUniformLocalLoad>, Vec<PointLocalForce>) {
+    let mut u = Vec::new();
+    let mut p = Vec::new();
+    for t in tokens {
+        let parts: Vec<&str> = t.split(':').collect();
+        match parts[0] {
+            "U" => u.push(
+                SpannedUniformLocalLoad::new(
+                    dir(parts[1]),
+                    f(parts[4]),
+                    UniformLoadSpan::new(f(parts[2]), f(parts[3])).unwrap(),
+                )
+                .unwrap(),
+            ),
+            "P" => p.push(PointLocalForce::new(f(parts[2]), dir(parts[1]), f(parts[3])).unwrap()),
+            _ => {}
+        }
+    }
+    (u, p)
+}
+
+fn main() {
+    let stdin = io::stdin();
+    let mut out = io::stdout().lock();
+    let pipe = pipe();
+    for line in stdin.lock().lines() {
+        let line = line.unwrap();
+        let tok: Vec<&str> = line.split_whitespace().collect();
+        if tok.is_empty() {
+            continue;
+        }
+        let answer = match tok[0] {
+            "SUM" => res(exact_rounded_sum(tok[1..].iter().map(|t| f(t)))),
+            "DOT" => res(exact_rounded_dot(
+                tok[1..].chunks(2).map(|c| (f(c[0]), f(c[1]))),
+            )),
+            "SCALED" => {
+                let e: i32 = tok[1].parse().unwrap();
+                let mut a = ExactAccumulator::new();
+                for t in &tok[2..] {
+                    a.add(f(t)).unwrap();
+                }
+                res(a.round_scaled(e))
+            }
+            "E13" => {
+                let pairs: Vec<(f64, f64)> =
+                    tok[1..].chunks(2).map(|c| (f(c[0]), f(c[1]))).collect();
+                let operands: Vec<_> = pairs
+                    .iter()
+                    .enumerate()
+                    .map(|(i, &(v, _))| {
+                        AlgebraOperand::new(
+                            format!("o{i}"),
+                            format!("o{i}"),
+                            AlgebraQuantity::new(v, LoadDimension::Force).unwrap(),
+                            vec![AnalysisStatus::MechanicsSolved],
+                        )
+                    })
+                    .collect();
+                let terms: Vec<_> = pairs
+                    .iter()
+                    .enumerate()
+                    .map(|(i, &(_, c))| CombinationTerm::new(format!("o{i}"), c).unwrap())
+                    .collect();
+                let r = evaluate_expression(&operands, &AlgebraExpression::LinearCombination { terms });
+                match r.quantity {
+                    Some(q) => h(q.value),
+                    None => "NONE".to_string(),
+                }
+            }
+            // E1: fixed-end sums of the given loads, plus each load's own terms.
+            "E1" => {
+                let (u, p) = loads(&tok[1..]);
+                let sum = pipe.equivalent_nodal_loads_with_spans(&u, &p).unwrap();
+                let terms = pipe.equivalent_nodal_load_terms_with_spans(&u, &p).unwrap();
+                let mut s = sum.iter().map(|&x| h(x)).collect::<Vec<_>>().join(",");
+                for t in terms {
+                    s.push('|');
+                    s.push_str(&t.iter().map(|&x| h(x)).collect::<Vec<_>>().join(","));
+                }
+                s
+            }
+            // E2: axial-effect pair sums.
+            "E2" => {
+                let effects: Vec<_> = tok[1..]
+                    .iter()
+                    .map(|t| StraightPipeAxialEffect::new(f(t)).unwrap())
+                    .collect();
+                let s = pipe.equivalent_local_axial_effect_loads(&effects).unwrap();
+                s.iter().map(|&x| h(x)).collect::<Vec<_>>().join(",")
+            }
+            // E3: "E3 u0..u11 ; loads... ; axial..." -> local forces | end I | end J
+            "E3" => {
+                let parts: Vec<&[&str]> = tok[1..].split(|t| *t == ";").collect();
+                let u: Vec<f64> = parts[0].iter().map(|t| f(t)).collect();
+                let (ul, pl) = loads(parts[1]);
+                let ax: Vec<_> = parts[2]
+                    .iter()
+                    .map(|t| StraightPipeAxialEffect::new(f(t)).unwrap())
+                    .collect();
+                let local = pipe.recover_local_forces(&u).unwrap().local_forces;
+                let mut s = local.iter().map(|&x| h(x)).collect::<Vec<_>>().join(",");
+                for end in [PipeEnd::I, PipeEnd::J] {
+                    let r = pipe
+                        .recover_end_resultants_with_spans_and_axial_effects(&u, end, &ul, &pl, &ax)
+                        .unwrap();
+                    s.push('|');
+                    s.push_str(
+                        &[
+                            r.axial_force,
+                            r.shear_force_y,
+                            r.shear_force_z,
+                            r.torsional_moment,
+                            r.bending_moment_y,
+                            r.bending_moment_z,
+                        ]
+                        .iter()
+                        .map(|&x| h(x))
+                        .collect::<Vec<_>>()
+                        .join(","),
+                    );
+                }
+                s
+            }
+            // E4: "E4 N Vy Vz T My Mz fraction ; loads..." -> station components
+            "E4" => {
+                let parts: Vec<&[&str]> = tok[1..].split(|t| *t == ";").collect();
+                let v: Vec<f64> = parts[0].iter().map(|t| f(t)).collect();
+                let i_end = PipeEndResultants {
+                    end: PipeEnd::I,
+                    axial_force: v[0],
+                    shear_force_y: v[1],
+                    shear_force_z: v[2],
+                    torsional_moment: v[3],
+                    bending_moment_y: v[4],
+                    bending_moment_z: v[5],
+                };
+                let (ul, pl) = loads(parts[1]);
+                match pipe.station_resultants_from_i_end_with_spans(i_end, v[6], &ul, &pl) {
+                    Ok(r) => [
+                        r.axial_force,
+                        r.shear_force_y,
+                        r.shear_force_z,
+                        r.torsional_moment,
+                        r.bending_moment_y,
+                        r.bending_moment_z,
+                    ]
+                    .iter()
+                    .map(|&x| h(x))
+                    .collect::<Vec<_>>()
+                    .join(","),
+                    Err(e) => format!("ERR:{e:?}"),
+                }
+            }
+            other => format!("UNKNOWN {other}"),
+        };
+        writeln!(out, "{answer}").unwrap();
+    }
+}

@@ -1,0 +1,24 @@
+2026-09-27T01:02:26Z waited 1 min; /dev/vda        252G   25G   13G  67% /
+== cand_full_debug: (target cand) cargo test --offline --locked
+   exit 0
+2026-09-27T01:02:38Z waited 0 min; /dev/vda        252G   25G   13G  67% /
+== cand_retained_release: (target cand) cargo test --offline --locked --release --lib retained -- --nocapture
+   exit 0
+2026-09-27T01:11:46Z waited 9 min; /dev/vda        252G   27G   11G  73% /
+== cand_build_lib: (target cand) cargo build --offline --locked --lib
+   exit 0
+2026-09-27T01:11:46Z waited 0 min; /dev/vda        252G   27G   11G  73% /
+== base_full_debug: (target base) cargo test --offline --locked
+   exit 0
+2026-09-27T01:11:50Z waited 0 min; /dev/vda        252G   27G   11G  73% /
+== base_build_lib: (target base) cargo build --offline --locked --lib
+   exit 0
+2026-09-27T01:11:50Z waited 0 min; /dev/vda        252G   27G   11G  73% /
+== probe_arith: (target probe) cargo test --offline --locked --release --lib rv2_probe
+   exit 0
+2026-09-27T01:11:57Z waited 0 min; /dev/vda        252G   27G   11G  73% /
+== probe_atan: (target probe) cargo test --offline --locked --release --lib rv2_probe
+   exit 0
+2026-09-27T01:11:58Z waited 0 min; /dev/vda        252G   27G   11G  73% /
+mutations exit 130
+DONE

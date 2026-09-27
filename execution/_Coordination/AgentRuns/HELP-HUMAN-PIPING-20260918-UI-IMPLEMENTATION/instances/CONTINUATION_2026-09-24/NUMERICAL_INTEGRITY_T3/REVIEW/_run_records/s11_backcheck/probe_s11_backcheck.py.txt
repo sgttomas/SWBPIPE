@@ -1,0 +1,210 @@
+#!/usr/bin/env python3
+"""T3 V1 backcheck of S11 revision 2 (standard library only; no product code imported).
+
+Run from this folder:  python3 probe_s11_backcheck.py.txt
+Reuses D1's binary64 element (DESIGN_NUMERICS/_run_records/probe_skew_precision.py,
+imported unchanged; the product's formation order).
+
+P  Prescribed support motion (T1's 0.4.0 route). The reduced right-hand side
+   b_r = f_r - sum_c K_rc g_c is folded in binary64 in the kernel
+   (FK/structural.rs:603-606 prepare_structural; FK/lib.rs:870-877 reduce_system_for_boundary),
+   after the force vector leaves the ledger. Case: two 3 m members along x, both end nodes
+   fully restrained with the same prescribed UY settlement g (a rigid translation, so it
+   produces no member force), a small nodal moment m about Z at the free middle node. The
+   rotation couplings +-6EI/L^2*g cancel, so m is absorbed in the unfavourable order.
+   Reported: member end moment error on the member-moment (body) scale with (a) the folded
+   RHS and exact recovery, (b) the exact RHS and binary64 K_e*u recovery (the W1 formed-term
+   class, out of S11 scope), (c) both exact; and the M03 guard ratio and row amplification.
+X  ExactAccumulator specification check: a reference fixed-point accumulator at quantum
+   2^-2148 (exact binary64 products), 68 x 64-bit limbs, rounded to nearest-even binary64
+   including the subnormal range, compared with Fraction. Cases: V1 check D, products whose
+   net is subnormal or below half the least subnormal (positive and negative), ties.
+Every value is invented.
+"""
+import importlib.util, json, math, os, sys
+from fractions import Fraction as Fr
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+spec = importlib.util.spec_from_file_location(
+    "d1", os.path.join(HERE, "..", "..", "..", "DESIGN_NUMERICS", "_run_records", "probe_skew_precision.py"))
+d1 = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(d1)
+U = Fr(1, 2 ** 53)
+
+
+def gamma(m):
+    return m * U / (1 - m * U)
+
+
+def solve(A, b):
+    n = len(b)
+    M = [[Fr(A[i][j]) for j in range(n)] + [Fr(b[i])] for i in range(n)]
+    for c in range(n):
+        p = next(r for r in range(c, n) if M[r][c] != 0)
+        M[c], M[p] = M[p], M[c]
+        for r in range(n):
+            if r != c and M[r][c] != 0:
+                q = M[r][c] / M[c][c]
+                M[r] = [a - q * v for a, v in zip(M[r], M[c])]
+    return [M[i][n] / M[i][i] for i in range(n)]
+
+
+def probe_P():
+    L = 3.0
+    Ke = d1.f64_local_K(L)  # members along global x: local == global
+    n = 18
+    K = [[0.0] * n for _ in range(n)]
+    for e in range(2):
+        base = 6 * e
+        for a in range(12):
+            for b in range(12):
+                K[base + a][base + b] += Ke[a][b]  # binary64 assembly, as the product
+    restrained = list(range(0, 6)) + list(range(12, 18))
+    free = list(range(6, 12))
+    out = []
+    for g, m in ((0.05, 0.0137), (0.05, 1.3), (0.2, 0.0137)):
+        presc = {d: 0.0 for d in restrained}
+        presc[1] = g
+        presc[13] = g
+        f = [0.0] * n
+        f[6 + 5] = m
+        b_fold, b_exact = [], []
+        for r in free:
+            v = f[r]
+            for c in restrained:  # kernel order: prescribed list order
+                v = v - K[r][c] * presc[c]
+            b_fold.append(v)
+            b_exact.append(Fr(f[r]) - sum(Fr(K[r][c]) * Fr(presc[c]) for c in restrained))
+        KF = [[K[i][j] for j in free] for i in free]
+        uf_fold = solve(KF, b_fold)
+        uf_exact = solve(KF, b_exact)
+
+        def full(uf):
+            u = [Fr(presc.get(d, 0.0)) for d in range(n)]
+            for i, d in enumerate(free):
+                u[d] = uf[i]
+            return u
+        u_fold, u_ex = full(uf_fold), full(uf_exact)
+
+        def end_moments(u, binary64):
+            vals = []
+            for e in range(2):
+                ue = u[6 * e:6 * e + 12]
+                if binary64:
+                    u64 = [float(x) for x in ue]
+                    Fe = []
+                    for i in range(12):
+                        s = 0.0
+                        for j in range(12):
+                            s += Ke[i][j] * u64[j]
+                        Fe.append(Fr(s))
+                else:
+                    Fe = [sum(Fr(Ke[i][j]) * ue[j] for j in range(12)) for i in range(12)]
+                vals += [Fe[5], Fe[11]]
+            return vals
+        ref = end_moments(u_ex, False)
+        scale = max(abs(x) for x in ref)
+
+        def worst(vals):
+            return float(max(abs(Fr(float(v)) - r) for v, r in zip(vals, ref)) / scale)
+        # guard on the middle node's RZ row (free index 5, global 11)
+        r_i = 11
+        resid = sum(Fr(K[r_i][j]) * u_fold[j] for j in range(n)) - Fr(f[r_i])
+        dd = abs(Fr(f[r_i])) + sum(abs(Fr(K[r_i][j])) * abs(u_fold[j]) for j in range(n))
+        k = sum(1 for j in range(n) if K[r_i][j] != 0)
+        tgt = 64 * gamma(2 * k + 2)
+        out.append({"settlement_g_m": g, "nodal_moment_m_Nm": m,
+                    "gross_coupling_6EI_over_L2_g": float(abs(Fr(K[r_i][1]) * Fr(g))),
+                    "rhs_rotation_fold": b_fold[5], "rhs_rotation_exact": float(b_exact[5]),
+                    "member_moment_scale_Nm": float(scale),
+                    "a_fold_rhs_exact_recovery_error_on_scale": worst(end_moments(u_fold, False)),
+                    "b_exact_rhs_binary64_Keu_error_on_scale": worst(end_moments(u_ex, True)),
+                    "c_exact_rhs_exact_recovery_error_on_scale": worst(ref),
+                    "guard_ratio_over_target": float(abs(resid) / dd / tgt),
+                    "row_amplification_d_over_f": float(dd / abs(Fr(f[r_i]))),
+                    "guard_complete_up_to_amplification": float(Fr(1, 10 ** 9) / tgt)})
+    return out
+
+
+# ------------------------------------------------------------------ X
+Q = 2148            # quantum 2^-2148: every product of two finite binary64 is a multiple
+LIMBS = 68
+CAP = 1 << (64 * LIMBS)
+
+
+def to_fixed(x):
+    fr = Fr(x) * (1 << Q)
+    assert fr.denominator == 1
+    return fr.numerator
+
+
+def acc_add(acc, x):
+    return acc + to_fixed(x)
+
+
+def acc_add_product(acc, a, b):
+    ma, ea = math.frexp(a)
+    mb, eb = math.frexp(b)
+    ia, ib = int(ma * 2 ** 53), int(mb * 2 ** 53)  # exact 53-bit significands
+    prod = ia * ib                                   # <= 106 bits: fits u128
+    shift = (ea - 53) + (eb - 53) + Q
+    assert shift >= 0
+    return acc + (prod << shift)
+
+
+def acc_round(acc):
+    """Nearest-even binary64 of acc * 2^-Q, subnormals included; overflow is an error.
+    Returns (value, kind) where kind separates exact zero from underflow to zero."""
+    assert abs(acc) < CAP
+    if acc == 0:
+        return 0.0, "exact_zero"
+    neg = acc < 0
+    a = -acc if neg else acc
+    top = a.bit_length() - 1 - Q            # binary exponent of the leading bit
+    e = max(top, -1022) - 52                # exponent of the unit in the last place
+    shift = e + Q
+    q, r = divmod(a, 1 << shift)
+    half = 1 << (shift - 1)
+    if r > half or (r == half and q & 1):
+        q += 1
+    if q == 0:
+        return (-0.0 if neg else 0.0), "underflow_to_zero"
+    val = math.ldexp(q, e)
+    if math.isinf(val):
+        raise OverflowError("NonRepresentable")
+    return (-val if neg else val), "normal" if abs(val) >= 2.0 ** -1022 else "subnormal"
+
+
+def probe_X():
+    cases = []
+
+    def check(name, terms=(), products=()):
+        acc = 0
+        ex = Fr(0)
+        for t in terms:
+            acc = acc_add(acc, t)
+            ex += Fr(t)
+        for a, b in products:
+            acc = acc_add_product(acc, a, b)
+            ex += Fr(a) * Fr(b)
+        v, kind = acc_round(acc)
+        ref = float(ex) if ex != 0 else 0.0  # float(Fraction) is correctly rounded, underflow keeps no sign
+        cases.append({"case": name, "rounded": repr(v), "kind": kind,
+                      "fraction_reference": repr(ref), "bits_equal_reference": math.copysign(1, v) == math.copysign(1, ref) and v == ref,
+                      "value_equal_reference": v == ref})
+    check("V1 check D {2^-110, 2^-53, 1}", terms=[2.0 ** -110, 2.0 ** -53, 1.0])
+    check("exact zero [1e8, -1e8]", terms=[1e8, -1e8])
+    check("[-0.0]", terms=[-0.0])
+    check("product net 2^-1080 (positive, below half the least subnormal)", products=[(2.0 ** -540, 2.0 ** -540)])
+    check("product net -2^-1080 (negative, below half the least subnormal)", products=[(-(2.0 ** -540), 2.0 ** -540)])
+    check("product net 3*2^-1076 (rounds up to 2^-1074)", products=[(3 * 2.0 ** -538, 2.0 ** -538)])
+    check("product net 2^-1075 exactly (tie between 0 and 2^-1074)", products=[(2.0 ** -537, 2.0 ** -538)])
+    check("thermal pair after 1.3 N as products: 1.3 + 1.35*4.1e7 - 1.35*4.1e7", terms=[1.3], products=[(1.35, 4.1e7), (-1.35, 4.1e7)])
+    check("largest products: (2^1023*1.9999)^2 - same + 1", terms=[1.0], products=[(1.7e308, 1.7e308), (-1.7e308, 1.7e308)])
+    bits_needed = 2148 + 2048 + 64
+    return {"quantum_exponent": -Q, "limbs": LIMBS, "capacity_bits": 64 * LIMBS,
+            "bits_needed_for_2^64_terms_of_max_products": bits_needed, "cases": cases}
+
+
+print(json.dumps({"python": sys.version.split()[0], "P_prescribed_motion_rhs_fold": probe_P(),
+                  "X_exact_accumulator_spec": probe_X()}, indent=1))

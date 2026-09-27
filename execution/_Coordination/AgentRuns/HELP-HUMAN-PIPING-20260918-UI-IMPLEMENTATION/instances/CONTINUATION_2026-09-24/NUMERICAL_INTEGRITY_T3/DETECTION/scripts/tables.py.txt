@@ -1,0 +1,219 @@
+"""T3 P1: build results.json (primary: frozen revision 2) and the RETURN.md tables (scratch; committed as tables.py.txt).
+
+Usage: python3 -B tables.py <res_rev2.json> <res_rev1.json> <survey.json> <runs.jsonl> <outdir>
+"""
+import json
+import re
+import sys
+from collections import OrderedDict
+
+U = 2.0 ** -53
+REFUSED = ('refused_capture', 'refused_error', 'refused_blocked')
+
+
+def fe_of(m):
+    out = []
+    for x in (m.get('identity') or {}).get('integrity_diagnostics', []):
+        if not x['code'].startswith('NUMERICAL_INTEGRITY'):
+            continue
+        rc = re.search(r'reciprocal_condition_estimate: (-?[0-9][0-9.eE+-]*[0-9])', x['message'])
+        gr = [float(v) for v in re.findall(r'guarded_ratio: (-?[0-9][0-9.eE+-]*[0-9])', x['message'])]
+        piv = [float(v) for v in re.findall(r'PivotEvidence \{[^}]*?pivot: (-?[0-9][0-9.eE+-]*[0-9])', x['message'])]
+        if rc and gr:
+            out.append({'rcond': float(rc.group(1)), 'max_guarded_ratio': max(gr), 'min_pivot': min(piv) if piv else None,
+                        'fe_estimate': (max(gr) + U) / float(rc.group(1))})
+    return out
+
+
+def bucket(e, m):
+    v = m.get('verdict', '')
+    if v in ('pass', 'solved (no quantity reference)'):
+        return 'pass'
+    if v == 'mismatch':
+        return 'mismatch'
+    if v == 'refused (as required)' or m.get('outcome') in REFUSED:
+        return 'refused'
+    if m.get('outcome') in ('memory_refused', 'timeout', 'crashed'):
+        return 'resource'
+    if v == 'PUBLISHED_A_SOLUTION_FOR_A_REQUIRED_REFUSAL':
+        return 'mismatch'
+    return 'other:' + str(v)
+
+
+def main():
+    r2p, r1p, svp, runsp, outdir = sys.argv[1:6]
+    r2 = json.load(open(r2p))
+    r1 = json.load(open(r1p))
+    r1i = {c['id']: c for c in r1['cases']}
+    diffs = []
+    for c in r2['cases']:
+        c1 = r1i.get(c['id'])
+        for mode, m in c.get('modes', {}).items():
+            m1 = c1['modes'].get(mode, {}) if c1 else {}
+            if (m.get('verdict'), m.get('max_ratio'), m.get('counts')) != (m1.get('verdict'), m1.get('max_ratio'), m1.get('counts')):
+                diffs.append([c['id'], mode, m.get('verdict'), m1.get('verdict'), m.get('max_ratio'), m1.get('max_ratio')])
+        for mode, m in c.get('modes', {}).items():
+            m['fe_estimates'] = fe_of(m)
+    # family summary
+    fam = OrderedDict()
+    for c in r2['cases']:
+        f = fam.setdefault(c['family'], {'cases': 0, 'not_authorable': 0,
+                                         'sparse_interactive': {}, 'dense_scrutiny': {}})
+        f['cases'] += 1
+        if not c['authorable']:
+            f['not_authorable'] += 1
+            continue
+        for mode in ('sparse_interactive', 'dense_scrutiny'):
+            m = c['modes'].get(mode, {})
+            b = bucket(c, m) if m.get('outcome') != 'not_run' else 'not_run'
+            f[mode][b] = f[mode].get(b, 0) + 1
+    lines = ['| Family | Cases | Authorable | not_authorable | sparse: pass / mismatch / refused / resource | dense: pass / mismatch / refused / resource |',
+             '|---|---:|---:|---:|---|---|']
+    for name, f in fam.items():
+        def cell(d):
+            extra = {k: v for k, v in d.items() if k not in ('pass', 'mismatch', 'refused', 'resource')}
+            s = '%d / %d / %d / %d' % (d.get('pass', 0), d.get('mismatch', 0), d.get('refused', 0), d.get('resource', 0))
+            if extra:
+                s += ' (' + ', '.join('%s %d' % kv for kv in extra.items()) + ')'
+            return s
+        lines.append('| %s | %d | %d | %d | %s | %s |' % (name, f['cases'], f['cases'] - f['not_authorable'], f['not_authorable'],
+                                                          cell(f['sparse_interactive']), cell(f['dense_scrutiny'])))
+    fam_table = '\n'.join(lines)
+    # silent wrong
+    sw = ['| Case | Family | Mode | Identity | Quality | Standing | Mismatch / compared | Worst ratio (at) | Relative error at worst | rcond | fe estimate |',
+          '|---|---|---|---|---|---|---|---|---|---|---|']
+    for c in r2['cases']:
+        for mode, m in c.get('modes', {}).items():
+            if not m.get('silent_wrong'):
+                continue
+            q = next((q for q in m['quantities'] if q[0] == m['max_ratio_at']), None)
+            rel = ''
+            if q and q[3]:
+                e = float(q[2])
+                o = max((float(x) for x in q[3]), key=lambda x: abs(x - e))
+                rel = '%.3g' % (abs(o - e) / abs(e)) if e else 'abs %.3g' % abs(o)
+            fe = m['fe_estimates'][0] if m['fe_estimates'] else {}
+            i = m['identity']
+            sw.append('| %s | %s | %s | %s | %s | %s | %d / %d | %s (%s) | %s | %s | %s |' % (
+                c['id'], c['family'], mode, i['semantic_contract_id'].split('/')[-1], i['numerical_quality_status'], i['standing'],
+                m['counts']['mismatch'], m['counts']['compared'], m['max_ratio'], m['max_ratio_at'], rel,
+                '%.3g' % fe['rcond'] if fe else '', '%.3g' % fe['fe_estimate'] if fe else ''))
+    # memory table
+    mem = ['| Case | Members | Mode | Outcome | Wall s | Peak RSS MiB | Solve s (in-process) |', '|---|---:|---|---|---:|---:|---:|']
+    for c in r2['cases']:
+        if c['family'] not in ('RF-LARGE', 'RF-MECH') or not c['authorable']:
+            continue
+        if c['family'] == 'RF-MECH' and (c.get('members') or 0) < 100:
+            continue
+        for mode, m in c['modes'].items():
+            mem.append('| %s | %s | %s | %s | %s | %s | %s |' % (
+                c['id'], c.get('members'), mode, m.get('verdict') if m.get('outcome') == 'solved' else m.get('outcome'),
+                m.get('wall_seconds'), round(m['peak_rss_kib'] / 1024, 1) if m.get('peak_rss_kib') else '',
+                round(m['solve_seconds'], 3) if m.get('solve_seconds') is not None else ''))
+    # survey
+    sv = json.load(open(svp))
+    st = ['| Fixture | Load case | Mode | Outcome | Producer | Quality | Standing | rcond | min pivot | max guarded_ratio (target) | fe estimate | Demote fe>1e-9 | Row-wise rows >1e-9 | Rows by kind |',
+          '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|']
+    for f in sv['fixtures']:
+        for mode, m in f['modes'].items():
+            if m.get('outcome') != 'solved':
+                st.append('| %s | | %s | %s | | | | | | | | | | %s |' % (f['fixture'], mode, m.get('outcome'),
+                                                                     ', '.join(m.get('blocking', [])) or m.get('error', '')[:80]))
+                continue
+            for c in m['cases']:
+                rc = c.get('row_counts', {})
+                kinds = ', '.join('%s %d' % (k.replace('other:', ''), v) for k, v in sorted(rc.items())
+                                  if not k.startswith('other:') or 'magnitude' in k)
+                st.append('| %s | %s | %s | solved%s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s%s |' % (
+                    f['fixture'], c['case'], mode, ' (exact route)' if m['pressure_route'] else '',
+                    m['semantic_contract_id'].split('/')[-1], c['solve_quality'], m['standing'],
+                    '%.3g' % c['rcond'] if c.get('rcond') else '-', '%.3g' % c['min_pivot'] if c.get('min_pivot') else '-',
+                    ('%.3g (%.3g)' % (c['max_guarded_ratio'], c['target_at_max'] or 0)) if c.get('max_guarded_ratio') is not None else '-',
+                    '%.3g' % c['fe_estimate'] if c.get('fe_estimate') else '-',
+                    c.get('demote_fe_gt_1e-9', '-'),
+                    c.get('rowwise_estimate', {}).get('rows_with_fe*scale/|q|_gt_1e-9', '-'), kinds,
+                    '; headline' if c.get('headline_is_this_case') else ''))
+    for c in r2['cases']:
+        for mode, m in c.get('modes', {}).items():
+            for holder in (m.get('identity') or {}, (m.get('typed_secondary') or {}).get('identity') or {}):
+                for x in holder.get('integrity_diagnostics', []):
+                    if len(x['message']) > 20000:
+                        fe = fe_of({'identity': {'integrity_diagnostics': [x]}})
+                        x['message'] = x['message'][:2000] + ' ...[P1 elided %d characters of pivot and residual rows; summary: %s]' % (
+                            len(x['message']) - 2000, json.dumps(fe))
+    r2['header'] = {
+        'schema': 't3-p1-detection-results-v1',
+        'product_under_test': 'main c61a540ea (projects/chirality-piping exported with git archive; worktree product files untouched)',
+        'entry': 'run_linear_static_preview_value_with_mode (captured), modes sparse_interactive and dense_scrutiny; '
+                 'typed run_linear_static_preview_with_mode only as a secondary observation where capture refused',
+        'standing': 'result_export::semantic_contract::numerical_use_standing_with_context(envelope, load-case basis refs, '
+                    'Some({request, solver_mode}))',
+        'criterion': '|obs - exp| <= 1e-9 * max(|exp|, scale), exact rational evaluation; RF-CANCEL uses the recommended '
+                     '(net-governed) scale column; expected values below the binary64 normal range are flagged and compared '
+                     'absolutely against 1e-9*scale',
+        'references_primary': {'commit': 'c0f14201c (frozen, ROOT_SELECTION_REFERENCES.md at 1d90276c3)',
+                               'references.py_sha256': '80d473a7351e92a2a903d233b9e633aac794aeff07f3ac41e40d25a0d94fc8a8',
+                               'references.json_sha256': '7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9'},
+        'references_revision1_crosscheck': {'commit': '3592032fa',
+                                            'references.py_sha256': '7fe459b12a02dfc75c9305fcab260ae8c8a528f07f4ac76a5be672547de99701',
+                                            'references.json_sha256': '57e3254e9ced0fa468945bbfde9d197eecf30bac3bd3e6e35f03739e54468a22',
+                                            'requests_identical_to_revision2': True,
+                                            'verdict_or_ratio_differences': diffs},
+        'fixtures_json': 'P/validation/benchmarks/numerical_integrity/fixtures.json at c61a540ea, sha256 '
+                         'c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e',
+        'quantity_columns': ['key', 'class', 'expected', 'observed (renderings: N and T use -(end_i), +(end_j))', 'scale',
+                             'ratio', 'status', 'governed_by (RF-CANCEL)', 'flags'],
+        'provisional': 'mismatches are provisional pending the manager\'s re-evaluation',
+    }
+    # exceptions: every Passed-or-eligible breaching (entry, case, mode, quantity)
+    S11 = ('RF-CANCEL', 'S11-PROBE-A')
+    exc = {'captured': {'s11_class': [], 'other_class': []}, 'typed_secondary': {'s11_class': [], 'other_class': []}}
+    for c in r2['cases']:
+        cls = 's11_class' if c['family'] in S11 else 'other_class'
+        for mode, m in c.get('modes', {}).items():
+            if m.get('published_as_trusted'):
+                for q in m['quantities']:
+                    if q[6] == 'MISMATCH':
+                        exc['captured'][cls].append({'case': c['id'], 'mode': mode, 'quantity': q[0], 'observed': q[3],
+                                                     'expected': q[2], 'scale': q[4], 'ratio': q[5], 'governed_by': q[7]})
+            t = m.get('typed_secondary')
+            if t and t.get('published_as_trusted'):
+                for q in t.get('mismatches', []):
+                    exc['typed_secondary'][cls].append({'case': c['id'], 'mode': mode, 'quantity': q[0], 'observed': q[2],
+                                                        'expected': q[1], 'scale': q[5], 'ratio': q[3], 'governed_by': q[4]})
+    exc['typed_on_captured'] = {'s11_class': [], 'other_class': []}
+    for c in r2['cases']:
+        cls = 's11_class' if c['family'] in S11 else 'other_class'
+        for mode, m in c.get('modes', {}).items():
+            t = m.get('typed_on_captured')
+            if t and t.get('published_as_trusted'):
+                for q in t.get('mismatches', []):
+                    exc['typed_on_captured'][cls].append({'case': c['id'], 'mode': mode, 'quantity': q[0], 'observed': q[2],
+                                                          'expected': q[1], 'scale': q[5], 'ratio': q[3], 'governed_by': q[4]})
+    for e in exc.values():
+        for k in list(e):
+            rows = e[k]
+            e[k + '_counts'] = {'rows (case, mode, quantity)': len(rows),
+                                'distinct (case, quantity)': len({(r['case'], r['quantity']) for r in rows}),
+                                'cases': len({r['case'] for r in rows})}
+    frozen = lambda rows: [x for x in rows if not x['case'].startswith('S11-PROBE-A')]
+    for ek in ('captured', 'typed_secondary', 'typed_on_captured'):
+        rows = frozen(exc[ek]['s11_class'])
+        exc[ek]['s11_class_frozen_reference_only_counts'] = {
+            'rows (case, mode, quantity)': len(rows), 'distinct (case, quantity)': len({(x['case'], x['quantity']) for x in rows}),
+            'cases': len({x['case'] for x in rows})}
+    r2['exceptions'] = exc
+    r2['exceptions_note'] = ('Passed (numerical_quality checks_passed) or numerically_eligible results that breach the criterion. '
+                             'captured = run_linear_static_preview_value_with_mode; typed_secondary = run_linear_static_preview_with_mode, '
+                             'run only where capture refused, cannot mint QualifiedPreviewEvidence. Provisional.')
+    open(outdir + '/exceptions_counts.json', 'w').write(json.dumps({k: {kk: vv for kk, vv in v.items() if kk.endswith('_counts')} for k, v in exc.items()}, indent=1))
+    r2['realistic_fixture_survey'] = sv
+    json.dump(r2, open(outdir + '/results.json', 'w'), separators=(',', ':'))
+    open(outdir + '/tables.md', 'w').write('\n\n'.join([
+        '## family\n' + fam_table, '## silent\n' + '\n'.join(sw), '## memory\n' + '\n'.join(mem),
+        '## survey\n' + '\n'.join(st), '## rev1 diffs\n' + json.dumps(diffs)]))
+    print('rev1/rev2 differences:', len(diffs))
+
+
+if __name__ == '__main__':
+    main()

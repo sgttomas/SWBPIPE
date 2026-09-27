@@ -1,0 +1,223 @@
+{
+ "python": "3.11.15",
+ "A_recovery_fold_under_C3_full": [
+  {
+   "case": "uniform local-y loads (1e+06, 0.3, -1e+06) N/m on one 2 m cantilever element",
+   "published_vs_exact": {
+    "root_shear_Fy": {
+     "exact": -0.6,
+     "published": -0.6000000000465662,
+     "rel_error_own": 7.761032557359235e-11,
+     "rel_error_member_scale": 7.761032557359233e-11
+    },
+    "root_moment_Mz": {
+     "exact": -0.6000000000000001,
+     "published": -0.5999999999767169,
+     "rel_error_own": 3.880518520440647e-11,
+     "rel_error_member_scale": 3.880518520440647e-11
+    }
+   },
+   "audit_worst_ratio_free_rows": 0.0,
+   "audit_flags": false
+  },
+  {
+   "case": "uniform local-y loads (1e+07, 0.3, -1e+07) N/m on one 2 m cantilever element",
+   "published_vs_exact": {
+    "root_shear_Fy": {
+     "exact": -0.6,
+     "published": -0.6000000007450581,
+     "rel_error_own": 1.2417635438429406e-09,
+     "rel_error_member_scale": 1.2417635438429404e-09
+    },
+    "root_moment_Mz": {
+     "exact": -0.6000000000000001,
+     "published": -0.6000000000931323,
+     "rel_error_own": 1.552203511738182e-10,
+     "rel_error_member_scale": 1.552203511738182e-10
+    }
+   },
+   "audit_worst_ratio_free_rows": 0.0,
+   "audit_flags": false
+  },
+  {
+   "case": "uniform local-y loads (1e+08, 0.3, -1e+08) N/m on one 2 m cantilever element",
+   "published_vs_exact": {
+    "root_shear_Fy": {
+     "exact": -0.6,
+     "published": -0.5999999970197678,
+     "rel_error_own": 4.96705362026025e-09,
+     "rel_error_member_scale": 4.967053620260249e-09
+    },
+    "root_moment_Mz": {
+     "exact": -0.6000000000000001,
+     "published": -0.6000000014901161,
+     "rel_error_own": 2.4835267877125143e-09,
+     "rel_error_member_scale": 2.4835267877125143e-09
+    }
+   },
+   "audit_worst_ratio_free_rows": 0.0,
+   "audit_flags": false
+  }
+ ],
+ "B_guard_path_row_scale": [
+  {
+   "case": "tip UY (1e+07, 0.3, -1e+07) N folded + tip RZ 1000 N*m",
+   "screen_flags": true,
+   "worst_ratio_over_target": 2.9115465358969965,
+   "root_reaction_Fy_exact": -0.3,
+   "root_reaction_rel_error_own": 2.4835269026487103e-09,
+   "tip_uy_rel_error_own": 9.93013555637229e-13
+  },
+  {
+   "case": "tip UY (1e+07, 0.3, -1e+07) N folded + tip RZ 1e+06 N*m",
+   "screen_flags": false,
+   "worst_ratio_over_target": 0.002912709989429888,
+   "root_reaction_Fy_exact": -0.3,
+   "root_reaction_rel_error_own": 2.4835269026487103e-09,
+   "tip_uy_rel_error_own": 9.934103636953385e-16
+  },
+  {
+   "case": "tip UY (1e+08, 0.3, -1e+08) N folded + tip RZ 1000 N*m",
+   "screen_flags": true,
+   "worst_ratio_over_target": 11.646185926711464,
+   "root_reaction_Fy_exact": -0.3,
+   "root_reaction_rel_error_own": 9.93410742555767e-09,
+   "tip_uy_rel_error_own": 3.972054148563642e-12
+  },
+  {
+   "case": "tip UY (1e+08, 0.3, -1e+08) N folded + tip RZ 1e+06 N*m",
+   "screen_flags": false,
+   "worst_ratio_over_target": 0.0116508397407058,
+   "root_reaction_Fy_exact": -0.3,
+   "root_reaction_rel_error_own": 9.93410742555767e-09,
+   "tip_uy_rel_error_own": 3.973641380766516e-15
+  },
+  {
+   "case": "root (restrained) UY (1e+07, 0.3, -1e+07) N folded + tip RZ 1e+06 N*m",
+   "screen_flags": false,
+   "ratio_over_target": 0.0017476266053270007,
+   "root_reaction_Fy_exact": -0.3,
+   "root_reaction_rel_error_own": 2.4835269026487103e-09
+  },
+  {
+   "case": "root (restrained) UY (1e+08, 0.3, -1e+08) N folded + tip RZ 1e+06 N*m",
+   "screen_flags": false,
+   "ratio_over_target": 0.006990506291099676,
+   "root_reaction_Fy_exact": -0.3,
+   "root_reaction_rel_error_own": 9.93410742555767e-09
+  }
+ ],
+ "C_realistic_patterns": [
+  {
+   "pattern": "weight of two 3 m spans (-285, -285) then constant effort 564.3 (net 0.01 of the share)",
+   "gross_to_net": 198.9999999999984,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "weight of two 3 m spans (-285, -285) then constant effort 569.943 (net 0.0001 of the share)",
+   "gross_to_net": 19998.999999994256,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "weight of two 3 m spans (-285, -285) then constant effort 569.99943 (net 1e-06 of the share)",
+   "gross_to_net": 1999998.9998637992,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "weight of two 3 m spans (-285, -285) then constant effort 569.999943 (net 1e-07 of the share)",
+   "gross_to_net": 19999999.010605026,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "weight of two 3 m spans (-285, -285) then constant effort 569.9999943 (net 1e-08 of the share)",
+   "gross_to_net": 199999999.90385264,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 10 N then thermal axial pair +100000, -100000 N (colinear members)",
+   "gross_to_net": 20001.0,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 1 N then thermal axial pair +100000, -100000 N (colinear members)",
+   "gross_to_net": 200001.0,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 10 N then thermal axial pair +3e+06, -3e+06 N (colinear members)",
+   "gross_to_net": 600001.0,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 1 N then thermal axial pair +3e+06, -3e+06 N (colinear members)",
+   "gross_to_net": 6000001.0,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 10 N then thermal axial pair +3.6e+07, -3.6e+07 N (colinear members)",
+   "gross_to_net": 7200001.0,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 1 N then thermal axial pair +3.6e+07, -3.6e+07 N (colinear members)",
+   "gross_to_net": 72000001.0,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 13 N then thermal axial pair +/-41040000.0 N (production order: nodal first)",
+   "gross_to_net": 6313847.153846154,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal 3.7 N then thermal axial pair +/-41040000.0 N (production order: nodal first)",
+   "gross_to_net": 22183784.783783782,
+   "net_rel_error": 8.054681246307695e-10
+  },
+  {
+   "pattern": "nodal 1.3 N then thermal axial pair +/-41040000.0 N (production order: nodal first)",
+   "gross_to_net": 63138462.538461536,
+   "net_rel_error": 2.2924863716757322e-09
+  },
+  {
+   "pattern": "same, with the small term added last (cancellation first)",
+   "gross_to_net": 63138462.538461536,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal moment 10 N*m then fixed-end moments +142.5, -142.5 (equal spans)",
+   "gross_to_net": 29.5,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal moment 1 N*m then fixed-end moments +142.5, -142.5 (equal spans)",
+   "gross_to_net": 286.0,
+   "net_rel_error": 0.0
+  },
+  {
+   "pattern": "nodal moment 0.001 N*m then fixed-end moments +142.5, -142.5 (equal spans)",
+   "gross_to_net": 285001.0,
+   "net_rel_error": 4.7748263676261615e-12
+  },
+  {
+   "pattern": "nodal moment 0.00037 N*m then fixed-end moments +142.5, -142.5 (equal spans)",
+   "gross_to_net": 770271.2702702703,
+   "net_rel_error": 1.015194169344873e-11
+  },
+  {
+   "pattern": "pipe, contents and insulation weight on two adjacent spans (six same-sign terms)",
+   "gross_to_net": 1.0,
+   "net_rel_error": 0.0
+  }
+ ],
+ "D_expansion_rounded_is_not_correctly_rounded": {
+  "expansion_terms": [
+   7.703719777548943e-34,
+   1.1102230246251565e-16,
+   1.0
+  ],
+  "naive_ascending_sum_(Expansion::rounded)": 1.0,
+  "binary64_fold_in_authored_order_(1.0, 2^-53, 2^-110)": 1.0,
+  "correctly_rounded_exact_sum": 1.0000000000000002,
+  "naive_equals_correct": false
+ }
+}

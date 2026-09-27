@@ -1,0 +1,125 @@
+"""T3 V1 S11 check: structural count of force contributions per (load case, node,
+global translational direction) in committed JSON models, across producers, not only
+nodal loads. Standard library, read-only. Run from P/ with argument '.'.
+
+Counted producers (a conservative structural approximation of the facade's force sites):
+  nodal       primitive loads targeting a node, direction global_x|y|z (or UX|UY|UZ): +1
+  element     distributed_force / weight on a pipe segment touching the node, in the load's
+              global direction: +1 at each end node (full-span consistent equivalents)
+  thermal     thermal load on a segment: an axial pair, +1 at each end node in every
+              global direction in which the segment axis has a nonzero component
+  constant_effort  a constant_effort_support at the node: +1 on global z (assumed gravity axis)
+Magnitudes for the gross/net estimate: nodal value; element w*L/2; constant effort its
+constant_load; thermal contributions are counted but carry no magnitude here (so DOFs with
+thermal terms are excluded from the ratio estimate).
+"""
+import json, math, os, sys, collections
+root = sys.argv[1]
+DIRS = {"global_x": 0, "global_y": 1, "global_z": 2, "UX": 0, "UY": 1, "UZ": 2}
+
+
+def models(o):
+    if isinstance(o, dict):
+        if isinstance(o.get("load_cases"), list) and isinstance(o.get("pipe_segments"), list) and isinstance(o.get("nodes"), list):
+            yield o
+        for v in o.values():
+            yield from models(v)
+    elif isinstance(o, list):
+        for v in o:
+            yield from models(v)
+
+
+def num(v):
+    if isinstance(v, dict):
+        v = v.get("value")
+    return float(v) if isinstance(v, (int, float)) else None
+
+
+stats = collections.Counter()
+by_count = collections.Counter()
+producer_mix = collections.Counter()
+max_ratio = (0.0, None)
+examples = []
+seen_models = set()
+for d, _, fs in os.walk(root):
+    if "/execution" in d or "node_modules" in d or "/target" in d:
+        continue
+    for f in sorted(fs):
+        if not f.endswith(".json"):
+            continue
+        p = os.path.join(d, f)
+        if os.path.getsize(p) > 20_000_000:
+            continue
+        try:
+            o = json.load(open(p))
+        except Exception:
+            continue
+        for m in models(o):
+            key = json.dumps(m, sort_keys=True)[:2000] + str(len(json.dumps(m)))
+            dup = key in seen_models
+            seen_models.add(key)
+            stats["models"] += 1
+            stats["unique_models"] += (not dup)
+            pos = {}
+            for n in m["nodes"]:
+                if isinstance(n, dict) and isinstance(n.get("position"), dict):
+                    pos[n.get("id")] = [num(n["position"].get(a)) or 0.0 for a in "xyz"]
+            segs = {}
+            for s in m["pipe_segments"]:
+                if isinstance(s, dict):
+                    segs[s.get("id")] = (s.get("from"), s.get("to"))
+            ce = collections.Counter()
+            ce_mag = collections.defaultdict(float)
+            for s in m.get("supports") or []:
+                if isinstance(s, dict) and s.get("family") == "constant_effort_support":
+                    ce[s.get("node")] += 1
+                    ce_mag[s.get("node")] = num(((s.get("hanger") or {}).get("constant_load"))) or 0.0
+            for c in m["load_cases"]:
+                if not isinstance(c, dict):
+                    continue
+                stats["cases"] += 1
+                contrib = collections.defaultdict(list)  # (node, dir) -> [(producer, magnitude or None)]
+                for l in c.get("primitive_loads") or []:
+                    if not isinstance(l, dict):
+                        continue
+                    t = l.get("target") or {}
+                    cat = l.get("category")
+                    mag = num(l.get("magnitude"))
+                    if t.get("type") == "node" and l.get("direction") in DIRS:
+                        contrib[(t.get("node"), DIRS[l["direction"]])].append(("nodal", mag))
+                    elif t.get("type") == "element" and t.get("pipe") in segs:
+                        a, b = segs[t["pipe"]]
+                        if cat in ("distributed_force", "weight") and l.get("direction") in DIRS:
+                            L = math.dist(pos.get(a, [0, 0, 0]), pos.get(b, [0, 0, 0]))
+                            for n in (a, b):
+                                contrib[(n, DIRS[l["direction"]])].append(("element", None if mag is None else mag * L / 2))
+                        elif cat == "thermal":
+                            pa, pb = pos.get(a, [0, 0, 0]), pos.get(b, [0, 0, 0])
+                            for ax in range(3):
+                                if pa[ax] != pb[ax]:
+                                    for n in (a, b):
+                                        contrib[(n, ax)].append(("thermal", None))
+                for n, k in ce.items():
+                    for _ in range(k):
+                        contrib[(n, 2)].append(("constant_effort", -abs(ce_mag[n])))
+                for (n, ax), terms in contrib.items():
+                    stats["dofs_loaded"] += 1
+                    by_count[min(len(terms), 6)] += 1
+                    if len(terms) >= 3:
+                        stats["dofs_3plus"] += 1
+                        producer_mix[tuple(sorted(collections.Counter(t[0] for t in terms).items()))] += 1
+                        mags = [t[1] for t in terms]
+                        if all(v is not None for v in mags):
+                            net = sum(mags)
+                            gross = sum(abs(v) for v in mags)
+                            r = math.inf if net == 0 else gross / abs(net)
+                            if r != math.inf and r > max_ratio[0]:
+                                max_ratio = (r, [os.path.relpath(p, root), c.get("id"), n, ax])
+                            if net == 0:
+                                stats["dofs_3plus_exact_zero_net"] += 1
+                        if len(examples) < 8:
+                            examples.append([os.path.relpath(p, root), c.get("id"), n, "xyz"[ax], [t[0] for t in terms]])
+print(json.dumps({"stats": stats, "dofs_by_contribution_count(6=6+)": dict(sorted(by_count.items())),
+                  "producer_mix_on_3plus_dofs": {str(k): v for k, v in producer_mix.most_common()},
+                  "max_gross_to_net_on_3plus_dofs_with_known_magnitudes": max_ratio,
+                  "examples": examples}, indent=1))

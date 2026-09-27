@@ -31,7 +31,7 @@ Implement anchors, guides, line stops, vertical supports, springs, and imposed d
 ## Package Reference
 - **Package:** PKG-04 Solver Core and Numerical Methods
 - **Package Scope:** Implements global 3D centerline/frame mechanics, straight pipe behavior, supports, nonlinear support logic, diagnostics, and performance harnesses.
-- **Package Assigned Scope Items:** SOW-005, SOW-006, SOW-011, SOW-012, SOW-035, SOW-053, SOW-052
+- **Package Assigned Scope Items:** SOW-005, SOW-006, SOW-011, SOW-012, SOW-035, SOW-053, SOW-052 (supporting)
 - **Package Exclusions:** Does not decide code compliance; produces mechanical results.
 
 ## Decomposition Reference

@@ -1,0 +1,68 @@
+{
+ "python": "3.11.15",
+ "Z_negative_zero_result_values": {
+  "total": 941,
+  "files": 29,
+  "by_kind": {
+   "element_local_bending_normal_stress_y": 199,
+   "element_local_axial_normal_stress": 127,
+   "element_local_shear_force_z": 111,
+   "element_local_bending_moment_y": 108,
+   "element_local_torsional_shear_stress": 107,
+   "element_local_bending_normal_stress_z": 81,
+   "element_local_axial_force": 69,
+   "element_local_torsional_moment": 63,
+   "element_local_shear_force_y": 36,
+   "element_local_bending_moment_z": 36,
+   "support_reaction_component_v2": 4
+  }
+ },
+ "Z_normalized_residual_negative_zero": {
+  "strings": 245,
+  "files": 31
+ },
+ "O_fold_orders": [
+  {
+   "G": 100000000.0,
+   "order": "(G,-G,n)",
+   "fold": 0.3,
+   "correctly_rounded": 0.3,
+   "fold_differs": false
+  },
+  {
+   "G": 100000000.0,
+   "order": "(G,n,-G)",
+   "fold": 0.29999999701976776,
+   "correctly_rounded": 0.3,
+   "fold_differs": true
+  },
+  {
+   "G": 100000000.0,
+   "order": "(n,G,-G)",
+   "fold": 0.29999999701976776,
+   "correctly_rounded": 0.3,
+   "fold_differs": true
+  },
+  {
+   "G": 1e+80,
+   "order": "(G,-G,n)",
+   "fold": 0.3,
+   "correctly_rounded": 0.3,
+   "fold_differs": false
+  },
+  {
+   "G": 1e+80,
+   "order": "(G,n,-G)",
+   "fold": 0.0,
+   "correctly_rounded": 0.3,
+   "fold_differs": true
+  },
+  {
+   "G": 1e+80,
+   "order": "(n,G,-G)",
+   "fold": 0.0,
+   "correctly_rounded": 0.3,
+   "fold_differs": true
+  }
+ ]
+}

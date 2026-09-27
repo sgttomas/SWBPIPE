@@ -1,0 +1,66 @@
+// RV2 scratch probe (not part of the candidate): reads RV2_IN, writes RV2_OUT.
+use super::*;
+
+fn parse(token: &str) -> Wide2 {
+    match token {
+        "Z+" => return Wide2::ZERO,
+        "Z-" => return Wide2::ZERO.neg(),
+        _ => {}
+    }
+    let negative = &token[..1] == "-";
+    let (hex, e) = token[1..].split_once('p').unwrap();
+    let sig = u128::from_str_radix(hex, 16).unwrap();
+    Wide2::from_parts(negative, e.parse().unwrap(), [sig as u64, (sig >> 64) as u64]).unwrap()
+}
+
+fn tok(r: Result<Wide2, WideError>) -> String {
+    match r {
+        Ok(v) => format!("{v:?}"),
+        Err(e) => format!("E:{e:?}"),
+    }
+}
+
+#[test]
+fn rv2_probe() {
+    let Ok(input) = std::env::var("RV2_IN") else { return };
+    let out = std::env::var("RV2_OUT").unwrap();
+    let text = std::fs::read_to_string(input).unwrap();
+    let mut res = String::new();
+    for line in text.lines() {
+        let f: Vec<&str> = line.split_whitespace().collect();
+        let r = match f[0] {
+            "f64" => tok(Wide2::from_f64(f64::from_bits(u64::from_str_radix(f[1], 16).unwrap()))),
+            "split" => match parse(f[1]).split_binary64() {
+                Ok(s) => {
+                    let mut t: Vec<String> = s.terms().iter().map(|x| format!("{:016x}", x.to_bits())).collect();
+                    t.insert(0, s.terms().len().to_string());
+                    t.push(if s.truncated_below_min_subnormal() { "1".into() } else { "0".into() });
+                    t.join(" ")
+                }
+                Err(e) => format!("E:{e:?}"),
+            },
+            op => {
+                let p: u32 = f[1].parse().unwrap();
+                let mut a = WideArith::new(p).unwrap();
+                let x = parse(f[2]);
+                let r = match op {
+                    "add" => a.add(&x, &parse(f[3])),
+                    "sub" => a.sub(&x, &parse(f[3])),
+                    "mul" => a.mul(&x, &parse(f[3])),
+                    "div" => a.div(&x, &parse(f[3])),
+                    "sqrt" => a.sqrt(&x),
+                    "angle" => a.included_angle(&x, &parse(f[3])),
+                    "atanpos" => a.atan_positive(&x),
+                    other => panic!("{other}"),
+                };
+                let w = a.work();
+                format!("{} {} {}", tok(r), w.sqrt, w.div)
+            }
+        };
+        res.push_str(line);
+        res.push_str(" => ");
+        res.push_str(&r);
+        res.push('\n');
+    }
+    std::fs::write(out, res).unwrap();
+}

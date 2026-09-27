@@ -1,0 +1,8 @@
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+env: CARGO_TARGET_DIR=<t3-target> RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0; cargo build --offline --release -j 2 (not --locked: the probe crate is not in the copied product_physics Cargo.lock)
+exports: git archive c61a540ea / f3270ea79 of projects/chirality-piping/{core,fixtures,schemas} into <scratch>/export-{main,t1}
+serialization: each build waited until no other cargo process was running (pgrep -x cargo)
+binary main: 7b89ed1e531183ec4ce92f77fca47a52901a62f9df4d7e7ab264d81d69f6e909
+binary t1: 208ce6826c0792533ad533e1cf5aa710cb4d010f3379939bb4a397e5d580fdbe
+run date (UTC): 2026-09-26

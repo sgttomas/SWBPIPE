@@ -1,0 +1,178 @@
+{
+ "load_reference_source/eigen_motion-dense_scrutiny.raw.json :: case:join": {
+  "S_star": {
+   "force": 89540.0,
+   "moment": 179100.0,
+   "rotation": 0.0006005,
+   "translation": 0.001201
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 39,
+  "input_derived_prescribed": 6,
+  "non_quantity": 1,
+  "relative_verified": 21,
+  "rows": 90,
+  "withheld": 62
+ },
+ "load_reference_source/eigen_motion-sparse_interactive.raw.json :: case:join": {
+  "S_star": {
+   "force": 89540.0,
+   "moment": 179100.0,
+   "rotation": 0.0006005,
+   "translation": 0.001201
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 39,
+  "input_derived_prescribed": 6,
+  "relative_verified": 21,
+  "rows": 89,
+  "withheld": 62
+ },
+ "load_reference_source/fields-dense_scrutiny.raw.json :: case": {
+  "S_star": {
+   "force": 0.003742,
+   "moment": 0.007483,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 8,
+  "absolute_verified_exact_zero": 8,
+  "input_derived_prescribed": 5,
+  "non_quantity": 1,
+  "relative_verified": 68,
+  "rows": 82,
+  "withheld": 8
+ },
+ "load_reference_source/fields-sparse_interactive.raw.json :: case": {
+  "S_star": {
+   "force": 0.003742,
+   "moment": 0.007483,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 8,
+  "absolute_verified_exact_zero": 8,
+  "input_derived_prescribed": 5,
+  "relative_verified": 68,
+  "rows": 81,
+  "withheld": 8
+ },
+ "load_reference_source/mixed-dense_scrutiny.raw.json :: case": {
+  "S_star": {
+   "force": 5e-09,
+   "moment": 1e-08,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 62,
+  "input_derived_prescribed": 5,
+  "non_quantity": 1,
+  "relative_verified": 14,
+  "rows": 82,
+  "withheld": 62
+ },
+ "load_reference_source/mixed-dense_scrutiny.raw.json :: case:ordinary-pressure": {
+  "S_star": {
+   "force": 2.545e-07,
+   "moment": 5.089e-07,
+   "rotation": 1.066e-08,
+   "translation": 2.132e-08
+  },
+  "absolute_verified": 68,
+  "absolute_verified_exact_zero": 68,
+  "input_derived": 20,
+  "input_derived_prescribed": 5,
+  "non_quantity": 2,
+  "relative_verified": 15,
+  "rows": 110,
+  "withheld": 68
+ },
+ "load_reference_source/mixed-sparse_interactive.raw.json :: case": {
+  "S_star": {
+   "force": 5e-09,
+   "moment": 1e-08,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 62,
+  "input_derived_prescribed": 5,
+  "relative_verified": 14,
+  "rows": 81,
+  "withheld": 62
+ },
+ "load_reference_source/mixed-sparse_interactive.raw.json :: case:ordinary-pressure": {
+  "S_star": {
+   "force": 2.545e-07,
+   "moment": 5.089e-07,
+   "rotation": 1.066e-08,
+   "translation": 2.132e-08
+  },
+  "absolute_verified": 68,
+  "absolute_verified_exact_zero": 68,
+  "input_derived": 20,
+  "input_derived_prescribed": 5,
+  "non_quantity": 1,
+  "relative_verified": 15,
+  "rows": 109,
+  "withheld": 68
+ },
+ "load_reference_source/n05-dense_scrutiny.raw.json :: case": {
+  "S_star": {
+   "force": 5e-09,
+   "moment": 1e-08,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 62,
+  "input_derived_prescribed": 5,
+  "non_quantity": 1,
+  "relative_verified": 14,
+  "rows": 82,
+  "withheld": 62
+ },
+ "load_reference_source/n05-sparse_interactive.raw.json :: case": {
+  "S_star": {
+   "force": 5e-09,
+   "moment": 1e-08,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 62,
+  "input_derived_prescribed": 5,
+  "relative_verified": 14,
+  "rows": 81,
+  "withheld": 62
+ },
+ "load_reference_source/n06-dense_scrutiny.raw.json :: case": {
+  "S_star": {
+   "force": 5e-17,
+   "moment": 1e-16,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 62,
+  "input_derived_prescribed": 5,
+  "relative_verified": 14,
+  "rows": 81,
+  "withheld": 62
+ },
+ "load_reference_source/n06-sparse_interactive.raw.json :: case": {
+  "S_star": {
+   "force": 5e-17,
+   "moment": 1e-16,
+   "rotation": 0.0001,
+   "translation": 0.0002
+  },
+  "absolute_verified": 62,
+  "absolute_verified_exact_zero": 62,
+  "input_derived_prescribed": 5,
+  "relative_verified": 14,
+  "rows": 81,
+  "withheld": 62
+ }
+}

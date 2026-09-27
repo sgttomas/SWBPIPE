@@ -1,0 +1,3 @@
+{"agree": 230, "disagree": 2}
+DISAGREE RF-WEAK-W-L-r1e-08 {"id": "NC-WRONG-TRANSFORM", "r1_discriminates": false, "r1_max_violation_ratio": "0", "v2": {"discriminates": true, "violations": 14, "max_ratio_x1e9": "1.00000e+9", "at": "tw.M1"}, "info": {"nodal_only": {"discriminates": true, "violations": 9, "max_ratio_x1e9": "1.00000e+9", "at": "th.N2.RX"}}, "agree": false}
+DISAGREE RF-WEAK-W-L-r1e-12 {"id": "NC-WRONG-TRANSFORM", "r1_discriminates": false, "r1_max_violation_ratio": "0", "v2": {"discriminates": true, "violations": 11, "max_ratio_x1e9": "1.00000e+9", "at": "th.N2.RX"}, "info": {"nodal_only": {"discriminates": true, "violations": 6, "max_ratio_x1e9": "1.00000e+9", "at": "th.N2.RX"}}, "agree": false}

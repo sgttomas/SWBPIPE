@@ -1,0 +1,10 @@
+{
+ "M9 axis-aligned 60 m": {
+  "EF_translation_over_class_scale_in_1e-9": 4.857300350247857e-07,
+  "EF_rotation_over_class_scale_in_1e-9": 1.3695130394168573e-06
+ },
+ "M11 skew (2,1,0) 60 m": {
+  "EF_translation_over_class_scale_in_1e-9": 9.271035098803507e-07,
+  "EF_rotation_over_class_scale_in_1e-9": 4.4489434054804046e-06
+ }
+}

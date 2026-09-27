@@ -1,0 +1,432 @@
+[
+ {
+  "mutant": "RV-M1a",
+  "mutation": "E1: binary64 fold of the per-load fixed-end terms",
+  "patch": [
+   {
+    "file": "core/solver/straight_pipe/src/lib.rs",
+    "old": "exact_array_sum(\"equivalent_nodal_loads\", None, &terms, &[])",
+    "new": "{ let mut a = [0.0; ELEMENT_DOF]; for t in &terms { for d in 0..ELEMENT_DOF { a[d] = a[d] + t[d]; } } Ok(a) }"
+   }
+  ],
+  "runs": {
+   "core/solver/straight_pipe --lib s11k": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_e1_single_load_is_bit_identical_and_cancelling_loads_are_exact"
+    ],
+    "compile_error": false
+   },
+   "core/solver/frame_kernel --test s11_site_table": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --test s11_site_table)",
+    "exit": 0,
+    "passed": 2,
+    "failed_tests": [],
+    "compile_error": false
+   },
+   "G=1e8 core/solver/straight_pipe": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_e1_single_load_is_bit_identical_and_cancelling_loads_are_exact"
+    ],
+    "compile_error": false
+   },
+   "G=1e80 core/solver/straight_pipe": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_e1_single_load_is_bit_identical_and_cancelling_loads_are_exact"
+    ],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-M1c",
+  "mutation": "E3: two roundings (exact local-minus-loads, then the axial equivalent subtracted in binary64)",
+  "patch": [
+   {
+    "file": "core/solver/straight_pipe/src/lib.rs",
+    "old": "exact_array_sum(name, Some(local_forces), &load_terms, &axial_terms)",
+    "new": "{ let mut r = exact_array_sum(name, Some(local_forces), &load_terms, &[])?; for t in &axial_terms { for d in 0..ELEMENT_DOF { r[d] = r[d] - t[d]; } } Ok(r) }"
+   }
+  ],
+  "runs": {
+   "core/solver/straight_pipe --lib s11k": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_axial_effect_case_kills_e2_and_the_axial_half_of_e3"
+    ],
+    "compile_error": false
+   },
+   "core/solver/frame_kernel --test s11_site_table": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --test s11_site_table)",
+    "exit": 0,
+    "passed": 2,
+    "failed_tests": [],
+    "compile_error": false
+   },
+   "G=1e8 core/solver/straight_pipe": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_axial_effect_case_kills_e2_and_the_axial_half_of_e3"
+    ],
+    "compile_error": false
+   },
+   "G=1e80 core/solver/straight_pipe": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_axial_effect_case_kills_e2_and_the_axial_half_of_e3"
+    ],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-M1d",
+  "mutation": "E4/E6: station moment components folded in binary64, written without compound assignment",
+  "patch": [
+   {
+    "file": "core/solver/straight_pipe/src/lib.rs",
+    "old": "bending_moment_z: exact_terms_sum(\"bending_moment_z\", &sums.moment_z)?,",
+    "new": "bending_moment_z: { let mut s = 0.0; for v in &sums.moment_z { s = s + v; } s },"
+   }
+  ],
+  "runs": {
+   "core/solver/straight_pipe --lib s11k": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_probe_a_end_forces_and_stations_are_exact_at_the_kill_set"
+    ],
+    "compile_error": false
+   },
+   "core/solver/frame_kernel --test s11_site_table": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --test s11_site_table)",
+    "exit": 0,
+    "passed": 2,
+    "failed_tests": [],
+    "compile_error": false
+   },
+   "G=1e8 core/solver/straight_pipe": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_probe_a_end_forces_and_stations_are_exact_at_the_kill_set"
+    ],
+    "compile_error": false
+   },
+   "G=1e80 core/solver/straight_pipe": {
+    "command": "(cd core/solver/straight_pipe && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 4,
+    "failed_tests": [
+     "s11k_tests::k4_probe_a_end_forces_and_stations_are_exact_at_the_kill_set"
+    ],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-M1m",
+  "mutation": "E13: publish the binary64 fold",
+  "patch": [
+   {
+    "file": "core/loads/load_case_algebra/src/lib.rs",
+    "old": "let value = combination_value(&exact, exact_failed, fold);",
+    "new": "let value = { let _ = (&exact, exact_failed); fold };"
+   }
+  ],
+  "runs": {
+   "core/loads/load_case_algebra --lib s11k": {
+    "command": "(cd core/loads/load_case_algebra && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 0,
+    "failed_tests": [
+     "s11k_tests::k6_cancelling_combinations_are_exact",
+     "s11k_tests::k6_exact_products_of_non_unit_factors",
+     "s11k_tests::k6_range_and_non_finite_paths"
+    ],
+    "compile_error": false
+   },
+   "core/solver/frame_kernel --test s11_site_table": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --test s11_site_table)",
+    "exit": 0,
+    "passed": 2,
+    "failed_tests": [],
+    "compile_error": false
+   },
+   "G=1e8 core/loads/load_case_algebra": {
+    "command": "(cd core/loads/load_case_algebra && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 0,
+    "failed_tests": [
+     "s11k_tests::k6_cancelling_combinations_are_exact",
+     "s11k_tests::k6_exact_products_of_non_unit_factors",
+     "s11k_tests::k6_range_and_non_finite_paths"
+    ],
+    "compile_error": false
+   },
+   "G=1e80 core/loads/load_case_algebra": {
+    "command": "(cd core/loads/load_case_algebra && cargo test --offline --locked --no-fail-fast --lib s11k)",
+    "exit": 101,
+    "passed": 0,
+    "failed_tests": [
+     "s11k_tests::k6_cancelling_combinations_are_exact",
+     "s11k_tests::k6_exact_products_of_non_unit_factors",
+     "s11k_tests::k6_range_and_non_finite_paths"
+    ],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-M13",
+  "mutation": "KS2: binary64 fold on every legacy row",
+  "patch": [
+   {
+    "file": "core/solver/frame_kernel/src/lib.rs",
+    "old": "            if !coupled || matches!(force_rows, ForceRows::Binary64(_)) {",
+    "new": "            if true {"
+   }
+  ],
+  "runs": {
+   "core/solver/frame_kernel --lib": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 106,
+    "failed_tests": [
+     "structural::s11k_tests::k11_reduced_right_hand_side_is_correctly_rounded",
+     "structural::s11k_tests::option_c_binary64_variants_keep_todays_fold_on_probe_p"
+    ],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-M14",
+  "mutation": "KS3: binary64 numerator on every row",
+  "patch": [
+   {
+    "file": "core/solver/frame_kernel/src/structural.rs",
+    "old": "let exact_numerator = !binding.binary64() && prescribed_coupled(system, i);",
+    "new": "let exact_numerator = false;"
+   }
+  ],
+  "runs": {
+   "core/solver/frame_kernel --lib": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 107,
+    "failed_tests": [
+     "structural::s11k_tests::k11_forced_refinement_step_stays_exact"
+    ],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-M12L",
+  "mutation": "KS1: binary64 fold on legacy coupled rows only (ledger rows stay exact)",
+  "patch": [
+   {
+    "file": "core/solver/frame_kernel/src/structural.rs",
+    "old": "            && (force_binding.assembled().is_some() || prescribed_coupled(system, i))",
+    "new": "            && force_binding.assembled().is_some()"
+   }
+  ],
+  "runs": {
+   "core/solver/frame_kernel --lib": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 106,
+    "failed_tests": [
+     "structural::s11k_tests::k11_dense_profile_and_typed_structural_paths_are_exact",
+     "structural::s11k_tests::option_c_binary64_variants_keep_todays_fold_on_probe_p"
+    ],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-OPT1",
+  "mutation": "option (c): loop reduction switched to the exact KS2",
+  "patch": [
+   {
+    "file": "core/solver/nonlinear_integration/src/lib.rs",
+    "old": "    let reduced = reduce_system_with_prescribed_displacements_binary64(\n        stiffness,",
+    "new": "    let reduced = open_pipe_stress_frame_kernel::reduce_system_with_prescribed_displacements(\n        stiffness,"
+   }
+  ],
+  "runs": {
+   "core/solver/nonlinear_integration --lib": {
+    "command": "(cd core/solver/nonlinear_integration && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 66,
+    "failed_tests": [
+     "s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path"
+    ],
+    "compile_error": false
+   },
+   "validation/benchmarks/nonlinear ": {
+    "command": "(cd validation/benchmarks/nonlinear && cargo test --offline --locked --no-fail-fast)",
+    "exit": 0,
+    "passed": 19,
+    "failed_tests": [],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-OPT2",
+  "mutation": "option (c): loop assembly solve switched to the exact KS1/KS3 solve",
+  "patch": [
+   {
+    "file": "core/solver/nonlinear_integration/src/lib.rs",
+    "old": "        assembly.solve_binary64(\n",
+    "new": "        assembly.solve(\n"
+   }
+  ],
+  "runs": {
+   "core/solver/nonlinear_integration --lib": {
+    "command": "(cd core/solver/nonlinear_integration && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 64,
+    "failed_tests": [
+     "s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path",
+     "tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt",
+     "tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification"
+    ],
+    "compile_error": false
+   },
+   "validation/benchmarks/nonlinear ": {
+    "command": "(cd validation/benchmarks/nonlinear && cargo test --offline --locked --no-fail-fast)",
+    "exit": 0,
+    "passed": 19,
+    "failed_tests": [],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-OPT3",
+  "mutation": "option (c): loop dense and sparse solves (no assembly) switched to the exact solves",
+  "patch": [
+   {
+    "file": "core/solver/nonlinear_integration/src/lib.rs",
+    "old": "open_pipe_stress_frame_kernel::structural::solve_structural_dense_binary64(\n                    &original,\n                )?",
+    "new": "open_pipe_stress_frame_kernel::structural::solve_structural_dense(\n                    &original,\n                )?"
+   },
+   {
+    "file": "core/solver/nonlinear_integration/src/lib.rs",
+    "old": "structural_adapter::solve_structural_sparse_binary64(&original)?",
+    "new": "open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&original)?"
+   }
+  ],
+  "runs": {
+   "core/solver/nonlinear_integration --lib": {
+    "command": "(cd core/solver/nonlinear_integration && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 66,
+    "failed_tests": [
+     "s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path"
+    ],
+    "compile_error": false
+   },
+   "validation/benchmarks/nonlinear ": {
+    "command": "(cd validation/benchmarks/nonlinear && cargo test --offline --locked --no-fail-fast)",
+    "exit": 0,
+    "passed": 19,
+    "failed_tests": [],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-OPT4",
+  "mutation": "option (c) textual workaround: exact assembly solve reached through a helper, required text kept in a comment",
+  "patch": [
+   {
+    "file": "core/solver/nonlinear_integration/src/lib.rs",
+    "old": "        assembly.solve_binary64(\n",
+    "new": "        // assembly.solve_binary64(\n        exact_solve(assembly,\n"
+   },
+   {
+    "file": "core/solver/nonlinear_integration/src/lib.rs",
+    "old": "fn solve_linearized_system_evidence(\n",
+    "new": "fn exact_solve(a: &AssemblyEvidence, k: &[Vec<f64>], f: &[f64], free: &[usize], p: &[(usize, f64)], m: LinearSolveMode) -> Result<open_pipe_stress_frame_kernel::structural::StructuralSolution, StructuralError> { a.solve(k, f, free, p, m) }\nfn solve_linearized_system_evidence(\n"
+   }
+  ],
+  "runs": {
+   "core/solver/nonlinear_integration --lib": {
+    "command": "(cd core/solver/nonlinear_integration && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 65,
+    "failed_tests": [
+     "tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt",
+     "tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification"
+    ],
+    "compile_error": false
+   },
+   "validation/benchmarks/nonlinear ": {
+    "command": "(cd validation/benchmarks/nonlinear && cargo test --offline --locked --no-fail-fast)",
+    "exit": 0,
+    "passed": 19,
+    "failed_tests": [],
+    "compile_error": false
+   }
+  }
+ },
+ {
+  "mutant": "RV-PUB",
+  "mutation": "public evaluate_original_residual switched to the exact KS3 numerator",
+  "patch": [
+   {
+    "file": "core/solver/frame_kernel/src/structural.rs",
+    "old": "    evaluate_original_residual_bound(system, ForceBinding::Binary64, u)\n",
+    "new": "    evaluate_original_residual_bound(system, ForceBinding::Legacy, u)\n"
+   }
+  ],
+  "runs": {
+   "core/solver/frame_kernel --lib": {
+    "command": "(cd core/solver/frame_kernel && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 0,
+    "passed": 108,
+    "failed_tests": [],
+    "compile_error": false
+   },
+   "core/solver/nonlinear_integration --lib": {
+    "command": "(cd core/solver/nonlinear_integration && cargo test --offline --locked --no-fail-fast --lib)",
+    "exit": 101,
+    "passed": 65,
+    "failed_tests": [
+     "tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt",
+     "tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification"
+    ],
+    "compile_error": false
+   },
+   "validation/benchmarks/nonlinear ": {
+    "command": "(cd validation/benchmarks/nonlinear && cargo test --offline --locked --no-fail-fast)",
+    "exit": 101,
+    "passed": 18,
+    "failed_tests": [
+     "tests::multisupport_acceptance_inventory_uses_narrow_dec_046_policy"
+    ],
+    "compile_error": false
+   }
+  }
+ }
+]

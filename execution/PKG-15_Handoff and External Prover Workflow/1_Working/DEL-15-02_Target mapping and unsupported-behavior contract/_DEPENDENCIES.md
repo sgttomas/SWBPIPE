@@ -1,7 +1,7 @@
 # Dependencies: DEL-15-02 Target mapping and unsupported-behavior contract
 ## Coordination Mode
 - **Mode:** FULL_GRAPH
-- **Graph Authority:** `execution/_DAG/DAG-007/` is the current approved canonical graph authority.
+- **Accepted project DAG:** the version named by `execution/_DAG/_LATEST.md`; it governs this deliverable's blockers only while current with this file and `Dependencies.csv` (D-GOV-49).
 - **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
 ## Declared Upstream Dependencies

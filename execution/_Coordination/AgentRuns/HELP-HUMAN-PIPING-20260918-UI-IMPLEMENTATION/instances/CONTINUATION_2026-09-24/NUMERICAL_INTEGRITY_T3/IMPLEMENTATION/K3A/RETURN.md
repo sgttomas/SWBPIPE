@@ -27,7 +27,7 @@
 | `FK/src/structural.rs` | edit: the single `mod retained;` (MOD-D). No re-export was needed | +1 |
 | `FK/src/structural/retained/mod.rs` | new | 14 |
 | `FK/src/structural/retained/wide.rs` | new | 966 |
-| `FK/tests/retained_wide/wide_tests.rs` | new: `wide.rs`'s `#[cfg(test)] #[path]` module (22 tests) | 1115 |
+| `FK/tests/retained_wide/wide_tests.rs` | new: `wide.rs`'s `#[cfg(test)] #[path]` module (19 tests; corrected from 22 after RV2 N1) | 1115 |
 | `FK/tests/retained_wide/gen_wide_vectors.py` | new: standard-library generator | 1068 |
 | `FK/tests/retained_wide/targeted.txt` | new vectors | 2072 |
 | `FK/tests/retained_wide/split.txt` | new vectors | 822 |
@@ -57,11 +57,12 @@
 
 **Differences from V1's emulation.** In the arctangent, the series tail is summed smallest first, and the stop test is against 2^(e_t−p−1), where V1 summed forward and stopped at ulp(acc)/4. This is an implementation detail below the design's resolution ("sum the series"). It gives a smaller proved bound and a smaller measured error. I report it here rather than treat it as a design change.
 
-## 3. The arctangent (C1): proved bound and measured tolerance
+## 3. The arctangent (C1): proved bound (the contract) and regression tolerance
 
 **Proved** (full proof in the `wide.rs` module documentation):
-- For exact inputs, |φ̂ − φ| ≤ 23.55·2^−p·φ, that is **at most 23.6 ulp of p**, for every input in the domain and 53 ≤ p ≤ 128.
-- For `atan_positive` the bound is (1.54 + 4k)·u.
+- For exact inputs, |φ̂ − φ| ≤ 23.55·2^−p·φ, that is **at most 23.6 ulp of p**, for every input in the domain and 53 ≤ p ≤ 128. Otherwise the call is refused with `ExponentRange` when t² or a series power leaves ±2^62 (roughly e_t > 2^61 or e_t < −2^62/3). It never returns a wrong value. (RV2 N3.)
+- For `atan_positive` the bound is (1.54 + 4k)·u, with the same refusals.
+- **This proved bound is the accuracy contract K-D5 may cite** (RV2 S1, ROOT).
 - **Structure of the proof:**
   1. Lemma A: a relative perturbation η of t moves atan t by at most \|η\|/(1−\|η\|)² relative.
   2. The initial quotient has error γ₂.
@@ -93,14 +94,15 @@
 - `atan_positive` over t = 10^k for k = −300…300 (step 3), 2^j for j = −1100…1100 (step 100) and ±100000, the 1/20 threshold ± 3 ulp, and inputs at each reduction-step boundary ± 2 ulp;
 - domain refusals.
 
-**Specified tolerance:**
-- The tests assert **6 ulp**: the measured bound rounded up. It covers 5.41 and is ≤ 23.6.
-- They also assert the proved 23.6 ulp on every vector, and bitwise equality with the generator's emulation of the algorithm.
+**Regression tolerance (not a bound; revised after RV2 S1):**
+- The original records called 6 ulp "the measured bound, rounded up". That was wrong: RV2 found an input at 6.0818 ulp (see "RV2 fixes" below).
+- The tests now assert **6.1 ulp** (`ATAN_REGRESSION_TOLERANCE_TENTH_ULPS` = 61). It is a **regression tolerance for the committed vectors only**, raised just enough to cover RV2's input. Other inputs may exceed it.
+- The **accuracy contract is the proved 23.6 ulp**, which the tests also assert on every vector, together with bitwise equality with the generator's emulation of the algorithm.
 - ROOT accepted the proof as meeting C1 (manager relay, 2026-09-26).
 
 ## 4. Tests: results and per-crate counts
 
-**K3a's 22 tests** (`FK`, in `retained::wide::tests`):
+**K3a's 19 tests** (`FK`, in `retained::wide::tests`; corrected from 22 after RV2 N1, since the filter `retained` also matches 3 pre-existing `exact_boundary::tests::retained_*` tests):
 - sha256 known answers; the committed vectors' sha256.
 - lift; `from_parts`; precision range; signs of zero; work counter.
 - p = 53 against hardware for + − × ÷ √ (10^5 random normal-range pairs per operation, plus ties).
@@ -117,7 +119,7 @@
 - The split: vectors, random values, and the `add_product` round trip.
 - The arctangent: vectors and domain.
 
-Result: **22 passed** (11.9 s single-threaded, 7.5 s parallel, debug).
+Result: all passed. The filter `retained` runs 22 tests (the 19 new plus 3 pre-existing), in 11.9 s single-threaded and 7.5 s parallel, debug.
 
 **Seeded Fraction differential:**
 - **Choice:** the full streams are not committed (about 26 MB). Committed instead: the generator, the seeds, the stream and per-10^5-chunk sha256 digests (`differential.txt`) and the first 1,000 records of each stream (`differential_sample.txt`). The Rust test regenerates the operands with the same SplitMix64 rules, checks the 1,000 sample records one by one (operands and result), then each chunk digest, then the stream digest.
@@ -131,7 +133,7 @@ Result: **22 passed** (11.9 s single-threaded, 7.5 s parallel, debug).
 
 | Crate | Passed | Failed | Ignored |
 |---|---|---|---|
-| core/solver/frame_kernel | 135 (127 unit, of which 22 are new; 2 site table; 6 doc; base 113) | 0 | 0 |
+| core/solver/frame_kernel | 135 (127 unit, of which 19 are new; 2 site table; 6 doc; base 116 = 108 + 2 + 6, corrected after RV2 N1) | 0 | 0 |
 | core/solver/straight_pipe | 39 | 0 | 0 |
 | core/solver/curved_bend | 25 | 0 | 0 |
 | core/loads/load_case_algebra | 21 | 0 | 0 |
@@ -187,7 +189,7 @@ The counts outside `frame_kernel` equal S11-K's post-regeneration run.
 
 - **Toolchain:** rustc and cargo 1.97.1, `CARGO_INCREMENTAL=0`, own target `<k3a-target>`, `--offline --locked` for every repository crate. Python 3.11.15 (DEC-025 venv), standard library only.
 - **Formatting:** rustfmt 1.8.0 from the host's stable toolchain, applied to the K3a files only (1.97.1 has no rustfmt component). Pre-existing format differences in `lib.rs` and `functionals.rs` were left alone.
-- **Whitespace:** `git diff --no-index --check` is clean on every new file.
+- **Whitespace:** `git diff --no-index --check` is clean on every new file except the raw logs under `_run_records/`. Those keep cargo's trailing blank line verbatim, so `git diff --check` reports "new blank line at EOF" for them: 24 files in `_run_records/suites/` and 1 in `_run_records/rv2_fixes/`. They are left unedited as raw tool output. (RV2 N2.)
 - **Host incident (undone):** one `RUSTUP_TOOLCHAIN=1.94.1` call made rustup auto-install a `1.94.1` toolchain (570 MB). I uninstalled it at once. From then on I used `RUSTUP_AUTO_INSTALL=0`.
 - **Cargo discipline:** one cargo job at a time, checked with `pgrep`, with no waits needed. Heavy runs were held until the manager released the host.
 - **Disk:** free disk, measured after each heavy run with its build output still present, was at least 9.1 GB (product_physics) and 9.6 GB (src-tauri, 3.6 GB of build output), and was 13 GB at the end. My target was pruned after each crate and is empty at the end.
@@ -198,3 +200,52 @@ The counts outside `frame_kernel` equal S11-K's post-regeneration run.
 - **Slice K3's scope, not built here:** rounded conversion back to binary64 with its outcomes; L = 4, 8 and 16.
 - **Proof scope:** the proved bound is for exact inputs. K-D5's s and c carry formation error, which its own check measures.
 - **For D1's record:** V1's 2.69-ulp figure is superseded by the proof (23.6) and by this set's measured 5.41. V1's variant reaches 7.28 on this set.
+
+## RV2 fixes (2026-09-27)
+
+**Basis:**
+- RV2's review `T3/REVIEW/K3A_REVIEW.md` (`9c558f533`, sha256 `11419d2c…`, verified), PASS with 0 blocking, 2 should-fix and 7 notes.
+- The brief `TASK_BRIEFS/I2_K3A_RV2_FIXES.md` (`6d4f5c1ca`), with ROOT's choices relayed by the manager.
+- Applied on `43da7a24e` in `<k3a-worktree>`, uncommitted. I made no Git writes.
+- **No arithmetic code path changed.** In `wide.rs`, only documentation changed, plus the test-only constant `ATAN_TOLERANCE_ULPS = 6`, which became `ATAN_REGRESSION_TOLERANCE_TENTH_ULPS = 61`.
+
+**Files changed:**
+
+| File | Change |
+|---|---|
+| `FK/src/structural/retained/wide.rs` | S1: the arctangent documentation now names the proved 23.6 ulp as the accuracy contract, and calls the tolerance a regression tolerance for the committed vectors only (6.1 ulp), with RV2's input recorded. N3: the bound statement adds the `ExponentRange` refusals. The constant was renamed and is now in tenths (976 lines, +10) |
+| `FK/tests/retained_wide/wide_tests.rs` | uses the 6.1-ulp regression tolerance. Asserts that the vectors contain RV2's S1 input (1) and its R2 inputs (13) (1119 lines, +4) |
+| `FK/tests/retained_wide/gen_wide_vectors.py` | S1 and S2: the arctangent set gains RV2's 6.08-ulp input (`rv2s1:0`) and all 13 inputs from `r2_distinguishing_inputs.txt` (`rv2r2:0…12`: 9 angles at p = 128, 1 at p = 65, 3 `atan_positive`) (1102 lines, +34) |
+| `FK/tests/retained_wide/atan.txt` | regenerated by the generator: 3,319 vectors (+14), sha256 `55f467cb431dd34c789b93fce93a4a0bdb95025c26dabae5fd45e7804529da2d` |
+| `FK/tests/retained_wide/SHA256SUMS` | regenerated by the generator (only the `atan.txt` line changed) |
+| `IMPLEMENTATION/K3A/RETURN.md`, `CHANGE_RECORD.md` | S1 wording; N1 counts; N2 disclosure; N3 bound statement; N7 revisions and "112 of 112"; this section |
+
+**Vectors and the generator:**
+- `gen_wide_vectors.py` regenerated every file. Only `atan.txt` and its `SHA256SUMS` line changed; the other four vector files are byte-identical.
+- `--check` reports OK for all six files (`_run_records/rv2_fixes/gen_wide_vectors_check.txt`).
+- **Worst error at p = 128: 6.0818 ulp, on `rv2s1:0`.** This reproduces RV2's figure; the Rust test and the Python emulation agree.
+- The next worst is 5.41 ulp. The p = 128 histogram: 1 vector above 6 ulp; none above 6.1.
+
+**Tolerance choice (S1):**
+- I raised the regression tolerance to 6.1 ulp, just enough to cover 6.0818. The test still asserts it on every committed vector, alongside the proved 23.6 ulp.
+- The wording now says, in `wide.rs`, §3 above and CHANGE_RECORD, that 6.1 ulp covers the committed vectors only, and that the accuracy contract K-D5 may cite is the proved 23.6 ulp at 53 ≤ p ≤ 128.
+
+**Mutation re-runs** (`cargo test --offline --locked --lib retained -- --test-threads=4`; `_run_records/rv2_fixes/mutations/`; `wide.rs` restored and verified by sha256):
+
+| Mutant | Result | Killing test and first failing vector |
+|---|---|---|
+| R2 (RV2) tail summed largest first | **killed** (it survived before) | `arctangent_vectors_…`, bitwise, at `rv2r2:0` |
+| R1 (RV2) stop threshold off by one | still killed | `arctangent_vectors_…`, bitwise, at `frac:3/4pi:128` |
+| M5 one reduction fewer | still killed | `arctangent_vectors_…` |
+| M6 truncated series | still killed | `arctangent_vectors_…` |
+
+**Tests:**
+- `frame_kernel`: **135 passed** (127 unit, 2 site table, 6 doc), 0 failed. The base had 116, so K3a adds 19 (`_run_records/rv2_fixes/frame_kernel_full.log`).
+- **Fixture identity** stays 112 of 112. No product caller exists, and no product, fixture or dependency file changed; the dependents build against the same `frame_kernel` code paths.
+- **Not re-run:** the product fixture harness and the other crates. Only documentation, the test-only constant, the tests and K3a's own vectors changed.
+
+**Notes left as recorded (per the brief):**
+- the proof's slack (RV2's own bound is 16.2 ulp);
+- the rounded error measure.
+
+RV2's AngleDomain note (angles within about 1e−19 of π) belongs to K-D5 and is routed to I3 by the manager.

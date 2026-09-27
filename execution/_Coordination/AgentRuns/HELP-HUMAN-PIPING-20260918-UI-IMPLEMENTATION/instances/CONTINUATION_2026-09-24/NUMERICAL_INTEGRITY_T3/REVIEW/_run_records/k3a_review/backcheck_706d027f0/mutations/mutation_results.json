@@ -1,0 +1,54 @@
+[
+ {
+  "mutant": "R2_atan_tail_summed_largest_first",
+  "exit": 101,
+  "compiled": true,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "first_vector": null,
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.62s"
+  ]
+ },
+ {
+  "mutant": "R1_atan_stop_threshold_off_by_one",
+  "exit": 101,
+  "compiled": true,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "first_vector": null,
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.33s"
+  ]
+ },
+ {
+  "mutant": "M5_atan_one_reduction_fewer",
+  "exit": 101,
+  "compiled": true,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "first_vector": null,
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.43s"
+  ]
+ },
+ {
+  "mutant": "M6_atan_truncated_series",
+  "exit": 101,
+  "compiled": true,
+  "killed": true,
+  "killing_tests": [
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation"
+  ],
+  "first_vector": null,
+  "summary": [
+   "test result: FAILED. 21 passed; 1 failed; 0 ignored; 0 measured; 105 filtered out; finished in 7.37s"
+  ]
+ }
+]

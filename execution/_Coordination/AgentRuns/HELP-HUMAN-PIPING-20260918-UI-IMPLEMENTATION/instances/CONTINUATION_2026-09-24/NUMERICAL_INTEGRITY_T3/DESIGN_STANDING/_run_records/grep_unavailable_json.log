@@ -1,0 +1,9 @@
+# git grep -l SOURCE_BLOCK_RECOVERY_UNAVAILABLE over committed JSON under projects/chirality-piping, run in <worktree> (read-only)
+## c61a540ea (excluding execution/ records)
+(none)
+## f3270ea79
+projects/chirality-piping/core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json
+projects/chirality-piping/core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json
+projects/chirality-piping/core/reporting/result_export/tests/fixtures/load_reference_mutations.json
+projects/chirality-piping/core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LOAD_STATE_IMPLEMENTATION/_run_records/session2/CP3_ROOT_SELECTIONS.json

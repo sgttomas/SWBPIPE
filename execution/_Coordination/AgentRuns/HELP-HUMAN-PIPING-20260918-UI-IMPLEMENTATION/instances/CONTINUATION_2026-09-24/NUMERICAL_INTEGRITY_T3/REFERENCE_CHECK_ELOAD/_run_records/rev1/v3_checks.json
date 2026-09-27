@@ -1,0 +1,125 @@
+{
+ "Q9": {
+  "columns": [
+   [
+    "1/9",
+    "8/9",
+    "-4/9"
+   ],
+   [
+    "8/9",
+    "1/9",
+    "4/9"
+   ],
+   [
+    "4/9",
+    "-4/9",
+    "-7/9"
+   ]
+  ],
+  "orthonormal": true,
+  "det": "1",
+  "maps_M2_load": [
+   "-1200",
+   "-600",
+   "-1500"
+  ],
+  "invariants_equal": true,
+  "nodal_vectors_rotate_exactly": true
+ },
+ "Q3": {
+  "columns": [
+   [
+    "1/3",
+    "2/3",
+    "-2/3"
+   ],
+   [
+    "2/3",
+    "1/3",
+    "2/3"
+   ],
+   [
+    "2/3",
+    "-2/3",
+    "-1/3"
+   ]
+  ],
+  "orthonormal": true,
+  "det": "1",
+  "invariants_equal": true,
+  "nodal_vectors_rotate_exactly": true
+ },
+ "hand_calcs": {
+  "tp_phys_006": {
+   "u_y": "-7/500",
+   "theta_z": "-13/3000",
+   "expected": [
+    "-7/500",
+    "-13/3000"
+   ],
+   "ok": true,
+   "Vy_i (support on member)": "4",
+   "Mz_i": "8"
+  },
+  "tp_phys_008": {
+   "N (tension +)": "-12",
+   "expected": "-12 (compression 12 N; local end forces +12 at i, -12 at j)",
+   "ok": true,
+   "local end force i": "12",
+   "local end force j": "-12"
+  },
+  "constant_effort": {
+   "tip_uy": "5/24",
+   "R_y": "-3",
+   "M_z": "-30",
+   "ok": true
+  },
+  "fixed_fixed_thermal_axial": {
+   "N": "-27/5",
+   "ok": true
+  },
+  "tp_pmm_p3_occloadgen": {
+   "m_prime": "64.31699191139522",
+   "hand_calc": "64.31699191139529",
+   "w_X": "189.2202686183652",
+   "hand_calc_w_X": "189.22026861836537",
+   "w_wind": "84",
+   "hand_calc_w_wind": "84",
+   "rel_diff_m_prime": "1.08e-15"
+  }
+ },
+ "lost_soft_r1e-6": {
+  "fl(EA/L)": "198967534.72735357",
+  "ulp": "2.9802322387695312e-08",
+  "k": "200",
+  "addition_exact": true,
+  "worst_case_relative_error_of_k": "7.451e-11"
+ },
+ "sections": {
+  "N": {
+   "t_eff": "1/100",
+   "ID": "9/50",
+   "EA/pi": "380000000",
+   "EI/pi": "1719500",
+   "GJ/pi": "1375600",
+   "J=2I": true
+  },
+  "G": {
+   "t_eff": "7/800",
+   "ID": "73/400",
+   "EA/pi": "334687500",
+   "EI/pi": "1570219875/1024",
+   "GJ/pi": "314043975/256",
+   "J=2I": true
+  },
+  "B": {
+   "t_eff": "3/250",
+   "ID": "113/500",
+   "EA/pi": "571200000",
+   "EI/pi": "20273316/5",
+   "GJ/pi": "81093264/25",
+   "J=2I": true
+  }
+ }
+}

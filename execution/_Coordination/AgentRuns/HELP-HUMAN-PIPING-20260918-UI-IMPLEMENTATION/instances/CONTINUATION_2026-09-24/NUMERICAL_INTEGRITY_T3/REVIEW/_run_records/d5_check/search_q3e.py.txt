@@ -1,0 +1,43 @@
+"""V1 D5_CHECK search: Passed-band breaches with EXACT formation and exact assembly (axis-aligned
+member, soft root spring whose addition to G*J/L is exact), i.e. solve error only. Reports whether
+the trigger with the binary64 published residual (EF_design; here element and global Delta K are both
+zero) sees them. Standard library; imports probe_d5_check.py."""
+import sys, json
+from fractions import Fraction as Fr
+sys.path.insert(0, '.')
+import probe_d5_check as p
+sec = p.section()
+GJ = sec['G'] * sec['J']
+rows = []
+tried = 0
+for iL in range(0, 201):
+    L = 5.0 + iL * 0.005
+    D = GJ / L
+    found = 0
+    import math
+    ulp = math.ulp(D)
+    for t in range(0, 3000):
+        k = round((4 * D / 6.6e7) * (1 + t * 7e-4) / ulp) * ulp
+        if Fr(D + k) != Fr(D) + Fr(k):
+            continue
+        tried += 1
+        m = p.build((L, 0.0, 0.0), (0.0, 0.0, 1.0), [(3, k), (4, 1e6), (5, 1e6)], [(9, 0.0144), (10, 0.0), (11, 0.0)], sec)
+        u_ex = p.exact_solve(m['K_int'], m['f'], m['free'])
+        th = abs(u_ex[3])
+        a = p.analyse('search', m, {'rotation': float(th), 'translation': float(th) * L}, modes=('dense', 'sparse'))
+        for mode in ('dense', 'sparse'):
+            x = a[mode]
+            if x.get('outcome') == 'Passed':
+                e = x['estimators']
+                rows.append(dict(L=L, k=k, mode=mode, cond=x['cond'], actual=x['actual_worst_ratio'],
+                                 EF_design=e['EF_design']['EF_ratio_to_1e-9'], EF_exact=e['EF_exact']['EF_ratio_to_1e-9']))
+        found += 1
+        if found >= 6:
+            break
+br = [r for r in rows if r['actual'] > 1.0]
+print(json.dumps({'exact_sum_cases_tried': tried, 'passed_results': len(rows), 'passed_breaches': len(br),
+                  'max_actual_in_passed_band': max((r['actual'] for r in rows), default=None),
+                  'breaches_missed_by_EF_design_at_8': [r for r in br if 8 * r['EF_design'] <= 1.0][:8],
+                  'breaches_missed_by_EF_exact_at_8': [r for r in br if 8 * r['EF_exact'] <= 1.0][:8],
+                  'count_missed_by_EF_design_at_8': len([r for r in br if 8 * r['EF_design'] <= 1.0]),
+                  'min_EF_design_over_actual_on_breaches': min((r['EF_design'] / r['actual'] for r in br), default=None)}, indent=1))

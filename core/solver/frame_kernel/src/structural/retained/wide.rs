@@ -50,9 +50,13 @@
 //! reductions and at most 15 series terms are used; both limits are enforced
 //! (an internal error, unreachable by the proof below).
 //!
-//! **Proved bound (53 ≤ p ≤ 128), u = 2^−p.** For exact inputs, the result φ̂
-//! satisfies |φ̂ − φ| ≤ 23.55·u·φ, hence |φ̂ − φ| ≤ 23.6 ulp_p(φ̂); for
-//! `atan_positive` the bound is (1.54 + 4k)·u ≤ 21.54·u relative. Proof, with
+//! **Proved bound: the accuracy contract (53 ≤ p ≤ 128), u = 2^−p.** For
+//! exact inputs, the result φ̂ satisfies |φ̂ − φ| ≤ 23.55·u·φ, hence
+//! |φ̂ − φ| ≤ 23.6 ulp_p(φ̂), or the call is refused with `ExponentRange`
+//! (when t² or a series power leaves ±2^62, roughly e_t > 2^61 or
+//! e_t < −2^62/3; never a wrong value); for `atan_positive` the bound is
+//! (1.54 + 4k)·u ≤ 21.54·u relative, with the same refusals. This is the
+//! bound K-D5 may cite. Proof, with
 //! rnd(x) = x(1 + δ), |δ| ≤ u, and γ_n = nu/(1 − nu):
 //! 1. (Lemma A) For t, t̃ > 0 with t̃ = t(1 + η), |η| ≤ 1/2:
 //!    |atan t̃ − atan t| ≤ λ(η)·atan t with λ(η) = |η|/(1 − |η|)². By the mean
@@ -87,14 +91,18 @@
 //!    2^e ≤ φ̂ < 2^(e+1) and ulp_p(φ̂) = 2^(e−p+1), that is at most
 //!    23.55·2^p·u·ulp_p(φ̂)(1 + 24u) < 23.6 ulp.
 //!
-//! **Measured, and the specified test tolerance.** V1 measured V1's variant
-//! (forward summation) at ≤ 2.69 ulp over 13 angles. Over this slice's 3 293
-//! referenced vectors (a 160-digit reference computed two independent ways),
-//! the worst error of this implementation is 5.41 ulp at p = 128; V1's variant
-//! reaches 7.28 ulp on the same set. The specified tolerance the tests assert
-//! is `ATAN_TOLERANCE_ULPS` = 6 ulp (the measured bound, rounded up); the
-//! proof above bounds every input at 23.6 ulp. Either is far inside K-D5's
-//! first-order margin (~10⁻⁹ relative).
+//! **Measured, and the regression tolerance (not a bound).** V1 measured
+//! V1's variant (forward summation) at ≤ 2.69 ulp over 13 angles. Over this
+//! slice's 3 307 referenced vectors (a 160-digit reference computed two
+//! independent ways), the worst error of this implementation is 6.08 ulp at
+//! p = 128, on the input the independent review RV2 found
+//! (s = +ff4014cc…dddc·2^−128, c = −9c9e9003…981b·2^−131, φ ≈ 1.6473; the
+//! worst on I2's own set was 5.41 ulp); V1's variant reaches 7.28 ulp on the
+//! same set. `ATAN_REGRESSION_TOLERANCE_TENTH_ULPS` = 6.1 ulp is a regression
+//! tolerance for the committed vectors only, raised just enough to cover that
+//! input: other inputs may exceed it. The accuracy contract is the proved
+//! 23.6 ulp above, which the tests also assert on every vector. Both are far
+//! inside K-D5's first-order margin (~10⁻⁹ relative).
 //!
 //! # The exact binary64 split
 //!
@@ -126,8 +134,10 @@ pub(crate) const EXPONENT_LIMIT: i64 = 1 << 62;
 pub(crate) const ATAN_MAX_REDUCTIONS: u32 = 5;
 /// Series terms the arctangent may sum (proved sufficient for p ≤ 128).
 pub(crate) const ATAN_MAX_TERMS: u32 = 15;
-/// Specified test tolerance of the arctangent, in ulp of p (measured, C1).
-pub(crate) const ATAN_TOLERANCE_ULPS: u32 = 6;
+/// Regression tolerance of the arctangent on the committed vectors only, in
+/// tenths of an ulp of p (measured; not a bound; the contract is the proved
+/// bound below).
+pub(crate) const ATAN_REGRESSION_TOLERANCE_TENTH_ULPS: u32 = 61;
 /// Proved worst-case bound of the included angle, in tenths of an ulp of p.
 pub(crate) const ATAN_PROVED_BOUND_TENTH_ULPS: u32 = 236;
 

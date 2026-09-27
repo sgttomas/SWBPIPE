@@ -1,8 +1,10 @@
 # S11-K: exact load sums in the kernel and recovery (change record / PR body draft)
 
-**Slice.** S11-K of the selected S11 containment: `T3/DESIGN_NUMERICS/S11_CONTAINMENT.md` revision 3 (`d6575c25e`) plus ROOT's R3 conditions (`T3/ROOT_SELECTION_S11.md`) and ROOT's rulings on the S11-K stop report (option (c), and B1 accepted as the intended repair).
+**PR branch.** `codex/piping-s11k-pr-20260926`, cut at `origin/main` `6bb3ee490` and since merged forward to `f76643235` (ROOT's main merge; no piping change). It was developed on `codex/piping-s11k-20260926` (base `163cd44ab`); see the last section.
 
-**Branch.** `codex/piping-s11k-20260926`, base `163cd44ab` (the T3 head merged with the T1 head).
+**Basis.** S11-K of the selected S11 containment: `T3/DESIGN_NUMERICS/S11_CONTAINMENT.md` **revision 5a.2** (`e6507587`), selected by `T3/ROOT_SELECTION_DESIGNS.md` (C3: S11-K was built to revision 3 plus ROOT's R3 conditions, `T3/ROOT_SELECTION_S11.md`, and is verified against 5a.2), plus ROOT's rulings on the S11-K stop report (option (c); B1 accepted as the intended repair).
+
+**Approvals.** The regeneration, hash-pin and TS-run approvals are recorded in `T3/ROOT_RULINGS_V1.md`, section "S11-K regeneration and hash-pin approvals" (`cef281b21`; RV1-S3).
 
 **Author.** Type 2 TASK I1 (Claude). This is not owner review. It needs independent review of the full diff, hosted CI including the surface-4 dual-viewport dispatch, and a clean DEC-025 sweep.
 
@@ -93,7 +95,7 @@ Pre-registered (R3-1, and ROOT's ruling on the stop report) or accepted as the i
 
 ## Checks run on the candidate
 
-- **Rust.** Full suites with `--no-fail-fast` and `--offline --locked` on 1.97.1, run after regeneration. All pass:
+- **Rust.** Full suites on 1.97.1, run after regeneration with `cargo test --offline --locked --no-fail-fast` in each crate (the script actually run is `_run_records/rv1_fixes/run_suites_final.sh.txt`). The earlier runs recorded in `_run_records/run_suites.sh.txt` used `cargo test --offline --locked` without `--no-fail-fast`. That hid runner/headless's integration binary behind its failing unit tests, which the final run corrects. Every suite passes in the final run:
   - frame_kernel 116, straight_pipe 39, curved_bend 25, load_case_algebra 21, primitive_loads 49, nonlinear_integration 69, sparse_direct 25, linear_supports 15, nonlinear_supports 22, diagnostics 24, performance_harness 25, stress_recovery 48, user_loads 28, self_weight_wasm 14;
   - product_physics 448 (1 ignored in source), operation_applier 194, runner/headless 83, result_export 91;
   - benchmarks: mechanics 41, nonlinear 19 (DEC-046 limits untouched), stress 23, physics_audit_regression 15, numerical_integrity 0;
@@ -104,6 +106,19 @@ Pre-registered (R3-1, and ROOT's ruling on the stop report) or accepted as the i
   - `npm run build` (`tsc -b && vite build`): OK. The only warning is the existing chunk-size notice.
 - **Tests added.** K1–K12 per S11 §9 (`exact_sum`, `load_ledger`, `straight_pipe`, `load_case_algebra`, `curved_bend`, `frame_kernel` structural and exact-boundary, `nonlinear_integration`), the option (c) pins, and P1's S11-PROBE-A recovery at G = 1e7 and 1e8. Every kill test asserts its precondition: the binary64 fold differs from the exact net.
 - **Mutations** (scratch copy, one per site, at G = 1e8 and G = 1e80 separately): all killed. The set: M1a E1, M1b E2, M1c E3, M1d E4, M1f E6, M1m E13, M6, M7a/b, M10, M11, M12, M13, M14, M15, M15b.
+- **RV1 fixes (S1, S2), on `f76643235`.**
+  - The option (c) source pin now lexes `nonlinear_integration/src/lib.rs` first, with comments and literals removed and `#[cfg(test)]` items blanked. It then forbids every exact kernel entry point anywhere in the file and requires the four legacy targets as real calls.
+  - A new behavioural pin, `option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path`:
+    - drives the loop's per-iteration solve with a closed-gap boundary, dense and sparse, with and without `AssemblyEvidence`;
+    - first asserts that the binary64 fold of `f − ΣK·g` differs from the exact value;
+    - then checks that displacements, residual rows and the sparse observation are bit-equal to the binary64 legacy values, with the reduced force folded in the test.
+  - `option_c_active_set_loop_first_closed_gap_iteration_is_binary64` does the same through the public active-set loop.
+  - The public-residual pin now asserts its precondition (`assert_ne!` of the binary64 and exact numerators).
+  - RV1's mutants, re-run in scratch:
+    - RV-OPT1, RV-OPT3 and RV-OPT4 are killed by the behavioural test, as well as by the source pin;
+    - RV-PUB is killed by `option_c_public_original_residual_stays_binary64_on_coupled_rows`.
+  - Results: `_run_records/rv1_fixes/`.
+  - Suites: frame_kernel 116, nonlinear_integration 71, benchmarks/nonlinear 19.
 - **Lockfiles.** Eight lockfiles gain one line each (`open_pipe_stress_frame_kernel` in `load_case_algebra`'s dependencies).
 
 ## Remaining limits

@@ -1,0 +1,6 @@
+{
+ "files_with_load_cases": 117,
+ "cases": 183,
+ "max_nodal_loads_on_one_dof": 1,
+ "dofs_with_3plus": []
+}

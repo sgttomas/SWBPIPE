@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+"""RV2 (K3a review): an independent arctangent reference and error measurement.
+
+Reference: 2*atan(s/(1+c)) for the exact inputs, by Newton's method on
+f(theta) = sin(theta) - T cos(theta) at 260 digits (Taylor sin/cos, argument kept
+in [0, pi/4], pi by Gauss-Legendre AGM). It shares no code with gen_wide_vectors.py.
+
+  python3 rv2_atan.py gen OUT        probe input lines (angle / atanpos)
+  python3 rv2_atan.py check PROBE    error in ulp of p for every result
+"""
+import math
+import random
+import sys
+from decimal import Decimal as D, getcontext
+from fractions import Fraction as Fr
+
+sys.path.insert(0, __import__("os").path.dirname(__file__))
+from rv2_oracle import round_p, parse  # noqa: E402
+
+PREC = 260
+getcontext().prec = PREC
+_PI = None
+
+
+def pi():
+    global _PI
+    if _PI is None:
+        getcontext().prec = PREC + 10
+        a, b, t, p = D(1), D(1) / D(2).sqrt(), D(1) / 4, D(1)
+        for _ in range(12):
+            an = (a + b) / 2
+            b = (a * b).sqrt()
+            t -= p * (a - an) ** 2
+            a = an
+            p *= 2
+        _PI = (a + b) ** 2 / (4 * t)
+        getcontext().prec = PREC
+    return _PI
+
+
+def sincos(x):
+    getcontext().prec = PREC + 10
+    eps = D(10) ** -(PREC + 10)
+    s, term, n = D(0), x, 1
+    while abs(term) > eps * (abs(x) if x != 0 else 1) and term != 0:
+        s += term
+        term = -term * x * x / ((n + 1) * (n + 2))
+        n += 2
+    c, term, n = D(0), D(1), 0
+    while abs(term) > eps:
+        c += term
+        term = -term * x * x / ((n + 1) * (n + 2))
+        n += 2
+    getcontext().prec = PREC
+    return s, c
+
+
+def atan_small(T):
+    """atan T for 0 < T <= 1 by Newton from the binary64 estimate."""
+    getcontext().prec = PREC + 10
+    th = D(repr(math.atan(float(T)))) if float(T) > 0 else T
+    if th == 0:
+        th = T
+    for _ in range(12):
+        s, c = sincos(th)
+        f = s - T * c
+        fp = c + T * s
+        nt = th - f / fp
+        if abs(nt - th) <= abs(th) * D(10) ** -(PREC + 5):
+            th = nt
+            break
+        th = nt
+    getcontext().prec = PREC
+    return th
+
+
+def atan_ref(T):
+    """T a positive Fraction."""
+    getcontext().prec = PREC + 10
+    Td = D(T.numerator) / D(T.denominator)
+    if Td <= 1:
+        r = atan_small(Td)
+    else:
+        r = pi() / 2 - atan_small(1 / Td)
+    getcontext().prec = PREC
+    return Fr(r)
+
+
+def dec_to_tok(x, p):
+    return round_p(Fr(x), p)
+
+
+def gen(path):
+    R = random.Random(0x41544E32)
+    out = []
+    PI = pi()
+
+    def angle(phi, p_in, p):
+        s, c = sincos_full(phi)
+        if s <= 0:
+            return
+        out.append("angle %d %s %s" % (p, dec_to_tok(s, p_in), "Z+" if c == 0 else dec_to_tok(c, p_in)))
+
+    def sincos_full(phi):
+        # reduce phi in (0, pi) to [0, pi/4] by symmetry for accurate Taylor
+        getcontext().prec = PREC + 20
+        if phi <= PI / 4:
+            s, c = sincos(phi)
+        elif phi <= PI / 2:
+            c, s = sincos(PI / 2 - phi)
+        elif phi <= 3 * PI / 4:
+            c, s = sincos(phi - PI / 2)
+            c = -c
+        else:
+            s, c = sincos(PI - phi)
+            c = -c
+        getcontext().prec = PREC
+        return +s, +c
+
+    for _ in range(16000):
+        angle(PI * D(R.randint(1, 10 ** 40 - 1)) / D(10 ** 40), 128, 128)
+    for _ in range(2000):
+        angle(PI * D(R.randint(1, 10 ** 40 - 1)) / D(10 ** 40), 53, 128)
+    for p in (53, 64, 65, 127):
+        for _ in range(1000):
+            angle(PI * D(R.randint(1, 10 ** 40 - 1)) / D(10 ** 40), 128, p)
+    # near both ends, log-uniform
+    for _ in range(1000):
+        angle(D(10) ** D(repr(R.uniform(-300, 0))), 128, 128)
+    for _ in range(1000):
+        angle(PI - D(10) ** D(repr(R.uniform(-36, 0))), 128, 128)
+    # atan_positive around 1/20 * tan-doubling boundaries and log-uniform t
+    for _ in range(2000):
+        t = D(10) ** D(repr(R.uniform(-40, 40)))
+        out.append("atanpos 128 %s" % dec_to_tok(t, 128))
+    with open(path, "w") as fh:
+        fh.write("\n".join(out) + "\n")
+    print(len(out), "lines")
+
+
+def check(path):
+    worst = {}
+    hist = {}
+    maxk = 0
+    refused = []
+    for line in open(path):
+        lhs, rhs = line.rstrip("\n").split(" => ")
+        f = lhs.split()
+        r = rhs.split()
+        p = int(f[1])
+        if r[0].startswith("E:"):
+            refused.append(line.strip())
+            continue
+        maxk = max(maxk, int(r[1]))
+        got, _ = parse(r[0])
+        if f[0] == "angle":
+            s, _ = parse(f[2])
+            c, _ = parse(f[3])
+            ref = 2 * atan_ref(s / (1 + c))
+        else:
+            t, _ = parse(f[2])
+            ref = atan_ref(t)
+        e = abs(got.numerator).bit_length() - got.denominator.bit_length()
+        while Fr(2) ** e > got:
+            e -= 1
+        while Fr(2) ** (e + 1) <= got:
+            e += 1
+        err = float(abs(got - ref) / Fr(2) ** (e - p + 1))
+        key = (f[0], p)
+        if key not in worst or err > worst[key][0]:
+            worst[key] = (err, lhs)
+        b = min(int(err), 24)
+        hist[(key, b)] = hist.get((key, b), 0) + 1
+    for k in sorted(worst):
+        print("worst", k, "%.4f ulp" % worst[k][0], worst[k][1][:120])
+    for k in sorted(hist):
+        print("hist", k, hist[k])
+    print("max reductions (sqrt count)", maxk, "refused", len(refused))
+    for l in refused[:10]:
+        print("refused:", l[:160])
+
+
+if __name__ == "__main__":
+    if sys.argv[1] == "gen":
+        gen(sys.argv[2])
+    else:
+        check(sys.argv[2])
