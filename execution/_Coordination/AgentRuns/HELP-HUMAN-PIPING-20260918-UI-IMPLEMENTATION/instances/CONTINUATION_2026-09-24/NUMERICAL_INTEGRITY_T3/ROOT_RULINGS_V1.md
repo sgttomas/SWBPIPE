@@ -461,3 +461,18 @@ I4's base-against-candidate comparison of the 14 formation rows: UDL-W1e80 is bi
   **If (i) fails, or if R-b's false demotions are all synthetic, R-b ships in S11-G:** fail-closed availability loss on synthetic cases beats wrong Passed values. Otherwise the 8 rows re-point to "F2 (W1a)", F2 is required to empty them, and **F2 is prioritized as the next facade slice after S11-G**.
 - **(c) Case-level demotion (with source_eligible = false for a fired case): accepted.** It fails closed; case-scoped standing is T6's.
 - **The S11-G PR must show a zero regeneration diff, or it stops.**
+
+## S11-G after V1's S11G_CHECK (ROOT, 2026-09-27, on `30233f93a`)
+
+- **(b)(i) failed, so R-b ships in S11-G.** V1 showed the INPLANE mechanism is reachable through an ordinary authored nodal load on the captured entry, and in the realistic RF-LARGE-CONT-n00100 at 202–25984× the row-relative criterion. V1's classification shows R-b is mostly right: of its 16 extra case-modes, 8 (WEAK, LARGE-CONT) are genuinely wrong rows, and only 8 (LFRAME, synthetic) are false demotions, which are acceptable. **The 8 INPLANE formation rows stay in S11-G's scope, not F2's.**
+- **D1 writes S11-G note revision 2:**
+  1. **B-1:** add R-b and forecast it by script against every committed fixture case-mode (P1 estimates row noise above 1e-9 in 30 of 114).
+     - For each case-mode where R-b fires, report whether the row really is wrong against an exact reference, or is a false positive, and which of them K-D5 already demotes (so redundancy is known).
+     - **If R-b fires on any committed fixture, that is a status change under the stop rule** and goes to ROOT with per-row evidence before implementation. Truly wrong rows being demoted is the intended repair (likely approved, with disclosure); false positives need a refined rule.
+  2. **SF-1:** the defect is computed in one exact accumulator with no binary64 intermediates, in the specification as well as the script.
+  3. **SF-2:** the fallback bounds are genuinely conservative. That means the exact-pressure operands' actual rounding count, and the curved bound including cond(F), cancellation and libm, or those contributions routed to "cannot bound", which demotes.
+  4. **SF-3:** T10 is non-vacuous (a case whose ordinary solve runs recovery), so that M7 and M8 are killed.
+  5. **SF-4: fixed, not just disclosed.** A pure-thermal or pure-pressure straight run between anchors must not be demoted. Fix the free-row scale collapse (for example with a floor tied to element-level force magnitudes or the intended loads), and pin V1's probe as a test that must stay silent.
+  6. **The NOTEs:** the INPLANE labels corrected against I4's records, and "the error is in u" corrected to V1's figures.
+- **V1 then checks revision 2:** B-1's forecast, the SF items, SF-4's fix, and no committed fixture falsely demoted. The zero-regeneration-diff rule stands, except for demotions ROOT approves under point 1.
+- S11-F is unaffected and proceeds.
