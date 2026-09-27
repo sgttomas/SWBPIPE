@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""V1 S11G_CHECK delta: spot check of K-D5's EF on the two INPLANE cases in the S11-F state.
+Usage (from T3/): nice -n 19 python3 <this> <v1_dir> <out.json>
+EF = K~^-1 rho with rho = f - K_int u summed exactly, K_int the exact re-formation of each frame
+(axis-aligned members: T is a signed permutation, local coefficients exact from binary64 primitives);
+fires when 2|w| > 1e-9 max(|u_i|, S*_coupled) (DESIGN 4.1.6 coupling, L_b = 2 m). Solve: V1's
+product-faithful emulation (probe_d5_check.solve_product), which does not reproduce I4's published
+bits, so this is indicative only."""
+import json, sys
+from fractions import Fraction as Fr
+sys.path.insert(0, sys.argv[1])
+import probe_d5_check as p
+
+DOF = {"UX": 0, "UY": 1, "UZ": 2, "RX": 3, "RY": 4, "RZ": 5}
+def num(x):
+    x = str(x)
+    if "*2^" in x:
+        a, k = x.split("*2^"); return Fr(a) * Fr(2) ** int(k)
+    return Fr(x)
+
+ref = json.load(open("REFERENCES/references.json"))["cases"]
+out = {}
+for cid in ("RF-CANCEL-F-G1e80-GnG-INPLANE", "RF-CANCEL-M-G1e80-GnG-INPLANE"):
+    m = ref[cid]["model"]; names = list(m["nodes_m"]); idx = {n: i for i, n in enumerate(names)}; n = 6 * len(names)
+    s = m["sections"]["N"]
+    sec = p.section(float(num(s["OD"])), float(num(s["ID"])), float(num(s["E"])), float(num(s["G"])))
+    K = [[0.0] * n for _ in range(n)]; Ki = [[Fr(0)] * n for _ in range(n)]
+    for (mid, a, b, sid) in m["members"]:
+        xi = [float(num(v)) for v in m["nodes_m"][a]]; xj = [float(num(v)) for v in m["nodes_m"][b]]
+        R, L = p.product_frame(xi, xj, (0.0, 0.0, 1.0))
+        Ke = p.TtKT(p.local_K(sec, L), p.T12(R, 0.0), False)
+        Kx = p.TtKT(p.local_K(sec, L, exact=True), p.T12([[Fr(v) for v in r] for r in R], Fr(0)), True)
+        base = [6 * idx[a] + k for k in range(6)] + [6 * idx[b] + k for k in range(6)]
+        for r in range(12):
+            for c in range(12):
+                K[base[r]][base[c]] += Ke[r][c]; Ki[base[r]][base[c]] += Kx[r][c]
+    f = [0.0] * n
+    for nd, ld in m["loads"].items():
+        for key, off in (("F", 0), ("M", 3)):
+            for k, v in enumerate(ld.get(key, [])):
+                f[6 * idx[nd] + off + k] += float(num(v))
+    ex = {}
+    for nd, dn, v in m["load_contributions_in_authored_order"]:
+        d = 6 * idx[nd] + DOF[dn]; ex[d] = ex.get(d, Fr(0)) + Fr(float(num(v)))
+    for d, v in ex.items():
+        f[d] = float(Fr(f[d]) + v)
+    free = [i for i in range(n) if i // 6 != idx["N0"]]
+    mm = dict(n=n, free=free, K_rep=K, f=f, springs=[])
+    for mode in ("dense", "sparse"):
+        sol = p.solve_product(mm, mode); u = sol["u"]
+        rho = [Fr(f[i]) - sum(Ki[i][j] * Fr(u[j]) for j in range(n) if u[j] != 0.0) for i in free]
+        w = p.apply_inverse(sol, [float(x) for x in rho])
+        St = max(abs(u[d]) for d in free if d % 6 < 3); Sr = max(abs(u[d]) for d in free if d % 6 >= 3)
+        S = {"t": max(St, 2.0 * Sr), "r": max(Sr, St / 2.0)}
+        rows = {}
+        for r, i in enumerate(free):
+            rows[names[i // 6] + "." + list(DOF)[i % 6]] = 2 * abs(w[r]) / (1e-9 * max(abs(u[i]), S["t" if i % 6 < 3 else "r"]))
+        worst = max(rows, key=rows.get)
+        out[f"{cid} {mode}"] = {"outcome": sol["outcome"], "worst_row": worst, "two_EF_over_criterion": rows[worst], "fires": rows[worst] > 1}
+json.dump(out, open(sys.argv[2], "w"), indent=1)
+print(json.dumps(out, indent=1))

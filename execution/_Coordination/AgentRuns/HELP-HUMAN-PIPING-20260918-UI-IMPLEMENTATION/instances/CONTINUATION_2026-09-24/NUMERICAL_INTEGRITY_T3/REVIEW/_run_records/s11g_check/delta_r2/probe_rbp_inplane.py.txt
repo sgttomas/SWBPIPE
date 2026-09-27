@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+"""V1 S11G_CHECK delta: R-b' on the 8 INPLANE rows with V1's own B (from R1's exact u) and I4's published q.
+Usage (from T3/): nice -n 19 python3 <this> <v1_dir> <i4_formation_rows.json> <out.json>"""
+import json, math, sys
+from fractions import Fraction as Fr
+sys.path.insert(0, sys.argv[1])
+import probe_s11g as V  # V1's own Part R helpers (member_end_rows, num)
+ref = json.load(open("REFERENCES/references.json"))["cases"]
+i4 = json.load(open(sys.argv[2]))
+out = {}
+for row in i4:
+    cid, key, mode = row["case"], row["key"], row["mode"]
+    if "INPLANE" not in cid:
+        continue
+    c = ref[cid]; m = c["model"]
+    exp = {e[0]: e[1] for e in c["expected"]}
+    u = {nd: [float(V.num(exp[("u." if k[0] == "U" else "th.") + nd + "." + k])) for k in ("UX", "UY", "UZ", "RX", "RY", "RZ")] for nd in m["nodes_m"]}
+    B = dict(V.member_end_rows(m, u))[key]
+    q = abs(float(row["cand"]["obs"].split(",")[1].strip(" )")))
+    # S*_moment = max(S(moment), L_b S(force)) from R1's exact member and reaction rows
+    Sm = max(abs(float(V.num(e[1]))) for e in c["expected"] if e[2] == "moment")
+    Sf = max(abs(float(V.num(e[1]))) for e in c["expected"] if e[2] == "force")
+    smo = max(Sm, 2.0 * Sf)
+    rb = B > 1e-9 * q and q > 1024 * B
+    out[f"{cid} {key} {mode}"] = {"q_I4": q, "B": B, "B_over_1e9q": B / (1e-9 * q), "q_over_B": q / B, "S_star_moment": smo,
+                                  "q_over_Sstar": q / smo, "floor": 2.0 ** -34, "R_b": rb, "R_b_prime": rb and q >= 2.0 ** -34 * smo,
+                                  "I4_ratio": row["cand"]["ratio"]}
+json.dump(out, open(sys.argv[3], "w"), indent=1)
+for k, v in out.items():
+    print(k, round(v["B_over_1e9q"]), round(v["q_over_B"]), "%.3g" % v["q_over_Sstar"], v["R_b_prime"], v["I4_ratio"])

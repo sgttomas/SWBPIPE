@@ -186,3 +186,138 @@ All runs used standard-library Python 3.11, single-threaded, `nice 19`, `PYTHOND
 | Independent walker over committed JSON (inline) | 164 entries in 98 files with formed loads, matching D1 |
 
 Records are in `REVIEW/_run_records/s11g_check/`. The scratch rerun and input hashes are in `rerun_hashes.txt`. `REVIEW/_run_records/SHA256SUMS` is refreshed.
+
+---
+
+## Delta check: S11-G note revision 2 (`a5137da0f`)
+
+**Basis.**
+- `DESIGN_NUMERICS/S11G_GUARD.md` revision 2 (sha256 `b414b88e…`).
+- `_run_records/s11g_rb_forecast.{py,json,stdout.json}` (`2f5d2739…`, `0477c138…`, `0f3ead29…`).
+- I4's input snapshot `_run_records/inputs/i4_formation_rows.json` (`c548f519…`).
+- ROOT's conditional rulings, "S11-G note revision 2", at `1dc27ae80`.
+- Product sources as read for the first check. PP:3075 lies in `solve_load_case`.
+
+This check covers the delta only.
+
+### Delta verdict
+
+**NOT YET PASS: one BLOCKING (DB-1) and one SHOULD-FIX (DS-1). Both are text- or rule-level fixes. Everything else asked is confirmed.**
+- **DB-1.** ROOT's point 2 requires that the SF-4 floor cannot be gamed. It can: I constructed a row where a real formation defect, 14,901× the criterion in the published displacement, is hidden by the floor. The fix is one rule change, verified below.
+- **DS-1.** D1's claim that K-D5 would itself demote the INPLANE cases in the S11-F state does not hold. The 1.6× and 2.0× figures come from a pre-S11-F solve.
+- After the DB-1 rule change, with a test and a mutation for it, and the DS-1 text correction, a diff check suffices for PASS.
+
+### Answers to the manager's items
+
+**1. R-b′.**
+- **(a) All 8 INPLANE rows caught, each a Passed breach under today's predicate: confirmed.**
+  - I recomputed B with my own code from R1's exact u, and took q from I4's measured post-S11-F values.
+  - B/(1e-9·q) is 35527–88818 and q/B is 11259–28148, so both R-b clauses hold by margins of about 10⁴.
+  - q/S\*_moment is 1.0e-10 in the F case (S\* = 100) and 5.0e-10 in the M case (S\* = 20), against the 2⁻³⁴ = 5.82e-11 floor. The margins are 1.72 and 8.6.
+  - I4's ratios are 628–5767×. The ordinary solve is Passed: rcond 4.3e-3, and my emulation agrees.
+- **(b) Committed forecast of 0 firings: confirmed for the committed envelopes, independently. Confirmed by byte-identical rerun only for the emulated models.**
+  - My own walker, pairing and B (`delta_r2/probe_rb_committed`, nothing imported from D1) finds 62 envelopes: 87 case-envelopes with 248 straight end rows, and 3 skipped. That matches D1.
+  - R-b′ fires on **0** of them.
+  - R-b fires only at `load_reference_fallback_uz` end i, in both modes.
+  - No other end comes within 10³ of R-b's first clause while resolved above noise.
+  - D1's Part E, 96 committed models without an envelope, emulated exactly, reruns byte-identical with 0 firings. I did not re-emulate those models independently.
+- **(c) The 12 false demotions are all synthetic: confirmed.**
+  - My earlier independent R-b set, 16 case-modes, loses exactly the 4 RF-LARGE-CONT-n00100 case-modes under the floor, whose rows are below it.
+  - That leaves 8 RF-INVARIANCE-LFRAME case-modes (B/(1e-9·q) = 1.035, borderline; rows accurate at 0.05–0.22×) and 4 RF-WEAK-W-3D/AX-rho1e-08 case-modes. All 12 are synthetic R1 constructions.
+- **(d) R-b's one committed firing changes nothing: confirmed.**
+  - The envelope's case quality is already `sensitive`.
+  - q = 2e-6 is below 2⁻³⁴·S\* = 2⁻³⁴·1.79e5 = 1.04e-5, so R-b′ is silent anyway.
+  - Under R-b, the no-op rule (§3.5) changes no verdict and no byte. T13 pins this.
+
+**2. SF-4 floor.**
+- **The collinear and pure-pressure runs are silent: confirmed** (`delta_r2/probe_sf4`). The worst stat/threshold is 6.2e-5, 3.2e-5 and 3.5e-5 for the thermal runs, and 7.4e-5 for the pressure-thrust run.
+- **The 6 UDL catches are unchanged: confirmed.** P = 0 on every UDL row and on probe A.
+- **Counterexample search: FOUND. The floor can be gamed (DB-1).**
+  - **The model.** A UDL-W1e8-type fixed-end cancellation at a free translational row, S1.UY:
+    - member A, L = 3, q_A = 100000000.1 N/m;
+    - member B, L = 2, q_B = −150000000.15 N/m;
+    - a nodal input of 1e-3 N;
+    - S1's rotations restrained.
+  - **The formation defect.** A's transverse fixed-end term carries a real defect of −1.49e-8, from fl(q_A·3). Against the intended net of 1.0e-3, that is **14901×** the criterion without the floor.
+  - **The published error.** S1.UY is the body's only moving DOF, so the published displacement carries the same relative error, 1.5e-5.
+  - **How the floor hides it.** Add two anchored thermal members along y meeting at S1, with axial_load N each. Their terms ±N cancel exactly, contribute nothing to the net, and set P = 2N.
+    - With N = 1e6 the floor makes the statistic 0.0076 (silent).
+    - With N = 1e4 it is 0.76 (still silent).
+    - A second magnitude set is caught at 93× without the floor, and hidden at 0.00095 with it.
+  - **Why D1's argument fails.** D1's soundness argument ("a self-equilibrated term's only defect is ≤ u·|t|") is true of those terms. But the floor raises the threshold for every defect at the row, including non-self-equilibrated ones.
+  - **The fix, verified.** Apply the floor only to the self-equilibrated defect component. The row fires if |E_nonSE| + B > 1e-9·max(|n|, S\*), or if |E_SE| > 1e-9·max(|n|, S\*, 2⁻¹⁰·P).
+    - This takes two exact accumulators instead of one. Each stays exact, and the decision stays exact.
+    - It keeps the collinear and pressure runs silent (same figures), leaves the UDL catches unchanged, and catches all three counterexamples (14901×, 14901×, 93×).
+    - SF-3's unreachability still holds, because self-equilibrated-only rows still cannot fire.
+    - Add a test (T6b: the counterexample must fire) and a mutation (apply the floor to the whole E; killed by T6b).
+- **Residual, disclosed as a NOTE (DN-4), not blocking.** A self-equilibrated-only junction with a genuine small net is hidden by any floor large enough to silence held-operand noise. Example: two collinear skew thermal members with N1 = 1e6 and N2 = 999999.999, giving a load-relative error of 126× the criterion. Every floor above about 1.1e-7·P hides all self-equilibrated-only defects, since each is ≤ u·P absolute. Such rows need N1 and N2 to agree to about 1e-9, which is contrived.
+
+**3. SF-1: confirmed, with two NOTEs.**
+- **Exactness.** The accumulator is exact:
+  - 12·value and (12/scale)·c are exact two-products;
+  - −12k·lo is three `add_product(4k, lo)` calls, each exact.
+- **The decision.** It is exact: the sign of A, then a copy of A plus ∓12·(T − B) read by signum.
+- **Conservative rounding.** T is rounded down, B up, and T − B down.
+- **DN-2.** `lo = fma(a, b, −fl(a·b))` is exact only if a·b does not underflow (|a·b| above about 2⁻⁹⁶⁹). Add that to the range fallback. Also, the 12× scaling makes |value| > 1.5e308/12 overflow into `SumError`, which fires (fail-closed). T14 exercises this; it should be stated.
+- **DN-3.** The binary64 constant 1e-9 is above 1e-9 by 6.2e-17 relative. For strict "rounded downward", use RD(1e-9), or define the criterion as fl(1e-9). This is immaterial.
+
+**4. SF-2: confirmed conservative.**
+- **Exact-pressure operands at γ₁₆.** My count from `source_bore_area_scaled` and `pressure_group_value` is about 9–10 relative roundings, all multiplicative:
+  - r_i = od·0.5 − wall, correctly rounded once, and doubled by the square;
+  - the π constant;
+  - ×r_i twice;
+  - ×p;
+  - the coefficient's rounded exact sum;
+  - ×coefficient;
+  - ×direction.
+
+  γ₁₆ covers that.
+- **Curved consistent vectors as CannotBound.** Demoting is fail-closed, and so conservative by construction.
+
+**5. SF-3: confirmed.**
+- **The gate is unreachable end to end.** Source recovery admits only nodal inputs (zero defect) and load-state eigen pairs, which are self-equilibrated `RoundedProduct` terms. Under the floor, such rows reach at most 1.1e-4 of the threshold. That still holds under the DB-1 fix.
+- **M7** is killed only at unit level (T10), as the note states. **DN-5:** add a source pin that the routing site actually calls the tested predicate.
+- **M8** is killed by T1's `quality: Passed` report-text pin.
+- **M7 + M8** is killed by T1's diagnostic-code-set pin (`SOURCE_BLOCK_RECOVERY_UNAVAILABLE` appears).
+
+**6. NOTEs, tests, mutations and the K-D5 boundary.**
+- **The INPLANE labels now match I4's records:** F Mb.M1.j 3635/2214, Mb.M2.i 628/4346; M Mb.M2.i 5767/4346, Mb.M2.j 628/628.
+- **"The error is in u" is correctly qualified** (28–2949×).
+- **The new tests and mutations:**
+  - T6a, T11, T12, T13, T15 and T16 are sound, with paths-differ preconditions.
+  - M11, M12 (the floor from all terms hides UDL-W1e8: 2⁻¹⁰·6.7e7 → T = 6.5e-5), M13, M15 and M16 are killed as stated.
+  - **DN-1: one variant of M14 is not killed by T11.** The INPLANE members are axis-aligned, so T is a signed permutation, and Σ_c|T_kc||u_c| equals |Σ_c T_kc u_c| exactly. Replacing Σ|T||u| by |Tu| is invisible to T11. The signed-sum variant is killed. Add a skew-member unit test of `bending_formation_bound`.
+- **The K-D5 boundary holds.** PP:3075 is in `solve_load_case`, where S11-G also edits the `source_eligible` line. K-D5 edits only the body of `solve_preview_reduced_system`. No function is shared.
+
+**7. K-D5 on INPLANE (optional spot check): it does NOT demote in the S11-F state (DS-1).**
+- **My figure.** With the S11-F force (the exact net at N2), K-D5's exact-residual EF gives 2·EF = 1.3e-6 to 3.2e-6 of the trigger, in both modes (`delta_r2/probe_kd5_inplane`: ρ = f − K_int·u exact, then K̃⁻¹ with the same factor, DESIGN-coupled S\*).
+- **Where D1's figures come from.** D1's 1.60 and 2.00 come from `recal_d5.json`, whose `solve_product` uses the **binary64-folded (pre-S11-F) f** (`recal_d5.py` l.126-151). Its ρ uses the exact ledger f. So EF there measures the absorbed 1e-8 load on th.N2.RZ, which is the S11 defect that S11-F repairs, not the formation rows. `recal_d5.json`'s own `EF_ratio_coupled_with_folded_f` (1.0e-6 to 1.6e-6) is consistent with my S11-F figure.
+- **The consequence.** After S11-F, R-b′ is the only catch for the INPLANE rows; there is no defence in depth.
+- **What to correct.** §1, §5's K-D5 column and §6.4's "demotes (recal)", and ROOT ruling 5's premise. My emulation does not reproduce I4's published bits, so I3's merged-state run remains the final word. It should expect K-D5 silent.
+
+### Delta findings
+
+| ID | Class | Finding | Fix |
+|---|---|---|---|
+| **DB-1** | **BLOCKING** (ROOT point 2) | The SF-4 floor can be gamed. Self-equilibrated terms meeting and cancelling at a row raise the threshold for a non-self-equilibrated formation defect at the same row. Counterexample: 14901× the criterion in the published displacement, hidden at 0.0076 (N = 1e6) and at 0.76 (N = 1e4) | Apply the floor only to the self-equilibrated defect component (two exact accumulators). Add T6b, the counterexample, which must fire, and a mutation applying the floor to the whole E |
+| **DS-1** | SHOULD-FIX | K-D5 does not demote the INPLANE cases in the S11-F state. D1's 1.6× and 2.0× come from a pre-S11-F folded-f solve | Correct §1, §5 and §6.4. Tell I3 to expect K-D5 silent on INPLANE after S11-F |
+| DN-1 | NOTE | M14's \|Tu\| variant survives T11, because the members are axis-aligned | A skew-member unit test of B |
+| DN-2 | NOTE | RoundedProduct exactness needs no underflow in the FMA. The 12× scaling overflows above about 1.5e307 (fires, fail-closed) | Add to the range fallback; state it |
+| DN-3 | NOTE | The binary64 constant 1e-9 is above 1e-9 by 6.2e-17 relative | Use RD(1e-9), or define the criterion as fl(1e-9) |
+| DN-4 | NOTE | Self-equilibrated-only junctions with a genuine small net are hidden by any noise-silencing floor (126× in the probe) | Disclose in the note and in the CHANGE_RECORD |
+| DN-5 | NOTE | T10 pins the predicate, not its use at the routing site | Add a source pin |
+| DN-6 | NOTE | The R-b′ floor margin on the F-case INPLANE rows is 1.72, and depends on the product computing S\*_moment = 100 from its published rows | None; recorded |
+
+### What I ran (delta)
+
+The same constraints apply: standard-library Python 3.11, `nice 19`, `PYTHONDONTWRITEBYTECODE=1`, from `T3/`, no Git writes, no cargo, other worktrees read only. The `<v1_dir>` holds V1's `probe_d5_check.py` and `probe_s11g.py`.
+
+| Run | Result |
+|---|---|
+| `DESIGN_NUMERICS/_run_records/s11g_rb_forecast.py ../../../../../../.. DESIGN_NUMERICS/_run_records/inputs/i4_formation_rows.json <scratch>/out` | JSON and stdout byte-identical to D1's records |
+| `delta_r2/probe_rb_committed.py.txt <v1_dir> ../../../../../../.. <out>` | Independent committed-envelope forecast: 87 case-envelopes and 248 end rows; R-b′ 0; R-b only at `load_reference_fallback_uz` end i |
+| `delta_r2/probe_rbp_inplane.py.txt <v1_dir> <i4 snapshot> <out>` | R-b′ on the 8 INPLANE rows: all fire, with the margins above |
+| `delta_r2/probe_sf4.py.txt <out>` | The floor on the collinear and pressure runs; the DB-1 counterexample; the split rule; the DN-4 junction |
+| `delta_r2/probe_kd5_inplane.py.txt <v1_dir> <out>` | K-D5 EF on INPLANE in the S11-F state: 2·EF ≤ 3.2e-6 |
+
+Records are in `REVIEW/_run_records/s11g_check/delta_r2/`. Scratch rerun hashes are in `rerun_hashes.txt`. `REVIEW/_run_records/SHA256SUMS` is refreshed.
