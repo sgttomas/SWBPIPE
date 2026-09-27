@@ -506,3 +506,19 @@ After V1's PASS, the manager writes the S11-G implementation brief. S11-G goes o
    - a source pin tying the routing site to the tested predicate (M7);
    - a skew-member unit test of the bound (the M14 |Tu| variant).
 4. **Next:** D1 writes revision 2.1, V1 checks the diff only, and on PASS the manager writes the S11-G implementation brief.
+
+## Selection: the S11-G design (ROOT, 2026-09-27)
+
+**S11-G's design is selected at revision 2.1** (`DESIGN_NUMERICS/S11G_GUARD.md`, sha256 `7c052c9e…`, commit `ba5d26924`), on V1's PASS (`REVIEW/S11G_CHECK.md` delta-2.1, sha256 `a064bc93…`, commit `02d071f88`). ROOT's earlier rulings are its conditions:
+- **R-b′** is the recovery guard;
+- **the SF-4 floor applies to the self-equilibrated defect only,** with two exact accumulators; a net formation defect is never floored;
+- **CannotBound for curved consistent vectors,** with its availability loss disclosed in S11-G's CHANGE_RECORD;
+- **the formation list is emptied at S11-G's merge,** provided all 14 rows are published non-Passed on both entries and both modes;
+- **R-b′'s tests are load-bearing** (the only INPLANE catch after S11-F);
+- **the DN-4 residual** (a self-equilibrated-only junction with a genuine small net) is disclosed, and routed to W1/F2.
+
+V1's two implementation NOTEs go into I5's brief:
+- **D21-1:** the exact test |A_net| > 12·(T0 − B), with ±12B and ∓12T0 added exactly into the accumulator copy, and no rounded comparison;
+- **D21-2:** the scaled-RoundedProduct underflow fallback is γ2·|value| + |k|·2^-1074.
+
+S11-G is implemented by I5 on main after S11-F merges, and reviewed by RV4.
