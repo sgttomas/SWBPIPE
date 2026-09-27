@@ -143,3 +143,7 @@ Base: branch `codex/piping-k3a-20260926` at `a2e804a757359d589f4c31ea8e36a923f28
 - **selected = built.nonlinear_supports.is_empty():** accepted. Keep the byte-identity test on such a case's linear attempt and receipt.
 - **Nonlinear pins (RV1's S1 lesson, applied from the start):** every pin gets a behavioural test that first asserts the two paths differ. The pins are integrated into I1's module at the forward merge.
 - **Joints with nonzero lateral stiffness:** they demote (the product refuses them anyway; M07, T4).
+
+## Addendum 3: angles near π (ROOT, 2026-09-27, from RV2's K3a review, note N5)
+
+`WideArith::included_angle(s, c)` refuses with `AngleDomain` when 1 + c ≤ 0, which happens for angles within about 1e-19 of π, where c rounds to exactly −1. **That refusal routes to K-D5's "cannot re-form" path:** the case is demoted with `formation_check_unavailable`, and it never passes. Add a test with a curved element at an included angle within 1e-19 of π, asserting the demotion. The accuracy contract you may cite for the arctangent is the **proved 23.6 ulp** (the 6-ulp figure is K3a's regression tolerance only; RV2 S1).
