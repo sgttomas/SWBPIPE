@@ -1121,3 +1121,30 @@ RV11 reviewed PR #1040 at `087b3a088`: **FAIL**, with 1 BLOCKING, 3 SHOULD-FIX a
    - it adds a RETURN addendum;
    - RV11 then delta-checks the fix commits.
    - DEC-025 is re-run on the new head on a quieter host. At `087b3a088`, `App.test.tsx`'s workspace render timed out at 30 s under host load (load average above 8, with two reviewers building). K2b changes no TypeScript; the timeout is not raised, and the surface is re-run.
+
+## K4: spawn and rulings (ROOT, 2026-09-28)
+
+- **K4 (W1a, the retained-precision kernel method) is spawned as I12** from main `e7d930d49`, where K1, K3 and K2b are merged. A TASK drafted the brief (`TASK_BRIEFS/I12_K4_IMPLEMENTATION.md`); ROOT reviewed it, and the rulings on its questions Q1–Q12 are in the brief. In short:
+  - kernel only, with no gate;
+  - the multi-term exact sum in K4's own file;
+  - the `exact_sum.rs` accessor approved;
+  - the ceiling: no p + 64 residual, with the argument derived and checked;
+  - budgets: the mechanism only, with no limits, and **F2a does not merge without ROOT's limits** from K6 and V-P;
+  - a kernel `DirectionalSpring`;
+  - RCM ported into `factor.rs`;
+  - the site-table extension;
+  - the export by the first consumer;
+  - canonical encodings, hashed downstream;
+  - K3's outcome type;
+  - one slice.
+- **Design text made stale by K1, K2b and K3,** recorded here as rulings. `DESIGN.md` stays hash-pinned.
+  1. §4.1.1's `wide.rs` is now `wide.rs` (K3a, L = 2) plus `wide/multi.rs` (K3, L = 4, 8 and 16). K4's p = 128 and 192 run at L = 4.
+  2. §4.1.2's "one accumulation discipline … shared with `FK/exact_sum.rs`" holds for binary64 terms only. p-bit sums use K4's primitive.
+  3. §4.1.2 item 5's projection is K3's `from_integer` plus K4's netting accessor.
+  4. §4.1.3's "RCM … shared with the binary64 sparse path" cannot be shared across crates. K4 ports it, and V-K tests the equality.
+  5. §4.1.4 with §4.1.6: there is no p + 64 residual at the 1024 ceiling (Q4).
+  6. §4.1.7's "No implementing slice ships without them" binds the product-wiring slice (F2a), per C4's measurement order.
+  7. §4.1.1's springs are extended with the kernel-only `DirectionalSpring`, for §4.10's directional kernel springs.
+  8. §5 item 7's outcomes are carried by two types, K2b's `Representability` and K3's `Binary64Outcome`. F2a unifies them, including the zero conventions.
+  9. MOD-D's export gap: the first consumer outside FK adds the `pub use`.
+  10. §4.10 and §7.1's "LEF-small … solved": the ordinary route refuses it with `DegenerateAxis` (K2b ruling). Whether W1's source admits LEF-small is V-K's question; RF-RANGE is not in K4's row.
