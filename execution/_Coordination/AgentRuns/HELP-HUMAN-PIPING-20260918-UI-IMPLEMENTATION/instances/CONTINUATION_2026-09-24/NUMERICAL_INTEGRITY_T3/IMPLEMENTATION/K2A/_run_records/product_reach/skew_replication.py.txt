@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""K2a (I6) independent replication, standard library only, of RV7's skew finding: FK's unchecked
+(pre-K2a) local_stiffness, FrameOrientation::from_x_axis_and_y_reference, transformation_matrix and
+structural::transform_roundoff (FK structural.rs:1832-1866; checked_product :377, checked_value :393),
+operation for operation in binary64. NOT the confirmation: RV7 confirms with FK's real transform_roundoff.
+Model: reach_zero's pipe (OD 1e-11 m, wall 1e-12 m), G = 1e-100 Pa, L = 2^-39 m, E scanned so that
+(2*E)*I is subnormal; member directions (1,0,0), (1,1,1), (1,2,2)."""
+import math
+PI = math.pi
+EPS = 2.0 ** -52
+class Range(Exception):
+    pass
+def checked_product(a, b):
+    x = a * b
+    if not math.isfinite(x) or (a != 0.0 and b != 0.0 and (x == 0.0 or abs(x) < 2.0 ** -1022)):
+        raise Range('product overflow or underflow')
+    return x
+def checked_value(x):
+    if not math.isfinite(x) or (x != 0.0 and abs(x) < 2.0 ** -1022):
+        raise Range('arithmetic outside normal range')
+    return x
+def gamma(n):
+    x = n * (EPS / 2.0)
+    return x / (1.0 - x)
+def section(od, t):
+    idd = od - 2.0 * t
+    area = PI * ((od * od) - (idd * idd)) / 4.0
+    i = PI * ((od * od) * (od * od) - (idd * idd) * (idd * idd)) / 64.0
+    return area, i, 2.0 * i
+def local(e, g, area, iy, iz, j, L):
+    L2 = L * L; L3 = L2 * L
+    ax = e * area / L; to = g * j / L
+    y = (12.0 * e * iy / L3, 6.0 * e * iy / L2, 4.0 * e * iy / L, 2.0 * e * iy / L)
+    z = (12.0 * e * iz / L3, 6.0 * e * iz / L2, 4.0 * e * iz / L, 2.0 * e * iz / L)
+    k = [[0.0] * 12 for _ in range(12)]
+    for a, b, v in ((0, 6, ax), (3, 9, to)):
+        k[a][b] = -v; k[b][a] = -v; k[a][a] = v; k[b][b] = v
+    def add(idx, t):
+        for r in range(4):
+            for c in range(4):
+                k[idx[r]][idx[c]] += t[r][c]
+    z12, z6, z4, z2 = z
+    add([1, 5, 7, 11], [[z12, z6, -z12, z6], [z6, z4, -z6, z2], [-z12, -z6, z12, -z6], [z6, z2, -z6, z4]])
+    y12, y6, y4, y2 = y
+    add([2, 4, 8, 10], [[y12, -y6, -y12, -y6], [-y6, y4, y6, y2], [-y12, y6, y12, y6], [-y6, y2, y6, y4]])
+    return k, dict(axial=ax, torsion=to, y12=y12, y6=y6, y4=y4, y2=y2)
+def dot(a, b): return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+def norm(v): return math.sqrt(dot(v, v))
+def normalize(v):
+    m = norm(v); s = 1.0 / m
+    return [v[0] * s, v[1] * s, v[2] * s]
+def cross(a, b): return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+def orientation(delta, yref):
+    x = normalize(delta)
+    p = dot(yref, x)
+    yc = [yref[0] - x[0] * p, yref[1] - x[1] * p, yref[2] - x[2] * p]
+    y = normalize(yc)
+    z = normalize(cross(x, y))
+    return [x, y, z]
+def transform(axes):
+    t = [[0.0] * 12 for _ in range(12)]
+    for base in (0, 3, 6, 9):
+        for r in range(3):
+            for c in range(3):
+                t[base + r][base + c] = axes[r][c]
+    return t
+def transform_roundoff(k, t):
+    temp = [[0.0] * 12 for _ in range(12)]; mag = [[0.0] * 12 for _ in range(12)]
+    for i in range(12):
+        for j in range(12):
+            for q in range(12):
+                term = checked_product(k[i][q], t[q][j])
+                temp[i][j] = checked_value(temp[i][j] + term)
+                mag[i][j] = checked_value(mag[i][j] + abs(term))
+    g = gamma(24); bounds = [[0.0] * 12 for _ in range(12)]
+    for i in range(12):
+        for j in range(12):
+            inh = 0.0; sec = 0.0
+            for q in range(12):
+                inh = checked_value(inh + checked_product(abs(t[q][i]), mag[q][j]))
+                sec = checked_value(sec + checked_product(abs(t[q][i]), abs(temp[q][j])))
+            bounds[i][j] = checked_value(g * (inh / (1.0 - g) + sec) * (1.0 + 64.0 * EPS))
+    return bounds
+L = 2.0 ** -39; od, wall, G = 1e-11, 1e-12, 1e-100
+area, i, j = section(od, wall)
+DIRS = {'(1,0,0)': ([1.0, 0.0, 0.0], [0.0, 1.0, 0.0]), '(1,1,1)': ([1.0, 1.0, 1.0], [0.0, 0.0, 1.0]),
+        '(1,2,2)': ([1.0, 2.0, 2.0], [1.0, 0.0, 0.0])}
+print('I', i, 'J', j, 'GJ/L 2^%.1f' % math.log2(G * j / L))
+for e in (1e-270, 1e-269, 3e-269, 1e-268, 3e-268, 1e-267):
+    two = 2.0 * e * i
+    if not (0.0 < two < 2.0 ** -1022):
+        continue
+    for name, (d, yref) in DIRS.items():
+        s = L / norm(d); delta = [d[0] * s, d[1] * s, d[2] * s]
+        length = norm(delta)
+        k, c = local(e, G, area, i, i, j, length)
+        t = transform(orientation(delta, yref))
+        try:
+            transform_roundoff(k, t); verdict = 'ACCEPTED'
+        except Range as err:
+            verdict = 'refused: %s' % err
+        print('E %.0e (2E)I %.3e 2EI/L 2^%.1f %s L %r: %s' % (e, two, math.log2(c['y2']), name, length, verdict))

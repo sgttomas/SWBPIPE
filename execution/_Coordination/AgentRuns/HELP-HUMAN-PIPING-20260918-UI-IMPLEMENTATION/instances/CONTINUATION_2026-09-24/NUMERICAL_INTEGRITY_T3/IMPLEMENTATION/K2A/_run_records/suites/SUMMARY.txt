@@ -1,0 +1,50 @@
+  before core/solver/frame_kernel: disk_free_kb=15349364
+core/solver/frame_kernel exit=0 secs=9 waited=0 passed=159 failed=0 ignored=0
+  before core/solver/straight_pipe: disk_free_kb=15349336
+core/solver/straight_pipe exit=0 secs=1 waited=0 passed=42 failed=0 ignored=0
+  before core/solver/curved_bend: disk_free_kb=15334624
+core/solver/curved_bend exit=0 secs=1 waited=0 passed=25 failed=0 ignored=0
+  before core/loads/load_case_algebra: disk_free_kb=15323092
+core/loads/load_case_algebra exit=0 secs=0 waited=0 passed=21 failed=0 ignored=0
+  before core/solver/sparse_direct: disk_free_kb=15308508
+core/solver/sparse_direct exit=0 secs=2 waited=0 passed=25 failed=0 ignored=0
+  before core/solver/nonlinear_integration: disk_free_kb=15295236
+core/solver/nonlinear_integration exit=0 secs=11 waited=0 passed=89 failed=0 ignored=0
+  before core/loads/primitive_loads: disk_free_kb=15260916
+core/loads/primitive_loads exit=0 secs=1 waited=0 passed=49 failed=0 ignored=0
+  before core/solver/linear_supports: disk_free_kb=15243736
+core/solver/linear_supports exit=0 secs=1 waited=0 passed=15 failed=0 ignored=0
+  before core/solver/nonlinear_supports: disk_free_kb=15232052
+core/solver/nonlinear_supports exit=0 secs=1 waited=0 passed=22 failed=0 ignored=0
+  before core/solver/diagnostics: disk_free_kb=15217476
+core/solver/diagnostics exit=0 secs=0 waited=0 passed=25 failed=0 ignored=0
+  before core/solver/performance_harness: disk_free_kb=15217472
+core/solver/performance_harness exit=0 secs=14 waited=0 passed=25 failed=0 ignored=0
+  before core/loads/stress_recovery: disk_free_kb=15188432
+core/loads/stress_recovery exit=0 secs=1 waited=0 passed=48 failed=0 ignored=0
+  before core/loads/user_loads: disk_free_kb=15173776
+core/loads/user_loads exit=0 secs=1 waited=0 passed=28 failed=0 ignored=0
+  before core/loads/self_weight_wasm: disk_free_kb=15157632
+core/loads/self_weight_wasm exit=0 secs=26 waited=0 passed=14 failed=0 ignored=0
+  before core/product_physics: disk_free_kb=14740440
+core/product_physics exit=0 secs=46 waited=0 passed=519 failed=0 ignored=1
+  before core/model_operations/operation_applier: disk_free_kb=13424180
+core/model_operations/operation_applier exit=0 secs=36 waited=0 passed=194 failed=0 ignored=0
+  before core/runner/headless: disk_free_kb=12724916
+core/runner/headless exit=0 secs=136 waited=0 passed=84 failed=0 ignored=0
+  before core/reporting/result_export: disk_free_kb=11742648
+core/reporting/result_export exit=0 secs=87 waited=0 passed=91 failed=0 ignored=0
+  before validation/benchmarks/mechanics: disk_free_kb=9249624
+validation/benchmarks/mechanics exit=0 secs=11 waited=0 passed=41 failed=0 ignored=0
+  before validation/benchmarks/nonlinear: disk_free_kb=9171604
+validation/benchmarks/nonlinear exit=0 secs=2 waited=0 passed=19 failed=0 ignored=0
+  before validation/benchmarks/stress: disk_free_kb=9147248
+validation/benchmarks/stress exit=0 secs=11 waited=0 passed=23 failed=0 ignored=0
+  before validation/benchmarks/physics_audit_regression: disk_free_kb=9056812
+validation/benchmarks/physics_audit_regression exit=0 secs=18 waited=0 passed=15 failed=0 ignored=0
+  pruned own target before validation/benchmarks/numerical_integrity
+  before validation/benchmarks/numerical_integrity: disk_free_kb=13517404
+validation/benchmarks/numerical_integrity exit=0 secs=27 waited=0 passed=0 failed=0 ignored=0
+  before apps/desktop/src-tauri: disk_free_kb=13288792
+apps/desktop/src-tauri exit=0 secs=155 waited=0 passed=114 failed=0 ignored=0
+DONE

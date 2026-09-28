@@ -1,0 +1,5 @@
+reach_six2: six_probe.py's model (E = 6.4e-280 Pa, (6*E)*I -> 0, N1 UY restrained, RZ free with spring
+k = 2^-p and moment 0.25 k) for p = 1002..1015, built inline with reach_requests.py's `request`
+(name SIX2-<p>). The predicted error of the zero-published restrained-UY reaction, against D1's coupled
+force scale S*_moment / L_b (L_b = L), is 0.0262 * 2^(p-1002) of the criterion (0.42 at p = 1006, 0.84 at
+p = 1007). Main: checks_passed for p <= 1006, NUMERICAL_INTEGRITY_SENSITIVE for p >= 1007 (both modes).

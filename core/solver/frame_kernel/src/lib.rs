@@ -363,6 +363,14 @@ pub enum FrameKernelError {
     SingularSystem {
         pivot: usize,
     },
+    /// K2a (T3 D1 revision 5a.2 section 4.7, formation range, step 1): an
+    /// intermediate product or quotient of `local_stiffness`, formed from
+    /// nonzero finite operands, is zero, subnormal or non-finite in binary64.
+    /// `name` names the coefficient and the intermediate. The formation is
+    /// refused; it is never published as a zero or imprecise coefficient.
+    NumericalRange {
+        name: &'static str,
+    },
 }
 
 impl fmt::Display for FrameKernelError {
@@ -407,6 +415,10 @@ impl fmt::Display for FrameKernelError {
                 "prescribed DOF {dof} is outside total DOF count {total_dofs}"
             ),
             Self::SingularSystem { pivot } => write!(f, "singular system at pivot {pivot}"),
+            Self::NumericalRange { name } => write!(
+                f,
+                "range: stiffness formation outside the binary64 normal range at {name} (zero, subnormal or non-finite from nonzero finite operands)"
+            ),
         }
     }
 }
@@ -713,19 +725,75 @@ pub fn local_stiffness(properties: FrameProperties) -> Result<Matrix12, FrameKer
     let iz = section.second_moment_z;
     let j = section.torsion_constant;
     let length = properties.length;
-    let length2 = length * length;
-    let length3 = length2 * length;
 
-    let axial = e * area / length;
-    let torsion = g * j / length;
-    let bend_y_12 = 12.0 * e * iy / length3;
-    let bend_y_6 = 6.0 * e * iy / length2;
-    let bend_y_4 = 4.0 * e * iy / length;
-    let bend_y_2 = 2.0 * e * iy / length;
-    let bend_z_12 = 12.0 * e * iz / length3;
-    let bend_z_6 = 6.0 * e * iz / length2;
-    let bend_z_4 = 4.0 * e * iz / length;
-    let bend_z_2 = 2.0 * e * iz / length;
+    // K2a (T3 D1 revision 5a.2 section 4.7, formation range, step 1): each
+    // coefficient is formed with the same binary64 operations, in the same
+    // order, as before (`12.0 * e * iy / length3` is ((12*E)*Iy)/L^3), and
+    // every intermediate product and quotient is checked, not only the final
+    // coefficient. A zero, subnormal or non-finite intermediate of nonzero
+    // finite operands is refused with `NumericalRange`; an accepted
+    // coefficient has exactly the unchecked bits. k*E is formed once and
+    // shared by the y and z coefficients (the same operation on the same
+    // operands, so the same bits). Until formation-time scaling (K2b, F1)
+    // lands, such a formation is refused, never scaled.
+    let length2 = checked_formation_product("L^2 (for 6EI/L^2 and 12EI/L^3): L*L", length, length)?;
+    let length3 = checked_formation_product("L^3 (for 12EI/L^3): L^2*L", length2, length)?;
+
+    let axial = checked_formation_quotient(
+        "EA/L: (E*A)/L",
+        checked_formation_product("EA/L: E*A", e, area)?,
+        length,
+    )?;
+    let torsion = checked_formation_quotient(
+        "GJ/L: (G*J)/L",
+        checked_formation_product("GJ/L: G*J", g, j)?,
+        length,
+    )?;
+
+    let twelve_e = checked_formation_product("12EIy/L^3 and 12EIz/L^3: 12*E", 12.0, e)?;
+    let bend_y_12 = checked_formation_quotient(
+        "12EIy/L^3: (12*E*Iy)/L^3",
+        checked_formation_product("12EIy/L^3: (12*E)*Iy", twelve_e, iy)?,
+        length3,
+    )?;
+    let six_e = checked_formation_product("6EIy/L^2 and 6EIz/L^2: 6*E", 6.0, e)?;
+    let bend_y_6 = checked_formation_quotient(
+        "6EIy/L^2: (6*E*Iy)/L^2",
+        checked_formation_product("6EIy/L^2: (6*E)*Iy", six_e, iy)?,
+        length2,
+    )?;
+    let four_e = checked_formation_product("4EIy/L and 4EIz/L: 4*E", 4.0, e)?;
+    let bend_y_4 = checked_formation_quotient(
+        "4EIy/L: (4*E*Iy)/L",
+        checked_formation_product("4EIy/L: (4*E)*Iy", four_e, iy)?,
+        length,
+    )?;
+    let two_e = checked_formation_product("2EIy/L and 2EIz/L: 2*E", 2.0, e)?;
+    let bend_y_2 = checked_formation_quotient(
+        "2EIy/L: (2*E*Iy)/L",
+        checked_formation_product("2EIy/L: (2*E)*Iy", two_e, iy)?,
+        length,
+    )?;
+    let bend_z_12 = checked_formation_quotient(
+        "12EIz/L^3: (12*E*Iz)/L^3",
+        checked_formation_product("12EIz/L^3: (12*E)*Iz", twelve_e, iz)?,
+        length3,
+    )?;
+    let bend_z_6 = checked_formation_quotient(
+        "6EIz/L^2: (6*E*Iz)/L^2",
+        checked_formation_product("6EIz/L^2: (6*E)*Iz", six_e, iz)?,
+        length2,
+    )?;
+    let bend_z_4 = checked_formation_quotient(
+        "4EIz/L: (4*E*Iz)/L",
+        checked_formation_product("4EIz/L: (4*E)*Iz", four_e, iz)?,
+        length,
+    )?;
+    let bend_z_2 = checked_formation_quotient(
+        "2EIz/L: (2*E*Iz)/L",
+        checked_formation_product("2EIz/L: (2*E)*Iz", two_e, iz)?,
+        length,
+    )?;
 
     let mut stiffness = [[0.0; ELEMENT_DOF]; ELEMENT_DOF];
 
@@ -744,6 +812,44 @@ pub fn local_stiffness(properties: FrameProperties) -> Result<Matrix12, FrameKer
         validate_named_finite_slice("computed local stiffness", row)?;
     }
     Ok(stiffness)
+}
+
+/// K2a: one checked binary64 product of `local_stiffness` (see
+/// `checked_formation_value`).
+fn checked_formation_product(
+    name: &'static str,
+    left: f64,
+    right: f64,
+) -> Result<f64, FrameKernelError> {
+    checked_formation_value(name, left, right, left * right)
+}
+
+/// K2a: one checked binary64 quotient of `local_stiffness` (see
+/// `checked_formation_value`).
+fn checked_formation_quotient(
+    name: &'static str,
+    numerator: f64,
+    denominator: f64,
+) -> Result<f64, FrameKernelError> {
+    checked_formation_value(name, numerator, denominator, numerator / denominator)
+}
+
+/// K2a: returns `value`, the unchecked binary64 result, bit for bit, unless
+/// both operands are nonzero and finite and `value` is zero, subnormal or
+/// non-finite, which is `NumericalRange { name }`. An exactly zero (or a
+/// non-finite) operand is not a range error: such inputs keep their existing
+/// handling (`validate_positive_finite` refuses them before formation).
+fn checked_formation_value(
+    name: &'static str,
+    left: f64,
+    right: f64,
+    value: f64,
+) -> Result<f64, FrameKernelError> {
+    let operands_in_range = left != 0.0 && right != 0.0 && left.is_finite() && right.is_finite();
+    if operands_in_range && !value.is_normal() {
+        return Err(FrameKernelError::NumericalRange { name });
+    }
+    Ok(value)
 }
 
 pub fn transform_global_stiffness(

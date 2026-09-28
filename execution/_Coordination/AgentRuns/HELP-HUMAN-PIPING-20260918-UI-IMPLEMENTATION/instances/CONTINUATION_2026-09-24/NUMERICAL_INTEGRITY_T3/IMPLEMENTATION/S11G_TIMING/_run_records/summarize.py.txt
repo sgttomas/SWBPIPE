@@ -1,0 +1,23 @@
+"""S11-G timing (I3R): per-case means and percentage difference from runs.jsonl.
+Usage: python3 -B summarize.py <runs.jsonl> <label-a> <label-b>   (committed as summarize.py.txt)"""
+import json, sys, statistics as st
+rows = [json.loads(l) for l in open(sys.argv[1])]
+a, b = sys.argv[2], sys.argv[3]
+print(f"{'case':28} {'rep':>3} {'binary':10} {'wall_s':>9} {'peak_rss_kib':>12} {'timed_out':>9} load1_start load1_end quality")
+for r in rows:
+    print(f"{r['case']:28} {r['rep']:>3} {r['binary']:10} {r['wall_seconds']:9.2f} {r['peak_rss_kib']:12d} {str(r['timed_out']):>9} "
+          f"{r['loadavg_start'][0]:>11} {r['loadavg_end'][0]:>9} {r['quality']}")
+print()
+allpct = []
+for case in dict.fromkeys(r['case'] for r in rows):
+    wa = [r['wall_seconds'] for r in rows if r['case'] == case and r['binary'] == a]
+    wb = [r['wall_seconds'] for r in rows if r['case'] == case and r['binary'] == b]
+    pairs = [(x, y) for x, y in zip(wa, wb)]
+    pct = 100.0 * (st.mean(wb) / st.mean(wa) - 1.0)
+    per_pair = [100.0 * (y / x - 1.0) for x, y in pairs]
+    spread_a = 100.0 * (max(wa) - min(wa)) / st.mean(wa)
+    spread_b = 100.0 * (max(wb) - min(wb)) / st.mean(wb)
+    allpct += per_pair
+    print(f"{case}: mean {a} {st.mean(wa):.1f} s, mean {b} {st.mean(wb):.1f} s, difference {pct:+.1f}%; "
+          f"per interleaved pair {', '.join(f'{p:+.1f}%' for p in per_pair)}; within-binary rep spread {a} {spread_a:.1f}%, {b} {spread_b:.1f}%")
+print(f"all pairs: min {min(allpct):+.1f}%, max {max(allpct):+.1f}%, mean {st.mean(allpct):+.1f}%")

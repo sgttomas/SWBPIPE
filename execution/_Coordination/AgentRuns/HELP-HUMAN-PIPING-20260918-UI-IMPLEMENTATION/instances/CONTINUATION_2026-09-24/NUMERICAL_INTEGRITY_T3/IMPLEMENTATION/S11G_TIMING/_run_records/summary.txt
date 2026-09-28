@@ -1,0 +1,13 @@
+case                         rep binary        wall_s peak_rss_kib timed_out load1_start load1_end quality
+RF-LARGE-CHAIN-n01000-AX       1 72d5ff864     496.17      3693024     False        2.75      2.47 sensitive
+RF-LARGE-CHAIN-n01000-AX       1 b24b3d536     494.26      3692736     False        2.47      1.32 sensitive
+RF-LARGE-CHAIN-n01000-AX       2 72d5ff864     496.91      3692960     False        1.32      1.04 sensitive
+RF-LARGE-CHAIN-n01000-AX       2 b24b3d536     494.64      3692976     False        1.04      2.22 sensitive
+RF-LARGE-TREE-n01000-ROT       1 72d5ff864     479.89      3705488     False        2.22      1.00 sensitive
+RF-LARGE-TREE-n01000-ROT       1 b24b3d536     483.27      3705356     False        1.00      1.54 sensitive
+RF-LARGE-TREE-n01000-ROT       2 72d5ff864     486.24      3705204     False        1.54      1.05 sensitive
+RF-LARGE-TREE-n01000-ROT       2 b24b3d536     492.01      3705424     False        1.05      1.15 sensitive
+
+RF-LARGE-CHAIN-n01000-AX: mean 72d5ff864 496.5 s, mean b24b3d536 494.4 s, difference -0.4%; per interleaved pair -0.4%, -0.5%; within-binary rep spread 72d5ff864 0.1%, b24b3d536 0.1%
+RF-LARGE-TREE-n01000-ROT: mean 72d5ff864 483.1 s, mean b24b3d536 487.6 s, difference +0.9%; per interleaved pair +0.7%, +1.2%; within-binary rep spread 72d5ff864 1.3%, b24b3d536 1.8%
+all pairs: min -0.5%, max +1.2%, mean +0.3%
