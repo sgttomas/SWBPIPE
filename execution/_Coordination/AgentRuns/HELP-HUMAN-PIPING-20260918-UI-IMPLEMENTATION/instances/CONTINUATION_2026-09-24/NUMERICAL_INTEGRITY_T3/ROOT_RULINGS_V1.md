@@ -1462,3 +1462,23 @@ V4 (`DESIGN_NUMERICS/REV_5A3_CANDIDATE/V4_VERIFICATION.md`, sha256 `0222d0ec…`
     4. **Gate part 1 is re-run in full on the new head,** and then part 2. The 4 CONT sparse runs must no longer abort. What they publish or refuse instead goes in C2's table.
   - A sparse ceiling for the main solve stays unset in F1b (Q8). Only this observation lane is guarded.
 - **D1 5a.3:** V4's delta check of R2 resumes from its pause state, including its open lead (a saturated stiffness entry amplified by a soft mode).
+
+## D1 revision 5a.3: rulings on V4's delta check at R2 (ROOT, 2026-09-28)
+
+V4's delta check at R2 (appended to `V4_VERIFICATION.md`, sha256 `c2f5539b…`): **NOT VERIFIED**, with 1 BLOCKING, 1 SHOULD-FIX and 6 NOTEs.
+- **V4-R1 (BLOCKING): the estimate misses a saturated assembled stiffness entry.**
+  - LEVER2 is an exactly representable lever with gain 2^90, a prescribed rigid translation, and a tip spring 2^-580 of its assembled diagonal, so the spring is lost in every assembled entry up to 576 bits.
+  - R2 selects it at 256 with W/V = 0, and publishes 0 `absolute_verified` against a truth about 1,000 times its bound.
+  - This refutes R2's claim of a 2^72 margin for the K^q term.
+  - **Ruling: adopt V4's demonstrated fix.** W's residual is formed as one exact sum over the element contributions and spring stiffnesses, not over K^q's rounded assembled entries. In V4's emulation, LEVER2 is then refused and no control changes.
+- **V4-R2 (SHOULD-FIX): the estimate recomputes its residual on the final state,** not reusing the gate's last evaluation. The R1 fix requires this anyway. SEEDED-COMMON must be caught.
+- **DS1's two departures from ROOT's rulings are confirmed,** on V4's derivations:
+  - **the hybrid gate:** acceptance on the bounded denominator, with refinement driven by the coalesced ratio. What is published is decided by the stop rule, V and W on the final state;
+  - **the estimate's test W ≤ V/4:** resolution (68) plus estimate (64) is 132 of V's 256 units, whereas a test at V would allow 324.
+- **NOTEs to carry into R3:**
+  - V4-R5: apply the bounded test to the best state, not the last;
+  - §1's "20 selected at 128" is labelled emulation-only;
+  - the Lemma 2 proof is repaired;
+  - G5a item 4 takes values after unit conversion;
+  - V4's two errata are recorded as corrected.
+- **Next:** DS1 writes R3, and V4 runs a delta check. ROOT selects only after VERIFIED. K4 stays blocked until then.

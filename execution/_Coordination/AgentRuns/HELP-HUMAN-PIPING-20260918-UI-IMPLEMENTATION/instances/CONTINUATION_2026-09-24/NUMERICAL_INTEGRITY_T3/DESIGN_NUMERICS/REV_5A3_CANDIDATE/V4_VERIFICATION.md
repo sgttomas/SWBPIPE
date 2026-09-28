@@ -242,3 +242,94 @@ The oracle is the same pipeline in exact rationals, on rational geometries: axis
 - no file outside the write set, apart from `<wt>/scratch/v4/`.
 
 **Delegation.** V4 ran as a Claude Code background subagent that ROOT launched through the Agent tool. ROOT is its only return path. V4 dispatched nothing.
+
+## Delta check at R2
+
+This section replaces the paused interim note. It covers R2, `D1_REV_5A3_SSTAR_RESOLUTION_R2.md` (sha256 `326a8d78…`, numerics `9e9e3056a`), against ROOT's rulings on this verification (`ROOT_RULINGS_V1.md` at `085638e58`, section sha256 `9a36d688…`) and K4 at `5ad1b6174`, read with `git show`: the probe `probe_v4_s3_y_reference_with_a_chord_component`, `run_345`, RETURN §21, and `publish_prescribed` / `exact_publication`.
+
+**Method.** V4 implemented R2 in its own emulator (`delta_r2/v4emu_r2.py.txt`, written from R2's text), on V4's K4 emulator. It does not use DS1's emu2. It implements:
+- g, exact from the formation's `yc`;
+- the stage-rounded Ā, including springs;
+- E, stage-rounded;
+- V, Φ and the threshold from item 6a's binary64 ê;
+- the estimate W, with its residual either reused from the gate (R2's text) or recomputed on the final state;
+- the hybrid, coalesced and pure gates;
+- G5a items 1–5.
+
+Python only; no cargo. Every claim below is derived or demonstrated, as before.
+
+### Verdict at R2
+
+**NOT VERIFIED. 1 BLOCKING, 1 SHOULD-FIX, 6 NOTE.**
+
+The revision resolves S1 and S3–S7 and every NOTE. It does not fully resolve S2: the adopted estimate misses a saturated assembled stiffness entry (V4-R1), and its specified form does not kill mutant M11 through the control R2 names (V4-R2). The fix for V4-R1 is small and demonstrated. With it, a delta check of the changed text should suffice.
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| V4-R1 | **BLOCKING** | §5.5 (§4.1.6.3) "What W estimates", its named term "K^q's own formation error … 2^-72·V for c ≤ 256"; §5.2; §5.7 "a margin of 2^72 against V"; §4 "no longer rests on the conjecture"; §8 item 1; §9 | **Demonstrated** (`delta_r2/r2_lever2.*`): R2 publishes a false claim on LEVER2, an exactly representable dyadic lever:<br>• pivot at the origin, link at distance 1, tip at 2^90, with the node numbering chosen so that every LDLᵀ pivot and multiplier is dyadic (checked exactly);<br>• a rigid y-translation of 1 prescribed;<br>• a global spring at the tip's uy of 2^-580 times the tip's assembled diagonal;<br>• a load P = 2^-438·ê on an out-of-plane axial branch, which sets M so that V ≤ ε·M at 256.<br>Selected at 256, with W/V = 0 and every G5a item passing. The link force and two reactions are published as 0.0 `absolute_verified` with b = 2.69e-138 against a truth of 2.70e-135: a **claim ratio of 1,005**. Arm 2^100 gives 1.03e6; arm 2^110 gives 1.05e9.<br>**Derived:** the spring is lost in the assembled entry at every P ≤ 576, K^q included. So Δ = 0, r = f − K^q·u = 0 and W = 0. The error G·k·a is bounded only by the rcond screen (G ≲ √κ ≤ 2^127 at p = 256), not by c ≤ 256: here c ≈ 2^83. p = 512 is safe (a gain above 2^522 is needed). p = 128 is safe unless Hager–Higham underestimates κ by more than about 2^19.<br>Realism: absurd scales, an exact dyadic structure, and an elimination order that suits it. V4 did not construct a case for K4's RCM order | Form W's residual as **one exact expansion over the q-formed element entries and the binary64 spring and directional-block contributions** (contribution level), not over K^q's rounded assembled entries.<br>**Demonstrated** (`delta_r2/r2_lever_fix.*`): LEVER2 is then rejected by `verification_estimate` at 256 (W at 1.07e4 times V/4) and ends unresolved (safe). The 22 controls keep every selected precision and W/V.<br>**Derived:** in an exactly representable structure only assembly-level sums can saturate (an axis-aligned element entry has single-source terms). The remaining unmeasured term is element-entry formation error, which in a non-exact structure the stop rule sees.<br>Restate the named term and its margins to match |
+| V4-R2 | SHOULD-FIX | §5.5 item 1 "reused, not recomputed" against §7 SEEDED-COMMON, the kill of M11 | **Demonstrated** (`delta_r2/r2_probe_seed.*`): R2's SEEDED-COMMON adds the seed to the solved state after the gate. With W's residual reused, as the text specifies, W is blind to the seed: the case is selected at 128 with claim ratio 23, identical to mutant M11. With the residual recomputed on the final state, the estimate fires at 128, 256 and 512 and the case is Unresolved. That matches DS1's result, because emu2 recomputes (`residual(u)` after the seed) | Recompute W's residual on the final state (V4-R1's fix does so necessarily), or place the hook where the reused residual sees it |
+| V4-R3 | NOTE | §1's evidence table, "K4's Rust probe (20 cases) … All 20 selected at 128" | **Derived** from `5ad1b6174`: the Rust probe runs only the coalesced gate. The bounded-gate result is emulation (DS1's and V4's). V4 reproduces it independently: all 20 selected at 128, honest, 0 G5a failures.<br>For the one-member in-plane case, RETURN §21 (Rust) shows the coalesced gate failing at 256; V4's emulator agrees; DS1 says emu2 passes that state | Label the row as emulation, pending K4's Rust control |
+| V4-R4 | NOTE | §2.3 Lemma 2's proof | **Derived:** the statement is correct. The step "since \|y\|/2 ≥ 2^(e−1), \|t\| < 2^-2p·\|y\|/2 is strictly inside the half-spacing" is a non sequitur: it gives a lower bound on the threshold. A two-case argument closes it:<br>• away from a power of two, the half-spacing is 2^(e−2p) > 2^-2p·\|y\|/2, because \|y\| < 2^(e+1);<br>• at y = ±2^e on the smaller side, the half-spacing is 2^(e−2p−1) = 2^-2p·\|y\|/2 | Replace the step |
+| V4-R5 | NOTE | §5.6, the hybrid gate | **Derived:** the bounded test is applied to the last state. K4's loop leaves after a correction whose coalesced ratio did not decrease, so that state may be the worse one. Availability only | Apply the bounded test to the best state seen |
+| V4-R6 | NOTE | §6.3 G5a item 4 | **Derived:** the published u and S\* must be taken after item 3's unit conversion (mm, kN). The conversion adds at most 2^-52 relative, inside the derivation's 2^-40 headroom | State it |
+| V4-R7 | NOTE | V4's own errata, which R2 corrects | **Derived:** V4-N4 was wrong at 256: there Δ = 2^-300 and the rejection is by Δ (R2 §7 is right). V4-N6's 2^-24·b should be 2^-23·b: the unit roundoff is 2^-53 (R2 §5.2 is right) | None |
+| V4-R8 | NOTE | §5.6, K4's RETURN §6.6, route 1 | **Derived:** the bounded majorant changes route 1's Oettli–Prager constant. R2 routes this to K4's RETURN; nothing is missing in the design | None |
+
+### The checks ROOT asked for
+
+1. **S1–S7 and the NOTEs.**
+   - S1: resolved, with the threshold 2^-472·ê and DEMOTION2 as a control. **Demonstrated:** V4's DEMOTION2 goes 7 → 4 relative rows at 512.
+   - S2: **not fully resolved** (V4-R1, V4-R2).
+   - S3: resolved in emulation; K4 has not yet built the Rust control.
+   - S4: resolved. **Derived:** V, Φ and the threshold come from one binary64 ê; V4's implementation uses exactly that, and G5b matches.
+   - S5: resolved. g is exact; directional blocks are entrywise; unpublishable rows are included; stage rounding is to nearest; publication rounds upward.
+   - S6: resolved. The M11 kill depends on V4-R2.
+   - S7: resolved, with the note V4-R6.
+   - N1–N13: resolved (§11). K4's fix for N7 is confirmed in `5ad1b6174`: `publish_prescribed` goes through `exact_publication`, rounding once.
+2. **The estimate (§4.1.6.3).**
+   - **Specified exactly:** yes, apart from reuse against recompute (V4-R2).
+   - **Sound to first order:** for the RHS, the solve and u's representation. **Demonstrated:** the worst W/V is 0.0025 over the controls and 0.0035 over 200 adversarial models, where it never fired. SEEDED-COMMON is caught when the residual is recomputed.
+   - **It misses** saturated assembled entries, and R2's c ≤ 256 is not true of them (V4-R1).
+3. **The hybrid gate (departure 1). Sound.**
+   - **Derived:** acceptance of values rests on the stop rule, V and W, computed on the final state, so neither the coalesced-driven refinement nor the bounded acceptance can make a published claim wrong.
+   - **Derived:** the bounded test admits every state the coalesced test admits, since Ā ≥ \|K\| entrywise at first order and g ≥ 1.
+   - A state that passes only the bounded test is judged by Δ (candidate) and by W (verification).
+   - **Demonstrated:**
+     - all 20 probe cases are selected at 128 and honest;
+     - TWO-SPAN keeps its correction: 1 under the coalesced and hybrid gates, 0 under the pure form, as R2's M13 states;
+     - V4's LOADONLY-y345 and GS-ROT-y345-LOADED are selected at 128.
+   - **V4 supports ROOT confirming the hybrid form, with V4-R5.**
+4. **V/4 (departure 2). Derived correctly.**
+   - The resolution term is ≤ 68·2^-2p·ê. W ≤ 64·2^-2p·ê. The sum, 132, leaves 124 units of V for the unmeasured terms.
+   - At V the sum would be 324 > 256.
+   - u's representation is counted in both terms, which is conservative.
+   - **V4 supports the V/4 form.**
+5. **No control changes except those stated.** **Demonstrated** (`delta_r2/r2_controls.*`, 22 controls under today's rule and R2):
+   - the survey controls are unchanged: N05, SKEW-K1E-28, SKEW6, PIVOT, REACTIONS-ONLY, ZERO-TORSION-345, ALL-ZERO-BODY;
+   - the F-2, F-3, prescribed-tail, EXACT-RIGID, DEMOTION2 and ASSEMBLY-SAT sets go to 512 as stated;
+   - LOADONLY-y345 and GS-ROT-y345-LOADED go to 128, as stated;
+   - every R2 outcome is honest, with 0 G5a failures.
+6. **G5a item 4 holds, and a D2 reader can check it** (derived). Its inputs are all published: displacement and rotation rows, `input_derived` included; the receipt's k_a, k_t, `resolution_scale`, S\*_tr and S\*_ro; and L_b. **Demonstrated:** 0 failures over the 22 controls, the 20 probe cases, LEVER2 and 200 sweep models.
+   - Caveat: item 4 cannot catch V4-R1, because E itself is correct there.
+7. **"Could not resolve" (§9).** Honest, except that the named K^q term's "large margins" are refuted (V4-R1). K4's Rust confirmations (E-UNIT, E-HEADROOM, the probe control) remain open, as stated.
+
+### Records
+
+The records are in `_v4_records/delta_r2/`; `_v4_records/SHA256SUMS` is regenerated to cover the directory (67 files).
+
+| File | What it is |
+|---|---|
+| `v4emu_r2.py.txt` | V4's R2 implementation |
+| `v4emu.py.txt` | V4's emulator, now exposing `yc` from formation |
+| `r2_controls` | 22 controls |
+| `r2_probe_seed` | K4's probe set; SEEDED-COMMON reused and recomputed; TWO-SPAN under each gate |
+| `r2_lever`, `r2_lever_search` | The first, inexact attempts |
+| `r2_lever2` | LEVER2, the break |
+| `r2_lever_fix` | The contribution-level residual on LEVER2 and the controls |
+| `r2_sweep` | 200 adversarial models under R2 |
+
+Each script is stored as `.py.txt`, beside its `.json` and `.log`. Some logs repeat imported modules' output.
+
+To rerun (from `<wt>/scratch/v4/`): `python3 delta_r2/r2_controls.py`, `python3 delta_r2/r2_probe_seed.py`, `python3 delta_r2/r2_lever2.py`, `python3 delta_r2/r2_lever_fix.py`, and `python3 delta_r2/r2_sweep.py 3 200 1500`.
+
+Uncommitted.

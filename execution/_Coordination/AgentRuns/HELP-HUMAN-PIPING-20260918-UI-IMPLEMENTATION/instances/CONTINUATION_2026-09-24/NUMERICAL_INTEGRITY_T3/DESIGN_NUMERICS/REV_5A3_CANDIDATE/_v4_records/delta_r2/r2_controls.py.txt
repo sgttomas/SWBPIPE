@@ -1,0 +1,40 @@
+"""V4 delta check: controls under today's rule (K4 gate) and R2 (hybrid gate, V, floor, W), with G5a."""
+import sys, json, time
+import os; sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from v4emu import run, model, member, fix, load, spring, station
+from v4emu_r2 import run_r2
+import cases
+from gate_probe_nsec import S as NSEC
+
+def nsec_gs(name, y, loaded, rot=True):
+    m = model(name, [(0,0,0),(3,4,0),(6,8,0),(9,12,0)])
+    for s in range(3): member(m, s, s+1, y=y, **NSEC)
+    if rot:
+        fix(m, 0, (0,1,2,3,4)); fix(m, 0, (5,), 1e-3)
+    else:
+        fix(m, 0, range(6))
+    if loaded: load(m, 3, 1, 1.0)
+    return m
+def n05():
+    m = model("N05", [(0,0,0),(2,0,0)]); member(m, 0, 1, **NSEC)
+    fix(m, 0, (0,1,2,4,5)); spring(m, 0, 3, 1e-4); load(m, 1, 3, 1e-8); station(m, 0, 0.5)
+    return m
+ms = [cases.f2(), cases.f2_spos(), cases.f2("F-2-CEIL", E=2.0**41, lv=2.0**-1000), cases.ptail(), cases.ptail(True),
+      cases.rigid_unloaded(), cases.f3_free(), cases.f3_rot(), cases.exact_rigid(), cases.demotion2(), cases.assembly_sat(),
+      nsec_gs("GS-TRANS-y345-N", (3.0,4.0,5.0), False, rot=False) if False else None,
+      nsec_gs("LOADONLY-y345-N", (3.0,4.0,5.0), True, rot=False), nsec_gs("GS-ROT-y345-LOADED-N", (3.0,4.0,5.0), True),
+      nsec_gs("LOADONLY-y001-N", (0.0,0.0,1.0), True, rot=False), n05()]
+ms = [m for m in ms if m is not None]
+from fidelity import ms as fid
+ms += fid
+out = {}
+for m in ms:
+    t = time.time()
+    today, _ = run(m, rules=("current",), verbose=False)
+    t0 = {k: v for k, v in today["current"].items() if k in ("selected", "attempts", "honesty", "classes")}
+    r2 = run_r2(m)
+    out[m["name"]] = dict(today=t0, r2=r2)
+    print(m["name"], "| today:", t0.get("selected"), t0.get("classes"), t0.get("honesty"),
+          "| R2:", r2["selected"], r2.get("classes"), r2.get("honesty"), "G5a fails:", r2.get("g5a_failures"),
+          r2["attempts"][-1] if r2["attempts"] else None, "(%.1fs)" % (time.time() - t), flush=True)
+json.dump(out, open("delta_r2/r2_controls.json", "w"), indent=1, default=str)
