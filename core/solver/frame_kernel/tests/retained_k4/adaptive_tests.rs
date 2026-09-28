@@ -769,3 +769,174 @@ fn retained_states_equal_the_generators_emulation_of_the_method_bit_for_bit() {
     }
     assert_eq!(checked, 5);
 }
+
+// ---------------------------------------------------------------- V4-S3: a probe (no assertion yet)
+
+/// A cantilever run along (3,4,0) (`members` members), root fixed, a general
+/// tip load, with the given y_reference; no prescribed motion.
+fn run_345(
+    y_reference: [f64; 3],
+    members: u32,
+    tip: [f64; 6],
+) -> super::super::source::PrimitiveSource {
+    use super::super::source::{
+        Constraint, NodalLoad, PrimitiveSource, SourceParts, StraightMember,
+    };
+    let template = models::model("N05").parts.members[0];
+    let mut parts = SourceParts {
+        nodes: (0..=members)
+            .map(|s| [3.0 * s as f64, 4.0 * s as f64, 0.0])
+            .collect(),
+        members: (1..=members)
+            .map(|id| StraightMember {
+                id,
+                node_i: id - 1,
+                node_j: id,
+                y_reference,
+                ..template
+            })
+            .collect(),
+        ..Default::default()
+    };
+    for c in 0..6 {
+        parts.constraints.push(Constraint {
+            dof: Dof::from_global(c),
+            value: 0.0,
+        });
+    }
+    for (c, v) in tip.into_iter().enumerate() {
+        if v == 0.0 {
+            continue;
+        }
+        parts.loads.push(NodalLoad {
+            dof: Dof::from_global(members as usize * 6 + c),
+            value: v,
+            source_id: format!("tip{c}"),
+        });
+    }
+    PrimitiveSource::new(parts).unwrap()
+}
+
+/// The residual gate's worst ratio |r_i|(2^p − m_i)/(64·m_i·d_i) at each
+/// evaluation of the refinement loop at p (M03's coalesced d_i), following
+/// `solve_case_at`: the first solve, then up to three corrections.
+fn gate_ratios<const L: usize, const R: usize>(
+    source: &super::super::source::PrimitiveSource,
+    p: u32,
+    q: u32,
+) -> Result<Vec<f64>, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+{
+    let prep = CasePrep::new(source.clone()).unwrap();
+    let group = prepare_group(source).unwrap();
+    let shared = build_shared::<L, R>(p, q, source, &group, StageGuard::unlimited()).result?;
+    let mut ctx = WideContext::<L>::new(p).unwrap();
+    let mut ctx_q = WideContext::<R>::new(q).unwrap();
+    let mut ctx64 = WideContext::<4>::new(64).unwrap();
+    let mut sum = ExactWideSum::new();
+    let free = &group.ordering.free;
+    let mut u = vec![Wide::<L>::ZERO; source.dof_count()];
+    prep.prescribed_at(&mut ctx, &mut sum, &mut u)?;
+    let rhs = reduced_rhs(
+        &mut ctx,
+        &mut sum,
+        source,
+        &group.structure,
+        &shared.k,
+        &prep.ledger,
+        free,
+        &u,
+    )?;
+    let mut u_free = shared.factor.solve(&mut ctx, &rhs)?;
+    let mut ratios = Vec::new();
+    for _ in 0..4 {
+        for (a, &g) in free.iter().enumerate() {
+            u[g] = u_free[a];
+        }
+        let mut tracker = ExtremeTracker::new(Direction::Up);
+        let rows = residual_rows(
+            &mut ctx,
+            &mut ctx_q,
+            &mut ctx64,
+            &mut sum,
+            p,
+            &group.structure,
+            &shared.k_q,
+            &prep.ledger,
+            free,
+            &u,
+            &mut tracker,
+        )?;
+        ratios.push(rows.iter().map(|r| r.1).fold(0.0f64, f64::max));
+        if rows.iter().all(|r| r.0) {
+            break;
+        }
+        let correction: Vec<Wide<L>> = rows.iter().map(|r| r.2).collect();
+        let delta = shared.factor.solve(&mut ctx, &correction)?;
+        for (v, d) in u_free.iter_mut().zip(&delta) {
+            *v = ctx.add(v, d)?;
+        }
+    }
+    Ok(ratios)
+}
+
+#[test]
+fn probe_v4_s3_y_reference_with_a_chord_component() {
+    // V4-S3 (ROOT's rulings on V4's verification of 5a.3): a probe only; the
+    // gate's denominator is to change under the revised addendum.
+    let loads: [(&str, [f64; 6]); 5] = [
+        ("general", [1000.0, -500.0, 2000.0, 100.0, 200.0, 300.0]),
+        ("in-plane transverse F", [-400.0, 300.0, 0.0, 0.0, 0.0, 0.0]),
+        ("out-of-plane F", [0.0, 0.0, 1000.0, 0.0, 0.0, 0.0]),
+        ("axial F", [600.0, 800.0, 0.0, 0.0, 0.0, 0.0]),
+        ("torque", [0.0, 0.0, 0.0, 60.0, 80.0, 0.0]),
+    ];
+    for (label, y) in [("(3,4,5)", [3.0, 4.0, 5.0]), ("(0,0,1)", [0.0, 0.0, 1.0])] {
+        for members in [1u32, 3] {
+            for (load_label, tip) in loads {
+                let source = run_345(y, members, tip);
+                let (limit, mut meter) = unlimited();
+                let outcome = match solve_case(source.clone(), limit, &mut meter) {
+                    CaseOutcome::Selected(s) => format!(
+                        "selected {} {:?}",
+                        s.selected_precision(),
+                        s.evidence()
+                            .attempts
+                            .iter()
+                            .map(|a| (a.precision, a.outcome.clone(), a.corrections))
+                            .collect::<Vec<_>>()
+                    ),
+                    CaseOutcome::Unresolved {
+                        reason, attempts, ..
+                    } => format!(
+                        "unresolved {reason:?} {:?}",
+                        attempts
+                            .iter()
+                            .map(|a| (a.precision, a.outcome.clone()))
+                            .collect::<Vec<_>>()
+                    ),
+                    other => format!("{other:?}"),
+                };
+                println!("V4-S3 y_ref {label}, {members} member(s), {load_label}: {outcome}");
+                println!(
+                    "  gate ratios at 128: {:?}",
+                    gate_ratios::<4, 4>(&source, 128, 192)
+                );
+                println!(
+                    "  gate ratios at 256: {:?}",
+                    gate_ratios::<4, 8>(&source, 256, 320)
+                );
+                println!(
+                    "  gate ratios at 512: {:?}",
+                    gate_ratios::<8, 16>(&source, 512, 576)
+                );
+                println!(
+                    "  gate ratios at 1024: {:?}",
+                    gate_ratios::<16, 16>(&source, 1024, 1024)
+                );
+            }
+        }
+    }
+}

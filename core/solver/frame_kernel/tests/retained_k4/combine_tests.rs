@@ -341,3 +341,52 @@ fn a_combination_out_of_budget_is_withheld_and_its_operands_keep_their_standing(
     }
     assert_eq!((bits(&a), a.evidence().clone()), before);
 }
+
+#[test]
+fn a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once() {
+    // V4's NOTE (ROOT's rulings on V4's verification of 5a.3): operands
+    // prescribing 1, 2^-53 and 2^-150 at one DOF combine to exactly
+    // 1 + 2^-53 + 2^-150. Rounded at p = 128 first, that is 1 + 2^-53, a tie
+    // that rounds to even: 1.0. Rounded once from the exact sum it is
+    // 1 + 2^-52.
+    let base = models::model("PRESCRIBED");
+    let dof = 2 * 6 + 1; // node 2, UY
+    let operand = |value: f64, keep_others: bool| {
+        let mut parts: SourceParts = base.parts.clone();
+        for c in &mut parts.constraints {
+            if c.dof.global() == dof {
+                c.value = value;
+            } else if !keep_others {
+                c.value = 0.0;
+            }
+        }
+        selected_source(PrimitiveSource::new(parts).unwrap())
+    };
+    let (a, b, c) = (
+        operand(1.0, true),
+        operand(2f64.powi(-53), false),
+        operand(2f64.powi(-150), false),
+    );
+    let combination = combined(&[(1.0, a.as_ref()), (1.0, b.as_ref()), (1.0, c.as_ref())]);
+    assert_eq!(combination.selected_precision(), 128);
+    let row = combination
+        .publish()
+        .rows
+        .iter()
+        .find(|r| models::key(&r.id) == format!("u.2.1"))
+        .unwrap();
+    assert_eq!(row.class, RowClass::InputDerived);
+    assert_eq!(
+        row.value,
+        Binary64Outcome::Normal(f64::from_bits(0x3FF0_0000_0000_0001)),
+        "1 + 2^-52"
+    );
+    // A single case's prescribed row is its binary64 value, unchanged.
+    let single = a
+        .publish()
+        .rows
+        .iter()
+        .find(|r| models::key(&r.id) == "u.2.1")
+        .unwrap();
+    assert_eq!(single.value, Binary64Outcome::Normal(1.0));
+}

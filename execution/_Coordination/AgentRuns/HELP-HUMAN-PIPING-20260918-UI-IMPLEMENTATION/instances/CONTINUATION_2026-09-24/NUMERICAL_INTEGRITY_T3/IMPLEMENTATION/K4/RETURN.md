@@ -5,7 +5,7 @@
 **Status (at A2): no stop.**
 - W1a's kernel method is implemented under `FK/src/structural/retained/`, with no product caller (Q1).
 - A combination is its own solve (ROOT's F-1 ruling).
-- 87 K4 tests pass; K3a's, K3's, K-D5's and `exact_sum`'s tests are unchanged and pass.
+- 89 K4 tests pass (one of them a probe with no assertion yet, §21); K3a's, K3's, K-D5's and `exact_sum`'s tests are unchanged and pass.
 - R1's 128 K4 cases through the adapter: 0 reference failures; the not-covered set equals §4.10's list.
 - The generator's bit-for-bit emulation of the method (O8) reproduces five retained-state digests.
 - **Open by ruling:** the S\* resolution floor (F-2, F-3) **[pending D1 5a.3]**; checkpoints B, C and D.
@@ -29,7 +29,7 @@
   - ROOT's relayed A2 rulings: the combination's own schedule from 128 is confirmed and **O7's start rule is superseded**; the constructed-ceiling combination and K4-M24's kill are deferred to the addendum (§8.4); the prescribed-tail instance is an F-2-class case for the addendum (§8.5); the NP-A basis is stated (§12.5).
   - D1 revision 5a.3 **[pending D1 5a.3]**.
 
-## 2. Files and line counts (against `e7d930d49`, at `3ed6c0e26` plus the Q10 pins)
+## 2. Files and line counts (against `e7d930d49`, at `3668ee8a4` plus the prescribed-row fix and the V4-S3 probe)
 
 | File | Change | Lines |
 |---|---|---|
@@ -39,12 +39,12 @@
 | `FK/src/structural/retained/assemble.rs` | new: formation, assembly, reduction at p | 559 |
 | `FK/src/structural/retained/factor.rs` | new: geometry first, RCM, the p-factor and its screens | 763 |
 | `FK/src/structural/retained/recover.rs` | new: layout, recovery, publication, the state encoding | 504 |
-| `FK/src/structural/retained/adaptive.rs` | new: schedule, stop rule, S\*, classification, budgets, reuse, evidence **[pending D1 5a.3]** | 2,099 |
+| `FK/src/structural/retained/adaptive.rs` | new: schedule, stop rule, S\*, classification, budgets, reuse, evidence, the prescribed rows' publication **[pending D1 5a.3]** | 2,149 |
 | `FK/src/structural/retained/combine.rs` | new: combinations as their own solve | 133 |
 | `FK/src/structural/retained/mod.rs` | +15: the `pub(crate) mod` lines and documentation | 39 |
 | `FK/src/exact_sum.rs` | +19: the `net_parts` accessor (Q3) | — |
 | `FK/tests/s11_site_table.rs` | +61: K4's eight files in SOURCES and 25 rows (Q8) | — |
-| `K4T/{wide_sum,ledger,source,assemble,factor,adaptive,recover,combine,references,classification}_tests.rs` | new: 16, 7, 4, 9, 9, 18, 5, 9, 6, 4 tests | 538, 372, 243, 724, 436, 771, 253, 343, 589, 219 |
+| `K4T/{wide_sum,ledger,source,assemble,factor,adaptive,recover,combine,references,classification}_tests.rs` | new: 16, 7, 4, 9, 9, 19, 5, 10, 6, 4 tests | 538, 372, 243, 724, 436, 942, 253, 392, 589, 219 |
 | `K4T/support.rs`, `K4T/models.rs` | new: test-only SHA-256, SplitMix64, token helpers; model parsing and the comparison | 518, 362 |
 | `K4T/gen_k4_vectors.py` | new: the standard-library generator, with `--check` | 1,923 |
 | `K4T/*.txt`, `K4T/SHA256SUMS` | new: generated vectors (§11.1) | 44,185 |
@@ -65,7 +65,7 @@
 4. **`assemble.rs`.** The frame as the product's algorithm, "No axis tolerance is used at p"; frame dot products formed exactly (ROOT's approved refinement: strictly more accurate, one rounding per step). B = B_local·T and D; DB one exact expansion per entry and K_e = Bᵀ(DB) one exact expansion per upper entry. "Each pattern entry of K is formed as one exact expansion of its p-bit element contributions and binary64 spring stiffnesses … rounded once to p", on K1's `SparsePattern` (`from_positions`). Directional springs contribute fl(fl(k·n_a n_b)/fl(nᵀn)) (Q6). "Each rhs_i is one exact expansion: the ledger terms plus the exact products −K_ic·u_c … rounded once to p. Neither K nor rhs is ever rounded back to binary64." The prescribed u_c at p is the case's binary64 value, or a combination's exact sum rounded once (F-1).
 5. **`factor.rs`.** "Geometry first": FK's `assess_rigid_body` per body before any factor; "A witnessed mechanism is refused and never escalated". Directional grounds as amended by O1 (§6). The ordering is a port of `sparse_direct`'s RCM (Q7) on the structural free–free pattern. Radix equilibration as M03 (s_i = −⌊e(K_ii)/2⌋, exact). The profile LDLᵀ at p, every operation rounded to p. The pivot screen "d_i > 64·γ_p(m_i)·c_i", decided exactly as d_i(2^p − m_i) − 64·m_i·c_i > 0: "A failed pivot at p escalates to the next p … It is never read as a mechanism." Negative energy "for pattern pairs only, at p, against the intended K", decided exactly with the approved allowance. Hager–Higham on the equilibrated K with the p-factor: "rcond ≤ 2^-(p-1) counts as unresolved at p and escalates", published with the label "sensitivity to matrix-entry perturbation, not to authored parameters".
 6. **Solve and refinement.** "Evaluate r = f − K u against the intended system re-formed at p + 64"; "Each r_i is one exact expansion of the p-bit products and the ledger terms", rounded once to p for the correction. The gate |r_i|(2^p − m_i) ≤ 64·m_i·d_i is decided exactly (d_i the coalesced |f_i| + Σ|K_ij u_j|, O12). "At most three corrections; then escalate" (a non-decreasing worst row also stops). The ceiling's solve as ruled under Q4 (§9).
-7. **`recover.rs`: recovery before rounding.** d_local = T u, e = B_local d_local, Q = D e, end actions B_localᵀ Q; stations (m(t) = t·(M_j + M_i) − M_i, exact); spring actions −k u; directional spring actions −K_s u; reactions K_c u − f_c; node displacement magnitudes and support-group magnitudes. "Each component … is one exact expansion of its (at most five) product terms, rounded once"; each reaction "one exact expansion of K_cj·u_j products and the ledger terms". Each published quantity is rounded to binary64 once with K3's `Binary64Outcome`; an exact zero is +0.0 (Q11). There is never a silent value: underflow and overflow rows are `Unpublishable` (O9).
+7. **`recover.rs`: recovery before rounding.** d_local = T u, e = B_local d_local, Q = D e, end actions B_localᵀ Q; stations (m(t) = t·(M_j + M_i) − M_i, exact); spring actions −k u; directional spring actions −K_s u; reactions K_c u − f_c; node displacement magnitudes and support-group magnitudes. "Each component … is one exact expansion of its (at most five) product terms, rounded once"; each reaction "one exact expansion of K_cj·u_j products and the ledger terms". Each published quantity is rounded to binary64 once with K3's `Binary64Outcome`; an exact zero is +0.0 (Q11). A prescribed row (an input-derived displacement) is published from its exact sum of terms c·v, rounded once to binary64 by the exact accumulator (§8.7), never from its p-rounded value. There is never a silent value: underflow and overflow rows are `Unpublishable` (O9).
 8. **`combine.rs`: combinations** (§4.1.1, refined by ROOT's F-1 ruling; §8). A combination is its own solve: the combined exact ledger Σcᵢfᵢ and the combined prescribed values, on its operands' shared stiffness source, reusing their cached factor, with its own schedule and stop rule. "Its published outputs go through the stop rule … with S\* taken from the combination's own body scale"; it "escalates independently of its operand cases"; at the ceiling it is withheld (`CombinationUnresolved`) and "its operand cases keep their standing". The Σcᵢuᵢ formation is withdrawn.
 9. **`adaptive.rs`.**
    - **The schedule.** "Candidates at p = 128, 256 and 512, each verified at 2p. The ceiling is 1024 bits." "The verification solve at 2p repeats formation from the binary64 operands." "A rejected 128 candidate's 256 verification becomes the next candidate … at most four solves."
@@ -156,7 +156,13 @@ ROOT approved the checkpoint-0 plan as written (`bacf939a8`). Each position, wit
 3. **Why (a) avoids the loss.** The combined ledger holds the exact products cᵢ·v of every operand's load terms (`RetainedLedger::combined`); each prescribed value is the exact sum of cᵢ·vᵢ rounded once at p (`CasePrep::combination`, `prescribed_at`). So the combination's right-hand side is "one exact expansion of the combined ledger Σcᵢfᵢ and the combined prescribed coupling, rounded once to p", and its errors are those of its own solve, relative to its own values. It reuses the operands' cached factor (merged caches, including cached factor stops) and runs the case schedule from 128 with its own stop rule. The operands are borrowed and never change.
 4. **The constructed ceiling (deferred to the addendum; K4-M24).** Under (a), a combination's outcome is the outcome of its net case. A conditioning-limited body gives a relative error of about κ·2^-p in every kind that carries values, for any nonzero load on it (δu ≈ K_p^-1 ΔK u: its component along the softest direction is about 2^-p·‖K‖·|u|/σ_min). So operands accepted at p ≤ 512 imply κ·2^-p ≲ 2^-64 for their K, and the net case, on the same K, is accepted by 512 too. A combination at the ceiling with every operand selected therefore needs a kind whose S\* is set by values far below its elastic-action scale: **the F-2/F-3 class**. The `Ceiling → CombinationUnresolved` mapping is one match arm; withholding with attempts and unchanged operands is tested through a budget. The constructed ceiling and K4-M24's kill wait on the addendum **[pending D1 5a.3]**.
 5. **The prescribed-tail instance (an F-2-class case, routed by ROOT to the design task).** A combined prescribed value whose exact sum needs more than 2p bits (for example 1 + 2^-1100 from operands prescribing 1 and 2^-1100) rounds identically at p and 2p, so a loss below both resolutions is again invisible to the stop rule **[pending D1 5a.3]**.
-6. **Evidence (tests I):** CEILING equals CEIL-NET bit for bit (spr.3.3 = −2^-60; the withdrawn Σcᵢuᵢ gives zeros); B1-C and B1-E equal their net cases bit for bit and B1-E's truth is reproduced where Σcᵢuᵢ at 128 is off by more than 1e-9; 2·SKEW6 − SKEW6 is rejected at 128 by its own stop rule; SKEW6 − SKEW6 is selected at 128 below its operands' 256; prescribed values combine exactly; cached factor stops and builds are reused and the invocation is charged only the combination's own work; invalid combinations return their reasons.
+6. **Evidence (tests I, continued in item 7):** CEILING equals CEIL-NET bit for bit (spr.3.3 = −2^-60; the withdrawn Σcᵢuᵢ gives zeros); B1-C and B1-E equal their net cases bit for bit and B1-E's truth is reproduced where Σcᵢuᵢ at 128 is off by more than 1e-9; 2·SKEW6 − SKEW6 is rejected at 128 by its own stop rule; SKEW6 − SKEW6 is selected at 128 below its operands' 256; prescribed values combine exactly; cached factor stops and builds are reused and the invocation is charged only the combination's own work; invalid combinations return their reasons.
+
+7. **A combination's prescribed rows, rounded once (V4's NOTE on 5a.3; ROOT's rulings on V4's verification, `085638e58`).**
+   - **The defect (at `3ed6c0e26` and `3668ee8a4`):** a combination's prescribed value was rounded once at p (`prescribed_at`), and its published row was then that p-bit value rounded to binary64: a double rounding. Operands prescribing 1, 2^-53 and 2^-150 at one DOF combine to exactly 1 + 2^-53 + 2^-150; at p = 128 that is 1 + 2^-53, a tie that rounds to even, 1.0. The correct value is 1 + 2^-52.
+   - **The fix:** `CasePrep::publish_prescribed` replaces each published input-derived displacement row by `exact_publication` of its exact terms: an `ExactAccumulator` of the products c·v, rounded once to binary64 (`round`), an exact zero +0.0, a nonzero sum rounding to zero `Underflow`, one beyond the range `Overflow`; a subnormal result is labelled through K3's conversion of the (exact) rounded value. The retained state keeps u at p, and the stop rule still compares the p and 2p rows; only the publication changes. A case's single binary64 value publishes unchanged.
+   - **The control:** `a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once` (`combine_tests.rs`) combines three PRESCRIBED variants (1, 2^-53 and 2^-150 at node 2's UY). On `3668ee8a4`'s code it fails (published `Normal(1.0)`, expected `Normal(1.0000000000000002)`); with the fix it passes, selected at 128, and the single case's row stays 1.0.
+   - **The mutant:** K4-M33, "a prescribed row published from its p-rounded state", killed by that control (§17).
 
 ## 9. The ceiling (Q4(a)): the forward-error argument
 
@@ -214,7 +220,7 @@ For a reference perpendicular to the chord (sin θ = 1: the N series, and R1's m
 - **F-3:** an unloaded body moved rigidly by prescribed values: K_e's one-ulp rigid-mode leakage (the rounded DB) gives reactions of about 2^-(p−27) at every p; S\*(force) is the leakage; the case ends `Unresolved(Ceiling)`. Safe; nothing wrong is published.
 - **Routed** as ROOT ruled: S\* has no resolution floor tied to the elastic-action scale; this refutes §4.1.9's claim. No K4 test pins either behaviour. **[pending D1 5a.3]**: the rule selected, its implementation, and the controls.
 
-## 11. Tests (87 in `K4T/`; all pass)
+## 11. Tests (89 in `K4T/`; all pass; one is the V4-S3 probe, §21)
 
 **B (multi-term sum; 16 in `wide_sum_tests.rs`):** the committed vectors' sha256; 397 targeted sums against the Fraction oracle; RV12's counterexample; zero, negation, reuse; the refused span adds nothing; 7 differential streams of 10^5 sums; the four N5 streams (D).
 **C (ledger; 7):** netting with (+, 0) and the −2148 quantum; the projection against Fraction at every K4 precision; p = 53 on normal results and the exact form at 1024; RF-CANCEL and check L exact; the prescribed-coupled tie decided by the ledger's tail (K4-M8: loads 2^-128 and 2^-400); order-independent encoding; the Q10 pins (§13).
@@ -223,7 +229,7 @@ For a reference perpendicular to the chord (sin θ = 1: the N series, and R1's m
 **F (factor; 9 + 1):** RCM on `sparse_direct`'s small graphs; the rcond control (n = 70, every pivot exactly 1, κ ≈ 4^70: 128 escalates, 256 passes); the negative-energy pair and its definite and singular neighbours; PIVOT (fails at 128, accepted at 256 against 512); witnessed mechanisms refused with no attempt and the RX companion solves; the exact span decision; the non-spanning directional ground (O1); TWO-SPAN's p + 64 correction (O5); the ceiling's residual basis; the three-correction cap (N09-B with a perturbed residual basis: 0, 1, 2, 3 corrections, then an escalating residual-gate stop).
 **G (schedule and stop rule; in `adaptive_tests.rs`):** N05 and N06 at 128; SKEW-K1E-28 (128 fails on the condition screen, 256 accepted against 512); SKEW6-K1E-12 rejected at 128 with its verification reused; four solves at most; ZERO-TORSION-345; ALL-ZERO-BODY; REACTIONS-ONLY; the ceiling case; the exact predicate at ±1 ulp and K4-M14's |q_p| variant; every published quantity takes part (N06: 8 quantity types, 4 kinds).
 **H (recovery; 5):** 43 models against exact references, every published kind compared (u, mag, end, st including N01's t = 0.25, spr, dspr, R, sf, sm, N, T, Mb, Mbs); +0.0; subnormal, underflow and overflow outcomes; N06's torque and spring action; D16's recovery half (a unit control on `recover`: the code-order fold of e_x·u_i loses a term the exact expansion keeps).
-**I (combinations; 9):** §8.6.
+**I (combinations; 10):** §8.6 and §8.7.
 **J (classification; 4):** 405 row sets bit for bit against the generator's binary64 reimplementation; ±1 ulp around t; S\* < 2^-988; b at S\* < 2^-1011 and at 0; k_i and the stress scales (300 and 1,500 vectors); input-derived rows; S8-W's far-node rows (29 and 39 `absolute_verified`).
 **K (references; 6):** §12.
 **L (budgets, work, determinism):** a case limit equal to the need selects, one less gives `Budget(Case)`; the invocation limit; failed and verification work charged; `from_integer`'s length charged; golden work; runs and permutations deterministic; factor reuse bit-identical to separate solves; the source scan (26 functions, lexer self-control).
@@ -465,7 +471,7 @@ pub(crate) fn intensified_k(i: f64) -> f64;
 
 - **Suites (39 manifests, `--no-fail-fast`) against the Mac baseline of main:** **[checkpoint B]**.
 - **T9 (Mac-only):** **[checkpoint B]**.
-- **Mutations** (clean copy and target per mutant, NONE first, at most three at once): **[checkpoint C]**. K4-M24's kill waits on the addendum (§8.4).
+- **Mutations** (clean copy and target per mutant, NONE first, at most three at once): **[checkpoint C]**. K4-M24's kill waits on the addendum (§8.4). Added at ROOT's request: **K4-M33**, a prescribed row published from its p-rounded state (double rounding), killed by `a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once` (§8.7).
 
 ## 18. Toolchain and host
 
@@ -479,6 +485,25 @@ pub(crate) fn intensified_k(i: f64) -> f64;
 - **Deferred by ruling:** F2a's limits (Q5 amended); the public export (Q9); unifying `Binary64Outcome` with K2b's `Representability` (Q11); a full geometric treatment of partial directional grounds (O1, W4/K5).
 - **Incidents:** at A1 the generator's imports left git-ignored `__pycache__` directories in K3's test directory and R1's folder; they were removed before any commit and `GEN` now sets `sys.dont_write_bytecode`.
 
-## 20. Records
+## 20. Records (placeholder)
 
 `_run_records/` **[checkpoint D]**: the checkpoint-0 plan (`e1253faa…`) and its scratch probes; the A1 and A2 test logs; the generator `--check` logs; the storage-count script; B's suites and T9; C's mutation table; `source_sha256.txt`; `toolchain.txt`; `SHA256SUMS`.
+
+## 21. V4-S3: the coalesced residual gate refuses a chord-component y_reference (a probe) **[pending D1 5a.3]**
+
+ROOT reversed its O12 ruling (`085638e58`): the gate's denominator becomes the bounded operator at contribution level, defined by the revised addendum. **The gate is unchanged here.** `probe_v4_s3_y_reference_with_a_chord_component` (`adaptive_tests.rs`, no assertion yet) solves a cantilever run along (3,4,0) (1 or 3 members of the N-series section, the root fixed, a tip load, no prescribed motion) and reports, per precision, the worst gate ratio |r_i|(2^p − m_i)/(64·m_i·d_i) at each evaluation of the refinement loop (the first solve and up to three corrections), with M03's coalesced d_i.
+
+- **V4's finding is confirmed in Rust.** With y_reference (3,4,5), a load exciting one mode only (an in-plane transverse force, an out-of-plane force, an axial force, or a torque) is refused by the gate at 128, 256 and 512, and the case ends `Unresolved(Ceiling)`:
+
+| y_reference | Members | Tip load | Outcome | Gate ratios at 128, 256, 512 (first evaluation → after three corrections) | At 1024 |
+|---|---|---|---|---|---|
+| (3,4,5) | 1 | in-plane transverse F | Unresolved(Ceiling) | 7.7e15 → 5.1e15; 1.7e16 → 4.3e15; 2.4e16 → 4.3e15 | 5.2e-4 |
+| (3,4,5) | 1 | out-of-plane F | Unresolved(Ceiling) | 4.4e35 → 7.2e15; 1.5e74 → 7.2e15; 1.7e151 → 7.2e15 | 7.3e-4 |
+| (3,4,5) | 1 | axial F | Unresolved(Ceiling) | 4.4e35 → 6.2e15; 1.5e74 → 3.9e15; 1.7e151 → 6.4e15 | 2.6e-4 |
+| (3,4,5) | 1 | torque | Unresolved(Ceiling) | 4.4e35 → 7.2e15; 1.5e74 → 5.1e15; 1.7e151 → 5.7e15 | 6.0e-4 |
+| (3,4,5) | 3 | the same four loads | Unresolved(Ceiling) each | first 4.2e16–3.0e35, 1.7e16–1.0e74, 4.7e16–1.2e151 → 2.6e15–7.7e15 | 2.9e-4–5.3e-4 |
+| (3,4,5) | 1 and 3 | general (all six components) | selected at 128 | 9.6e-4, 6.4e-4 (no correction) | — |
+| (0,0,1) | 1 and 3 | each of the five loads | selected at 128 | 3.2e-4 to 3.0e-3 at every precision (no correction) | — |
+
+- **Reading.** With a chord component in y_reference, e_y's in-chord components are exact zeros only in exact arithmetic; at p they are O(2^-p) residues, so K_p couples modes that K_q (at p + 64) couples 2^64 times less. For a load exciting one mode, the other modes' rows have a coalesced d_i of the order of K_q's coupling times the solution, while the residual carries K_p's coupling: the ratio starts near 2^p/(64m) and, after corrections, settles near 2^52–2^53 (about 6e15, V4's figure), independent of p. The ceiling passes because its residual basis is K itself (Q4). A general load gives every row a large d_i, and y_reference (0,0,1) makes the frame exact.
+- **To do under the revised addendum:** change the denominator as specified, turn this probe into a control with assertions, and add its mutant.

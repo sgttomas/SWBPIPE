@@ -41,6 +41,7 @@ use super::source::{put_u32, put_u64, Dof, PrimitiveSource};
 use super::wide::multi::{AttemptWork, Binary64Outcome, SupportedWidth, WideContext};
 use super::wide::{Wide, WideError};
 use super::wide_sum::{ExactWideSum, SumRefusal, SumWork};
+use crate::exact_sum::ExactAccumulator;
 use crate::structural::StructuralError;
 use std::cmp::Ordering as CmpOrdering;
 use std::sync::Arc;
@@ -641,6 +642,22 @@ impl CasePrep {
         })
     }
 
+    /// The published prescribed rows (the input-derived displacements), each
+    /// from its exact sum of terms c·v rounded once to binary64 (V4's NOTE on
+    /// 5a.3: a combination's prescribed value rounded at p first would be
+    /// rounded twice). A case's single binary64 value publishes unchanged.
+    fn publish_prescribed(&self, values: &mut [Binary64Outcome]) {
+        for (meta, value) in self.layout.iter().zip(values.iter_mut()) {
+            let (true, QuantityId::Displacement(dof)) = (meta.input_derived, meta.id) else {
+                continue;
+            };
+            let Ok(k) = self.prescribed.binary_search_by_key(&dof.global(), |t| t.0) else {
+                continue;
+            };
+            *value = exact_publication(&self.prescribed[k].1);
+        }
+    }
+
     /// The prescribed values at the context's precision, written into u: each
     /// the exact sum of its terms c·v, rounded once.
     fn prescribed_at<const L: usize>(
@@ -663,6 +680,38 @@ impl CasePrep {
             u[*g] = sum.round(ctx)?;
         }
         Ok(())
+    }
+}
+
+/// Σ c·v over binary64 pairs, rounded once to binary64 with its outcome: the
+/// exact accumulator's single rounding; an exact zero is +0.0; a nonzero sum
+/// that rounds to zero is `Underflow`, one beyond the range `Overflow`.
+fn exact_publication(terms: &[(f64, f64)]) -> Binary64Outcome {
+    let mut accumulator = ExactAccumulator::new();
+    for &(c, v) in terms {
+        if accumulator.add_product(c, v).is_err() {
+            // Not reached for finite binary64 pairs (their products lie in the
+            // accumulator's range); the p-rounded state is not substituted.
+            return Binary64Outcome::Overflow {
+                negative: (c < 0.0) != (v < 0.0),
+            };
+        }
+    }
+    let negative = accumulator.signum() < 0;
+    match accumulator.round() {
+        Ok(x) if x == 0.0 => {
+            if accumulator.signum() == 0 {
+                Binary64Outcome::Normal(0.0)
+            } else {
+                Binary64Outcome::Underflow { negative }
+            }
+        }
+        // The rounded value is exact in `Wide`: K3's conversion only labels it
+        // (normal, or subnormal with its relative precision).
+        Ok(x) => Wide::<4>::from_f64(x)
+            .map(|w| w.to_binary64())
+            .unwrap_or(Binary64Outcome::Overflow { negative }),
+        Err(_) => Binary64Outcome::Overflow { negative },
     }
 }
 
@@ -1898,7 +1947,8 @@ fn finish_selected(
     summary: Vec<(u32, Kind, f64)>,
     geometry: Vec<BodyGeometry>,
 ) -> CaseOutcome {
-    let values = selected.published();
+    let mut values = selected.published();
+    prep.publish_prescribed(&mut values);
     let publication = classify_rows(&prep.layout, &values, &prep.extents);
     let selected_record = attempts
         .iter()

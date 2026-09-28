@@ -31,7 +31,7 @@ K4 adds W1a's kernel method under `FK/src/structural/retained/`: a per-case prim
 - **`FK/src/exact_sum.rs` (+19):** the approved read accessor `net_parts` (Q3); additive, no behaviour change.
 - **`FK/src/structural/retained/mod.rs` (+15):** the `pub(crate) mod` lines and documentation.
 - **`FK/tests/s11_site_table.rs` (+61):** K4's eight files join SOURCES (Q8), with the disposition "p-bit exact expansion, rounded once" on the exact sites and integer counters listed.
-- **`FK/tests/retained_k4/` (new):** ten `#[path]` test modules of K4's files (87 tests), `support.rs`, `models.rs`, the standard-library generator `gen_k4_vectors.py` with `--check`, the vectors (about 4.8 MB) and `SHA256SUMS`.
+- **`FK/tests/retained_k4/` (new):** ten `#[path]` test modules of K4's files (89 tests, one a probe with no assertion yet), `support.rs`, `models.rs`, the standard-library generator `gen_k4_vectors.py` with `--check`, the vectors (about 4.8 MB) and `SHA256SUMS`.
 
 ## Standing, values and bytes
 
@@ -49,23 +49,25 @@ K4 adds W1a's kernel method under `FK/src/structural/retained/`: a per-case prim
 | `P/core/solver/frame_kernel/src/structural/retained/assemble.rs` (new) | +559 | 559 |
 | `P/core/solver/frame_kernel/src/structural/retained/factor.rs` (new) | +763 | 763 |
 | `P/core/solver/frame_kernel/src/structural/retained/recover.rs` (new) | +504 | 504 |
-| `P/core/solver/frame_kernel/src/structural/retained/adaptive.rs` (new) | +2099 | 2099 |
+| `P/core/solver/frame_kernel/src/structural/retained/adaptive.rs` (new) | +2149 | 2149 |
 | `P/core/solver/frame_kernel/src/structural/retained/combine.rs` (new) | +133 | 133 |
 | `P/core/solver/frame_kernel/src/structural/retained/mod.rs` | +15 | 39 |
 | `P/core/solver/frame_kernel/src/exact_sum.rs` | +19 | — |
 | `P/core/solver/frame_kernel/tests/s11_site_table.rs` | +61 | — |
-| `P/core/solver/frame_kernel/tests/retained_k4/*_tests.rs` (new, 10 modules) | +4488 | 4488 |
+| `P/core/solver/frame_kernel/tests/retained_k4/*_tests.rs` (new, 10 modules) | +4708 | 4708 |
 | `P/core/solver/frame_kernel/tests/retained_k4/{support,models}.rs` (new) | +880 | 880 |
 | `P/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py` (new) | +1923 | 1923 |
 | `P/core/solver/frame_kernel/tests/retained_k4/*.txt` and `SHA256SUMS` (new; generated) | +44185 | 44185 |
 
-Line counts are at `3ed6c0e26` plus the Q10 pins; recounted at the candidate **[checkpoint D]**. The addendum's implementation changes `adaptive.rs` and its tests **[pending D1 5a.3]**.
+Line counts are at `3668ee8a4` plus the prescribed-row fix and the V4-S3 probe; recounted at the candidate **[checkpoint D]**. The addendum's implementation changes `adaptive.rs` and its tests **[pending D1 5a.3]**.
 
 ## Checks
 
 All run on `aarch64-apple-darwin` with rustc 1.97.1, `CARGO_INCREMENTAL=0`, `--offline --locked`, `-j 8`, `RUST_TEST_THREADS=4`, under the Mac host rules.
 
-- **K4's tests (A1 + A2, and the Q10 pins):** 87 of 87, plus `exact_sum`'s 8; the whole suite took 205.6 s of debug wall time at `3ed6c0e26`. RETURN §11 lists them by the brief's letters.
+- **K4's tests (A1 + A2, the Q10 pins, the prescribed-row control and the V4-S3 probe):** 89 of 89, plus `exact_sum`'s 8; the whole suite took 205.6 s of debug wall time at `3ed6c0e26`. RETURN §11 lists them by the brief's letters.
+- **A combination's prescribed rows are published from their exact sums, rounded once** (V4's NOTE; RETURN §8.7): the control fails on `3668ee8a4` and passes with the fix; mutant K4-M33.
+- **V4-S3 (probe):** the coalesced residual gate refuses a (3,4,0) run with y_reference (3,4,5) under a single-mode load at 128, 256 and 512 (ratio about 2.6e15–7.7e15 after corrections); RETURN §21 **[pending D1 5a.3]**.
 - **The references lane (K):** R1's 128 K4 cases through the adapter: 6,475 comparisons pass, 0 fail, 51 not covered (exactly §4.10's list), 8 refusals; the routed cases and the exact-block oracle pass (RETURN §12). The floor check is S\*-dependent **[pending D1 5a.3]**.
 - **O8:** the generator's bit-for-bit emulation of the method reproduces five retained-state digests.
 - **Generators:** `gen_k4_vectors.py --check` OK for 13 of 13; K3a's and K3's `--check` OK.
