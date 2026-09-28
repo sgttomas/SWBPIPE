@@ -1061,3 +1061,22 @@ K2a's `RETURN_ADDENDUM_1` §1.3 left open whether pre-K2a main refuses skew case
   - the measured wall times at each opt-level tried are recorded;
   - hosted CI's numerical job time on K3's PR is recorded in the merge record.
 - The design's §7.4 placement stands. K3's reviewer checks the profile change.
+
+## K2b: the b-rule's window misses the solve's range; "no third attempt" is not equivalent (ROOT, 2026-09-28)
+
+- **ROOT's framing was wrong.** At checkpoint C, ROOT asked I10 to record the "third attempt" mutant as "equivalent by construction, pending the reviewer's check". I10 derived three mechanisms that do make a refusal persist across the window: formation (census margins), ratio invariance (audit-limited cases), and subnormal-u persistence. It then **disproved** the general claim.
+  - The gate's equilibrated right-hand side, the triangular-solve intermediates and y scale by 2^(b/2). They are neither b-invariant nor covered by the census, and the midpoint rule does not centre them.
+  - **The counterexample** (a scratch probe on `8e6698282`; `IMPLEMENTATION/K2B/_run_records/retry_probe/`): an axial chain with E = 2^440, and UX loads of 2^-1010 N and 1 N.
+    - The rule chooses b = 312 and refuses the case ("range: scaled evaluation outside normal range").
+    - Forced b = 500 and 572 give Passed, within 1e-9 of the exact reference.
+  - Its reach needs a load about 1,450 binary orders below the stiffness in the same row, so realistic reach is nil. It fails safe: a named refusal, and nothing wrong is published.
+  - The standing lesson applied. The derivation was required rather than assumed, and it found the error before any ruling rested on it.
+- **Rulings:**
+  1. **K2b keeps §4.7 step 4 as designed:** one scaled evaluation, and no third attempt.
+  2. **Pin the case with a test** (tests only, added after checkpoint C), labelled a **documented limitation of the b-rule, not desired behaviour**, citing this section. It asserts:
+     - the named refusal at the rule's b, in both modes and both representations;
+     - that a forced b in the window solves it within 1e-9.
+
+     The "third attempt" mutant (a retry within the window) must then be killed behaviourally. RETURN §13.3 and the mutation table are updated.
+  3. **A design finding, on the T3-close list:** the b-rule's census omits the solve's right-hand-side and intermediate range. Candidate refinements are a per-row load-to-stiffness term in the census, or a bounded, deterministic retry. **F1b's brief must consider it** before F1b wires b into the product. No refinement lands in K2b.
+- **The even-b derivation's premise** (RETURN §4) is also recorded: every rounded operation is zero or normal at both scales. The dense Cholesky factor and the triangular solves have no range checks, so the kernel does not enforce the premise. The forced-b tests pin its consequences. K2b's reviewer checks the derivation and states whether the premise's scope is adequately disclosed.
