@@ -406,6 +406,141 @@ fn k2a_each_checked_intermediate_is_refused_by_its_own_name() {
     }
 }
 
+/// Every intermediate of the unchecked formula, in the checked formation's
+/// order and with its names (FK `local_stiffness` at 5ae22926e; k*E is the
+/// same operation for y and z, formed once).
+fn unchecked_intermediates(p: &FrameProperties) -> Vec<(&'static str, f64)> {
+    let s = p.section;
+    let (e, g, area, iy, iz, j) = (
+        s.elastic_modulus,
+        s.shear_modulus,
+        s.area,
+        s.second_moment_y,
+        s.second_moment_z,
+        s.torsion_constant,
+    );
+    let l = p.length;
+    let l2 = l * l;
+    let l3 = l2 * l;
+    let mut out = vec![
+        ("L^2 (for 6EI/L^2 and 12EI/L^3): L*L", l2),
+        ("L^3 (for 12EI/L^3): L^2*L", l3),
+        ("EA/L: E*A", e * area),
+        ("EA/L: (E*A)/L", e * area / l),
+        ("GJ/L: G*J", g * j),
+        ("GJ/L: (G*J)/L", g * j / l),
+    ];
+    let names_y = [
+        (
+            "12EIy/L^3 and 12EIz/L^3: 12*E",
+            "12EIy/L^3: (12*E)*Iy",
+            "12EIy/L^3: (12*E*Iy)/L^3",
+        ),
+        (
+            "6EIy/L^2 and 6EIz/L^2: 6*E",
+            "6EIy/L^2: (6*E)*Iy",
+            "6EIy/L^2: (6*E*Iy)/L^2",
+        ),
+        (
+            "4EIy/L and 4EIz/L: 4*E",
+            "4EIy/L: (4*E)*Iy",
+            "4EIy/L: (4*E*Iy)/L",
+        ),
+        (
+            "2EIy/L and 2EIz/L: 2*E",
+            "2EIy/L: (2*E)*Iy",
+            "2EIy/L: (2*E*Iy)/L",
+        ),
+    ];
+    let names_z = [
+        ("12EIz/L^3: (12*E)*Iz", "12EIz/L^3: (12*E*Iz)/L^3"),
+        ("6EIz/L^2: (6*E)*Iz", "6EIz/L^2: (6*E*Iz)/L^2"),
+        ("4EIz/L: (4*E)*Iz", "4EIz/L: (4*E*Iz)/L"),
+        ("2EIz/L: (2*E)*Iz", "2EIz/L: (2*E*Iz)/L"),
+    ];
+    let ks = [(12.0, l3), (6.0, l2), (4.0, l), (2.0, l)];
+    for ((k, den), (ke, prod, quot)) in ks.iter().zip(names_y) {
+        out.push((ke, k * e));
+        out.push((prod, k * e * iy));
+        out.push((quot, k * e * iy / den));
+    }
+    for ((k, den), (prod, quot)) in ks.iter().zip(names_z) {
+        out.push((prod, k * e * iz));
+        out.push((quot, k * e * iz / den));
+    }
+    out
+}
+
+fn subnormal(v: f64) -> bool {
+    v != 0.0 && v.is_finite() && !v.is_normal()
+}
+
+#[test]
+fn k2a_each_zero_or_infinite_site_also_refuses_a_subnormal_by_its_own_name() {
+    // Review follow-up (RV7 N2): the per-site rows of these ten sites form a
+    // zero or an infinity, so a check that accepted a subnormal at one of
+    // them alone survived. Each row here forms a subnormal (nonzero, finite)
+    // value at exactly that site from nonzero finite operands, with every
+    // earlier intermediate normal. (The 12*E row needs a subnormal input E =
+    // 2^-1030 Pa, which the kernel accepts as positive and finite.)
+    let order: Vec<&str> = FORMATION_SITES.iter().map(|s| s.0).collect();
+    let listed: Vec<&str> = unchecked_intermediates(&operands(&FORMATION_SITES[0].1))
+        .iter()
+        .map(|x| x.0)
+        .collect();
+    assert_eq!(listed, order, "the helper lists every check in order");
+    assert_eq!(SUBNORMAL_SITES.len(), 10);
+    for (name, o) in SUBNORMAL_SITES {
+        let p = operands(o);
+        // Paths differ: unchecked, this site forms a subnormal and every
+        // earlier intermediate is normal.
+        let steps = unchecked_intermediates(&p);
+        let at = steps.iter().position(|x| x.0 == *name).unwrap();
+        assert!(subnormal(steps[at].1), "{name}: {:e}", steps[at].1);
+        assert!(steps[..at].iter().all(|x| x.1.is_normal()), "{name}");
+        assert_eq!(local_stiffness(p), range(name), "{name}");
+    }
+}
+
+#[test]
+fn k2a_the_smallest_normal_intermediate_is_accepted_bit_identically() {
+    // Review follow-up (RV7 R10): E*A = 2^-1022 exactly, and (E*A)/L =
+    // 2^-1022 exactly, with every other intermediate normal. The smallest
+    // normal is normal: accepted, with the unchecked bits.
+    let p = operands(&MIN_POSITIVE_ACCEPTED);
+    let steps = unchecked_intermediates(&p);
+    assert!(steps.iter().all(|x| x.1.is_normal()));
+    let at_min: Vec<&str> = steps
+        .iter()
+        .filter(|x| x.1 == f64::MIN_POSITIVE)
+        .map(|x| x.0)
+        .collect();
+    assert_eq!(at_min, vec!["EA/L: E*A", "EA/L: (E*A)/L"]);
+    let k = local_stiffness(p).expect("2^-1022 is normal");
+    assert_eq!(bits(&k), bits(&unchecked_local(&p)));
+}
+
+#[test]
+fn k2a_the_quotient_itself_is_checked_not_the_product_with_the_reciprocal() {
+    // Review follow-up (RV7 R5b): E*A = x = 0x1.9ffffffffffffp-1019 and L =
+    // 13. x/13 rounds to 2^-1022 - 2^-1074 (subnormal), while x*fl(1/13)
+    // rounds to 2^-1022 (normal); Iy = Iz = 2^200 keep every later
+    // intermediate normal. A check on x*(1/L) would pass this quotient.
+    let p = operands(&QUOTIENT_NOT_RECIPROCAL);
+    let x = p.section.elastic_modulus * p.section.area;
+    assert!(x.is_normal());
+    assert!(subnormal(x / p.length), "{:e}", x / p.length);
+    assert!((x * (1.0 / p.length)).is_normal());
+    let steps = unchecked_intermediates(&p);
+    let bad: Vec<&str> = steps
+        .iter()
+        .filter(|s| !s.1.is_normal())
+        .map(|s| s.0)
+        .collect();
+    assert_eq!(bad, vec!["EA/L: (E*A)/L"]);
+    assert_eq!(local_stiffness(p), range("EA/L: (E*A)/L"));
+}
+
 #[test]
 fn k2a_zero_operand_keeps_its_existing_refusal() {
     // An exactly zero operand is not a range error: today's input check
