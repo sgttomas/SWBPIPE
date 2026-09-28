@@ -1259,3 +1259,40 @@ I12's plan (`<wt>/scratch/i12/CHECKPOINT0_PLAN.md`, sha256 `e1253faa…`, 591 li
   - a scale-aware R-b′ bound (Q5(b)), which is also an input to F2a;
   - W2's coverage beyond nodal loads (Q3(b)), if a real case needs it.
 - **The owner is told** of the provisional dense-scrutiny ceiling (Q8), which is a new refusal class for very large dense-scrutiny models, and of the PHYS-R4 restatement.
+
+## F1b: rulings on I13's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I13's plan (`<wt>/scratch/i13/CHECKPOINT0_PLAN.md`, sha256 `ba90de63…`, 856 lines) is **approved**, with the rulings below. It goes into F1b's `_run_records/` at checkpoint D.
+- **Approved as planned:**
+  - the A1/A2 split: A1 is a pure refactor at b = 0 with no deferral, byte-identical everywhere;
+  - `BasisStiffness` and the case loop (§2);
+  - W2 only in the final failure arm;
+  - the receipt's `OrdinaryAttempt` formed after W2 (t10b's single `passed(` call kept);
+  - PP's two-arm range classifier, pinned against the orchestrator;
+  - the publication path table (§3.4);
+  - the guard's constant of 96 bytes per n² entry, as counted in the code. At 6 GiB the provisional ceiling is 8,192 DOFs, that is 1,364 chain members. OQ12's placement and input are also approved;
+  - Q9's dense view with a shared `DENSE_SOURCE_DOF_LIMIT`;
+  - the RV11D-N2 method (§13.3);
+  - the C tests' sizes and bounds;
+  - derivations D1–D9, each written in full in RETURN and checked independently;
+  - the evidence-line template (§4.1).
+- **OQ1: c2, not c1.** The census scope, meaning which terms are counted, is part of the b-rule. Five loops copied from SA's private `force_scale_census` would be a replicated rule, and K5 will edit SA.
+  - The template prints `force_scale_exponent=<b>` only where the orchestrator's outcome carries b. Elsewhere it prints `range_scaling: attempted` with no b field, or `none` where no b exists (steps 2–3).
+  - RV11-N2's b on the step-4 and non-range paths waits for an SA change that puts b on the refusal: K5 or F2a, recorded on F2a's input list.
+- **OQ2: option B,** a zero-work named decline for a formation-range case. D2 derives that nothing is lost, and the reviewer checks it.
+- **OQ3:** the `solve_ordinary(input, limits, attempt_scale)` wrapper, the one-line t10b anchor amendment and the lexer pin are approved.
+- **OQ4:** approved. A `Structural(e)` failure at the chosen b keeps `append_integrity_failure`'s code mapping, under the W2 template. Formation and census errors are `NUMERICAL_INTEGRITY_UNRESOLVED`.
+- **OQ5:** approved. The DEC-050/053 observation lanes do not run at b ≠ 0, and the mode row's observation fields are published as not observed, disclosed.
+- **OQ6:** approved and disclosed. Rows derived from published values stay today's binary64, and a non-finite result keeps today's refusal.
+- **OQ7:** confirmed. Admission runs after the orchestrator.
+- **OQ8:** approved as a declared write-set extension: `formation_guard.rs`'s `const NAMED` becomes `pub(crate) const NAMED`. It is a visibility change only, and S11-G's tests must be unchanged.
+- **OQ9:** confirmed. Call-site-only updates in `src/source_receipt/load_state_join_tests.rs` and `load_state_tests.rs`; any assertion change stops the work.
+- **OQ10, OQ11, OQ14 and OQ15:** approved.
+- **OQ13, narrowed.** At b ≠ 0 a zero nodal load term is refused only when its authored value is nonzero, that is when formation at b = 0 produced a zero from a nonzero input. An authored zero is admitted.
+  - If the authored value is not available at that point, refuse every zero term and disclose it.
+  - Subnormal formed terms are already refused by the census.
+- **The refusal template (§4.2)** is fixed as proposed, with OQ1's c2.
+- **The C1 list** (28 runs, proposed from G1's Mac base data) is ruled at A2 with the product-run table, as the brief says.
+- **The gate's comparison scope.** G1's baseline (`GATE_BASELINE_MAC_E7D930D49/`) keeps P1's `run.envelope` summary bytes, not the full `MechanicsEnvelope`.
+  - At A2, I13 states exactly which published fields that summary covers and which it omits, including diagnostic messages, receipts and rows.
+  - If it omits published bytes, I13 proposes a probe variant that also emits the sha256 of the full serialized envelope, without changing `run_one`'s classification. ROOT then has G1 re-run the base's part 1 with the variant, which takes about 5 minutes, before B.
