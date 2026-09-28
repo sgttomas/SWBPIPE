@@ -1514,3 +1514,24 @@ V4's delta check at R2 (appended to `V4_VERIFICATION.md`, sha256 `c2f5539b…`):
   - **V4-T3, T4, T5:** recorded as V4 states them. M16's survival is acceptable.
 - **The limitation that remains, disclosed:** the honesty guarantee rests, to the factor F, on Hager–Higham's uncertified norm estimate. The condition screen and W already rest on it, and this closure adds no new reliance. R4 states it in §9, and ROOT carries it to the owner's list.
 - **Next:** DS1 writes R4, V4 runs a delta check, and ROOT selects only after VERIFIED. K4 stays blocked until then.
+
+## K6: spawn and rulings (ROOT, 2026-09-28)
+
+- **K6 (harness observations) is spawned as I15** from main `41aeb2a02`. Its piping tree equals `24dea2dae`'s; K1 is merged, and K6's row needs only K1.
+  - A TASK drafted the brief (`TASK_BRIEFS/I15_K6_IMPLEMENTATION.md`); ROOT reviewed it.
+  - The rulings on Q1–Q13 are in the brief's "ROOT rulings for this slice". In short: binary64 now, W1 in a K6b after K4; SA's path through an in-repo path dependency; an 8 GiB cap, a heap cap at C − 512 MiB, and the admission rule; one ceiling run at 16 GiB, last and alone; a runner pytest under conditions; no dense run at 10,000 members or more.
+- **Why now:** K6's measurements are what ROOT needs to replace F1b's provisional 6 GiB dense-scrutiny and observation-lane ceilings, and, with V-K's runs and K4's work counts, to set W1's budget limits before F2a merges ("K4: Q5 amended").
+- **Host:** checkpoint 0 is read and design only. Builds wait until F1b's gate part 2 releases the Mac. Observation runs happen only in slots ROOT grants.
+- **Design text made stale** (the brief's items 1–12), recorded as rulings; `DESIGN.md` stays hash-pinned:
+  1. K6's inputs are kernel models; the RF-LARGE product requests are P1's, hashed in `gen_out_sha256.txt:122-145`.
+  2. §4.8's stage list is read at public-API boundaries, including the geometry and formation-check stages the product path now runs.
+  3. The only Linux peaks known are P1's product-level ones. On the Mac, admission uses them or the derived estimate times the measured ratio (Q3).
+  4. The in-process heap cap from the platform calibration joins §4.8's host protection on macOS.
+  5. "For W1, limbs per entry" moves to K6b, after K4.
+  6. The kernel runner's home is `H/runner/`. §4.10's `numerical_robustness` home serves V-K's and V-P's product-level runs, which reuse the runner by path.
+  7. D-8's and C4's "K6 and V-P" is read as amended: limits from K6 and V-K, revisited by V-P.
+  8. §2.1's "about 100 bytes per n² entry" is superseded for the guard by F1b's count of 96. K6 measures the actual-to-estimate ratio.
+  9. The DEC-050/053 legacy LU call is at `PP:2508` on `d1cc97ce4`. The identity-order lane is observed too (Q12).
+  10. K6's sparse observation is a new pattern path; the old harness "sparse" path is left unchanged.
+  11. §7.2's RF-LARGE expectation is now measured at product level (P1, and F1b's gate); K6 adds the kernel level.
+  12. The DEC-050/053 pytest pins that read `H/src/lib.rs` constrain K6's edit there to one `pub mod` line.
