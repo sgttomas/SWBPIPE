@@ -51,7 +51,7 @@
 
 ## Findings routed
 
-- **The skew M03 pin** goes to K1's pattern-path M03 tests (K5 fallback), with RV7's confirmed members and figures (work graph).
+- **The skew M03 pin** goes to K1's pattern-path M03 tests (K5 fallback), with RV7's confirmed members and figures (work graph). **[K1 did not take it (`K1_MERGE/RECORD.md`, "A routed item K1 did not take"). It is now a tests-only follow-up, I9 (ROOT, 2026-09-28).]**
 - **N1:** subnormal *derived* section values (A, I and J from `derive_pipe_section`) can be inexact and still pass K2a when every intermediate is normal. This is added to the input-validation finding routed out of T3 (the original K2a product-reach ruling 3).
 - **Other stiffness-forming paths** with 1/L² or 1/L³ terms (curved_bend's closed-form inverse, and K-D5's `Wide<2>` re-formation, which has an extended exponent) stay on the T3-close list (correction 2, ruling 4).
 

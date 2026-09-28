@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+"""RV9: read-only re-derivation of the records claims in PR #1035 (standard library only).
+
+Run from the repository root at the candidate head:
+    python3 rv9_checks.py <T3-relative-path> [<runs_part1_mac.jsonl>]
+The optional second argument is the uncommitted Mac gate run file
+(<wt>/scratch/calib/gate/runs_part1_mac.jsonl); only its basename and hash are printed.
+"""
+import glob
+import hashlib
+import json
+import math
+import os
+import re
+import struct
+import subprocess
+import sys
+from collections import Counter
+from decimal import Decimal, getcontext
+from fractions import Fraction
+
+T3 = sys.argv[1].rstrip('/')
+RUNS = sys.argv[2] if len(sys.argv) > 2 else None
+
+
+def sha(path):
+    return hashlib.sha256(open(path, 'rb').read()).hexdigest()
+
+
+def load_hashes(path):
+    out = {}
+    for line in open(path):
+        line = line.strip()
+        if line:
+            h, n = line.split(None, 1)
+            out[n.strip()] = h
+    return out
+
+
+print('== 1. SHA256SUMS in the PR\'s new or changed record folders')
+changed = subprocess.run(['git', 'diff', '--name-only', 'origin/main...HEAD'],
+                         capture_output=True, text=True, check=True).stdout.split()
+for s in sorted(p for p in changed if p.endswith('SHA256SUMS')):
+    d = os.path.dirname(s)
+    entries = [l.split(None, 1) for l in open(s) if l.strip()]
+    ok = sum(1 for h, n in entries if sha(os.path.join(d, n.strip())) == h)
+    tracked = set(subprocess.run(['git', 'ls-files', d], capture_output=True, text=True,
+                                 check=True).stdout.split())
+    listed = {os.path.normpath(os.path.join(d, n.strip())) for _, n in entries}
+    tracked.discard(s)
+    print(f'  {d[len(T3) + 1:]}: {ok}/{len(entries)} verify; '
+          f'unlisted files {len(tracked - listed)}; listed-but-absent {len(listed - tracked)}')
+
+P = T3 + '/PLATFORM_CALIBRATION_MAC'
+print('\n== 2. T9 (PLATFORM_CALIBRATION_MAC/t9) against F1A\'s Linux candidate hashes')
+lin = load_hashes(T3 + '/IMPLEMENTATION/F1A/_run_records/fixture_diff/output_sha256_candidate.txt')
+nat = load_hashes(P + '/t9/output_sha256_main_mac_native.txt')
+rep = load_hashes(P + '/t9/output_sha256_main_mac_cr_libm_replay.txt')
+srt = load_hashes(P + '/t9/output_sha256_linux_f1a_candidate_sorted.txt')
+print('  F1A record == committed sorted copy:', lin == srt, '; outputs', len(lin))
+print('  native match', sum(nat.get(k) == v for k, v in lin.items()), 'of', len(lin))
+print('  correctly rounded replay match', sum(rep.get(k) == v for k, v in lin.items()), 'of', len(lin))
+for k in sorted(glob.glob(T3 + '/IMPLEMENTATION/KD5/_run_records/*/fixture_diff/output_sha256_*.txt')):
+    print('  equals', k[len(T3) + 1:], ':', load_hashes(k) == lin)
+text = open(P + '/t9/platform_differences.txt').read()
+heads = re.findall(r': (\d+) leaf\(s\)$', text, re.M)
+print('  platform_differences: outputs', len(heads), 'leaves (headers)', sum(map(int, heads)),
+      'leaf lines', len(re.findall(r'^  \.', text, re.M)))
+
+print('\n== 3. libm table: independent correctly rounded values (120-digit Decimal)')
+getcontext().prec = 120
+
+
+def h2f(h):
+    return struct.unpack('>d', bytes.fromhex(h))[0]
+
+
+def f2h(f):
+    return struct.pack('>d', f).hex()
+
+
+def nearest(D):
+    fr = Fraction(D)
+    x = float(D)
+    cands = [x, math.nextafter(x, math.inf), math.nextafter(x, -math.inf)]
+    return min(cands, key=lambda c: (abs(Fraction(c) - fr), struct.unpack('>q', struct.pack('>d', c))[0] & 1))
+
+
+def dec(f):
+    fr = Fraction(f)
+    return Decimal(fr.numerator) / Decimal(fr.denominator)
+
+
+nrows = [l.split() for l in open(P + '/t9/libm_calls_distinct_mac_native.txt')]
+crows = [l.split() for l in open(P + '/t9/libm_calls_distinct_correctly_rounded.txt')]
+assert [r[:3] for r in nrows] == [r[:3] for r in crows]
+tally, disagree = {}, 0
+for n, c in zip(nrows, crows):
+    fn, a, b = n[:3]
+    A, B = dec(h2f(a)), dec(h2f(b))
+    D = (A * A + B * B).sqrt() if fn == 'hypot' else (A.exp() if fn == 'exp' else A.exp() - 1)
+    disagree += f2h(nearest(D)) != c[3]
+    t = tally.setdefault(fn, [0, 0])
+    t[0] += 1
+    t[1] += n[3] != c[3]
+print('  my correctly rounded values disagree with the committed table on', disagree, 'calls')
+for fn, (tot, off) in sorted(tally.items()):
+    print(f'  {fn}: macOS differs on {off} of {tot}')
+
+print('\n== 4. Gate part 1: Mac result against K-D5\'s Linux part1_result.json')
+m = json.load(open(P + '/gate/result_part1_mac.json'))
+l = json.load(open(T3 + '/IMPLEMENTATION/KD5/_run_records/combined/gate/part1_result.json'))
+canon = lambda r: json.dumps(r, sort_keys=True)
+print('  rows', len(m['runs']), len(l['runs']), '; equal as multisets (all fields):',
+      Counter(map(canon, m['runs'])) == Counter(map(canon, l['runs'])),
+      '; equal in order:', m['runs'] == l['runs'])
+print('  row key sets:', dict(Counter(','.join(sorted(r)) for r in m['runs'])))
+for k in m:
+    if k != 'runs':
+        print(f'  {k}: mac={m[k]!r} linux_equal={m[k] == l[k]}')
+print('  gen_out_sha256 lines:', sum(1 for _ in open(P + '/gate/gen_out_sha256.txt')),
+      '(requests:', sum(1 for x in open(P + '/gate/gen_out_sha256.txt') if '/requests/' in x), ')')
+lg = [x.split() for x in open(T3 + '/IMPLEMENTATION/KD5/_run_records/combined/gate/gate_part1.log')]
+ok_rss = max(int(x[5]) for x in lg if x[3] == 'ok')
+print(f'  Linux log: runs {len(lg)}, largest ok peak {ok_rss / 1048576:.3f} GiB, '
+      f'ERR at n10000: {sum(1 for x in lg if x[3] == "ERR" and "n10000" in x[0])}')
+if RUNS:
+    print('  uncommitted', os.path.basename(RUNS), 'sha256', sha(RUNS))
+    mac = {}
+    for line in open(RUNS):
+        r = json.loads(line)
+        mac[(r['case'], r['mode'], r['entry'])] = r
+    lin_ok = {(x[0], x[1], x[2]): x[3] for x in lg}
+    cls = lambda r: 'ok' if r.get('probe', {}).get('run', {}).get('ok') else 'ERR'
+    print('  runs', len(mac), '; same keys as Linux log:', set(mac) == set(lin_ok),
+          '; ok/ERR mismatches:', sum(cls(mac[k]) != v for k, v in lin_ok.items()),
+          '; mac', dict(Counter(map(cls, mac.values()))), '; linux', dict(Counter(lin_ok.values())))
+    print('  memorystatus_level_end distribution:', dict(Counter(r.get('memorystatus_level_end') for r in mac.values())))
+
+print('\n== 5. Suites on Mac main (PLATFORM_CALIBRATION_MAC/suites)')
+rows = [x.split() for x in open(P + '/suites/per_manifest_first_pass.txt') if x.strip()]
+print('  manifests', len(rows), '; exit 0:', sum(r[0] == '0' for r in rows),
+      '; failing:', [r[-1] for r in rows if r[0] != '0'])
+for f in sorted(glob.glob(P + '/suites/nofailfast_*.excerpt.txt')):
+    res = re.findall(r'test result: \w+\. (\d+) passed; (\d+) failed', open(f).read())
+    print(f'  {os.path.basename(f)}: targets {len(res)}, passed {sum(int(a) for a, _ in res)}, '
+          f'failed {sum(int(b) for _, b in res)}')
+
+print('\n== 6. DEC-025 sweep summaries')
+for d in ('K2A_MERGE', 'K1_MERGE'):
+    for j in glob.glob(f'{T3}/IMPLEMENTATION/{d}/dec025/SWEEP_*.json'):
+        s = json.load(open(j))
+        print(f'  {d}: commit {s["git"]["commit_hash"][:12]} dirty={s["git"]["working_tree_dirty"]} '
+              f'overall={s["overall_status"]} only={s["surface_selection"]["only_capability"]} '
+              f'surfaces={[(x["surface_id"], x["status"], [c.get("exit_code") for c in x.get("commands", [])]) for x in s["surfaces"]]}')
+    log = open(f'{T3}/IMPLEMENTATION/{d}/dec025/sweep.log').read()
+    print('   ', re.findall(r'discovered cargo manifests: \d+', log)[:1],
+          re.findall(r'\d+ passed, \d+ skipped, \d+ subtests', log)[:1],
+          re.findall(r'Tests +\d+ passed \(\d+\)', log)[:1],
+          re.findall(r'^test \S+ \.\.\. FAILED', log, re.M)[:1])

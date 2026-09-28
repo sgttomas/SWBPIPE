@@ -79,7 +79,7 @@ Read these in the records; they are not restated here.
 - **Gates for a slice PR:**
   - a complete-diff independent review;
   - hosted CI with the surface-4 dispatch;
-  - a clean DEC-025 sandboxed sweep;
+  - a clean DEC-025 sandboxed sweep; **[on the Mac, see `OWNER_DIRECTION.md`, "Owner decision (2026-09-28): DEC-025 on the Mac" (ROOT's pointer, from RV9's S3)]**;
   - the committed-fixture diff (T9) with its stop rule;
   - where the slice changes a product path, the both-entry no-Passed-breach gate against the **empty** `GATE/S11_EXCEPTIONS.json` and `GATE/FORMATION_EXCEPTIONS.json`, in two parts, with the known dense timeouts on a quiet host.
   - Skip no tests, raise no timeouts, and strip no loads or features.

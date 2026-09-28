@@ -896,3 +896,31 @@ Both are generalizations from a few probes that were never derived. I6 found bot
 - **sparse.rs in `product_physics/tests/s11f_site_test.rs`'s KERNEL list: approved,** under the site-table conditions. The addition is additive only, a mutant in sparse.rs is killed by the test, and it is declared as a write-set extension into product_physics **tests only**. It lands as its own hunk.
 - **The C3-detect helper** I8 removed from `sparse_direct`: if it was pre-existing code, it is restored and routed to ROOT. If it was I8's own draft, no action is needed. `IMPLEMENTATION/K1/WIP_STATE.md` records which.
 - **Handoff.** K1 moves to a local session on the owner's Mac (`HANDOFF_2026-09-28_TO_LOCAL.md`). I8 ran no cargo, and its work is committed as one WIP commit, "K1 WIP (handoff; not reviewed)", on `codex/piping-k1-20260928`. K2a finishes in the cloud session.
+
+## K2a dispositions and the axis-aligned pointer pass (ROOT, 2026-09-28; RV9's N1)
+
+These happened before this entry existed, and are recorded here so that the V1 record is complete.
+- **RV7's findings on K2a** (B1, S1–S3 and N1–N5) were answered by K2a's records-only `RETURN_ADDENDUM_1`. N2 was closed by per-site rows. The dispositions and the E2E and sweep standing for `aad23e82d` are in `IMPLEMENTATION/K2A_MERGE/RECORD.md`, "Gates".
+- **The bracketed axis-aligned pointers** in corrections 1–3 above were added in `435a26971`, as K2A_REVIEW §8.3 asked. They follow correction 3, ruling 4: cite the RETURN section, and don't restate figures.
+
+## The skew M03 pin: a tests-only follow-up before K2b (ROOT, 2026-09-28)
+
+- **The routing.** K2a's merge record routed the pin to K1's pattern-path M03 tests, with K5 as the fallback. K1 merged without it (ROOT's miss; `K1_MERGE/RECORD.md`).
+- **Pinning it now** costs little, and fixes M03's skew scope before K2b and F1b lean on M03. So it becomes its own tests-only slice, run by **I9** (`TASK_BRIEFS/I9_M03_SKEW_PIN.md`).
+- **The product evidence:** a better-conditioned skew model (G comparable to E), run on pre-K2a main `134eefc24` and on current main. If pre-K2a main published a trusted wrong value, that is a stop, and it would change K2a's product-reach statement.
+- **Gates:** those of a slice PR, with DEC-025 under the owner's Mac decision (`OWNER_DIRECTION.md`, 2026-09-28).
+
+## K2b: kernel only, and the LEF expectation restated (ROOT, 2026-09-28)
+
+- **Kernel only, like K1.**
+  - K2b adds W2's scaled evidence, the b-rule and formation-time scaling (SCALE-W) as kernel entries and options. Existing entries keep today's behaviour byte for byte at b = 0.
+  - PP's wiring and the `range_scaling:` evidence line are F1b's.
+  - So K2b changes no published byte, and **runs no both-entry gate**. The parity tests and T9 are the evidence; the gate runs at F1b.
+  - If the design cannot be met without changing an existing entry's behaviour, I10 stops and reports.
+- **The LEF expectation, for the kernel half** (resolving part of `I7_F1_IMPLEMENTATION.md` addendum 1):
+  - RF-RANGE **LEF-small never reaches formation.** `FrameElement::new` refuses it with `DegenerateAxis` at the 1e-12 m axis tolerance (verified by K1's K2a-interaction tests). The design's "LEF-small solved" is therefore unreachable and is withdrawn for K2b.
+  - K2b must instead solve, at kernel level through scaled formation and each accurate to 1e-9 against an exact reference:
+    - **LEF-large**, which reaches `local_stiffness` on the typed entry;
+    - **K2a's formation-range cases with normal geometry**: reach_zero, reach_lef, the spring-carried G = 1e-300 case (recorded for K2b's scaling to restore), and the partial-underflow case.
+  - F1b's brief restates the product level separately before F1b spawns.
+- **A plan before code:** I10 returns a plan at checkpoint 0 for ROOT's approval (`TASK_BRIEFS/I10_K2B_IMPLEMENTATION.md`).

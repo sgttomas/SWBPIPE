@@ -90,3 +90,7 @@
 - **K1 is kernel only.** No product path calls a new entry, and no published byte changes (T9 112/112).
 - **Next in the kernel order:** K2b, the formation-time scale through `SparseAssemblyOptions`, then K5.
 - **F1b** (after K2b) wires PP onto the pattern path, adds the resource guard, and runs the both-entry gate.
+
+## Addendum 1 (ROOT, 2026-09-28): RV9's note N6 (records PR #1035)
+
+"What ran", item 1, says the tool "recorded the later surfaces, and the cargo manifests after product_physics, as not run". More exactly: the summary JSON records the three later **surfaces** as `not_run`. It has no per-manifest entries, and the cargo manifests after product_physics simply never ran in that invocation. Their evidence is item 2.

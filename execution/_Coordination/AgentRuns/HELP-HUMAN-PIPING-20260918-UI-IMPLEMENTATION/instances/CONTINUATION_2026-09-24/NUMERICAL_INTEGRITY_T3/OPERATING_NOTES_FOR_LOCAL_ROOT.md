@@ -61,7 +61,7 @@ A manager premise needed a third K2a correction. Each came from ruling on a clai
 ## 6. PR and merge mechanics
 
 - **E2E dispatch:** `piping-desktop-e2e.yml` with a full, real 40-hex `target_base`, which must be an ancestor of the head. Copy it from `git rev-parse`; a mistyped one wastes a run. The pull_request run fails plan validation if main's tip is not in the head, so merge main first (a merge commit, never a rebase).
-- **Merge:** a merge commit with `expectedHeadSha`, once review PASS, green CI, the sweep and the dispatch are all in. Then restart the designated branch from main and force-push it, since it is your own branch.
+- **Merge:** a merge commit with `expectedHeadSha`, once review PASS, green CI, the sweep and the dispatch are all in. Then restart the designated branch from main and force-push it, since it is your own branch. **[Corrected (ROOT, 2026-09-28, RV9's S2): a force push is outside the owner's standing Git grant (`.agents/skills/chirality-change/SKILL.md`: overwriting remote state and rewriting history need separate explicit authorization). Don't restart or force-push a branch without the owner's explicit authorization. Continue on the branch, merging main in (or fast-forwarding to main when the branch is an ancestor). See `IMPLEMENTATION/K1_MERGE/RECORD.md`, "History disclosure".]**
 - **After each merge:**
   1. the manager writes `<SLICE>_MERGE/RECORD.md` with the real merge SHA (no placeholders);
   2. you push numerics;

@@ -1,0 +1,11 @@
+RV9: GEN-8, run from <wt>/numerics at HEAD 59660791a01e67ca8c3add3535cfe64914d15ce4, with this review's uncommitted files present
+command: <VENV>/bin/python -m pytest tools/practitioner_harness/test_live_baseline.py -k gen8 -p no:cacheprovider
+============================= test session starts ==============================
+platform darwin -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
+rootdir: <wt>/numerics
+plugins: xdist-3.8.0
+collected 11 items / 10 deselected / 1 selected
+
+tools/practitioner_harness/test_live_baseline.py .                       [100%]
+
+====================== 1 passed, 10 deselected in 31.03s =======================
