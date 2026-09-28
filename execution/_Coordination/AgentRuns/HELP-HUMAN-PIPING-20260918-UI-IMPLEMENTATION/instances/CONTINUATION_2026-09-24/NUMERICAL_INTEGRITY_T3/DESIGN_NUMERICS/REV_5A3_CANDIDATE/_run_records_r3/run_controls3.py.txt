@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""R3: every control (models3: R2's 40, EXACT-RIGID, LEVER2 x3) under today's
+rule (K4's gate), R2 as emulated in R2's evidence (W's residual over K^q's
+assembled entries, recomputed; the bounded test on the last state) and R3
+(W's residual at contribution level on the final state; the bounded test on
+the best state). Honesty against the P = 2048 reference; G5a; W/V.
+Output: run_controls3.stdout.json."""
+import json, sys, time
+import emu3, models3
+from emu3 import Case, schedule, classify, honesty, solve_at
+
+emu3.SEED.update(models3.SEEDS)
+RUNS = [("today", "current", "k4", {}),
+        ("R2", "fin", "hybrid", dict(W_RES="assembled", BEST_STATE=False)),
+        ("R3", "fin", "hybrid", {})]
+only = set(sys.argv[1:])
+out = []
+for m in models3.models():
+    if only and m["name"] not in only:
+        continue
+    t0 = time.time()
+    case = Case(m)
+    emu3.GATE = "absolute"
+    ref = solve_at(case, 2048, ref=True, estimate=False)
+    rec = dict(model=m["name"], runs={})
+    for tag, opt, gate, sw in RUNS:
+        saved = {k: getattr(emu3, k) for k in sw}
+        for k, v in sw.items():
+            setattr(emu3, k, v)
+        emu3.GATE = gate
+        try:
+            r = schedule(case, opt, {})
+            o = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]], solved=r["solved"])
+            if r["selected"] is not None:
+                pub, cl, sc, g5 = classify(case, r, opt)
+                w, c = honesty(case, pub, cl, ref)
+                o.update(counts=c, worst=w[0], worst_row=str(w[1]), honest=w[0] <= 1.0, g5a_fail=[str(x) for x in g5],
+                         w_over_v=r["info"]["w_over_v"], corrections=r["cand"]["corrections"])
+            rec["runs"][tag] = o
+        finally:
+            for k, v in saved.items():
+                setattr(emu3, k, v)
+    emu3.GATE = "absolute"
+    rec["seconds"] = round(time.time() - t0, 2)
+    out.append(rec)
+    f = lambda k: "%s%s" % (rec["runs"][k]["selected"], "" if rec["runs"][k].get("honest", True) else "!FALSE")
+    print("%-22s " % m["name"] + "  ".join("%s:%s" % (k, f(k)) for k in rec["runs"]), rec["seconds"], flush=True)
+json.dump(out, open("run_controls3.stdout.json" if not only else "run_controls3.partial.json", "w"), indent=1, default=str)
