@@ -1,0 +1,57 @@
+{
+ "RF-CHAIN": {
+  "cases": 30,
+  "max_log2_E_over_Sstar": {
+   "fo": 51.09248166721253,
+   "mo": 51.09248166721254
+  },
+  "max_log2_E_over_M_row": 51.09248166721254,
+  "ib_binds_cases": 0,
+  "ib_demoted_rows": 0,
+  "worst_case": "RF-CHAIN-T-n10-r1e-12"
+ },
+ "RF-SKEW": {
+  "cases": 36,
+  "max_log2_E_over_Sstar": {
+   "fo": 51.57245250076637,
+   "mo": 51.57245250076637
+  },
+  "max_log2_E_over_M_row": 51.57245250076637,
+  "ib_binds_cases": 0,
+  "ib_demoted_rows": 0,
+  "worst_case": "RF-SKEW-T-CANT-OFF-345-r1e-12"
+ },
+ "RF-WEAK": {
+  "cases": 9,
+  "max_log2_E_over_Sstar": {
+   "fo": 49.97345756406547,
+   "mo": 49.97345756406547
+  },
+  "max_log2_E_over_M_row": 49.97345756406547,
+  "ib_binds_cases": 0,
+  "ib_demoted_rows": 0,
+  "worst_case": "RF-WEAK-W-L-r1e-12"
+ },
+ "RF-FINITE": {
+  "cases": 6,
+  "max_log2_E_over_Sstar": {
+   "fo": 13.567010746108844,
+   "mo": 13.567010746108846
+  },
+  "max_log2_E_over_M_row": 13.567010746108846,
+  "ib_binds_cases": 0,
+  "ib_demoted_rows": 0,
+  "worst_case": "RF-FINITE-THIRDS-O0"
+ },
+ "RF-CANCEL": {
+  "cases": 38,
+  "max_log2_E_over_Sstar": {
+   "fo": 10.118424892497046,
+   "mo": 10.118424892497046
+  },
+  "max_log2_E_over_M_row": 10.118424892497046,
+  "ib_binds_cases": 0,
+  "ib_demoted_rows": 0,
+  "worst_case": "RF-CANCEL-M-G1e8-GnG-ORTHO"
+ }
+}
