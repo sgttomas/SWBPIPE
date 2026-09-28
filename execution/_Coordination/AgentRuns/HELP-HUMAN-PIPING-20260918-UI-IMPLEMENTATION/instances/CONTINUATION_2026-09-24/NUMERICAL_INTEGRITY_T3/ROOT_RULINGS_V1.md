@@ -924,3 +924,59 @@ These happened before this entry existed, and are recorded here so that the V1 r
     - **K2a's formation-range cases with normal geometry**: reach_zero, reach_lef, the spring-carried G = 1e-300 case (recorded for K2b's scaling to restore), and the partial-underflow case.
   - F1b's brief restates the product level separately before F1b spawns.
 - **A plan before code:** I10 returns a plan at checkpoint 0 for ROOT's approval (`TASK_BRIEFS/I10_K2B_IMPLEMENTATION.md`).
+
+## K2b: rulings on I10's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I10 read the design, the rulings and the code at `eb52114e9`, and asked for seven decisions before writing code.
+
+1. **The parity of b: even b (E1). This amends the letter of §4.7 step 3, not its intent.**
+   - **The finding.** The gate prepares the system with power-of-two diagonal scaling. With K' = 2^b·K and f' = 2^b·f:
+     - for **even** b, the scale exponents shift by b/2 and the prepared matrix is bit-identical. So pivots, rcond, the screens, refinement, the audits and K-D5's EF are invariant, and u is bit-identical.
+     - for **odd** b, factors of √2 enter the prepared matrix. Dense Cholesky's u then differs in its last bits, and rcond can flip the √ε Sensitive screen.
+   - **Why the design's letter fails.** §4.7's promises ("every scaling is exact"; "displacements are unchanged"; "every M03 screen is componentwise-relative, so the scaled evidence is equivalent") hold only for even b. The floored midpoint of step 3 can be odd.
+   - **The rule:**
+     - let m = ⌊(b_lo + b_hi)/2⌋, floored toward −∞;
+     - b = m if m is even;
+     - otherwise m − 1 if that is ≥ b_lo;
+     - otherwise m + 1 if that is ≤ b_hi;
+     - if the window is a single odd point, refuse with the window reason.
+   - **Conditions** (standing lesson: a bound or general claim must be derived and independently checked):
+     - I10 writes the invariance derivation step by step in RETURN;
+     - K2b's independent reviewer checks it;
+     - tests pin it: forced even b gives a bitwise-equal u and an exactly unscaled report on normal models, in both representations and both modes;
+     - an "odd midpoint" mutant must be killed.
+   - `DESIGN.md` is hash-pinned and is not edited; this ruling supersedes step 3's midpoint for parity only.
+2. **The census scope: approved as proposed (F2).**
+   - Frames contribute:
+     - the exponents of E and G;
+     - the **predicted** exponent (the sum of operand exponents) of every intermediate and coefficient that K2a checks and that scales with b: E·A, G·J, k·E, (k·E)·I, and the 10 coefficients.
+   - Users, springs, curved block entries and load terms contribute exact exponents.
+   - Any subnormal census input is refused as "range: subnormal stiffness or load at formation", per step 2: its bits were lost before the kernel. This includes a frame operand (E, G, A, Iy, Iz, J, L).
+   - The census runs only after step 1 fails with a range trigger, so no case solved at b = 0 changes.
+   - Coefficients alone would admit b values that K2a's scaled intermediates still refuse (I10's L = 2^-39 example), so the intermediates stay in.
+3. **The publication rule: the design's list only (F3).**
+   - Step 5's outcomes apply to the published **actions, reactions and residual records**, meaning the physical fields of residual and intended rows. For these:
+     - normal is exact;
+     - subnormal is published with its stated precision;
+     - nonzero underflow or overflow makes the case NUMERICAL_INTEGRITY_UNRESOLVED ("range: publication outside binary64"), never flushed.
+   - Other force-unit diagnostic fields, such as `contribution_rounding`, are unscaled with the same single-rounding function and published descriptively, as at b = 0. They never make a case unresolved. RETURN lists every field and its treatment.
+4. **The load-ledger scaling: L1 approved as a declared write-set extension** (`AssembledForce::force_scaled(&self, b)` in `FK/load_ledger.rs`, one method).
+   - Terms are scaled exactly: a Product scales one factor, or splits b across both, whichever stays normal.
+   - Each net is re-rounded once at scale.
+   - Nothing is pushed to a ledger.
+   - The dropped S11-G records are shown by test or scan to be unread by the kernel.
+   - It is declared in CHANGE_RECORD and RETURN.
+5. **The pins and site tests: approved as declared, additive extensions** on K1's precedent.
+   - The files are NI `s11k_tests.rs`, FK `s11_site_table.rs`, and PP `s11f_site_test.rs` (tests only).
+   - No existing row, count or disposition changes.
+   - The required mutants are each killed: a loop call to a scaled entry, plumbing outside the sibling, and a third definition.
+   - The original pins' mutants are re-run, with their kill sites in RETURN. **One that is no longer killed stops the work.**
+6. **The SA orchestrator `solve_with_force_scaling`: yes.**
+   - It makes steps 1–5 testable at kernel level, and gives F1b one entry.
+   - It must have zero product calls until F1b, pinned like K1's siblings.
+7. **The refusal types: approved.**
+   - New result and error types. There are **no new variants** in `StructuralError` or `FrameKernelError`, so PP's and diagnostics' exhaustive matches are untouched.
+   - Refusals keep the step-1 trigger, so K2a's names survive where no feasible b exists.
+   - The window text renders §4.7 step 3's template with integer exponents.
+
+**Also recorded for F1b's list (I10's note):** loads that PP forms at b = 0 from out-of-range products (for example a thermal E·A·α·ΔT) have lost bits before the kernel, and the kernel cannot restore a term that underflowed to zero. F1b must form such loads under the chosen b, or refuse them.
