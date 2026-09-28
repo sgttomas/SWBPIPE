@@ -1296,3 +1296,41 @@ I13's plan (`<wt>/scratch/i13/CHECKPOINT0_PLAN.md`, sha256 `ba90de63…`, 856 li
 - **The gate's comparison scope.** G1's baseline (`GATE_BASELINE_MAC_E7D930D49/`) keeps P1's `run.envelope` summary bytes, not the full `MechanicsEnvelope`.
   - At A2, I13 states exactly which published fields that summary covers and which it omits, including diagnostic messages, receipts and rows.
   - If it omits published bytes, I13 proposes a probe variant that also emits the sha256 of the full serialized envelope, without changing `run_one`'s classification. ROOT then has G1 re-run the base's part 1 with the variant, which takes about 5 minutes, before B.
+
+## K5: spawn and rulings (ROOT, 2026-09-28)
+
+- **K5 (W4: the constrained-body witness and the curved rule) is spawned as I14** from main `24dea2dae`, whose product tree equals `e7d930d49`'s.
+  - A TASK drafted the brief (`TASK_BRIEFS/I14_K5_IMPLEMENTATION.md`); ROOT's rulings on Q1–Q11 are in the brief. In short:
+    - W4 only in the four `selected` formation-checked branches;
+    - curved slots qualified by their matched source, with a derived condition;
+    - T4's confirmation not a prerequisite;
+    - a libm-free screen in the new function;
+    - ties for today's element, with a T4 tripwire;
+    - directional ground rows in K5's API;
+    - a new mixed-family basis text;
+    - gate part 1 as a regression net;
+    - no site-table change;
+    - the curved-formation item not K5's;
+    - one slice.
+  - K5 runs in parallel with K4 (I12) and F1b (I13); none of the three edits another's files. **Its checkpoint 0 is a plan only.** ROOT serializes its heavy phases (builds, T9, mutation batches, gate) against the other two.
+- **Design text made stale or found inconsistent** (the brief's list, items 1–17), recorded here as rulings. `DESIGN.md` stays hash-pinned.
+  1. §4.9's and §2.5's citations have drifted; the brief re-locates them on the base.
+  2. §4.9's SUP-17 paragraph was delivered by F1a.
+  3. §4.9 does not say which entries W4 applies to. The answer is the four selected branches (Q1).
+  4. §4.9's curved screen conflicts with R5-4, which says `curved_formation` does not bound the chord mismatch. Slots are qualified by source, and the screen is evidence (Q2).
+  5. §4.9's "Coordination" and D-9 (T4 confirms) conflict with R5-4 §5 and §4.3.1. T4's confirmation is not a prerequisite (Q3).
+  6. §4.9's ties assume positive stiffness, but §4.3.1 and D5C-2 call lateral zero "the only realized form". In fact the ordinary route realizes no user element. Ties are for today's element with positive stiffnesses (Q5).
+  7. T4's M07 repair will change the user element's zero-energy set; a tripwire guards it (Q5).
+  8. §4.9's "existing SVD rank screen" is platform-dependent through `hypot`. The new function is libm-free (Q4), and `assess_rigid_body`'s `hypot` goes on the T3-close list.
+  9. §4.9 gives no data path for curved node coordinates. They come from `curved_sources`, which only the selected entries receive.
+  10. §4.9's "with a reason" has no carrier in `StructuralReport`, which is Debug-published. The reason lives in K5's return types.
+  11. The K5 row omits the two site tests that scan SA. Neither changes (Q9).
+  12. §6's and D-10's serialization of K5 with the `SA` and `FK/structural.rs` sharers is stale. K5 runs in parallel with K4 and F1b.
+  13. §4.1.3's "W4 generalizes": W1b (F3) and W1c will call K5's function.
+  14. K4's O1 amendment routed directional grounds to W4, whose grounds were DOF-indexed. K5's API accepts directional rows (Q6).
+  15. The curved-formation T3-close item's "to K5" route is withdrawn; it stays on the T3-close list (Q10).
+  16. RF-MECH has no user or curved mechanism, so W4 has no frozen reference. Its tests are constructed with an exact generator.
+  17. The K5 row's "seeded negative" becomes an explicit or unmatched slot, and the screen is recorded evidence (Q2).
+- **Added to the T3-close list:**
+  - `assess_rigid_body`'s `hypot` dependence (frame-only bodies);
+  - wiring K4's geometry-first check to K5's directional rows.
