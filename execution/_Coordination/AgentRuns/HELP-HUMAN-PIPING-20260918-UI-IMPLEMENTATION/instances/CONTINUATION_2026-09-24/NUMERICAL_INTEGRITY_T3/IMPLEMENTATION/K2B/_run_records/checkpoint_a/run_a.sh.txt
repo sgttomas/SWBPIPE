@@ -1,0 +1,10 @@
+#!/bin/bash
+W=<wt>
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4
+S=$W/k2b/projects/chirality-piping/core/solver
+L=$W/scratch/i10/logs
+( cd $S/frame_kernel && CARGO_TARGET_DIR=$W/k2b-target/fk cargo test --offline --locked -j 8 --no-fail-fast > $L/a_fk.log 2>&1; echo "EXIT $?" >> $L/a_fk.log
+  cd $S/sparse_direct && CARGO_TARGET_DIR=$W/k2b-target/sd cargo test --offline --locked -j 8 --no-fail-fast > $L/a_sd.log 2>&1; echo "EXIT $?" >> $L/a_sd.log ) &
+( cd $S/nonlinear_integration && CARGO_TARGET_DIR=$W/k2b-target/ni cargo test --offline --locked -j 8 --no-fail-fast > $L/a_ni.log 2>&1; echo "EXIT $?" >> $L/a_ni.log ) &
+wait
+for f in a_fk a_sd a_ni; do echo "== $f"; grep -E "^test result|EXIT|FAILED" $L/$f.log; done

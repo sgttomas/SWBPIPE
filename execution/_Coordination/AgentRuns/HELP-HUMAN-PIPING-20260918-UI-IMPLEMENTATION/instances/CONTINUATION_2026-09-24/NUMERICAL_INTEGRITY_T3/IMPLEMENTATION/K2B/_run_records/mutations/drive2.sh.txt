@@ -1,0 +1,10 @@
+#!/bin/bash
+# Batch 2 (the replacement leak mutants), at most three at once; NONE ran first in batch 1.
+W=<wt>; C=$W/scratch/i10/c; REV=70828d4d6
+echo "## batch 2" >> $C/MUTANTS.txt
+for m in $(cat $C/ids2.txt); do
+  while [ $(jobs -rp | wc -l) -ge 3 ]; do sleep 5; done
+  $C/run_mutant.sh $W $C $REV $m $C/overlay.txt &
+done
+wait
+echo DRIVE2-DONE >> $C/MUTANTS.txt

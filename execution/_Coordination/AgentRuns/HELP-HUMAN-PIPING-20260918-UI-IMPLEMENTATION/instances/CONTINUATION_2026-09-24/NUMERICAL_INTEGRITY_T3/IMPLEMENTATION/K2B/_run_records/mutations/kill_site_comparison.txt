@@ -1,0 +1,16 @@
+KD5-M32a: K1 8 sites, K2b 8 sites, lost 0, added 0, KILLED
+KD5-M32b: K1 9 sites, K2b 9 sites, lost 0, added 0, KILLED
+KD5-E4: K1 2 sites, K2b 2 sites, lost 0, added 0, KILLED
+S11K-RV-OPT1: K1 3 sites, K2b 3 sites, lost 0, added 0, KILLED
+S11K-RV-OPT3: K1 2 sites, K2b 2 sites, lost 0, added 0, KILLED
+S11K-RV-OPT4: K1 7 sites, K2b 7 sites, lost 0, added 0, KILLED
+S11K-RV-PUB: K1 3 sites, K2b 3 sites, lost 0, added 0, KILLED
+K1-PIN-BINARY64: K1 5 sites, K2b 5 sites, lost 0, added 0, KILLED
+K1-PIN-BINARY64-B: K1 5 sites, K2b 5 sites, lost 0, added 0, KILLED
+K1-PIN-THIRD: K1 1 sites, K2b 1 sites, lost 0, added 0, KILLED
+K1-PIN-LOOP: K1 48 sites, K2b 48 sites, lost 0, added 0, KILLED
+K1-PIN-LOOP-B: K1 14 sites, K2b 14 sites, lost 0, added 0, KILLED
+K1-S11F-KERNEL: K1 1 sites, K2b 1 sites, lost 0, added 0, KILLED
+K1-SITE-SPARSE: K1 1 sites, K2b 1 sites, lost 0, added 0, KILLED
+K1-SITE-FC: K1 1 sites, K2b 1 sites, lost 0, added 0, KILLED
+every original pin mutant is still killed

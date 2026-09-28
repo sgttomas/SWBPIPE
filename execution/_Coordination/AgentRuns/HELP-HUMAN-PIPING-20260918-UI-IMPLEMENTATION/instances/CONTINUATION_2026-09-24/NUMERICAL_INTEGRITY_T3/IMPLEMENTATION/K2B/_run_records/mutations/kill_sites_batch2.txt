@@ -1,0 +1,10 @@
+## K2B-LEAK-EVIDENCE
+   solver/nonlinear_integration: structural_adapter::k2b_tests::k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte
+      at src/structural_adapter/k2b_tests.rs:443:21: assertion `left == right` failed: F122 DenseScrutiny Dense selected=true
+   solver/nonlinear_integration: structural_adapter::k2b_tests::k2b_step_four_refuses_a_scaled_evaluation_outside_the_normal_range
+      at src/structural_adapter/k2b_tests.rs:983:26: DenseScrutiny Dense: Err(Structural(NumericallyUnresolved { reason: "assembly perturbation amplification unresolved", global_dof: None }))
+## K2B-LEAK-PUBLISH
+   solver/frame_kernel: k2b_unscaled_residual_records_carry_their_outcome_and_never_refuse
+      at tests/k2b_force_scaling.rs:824:5: assertion `left == right` failed
+   solver/nonlinear_integration: structural_adapter::k2b_tests::k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte
+      at src/structural_adapter/k2b_tests.rs:443:21: assertion `left == right` failed: F122 DenseScrutiny Dense selected=true
