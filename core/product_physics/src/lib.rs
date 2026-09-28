@@ -26,6 +26,8 @@ mod source_receipt;
 #[cfg(test)]
 mod f1a_tests;
 #[cfg(test)]
+mod f1b_tests;
+#[cfg(test)]
 mod s11f_tests;
 #[cfg(test)]
 mod s11g_tests;
@@ -38,8 +40,9 @@ use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    FormationCheck, FormationCheckReason, LoadFidelityReport, SolveQuality, StructuralError,
-    StructuralReport,
+    assemble_sparse_stiffness, reduce_assembled_sparse_system, FormationCheck,
+    FormationCheckReason, LoadFidelityReport, SolveQuality, SparseAssemblyOptions, SparseStiffness,
+    StiffnessBlock, StructuralError, StructuralReport,
 };
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_user_elements, element_dof_map, reduce_assembled_system,
@@ -57,7 +60,7 @@ use open_pipe_stress_load_case_algebra::{
     CombinationTerm, FindingCode, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::structural_adapter::{
-    AssemblyEvidence, StrictGapEvidence,
+    AssemblyEvidence, SparseAssemblyEvidence, StrictGapEvidence,
 };
 use open_pipe_stress_nonlinear_integration::{
     eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs_assembled,
@@ -1113,6 +1116,8 @@ fn formation_check_evidence_line(model: &PreviewModel, check: &FormationCheck) -
     match &check.reason {
         FormationCheckReason::Estimate => format!(
             "formation_check: reason=estimate; row={}; doubled_correction={:?}; scale={:?}; trigger_ratio={:?}",
+            // `none` is unreachable (F1a N1): K-D5 sets `global_dof` on every
+            // `Estimate` record; the fallback keeps the formatter total.
             check
                 .global_dof
                 .map_or_else(|| "none".to_string(), |dof| integrity_dof_label(model, dof)),
@@ -1823,18 +1828,23 @@ fn run_linear_static_preview_captured_once(
         return blocked_envelope(model, diagnostics);
     }
 
-    let mut stiffness = match assemble_global_stiffness_with_user_elements(
-        built.nodes.len(),
-        &built.frame_elements,
-        &built.user_stiffness_elements,
-    ) {
+    // F1b (T3 D1 §4.8, W3): the kernel's sparse assembly per basis; no dense
+    // matrix is held across cases or bases.
+    let stiffness = match assemble_basis_stiffness(&built, &boundary.springs) {
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
-    add_curved_bend_stiffness_contributions(&mut stiffness, &built.curved_bend_elements);
-    for spring in &boundary.springs {
-        stiffness[spring.node_dof.global_index()][spring.node_dof.global_index()] +=
-            spring.stiffness.value;
+    // F1b (§4.8 resource guard; ROOT Q8): dense scrutiny refuses, once per
+    // invocation and before any n^2 allocation, a model whose dense-path
+    // estimate exceeds the provisional ceiling.
+    if solver_mode == PreviewSolverMode::DenseScrutiny {
+        if let Err(refusal) = dense_scrutiny_guard(
+            built.nodes.len() * DOF_PER_NODE,
+            dense_scrutiny_ceiling_bytes(),
+        ) {
+            diagnostics.push(dense_scrutiny_refusal_diagnostic(&refusal));
+            return blocked_envelope(model, diagnostics);
+        }
     }
 
     // DEC-068 item 1 + DEC-077: a load case may name an exact user-entered
@@ -1847,7 +1857,7 @@ fn run_linear_static_preview_captured_once(
         Option<String>,
         Vec<MaterialInput>,
         BuiltModel,
-        Vec<Vec<f64>>,
+        SparseStiffness,
         Option<String>,
     )> = vec![(None, materials.clone(), built, stiffness, None)];
     let mut load_case_solves = Vec::new();
@@ -1870,7 +1880,8 @@ fn run_linear_static_preview_captured_once(
                 }
                 let case_built = case_built
                     .expect("build_model returns Some when no blocking diagnostics were added");
-                let case_stiffness = match assemble_case_stiffness(&case_built, &boundary.springs) {
+                let case_stiffness = match assemble_basis_stiffness(&case_built, &boundary.springs)
+                {
                     Ok(stiffness) => stiffness,
                     Err(error) => return solver_blocked(model, diagnostics, error),
                 };
@@ -1954,22 +1965,11 @@ fn run_linear_static_preview_captured_once(
                 }
                 let basis_built = basis_built
                     .expect("build_model returns Some when no blocking diagnostics were added");
-                let mut basis_stiffness = match assemble_global_stiffness_with_user_elements(
-                    basis_built.nodes.len(),
-                    &basis_built.frame_elements,
-                    &basis_built.user_stiffness_elements,
-                ) {
-                    Ok(stiffness) => stiffness,
-                    Err(error) => return solver_blocked(model, diagnostics, error),
-                };
-                add_curved_bend_stiffness_contributions(
-                    &mut basis_stiffness,
-                    &basis_built.curved_bend_elements,
-                );
-                for spring in &boundary.springs {
-                    basis_stiffness[spring.node_dof.global_index()]
-                        [spring.node_dof.global_index()] += spring.stiffness.value;
-                }
+                let basis_stiffness =
+                    match assemble_basis_stiffness(&basis_built, &boundary.springs) {
+                        Ok(stiffness) => stiffness,
+                        Err(error) => return solver_blocked(model, diagnostics, error),
+                    };
                 basis_solve_states.push((
                     Some(basis_key.clone()),
                     basis_materials,
@@ -2271,8 +2271,123 @@ fn load_state_case_record(
     evidence
 }
 
+/// F1b (T3 D1 §4.8, W3; K1): one basis's global stiffness on the kernel's
+/// sparse pattern, for the ordinary route. The contributions accumulate in the
+/// dense assembly's order (frames and users, then the realized curved bends as
+/// blocks, then the springs), so every stored value is bit-identical to
+/// `assemble_case_stiffness`'s dense entry and every absent entry is its +0.0.
+/// Each element is formed by the same call in the same order, so a formation
+/// error is the same error for the same first element.
+fn assemble_basis_stiffness(
+    built: &BuiltModel,
+    springs: &[SpringEntry],
+) -> Result<SparseStiffness, FrameKernelError> {
+    let blocks = built
+        .curved_bend_elements
+        .iter()
+        .map(|element| StiffnessBlock {
+            node_i: element.node_i,
+            node_j: element.node_j,
+            stiffness: element.global_stiffness,
+        })
+        .collect::<Vec<_>>();
+    let springs = springs
+        .iter()
+        .map(|spring| (spring.node_dof.global_index(), spring.stiffness.value))
+        .collect::<Vec<_>>();
+    assemble_sparse_stiffness(
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.user_stiffness_elements,
+        &blocks,
+        &springs,
+        &SparseAssemblyOptions::new(),
+    )
+}
+
+/// F1b (T3 D1 §4.8 "Resource guard"; ROOT Q8(a), provisional): the dense
+/// scrutiny path's estimated peak per n^2 entry. At the peak (inside FK's
+/// `prepare_bound` via `audit_contributions`, called from SA's DenseScrutiny
+/// branch) six n^2 buffers are alive together: the dense K view (8), the two
+/// dense symmetry views (8 + 8), the prepared matrix (8) and the contribution
+/// sums and differences (`Expansion`, 32 + 32). A stated formula over the
+/// dense entry count, not a measurement.
+const DENSE_SCRUTINY_BYTES_PER_ENTRY: u128 = 96;
+/// Provisional (ROOT Q8(a), 2026-09-28): the gate's 6 GiB heap cap on the
+/// owner's Mac, revisited from K6's and V-P's measurements. It admits at most
+/// 8,192 global DOFs (1,365 nodes).
+const DENSE_SCRUTINY_CEILING_BYTES: u128 = 6 * 1024 * 1024 * 1024;
+
+/// The dense-scrutiny guard's refusal: the formula's inputs and its value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DenseScrutinyRefusal {
+    dimension: usize,
+    dense_entries: u128,
+    estimated_bytes: u128,
+    ceiling_bytes: u128,
+}
+
+/// The dense path's estimated bytes for `dense_entries` n^2 entries.
+fn dense_scrutiny_estimate_bytes(dense_entries: u128) -> u128 {
+    DENSE_SCRUTINY_BYTES_PER_ENTRY.saturating_mul(dense_entries)
+}
+
+/// The guard's decision for a model of `dimension` global DOFs. Its dense
+/// entry count is `dimension^2`, which is `SparseStorageCounts::dense_entries`
+/// of the model's assembly. It refuses only when the estimate exceeds the
+/// ceiling.
+fn dense_scrutiny_guard(dimension: usize, ceiling_bytes: u128) -> Result<(), DenseScrutinyRefusal> {
+    let dense_entries = (dimension as u128) * (dimension as u128);
+    let estimated_bytes = dense_scrutiny_estimate_bytes(dense_entries);
+    if estimated_bytes > ceiling_bytes {
+        Err(DenseScrutinyRefusal {
+            dimension,
+            dense_entries,
+            estimated_bytes,
+            ceiling_bytes,
+        })
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// F1b tests only: a lowered ceiling for the unit-level product test.
+    static DENSE_SCRUTINY_CEILING_OVERRIDE: std::cell::Cell<Option<u128>> =
+        const { std::cell::Cell::new(None) };
+}
+
+/// The ceiling the product applies (the constant; a unit test may lower it).
+fn dense_scrutiny_ceiling_bytes() -> u128 {
+    #[cfg(test)]
+    if let Some(ceiling) = DENSE_SCRUTINY_CEILING_OVERRIDE.with(|cell| cell.get()) {
+        return ceiling;
+    }
+    DENSE_SCRUTINY_CEILING_BYTES
+}
+
+fn dense_scrutiny_refusal_diagnostic(refusal: &DenseScrutinyRefusal) -> Diagnostic {
+    diag(
+        "diagnostic:physics:dense-scrutiny-resource-guard",
+        "SOLVER_SYSTEM_BLOCKED",
+        "blocking",
+        format!(
+            "dense scrutiny resource guard: estimated dense-path peak {} bytes ({} bytes x {} dense entries, {} global DOFs squared) exceeds the provisional ceiling {} bytes; the model is refused before any n^2 allocation. The estimate is a stated formula, not a measurement; sparse_interactive does not use it, and no automatic dense fallback exists",
+            refusal.estimated_bytes,
+            DENSE_SCRUTINY_BYTES_PER_ENTRY,
+            refusal.dense_entries,
+            refusal.dimension,
+            refusal.ceiling_bytes,
+        ),
+        vec!["model".to_string()],
+    )
+}
+
 /// Assemble one resolved case's global stiffness, with the same element,
-/// curved and spring contributions as the default basis assembly.
+/// curved and spring contributions as the default basis assembly. F1b: the
+/// ordinary route uses `assemble_basis_stiffness`; this dense form remains for
+/// the n <= 256 captured replay (`source_receipt`) and tests.
 fn assemble_case_stiffness(
     built: &BuiltModel,
     springs: &[SpringEntry],
@@ -2478,9 +2593,11 @@ fn finish_case_ledger(
 /// DEC050/053 observation rebuilds a reduced system from a global vector; it
 /// must observe K_ff u_f = f_f - K_fc g_c, never f_f. It reads the ledger's
 /// values and folds in binary64 on purpose; it never reaches a solve seam.
+/// F1b: `stiffness.get` is the stored value or +0.0, the dense entry bit for
+/// bit, so the observation is unchanged.
 fn legacy_observation_force(
     force: &AssembledForce,
-    stiffness: &[Vec<f64>],
+    stiffness: &SparseStiffness,
     restrained_dofs: &[usize],
     prescribed: &[(usize, f64)],
     coupled: bool,
@@ -2492,7 +2609,7 @@ fn legacy_observation_force(
                 continue;
             }
             for &(column, displacement) in prescribed {
-                *value -= stiffness[row][column] * displacement;
+                *value -= stiffness.get(row, column) * displacement;
             }
         }
     }
@@ -2509,34 +2626,26 @@ fn legacy_dense_observation(
 }
 
 /// E12 (S11 section 4.4): each restrained reaction is one exact sum of the
-/// formed `K * u` term (bit-identical to `multiply_matrix_vector`) and minus
-/// every ledger term of that DOF, rounded once.
+/// formed `K * u` term and minus every ledger term of that DOF, rounded once.
+/// F1b (§4.8): from sparse rows, `SparseStiffness::reactions`, bit-identical
+/// to the dense form (K1). A non-finite operand or an out-of-range net keeps
+/// NaN, which `require_finite_mechanics` refuses, as before; so does a length
+/// mismatch, which cannot occur (both are the model's 6 * nodes).
 fn restrained_reactions(
-    stiffness: &[Vec<f64>],
+    stiffness: &SparseStiffness,
     displacements: &[f64],
     force: &AssembledForce,
 ) -> Vec<f64> {
-    multiply_matrix_vector(stiffness, displacements)
-        .into_iter()
-        .enumerate()
-        .map(|(dof, internal)| {
-            let mut accumulator = ExactAccumulator::new();
-            let summed = accumulator
-                .add(internal)
-                .and_then(|()| force.accumulate_dof(dof, &mut accumulator, true))
-                .and_then(|()| accumulator.round());
-            // A non-finite operand or an out-of-range net keeps the non-finite
-            // value, which `require_finite_mechanics` refuses, as before.
-            summed.unwrap_or(f64::NAN)
-        })
-        .collect()
+    stiffness
+        .reactions(displacements, force)
+        .unwrap_or_else(|_| vec![f64::NAN; stiffness.dimension()])
 }
 
 fn solve_load_case(
     model: &PreviewModel,
     built: &BuiltModel,
     materials: &[MaterialInput],
-    stiffness: &[Vec<f64>],
+    stiffness: &SparseStiffness,
     restrained_dofs: &[usize],
     spring_entries: &[SpringEntry],
     load_case: &PreviewLoadCase,
@@ -2672,10 +2781,12 @@ fn solve_load_case(
         &load_case.id,
     );
 
+    // F1b: the stored values are row-major and every absent entry is a finite
+    // +0.0, so the first non-finite value is the dense scan's, with its bits.
     require_finite_mechanics(
         stiffness
+            .values()
             .iter()
-            .flatten()
             .copied()
             .chain(force.values().iter().copied()),
     )?;
@@ -2722,17 +2833,15 @@ fn solve_load_case(
         .map(|&(_, value)| value)
         .collect::<Vec<_>>();
     // T1's 0.4.0 prescribed motion reaches the kernel's exact KS2 through the
-    // typed reduction (S11 section 8.2).
-    let reduced = if load_state.is_some() {
-        reduce_assembled_system_with_prescribed_displacements(
-            stiffness,
-            &force,
-            restrained_dofs,
-            &prescribed_values,
-        )?
-    } else {
-        reduce_assembled_system(stiffness, &force, restrained_dofs)?
-    };
+    // typed reduction (S11 section 8.2). F1b: the pattern's partition and
+    // reduced right-hand side, bit-identical to `reduce_assembled_system*`'s,
+    // with their errors in their order (K1); no reduced matrix is formed.
+    let reduced = reduce_assembled_sparse_system(
+        stiffness,
+        &force,
+        restrained_dofs,
+        load_state.is_some().then_some(prescribed_values.as_slice()),
+    )?;
     let observation_force = legacy_observation_force(
         &force,
         stiffness,
@@ -2769,12 +2878,6 @@ fn solve_load_case(
             integrity_diagnostic_id(&load_case.id),
         ),
     };
-    let recovery_input = || source_recovery::Input {
-        model, built, stiffness, force: &force, free: &reduced.free_dofs,
-        prescribed: &prescribed, spring_entries, load_case, load_application: &load_application,
-        thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
-        load_state,
-    };
     let report_sensitive = matches!(&attempted_linear, Ok(solve) if solve.structural_report.quality == SolveQuality::Sensitive);
     let attempt_err = attempted_linear.is_err();
     let needs_source_recovery =
@@ -2789,6 +2892,25 @@ fn solve_load_case(
         !built.nonlinear_supports.is_empty(),
         !model.combinations.is_empty(),
     );
+    // F1b (ROOT Q9(a)): retained-source recovery keeps its dense `stiffness`
+    // input, built only for an attempt it can run (n <= 256). Above that its
+    // budget refusal precedes every read of `stiffness`
+    // (`source_recovery::prepare_sources`), so the empty slice changes neither
+    // the charge nor the bytes. A selected response exists only at n <= 256.
+    let recovery_stiffness = if source_eligible
+        && needs_source_recovery
+        && stiffness.dimension() <= source_recovery::DENSE_SOURCE_DOF_LIMIT
+    {
+        stiffness.to_dense()
+    } else {
+        Vec::new()
+    };
+    let recovery_input = || source_recovery::Input {
+        model, built, stiffness: &recovery_stiffness, force: &force, free: &reduced.free_dofs,
+        prescribed: &prescribed, spring_entries, load_case, load_application: &load_application,
+        thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
+        load_state,
+    };
     if source_eligible && needs_source_recovery {
         // S11-G revision 2.2 with ROOT's D22-1 condition: a case the ordinary
         // route would not attempt (report Passed, no Err) is declined for its
@@ -2931,7 +3053,27 @@ fn solve_load_case(
         if solver_mode == PreviewSolverMode::DenseScrutiny {
             // Protected DEC050/053 comparison retains the legacy unscaled LU
             // reference. This observation never selects a published solution.
-            if let Ok(legacy_dense) = legacy_dense_observation(&reduced) {
+            // F1b: its dense reduced system is formed from the dense view of
+            // the same values only here, after the attempt, in dense scrutiny
+            // behind the resource guard. The reduction repeats the sparse
+            // one's checks on the same values, so it succeeds when that did.
+            let dense_view = stiffness.to_dense();
+            let dense_reduced = if load_state.is_some() {
+                reduce_assembled_system_with_prescribed_displacements(
+                    &dense_view,
+                    &force,
+                    restrained_dofs,
+                    &prescribed_values,
+                )
+            } else {
+                reduce_assembled_system(&dense_view, &force, restrained_dofs)
+            };
+            drop(dense_view);
+            if let Ok(legacy_dense) = dense_reduced
+                .as_ref()
+                .map_err(|_| ())
+                .and_then(|reduced| legacy_dense_observation(reduced).map_err(|_| ()))
+            {
                 append_sparse_live_path_evidence(
                     &mut results,
                     diagnostics,
@@ -4391,7 +4533,7 @@ struct PreviewLinearSolve {
 /// observation lane consumes `observation_force`, which already carries it.
 fn solve_preview_reduced_system(
     solver_mode: PreviewSolverMode,
-    original_stiffness: &[Vec<f64>],
+    stiffness: &SparseStiffness,
     _reduced_force: &[f64],
     built: &BuiltModel,
     spring_entries: &[SpringEntry],
@@ -4415,7 +4557,12 @@ fn solve_preview_reduced_system(
         .iter()
         .map(|e| (e.node_dof.global_index(), e.stiffness.value))
         .collect::<Vec<_>>();
-    let assembly = AssemblyEvidence::new(
+    // F1b (§4.8; ROOT Q8(d)): the pattern evidence in both modes. In dense
+    // scrutiny SA materializes the dense view of the same values and runs
+    // today's dense Cholesky path (K1: the `StructuralSolution` is
+    // byte-identical in `Debug` to the dense evidence's).
+    let assembly = SparseAssemblyEvidence::new(
+        stiffness.pattern(),
         built.nodes.len(),
         &built.frame_elements,
         &built.user_stiffness_elements,
@@ -4439,7 +4586,7 @@ fn solve_preview_reduced_system(
         .map(|e| e.macro_element)
         .collect::<Vec<_>>();
     let checked = assembly.solve_assembled_with_formation_check(
-        original_stiffness,
+        stiffness,
         global_force,
         &free,
         prescribed,
@@ -12193,13 +12340,6 @@ fn join_dofs(values: &[&str]) -> String {
     } else {
         values.join(",")
     }
-}
-
-fn multiply_matrix_vector(matrix: &[Vec<f64>], vector: &[f64]) -> Vec<f64> {
-    matrix
-        .iter()
-        .map(|row| row.iter().zip(vector).map(|(a, b)| a * b).sum())
-        .collect()
 }
 
 fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {

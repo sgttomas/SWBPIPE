@@ -23,6 +23,10 @@ use open_pipe_stress_primitive_loads::LoadApplication;
 use std::collections::{HashMap, HashSet};
 
 pub(super) const RELATIVE_LIMIT: f64 = 1.0e-9;
+/// The largest system (global DOFs) the method accepts; above it `prepare_sources`
+/// refuses by budget before any read of `Input::stiffness` (F1b: the product
+/// builds its dense view only up to this size; ROOT Q9(a)).
+pub(super) const DENSE_SOURCE_DOF_LIMIT: usize = 256;
 pub(super) const STATIONS: [f64; 5] = [0.0, 0.25, 0.5, 0.75, 1.0];
 const END_CONVENTION: FunctionalConvention = FunctionalConvention::NodeOnElement;
 
@@ -463,7 +467,11 @@ fn prepare_sources(
         .and_then(|v| v.checked_add(input.spring_entries.len()))
         .and_then(|v| v.checked_add(input.load_application.nodal_loads.len()))
         .ok_or(exact::Error::Budget)?;
-    if n > 256 || n > limits.dofs || source_count > 16_384 || source_count > limits.source_terms {
+    if n > DENSE_SOURCE_DOF_LIMIT
+        || n > limits.dofs
+        || source_count > 16_384
+        || source_count > limits.source_terms
+    {
         return Err(exact::Error::Budget.into());
     }
     if input.force.len() != n

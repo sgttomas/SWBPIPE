@@ -719,7 +719,7 @@ fn route_cases(
     for (case, state) in model.load_cases.iter().zip(&resolved) {
         let built =
             build_model_for_members(&model, &materials, Some(&state.pairs), &mut d).unwrap();
-        let k = assemble_case_stiffness(&built, &boundary.springs).unwrap();
+        let k = crate::assemble_basis_stiffness(&built, &boundary.springs).unwrap();
         let mut solve = solve_load_case(
             &model,
             &built,
