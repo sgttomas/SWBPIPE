@@ -49,6 +49,11 @@ const SOURCES: &[Source] = &[
         name: "FK/structural/exact_boundary.rs",
         text: include_str!("../src/structural/exact_boundary.rs"),
     },
+    // K1 (manager-approved additive extension): the sparse representation.
+    Source {
+        name: "FK/structural/sparse.rs",
+        text: include_str!("../src/structural/sparse.rs"),
+    },
     Source {
         name: "FK/load_ledger.rs",
         text: include_str!("../src/load_ledger.rs"),
@@ -107,6 +112,21 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural.rs", "verify_negative_direction", 3, "integer: term count; RV1-N1: energy and magnitude sums of the witness direction (stiffness quadratic form)"),
     ("FK/structural.rs", "exact_scaled_rhs", 0, "KS1: exact accumulator, scaled before one rounding"),
     ("FK/structural.rs", "prepare_bound", 1, "KS1 dispatch; RV1-N1: the legacy expression `b = checked_value(b - K*u)` kept for the option (c) Binary64 binding and for legacy rows without a nonzero prescribed product (b - (+-0) is exact); ledger and coupled rows use exact_scaled_rhs"),
+    // ---- FK/structural/sparse.rs (K1: the sparse representation; the
+    // residual, intended-action and load audits, KS1 and the completion are
+    // FK/structural.rs's functions above, run on it)
+    ("FK/structural/sparse.rs", "from_pattern_and_contributions", 1, "exempt: stiffness assembly, one coalesced value per pattern entry summed in contribution order (audited exactly by M03 contribution expansions)"),
+    ("FK/structural/sparse.rs", "scatter_block", 1, "exempt: stiffness assembly, one addition per element entry (the dense assemble_element_contribution; audited exactly by M03 contribution expansions)"),
+    ("FK/structural/sparse.rs", "assemble_sparse_stiffness", 1, "exempt: stiffness assembly (spring diagonal, as the product adds it)"),
+    ("FK/structural/sparse.rs", "lower_entry_count", 1, "integer: storage count"),
+    ("FK/structural/sparse.rs", "multiply", 1, "exempt: formed elastic action K*u (bit-identical to the product's multiply_matrix_vector, E12's formed term)"),
+    ("FK/structural/sparse.rs", "sparse_audit_contributions", 7, "exempt, as audit_contributions: two descriptive ContributionRounding low-part sums of stiffness expansions and one delta-norm of stiffness differences; the column magnitude/delta norms and the |rhs| magnitude norms (self-assignment) of the perturbation estimate, not load sums"),
+    ("FK/structural/sparse.rs", "verify_sparse_negative_direction", 3, "integer: term count; energy and magnitude sums of the witness direction (stiffness quadratic form), as verify_negative_direction"),
+    ("FK/structural/sparse.rs", "pair_energy", 3, "integer: term count; energy and magnitude sums of a pair direction (stiffness quadratic form), as verify_negative_direction"),
+    ("FK/structural/sparse.rs", "sparse_negative_pair_witness_counted", 1, "integer: visited-pair count"),
+    ("FK/structural/sparse.rs", "reactions", 0, "E12 from sparse rows: the formed K*u and the DOF's ledger terms in one exact sum"),
+    ("FK/structural/sparse.rs", "reduce_assembled_sparse_system", 0, "KS2 over the pattern: one exact sum per free row"),
+    ("FK/structural/sparse.rs", "legacy_zero_product_fold", 0, "KS1 legacy rows (no nonzero prescribed product): the dense b - (+-0) fold reduced to its range check and zero-sign rule; no accumulation"),
     // ---- FK/structural/exact_boundary.rs
     ("FK/structural/exact_boundary.rs", "approximate_projection", 2, "exempt: proposal quotient, verified exactly afterwards (section 4.1.2)"),
     ("FK/structural/exact_boundary.rs", "ratio_add", 1, "exempt: exact expansion sum (Context::sum)"),

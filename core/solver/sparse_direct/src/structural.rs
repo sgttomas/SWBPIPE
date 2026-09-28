@@ -1,7 +1,20 @@
 //! Typed structural skyline path. Legacy factorize_ldlt/report remains unchanged.
-use super::{adjacency_from_dense, reverse_cuthill_mckee, SymmetricProfileMatrix};
+//!
+//! K1 (T3 D1 revision 5a.2 §4.8): the pattern path beside today's
+//! dense-derived one. `order_sparse_structural` takes the adjacency from the
+//! prepared system's stored entries (`adjacency_from_symmetric_entries`) and
+//! the skyline from `SymmetricProfileMatrix::from_entries_with_order`. Both
+//! skip an exactly zero value, as `adjacency_from_dense` and
+//! `from_dense_with_order` skip a zero of the dense matrix, so for the same
+//! prepared matrix the order and the profile are today's.
+use super::{
+    adjacency_from_dense, adjacency_from_symmetric_entries, reverse_cuthill_mckee,
+    SymmetricMatrixEntry, SymmetricProfileMatrix,
+};
 use open_pipe_stress_frame_kernel::structural::{
-    self, PositiveFactor, PreparedSystem, StructuralError, StructuralSolution, StructuralSystem,
+    self, AssembledSparseStructuralSystem, FormationCheckedSparseSystem, PositiveFactor,
+    PreparedSystem, SparsePositiveFactor, SparsePreparedSystem, SparseStructuralSystem,
+    StructuralError, StructuralSolution, StructuralSystem,
 };
 pub fn factor_structural_ldlt<'p, 's>(
     prepared: &'p PreparedSystem<'s>,
@@ -25,6 +38,90 @@ pub fn solve_structural_sparse(
     };
     structural::finish_structural(&factor)
 }
+
+/// The ordering and skyline of a sparse prepared system, with its
+/// deterministic storage counts (the resource guard reads
+/// `profile_entry_count` before the factor allocates its rows).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SparseStructuralOrdering {
+    /// `order[k]` is the free position of the `k`-th ordered row.
+    pub order: Vec<usize>,
+    pub first_columns: Vec<usize>,
+    pub profile_entry_count: usize,
+    pub max_half_bandwidth: usize,
+}
+
+/// The pattern path's ordering: RCM on the adjacency of the stored nonzero
+/// entries, and the skyline of those entries under that order.
+pub fn order_sparse_structural(
+    prepared: &SparsePreparedSystem<'_>,
+) -> Result<SparseStructuralOrdering, StructuralError> {
+    let n = prepared.dimension();
+    let entries: Vec<SymmetricMatrixEntry> = prepared
+        .lower_entries()
+        .map(|(row, col, value)| SymmetricMatrixEntry { row, col, value })
+        .collect();
+    let adjacency = adjacency_from_symmetric_entries(n, &entries)
+        .map_err(|_| StructuralError::InvalidInput("sparse adjacency"))?;
+    let order = reverse_cuthill_mckee(&adjacency)
+        .map_err(|_| StructuralError::InvalidInput("sparse order"))?;
+    let profile = SymmetricProfileMatrix::from_entries_with_order(n, &entries, &order)
+        .map_err(|_| StructuralError::InvalidInput("sparse profile"))?;
+    Ok(SparseStructuralOrdering {
+        profile_entry_count: profile.profile_entry_count(),
+        max_half_bandwidth: profile.max_half_bandwidth(),
+        first_columns: profile.first_columns,
+        order,
+    })
+}
+
+/// The pattern path's sibling of `factor_structural_ldlt`.
+pub fn factor_sparse_structural_ldlt<'p, 's>(
+    prepared: &'p SparsePreparedSystem<'s>,
+) -> Result<SparsePositiveFactor<'p, 's>, StructuralError> {
+    let ordering = order_sparse_structural(prepared)?;
+    structural::factor_sparse_structural_profile(prepared, &ordering.order, &ordering.first_columns)
+}
+
+/// Factor, or the witness on a refused factor, then the completion: the
+/// sequence of `solve_structural_sparse`.
+pub fn solve_sparse_prepared(
+    prepared: SparsePreparedSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    let factor = match factor_sparse_structural_ldlt(&prepared) {
+        Ok(f) => f,
+        Err(error) => {
+            return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+        }
+    };
+    structural::finish_sparse_structural(&factor)
+}
+
+/// The pattern path's sibling of `solve_structural_sparse`.
+pub fn solve_sparse_structural(
+    system: &SparseStructuralSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    solve_sparse_prepared(structural::prepare_sparse_structural(system)?)
+}
+
+/// Typed sibling (the ledger force; KS1 and KS3 read its terms).
+pub fn solve_assembled_sparse_structural(
+    system: &AssembledSparseStructuralSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    solve_sparse_prepared(structural::prepare_assembled_sparse_structural(system)?)
+}
+
+/// K-D5 sibling: the D-5 formation check before Passed.
+pub fn solve_formation_checked_sparse_structural(
+    system: &FormationCheckedSparseSystem<'_>,
+) -> Result<StructuralSolution, StructuralError> {
+    solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
+        system,
+    )?)
+}
+
+#[cfg(test)]
+mod k1_tests;
 
 #[cfg(test)]
 mod tests {
