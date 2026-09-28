@@ -328,3 +328,28 @@ The evidence is in `_run_records/k2b_review/delta_112c1729d/`.
   - GEN-8 passes, run read-only in `<wt>/k2b` at `112c1729d`.
 
 **Not re-run:** T9, the 39-manifest suites, and I10's K2B-SPRING-UNCHECKED and pin mutants. I read their records: the kill sites in `rv11_delta_fixes/mutations/MUTANTS.txt` match A2.7. I made no timing or memory claims. The memory guard never fired, and the mutant targets were deleted.
+
+## Merge confirmation at 33e33c723
+
+**Verdict: confirmed.** The merge of main `57617b0fb`, which brings K3 (PR #1041), into K2b adds nothing but main's changes and conflicts with nothing. On the merged tree, b = 0 behaviour and K2b's tests are unchanged.
+- **Head:** PR #1040's head is `33e33c723`, verified after a fetch. Its parents are `112c1729d` (K2b as last checked) and `57617b0fb`, and their merge base is `98b1723b1`.
+- **Evidence:** `_run_records/k2b_review/merge_33e33c723/`.
+
+1. **The merge adds exactly main's changes** (`merge_check.txt`).
+   - `git diff 112c1729d 33e33c723` is byte-identical to `git diff 98b1723b1 57617b0fb`: 317 files, of which 13 are under `core/`, all K3's.
+   - `git diff 57617b0fb 33e33c723` is byte-identical to K2b's whole delta, `git diff 98b1723b1 112c1729d`.
+   - `git show --remerge-diff` is empty.
+   - No file is edited by both sides.
+2. **K2b and K3 are disjoint in FK.**
+   - K2b edits `src/lib.rs`, `src/load_ledger.rs`, `src/structural.rs`, `src/structural/sparse.rs`, `tests/k2b_force_scaling.rs` and `tests/s11_site_table.rs`.
+   - K3 edits `src/structural/retained/{mod.rs, wide.rs, wide/multi.rs}` and `tests/retained_wide_k3/**`.
+   - No FK file, and no file anywhere under `core/`, is edited by both.
+3. **The tests pass on a `git archive` of `33e33c723`** (`head_tests/`), at opt-level 0:
+   - FK 249 (K2b's 204 plus K3's 45), including K2b's `s11_site_table` pins (none of the files they scan is one K3 edits);
+   - SD 30;
+   - NI 116 + 4 doc tests (120);
+   - PP `s11f_site_test` 11 and `formation_check_runtime` 5.
+   - There are no new warnings; PP's 10 are pre-existing. These counts match ROOT's.
+   - **The b = 0 probe, run in full rather than sampled** (`b0probe/`): all 439 outputs are identical to the lists for `eb52114e9`, `98b1723b1`, `f385a8bc8` and `112c1729d`.
+
+**Not run:** mutations, T9, the 39-manifest suites and GEN-8. The merge changes no K2b file, and I made no Git writes.
