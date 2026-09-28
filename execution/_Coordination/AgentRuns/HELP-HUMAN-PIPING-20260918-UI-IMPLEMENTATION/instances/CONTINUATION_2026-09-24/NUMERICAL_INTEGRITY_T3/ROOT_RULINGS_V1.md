@@ -1443,3 +1443,22 @@ V4 (`DESIGN_NUMERICS/REV_5A3_CANDIDATE/V4_VERIFICATION.md`, sha256 `0222d0ec…`
   - **the combination's prescribed rows are rounded twice when published** (1 + 2^-53 + 2^-150 publishes 1.0 at p = 128). **This is a K4 defect, independent of S\*.** K4 fixes it now: publish from the exact sum, rounded once;
   - **the binary64 publication rounding** can exceed b by up to 2^-24·b. The guarantee's statement says so; the gap already existed in 5a.2;
   - Lemma 2's binade-boundary hypothesis is corrected.
+
+## Resume after the pause, and F1b's heap-cap finding (ROOT, 2026-09-28)
+
+- **Resumed** from `PAUSE_2026-09-28.md`. The Mac stayed up and the memory guard kept running. Main is unchanged at `24dea2dae`. GEN-8 passes on the pause commits.
+- **K5 (PR #1044):** hosted CI is green on `b379e5b27`, and the full-SHA dispatch 36459966791 (target_base `24dea2dae`) succeeded. RV14's review resumes from its pause state.
+- **F1b gate part 1** (candidate `948e0bb99`, full-envelope, against G1's full base):
+  - `gate_check` PASS; C3 has 832 runs with 0 differences; C1 is exactly the ruled 28; all 12 dense C2 runs get the guard's refusal.
+  - Of the 12 sparse C2 runs, 8 complete with named M03 refusals. **4 abort at the heap cap:** RF-LARGE-CONT-n10000-AX and -ROT, both entries.
+  - The allocation is in main's unchanged DEC-050/053 observation lane: `solve_symmetric_system_from_entries` → `SymmetricProfileMatrix::from_entries`, in identity order. For CONT n10000 that profile is 675,179,982 entries (5.4 GB), and it is built only to report `original_profile_entry_count` and `original_max_half_bandwidth`. On main the same runs aborted earlier, at the dense K.
+- **Ruling: guard the observation lane in PP (F1b's write set).**
+  - Before the lane runs, PP estimates its original-order profile from the pattern in O(nnz), with no allocation.
+  - If the lane's estimated bytes exceed the provisional 6 GiB ceiling (the named constant of Q8), the lane is not run, and its observation fields are published as not observed, with a named reason. This follows OQ5's precedent at b ≠ 0.
+  - **Conditions:**
+    1. **Derived in RETURN and checked by the reviewer:** no case main publishes can exceed the lane ceiling, because main's dense path needs far more memory first. So no byte changes for any case main publishes.
+    2. **Tests:** the estimate equals the lane's actual profile count on the B corpus; there is a lowered-ceiling unit test through the `#[cfg(test)]` hook; and there is a mutant that removes the guard.
+    3. The PP suite and T9 are re-run.
+    4. **Gate part 1 is re-run in full on the new head,** and then part 2. The 4 CONT sparse runs must no longer abort. What they publish or refuse instead goes in C2's table.
+  - A sparse ceiling for the main solve stays unset in F1b (Q8). Only this observation lane is guarded.
+- **D1 5a.3:** V4's delta check of R2 resumes from its pause state, including its open lead (a saturated stiffness entry amplified by a soft mode).
