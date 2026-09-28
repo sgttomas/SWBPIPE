@@ -921,7 +921,7 @@ These happened before this entry existed, and are recorded here so that the V1 r
   - RF-RANGE **LEF-small never reaches formation.** `FrameElement::new` refuses it with `DegenerateAxis` at the 1e-12 m axis tolerance (verified by K1's K2a-interaction tests). The design's "LEF-small solved" is therefore unreachable and is withdrawn for K2b.
   - K2b must instead solve, at kernel level through scaled formation and each accurate to 1e-9 against an exact reference:
     - **LEF-large**, which reaches `local_stiffness` on the typed entry;
-    - **K2a's formation-range cases with normal geometry**: reach_zero, reach_lef, the spring-carried G = 1e-300 case (recorded for K2b's scaling to restore), and the partial-underflow case.
+    - **K2a's formation-range cases with normal geometry**: reach_zero, reach_lef, the spring-carried G = 1e-300 case (recorded for K2b's scaling to restore), and the partial-underflow case. **[Restated by "K2b: rulings on I10's checkpoint-A stop (ROOT)" below, rulings A and C.]**
   - F1b's brief restates the product level separately before F1b spawns.
 - **A plan before code:** I10 returns a plan at checkpoint 0 for ROOT's approval (`TASK_BRIEFS/I10_K2B_IMPLEMENTATION.md`).
 
@@ -954,7 +954,7 @@ I10 read the design, the rulings and the code at `eb52114e9`, and asked for seve
    - Any subnormal census input is refused as "range: subnormal stiffness or load at formation", per step 2: its bits were lost before the kernel. This includes a frame operand (E, G, A, Iy, Iz, J, L).
    - The census runs only after step 1 fails with a range trigger, so no case solved at b = 0 changes.
    - Coefficients alone would admit b values that K2a's scaled intermediates still refuse (I10's L = 2^-39 example), so the intermediates stay in.
-3. **The publication rule: the design's list only (F3).**
+3. **The publication rule: the design's list only (F3).** **[Amended for residual records by "K2b: rulings on I10's checkpoint-A stop (ROOT)" below, ruling B.]**
    - Step 5's outcomes apply to the published **actions, reactions and residual records**, meaning the physical fields of residual and intended rows. For these:
      - normal is exact;
      - subnormal is published with its stated precision;
@@ -987,3 +987,35 @@ I10 read the design, the rulings and the code at `eb52114e9`, and asked for seve
 - **The key scope finding.** `Wide<2>` is on the product path through K-D5, carrying the D-5 evidence line's EF values and `WideError`'s `Display`. So K3 builds its new widths **beside** `Wide<2>`, and a change to any existing `Wide<2>` result, `Debug` token or `Display` string stops the work.
 - **Evidence and gates.** K3 adds no product caller, so the evidence is T9 at 112 of 112 (Mac-only), K-D5's suites unchanged, and a `Display` pin. **The both-entry gate is not run.**
 - **K4's needs.** K4 cannot edit `wide.rs`, so K3 also supplies K4's arithmetic: widening and narrowing, TwoSum and TwoProduct, an exact-integer constructor, and per-width work counts. K4 adds the `exact_sum.rs` accessor.
+
+## K2b: rulings on I10's checkpoint-A stop (ROOT, 2026-09-28)
+
+I10 stopped at checkpoint A under ruling 1's stop clause. Two of the four restated product-reach cases were not solved. The evidence is `k2b_checkpoint_a_finding_spring_carried_and_partial_underflow_are_refused`, on `codex/piping-k2b-20260928` at `6ce4d694b`.
+
+**A. Spring-carried (G = 1e-300 Pa): it stays a named refusal. This restates the K2b LEF ruling's second bullet for this case.**
+- **The finding.** At the rule's b, formation passes K2a, but M03's contribution audit (`audit_contributions`) refuses the solve with `Range("exact radix loses represented bits")`.
+  - GJ/L is about 2^-1082 times the spring it is absorbed into. The audit's measure of that absorbed difference lies below binary64 in the equilibrated units.
+  - Force scaling preserves every ratio, so no b changes this. The limit is M03's audit, not formation range.
+- **The ruling.** K2b does not change the audit. Changing it would change b = 0 behaviour, which is outside K2b's scope and needs its own design ruling.
+  - The case remains refused, with K2a's name `GJ/L: G*J` kept as the trigger, so availability is as under K2a.
+  - K2a ruling 2's note that the case was "recorded for K2b's scaling to restore" is answered: **force scaling cannot restore it.**
+- **Routed:** W1 (K4 and F2a), whose 64-bit exponent may reach it, is to evaluate it. The case goes on K4's list.
+
+**B. Partial underflow: residual records are published descriptively, with an explicit outcome. This amends checkpoint-0 ruling 3.**
+- **The finding.** At b = 898 the solve is accurate to within 1e-9. But one intended-action residual record's physical field (about 2^-1076.5) underflows when unscaled, and ruling 3 refused the case over that record.
+- **Why refusing is wrong.**
+  - At b = 0 the kernel already publishes these physical fields descriptively, including subnormal or zero values.
+  - The gate's basis is the normalized fields and the integer exponents, and those unscale exactly under even b.
+  - Refusing an accurate result over a diagnostic record would be stricter than b = 0.
+- **The ruling:**
+  - step 5's refusal ("range: publication outside binary64") applies to published **actions and reactions**;
+  - the physical fields of residual and intended-action rows are unscaled with the same single rounding and **carry an explicit representability outcome**: normal, subnormal with its precision, or underflow or overflow, never a silent zero;
+  - they never make a case unresolved.
+- This departs from the letter of §4.7 step 5, which lists residual records. The design's intent ("never flushed") is kept, because the outcome is explicit. RETURN states the departure and K2b's reviewer checks it.
+
+**C. LEF-large: the accuracy clause, restated.**
+- LEF-large solves **bit-identically to its RF base case, times exact powers of two**, with the base case's standing:
+  - CONT is Passed and within 1e-9;
+  - CHAIN and SKEW are Sensitive, as their bases are today: flagged, not claimed accurate.
+- K2b adds no accuracy beyond the ordinary path. W1 is the route to accuracy on those bases.
+- reach_zero, reach_lef, PHYS-R4 (b = 536, against the design's "≈ 500") and partial underflow (under B) are solved and accurate, as required.
