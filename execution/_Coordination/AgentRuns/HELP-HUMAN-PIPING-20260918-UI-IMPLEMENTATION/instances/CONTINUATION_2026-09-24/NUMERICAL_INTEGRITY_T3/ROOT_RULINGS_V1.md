@@ -1482,3 +1482,14 @@ V4's delta check at R2 (appended to `V4_VERIFICATION.md`, sha256 `c2f5539b…`):
   - G5a item 4 takes values after unit conversion;
   - V4's two errata are recorded as corrected.
 - **Next:** DS1 writes R3, and V4 runs a delta check. ROOT selects only after VERIFIED. K4 stays blocked until then.
+
+## K5: rulings on RV14's delta check at 28517eaaa (ROOT, 2026-09-28)
+
+- **Verdict accepted:** PASS, 0 BLOCKING. RV14's four SHOULD-FIX findings and N1, N2, N5 are resolved; RV14-M1 to M4 are each killed by a new test (review committed at `f3e50948b`).
+- **RV14-D1 (SHOULD-FIX): fix before merge.** I14 adds RV14's construction as a `P` expectation (nodes (0,0,0) and (2^1023,0,0), grounds d2 to d5, directional row n = (2^-60, −1, 0) at node 0; expected: refused as "parameters not representable"), and shows mutant RV14-M5 (finiteness test only) killed.
+  - **Host timing:** I14 writes the test now but builds and runs nothing until F1b's gate part 2 has finished, because part 2's timed runs need a quiet host.
+  - **Review:** RV14 checks the delta.
+- **RV14-D2 (NOTE): accepted as a conservative limitation, not changed in K5.** A refused witness ends the candidate search with `NumericallyUnresolved`, even when a later candidate would publish.
+  - **Why not change it now:** the result is a refusal, never a wrong value, and it is reachable only through the FK API. Moving on to the next candidate would change FK's result classes and the probe hash, which would reopen the oracle and probe checks for no correctness gain.
+  - **Where it is recorded:** I14 records it in K5's RETURN as a known limitation, and it joins the T3-close list as a candidate refinement.
+- **DEC-025:** after the D1 fix and RV14's delta, on the final head, once F1b's part 2 frees the Mac.
