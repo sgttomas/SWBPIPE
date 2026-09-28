@@ -87,6 +87,39 @@ const SOURCES: &[Source] = &[
         name: "FK/structural/formation_check.rs",
         text: include_str!("../src/structural/formation_check.rs"),
     },
+    // K4 (ROOT's K4 ruling Q8, a declared extension): the W1a kernel method.
+    Source {
+        name: "FK/structural/retained/wide_sum.rs",
+        text: include_str!("../src/structural/retained/wide_sum.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/source.rs",
+        text: include_str!("../src/structural/retained/source.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/ledger.rs",
+        text: include_str!("../src/structural/retained/ledger.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/assemble.rs",
+        text: include_str!("../src/structural/retained/assemble.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/factor.rs",
+        text: include_str!("../src/structural/retained/factor.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/recover.rs",
+        text: include_str!("../src/structural/retained/recover.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/adaptive.rs",
+        text: include_str!("../src/structural/retained/adaptive.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/combine.rs",
+        text: include_str!("../src/structural/retained/combine.rs"),
+    },
 ];
 
 /// (file, function, exact match count, disposition of each match).
@@ -196,6 +229,34 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     // ---- K2b, RV11-1 (ROOT's rulings on RV11's review: declared, additive).
     ("FK/structural/sparse.rs", "row_product_stays_normal", 1, "K2b (RV11-1): a range check, not a published value: the partial sums of multiply's row K*u at 2^b, each required normal or an exact zero (the reaction itself is multiply's row in one exact sum with the ledger terms)"),
     ("FK/lib.rs", "force_scaled_end_actions", 2, "exempt: formed elastic end actions K_local*(T*u_e) at 2^b in the straight pipe's order, no case force; every product and partial sum checked normal (or an exact zero), else refused; each action unscaled once"),
+    // ---- K4 (ROOT's K4 ruling Q8): the W1a kernel method. Every sum of
+    // stiffness, load, residual or recovered terms is an exact expansion
+    // rounded once (zero rows); the counted matches are integer counts.
+    ("FK/structural/retained/wide_sum.rs", "add_raw", 4, "integer: limb index and work counts (the exact sum itself is a limb-wise add with carry on the stack magnitudes, never a binary64 fold)"),
+    ("FK/structural/retained/wide_sum.rs", "add_scaled", 1, "integer: work count"),
+    ("FK/structural/retained/wide_sum.rs", "add_wide_scaled", 1, "integer: work count"),
+    ("FK/structural/retained/wide_sum.rs", "net", 1, "integer: work count"),
+    ("FK/structural/retained/wide_sum.rs", "round", 1, "integer: work count; the exact value is rounded once to p (from_integer)"),
+    ("FK/structural/retained/wide_sum.rs", "shift_up", 1, "integer: work count"),
+    ("FK/structural/retained/wide_sum.rs", "signum", 1, "integer: work count"),
+    ("FK/structural/retained/source.rs", "new", 1, "integer: body count"),
+    ("FK/structural/retained/ledger.rs", "from_source", 0, "K4: the exact load ledger (ExactAccumulator per DOF, netted once)"),
+    ("FK/structural/retained/ledger.rs", "combined", 0, "K4: the combination ledger, exact products c_i*v per term in one accumulator per DOF"),
+    ("FK/structural/retained/ledger.rs", "add_to", 0, "K4: the ledger enters a wider exact sum exactly, never rounded first"),
+    ("FK/structural/retained/assemble.rs", "<module>", 1, "integer: const index table of the 12x12 upper triangle"),
+    ("FK/structural/retained/assemble.rs", "new", 3, "integer: counting sort of pattern contributions"),
+    ("FK/structural/retained/assemble.rs", "form_member", 0, "K4: p-bit exact expansion, rounded once (dots, DB and K_e entries)"),
+    ("FK/structural/retained/assemble.rs", "assemble", 0, "K4: each pattern entry one p-bit exact expansion of its contributions, rounded once"),
+    ("FK/structural/retained/assemble.rs", "reduced_rhs", 0, "K4: each rhs entry one exact expansion (ledger + products -K_ic*u_c), rounded once"),
+    ("FK/structural/retained/factor.rs", "bfs_eccentricity", 1, "integer: level count (RCM)"),
+    ("FK/structural/retained/factor.rs", "order_free", 1, "integer: profile entry count"),
+    ("FK/structural/retained/recover.rs", "recover", 0, "K4: every action, reaction and magnitude one p-bit exact expansion, rounded once (reactions include the ledger exactly)"),
+    ("FK/structural/retained/adaptive.rs", "residual_rows", 1, "integer: product count m_i of the exact residual at p + 64 (the residual itself is one exact expansion)"),
+    ("FK/structural/retained/adaptive.rs", "solve_case_at", 1, "integer: correction count"),
+    ("FK/structural/retained/adaptive.rs", "run_schedule", 5, "integer: schedule index and stop-rule work counts"),
+    ("FK/structural/retained/adaptive.rs", "stop_rule", 0, "K4: exact differences and scales decided exactly"),
+    ("FK/structural/retained/combine.rs", "solve", 2, "integer: stop-rule work count and schedule index"),
+    ("FK/structural/retained/combine.rs", "combined_at", 0, "K4: the combined state from the exact combination ledger at p"),
 ];
 
 // ------------------------------------------------------------- scanner
