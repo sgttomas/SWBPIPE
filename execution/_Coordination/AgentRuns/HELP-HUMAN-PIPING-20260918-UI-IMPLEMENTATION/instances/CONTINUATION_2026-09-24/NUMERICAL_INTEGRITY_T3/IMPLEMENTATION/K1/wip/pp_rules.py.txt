@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Port of product_physics/tests/s11f_site_test.rs rules 2, 3, 6 (items, force
+tokens, force mutations, values copies) for kernel files. Usage: pp_rules.py name=path ..."""
+import sys, re
+sys.path.insert(0, __import__('os').path.dirname(__file__))
+from site_scan import lex, strip_cfg_test
+
+def ident(c): return c.isalnum() or c == '_'
+
+def items(code):
+    out=[]; stack=[]; pending=None; depth=0; nest=0; i=0; b=code
+    while i < len(b):
+        boundary = i == 0 or not ident(b[i-1])
+        if boundary and code.startswith("fn", i) and i+2 < len(b) and b[i+2].isspace():
+            name=''
+            for ch in code[i+2:].lstrip():
+                if ch.isalnum() or ch=='_': name+=ch
+                else: break
+            if name: pending=(name,i)
+            i+=2; continue
+        ch=b[i]
+        if ch in '([': nest+=1
+        elif ch in ')]': nest=max(0,nest-1)
+        elif ch==';' and nest==0: pending=None
+        elif ch=='{':
+            depth+=1
+            if pending is not None:
+                stack.append((pending[0], code[pending[1]:i], depth, i)); pending=None
+        elif ch=='}':
+            if stack and stack[-1][2]==depth:
+                name,sig,_,start=stack.pop()
+                out.append((name,sig,code[start:i+1]))
+            depth=max(0,depth-1)
+        i+=1
+    return out
+
+TOKENS=[".force[",".force.","force.values()","accumulate_dof(","terms_for(","force_terms","ForceRows::","force_rows","force.terms()"]
+
+def calls(body, needle):
+    res=[]; start=0
+    while True:
+        at=body.find(needle,start)
+        if at<0: break
+        if at==0 or not ident(body[at-1]): res.append(at)
+        start=at+1
+    return res
+
+def base_ident(place):
+    place=place.strip().lstrip('*')
+    if place.startswith('self.'): place=place[5:]
+    out=''; started=False
+    for c in place:
+        if not started:
+            if c.isalpha() or c=='_': started=True; out+=c
+        else:
+            if c.isalnum() or c=='_': out+=c
+            else: break
+    return out
+
+def tainted(body):
+    out=set()
+    for at in calls(body,"let "):
+        rest=body[at+4:].lstrip()
+        if rest.startswith("mut "): rest=rest[4:].lstrip()
+        name=''
+        for c in rest:
+            if c.isalnum() or c=='_': name+=c
+            else: break
+        if not name: continue
+        end=rest.find(';')
+        if end<0: continue
+        st=rest[:end]; eq=st.find('=')
+        if eq<0: continue
+        ex=st[eq+1:]
+        if 'values()' in ex or 'force' in ex or 'rhs' in ex: out.add(name)
+    return out
+
+def force_named(n):
+    l=n.lower(); return 'force' in l or 'rhs' in l or 'load' in l
+
+def mutations(body):
+    t=tainted(body); out=[]
+    bad=lambda n: n and (n in t or force_named(n))
+    for op in ["+=","-="]:
+        for m in re.finditer(re.escape(op), body):
+            at=m.start()
+            starts=[body.rfind(c,0,at) for c in ';{}\n']; st=max(starts)+1 if max(starts)>=0 else 0
+            n=base_ident(body[st:at])
+            if bad(n): out.append(n)
+    for m in re.finditer(re.escape(".iter_mut("), body):
+        at=m.start(); k=at-1
+        while k>=0 and (body[k].isalnum() or body[k] in '_.'): k-=1
+        n=base_ident(body[k+1:at])
+        if bad(n): out.append(n)
+    return out
+
+def values_copies(body):
+    hits=0
+    for m in re.finditer(re.escape("values()"), body):
+        rest=body[m.end():].lstrip(); stmt=rest.split(';')[0]
+        if rest.startswith(".to_vec(") or rest.startswith(".to_owned(") or rest.startswith(".iter_mut(") or ((rest.startswith(".iter().copied()") or rest.startswith(".iter().cloned()")) and ".collect" in stmt): hits+=1
+    return hits
+
+for arg in sys.argv[1:]:
+    name,path=arg.split('=',1)
+    code=strip_cfg_test(lex(open(path).read()))
+    r6=set(); r3=set(); r2=set()
+    for (n,sig,body) in items(code):
+        if any(t in body for t in TOKENS): r6.add(n)
+        for b in mutations(body): r3.add((n,b))
+        if values_copies(body): r2.add(n)
+    for n in sorted(r6): print(f"R6\t{name}\t{n}")
+    for n,b in sorted(r3): print(f"R3\t{name}\t{n}\t{b}")
+    for n in sorted(r2): print(f"R2\t{name}\t{n}")
+    if 'sparse_direct' in name: print(f"FORCEWORD\t{name}\t{'force' in code}")

@@ -1,0 +1,6 @@
+T9 (Mac-only): base = git archive of 134eefc24, candidate = git archive of 19925122b, both without execution/,
+harness S11-K fixdiff_main.rs (sha256 ec089c1d4a2a46dda689aad3ac55948cf858537ed5c986726c7accdd63cade53), --release --offline --locked, aarch64-apple-darwin, rustc 1.97.1.
+outputs: base      112, candidate      112
+base vs candidate: byte-identical 112/112
+base vs ROOT Mac main (sha_native.txt, main 649162522): identical 112/112
+ERR outputs (identical in both): 6

@@ -1,0 +1,6 @@
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+rustfmt (formatting only, stdin mode, per file): rustfmt 1.8.0-stable (e408947bfd 2026-03-25)
+python: Python 3.11.15 (standard library only for the records' scripts)
+env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<wt>/k2a-target (per-phase subdirectories, removed after each phase); cargo test --offline --locked (headless --no-fail-fast); scratch harnesses (fixdiff base/candidate, gate probe) built --release --offline with a copied lockfile
+base: 5ae22926efbe1dc8632d077f552f888fd3efd649 (main after K-D5, PR #1017)

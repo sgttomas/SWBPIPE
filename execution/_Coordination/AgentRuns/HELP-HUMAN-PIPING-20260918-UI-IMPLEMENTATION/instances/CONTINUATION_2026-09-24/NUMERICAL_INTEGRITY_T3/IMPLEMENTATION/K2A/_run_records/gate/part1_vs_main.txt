@@ -1,0 +1,4 @@
+runs in K2a result: 764  in main (K-D5 final): 768  compared: 764
+only in K2a: []
+only in main: [('RF-LARGE-CHAIN-n01000-ROT', 'dense_scrutiny', 'captured'), ('RF-LARGE-CHAIN-n01000-ROT', 'dense_scrutiny', 'typed'), ('RF-LARGE-TREE-n01000-AX', 'dense_scrutiny', 'captured'), ('RF-LARGE-TREE-n01000-AX', 'dense_scrutiny', 'typed')]
+standing changes (main -> K2a): 0

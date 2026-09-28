@@ -7,12 +7,14 @@ use open_pipe_stress_frame_kernel::rigid_body::{
     assess_rigid_body, ObjectiveFamily, RigidBodyStatus,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    self, CurvedFormation, FormationSource, StiffnessContribution, StructuralError,
-    StructuralSolution, StructuralSystem, SymmetryEvidence,
+    self, CurvedFormation, FormationSource, SparsePattern, SparseStiffness, SparseStructuralSystem,
+    SparseSymmetryEvidence, StiffnessContribution, StructuralError, StructuralSolution,
+    StructuralSystem, SymmetryEvidence,
 };
 use open_pipe_stress_frame_kernel::{
     element_dof_map, FrameElement, Matrix12, UserStiffnessElement,
 };
+use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
 
 #[derive(Debug, Clone)]
 pub struct AssemblyEvidence {
@@ -60,242 +62,44 @@ impl AssemblyEvidence {
         springs: &[(usize, f64)],
     ) -> Result<Self, StructuralError> {
         let n = node_count * 6;
-        let mut result = Self {
-            contributions: Vec::new(),
-            absolute_roundoff: vec![vec![0.0; n]; n],
-            operation_counts: vec![vec![0; n]; n],
-            coordinates: vec![None; node_count],
-            edges: Vec::new(),
-            spring_ground: Vec::new(),
-            force_terms: None,
-            formation: FormationPrimitives {
-                node_count,
-                frames: frames.to_vec(),
-                users: users.to_vec(),
-                curved: curved
-                    .iter()
-                    .map(|e| CurvedSlot {
-                        element_id: e.element_id.clone(),
-                        node_i: e.node_i,
-                        node_j: e.node_j,
-                        global_stiffness: e.global_stiffness,
-                        explicit: e.symmetry_formation.is_none(),
-                    })
-                    .collect(),
-                springs: springs.to_vec(),
+        let parts = EvidenceParts::new(
+            node_count,
+            frames,
+            users,
+            curved,
+            springs,
+            DenseEvidenceStore {
+                absolute_roundoff: vec![vec![0.0; n]; n],
+                operation_counts: vec![vec![0; n]; n],
+                magnitudes: vec![vec![0.0; n]; n],
+                scatter_counts: vec![vec![0usize; n]; n],
             },
-        };
-        for element in frames {
-            let local = element
-                .local_stiffness()
-                .map_err(|_| StructuralError::InvalidInput("frame local stiffness"))?;
-            let t = element
-                .orientation()
-                .map_err(|_| StructuralError::InvalidInput("frame orientation"))?
-                .transformation_matrix();
-            let evidence = structural::transform_roundoff(&local, &t)?;
-            result.node(element.node_i.index, element.node_i.coordinates)?;
-            result.node(element.node_j.index, element.node_j.coordinates)?;
-            result.element(
-                element.node_i.index,
-                element.node_j.index,
-                &element
-                    .global_stiffness()
-                    .map_err(|_| StructuralError::InvalidInput("frame stiffness"))?,
-                &evidence.absolute_roundoff,
-                &evidence.operation_counts,
-                true,
-            )?;
-        }
-        for element in users {
-            let local = element.local_stiffness();
-            let t = element
-                .orientation()
-                .map_err(|_| StructuralError::InvalidInput("user orientation"))?
-                .transformation_matrix();
-            let evidence = structural::transform_roundoff(&local, &t)?;
-            result.node(element.node_i.index, element.node_i.coordinates)?;
-            result.node(element.node_j.index, element.node_j.coordinates)?;
-            // Relative translation/rotation springs are not objective frame energy.
-            result.element(
-                element.node_i.index,
-                element.node_j.index,
-                &element
-                    .global_stiffness()
-                    .map_err(|_| StructuralError::InvalidInput("user stiffness"))?,
-                &evidence.absolute_roundoff,
-                &evidence.operation_counts,
-                false,
-            )?;
-        }
-        for element in curved {
-            let zero = [[0.0; 12]; 12];
-            let counts = [[0; 12]; 12];
-            let (bounds, operations) = element
-                .symmetry_formation
-                .as_ref()
-                .map(|e| (&e.0, &e.1))
-                .unwrap_or((&zero, &counts));
-            // Explicit slots have no silently inferred objective/nullspace contract.
-            result.element(
-                element.node_i,
-                element.node_j,
-                &element.global_stiffness,
-                bounds,
-                operations,
-                false,
-            )?;
-        }
-        for &(dof, value) in springs {
-            if dof >= n || !value.is_finite() || value < 0.0 {
-                return Err(StructuralError::InvalidInput("ground spring"));
-            }
-            result.contributions.push(StiffnessContribution {
-                row: dof,
-                col: dof,
-                value,
-            });
-            result.operation_counts[dof][dof] += 1;
-            if value > 0.0 {
-                result.spring_ground.push(dof);
-            }
-        }
-        // Sequential scatter adds are independent of transformation formation.
-        let mut magnitudes = vec![vec![0.0; n]; n];
-        let mut scatter_counts = vec![vec![0usize; n]; n];
-        for c in &result.contributions {
-            magnitudes[c.row][c.col] += c.value.abs();
-            scatter_counts[c.row][c.col] += 1;
-        }
-        for i in 0..n {
-            for j in 0..n {
-                result.absolute_roundoff[i][j] +=
-                    structural::gamma(scatter_counts[i][j]) * magnitudes[i][j];
-                if !result.absolute_roundoff[i][j].is_finite() {
-                    return Err(StructuralError::Range("assembly allowance"));
-                }
-            }
-        }
-        Ok(result)
-    }
-    fn node(&mut self, index: usize, point: [f64; 3]) -> Result<(), StructuralError> {
-        let slot = self
-            .coordinates
-            .get_mut(index)
-            .ok_or(StructuralError::InvalidInput("node index"))?;
-        if slot.is_some_and(|old| old != point) {
-            return Err(StructuralError::InvalidInput(
-                "inconsistent node coordinates",
-            ));
-        }
-        *slot = Some(point);
-        Ok(())
-    }
-    fn element(
-        &mut self,
-        a: usize,
-        b: usize,
-        k: &Matrix12,
-        bounds: &Matrix12,
-        counts: &[[usize; 12]; 12],
-        objective: bool,
-    ) -> Result<(), StructuralError> {
-        if a >= self.coordinates.len() || b >= self.coordinates.len() {
-            return Err(StructuralError::InvalidInput("element endpoint"));
-        }
-        self.edges.push((a, b, objective));
-        let map = element_dof_map(a, b);
-        for i in 0..12 {
-            for j in 0..12 {
-                self.contributions.push(StiffnessContribution {
-                    row: map[i],
-                    col: map[j],
-                    value: k[i][j],
-                });
-                self.absolute_roundoff[map[i]][map[j]] += bounds[i][j];
-                self.operation_counts[map[i]][map[j]] += counts[i][j] + 1;
-            }
-        }
-        Ok(())
+        )?;
+        Ok(Self {
+            contributions: parts.contributions,
+            absolute_roundoff: parts.store.absolute_roundoff,
+            operation_counts: parts.store.operation_counts,
+            coordinates: parts.coordinates,
+            edges: parts.edges,
+            spring_ground: parts.spring_ground,
+            force_terms: None,
+            formation: parts.formation,
+        })
     }
     /// Screen each actual connected body using only selected ground constraints.
     pub fn qualified_passive_family(&self) -> bool {
-        !self.edges.is_empty() && self.edges.iter().all(|(_, _, qualified)| *qualified)
+        qualified_passive_family(&self.edges)
     }
 
     pub fn geometry(&self, prescribed: &[(usize, f64)]) -> Result<(), StructuralError> {
-        let n = self.coordinates.len();
-        let mut seen = vec![false; n];
-        for seed in 0..n {
-            if seen[seed] {
-                continue;
-            }
-            let mut body = vec![seed];
-            seen[seed] = true;
-            let mut index = 0;
-            while index < body.len() {
-                let node = body[index];
-                index += 1;
-                for &(a, b, _) in &self.edges {
-                    let other = if a == node {
-                        Some(b)
-                    } else if b == node {
-                        Some(a)
-                    } else {
-                        None
-                    };
-                    if let Some(other) = other {
-                        if !seen[other] {
-                            seen[other] = true;
-                            body.push(other);
-                        }
-                    }
-                }
-            }
-            let qualified = self
-                .edges
-                .iter()
-                .filter(|(a, _, _)| body.contains(a))
-                .all(|(_, _, q)| *q);
-            // An unqualified family is still checked by the matrix gate, but cannot
-            // turn a geometric null vector into a physical mechanism assertion.
-            if !qualified || body.iter().any(|&i| self.coordinates[i].is_none()) {
-                continue;
-            }
-            let coordinates = body
-                .iter()
-                .map(|&i| self.coordinates[i].unwrap())
-                .collect::<Vec<_>>();
-            let ground = prescribed
-                .iter()
-                .map(|&(d, _)| d)
-                .chain(self.spring_ground.iter().copied())
-                .filter_map(|d| body.iter().position(|&i| i == d / 6).map(|i| 6 * i + d % 6))
-                .collect::<Vec<_>>();
-            let assessment = assess_rigid_body(
-                &coordinates,
-                &ground,
-                ObjectiveFamily::WeldedUnreleasedElasticFrames,
-            )?;
-            match assessment.status {
-                RigidBodyStatus::Restrained => {}
-                RigidBodyStatus::MechanismWitnessed => {
-                    let mut direction = vec![0.0; 6 * n];
-                    for (&global, motion) in body.iter().zip(assessment.node_motion.unwrap()) {
-                        direction[6 * global..6 * global + 6].copy_from_slice(&motion);
-                    }
-                    return Err(StructuralError::Mechanism { direction });
-                }
-                _ => {
-                    return Err(StructuralError::NumericallyUnresolved {
-                        reason: "rigid-restraint rank unresolved",
-                        global_dof: None,
-                    })
-                }
-            }
+        BodyEvidence {
+            coordinates: &self.coordinates,
+            edges: &self.edges,
+            spring_ground: &self.spring_ground,
         }
-        Ok(())
+        .geometry(prescribed)
     }
+
     /// Attaches the case's identified ledger terms. `solve` then also runs
     /// the kernel's load-fidelity audit against the given force vector (the
     /// C3-detect entry point): a flagged row makes the case Sensitive with a
@@ -306,12 +110,7 @@ impl AssemblyEvidence {
     }
 
     fn symmetry_basis(&self) -> String {
-        let family_basis = if self.edges.iter().all(|(_, _, qualified)| *qualified) {
-            "objective welded unreleased straight-frame family"
-        } else {
-            "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory"
-        };
-        format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}")
+        symmetry_basis(&self.edges)
     }
 
     /// The `&[f64]` linear solve (C3-detect when `with_force_terms` is set).
@@ -410,53 +209,7 @@ impl AssemblyEvidence {
     /// The formation source for this assembly, with each curved slot matched
     /// to its macro element (or named as not re-formable).
     fn formation_source(&self, curved_sources: &[CurvedBendMacroElement]) -> FormationSource {
-        let primitives = &self.formation;
-        let mut source = FormationSource {
-            node_count: primitives.node_count,
-            frames: primitives.frames.clone(),
-            users: primitives.users.clone(),
-            curved: Vec::new(),
-            springs: primitives.springs.clone(),
-            unavailable: Vec::new(),
-        };
-        for slot in &primitives.curved {
-            if slot.explicit {
-                source
-                    .unavailable
-                    .push(format!("curved_bend_explicit_matrix:{}", slot.element_id));
-                continue;
-            }
-            let matched = curved_sources.iter().find(|m| {
-                m.node_i.index == slot.node_i
-                    && m.node_j.index == slot.node_j
-                    && m.global_stiffness().is_ok_and(|g| {
-                        g.iter()
-                            .flatten()
-                            .zip(slot.global_stiffness.iter().flatten())
-                            .all(|(a, b)| a.to_bits() == b.to_bits())
-                    })
-            });
-            match matched {
-                Some(m) => source.curved.push(CurvedFormation {
-                    node_i: m.node_i.index,
-                    node_j: m.node_j.index,
-                    coordinates_i: m.node_i.coordinates,
-                    coordinates_j: m.node_j.coordinates,
-                    center: m.center,
-                    elastic_modulus: m.elastic_modulus,
-                    shear_modulus: m.shear_modulus,
-                    area: m.area,
-                    second_moment: m.second_moment,
-                    torsion_constant: m.torsion_constant,
-                    in_plane_flexibility_factor: m.in_plane_flexibility_factor,
-                    out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
-                }),
-                None => source
-                    .unavailable
-                    .push(format!("curved_bend_source_unmatched:{}", slot.element_id)),
-            }
-        }
-        source
+        formation_source(&self.formation, curved_sources)
     }
 
     /// Named, unchanged binary64 variant of `solve` for the nonlinear active-set
@@ -534,6 +287,751 @@ impl AssemblyEvidence {
         );
         solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
     }
+}
+
+/// K1 (T3 D1 revision 5a.2 §4.8): the sparse `AssemblyEvidence`. It is built
+/// by the same code as `AssemblyEvidence::new` (`EvidenceParts::new`), with
+/// the formation allowances and operation counts indexed by the stiffness
+/// pattern instead of n×n, so every allowance is the dense one bit for bit.
+/// The contributions, S11-K's force terms, K-D5's formation primitives and
+/// the geometry, qualified-family and rigid-body evidence are unchanged in
+/// content.
+///
+/// Its solve entries take the pattern (`SparseStiffness`). In
+/// `SparseInteractive` mode they run the M03 gate over the pattern; in
+/// `DenseScrutiny` mode they materialize the dense view of the same values
+/// and run today's dense Cholesky path, bit for bit.
+#[derive(Debug, Clone)]
+pub struct SparseAssemblyEvidence {
+    contributions: Vec<StiffnessContribution>,
+    pattern: SparsePattern,
+    absolute_roundoff: Vec<f64>,
+    operation_counts: Vec<usize>,
+    coordinates: Vec<Option<[f64; 3]>>,
+    edges: Vec<(usize, usize, bool)>,
+    spring_ground: Vec<usize>,
+    force_terms: Option<Vec<ForceTerm>>,
+    formation: FormationPrimitives,
+}
+
+impl SparseAssemblyEvidence {
+    /// `AssemblyEvidence::new` on the pattern of the assembled stiffness
+    /// (`assemble_sparse_stiffness` of the same elements and springs).
+    pub fn new(
+        pattern: &SparsePattern,
+        node_count: usize,
+        frames: &[FrameElement],
+        users: &[UserStiffnessElement],
+        curved: &[CurvedBendStiffnessElement],
+        springs: &[(usize, f64)],
+    ) -> Result<Self, StructuralError> {
+        if Some(pattern.dimension()) != node_count.checked_mul(6) {
+            return Err(StructuralError::InvalidInput("stiffness pattern dimension"));
+        }
+        let nnz = pattern.entry_count();
+        let parts = EvidenceParts::new(
+            node_count,
+            frames,
+            users,
+            curved,
+            springs,
+            SparseEvidenceStore {
+                pattern: pattern.clone(),
+                absolute_roundoff: vec![0.0; nnz],
+                operation_counts: vec![0; nnz],
+                magnitudes: vec![0.0; nnz],
+                scatter_counts: vec![0; nnz],
+            },
+        )?;
+        Ok(Self {
+            contributions: parts.contributions,
+            pattern: parts.store.pattern,
+            absolute_roundoff: parts.store.absolute_roundoff,
+            operation_counts: parts.store.operation_counts,
+            coordinates: parts.coordinates,
+            edges: parts.edges,
+            spring_ground: parts.spring_ground,
+            force_terms: None,
+            formation: parts.formation,
+        })
+    }
+    /// `AssemblyEvidence::with_force_terms` (S11-K's C3-detect terms).
+    pub fn with_force_terms(mut self, terms: &[ForceTerm]) -> Self {
+        self.force_terms = Some(terms.to_vec());
+        self
+    }
+    pub fn qualified_passive_family(&self) -> bool {
+        qualified_passive_family(&self.edges)
+    }
+    pub fn geometry(&self, prescribed: &[(usize, f64)]) -> Result<(), StructuralError> {
+        BodyEvidence {
+            coordinates: &self.coordinates,
+            edges: &self.edges,
+            spring_ground: &self.spring_ground,
+        }
+        .geometry(prescribed)
+    }
+    pub fn pattern(&self) -> &SparsePattern {
+        &self.pattern
+    }
+    /// The contributions, both triangles, in assembly order (as
+    /// `AssemblyEvidence::contributions`).
+    pub fn contributions(&self) -> &[StiffnessContribution] {
+        &self.contributions
+    }
+    /// The formation allowance of each pattern entry.
+    pub fn absolute_roundoff(&self) -> &[f64] {
+        &self.absolute_roundoff
+    }
+    /// The operation count of each pattern entry.
+    pub fn operation_counts(&self) -> &[usize] {
+        &self.operation_counts
+    }
+    /// Deterministic storage counts: pattern entries and contributions.
+    pub fn storage_counts(&self) -> SparseEvidenceCounts {
+        SparseEvidenceCounts {
+            pattern_entries: self.pattern.entry_count(),
+            contributions: self.contributions.len(),
+        }
+    }
+    /// The dense (n×n) view of the allowances and operation counts, as
+    /// `AssemblyEvidence` holds them (0 where nothing is stored).
+    pub fn dense_symmetry_view(&self) -> (Vec<Vec<f64>>, Vec<Vec<usize>>) {
+        let n = self.pattern.dimension();
+        let mut roundoff = vec![vec![0.0; n]; n];
+        let mut counts = vec![vec![0; n]; n];
+        for row in 0..n {
+            for index in self.pattern.row_range(row) {
+                let col = self.pattern.column(index);
+                roundoff[row][col] = self.absolute_roundoff[index];
+                counts[row][col] = self.operation_counts[index];
+            }
+        }
+        (roundoff, counts)
+    }
+    fn check_pattern(&self, k: &SparseStiffness) -> Result<(), StructuralError> {
+        if k.pattern() != &self.pattern {
+            return Err(StructuralError::InvalidInput(
+                "stiffness pattern differs from the assembly evidence",
+            ));
+        }
+        Ok(())
+    }
+
+    /// The pattern-taking sibling of `AssemblyEvidence::solve_assembled`.
+    pub fn solve_assembled(
+        &self,
+        k: &SparseStiffness,
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        match mode {
+            LinearSolveMode::DenseScrutiny => {
+                let dense = k.to_dense();
+                let (roundoff, counts) = self.dense_symmetry_view();
+                let system = StructuralSystem::assembled(
+                    &dense,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(SymmetryEvidence {
+                        absolute_roundoff: &roundoff,
+                        operation_counts: &counts,
+                        basis: &symmetry_basis,
+                    }),
+                );
+                solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
+            }
+            LinearSolveMode::SparseInteractive => {
+                let system = SparseStructuralSystem::assembled(
+                    k,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(self.sparse_symmetry(&symmetry_basis)),
+                );
+                solve_sparse_prepared(structural::prepare_assembled_sparse_structural(&system)?)
+            }
+        }
+    }
+
+    /// The pattern-taking sibling of
+    /// `AssemblyEvidence::solve_assembled_with_formation_check` (K-D5's linear
+    /// entry): the same selection rule and the same formation source.
+    #[allow(clippy::too_many_arguments)]
+    pub fn solve_assembled_with_formation_check(
+        &self,
+        k: &SparseStiffness,
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        selected: bool,
+    ) -> Result<StructuralSolution, StructuralError> {
+        if !selected {
+            return self.solve_assembled(k, f, free, prescribed, mode);
+        }
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        let source = formation_source(&self.formation, curved_sources);
+        match mode {
+            LinearSolveMode::DenseScrutiny => {
+                let dense = k.to_dense();
+                let (roundoff, counts) = self.dense_symmetry_view();
+                let system = StructuralSystem::assembled(
+                    &dense,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(SymmetryEvidence {
+                        absolute_roundoff: &roundoff,
+                        operation_counts: &counts,
+                        basis: &symmetry_basis,
+                    }),
+                )
+                .with_formation_source(&source);
+                solve_prepared(
+                    structural::prepare_formation_checked_structural(&system)?,
+                    mode,
+                )
+            }
+            LinearSolveMode::SparseInteractive => {
+                let system = SparseStructuralSystem::assembled(
+                    k,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(self.sparse_symmetry(&symmetry_basis)),
+                )
+                .with_formation_source(&source);
+                solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
+                    &system,
+                )?)
+            }
+        }
+    }
+
+    /// The pattern-taking sibling of the crate's `&[f64]` `solve` (C3-detect
+    /// when `with_force_terms` is set). Its callers are this crate's tests.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn solve(
+        &self,
+        k: &SparseStiffness,
+        f: &[f64],
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        self.check_pattern(k)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = symmetry_basis(&self.edges);
+        match mode {
+            LinearSolveMode::DenseScrutiny => {
+                let dense = k.to_dense();
+                let (roundoff, counts) = self.dense_symmetry_view();
+                let system = StructuralSystem {
+                    stiffness: &dense,
+                    force: f,
+                    free_dofs: free,
+                    prescribed,
+                    contributions: Some(&self.contributions),
+                    symmetry: Some(SymmetryEvidence {
+                        absolute_roundoff: &roundoff,
+                        operation_counts: &counts,
+                        basis: &symmetry_basis,
+                    }),
+                };
+                if let Some(terms) = &self.force_terms {
+                    let prepared = structural::prepare_structural_with_force_terms(&system, terms)?;
+                    return solve_prepared(prepared, mode);
+                }
+                structural::solve_structural_dense(&system)
+            }
+            LinearSolveMode::SparseInteractive => {
+                let system = SparseStructuralSystem::new(
+                    k,
+                    f,
+                    free,
+                    prescribed,
+                    Some(&self.contributions),
+                    Some(self.sparse_symmetry(&symmetry_basis)),
+                );
+                match &self.force_terms {
+                    Some(terms) => solve_sparse_prepared(
+                        structural::prepare_sparse_structural_with_force_terms(&system, terms)?,
+                    ),
+                    None => solve_sparse_prepared(structural::prepare_sparse_structural(&system)?),
+                }
+            }
+        }
+    }
+
+    fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
+        SparseSymmetryEvidence {
+            absolute_roundoff: &self.absolute_roundoff,
+            operation_counts: &self.operation_counts,
+            basis,
+        }
+    }
+}
+
+/// Deterministic storage counts of a `SparseAssemblyEvidence`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SparseEvidenceCounts {
+    pub pattern_entries: usize,
+    pub contributions: usize,
+}
+
+/// K1: where `EvidenceParts::new` records its formation allowances and
+/// operation counts: n×n arrays (the dense `AssemblyEvidence`) or one slot per
+/// pattern entry (`SparseAssemblyEvidence`). The arithmetic is the builder's,
+/// in `new` and `element`, unchanged.
+trait EvidenceStore {
+    /// The (allowance, operation count) slots of entry (row, col).
+    fn slot(&mut self, row: usize, col: usize) -> Result<(&mut f64, &mut usize), StructuralError>;
+    /// The scatter (magnitude, count) slots of entry (row, col).
+    fn scatter_slot(
+        &mut self,
+        row: usize,
+        col: usize,
+    ) -> Result<(&mut f64, &mut usize), StructuralError>;
+    /// Calls `f(allowance, magnitude, scatter count)` for every entry, in
+    /// row-major order, stopping at the first error.
+    fn visit(
+        &mut self,
+        f: &mut dyn FnMut(&mut f64, f64, usize) -> Result<(), StructuralError>,
+    ) -> Result<(), StructuralError>;
+}
+
+struct DenseEvidenceStore {
+    absolute_roundoff: Vec<Vec<f64>>,
+    operation_counts: Vec<Vec<usize>>,
+    magnitudes: Vec<Vec<f64>>,
+    scatter_counts: Vec<Vec<usize>>,
+}
+
+impl EvidenceStore for DenseEvidenceStore {
+    fn slot(&mut self, row: usize, col: usize) -> Result<(&mut f64, &mut usize), StructuralError> {
+        Ok((
+            &mut self.absolute_roundoff[row][col],
+            &mut self.operation_counts[row][col],
+        ))
+    }
+    fn scatter_slot(
+        &mut self,
+        row: usize,
+        col: usize,
+    ) -> Result<(&mut f64, &mut usize), StructuralError> {
+        Ok((
+            &mut self.magnitudes[row][col],
+            &mut self.scatter_counts[row][col],
+        ))
+    }
+    fn visit(
+        &mut self,
+        f: &mut dyn FnMut(&mut f64, f64, usize) -> Result<(), StructuralError>,
+    ) -> Result<(), StructuralError> {
+        let n = self.absolute_roundoff.len();
+        for i in 0..n {
+            for j in 0..n {
+                f(
+                    &mut self.absolute_roundoff[i][j],
+                    self.magnitudes[i][j],
+                    self.scatter_counts[i][j],
+                )?;
+            }
+        }
+        Ok(())
+    }
+}
+
+struct SparseEvidenceStore {
+    pattern: SparsePattern,
+    absolute_roundoff: Vec<f64>,
+    operation_counts: Vec<usize>,
+    magnitudes: Vec<f64>,
+    scatter_counts: Vec<usize>,
+}
+
+impl SparseEvidenceStore {
+    fn index(&self, row: usize, col: usize) -> Result<usize, StructuralError> {
+        self.pattern
+            .find(row, col)
+            .ok_or(StructuralError::InvalidInput(
+                "assembly entry outside the stiffness pattern",
+            ))
+    }
+}
+
+impl EvidenceStore for SparseEvidenceStore {
+    fn slot(&mut self, row: usize, col: usize) -> Result<(&mut f64, &mut usize), StructuralError> {
+        let index = self.index(row, col)?;
+        Ok((
+            &mut self.absolute_roundoff[index],
+            &mut self.operation_counts[index],
+        ))
+    }
+    fn scatter_slot(
+        &mut self,
+        row: usize,
+        col: usize,
+    ) -> Result<(&mut f64, &mut usize), StructuralError> {
+        let index = self.index(row, col)?;
+        Ok((&mut self.magnitudes[index], &mut self.scatter_counts[index]))
+    }
+    /// Pattern entries are row-major. An unstored entry of the dense store
+    /// has allowance 0 and scatter count 0, which the pass leaves at 0.
+    fn visit(
+        &mut self,
+        f: &mut dyn FnMut(&mut f64, f64, usize) -> Result<(), StructuralError>,
+    ) -> Result<(), StructuralError> {
+        for index in 0..self.absolute_roundoff.len() {
+            f(
+                &mut self.absolute_roundoff[index],
+                self.magnitudes[index],
+                self.scatter_counts[index],
+            )?;
+        }
+        Ok(())
+    }
+}
+
+/// What `AssemblyEvidence::new` builds, for either store (K1).
+struct EvidenceParts<S> {
+    contributions: Vec<StiffnessContribution>,
+    coordinates: Vec<Option<[f64; 3]>>,
+    edges: Vec<(usize, usize, bool)>,
+    spring_ground: Vec<usize>,
+    formation: FormationPrimitives,
+    store: S,
+}
+
+impl<S: EvidenceStore> EvidenceParts<S> {
+    fn new(
+        node_count: usize,
+        frames: &[FrameElement],
+        users: &[UserStiffnessElement],
+        curved: &[CurvedBendStiffnessElement],
+        springs: &[(usize, f64)],
+        store: S,
+    ) -> Result<Self, StructuralError> {
+        let n = node_count * 6;
+        let mut result = Self {
+            contributions: Vec::new(),
+            coordinates: vec![None; node_count],
+            edges: Vec::new(),
+            spring_ground: Vec::new(),
+            formation: FormationPrimitives {
+                node_count,
+                frames: frames.to_vec(),
+                users: users.to_vec(),
+                curved: curved
+                    .iter()
+                    .map(|e| CurvedSlot {
+                        element_id: e.element_id.clone(),
+                        node_i: e.node_i,
+                        node_j: e.node_j,
+                        global_stiffness: e.global_stiffness,
+                        explicit: e.symmetry_formation.is_none(),
+                    })
+                    .collect(),
+                springs: springs.to_vec(),
+            },
+            store,
+        };
+        for element in frames {
+            let local = element
+                .local_stiffness()
+                .map_err(|_| StructuralError::InvalidInput("frame local stiffness"))?;
+            let t = element
+                .orientation()
+                .map_err(|_| StructuralError::InvalidInput("frame orientation"))?
+                .transformation_matrix();
+            let evidence = structural::transform_roundoff(&local, &t)?;
+            result.node(element.node_i.index, element.node_i.coordinates)?;
+            result.node(element.node_j.index, element.node_j.coordinates)?;
+            result.element(
+                element.node_i.index,
+                element.node_j.index,
+                &element
+                    .global_stiffness()
+                    .map_err(|_| StructuralError::InvalidInput("frame stiffness"))?,
+                &evidence.absolute_roundoff,
+                &evidence.operation_counts,
+                true,
+            )?;
+        }
+        for element in users {
+            let local = element.local_stiffness();
+            let t = element
+                .orientation()
+                .map_err(|_| StructuralError::InvalidInput("user orientation"))?
+                .transformation_matrix();
+            let evidence = structural::transform_roundoff(&local, &t)?;
+            result.node(element.node_i.index, element.node_i.coordinates)?;
+            result.node(element.node_j.index, element.node_j.coordinates)?;
+            // Relative translation/rotation springs are not objective frame energy.
+            result.element(
+                element.node_i.index,
+                element.node_j.index,
+                &element
+                    .global_stiffness()
+                    .map_err(|_| StructuralError::InvalidInput("user stiffness"))?,
+                &evidence.absolute_roundoff,
+                &evidence.operation_counts,
+                false,
+            )?;
+        }
+        for element in curved {
+            let zero = [[0.0; 12]; 12];
+            let counts = [[0; 12]; 12];
+            let (bounds, operations) = element
+                .symmetry_formation
+                .as_ref()
+                .map(|e| (&e.0, &e.1))
+                .unwrap_or((&zero, &counts));
+            // Explicit slots have no silently inferred objective/nullspace contract.
+            result.element(
+                element.node_i,
+                element.node_j,
+                &element.global_stiffness,
+                bounds,
+                operations,
+                false,
+            )?;
+        }
+        for &(dof, value) in springs {
+            if dof >= n || !value.is_finite() || value < 0.0 {
+                return Err(StructuralError::InvalidInput("ground spring"));
+            }
+            result.contributions.push(StiffnessContribution {
+                row: dof,
+                col: dof,
+                value,
+            });
+            *result.store.slot(dof, dof)?.1 += 1;
+            if value > 0.0 {
+                result.spring_ground.push(dof);
+            }
+        }
+        // Sequential scatter adds are independent of transformation formation.
+        for c in &result.contributions {
+            let (magnitude, count) = result.store.scatter_slot(c.row, c.col)?;
+            *magnitude += c.value.abs();
+            *count += 1;
+        }
+        result.store.visit(&mut |roundoff, magnitude, count| {
+            *roundoff += structural::gamma(count) * magnitude;
+            if !roundoff.is_finite() {
+                return Err(StructuralError::Range("assembly allowance"));
+            }
+            Ok(())
+        })?;
+        Ok(result)
+    }
+    fn node(&mut self, index: usize, point: [f64; 3]) -> Result<(), StructuralError> {
+        let slot = self
+            .coordinates
+            .get_mut(index)
+            .ok_or(StructuralError::InvalidInput("node index"))?;
+        if slot.is_some_and(|old| old != point) {
+            return Err(StructuralError::InvalidInput(
+                "inconsistent node coordinates",
+            ));
+        }
+        *slot = Some(point);
+        Ok(())
+    }
+    fn element(
+        &mut self,
+        a: usize,
+        b: usize,
+        k: &Matrix12,
+        bounds: &Matrix12,
+        counts: &[[usize; 12]; 12],
+        objective: bool,
+    ) -> Result<(), StructuralError> {
+        if a >= self.coordinates.len() || b >= self.coordinates.len() {
+            return Err(StructuralError::InvalidInput("element endpoint"));
+        }
+        self.edges.push((a, b, objective));
+        let map = element_dof_map(a, b);
+        for i in 0..12 {
+            for j in 0..12 {
+                self.contributions.push(StiffnessContribution {
+                    row: map[i],
+                    col: map[j],
+                    value: k[i][j],
+                });
+                let (bound, count) = self.store.slot(map[i], map[j])?;
+                *bound += bounds[i][j];
+                *count += counts[i][j] + 1;
+            }
+        }
+        Ok(())
+    }
+}
+
+/// The connected-body evidence `geometry` screens (K1: shared by both
+/// evidences).
+struct BodyEvidence<'e> {
+    coordinates: &'e [Option<[f64; 3]>],
+    edges: &'e [(usize, usize, bool)],
+    spring_ground: &'e [usize],
+}
+
+impl BodyEvidence<'_> {
+    fn geometry(&self, prescribed: &[(usize, f64)]) -> Result<(), StructuralError> {
+        let n = self.coordinates.len();
+        let mut seen = vec![false; n];
+        for seed in 0..n {
+            if seen[seed] {
+                continue;
+            }
+            let mut body = vec![seed];
+            seen[seed] = true;
+            let mut index = 0;
+            while index < body.len() {
+                let node = body[index];
+                index += 1;
+                for &(a, b, _) in self.edges {
+                    let other = if a == node {
+                        Some(b)
+                    } else if b == node {
+                        Some(a)
+                    } else {
+                        None
+                    };
+                    if let Some(other) = other {
+                        if !seen[other] {
+                            seen[other] = true;
+                            body.push(other);
+                        }
+                    }
+                }
+            }
+            let qualified = self
+                .edges
+                .iter()
+                .filter(|(a, _, _)| body.contains(a))
+                .all(|(_, _, q)| *q);
+            // An unqualified family is still checked by the matrix gate, but cannot
+            // turn a geometric null vector into a physical mechanism assertion.
+            if !qualified || body.iter().any(|&i| self.coordinates[i].is_none()) {
+                continue;
+            }
+            let coordinates = body
+                .iter()
+                .map(|&i| self.coordinates[i].unwrap())
+                .collect::<Vec<_>>();
+            let ground = prescribed
+                .iter()
+                .map(|&(d, _)| d)
+                .chain(self.spring_ground.iter().copied())
+                .filter_map(|d| body.iter().position(|&i| i == d / 6).map(|i| 6 * i + d % 6))
+                .collect::<Vec<_>>();
+            let assessment = assess_rigid_body(
+                &coordinates,
+                &ground,
+                ObjectiveFamily::WeldedUnreleasedElasticFrames,
+            )?;
+            match assessment.status {
+                RigidBodyStatus::Restrained => {}
+                RigidBodyStatus::MechanismWitnessed => {
+                    let mut direction = vec![0.0; 6 * n];
+                    for (&global, motion) in body.iter().zip(assessment.node_motion.unwrap()) {
+                        direction[6 * global..6 * global + 6].copy_from_slice(&motion);
+                    }
+                    return Err(StructuralError::Mechanism { direction });
+                }
+                _ => {
+                    return Err(StructuralError::NumericallyUnresolved {
+                        reason: "rigid-restraint rank unresolved",
+                        global_dof: None,
+                    })
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+fn qualified_passive_family(edges: &[(usize, usize, bool)]) -> bool {
+    !edges.is_empty() && edges.iter().all(|(_, _, qualified)| *qualified)
+}
+
+fn symmetry_basis(edges: &[(usize, usize, bool)]) -> String {
+    let family_basis = if edges.iter().all(|(_, _, qualified)| *qualified) {
+        "objective welded unreleased straight-frame family"
+    } else {
+        "mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing user/curved elements; matrix positivity remains mandatory"
+    };
+    format!("represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; {family_basis}")
+}
+
+/// The formation source for an assembly, with each curved slot matched to
+/// its macro element (or named as not re-formable).
+fn formation_source(
+    primitives: &FormationPrimitives,
+    curved_sources: &[CurvedBendMacroElement],
+) -> FormationSource {
+    let mut source = FormationSource {
+        node_count: primitives.node_count,
+        frames: primitives.frames.clone(),
+        users: primitives.users.clone(),
+        curved: Vec::new(),
+        springs: primitives.springs.clone(),
+        unavailable: Vec::new(),
+    };
+    for slot in &primitives.curved {
+        if slot.explicit {
+            source
+                .unavailable
+                .push(format!("curved_bend_explicit_matrix:{}", slot.element_id));
+            continue;
+        }
+        let matched = curved_sources.iter().find(|m| {
+            m.node_i.index == slot.node_i
+                && m.node_j.index == slot.node_j
+                && m.global_stiffness().is_ok_and(|g| {
+                    g.iter()
+                        .flatten()
+                        .zip(slot.global_stiffness.iter().flatten())
+                        .all(|(a, b)| a.to_bits() == b.to_bits())
+                })
+        });
+        match matched {
+            Some(m) => source.curved.push(CurvedFormation {
+                node_i: m.node_i.index,
+                node_j: m.node_j.index,
+                coordinates_i: m.node_i.coordinates,
+                coordinates_j: m.node_j.coordinates,
+                center: m.center,
+                elastic_modulus: m.elastic_modulus,
+                shear_modulus: m.shear_modulus,
+                area: m.area,
+                second_moment: m.second_moment,
+                torsion_constant: m.torsion_constant,
+                in_plane_flexibility_factor: m.in_plane_flexibility_factor,
+                out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
+            }),
+            None => source
+                .unavailable
+                .push(format!("curved_bend_source_unmatched:{}", slot.element_id)),
+        }
+    }
+    source
 }
 
 /// Named, unchanged binary64 variant of `sparse_direct::structural::
@@ -1483,6 +1981,10 @@ pub(crate) fn exact_gap_iteration(
 #[cfg(test)]
 #[path = "structural_adapter/kd5_tests.rs"]
 pub(crate) mod kd5_tests;
+
+#[cfg(test)]
+#[path = "structural_adapter/k1_tests.rs"]
+mod k1_tests;
 
 #[cfg(test)]
 mod retention_tests {

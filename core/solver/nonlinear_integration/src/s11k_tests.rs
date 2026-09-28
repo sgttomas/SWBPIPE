@@ -444,7 +444,50 @@ const EXACT_ENTRY_POINTS: &[&str] = &[
     "_with_force_terms(",
     "with_force_terms(",
     "StructuralSystem::assembled(",
+    // K1 (pin extension): the pattern path's exact entries.
+    "reduce_assembled_sparse_system(",
+    "SparseStructuralSystem::new(",
+    "SparseStructuralSystem::assembled(",
+    "prepare_sparse_structural(",
+    "prepare_assembled_sparse_structural(",
+    "solve_sparse_structural(",
+    "solve_assembled_sparse_structural(",
+    "solve_sparse_prepared(",
 ];
+
+/// K1 (pin extension): the occurrences of `token` in `code` that begin on an
+/// identifier boundary when `token` begins with a letter, so that
+/// `SparseStructuralSystem::assembled(` is not counted as
+/// `StructuralSystem::assembled(`. A token beginning with `_`, `.` or `:`
+/// matches anywhere, as before (`_with_force_terms(` still matches
+/// `prepare_structural_with_force_terms(`).
+fn token_indices(code: &str, token: &str) -> Vec<usize> {
+    let letter = token.starts_with(|c: char| c.is_ascii_alphabetic());
+    code.match_indices(token)
+        .map(|(at, _)| at)
+        .filter(|&at| {
+            !letter
+                || !code[..at]
+                    .chars()
+                    .next_back()
+                    .is_some_and(|c| c.is_alphanumeric() || c == '_')
+        })
+        .collect()
+}
+
+/// K1 (pin extension): the body of `signature` inside the impl block that
+/// begins with `header`, located in `code` (byte range).
+fn body_in_impl(code: &str, header: &str, signature: &str) -> std::ops::Range<usize> {
+    let block = function_body(code, header);
+    let body = function_body(block, signature);
+    let at = body.as_ptr() as usize - code.as_ptr() as usize;
+    at..at + body.len()
+}
+
+/// The two structural-adapter impls whose named entries define the exact and
+/// formation-checked variants: the dense originals and (K1) their pattern
+/// siblings, and nothing else.
+const ADAPTER_IMPLS: [&str; 2] = ["impl AssemblyEvidence {", "impl SparseAssemblyEvidence {"];
 
 /// The nonlinear active-set loop's closed-gap prescribed solves go through
 /// `solve_linearized_system_evidence` (the loop, the influence solves and the
@@ -502,15 +545,19 @@ fn option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path() {
 #[test]
 fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points() {
     let mut code = strip_cfg_test(&lex(include_str!("structural_adapter.rs")));
-    for defining in [
-        "fn solve(",
-        "fn solve_assembled(",
-        "fn with_force_terms(",
-        "fn solve_assembled_with_formation_check(",
-    ] {
-        let body = function_body(&code, defining).to_string();
-        let at = code.find(&body).expect("defining body present");
-        code.replace_range(at..at + body.len(), "{");
+    // K1 (pin extension, ROOT): the defining bodies are blanked by impl block:
+    // `impl AssemblyEvidence`'s originals, as before, and
+    // `impl SparseAssemblyEvidence`'s pattern siblings of the same names only.
+    for header in ADAPTER_IMPLS {
+        for defining in [
+            "fn solve(",
+            "fn solve_assembled(",
+            "fn with_force_terms(",
+            "fn solve_assembled_with_formation_check(",
+        ] {
+            let range = body_in_impl(&code, header, defining);
+            code.replace_range(range, "{");
+        }
     }
     for required in ["fn solve_binary64(", "fn solve_structural_sparse_binary64("] {
         assert!(code.contains(required), "missing legacy variant {required}");
@@ -530,9 +577,9 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
     for forbidden in forbidden_list {
         // The defining signatures themselves remain (`fn solve(` is a
         // definition, not a call); only their bodies were blanked.
-        let hits = code
-            .match_indices(forbidden)
-            .filter(|(at, _)| !code[..*at].trim_end().ends_with("fn"))
+        let hits = token_indices(&code, forbidden)
+            .into_iter()
+            .filter(|at| !code[..*at].trim_end().ends_with("fn"))
             .count();
         assert_eq!(
             hits, 0,
@@ -903,6 +950,10 @@ const FORMATION_ENTRY_POINTS: &[&str] = &[
     "solve_formation_checked_structural_dense",
     "FormationSource",
     "FormationCheckedSystem",
+    // K1 (pin extension): the pattern path's formation-check plumbing.
+    "FormationCheckedSparseSystem",
+    "prepare_formation_checked_sparse_structural",
+    "solve_formation_checked_sparse_structural",
 ];
 
 /// The non-test source of the crate rooted at `src_dir`. The module tree is
@@ -1022,12 +1073,18 @@ fn occurrences_outside(code: &str, name: &str, allowed_in: Option<&str>) -> usiz
     let mut code = code.to_string();
     if let Some(signature) = allowed_in {
         if code.contains(signature) {
-            let body = function_body(&code, signature).to_string();
-            let at = code.find(&body).unwrap();
-            code.replace_range(at..at + body.len(), "{");
+            // K1 (pin extension, ROOT): the entry is allowed in each adapter
+            // impl that defines it (the dense original and its pattern
+            // sibling), and nowhere else.
+            for header in ADAPTER_IMPLS {
+                if code.contains(header) {
+                    let range = body_in_impl(&code, header, signature);
+                    code.replace_range(range, "{");
+                }
+            }
         }
     }
-    code.matches(name).count()
+    token_indices(&code, name).len()
 }
 
 /// RV5 E4 (strengthened): every non-test module of this crate (not only
@@ -1067,14 +1124,23 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
         .any(|n| n.contains("tests") || n.contains("kd5_models")));
     for (name, code) in &modules {
         let sa = name == "structural_adapter.rs";
-        let defined = if sa { 1 } else { 0 };
+        // K1 (pin extension, ROOT): two definitions, one in each adapter impl
+        // (the dense entry and its pattern sibling); a third anywhere fails.
+        let defined = if sa { 2 } else { 0 };
         assert_eq!(
-            code.matches("solve_assembled_with_formation_check").count(),
+            token_indices(code, "solve_assembled_with_formation_check").len(),
             defined,
-            "{name}: the formation-checked entry is named outside its definition"
+            "{name}: the formation-checked entry is named outside its definitions"
         );
         if sa {
-            assert_eq!(code.matches(SA_ENTRY).count(), 1, "{name}");
+            assert_eq!(code.matches(SA_ENTRY).count(), 2, "{name}");
+            for header in ADAPTER_IMPLS {
+                assert_eq!(
+                    function_body(code, header).matches(SA_ENTRY).count(),
+                    1,
+                    "{name}: {header} defines the formation-checked entry once"
+                );
+            }
         }
         for plumbing in FORMATION_ENTRY_POINTS
             .iter()

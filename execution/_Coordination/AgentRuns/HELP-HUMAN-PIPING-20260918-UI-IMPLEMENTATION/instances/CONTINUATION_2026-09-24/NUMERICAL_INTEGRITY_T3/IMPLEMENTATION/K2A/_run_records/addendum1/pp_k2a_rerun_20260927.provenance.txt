@@ -1,0 +1,17 @@
+Provenance of pp_k2a_rerun_20260927.log (I6; added in RETURN_ADDENDUM_1, 2026-09-28).
+What: the raw stdout+stderr of I6's post-assert rerun of the PP runtime test file, the run RETURN.md section 3
+cited as _run_records/phase1/pp_k2a_4.log. That file was never committed; this file carries a new, dated name
+(ROOT's ruling) and is not presented under the cited name.
+Command (from <wt>/k2a/projects/chirality-piping/core/product_physics):
+  RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<wt>/k2a-target/pp-small \
+  cargo test --offline --locked --test k2a_formation_range_runtime
+Tree: the K2a working tree at 2026-09-27 ~23:49 UTC, base HEAD 5ae22926efbe1dc8632d077f552f888fd3efd649 plus the
+uncommitted K2a changes; the test file core/product_physics/tests/k2a_formation_range_runtime.rs had sha256
+18ec1d5e0e817af2bdafd7788258f2a24b165d4e86c9add1d501b9e1a7bb2a33 (unchanged since, and as committed in 80290ce98);
+FK src/lib.rs 7622e7ccc821a57f2301d1e76cb0313fb18875f7d8919ebbb27ec9f7775ff52b and diagnostics src/lib.rs
+a3feef135cdab15941d047d0f0e17b710b4df03939397a17276f8e286a876a10 (the gate-provenance hashes).
+Run time: the scratch log's modification time is 2026-09-27 23:50:08 UTC (cargo finished 22.86 s of build, then 3 tests).
+Result: 3 passed; 0 failed.
+Sanitization: only machine paths replaced by placeholders (the session scratch directory -> <scratch>/i6, the
+worktree parent -> <wt>, the home directory -> <home>/); 15 lines touched, no other change. Raw scratch source:
+<scratch>/i6/logs/pp_k2a_4.log (7338 bytes).

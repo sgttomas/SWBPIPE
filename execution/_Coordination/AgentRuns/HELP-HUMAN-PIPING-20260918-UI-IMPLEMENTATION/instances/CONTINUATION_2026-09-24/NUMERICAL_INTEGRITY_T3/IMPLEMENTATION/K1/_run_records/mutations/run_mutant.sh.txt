@@ -1,0 +1,34 @@
+#!/bin/bash
+# K1 mutation runner (I8R, checkpoint C). Usage: run_mutant.sh <wt> <scratch-mut-dir> <commit> <mutant-id>
+# One clean copy (git archive of <commit>, without execution/, extracted with fresh mtimes) and one
+# clean target per mutant, under <wt>/k1-mut/<id>/; both are deleted after the run. NONE is the control.
+# Tests (each with --no-fail-fast; -j 4; RUST_TEST_THREADS=4):
+#   solver/frame_kernel           cargo test   (lib, tests/s11_site_table.rs, doc tests)
+#   solver/sparse_direct          cargo test
+#   solver/nonlinear_integration  cargo test
+#   product_physics               cargo test --test s11f_site_test --test formation_check_runtime
+WT=$1; X=$2; REV=$3; m=$4
+D=$WT/k1-mut/$m; LOG=$X/logs/$m.log
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=$D/target CARGO_BUILD_JOBS=4 RUST_TEST_THREADS=4
+rm -rf $D; mkdir -p $D/tree
+git -C $WT/k1 archive --format=tar $REV projects/chirality-piping ':(exclude)projects/chirality-piping/execution' | tar -x -m -C $D/tree
+CORE=$D/tree/projects/chirality-piping/core
+: > $LOG
+if [ "$m" != NONE ]; then
+  python3 -B $X/mutate_k1.py $CORE $m >> $LOG 2>&1 || { echo "$m PATCH-FAILED" >> $X/MUTANTS.txt; rm -rf $D; exit 1; }
+else
+  echo "control: no patch" >> $LOG
+fi
+echo "start=$(date -u +%FT%TZ)" >> $LOG
+rc_all=""
+for t in "solver/frame_kernel|" "solver/sparse_direct|" "solver/nonlinear_integration|" "product_physics|--test s11f_site_test --test formation_check_runtime"; do
+  dir=${t%%|*}; args=${t#*|}
+  echo "=== $dir: cargo test --no-fail-fast $args" >> $LOG
+  (cd $CORE/$dir && cargo test --offline --locked --no-fail-fast -j 4 $args >> $LOG 2>&1); rc_all="$rc_all ${dir##*/}=$?"
+done
+echo "end=$(date -u +%FT%TZ)" >> $LOG
+killers=$(grep -E '^test .* FAILED$' $LOG | awk '{print $2}' | sort -u | tr '\n' ' ')
+comp=$(grep -c '^error\[\|^error: could not compile' $LOG)
+sites=$(grep -oE "panicked at [^ ]+:[0-9]+:[0-9]+" $LOG | sed 's/panicked at //' | sort | uniq -c | awk '{print $2"x"$1}' | tr '\n' ' ')
+echo "$m exit:$rc_all compile_errors=$comp killed_by: ${killers:-NONE} panic_sites: ${sites:-NONE}" >> $X/MUTANTS.txt
+rm -rf $D

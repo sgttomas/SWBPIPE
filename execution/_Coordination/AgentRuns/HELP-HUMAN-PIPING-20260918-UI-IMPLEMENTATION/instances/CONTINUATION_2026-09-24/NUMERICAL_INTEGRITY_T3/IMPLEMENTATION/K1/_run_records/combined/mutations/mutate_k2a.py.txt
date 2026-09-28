@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+"""K1 x K2a interaction mutants (I8R, the combined tree). Usage: mutate_k2a.py <core-dir> <id>
+Each is an exact text replacement in FK/structural/sparse.rs that must match once."""
+import sys
+
+core, mid = sys.argv[1], sys.argv[2]
+SP = core + "/solver/frame_kernel/src/structural/sparse.rs"
+FRAME_FORMATION = """    for element in frames {
+        check_node(element.node_i.index, node_count)?;
+        check_node(element.node_j.index, node_count)?;
+        formed.push((
+            element.node_i.index,
+            element.node_j.index,
+            element.global_stiffness()?,
+        ));
+    }
+"""
+MUTANTS = {
+    # The sparse assembly skips K2a's checked-formation refusal: a frame refused with
+    # NumericalRange is accumulated as a zero block instead of refusing the model.
+    "K1-K2A-SKIP": [(SP, FRAME_FORMATION, FRAME_FORMATION.replace(
+        "            element.global_stiffness()?,\n",
+        "            match element.global_stiffness() {\n"
+        "                Err(FrameKernelError::NumericalRange { .. }) => [[0.0; ELEMENT_DOF]; ELEMENT_DOF],\n"
+        "                other => other?,\n"
+        "            },\n"))],
+    # The sparse assembly refuses a different first element: every frame's formation is
+    # checked in reverse order before the (unchanged) forward formation, so the last
+    # failing frame's refusal is reported.
+    "K1-K2A-FIRST": [(SP, FRAME_FORMATION, "    for element in frames.iter().rev() {\n        element.global_stiffness()?;\n    }\n" + FRAME_FORMATION)],
+}
+for path, old, new in MUTANTS[mid]:
+    text = open(path).read()
+    assert text.count(old) == 1, (mid, path, text.count(old))
+    open(path, "w").write(text.replace(old, new))
+print("applied", mid)

@@ -1,0 +1,35 @@
+#!/bin/bash
+# K1 combined tree (I8R, addendum 2): checkpoint C's method on the tree with K2a merged.
+# Usage: run_mutant_rv8.sh <wt> <scratch-rv8-dir> <commit> <mutant-id> <overlay-list-file>
+# One clean copy per mutant: a git archive of <commit> (without execution/, fresh mtimes), with the
+# working-tree files named in <overlay-list-file> copied over it (the uncommitted RV8 tests), and one
+# clean target; both under <wt>/k1-mut/<id>/, deleted after the run. NONE is the control. Patches are
+# dispatched by apply.sh (mutate_k1.py, RV8's rv8_mutants.py unchanged, and mutate_k2a.py).
+# Tests, each --no-fail-fast, -j 4, RUST_TEST_THREADS=4: frame_kernel, sparse_direct and
+# nonlinear_integration in full; product_physics --test s11f_site_test --test formation_check_runtime.
+WT=$1; X=$2; REV=$3; m=$4; OVERLAY=$5
+D=$WT/k1-mut/$m; LOG=$X/logs/$m.log
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=$D/target CARGO_BUILD_JOBS=4 RUST_TEST_THREADS=4
+rm -rf $D; mkdir -p $D/tree
+git -C $WT/k1 archive --format=tar $REV projects/chirality-piping ':(exclude)projects/chirality-piping/execution' | tar -x -m -C $D/tree
+: > $LOG
+while read rel; do cp "$WT/k1/$rel" "$D/tree/$rel"; echo "overlay: $rel $(shasum -a 256 "$D/tree/$rel" | cut -c1-16)" >> $LOG; done < $OVERLAY
+CORE=$D/tree/projects/chirality-piping/core
+if [ "$m" != NONE ]; then
+  $X/apply.sh $X $CORE $m >> $LOG 2>&1 || { echo "$m PATCH-FAILED" >> $X/MUTANTS.txt; rm -rf $D; exit 1; }
+else
+  echo "control: no patch" >> $LOG
+fi
+echo "start=$(date -u +%FT%TZ)" >> $LOG
+rc_all=""
+for t in "solver/frame_kernel|" "solver/sparse_direct|" "solver/nonlinear_integration|" "product_physics|--test s11f_site_test --test formation_check_runtime"; do
+  dir=${t%%|*}; args=${t#*|}
+  echo "=== $dir: cargo test --no-fail-fast $args" >> $LOG
+  (cd $CORE/$dir && cargo test --offline --locked --no-fail-fast -j 4 $args >> $LOG 2>&1); rc_all="$rc_all ${dir##*/}=$?"
+done
+echo "end=$(date -u +%FT%TZ)" >> $LOG
+killers=$(grep -E '^test .* FAILED$' $LOG | awk '{print $2}' | sort -u | tr '\n' ' ')
+comp=$(grep -c '^error\[\|^error: could not compile' $LOG)
+sites=$(grep -oE "panicked at [^ ]+:[0-9]+:[0-9]+" $LOG | sed 's/panicked at //' | sort | uniq -c | awk '{print $2"x"$1}' | tr '\n' ' ')
+echo "$m exit:$rc_all compile_errors=$comp killed_by: ${killers:-NONE} panic_sites: ${sites:-NONE}" >> $X/MUTANTS.txt
+rm -rf $D

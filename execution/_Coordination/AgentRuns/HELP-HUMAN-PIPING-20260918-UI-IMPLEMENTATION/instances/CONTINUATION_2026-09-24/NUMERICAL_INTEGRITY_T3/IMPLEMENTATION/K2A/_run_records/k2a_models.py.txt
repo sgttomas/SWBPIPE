@@ -1,0 +1,287 @@
+#!/usr/bin/env python3
+"""K2a (I6): kernel-level RF-RANGE formation inputs and a binary64 emulation of checked formation.
+
+Standard library only; no product code is imported. Invented inputs only: every value comes from
+R1's frozen references (T3/REFERENCES/references.json, c0f14201c, sha256 7b176dbb...), unchanged.
+
+For each RF-RANGE case (3 bases x 10 vectors, and THIN-A/B) it derives the binary64 operands that
+the product hands to the frame kernel's `local_stiffness`:
+  - E, G (G = E/(2(1+nu)) where only nu is given), OD, wall thickness t = (OD - ID)/2 and node
+    coordinates, each rounded once to binary64 (float(Fraction), as P1's generator
+    DETECTION/scripts/gen.py.txt does: `f64(x) = float(Fr(x))`);
+  - the section as PP `derive_pipe_section` forms it (core/product_physics/src/lib.rs:8471-8475 at
+    5ae22926e): id = od - 2t; area = PI*(od^2 - id^2)/4; I = PI*(od^4 - id^4)/64; J = 2I, with
+    `powi` evaluated as compiler-rt's __powidf2 does (x^2 = x*x, x^4 = (x*x)*(x*x));
+  - each member length as FK `norm(subtract(node_j, node_i))`: sqrt((dx*dx + dy*dy) + dz*dz).
+Then it emulates `local_stiffness` both unchecked (today's formula, operation for operation) and
+checked (K2a: every intermediate product and quotient must be normal), and reports, per member,
+the first refused intermediate. binary64 * / and sqrt are correctly rounded in both Python and
+Rust, so the emulation predicts the Rust bits exactly.
+
+It also emits one invented operand set per checked intermediate (26 sites, in check order), each
+verified to make that intermediate the first refused, and the two invented controls (partial
+underflow; subnormal intermediate), with their unchecked coefficients and relative errors.
+
+Usage: python3 -B k2a_models.py <references.json> <out.rs> <out.json>
+"""
+import json
+import math
+import sys
+from decimal import Decimal as D
+from fractions import Fraction as Fr
+
+PI = math.pi  # == std::f64::consts::PI
+
+
+def parse_input(t):
+    """R1's parse_input (T3/REFERENCES/references.py:239-247), copied unchanged in effect."""
+    if '*2^' in t:
+        a, k = t.split('*2^')
+        return parse_input(a) * Fr(2) ** int(k)
+    if '/' in t:
+        p, q = t.split('/')
+        return Fr(int(p), int(q))
+    return Fr(D(t))
+
+
+def f64(t):
+    return float(parse_input(t))
+
+
+def powi2(x):
+    return x * x
+
+
+def powi4(x):
+    x2 = x * x
+    return x2 * x2
+
+
+def section(E, G, od, t):
+    idd = od - 2.0 * t
+    area = PI * (powi2(od) - powi2(idd)) / 4.0
+    i = PI * (powi4(od) - powi4(idd)) / 64.0
+    return {'e': E, 'g': G, 'area': area, 'iy': i, 'iz': i, 'j': 2.0 * i}
+
+
+def length(a, b):
+    d = [b[k] - a[k] for k in range(3)]
+    return math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])
+
+
+def normal(x):
+    return x != 0.0 and math.isfinite(x) and abs(x) >= 2.0 ** -1022
+
+
+# The checked formation, in the implementation's order; each entry is (name, fn(state) -> value).
+# Names are the implementation's NumericalRange names (the coefficient, then the intermediate).
+def checked(s, L):
+    st = {}
+    steps = []
+
+    def op(name, key, a, b, kind):
+        va, vb = st[a] if isinstance(a, str) else a, st[b] if isinstance(b, str) else b
+        if kind == '*':
+            v = va * vb
+        elif vb != 0.0:
+            v = va / vb
+        else:  # IEEE division by zero (never reached by the checked order; kept for the emulation)
+            v = math.nan if va == 0.0 or math.isnan(va) else math.copysign(math.inf, va) * math.copysign(1.0, vb)
+        st[key] = v
+        steps.append((name, key, v, va != 0.0 and vb != 0.0 and math.isfinite(va) and math.isfinite(vb)))
+    st['E'], st['G'], st['A'], st['Iy'], st['Iz'], st['J'], st['L'] = s['e'], s['g'], s['area'], s['iy'], s['iz'], s['j'], L
+    op('L^2 (for 6EI/L^2 and 12EI/L^3): L*L', 'L2', 'L', 'L', '*')
+    op('L^3 (for 12EI/L^3): L^2*L', 'L3', 'L2', 'L', '*')
+    op('EA/L: E*A', 'EA', 'E', 'A', '*')
+    op('EA/L: (E*A)/L', 'axial', 'EA', 'L', '/')
+    op('GJ/L: G*J', 'GJ', 'G', 'J', '*')
+    op('GJ/L: (G*J)/L', 'torsion', 'GJ', 'L', '/')
+    for ax in ('y', 'z'):
+        for k, lk in ((12, 'L3'), (6, 'L2'), (4, 'L'), (2, 'L')):
+            if ax == 'y':  # k*E is formed once, at its first use, and shared by the z coefficients
+                op(EK_NAME[k], '%dE' % k, float(k), 'E', '*')
+            op(PROD_NAME[(k, ax)], '%dEI%s' % (k, ax), '%dE' % k, 'I' + ax, '*')
+            op(QUOT_NAME[(k, ax)], 'b%s%d' % (ax, k), '%dEI%s' % (k, ax), lk, '/')
+    return steps, st
+
+
+COEF = {12: '12EI{ax}/L^3', 6: '6EI{ax}/L^2', 4: '4EI{ax}/L', 2: '2EI{ax}/L'}
+DEN = {12: 'L^3', 6: 'L^2', 4: 'L', 2: 'L'}
+EK_NAME = {k: '%s and %s: %d*E' % (COEF[k].format(ax='y'), COEF[k].format(ax='z'), k) for k in COEF}
+PROD_NAME = {(k, ax): '%s: (%d*E)*I%s' % (COEF[k].format(ax=ax), k, ax) for k in COEF for ax in 'yz'}
+QUOT_NAME = {(k, ax): '%s: (%d*E*I%s)/%s' % (COEF[k].format(ax=ax), k, ax, DEN[k]) for k in COEF for ax in 'yz'}
+
+
+def unchecked(s, L):
+    """Today's local_stiffness coefficients, operation for operation (FK lib.rs at 5ae22926e)."""
+    e, g, a, iy, iz, j = s['e'], s['g'], s['area'], s['iy'], s['iz'], s['j']
+    L2 = L * L
+    L3 = L2 * L
+    return {
+        'axial': e * a / L, 'torsion': g * j / L,
+        'by12': 12.0 * e * iy / L3, 'by6': 6.0 * e * iy / L2, 'by4': 4.0 * e * iy / L, 'by2': 2.0 * e * iy / L,
+        'bz12': 12.0 * e * iz / L3, 'bz6': 6.0 * e * iz / L2, 'bz4': 4.0 * e * iz / L, 'bz2': 2.0 * e * iz / L,
+    }
+
+
+def exact_coefficients(s, L):
+    e, g, a, iy, j = (Fr(s[k]) for k in ('e', 'g', 'area', 'iy', 'j'))
+    L = Fr(L)
+    return {'axial': e * a / L, 'torsion': g * j / L, 'by12': 12 * e * iy / L ** 3, 'by6': 6 * e * iy / L ** 2,
+            'by4': 4 * e * iy / L, 'by2': 2 * e * iy / L}
+
+
+def hexbits(x):
+    import struct
+    return '0x%016x' % struct.unpack('<Q', struct.pack('<d', x))[0]
+
+
+def P(k):
+    return Fr(2) ** k
+
+
+BASE = {'e': 1.0, 'g': 1.0, 'area': 1.0, 'iy': 1.0, 'iz': 1.0, 'j': 1.0, 'L': 1.0}
+
+
+def with_(**kw):
+    d = dict(BASE)
+    for k, v in kw.items():
+        d[k] = float(v)
+    return d
+
+
+# One invented operand set per checked intermediate, each built so that this intermediate is the
+# first one refused (every earlier check passes). Subnormal inputs (E below 2^-1022) are marked:
+# the k*E sites are reachable only from a subnormal modulus, which the kernel accepts as a
+# positive finite input.
+SITES = [
+    ('L^2 (for 6EI/L^2 and 12EI/L^3): L*L', with_(L=P(-520))),
+    ('L^3 (for 12EI/L^3): L^2*L', with_(L=P(-400))),
+    ('EA/L: E*A', with_(e=P(-600), area=P(-500))),
+    ('EA/L: (E*A)/L', with_(e=P(-500), area=P(-500), L=P(100))),
+    ('GJ/L: G*J', with_(g=P(-600), j=P(-500))),
+    ('GJ/L: (G*J)/L', with_(g=P(-500), j=P(-500), L=P(100))),
+    ('12EIy/L^3 and 12EIz/L^3: 12*E', with_(e=P(1021), area=P(-100))),
+    ('12EIy/L^3: (12*E)*Iy', with_(e=P(-600), iy=P(-500))),
+    ('12EIy/L^3: (12*E*Iy)/L^3', with_(e=P(-400), iy=P(-403), L=P(100))),
+    ('6EIy/L^2 and 6EIz/L^2: 6*E', with_(e=P(-1025), area=P(100))),
+    ('6EIy/L^2: (6*E)*Iy', with_(e=P(-500), iy=P(-525))),
+    ('6EIy/L^2: (6*E*Iy)/L^2', with_(e=P(-500), iy=P(-521) / 6, L=Fr(3, 2))),
+    ('4EIy/L and 4EIz/L: 4*E', with_(e=Fr(1, 5) * P(-1022), area=P(100))),
+    ('4EIy/L: (4*E)*Iy', with_(e=P(-500), iy=Fr(1, 5) * P(-522))),
+    ('4EIy/L: (4*E*Iy)/L', with_(e=P(-500), iy=Fr(11, 40) * P(-522), L=Fr(5, 4))),
+    ('2EIy/L and 2EIz/L: 2*E', with_(e=Fr(2, 5) * P(-1022), area=P(100))),
+    ('2EIy/L: (2*E)*Iy', with_(e=P(-500), iy=Fr(2, 5) * P(-522))),
+    ('2EIy/L: (2*E*Iy)/L', with_(e=P(-500), iy=Fr(3, 5) * P(-522), L=Fr(3, 2))),
+    ('12EIz/L^3: (12*E)*Iz', with_(e=P(-600), iz=P(-500))),
+    ('12EIz/L^3: (12*E*Iz)/L^3', with_(e=P(-400), iz=P(-403), L=P(100))),
+    ('6EIz/L^2: (6*E)*Iz', with_(e=P(-500), iz=P(-525))),
+    ('6EIz/L^2: (6*E*Iz)/L^2', with_(e=P(-500), iz=P(-521) / 6, L=Fr(3, 2))),
+    ('4EIz/L: (4*E)*Iz', with_(e=P(-500), iz=Fr(1, 5) * P(-522))),
+    ('4EIz/L: (4*E*Iz)/L', with_(e=P(-500), iz=Fr(11, 40) * P(-522), L=Fr(5, 4))),
+    ('2EIz/L: (2*E)*Iz', with_(e=P(-500), iz=Fr(2, 5) * P(-522))),
+    ('2EIz/L: (2*E*Iz)/L', with_(e=P(-500), iz=Fr(3, 5) * P(-522), L=Fr(3, 2))),
+]
+
+# The two hand-built controls (brief: partial underflow; subnormal intermediate). Invented inputs.
+CONTROLS = [
+    # 12EIy/L^3 normal (and 1/3 wrong) while 4EIy/L and 2EIy/L are exactly 0; axial, torsion and
+    # the z bending are normal. L = 2^-30 m, above the kernel's 1e-12 m axis tolerance, so the
+    # control also runs through FrameElement.
+    ('PARTIAL_UNDERFLOW', with_(e=P(-600), g=P(-601), iy=P(-477), L=P(-30))),
+    # Every final coefficient normal, but every y-bending product (k*E)*Iy subnormal and rounded.
+    ('SUBNORMAL_INTERMEDIATE', with_(e=P(-600), g=P(-601), iy=Fr(1, 10) * P(-445), L=P(-30))),
+]
+
+
+def first_refusal(d):
+    steps, _ = checked({k: d[k] for k in ('e', 'g', 'area', 'iy', 'iz', 'j')}, d['L'])
+    return next((name for (name, key, v, ok) in steps if ok and not normal(v)), None), steps
+
+
+def main():
+    refs, out_rs, out_json = sys.argv[1:4]
+    cases = json.load(open(refs))['cases']
+    rows, rs = [], []
+    ids = [c for c in cases if c.startswith('RF-RANGE-')]
+    for cid in ids:
+        m = cases[cid]['model']
+        assert cases[cid]['units']['length'] == 'm' and cases[cid]['units']['modulus'] == 'Pa', cid
+        assert len(m['sections']) == 1, cid
+        (sid, sec), = m['sections'].items()
+        E = parse_input(sec['E'])
+        G = parse_input(sec['G']) if 'G' in sec else E / (2 * (1 + parse_input(sec['nu'])))
+        OD, ID = parse_input(sec['OD']), parse_input(sec['ID'])
+        e, g, od, t = float(E), float(G), float(OD), float((OD - ID) / 2)
+        s = section(e, g, od, t)
+        nodes = {k: [f64(c) for c in v] for k, v in m['nodes_m'].items()}
+        members = []
+        for (mid, i, j, _sid) in m['members']:
+            L = length(nodes[i], nodes[j])
+            steps, st = checked(s, L)
+            first = next((name for (name, key, v, ok) in steps if ok and not normal(v)), None)
+            unc = unchecked(s, L)
+            ex = exact_coefficients(s, L)
+            rel = {k: (float(abs(Fr(unc[k]) - ex[k]) / ex[k]) if math.isfinite(unc[k]) else repr(unc[k])) for k in ex}
+            members.append({'id': mid, 'length': L, 'length_bits': hexbits(L), 'first_refusal': first,
+                            'unchecked_zero': sorted(k for k, v in unc.items() if v == 0.0),
+                            'unchecked_nonfinite': sorted(k for k, v in unc.items() if not math.isfinite(v)),
+                            'unchecked_relative_error': rel,
+                            'all_intermediates_normal': first is None,
+                            'intermediate_log2': {name: (math.log2(abs(v)) if v != 0.0 and math.isfinite(v) else repr(v))
+                                                  for (name, key, v, ok) in steps}})
+            rs.append((cid, mid, e, g, od, t, L, first))
+        rows.append({'case': cid, 'E': repr(e), 'G': repr(g), 'OD': repr(od), 't': repr(t),
+                     'area': repr(s['area']), 'I': repr(s['iy']), 'J': repr(s['j']), 'members': members})
+    names_in_order = [name for (name, key, v, ok) in checked(BASE, 1.0)[0]]
+    assert names_in_order == [n for n, _ in SITES], 'site table must list every check in order'
+    site_rows = []
+    for name, d in SITES:
+        got, _ = first_refusal(d)
+        assert got == name, (name, got)
+        site_rows.append({'site': name, **{k: repr(v) for k, v in d.items()},
+                          'subnormal_input': [k for k, v in d.items() if v != 0 and abs(v) < 2.0 ** -1022]})
+    control_rows = []
+    for label, d in CONTROLS:
+        got, steps = first_refusal(d)
+        sec = {k: d[k] for k in ('e', 'g', 'area', 'iy', 'iz', 'j')}
+        unc = unchecked(sec, d['L'])
+        ex = exact_coefficients(sec, d['L'])
+        control_rows.append({'control': label, 'first_refusal': got, **{k: repr(v) for k, v in d.items()},
+                             'unchecked': {k: repr(v) for k, v in unc.items()},
+                             'unchecked_relative_error': {k: float(abs(Fr(unc[k]) - ex[k]) / ex[k]) for k in ex},
+                             'final_coefficients_all_normal': all(normal(v) for v in unc.values()),
+                             'subnormal_or_zero_intermediates': [n for (n, key, v, ok) in steps if ok and not normal(v)]})
+    json.dump({'references_sha256_expected': '7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9',
+               'python': sys.version.split()[0], 'cases': rows, 'sites': site_rows, 'controls': control_rows}, open(out_json, 'w'), indent=1)
+    with open(out_rs, 'w') as f:
+        f.write('//! Generated by the K2a run record `k2a_models.py` (T3 IMPLEMENTATION/K2A/_run_records);\n')
+        f.write('//! do not edit by hand. Invented inputs only: R1\'s frozen RF-RANGE references\n')
+        f.write('//! (T3/REFERENCES/references.json, c0f14201c), each input rounded once to binary64.\n')
+        f.write('//! Per member: (case, member, E, G, OD, wall thickness, length as FK norm, the first\n')
+        f.write('//! intermediate checked formation refuses, or None). The section is formed in the test\n')
+        f.write('//! exactly as PP `derive_pipe_section` forms it. Then one invented operand set per checked\n')
+        f.write('//! intermediate (FORMATION_SITES) and the two invented controls, each verified by the\n')
+        f.write('//! generator\'s binary64 emulation of the checked formation.\n')
+        f.write('#![cfg_attr(rustfmt, rustfmt::skip)]\n\n')
+        f.write('pub struct RangeMember {\n    pub case: &\'static str,\n    pub member: &\'static str,\n'
+                '    pub e: u64,\n    pub g: u64,\n    pub od: u64,\n    pub t: u64,\n    pub length: u64,\n'
+                '    pub refusal: Option<&\'static str>,\n}\n\n')
+        f.write('pub const RF_RANGE_MEMBERS: &[RangeMember] = &[\n')
+        for (cid, mid, e, g, od, t, L, first) in rs:
+            ref = 'None' if first is None else 'Some(%s)' % json.dumps(first)
+            f.write('    RangeMember { case: "%s", member: "%s", e: %s, g: %s, od: %s, t: %s, length: %s, refusal: %s },\n'
+                    % (cid, mid, hexbits(e), hexbits(g), hexbits(od), hexbits(t), hexbits(L), ref))
+        f.write('];\n\n')
+        f.write('/// (E, G, A, Iy, Iz, J, L) as binary64 bits.\npub type Operands = [u64; 7];\n\n')
+        f.write('/// One operand set per checked intermediate, in the order of the checks; each makes\n'
+                '/// that intermediate the first refused.\n')
+        f.write('pub const FORMATION_SITES: &[(&str, Operands)] = &[\n')
+        for name, d in SITES:
+            f.write('    (%s, [%s]),\n' % (json.dumps(name), ', '.join(hexbits(d[k]) for k in ('e', 'g', 'area', 'iy', 'iz', 'j', 'L'))))
+        f.write('];\n\n')
+        for label, d in CONTROLS:
+            f.write('pub const %s: Operands = [%s];\n' % (label, ', '.join(hexbits(d[k]) for k in ('e', 'g', 'area', 'iy', 'iz', 'j', 'L'))))
+
+
+main()

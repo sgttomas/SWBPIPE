@@ -1,0 +1,13 @@
+## NONE
+## RV8-BLOCK-ORDER
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: structural_adapter::k1_tests::k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1
+      at src/structural_adapter/k1_tests.rs:1072:5: assertion `left == right` failed: bend-bend tee flex=1: K bits
+## RV8-SPRING-FIRST
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: structural_adapter::k1_tests::k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2
+      at src/structural_adapter/k1_tests.rs:1072:5: assertion `left == right` failed: bend supports flex=1 k=4.4e7: K bits
+## RV8-FC-TERMS
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: structural_adapter::k1_tests::k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3
+      at src/structural_adapter/k1_tests.rs:1386:13: assertion `left == right` failed: F122 SparseInteractive: split ledger

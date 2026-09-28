@@ -1,0 +1,6 @@
+G*J 0.0 true GJ/L 2^-1041.4
+1000 k 9.332636185032189e-302 M 2.33e-302 main theta error / criterion 0.000341
+1005 k 2.916448807822559e-303 M 7.29e-304 main theta error / criterion 0.0109
+1008 k 3.645561009778199e-304 M 9.11e-305 main theta error / criterion 0.0874
+1010 k 9.113902524445497e-305 M 2.28e-305 main theta error / criterion 0.35
+1015 k 2.848094538889218e-306 M 7.12e-307 main theta error / criterion 11.2

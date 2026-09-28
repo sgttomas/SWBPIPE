@@ -1,0 +1,13 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running tests/k1_k2a_interaction.rs (<wt>/k1-target/debug/deps/k1_k2a_interaction-dfd952cd9bde6092)
+
+running 3 tests
+k1 x k2a reach_zero: NumericalRange { name: "12EIy/L^3: (12*E)*Iy" }
+k1 x k2a reach_lef: NumericalRange { name: "12EIy/L^3: (12*E)*Iy" }
+test k1_k2a_the_first_failing_element_is_the_same_in_both_representations ... ok
+test k1_k2a_reach_zero_and_reach_lef_are_refused_with_the_same_named_error ... ok
+k1 x k2a RF-RANGE: refused 16, formed 98, degenerate 48
+test k1_k2a_rf_range_members_form_or_refuse_identically_in_both_representations ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""K2a (I6): summarize fixture-diff-harness envelopes (captured entry) of the product-reach probes.
+Usage: python3 -B summarize_reach.py <out-dir>...  -> one JSON line per output: file, standing,
+integrity status, diagnostic codes, the M03 refusal message (if any) and the published N1 displacements."""
+import glob, json, os, sys
+for d in sys.argv[1:]:
+    for f in sorted(glob.glob(os.path.join(d, '*.out'))):
+        t = open(f).read()
+        if t.startswith('ERR') or t == 'PANIC':
+            print(json.dumps({'file': os.path.basename(f), 'raw': t[:300]})); continue
+        e = json.loads(t)
+        nq = e.get('numerical_quality', {})
+        cases = nq.get('cases') or [{}]
+        disp = {r['id']: r.get('value') for r in e.get('results', []) if str(r.get('id', '')).startswith('result:disp:N1:')}
+        print(json.dumps({'file': os.path.basename(f), 'status': nq.get('status'), 'solve_quality': cases[0].get('solve_quality'),
+                          'codes': [x['code'] for x in e['diagnostics']],
+                          'refusal': [x['message'][:160] for x in e['diagnostics'] if x['severity'] == 'blocking' or 'UNRESOLVED' in x['code']],
+                          'N1_displacements': disp}))

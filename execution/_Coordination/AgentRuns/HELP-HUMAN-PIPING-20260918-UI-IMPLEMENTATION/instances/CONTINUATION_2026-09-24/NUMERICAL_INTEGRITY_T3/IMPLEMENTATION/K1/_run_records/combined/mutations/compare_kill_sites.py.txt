@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""K1 combined tree (I8R, addendum 2): each mutant's kill sites (test, file:line) on the combined tree
+against the pre-merge tables (checkpoint C's mutations/kill_sites.txt and rv8_fixes/kill_sites.txt).
+Usage: compare_kill_sites.py <pre-c> <pre-rv8> <combined>"""
+import re, sys
+def parse(p):
+    d = {}; cur = None
+    lines = open(p).read().split('\n')
+    i = 0
+    while i < len(lines):
+        l = lines[i]
+        m = re.match(r'## (\S+)', l)
+        if m:
+            cur = m.group(1); d.setdefault(cur, set()); i += 1; continue
+        m = re.match(r'   (\S+): (\S+)$', l)
+        if m and i + 1 < len(lines):
+            site = re.match(r'      at (\S+?):(\d+):\d+:', lines[i + 1])
+            loc = '/'.join(site.group(1).split('/')[-2:]) + ':' + site.group(2) if site else '?'
+            d[cur].add((m.group(2), loc)); i += 2; continue
+        i += 1
+    return d
+pre = parse(sys.argv[1]); pre.update(parse(sys.argv[2])); comb = parse(sys.argv[3])
+for mid in comb:
+    if mid == 'NONE':
+        continue
+    p = pre.get(mid)
+    if p is None:
+        print(f"{mid}: new on the combined tree; {len(comb[mid])} kill sites")
+        for x in sorted(comb[mid]): print(f"    {x[0]} {x[1]}")
+        continue
+    lost, added = p - comb[mid], comb[mid] - p
+    print(f"{mid}: pre-merge {len(p)}, combined {len(comb[mid])}, lost {len(lost)}, added {len(added)}")
+    for x in sorted(lost): print(f"    LOST {x[0]} {x[1]}")
+    for x in sorted(added): print(f"    added {x[0]} {x[1]}")

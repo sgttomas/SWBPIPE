@@ -3,10 +3,22 @@
 pub mod exact_boundary;
 mod formation_check;
 mod retained;
+mod sparse;
 
 pub use formation_check::{
     CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, FORMATION_CRITERION,
     FORMATION_FACTOR, FORMATION_PRECISION,
+};
+pub use sparse::{
+    assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
+    finish_sparse_structural, prepare_assembled_sparse_structural,
+    prepare_formation_checked_sparse_structural, prepare_sparse_structural,
+    prepare_sparse_structural_with_force_terms, reduce_assembled_sparse_system,
+    sparse_negative_pair_witness, verify_sparse_negative_direction,
+    AssembledSparseStructuralSystem, FormationCheckedSparseSystem, SparseAssemblyOptions,
+    SparsePattern, SparsePositiveFactor, SparsePreparedSystem, SparseReducedSystem,
+    SparseStiffness, SparseStorageCounts, SparseStructuralSystem, SparseSymmetryEvidence,
+    StiffnessBlock,
 };
 
 use crate::exact_sum::{ExactAccumulator, SumError};
@@ -336,6 +348,173 @@ impl PreparedSystem<'_> {
     }
     pub fn scale_exponents(&self) -> &[i32] {
         &self.scale_exponents
+    }
+}
+
+/// K1: the represented equations the gate stages read (D1 §4.8, "the same
+/// gate in both modes"). The dense `StructuralSystem` and the sparse
+/// `SparseStructuralSystem` implement it; the original-equation residual, the
+/// intended-action audit, the load-fidelity audit and the completion
+/// (`finish_checked_factor`, with K-D5's EF step) are written once over it.
+trait Represented {
+    /// The exact contribution sums, one expansion per stored entry.
+    type Sums;
+    /// The force, free map and prescribed values.
+    fn view(&self) -> Equations<'_>;
+    fn contributions_supplied(&self) -> bool;
+    /// `validate` of the representation (the same checks, in the same order).
+    fn validate_equations(&self) -> Result<(), StructuralError>;
+    /// Row `i` as (column, K_ij) in ascending column order. Zeros may be
+    /// included (dense) or left out (sparse): no stage uses a zero coefficient.
+    fn row(&self, i: usize) -> impl Iterator<Item = (usize, f64)> + Clone + '_;
+    /// KS1/KS3's condition: some prescribed (j, g_j) with K_ij != 0 and g_j != 0.
+    fn prescribed_coupled(&self, i: usize) -> bool;
+    fn contribution_sums(&self) -> Result<Option<Self::Sums>, StructuralError>;
+    /// Row `i` of the sums as (column, expansion) in ascending column order.
+    /// Empty expansions may be included or left out.
+    fn sums_row<'a>(
+        &'a self,
+        sums: &'a Self::Sums,
+        i: usize,
+    ) -> impl Iterator<Item = (usize, &'a Expansion)> + Clone + 'a;
+    /// S11's load-fidelity audit of `u` against the identified terms.
+    fn load_fidelity(
+        &self,
+        u: &[f64],
+        terms: &[ForceTerm],
+    ) -> Result<LoadFidelityReport, StructuralError>;
+    /// K-D5's formation check on these equations.
+    fn formation_check<F>(
+        &self,
+        source: &FormationSource,
+        terms: Option<&[ForceTerm]>,
+        scale_exponents: &[i32],
+        u: &[f64],
+        solve: &F,
+    ) -> Option<FormationCheck>
+    where
+        F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>;
+}
+/// K1: the part of the equations every representation holds the same way.
+#[derive(Debug, Clone, Copy)]
+struct Equations<'a> {
+    force: &'a [f64],
+    free_dofs: &'a [usize],
+    prescribed: &'a [(usize, f64)],
+}
+impl StructuralSystem<'_> {
+    fn view(&self) -> Equations<'_> {
+        Equations {
+            force: self.force,
+            free_dofs: self.free_dofs,
+            prescribed: self.prescribed,
+        }
+    }
+}
+impl Represented for StructuralSystem<'_> {
+    type Sums = Vec<Vec<Expansion>>;
+    fn view(&self) -> Equations<'_> {
+        StructuralSystem::view(self)
+    }
+    fn contributions_supplied(&self) -> bool {
+        self.contributions.is_some()
+    }
+    fn validate_equations(&self) -> Result<(), StructuralError> {
+        validate(self)
+    }
+    fn row(&self, i: usize) -> impl Iterator<Item = (usize, f64)> + Clone + '_ {
+        self.stiffness[i].iter().copied().enumerate()
+    }
+    fn prescribed_coupled(&self, i: usize) -> bool {
+        prescribed_coupled(self, i)
+    }
+    fn contribution_sums(&self) -> Result<Option<Self::Sums>, StructuralError> {
+        contribution_sums(self)
+    }
+    fn sums_row<'a>(
+        &'a self,
+        sums: &'a Self::Sums,
+        i: usize,
+    ) -> impl Iterator<Item = (usize, &'a Expansion)> + Clone + 'a {
+        sums[i].iter().enumerate()
+    }
+    fn load_fidelity(
+        &self,
+        u: &[f64],
+        terms: &[ForceTerm],
+    ) -> Result<LoadFidelityReport, StructuralError> {
+        audit_load_fidelity(self, u, terms)
+    }
+    fn formation_check<F>(
+        &self,
+        source: &FormationSource,
+        terms: Option<&[ForceTerm]>,
+        scale_exponents: &[i32],
+        u: &[f64],
+        solve: &F,
+    ) -> Option<FormationCheck>
+    where
+        F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
+    {
+        formation_check::check(self, source, terms, scale_exponents, u, solve)
+    }
+}
+/// K1: what the completion reads from a prepared system, dense or sparse.
+trait PreparedGate {
+    /// The right-hand side and the scale exponents both have `n` entries (and,
+    /// for dense, the matrix is n by n).
+    fn gate_shape_matches(&self, n: usize) -> bool;
+    /// The Hager-Higham estimate on the prepared matrix with this solve.
+    fn gate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+    where
+        F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>;
+    fn gate_rhs(&self) -> &[f64];
+    fn gate_scale_exponents(&self) -> &[i32];
+    fn gate_binding(&self) -> ForceBinding<'_>;
+    fn gate_formation(&self) -> Option<&FormationSource>;
+    /// (assembly relative perturbation, assembly load perturbation).
+    fn gate_assembly(&self) -> (f64, f64);
+    fn gate_contribution_rounding(&self) -> &[ContributionRounding];
+    /// (symmetry projection performed, maximum scaled skew, symmetry basis).
+    fn gate_symmetry(&self) -> (bool, f64, Option<String>);
+}
+impl PreparedGate for PreparedSystem<'_> {
+    fn gate_shape_matches(&self, n: usize) -> bool {
+        self.matrix.len() == n && self.rhs.len() == n && self.scale_exponents.len() == n
+    }
+    fn gate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+    where
+        F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
+    {
+        estimate_rcond(&self.matrix, solve)
+    }
+    fn gate_rhs(&self) -> &[f64] {
+        &self.rhs
+    }
+    fn gate_scale_exponents(&self) -> &[i32] {
+        &self.scale_exponents
+    }
+    fn gate_binding(&self) -> ForceBinding<'_> {
+        self.force_binding
+    }
+    fn gate_formation(&self) -> Option<&FormationSource> {
+        self.formation
+    }
+    fn gate_assembly(&self) -> (f64, f64) {
+        (
+            self.assembly_relative_perturbation_estimate,
+            self.assembly_load_perturbation_estimate,
+        )
+    }
+    fn gate_contribution_rounding(&self) -> &[ContributionRounding] {
+        &self.contribution_rounding
+    }
+    fn gate_symmetry(&self) -> (bool, f64, Option<String>) {
+        (
+            self.symmetry_projection_performed,
+            self.maximum_scaled_skew,
+            self.symmetry_basis.clone(),
+        )
     }
 }
 
@@ -704,21 +883,24 @@ fn audit_contributions(
 /// Componentwise action of the complete intended contributions, including K_fc*u_c.
 /// Exact expansion numerator; denominator and guard use their separately recorded
 /// operation count. This does not establish forward accuracy of a soft mode.
-fn audit_intended_action(
-    system: &StructuralSystem<'_>,
+fn audit_intended_action<R: Represented + ?Sized>(
+    equations: &R,
     u: &[f64],
 ) -> Result<Vec<ResidualRow>, StructuralError> {
-    let Some(sums) = contribution_sums(system)? else {
+    let Some(sums) = equations.contribution_sums()? else {
         return Ok(Vec::new());
     };
+    let system = equations.view();
     let mut rows = Vec::new();
     for &i in system.free_dofs {
+        // K1: `sums_row(i)` yields (j, exact expansion of K_ij) in ascending
+        // column order; an empty expansion takes no part below.
         let mut exponent = if system.force[i] == 0.0 {
             i32::MIN
         } else {
             binary_exponent(system.force[i])
         };
-        for (j, coefficient) in sums[i].iter().enumerate() {
+        for (j, coefficient) in equations.sums_row(&sums, i) {
             if u[j] != 0.0 {
                 for &part in &coefficient.terms {
                     exponent = exponent.max(binary_exponent(part) + binary_exponent(u[j]) + 1);
@@ -732,7 +914,7 @@ fn audit_intended_action(
         residual.add(exact_radix(-system.force[i], -exponent)?)?;
         let mut denominator = exact_radix(system.force[i].abs(), -exponent)?;
         let mut denominator_operations = 0;
-        for (j, coefficient) in sums[i].iter().enumerate() {
+        for (j, coefficient) in equations.sums_row(&sums, i) {
             for &part in &coefficient.terms {
                 residual.add_product(part, u[j], -exponent)?;
                 // Positive sum over exact expansion components is an explicit estimate
@@ -825,7 +1007,24 @@ pub fn audit_load_fidelity(
     let mut rows = Vec::new();
     for i in 0..n {
         let terms = &by_dof[i];
-        let row = match audit_load_row(system, u, sums.as_deref(), &restrained, i, terms) {
+        // The row's (K_ij, u_j) products in ascending column order: the terms
+        // of each exact contribution expansion when supplied, otherwise the
+        // nonzero represented coefficients (K1: the sparse audit builds the
+        // same list from its pattern row).
+        let parts: Vec<(f64, f64)> = match sums.as_deref() {
+            Some(sums) => sums[i]
+                .iter()
+                .zip(u)
+                .flat_map(|(coefficient, &x)| coefficient.terms.iter().map(move |&k| (k, x)))
+                .collect(),
+            None => system.stiffness[i]
+                .iter()
+                .zip(u)
+                .filter(|(&k, _)| k != 0.0)
+                .map(|(&k, &x)| (k, x))
+                .collect(),
+        };
+        let row = match audit_load_row(system.view(), &parts, &restrained, i, terms) {
             Ok(row) => row,
             // RV1-N5 (S11 section 6): an auditable row's arithmetic that
             // leaves the radix range (for example terms more than about
@@ -833,7 +1032,7 @@ pub fn audit_load_fidelity(
             // an error. The row is reported unaudited, which makes the case
             // Sensitive; the solve's values are unchanged.
             Err(StructuralError::Range(reason)) => {
-                Some(unaudited_row(system, &restrained, i, terms, reason))
+                Some(unaudited_row(system.view(), &restrained, i, terms, reason))
             }
             Err(error) => return Err(error),
         };
@@ -853,7 +1052,7 @@ fn row_sources(terms: &[&ForceTerm]) -> Vec<String> {
 /// RV1-N5: a row whose audit arithmetic leaves the radix range. It is flagged
 /// (Sensitive, never a refusal) with an infinite ratio and its reason.
 fn unaudited_row(
-    system: &StructuralSystem<'_>,
+    system: Equations<'_>,
     restrained: &[bool],
     i: usize,
     terms: &[&ForceTerm],
@@ -878,11 +1077,12 @@ fn unaudited_row(
         unaudited: Some(reason),
     }
 }
-/// One row of `audit_load_fidelity`: `Some` when flagged.
+/// One row of `audit_load_fidelity`: `Some` when flagged. `parts` are the
+/// row's (K_ij, u_j) products in ascending column order (K1: built by either
+/// representation).
 fn audit_load_row(
-    system: &StructuralSystem<'_>,
-    u: &[f64],
-    sums: Option<&[Vec<Expansion>]>,
+    system: Equations<'_>,
+    parts: &[(f64, f64)],
     restrained: &[bool],
     i: usize,
     terms: &[&ForceTerm],
@@ -892,19 +1092,6 @@ fn audit_load_row(
         term.accumulate(&mut net, false).map_err(sum_range)?;
     }
     let exact_net = net.round().map_err(sum_range)?;
-    let parts: Vec<(f64, f64)> = match sums {
-        Some(sums) => sums[i]
-            .iter()
-            .zip(u)
-            .flat_map(|(coefficient, &x)| coefficient.terms.iter().map(move |&k| (k, x)))
-            .collect(),
-        None => system.stiffness[i]
-            .iter()
-            .zip(u)
-            .filter(|(&k, _)| k != 0.0)
-            .map(|(&k, &x)| (k, x))
-            .collect(),
-    };
     let mut exponent = i32::MIN;
     for term in terms {
         if let Some(e) = term_exponent(term) {
@@ -914,7 +1101,7 @@ fn audit_load_row(
     if restrained[i] && system.force[i] != 0.0 {
         exponent = exponent.max(binary_exponent(system.force[i]));
     }
-    for &(k, x) in &parts {
+    for &(k, x) in parts {
         if k != 0.0 && x != 0.0 {
             exponent = exponent.max(binary_exponent(k) + binary_exponent(x) + 1);
         }
@@ -926,7 +1113,7 @@ fn audit_load_row(
     if restrained[i] {
         residual.add(exact_radix(system.force[i], -exponent)?)?;
     } else {
-        for &(k, x) in &parts {
+        for &(k, x) in parts {
             residual.add_product(k, x, -exponent)?;
         }
     }
@@ -935,7 +1122,7 @@ fn audit_load_row(
     }
     let mut denominator = exact_radix(exact_net.abs(), -exponent)?;
     let mut denominator_operations = 0;
-    for &(k, x) in &parts {
+    for &(k, x) in parts {
         denominator = checked_value(denominator + normalized_product(k.abs(), x.abs(), exponent)?)?;
         denominator_operations += 2;
     }
@@ -1014,11 +1201,15 @@ fn prescribed_coupled(system: &StructuralSystem<'_>, row: usize) -> bool {
 /// KS1: `f_i - sum_c K_ic * g_c`, one exact sum scaled by `2^exponent` before
 /// its single rounding (S11 R3-4), with `radix_scale`'s range semantics.
 fn exact_scaled_rhs(
-    system: &StructuralSystem<'_>,
+    system: Equations<'_>,
     binding: ForceBinding<'_>,
     row: usize,
+    couplings: impl Iterator<Item = (f64, f64)>,
     exponent: i32,
 ) -> Result<f64, StructuralError> {
+    // K1: `couplings` are row's (K_ic, g_c) over the prescribed columns (the
+    // dense row passes all of them; the sparse row its stored ones). The sum
+    // is exact, so an absent (zero) K_ic changes nothing.
     let mut accumulator = ExactAccumulator::new();
     match binding.assembled() {
         Some(force) => force
@@ -1026,10 +1217,8 @@ fn exact_scaled_rhs(
             .map_err(sum_range)?,
         None => accumulator.add(system.force[row]).map_err(sum_range)?,
     }
-    for &(j, u) in system.prescribed {
-        accumulator
-            .add_product(-system.stiffness[row][j], u)
-            .map_err(sum_range)?;
+    for (k, u) in couplings {
+        accumulator.add_product(-k, u).map_err(sum_range)?;
     }
     if accumulator.round().is_err() {
         return Err(StructuralError::Range("nonfinite radix input"));
@@ -1077,7 +1266,16 @@ fn prepare_bound<'s>(
         if !force_binding.binary64()
             && (force_binding.assembled().is_some() || prescribed_coupled(system, i))
         {
-            rhs[r] = exact_scaled_rhs(system, force_binding, i, exponents[r])?;
+            rhs[r] = exact_scaled_rhs(
+                system.view(),
+                force_binding,
+                i,
+                system
+                    .prescribed
+                    .iter()
+                    .map(|&(j, u)| (system.stiffness[i][j], u)),
+                exponents[r],
+            )?;
         } else {
             // No nonzero prescribed product: today's evaluation, bit for bit.
             let mut b = system.force[i];
@@ -1195,12 +1393,13 @@ pub fn evaluate_assembled_original_residual(
 ) -> Result<Vec<ResidualRow>, StructuralError> {
     evaluate_original_residual_bound(&system.system, ForceBinding::Assembled(system.force), u)
 }
-fn evaluate_original_residual_bound(
-    system: &StructuralSystem<'_>,
+fn evaluate_original_residual_bound<R: Represented + ?Sized>(
+    equations: &R,
     binding: ForceBinding<'_>,
     u: &[f64],
 ) -> Result<Vec<ResidualRow>, StructuralError> {
-    validate(system)?;
+    equations.validate_equations()?;
+    let system = equations.view();
     if u.len() != system.force.len() || u.iter().any(|x| !x.is_finite()) {
         return Err(StructuralError::InvalidInput("displacement vector"));
     }
@@ -1211,12 +1410,15 @@ fn evaluate_original_residual_bound(
     }
     let mut rows = Vec::new();
     for &i in system.free_dofs {
+        // K1: `row(i)` yields (j, K_ij) in ascending column order, zeros
+        // included (dense) or left out (sparse); a zero takes no part below.
         let mut row_exponent = if system.force[i] == 0.0 {
             i32::MIN
         } else {
             binary_exponent(system.force[i])
         };
-        for (&k, &x) in system.stiffness[i].iter().zip(u) {
+        for (j, k) in equations.row(i) {
+            let x = u[j];
             if k != 0.0 && x != 0.0 {
                 row_exponent = row_exponent.max(binary_exponent(k) + binary_exponent(x) + 1);
             }
@@ -1230,7 +1432,7 @@ fn evaluate_original_residual_bound(
         // KS3: on a row coupled to a nonzero prescribed value the numerator is
         // one exact sum (ledger terms negated, plus K_ij * u_j over the full
         // row), scaled before its single rounding. Other rows: today's code.
-        let exact_numerator = !binding.binary64() && prescribed_coupled(system, i);
+        let exact_numerator = !binding.binary64() && equations.prescribed_coupled(i);
         let mut numerator = ExactAccumulator::new();
         if exact_numerator {
             match binding.assembled() {
@@ -1240,7 +1442,8 @@ fn evaluate_original_residual_bound(
                 None => numerator.add(-system.force[i]).map_err(sum_range)?,
             }
         }
-        for (&k, &x) in system.stiffness[i].iter().zip(u) {
+        for (j, k) in equations.row(i) {
+            let x = u[j];
             if k == 0.0 {
                 continue;
             }
@@ -1319,110 +1522,146 @@ pub fn estimate_rcond<F>(a: &[Vec<f64>], solve: &F) -> Result<f64, StructuralErr
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
 {
-    let n = a.len();
-    if a.iter()
-        .any(|row| row.len() != n || row.iter().any(|v| !v.is_finite()))
+    ConditionMatrix::estimate_rcond(a, solve)
+}
+/// K1: the matrix the condition estimate reads, dense or sparse. The estimate
+/// itself (`estimate_rcond` below, the body of the public function above) is
+/// written once; a representation supplies its shape check and its columns.
+trait ConditionMatrix {
+    fn dimension(&self) -> usize;
+    /// Every row has `dimension()` finite entries.
+    fn square_and_finite(&self) -> bool;
+    /// Column `j`'s entries in ascending row order. Zeros may be left out:
+    /// they add nothing to the column's 1-norm.
+    fn column(&self, j: usize) -> impl Iterator<Item = f64> + '_;
+    fn estimate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+    where
+        F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
     {
-        return Err(StructuralError::InvalidInput("condition matrix"));
-    }
-    if n == 0 {
-        return Ok(1.0);
-    }
-    let mut norm: f64 = 0.0;
-    for j in 0..n {
-        let mut sum = 0.0;
-        for row in a {
-            sum = checked_value(sum + row[j].abs())?;
+        let n = self.dimension();
+        if !self.square_and_finite() {
+            return Err(StructuralError::InvalidInput("condition matrix"));
         }
-        norm = norm.max(sum);
-    }
-    let mut x = vec![1.0 / n as f64; n];
-    let mut estimate: f64 = 0.0;
-    let mut previous = n;
-    for _ in 0..5 {
-        let y = solve(&x)?;
-        if y.len() != n || y.iter().any(|v| !v.is_finite()) {
-            return Err(StructuralError::InvalidInput("condition solve output"));
+        if n == 0 {
+            return Ok(1.0);
         }
-        let current = checked_value(y.iter().map(|v| v.abs()).sum())?;
-        if current <= estimate && estimate != 0.0 {
-            break;
+        let mut norm: f64 = 0.0;
+        for j in 0..n {
+            let mut sum = 0.0;
+            for value in self.column(j) {
+                sum = checked_value(sum + value.abs())?;
+            }
+            norm = norm.max(sum);
         }
-        estimate = current;
-        let signs: Vec<f64> = y
-            .iter()
-            .map(|&v| if v >= 0.0 { 1.0 } else { -1.0 })
+        let mut x = vec![1.0 / n as f64; n];
+        let mut estimate: f64 = 0.0;
+        let mut previous = n;
+        for _ in 0..5 {
+            let y = solve(&x)?;
+            if y.len() != n || y.iter().any(|v| !v.is_finite()) {
+                return Err(StructuralError::InvalidInput("condition solve output"));
+            }
+            let current = checked_value(y.iter().map(|v| v.abs()).sum())?;
+            if current <= estimate && estimate != 0.0 {
+                break;
+            }
+            estimate = current;
+            let signs: Vec<f64> = y
+                .iter()
+                .map(|&v| if v >= 0.0 { 1.0 } else { -1.0 })
+                .collect();
+            let z = solve(&signs)?;
+            if z.len() != n || z.iter().any(|v| !v.is_finite()) {
+                return Err(StructuralError::InvalidInput(
+                    "condition transpose solve output",
+                ));
+            }
+            let j = (0..n)
+                .max_by(|&i, &j| z[i].abs().total_cmp(&z[j].abs()))
+                .unwrap();
+            let dot: f64 = z.iter().zip(&x).map(|(a, b)| a * b).sum();
+            checked_value(dot)?;
+            if z[j].abs() <= dot || j == previous {
+                break;
+            }
+            previous = j;
+            x.fill(0.0);
+            x[j] = 1.0;
+        }
+        let alt: Vec<f64> = (0..n)
+            .map(|i| {
+                if n == 1 {
+                    1.0
+                } else {
+                    (if i % 2 == 0 { 1.0 } else { -1.0 }) * (1.0 + i as f64 / (n - 1) as f64)
+                }
+            })
             .collect();
-        let z = solve(&signs)?;
-        if z.len() != n || z.iter().any(|v| !v.is_finite()) {
-            return Err(StructuralError::InvalidInput(
-                "condition transpose solve output",
+        let y = solve(&alt)?;
+        if y.len() != n || y.iter().any(|v| !v.is_finite()) {
+            return Err(StructuralError::InvalidInput("condition safeguard output"));
+        }
+        let alt_est =
+            checked_value(y.iter().map(|v| v.abs()).sum::<f64>() * 2.0 / (3.0 * n as f64))?;
+        estimate = estimate.max(alt_est);
+        let rcond = 1.0 / checked_product(norm, estimate)?;
+        if !rcond.is_finite() || rcond <= f64::EPSILON {
+            return Err(unresolved(
+                "scaled condition estimate at working-precision boundary",
+                None,
             ));
         }
-        let j = (0..n)
-            .max_by(|&i, &j| z[i].abs().total_cmp(&z[j].abs()))
-            .unwrap();
-        let dot: f64 = z.iter().zip(&x).map(|(a, b)| a * b).sum();
-        checked_value(dot)?;
-        if z[j].abs() <= dot || j == previous {
-            break;
-        }
-        previous = j;
-        x.fill(0.0);
-        x[j] = 1.0;
+        Ok(rcond.min(1.0))
     }
-    let alt: Vec<f64> = (0..n)
-        .map(|i| {
-            if n == 1 {
-                1.0
-            } else {
-                (if i % 2 == 0 { 1.0 } else { -1.0 }) * (1.0 + i as f64 / (n - 1) as f64)
-            }
-        })
-        .collect();
-    let y = solve(&alt)?;
-    if y.len() != n || y.iter().any(|v| !v.is_finite()) {
-        return Err(StructuralError::InvalidInput("condition safeguard output"));
+}
+impl ConditionMatrix for [Vec<f64>] {
+    fn dimension(&self) -> usize {
+        self.len()
     }
-    let alt_est = checked_value(y.iter().map(|v| v.abs()).sum::<f64>() * 2.0 / (3.0 * n as f64))?;
-    estimate = estimate.max(alt_est);
-    let rcond = 1.0 / checked_product(norm, estimate)?;
-    if !rcond.is_finite() || rcond <= f64::EPSILON {
-        return Err(unresolved(
-            "scaled condition estimate at working-precision boundary",
-            None,
-        ));
+    fn square_and_finite(&self) -> bool {
+        let n = self.len();
+        !self
+            .iter()
+            .any(|row| row.len() != n || row.iter().any(|v| !v.is_finite()))
     }
-    Ok(rcond.min(1.0))
+    fn column(&self, j: usize) -> impl Iterator<Item = f64> + '_ {
+        self.iter().map(move |row| row[j])
+    }
 }
 /// Common completion for EVERY structural backend; no finite-LU bypass.
-fn finish_checked_factor<F>(
-    system: &StructuralSystem<'_>,
-    prepared: &PreparedSystem,
+/// K1: written once over the representation (`Represented` for the source
+/// equations, `PreparedGate` for the prepared system), so the dense and the
+/// sparse paths run the same completion.
+fn finish_checked_factor<R, P, F>(
+    equations: &R,
+    prepared: &P,
     pivots: Vec<PivotEvidence>,
     factorization: &'static str,
     solve: F,
 ) -> Result<StructuralSolution, StructuralError>
 where
+    R: Represented + ?Sized,
+    P: PreparedGate + ?Sized,
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
 {
-    validate(system)?;
+    equations.validate_equations()?;
+    let system = equations.view();
     let n = system.free_dofs.len();
-    if prepared.matrix.len() != n || prepared.rhs.len() != n || prepared.scale_exponents.len() != n
-    {
+    if !prepared.gate_shape_matches(n) {
         return Err(StructuralError::InvalidInput("prepared dimensions"));
     }
-    let rcond = estimate_rcond(&prepared.matrix, &solve)?;
-    let amplification = (prepared.assembly_relative_perturbation_estimate
-        + prepared.assembly_load_perturbation_estimate)
-        / rcond;
+    let rcond = prepared.gate_rcond(&solve)?;
+    let (relative_perturbation, load_perturbation) = prepared.gate_assembly();
+    let amplification = (relative_perturbation + load_perturbation) / rcond;
     if !amplification.is_finite() || amplification >= 1.0 {
         return Err(unresolved(
             "assembly perturbation amplification unresolved",
             None,
         ));
     }
-    let mut y = solve(&prepared.rhs)?;
+    let scale_exponents = prepared.gate_scale_exponents();
+    let force_binding = prepared.gate_binding();
+    let mut y = solve(prepared.gate_rhs())?;
     if y.len() != n || y.iter().any(|v| !v.is_finite()) {
         return Err(StructuralError::InvalidInput("structural backend output"));
     }
@@ -1434,15 +1673,15 @@ where
             u[i] = v;
         }
         for (r, &i) in system.free_dofs.iter().enumerate() {
-            u[i] = radix_scale(y[r], prepared.scale_exponents[r])?;
+            u[i] = radix_scale(y[r], scale_exponents[r])?;
         }
-        let residual = evaluate_original_residual_bound(system, prepared.force_binding, &u)?;
+        let residual = evaluate_original_residual_bound(equations, force_binding, &u)?;
         let worst = residual
             .iter()
             .map(|r| r.guarded_ratio / r.target)
             .fold(0.0, f64::max);
         if residual.iter().all(|r| r.passed) {
-            let intended = audit_intended_action(system, &u)?;
+            let intended = audit_intended_action(equations, &u)?;
             if intended.iter().any(|r| !r.passed) {
                 return Err(unresolved(
                     "contribution-preserved intended free action failed",
@@ -1450,10 +1689,10 @@ where
                 ));
             }
             // S11 section 6: a detected load loss is Sensitive, never a refusal.
-            let load_fidelity = match prepared.force_binding.audit_terms() {
+            let load_fidelity = match force_binding.audit_terms() {
                 // RV1-N5: an audit failure is never propagated; it is a
                 // Sensitive report (section 6).
-                Some(terms) => match audit_load_fidelity(system, &u, terms) {
+                Some(terms) => match equations.load_fidelity(&u, terms) {
                     Ok(report) => (!report.rows.is_empty()).then_some(report),
                     Err(error) => Some(LoadFidelityReport {
                         rows: Vec::new(),
@@ -1466,17 +1705,18 @@ where
             // K-D5 (D1 §4.3.1): a case that would publish Passed is demoted to
             // Sensitive when the formation check's estimate exceeds the
             // criterion or the check cannot re-form it. Values never change.
-            let formation_check = match prepared.formation {
-                Some(source) if !ordinary_sensitive => formation_check::check(
-                    system,
+            let formation_check = match prepared.gate_formation() {
+                Some(source) if !ordinary_sensitive => equations.formation_check(
                     source,
-                    prepared.force_binding.audit_terms(),
-                    &prepared.scale_exponents,
+                    force_binding.audit_terms(),
+                    scale_exponents,
                     &u,
                     &solve,
                 ),
                 _ => None,
             };
+            let (symmetry_projection_performed, maximum_scaled_skew, symmetry_basis) =
+                prepared.gate_symmetry();
             return Ok(StructuralSolution {
                 displacements: u,
                 load_fidelity: load_fidelity.clone(),
@@ -1489,23 +1729,21 @@ where
                         SolveQuality::Passed
                     },
                     factorization,
-                    scale_exponents: prepared.scale_exponents.clone(),
+                    scale_exponents: scale_exponents.to_vec(),
                     pivots,
                     condition_estimator: CONDITION_ESTIMATOR,
                     reciprocal_condition_estimate: rcond,
                     residual_rows: residual,
                     refinement_attempts: attempts,
-                    contribution_audit_performed: system.contributions.is_some(),
-                    contribution_rounding: prepared.contribution_rounding.clone(),
-                    assembly_relative_perturbation_estimate: prepared
-                        .assembly_relative_perturbation_estimate,
+                    contribution_audit_performed: equations.contributions_supplied(),
+                    contribution_rounding: prepared.gate_contribution_rounding().to_vec(),
+                    assembly_relative_perturbation_estimate: relative_perturbation,
                     assembly_amplification_estimate: amplification,
-                    assembly_load_perturbation_estimate: prepared
-                        .assembly_load_perturbation_estimate,
+                    assembly_load_perturbation_estimate: load_perturbation,
                     intended_residual_rows: intended,
-                    symmetry_projection_performed: prepared.symmetry_projection_performed,
-                    maximum_scaled_skew: prepared.maximum_scaled_skew,
-                    symmetry_basis: prepared.symmetry_basis.clone(),
+                    symmetry_projection_performed,
+                    maximum_scaled_skew,
+                    symmetry_basis,
                 },
             });
         }
@@ -1520,7 +1758,7 @@ where
         for (i, row) in residual.iter().enumerate() {
             correction.push(radix_scale(
                 -row.normalized_residual,
-                row.row_scale_exponent + prepared.scale_exponents[i],
+                row.row_scale_exponent + scale_exponents[i],
             )?);
         }
         let delta = solve(&correction)?;
@@ -1716,6 +1954,46 @@ impl ProfileFactor {
     fn set(&mut self, i: usize, j: usize, value: f64) {
         self.rows[i][j - self.first[i]] = value;
     }
+    /// The skyline LDL of the stored rows, in place (K1: shared by
+    /// `factor_structural_profile` and the sparse profile factor, and named
+    /// after that public entry, whose site-table row it carries). Row `i` of
+    /// the factor is ordered row `i`; its pivot is screened against the global
+    /// DOF `free_dofs[order[i]]`.
+    fn factor_structural_profile(
+        mut self,
+        free_dofs: &[usize],
+    ) -> Result<(Self, Vec<PivotEvidence>), StructuralError> {
+        let n = self.order.len();
+        let first = self.first.clone();
+        let mut pivots = Vec::new();
+        let mut work = vec![0.0; n];
+        for i in 0..n {
+            for j in first[i]..i {
+                let mut sum = self.get(i, j);
+                for k in first[i].max(first[j])..j {
+                    sum = checked_value(sum - checked_product(work[k], self.get(j, k))?)?;
+                }
+                work[j] = sum;
+                self.set(i, j, checked_quotient(sum, self.get(j, j))?);
+            }
+            let mut pivot = self.get(i, i);
+            let mut scale = pivot.abs();
+            for k in first[i]..i {
+                let term = checked_product(work[k], self.get(i, k))?;
+                pivot = checked_value(pivot - term)?;
+                scale = checked_value(scale + term.abs())?;
+            }
+            pivots.push(screen_pivot(
+                i,
+                free_dofs[self.order[i]],
+                pivot,
+                scale,
+                2 * (i - first[i]) + 2,
+            )?);
+            self.set(i, i, pivot);
+        }
+        Ok((self, pivots))
+    }
     fn solve(&self, rhs: &[f64]) -> Result<Vec<f64>, StructuralError> {
         let n = self.order.len();
         if rhs.len() != n || rhs.iter().any(|v| !v.is_finite()) {
@@ -1781,38 +2059,12 @@ pub fn factor_structural_profile<'p, 's>(
                 .collect(),
         );
     }
-    let mut factor = ProfileFactor {
+    let factor = ProfileFactor {
         first: first.to_vec(),
         rows,
         order: order.to_vec(),
     };
-    let mut pivots = Vec::new();
-    let mut work = vec![0.0; n];
-    for i in 0..n {
-        for j in first[i]..i {
-            let mut sum = factor.get(i, j);
-            for k in first[i].max(first[j])..j {
-                sum = checked_value(sum - checked_product(work[k], factor.get(j, k))?)?;
-            }
-            work[j] = sum;
-            factor.set(i, j, checked_quotient(sum, factor.get(j, j))?);
-        }
-        let mut pivot = factor.get(i, i);
-        let mut scale = pivot.abs();
-        for k in first[i]..i {
-            let term = checked_product(work[k], factor.get(i, k))?;
-            pivot = checked_value(pivot - term)?;
-            scale = checked_value(scale + term.abs())?;
-        }
-        pivots.push(screen_pivot(
-            i,
-            prepared.source.free_dofs[order[i]],
-            pivot,
-            scale,
-            2 * (i - first[i]) + 2,
-        )?);
-        factor.set(i, i, pivot);
-    }
+    let (factor, pivots) = factor.factor_structural_profile(prepared.source.free_dofs)?;
     Ok(PositiveFactor {
         prepared,
         backend: PositiveBackend::Profile(factor),
