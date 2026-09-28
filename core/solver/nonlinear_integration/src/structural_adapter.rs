@@ -4,7 +4,8 @@ use crate::{CurvedBendStiffnessElement, LinearSolveMode};
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, ForceTerm};
 use open_pipe_stress_frame_kernel::rigid_body::{
-    assess_rigid_body, ObjectiveFamily, RigidBodyStatus,
+    assess_constrained_bodies, assess_rigid_body, objective_sub_bodies, user_element_tie,
+    ConstrainedAssessment, ConstrainedGround, ObjectiveFamily, RigidBodyStatus, TieRefusal,
 };
 use open_pipe_stress_frame_kernel::structural::{
     self, assemble_sparse_stiffness, CurvedFormation, ForceScaleReason, ForceScaledError,
@@ -134,6 +135,28 @@ impl AssemblyEvidence {
             coordinates: &self.coordinates,
             edges: &self.edges,
             spring_ground: &self.spring_ground,
+            w4: None,
+        }
+        .geometry(prescribed)
+    }
+
+    /// K5 (D1 §4.9, W4; ROOT's K5 ruling Q1(b)): `geometry` with the
+    /// constrained-body witness for mixed bodies. Called only in the four
+    /// selected branches of the formation-checked entries.
+    fn constrained_geometry(
+        &self,
+        prescribed: &[(usize, f64)],
+        curved_sources: &[CurvedBendMacroElement],
+    ) -> Result<(), StructuralError> {
+        BodyEvidence {
+            coordinates: &self.coordinates,
+            edges: &self.edges,
+            spring_ground: &self.spring_ground,
+            w4: Some(W4Context {
+                formation: &self.formation,
+                curved_sources,
+                force_scale: self.force_scale,
+            }),
         }
         .geometry(prescribed)
     }
@@ -224,7 +247,7 @@ impl AssemblyEvidence {
             return self.solve_assembled(k, f, free, prescribed, mode);
         }
         unscaled_evidence(self.force_scale)?;
-        self.geometry(prescribed)?;
+        self.constrained_geometry(prescribed, curved_sources)?;
         let symmetry_basis = self.symmetry_basis();
         let source = self.formation_source(curved_sources);
         let system = StructuralSystem::assembled(
@@ -409,7 +432,8 @@ impl AssemblyEvidence {
                 .map_err(ForceScaledError::refused)?;
             &owned
         };
-        let solved = self.geometry(prescribed).and_then(|()| {
+        let screened = self.constrained_geometry(prescribed, curved_sources);
+        let solved = screened.and_then(|()| {
             let symmetry_basis = self.symmetry_basis();
             let source =
                 force_scaled_formation_source(&self.formation, curved_sources, self.force_scale);
@@ -542,6 +566,26 @@ impl SparseAssemblyEvidence {
             coordinates: &self.coordinates,
             edges: &self.edges,
             spring_ground: &self.spring_ground,
+            w4: None,
+        }
+        .geometry(prescribed)
+    }
+    /// K5: `AssemblyEvidence::constrained_geometry` (the four selected
+    /// branches only).
+    fn constrained_geometry(
+        &self,
+        prescribed: &[(usize, f64)],
+        curved_sources: &[CurvedBendMacroElement],
+    ) -> Result<(), StructuralError> {
+        BodyEvidence {
+            coordinates: &self.coordinates,
+            edges: &self.edges,
+            spring_ground: &self.spring_ground,
+            w4: Some(W4Context {
+                formation: &self.formation,
+                curved_sources,
+                force_scale: self.force_scale,
+            }),
         }
         .geometry(prescribed)
     }
@@ -656,7 +700,7 @@ impl SparseAssemblyEvidence {
         }
         unscaled_evidence(self.force_scale)?;
         self.check_pattern(k)?;
-        self.geometry(prescribed)?;
+        self.constrained_geometry(prescribed, curved_sources)?;
         let symmetry_basis = symmetry_basis(&self.edges);
         let source = formation_source(&self.formation, curved_sources);
         match mode {
@@ -845,7 +889,7 @@ impl SparseAssemblyEvidence {
         };
         let solved = self
             .check_pattern(k)
-            .and_then(|()| self.geometry(prescribed))
+            .and_then(|()| self.constrained_geometry(prescribed, curved_sources))
             .and_then(|()| {
                 let symmetry_basis = symmetry_basis(&self.edges);
                 let source = force_scaled_formation_source(
@@ -1206,6 +1250,8 @@ struct BodyEvidence<'e> {
     coordinates: &'e [Option<[f64; 3]>],
     edges: &'e [(usize, usize, bool)],
     spring_ground: &'e [usize],
+    /// K5 (W4): `Some` only in the four selected branches.
+    w4: Option<W4Context<'e>>,
 }
 
 impl BodyEvidence<'_> {
@@ -1243,6 +1289,15 @@ impl BodyEvidence<'_> {
                 .iter()
                 .filter(|(a, _, _)| body.contains(a))
                 .all(|(_, _, q)| *q);
+            // K5 (W4, the four selected branches only): a mixed body whose user
+            // elements are ties and whose curved elements match their macro
+            // source is assessed by `assess_constrained_bodies`; any other mixed
+            // body is left to the matrix gate, as today.
+            if !qualified {
+                if let Some(w4) = &self.w4 {
+                    w4.screen(self, &body, prescribed)?;
+                }
+            }
             // An unqualified family is still checked by the matrix gate, but cannot
             // turn a geometric null vector into a physical mechanism assertion.
             if !qualified || body.iter().any(|&i| self.coordinates[i].is_none()) {
@@ -1282,6 +1337,195 @@ impl BodyEvidence<'_> {
         }
         Ok(())
     }
+}
+
+// ------------------------------------------------------------------ K5 (W4)
+
+/// K5 (D1 §4.9, W4): what the selected branches pass to `BodyEvidence`: the
+/// formation primitives (edge order: frames, users, curved), the macro
+/// elements the curved slots were formed from, and the evidence's 2^b.
+struct W4Context<'e> {
+    formation: &'e FormationPrimitives,
+    curved_sources: &'e [CurvedBendMacroElement],
+    force_scale: ForceScale,
+}
+
+/// K5: W4's record for one mixed body. The reason for an unqualified body is
+/// carried here, never in `StructuralReport` (D5C-3).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum W4Body {
+    Unqualified(W4Unqualified),
+    /// `nodes`: the body's global nodes, ascending (local node k is nodes[k]).
+    Assessed {
+        nodes: Vec<usize>,
+        assessment: ConstrainedAssessment,
+    },
+}
+
+/// K5: why a mixed body is not assessed by W4 (the matrix gate still runs).
+#[allow(dead_code)] // F2a API: the reason carrier; read by tests today.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum W4Unqualified {
+    /// A user element that is no tie (Q5(a)): `element` indexes the users.
+    UserTie { element: usize, refusal: TieRefusal },
+    /// A curved slot built by `CurvedBendStiffnessElement::new` (no source).
+    CurvedExplicit { element_id: String },
+    /// A curved slot matched to no macro element (Q2(b)).
+    CurvedUnmatched { element_id: String },
+    /// A matched macro element whose node coordinates differ from those
+    /// recorded for the same node (a frame, a user or another curved slot).
+    CurvedCoordinates { element_id: String, node: usize },
+    /// `assess_constrained_bodies` refused the input. Unreachable from built
+    /// evidence (I14's RETURN derives it); the body is left to the matrix gate.
+    Geometry(StructuralError),
+}
+
+impl W4Context<'_> {
+    /// W4's outcome for one mixed body, mapped as the frame screen maps its own
+    /// (a witnessed mechanism with its direction over the global DOFs, or the
+    /// unresolved rank); an unqualified body passes to the matrix gate.
+    fn screen(
+        &self,
+        evidence: &BodyEvidence<'_>,
+        body: &[usize],
+        prescribed: &[(usize, f64)],
+    ) -> Result<(), StructuralError> {
+        let W4Body::Assessed { nodes, assessment } = self.body(evidence, body, prescribed) else {
+            return Ok(());
+        };
+        match assessment.status {
+            RigidBodyStatus::Restrained => Ok(()),
+            RigidBodyStatus::MechanismWitnessed => {
+                let mut direction = vec![0.0; 6 * evidence.coordinates.len()];
+                let motion = assessment.node_motion.unwrap_or_default();
+                for (&global, motion) in nodes.iter().zip(motion) {
+                    direction[6 * global..6 * global + 6].copy_from_slice(&motion);
+                }
+                Err(StructuralError::Mechanism { direction })
+            }
+            _ => Err(StructuralError::NumericallyUnresolved {
+                reason: "constrained-body rank unresolved",
+                global_dof: None,
+            }),
+        }
+    }
+
+    /// The per-body record: every edge of the body qualified (frames link,
+    /// user elements tie under `user_element_tie`, curved slots link when
+    /// matched to their macro source with consistent coordinates), then
+    /// `assess_constrained_bodies` over the body's nodes in ascending order,
+    /// with the prescribed and positive-spring grounds as today.
+    pub(crate) fn body(
+        &self,
+        evidence: &BodyEvidence<'_>,
+        body: &[usize],
+        prescribed: &[(usize, f64)],
+    ) -> W4Body {
+        let mut nodes = body.to_vec();
+        nodes.sort_unstable();
+        let local = |global: usize| nodes.binary_search(&global).ok();
+        let frames = self.formation.frames.len();
+        let users = frames + self.formation.users.len();
+        let mut curved_points: Vec<Option<[f64; 3]>> = vec![None; nodes.len()];
+        let mut links = Vec::new();
+        let mut ties = Vec::new();
+        for (index, &(a, b, _)) in evidence.edges.iter().enumerate() {
+            let (Some(la), Some(lb)) = (local(a), local(b)) else {
+                continue;
+            };
+            if index < frames {
+                links.push([la, lb]);
+            } else if index < users {
+                let element = index - frames;
+                match user_element_tie(&self.formation.users[element]) {
+                    Ok(_) => ties.push([la, lb]),
+                    Err(refusal) => {
+                        return W4Body::Unqualified(W4Unqualified::UserTie { element, refusal })
+                    }
+                }
+            } else {
+                let slot = &self.formation.curved[index - users];
+                let element_id = slot.element_id.clone();
+                if slot.explicit {
+                    return W4Body::Unqualified(W4Unqualified::CurvedExplicit { element_id });
+                }
+                let Some(source) = w4_curved_source(slot, self.curved_sources, self.force_scale)
+                else {
+                    return W4Body::Unqualified(W4Unqualified::CurvedUnmatched { element_id });
+                };
+                for (l, global, point) in [
+                    (la, a, source.node_i.coordinates),
+                    (lb, b, source.node_j.coordinates),
+                ] {
+                    let recorded = evidence.coordinates[global].or(curved_points[l]);
+                    if recorded.is_some_and(|old| old != point) {
+                        return W4Body::Unqualified(W4Unqualified::CurvedCoordinates {
+                            element_id,
+                            node: global,
+                        });
+                    }
+                    curved_points[l] = Some(point);
+                }
+                links.push([la, lb]);
+            }
+        }
+        let mut points = Vec::with_capacity(nodes.len());
+        for (l, &global) in nodes.iter().enumerate() {
+            match evidence.coordinates[global].or(curved_points[l]) {
+                Some(point) => points.push(point),
+                None => {
+                    return W4Body::Unqualified(W4Unqualified::Geometry(
+                        StructuralError::InvalidInput("constrained geometry"),
+                    ))
+                }
+            }
+        }
+        let sub_bodies = match objective_sub_bodies(nodes.len(), &links) {
+            Ok(sub_bodies) => sub_bodies,
+            Err(error) => return W4Body::Unqualified(W4Unqualified::Geometry(error)),
+        };
+        let grounds = prescribed
+            .iter()
+            .map(|&(d, _)| d)
+            .chain(evidence.spring_ground.iter().copied())
+            .filter_map(|d| local(d / 6).map(|l| ConstrainedGround::Dof(6 * l + d % 6)))
+            .collect::<Vec<_>>();
+        match assess_constrained_bodies(&points, &sub_bodies, &ties, &grounds) {
+            Ok(assessment) => W4Body::Assessed { nodes, assessment },
+            Err(error) => W4Body::Unqualified(W4Unqualified::Geometry(error)),
+        }
+    }
+}
+
+/// K5 (Q2(b)): the macro element a curved slot was formed from, by K-D5's
+/// predicate (`formation_source`; `force_scaled_formation_source` at 2^b):
+/// the node indices, and the bits of the macro element's global matrix
+/// (times 2^b) equal to the slot's; the first match in `curved_sources`.
+/// A matched element's moduli need not scale normally (W4 uses its nodes).
+fn w4_curved_source<'m>(
+    slot: &CurvedSlot,
+    curved_sources: &'m [CurvedBendMacroElement],
+    force_scale: ForceScale,
+) -> Option<&'m CurvedBendMacroElement> {
+    curved_sources.iter().find(|m| {
+        m.node_i.index == slot.node_i
+            && m.node_j.index == slot.node_j
+            && m.global_stiffness()
+                .ok()
+                .and_then(|g| {
+                    if force_scale.is_unscaled() {
+                        Some(g)
+                    } else {
+                        force_scaled_matrix("curved entry*2^b", &g, force_scale).ok()
+                    }
+                })
+                .is_some_and(|g| {
+                    g.iter()
+                        .flatten()
+                        .zip(slot.global_stiffness.iter().flatten())
+                        .all(|(a, b)| a.to_bits() == b.to_bits())
+                })
+    })
 }
 
 fn qualified_passive_family(edges: &[(usize, usize, bool)]) -> bool {
@@ -2700,6 +2944,10 @@ mod k1_tests;
 #[cfg(test)]
 #[path = "structural_adapter/k2b_tests.rs"]
 mod k2b_tests;
+
+#[cfg(test)]
+#[path = "structural_adapter/k5_tests.rs"]
+mod k5_tests;
 
 #[cfg(test)]
 mod retention_tests {

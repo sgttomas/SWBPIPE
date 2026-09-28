@@ -1,0 +1,150 @@
+//! I14 checkpoint-0 probe (scratch only; never committed to the product tree).
+//! Mac-main product runs of constructed curved-bend mechanisms, through PP's
+//! captured value entry and its typed entry, in both modes. Invented inputs.
+//! Prints one record line per (model, entry, mode, case).
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
+    LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
+};
+use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
+
+const SQRT1_2: f64 = std::f64::consts::FRAC_1_SQRT_2;
+const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
+
+fn base(nodes: Value, pipes: Value, supports: Value, components: Value, cases: Value) -> Value {
+    json!({"model":{"schema_version":"0.2.0","document_kind":"openpipestress.product_preview.model",
+        "project":{"id":"project:k5probe","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
+        "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
+        "nodes":nodes,"pipe_segments":pipes,"supports":supports,"components":components,
+        "materials":[{"id":"material:m","elastic_modulus":{"value":200e9,"unit":"Pa"},"shear_modulus":{"value":76.923076923e9,"unit":"Pa"},
+            "thermal_expansion_coefficient":{"value":1.2e-5,"unit":"1/degC"},
+            "temperature_points":[{"id":"point:hot","temperature":{"value":300.0,"unit":"degC"},"elastic_modulus":{"value":180e9,"unit":"Pa"},"shear_modulus":{"value":69.2e9,"unit":"Pa"}}],
+            "provenance":"i14_invented_test_values"}],
+        "load_cases":cases,"combinations":[]},"materials":[]})
+}
+fn node(id: &str, x: f64, y: f64, z: f64) -> Value {
+    json!({"id":id,"position":{"x":x,"y":y,"z":z},"provenance":"i14"})
+}
+fn pipe(id: &str, from: &str, to: &str, yref: [f64; 3]) -> Value {
+    json!({"id":id,"from":from,"to":to,"section":{"outside_diameter":{"value":0.12,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"material":"material:m","y_reference":{"x":yref[0],"y":yref[1],"z":yref[2]},"provenance":"i14"})
+}
+fn force(id: &str, node: &str, dir: &str, v: f64) -> Value {
+    json!({"id":id,"category":"concentrated_force","target":{"type":"node","node":node},"direction":dir,"magnitude":{"value":v,"unit":"N"},"dimension":"force","provenance":"i14"})
+}
+fn support(id: &str, node: &str, restraints: &[&str]) -> Value {
+    json!({"id":id,"node":node,"family":"anchor","restraints":restraints,"provenance":"i14"})
+}
+fn case(id: &str, loads: Value) -> Value {
+    json!({"id":id,"primitive_loads":loads,"provenance":"i14"})
+}
+
+/// a-b straight, b-c a realized 90-degree bend (R = 0.2 m), c-d straight, as
+/// preview_physics_runtime's arc_model; translation pins at a and d only, so
+/// the rigid rotation about the line a-d is a physical mechanism. `rx_at_a`
+/// adds RX at a (the stabilized companion). `gap` adds an open gap support.
+fn mechanism(offset: f64, rx_at_a: bool, gap: bool) -> Value {
+    mechanism_r(offset, rx_at_a, gap, 0.2)
+}
+
+/// As `mechanism` with bend radius `r` (dyadic r keeps the chord and the
+/// product's arc centre exact at large offsets).
+fn mechanism_r(offset: f64, rx_at_a: bool, gap: bool, r: f64) -> Value {
+    let comp = json!({"id":"component:bend","label":"i14 arc","kind":"bend","node":"node:c",
+        "geometry":{"bend_pipe_ref":"pipe:b-c","bend_radius":{"value":r,"unit":"m"},"bend_angle":{"value":std::f64::consts::FRAC_PI_2,"unit":"rad"},"bend_plane_orientation":"global_xy_preview","bend_geometry_source_reference":"i14"},
+        "modifiers":{"flexibility_factor_user_value":{"value":2.0,"unit":"none"},"source_reference":"i14_invented"},
+        "mechanics_interface":{"solver_consumption":"curved_bend_macro_element","rule_check_consumption":"user_rule_pack_inputs_only"},"provenance":"i14"});
+    let o = offset;
+    let pin_a: &[&str] = if rx_at_a { &["UX", "UY", "UZ", "RX"] } else { &["UX", "UY", "UZ"] };
+    let mut supports = vec![support("support:pa", "node:a", pin_a), support("support:pd", "node:d", &["UX", "UY", "UZ"])];
+    if gap {
+        supports.push(json!({"id":"support:gap","node":"node:b","family":"nonlinear","restraints":[],
+            "nonlinear":{"behavior":"gap","dof":"UZ","initial_state":"inactive","closes_when":"positive_displacement","gap":{"value":1000.0,"unit":"mm"}},
+            "provenance":"i14 invented: an open gap support that never closes"}));
+    }
+    base(
+        json!([node("node:a", o, o, 0.0), node("node:b", o + 1.0, o, 0.0), node("node:c", o + 1.0 + r, o + r, 0.0), node("node:d", o + 1.0 + r, o + 1.0 + r, 0.0)]),
+        json!([pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]), pipe("pipe:b-c", "node:b", "node:c", [SQRT1_2, -SQRT1_2, 0.0]), pipe("pipe:c-d", "node:c", "node:d", [1.0, 0.0, 0.0])]),
+        json!(supports),
+        json!([comp]),
+        json!([case("case:z", json!([force("z", "node:b", "global_z", 1000.0)])), case("case:x", json!([force("x", "node:b", "global_x", 1000.0)]))]),
+    )
+}
+
+fn record(label: &str, entry: &str, mode: PreviewSolverMode, env: &MechanicsEnvelope) {
+    let text = serde_json::to_string(env).unwrap();
+    let sha: String = Sha256::digest(text.as_bytes()).iter().map(|b| format!("{b:02x}")).collect();
+    let v: Value = serde_json::from_str(&text).unwrap();
+    let blocking: Vec<String> = v["diagnostics"].as_array().unwrap().iter()
+        .filter(|d| d["severity"] == "blocking").map(|d| d["code"].as_str().unwrap().to_string()).collect();
+    let quality: Vec<String> = v["numerical_quality"]["cases"].as_array().map(|cs| cs.iter()
+        .map(|c| format!("{}:{}/{}", c["basis_ref"]["ref_id"].as_str().unwrap_or("?"), c["solve_quality"], c["structural_status"])).collect()).unwrap_or_default();
+    println!("K5PROBE {label} {entry} {mode:?} mechanics={} nq_status={} quality={quality:?} blocking={blocking:?} sha256={sha}",
+        v["status"]["mechanics"], v["numerical_quality"]["status"]);
+    for d in v["diagnostics"].as_array().unwrap() {
+        let code = d["code"].as_str().unwrap();
+        if code.starts_with("NUMERICAL_INTEGRITY") || code.starts_with("CURVED") || code.starts_with("SOURCE_BLOCK") || code.contains("MECHANISM") || code.contains("RIGID") || code.starts_with("SUP") || d["severity"] == "blocking" {
+            let msg = d["message"].as_str().unwrap_or("");
+            let cut: String = msg.chars().take(700).collect();
+            println!("K5PROBE-DIAG {label} {entry} {mode:?} {code} [{}] {cut}", d["severity"]);
+        }
+    }
+    let max = &v["summary"]["max_displacement"];
+    println!("K5PROBE-MAXDISP {label} {entry} {mode:?} {} {}", max["value"], max["location_ref"]);
+}
+
+#[test]
+fn k5_probe_main_curved_mechanisms() {
+    for (label, offset, rx, gap) in [
+        ("mech_origin", 0.0, false, false),
+        ("mech_5e6", 5.0e6, false, false),
+        ("companion_origin", 0.0, true, false),
+        ("companion_5e6", 5.0e6, true, false),
+        ("mech_origin_gap", 0.0, false, true),
+        ("mech_5e6_gap", 5.0e6, false, true),
+        ("r025_mech_origin", 0.0, false, false),
+        ("r025_mech_1024", 1024.0, false, false),
+        ("r025_mech_5e6", 5.0e6, false, false),
+        ("r025_companion_origin", 0.0, true, false),
+        ("r025_companion_1024", 1024.0, true, false),
+        ("r025_companion_5e6", 5.0e6, true, false),
+        ("r025_mech_origin_gap", 0.0, false, true),
+        ("r025_mech_5e6_gap", 5.0e6, false, true),
+        ("r03_mech_origin", 0.0, false, false),
+        ("r03_mech_1000", 1000.0, false, false),
+        ("r03_mech_5e6", 5.0e6, false, false),
+        ("r03_companion_1000", 1000.0, true, false),
+        ("r03_mech_1000_gap", 1000.0, false, true),
+    ] {
+        let value = if label.starts_with("r025_") {
+            mechanism_r(offset, rx, gap, 0.25)
+        } else if label.starts_with("r03_") {
+            mechanism_r(offset, rx, gap, 0.3)
+        } else {
+            mechanism(offset, rx, gap)
+        };
+        for mode in MODES {
+            let captured = run_linear_static_preview_value_with_mode(value.clone(), mode).expect("captured entry");
+            record(label, "captured", mode, &captured);
+            let typed_request: LinearStaticPreviewRequest = serde_json::from_value(value.clone()).unwrap();
+            let typed = run_linear_static_preview_with_mode(typed_request, mode);
+            record(label, "typed", mode, &typed);
+        }
+    }
+}
+
+/// The committed models that carry a realized joint flag (scan): each must be
+/// refused at PP's joint-equilibrium check before any element is built.
+#[test]
+fn k5_probe_main_committed_joint_models() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let preview: Value = serde_json::from_str(&std::fs::read_to_string(root.join("fixtures/product_preview/invented_preview_model.json")).unwrap()).unwrap();
+    let runner: Value = serde_json::from_str(&std::fs::read_to_string(root.join("validation/witness/inputs/tp_runner_015_final_cli_solve_input.json")).unwrap()).unwrap();
+    for (label, model) in [("invented_preview_model", preview), ("tp_runner_015_solve_preview_model", runner["solve"]["preview_model"].clone())] {
+        let value = json!({"model": model, "materials": []});
+        for mode in MODES {
+            let captured = run_linear_static_preview_value_with_mode(value.clone(), mode).expect("captured entry");
+            record(label, "captured", mode, &captured);
+        }
+    }
+}
