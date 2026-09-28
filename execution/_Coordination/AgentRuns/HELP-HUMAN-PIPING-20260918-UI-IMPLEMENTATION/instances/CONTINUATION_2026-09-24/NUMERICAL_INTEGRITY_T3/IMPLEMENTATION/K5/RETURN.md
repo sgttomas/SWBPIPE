@@ -1,20 +1,29 @@
-# K5 RETURN (W4: the constrained-body witness and the curved rule), draft at checkpoint A2
+# K5 RETURN (W4: the constrained-body witness and the curved rule)
 
-I14, a Type 2 TASK, for ROOT (HELP_HUMAN). **This is a draft.**
-- §2 (the derivations) and §4 (the A2 evidence) are complete for A2's scope.
-- The sections marked "at D" are written at checkpoint D, with CHANGE_RECORD and SHA256SUMS.
+I14, a Type 2 TASK, for ROOT (HELP_HUMAN). This is the return at checkpoint D. CHANGE_RECORD.md is the PR record; SHA256SUMS covers every file of `IMPLEMENTATION/K5/` except itself.
 
 **Placeholders:**
 - `<wt>` is the T3 worktree root; `<scratch>` is `<wt>/scratch/i14`; `<VENV>` is the repository venv.
 - `T3/` is `P/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/`, and `P/` is `projects/chirality-piping/`.
+- `FK` is `P/core/solver/frame_kernel`, `SA` is `P/core/solver/nonlinear_integration/src/structural_adapter.rs`, `NI` is `P/core/solver/nonlinear_integration`, `PP` is `P/core/product_physics` and `CB` is `P/core/solver/curved_bend`.
 
-**Platform:** `aarch64-apple-darwin`, rustc 1.97.1. Every product comparison here is Mac against Mac, built from `git archive` copies of Mac main `24dea2dae` and of the candidate. None is compared with a Linux record.
+**Platform:** `aarch64-apple-darwin`, rustc 1.97.1. Every product comparison here is Mac against Mac, built from `git archive` copies of Mac main `24dea2dae` and of the candidate. None is compared with a Linux record. T9, the gate part 1 comparison and the product runs are Mac-only comparisons against Mac main.
 
-**Delegation mechanism:** a Claude Code background subagent of ROOT's session, started through the Agent tool and resumed by SendMessage. I14 delegated nothing.
+**Delegation mechanism:** a Claude Code background subagent of ROOT's session, started through the Agent tool and resumed by SendMessage at each checkpoint. ROOT is its parent and only return path. I14 delegated nothing and started no descendant. Its write set and Git limits (no Git writes, no index operations) were the brief's and ROOT's, enforced by instruction; the host enforced only its own file permissions.
+
+**Branch and commits** (`codex/piping-k5-20260928`, from main `24dea2dae`; every commit made by ROOT):
+
+| Checkpoint | Commit | Content |
+|---|---|---|
+| A1 | `0c732061b` | FK: `assess_constrained_bodies` and its tests |
+| A2 | `6bf64f5a9` | SA wiring, SA and PP tests, the product-run table |
+| B | `416b0d456` | records: suites, T9, gate part 1 |
+| C | `f89662e1f` | mutation table; two tests added (FK's `b9_directional_exactness` case, NI's `k5_frame_only_bodies_keep_todays_witness`); P6 derived |
+| D | (ROOT) | these records only: RETURN, CHANGE_RECORD, `_run_records/callers.txt`, `_run_records/d/`, SHA256SUMS |
 
 ## 1. Scope as ruled
 
-The rulings are ROOT's, in the brief and in `ROOT_RULINGS_V1.md`: "K5: spawn and rulings" and "K5: rulings on I14's checkpoint-0 plan".
+The rulings are ROOT's, in the brief (`T3/TASK_BRIEFS/I14_K5_IMPLEMENTATION.md`, sha256 `a2f61531…`, "ROOT rulings for this slice") and in `ROOT_RULINGS_V1.md`: "K5: spawn and rulings" and "K5: rulings on I14's checkpoint-0 plan". ROOT's later rulings came by message: A1's refinements 1–4 approved; at A2, the P6 correction and K5-C2 approved; B and C verified and committed.
 
 | Ruling | Choice |
 |---|---|
@@ -30,8 +39,46 @@ The rulings are ROOT's, in the brief and in `ROOT_RULINGS_V1.md`: "K5: spawn and
 | Q10(a) | The curved-formation item is not K5's |
 | Q11 | One slice |
 
-- A1 (FK) is committed as `0c732061b`.
-- A2 (the SA wiring, the tests and the product runs) is in the working tree.
+### 1.1 The checkpoint-0 positions, as ruled
+
+I14's plan (`<scratch>/CHECKPOINT0_PLAN.md`, sha256 `7f50c788…`) was approved with positions P1–P11, and S1 was resolved by reversing Q7 to (a).
+
+| Position | As ruled and built |
+|---|---|
+| FK API | `assess_constrained_bodies` assesses one connected body; directional ground rows (Q6); a disconnected tie graph is `InvalidInput` (P7) |
+| Reduction | exact tree reduction, six unknowns per body, never a 6S×6S map |
+| Screen (Q4(b)) | L a power of two from the bits; `root_one_plus_square` in place of `hypot(ζ, 1)`; τ_B with m = the nonzero rows kept (P3) |
+| Witness | exact verification; the canonical representative r = k·p/p_j, smallest k ≤ 64 (P1) |
+| Curved (Q2(b)) | qualification by the matched macro source plus coordinate agreement; the screen ratio is evidence only |
+| User (Q5(a)) | a tie only with four finite positive stiffnesses and a valid orientation; T4 tripwire |
+| Wiring (Q1(b)) | the four selected bodies call the private `constrained_geometry`; every other path passes `w4: None` |
+| P2 | the reason string `"constrained-body rank unresolved"` (K5-C2) |
+| P4 | one PP tests-only file, `k5_curved_mechanism_runtime.rs` |
+| P5 | a matched slot whose moduli do not scale normally at 2^b is still qualified (the geometry does not depend on them) |
+| P6 | an FK error on an SA-built body is `Unqualified(Geometry)`: the body goes to the matrix gate. Every cause is unreachable from built evidence (§2.7) |
+| P8 | the typed product entry is PP's `run_linear_static_preview_with_mode` |
+| P9 | B1: 4,000 generated cases, the first 1,000 committed |
+| P10 | `W4Body` and `W4Unqualified` are `pub(crate)`; `TieRefusal` is public |
+| P11 | RF-MECH's SA-level statuses established by the A2 harness |
+| Q9 | no site-table change |
+| S1 → Q7(a) | the basis text is unchanged on every entry; K5-C3 no longer exists |
+
+### 1.2 Each item of the design, with the rulings
+
+The design's words are D1 revision 5a.2 §4.9 and the §6 K5 row (`DESIGN.md`, sha256 `fb62ef4a…`).
+
+| §4.9 | What K5 does |
+|---|---|
+| "`assess_constrained_bodies(sub_bodies, ties, grounds)` sits beside `assess_rigid_body`" | Added in `FK/src/rigid_body.rs` after line 249, with the coordinates as its first argument (the design's signature omits them). `assess_rigid_body` and `original_rigid_witness` are byte-identical (§2.4). |
+| "Objective sub-bodies are node sets joined by straight frames, and by curved elements that pass the screen below" | Frames and curved slots matched to their macro source (Q2(b)); `objective_sub_bodies` forms the components. The screen is evidence only (§4.3). |
+| "Each user element imposes u_a = u_b and θ_a = θ_b … because every stiffness is positive" | `user_element_tie`: a tie only with four finite positive stiffnesses (Q5(a)); the T4 tripwire test guards the rule. |
+| "Grounds are the restrained DOFs and positive springs, as today" | `ConstrainedGround::Dof` rows as today, plus Q6's `Directional` rows in the FK API. SA passes `Dof` rows only. |
+| "The null space of the stacked map uses the existing SVD rank screen and τ_B form. It returns Restrained, MechanismWitnessed … or NumericallyUnresolved" | The same one-sided Jacobi and τ_B rule on the reduced rows, with `hypot` replaced (Q4(b)); the witness exact and canonical; `NumericallyUnresolved` carries "constrained-body rank unresolved". |
+| "Proof sketch. Each family's energy is non-negative …" | Written out in §2.1–§2.3. |
+| "Curved objectivity screen … If it fails, the body stays unqualified for a witness, with a reason" | Replaced by source qualification (Q2(b)). The reason for an unqualified body is carried by `W4Unqualified`. The ratio is recorded per element (§4.3). |
+| "Coordination. T4 should confirm the curved construction's null-space claim" | Not a prerequisite (Q3(a)); notice to T4 (§10). |
+| SUP-17 | Delivered by F1a, not K5. |
+| §6 row: "A user-element internal mechanism (NP-C-like), a stabilized companion, near-collinear ties, a curved screen positive and a seeded negative" | FK `k5_b2_np_c_like_internal_mechanism_and_its_companion` and `k5_b2_near_collinear_virtual_pins`; SA `k5_curved_slots_qualify_by_their_matched_source` (the positive is a matched slot; the seeded negatives are explicit, unmatched and coordinate-inconsistent slots). |
 
 ## 2. Derivations
 
@@ -154,7 +201,10 @@ This is as in I14's plan §4, and in the doc comment of `assess_constrained_bodi
 5. **So** a model whose bodies are all frame-only has identical outcomes, errors and direction bits on every entry.
    - A model whose first failing body in seed order is frame-only keeps today's error.
    - Only a mixed body met in seed order before any failing frame-only body can change the outcome, and only on the selected branches (K5-C1 and K5-C2).
-6. **Checked:** the RF-MECH harness (§4.2) is byte-identical base against candidate. `k5_first_failing_body_in_seed_order_decides` pins both seed orders.
+6. **Checked:**
+   - the RF-MECH harness (§4.2) is byte-identical base against candidate;
+   - `k5_first_failing_body_in_seed_order_decides` pins both seed orders;
+   - **`k5_frame_only_bodies_keep_todays_witness` (added at C)** pins today's frame-only witness on the selected branches. It uses a free translation, where today's screen and W4 publish different bits: today's translates by the characteristic length (4.0 exactly on its frame), W4's canonical representative by 1.0. The test asserts both on the same body, so routing frame-only bodies through W4 (mutant K5-M9) fails it (§6).
 
 ### 2.5 No invocation with a nonlinear support changes; the contact-seed guard stays closed
 
@@ -225,6 +275,102 @@ This is as in I14's plan §5.7.
 **This supersedes A2's "not excluded" paragraph**, which assumed element spans up to about 1e308.
 
 **A NaN or infinite user stiffness never reaches W4:** `EvidenceParts::new` refuses a non-finite global stiffness ("user stiffness"; `k5_user_elements_tie_only_with_positive_stiffnesses`).
+
+### 2.8 The prefilter changes no outcome: the declared-equivalent mutant (plan §16)
+
+**The mutant (K5-PREFILTER).**
+- It deletes the row loop of `WitnessContext::try_candidate` (`FK/src/rigid_body.rs:851-859`).
+- For each reduced row r, that loop computes `dot = Σ r_i·ŝ_i` in binary64, and returns `None` unless |dot| ≤ fl(2^-20·size).
+- Here ŝ = (fl(p₀/L), fl(p₁/L), fl(p₂/L), p₃, p₄, p₅) for the candidate p = [t, θ], and size = ‖ŝ‖∞.
+- The guard before the loop (`size` finite and > 0) is not part of the mutant, and stays.
+
+**Claim.** For every candidate that reaches the loop, if `null_translations(p)` returns `Ok(Some(_))`, then every row passes.
+- So `try_candidate` returns the same value with and without the loop: a candidate the loop rejects fails `null_translations` anyway, and gives `None` either way.
+- `try_candidate` has no side effects.
+- `assess_constrained_bodies` returns at the first `Some`, in a candidate order that does not depend on `try_candidate`'s results.
+- **So every field of its result is identical.**
+
+**Notation.** ε = 2^-53 and η = 2^-1074. The standard model with gradual underflow:
+- fl(ab) = ab(1 + δ) + μ, with |δ| ≤ ε, |μ| ≤ η/2, and μ ≠ 0 only for a subnormal result;
+- fl(a ± b) = (a ± b)(1 + δ), exact when the result is subnormal;
+- a scaling by a power of two is exact unless the result is subnormal, and then errs by at most η/2 per step.
+
+**Step 1: what an exact null candidate satisfies.** `Ok(Some(_))` means that, as real numbers, with the exact virtual positions v (`Expansion`):
+- a `Dof` translation ground (node n, axis k): (t + θ × v_n)_k = 0;
+- a `Dof` rotation ground: θ_k = 0;
+- a directional translation ground with direction d: d·(t + θ × v_n) = 0;
+- a directional rotation ground: d·θ = 0;
+- every tie (a, b), cycles included: θ × (v_a − v_b) = 0, since u_a − u_b = θ × (v_a − v_b) exactly.
+
+**Step 2: each computed row is close to an ideal row ρ with ρ·s* = 0, where s* = (t/L, θ).**
+- Write w = fl(round(v_n)/L). Since L ≤ M < 2L, |v|/L < 2(1 + ε), and |w_i − v_{n,i}/L| ≤ 2.01ε + η/2 (round is correctly rounded, and v is a multiple of η).
+- ŝ differs from s* only in its translation part, by at most η/2 per component.
+- Bounds, for the unnormalized row row₀:
+
+| Kind | Ideal ρ (ρ·s* = 0 by Step 1) | Bound on \|row₀·ŝ\| / ‖row₀‖ |
+|---|---|---|
+| (a) `Dof` translation | `translation_row(v_n/L, k)` | (4.1ε + η)·size + η/2 (‖row₀‖ ≥ 1) |
+| (b) `Dof` rotation | row₀ = e_{3+k} | 0: the dot is θ_k = 0 |
+| (c) directional translation | [n*, (v_n/L) × n*], n* = 2^-e·d with \|n*\|∞ ∈ [1, 2), \|n̂_i − n*_i\| ≤ η | (72.9ε + 24.3η)·size + 3η. ‖row₀‖ ≥ ‖n̂‖ ≥ 1. Each computed cross component lies within 24.3ε + 7.1η of ((v_n/L) × n*)_j: two products and a subtraction, plus w's and n̂'s perturbations, with \|w\|, \|n̂\| < 2 |
+| (d) directional rotation | [0, n*] | 3η·size |
+| (e) cycle, k ∈ {0, 1, 2} | [0, c* × e_k], c* = 2^-e(v_a − v_b), \|c_i − c*_i\| ≤ ε\|c*_i\| + η | (8.3ε + 4.2η)·size |
+
+- **The cycle rows need a relative argument,** because ‖row₀‖ can be tiny.
+  - Step 1 gives θ = λc* (or θ = 0, when the dot is 0).
+  - Then row₀·ŝ = θ·(c × e_k) = e_k·(θ × c) = λ·e_k·(c* × (c − c*)).
+  - Over the row's two indices a and b, this is at most |λ|·[2ε|c*_a c*_b| + η(|c*_a| + |c*_b|)].
+  - ‖row₀‖ = √(c_a² + c_b²) ≥ max(|c_a|, |c_b|) ≥ η, and |c*_x| ≤ 2.02·max(|c_a|, |c_b|).
+  - |λ| ≤ size/0.99, because |c*|∞ ≥ 0.99.
+
+**Step 3: normalization and the dot product.**
+- `push_normalized` scales row₀ by a power of two. That is exact, except for entries that fall subnormal when scaled down, which err by at most η.
+- It then divides by the computed norm, whose relative error is at most 5ε, and rounds (ε, η/2). So |r·ŝ| ≤ 1.01·|row₀·ŝ|/‖row₀‖ + (2.5ε + 10η)·size.
+- The loop's sum of six products adds at most γ₆·Σ|r_i||ŝ_i| + 3.01η ≤ 14.7ε·size + 3.01η, since Σ|r_i| ≤ √6·(1 + 6ε).
+- With kind (c) as the worst case, every row satisfies **|dot| ≤ (91ε + 35η)·size + 6.04η**.
+
+**Step 4, case A: size ≥ 2^-1050. The row passes.**
+- The threshold satisfies fl(2^-20·size) ≥ 2^-20·size − η/2.
+- Since η ≤ 2^-24·size: |dot| + η/2 ≤ (2^-46.4 + 6.54·2^-24)·size < 0.42·2^-20·size.
+
+**Step 5: only families 4 and 5 can have size < 2^-1050.**
+- **Family 3 (the unit axes).**
+  - A rotation axis has size = 1.
+  - A translation axis has ŝ = fl(1/L) = 2^-e ≥ 2^-1023, where L = 2^e ≤ 2^1023. If e < −1023, 1/L = ∞, and the guard returns before the loop.
+- **Family 2 (rationalized).** The pivot component of y is ±k, with k ≥ 1.
+  - If it is a rotation component, size ≥ 1.
+  - If it is a translation component and L ≥ 2^-1022, y·L is exact and normal, so ŝ = y.
+  - Otherwise fl(yL) is a nonzero multiple of η, and ŝ ≥ η/L ≥ 2^-52.
+- **Family 1 (the SVD column).**
+  - The column is I's image under at most 960 binary64 Givens rotations, so its 2-norm is within 2^-40 of 1, and one component is at least 0.4.
+  - The family-2 argument then gives size ≥ 2^-53.
+  - The exception is L = η with every translation component at most 1/2: these round to 0, so the rotation part carries a component above 0.28.
+
+**Step 6, case B: size < 2^-1050 (families 4 and 5). The dot is exactly 0.**
+- **The candidate is exact.** Here t = 0, and θ = round(v_n) (family 4) or round(v_a − v_b) (family 5). Every component is below 2^-1050 and a multiple of η, so round is exact: θ_i = m_i·η with |m_i| < 2^24.
+- **What `Ok` implies.** `null_translations` forms `add_product(τ, θ_b)` for every term τ of v_{x,c}, for every c ≠ b and every node x. It returns `Err` unless each product is a sum of two binary64 values, which makes it a multiple of η. So `Ok` implies θ_b·v_{x,c} ∈ ηℤ for every x, and every b ≠ c with θ_b ≠ 0.
+- **So θ has one nonzero component.** Suppose θ_b and θ_c (b ≠ c) were both nonzero.
+  - Family 4 would give θ_b·v_{n,c} = θ_bθ_c ∈ ηℤ.
+  - Family 5 would give θ_b·(v_{a,c} − v_{b,c}) = θ_bθ_c ∈ ηℤ.
+  - Both are impossible, since 0 < |θ_bθ_c| < 2^48·η² < η.
+  - So θ = θ_j·e_j, ŝ = (0, 0, 0, θ_j·e_j), and the dot is fl(r_{3+j}·θ_j): every other product is exactly 0.
+- **Kinds (a), (b), (d) and (e):** Step 1 forces r_{3+j} = 0 exactly, because a zero stays zero through rounding and power-of-two scaling.
+  - (a): for k = j the row has no entry in column 3 + j. For k ≠ j, (e_j × v_n)_k = ±v_{n,l} = 0 for the third index l, so w_l = 0, which is the row's entry in column 3 + j.
+  - (b): θ_k = 0 forces k ≠ j.
+  - (d): d_j = 0.
+  - (e): e_j × (v_a − v_b) = 0 forces c's other two components to 0, and those are the entries in column j.
+- **Kind (c):** (v_n × d)_j = 0, so after normalization |r_{3+j}| ≤ 1.01·(24.3ε + 7.1η) + η < 2^-47. Then |r_{3+j}·θ_j| < 2^-23·η < η/2, which rounds to 0.
+- So dot = 0, which passes: the threshold is ≥ 0.
+
+**Conclusion.** The prefilter rejects no candidate that `null_translations` accepts, so the mutant is equivalent in outcome. The loop is a performance filter only: it skips exact checks of candidates that cannot verify. The plan's §5.3 estimate (about 300ε·size) omitted the underflow terms. Case B shows they cannot matter.
+
+**Observed (supporting evidence, not the proof).**
+- K5-PREFILTER ran from a clean archive of `f89662e1f`, after a NONE control on the same base (`_run_records/d/`).
+- FK's k5 suites (B1's 1,000 committed records included), NI's library tests and the PP k5 test all pass: it survives, as the derivation predicts.
+
+**Outside the claim: the guard before the loop.**
+- When L < 2^-1023, fl(1/L) = ∞, and the guard withholds the three unit translation candidates. Such a body has every virtual coordinate below 2^-1022.
+- The rationalized candidates (family 2) still carry translations, in scaled units.
+- This is recorded, not changed.
 
 ## 3. Refinements (ROOT-approved at A1) and A2's
 
@@ -321,16 +467,357 @@ The candidate's refusal envelopes are identical in both modes: the geometric scr
   - PP's historical-scope tests with a realized joint C-150 all run requests with nonlinear supports (derived from the demo model's NL-130-FRIC and NL-140), so they are not selected. These are `current_composite_derived_normal_friction_and_reversal`, `expansion_joint_user_stiffness_emits_macro_element_review_rows` and the other historical-premise tests.
   - s11f's F10 joint carries only an axial stiffness. PP does not realize it as an element (`UserStiffnessElement::new` refuses a zero lateral), so its body is frame-only.
 
-## 5. At D
+## 5. Evidence at B (records in `_run_records/b/`; candidate `6bf64f5a9`)
 
-The following are written at checkpoint D:
-- the files and line counts;
-- each item with the design's words;
-- the callers (lexer scan);
-- the mutation table;
-- T9 and the per-crate suite counts against the Mac baseline;
-- gate part 1;
-- the interface section for SA, F2a, F3, W1c, K4, V-K, T4 and T5;
-- the toolchain and host;
-- what was not done;
-- CHANGE_RECORD and SHA256SUMS.
+**Suites (39 manifests, `--no-fail-fast`), against the Mac baseline of the base's product tree** (`suites_candidate.log`, `suites_vs_baseline.diff`):
+
+| Manifest | Base | Candidate | Change |
+|---|---|---|---|
+| FK | 249 passed | 266 passed | +17: K5's 14 FK integration tests, `k5_scale`, and 2 unit tests in `rigid_body.rs` |
+| NI | 120 passed | 130 passed | +10: K5's SA tests at A2 |
+| PP | 525 passed, 1 failed | 528 passed, 1 failed | +3: `k5_curved_mechanism_runtime` |
+| every other manifest | — | — | unchanged |
+
+- **Failures.** The only failures are the three known Mac platform tests (PP `s11g_tests::t13_committed_fallback_uz_is_byte_identical`, and two headless load-reference tests). Their failure blocks are byte-identical, base against candidate (`failure_blocks_baseline.txt` and `failure_blocks_candidate.txt`).
+- **After C.** C added tests only: one NI test, and one FK case inside an existing test. C's NONE control on `416b0d456` plus the C overlay, and D's on `f89662e1f`, passed FK (8 + 14 + 1), NI's library (127) and PP's k5 test (3). The full suites were not re-run after C.
+
+**T9 (Mac-only)** (`t9_compare.txt`):
+- Base (`git archive` of `24dea2dae`) and candidate (`git archive` of `6bf64f5a9`) gave 112 outputs each: core 10, fixtures 72, validation 30.
+- **112 of 112 are byte-identical.**
+- The base outputs also equal `PLATFORM_CALIBRATION_MAC/t9/output_sha256_main_mac_native.txt`.
+
+**Gate part 1 (Q8(b))** (`gate_part1_record.txt`, `gate_part1_compare.log`):
+- **Setup.** The candidate was run with the full-envelope probe variant (`main.rs` `cd1052f7…`) under G1's full driver. It was compared per run with G1's full re-run of `e7d930d49`, whose product tree equals the base's.
+- **Runs.** 884 of 884 are identical in outcome, ok, exit code, summary sha256, `run.envelope_sha256` and error text.
+- **Other rows.** The 24 heap-cap stderr tails are identical. The 764 `gate_check` rows are identical in outcome, quality, standing, trusted and breaches.
+- **Result.** `gate_check` PASS: 764 evaluated, 328 trusted, 0 breach triples.
+- **Expected.** The corpus realizes no curved bend and no user element, so W4 never runs in it.
+
+## 6. Mutations (C, and D's prefilter run)
+
+**Method.**
+- Each mutant ran in its own clean `git archive` copy with its own target, deleted afterwards, with a NONE control first. At most two ran at once, each at `-j 4`.
+- A kill counts only when the panic is located in test code. A panic in product code, an abort, a signal or a compile error is never counted. There were none of the last three.
+- Records: `_run_records/c/` (`c_record.txt`, `MUTANTS.txt`, logs) and `_run_records/d/`.
+
+| Mutant | Site | Killing test (assertion site) | Result |
+|---|---|---|---|
+| K5-12 (§7.3 item 12) | FK: a tree tie adds no offset (a rigid link) | `k5_b1`, `k5_b2` (both), `k5_b3` … (`k5_constrained_bodies.rs:235`) | killed |
+| K5-7 (§7.3 item 7, W4) | SA: W4 branch disabled | `k5_w4_runs_in_the_four_selected_branches_only` (`k5_tests.rs:493`), `k5_first_failing_body…` (`:683`), `k5_nonlinear_loop_keeps_todays_geometry` (`:571`) | killed |
+| K5-M1 | FK: cycle rows dropped, cycle ties skipped | `k5_b4_cycles`, `k5_b1` (`:234`) | killed |
+| K5-M2 | FK: offset x_b − x_a | `k5_b1`, `k5_b2`, `k5_b3` (`:235`) | killed |
+| K5-M3 | FK: stiffness check removed | `k5_c_user_tie_rule` (`:888`); NI `k5_user_elements_tie_only_with_positive_stiffnesses` (`k5_tests.rs:908`) | killed |
+| K5-M4a, K5-M4b | SA: explicit or unmatched slot qualified | `k5_curved_slots_qualify_by_their_matched_source` (`k5_tests.rs:1017`) | killed |
+| K5-M5 | Q2(a) screen | — | not applicable under Q2(b): no product code computes a screen ratio |
+| K5-M6 | FK: exact tie and ground checks skipped | `k5_b5_exactness`, `k5_b9_directional_grounds` (`:249`), `k5_b2` (`:242`) | killed |
+| K5-M7 | FK: `Restrained` when no witness verifies | `k5_b5_exactness`, `k5_b2` (`:242`) | killed |
+| K5-M8a | SA: W4 in `solve_binary64` | `k5_w4_entry_is_named_only_in_the_four_selected_bodies` (`:835`), `k5_w4_runs…` (`:532`) | killed |
+| K5-M8b | SA: dense W4 before `if !selected` | the same two (`:853`, `:532`) | killed |
+| K5-M9 | SA: every body through W4 | `k5_frame_only_bodies_keep_todays_witness` (`k5_tests.rs:730`) | survived round 1; killed after C's test |
+| K5-M9b | SA: mixed bodies screened after every frame-only body | `k5_first_failing_body_in_seed_order_decides` (`:683`) | killed |
+| K5-M10 | SA: curved edges objective | `k5_basis_text_and_family_flag_are_unchanged` (`:1200`), `k5_curved_slots…` (`:1030`) … | killed |
+| K5-M11 | FK: `zeta.hypot(1.0)` | `k5_b10_libm_free_source_scan` (`:858`) | killed |
+| K5-M12 | SA: coordinate check removed | `k5_curved_slots…` (`:1017`) | killed |
+| K5-M13 | SA: force-scaled match on b = 0 bits | `k5_curved_matching_agrees_with_the_formation_source` (`:1065`), `k5_force_scaled…` (`:493`) | killed |
+| K5-M14a, K5-M14b | FK: grounds or ties not sorted | `k5_b6_order_independence` (`:511`) | killed |
+| K5-M15 (own) | FK: L = M | `k5_b1`, `k5_b2`, `k5_b4` (`:165`) | killed |
+| K5-M16 (own) | FK: zero rows kept | `k5_b1` (`:235`), `k5_b4` (`:234`) | killed |
+| K5-M17 (own) | FK: directional translation row in binary64 | `k5_b9_directional_grounds` (`:249`), through C's constructed case `b9_directional_exactness` | killed |
+| K5-M18 (own) | FK: canonical scaling dropped | `k5_b1`, `k5_b5`, `k5_b9` (`:260`) | killed |
+| K5-M19 (own) | FK: rationalized candidates removed | `k5_b1` (`:235`), `k5_b7_power_of_two_invariance` (`:524`) | killed |
+| K5-PREFILTER (declared equivalent) | FK: the prefilter's row loop removed | — | survives, as §2.8 derives (run at D, supporting only) |
+| KD5-SELECT | SA: dense `if !selected` removed | `k1_tests.rs:405`, `k2b_tests.rs:437`, `k5_tests.rs:853`, `:532` | killed |
+| K1-PIN-BINARY64, -B | SA: exact entry in `solve_binary64` | `s11k_tests.rs:1478`, `:807`, `:577` / `:595` | killed |
+| K1-PIN-THIRD | SA: third formation-checked definition | `s11k_tests.rs:1141` | killed |
+| K1-PIN-LOOP, -B | NI loop through a formation-checked entry or helper | `k1_tests.rs:997` / `:1000`, `s11k_tests.rs:1280`–`:1283`, and for -B `k5_tests.rs:613` | killed |
+| KD5-M32a, KD5-M32b, KD5-E4 | K-D5's loop and unit-force pins | `k1_tests.rs:1000`, `s11k_tests.rs:1141`–`:1498` | killed |
+
+**K5-M9: why it survived round 1.**
+- Under M9, W4 screens every body. On round 1's tests, every frame-only body gave the same bits either way.
+- One example is the 3-4-5 line's rotation witness (0, 0, 0, 3, 4, 0). W4 reaches it through its canonical k = 3, and today's screen through its unnormalized-difference candidate.
+- A free translation separates the two, and C's pin uses one (§2.4, item 6).
+
+**The original pins' mutants keep their kill sites.** The K1 and K-D5 mutants are killed at the s11k and k1 test sites, as in K1's table. Their panics in NI `lib.rs` are the loop's own `expect` sites under a rerouted solve, and are not counted.
+
+## 7. Q10: zero and subnormal curved entries (observation; `_run_records/d/q10_*`)
+
+**Method.**
+- A scratch copy of `f89662e1f` was instrumented in `EvidenceParts::new` (`q10_instrument.py.txt`; never committed).
+- For each curved slot, the copy printed its count of exactly zero and of subnormal global-matrix entries, and its smallest nonzero |entry|.
+- It was run over NI's `k5_tests` (the SA corpus, K-D5's curved models included) and over A2's product-run corpus (`k5_product_runs.rs.txt`).
+- `q10_curved_entries.txt` lists every distinct record: 44 from NI and 31 from PP.
+
+**Result.**
+- **No curved entry is subnormal.** The smallest nonzero |entry| is 1.48e-9, in PP's kinked arc.
+- **65 records have exactly 72 zero entries of 144.** These are bends in a coordinate plane, where the product's element decouples the in-plane DOFs (u_x, u_y, r_z at each node) from the out-of-plane ones (u_z, r_x, r_y). 6 × 6 × 2 = 72 coupling entries are exactly zero. These zeros are structural, not underflow.
+- **10 records have no zero entry.** These are skewed bends: K-D5's CSKEW, CPLANAR and PP_UTM controls, and the kinked arc.
+- The curved-formation range item stays on the T3-close list (Q10(a)).
+
+## 8. Callers (`_run_records/callers.txt`; `scan_callers_k5.py.txt`)
+
+**The scan.**
+- It is K1's lexer scan, with K1's lexer, `#[cfg(test)]` mask and output format unchanged, and K5's patterns. It covers every `.rs` file under `P/`, outside `execution/`, `target/` and `node_modules/`.
+- It finds 122 call sites, 41 of them non-test.
+- K5's FK-private stages are counted inside `rigid_body.rs` only, because their method names are generic.
+
+**Non-test callers of each added or changed function:**
+
+| Function | Non-test callers |
+|---|---|
+| `assess_constrained_bodies` | 1: `W4Context::body` (SA) |
+| `user_element_tie`, `objective_sub_bodies` | 1 each: `W4Context::body` |
+| `constrained_geometry` (dense and sparse) | 4: the `selected` bodies of `solve_assembled_with_formation_check` and `solve_force_scaled_with_formation_check`, dense and sparse |
+| `BodyEvidence::geometry` (W4's branch) | 4: `AssemblyEvidence::geometry`, `SparseAssemblyEvidence::geometry` (with `w4: None`) and the two `constrained_geometry` |
+| `AssemblyEvidence::geometry` | 4: `solve`, `solve_binary64`, `solve_assembled`, `solve_force_scaled` |
+| `SparseAssemblyEvidence::geometry` | 3: `solve`, `solve_assembled`, `solve_force_scaled` |
+| `W4Context::screen` | 1: `BodyEvidence::geometry` |
+| `W4Context::body` | 1: `W4Context::screen` |
+| `w4_curved_source` | 1: `W4Context::body` |
+| `solve_assembled_with_formation_check` (changed body) | 1: PP `solve_preview_reduced_system` (`PP:4441`) |
+| `solve_force_scaled_with_formation_check` (changed body) | 2: SA `evaluate_force_scaled`, for the dense and the sparse evidence |
+| `solve_with_force_scaling` | 0: tests only, until F1b |
+| `assess_rigid_body` (unchanged) | 1: `BodyEvidence::geometry`; `original_rigid_witness`: 1, `assess_rigid_body` |
+
+- **Nothing outside FK and SA calls a new FK function.** PP reaches W4 only through `solve_assembled_with_formation_check` at `PP:4441`, with `selected = built.nonlinear_supports.is_empty()`.
+- The NI loop reaches only `solve_binary64`, which passes `w4: None` (§2.5).
+
+## 9. Interface for SA, F2a, F3 (W1b), W1c, K4, V-K, T4 and T5
+
+### 9.1 FK: `open_pipe_stress_frame_kernel::rigid_body`
+
+This is FK's `pub mod rigid_body` (`FK/src/lib.rs:9`). A consumer needs no `pub use`.
+
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum GroundKind { Translation, Rotation }                        // rigid_body.rs:265
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ConstrainedGround {                                          // :274
+    Dof(usize),                                                       // 6·node + dof, local
+    Directional { node: usize, kind: GroundKind, direction: [f64; 3] },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ConstrainedAssessment {                                    // :292
+    pub status: RigidBodyStatus,          // never UnqualifiedFamily
+    pub singular_values: [f64; 6],
+    pub rank_screen: f64,                 // τ_B = 64·γ(max(m, 6))·σ_max
+    pub rows: usize,                      // m, the nonzero reduced rows
+    pub cycles: usize,                    // non-tree ties
+    pub characteristic_length: f64,       // L, a power of two
+    pub origin: [f64; 3],                 // local node 0
+    pub rigid_parameters: Option<[f64; 6]>,   // [t/L, θ] of the witness
+    pub node_motion: Option<Vec<[f64; 6]>>,   // exact [u, θ] per local node
+    pub iterations: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TieRefusal { Stiffness(&'static str), Orientation }         // :315
+
+pub fn user_element_tie(element: &UserStiffnessElement)
+    -> Result<[usize; 2], TieRefusal>;                                // :330
+pub fn objective_sub_bodies(node_count: usize, links: &[[usize; 2]])
+    -> Result<Vec<Vec<usize>>, StructuralError>;                      // :351
+pub fn assess_constrained_bodies(
+    coordinates: &[[f64; 3]],
+    sub_bodies: &[Vec<usize>],
+    ties: &[[usize; 2]],
+    grounds: &[ConstrainedGround],
+) -> Result<ConstrainedAssessment, StructuralError>;                  // :464
+```
+
+**The contract of `assess_constrained_bodies`.**
+- **Input.** One connected constrained body, in local node indices:
+  - finite coordinates;
+  - `sub_bodies`, a partition of 0..n into non-empty sets;
+  - ties with a ≠ b;
+  - a tie graph that is connected over the sub-bodies;
+  - valid grounds: a `Dof` below 6n, and a `Directional` direction that is finite and nonzero.
+  - Anything else is `InvalidInput("constrained geometry")`.
+- **Range.** An exact difference or virtual position outside binary64 is `Range("constrained relative coordinates")`. It is unreachable from SA-built evidence (§2.7), but reachable through direct FK calls.
+- **Order.** Input order never matters: status and bits depend on the content only (B6).
+- **Output.**
+  - `MechanismWitnessed` carries the exact, canonical witness.
+  - `NumericallyUnresolved` means the rank is in the τ_B band, or no candidate verified. It is never a rounded direction.
+  - **`Restrained` is not a restraint proof.** A caller still runs its matrix gate, as SA does.
+- **Platform.** The function calls no function of unspecified precision (§2.6). Its output is a function of the input bits on every IEEE-754 platform.
+- **Directional rows.** The exact check uses `direction` as given. The screen uses it scaled by a power of two.
+
+### 9.2 SA (NI's `structural_adapter`, crate-private)
+
+```rust
+struct BodyEvidence<'e> { …, w4: Option<W4Context<'e>> }             // SA:1249; `None` except in the four selected bodies
+struct W4Context<'e> {                                                // SA:1347
+    formation: &'e FormationPrimitives,
+    curved_sources: &'e [CurvedBendMacroElement],
+    force_scale: ForceScale,
+}
+pub(crate) enum W4Body {                                              // SA:1356
+    Unqualified(W4Unqualified),
+    Assessed { nodes: Vec<usize>, assessment: ConstrainedAssessment },
+}
+#[allow(dead_code)] // F2a API: the reason carrier; read by tests today.
+pub(crate) enum W4Unqualified {                                       // SA:1368
+    UserTie { element: usize, refusal: TieRefusal },
+    CurvedExplicit { element_id: String },
+    CurvedUnmatched { element_id: String },
+    CurvedCoordinates { element_id: String, node: usize },
+    Geometry(StructuralError),
+}
+impl W4Context<'_> {
+    pub(crate) fn body(&self, evidence: &BodyEvidence<'_>, body: &[usize],
+                       prescribed: &[(usize, f64)]) -> W4Body;
+}
+// On AssemblyEvidence (SA:146) and SparseAssemblyEvidence (SA:575), private:
+fn constrained_geometry(&self, prescribed: &[(usize, f64)],
+                        curved_sources: &[CurvedBendMacroElement]) -> Result<(), StructuralError>;
+```
+
+No public SA signature changed.
+- `W4Body` and `W4Unqualified` are `pub(crate)` (P10). F2a adds a public accessor if it publishes the reason.
+
+### 9.3 For F2a: the published outcomes
+
+- **A witnessed mechanism** is `StructuralError::Mechanism { direction }`.
+  - `direction` has length 6·(node count). The body's nodes carry their exact [u, θ], and every other entry is 0.
+  - PP maps it to `NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM` (`PP:1272`), and its message renders the direction through `Debug`.
+- **An unresolved body** is `NumericallyUnresolved { reason: "constrained-body rank unresolved", global_dof: None }`, which PP maps to `NUMERICAL_INTEGRITY_UNRESOLVED`.
+- **The basis text** is unchanged (Q7(a)). On the selected branches it under-claims for mixed bodies that W4 assessed. Correcting it is on F2a's input list and the T3-close list.
+- **The unqualified reason** is `W4Unqualified`. It is not published today.
+
+### 9.4 For W1b (F3's user matrices) and W1c (curved elements): geometry first (§4.1.3)
+
+- **Before any factor,** build the call per connected body:
+  - `sub_bodies` = `objective_sub_bodies(n, links)`, over frames and qualified curved elements;
+  - `ties` = the user elements that `user_element_tie` accepts;
+  - `grounds` = the `Dof` rows (restrained, prescribed, positive springs), plus a `Directional` row per skew support or spring axis.
+- **Outcomes.** `MechanismWitnessed` refuses before any attempt, with the direction. `Restrained` and `NumericallyUnresolved` proceed to the method (K4's rule for frames).
+- **W1b's limit.** `user_element_tie` is for today's element only (Q5(a)). A general user matrix (F3) is a tie only when its null space is exactly the tie space. Otherwise F3 must leave the body unqualified, or supply its own qualification.
+- **W1c's limit.** The curved rule qualifies a slot by its matched macro source, and derives the refusal's soundness for the intended element (§2.3). If W1c re-forms curved elements (T4's objective element, for example), the source-match predicate (`w4_curved_source`, K-D5's) must follow the new formation.
+
+### 9.5 For K4: the directional-row follow-up (T3-close list)
+
+- **What `geometry_first` would pass,** per frame-only body:
+  - `sub_bodies = [all body nodes]`;
+  - `ties = []`;
+  - `Dof` rows as today;
+  - `Directional { node, kind, direction }` for each skew support or spring axis, with the global binary64 axis as given.
+- This lets W4 decide the non-spanning directional grounds that O1 now sends on as `NumericallyUnresolved`.
+- **The caveat: frame-only bodies would change behaviour.** Moving them from `assess_rigid_body` to this function changes witness bits, as K5-M9 showed. Today's witness translates by the characteristic length, and W4's canonical representative by k ≤ 64. Statuses near the τ_B band may also change, because the rows and the screen differ.
+- So K4's follow-up either keeps `assess_rigid_body` for bodies without directional rows, or accepts the change as a declared class. K5 does not write K4's files.
+
+### 9.6 For V-K
+
+- RF-MECH has no user or curved mechanism, so W4 has no frozen reference. Ruling item 16 records this.
+- V-K can reuse the generator (`FK/tests/k5_constrained/gen_k5_vectors.py --check`), whose exact oracle is the unreduced stacked map in `Fraction`.
+
+### 9.7 For T4 and T5
+
+See §10.
+
+## 10. Notices
+
+**To T4** (the M07 joint repair, and the curved null-space item).
+- **The user element.** The tie rule is for today's user element: energy Σ k_d(Δ_d)², with four positive stiffnesses and no rigid-body moment coupling.
+  - M07's repair changes the local form, and with it the zero-energy set.
+  - The FK test `k5_t4_tripwire_user_tie_space_is_the_represented_null_space` then fails.
+  - `user_element_tie` must be revised with the repair: a repaired element is a tie only if its null space is still exactly the tie space.
+- **The curved element.** The curved rule is stated and derived for the intended element (§2.3; Q3(a)). T4's item stays open for the product's element, whose non-objectivity (the chord mismatch, R̃'s departure from orthogonality, and the formation rounding) is the only source of energy along a W4 witness (§2.3, Step 5).
+  - If T4 changes the curved construction, K-D5's source match must follow it (§9.4).
+
+**To T5** (the nonlinear loop).
+- The loop's geometry is unchanged (Q1(b)), and the contact-seed guard stays closed (§2.5).
+- **If the loop adopted W4** (curved sources and a W4 context in its geometry):
+  - a mixed-body mechanism in an iteration would become a `Mechanism`;
+  - `permits_contact_seed_trial` (`SA:2142`) admits every `Mechanism`, so the contact-seed trial would open at NI `lib.rs:648-652` (with `recovery_eligible` and an inactive support);
+  - PP's arm at `PP:2884` would open when `eligible_contact_dofs` is `Some`.
+- K5-C2's reason, "constrained-body rank unresolved", is not in the guard's admitted list, and a mixed family is not qualified. So an unresolved W4 outcome would not open the trial.
+- Adopting W4 in the loop is T5's decision.
+
+**To K4:** §9.5. **To F2a:** §9.3. **To F3 and W1c:** §9.4.
+
+**To F1b** (merge order, from both briefs).
+- Whichever of K5 and F1b merges second merges main, then re-runs its suites, T9, and its affected tables: for K5, the curved product-run table and gate part 1.
+- After F1b, PP reaches W4 through the sparse sibling and W2's orchestrator, with the same `selected`. F1b refuses a realized curved bend at b ≠ 0, so in the product W4's force-scaled branches run at b = 0 only.
+
+**Added to the T3-close list by K5's findings** (for ROOT):
+- the basis text's under-claim on the selected branches (S1);
+- `assess_rigid_body`'s `hypot`, already listed;
+- K4's directional wiring, already listed, with §9.5's caveat;
+- the guard before the prefilter, which withholds unit translation candidates when L < 2^-1023 (§2.8), recorded only.
+
+## 11. Files and line counts (against `24dea2dae`)
+
+| File | Lines | Diff |
+|---|---|---|
+| `FK/src/rigid_body.rs` | 1,386 | +983 (lines 1–249 unchanged) |
+| `SA` (`structural_adapter.rs`) | 3,249 | +253 −5 |
+| `NI/src/structural_adapter/k5_tests.rs` (new) | 1,258 | +1,258 |
+| `FK/tests/k5_constrained_bodies.rs` (new) | 1,001 | +1,001 |
+| `FK/tests/k5_scale.rs` (new) | 131 | +131 |
+| `FK/tests/k5_constrained/gen_k5_vectors.py` (new) | 758 | +758 |
+| `FK/tests/k5_constrained/b1_sample.txt`, `b1_summary.txt`, `cases.txt`, `SHA256SUMS` (new) | 1,000, 11, 27, 4 | +1,042 |
+| `PP/tests/k5_curved_mechanism_runtime.rs` (new) | 228 | +228 |
+
+- **Totals.** 11 product and test files, +5,654 −5.
+- **Records.** 164 files under `T3/IMPLEMENTATION/K5/` at C, before D's records.
+- **Not changed:** no dependency or lockfile; neither site table; `FK/src/structural.rs`, `FK/src/lib.rs`, CB, NI `lib.rs`, PP source, `s11k_tests.rs` and `s11f_site_test.rs`.
+- **Warnings.** The non-test build has no warnings. The one `#[allow(dead_code)]` K5 adds is on `W4Unqualified` ("F2a API").
+
+## 12. Toolchain and host
+
+| Item | Value |
+|---|---|
+| Toolchain | rustc 1.97.1 (`8bab26f4f`, 2026-07-14), cargo 1.97.1, host `aarch64-apple-darwin`; `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked`, `RUST_TEST_THREADS=4` |
+| Python | `<VENV>`, Python 3.13, standard library only (the generator, the scans, the drivers) |
+| Host | the owner's Mac (macOS 26.6.2, 128 GB, no swap), shared with I12 (K4) and I13 (F1b) under I8R's caps |
+| Memory guard | `<wt>/guard/memguard.log` unchanged across every heavy phase: 2 start lines, sha256 `79e2ce8e…` |
+| Timing | none compared |
+
+## 13. What was not done
+
+- **Excluded by the brief and the rulings:**
+  - no change to `assess_rigid_body` or `original_rigid_witness`;
+  - no change to the edges' objective flag, `qualified_passive_family`, exact-block eligibility or the basis text (Q7(a));
+  - no field on `StructuralReport` or `StructuralSolution`;
+  - no new `StructuralError` variant;
+  - no loop change;
+  - no SUP-17 text;
+  - no curved formation-range work (Q10(a));
+  - no T4 repair;
+  - no K4 wiring;
+  - no site-table change (Q9(a)).
+- **No native witness:** the desktop cannot realize a curved bend (R5-4), and no build realizes a user element.
+- **Not re-run after C** (tests-only changes; §5): the full 39-manifest suites, T9 and gate part 1. C's and D's NONE controls ran FK's, NI's and PP's K5 suites.
+- **Hosted CI and the independent review** belong to ROOT's PR.
+
+## 14. Disclosures
+
+- **Raw outputs kept verbatim** (a scan of every file under `IMPLEMENTATION/K5/` finds these four, and no others):
+  - `_run_records/a2/checkpoint0_probe_main.txt` keeps its trailing whitespace;
+  - `_run_records/c/logs/C-VERIFY/ni5.txt` keeps a blank line at the end of the file;
+  - `_run_records/b/gate_part1_record.txt` has one line with trailing whitespace (the gate run's "end" line);
+  - `_run_records/b/gate_part1_result_candidate.json` has no final newline, as the gate check wrote it.
+  - C-VERIFY is the worktree run of the new NI test before it joined the mutation overlay. It ran against the working tree, not a clean copy.
+- **Machine paths replaced.** Every committed log has its machine paths replaced by `<wt>`, `<VENV>` or `<wt>/k5/T3`. Apart from that, the logs are the tools' output.
+- **Instrumented scratch copies were never committed:**
+  - A2's `eprintln` in `W4Context::screen` (§4.5);
+  - D's in `EvidenceParts::new` (§7).
+  - Only their scripts and outputs are records.
+- **The P6 path.** The plan called the `Geometry` branch unreachable. A2 corrected that to "not excluded" for the range cause. C derived it unreachable (§2.7), and the derivation supersedes A2's paragraph.
+- **The prefilter's equivalence** is derived in §2.8, not merely declared. The D run is supporting evidence only.
+- **Q10's observation was not recorded before D.** The plan listed it among the product-run records, and it was taken at D (§7).
+- **The mutation logs show product panics.** The K1 and K-D5 pin mutants panic in NI `lib.rs` as well as at test assertions. Only the test assertions are counted.
+- **Wider reading.** I14 read other slices' records (K1's, K2b's and K-D5's RETURN, CHANGE_RECORD and `_run_records/`) for conventions, and reused K1's caller scanner and mutation script. I14 consulted no other role's instructions.
+
+## 15. Records (`_run_records/`)
+
+| Folder | Contents |
+|---|---|
+| `a2/` | the checkpoint-0 probe and its raw log; the RF-MECH harness and comparison; the product-run harness, both raw outputs and the table; the screen ratios; W4's decisions across PP's suite |
+| `b/` | suites and manifests; failure blocks; T9 hashes and comparison; gate part 1 index, record, logs and result |
+| `c/` | the mutation tooling, `MUTANTS.txt`, `c_record.txt` and every log |
+| `d/` | the prefilter mutant with its NONE control; D's mutation tooling; Q10's instrument, summary and raw logs |
+| `callers.txt`, `scan_callers_k5.py.txt` | the caller scan (§8) |
+
+`IMPLEMENTATION/K5/SHA256SUMS` lists every file under `IMPLEMENTATION/K5/` except itself, as `./<path>`.
