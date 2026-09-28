@@ -113,7 +113,12 @@ The test computes each error exactly, in integers. L is a power of two here, so 
   - On (1,1,1) the least |T| is 0.4082, the term is 2^-1021.17, and the member is accepted.
   - In RV7's own rows the coupling bound refuses first, with `Range`.
 - **On the axis member**, the outcome is accepted exactly when every nonzero coefficient is at or above the floor. S6a with a raised 6EI/L² is accepted there.
-- **Consequence for later slices:** M03's skew acceptance of subnormal-derived 1/L coefficients ends either at the 6EI/L² floor or where 2EI/L·|T|² falls below 2^-1022, whichever comes first. The test documents this, and M-UNCHECKED-PRODUCTS (§7) pins it.
+- **Consequence for later slices, scoped to RV7's configuration** (Iy = Iz; subnormal-derived bending coefficients; L = 2^-39 m; the two skew orientations tested): there, M03's skew acceptance of subnormal-derived 1/L coefficients ends either at the 6EI/L² floor or where 2EI/L·|T|² falls below 2^-1022, whichever comes first. The test documents this, and M-UNCHECKED-PRODUCTS (§7) pins it.
+- **It does not generalize** (RV10's S2, `REVIEW/M03_SKEW_PIN_REVIEW.md`):
+  - (a) the skew threshold depends on orientation: 6EI/L² at about 2^-973.8 on (1,1,1) and 2^-973.0 on (1,2,2), up to 1.6 binades above the floor;
+  - (b) with Iy ≠ Iz on a member with a dense rotation, M03 accepts a 6EIz/L² below the floor. This is FK's API only; PP always forms Iy = Iz;
+  - (c) a subnormal-derived GJ/L with normal bending is accepted on both skew members, whatever 6EI/L² is. That is the torsion analogue of B1, which K2a's formation refusal (`GJ/L: G*J`) already covers on current main.
+- **M03's skew scope in general** stays a documented limitation. The guard pins it only in the configuration above. [Scoped by ROOT before merge, RV10's S2.]
 
 The first draft of this test used a factor of 2. It failed on this very case, which is how the second limit was found (`_run_records/development/fk_m03_run1_counterfactual_failed.log`).
 
