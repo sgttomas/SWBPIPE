@@ -980,9 +980,14 @@ impl FrameElement {
     /// - Each action is then unscaled by 2^-b with `unscale_for_publication`
     ///   (one rounding; normal exact, subnormal with its precision, underflow
     ///   or overflow refused).
-    /// - The check applies at every b, b = 0 included. These are the elastic
-    ///   actions only; a caller adds its load terms (fixed-end actions) at the
-    ///   same scale.
+    /// - The check applies at every b, b = 0 included.
+    /// - These are the elastic actions only, returned already unscaled
+    ///   (published values), so no scaled value is left to add to (RV11D-N3).
+    ///   A load term (fixed-end action) formed at b = 0 and in range can be
+    ///   added to the published value as today, with a second rounding. One
+    ///   that must be formed under b (RETURN §14) needs a variant that returns
+    ///   the scaled actions, or one that takes the load terms and rounds once:
+    ///   F1b's.
     pub fn force_scaled_end_actions(
         &self,
         u: &[f64],
@@ -1045,6 +1050,51 @@ impl FrameElement {
         }
         Ok(published)
     }
+}
+
+/// K2b (D1 §4.7 step 5; RV11D-1, ROOT's rulings on RV11's delta check): the
+/// action of a ground spring on its DOF, -k * u_dof, for a solve at 2^b,
+/// published. `spring` is `(dof, k)` with k the spring's **unscaled**
+/// stiffness, as the case lists it; `u` holds the solve's displacements
+/// (never scaled).
+/// - k is taken at 2^b exactly (`force_scaled_value`; a value that cannot
+///   stay normal is a `Formation` error).
+/// - The product -(k * 2^b) * u_dof, of nonzero operands, must be normal.
+///   Otherwise the action is refused with step 5's
+///   `PublicationOutsideBinary64 { global_dof: Some(dof) }`. It is never
+///   published as a flushed or truncated value labelled `Normal`.
+/// - The action is then unscaled by 2^-b with `unscale_for_publication`
+///   (one rounding; normal exact, subnormal with its precision, underflow or
+///   overflow refused).
+/// - The check applies at every b, b = 0 included. Every value published at
+///   b = 0 is today's -(k * u_dof), bit for bit.
+/// - A missing or non-finite displacement is
+///   `InvalidInput("displacement vector")`.
+pub fn force_scaled_spring_action(
+    spring: (usize, f64),
+    u: &[f64],
+    scale: ForceScale,
+) -> Result<structural::PublishedValue, structural::ForceScaledError> {
+    let (dof, stiffness) = spring;
+    let displacement = match u.get(dof) {
+        Some(&value) if value.is_finite() => value,
+        _ => {
+            return Err(structural::ForceScaledError::Structural(
+                structural::StructuralError::InvalidInput("displacement vector"),
+            ))
+        }
+    };
+    let scaled = force_scaled_value("spring stiffness*2^b (force scale)", stiffness, scale)
+        .map_err(structural::ForceScaledError::Formation)?;
+    let outside = structural::ForceScaleReason::PublicationOutsideBinary64 {
+        global_dof: Some(dof),
+    };
+    let action = -(scaled * displacement);
+    if scaled != 0.0 && displacement != 0.0 && !action.is_normal() {
+        return Err(structural::ForceScaledError::refused(outside));
+    }
+    structural::unscale_for_publication(action, scale, Some(dof))
+        .map_err(structural::ForceScaledError::refused)
 }
 
 impl UserStiffnessElement {
