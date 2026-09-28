@@ -398,19 +398,13 @@ fn as_today(
     }
 }
 
-/// The 12 local end actions of a frame at 2^b (the element formed at 2^b,
-/// the displacements never scaled), each unscaled for publication.
+/// The 12 local end actions of a frame at 2^b, published: the kernel's
+/// `FrameElement::force_scaled_end_actions` (RV11-1: the element formed at
+/// 2^b, the displacements never scaled, every product and partial sum checked,
+/// each action unscaled once). It replaces the unchecked helper of checkpoint
+/// C, which RV11 found could flush an end shear.
 fn end_actions(frame: &FrameElement, u: &[f64], s: ForceScale) -> [PublishedValue; 12] {
-    let k = frame.force_scaled(s).unwrap().local_stiffness().unwrap();
-    let t = frame.orientation().unwrap().transformation_matrix();
-    let map = element_dof_map(frame.node_i.index, frame.node_j.index);
-    let global: [f64; 12] = map.map(|d| u[d]);
-    let local: [f64; 12] =
-        std::array::from_fn(|r| (0..12).map(|c| t[r][c] * global[c]).sum::<f64>());
-    std::array::from_fn(|r| {
-        let action = (0..12).map(|c| k[r][c] * local[c]).sum::<f64>();
-        unscale_for_publication(action, s, None).unwrap()
-    })
+    frame.force_scaled_end_actions(u, s).unwrap()
 }
 
 fn values(published: &[PublishedValue]) -> Vec<u64> {
@@ -1452,4 +1446,190 @@ fn k2b_nonlinear_loop_reaches_no_force_scaled_entry() {
             "{mode:?}: {rendered}"
         );
     }
+}
+
+// ------------------------------------------------------------------ RV11 fixes
+// (T3 `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)"; RV11's
+// review `REVIEW/K2B_REVIEW.md`, findings RV11-1 and RV11-4.)
+
+/// RV11's probe F-A2: a long member W (N0 -> N1 along x, L = 2^300 m,
+/// E = G = 2^200 Pa, A = I = J = 1) with only N0 RZ free, loaded with a moment
+/// of 1.2345 * 2^(-697 + delta) N*m. With `with_s`, a separate fully fixed
+/// member S (N2 -> N3; E = G = 2^1000 Pa, A = 2^30 m^2) makes b = 0 fail with
+/// K2a's `EA/L: E*A`; the census span is then [-697, 1030] and the rule's b is
+/// -138. Without S, b = 0 solves.
+fn rv11_long_member(delta: i32, with_s: bool) -> Model {
+    let node = |i: usize, c: [f64; 3]| FrameNode::new(i, c).unwrap();
+    let w = FrameSection::new(pow2(200), pow2(200), 1.0, 1.0, 1.0, 1.0).unwrap();
+    let mut frames = vec![FrameElement::new(
+        node(0, [0.0, 0.0, 0.0]),
+        node(1, [pow2(300), 0.0, 0.0]),
+        w,
+        [0.0, 1.0, 0.0],
+    )
+    .unwrap()];
+    let mut node_count = 2;
+    if with_s {
+        let s = FrameSection::new(pow2(1000), pow2(1000), pow2(30), 1.0, 1.0, 1.0).unwrap();
+        frames.push(
+            FrameElement::new(
+                node(2, [0.0, 1.0, 0.0]),
+                node(3, [0.0, 2.0, 0.0]),
+                s,
+                [1.0, 0.0, 0.0],
+            )
+            .unwrap(),
+        );
+        node_count = 4;
+    }
+    Model {
+        node_count,
+        frames,
+        macros: Vec::new(),
+        slots: Vec::new(),
+        springs: Vec::new(),
+        prescribed: (0..6 * node_count)
+            .filter(|&d| d != 5)
+            .map(|d| (d, 0.0))
+            .collect(),
+        terms: vec![(5, ForceTermKind::Term(1.2345 * pow2(-697 + delta)))],
+    }
+}
+
+/// RV11-1 (BLOCKING), pinned in both modes and both representations: at the
+/// rule's b (-138) the solve is Passed and its rotation is bit-identical to
+/// today's solve of the member without S, but the end shears' products
+/// 6E'I/L^2 * theta leave the normal range at 2^b (about 2^-1134, and
+/// 2^-1054 with the moment 2^80 larger). The reactions at N0 UY and N1 UY,
+/// and W's end actions, are therefore **refused** with step 5's
+/// `PublicationOutsideBinary64`, never published as a wrong `Normal` value
+/// (before the fix: 0, and a value 3.1e-7 relative off). The moment reaction
+/// at N1 RZ stays normal at scale and is published with today's bits. Without
+/// S (b = 0), every reaction and action is published with today's bits.
+#[test]
+fn k2b_rv11_reactions_and_actions_at_scale_are_refused_never_a_wrong_normal() {
+    let refused = |dof: Option<usize>| {
+        ForceScaledError::Refused(ForceScalingRefusal {
+            reason: ForceScaleReason::PublicationOutsideBinary64 { global_dof: dof },
+            trigger: None,
+        })
+    };
+    for delta in [0, 80] {
+        let plain = rv11_long_member(delta, false);
+        let plain_force = plain.ledger();
+        let k0 = plain.stiffness(ForceScale::UNSCALED).unwrap();
+        let model = rv11_long_member(delta, true);
+        let force = model.ledger();
+        let probe = model.case(
+            &force,
+            LinearSolveMode::DenseScrutiny,
+            EvidenceRepresentation::Dense,
+        );
+        let census = force_scale_census(&probe).unwrap();
+        assert_eq!(census.span(), Some((-697, 1030)), "delta {delta}");
+        assert_eq!(census.force_scale(), Ok(scale(-138)), "delta {delta}");
+        for mode in MODES {
+            for representation in REPRESENTATIONS {
+                let ctx = format!("delta {delta} {mode:?} {representation:?}");
+                // Without S: b = 0, today's bits.
+                let today = plain
+                    .existing(&plain_force, mode, representation, true)
+                    .unwrap();
+                let base =
+                    solve_with_force_scaling(&plain.case(&plain_force, mode, representation))
+                        .unwrap();
+                assert_eq!(base.solution.force_scale, ForceScale::UNSCALED, "{ctx}");
+                let u0 = &base.solution.solution.displacements;
+                assert_eq!(bits(u0), bits(&today.displacements), "{ctx}");
+                let r0 = k0.reactions(u0, &plain_force).unwrap();
+                let published = base
+                    .stiffness
+                    .force_scaled_reactions(u0, &plain_force, ForceScale::UNSCALED, &[1, 7, 11])
+                    .unwrap();
+                for (p, dof) in published.iter().zip([1, 7, 11]) {
+                    assert_eq!(p.value.to_bits(), r0[dof].to_bits(), "{ctx} R{dof}");
+                    assert_eq!(p.representability, Representability::Normal, "{ctx}");
+                }
+                let shear = 6.0 * pow2(200) / pow2(600) * u0[5];
+                assert!(within(r0[1], shear, shear.abs()), "{ctx}: {:e}", r0[1]);
+                assert!(within(r0[7], -shear, shear.abs()), "{ctx}: {:e}", r0[7]);
+                assert!(plain.frames[0]
+                    .force_scaled_end_actions(u0, ForceScale::UNSCALED)
+                    .is_ok());
+                // With S: the rule's b, a Passed solve with today's rotation.
+                let outcome =
+                    solve_with_force_scaling(&model.case(&force, mode, representation)).unwrap();
+                let b = outcome.solution.force_scale;
+                assert_eq!(b, scale(-138), "{ctx}");
+                assert_eq!(
+                    outcome.solution.solution.report.quality,
+                    SolveQuality::Passed,
+                    "{ctx}"
+                );
+                assert!(outcome.solution.records.is_empty(), "{ctx}");
+                let u = &outcome.solution.solution.displacements;
+                assert_eq!(u[5].to_bits(), u0[5].to_bits(), "{ctx}");
+                for dof in [1, 7] {
+                    assert_eq!(
+                        outcome
+                            .stiffness
+                            .force_scaled_reactions(u, &force, b, &[dof]),
+                        Err(refused(Some(dof))),
+                        "{ctx} R{dof}"
+                    );
+                }
+                let moment = outcome
+                    .stiffness
+                    .force_scaled_reactions(u, &force, b, &[11])
+                    .unwrap();
+                assert_eq!(moment[0].value.to_bits(), r0[11].to_bits(), "{ctx} R11");
+                assert_eq!(moment[0].representability, Representability::Normal);
+                assert_eq!(
+                    model.frames[0].force_scaled_end_actions(u, b),
+                    Err(refused(None)),
+                    "{ctx} actions"
+                );
+            }
+        }
+    }
+}
+
+/// RV11-4: the orchestrator's census includes every entry of each realized
+/// curved slot (ruling 2). On K-D5's models with curved slots, the census of
+/// `solve_with_force_scaling` equals one built here from the frames, the
+/// slots' global matrices, the springs and the load terms. On at least one
+/// of them the slots bound the span, so a census that left them out would
+/// differ (not vacuous).
+#[test]
+fn k2b_rv11_the_orchestrators_census_includes_the_curved_slots() {
+    let mut bounding = 0;
+    for m in KD5 {
+        let model = Model::from_kd5(m);
+        if model.slots.is_empty() {
+            continue;
+        }
+        let force = model.ledger();
+        let case = model.case(
+            &force,
+            LinearSolveMode::DenseScrutiny,
+            EvidenceRepresentation::Dense,
+        );
+        let mut without = ForceScaleCensus::new();
+        for frame in &model.frames {
+            without.frame(frame).unwrap();
+        }
+        for &(_, k) in &model.springs {
+            without.spring(k);
+        }
+        for term in force.terms() {
+            without.load_term(term);
+        }
+        let mut with = without.clone();
+        for slot in &model.slots {
+            with.matrix(&slot.global_stiffness);
+        }
+        assert_eq!(force_scale_census(&case).unwrap(), with, "{}", m.name);
+        bounding += usize::from(with.span() != without.span());
+    }
+    assert!(bounding > 0, "no K-D5 model's curved slots bound the span");
 }

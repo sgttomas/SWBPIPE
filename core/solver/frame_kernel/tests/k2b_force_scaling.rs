@@ -962,3 +962,204 @@ fn k2b_unscaled_error_payloads() {
     let other = StructuralError::Range("arithmetic outside normal range");
     assert_eq!(unscale_structural_error(other.clone(), scale(40)), other);
 }
+
+// ------------------------------------------------------------------ RV11 fixes
+// (T3 `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)"; RV11's
+// review `REVIEW/K2B_REVIEW.md`, findings RV11-1, RV11-2 and RV11-4.)
+
+/// RV11-2: a scaled value is accepted only when the **exact** result is
+/// normal. RV11's probe F-B: (2 - 2^-52)*2^-1021 at b = -2 is exactly
+/// (2 - 2^-52)*2^-1023, below 2^-1022; binary64 rounds it up to 2^-1022,
+/// which is normal but inexact, so it is refused. Through the ledger, at the
+/// rule's b of F-B (-706), the factor x = (2 - 2^-52)*2^-317 of a product
+/// cannot be scaled exactly, so y = 2^760 is scaled instead (to 2^54), and the
+/// scaled net is exactly 2^b times the net.
+#[test]
+fn k2b_rv11_scaling_refuses_a_result_that_rounds_up_into_the_normal_range() {
+    let boundary = f64::from_bits(0x002F_FFFF_FFFF_FFFF);
+    assert_eq!(boundary, (2.0 - pow2(-52)) * pow2(-1021));
+    assert_eq!(
+        force_scaled_value("x", boundary, scale(-2)),
+        Err(FrameKernelError::NumericalRange { name: "x" })
+    );
+    // The exact neighbours: 2^-1020 and the largest mantissa at 2^-1020 land
+    // exactly on normal values at b = -2.
+    assert_eq!(
+        force_scaled_value("x", pow2(-1020), scale(-2)),
+        Ok(pow2(-1022))
+    );
+    let top = f64::from_bits(0x0030_0000_0000_0000 | 0x000F_FFFF_FFFF_FFFF);
+    assert_eq!(
+        force_scaled_value("x", top, scale(-2)).map(f64::to_bits),
+        Ok(0x0010_0000_0000_0000 | 0x000F_FFFF_FFFF_FFFF)
+    );
+    let x = f64::from_bits((((-317_i64 + 1023) as u64) << 52) | 0x000F_FFFF_FFFF_FFFF);
+    let y = pow2(760);
+    let mut ledger = LoadLedger::new();
+    ledger.push_product("p", 0, x, y);
+    let force = ledger.finish(1).unwrap();
+    let scaled = force.force_scaled(scale(-706)).unwrap();
+    assert_eq!(scaled.terms()[0].kind, ForceTermKind::Product(x, pow2(54)));
+    assert_eq!(
+        scaled.values()[0].to_bits(),
+        (force.values()[0] * pow2(-353) * pow2(-353)).to_bits()
+    );
+}
+
+/// RV11-4: the census records a load product x*y at e(x) + e(y), whichever
+/// factor carries the magnitude (ruling 2), so a product of factors with very
+/// different exponents bounds the span at its own exponent.
+#[test]
+fn k2b_rv11_the_census_records_a_product_at_its_factors_exponent_sum() {
+    let mut ledger = LoadLedger::new();
+    ledger.push("t", 0, 1.0);
+    ledger.push_product("p", 0, pow2(-500), pow2(400));
+    ledger.push_product("q", 1, pow2(10), pow2(-900));
+    let force = ledger.finish(2).unwrap();
+    let mut census = ForceScaleCensus::new();
+    for term in force.terms() {
+        census.load_term(term);
+    }
+    assert_eq!(census.span(), Some((-890, 0)));
+    let mut product = ForceScaleCensus::new();
+    product.load_term(&force.terms()[1]);
+    assert_eq!(product.span(), Some((-100, -100)));
+}
+
+/// A stiffness from a dense matrix (stored where nonzero), its reactions at
+/// `b` for DOF 0, with no load.
+fn react_row0(
+    dense: &[Vec<f64>],
+    u: &[f64],
+    b: i32,
+) -> Result<Vec<PublishedValue>, ForceScaledError> {
+    let k = SparseStiffness::from_dense(dense).unwrap();
+    let force = LoadLedger::new().finish(dense.len()).unwrap();
+    k.force_scaled_reactions(u, &force, scale(b), &[0])
+}
+
+/// RV11-1 (BLOCKING), fixed fail-closed: `force_scaled_reactions` checks the
+/// formed row K*u at 2^b. Each product of nonzero operands, and each partial
+/// sum, must be normal (or the partial sum an exact zero); otherwise the
+/// reaction is refused with step 5's `PublicationOutsideBinary64`. It is never
+/// published as a flushed or truncated value labelled `Normal`. The check
+/// holds at every b (b = 0 and b = 2 here, as the row is given at scale).
+#[test]
+fn k2b_rv11_force_scaled_reactions_check_every_product_and_partial_sum() {
+    let refused = Err(ForceScaledError::Refused(ForceScalingRefusal {
+        reason: ForceScaleReason::PublicationOutsideBinary64 {
+            global_dof: Some(0),
+        },
+        trigger: None,
+    }));
+    let two = |k01: f64| vec![vec![1.0, k01], vec![k01, 1.0]];
+    for b in [0, 2] {
+        // A product that underflows to zero (the true reaction is 2^-1200).
+        assert_eq!(react_row0(&two(pow2(-600)), &[0.0, pow2(-600)], b), refused);
+        // A subnormal product (2^-1040), truncated in binary64.
+        assert_eq!(react_row0(&two(pow2(-500)), &[0.0, pow2(-540)], b), refused);
+        // A product that overflows.
+        assert_eq!(react_row0(&two(pow2(600)), &[0.0, pow2(600)], b), refused);
+        // Normal products whose partial sum is subnormal: 2^-1000 and
+        // -(2^-1000 - 2^-1052) leave 2^-1052.
+        let cancel = vec![
+            vec![0.0, 1.0, -1.0],
+            vec![1.0, 1.0, 0.0],
+            vec![-1.0, 0.0, 1.0],
+        ];
+        let near = pow2(-1000) - pow2(-1052);
+        assert_eq!(near, (2.0 - pow2(-51)) * pow2(-1001));
+        assert_eq!(react_row0(&cancel, &[0.0, pow2(-1000), near], b), refused);
+        // An exact zero partial sum, and a zero operand, are fine.
+        let zero = react_row0(&cancel, &[0.0, pow2(-10), pow2(-10)], b).unwrap();
+        assert_eq!(zero[0].value.to_bits(), 0.0f64.to_bits());
+        assert_eq!(zero[0].representability, Representability::Normal);
+        assert_eq!(
+            react_row0(&two(pow2(-600)), &[0.0, 0.0], b),
+            Ok(vec![published(0.0)])
+        );
+    }
+    // Control: a normal row publishes the bits of `reactions` at b = 0, and
+    // exactly 2^-b times the scaled row at b = 2.
+    let k = SparseStiffness::from_dense(&two(3.0)).unwrap();
+    let force = LoadLedger::new().finish(2).unwrap();
+    let u = [0.0, 0.5];
+    let today = k.reactions(&u, &force).unwrap()[0];
+    let published0 = k
+        .force_scaled_reactions(&u, &force, ForceScale::UNSCALED, &[0])
+        .unwrap();
+    assert_eq!(published0, vec![published(today)]);
+    assert_eq!(react_row0(&two(3.0), &u, 2), Ok(vec![published(0.375)]));
+}
+
+/// RV11's long member W (probe F-A2): N0 -> N1 along x, L = 2^300 m,
+/// E = G = 2^200 Pa, A = I = J = 1; the solve's rotation at N0 RZ.
+fn long_member_w() -> FrameElement {
+    let section = FrameSection::new(pow2(200), pow2(200), 1.0, 1.0, 1.0, 1.0).unwrap();
+    FrameElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+        FrameNode::new(1, [pow2(300), 0.0, 0.0]).unwrap(),
+        section,
+        [0.0, 1.0, 0.0],
+    )
+    .unwrap()
+}
+
+/// The straight pipe's formed elastic end actions at b = 0 (`+=` from +0.0,
+/// T * u_e, then K_local * that), as the independent reference.
+fn formed_end_actions(frame: &FrameElement, u: &[f64]) -> [f64; 12] {
+    let k = frame.local_stiffness().unwrap();
+    let t = frame.orientation().unwrap().transformation_matrix();
+    let map =
+        open_pipe_stress_frame_kernel::element_dof_map(frame.node_i.index, frame.node_j.index);
+    let mut local = [0.0; 12];
+    for row in 0..12 {
+        for col in 0..12 {
+            local[row] += t[row][col] * u[map[col]];
+        }
+    }
+    let mut actions = [0.0; 12];
+    for row in 0..12 {
+        for col in 0..12 {
+            actions[row] += k[row][col] * local[col];
+        }
+    }
+    actions
+}
+
+/// RV11-1: the kernel's member end actions at 2^b
+/// (`FrameElement::force_scaled_end_actions`), built as the reactions are:
+/// every product and partial sum checked, then unscaled once. On RV11's long
+/// member, the end shear 6EI/L^2 * theta is about 1.38e-300 N: normal at b = 0
+/// and at b = 64 (bit for bit the straight pipe's formed value), but formed
+/// below the normal range at the rule's b of F-A2 (-138), where it is
+/// refused, as it is with a rotation 2^80 larger (a subnormal product).
+#[test]
+fn k2b_rv11_force_scaled_end_actions_are_checked_and_unscaled_once() {
+    let w = long_member_w();
+    let theta = f64::from_bits(0x1a83_c083_126e_978d);
+    let mut u = vec![0.0; 12];
+    u[5] = theta;
+    let reference = formed_end_actions(&w, &u);
+    assert!(reference[1].is_normal() && reference[1] > 1.3e-300 && reference[1] < 1.4e-300);
+    for b in [0, 64] {
+        let actions = w.force_scaled_end_actions(&u, scale(b)).unwrap();
+        for (published, expected) in actions.iter().zip(reference) {
+            assert_eq!(published.value.to_bits(), expected.to_bits(), "b = {b}");
+            assert_eq!(published.representability, Representability::Normal);
+        }
+    }
+    let refused = Err(ForceScaledError::Refused(ForceScalingRefusal {
+        reason: ForceScaleReason::PublicationOutsideBinary64 { global_dof: None },
+        trigger: None,
+    }));
+    assert_eq!(w.force_scaled_end_actions(&u, scale(-138)), refused);
+    u[5] = theta * pow2(80);
+    assert_eq!(w.force_scaled_end_actions(&u, scale(-138)), refused);
+    assert_eq!(
+        w.force_scaled_end_actions(&u[..6], ForceScale::UNSCALED),
+        Err(ForceScaledError::Structural(StructuralError::InvalidInput(
+            "displacement vector"
+        )))
+    );
+}
