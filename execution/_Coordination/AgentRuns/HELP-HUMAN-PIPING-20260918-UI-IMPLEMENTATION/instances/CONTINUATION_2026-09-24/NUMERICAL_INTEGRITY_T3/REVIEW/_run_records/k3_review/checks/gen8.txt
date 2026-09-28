@@ -1,0 +1,5 @@
+GEN-8 on the candidate head (RV12)
+checkout: <wt>/k3 at b7e93650ea11f68572ddd5eaf84b55508e1aff9d, clean (git status --short: 0 lines before and after)
+command (from the repository root of that checkout):
+  PYTHONDONTWRITEBYTECODE=1 <VENV>/bin/python -m pytest -p no:cacheprovider tools/practitioner_harness/test_live_baseline.py -k gen8 -q
+result: 1 passed, 10 deselected in 84.59s

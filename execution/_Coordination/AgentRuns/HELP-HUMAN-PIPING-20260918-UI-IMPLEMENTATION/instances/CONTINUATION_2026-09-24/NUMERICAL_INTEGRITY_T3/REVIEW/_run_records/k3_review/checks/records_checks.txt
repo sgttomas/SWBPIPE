@@ -1,0 +1,57 @@
+# RV12 records and hygiene checks on b7e93650e
+
+## K3 records SHA256SUMS (git archive of the records folder at b7e93650e)
+entries: 281
+shasum -c OK lines: 281
+shasum -c non-OK lines: 0
+files in folder except SHA256SUMS: 281
+listed set == file set: yes
+
+## Test-data SHA256SUMS (FK/tests/retained_wide_k3, archive of b7e93650e)
+targeted_l4.txt: OK
+targeted_l8.txt: OK
+targeted_l16.txt: OK
+conversion.txt: OK
+eft.txt: OK
+differential_sample.txt: OK
+differential.txt: OK
+vector bytes (7 files): 4912990
+
+## Machine paths (GEN-8's MACHINE_ABS_PATH_RE shape) in K3's source, tests and records at b7e93650e
+hits: 0 files
+
+## Model identifiers (a case-insensitive scan for the vendor and model-family names of current assistants; the pattern is kept out of this record so that it does not itself trip the hygiene rule)
+hits: 0 files
+
+## Placeholders used in the records
+   9 <VENV>
+   5 <home>
+ 218 <scratch>
+ 518 <wt>
+
+## T9 stated as Mac-only
+CHANGE_RECORD.md:53:  - **T9 (Mac-only):** 112 of 112 outputs are byte-identical, base `eb52114e9` against the K3 tree, both built on this Mac from `git archive
+CHANGE_RECORD.md:91:- **T9:** 112 of 112 byte-identical (Mac-only), as above.
+RETURN.md:10:- **No published byte changes:** T9 is 112 of 112 byte-identical (Mac-only).
+RETURN.md:256:## 10. T9, the committed-fixture diff (Mac-only; `_run_records/checkpoint_b/t9/`)
+RETURN.md:265:- **This is a Mac-only comparison,** never compared with the Linux records (`T3/PLATFORM_CALIBRATION_MAC/`).
+_run_records/assemble_run_records.py.txt:98:    "T9 (Mac-only): base = git archive of eb52114e9; candidate = git archive of 74add6078 with the then\n"
+_run_records/checkpoint_b/t9/t9_summary.txt:1:T9 (Mac-only): base = git archive of eb52114e9; candidate = git archive of 74add6078 with the then
+
+## Dead-code allowances
+multi.rs: 33; wide.rs: 12; module-wide or cfg_attr: 0
+  wide.rs:143 test-only: the regression tolerance the K3a tests assert
+  wide.rs:146 test-only: the proved bound the K3a tests assert
+  wide.rs:236 test-only: K-D5 reads the flag through `add_product_to`
+  wide.rs:274 K3a API, no caller yet (reviewed at T3 close)
+  wide.rs:303 K3a API, no caller yet (reviewed at T3 close)
+  wide.rs:336 K3a API, no caller yet (reviewed at T3 close)
+  wide.rs:342 K3a API, no caller yet (reviewed at T3 close)
+  wide.rs:362 K3a API, no caller yet (reviewed at T3 close)
+  wide.rs:855 test-only: K-D5 measures its cost in tests (K4 counts with multi::AttemptWork)
+  wide.rs:883 K3a API, no caller yet (reviewed at T3 close)
+  wide.rs:888 test-only: K-D5 measures its cost in tests (K4 counts with multi::AttemptWork)
+  wide.rs:935 later-slice API (W1c; K3 Q6)
+non-test callers of the relabelled K3a items (Wide<2> parts/from_parts/exponent/is_sign_negative/fits_precision, WideArith precision/work, WorkCounter rounded_operations): only formation_check_tests.rs (a test module) calls .work()/.rounded_operations(); no other caller in FK/src.
+
+## rustfmt 1.9.0-stable --check on wide.rs (with its multi child) and k3_tests.rs: clean

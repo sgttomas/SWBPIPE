@@ -1,0 +1,23 @@
+{
+ "id": "RV5",
+ "description": "far subtraction drops the (1 - f) tail after the borrow",
+ "filters": null,
+ "file": "multi.rs",
+ "line": 504,
+ "old": "        round_limbs::<L>(big.negative, window.as_ref(), sticky, scale, p)\n    }\n}\n\nfn mul_rounded",
+ "new": "        round_limbs::<L>(big.negative, window.as_ref(), false, scale, p)\n    }\n}\n\nfn mul_rounded",
+ "wall_s": 373.2,
+ "rc": 101,
+ "compiled": true,
+ "passed": 226,
+ "failed": 1,
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "at": "tests/retained_wide_k3/k3_tests.rs:711",
+   "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

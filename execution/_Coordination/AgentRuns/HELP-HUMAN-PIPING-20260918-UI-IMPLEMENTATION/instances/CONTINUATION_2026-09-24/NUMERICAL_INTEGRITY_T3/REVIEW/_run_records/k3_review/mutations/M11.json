@@ -1,0 +1,41 @@
+{
+ "id": "M11",
+ "description": "nonzero underflow returned as a silent zero",
+ "filters": [
+  "structural::retained::wide::multi::tests::conversion",
+  "structural::retained::wide::multi::tests::exponent_extremes"
+ ],
+ "file": "multi.rs",
+ "line": 739,
+ "old": "        if kept == 0 {\n            return Binary64Outcome::Underflow { negative };\n",
+ "new": "        if kept == 0 {\n            return Binary64Outcome::Normal(f64::from_bits(sign));\n",
+ "wall_s": 4.2,
+ "rc": 101,
+ "compiled": true,
+ "passed": 1,
+ "failed": 4,
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1457",
+   "source": "assert_eq!("
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1530",
+   "source": "assert_eq!("
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1372",
+   "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1001",
+   "source": "assert_eq!("
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

@@ -1,0 +1,48 @@
+{
+ "id": "RV3",
+ "description": "far subtraction without the borrow (no decrement)",
+ "filters": null,
+ "file": "multi.rs",
+ "line": 499,
+ "old": "        if sticky {\n            decrement(window.as_mut());\n        } else if",
+ "new": "        if sticky {\n        } else if",
+ "wall_s": 373.6,
+ "rc": 101,
+ "compiled": true,
+ "passed": 221,
+ "failed": 6,
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "at": "tests/retained_wide_k3/k3_tests.rs:711",
+   "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "at": "tests/retained_wide_k3/k3_tests.rs:544",
+   "source": "assert_eq!(core, k3a, \"{line}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1318",
+   "source": "assert_eq!(done.hex(), chunks[k], \"{name} chunk {k}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

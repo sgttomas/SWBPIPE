@@ -1,0 +1,7 @@
+P1 KILLED compiled=True passed=226 failed=1 kills=1 other=0 wall=260.4
+RV2 SURVIVED compiled=True passed=227 failed=0 kills=0 other=0 wall=309.0
+RV1 SURVIVED compiled=True passed=227 failed=0 kills=0 other=0 wall=310.0
+RV3 KILLED compiled=True passed=221 failed=6 kills=6 other=0 wall=373.6
+RV4 SURVIVED compiled=True passed=227 failed=0 kills=0 other=0 wall=372.0
+RV5 KILLED compiled=True passed=226 failed=1 kills=1 other=0 wall=373.2
+DONE

@@ -1,0 +1,23 @@
+{
+ "id": "P1",
+ "description": "a [profile.test] with overflow-checks = false",
+ "filters": null,
+ "file": "Cargo.toml",
+ "line": 11,
+ "old": "[dependencies]\n",
+ "new": "[dependencies]\n\n[profile.test]\noverflow-checks = false\n",
+ "wall_s": 260.4,
+ "rc": 101,
+ "compiled": true,
+ "passed": 226,
+ "failed": 1,
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on",
+   "at": "tests/retained_wide_k3/k3_tests.rs:416",
+   "source": "assert!("
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

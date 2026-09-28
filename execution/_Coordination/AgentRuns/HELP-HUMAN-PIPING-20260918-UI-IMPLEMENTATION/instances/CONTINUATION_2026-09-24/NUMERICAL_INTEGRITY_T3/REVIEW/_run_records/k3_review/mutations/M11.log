@@ -1,0 +1,54 @@
+
+running 5 tests
+test structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width ... FAILED
+test structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention ... FAILED
+test structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle ... FAILED
+test structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width ... FAILED
+test structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined ... ok
+
+failures:
+
+---- structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width stdout ----
+
+thread 'structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width' (3595028) panicked at src/structural/retained/wide/../../../../tests/retained_wide_k3/k3_tests.rs:1457:5:
+assertion `left == right` failed
+  left: Normal(-0.0)
+ right: Underflow { negative: true }
+
+---- structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention stdout ----
+
+thread 'structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention' (3595030) panicked at src/structural/retained/wide/../../../../tests/retained_wide_k3/k3_tests.rs:1530:5:
+assertion `left == right` failed
+  left: Normal(-0.0)
+ right: Underflow { negative: true }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle stdout ----
+
+thread 'structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle' (3595029) panicked at src/structural/retained/wide/../../../../tests/retained_wide_k3/k3_tests.rs:1372:5:
+assertion `left == right` failed: conv 2 half_min_subnormal +8p-1075 U+
+  left: "N:0000000000000000"
+ right: "U+"
+
+---- structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width stdout ----
+
+thread 'structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width' (3595032) panicked at src/structural/retained/wide/../../../../tests/retained_wide_k3/k3_tests.rs:1001:5:
+assertion `left == right` failed
+  left: Normal(-0.0)
+ right: Underflow { negative: true }
+
+
+failures:
+    structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width
+    structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle
+    structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention
+    structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width
+
+test result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 192 filtered out; finished in 0.84s
+
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/rv12/mut/M11/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.90s
+     Running unittests src/lib.rs (<wt>/rv12-target/mut-M11/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+    `--lib`

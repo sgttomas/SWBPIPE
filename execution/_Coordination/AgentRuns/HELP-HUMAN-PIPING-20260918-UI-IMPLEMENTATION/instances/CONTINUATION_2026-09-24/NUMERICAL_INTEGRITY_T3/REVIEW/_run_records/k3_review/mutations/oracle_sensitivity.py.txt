@@ -1,0 +1,40 @@
+"""Runs RV12's oracle operations through probe builds carrying one mutant each,
+to show which mutants the independent oracle detects (standard library only)."""
+import json, os, shutil, subprocess, sys
+from pathlib import Path
+WT = Path(sys.argv[1]); O = WT / "scratch/rv12/oracle"
+sys.path.insert(0, str(O))
+drv = {}
+exec(compile(open(WT / "scratch/rv12/mut/rv12_mutate.py").read().split("ENV = dict")[0].replace("WT = Path(sys.argv[1])", "WT = Path('.')").replace("COMMIT = sys.argv[2]", "").replace("OUT = Path(sys.argv[3])", "").replace("IDS = sys.argv[4:]", ""), "m", "exec"), drv)
+MUT = drv["MUTANTS"]
+OPS = ["ops_all.txt", "ops3.txt", "ops_tail.txt", "ops_wide_operand.txt", "ops_boundary.txt"]
+ENV = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", RUSTUP_AUTO_INSTALL="0", CARGO_INCREMENTAL="0", RUST_TEST_THREADS="4")
+import rv12_oracle as oracle
+out = {}
+for mid in sys.argv[2:]:
+    desc, path, old, new, _ = MUT[mid]
+    root = WT / "scratch/rv12/probe_mut" / mid
+    if root.exists():
+        shutil.rmtree(root)
+    shutil.copytree(WT / "scratch/rv12/probe/frame_kernel", root, ignore=shutil.ignore_patterns("target"))
+    f = root / path.split("frame_kernel/")[1]
+    text = f.read_text(); assert text.count(old) == 1, mid
+    f.write_text(text.replace(old, new))
+    target = WT / "rv12-target" / ("probe-" + mid)
+    res = {}
+    for ops in OPS:
+        e = dict(ENV, CARGO_TARGET_DIR=str(target), RV12_IN=str(O / ops), RV12_OUT=str(root / ("out_" + ops)))
+        p = subprocess.run(["cargo", "test", "--offline", "--locked", "-j", "8", "--lib", "rv12_probe"], cwd=root, env=e, capture_output=True, text=True)
+        if p.returncode != 0:
+            res[ops] = "probe failed (panic in code under test or build error)"
+            continue
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            bad = oracle.check(str(O / ops), str(root / ("out_" + ops)))
+        res[ops] = bad
+    out[mid] = {"description": desc, "oracle_mismatches": res}
+    print(mid, json.dumps(res), flush=True)
+    shutil.rmtree(target, ignore_errors=True)
+    shutil.rmtree(root, ignore_errors=True)
+json.dump(out, open(WT / "scratch/rv12/probe_mut/sensitivity.json", "w"), indent=1)

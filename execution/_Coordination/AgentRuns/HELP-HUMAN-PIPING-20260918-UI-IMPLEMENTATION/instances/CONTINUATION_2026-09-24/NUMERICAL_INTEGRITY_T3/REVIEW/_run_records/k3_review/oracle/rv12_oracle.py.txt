@@ -1,0 +1,849 @@
+#!/usr/bin/env python3
+"""RV12's independent oracle for slice K3 (Wide<L> at L = 4, 8, 16; the
+binary64 conversion at L = 2, 4, 8, 16; K4's arithmetic).
+
+Written by the reviewer without reference to K3's generator. Values are
+dyadic triples (negative, n, k) meaning (-1)^negative * n * 2^k with n >= 0
+an integer, so no power 2^k is ever materialized and exponent extremes near
++-2^62 are exact. Rounding is to nearest, ties to even, at p bits, from the
+exact value (plus a sticky flag where the exact value is irrational or has an
+unbounded tail). The binary64 conversion is cross-checked against CPython's
+correctly rounded float(Fraction) wherever the value is materializable.
+
+Usage:
+  rv12_oracle.py gen  <seed> <out_ops>        write the operation file
+  rv12_oracle.py gen2 <seed> <out_ops>        the second, targeted batch
+  rv12_oracle.py gen3 <seed> <out_ops>        mul_pow2, cmp_value, fits_precision
+  rv12_oracle.py check <ops> <rust_out>       compare the Rust results
+"""
+import math
+import random
+import sys
+from fractions import Fraction
+
+LIMIT = 1 << 62
+WIDTHS = (4, 8, 16)
+
+
+# ---------------------------------------------------------------------------
+# Dyadic values, tokens and rounding
+# ---------------------------------------------------------------------------
+
+def bl(n):
+    return n.bit_length()
+
+
+def norm(v):
+    """Strip trailing zeros (canonical dyadic)."""
+    neg, n, k = v
+    if n == 0:
+        return (neg, 0, 0)
+    tz = (n & -n).bit_length() - 1
+    return (neg, n >> tz, k + tz)
+
+
+def lead(v):
+    return v[2] + bl(v[1]) - 1
+
+
+def to_tok(v, L):
+    """Wide<L> token 'sign:exponent:hex' of a value with at most 64L bits."""
+    neg, n, k = v
+    if n == 0:
+        return "%d:0:%s" % (int(neg), "0" * (16 * L))
+    b = bl(n)
+    assert b <= 64 * L, (b, L)
+    sig = n << (64 * L - b)
+    e = k + b - 1
+    return "%d:%d:%0*x" % (int(neg), e, 16 * L, sig)
+
+
+def from_tok(tok, L):
+    s, e, h = tok.split(":")
+    neg = s == "1"
+    n = int(h, 16)
+    if n == 0:
+        return (neg, 0, 0)
+    assert len(h) == 16 * L
+    return (neg, n, int(e) - (64 * L - 1))
+
+
+class RangeErr(Exception):
+    pass
+
+
+def rnd(neg, n, k, sticky, p):
+    """Round (-1)^neg (n + f) 2^k to p bits, f in (0,1) iff sticky.
+
+    Requires bl(n) >= p + 2 when sticky. Returns a dyadic value or raises
+    RangeErr when the leading exponent leaves +-2^62."""
+    if n == 0:
+        assert not sticky
+        return (neg, 0, 0)
+    b = bl(n)
+    if b <= p:
+        assert not sticky, "not enough bits"
+        out = (neg, n, k)
+    else:
+        assert not sticky or b >= p + 2
+        shift = b - p
+        q = n >> shift
+        r = n & ((1 << shift) - 1)
+        half = 1 << (shift - 1)
+        if r > half or (r == half and (sticky or (q & 1))):
+            q += 1
+        out = (neg, q, k + shift)
+    out = norm(out)
+    if abs(lead(out)) > LIMIT:
+        raise RangeErr()
+    return out
+
+
+def is_zero(v):
+    return v[1] == 0
+
+
+def neg_of(v):
+    return (not v[0], v[1], v[2])
+
+
+def exact_add(a, b):
+    """Exact a + b as a dyadic (callers keep exponents moderate)."""
+    ka, kb = a[2], b[2]
+    k = min(ka, kb)
+    x = (-1 if a[0] else 1) * a[1] << (ka - k)
+    y = (-1 if b[0] else 1) * b[1] << (kb - k)
+    s = x + y
+    return (s < 0, abs(s), k)
+
+
+def op_add(a, b, p, L):
+    if is_zero(a) and is_zero(b):
+        return (a[0] and b[0], 0, 0)
+    if is_zero(a):
+        return rnd(b[0], b[1], b[2], False, p)
+    if is_zero(b):
+        return rnd(a[0], a[1], a[2], False, p)
+    big, small = (a, b) if lead(a) >= lead(b) else (b, a)
+    gap = lead(big) - lead(small)
+    if gap > 64 * L + 16:
+        # small lies far below big's lowest possible bit (lead - 64L + 1) and
+        # below half an ulp at any p <= 64L: only its sign matters. Replace it
+        # by +-2^(lead(big) - 64L - 12), which has the same effect.
+        small = (small[0], 1, lead(big) - 64 * L - 12)
+    s = exact_add(big, small)
+    if s[1] == 0:
+        return (False, 0, 0)
+    return rnd(s[0], s[1], s[2], False, p)
+
+
+def op_mul(a, b, p):
+    neg = a[0] != b[0]
+    if is_zero(a) or is_zero(b):
+        return (neg, 0, 0)
+    return rnd(neg, a[1] * b[1], a[2] + b[2], False, p)
+
+
+def op_div(a, b, p):
+    if is_zero(b):
+        return "E:DivisionByZero"
+    neg = a[0] != b[0]
+    if is_zero(a):
+        return (neg, 0, 0)
+    s = max(0, p + 3 + bl(b[1]) - bl(a[1]))
+    num = a[1] << s
+    q, r = divmod(num, b[1])
+    return rnd(neg, q, a[2] - b[2] - s, r != 0, p)
+
+
+def op_sqrt(a, p):
+    if is_zero(a):
+        return a
+    if a[0]:
+        return "E:NegativeSqrt"
+    n, k = a[1], a[2]
+    s = max(0, 2 * (p + 3) - bl(n) + 2)
+    if (k - s) % 2:
+        s += 1
+    N = n << s
+    r = math.isqrt(N)
+    return rnd(False, r, (k - s) // 2, r * r != N, p)
+
+
+def fits(v, p):
+    return is_zero(v) or bl(norm(v)[1]) <= p
+
+
+def op_two_sum(a, b, p, L):
+    if not fits(a, p) or not fits(b, p):
+        return "E:OperandPrecision"
+    s = op_add(a, b, p, L)
+    if abs(a[2] - b[2]) > 20000:
+        # only the "s is the bigger operand" case is generated with huge gaps
+        big, small = (a, b) if lead(a) > lead(b) else (b, a)
+        assert norm(s) == norm(big)
+        e = small
+    else:
+        ex = exact_add(a, b)
+        e = exact_add(ex, neg_of(s))
+    e = norm(e)
+    if e[1] == 0:
+        e = (False, 0, 0)
+    assert bl(e[1]) <= p, "TwoSum error not representable"
+    return (s, e)
+
+
+def op_two_product(a, b, p):
+    if not fits(a, p) or not fits(b, p):
+        return "E:OperandPrecision"
+    neg = a[0] != b[0]
+    if is_zero(a) or is_zero(b):
+        return ((neg, 0, 0), (False, 0, 0))
+    s = op_mul(a, b, p)
+    ex = (neg, a[1] * b[1], a[2] + b[2])
+    e = norm(exact_add(ex, neg_of(s)))
+    if e[1] == 0:
+        e = (False, 0, 0)
+    assert bl(e[1]) <= p
+    return (s, e)
+
+
+# ---------------------------------------------------------------------------
+# Conversion to binary64
+# ---------------------------------------------------------------------------
+
+def fl_up_half_over(kept):
+    """Smallest binary64 >= 1/(2 kept), as bits."""
+    d = 2 * kept
+    x = Fraction(1, d)
+    # E with 2^E <= x < 2^(E+1)
+    E = -bl(d - 1) if d & (d - 1) else -(bl(d) - 1)
+    assert Fraction(2) ** E <= x < Fraction(2) ** (E + 1)
+    # N = ceil(x * 2^(52 - E))
+    num = 1 << (52 - E)
+    N = -(-num // d)
+    if N == 1 << 53:
+        N >>= 1
+        E += 1
+    r = math.ldexp(N, E - 52)
+    # independent check: r >= x and its predecessor < x
+    assert Fraction(r) >= x
+    assert Fraction(math.nextafter(r, 0.0)) < x
+    return r
+
+
+def conv(v):
+    neg, n, k = v
+    sign = (1 << 63) if neg else 0
+    if n == 0:
+        return "N:%016x" % sign
+    E = k + bl(n) - 1
+    if E > 1023:
+        return "O:%d" % int(neg)
+    quantum = max(E - 52, -1074)
+    shift = quantum - k
+    if shift <= 0:
+        kept = n << (-shift)
+    elif shift > bl(n) + 1:
+        kept = 0
+    else:
+        kept = n >> shift
+        r = n & ((1 << shift) - 1)
+        half = 1 << (shift - 1)
+        if r > half or (r == half and (kept & 1)):
+            kept += 1
+    if kept == 1 << 53:
+        kept = 1 << 52
+        quantum += 1
+    if kept == 0:
+        out = "U:%d" % int(neg)
+    elif kept >= 1 << 52:
+        e2 = quantum + 52
+        if e2 > 1023:
+            out = "O:%d" % int(neg)
+        else:
+            out = "N:%016x" % (sign | ((e2 + 1023) << 52) | (kept - (1 << 52)))
+    else:
+        assert quantum == -1074
+        rp = fl_up_half_over(kept)
+        out = "S:%016x:%016x" % (sign | kept, struct_bits(rp))
+    # cross-check against CPython where the value is materializable
+    if -3000 < k < 3000 and bl(n) < 20000:
+        fr = Fraction(n) * (Fraction(2) ** k)
+        if neg:
+            fr = -fr
+        try:
+            f = float(fr)
+            fb = struct_bits(f)
+            if out[0] == "U":
+                assert f == 0.0 and fr != 0, out
+            elif out[0] in "NS":
+                assert int(out[2:18], 16) == fb, (out, hex(fb))
+            else:
+                raise AssertionError("oracle overflow but CPython finite")
+        except OverflowError:
+            assert out[0] == "O", out
+    return out
+
+
+def struct_bits(f):
+    import struct
+    return struct.unpack("<Q", struct.pack("<d", f))[0]
+
+
+# ---------------------------------------------------------------------------
+# Operand generation
+# ---------------------------------------------------------------------------
+
+def rand_sig(rng, L):
+    """A 64L-bit-or-fewer significand with a varied bit pattern."""
+    W = 64 * L
+    kind = rng.randrange(10)
+    if kind == 0:
+        return (1 << W) - 1  # all ones
+    if kind == 1:
+        return 1 << (W - 1)  # power of two
+    if kind == 2:  # top bit plus a lone bit in limb 0
+        return (1 << (W - 1)) | (1 << rng.randrange(64))
+    if kind == 3:  # top bit plus ones run crossing a limb boundary
+        j = rng.randrange(1, L) * 64
+        return (1 << (W - 1)) | (((1 << 8) - 1) << (j - 4))
+    if kind == 4:  # few significant bits
+        b = rng.randrange(1, 70)
+        return rng.getrandbits(b) | (1 << (b - 1))
+    if kind == 5:  # all ones in top part, zeros below (x.fff...)
+        b = rng.randrange(1, W + 1)
+        return ((1 << b) - 1) << (W - b)
+    b = rng.randrange(1, W + 1)
+    return rng.getrandbits(b) | (1 << (b - 1))
+
+
+def rand_val(rng, L, emin=-300, emax=300, neg=None):
+    n = rand_sig(rng, L)
+    e = rng.randrange(emin, emax + 1)
+    if neg is None:
+        neg = rng.random() < 0.5
+    return norm((neg, n, e - bl(n) + 1))
+
+
+def round_to_p(rng, v, p):
+    return rnd(v[0], v[1], v[2], False, p)
+
+
+def class_precisions(L):
+    W = 64 * L
+    ps = {53, 128, 192, 256, 320, 512, 576, 1024, 2, 3, W - 1, W}
+    for kk in range(1, L + 1):
+        ps.update({64 * kk - 1, 64 * kk, 64 * kk + 1})
+    return sorted(q for q in ps if 2 <= q <= W)
+
+
+def gen(seed, path):
+    rng = random.Random(seed)
+    lines = []
+    cnt = [0]
+
+    def emit(op, L, p, *args):
+        cnt[0] += 1
+        lines.append(" ".join(["%d" % cnt[0], op, str(L), str(p)] + list(args)))
+
+    for L in WIDTHS:
+        W = 64 * L
+        precs = class_precisions(L)
+        # 1. random operands, every op, every class precision and random p
+        for _ in range(1500):
+            p = rng.choice(precs) if rng.random() < 0.6 else rng.randrange(2, W + 1)
+            a = rand_val(rng, L)
+            b = rand_val(rng, L, emin=lead(a) - rng.choice([0, 1, 2, 60, 64, W, W + 1, W + 70, 3 * W]),
+                         emax=lead(a) + 2) if rng.random() < 0.6 else rand_val(rng, L)
+            op = rng.choice(["add", "sub", "mul", "div", "sqrt"])
+            if op == "sqrt":
+                a = (False, a[1], a[2])
+            emit(op, L, p, to_tok(a, L), to_tok(b, L))
+        # 2. ties at every class precision
+        for p in precs:
+            for _ in range(4):
+                if p + 1 <= W:
+                    # add tie: (2X) 2^k + 1 2^k where 2X+1 has p+1 bits
+                    X = rng.getrandbits(p) | (1 << (p - 1))
+                    k = rng.randrange(-100, 100)
+                    a = norm((False, 2 * X, k))
+                    b = norm((False, 1, k))
+                    sgn = rng.random() < 0.5
+                    a = (sgn, a[1], a[2])
+                    b = (sgn, b[1], b[2])
+                    emit("add", L, p, to_tok(a, L), to_tok(b, L))
+                    # sub tie: (2X+2) - 1
+                    a2 = norm((sgn, 2 * X + 2, k))
+                    if bl(a2[1]) <= W:
+                        emit("sub", L, p, to_tok(a2, L), to_tok(b, L))
+                    # div tie by a power of two: (2X+1) 2^k / 2^j
+                    t = norm((sgn, 2 * X + 1, k))
+                    emit("div", L, p, to_tok(t, L), to_tok((False, 1, rng.randrange(-50, 50)), L))
+                    # mul tie: (2X+1) * 2^j
+                    emit("mul", L, p, to_tok(t, L), to_tok((rng.random() < 0.5, 1, rng.randrange(-50, 50)), L))
+                if p + 3 <= W:
+                    # div tie by 3: 3T / 3, T odd with p+1 bits
+                    T = rng.getrandbits(p + 1) | (1 << p) | 1
+                    emit("div", L, p, to_tok((False, 3 * T, -rng.randrange(0, 90)), L), to_tok((False, 3, 0), L))
+                # mul tie at any p: 3 * b, b odd in [2^(p-1), 2^(p+1)/3)
+                lo, hi = 1 << (p - 1), ((1 << (p + 1)) // 3)
+                if hi > lo:
+                    bb = rng.randrange(lo, hi) | 1
+                    if bl(bb) <= W and bl(3 * bb) == p + 1:
+                        emit("mul", L, p, to_tok((False, 3, rng.randrange(-40, 40)), L), to_tok((True, bb, -p), L))
+                if 2 * p + 2 <= W:
+                    # sqrt tie: sqrt(T^2), T odd with p+1 bits
+                    T = rng.getrandbits(p + 1) | (1 << p) | 1
+                    emit("sqrt", L, p, to_tok((False, T * T, 2 * rng.randrange(-60, 60)), L), "-")
+        # 3. far sticky and massive cancellation
+        for p in precs:
+            for _ in range(4):
+                a = rand_val(rng, L)
+                # far below: gap beyond the window
+                g = rng.choice([W - 1, W, W + 1, W + 2, 2 * W, 2 * W + 63, 5000])
+                tiny = (rng.random() < 0.5, rand_sig(rng, L), 0)
+                tiny = norm((tiny[0], tiny[1], lead(a) - g - bl(tiny[1]) + 1))
+                emit(rng.choice(["add", "sub"]), L, p, to_tok(a, L), to_tok(tiny, L))
+                # tie plus far sticky: X with p bits, plus half ulp, plus tiny
+                X = rng.getrandbits(p) | (1 << (p - 1))
+                k = rng.randrange(-80, 80)
+                base = norm((False, (2 * X) * 2 + 1, k - 1))  # (2X + 1/2) 2^k ... tie at p+1? keep
+                if bl(base[1]) <= W:
+                    emit("add", L, p, to_tok(base, L), to_tok(norm((rng.random() < 0.5, 1, k - 1 - rng.choice([W, W + 5, 3 * W]))), L))
+                # cancellation: a - (a +- ulp_W)
+                n = rand_sig(rng, L) | (1 << (W - 1))
+                n = n if bl(n) == W else (n | (1 << (W - 1)))
+                e0 = rng.randrange(-100, 100)
+                a = (False, n, e0)
+                for d in (1, -1, 2, (1 << 70) if W > 71 else 3):
+                    m2 = n + d
+                    if 0 < m2 and bl(m2) == W:
+                        emit("sub", L, p, to_tok(norm(a), L), to_tok(norm((False, m2, e0)), L))
+                        emit("add", L, p, to_tok(norm(a), L), to_tok(norm((True, m2, e0)), L))
+        # 4. near-exact division and square root
+        for p in precs:
+            for _ in range(4):
+                bq = rand_val(rng, L, emin=-5, emax=5, neg=False)
+                qq = rand_val(rng, L, emin=-5, emax=5, neg=False)
+                qq = rnd(False, qq[1], qq[2], False, max(2, W // 2 - 2))
+                bq = rnd(False, bq[1], bq[2], False, max(2, W // 2 - 2))
+                prod = (False, bq[1] * qq[1], bq[2] + qq[2])
+                if bl(prod[1]) <= W:
+                    emit("div", L, p, to_tok(norm(prod), L), to_tok(bq, L))
+                    # +- one unit in the last place of the product at width W
+                    pn = norm(prod)
+                    unit = lead(pn) - W + 1
+                    for d in (1, -1):
+                        nv = exact_add(pn, (d < 0, 1, unit))
+                        nv = norm(nv)
+                        if bl(nv[1]) <= W:
+                            emit("div", L, p, to_tok(nv, L), to_tok(bq, L))
+                # square roots of perfect squares and +- one unit
+                r = rng.getrandbits(W // 2) | (1 << (W // 2 - 1))
+                ke = 2 * rng.randrange(-80, 80)
+                sq = norm((False, r * r, ke))
+                emit("sqrt", L, p, to_tok(sq, L), "-")
+                for d in (1, -1):
+                    nv = norm(exact_add(sq, (d < 0, 1, lead(sq) - W + 1)))
+                    if bl(nv[1]) <= W:
+                        emit("sqrt", L, p, to_tok(nv, L), "-")
+        # 5. exponent extremes
+        for p in [2, 53, W // 2, W]:
+            for s1 in (False, True):
+                ones = norm((s1, (1 << W) - 1, LIMIT - W + 1))  # lead = 2^62, all ones
+                one = (False, 1, 0)
+                emit("mul", L, p, to_tok(ones, L), to_tok(one, L))  # rounds up past 2^62 unless p = W
+                emit("add", L, p, to_tok(ones, L), to_tok(ones, L))
+                emit("mul", L, p, to_tok((s1, 1, LIMIT // 2), L), to_tok((False, 1, LIMIT // 2), L))  # exactly 2^62
+                emit("mul", L, p, to_tok((s1, 1, LIMIT // 2), L), to_tok((False, 1, LIMIT // 2 + 1), L))  # 2^(2^62+1)
+                emit("mul", L, p, to_tok((s1, 1, -LIMIT // 2), L), to_tok((False, 1, -LIMIT // 2), L))  # 2^-2^62
+                emit("mul", L, p, to_tok((s1, 1, -LIMIT // 2), L), to_tok((False, 1, -LIMIT // 2 - 1), L))
+                emit("div", L, p, to_tok((s1, 1, -LIMIT), L), to_tok((False, 3, 1), L))
+                emit("div", L, p, to_tok((s1, 1, LIMIT), L), to_tok((False, 1, -1), L))
+                emit("sqrt", L, p, to_tok((False, 1, -LIMIT), L), "-")
+                emit("add", L, p, to_tok((s1, 1, LIMIT), L), to_tok((not s1, 1, -LIMIT), L))
+                emit("add", L, p, to_tok((s1, 1, LIMIT), L), to_tok((s1, 1, -LIMIT), L))
+        # 6. signed zeros
+        z = [(False, 0, 0), (True, 0, 0)]
+        for p in (53, W):
+            for za in z:
+                for zb in z:
+                    for op in ("add", "sub", "mul"):
+                        emit(op, L, p, to_tok(za, L), to_tok(zb, L))
+                x = rand_val(rng, L)
+                emit("add", L, p, to_tok(za, L), to_tok(x, L))
+                emit("sub", L, p, to_tok(x, L), to_tok(x, L))
+                emit("mul", L, p, to_tok(za, L), to_tok(x, L))
+                emit("div", L, p, to_tok(za, L), to_tok(x, L))
+                emit("div", L, p, to_tok(x, L), to_tok(za, L))
+                emit("sqrt", L, p, to_tok(za, L), "-")
+                emit("sqrt", L, p, to_tok((True, x[1], x[2]), L), "-")
+        # 7. TwoSum / TwoProduct with p-bit operands
+        for _ in range(500):
+            p = rng.choice(precs) if rng.random() < 0.6 else rng.randrange(2, W + 1)
+            a = round_to_p(rng, rand_val(rng, L), p)
+            kind = rng.randrange(6)
+            if kind == 0:
+                b = round_to_p(rng, rand_val(rng, L, emin=lead(a) - p - 5, emax=lead(a) - p + 2), p)
+            elif kind == 1:
+                b = round_to_p(rng, rand_val(rng, L, emin=lead(a) - 3 * W, emax=lead(a) - W), p)
+            elif kind == 2:
+                b = neg_of(round_to_p(rng, rand_val(rng, L, emin=lead(a), emax=lead(a)), p))
+            elif kind == 3:
+                b = (not a[0], a[1], a[2])  # exact cancellation
+            else:
+                b = round_to_p(rng, rand_val(rng, L), p)
+            op = "twosum" if rng.random() < 0.5 else "twoprod"
+            emit(op, L, p, to_tok(a, L), to_tok(b, L))
+        for _ in range(40):  # operands wider than p
+            p = rng.randrange(2, W)
+            a = (False, (1 << p) | 1, 0)
+            b = round_to_p(rng, rand_val(rng, L), p)
+            if bl(a[1]) <= W:
+                emit(rng.choice(["twosum", "twoprod"]), L, p, to_tok(norm(a), L), to_tok(b, L))
+        # extreme-gap TwoSum: s = big, e = small
+        for p in (53, W):
+            a = round_to_p(rng, rand_val(rng, L, emin=LIMIT - 10, emax=LIMIT - 10), p)
+            b = round_to_p(rng, rand_val(rng, L, emin=-LIMIT + 10, emax=-LIMIT + 10), p)
+            emit("twosum", L, p, to_tok(a, L), to_tok(b, L))
+        # 8. narrowing / re-rounding / widening-with-rounding
+        for M in (4, 8, 16):
+            WM = 64 * M
+            for _ in range(120):
+                p = rng.choice(precs) if rng.random() < 0.6 else rng.randrange(2, W + 1)
+                x = rand_val(rng, M)
+                if rng.random() < 0.3 and p + 1 <= WM:
+                    # tie at p, optionally with a far sticky bit
+                    X = rng.getrandbits(p) | (1 << (p - 1))
+                    n = (2 * X + 1) << 2
+                    if rng.random() < 0.5 and bl(n) + 70 <= WM:
+                        n = (n << 70) | rng.choice([1, 2])
+                    if bl(n) <= WM:
+                        x = norm((rng.random() < 0.5, n, rng.randrange(-200, 200)))
+                emit("round", L, p, str(M), to_tok(x, M))
+            emit("round", L, 53, str(M), to_tok((True, 0, 0), M))
+        # 9. from_integer
+        for _ in range(250):
+            p = rng.choice(precs) if rng.random() < 0.6 else rng.randrange(2, W + 1)
+            limbs = rng.choice([1, 2, 5, 17, 68, 68, 68])
+            mag = rng.getrandbits(64 * limbs)
+            r = rng.randrange(8)
+            if r == 0:
+                # tie at p plus maybe a far sticky bit in limb 0
+                top = rng.randrange(p + 2, 64 * limbs + 1) if 64 * limbs >= p + 2 else None
+                if top:
+                    X = rng.getrandbits(p) | (1 << (p - 1))
+                    mag = ((2 * X + 1) << (top - p - 1))
+                    if rng.random() < 0.6 and top - p - 1 > 0:
+                        mag |= 1 << rng.randrange(0, min(64, top - p - 1))
+            elif r == 1:
+                mag = 1 << rng.randrange(64 * limbs)
+            elif r == 2:
+                mag = 0
+            exp = rng.choice([-2148, -2148, 0, rng.randrange(-5000, 5000), LIMIT - 4351 - rng.randrange(0, 3), -LIMIT - rng.randrange(0, 3)])
+            neg = rng.random() < 0.5
+            emit("fromint", L, p, "%d" % int(neg), str(exp), "%0*x" % (16 * limbs, mag))
+        # 10. widen
+        for M in (4, 8, 16):
+            if M >= L:
+                for _ in range(20):
+                    x = rand_val(rng, L)
+                    emit("widen", L, "-", str(M), to_tok(x, L))
+        # 11. context precision range
+        for p in (0, 1, 2, W, W + 1, 10**6):
+            emit("ctx", L, p)
+    # conversions at every width, L = 2 included
+    for L in (2, 4, 8, 16):
+        W = 64 * L
+        centers = [-1074, -1075, -1076, -1022, -1023, 1023, 1024, 0, -1073]
+        for _ in range(2500):
+            c = rng.choice(centers + [rng.randrange(-1100, 1030)])
+            n = rand_sig(rng, L)
+            e = c + rng.choice([0, 0, 0, -1, 1, -2, 2, -60, 60])
+            v = norm((rng.random() < 0.5, n, e - bl(n) + 1))
+            emit("conv", L, "-", to_tok(v, L))
+        # constructed boundary classes
+        specials = []
+        for neg in (False, True):
+            specials += [
+                (neg, 0, 0),
+                (neg, 1, -1074), (neg, 1, -1075), (neg, (1 << 52) - 1, -1074),
+                (neg, 1, -1022),
+                (neg, (1 << 53) - 1, -1075),  # 2^-1022 - 2^-1075: tie -> up to normal
+                (neg, (1 << 53) - 3, -1075),  # below: tie -> even (largest subnormal is odd.. check)
+                (neg, (1 << 53) - 1, 971), (neg, (1 << 54) - 1, 970),  # MAX; midpoint
+                (neg, (1 << 54) - 1, 970),
+                (neg, 1, 1024), (neg, 1, 1023),
+                (neg, 1, LIMIT), (neg, 1, -LIMIT),
+                (neg, 3, -1076),  # 3/4 of 2^-1074
+                (neg, 1, -1076),  # quarter
+            ]
+            # midpoint minus the smallest tail each width can carry
+            for L2 in (2, 4, 8, 16):
+                if L2 == L:
+                    W2 = 64 * L2
+                    specials.append((neg, ((1 << 54) - 1) * (1 << (W2 - 54)) - 1, 970 - (W2 - 54)))
+                    specials.append((neg, (1 << (W2 - 1)) + 1, -1075 - (W2 - 1)))  # 2^-1075 + tail
+                    specials.append((neg, (1 << W2) - 1, -1075 - W2))  # 2^-1075 - tail
+                    # subnormal tie (k + 1/2) 2^-1074 + far sticky, k even and odd
+                    for kk in (2, 3, (1 << 51), (1 << 52) - 2):
+                        base = (2 * kk + 1) << (W2 - bl(2 * kk + 1))
+                        specials.append((neg, base | 1, -1075 - (W2 - bl(2 * kk + 1))))
+                        specials.append((neg, base, -1075 - (W2 - bl(2 * kk + 1))))
+                    # double-rounding trap: 2^-1075 + 2^-1075-W2+2
+                    specials.append((neg, (1 << (W2 - 1)) | 1, -1075 - (W2 - 1)))
+        for v in specials:
+            v = norm(v)
+            if bl(v[1]) <= W:
+                emit("conv", L, "-", to_tok(v, L))
+        # lifted binary64 values convert back
+        for _ in range(500):
+            bits = rng.getrandbits(64)
+            if (bits >> 52) & 0x7FF == 0x7FF:
+                continue
+            f = struct_float(bits)
+            v = dy_from_f64(f)
+            emit("conv", L, "-", to_tok(v, L))
+            if L != 2:
+                emit("fromf64", L, "-", "%016x" % bits)
+    with open(path, "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    print("wrote", len(lines), "operations")
+
+
+def struct_float(bits):
+    import struct
+    return struct.unpack("<d", struct.pack("<Q", bits))[0]
+
+
+def dy_from_f64(f):
+    neg = math.copysign(1.0, f) < 0
+    if f == 0:
+        return (neg, 0, 0)
+    m, e = math.frexp(abs(f))
+    n = int(m * (1 << 53))
+    return norm((neg, n, e - 53))
+
+
+# ---------------------------------------------------------------------------
+# Checking
+# ---------------------------------------------------------------------------
+
+def expected(f):
+    op, L = f[1], int(f[2])
+    try:
+        if op in ("add", "sub", "mul", "div", "sqrt"):
+            p = int(f[3])
+            a = from_tok(f[4], L)
+            b = from_tok(f[5], L) if f[5] != "-" else None
+            if op == "add":
+                r = op_add(a, b, p, L)
+            elif op == "sub":
+                r = op_add(a, neg_of(b), p, L)
+            elif op == "mul":
+                r = op_mul(a, b, p)
+            elif op == "div":
+                r = op_div(a, b, p)
+            else:
+                r = op_sqrt(a, p)
+            return r if isinstance(r, str) else to_tok(r, L)
+        if op in ("twosum", "twoprod"):
+            p = int(f[3])
+            a, b = from_tok(f[4], L), from_tok(f[5], L)
+            r = op_two_sum(a, b, p, L) if op == "twosum" else op_two_product(a, b, p)
+            if isinstance(r, str):
+                return r
+            return to_tok(r[0], L) + ";" + to_tok(r[1], L)
+        if op == "conv":
+            return conv(from_tok(f[4], L))
+        if op == "round":
+            p, M = int(f[3]), int(f[4])
+            x = from_tok(f[5], M)
+            return to_tok(rnd(x[0], x[1], x[2], False, p), L)
+        if op == "widen":
+            M = int(f[4])
+            return to_tok(from_tok(f[5], L), M)
+        if op == "fromint":
+            p = int(f[3])
+            neg = f[4] == "1"
+            e = int(f[5])
+            mag = int(f[6], 16)
+            if mag == 0:
+                return to_tok((False, 0, 0), L)
+            return to_tok(rnd(neg, mag, e, False, p), L)
+        if op == "ctx":
+            p = int(f[3])
+            return "OK" if 2 <= p <= 64 * L else "E:InvalidPrecision(%d)" % p
+        if op == "mulpow2":
+            k = int(f[4])
+            v = from_tok(f[5], L)
+            if v[1] == 0:
+                return to_tok(v, L)
+            r = (v[0], v[1], v[2] + k)
+            if abs(lead(r)) > LIMIT:
+                raise RangeErr()
+            return to_tok(r, L)
+        if op == "cmp":
+            a, b = from_tok(f[4], L), from_tok(f[5], L)
+            fa = (-1 if a[0] else 1) * Fraction(a[1]) * (Fraction(2) ** a[2]) if a[1] else Fraction(0)
+            fb = (-1 if b[0] else 1) * Fraction(b[1]) * (Fraction(2) ** b[2]) if b[1] else Fraction(0)
+            return "Less" if fa < fb else ("Greater" if fa > fb else "Equal")
+        if op == "fits":
+            v = from_tok(f[4], L)
+            return "true" if fits(v, int(f[3])) else "false"
+        if op == "fromf64":
+            return to_tok(dy_from_f64(struct_float(int(f[4], 16))), L)
+    except RangeErr:
+        return "E:ExponentRange"
+    raise ValueError(op)
+
+
+def check(ops_path, out_path):
+    ops = {}
+    for line in open(ops_path):
+        f = line.split()
+        if f:
+            ops[f[0]] = f
+    got = {}
+    for line in open(out_path):
+        i, r = line.split(None, 1)
+        got[i] = r.strip()
+    assert set(ops) == set(got), "id sets differ"
+    bad = 0
+    tally = {}
+    for i, f in ops.items():
+        exp = expected(f)
+        key = (f[1], f[2])
+        tally[key] = tally.get(key, 0) + 1
+        if exp != got[i]:
+            bad += 1
+            if bad <= 20:
+                print("MISMATCH", " ".join(f)[:300])
+                print("  expected", exp[:300])
+                print("  got     ", got[i][:300])
+    for k in sorted(tally):
+        print("checked", k[0], "L=%s" % k[1], tally[k])
+    print("total", len(ops), "mismatches", bad)
+    return bad
+
+
+
+
+# ---------------------------------------------------------------------------
+# Second batch: sticky-path ties, power-of-two borrows, carries, EFT ties
+# ---------------------------------------------------------------------------
+
+def gen2(seed, path):
+    rng = random.Random(seed)
+    lines = []
+    cnt = [0]
+
+    def emit(op, L, p, *args):
+        cnt[0] += 1
+        lines.append(" ".join(["%d" % cnt[0], op, str(L), str(p)] + list(args)))
+
+    for L in WIDTHS:
+        W = 64 * L
+        for p in class_precisions(L):
+            for _ in range(6):
+                # A: a tie at p (p + 1 bits), plus or minus a tiny beyond the window
+                if p + 1 <= W:
+                    X = rng.getrandbits(p) | (1 << (p - 1))
+                    s = rng.random() < 0.5
+                    base = norm((s, 2 * X + 1, rng.randrange(-90, 90)))
+                    for g in (W + 1, W + 2, 2 * W, 5000):
+                        for ts in (False, True):
+                            tiny = (ts, rand_sig(rng, L), 0)
+                            tiny = norm((ts, tiny[1], lead(base) - g - bl(tiny[1]) + 1))
+                            emit("add", L, p, to_tok(base, L), to_tok(tiny, L))
+                            emit("sub", L, p, to_tok(base, L), to_tok(tiny, L))
+                # B: a power of two minus a far value (borrow into the binade below)
+                E = rng.randrange(-90, 90)
+                s = rng.random() < 0.5
+                big = (s, 1, E)
+                for g in (W, W + 1, W + 2, W + 3):
+                    sm = rand_sig(rng, L)
+                    small = norm((not s, sm, E - g - bl(sm) + 1))
+                    emit("add", L, p, to_tok(big, L), to_tok(small, L))
+                    small2 = norm((not s, (1 << (W - 1)), E - g))  # exactly a power of two
+                    emit("add", L, p, to_tok(big, L), to_tok(small2, L))
+                # C: all ones plus a far value (carry into the next binade)
+                ones = norm((s, (1 << W) - 1, E - W + 1))
+                for g in (W, W + 1, W + 2):
+                    sm = rand_sig(rng, L)
+                    small = norm((s, sm, E - g - bl(sm) + 1))
+                    emit("add", L, p, to_tok(ones, L), to_tok(small, L))
+                # D: TwoProduct and TwoSum ties
+                lo, hi = 1 << (p - 1), ((1 << (p + 1)) // 3)
+                if hi > lo and p >= 2:
+                    bb = rng.randrange(lo, hi) | 1
+                    if bl(3 * bb) == p + 1:
+                        emit("twoprod", L, p, to_tok((rng.random() < 0.5, 3, rng.randrange(-40, 40)), L),
+                             to_tok((rng.random() < 0.5, bb, -p), L))
+                if p >= 2:
+                    X = rng.getrandbits(p) | (1 << (p - 1))
+                    k = rng.randrange(-50, 50)
+                    a = norm((False, X, k))  # p bits
+                    b = norm((False, 1, k - 1))  # half ulp of a: tie
+                    emit("twosum", L, p, to_tok(a, L), to_tok(b, L))
+                    emit("twosum", L, p, to_tok(b, L), to_tok(neg_of(a), L))
+    with open(path, "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    print("wrote", len(lines), "operations")
+
+
+def gen3(seed, path):
+    rng = random.Random(seed)
+    lines = []
+    cnt = [0]
+
+    def emit(*args):
+        cnt[0] += 1
+        lines.append(" ".join(["%d" % cnt[0]] + [str(a) for a in args]))
+
+    for L in WIDTHS:
+        W = 64 * L
+        for _ in range(400):
+            v = rand_val(rng, L)
+            k = rng.choice([0, 1, -1, 64, -64, rng.randrange(-5000, 5000)])
+            emit("mulpow2", L, "-", k, to_tok(v, L))
+        for s1 in (False, True):
+            emit("mulpow2", L, "-", 1, to_tok((s1, 1, LIMIT - 1), L))
+            emit("mulpow2", L, "-", 2, to_tok((s1, 1, LIMIT - 1), L))
+            emit("mulpow2", L, "-", -1, to_tok((s1, 1, -LIMIT + 1), L))
+            emit("mulpow2", L, "-", -2, to_tok((s1, 1, -LIMIT + 1), L))
+        for _ in range(600):
+            a = rand_val(rng, L, emin=-20, emax=20)
+            kind = rng.randrange(5)
+            if kind == 0:
+                b = a
+            elif kind == 1:
+                b = (a[0], a[1] + 1, a[2]) if bl(a[1] + 1) <= W else a
+                b = norm(b)
+            elif kind == 2:
+                b = (a[0], 0, 0)
+            else:
+                b = rand_val(rng, L, emin=-20, emax=20, neg=a[0] if rng.random() < 0.7 else None)
+            if bl(norm(b)[1]) > W:
+                b = a
+            if rng.random() < 0.5:
+                a, b = b, a
+            emit("cmp", L, "-", to_tok(a, L), to_tok(b, L))
+        for _ in range(200):
+            v = rand_val(rng, L)
+            emit("fits", L, rng.randrange(2, W + 1), to_tok(v, L))
+    with open(path, "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    print("wrote", len(lines), "operations")
+
+
+if __name__ == "__main__":
+    if sys.argv[1] == "gen":
+        gen(int(sys.argv[2]), sys.argv[3])
+    elif sys.argv[1] == "gen2":
+        gen2(int(sys.argv[2]), sys.argv[3])
+    elif sys.argv[1] == "gen3":
+        gen3(int(sys.argv[2]), sys.argv[3])
+    else:
+        sys.exit(1 if check(sys.argv[2], sys.argv[3]) else 0)

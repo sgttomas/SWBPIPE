@@ -1,0 +1,153 @@
+L=2  +zero                                            N:0000000000000000                       ok
+L=2  +2^-1074 (least subnormal)                       S:0000000000000001:3fe0000000000000      ok
+L=2  +2^-1075 exactly (tie to 0)                      U:0                                      ok
+L=2  +2^-1075 + smallest tail                         S:0000000000000001:3fe0000000000000      ok
+L=2  +2^-1075 - smallest tail                         U:0                                      ok
+L=2  +largest subnormal                               S:000fffffffffffff:3ca0000000000002      ok
+L=2  +2^-1022 - 2^-1075 (tie, up to normal)           N:0010000000000000                       ok
+L=2  +2^-1022 - 2^-1075 - tail (largest subnormal)    S:000fffffffffffff:3ca0000000000002      ok
+L=2  +smallest normal                                 N:0010000000000000                       ok
+L=2  +subnormal tie k=2 (even) + far sticky           S:0000000000000003:3fc5555555555556      ok
+L=2  +subnormal tie k=3 (odd), exact                  S:0000000000000004:3fc0000000000000      ok
+L=2  +double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:0000000000000001:3fe0000000000000      ok
+L=2  +MAX                                             N:7fefffffffffffff                       ok
+L=2  +midpoint 2^1024 - 2^970 - smallest tail         N:7fefffffffffffff                       ok
+L=2  +midpoint 2^1024 - 2^970                         O:0                                      ok
+L=2  +midpoint 2^1024 - 2^970 + smallest tail         O:0                                      ok
+L=2  +2^1024                                          O:0                                      ok
+L=2  +2^(2^62)                                        O:0                                      ok
+L=2  +2^(-2^62)                                       U:0                                      ok
+L=2  -zero                                            N:8000000000000000                       ok
+L=2  -2^-1074 (least subnormal)                       S:8000000000000001:3fe0000000000000      ok
+L=2  -2^-1075 exactly (tie to 0)                      U:1                                      ok
+L=2  -2^-1075 + smallest tail                         S:8000000000000001:3fe0000000000000      ok
+L=2  -2^-1075 - smallest tail                         U:1                                      ok
+L=2  -largest subnormal                               S:800fffffffffffff:3ca0000000000002      ok
+L=2  -2^-1022 - 2^-1075 (tie, up to normal)           N:8010000000000000                       ok
+L=2  -2^-1022 - 2^-1075 - tail (largest subnormal)    S:800fffffffffffff:3ca0000000000002      ok
+L=2  -smallest normal                                 N:8010000000000000                       ok
+L=2  -subnormal tie k=2 (even) + far sticky           S:8000000000000003:3fc5555555555556      ok
+L=2  -subnormal tie k=3 (odd), exact                  S:8000000000000004:3fc0000000000000      ok
+L=2  -double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:8000000000000001:3fe0000000000000      ok
+L=2  -MAX                                             N:ffefffffffffffff                       ok
+L=2  -midpoint 2^1024 - 2^970 - smallest tail         N:ffefffffffffffff                       ok
+L=2  -midpoint 2^1024 - 2^970                         O:1                                      ok
+L=2  -midpoint 2^1024 - 2^970 + smallest tail         O:1                                      ok
+L=2  -2^1024                                          O:1                                      ok
+L=2  -2^(2^62)                                        O:1                                      ok
+L=2  -2^(-2^62)                                       U:1                                      ok
+L=4  +zero                                            N:0000000000000000                       ok
+L=4  +2^-1074 (least subnormal)                       S:0000000000000001:3fe0000000000000      ok
+L=4  +2^-1075 exactly (tie to 0)                      U:0                                      ok
+L=4  +2^-1075 + smallest tail                         S:0000000000000001:3fe0000000000000      ok
+L=4  +2^-1075 - smallest tail                         U:0                                      ok
+L=4  +largest subnormal                               S:000fffffffffffff:3ca0000000000002      ok
+L=4  +2^-1022 - 2^-1075 (tie, up to normal)           N:0010000000000000                       ok
+L=4  +2^-1022 - 2^-1075 - tail (largest subnormal)    S:000fffffffffffff:3ca0000000000002      ok
+L=4  +smallest normal                                 N:0010000000000000                       ok
+L=4  +subnormal tie k=2 (even) + far sticky           S:0000000000000003:3fc5555555555556      ok
+L=4  +subnormal tie k=3 (odd), exact                  S:0000000000000004:3fc0000000000000      ok
+L=4  +double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:0000000000000001:3fe0000000000000      ok
+L=4  +MAX                                             N:7fefffffffffffff                       ok
+L=4  +midpoint 2^1024 - 2^970 - smallest tail         N:7fefffffffffffff                       ok
+L=4  +midpoint 2^1024 - 2^970                         O:0                                      ok
+L=4  +midpoint 2^1024 - 2^970 + smallest tail         O:0                                      ok
+L=4  +2^1024                                          O:0                                      ok
+L=4  +2^(2^62)                                        O:0                                      ok
+L=4  +2^(-2^62)                                       U:0                                      ok
+L=4  -zero                                            N:8000000000000000                       ok
+L=4  -2^-1074 (least subnormal)                       S:8000000000000001:3fe0000000000000      ok
+L=4  -2^-1075 exactly (tie to 0)                      U:1                                      ok
+L=4  -2^-1075 + smallest tail                         S:8000000000000001:3fe0000000000000      ok
+L=4  -2^-1075 - smallest tail                         U:1                                      ok
+L=4  -largest subnormal                               S:800fffffffffffff:3ca0000000000002      ok
+L=4  -2^-1022 - 2^-1075 (tie, up to normal)           N:8010000000000000                       ok
+L=4  -2^-1022 - 2^-1075 - tail (largest subnormal)    S:800fffffffffffff:3ca0000000000002      ok
+L=4  -smallest normal                                 N:8010000000000000                       ok
+L=4  -subnormal tie k=2 (even) + far sticky           S:8000000000000003:3fc5555555555556      ok
+L=4  -subnormal tie k=3 (odd), exact                  S:8000000000000004:3fc0000000000000      ok
+L=4  -double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:8000000000000001:3fe0000000000000      ok
+L=4  -MAX                                             N:ffefffffffffffff                       ok
+L=4  -midpoint 2^1024 - 2^970 - smallest tail         N:ffefffffffffffff                       ok
+L=4  -midpoint 2^1024 - 2^970                         O:1                                      ok
+L=4  -midpoint 2^1024 - 2^970 + smallest tail         O:1                                      ok
+L=4  -2^1024                                          O:1                                      ok
+L=4  -2^(2^62)                                        O:1                                      ok
+L=4  -2^(-2^62)                                       U:1                                      ok
+L=8  +zero                                            N:0000000000000000                       ok
+L=8  +2^-1074 (least subnormal)                       S:0000000000000001:3fe0000000000000      ok
+L=8  +2^-1075 exactly (tie to 0)                      U:0                                      ok
+L=8  +2^-1075 + smallest tail                         S:0000000000000001:3fe0000000000000      ok
+L=8  +2^-1075 - smallest tail                         U:0                                      ok
+L=8  +largest subnormal                               S:000fffffffffffff:3ca0000000000002      ok
+L=8  +2^-1022 - 2^-1075 (tie, up to normal)           N:0010000000000000                       ok
+L=8  +2^-1022 - 2^-1075 - tail (largest subnormal)    S:000fffffffffffff:3ca0000000000002      ok
+L=8  +smallest normal                                 N:0010000000000000                       ok
+L=8  +subnormal tie k=2 (even) + far sticky           S:0000000000000003:3fc5555555555556      ok
+L=8  +subnormal tie k=3 (odd), exact                  S:0000000000000004:3fc0000000000000      ok
+L=8  +double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:0000000000000001:3fe0000000000000      ok
+L=8  +MAX                                             N:7fefffffffffffff                       ok
+L=8  +midpoint 2^1024 - 2^970 - smallest tail         N:7fefffffffffffff                       ok
+L=8  +midpoint 2^1024 - 2^970                         O:0                                      ok
+L=8  +midpoint 2^1024 - 2^970 + smallest tail         O:0                                      ok
+L=8  +2^1024                                          O:0                                      ok
+L=8  +2^(2^62)                                        O:0                                      ok
+L=8  +2^(-2^62)                                       U:0                                      ok
+L=8  -zero                                            N:8000000000000000                       ok
+L=8  -2^-1074 (least subnormal)                       S:8000000000000001:3fe0000000000000      ok
+L=8  -2^-1075 exactly (tie to 0)                      U:1                                      ok
+L=8  -2^-1075 + smallest tail                         S:8000000000000001:3fe0000000000000      ok
+L=8  -2^-1075 - smallest tail                         U:1                                      ok
+L=8  -largest subnormal                               S:800fffffffffffff:3ca0000000000002      ok
+L=8  -2^-1022 - 2^-1075 (tie, up to normal)           N:8010000000000000                       ok
+L=8  -2^-1022 - 2^-1075 - tail (largest subnormal)    S:800fffffffffffff:3ca0000000000002      ok
+L=8  -smallest normal                                 N:8010000000000000                       ok
+L=8  -subnormal tie k=2 (even) + far sticky           S:8000000000000003:3fc5555555555556      ok
+L=8  -subnormal tie k=3 (odd), exact                  S:8000000000000004:3fc0000000000000      ok
+L=8  -double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:8000000000000001:3fe0000000000000      ok
+L=8  -MAX                                             N:ffefffffffffffff                       ok
+L=8  -midpoint 2^1024 - 2^970 - smallest tail         N:ffefffffffffffff                       ok
+L=8  -midpoint 2^1024 - 2^970                         O:1                                      ok
+L=8  -midpoint 2^1024 - 2^970 + smallest tail         O:1                                      ok
+L=8  -2^1024                                          O:1                                      ok
+L=8  -2^(2^62)                                        O:1                                      ok
+L=8  -2^(-2^62)                                       U:1                                      ok
+L=16 +zero                                            N:0000000000000000                       ok
+L=16 +2^-1074 (least subnormal)                       S:0000000000000001:3fe0000000000000      ok
+L=16 +2^-1075 exactly (tie to 0)                      U:0                                      ok
+L=16 +2^-1075 + smallest tail                         S:0000000000000001:3fe0000000000000      ok
+L=16 +2^-1075 - smallest tail                         U:0                                      ok
+L=16 +largest subnormal                               S:000fffffffffffff:3ca0000000000002      ok
+L=16 +2^-1022 - 2^-1075 (tie, up to normal)           N:0010000000000000                       ok
+L=16 +2^-1022 - 2^-1075 - tail (largest subnormal)    S:000fffffffffffff:3ca0000000000002      ok
+L=16 +smallest normal                                 N:0010000000000000                       ok
+L=16 +subnormal tie k=2 (even) + far sticky           S:0000000000000003:3fc5555555555556      ok
+L=16 +subnormal tie k=3 (odd), exact                  S:0000000000000004:3fc0000000000000      ok
+L=16 +double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:0000000000000001:3fe0000000000000      ok
+L=16 +MAX                                             N:7fefffffffffffff                       ok
+L=16 +midpoint 2^1024 - 2^970 - smallest tail         N:7fefffffffffffff                       ok
+L=16 +midpoint 2^1024 - 2^970                         O:0                                      ok
+L=16 +midpoint 2^1024 - 2^970 + smallest tail         O:0                                      ok
+L=16 +2^1024                                          O:0                                      ok
+L=16 +2^(2^62)                                        O:0                                      ok
+L=16 +2^(-2^62)                                       U:0                                      ok
+L=16 -zero                                            N:8000000000000000                       ok
+L=16 -2^-1074 (least subnormal)                       S:8000000000000001:3fe0000000000000      ok
+L=16 -2^-1075 exactly (tie to 0)                      U:1                                      ok
+L=16 -2^-1075 + smallest tail                         S:8000000000000001:3fe0000000000000      ok
+L=16 -2^-1075 - smallest tail                         U:1                                      ok
+L=16 -largest subnormal                               S:800fffffffffffff:3ca0000000000002      ok
+L=16 -2^-1022 - 2^-1075 (tie, up to normal)           N:8010000000000000                       ok
+L=16 -2^-1022 - 2^-1075 - tail (largest subnormal)    S:800fffffffffffff:3ca0000000000002      ok
+L=16 -smallest normal                                 N:8010000000000000                       ok
+L=16 -subnormal tie k=2 (even) + far sticky           S:8000000000000003:3fc5555555555556      ok
+L=16 -subnormal tie k=3 (odd), exact                  S:8000000000000004:3fc0000000000000      ok
+L=16 -double-rounding trap 2^-1075 + 2^-(1075+W-1)    S:8000000000000001:3fe0000000000000      ok
+L=16 -MAX                                             N:ffefffffffffffff                       ok
+L=16 -midpoint 2^1024 - 2^970 - smallest tail         N:ffefffffffffffff                       ok
+L=16 -midpoint 2^1024 - 2^970                         O:1                                      ok
+L=16 -midpoint 2^1024 - 2^970 + smallest tail         O:1                                      ok
+L=16 -2^1024                                          O:1                                      ok
+L=16 -2^(2^62)                                        O:1                                      ok
+L=16 -2^(-2^62)                                       U:1                                      ok
+mismatches 0

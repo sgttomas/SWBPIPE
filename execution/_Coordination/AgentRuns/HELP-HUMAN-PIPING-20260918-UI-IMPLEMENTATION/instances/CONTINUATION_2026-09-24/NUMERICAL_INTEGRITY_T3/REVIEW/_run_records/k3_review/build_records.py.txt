@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Assembles RV12's K3 review run records into
+<wt>/numerics/.../NUMERICAL_INTEGRITY_T3/REVIEW/_run_records/k3_review/
+from <wt>/scratch/rv12 (standard library only).
+
+Machine paths become <wt>, <VENV>, <scratch> and <home>; trailing spaces and
+trailing blank lines are stripped; nothing else changes. Scripts are stored as
+.txt so they are records, not tools. Large generated operation files are not
+copied: their sha256 values are recorded in oracle/ops_and_outputs_sha256.txt
+and they are regenerated from the recorded seeds.
+"""
+import hashlib
+import shutil
+import sys
+from pathlib import Path
+
+WT = Path(sys.argv[1])
+VENV = sys.argv[2]
+SCRATCHPAD = sys.argv[3]
+HOME = str(Path.home())
+S = WT / "scratch" / "rv12"
+T3 = WT / "numerics" / ("projects/chirality-piping/execution/_Coordination/AgentRuns/"
+                        "HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/"
+                        "CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3")
+OUT = T3 / "REVIEW" / "_run_records" / "k3_review"
+
+
+def sanitize(text):
+    for real, ph in ((VENV, "<VENV>"), (SCRATCHPAD, "<scratch>"), (str(WT), "<wt>"), (HOME, "<home>")):
+        text = text.replace(real, ph)
+    lines = [l.rstrip() for l in text.splitlines()]
+    while lines and not lines[-1]:
+        lines.pop()
+    return "\n".join(lines) + "\n"
+
+
+def put(src, rel):
+    dst = OUT / rel
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(sanitize(Path(src).read_text(errors="replace")))
+
+
+if OUT.exists():
+    shutil.rmtree(OUT)
+OUT.mkdir(parents=True)
+
+# checks and logs
+for name in ["merge_check.txt", "records_checks.txt", "gen8.txt", "ci_status.txt",
+             "wide_and_mod_diff_vs_eb52114e9.txt", "commit_by_commit_stat.txt",
+             "commit_8cacbfaf4.patch.txt", "commit_9aee9854c.patch.txt", "commit_e83e22356.patch.txt"]:
+    put(S / "logs" / name, "checks/" + name)
+put(S / "logs" / "fk_head_full.log", "head_tests/fk_head_full_o0.log")
+put(S / "logs" / "fk_head_nontest_build.log", "head_tests/fk_head_nontest_build.log")
+put(S / "logs" / "k3a_gen_check.log", "head_tests/k3a_gen_wide_vectors_check.log")
+put(S / "logs" / "k3_gen_check.log", "head_tests/k3_gen_wide_k3_vectors_check.log")
+
+# the oracle, the probe and their results
+O = S / "oracle"
+for name in ["rv12_oracle.py", "class_stats.py", "boundary_report.py", "tail_decides.py", "fold_demo.py", "wide_operand.py"]:
+    put(O / name, "oracle/" + name + ".txt")
+put(S / "probe/frame_kernel/src/structural/retained/wide/rv12_probe.rs", "oracle/rv12_probe.rs.txt")
+for name in ["check_all.txt", "check_ops3.txt", "check_tail.txt", "check_wide_operand.txt",
+             "boundary_report.txt", "class_stats_all.txt", "fold_demo.stdout.txt"]:
+    put(O / name, "oracle/" + name)
+lines = []
+for name in ["ops_all.txt", "out_all.txt", "ops3.txt", "out3.txt", "ops_tail.txt", "out_tail.txt",
+             "ops_wide_operand.txt", "out_wide_operand.txt", "ops_boundary.txt", "out_boundary.txt"]:
+    data = (O / name).read_bytes()
+    lines.append("%s  %s  (%d bytes, %d lines)" % (hashlib.sha256(data).hexdigest(), name, len(data), data.count(b"\n")))
+(OUT / "oracle" / "ops_and_outputs_sha256.txt").write_text(
+    "Not committed (regenerated from the recorded seeds; see README.txt):\n" + "\n".join(lines) + "\n")
+
+# mutations
+M = S / "mut"
+put(M / "rv12_mutate.py", "mutations/rv12_mutate.py.txt")
+put(M / "driver.log", "mutations/driver_first_batch.log")
+put(M / "driver2.log", "mutations/driver_full_suite_batch.log")
+for p in sorted((M / "out").iterdir()):
+    put(p, "mutations/" + p.name)
+for p in sorted((M / "out_first_attempt").iterdir()):
+    put(p, "mutations/first_attempt_fk_only_archive/" + p.name)
+put(S / "probe_mut/sensitivity.py", "mutations/oracle_sensitivity.py.txt")
+put(S / "probe_mut/sensitivity.json", "mutations/oracle_sensitivity.json")
+
+# T9 spot-check
+T = S / "t9"
+put(T / "h_head/Cargo.toml", "t9/harness_Cargo.toml.txt")
+put(T / "output_sha256_head.txt", "t9/output_sha256_head.txt")
+put(T / "t9_head.log", "t9/t9_head.log")
+put(T / "t9_compare.txt", "t9/t9_compare.txt")
+(OUT / "t9" / "harness_sources_sha256.txt").write_text(
+    "main.rs %s (S11-K's fixdiff_main.rs, copied from ROOT's calibration harness)\nCargo.lock %s (ROOT's harness lock)\n"
+    % (hashlib.sha256((T / "h_head/src/main.rs").read_bytes()).hexdigest(),
+       hashlib.sha256((T / "h_head/Cargo.lock").read_bytes()).hexdigest()))
+
+put(S / "README.txt", "README.txt")
+put(S / "toolchain.txt", "toolchain.txt")
+shutil.copyfile(Path(__file__), OUT / "build_records.py.txt")
+(OUT / "build_records.py.txt").write_text(sanitize((OUT / "build_records.py.txt").read_text()))
+
+# SHA256SUMS over every file except itself
+entries = []
+for p in sorted(OUT.rglob("*")):
+    if p.is_file() and p.name != "SHA256SUMS":
+        entries.append("%s  %s" % (hashlib.sha256(p.read_bytes()).hexdigest(), p.relative_to(OUT).as_posix()))
+(OUT / "SHA256SUMS").write_text("\n".join(entries) + "\n")
+print("files:", len(entries))

@@ -1,0 +1,35 @@
+commit 9aee9854c14dd48bbc6f19959eea4269e2f30331
+subject: K3: a guard that FK's test profile keeps overflow checks and debug assertions on (tests only)
+
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs
+index 1326cd5970..f86e7fa99b 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs
+@@ -402,6 +402,27 @@ fn token_round_trip_and_debug_scheme() {
+     assert_eq!(format!("{:?}", lift::<16>(-3.0)).len(), 1 + 256 + 2);
+ }
+
++/// FK's `[profile.test]` (T3 ROOT ruling on Q7) optimizes FK's own test
++/// builds and keeps overflow checks and debug assertions on explicitly, so test
++/// semantics do not change. Both are observable here (ROOT's ruling on the
++/// checkpoint-C profile mutants P1 and P2).
++#[test]
++fn test_profile_keeps_overflow_checks_and_debug_assertions_on() {
++    let overflowed = std::panic::catch_unwind(|| {
++        let a = std::hint::black_box(u64::MAX);
++        let b = std::hint::black_box(1u64);
++        a + b
++    });
++    assert!(
++        overflowed.is_err(),
++        "overflow checks are off in FK's test build (u64::MAX + 1 wrapped)"
++    );
++    assert!(
++        cfg!(debug_assertions),
++        "debug assertions are off in FK's test build"
++    );
++}
++
+ // ---------------------------------------------------------------------------
+ // A. Nothing existing moves
+ // ---------------------------------------------------------------------------

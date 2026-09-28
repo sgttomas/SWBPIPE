@@ -1,0 +1,41 @@
+{
+ "id": "M1",
+ "description": "round toward zero",
+ "filters": [
+  "structural::retained::wide::multi::tests::targeted_hard",
+  "structural::retained::wide::multi::tests::carry_and_borrow"
+ ],
+ "file": "multi.rs",
+ "line": 418,
+ "old": "    let up = round && (rest || odd);\n",
+ "new": "    let up = false && round && (rest || odd);\n",
+ "wall_s": 3.9,
+ "rc": 101,
+ "compiled": true,
+ "passed": 0,
+ "failed": 4,
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:931",
+   "source": "assert_eq!(c.add(&ones, &half).unwrap(), raw(false, 1, top::<L>()));"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

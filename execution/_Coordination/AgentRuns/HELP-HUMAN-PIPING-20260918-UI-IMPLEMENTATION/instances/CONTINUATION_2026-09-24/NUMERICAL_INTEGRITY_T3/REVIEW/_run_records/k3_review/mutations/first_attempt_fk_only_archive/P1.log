@@ -1,0 +1,51 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/rv12/mut/P1/projects/chirality-piping/core/solver/frame_kernel)
+error: couldn't read `tests/../../nonlinear_integration/src/structural_adapter.rs`: No such file or directory (os error 2)
+  --> tests/s11_site_table.rs:67:15
+   |
+67 |         text: include_str!("../../nonlinear_integration/src/structural_adapter.rs"),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: couldn't read `tests/../../nonlinear_integration/src/lib.rs`: No such file or directory (os error 2)
+  --> tests/s11_site_table.rs:71:15
+   |
+71 |         text: include_str!("../../nonlinear_integration/src/lib.rs"),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: there is a file with the same name in a different directory
+   |
+71 -         text: include_str!("../../nonlinear_integration/src/lib.rs"),
+71 +         text: include_str!("../src/lib.rs"),
+   |
+
+error: couldn't read `tests/../../straight_pipe/src/lib.rs`: No such file or directory (os error 2)
+  --> tests/s11_site_table.rs:75:15
+   |
+75 |         text: include_str!("../../straight_pipe/src/lib.rs"),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: there is a file with the same name in a different directory
+   |
+75 -         text: include_str!("../../straight_pipe/src/lib.rs"),
+75 +         text: include_str!("../src/lib.rs"),
+   |
+
+error: couldn't read `tests/../../curved_bend/src/lib.rs`: No such file or directory (os error 2)
+  --> tests/s11_site_table.rs:79:15
+   |
+79 |         text: include_str!("../../curved_bend/src/lib.rs"),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: there is a file with the same name in a different directory
+   |
+79 -         text: include_str!("../../curved_bend/src/lib.rs"),
+79 +         text: include_str!("../src/lib.rs"),
+   |
+
+error: couldn't read `tests/../../../loads/load_case_algebra/src/lib.rs`: No such file or directory (os error 2)
+  --> tests/s11_site_table.rs:83:15
+   |
+83 |         text: include_str!("../../../loads/load_case_algebra/src/lib.rs"),
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `open_pipe_stress_frame_kernel` (test "s11_site_table") due to 5 previous errors
+warning: build failed, waiting for other jobs to finish...
