@@ -58,3 +58,8 @@
 ## Not run for this merge
 
 The native macOS witnesses do not apply, because K2a changes no native path.
+
+## Addendum (ROOT, 2026-09-28; RV13-D3)
+
+- Records PR #1042 added a bracketed pointer (RV13-N5) to `IMPLEMENTATION/K2A/RETURN_ADDENDUM_1.md`. That changed the file's sha256 from `b696e806…`, its hash at this merge, to `cdafd957…`.
+- Two committed records cite the prior hash: `IMPLEMENTATION/M03_SKEW_PIN/RETURN.md:24` and RV7's `delta_aad23e82d.txt:26`. They refer to the file as it was at `aad23e82d`, which `git show aad23e82d:<path>` reproduces.

@@ -1151,7 +1151,7 @@ RV11 reviewed PR #1040 at `087b3a088`: **FAIL**, with 1 BLOCKING, 3 SHOULD-FIX a
 
 ## K2b: ROOT's decisions at RV11's delta checks (ROOT, 2026-09-28; recorded late, RV13-S2)
 
-These decisions were stated in ROOT's resume messages to I10. Until RV13's review of records PR #1042 found the gap, they were recorded only in K2b's RETURN (addenda 1 and 2) and in RV11's review. They are recorded here with their original dates. Nothing in them is new.
+These decisions were stated in ROOT's resume messages to I10. [Correction (RV13-D1): the committed evidence puts decisions 1 and 2 at RV11's resume; only item 3's rulings went to I10.] Until RV13's review of records PR #1042 found the gap, they were recorded only in K2b's RETURN (addenda 1 and 2) and in RV11's review. They are recorded here with their original dates. Nothing in them is new.
 1. **The reaction check applies at every b, b = 0 included** (`IMPLEMENTATION/K2B/RETURN.md`, "The check applies at every b", where I10 left it "ROOT's call"; `REVIEW/K2B_REVIEW.md`, "ROOT's two decisions, against the code").
    - Where today's E12 would flush a subnormal product at b = 0, `force_scaled_reactions` refuses. F1b may keep today's E12 at b = 0 for byte identity.
    - RV11D-N2: the check is stricter than flushing requires, which costs availability only. **F1b's gate measures that cost.**
@@ -1173,6 +1173,7 @@ These decisions were stated in ROOT's resume messages to I10. Until RV13's revie
   - F2a does not merge without ROOT's per-case and per-invocation limits.
   - ROOT sets them from K6's measurements and V-K's kernel-lane runs, both of which precede F2a, together with K4's deterministic work counts. §4.1.7 asks for "W3/W5 measurements", which this admits.
   - V-P's product-lane measurements follow F2a, and confirm or revise the limits. A revision is its own ruling.
+  - [Added (RV13-D2): this amendment creates the dependency "K6 and V-K before F2a's merge"; the selected order did not state it. It departs from C4's and D-8's "from the K6 and V-P measurements" for W1's budgets, and from nothing else.]
 - Item 6 of K4's stale-design list, and the brief's Q5 ruling (`TASK_BRIEFS/I12_K4_IMPLEMENTATION.md`), carry bracketed pointers here. K4's own scope is unaffected: it ships the mechanism only.
 
 ## K4: rulings on I12's checkpoint-0 plan (ROOT, 2026-09-28)
