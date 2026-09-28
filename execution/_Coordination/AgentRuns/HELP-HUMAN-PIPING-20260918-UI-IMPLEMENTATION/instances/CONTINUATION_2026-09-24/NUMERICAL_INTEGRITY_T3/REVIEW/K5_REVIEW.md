@@ -297,3 +297,128 @@ So no published result is removed. The table (`product_runs_table.md`) agrees.
 - `probes/`: the FK, SA, SA-mutant and PP probes with both trees' outputs;
 - `mutations/`: my patch script, K1's script (`c2b54737…`), the runner, the table and every log;
 - `build_records.py.txt`, which assembled the folder with placeholders and checked it for machine paths.
+
+## Delta check at 28517eaaa
+
+**Delta verdict: PASS.** There are no BLOCKING findings. There is 1 new SHOULD-FIX and 1 new NOTE.
+- **All four SHOULD-FIX findings are resolved.**
+  - RV14-1, RV14-2 and RV14-3: each new test kills my mutant at an assertion, re-run from clean archives.
+  - RV14-4: the check in `publish` is sound, and RETURN §16.4's exactness derivation is right.
+  - On my 4,226-case corpus, exactly the 349 witnesses with a non-finite parameter change from W to U. Nothing else changes, and my oracle reports 0 findings.
+  - N1, N2 and N5 are resolved.
+- **The new findings concern RV14-4's fix only:**
+  - RV14-D1: its exactness clause is untested.
+  - RV14-D2: its refusal ends the candidate search.
+- **Neither is reachable from the product or from SA-built evidence.**
+
+**Basis and host.**
+- **The revisions.** PR #1044's head is `28517eaaa`, verified after a `git fetch`. It is the addendum `95c7501a7` on `b379e5b27`, plus a merge of main `65e2d6c2a`.
+- **Hosted checks on the head at my check:** 8 SUCCESS, 4 SKIPPED, 3 in progress (the two "Source remainder" shards and "Numerical cargo suite").
+- **Read:**
+  - `git diff b379e5b27 95c7501a7`: code, tests, RETURN §16, CHANGE_RECORD and `_run_records/rv14/`;
+  - the merge.
+- **Built.** Everything came from a `git archive` copy of `28517eaaa` under `<wt>/scratch/rv14/delta`, with targets under `<wt>/rv14-target` (deleted afterwards).
+- **Host rules.** One cargo job at a time, at `-j 4` and `RUST_TEST_THREADS=2`. The memory guard was unchanged (2 lines, `79e2ce8e…`).
+- **Records:** `_run_records/k5_review/delta/`, with `k5_review/SHA256SUMS` rewritten over all 163 files. The base review's entries are unchanged.
+
+### Delta findings
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| RV14-D1 | SHOULD-FIX | **FK** `WitnessContext::publish` at `28517eaaa`, the clause `t[i] * self.length == r[i]` of RV14-4's check. It is a test gap. | **Mutant RV14-M5** keeps only the finiteness test (`!t[i].is_finite()`). It **survives** FK's k5 tests (8 + 15 + 1). Their RV14-4 cases, the minimal tiny-L case and the subnormal corpus, all fail by overflow, never by rounding.<br>**Constructions** (`delta/cases_delta.txt`):<br>– `D_huge_underflow_L2e1023_r2e-60`: nodes (0,0,0) and (2^1023, 0, 0), one sub-body, grounds d2 to d5, and a directional translation row with n = (2^-60, −1, 0) at node 0. The only null motion is the translation t ∝ (1, 2^-60, 0), and L = 2^1023.<br>– `…_L2e1010_r2e-70`: the same at 2^1010, with n = (2^-70, −1, 0).<br>**Behaviour:**<br>– The head refuses both with `CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`: 2^-60/L underflows to 0.<br>– The mutant publishes `MechanismWitnessed` with `rigid_parameters` = [2^-1023, 0, 0, …] (and [2^-1010, 0, 0, …]), while node 0's u₁ = 2^-60 (2^-70). That breaks the documented "`rigid_parameters[i]·L` is node 0's u_i bit for bit" (`rigid_body.rs:315-316`, RETURN §9.1).<br>– Controls at 2^-40 and at L = 2^1000 publish exact parameters on the head.<br>**Reach:**<br>– FK API only (K4's directional follow-up, F3, W1c, V-K).<br>– SA-built bodies have spans below 2^513, so L ≤ about 2^530, and a rounding would need \|t_i\| < 2^-492. Not reachable from the product. | Add `D_huge_underflow_L2e1023_r2e-60` as a `P` case, in `cases.txt` or `k5_b5_parameters_are_exact_or_refused`. Show RV14-M5 killed. |
+| RV14-D2 | NOTE | **FK** `publish` at `28517eaaa`: the refusal returns at once (`return Ok(context.publish(result, found))`), so no later candidate is tried. | **Construction** `E_tiny_two_modes` (`delta/cases_delta2.txt`): nodes (0,0,0) and (2^-1070, 0, 0); grounds d1, d2, d4, d5, d7, d8. The exact nullity is 2: free t_x and free θ_x.<br>**Behaviour:**<br>– The head returns `NumericallyUnresolved` with the parameters reason.<br>– Yet the verified rotation witness θ = e_x, t = 0 has exact parameters [0, 0, 0, 1, 0, 0]. `E_tiny_rotation_only`, which grounds t_x, publishes exactly that.<br>– The same holds with three collinear nodes.<br>**Assessment.** Conservative: no wrong publication, and U is within the contract. FK API only, and unreachable from SA-built evidence (§16.4's bound on L). | Optional: have `try_candidate` pass over a witness whose parameters are inexact, and use the named reason only when no candidate publishes. Or state in RETURN §9.1 that the first verified witness decides. |
+
+### The previous findings
+
+| Finding | At `28517eaaa` |
+|---|---|
+| RV14-1 | **Resolved.** `b4_cycle_band_rv14_0` and `_4` are my `T1_cycle_band_0` and `_4` bit for bit, expectation U. RV14-M1 is killed at `k5_constrained_bodies.rs:256` (`check()`'s U assertion: `MechanismWitnessed` against `NumericallyUnresolved`). |
+| RV14-2 | **Resolved.** `k5_curved_sources_agree_at_a_curved_only_node` is my P1. RV14-M2 is killed at `k5_tests.rs:1308` (the `W4Body` assertion). |
+| RV14-3 | **Resolved.** `k5_curved_mechanism_without_a_representable_witness_is_unresolved`. RV14-M4 is killed at `k5_curved_mechanism_runtime.rs:262`: the message is main's pivot refusal. The three existing PP tests' inputs are unchanged (`model` delegates to `model_with(o, 0.25, rx, gap, false)`). |
+| RV14-4 | **Resolved,** with RV14-D1 and RV14-D2 on the fix (below). |
+| N1 | **Resolved.** At `b379e5b27`, §6's NI sites :493, :532, :571, :613, :683, :730, :867, :885, :940, :1049, :1062, :1097 and :1232 are each a panic site in the named tests; I read every line. §2.5 cites `SA:1900` on the base and `SA:2142` at the head. |
+| N2 | **Resolved.** `k5_positive_springs_ground_w4_bodies` is my P2. RV14-M3 is killed at `k5_tests.rs:1328`, an assertion, as well as by the recorded `unwrap` panics. |
+| N3, N4 | No action, as ruled. |
+| N5 | **Resolved by the merge** (below). |
+
+### RV14-4's fix: the exactness derivation (RETURN §16.4)
+
+**The check.** It publishes only if, for i = 0..2, t_i = fl(r_i/L) is finite and fl(t_i·L) = r_i. Otherwise the status stays `NumericallyUnresolved`, with `unresolved = CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`, and nothing is published.
+
+**My derivation agrees.** L = 2^e.
+- **Multiplying t_i by L is exact.**
+  - For e ≥ 0, t_i·L scales a finite value up. Its magnitude is about \|r_i\|, so it cannot overflow.
+  - For e < 0, t_i·L scales down to about r_i, which is representable.
+  - So fl(t_i·L) = t_i·L.
+- **Hence the test is equivalent to t_i·L = r_i, that is, t_i = r_i/L exactly.** An underflow to 0 (r_i ≠ 0) or a subnormal rounding fails it, and an overflow fails the finiteness test.
+- ±0 cannot occur: a zero r_i is stored as +0.
+- The θ components are copied, never divided.
+
+**It cannot wrongly pass.** It gates only publication of a witness that is already exactly verified, and a pass implies exact parameters.
+
+**It can refuse although a publishable witness exists** (RV14-D2). The refusal returns from the candidate search; that is conservative.
+
+**`unresolved` is `Some` exactly when the status is `NumericallyUnresolved`.**
+- It is initialized to the rank reason, cleared on `Restrained` and on publication, and set to the parameters reason on refusal.
+- My v2 probe confirms this on all 4,940 cases (the four corpora plus my 8 delta cases): 2,600 W with `None`, 1,536 R with `None`, 449 U with the rank reason, and 355 U with the parameters reason (349 + 1 + 5 constructed).
+- SA's mapping is unchanged: both reasons publish "constrained-body rank unresolved". RETURN §9.1 discloses this. It is unreachable for the parameters reason.
+
+### My FK probe and oracle at the head (`delta/compare_old_new.txt`, `delta/report_*.txt`)
+
+**My probe, unchanged, on the same corpora:**
+
+| Corpus | Result against `b379e5b27` |
+|---|---|
+| `cases_all` (4,226, including the 1,500 subnormal) | **Exactly the 349 witnesses with a non-finite parameter change, W → U.** Only the status, `rigid_parameters` and `node_motion` columns differ. My results' sha256 `681116899a22…` equals I14's recorded hash. |
+| `cases_huge` (700) | byte-identical |
+| `cases_rv14_4` (6) | only `H_tiny_free_x` changes, W → U |
+
+- **My oracle on the head's results:** 0 findings on every corpus. There are 0 false witnesses, 0 `Restrained` with nullity > 0, 0 non-canonical and 0 non-finite parameters.
+- **The subnormal vectors.** `subnormal.txt`'s 300 corpus records equal my first 300 tiny cases field for field, and `gen_k5_vectors.py --check` is OK at the head.
+
+### Mutations (`delta/mutations/MUTANTS_DELTA.txt`)
+
+- Each mutant ran in its own clean `git archive 28517eaaa` copy and target. NONE ran first and passed: FK 8 + 15 + 1, NI 129, PP 4.
+- My committed patches (`rv14_mutate.py`, sha256 `9ef6da73…`, the same file I14 reused) applied unchanged.
+
+| Mutant | Result at `28517eaaa` |
+|---|---|
+| RV14-M1 | killed: `k5_constrained_bodies.rs:256` |
+| RV14-M2 | killed: `k5_tests.rs:1308` |
+| RV14-M3 | killed: `k5_tests.rs:1328`, plus the `unwrap` panics |
+| RV14-M4 | killed: `k5_curved_mechanism_runtime.rs:262`; NI 129 still pass |
+| RV14-M5 (new: RV14-4's exactness clause dropped) | **survives** FK's k5 tests; not equivalent (RV14-D1) |
+
+I did not re-run I14's K5-M20. Its removal of the whole check is subsumed by RV14-M5's surviving half, and K5-M20's kill of the overflow half matches my `D_tiny_free_x` refusal.
+
+### The merge `28517eaaa` (`delta/revisions_delta.txt`)
+
+- Its parents are `95c7501a7` and `65e2d6c2a`, with merge base `24dea2dae`.
+- `git diff 95c7501a7 28517eaaa` is byte-identical to main's delta `git diff 24dea2dae 65e2d6c2a`: sha256 `c95bce9b…` for both.
+- `git diff 65e2d6c2a 28517eaaa` is byte-identical to the slice `git diff 24dea2dae 95c7501a7`: `ea4ade65…` for both.
+- Main's delta is 53 files, all under `projects/chirality-app-v4/`.
+- No file is touched by both sides, no piping file changes, and `git show --remerge-diff` is empty.
+
+### Product and adapter behaviour at the head
+
+- **SA.** SA's source is unchanged: the addendum's code changes are FK `rigid_body.rs` (+30 −9, all in `publish`, the consts and the struct field) and tests.
+  - `rigid_body.rs:1-248` still hashes `d9598efa…`.
+  - My SA probe and SA mutant probe are byte-identical to `b379e5b27`'s outputs, including every frame-only model and X2's W4 witness.
+- **PP.** My PP spot-check (40 runs, both entries and modes) is byte-identical to `b379e5b27`'s runs.
+- **Build.** NI's non-test build has no warnings.
+- **Why the regression corpora cannot see the change.** It alters an outcome only when a witness's t/L is inexact, which needs L < about 2^-40 or \|t_i\| < 2^-492 from SA-built bodies. So RETURN §16.4's decision not to re-run T9, gate part 1, the suites and the 152-run table holds.
+
+### Records (`delta/records_checks_delta.txt`)
+
+- **Checksums.** K5's `SHA256SUMS` lists 225 files: all OK and set-equal. The FK vectors' `SHA256SUMS` (6 entries) is OK.
+- **RETURN §16.6's file table** (lines and sha256 prefixes) is exact at the head, and CHANGE_RECORD's sizes (+423 −24 in 7 files, +316 in 2 vector files) match the numstat.
+- **RETURN §9.1's anchors** (`:265`, `:274`, `:290`, `:294`, `:301`, `:329`, `:344`, `:365`, `:478`) and the new field and consts are exact.
+- **Reused scripts.** The RV14 scripts I14 reused match my committed copies (`9ef6da73…`, `9a2c7878…`, `03586d4b…`). My committed review is my returned file (`f468696e…`).
+- **Scans of the addendum's 50 files:** 0 machine paths (GEN-8's regex), 0 user-name hits, and the only model-scan hit is RETURN.md:12's host name (N4).
+- **Whitespace.** `git diff --check` finds exactly the four disclosed blank lines at the ends of `_run_records/rv14/tests/{fk, fk_site, ni, pp}.txt`, and nothing under `core/`.
+
+### Delta check: not done
+
+- I did not re-run T9, gate part 1, the 39-manifest suites or the full PP suite.
+- I did not run I14's `K5_SUBNORMAL_VECTORS` full-set test. My own probe and oracle covered the same 1,500 cases.
+- I did not wait for the three hosted checks still in progress.
