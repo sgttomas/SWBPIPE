@@ -1,0 +1,13 @@
+#!/bin/bash
+# RV11 fixes (I10): the mutation table re-run in full at the fixed candidate, from clean archives of
+# 087b3a088 with the fix files overlaid (overlay.txt); the NONE control first, alone; then every id in
+# ids.txt, at most three at once, -j 4 each (run_mutant.sh).
+W=<wt>; C=$W/scratch/i10/rv11/mut; REV=087b3a088
+: > $C/MUTANTS.txt
+$C/run_mutant.sh $W $C $REV NONE $C/overlay.txt
+for m in $(cat $C/ids.txt); do
+  while [ $(jobs -rp | wc -l) -ge 3 ]; do sleep 5; done
+  $C/run_mutant.sh $W $C $REV $m $C/overlay.txt &
+done
+wait
+echo DRIVE-DONE >> $C/MUTANTS.txt

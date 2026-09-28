@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""K2b RETURN addendum 1 (I10, the RV11 fixes): copy the new run evidence into
+_run_records/rv11_fixes/, sanitized as checkpoint D's assemble_run_records.py did. The
+checkpoint-D run records are not touched.
+- Machine paths become placeholders, longest first: <VENV>, <wt> (the T3 worktrees root),
+  {REPO_ROOT} (the outer worktree), <scratch> (the session scratchpad) and <home>.
+- A log line longer than 600 characters is cut to 600 characters, followed by a marker naming the
+  number of characters removed and the sha256 of the full line. Summary files are never cut.
+- Trailing whitespace is stripped, and each file ends with exactly one newline (RV11-N6).
+- Scripts are stored with a .txt suffix.
+Usage: assemble_rv11.py <wt> <outer-worktree> <venv> <session-scratchpad> <out-dir>"""
+import hashlib, os, sys
+
+wt, outer, venv, pad, out = sys.argv[1:6]
+home = os.path.expanduser("~")
+LIMIT = 600
+PLACES = sorted([(venv, "<VENV>"), (wt, "<wt>"), (outer, "{REPO_ROOT}"), (pad, "<scratch>"),
+                 ("/private" + pad if not pad.startswith("/private") else pad[len("/private"):], "<scratch>"),
+                 (home, "<home>")], key=lambda p: -len(p[0]))
+UNCUT = ("MUTANTS.txt", "kill_sites.txt", "kill_test_comparison.txt", "suites_compare.txt",
+         "suites_compare.json", "callers.txt", "failure_blocks_sha256.txt", "overlay_hashes.txt")
+count = 0
+
+def clean(text, cut):
+    for path, name in PLACES:
+        text = text.replace(path, name)
+    lines = []
+    for line in text.split("\n"):
+        line = line.rstrip()
+        if cut and len(line) > LIMIT:
+            digest = hashlib.sha256(line.encode()).hexdigest()
+            line = line[:LIMIT] + f" [... K2b-records cut: {len(line) - LIMIT} more characters; sha256 of the full line {digest}]"
+        lines.append(line)
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+def put(src, rel):
+    global count
+    dst = os.path.join(out, rel)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    with open(src, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    with open(dst, "w", encoding="utf-8") as f:
+        f.write(clean(text, not rel.endswith(UNCUT)))
+    count += 1
+
+S = os.path.join(wt, "scratch", "i10")
+R = os.path.join(S, "rv11")
+D = os.path.join(S, "d")
+# the targeted tests, in <wt>/k2b on the final bytes
+for name in ["fk", "sd", "ni", "pp"]:
+    put(os.path.join(D, f"rv11_{name}.log"), f"targeted/test_{name}.log")
+# the candidate tree
+put(os.path.join(R, "overlay.txt"), "overlay.txt")
+put(os.path.join(R, "overlay_hashes.txt"), "overlay_hashes.txt")
+# suites
+put(os.path.join(R, "run_suites_nff.sh"), "suites/run_suites_nff.sh.txt")
+put(os.path.join(R, "suites.log"), "suites/suites.log")
+put(os.path.join(R, "compare_suites.py"), "suites/compare_suites.py.txt")
+put(os.path.join(R, "suites_compare.txt"), "suites/suites_compare.txt")
+put(os.path.join(R, "suites_compare.json"), "suites/suites_compare.json")
+put(os.path.join(R, "failure_blocks.py"), "suites/failure_blocks.py.txt")
+put(os.path.join(R, "failure_blocks_sha256.txt"), "suites/failure_blocks_sha256.txt")
+for name in sorted(os.listdir(os.path.join(R, "suites"))):
+    put(os.path.join(R, "suites", name), f"suites/logs/{name}")
+# the b = 0 probe
+P = os.path.join(R, "probe")
+put(os.path.join(P, "src", "main.rs"), "probe/main.rs.txt")
+put(os.path.join(P, "run_probe.sh"), "probe/run_probe.sh.txt")
+for side in ["base", "cand"]:
+    put(os.path.join(P, f"p_{side}", "Cargo.toml"), f"probe/probe_{side}_Cargo.toml.txt")
+    put(os.path.join(P, f"build_{side}.log"), f"probe/build_{side}.log")
+    put(os.path.join(P, f"run_{side}.log"), f"probe/run_{side}.log")
+    put(os.path.join(P, f"sha_{side}.txt"), f"probe/output_sha256_{side}.txt")
+# T9 (Mac-only)
+T = os.path.join(R, "t9")
+put(os.path.join(R, "run_t9.sh"), "t9/run_t9.sh.txt")
+put(os.path.join(T, "t9.log"), "t9/t9.log")
+for side in ["base", "cand"]:
+    put(os.path.join(T, f"h_{side}", "Cargo.toml"), f"t9/harness_{side}_Cargo.toml.txt")
+    put(os.path.join(T, f"build_{side}.log"), f"t9/build_{side}.log")
+    put(os.path.join(T, f"run_{side}.log"), f"t9/run_{side}.log")
+    put(os.path.join(T, f"sha_{side}.txt"), f"t9/output_sha256_{side}.txt")
+# mutations
+M = os.path.join(R, "mut")
+for name in ["mutate_k2b.py", "mutate_k1.py", "mutate_rv11.py", "apply.sh", "run_mutant.sh", "drive.sh",
+             "kill_sites.py", "compare_kill_tests.py"]:
+    put(os.path.join(M, name), f"mutations/{name}.txt")
+for name in ["ids.txt", "overlay.txt", "MUTANTS.txt", "kill_sites.txt", "kill_test_comparison.txt",
+             "drive.log"]:
+    put(os.path.join(M, name), f"mutations/{name}")
+for name in sorted(os.listdir(os.path.join(M, "logs"))):
+    put(os.path.join(M, "logs", name), f"mutations/logs/{name}")
+# callers and this script
+put(os.path.join(R, "callers.txt"), "callers.txt")
+put(os.path.join(R, "scan_callers.sh"), "scan_callers.sh.txt")
+put(os.path.join(R, "assemble_rv11.py"), "assemble_rv11_fixes.py.txt")
+print(f"done: {count} files")

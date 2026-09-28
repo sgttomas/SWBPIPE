@@ -1,0 +1,734 @@
+overlay: projects/chirality-piping/core/solver/frame_kernel/src/lib.rs 0e3cc73a00648823
+overlay: projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs a2b1a1e3f5ebe767
+overlay: projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs 69b86bbbc5aa12db
+overlay: projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs 15d6fdff5ef5b2a8
+overlay: projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs 3162cfe5e16dec57
+applied K2B-SPRING-UNSCALED
+start=2026-09-28T10:17:34Z
+=== solver/frame_kernel: cargo test --no-fail-fast
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused import: `force_scaled_value`
+  --> src/structural/sparse.rs:39:43
+   |
+39 |     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, FrameElement,
+   |                                           ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.77s
+     Running unittests src/lib.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 154 tests
+test exact_sum::tests::k1_probe_d_is_correctly_rounded_where_ascending_naive_sum_is_not ... ok
+test exact_sum::tests::k1_probe_x_cases ... ok
+test exact_sum::tests::k1_scaling_is_applied_before_the_single_rounding ... ok
+test exact_sum::tests::k1_cancellations_of_three_or_more_terms ... ok
+test exact_sum::tests::k1_ties_overflow_adjacent_and_subnormal_nets ... ok
+test exact_sum::tests::k2_every_zero_is_positive_zero ... ok
+test load_ledger::tests::finish_rejects_bad_terms ... ok
+test load_ledger::tests::finish_rounds_each_dof_once_and_records_underflow ... ok
+test load_ledger::tests::s11g_directed_roundings ... ok
+test load_ledger::tests::s11g_exact_formation_defect_with_scale_three ... ok
+test load_ledger::tests::s11g_push_formed_changes_no_value_term_or_debug ... ok
+test load_ledger::tests::s11g_range_failures_fall_back_or_fire_and_never_err ... ok
+test load_ledger::tests::s11g_rounded_product_defect_is_exact ... ok
+test rigid_body::tests::full_ground_rank_does_not_assert_internal_stiffness_rank ... ok
+test rigid_body::tests::empty_ground_has_explicit_null_and_origin_shift_does_not_change_rank ... ok
+test exact_sum::tests::k1_seeded_random_dots_match_fraction_reference ... ok
+test exact_sum::tests::k1_seeded_random_sums_match_fraction_reference ... ok
+test rigid_body::tests::overflowing_geometry_length_is_range_uncertainty ... ok
+test structural::exact_boundary::functionals::tests::all_fixed_and_mixed_partition_include_affine_offsets ... ok
+test structural::exact_boundary::functionals::tests::coefficient_product_recipe_is_not_a_rounded_coefficient ... ok
+test structural::exact_boundary::functionals::tests::denied_reservations_long_ids_range_failures_and_retries_keep_the_ledger ... ok
+test structural::exact_boundary::functionals::tests::exact_zero_and_nonzero_unprojectable_are_distinct ... ok
+test structural::exact_boundary::functionals::tests::generic_coupled_and_multiple_independent_blocks_have_rational_oracles ... ok
+test rigid_body::tests::oblique_geometry_and_actual_rotation_restraint ... ok
+test structural::exact_boundary::functionals::tests::plan_binding_and_typed_identity_and_metering_cannot_be_bypassed ... ok
+test rigid_body::tests::krev01_original_geometry_refutes_coarsened_null_witnesses ... ok
+test structural::exact_boundary::s11k_tests::k8_force_coverage_accepts_the_correctly_rounded_net_and_refuses_corruption ... ok
+test structural::exact_boundary::s11k_tests::k8_stiffness_coverage_accepts_the_correctly_rounded_net_and_refuses_corruption ... ok
+test structural::exact_boundary::functionals::tests::tiny_twist_recovers_signed_member_and_spring_actions_before_projection ... ok
+test structural::exact_boundary::tests::all_fixed_pulling_bearing_and_zero_reactions_are_distinct ... ok
+test structural::exact_boundary::tests::coupled_tie_candidate_checks_original_rows_and_nonzero_prescribed ... ok
+test structural::exact_boundary::functionals::tests::retention_replays_expected_plan_and_rejects_corruption_order_and_source_changes ... ok
+test structural::exact_boundary::tests::exact_zero_source_coupling_can_split_a_stored_connected_graph ... ok
+test structural::exact_boundary::tests::force_tail_is_not_a_declared_vector_claim ... ok
+test structural::exact_boundary::tests::incomplete_duplicate_changed_maps_and_sources_fail ... ok
+test structural::exact_boundary::tests::manager_small_strain_companion_exact_projection ... ok
+test structural::exact_boundary::tests::original_exact_graph_does_not_use_absorbed_stored_coupling ... ok
+test structural::exact_boundary::tests::node_permutation_and_exact_radix_rescaling_preserve_gap_proof ... ok
+test structural::exact_boundary::tests::outward_projection_all_signed_endpoints_and_gradual_underflow ... ok
+test structural::exact_boundary::tests::per_call_work_keeps_success_failure_and_rejected_reservations ... ok
+test structural::exact_boundary::tests::projection_exact_zero_and_range_edge_shortcuts ... ok
+test structural::exact_boundary::tests::projected_adjacent_reactions_preserve_exact_tiny_values ... ok
+test structural::exact_boundary::tests::projections_bind_the_same_response_quantity_and_source ... ok
+test structural::exact_boundary::tests::reactions_combine_independent_blocks_and_nonrepresentable_response ... ok
+test structural::exact_boundary::tests::retained_force_tail_and_projection_rebinding_are_checked ... ok
+test structural::exact_boundary::tests::retained_adjacent_witness_replays_after_context_drop ... ok
+test structural::exact_boundary::tests::source_permutation_preserves_proof_but_invalidates_old_binding ... ok
+test structural::exact_boundary::tests::unsupported_singular_negative_asymmetric_range_and_budget_are_explicit ... ok
+test rigid_body::tests::krev01_valid_oblique_witness_survives_origin_and_radix_units ... ok
+test structural::exact_boundary::tests::retained_mutations_and_different_consistent_source_reject_original_binding ... ok
+test structural::formation_check::tests::kd5_curved_arctangent_domain_errors_fail_closed ... ok
+test structural::formation_check::tests::kd5_unavailable_family_and_wide_error_fail_closed_and_never_err ... ok
+test structural::formation_check::tests::kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force ... ok
+test structural::formation_check::tests::kd5_frame_reformation_agrees_with_the_binary64_formation_to_roundoff ... ok
+test structural::retained::wide::tests::arctangent_domain_is_the_open_interval ... ok
+test structural::formation_check::tests::kd5_reformed_elements_have_the_rigid_body_null_space ... ok
+test structural::retained::wide::tests::exponent_extremes_are_refused_never_wrapped ... ok
+test structural::retained::wide::tests::from_parts_validates_normalization_and_exponent_range ... ok
+test structural::retained::wide::tests::lift_from_f64_is_exact_for_normal_subnormal_and_signed_zero ... ok
+test structural::retained::wide::tests::one_twentieth_threshold_is_decided_exactly ... ok
+test structural::exact_boundary::tests::independent_27_neighbor_controls_both_senses_and_all_seeds ... ok
+test structural::retained::wide::tests::precision_outside_the_supported_range_is_refused ... ok
+test structural::retained::wide::tests::committed_vectors_match_their_recorded_sha256 ... ok
+test structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation ... ok
+test structural::retained::wide::tests::sha256_known_answers ... ok
+test structural::retained::wide::tests::signs_of_zero_follow_round_to_nearest ... ok
+test structural::retained::wide::tests::split_feeds_exact_accumulator_add_product ... ok
+test structural::retained::wide::tests::split_is_exact_on_random_and_adversarial_values ... ok
+test structural::retained::wide::tests::split_vectors_match_and_are_exact_above_min_subnormal ... ok
+test structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle ... ok
+test structural::retained::wide::tests::twosum_and_twoproduct_are_error_free_on_binary64_inputs ... ok
+test structural::retained::wide::tests::work_counter_counts_every_rounded_operation_and_saturates ... ok
+test structural::s11f_tests::n5_audit_input_error_is_sensitive_never_an_error ... ok
+test structural::s11f_tests::n5_audited_rows_are_bit_identical_to_the_s11k_audit ... ok
+test structural::s11f_tests::n5_unauditable_ledger_row_is_sensitive_never_an_error ... ok
+test structural::s11k_tests::k11_dense_profile_and_typed_structural_paths_are_exact ... ok
+test structural::s11k_tests::k11_forced_refinement_step_stays_exact ... ok
+test structural::s11k_tests::k11_reduced_right_hand_side_is_correctly_rounded ... ok
+test structural::s11k_tests::k7_audit_flags_every_probe_a_row_from_1e5_and_the_full_route_passes ... ok
+test structural::s11k_tests::k7_audit_flags_v1_check_l_and_passes_every_control ... ok
+test structural::s11k_tests::k7_restrained_root_row_is_audited ... ok
+test structural::s11k_tests::k7_typed_route_report_is_byte_identical_to_legacy_when_forces_agree ... ok
+test structural::s11k_tests::k7_zero_witness_at_the_intended_action_residual ... ok
+test structural::s11k_tests::legacy_all_zero_prescribed_rows_keep_todays_zero_sign ... ok
+test structural::s11k_tests::option_c_binary64_variants_keep_todays_fold_on_probe_p ... ok
+test structural::s11k_tests::option_c_public_original_residual_stays_binary64_on_coupled_rows ... ok
+test structural::sparse::tests::k1_assembly_refusals_match_the_dense_assembly ... ok
+test structural::sparse::tests::k1_coalesced_values_are_bit_identical_to_the_dense_assembly ... ok
+test structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision ... ok
+test structural::sparse::tests::k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal ... ok
+test structural::sparse::tests::k1_matrix_references_have_the_same_outcome_class_in_both_representations ... ok
+test structural::sparse::tests::k1_gate_stages_are_byte_identical_for_a_fixed_order ... ok
+test structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification ... ok
+test structural::sparse::tests::k1_multiply_reactions_and_reduction_match_the_dense_forms ... ok
+test structural::sparse::tests::k1_pattern_is_a_function_of_the_positions_only ... ok
+test structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs ... ok
+test structural::sparse::tests::krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity ... ok
+test structural::sparse::tests::krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail ... ok
+test structural::sparse::tests::krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::sparse::tests::krev05_on_sparse_completion_requires_positive_source_bound_factor ... ok
+test structural::tests::generic_nonsymmetric_api_is_preserved ... ok
+test structural::tests::invalid_energy_zero_load_and_skew_are_not_solved ... ok
+test structural::tests::krev02_prescribed_contribution_error_is_not_zero_fidelity ... ok
+test structural::tests::krev03_offdiagonal_expansion_retains_lost_low_tail ... ok
+test structural::tests::krev04_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::tests::krev05_completion_requires_positive_source_bound_factor ... ok
+test structural::tests::lost_stabilizer_retains_unresolved_instead_of_physical_mechanism ... ok
+test structural::tests::nonfinite_and_unrepresentable_range_block ... ok
+test structural::tests::normalized_residual_retains_soft_physical_cancellation ... ok
+test structural::sparse::tests::k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations ... ok
+test structural::tests::original_residual_kills_wrong_solution_wrong_matrix_and_missing_load ... ok
+test structural::tests::prescribed_and_constrained_load_semantics ... ok
+test structural::tests::public_factor_dimensions_are_errors_not_panics ... ok
+test structural::tests::soft_diagonal_and_unit_congruence_are_not_mechanisms ... ok
+test tests::assembly_accumulates_shared_node_contributions ... ok
+test tests::assembly_rejects_node_index_outside_model ... ok
+test tests::assembly_uses_stable_dof_map_for_nonzero_node_indices ... ok
+test tests::audit_rejects_computed_nonfinite_stiffness_and_solutions ... ok
+test tests::boundary_metadata_rejects_missing_unit_and_model_refs ... ok
+test tests::boundary_metadata_trims_ids_and_rejects_tbd_placeholders ... ok
+test tests::boundary_reduction_rejects_force_length_mismatch ... ok
+test tests::boundary_reduction_rejects_out_of_range_restraint ... ok
+test tests::boundary_reduction_rejects_repeated_restraint ... ok
+test tests::canonical_dimension_exposes_force_per_length ... ok
+test tests::degenerate_orientation_is_rejected ... ok
+test tests::dense_operations_reject_invalid_numeric_shapes_and_values ... ok
+test tests::dense_solve_uses_internal_zero_pivot_guard ... ok
+test tests::dense_solve_uses_partial_pivoting ... ok
+test tests::frame_unit_basis_rejects_wrong_dimensions ... ok
+test tests::frame_unit_basis_uses_accepted_canonical_dimensions ... ok
+test tests::global_x_member_transform_matches_local_stiffness ... ok
+test tests::local_stiffness_contains_standard_terms ... ok
+test tests::non_finite_input_is_rejected ... ok
+test tests::non_positive_section_and_length_inputs_are_rejected ... ok
+test tests::orientation_constructor_rejects_non_orthonormal_axes ... ok
+test tests::prescribed_displacement_reduction_adjusts_free_forces ... ok
+test tests::prescribed_reduction_rejects_invalid_displacement_vector ... ok
+test tests::prescribed_reduction_rejects_repeated_and_out_of_range_dofs ... ok
+test tests::prescribed_reduction_uses_boundary_dof_order_for_force_adjustment ... ok
+test tests::reduction_removes_restrained_dofs ... ok
+test tests::repeated_element_node_index_is_rejected ... ok
+test tests::rotated_member_maps_local_axial_stiffness_to_global_axis ... ok
+test tests::rotated_member_transform_preserves_symmetry ... ok
+test tests::simple_axial_bar_solve_uses_reduced_system ... ok
+test tests::singular_system_is_detected ... ok
+test tests::six_dof_mapping_is_stable_and_node_based ... ok
+test tests::transformation_matrix_maps_translation_and_rotation_blocks ... ok
+test tests::user_stiffness_element_local_stiffness_consumes_directional_user_values ... ok
+test tests::user_stiffness_element_participates_in_global_solve ... ok
+test tests::zero_pivot_singular_system_is_detected ... ok
+test tests::zero_prescribed_displacements_match_legacy_reduction ... ok
+test structural::tests::np_b_banded_family_does_not_require_comparison_inverse_certificate ... ok
+test structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise ... ok
+test structural::retained::wide::tests::seeded_fraction_differential_at_p128 ... ok
+
+test result: ok. 154 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.14s
+
+     Running tests/k1_k2a_interaction.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/k1_k2a_interaction-dfd952cd9bde6092)
+
+running 3 tests
+test k1_k2a_reach_zero_and_reach_lef_are_refused_with_the_same_named_error ... ok
+test k1_k2a_the_first_failing_element_is_the_same_in_both_representations ... ok
+test k1_k2a_rf_range_members_form_or_refuse_identically_in_both_representations ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/k2a_checked_formation.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/k2a_checked_formation-0387eee873bbe84e)
+
+running 13 tests
+test k2a_each_checked_intermediate_is_refused_by_its_own_name ... ok
+test k2a_each_zero_or_infinite_site_also_refuses_a_subnormal_by_its_own_name ... ok
+test k2a_partial_underflow_control_is_refused ... ok
+test k2a_refused_formation_is_refused_before_the_formation_check_runs ... ok
+test k2a_rf_range_lef_large_overflow_is_refused_by_name_on_all_three_bases ... ok
+test k2a_rf_range_lef_small_is_silent_unchecked_and_refused_by_name_on_all_three_bases ... ok
+test k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical ... ok
+test k2a_subnormal_intermediate_control_is_refused_although_every_coefficient_is_normal ... ok
+test k2a_the_quotient_itself_is_checked_not_the_product_with_the_reciprocal ... ok
+test k2a_zero_operand_keeps_its_existing_refusal ... ok
+test k2a_the_smallest_normal_intermediate_is_accepted_bit_identically ... ok
+test k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations ... ok
+test k2a_normal_formations_are_bit_identical_to_the_unchecked_formation ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/k2b_force_scaling.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/k2b_force_scaling-483dbaf4043a2fce)
+
+running 18 tests
+test k2b_force_scale_is_even_only ... ok
+test k2b_force_scaled_value_is_exact_and_refuses_what_cannot_stay_normal ... ok
+test k2b_elements_scale_e_g_and_user_stiffnesses_only ... ok
+test k2b_rv11_force_scaled_end_actions_are_checked_and_unscaled_once ... ok
+test k2b_force_scaled_reactions_unscale_with_the_outcomes ... ok
+test k2b_rv11_scaling_refuses_a_result_that_rounds_up_into_the_normal_range ... ok
+test k2b_rv11_the_census_records_a_product_at_its_factors_exponent_sum ... ok
+test k2b_the_census_refuses_every_kind_of_subnormal_input ... ok
+test k2b_the_frame_census_uses_predicted_exponents_not_formed_coefficients ... ok
+test k2b_the_refusal_texts_are_the_designs ... ok
+test k2b_rv11_force_scaled_reactions_check_every_product_and_partial_sum ... ok
+test k2b_the_publication_outcomes ... ok
+test k2b_the_ledger_force_scaled_is_exact_term_by_term_and_rounds_each_net_once ... ok
+test k2b_the_window_the_floor_and_the_parity_rule ... ok
+test k2b_unscaled_error_payloads ... ok
+test k2b_unscaled_residual_records_carry_their_outcome_and_never_refuse ... ok
+test k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly ... FAILED
+test k2b_the_s11g_records_are_dropped_and_unread_by_the_kernel ... ok
+
+failures:
+
+---- k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly stdout ----
+
+thread 'k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly' (3778065) panicked at tests/k2b_force_scaling.rs:615:13:
+assertion `left == right` failed: b = -400
+  left: 4688897573220515840
+ right: 2914990405611933400
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly
+
+test result: FAILED. 17 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--test k2b_force_scaling`
+     Running tests/m03_skew_scope.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/m03_skew_scope-4f2c745387a5ac56)
+
+running 5 tests
+test m03_skew_pin_preconditions_hold ... ok
+test m03_skew_pin_rv7_cases_outcomes_and_figures ... ok
+test m03_skew_pin_6eil2_is_the_limiting_coefficient ... ok
+test m03_skew_scope_guard_documented_limitation_not_desired_behaviour ... ok
+test m03_skew_pin_dense_and_pattern_outcomes_are_identical ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/s11_site_table.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/s11_site_table-c8ba14d9f767e011)
+
+running 3 tests
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+
+   Doc-tests open_pipe_stress_frame_kernel
+
+running 6 tests
+test src/lib.rs - reduce_assembled_system_with_prescribed_displacements (line 1399) - compile fail ... ok
+test src/structural.rs - structural::AssembledStructuralSystem (line 58) - compile fail ... ok
+test src/lib.rs - reduce_assembled_system (line 1370) - compile fail ... ok
+test src/structural.rs - structural::finish_structural (line 1877) - compile fail ... ok
+test src/lib.rs - reduce_assembled_system (line 1360) ... ok
+test src/structural.rs - structural::AssembledStructuralSystem (line 64) ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.83s
+
+error: 1 target failed:
+    `--test k2b_force_scaling`
+=== solver/sparse_direct: cargo test --no-fail-fast
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused import: `force_scaled_value`
+  --> <wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:39:43
+   |
+39 |     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, FrameElement,
+   |                                           ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/sparse_direct)
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.58s
+     Running unittests src/lib.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/open_pipe_stress_sparse_direct-4159cd09dbed5378)
+
+running 30 tests
+test structural::k1_tests::k1_explicit_zero_by_cancellation_takes_no_part_in_the_order ... ok
+test structural::k1_tests::k1_krev02_through_the_pattern_path ... ok
+test structural::tests::krev02_sparse_prescribed_contribution_fidelity ... ok
+test structural::tests::mapped_prescribed_equations_and_loaded_constraint ... ok
+test structural::tests::rejection_does_not_fall_back_to_lu_or_ignore_triangle ... ok
+test structural::tests::soft_positive_sparse_uses_typed_gate_not_legacy_absolute_guard ... ok
+test tests::audit_rejects_unrepresentable_solution ... ok
+test tests::chain_solve_reports_positive_definite_banded_factorization ... ok
+test tests::entry_assembled_sparse_path_matches_dense_derived_path ... ok
+test tests::invalid_inputs_are_rejected ... ok
+test tests::ldlt_factorization_and_solve_match_hand_computation_exactly ... ok
+test tests::nonpositive_pivot_is_counted_and_located_not_silently_absorbed ... ok
+test tests::profile_storage_round_trips_dense_entries ... ok
+test tests::profile_storage_sums_direct_entries ... ok
+test tests::rcm_orders_path_graph_deterministically ... ok
+test tests::rcm_orders_star_graph_with_degree_then_index_tie_break ... ok
+test tests::rcm_processes_components_by_lowest_index_and_handles_isolated_nodes ... ok
+test tests::rcm_reduces_bandwidth_of_scrambled_path_numbering ... ok
+test tests::rcm_rejects_out_of_range_adjacency ... ok
+test tests::rcm_symmetrizes_and_deduplicates_input_adjacency ... ok
+test tests::repeat_sparse_solves_are_bitwise_identical ... ok
+test tests::singular_pivot_location_maps_back_through_ordering ... ok
+test tests::singular_pivot_reports_ordered_and_original_location ... ok
+test structural::k1_tests::k1_adjacency_order_and_profile_equal_the_dense_derived_path ... ok
+test tests::sparse_path_matches_dense_solve_on_small_invented_chain ... ok
+test tests::sparse_path_matches_dense_solve_on_small_invented_grid_frame ... ok
+test tests::zero_dimension_system_solves_to_empty_solution ... ok
+test tests::sparse_path_matches_dense_solve_on_larger_generated_banded_chain ... ok
+test structural::k1_tests::k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path ... ok
+test structural::k1_tests::k1_storage_counts_of_the_rf_large_chain_and_tree ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.96s
+
+   Doc-tests open_pipe_stress_sparse_direct
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+=== solver/nonlinear_integration: cargo test --no-fail-fast
+warning: unused import: `force_scaled_value`
+  --> <wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:39:43
+   |
+39 |     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, FrameElement,
+   |                                           ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.48s
+     Running unittests src/lib.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/open_pipe_stress_nonlinear_integration-b388ef28b8223bbe)
+
+running 115 tests
+test component_identity_tests::component_identity_accessors_are_crate_constant_derived ... ok
+test product_equilibrium::tests::successor_both_backends_original_load_and_prescribed_mutations ... ok
+test computed_finite_audit_tests::finite_solution_with_overflowing_reaction_or_work_is_rejected ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_treat_negative_zero_as_different_bits ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_refuse_a_one_ulp_difference_in_any_entry ... ok
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_delegate_on_bit_equal_force ... ok
+test s11k_tests::k7_adapter_with_force_terms_flags_the_folded_force_in_both_modes ... ok
+test s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 ... ok
+test s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check ... ok
+test s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path ... ok
+test s11k_tests::option_c_product_equilibrium_uses_the_binary64_residual ... ok
+test s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points ... ok
+test s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path ... ok
+test structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes ... ok
+test s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product ... ok
+test structural_adapter::k1_tests::k1_c3_detect_solve_is_identical_in_both_representations ... ok
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test structural_adapter::k1_tests::k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1 ... ok
+test structural_adapter::k1_tests::k1_nonlinear_loop_reaches_neither_formation_entry ... ok
+test structural_adapter::k1_tests::k1_n_references_have_the_same_outcome_class_and_values_in_both_modes ... ok
+test structural_adapter::k1_tests::k1_relabelled_model_gives_the_same_answers ... ok
+test structural_adapter::k1_tests::k1_sparse_evidence_is_the_dense_evidence_on_the_pattern ... ok
+test structural_adapter::k1_tests::k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3 ... ok
+test structural_adapter::k1_tests::k1_t0r_reactions_from_sparse_rows_match_the_references ... ok
+test structural_adapter::k1_tests::krev01_on_sparse_geometry_witnesses_are_unchanged ... ok
+test structural_adapter::k1_tests::k1_kd5_parity_cases_demote_identically_in_both_representations ... ok
+test structural_adapter::k2b_tests::k2b_existing_entries_refuse_a_force_scaled_evidence ... FAILED
+test structural_adapter::k2b_tests::k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly ... FAILED
+test structural_adapter::k2b_tests::k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing ... FAILED
+test structural_adapter::k2b_tests::k2b_lef_small_stays_a_geometry_refusal ... ok
+test structural_adapter::k2b_tests::k2b_nonlinear_loop_reaches_no_force_scaled_entry ... FAILED
+test structural_adapter::k2b_tests::k2b_published_reactions_take_the_step_five_outcomes ... ok
+test structural_adapter::k2b_tests::k2b_rv11_reactions_and_actions_at_scale_are_refused_never_a_wrong_normal ... ok
+test structural_adapter::k2b_tests::k2b_rv11_the_orchestrators_census_includes_the_curved_slots ... ok
+test structural_adapter::k2b_tests::k2b_s11k_ledger_terms_and_audit_are_carried_under_b ... FAILED
+test structural_adapter::k2b_tests::k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit ... FAILED
+test structural_adapter::k2b_tests::k2b_step_four_refuses_a_scaled_evaluation_outside_the_normal_range ... ok
+test structural_adapter::k2b_tests::k2b_the_kernel_reads_no_s11g_formation_record ... ok
+test structural_adapter::k2b_tests::k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately ... FAILED
+test structural_adapter::k2b_tests::k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves ... ok
+test structural_adapter::k2b_tests::k2b_the_window_and_subnormal_refusals_keep_the_k2a_trigger ... ok
+test structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error ... ok
+test structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord ... ok
+test structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent ... ok
+test structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion ... ok
+test structural_adapter::k1_tests::k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2 ... ok
+test structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed ... ok
+test structural_adapter::kd5_tests::kd5_not_selected_invocation_runs_the_unchanged_solve_assembled ... ok
+test structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_skew_345_and_invented_m11_do_not_demote ... ok
+test structural_adapter::retention_tests::actual_adapter_retains_adjacent_response_and_separate_ordinary_projected_states ... ok
+test structural_adapter::retention_tests::ret01_long_id_and_nested_error_are_reserved_before_summary_comparison ... ok
+test structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed ... ok
+test tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal ... ok
+test tests::audit_duplicate_support_ids_return_error ... ok
+test tests::audit_coupled_exact_contacts_converge_from_all_seeds ... ok
+test tests::audit_literal_zero_iteration_cap_returns_error ... ok
+test tests::base_fixture_dofs_match_six_dof_order ... ok
+test tests::audit_gap_equilibrium_both_signs_seeds_and_modes ... ok
+test tests::both_nonzero_assumed_branches_accept_exact_zero_current_normal ... ok
+test tests::contact_recovery_invalid_classes_do_not_rescue_and_springs_survive ... ok
+test tests::contact_recovery_caps_and_later_singularity_are_honest ... ok
+test tests::contact_recovery_later_changed_boundary_rejects_classifier_tolerance_one ... ok
+test tests::contact_recovery_signed_gap_one_way_lift_off_and_zero_conventions ... ok
+test tests::contact_recovery_warning_preserves_original_singular_seed_provenance ... ok
+test tests::contact_recovery_two_gap_independent_oracle_seeds_order_modes ... ok
+test tests::curved_bend_slot_matches_linear_arc_path_when_support_stays_released ... ok
+test tests::dense_scrutiny_mode_keeps_sparse_parity_evidence ... ok
+test tests::derived_normal_sign_flips_retry_before_convergence_and_fail_honestly_at_cap ... ok
+test tests::direct_reduced_profile_entries_follow_free_dof_map ... ok
+test tests::duplicate_explicit_and_derived_friction_normal_source_is_invalid ... ok
+test tests::exact_derived_normal_branch_domains_include_closed_zero_and_irrelevant_rows ... ok
+test tests::friction_support_derives_normal_from_named_support_reaction ... ok
+test tests::friction_support_slides_then_converges_through_released_frame_loop ... ok
+test tests::gap_support_prescribes_clearance_then_converges ... ok
+test tests::initial_state_is_required_for_every_nonlinear_support ... ok
+test tests::integrity_contact_seed_cannot_hide_arbitrary_zero_diagonal_negative_energy ... ok
+test tests::integrity_contact_seed_rejects_nonrank_and_unqualified_failure_causes ... ok
+test tests::iteration_cap_returns_nonconvergence_failure_diagnostic ... ok
+test tests::mixed_row_tangential_invalidity_is_aggregated_and_blocks_convergence ... ok
+test tests::current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes ... ok
+test tests::mixed_sub_and_super_limit_rows_update_together_independent_of_order ... ok
+test tests::one_way_support_deactivates_then_converges_through_frame_loop ... ok
+test tests::one_way_support_remains_active_when_reaction_matches_sense ... ok
+test tests::noncompressive_explicit_normal_is_inactive_and_force_free ... ok
+test tests::scalar_friction_final_state_is_seed_mode_and_load_sign_independent ... ok
+test tests::scalar_super_limit_slide_retains_two_iteration_result ... ok
+test tests::sliding_branch_resolution_uses_current_force_and_motion_evidence ... ok
+test tests::sliding_friction_support_applies_bounded_force_independent_of_seed ... ok
+test tests::sliding_seed_at_single_iteration_cap_emits_nonconvergence_diagnostic ... ok
+test tests::sticking_friction_converged_at_single_iteration_cap_has_no_false_positive ... ok
+test structural_adapter::k1_tests::k1_pattern_entries_are_byte_identical_to_todays_entries_in_both_modes ... ok
+test tests::strict_gap_budget_and_duplicate_dofs_remain_explicit_without_projection ... ok
+test tests::scalar_friction_exact_boundary_has_no_hidden_tolerance ... ok
+test tests::strict_gap_nonzero_prescribed_root_preserves_original_coupling ... ok
+test tests::strict_gap_source_springs_and_decision_mutations_remain_bound ... ok
+test tests::strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification ... ok
+test tests::sub_limit_sliding_seed_resticks_on_iteration_two_and_cap_is_honest ... ok
+test tests::successor_completion_receipt_accepts_legitimate_empty_free_partition ... ok
+test tests::successor_completion_receipt_rejects_public_report_and_source_mutations ... ok
+test tests::successor_rechecks_contact_admissibility_even_when_equations_and_count_flags_pass ... ok
+test tests::tbd_policy_emits_visible_tolerance_policy_diagnostic_without_defaults ... ok
+test tests::strict_gap_small_strain_axial_companion_both_senses_seeds_modes ... ok
+test tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt ... ok
+test tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification ... ok
+test tests::two_coupled_derived_normal_rows_are_order_independent ... ok
+test tests::unsupported_gap_inspection_rejects_source_or_receipt_mutations ... ok
+test tests::zero_coefficient_derived_normal_row_applies_no_force ... ok
+test tests::zero_limit_is_released_without_an_applied_force_record ... ok
+test structural_adapter::k2b_tests::k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte ... ok
+test tests::strict_gap_27_independent_neighbors_all_senses_seeds_and_backends ... ok
+
+failures:
+
+---- structural_adapter::k2b_tests::k2b_existing_entries_refuse_a_force_scaled_evidence stdout ----
+
+thread 'structural_adapter::k2b_tests::k2b_existing_entries_refuse_a_force_scaled_evidence' (3780116) panicked at src/structural_adapter/k2b_tests.rs:1300:9:
+assertion failed: evidence.solve_force_scaled_with_formation_check(&dense, &force, &free, p,
+        mode, &[], true).is_ok()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- structural_adapter::k2b_tests::k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly stdout ----
+
+thread 'structural_adapter::k2b_tests::k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly' (3780117) panicked at src/structural_adapter/k2b_tests.rs:494:17:
+assertion `left == right` failed: F122 b=-400
+  left: 4639270566145032192
+ right: 2907364628805792089
+
+---- structural_adapter::k2b_tests::k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing stdout ----
+
+thread 'structural_adapter::k2b_tests::k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing' (3780118) panicked at src/structural_adapter/k2b_tests.rs:642:41:
+RF-RANGE-CHAIN-LEF-large DenseScrutiny Dense: Structural(NumericallyUnresolved { reason: "assembly perturbation amplification unresolved", global_dof: None })
+
+---- structural_adapter::k2b_tests::k2b_nonlinear_loop_reaches_no_force_scaled_entry stdout ----
+
+thread 'structural_adapter::k2b_tests::k2b_nonlinear_loop_reaches_no_force_scaled_entry' (3780120) panicked at src/structural_adapter/k2b_tests.rs:1409:18:
+called `Result::unwrap()` on an `Err` value: Structural(NumericallyUnresolved { reason: "assembly perturbation amplification unresolved", global_dof: None })
+
+---- structural_adapter::k2b_tests::k2b_s11k_ledger_terms_and_audit_are_carried_under_b stdout ----
+
+thread 'structural_adapter::k2b_tests::k2b_s11k_ledger_terms_and_audit_are_carried_under_b' (3780125) panicked at src/structural_adapter/k2b_tests.rs:1350:21:
+assertion `left == right` failed: F122 b=-64 DenseScrutiny Dense
+  left: "Err(NumericallyUnresolved { reason: \"assembly perturbation amplification unresolved\", global_dof: None })"
+ right: "Ok(StructuralSolution { displacements: [0.0, 0.0, 0.0, 3.333333325288304e-5, 9.600000002897286e-9, 9.600000002926725e-9, -8.464847594887828e-20, -6.66570665057583e-5, 6.665706650575833e-5, 3.333666537149063e-5, 1.6264237225338824e-8, 1.626423722539752e-8], report: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Sensitive, factorization: \"positive dense Cholesky\", scale_exponents: [-11, -11, -11, -12, -13, -13, -11, -11, -11], pivots: [PivotEvidence { ordered_index: 0, global_dof: 3, pivot: 1.564630376192403, cancellation_scale: 1.564630376192403, operation_count: 2, screen [... K2b-records cut: 11735 more characters; sha256 of the full line 765f89c94b553a9ba5862bbf55a840c6d327ab89df338b5a5191d1bee0da190d]
+
+---- structural_adapter::k2b_tests::k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit stdout ----
+
+thread 'structural_adapter::k2b_tests::k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit' (3780126) panicked at src/structural_adapter/k2b_tests.rs:889:9:
+assertion `left == right` failed: b=200: GJ/L is absorbed
+  left: 1.0
+ right: 1.6069380442589903e60
+
+---- structural_adapter::k2b_tests::k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately stdout ----
+
+thread 'structural_adapter::k2b_tests::k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately' (3780130) panicked at src/structural_adapter/k2b_tests.rs:766:41:
+reach-zero DenseScrutiny Dense: Structural(NumericallyUnresolved { reason: "assembly perturbation amplification unresolved", global_dof: None })
+
+
+failures:
+    structural_adapter::k2b_tests::k2b_existing_entries_refuse_a_force_scaled_evidence
+    structural_adapter::k2b_tests::k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly
+    structural_adapter::k2b_tests::k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing
+    structural_adapter::k2b_tests::k2b_nonlinear_loop_reaches_no_force_scaled_entry
+    structural_adapter::k2b_tests::k2b_s11k_ledger_terms_and_audit_are_carried_under_b
+    structural_adapter::k2b_tests::k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit
+    structural_adapter::k2b_tests::k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately
+
+test result: FAILED. 108 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.06s
+
+error: test failed, to rerun pass `--lib`
+   Doc-tests open_pipe_stress_nonlinear_integration
+
+running 4 tests
+test src/lib.rs - solve_active_set_frame_assembled (line 506) - compile fail ... ok
+test src/structural_adapter.rs - structural_adapter::AssemblyEvidence::solve_assembled (line 288) - compile fail ... ok
+test src/lib.rs - solve_active_set_frame_assembled (line 515) ... ok
+test src/structural_adapter.rs - structural_adapter::AssemblyEvidence::solve_assembled (line 298) ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s
+
+error: 1 target failed:
+    `--lib`
+=== product_physics: cargo test --no-fail-fast --test s11f_site_test --test formation_check_runtime
+warning: unused import: `force_scaled_value`
+  --> <wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:39:43
+   |
+39 |     element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, FrameElement,
+   |                                           ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling typenum v1.20.1
+   Compiling generic-array v0.14.7
+   Compiling serde_core v1.0.228
+   Compiling libc v0.2.189
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.149
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling serde_derive v1.0.228
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.0
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_product_physics v0.2.0 (<wt>/k2b-mut/K2B-SPRING-UNSCALED/tree/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8711:4
+     |
+8711 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:63:9
+   |
+62 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+63 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:92:9
+   |
+91 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+92 |     pub support_id: String,
+   |         ^^^^^^^^^^
+93 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+94 |     pub value: f64,
+   |         ^^^^^
+95 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:117:9
+    |
+116 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+117 |     pub dofs: usize,
+    |         ^^^^
+118 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+119 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 |     pub blocks: usize,
+    |         ^^^^^^
+121 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+122 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+123 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+124 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+125 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+126 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+127 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+128 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+129 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+130 |     pub max_relative_projection_error: f64,
+131 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:144:5
+    |
+138 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+144 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:170:12
+    |
+153 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+170 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:524:19
+    |
+453 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+524 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 11.62s
+     Running tests/formation_check_runtime.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/formation_check_runtime-2718fd680b1db3a9)
+
+running 5 tests
+test kd5_required_true_positive_122_demotes_in_both_modes_on_both_entries ... ok
+test kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted ... ok
+test kd5_nonlinear_support_invocation_is_never_selected ... ok
+test kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries ... ok
+test kd5_skew_345_and_chain_continuity_controls_do_not_demote ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+     Running tests/s11f_site_test.rs (<wt>/k2b-mut/K2B-SPRING-UNSCALED/target/debug/deps/s11f_site_test-1a10a3ed0a0c0ced)
+
+running 11 tests
+test rule_4_generic_kernels_are_called_only_by_observation_lanes ... ok
+test rule_2_values_are_copied_only_in_allow_listed_functions ... ok
+test rule_3_force_bindings_are_mutated_only_in_allow_listed_functions ... ok
+test rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites ... ok
+test scanner_self_checks ... ok
+test sparse_direct_factor_inherits_the_prepared_ledger_binding ... ok
+test t10b_routing_site_calls_the_tested_predicates ... ok
+test rule_5_the_ledger_producers_are_exactly_the_section_4_2_list ... ok
+test rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams ... ok
+test t8_every_case_force_producer_is_classified ... ok
+test rule_8_every_accumulation_in_the_listed_files_is_in_the_table ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.96s
+
+end=2026-09-28T10:18:21Z

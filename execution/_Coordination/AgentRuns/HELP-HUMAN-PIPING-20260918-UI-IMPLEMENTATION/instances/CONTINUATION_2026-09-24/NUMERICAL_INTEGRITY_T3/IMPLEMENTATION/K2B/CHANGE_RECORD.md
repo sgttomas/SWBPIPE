@@ -108,6 +108,27 @@ This is the draft PR record for slice K2b of T3 (numerical integrity), following
 - **Formation outside K2b's coverage:** curved bends are realized at b = 0 by `curved_bend`, and their own formation range is not checked by K2a or K2b.
 - **Accuracy:** K2b adds no accuracy beyond the ordinary path. W1 is the route to accuracy.
 - **Pending the reviewer's check:**
-  - the even-b derivation (ruling 1's condition), and whether its premise is adequately disclosed. The premise is that every rounded operation is zero or normal at both scales, and the dense Cholesky factor and triangular solves are unchecked (`RETURN.md` §4);
+  - the even-b derivation (ruling 1's condition), and whether its premise is adequately disclosed (`RETURN.md` §4). The premise is that every rounded operation is zero or normal at both scales.
+    - *[Corrected by `RETURN.md` addendum 1, RV11-3.]* The dense Cholesky factor, the triangular solves and the skyline LDLᵀ are range-checked, so the kernel enforces the premise on the solve side.
+    - What was unchecked at 2^b was the reaction and member-action arithmetic, and the round-up boundary of exact scaling. Addendum 1 fixes both.
   - the ruling-B departure;
   - the third-attempt finding and its pin.
+
+## RV11 fixes (`RETURN.md` addendum 1)
+
+RV11's review was FAIL: 1 BLOCKING, 3 SHOULD-FIX. The fixes follow ROOT's rulings on RV11's review (numerics `4ec82a9b3`).
+
+- **RV11-1 (BLOCKING):** reactions and member actions at scale never publish a wrong value labelled Normal.
+  - `SparseStiffness::force_scaled_reactions` checks `multiply`'s row at 2^b: every product of nonzero operands and every partial sum must be normal (or an exact zero), or the reaction is refused with step 5's refusal. It checks at every b; values it publishes keep `reactions`' bits.
+  - The new `FrameElement::force_scaled_end_actions` gives F1b member actions built the same way. RETURN §15's recipe now points to it.
+  - RV11's F-A2, and its 2^80-larger variant, are pinned as refused in both modes and both representations.
+  - The unchecked-reaction, unchecked-partial-sum and unchecked-action mutants are killed.
+- **RV11-2:** exact scaling accepts only an exactly normal result; a round-up from the subnormal range is refused. A test and a mutant are added.
+- **RV11-3:** RETURN §4's premise, §6's reactions wording and §15 are corrected in place, and so is the "Pending" line above.
+- **RV11-4:** tests pin the census of `Product` terms and of curved slots. Both of RV11's surviving census mutants are killed.
+- **Evidence, re-run on the fixed candidate:**
+  - targeted tests pass;
+  - 39-manifest suites: 0 changed and 0 removed against the skew pin's baseline for main `98b1723b1`, and the same 3 Mac platform failures, byte-identical;
+  - b = 0 probe: 439 of 439 identical;
+  - T9 (Mac-only): 112 of 112;
+  - the full mutation table re-run, NONE first (addendum 1, A1.7).

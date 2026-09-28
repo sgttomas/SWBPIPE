@@ -126,13 +126,20 @@ The table is at `8e6698282`. The pin test added after C changes one row: `NI/src
 
 ## 4. The even-b invariance derivation, step by step (ruling 1)
 
-> **Premise P. The whole derivation rests on it, and the kernel does not enforce it.**
-> Every rounded operation, at b = 0 and at the scaled b, gives a zero or a normal result. That includes the error terms of the exact expansions and every plain binary64 operation of the factor and the solves.
-> - **The dense Cholesky factor and the triangular solves (and the skyline LDLᵀ) are unchecked.** A subnormal intermediate there is silent at either scale.
-> - The kernel's range checks cover only part of P: `radix_scale`, `checked_*`, `exact_radix`, the exact sums, `exact_scaled_rhs` and K2a.
-> - So P is a **condition** of the derivation, not a guarantee. The forced-b tests pin its consequences, bitwise, on their models only.
-> - Where P fails, the derivation says nothing. §13.3 is a case where P fails at the rule's b (a subnormal equilibrated right-hand side, refused by `exact_scaled_rhs`) and holds at other b in the window.
-> - ROOT has recorded this premise (`97000ab9f`). K2b's reviewer checks the derivation and states whether its scope is adequately disclosed.
+> **Premise P, as corrected (addendum 1, RV11-3; ROOT corrected its own sentence at `4ec82a9b3`).** Every rounded operation, at b = 0 and at the scaled b, gives a zero or a normal result.
+> - **On the solve side the kernel enforces P.** The stages are range-checked by `checked_product`, `checked_value` and `checked_quotient`, and by `radix_scale`, `exact_radix`, the exact sums, `exact_scaled_rhs` and K2a:
+>   - the dense Cholesky factor (only the square root of a screened pivot is unchecked);
+>   - its triangular solves;
+>   - the skyline LDLᵀ factor and solve used by the pattern path.
+>
+>   A scaled evaluation therefore either reproduces b = 0 bit for bit, or fails with `Range`. Nothing in between is silent. (§13.3's table shows the check firing: "division overflow or underflow" at b = 416, dense.)
+> - **What was unchecked at 2^b, and is fixed by addendum 1:**
+>   - the publication arithmetic, meaning the reaction's formed row K′·u and the member actions (RV11-1);
+>   - the round-up boundary of `exact_normal_scaling` (RV11-2).
+>
+>   The remaining unchecked operations are harmless sub-margin products: the transformation Tᵀ·K·T at formation, and descriptive sums.
+> - *Superseded text (checkpoint D, kept for the record):* "The dense Cholesky factor and the triangular solves (and the skyline LDLᵀ) are unchecked. A subnormal intermediate there is silent at either scale." **That was wrong.**
+> - Where P fails on the solve side, the case is refused, not wrong. §13.3 is a case where it fails at the rule's b (a subnormal equilibrated right-hand side, refused by `exact_scaled_rhs`) and holds at other b in the window.
 
 **Why P is needed.** Binary64 rounding commutes with multiplication by 2^b only when neither the exact result nor the rounded result leaves the normal range.
 
@@ -292,7 +299,9 @@ The odd-midpoint mutant (K2B-ODD-MIDPOINT) is killed (§13).
 **Outside `StructuralSolution`:**
 - `ForceScaledSolution::records` lists every non-normal residual-record field, as a `RecordOutcome` with `record` "residual_rows.\<field\>" or "intended_residual_rows.\<field\>", the global DOF, the value and the outcome.
 - Member end actions and spring actions: `unscale_for_publication` (step 5).
-- Reactions: `force_scaled_reactions`, which forms the exact sum of K'·u and the DOF's terms at 2^b, and rounds it once at 2^-b (step 5).
+- Reactions: `force_scaled_reactions`. *[Corrected by addendum 1, RV11-1 and RV11-3.]*
+  - It sums `multiply`'s **rounded** binary64 row K′·u (not an exact K′·u) with the DOF's terms at 2^b, in one exact sum rounded once at 2^-b (step 5).
+  - Since addendum 1, every product and partial sum of that row is checked to stay normal. A reaction whose row leaves the normal range is refused, never flushed.
 - Error payloads (`unscale_structural_error`):
   - A `NegativeEnergy` from a negative stored diagonal (allowance 0) has its energy multiplied by 2^-b.
   - A `NegativeEnergy` from a verified witness is in prepared units, except its direction. The direction is mapped through the scale exponents, so it is multiplied by 2^(b/2).
@@ -672,6 +681,9 @@ pub fn force_scaled_value(name: &'static str, value: f64, scale: ForceScale) -> 
 pub fn force_scaled_matrix(name: &'static str, matrix: &Matrix12, scale: ForceScale) -> Result<Matrix12, FrameKernelError>;
 impl FrameElement {
     pub fn force_scaled(&self, scale: ForceScale) -> Result<Self, FrameKernelError>;         // E and G times 2^b
+    // addendum 1 (RV11-1): the elastic end actions at 2^b, checked, each unscaled once
+    pub fn force_scaled_end_actions(&self, u: &[f64], scale: ForceScale)
+        -> Result<[structural::PublishedValue; ELEMENT_DOF], structural::ForceScaledError>;
 }
 impl UserStiffnessElement {
     pub fn force_scaled(&self, scale: ForceScale) -> Result<Self, FrameKernelError>;         // the four stiffnesses
@@ -745,7 +757,8 @@ impl SparseAssemblyOptions {
 pub fn assemble_sparse_stiffness(node_count: usize, frames: &[FrameElement], users: &[UserStiffnessElement],
     blocks: &[StiffnessBlock], springs: &[(usize, f64)], options: &SparseAssemblyOptions) -> Result<SparseStiffness, FrameKernelError>;
 impl SparseStiffness {
-    // self formed at 2^b; u the solve's displacements; force the case's UNSCALED ledger force
+    // self formed at 2^b; u the solve's displacements; force the case's UNSCALED ledger force;
+    // addendum 1 (RV11-1): the formed row is checked at scale, and a row out of range is refused
     pub fn force_scaled_reactions(&self, u: &[f64], force: &AssembledForce, force_scale: ForceScale,
         dofs: &[usize]) -> Result<Vec<PublishedValue>, ForceScaledError>;
 }
@@ -801,8 +814,8 @@ pub fn solve_with_force_scaling(case: &ForceScalingCase<'_>) -> Result<ForceScal
    - publish `outcome.solution.solution` as today;
    - `outcome.solution.force_scale.exponent()` is the b for the `range_scaling:` line, when it is nonzero;
    - `outcome.solution.records` lists the residual-record outcomes that are not normal.
-3. **Reactions:** `outcome.stiffness.force_scaled_reactions(&u, case.force, b, &rigid)`.
-4. **Member actions:** form the element with `FrameElement::force_scaled(b)`, then `local_stiffness`. Compute the actions at scale from the unscaled u, and publish each through `unscale_for_publication`.
+3. **Reactions:** `outcome.stiffness.force_scaled_reactions(&u, case.force, b, &rigid)`. Since addendum 1 it checks the formed row at scale and refuses rather than flush (RV11-1).
+4. **Member actions:** `FrameElement::force_scaled_end_actions(&u, b)` (addendum 1, RV11-1). It gives the elastic end actions K′_local·(T·u_e) in the straight pipe's order, every product and partial sum checked, each unscaled once; F1b adds the load terms at the same scale. *[The checkpoint-D recipe (form K′ and publish through unchecked arithmetic) is withdrawn: RV11 showed it publishes end shears of 0, labelled Normal.]*
 5. **Spring actions:** −(k·2^b)·u, through `unscale_for_publication`.
 6. **Errors:**
    - `Refused(r)` is NUMERICAL_INTEGRITY_UNRESOLVED with `r`'s `Display` text; `r.trigger` keeps K2a's name;
@@ -905,3 +918,202 @@ pub fn solve_with_force_scaling(case: &ForceScalingCase<'_>) -> Result<ForceScal
 - GEN-8 was run from `<wt>/k2b`, after the last change to the folder: `<VENV>/bin/python -m pytest tools/practitioner_harness/test_live_baseline.py -k gen8`.
 - A direct `MACHINE_ABS_PATH_RE` scan (`tools/practitioner_harness/surface_roles.py`) of every file under `IMPLEMENTATION/K2B/` found 0 hits.
 - `/usr/bin/grep` found no model identifier in the folder.
+
+## RETURN addendum 1: RV11 fixes (2026-09-28)
+
+**What prompted it.** RV11's review of PR #1040 at `087b3a088` was **FAIL**: 1 BLOCKING, 3 SHOULD-FIX and 7 NOTEs.
+- I read `REVIEW/K2B_REVIEW.md` and its `REVIEW/_run_records/k2b_review/` (probes F-A2, F-B and the census mutants) from disk in `<wt>/numerics`. They are uncommitted there.
+- ROOT's rulings are "K2b: rulings on RV11's review (ROOT)", numerics `4ec82a9b3`.
+- The fixes below are uncommitted in `<wt>/k2b`, on `087b3a088`, which was clean before them.
+- The existing run records are not rewritten. The new ones are in `_run_records/rv11_fixes/`.
+- In place in RETURN, only §4's premise, §6's reactions bullet and §15's recipe and signatures are corrected, each marked "addendum 1".
+
+### A1.1 Files (against `087b3a088`)
+
+| File | + | − | Lines | sha256 (first 16) | Part |
+|---|---:|---:|---:|---|---|
+| `FK/src/lib.rs` | 92 | 4 | 2,574 | `0e3cc73a00648823` | the fix (RV11-1 actions, RV11-2) |
+| `FK/src/structural/sparse.rs` | 40 | 6 | 1,999 | `a2b1a1e3f5ebe767` | the fix (RV11-1 reactions) |
+| `FK/tests/s11_site_table.rs` | 3 | 0 | 574 | `15d6fdff5ef5b2a8` | the fix's declared site rows |
+| `FK/tests/k2b_force_scaling.rs` | 201 | 0 | 1,165 | `69b86bbbc5aa12db` | the tests |
+| `NI/src/structural_adapter/k2b_tests.rs` | 192 | 12 | 1,635 | `3162cfe5e16dec57` | the tests; the `end_actions` helper now calls the kernel function |
+
+**Formatting.** rustfmt was run on these files. Running it on `lib.rs` also formats the modules that file declares, so it touched two unrelated files (`exact_boundary/functionals.rs` and its `tests.rs`) and re-sorted `lib.rs`'s `mod` lines. I restored those bytes from `087b3a088`, so no unrelated line changes.
+
+### A1.2 RV11-1 (BLOCKING): reactions and member actions at scale are checked and fail closed
+
+**The defect.** `force_scaled_reactions` summed `multiply`'s unchecked binary64 row K′·u.
+- A product that left the normal range at 2^b was flushed or truncated, then published `Normal`.
+- F-A2: R = 0 where the truth is ±1.38e-300 N. With the moment 2^80 larger, the relative error is 3.1e-7.
+- The checkpoint-D member-action recipe (§15, step 4) and the tests' `end_actions` helper had the same defect.
+
+**The fix chosen: the ruling's first option, fail-closed checks.**
+- **`SparseStiffness::force_scaled_reactions`** now requires, for each requested DOF, that `multiply`'s row at 2^b stays normal. This is `row_product_stays_normal`:
+  - every product K′_rj·u_j of nonzero operands is normal;
+  - every partial sum is normal or an exact zero. A binary64 partial sum is zero only when its exact sum is.
+- Otherwise the reaction is refused: `ForceScaledError::Refused`, `PublicationOutsideBinary64 { global_dof: Some(dof) }`.
+- The value is still `multiply`'s row, bit for bit. With every value normal, that row is exactly 2^b times the row an unbounded exponent range gives. It is then summed exactly with the DOF's terms at 2^b and rounded once at 2^-b, as before.
+
+**Why not the exact option.** An `ExactAccumulator` sum of exact products would publish a more accurate value than today's E12 (`reactions`). So at b ≠ 0 it would no longer equal b = 0's reaction bits on normal-range models, and the forced-b test pins that equality.
+
+**The check applies at every b, b = 0 included.** This is a choice. No row that left the normal range is ever published, at any b. Every value published at b = 0 still has `reactions`' bits.
+- For F1b: where today's E12 flushes a product at b = 0, the new function refuses. F1b may keep calling today's E12 at b = 0 if it needs b = 0 byte identity there.
+- The check could be restricted to b ≠ 0 with a one-line change. That is ROOT's call; I did not make it.
+
+**`FrameElement::force_scaled_end_actions(&self, u, scale)` is new.** It gives F1b the member actions built the same way:
+- the elastic end actions K′_local·(T·u_e), formed in the straight pipe's order (`+=` from +0.0, row by row, column by column);
+- every product of nonzero operands and every partial sum checked (normal, or an exact zero);
+- otherwise refused with `PublicationOutsideBinary64 { global_dof: None }`;
+- each action unscaled once with `unscale_for_publication`.
+- At b = 0 its values are, bit for bit, the straight pipe's formed local end actions.
+- Non-finite or missing displacements are `InvalidInput("displacement vector")`.
+- F1b adds the load terms (fixed-end actions) at the same scale.
+- RETURN §15 now points to it (steps 3–4, and the signature).
+
+**The site table** gains two declared, additive rows (S11 site test, ruling 5's precedent):
+- `sparse.rs` `row_product_stays_normal`, 1: a range check's partial sum, not a published value;
+- `lib.rs` `force_scaled_end_actions`, 2: the formed elastic action, no case force.
+
+**Tests:**
+- FK `k2b_rv11_force_scaled_reactions_check_every_product_and_partial_sum`, at b = 0 and b = 2:
+  - a product that underflows to zero (truth 2^-1200), a subnormal product and an overflowing product are each refused;
+  - normal products whose partial sum is subnormal (2^-1000 and −(2^-1000 − 2^-1052)) are refused;
+  - an exact-zero partial sum and zero operands publish +0.0, `Normal`;
+  - a normal row publishes `reactions`' bits at b = 0 and the exact unscaled value at b = 2.
+- FK `k2b_rv11_force_scaled_end_actions_are_checked_and_unscaled_once`, on RV11's long member W with the solve's θ:
+  - at b = 0 and b = 64, the straight pipe's formed actions, bit for bit, `Normal`;
+  - at b = −138, refused, as with θ·2^80;
+  - short displacements are `InvalidInput`.
+- NI `k2b_rv11_reactions_and_actions_at_scale_are_refused_never_a_wrong_normal`: **F-A2 and its 2^80 variant**, in both modes and both representations.
+  - The census is [−697, 1030] and the rule's b is −138. The solve is Passed with no records, and θ is bit-identical to today's solve without S.
+  - R(N0 UY) and R(N1 UY) are each **refused**, and W's end actions are **refused**, never a wrong `Normal`.
+  - R(N1 RZ), which stays normal at scale, is published `Normal` with today's bits.
+  - Without S (b = 0), R1, R7 and R11 are published with today's `reactions` bits. R1 and R7 are ±6EI/L²·θ within 1e-9.
+- The tests' `end_actions` helper (used by the forced-b and LEF-large tests) now calls `force_scaled_end_actions`. Both tests pass with it. The helper's `.sum::<f64>()` fold became the kernel's `+=` fold, and both sides of each comparison use the same function.
+
+**Mutants, all killed** (A1.7):
+- K2B-REACT-UNCHECKED: the check removed, restoring the unchecked multiply;
+- K2B-REACT-PARTIAL: the partial sums unchecked;
+- K2B-ACTIONS-UNCHECKED: the member actions unchecked;
+- RV11's RV11-REACT-TERMS-UNSCALED, re-run.
+
+**Reach.** As RV11 notes, this needs reaction products below about 2^-1022 at 2^b, for example 1e-300 N reactions on a 2^300 m member. It is nil in realistic models. It now fails safe.
+
+### A1.3 RV11-2 (SHOULD-FIX): exact scaling refuses a round-up into the normal range
+
+- `exact_normal_scaling` (`FK/lib.rs`) now accepts only when the **exact** result is normal: `binary_exponent(value) + exponent` in [−1022, 1023]. Before, it accepted any rounded result that was normal.
+- A value that rounds up from the subnormal range to 2^-1022 is refused. `force_scaled_value` gives `NumericalRange`, and the ledger's `force_scaled_term` falls through to the other factor or to the split.
+- The two-step multiplication stays exact, because the intermediate lies between two normal values.
+- **Test:** FK `k2b_rv11_scaling_refuses_a_result_that_rounds_up_into_the_normal_range`.
+  - F-B's value (2 − 2^-52)·2^-1021 at b = −2 is refused.
+  - Its exact neighbours 2^-1020 and (2 − 2^-52)·2^-1020 scale exactly.
+  - F-B's ledger product (2 − 2^-52)·2^-317 × 2^760 at b = −706 is now `Product(x, 2^54)`, and the scaled net is exactly 2^b times the net.
+- **Mutant** K2B-EXACT-ROUNDUP (the round-up accepted again) is killed.
+
+### A1.4 RV11-3 (SHOULD-FIX, records): the premise and the reactions wording, corrected
+
+- **RETURN §4's premise block** now says what the code does.
+  - The dense Cholesky factor, its triangular solves, and the skyline LDLᵀ factor and solve are range-checked: `checked_product`, `checked_value` and `checked_quotient`. Only the square root of a screened pivot is unchecked.
+  - So on the solve side a scaled evaluation reproduces b = 0 bit for bit, or fails with `Range`.
+  - What was unchecked at 2^b was the reaction and member-action arithmetic (RV11-1) and the round-up boundary (RV11-2); both are fixed here. The rest is harmless sub-margin products.
+  - The superseded sentence is kept, marked wrong.
+- **§6's reactions bullet:** "the exact sum of K′·u" is corrected. The sum is of `multiply`'s rounded row, now checked.
+- **§15:** the recipe's steps 3–4 and the signatures are corrected.
+- ROOT corrected its own sentence in place (`4ec82a9b3`).
+- **Also wrong in earlier text:**
+  - CHANGE_RECORD's "Pending" line, corrected in place;
+  - commit `ca20b9eca`'s message. A commit message cannot be edited, so this addendum supersedes it.
+
+### A1.5 RV11-4 (SHOULD-FIX, tests): the census scope is pinned
+
+- FK `k2b_rv11_the_census_records_a_product_at_its_factors_exponent_sum`. Products 2^-500 × 2^400 and 2^10 × 2^-900 record −100 and −890, and with a unit term the span is [−890, 0]. **RV11-CENSUS-PRODUCT-X is killed.**
+- NI `k2b_rv11_the_orchestrators_census_includes_the_curved_slots`. On K-D5's models with curved slots, `force_scale_census` equals a census built from the frames, the slots' 144 entries, the springs and the load terms. On at least one model the slots bound the span, so the test is not vacuous. **RV11-CENSUS-NO-CURVED is killed.**
+
+### A1.6 RV11's NOTEs
+
+- **N1 (the evidence `Debug` field) and N5 (b = 0's stepwise physical records):** no action; as RV11 says.
+- **For F1b, not changed in K2b:**
+  - **N2:** when the evaluation at the chosen b fails with a non-range error, the result carries neither the step-1 trigger nor b.
+  - **N3:** a residual-record field's outcome lives in `ForceScaledSolution::records`, while the field itself holds the flushed zero or the infinity. F1b must render each outcome with its field.
+  - **N4:** the force-scaled entries take the **unscaled** ledger, and nothing in the type enforces it. A marker type, or a documented invariant with a test, is F1b's.
+- **N6:** the checkpoint-D raw logs' trailing blank lines (40 `.log` files, "new blank line at EOF"). They were disclosed in `ca20b9eca`'s message, and are disclosed here.
+- **N7:** GEN-8 was run in `<wt>/k2b`, a git working tree of the candidate, never on an archive copy.
+- **The new function and the pin.** `force_scaled_end_actions` has no product caller (`_run_records/rv11_fixes/callers.txt`). The loop-and-product pin (`FORCE_SCALED_ENTRY_POINTS`) does not name it. A product call would need a `ForceScale` value, and `ForceScale` is a pinned token, so it is covered indirectly. Naming it explicitly is a one-line pin extension I did not make.
+
+### A1.7 The evidence, re-run on the fixed candidate (`_run_records/rv11_fixes/`)
+
+**The candidate tree** is a `git archive` of `087b3a088` (without `execution/`) with the five files overlaid.
+- It equals `<wt>/k2b`'s working tree, checked by `diff -r` excluding build output.
+- The base tree is main `98b1723b1`, which `087b3a088` merges.
+- Every run below used the final bytes. A first suite run, and first probe and T9 runs, on a tree whose `lib.rs` differed only in rustfmt whitespace were discarded and re-run.
+
+**Targeted tests** (`targeted/`, in `<wt>/k2b`):
+- FK 202 (the base's 184, plus K2b's 14 and the 4 new);
+- SD 30;
+- NI 115 + 4 doc: 119, the base's 102 plus K2b's 15 (13, the b-rule pin and the S11-K pin) and the 2 new;
+- PP `s11f_site_test` 11, `formation_check_runtime` 5 and `k2a_formation_range_runtime` 3.
+- All pass. There are no warnings in K2b's crates; PP's 11 warnings are pre-existing.
+
+**Suites** (`suites/`): all 39 manifests `--no-fail-fast`, against ROOT's baseline for current main, the skew pin's candidate (`<wt>/scratch/sweep_skewpin/suites/`, head `1d105d633`, whose `core/` and `validation/` equal main `98b1723b1`'s).
+- **0 changed and 0 removed;**
+- 35 added: FK k2b 18, NI k2b 16 and the NI pin 1, all K2b's;
+- FK 184 → 202 and NI 102 → 119;
+- the same 3 Mac platform failures, with byte-identical failure blocks (`3a8efc85…`, `20bcddbd…`, `66a4fd93…`, as at checkpoint B).
+
+**The b = 0 probe** (`probe/`): checkpoint B's probe source, unchanged, built in release from the base (`98b1723b1`) and candidate trees.
+- **439 of 439 outputs identical.**
+- Both lists also equal checkpoint B's lists, 439 of 439.
+
+**T9, the committed-fixture diff** (Mac-only; `t9/`): S11-K's harness (`ec089c1d…`), release, base against candidate.
+- **112 of 112 outputs byte-identical.**
+- The base equals ROOT's calibration native list, 112 of 112.
+
+**Mutations** (`mutations/`; the table below):
+- The full table was re-run, not only the affected rows, because the `end_actions` helper feeds many kill sites.
+- 55 mutants from clean archives of `087b3a088` with the fix overlaid, at most three at once at -j 4. The NONE control ran first, alone.
+- Kill sites are compared with checkpoint C's, batch 3's and RV11's by killing test name (`kill_test_comparison.txt`), because the fix moved lines.
+
+**NONE is clean:** FK 202, SD 30, NI 115 + 4 doc, PP 11 + 5 (367 in all).
+
+**All 55 mutants are killed, at behavioural or pin assertions.**
+- The new mutants and RV11's (first kill site; line numbers at the fixed candidate):
+
+| Mutant | What it does | Killed by (first site) | Tests |
+|---|---|---|---:|
+| K2B-REACT-UNCHECKED (new) | the reaction's row check removed: the unchecked multiply, as before the fix | FK `k2b_rv11_force_scaled_reactions_…` (`k2b_force_scaling.rs:1058`, the underflowing product); NI `k2b_rv11_reactions_and_actions_…` (`k2b_tests.rs:1573`, R1 of F-A2) | 2 |
+| K2B-REACT-PARTIAL (new) | the partial sums unchecked (products still checked) | FK `k2b_rv11_force_scaled_reactions_…` (`:1072`, the subnormal partial sum) | 1 |
+| K2B-ACTIONS-UNCHECKED (new) | the member actions unchecked | FK `k2b_rv11_force_scaled_end_actions_…` (`:1156`, b = −138); NI F-A2 (`k2b_tests.rs:1587`, W's actions) | 2 |
+| K2B-EXACT-ROUNDUP (new) | a scaled value accepted when it is normal only after rounding, as before RV11-2 | FK `k2b_rv11_scaling_refuses_…` (`:981`, F-B's boundary value) | 1 |
+| RV11-REACT-TERMS-UNSCALED (RV11's) | reactions with the ledger terms left unscaled | FK `:769`; NI forced-b (`k2b_tests.rs:517`); the same tests as in RV11's run | 2 |
+| RV11-CENSUS-PRODUCT-X (RV11's; survived its review) | a product recorded at e(x) alone | FK `k2b_rv11_the_census_records_…` (`:1023`) | 1 |
+| RV11-CENSUS-NO-CURVED (RV11's; survived its review) | the curved slots left out of the orchestrator's census | NI `k2b_rv11_the_orchestrators_census_…` (`k2b_tests.rs:1631`, CSKEW_8_5) | 1 |
+| RV11-FIDELITY-AT-SCALE (RV11's) | the load-fidelity bits left at 2^b | NI S11-K test (`k2b_tests.rs:1350`); the same test as in RV11's run | 1 |
+
+- **The 32 checkpoint-C and batch-3 K2b mutants, and the 15 original pins' mutants, are all killed again** (`kill_test_comparison.txt`).
+  - None lost a killing test.
+  - Some gained one from the new tests: LEAK-PUBLISH, LEAK-EVIDENCE, LEAK-STEP1, FORMED, K-NOT-F, MARGIN-LOW, MARGIN-HIGH and TRIGGER-DROP. They are now also killed by the F-A2 test or the b-rule pin.
+  - The original pins' mutants are killed by the same tests as in K1's table.
+  - Their site-table kill line moved from `s11_site_table.rs:529` to `:532`, because of the fix's three added lines above it.
+- **Totals, 55 of 55 killed:**
+  - I10's counted K2b mutants, 36 of 36: checkpoint C's 30, batch 3's 2 and the fix's 4;
+  - RV11's four, 4 of 4, including the two that survived its review;
+  - the original pins' mutants, 15 of 15.
+
+### A1.8 Proposed commits (ROOT commits)
+
+1. **The fix:** `FK/src/lib.rs`, `FK/src/structural/sparse.rs` and `FK/tests/s11_site_table.rs`. The site rows must land with the new accumulation sites, or FK's site test fails at this commit. The existing tests pass at this commit.
+2. **The tests:** `FK/tests/k2b_force_scaling.rs` and `NI/src/structural_adapter/k2b_tests.rs`.
+3. **The records addendum:** this folder (`RETURN.md` with this addendum and the in-place corrections, `CHANGE_RECORD.md`, `_run_records/rv11_fixes/` and `SHA256SUMS`).
+
+The evidence covers the tree of commit 3, which is the same code as commit 2.
+
+### A1.9 Not done
+
+- The both-entry gate: not run for K2b.
+- Hosted CI and the DEC-025 sweep: ROOT's; ROOT's ruling re-runs DEC-025 on the new head on a quieter host.
+- Linux: not run; T9 is Mac-only.
+- The loop-and-product pin was not extended to the new name (A1.6).
+- No timing or memory claims.
+- **Process disclosure: one index write, reverted.** While checking the records for whitespace, I ran `git add -N` on `_run_records/rv11_fixes/` in `<wt>/k2b`. That is an intent-to-add entry in the index, and so a Git write, which my brief forbids. I removed it at once with `git reset -q -- <that path>`.
+  - No commit, ref, branch, stash or file content changed.
+  - The folder is untracked again, as before.
