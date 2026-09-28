@@ -19,7 +19,8 @@ use crate::{
 };
 use open_pipe_stress_frame_kernel::load_ledger::{ForceTermKind, Formation, LoadLedger};
 use open_pipe_stress_frame_kernel::structural::{
-    unscale_for_publication, FormationCheckReason, PublishedValue, Representability, SolveQuality,
+    unscale_for_publication, FormationCheckReason, PublishedValue, RecordOutcome,
+    RecordRepresentability, Representability, SolveQuality,
 };
 use open_pipe_stress_frame_kernel::{FrameDof, FrameNode, FrameSection};
 use open_pipe_stress_nonlinear_supports::{
@@ -389,7 +390,7 @@ fn as_today(
 ) -> Result<StructuralSolution, StructuralError> {
     match result {
         Ok(scaled) => {
-            assert!(scaled.subnormal.is_empty());
+            assert!(scaled.records.is_empty());
             Ok(scaled.solution)
         }
         Err(ForceScaledError::Structural(error)) => Err(error),
@@ -451,7 +452,7 @@ fn k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte(
                 match (&today, outcome) {
                     (Ok(today), Ok(outcome)) => {
                         assert_eq!(outcome.solution.force_scale, ForceScale::UNSCALED);
-                        assert!(outcome.solution.subnormal.is_empty());
+                        assert!(outcome.solution.records.is_empty());
                         assert_eq!(
                             format!("{:?}", outcome.solution.solution),
                             format!("{today:?}"),
@@ -507,7 +508,7 @@ fn k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly() {
                     match (&today, &scaled) {
                         (Ok(today), Ok(scaled)) => {
                             assert_eq!(scaled.force_scale, s, "{ctx}");
-                            assert!(scaled.subnormal.is_empty(), "{ctx}");
+                            assert!(scaled.records.is_empty(), "{ctx}");
                             let u = &scaled.solution.displacements;
                             assert_eq!(bits(u), bits(&today.displacements), "{ctx}");
                             assert_eq!(
@@ -604,23 +605,24 @@ fn observed(
     }
 }
 
-/// ROOT's K2b ruling 2: R1's RF-RANGE LEF-large cases (CHAIN, SKEW, CONT)
-/// reach `local_stiffness` and are refused by K2a at b = 0; the orchestrator
-/// solves them through formation-time scaling, at the generator's b.
+/// ROOT's K2b ruling 2, with its accuracy clause restated by checkpoint-A
+/// ruling C: R1's RF-RANGE LEF-large cases (CHAIN, SKEW, CONT) reach
+/// `local_stiffness` and are refused by K2a at b = 0; the orchestrator solves
+/// them through formation-time scaling, at the generator's b.
 ///
 /// RF-RANGE is an exact power-of-two scaling of a base case (lengths 2^pl,
 /// moduli 2^pm, loads 2^pf), and so is the force-scaled solve: its
 /// displacements, standing, formation-check record, reactions and member
 /// actions are the base case's today (today's entry, b = 0) times exact
 /// powers of two, bit for bit (translations 2^(pf-pm-pl), rotations
-/// 2^(pf-pm-2pl), forces 2^pf, moments 2^(pf+pl)). Its accuracy is therefore
-/// the ordinary path's on the base case: where the case is published Passed,
-/// every expected value meets the 1e-9 criterion against R1's exact
-/// references; where it is Sensitive (the r1e-08 CHAIN and SKEW bases, whose
-/// ordinary solves the gate itself does not trust), the worst ratio is
-/// recorded, not claimed.
+/// 2^(pf-pm-2pl), forces 2^pf, moments 2^(pf+pl)), with the base case's
+/// standing. K2b adds no accuracy beyond the ordinary path:
+/// - CONT is published Passed, and every expected value meets the 1e-9
+///   criterion against R1's exact references;
+/// - CHAIN and SKEW are published Sensitive, as their r1e-08 bases are
+///   today: flagged, and not claimed accurate (the worst ratio is recorded).
 #[test]
-fn k2b_lef_large_is_solved_at_kernel_level() {
+fn k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing() {
     let mut passed = 0;
     for (c, base) in LEF_LARGE.iter().zip(LEF_BASE) {
         let model = Model::from_lef(c);
@@ -659,6 +661,15 @@ fn k2b_lef_large_is_solved_at_kernel_level() {
                     .collect();
                 assert_eq!(bits(u), bits(&expected_u), "{ctx}: u");
                 assert_eq!(solution.report.quality, today.report.quality, "{ctx}");
+                let standing = if c.id == "RF-RANGE-CONT-LEF-large" {
+                    SolveQuality::Passed
+                } else {
+                    SolveQuality::Sensitive
+                };
+                assert_eq!(
+                    solution.report.quality, standing,
+                    "{ctx}: the base's standing"
+                );
                 assert_eq!(
                     format!("{:?}", solution.formation_check),
                     format!("{:?}", today.formation_check),
@@ -707,19 +718,26 @@ fn k2b_lef_large_is_solved_at_kernel_level() {
             }
         }
     }
-    // Not vacuous: CONT is published Passed in every mode and representation.
-    assert!(passed >= 4);
+    // CONT is published Passed in every mode and representation.
+    assert_eq!(passed, 4);
 }
 
-/// ROOT's K2b ruling 2: K2a's reach_zero and reach_lef product-reach cases
-/// (normal geometry) and a synthetic PHYS-R4 element are solved at kernel
+/// ROOT's K2b ruling 2 (as restated by checkpoint-A rulings B and C): K2a's
+/// product-reach cases with normal geometry, reach_zero, reach_lef and the
+/// partial underflow, and a synthetic PHYS-R4 element, are solved at kernel
 /// level, each at the generator's b, published Passed, and within 1e-9 of its
-/// exact reference. Preconditions: at b = 0 the two product-reach members are
-/// refused by K2a, and PHYS-R4's element is formed but refused by M03's
+/// exact reference. Preconditions: at b = 0 the three product-reach members
+/// are refused by K2a, and PHYS-R4's element is formed but refused by M03's
 /// allowance range (`transform_roundoff`).
+///
+/// The partial underflow's load is 1e-307 N (2^-1020). Its intended-action
+/// residual record at N1 UY is about 2^-56.5 relative to the load, so that
+/// physical field underflows when unscaled: it is published as a zero of its
+/// sign with the explicit outcome `Underflow` (ruling B), and the case is
+/// solved. Every listed field's value is the one published.
 #[test]
-fn k2b_reach_zero_reach_lef_and_phys_r4_are_solved_at_kernel_level() {
-    for id in ["reach-zero", "reach-lef", "phys-r4"] {
+fn k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately() {
+    for id in ["reach-zero", "reach-lef", "partial-underflow", "phys-r4"] {
         let r = REACH.iter().find(|r| r.id == id).unwrap();
         let model = Model::from_reach(r);
         let force = model.ledger();
@@ -764,19 +782,56 @@ fn k2b_reach_zero_reach_lef_and_phys_r4_are_solved_at_kernel_level() {
                         u[6 + dof]
                     );
                 }
+                let report = &solution.report;
+                for record in &outcome.solution.records {
+                    let rows = if record.record.starts_with("intended") {
+                        &report.intended_residual_rows
+                    } else {
+                        &report.residual_rows
+                    };
+                    let row = rows
+                        .iter()
+                        .find(|x| x.global_dof == record.global_dof)
+                        .unwrap();
+                    let field = match record.record.rsplit('.').next().unwrap() {
+                        "residual" => row.residual,
+                        "denominator" => row.denominator,
+                        _ => row.evaluation_allowance,
+                    };
+                    assert_eq!(field.to_bits(), record.value.to_bits(), "{ctx}");
+                }
+                if r.id == "partial-underflow" {
+                    let intended = &report.intended_residual_rows[0];
+                    assert_eq!(intended.global_dof, 7);
+                    assert!(intended.normalized_residual != 0.0);
+                    assert_eq!(intended.row_scale_exponent, -1020);
+                    assert_eq!(intended.residual, 0.0);
+                    assert!(outcome.solution.records.contains(&RecordOutcome {
+                        record: "intended_residual_rows.residual",
+                        global_dof: 7,
+                        value: intended.residual,
+                        representability: RecordRepresentability::Underflow,
+                    }));
+                }
                 eprintln!(
-                    "K2B-REACH {ctx} b={} quality={:?} u={:?}",
+                    "K2B-REACH {ctx} b={} quality={:?} u={:?} records={:?}",
                     r.b,
                     solution.report.quality,
-                    r.exact.iter().map(|&(d, _)| u[6 + d]).collect::<Vec<_>>()
+                    r.exact.iter().map(|&(d, _)| u[6 + d]).collect::<Vec<_>>(),
+                    outcome
+                        .solution
+                        .records
+                        .iter()
+                        .map(|x| (x.record, x.representability))
+                        .collect::<Vec<_>>()
                 );
             }
         }
     }
 }
 
-/// The M03 evaluation at a forced b through today's FK functions, bypassing
-/// the publication step, for the checkpoint-A finding below.
+/// The M03 evaluation at a forced b through today's FK functions (no
+/// orchestrator), to show where a scaled evaluation stops.
 fn solve_at_scale_unpublished(
     model: &Model,
     force: &AssembledForce,
@@ -793,7 +848,7 @@ fn solve_at_scale_unpublished(
     )?;
     let scaled = force.force_scaled(s).unwrap();
     let free = model.free();
-    let basis = "k2b finding".to_string();
+    let basis = "k2b".to_string();
     let system = StructuralSystem::assembled(
         &k,
         &scaled,
@@ -809,46 +864,46 @@ fn solve_at_scale_unpublished(
     structural::solve_assembled_structural_dense(&system)
 }
 
-/// CHECKPOINT-A FINDING (reported to ROOT; ruling 1's stop clause): two of
-/// ruling 2's cases are not solved, and this test records what happens.
-/// - spring-carried (G = 1e-300 Pa): at every b, GJ/L is 2^-1082 times the
-///   1 N*m/rad spring it is absorbed into at N1 RX. M03's contribution audit
-///   (FK `audit_contributions`, today's code) measures the absorbed
-///   difference in the equilibrated units, where it is below the binary64
-///   range, and refuses `Range("exact radix loses represented bits")`. Force
-///   scaling keeps every ratio, so no b helps: step 4 refuses.
-/// - partial underflow (load 1e-307 N): at b = 898 the solve is accurate
-///   (u within 1e-9 of the exact reference), but the intended-action residual
-///   record at N1 UY is about 2^-56.5 relative to a load of 2^-1020 N, so its
-///   physical field underflows when unscaled; ruling 3 then refuses the case
-///   ("range: publication outside binary64").
+fn exponent_of(x: f64) -> i32 {
+    ((x.to_bits() >> 52) & 0x7ff) as i32 - 1023
+}
+
+/// ROOT's K2b checkpoint-A ruling A: the spring-carried case (G = 1e-300 Pa)
+/// stays a named refusal, with K2a's `GJ/L: G*J` as its trigger. The
+/// mechanism, asserted: at every even b in the census window, formation passes
+/// K2a, GJ/L is 2^-1082 times the 1 N*m/rad spring it is absorbed into at N1
+/// RX (the stored diagonal is the spring's value exactly), and M03's
+/// contribution audit (FK `audit_contributions`, unchanged) refuses the
+/// absorbed difference, whose measure in the equilibrated units lies below
+/// binary64: `Range("exact radix loses represented bits")`. Force scaling
+/// keeps every ratio, so no b restores the case (routed to W1/K4).
 #[test]
-fn k2b_checkpoint_a_finding_spring_carried_and_partial_underflow_are_refused() {
-    let spring = spring_carried();
-    let force = spring.ledger();
-    let s = scale(548);
-    assert_eq!(
-        solve_at_scale_unpublished(&spring, &force, s),
-        Err(StructuralError::Range("exact radix loses represented bits"))
-    );
-    let partial = Model::from_reach(REACH.iter().find(|r| r.id == "partial-underflow").unwrap());
-    let partial_force = partial.ledger();
-    let unpublished = solve_at_scale_unpublished(&partial, &partial_force, scale(898)).unwrap();
-    let exact = REACH
-        .iter()
-        .find(|r| r.id == "partial-underflow")
-        .unwrap()
-        .exact[0]
-        .1;
-    assert!(within(unpublished.displacements[7], exact, exact.abs()));
-    let intended = &unpublished.report.intended_residual_rows[0];
-    assert_eq!(intended.global_dof, 7);
-    assert!(intended.normalized_residual != 0.0);
-    assert_eq!(intended.row_scale_exponent - 898, -1020);
+fn k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit() {
+    let model = spring_carried();
+    let force = model.ledger();
+    for b in [200, 548, 900] {
+        let s = scale(b);
+        let k = model.stiffness(s).unwrap();
+        let spring = model.springs[0].1 * pow2(b);
+        let torsion = model.frames[0]
+            .force_scaled(s)
+            .unwrap()
+            .local_stiffness()
+            .unwrap()[3][3];
+        assert!(torsion.is_normal(), "b={b}: K2a passes at scale");
+        assert_eq!(exponent_of(spring) - exponent_of(torsion), 1082, "b={b}");
+        assert_eq!(k.get(9, 9), spring, "b={b}: GJ/L is absorbed");
+        assert_eq!(
+            solve_at_scale_unpublished(&model, &force, s),
+            Err(StructuralError::Range("exact radix loses represented bits")),
+            "b={b}"
+        );
+    }
     for mode in MODES {
         for representation in REPRESENTATIONS {
+            let refusal = solve_with_force_scaling(&model.case(&force, mode, representation));
             assert_eq!(
-                solve_with_force_scaling(&spring.case(&force, mode, representation)),
+                refusal,
                 Err(ForceScaledError::Refused(ForceScalingRefusal {
                     reason: ForceScaleReason::ScaledEvaluation,
                     trigger: Some(RangeTrigger::Formation(FrameKernelError::NumericalRange {
@@ -857,15 +912,8 @@ fn k2b_checkpoint_a_finding_spring_carried_and_partial_underflow_are_refused() {
                 }))
             );
             assert_eq!(
-                solve_with_force_scaling(&partial.case(&partial_force, mode, representation)),
-                Err(ForceScaledError::Refused(ForceScalingRefusal {
-                    reason: ForceScaleReason::PublicationOutsideBinary64 {
-                        global_dof: Some(7)
-                    },
-                    trigger: Some(RangeTrigger::Formation(FrameKernelError::NumericalRange {
-                        name: "12EIy/L^3: (12*E)*Iy"
-                    })),
-                }))
+                refusal.unwrap_err().to_string(),
+                "range: scaled evaluation outside normal range"
             );
         }
     }
@@ -1021,8 +1069,8 @@ fn axial_chain(e: f64, xs: &[f64], loads: &[(usize, f64)]) -> Model {
 /// - an overflowing reaction: N2-N0-N1 (EA/L = 2^1000 N/m) with UX loads
 ///   1.5 * 2^1023 N at N1 and N2. The reaction at N0 is -3 * 2^1023 N. At
 ///   b = -4 everything is normal at scale, and the reaction is refused, never
-///   flushed; the entry itself refuses first, on N1 UX's residual record,
-///   whose denominator overflows when unscaled.
+///   flushed. The entry itself publishes, N1 UX's residual-record
+///   denominator carrying the explicit outcome `Overflow` (ruling B).
 ///
 /// (A nonzero reaction cannot underflow with normal loads and displacements
 /// here; the underflow outcome is pinned by the kernel test
@@ -1097,10 +1145,20 @@ fn k2b_published_reactions_take_the_step_five_outcomes() {
     assert_eq!(reaction, Err(outside(0)));
     for mode in MODES {
         for representation in REPRESENTATIONS {
-            // The entry refuses first on N1 UX's residual record, whose
-            // denominator |f| + sum |K||u| overflows when unscaled.
-            let scaled = large.forced(&force, s, mode, representation, true);
-            assert_eq!(scaled, Err(outside(6)), "{mode:?} {representation:?}");
+            // The entry publishes, with N1 UX's residual-record denominator
+            // |f| + sum |K||u| overflowing when unscaled: an infinity with the
+            // explicit outcome `Overflow` (ruling B), not a refusal.
+            let scaled = large
+                .forced(&force, s, mode, representation, true)
+                .unwrap_or_else(|e| panic!("{mode:?} {representation:?}: {e:?}"));
+            assert!(scaled.records.iter().any(|r| r.global_dof == 6
+                && r.record.ends_with("denominator")
+                && r.representability == RecordRepresentability::Overflow
+                && r.value == f64::INFINITY));
+            assert_eq!(
+                bits(&scaled.solution.displacements),
+                bits(&unpublished.displacements)
+            );
         }
     }
 }

@@ -2201,8 +2201,9 @@ pub enum ForceScaleReason {
     InfeasibleWindow { e_min: i32, e_max: i32 },
     /// Step 4: the one evaluation at the chosen b also left the normal range.
     ScaledEvaluation,
-    /// Step 5: a published action, reaction or residual record would underflow
-    /// to zero or overflow after unscaling; it is never flushed.
+    /// Step 5: a published action or reaction would underflow to zero or
+    /// overflow after unscaling; it is never flushed. (A residual record's
+    /// field carries its outcome instead: ROOT's K2b checkpoint-A ruling B.)
     PublicationOutsideBinary64 { global_dof: Option<usize> },
 }
 
@@ -2298,28 +2299,46 @@ pub struct PublishedValue {
     pub representability: Representability,
 }
 
-/// K2b: a published residual record with the subnormal outcome.
+/// K2b (ROOT's K2b checkpoint-A ruling B): the representability outcome of a
+/// published residual-record field unscaled from 2^b. The field is never a
+/// silent zero and never refuses the case.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum RecordRepresentability {
+    /// Subnormal, with its relative precision 2^-1075/|value| (rounded up).
+    Subnormal { relative_precision: f64 },
+    /// A nonzero value below half the least subnormal: published as a zero
+    /// of its sign, with this outcome.
+    Underflow,
+    /// Beyond the binary64 range: published as an infinity of its sign, with
+    /// this outcome.
+    Overflow,
+}
+
+/// K2b: one physical field of a residual or intended-action row, unscaled
+/// from 2^b, whose outcome is not normal. Every field not listed in
+/// `ForceScaledSolution::records` is normal and exact.
 #[derive(Debug, Clone, PartialEq)]
-pub struct SubnormalRecord {
-    /// `"residual_rows.<field>"` or `"intended_residual_rows.<field>"`.
+pub struct RecordOutcome {
+    /// `"<residual_rows|intended_residual_rows>.<residual|denominator|evaluation_allowance>"`.
     pub record: &'static str,
-    pub global_dof: Option<usize>,
+    pub global_dof: usize,
+    /// The published field value.
     pub value: f64,
-    pub relative_precision: f64,
+    pub representability: RecordRepresentability,
 }
 
 /// K2b: the result of a force-scaled entry, unscaled for publication.
 /// `solution` is what the unscaled entry would return when b = 0 and, for a
 /// normal-range model solved at an even b ≠ 0, the same bytes: the
 /// displacements are never scaled, and the report's force-unit records are
-/// unscaled (`unscale_structural_solution`). `subnormal` lists the residual
-/// records published with the subnormal outcome. The scale is never a field
-/// of `StructuralReport` (D1 §4.7, V1-S7).
+/// unscaled (`unscale_structural_solution`). `records` lists every residual
+/// record field whose outcome is not normal (ROOT's K2b checkpoint-A ruling
+/// B). The scale is never a field of `StructuralReport` (D1 §4.7, V1-S7).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ForceScaledSolution {
     pub solution: StructuralSolution,
     pub force_scale: crate::ForceScale,
-    pub subnormal: Vec<SubnormalRecord>,
+    pub records: Vec<RecordOutcome>,
 }
 
 /// 2^-1075/|value| rounded upward, for a subnormal `value` = m·2^-1074.
@@ -2408,84 +2427,82 @@ pub fn unscale_descriptive(value: f64, scale: crate::ForceScale) -> f64 {
 }
 
 /// A residual record's physical field: `normalized * 2^exponent`, rounded
-/// once, with step 5's outcome.
+/// once, with its explicit outcome (ROOT's K2b checkpoint-A ruling B): normal
+/// (exact, unlisted), subnormal with its precision, underflow (a zero of its
+/// sign) or overflow (an infinity of its sign). It never refuses the case.
 fn published_record(
     normalized: f64,
     exponent: i32,
     record: &'static str,
     global_dof: usize,
-    subnormal: &mut Vec<SubnormalRecord>,
-) -> Result<f64, ForceScaleReason> {
-    let mut exact = ExactAccumulator::new();
-    exact
-        .add(normalized)
-        .map_err(|_| ForceScaleReason::PublicationOutsideBinary64 {
-            global_dof: Some(global_dof),
-        })?;
-    let published = publication_outcome(&exact, exponent, normalized, Some(global_dof))?;
-    if let Representability::Subnormal { relative_precision } = published.representability {
-        subnormal.push(SubnormalRecord {
-            record,
-            global_dof: Some(global_dof),
-            value: published.value,
-            relative_precision,
-        });
-    }
-    Ok(published.value)
+    records: &mut Vec<RecordOutcome>,
+) -> f64 {
+    let value = descriptive_shift(normalized, exponent);
+    let representability = if normalized == 0.0 || !normalized.is_finite() || value.is_normal() {
+        return value;
+    } else if value == 0.0 {
+        RecordRepresentability::Underflow
+    } else if value.is_infinite() {
+        RecordRepresentability::Overflow
+    } else {
+        RecordRepresentability::Subnormal {
+            relative_precision: subnormal_relative_precision(value),
+        }
+    };
+    records.push(RecordOutcome {
+        record,
+        global_dof,
+        value,
+        representability,
+    });
+    value
 }
 
 /// Unscales one residual or intended-action row formed at 2^b. The
 /// normalized fields, the ratio and the operation count are scale-free and
 /// stay as they are; the row exponent loses b; the three physical fields are
 /// re-formed from their normalized values at the unscaled exponent, rounded
-/// once, with step 5's outcomes. A row with no nonzero term (normalized
-/// denominator 0) carries the exponent sentinel 0 and zero records, which are
-/// the same at every scale.
+/// once, each with its explicit outcome. A row with no nonzero term
+/// (normalized denominator 0) carries the exponent sentinel 0 and zero
+/// records, which are the same at every scale.
 fn unscale_residual_row(
     row: &mut ResidualRow,
     scale: crate::ForceScale,
-    records: [&'static str; 3],
-    subnormal: &mut Vec<SubnormalRecord>,
-) -> Result<(), ForceScaleReason> {
+    names: [&'static str; 3],
+    records: &mut Vec<RecordOutcome>,
+) {
     if row.normalized_denominator == 0.0 {
-        return Ok(());
+        return;
     }
     let exponent = row.row_scale_exponent - scale.exponent();
     let dof = row.global_dof;
     row.row_scale_exponent = exponent;
-    row.residual = published_record(
-        row.normalized_residual,
-        exponent,
-        records[0],
-        dof,
-        subnormal,
-    )?;
-    row.denominator = published_record(
-        row.normalized_denominator,
-        exponent,
-        records[1],
-        dof,
-        subnormal,
-    )?;
+    row.residual = published_record(row.normalized_residual, exponent, names[0], dof, records);
+    row.denominator =
+        published_record(row.normalized_denominator, exponent, names[1], dof, records);
     row.evaluation_allowance = published_record(
         row.normalized_evaluation_allowance,
         exponent,
-        records[2],
+        names[2],
         dof,
-        subnormal,
-    )?;
-    Ok(())
+        records,
+    );
 }
 
-/// K2b (D1 §4.7 step 5; ROOT's K2b rulings 1 and 3): a solution of the system
-/// formed at 2^b (K' = 2^b·K, f' = 2^b·f, b even), unscaled for publication.
-/// `force` is the case's unscaled ledger force.
+/// K2b (D1 §4.7 step 5; ROOT's K2b rulings 1 and 3, and checkpoint-A ruling
+/// B): a solution of the system formed at 2^b (K' = 2^b·K, f' = 2^b·f, b
+/// even), unscaled for publication. `force` is the case's unscaled ledger
+/// force. Nothing here refuses the case.
 /// - Displacements: never scaled; unchanged.
 /// - `scale_exponents`: each + b/2 (the equilibration of K' is 2^(-b/2) times
 ///   that of K). Pivots, the condition estimate, the screens, the skew and
 ///   the perturbation estimates are scale-free: unchanged.
-/// - Residual and intended-action rows (the published residual records):
-///   `unscale_residual_row`, with step 5's outcomes.
+/// - Residual and intended-action rows: `unscale_residual_row`. Each physical
+///   field carries an explicit outcome (`records`); the normalized fields and
+///   the exponents, the gate's basis, are exact. This departs from the letter
+///   of §4.7 step 5, which lists residual records among the refusals; step 5's
+///   refusal applies to actions and reactions (`unscale_for_publication`,
+///   `SparseStiffness::force_scaled_reactions`).
 /// - `contribution_rounding` (stiffness-unit records): every value unscaled
 ///   by the same single rounding, published descriptively.
 /// - Load-fidelity rows: the exact net and the actual force bits are those of
@@ -2498,8 +2515,8 @@ pub fn unscale_structural_solution(
     mut solution: StructuralSolution,
     scale: crate::ForceScale,
     force: &AssembledForce,
-) -> Result<ForceScaledSolution, ForceScaleReason> {
-    let mut subnormal = Vec::new();
+) -> ForceScaledSolution {
+    let mut records = Vec::new();
     if !scale.is_unscaled() {
         let half = scale.exponent() / 2;
         let report = &mut solution.report;
@@ -2514,7 +2531,7 @@ pub fn unscale_structural_solution(
             "residual_rows.evaluation_allowance",
         ];
         for row in report.residual_rows.iter_mut() {
-            unscale_residual_row(row, scale, residual, &mut subnormal)?;
+            unscale_residual_row(row, scale, residual, &mut records);
         }
         let intended = [
             "intended_residual_rows.residual",
@@ -2522,7 +2539,7 @@ pub fn unscale_structural_solution(
             "intended_residual_rows.evaluation_allowance",
         ];
         for row in report.intended_residual_rows.iter_mut() {
-            unscale_residual_row(row, scale, intended, &mut subnormal)?;
+            unscale_residual_row(row, scale, intended, &mut records);
         }
         for entry in report.contribution_rounding.iter_mut() {
             entry.accumulated_high = unscale_descriptive(entry.accumulated_high, scale);
@@ -2553,11 +2570,11 @@ pub fn unscale_structural_solution(
             }
         }
     }
-    Ok(ForceScaledSolution {
+    ForceScaledSolution {
         solution,
         force_scale: scale,
-        subnormal,
-    })
+        records,
+    }
 }
 
 /// K2b: a `StructuralError` of an evaluation at 2^b with its force-scaled

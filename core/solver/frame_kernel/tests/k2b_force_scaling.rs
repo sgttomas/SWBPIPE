@@ -19,8 +19,8 @@ use open_pipe_stress_frame_kernel::structural::{
     assemble_sparse_stiffness, solve_assembled_structural_dense, unscale_descriptive,
     unscale_for_publication, unscale_structural_error, unscale_structural_solution,
     ContributionRounding, ForceScaleReason, ForceScaledError, ForceScalingRefusal, PublishedValue,
-    Representability, SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError,
-    StructuralSystem,
+    RecordRepresentability, Representability, ResidualRow, SparseAssemblyOptions, SparseStiffness,
+    StiffnessBlock, StructuralError, StructuralSystem,
 };
 use open_pipe_stress_frame_kernel::{
     force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus, FrameElement,
@@ -775,8 +775,15 @@ fn exact_two_dof() -> (Vec<Vec<f64>>, AssembledForce) {
     )
 }
 
+/// ROOT's K2b checkpoint-A ruling B: unscaling a solution never refuses the
+/// case. Each physical field of a residual row is re-formed from its
+/// normalized value at the unscaled exponent, rounded once, and carries an
+/// explicit outcome: normal (exact, unlisted), subnormal with its precision,
+/// underflow (a zero of its sign) or overflow (an infinity of its sign). The
+/// descriptive `contribution_rounding` fields are unscaled by the same single
+/// rounding, with no outcome.
 #[test]
-fn k2b_unscaling_a_solution_applies_the_outcomes_to_the_residual_records_only() {
+fn k2b_unscaled_residual_records_carry_their_outcome_and_never_refuse() {
     let (k, force) = exact_two_dof();
     let system = StructuralSystem::assembled(&k, &force, &[0, 1], &[], None, None);
     let mut solution = solve_assembled_structural_dense(&system).unwrap();
@@ -796,56 +803,98 @@ fn k2b_unscaling_a_solution_applies_the_outcomes_to_the_residual_records_only() 
             difference_expansion: vec![pow2(-80)],
         });
     // b = 0: unchanged.
-    let same = unscale_structural_solution(solution.clone(), ForceScale::UNSCALED, &force).unwrap();
+    let same = unscale_structural_solution(solution.clone(), ForceScale::UNSCALED, &force);
     assert_eq!(same.solution, solution);
-    assert!(same.subnormal.is_empty());
-    // b = 1000 (as if solved at 2^1000): the exponents shift, the residual
-    // records are re-formed at the unscaled exponent (the allowances become
-    // subnormal, and are listed), the descriptive record underflows to 0.
-    let unscaled = unscale_structural_solution(solution.clone(), scale(1000), &force).unwrap();
-    let report = &unscaled.solution.report;
-    for (e, e0) in report
-        .scale_exponents
-        .iter()
-        .zip(&solution.report.scale_exponents)
-    {
-        assert_eq!(*e, e0 + 500);
-    }
-    for (row, row0) in report
-        .residual_rows
-        .iter()
-        .zip(&solution.report.residual_rows)
-    {
-        assert_eq!(row.row_scale_exponent, row0.row_scale_exponent - 1000);
-        assert_eq!(row.normalized_denominator, row0.normalized_denominator);
-        assert_eq!(row.guarded_ratio, row0.guarded_ratio);
-        let mut exact = ExactAccumulator::new();
-        exact.add(row0.normalized_denominator).unwrap();
-        assert_eq!(
-            row.denominator,
-            exact.round_scaled(row.row_scale_exponent).unwrap()
+    assert!(same.records.is_empty());
+    let exact = |normalized: f64, exponent: i32| {
+        let mut sum = ExactAccumulator::new();
+        sum.add(normalized).unwrap();
+        sum.round_scaled(exponent)
+    };
+    let fields = |row: &ResidualRow| {
+        [
+            ("residual_rows.residual", row.normalized_residual),
+            ("residual_rows.denominator", row.normalized_denominator),
+            (
+                "residual_rows.evaluation_allowance",
+                row.normalized_evaluation_allowance,
+            ),
+        ]
+    };
+    // b = 1000 (subnormal allowances), 1100 (subnormal denominators,
+    // underflowed allowances) and -1100 (overflowed fields). Every field is the
+    // single rounding of its normalized value, listed unless normal, and the
+    // case is never refused.
+    let mut seen = Vec::new();
+    for b in [1000, 1100, -1100] {
+        let unscaled = unscale_structural_solution(solution.clone(), scale(b), &force);
+        let report = &unscaled.solution.report;
+        for (e, e0) in report
+            .scale_exponents
+            .iter()
+            .zip(&solution.report.scale_exponents)
+        {
+            assert_eq!(*e, e0 + b / 2);
+        }
+        let mut listed = unscaled.records.iter();
+        for (row, row0) in report
+            .residual_rows
+            .iter()
+            .zip(&solution.report.residual_rows)
+        {
+            assert_eq!(row.row_scale_exponent, row0.row_scale_exponent - b);
+            assert_eq!(row.guarded_ratio, row0.guarded_ratio);
+            let published = [row.residual, row.denominator, row.evaluation_allowance];
+            for ((name, normalized), value) in fields(row0).into_iter().zip(published) {
+                let expected = match exact(normalized, row.row_scale_exponent) {
+                    Ok(v) if v == 0.0 => 0.0_f64.copysign(normalized),
+                    Ok(v) => v,
+                    Err(_) => f64::INFINITY.copysign(normalized),
+                };
+                assert_eq!(value.to_bits(), expected.to_bits(), "b={b} {name}");
+                if normalized == 0.0 || value.is_normal() {
+                    continue;
+                }
+                let record = listed.next().expect("a listed outcome");
+                assert_eq!((record.record, record.global_dof), (name, row.global_dof));
+                assert_eq!(record.value.to_bits(), value.to_bits());
+                let outcome = match record.representability {
+                    RecordRepresentability::Subnormal { relative_precision } => {
+                        assert!(value.is_subnormal());
+                        // 2^-1075/|value| = 0.5/m for value = m * 2^-1074, rounded up.
+                        let quanta = value.abs().to_bits() as f64;
+                        assert!(relative_precision.mul_add(quanta, -0.5) >= 0.0);
+                        assert!(relative_precision.next_down().mul_add(quanta, -0.5) < 0.0);
+                        "subnormal"
+                    }
+                    RecordRepresentability::Underflow => {
+                        assert_eq!(value, 0.0);
+                        assert!(normalized != 0.0);
+                        "underflow"
+                    }
+                    RecordRepresentability::Overflow => {
+                        assert!(value.is_infinite());
+                        "overflow"
+                    }
+                };
+                seen.push((b, outcome));
+            }
+        }
+        assert!(
+            listed.next().is_none(),
+            "b={b}: an unexpected listed record"
         );
-        assert_eq!(row.residual, row0.residual);
     }
-    assert!(!unscaled.subnormal.is_empty());
-    for record in &unscaled.subnormal {
-        assert_eq!(record.record, "residual_rows.evaluation_allowance");
-        assert!(record.value.is_subnormal());
+    // Not vacuous: each outcome occurs.
+    for outcome in ["subnormal", "underflow", "overflow"] {
+        assert!(seen.iter().any(|s| s.1 == outcome), "{outcome}: {seen:?}");
     }
-    let entry = &report.contribution_rounding[0];
+    // The descriptive record at b = 1000: 1.0 -> 2^-1000, 2^-80 -> 0.
+    let unscaled = unscale_structural_solution(solution.clone(), scale(1000), &force);
+    let entry = &unscaled.solution.report.contribution_rounding[0];
     assert_eq!(entry.accumulated_high, pow2(-1000));
     assert_eq!(entry.accumulated_low, 0.0);
     assert_eq!(entry.difference_expansion, vec![0.0]);
-    // Underflow (b = 1100) and overflow (b = -1100) of a residual record:
-    // refused with its DOF.
-    for b in [1100, -1100] {
-        assert!(matches!(
-            unscale_structural_solution(solution.clone(), scale(b), &force),
-            Err(ForceScaleReason::PublicationOutsideBinary64 {
-                global_dof: Some(_)
-            })
-        ));
-    }
 }
 
 #[test]

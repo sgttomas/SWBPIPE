@@ -337,9 +337,9 @@ impl AssemblyEvidence {
     /// - `f` is the case's **unscaled** ledger force; its terms are taken at
     ///   2^b here (`AssembledForce::force_scaled`), exactly.
     /// - The result is unscaled for publication
-    ///   (`structural::unscale_structural_solution`, with step 5's outcomes on
-    ///   the residual records), and a `StructuralError` has its payload
-    ///   unscaled. With `UNSCALED` the solution and errors are
+    ///   (`structural::unscale_structural_solution`: each residual-record
+    ///   field with its explicit outcome), and a `StructuralError` has its
+    ///   payload unscaled. With `UNSCALED` the solution and errors are
     ///   `solve_assembled`'s, unchanged.
     pub fn solve_force_scaled(
         &self,
@@ -1514,8 +1514,11 @@ fn force_scaled_outcome(
     f: &AssembledForce,
 ) -> Result<ForceScaledSolution, ForceScaledError> {
     match solved {
-        Ok(solution) => structural::unscale_structural_solution(solution, force_scale, f)
-            .map_err(ForceScaledError::refused),
+        Ok(solution) => Ok(structural::unscale_structural_solution(
+            solution,
+            force_scale,
+            f,
+        )),
         Err(error) => Err(ForceScaledError::Structural(
             structural::unscale_structural_error(error, force_scale),
         )),
@@ -1707,9 +1710,13 @@ fn evaluate_force_scaled(
 /// 4. **Evaluate once at that b.** A range trigger again is refused as
 ///    "range: scaled evaluation outside normal range". There is no third
 ///    attempt.
-/// 5. **Unscaling for publication** (inside the force-scaled entries): a
-///    residual record that would underflow or overflow is refused as
-///    "range: publication outside binary64", never flushed.
+/// 5. **Unscaling for publication** (inside the force-scaled entries): the
+///    report's records are unscaled, each residual-record field with its
+///    explicit outcome (ROOT's K2b checkpoint-A ruling B). The published
+///    reactions (`SparseStiffness::force_scaled_reactions`, on the returned
+///    stiffness) and actions (`structural::unscale_for_publication`) refuse a
+///    value that would underflow or overflow, as "range: publication outside
+///    binary64", never flushed.
 ///
 /// Every refusal carries the step-1 trigger, so K2a's names survive.
 pub fn solve_with_force_scaling(
