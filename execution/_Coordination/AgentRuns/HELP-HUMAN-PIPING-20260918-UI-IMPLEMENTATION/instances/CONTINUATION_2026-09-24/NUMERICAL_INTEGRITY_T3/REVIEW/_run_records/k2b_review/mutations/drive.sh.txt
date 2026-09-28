@@ -1,0 +1,14 @@
+#!/bin/bash
+# RV11 driver: NONE first, alone; then the mutants, at most three at once.
+W=$1; X=$W/scratch/rv11/mut
+: > $X/MUTANTS.txt
+echo "drive start $(date -u +%FT%TZ)" > $X/drive.log
+$X/run_mutant.sh $W NONE; echo "NONE done $(date -u +%FT%TZ)" >> $X/drive.log
+set -- K2B-ODD-MIDPOINT K2B-UNSCALE-STEPWISE K2B-RECORD-REFUSES K2B-RECORD-SILENT K2B-THIRD-ATTEMPT K2B-PIN-LOOP KD5-M32a RV11-REACT-TERMS-UNSCALED RV11-CENSUS-PRODUCT-X RV11-CENSUS-NO-CURVED RV11-FIDELITY-AT-SCALE
+while [ $# -gt 0 ]; do
+  batch="$1 ${2:-} ${3:-}"; shift; shift 2>/dev/null; shift 2>/dev/null
+  for m in $batch; do $X/run_mutant.sh $W $m & done
+  wait
+  echo "batch [$batch] done $(date -u +%FT%TZ)" >> $X/drive.log
+done
+echo "drive end $(date -u +%FT%TZ)" >> $X/drive.log
