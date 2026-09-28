@@ -1,0 +1,39 @@
+RV8's non-test call sites (my lexer scan, rv8_callers.py) against I8R's _run_records/callers.txt (non-test rows),
+per name, as file:line sets. The only differences are use/re-export lines, which my scan lists and I8R's does not.
+same  solve_structural_dense
+same  solve_structural_dense_binary64
+same  solve_structural_sparse
+same  solve_structural_sparse_binary64
+same  factor_structural_ldlt
+same  negative_pair_witness
+same  verify_negative_direction
+same  finish_checked_factor
+same  evaluate_original_residual_bound
+same  audit_intended_action
+same  estimate_rcond
+same  factor_structural_profile
+diff  solve_sparse_prepared | I8R: core/solver/nonlinear_integration/src/structural_adapter.rs:460 core/solver/nonlinear_integration/src/structural_adapter.rs:518 core/solver/nonlinear_integration/src/structural_adapter.rs:571 core/solver/nonlinear_integration/src/structural_adapter.rs:574 core/solver/sparse_direct/src/structural.rs:104 core/solver/sparse_direct/src/structural.rs:111 core/solver/sparse_direct/src/structural.rs:118  | RV8: core/solver/nonlinear_integration/src/structural_adapter.rs:17 core/solver/nonlinear_integration/src/structural_adapter.rs:460 core/solver/nonlinear_integrat [cut: 305 chars removed; full line sha256 59fe9d8e86e014663dafd1fa8ec10bb70cc72fa5dcd0cc453f24bf68a839a8c1]
+same  order_sparse_structural
+same  factor_sparse_structural_ldlt
+diff  sparse_negative_pair_witness | I8R: core/solver/sparse_direct/src/structural.rs:94  | RV8: core/solver/frame_kernel/src/structural.rs:17 core/solver/sparse_direct/src/structural.rs:94
+diff  audit_sparse_load_fidelity | I8R: core/solver/frame_kernel/src/structural/sparse.rs:968  | RV8: core/solver/frame_kernel/src/structural.rs:13 core/solver/frame_kernel/src/structural/sparse.rs:968
+same  exact_scaled_rhs
+same  audit_load_row
+same  unaudited_row
+same  audit_load_fidelity
+
+Non-test uses outside FK/structural*, SD/structural.rs and SA (product and loop callers), base vs candidate:
+identical:
+core/product_physics/src/lib.rs:60	non-test	use	AssemblyEvidence	[-]
+core/product_physics/src/lib.rs:4418	non-test	use	AssemblyEvidence	[solve_preview_reduced_system]
+core/product_physics/src/lib.rs:4441	non-test	use	solve_assembled_with_formation_check	[solve_preview_reduced_system]
+core/product_physics/src/source_recovery.rs:9	non-test	use	AssemblyEvidence	[-]
+core/product_physics/src/source_recovery.rs:320	non-test	use	AssemblyEvidence	[-]
+core/product_physics/src/source_recovery.rs:879	non-test	use	AssemblyEvidence	[prepare_sources]
+core/solver/nonlinear_integration/src/lib.rs:2008	non-test	use	solve_structural_dense_binary64	[solve_linearized_system_evidence]
+core/solver/nonlinear_integration/src/lib.rs:2013	non-test	use	solve_structural_sparse_binary64	[solve_linearized_system_evidence]
+core/solver/nonlinear_integration/src/lib.rs:17	non-test	use	AssemblyEvidence	[-]
+core/solver/nonlinear_integration/src/lib.rs:600	non-test	use	AssemblyEvidence	[solve_active_set_frame_with_mode_and_springs]
+core/solver/nonlinear_integration/src/lib.rs:1328	non-test	use	AssemblyEvidence	[solve_iteration_with_sliding_friction_evidence]
+core/solver/nonlinear_integration/src/lib.rs:1971	non-test	use	AssemblyEvidence	[solve_linearized_system_evidence]
+core/solver/nonlinear_integration/src/lib.rs:1990	non-test	use	solve_binary64	[solve_linearized_system_evidence]

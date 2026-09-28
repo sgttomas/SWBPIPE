@@ -1,0 +1,12 @@
+#!/bin/bash
+source <scratch>/env.sh
+for v in base cand; do
+  cd <scratch>/$v/projects/chirality-piping/validation/benchmarks/numerical_integrity || exit 1
+  CARGO_TARGET_DIR=<wt>/rv7-target/obs_$v cargo build --release --offline --locked -j 8 > <scratch>/logs/obs_build_$v.log 2>&1 || { echo "build $v failed"; exit 1; }
+done
+for v in base cand; do
+  <wt>/rv7-target/obs_$v/release/piping_numerical_integrity_observer > <scratch>/out/observer_$v.jsonl 2> <scratch>/out/observer_$v.err
+  echo "exit $v $?"
+done
+shasum -a 256 <scratch>/out/observer_base.jsonl <scratch>/out/observer_cand.jsonl
+cmp <scratch>/out/observer_base.jsonl <scratch>/out/observer_cand.jsonl && echo OBSERVER_IDENTICAL

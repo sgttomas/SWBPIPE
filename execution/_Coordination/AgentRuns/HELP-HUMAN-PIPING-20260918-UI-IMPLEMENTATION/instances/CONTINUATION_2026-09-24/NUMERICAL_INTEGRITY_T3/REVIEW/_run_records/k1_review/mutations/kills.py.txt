@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+"""Summarize a mutant log: per crate exit code, failed tests, panic sites."""
+import re
+import sys
+
+for path in sys.argv[1:]:
+    text = open(path, encoding="utf-8", errors="replace").read()
+    mid = path.rsplit("/", 1)[-1][:-4]
+    exits = re.findall(r"^exit (\S+) (\d+)", text, re.M)
+    failed = sorted(set(re.findall(r"^test (\S+) \.\.\. FAILED", text, re.M)))
+    panics = {}
+    for m in re.finditer(r"panicked at ([^:\n]+):(\d+):(\d+)", text):
+        site = f"{m.group(1)}:{m.group(2)}"
+        site = re.sub(r"^.*/projects/chirality-piping/core/solver/[^/]+/", "", site)
+        panics[site] = panics.get(site, 0) + 1
+    errors = len(re.findall(r"^error\[E\d+\]", text, re.M))
+    done = "done" if re.search(r"^done ", text, re.M) else "RUNNING"
+    print(f"{mid} [{done}] exits={' '.join(f'{c}={e}' for c, e in exits)} compile_errors={errors}")
+    print(f"  failed ({len(failed)}): {' '.join(failed)}")
+    print(f"  panic sites: {' '.join(f'{k}x{v}' for k, v in sorted(panics.items()))}")
