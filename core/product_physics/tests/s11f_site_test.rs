@@ -517,6 +517,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "max_abs_delta", 1, "max fold of an observation"),
     ("PP/lib.rs", "max_abs_entry_residual", 3, "allow-listed DEC050/053 sparse parity observation lane (limit 2)"),
     ("PP/lib.rs", "max_abs_value", 1, "max fold of an observation"),
+    ("PP/lib.rs", "observation_lane_profile", 1, "integer: the observation lane's profile entry count (F1b, the lane's resource guard)"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the chord rotation after the E8/E9 exact sums"),
     ("PP/lib.rs", "reserve_publication", 2, "integer: budget charge"),
     ("PP/lib.rs", "run_linear_static_preview_captured_once", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),

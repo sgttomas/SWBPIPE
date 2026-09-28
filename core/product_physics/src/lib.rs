@@ -2947,6 +2947,106 @@ fn dense_scrutiny_refusal_diagnostic(refusal: &DenseScrutinyRefusal) -> Diagnost
     )
 }
 
+/// F1b (ROOT's ruling on the gate's heap-cap finding, 2026-09-28): the legacy
+/// DEC-050/053 observation lane (`solve_symmetric_system_from_entries`) builds
+/// the reduced system's identity-order profile (`SymmetricProfileMatrix::
+/// from_entries`) only to count it. Its `values` vector of f64 grows by
+/// `resize`, so during its last amortized growth the old and the new capacity
+/// are alive together: at most 3 times the final length, 24 bytes per profile
+/// entry. The RCM-ordered profile, its factor and the lane's O(n) and O(nnz)
+/// vectors are not counted. A stated formula, not a measurement.
+const SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY: u128 = 24;
+
+/// The lane's identity-order profile as `SymmetricProfileMatrix::from_entries`
+/// forms it from the same entries: each row's first stored column is the
+/// smallest column of a nonzero entry in its lower triangle (a zero entry is
+/// skipped, as the lane skips it). Returns (profile entries, maximum
+/// half-bandwidth). O(nnz), with one first-column index per reduced DOF and
+/// no profile storage.
+fn observation_lane_profile(system: &ReducedSparseEntrySystem) -> (u128, usize) {
+    let mut first_columns: Vec<usize> = (0..system.dimension).collect();
+    for entry in &system.entries {
+        if entry.value == 0.0 || entry.row >= system.dimension || entry.col >= system.dimension {
+            continue;
+        }
+        let (hi, lo) = if entry.row >= entry.col {
+            (entry.row, entry.col)
+        } else {
+            (entry.col, entry.row)
+        };
+        if lo < first_columns[hi] {
+            first_columns[hi] = lo;
+        }
+    }
+    let entries = first_columns
+        .iter()
+        .enumerate()
+        .map(|(row, &first)| (row - first + 1) as u128)
+        .sum();
+    let bandwidth = first_columns
+        .iter()
+        .enumerate()
+        .map(|(row, &first)| row - first)
+        .max()
+        .unwrap_or(0);
+    (entries, bandwidth)
+}
+
+/// The observation lane guard's refusal: the estimate's inputs and value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ObservationLaneRefusal {
+    profile_entries: u128,
+    max_half_bandwidth: usize,
+    estimated_bytes: u128,
+    ceiling_bytes: u128,
+}
+
+/// F1b (ROOT, 2026-09-28): the lane runs only when its estimated bytes are
+/// within the provisional ceiling, the dense-scrutiny guard's named constant
+/// (`dense_scrutiny_ceiling_bytes`, which a unit test may lower).
+fn observation_lane_guard(
+    system: &ReducedSparseEntrySystem,
+    ceiling_bytes: u128,
+) -> Result<(), ObservationLaneRefusal> {
+    let (profile_entries, max_half_bandwidth) = observation_lane_profile(system);
+    let estimated_bytes =
+        SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY.saturating_mul(profile_entries);
+    if estimated_bytes > ceiling_bytes {
+        Err(ObservationLaneRefusal {
+            profile_entries,
+            max_half_bandwidth,
+            estimated_bytes,
+            ceiling_bytes,
+        })
+    } else {
+        Ok(())
+    }
+}
+
+fn observation_lane_refusal_diagnostic(
+    load_case_id: &str,
+    refusal: &ObservationLaneRefusal,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:sparse-observation:{}:resource-guard",
+            stable_suffix(load_case_id)
+        ),
+        "SPARSE_OBSERVATION_LANE_NOT_RUN",
+        "info",
+        format!(
+            "legacy DEC-050/053 observation lane not run for load case {load_case_id}: its identity-order profile of {} entries (maximum half-bandwidth {}) needs an estimated {} bytes ({} bytes x {} profile entries), above the provisional ceiling {} bytes; the mode row's profile, pivot and residual observation fields are published as not_observed. The estimate is a stated formula, not a measurement; the lane never selects a solution, and the structural solve and its publication are unchanged",
+            refusal.profile_entries,
+            refusal.max_half_bandwidth,
+            refusal.estimated_bytes,
+            SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY,
+            refusal.profile_entries,
+            refusal.ceiling_bytes,
+        ),
+        vec![load_case_id.to_string(), "DEC-053".to_string()],
+    )
+}
+
 /// Assemble one resolved case's global stiffness, with the same element,
 /// curved and spring contributions as the default basis assembly. F1b: the
 /// ordinary route uses `assemble_basis_stiffness`; this dense form remains for
@@ -5240,8 +5340,8 @@ fn solve_preview_reduced_system(
     global_force: &AssembledForce,
     observation_force: &[f64],
     prescribed: &[(usize, f64)],
-    _load_case: &PreviewLoadCase,
-    _diagnostics: &mut Vec<Diagnostic>,
+    load_case: &PreviewLoadCase,
+    diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<PreviewLinearSolve, StructuralError> {
     let restrained_dofs = prescribed.iter().map(|&(dof, _)| dof).collect::<Vec<_>>();
     let restrained_dofs = restrained_dofs.as_slice();
@@ -5306,8 +5406,18 @@ fn solve_preview_reduced_system(
         restrained_dofs,
     )
     .ok();
+    // F1b (ROOT, 2026-09-28): the lane runs only within the provisional
+    // ceiling; otherwise its fields are published as not_observed, with the
+    // named reason (the gate's CONT n10000 heap-cap finding).
+    let lane_refusal = direct
+        .as_ref()
+        .and_then(|d| observation_lane_guard(d, dense_scrutiny_ceiling_bytes()).err());
+    if let Some(refusal) = &lane_refusal {
+        diagnostics.push(observation_lane_refusal_diagnostic(&load_case.id, refusal));
+    }
     let legacy = direct
         .as_ref()
+        .filter(|_| lane_refusal.is_none())
         .and_then(|d| solve_symmetric_system_from_entries(d.dimension, &d.entries, &d.force).ok());
     let residual = direct
         .as_ref()

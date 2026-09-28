@@ -900,6 +900,171 @@ fn f1b_no_automatic_dense_fallback() {
     }
 }
 
+// --------------------------------------------- the observation lane's guard
+
+/// The DEC-050/053 lane's reduced entry system for one basis and case, as
+/// `solve_preview_reduced_system` forms it (the force does not enter the
+/// profile). `None` where its own assembly fails (K2a's range refusal): the
+/// lane is never reached there.
+fn observation_lane_system(basis: &Basis) -> Option<ReducedSparseEntrySystem> {
+    assemble_reduced_sparse_entry_system(
+        basis.built.nodes.len(),
+        &basis.built.frame_elements,
+        &basis.built.user_stiffness_elements,
+        &basis.built.curved_bend_elements,
+        &basis.springs,
+        &vec![0.0; basis.built.nodes.len() * DOF_PER_NODE],
+        &basis.restrained,
+    )
+    .ok()
+}
+
+/// F1b (ROOT's ruling on the gate's heap-cap finding): the guard's O(nnz)
+/// estimate equals the lane's own identity-order profile
+/// (`SymmetricProfileMatrix::from_entries`, whose count and half-bandwidth the
+/// lane publishes) on the declared B subset and the D models.
+#[test]
+fn f1b_observation_lane_estimate_equals_the_lanes_profile() {
+    let mut models = declared_subset();
+    models.extend(w2_nodal_models());
+    models.push(("chain of 42", chain_request(42)));
+    let mut compared = 0;
+    for (name, request) in &models {
+        for basis in product_bases(request) {
+            let Some(system) = observation_lane_system(&basis) else {
+                continue;
+            };
+            let (entries, bandwidth) = observation_lane_profile(&system);
+            let profile = open_pipe_stress_sparse_direct::SymmetricProfileMatrix::from_entries(
+                system.dimension,
+                &system.entries,
+            )
+            .unwrap();
+            assert_eq!(
+                entries,
+                profile.profile_entry_count() as u128,
+                "{name} [{}]",
+                basis.label
+            );
+            assert_eq!(
+                bandwidth,
+                profile.max_half_bandwidth(),
+                "{name} [{}]",
+                basis.label
+            );
+            compared += 1;
+        }
+    }
+    // Every basis whose lane assembly succeeds (the range models' do not).
+    assert_eq!(compared, 14);
+}
+
+/// F1b (ROOT's ruling): with the provisional ceiling lowered through the test
+/// hook just below the lane's estimate, a sparse-mode solve publishes exactly
+/// what it publishes unguarded, except that the lane is not run: the mode
+/// row's profile, pivot and residual fields read `not_observed`, and one
+/// named info diagnostic states the estimate. At a ceiling equal to the
+/// estimate the lane runs. (In dense scrutiny the dense guard's estimate,
+/// 96 bytes per n^2 entry, always exceeds the lane's, at most 24 x n(n+1)/2,
+/// so the dense guard refuses first.)
+#[test]
+fn f1b_lowered_ceiling_skips_the_observation_lane_with_a_named_reason() {
+    let request = chain_request(2);
+    let bases = product_bases(&request);
+    let system = observation_lane_system(&bases[0]).unwrap();
+    let (entries, bandwidth) = observation_lane_profile(&system);
+    let estimate = SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY * entries;
+    assert_eq!(SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY, 24);
+    let mode = PreviewSolverMode::SparseInteractive;
+    let run = |ceiling: Option<u128>| {
+        let solve = || {
+            [
+                run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap(),
+                run_linear_static_preview_with_mode(
+                    serde_json::from_value(request.clone()).unwrap(),
+                    mode,
+                ),
+            ]
+        };
+        match ceiling {
+            Some(ceiling) => with_ceiling(ceiling, solve),
+            None => solve(),
+        }
+    };
+    let mode_row = |envelope: &MechanicsEnvelope| {
+        envelope
+            .results
+            .iter()
+            .find(|r| r.kind == "linear_solver_mode_basis")
+            .and_then(|r| r.metadata.as_ref())
+            .map(|m| m.basis.clone())
+            .unwrap()
+    };
+    let unguarded = run(None);
+    let at_estimate = run(Some(estimate));
+    let below = run(Some(estimate - 1));
+    for index in 0..2 {
+        let full = &unguarded[index];
+        // At the estimate: byte-identical to the unguarded run.
+        assert_eq!(
+            serde_json::to_string(&at_estimate[index]).unwrap(),
+            serde_json::to_string(full).unwrap()
+        );
+        assert!(mode_row(full).contains(&format!("original_profile_entries={entries}; ")));
+        assert!(mode_row(full).contains(&format!("original_half_bandwidth={bandwidth}; ")));
+        // Below it: the lane is not run.
+        let guarded = &below[index];
+        let sparse_entries = system.entries.len();
+        assert_eq!(
+            mode_row(guarded),
+            format!(
+                "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count={sparse_entries}; original_profile_entries=not_observed; ordered_profile_entries=not_observed; original_half_bandwidth=not_observed; ordered_half_bandwidth=not_observed; nonpositive_pivots=not_observed; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=not_observed; dense_fallback=false; dense_fallback_message=none"
+            )
+        );
+        let named: Vec<_> = guarded
+            .diagnostics
+            .iter()
+            .filter(|d| d.code == "SPARSE_OBSERVATION_LANE_NOT_RUN")
+            .collect();
+        assert_eq!(named.len(), 1);
+        assert_eq!(
+            named[0].id,
+            "diagnostic:sparse-observation:case:resource-guard"
+        );
+        assert_eq!(named[0].severity, "info");
+        assert_eq!(
+            named[0].affected_refs,
+            vec!["case".to_string(), "DEC-053".to_string()]
+        );
+        assert_eq!(
+            named[0].message,
+            format!(
+                "legacy DEC-050/053 observation lane not run for load case case: its identity-order profile of {entries} entries (maximum half-bandwidth {bandwidth}) needs an estimated {estimate} bytes (24 bytes x {entries} profile entries), above the provisional ceiling {} bytes; the mode row's profile, pivot and residual observation fields are published as not_observed. The estimate is a stated formula, not a measurement; the lane never selects a solution, and the structural solve and its publication are unchanged",
+                estimate - 1
+            )
+        );
+        // Everything else is unchanged: the rows but the mode row, and the
+        // diagnostics but the named one.
+        let rows = |e: &MechanicsEnvelope| {
+            e.results
+                .iter()
+                .filter(|r| r.kind != "linear_solver_mode_basis")
+                .map(|r| serde_json::to_string(r).unwrap())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(rows(guarded), rows(full));
+        let diagnostics = |e: &MechanicsEnvelope| {
+            e.diagnostics
+                .iter()
+                .filter(|d| d.code != "SPARSE_OBSERVATION_LANE_NOT_RUN")
+                .map(|d| serde_json::to_string(d).unwrap())
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(diagnostics(guarded), diagnostics(full));
+        assert_eq!(guarded.status.mechanics, "MECHANICS_SOLVED");
+    }
+}
+
 // ------------------------------------------------------------------ Q9
 
 /// Q9(a): retained-source recovery refuses n > 256 by budget before any read
