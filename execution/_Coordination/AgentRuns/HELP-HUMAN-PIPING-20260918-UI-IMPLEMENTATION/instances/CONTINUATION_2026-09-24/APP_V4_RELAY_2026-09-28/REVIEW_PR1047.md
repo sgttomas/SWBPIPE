@@ -191,3 +191,69 @@ None.
 ## 5. Scope of this review
 
 RV15 read both delivered files in full and the questions file's §0–§2 and §4, and compared them against the records copies at `7092582d8`, `2828c6b69` and `43f7a0c1e`. Product and record citations were read with local `git show` at `24dea2dae` and `12907f393`. GitHub was read only through `gh pr view` / `gh pr diff` and one read-only `gh api …/compare` call. RV15 wrote nothing except this file. RV15 did not rerun GEN-8.
+
+## Delta check at c322826ea
+
+- **Head checked:** `c322826ea782695be10b504a543f31e806e99c0a`. It is one commit after `a2323bc96` and applies §4's findings. The base is main `d1cc97ce4`.
+- **Date:** 2026-09-28.
+- **Verdict: MERGEABLE.** No new BLOCKING finding. One new SHOULD-FIX (D-1) and two NOTEs (D-2, D-3).
+- **ANS in this section:** the answers file at `c322826ea`, sha256 `6f01add3977761e42ac6b310faf72ba4fd5455e478605deb83fefb2e4d3a61c7`. FACTS is sha256 `733fb88a701317be8f0054937eca058774ba5f5f30c7a27233718996e8b2ab7e`.
+- **`T3/`** = `P/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/`.
+
+### Delta checks
+
+| # | Check | Result | Evidence |
+|---|---|---|---|
+| Δ1 | Each fix does what the finding asked | PASS, with D-1 | See the table below |
+| Δ2 | New citations resolve at `d1cc97ce4` and say what the text says | PASS, with D-2 and D-3 | See the list below |
+| Δ3 | Scope | PASS | `git diff --name-status a2323bc96 c322826ea` shows `M` only for the two delivered files. `git diff --name-status d1cc97ce4 c322826ea` still shows exactly two `A` files, with merge base `d1cc97ce4`. The FACTS delta is line 366 only |
+| Δ4 | No new overclaim and no new machine path | PASS, with D-1 | Machine-path check: the GEN-8 `MACHINE_ABS_PATH_RE` pattern finds no match in either file. Formatting: `git diff --check a2323bc96 c322826ea` is clean; there is no trailing whitespace and each file ends with one newline. Tables: all ANS and FACTS tables have consistent column counts, including SQ-09's table with its two new rows |
+| Δ5 | Records sync | PASS | At `e997ff126`, `REC/` holds ANS `6f01add3…`, FACTS `733fb88a…` and this review `9ccea545…`, and all three match its `SHA256SUMS`. The review's pre-delta bytes are unchanged there |
+| Δ6 | PR description (N-1) | PASS | It now gives `6f01add3…` and `733fb88a…`, describes the in-place change at `d1cc97ce4`, records FACTS line 366's two rewordings, and says this delta check is pending |
+
+### Δ1: each fix against its finding
+
+| Finding | Where applied in ANS at `c322826ea` | Result |
+|---|---|---|
+| S-1 | :391 says the fact sheet was delivered as prepared except line 366, which ROOT reworded twice: `7092582d8` for GEN-8, then per N-7. The PR description says the same | Done. It matches the FACTS delta |
+| S-2 | :11 states the T3 exception and adds the `T3/` abbreviation. :7 points to SQ-27 for the definitions. :106 cites the integrity standing. :307 defines T9 and separates it from the work graph's T9 tranche. :312 defines the both-entry gate | Done. D-2 and D-3 are small citation gaps |
+| S-3 | :367 says the work graph records RUNTIME-ADOPT as PLANNED and contingent, and that D-58 keeps Piping outside the Root-runtime and App-harness client sets with no successor adopted. The same applies at A-4 (:40) | Done |
+| S-4 | :34 (A-2 new bullet), :116 (SQ-04 (d)) and :348 (§2 row 1: "When …, resumes (the activation persists)", citing `:12` and `:60`) | Done |
+| N-2 | :178 adds an "accepted" row, :182 an "application error" row, and :188 an evaluated-basis bullet | Rows done; the bullet under-states, see D-1 |
+| N-3 | :141 (SQ-06 same grant), :237 (SQ-14 origin readable; PR885 `status` → `recover` → `result()` returns `receipt`, `liveControlController.ts:113-120`, `:412-419`) and :338 (SQ-32 stream cancel) | Done |
+| N-4 | :167 ("The draft names no decider; this answer treats it as an OWNER DECISION") and :351 (PB-TBD-002 owner; DEL-16-03 "no owner named") | Done |
+| N-5 | :219 "the owner's condition (2026-09-20) that it follow the stateless MCP revision 2026-07-28" | Done |
+| N-6 | :268 (SQ-18), :293 (SQ-25) and :315 (SQ-27 (e)) | Done |
+| N-7 | ANS :246 and FACTS :366: "the system-wide tmp directory (under macOS's `private` root), not the per-user TMPDIR" | Done. It matches PR885 `LIVE_CONTROL_DEVELOPMENT.md:15` |
+| N-8 | :327 adds F-PIP-1 with `P/loop/WORKPLAN_2026-07-18b_piping_loop.md:161-164` | Done |
+| N-9, N-10 | No change needed; CI | CI is still running on `c322826ea`: `harness` and `App Runtime integration` were IN_PROGRESS when checked |
+
+### Δ2: new citations at `d1cc97ce4`
+
+- **`P/schemas/results.schema.yaml:3601-3608`** gives the status enum `not_assessed | checks_passed | sensitive | unresolved | failed`. It resolves, but see D-2.
+- **`P/core/product_physics/src/lib.rs:1068-1092`** gives `append_integrity_report`, which chooses `NUMERICAL_INTEGRITY_SENSITIVE` or `NUMERICAL_INTEGRITY_CHECKS_PASSED` (the code choice sits at `:1089-1093`). Resolves.
+- **`P/core/product_physics/src/lib.rs:1265-1284`** gives `append_integrity_failure`, which emits blocking `NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM`, `…_NEGATIVE_ENERGY`, `…_FAILED`, `…_ASSEMBLY_UNRESOLVED` and `…_UNRESOLVED`. Resolves.
+- **`T3/DESIGN_NUMERICS/S11G_GUARD.md:549`** reads "T9 | Committed regeneration | — | Zero committed-byte diff". It resolves for the definition; see D-3 for "Mac-only".
+- **`T3/DESIGN_NUMERICS/DESIGN.md:894-895`** defines "No Passed breach": a case with a failed covered comparison must not be published `Passed`, and the gate runs every case through both the captured entry and the historical typed entry. Resolves.
+- **Work graph `:12`** reads "deferred to `UI-SUCCESSOR`; activation persists". **`:60`** reads "the live activation … unchanged. The successor starts when the owner directs". Both resolve.
+- **`OWNER_ROUTE_DIRECTION_2026-09-25.md:25`** reads "not abandoned, cancelled or closed … activations … unchanged". It resolves. It is ROOT's recorded interpretation of the owner-approved refresh, and ANS uses it with the work graph lines, which is appropriate.
+- **`P/loop/WORKPLAN_2026-07-18b_piping_loop.md:161-164`** is F-PIP-1, "local-only operation — no cloud, daemon, network…". Resolves.
+
+### New findings
+
+**D-1 (SHOULD-FIX). ANS:188, the evaluated-basis bullet, under-states what the product returns.**
+
+- **The text:** "The fact sheet records no evaluated-basis field on the other outcomes". That is literally true of the fact sheet, but main's outcomes do state the evaluated whole-model basis:
+  - The single-operation outcome carries `model_basis: ModelBasisEvidence` {`claimed_model_hash`, `backend_model_hash`, `binding_status`, …} (`P/core/model_operations/operation_applier/src/lib.rs:104-110`, field at `:145`).
+  - The batch outcome carries `initial_model_hash`, `input_backend_hash` and `submitted_initial_model_hash` (`…/operation_applier/src/atomic_batch.rs:186-191`).
+  - PR #885's `preview` returns that batch `outcome` (PR885 `liveControlController.ts:338-344`).
+- **Effect:** the App could conclude that outcomes lack the basis they were evaluated on.
+- **Fix:** "Evaluated basis: main's outcomes state the evaluated whole-model basis. A single operation carries `model_basis` {claimed and backend hash, binding status}, and a batch carries `initial_model_hash` / `input_backend_hash` (cite the lines above). DRAFT #885's preview returns that outcome, and its committed receipt carries before and after revision and hash. There is no per-item basis." Because ANS:392 says the should-fix findings "are applied here", apply D-1 or adjust that line.
+
+**D-2 (NOTE). ANS:106 lists the published integrity standing as `checks_passed`, `sensitive`, `unresolved` or `failed`, but the cited enum also has `not_assessed`.** A published result can carry `not_assessed` (the desktop reader's aggregate falls back to it: `P/apps/desktop/src/features/results/numericalResultQuality.ts:137-140`). Add `not_assessed`, or say "one of the standings in the cited enum".
+
+**D-3 (NOTE). ANS:307 says T9 is "run Mac-only on the owner's Mac", but the cited `S11G_GUARD.md:549` supports only the zero-byte-diff definition.** The Mac-only part is supported by `T3/IMPLEMENTATION/K1/RETURN.md:35`: "T9 here is a Mac-only comparison". The Mac's platform libm differs from the Linux records on 12 of 112 committed outputs. Add that citation, or state it as current practice since the move to the owner's Mac.
+
+### Delta scope
+
+RV15 read the full `a2323bc96..c322826ea` diff of both files, the PR description and the CI roll-up (`gh pr view`), and the records tree and `SHA256SUMS` at `e997ff126`. Citations were read with local `git show` at `d1cc97ce4` and `12907f393`. RV15 wrote only this section and this file's `SHA256SUMS` entry, and made no Git or GitHub writes.
