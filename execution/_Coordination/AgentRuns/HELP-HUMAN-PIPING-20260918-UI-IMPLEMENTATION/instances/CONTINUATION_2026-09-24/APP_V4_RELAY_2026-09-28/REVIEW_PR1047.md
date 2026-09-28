@@ -257,3 +257,20 @@ RV15 read both delivered files in full and the questions file's §0–§2 and §
 ### Delta scope
 
 RV15 read the full `a2323bc96..c322826ea` diff of both files, the PR description and the CI roll-up (`gh pr view`), and the records tree and `SHA256SUMS` at `e997ff126`. Citations were read with local `git show` at `d1cc97ce4` and `12907f393`. RV15 wrote only this section and this file's `SHA256SUMS` entry, and made no Git or GitHub writes.
+
+## Delta check at a999f4ba1
+
+- **Head checked:** `a999f4ba16bb624b895be5a6a10c3f35a11228a0`, one commit after `c322826ea`. `git ls-remote` shows `origin/codex/piping-app-v4-relay-answers-20260928` at this commit. When checked, `gh pr view` still reported the PR head as `c322826ea`, whose CI had all passed.
+- **Date:** 2026-09-28.
+- **Verdict: MERGEABLE.** D-1, D-2 and D-3 are resolved. No new findings.
+
+| Check | Result | Evidence |
+|---|---|---|
+| D-1 | Resolved | ANS:188 now says main's outcomes state the evaluated whole-model basis. The citations resolve: `operation_applier/src/lib.rs:103-109` is the `ModelBasisEvidence` struct (claimed and backend hash, canonicalizations, `binding_status`), and `:145` is the `model_basis` field. `atomic_batch.rs:186-191` gives `initial_model_hash`, `input_backend_hash` and `submitted_initial_model_hash`. PR885 `liveControlController.ts:338-344` at `12907f393` shows `preview` returning `basis`, `basis_identity` and `outcome`. The claim no longer rests on the fact sheet's silence |
+| D-2 | Resolved | ANS:106 now lists `not_assessed`, `checks_passed`, `sensitive`, `unresolved` or `failed`, which matches `results.schema.yaml:3602-3608` |
+| D-3 | Resolved | ANS:307 cites `T3/IMPLEMENTATION/K1/RETURN.md:35`: "T9 here is a Mac-only comparison". That record says the Mac's platform libm differs from the Linux records on 12 of 112 committed outputs, and that Linux CI stays the authority for the suites |
+| Scope | PASS | `git diff c322826ea a999f4ba1` changes three lines of ANS (106, 188, 307), each one of the three fixes, and nothing else. FACTS is unchanged (`733fb88a…`). Against main `d1cc97ce4`, the PR is still exactly two added files, with merge base `d1cc97ce4` |
+| Hygiene | PASS | The GEN-8 `MACHINE_ABS_PATH_RE` pattern finds no match in ANS. There is no trailing whitespace, the file ends with one newline, and `git diff --check` is clean |
+| Records | PASS | At `9c3bff4cb`, the ANS copy is `afb6e063…` (equal to the PR head's ANS), FACTS is `733fb88a…` and the review is `0c029bac…`. All three match that commit's `SHA256SUMS` |
+
+- **Before merge:** CI must complete on `a999f4ba1` itself; the passing run was for `c322826ea`. The PR description should also give the answers file's final sha256, `afb6e063…`. It still lists `6f01add3…`.
