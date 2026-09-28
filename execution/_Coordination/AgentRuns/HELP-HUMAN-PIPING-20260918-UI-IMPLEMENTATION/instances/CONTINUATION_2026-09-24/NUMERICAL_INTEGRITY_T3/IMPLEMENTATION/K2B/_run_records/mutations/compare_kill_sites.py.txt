@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""K2b checkpoint C (I10): the original pins' mutants' kill sites on K2b's tree against K1's
+combined-tree table (K1 RETURN addendum 2, `combined/mutations/kill_sites.txt`, at 3b86b111f,
+whose test files equal main eb52114e9's). K1's file:line sites are mapped onto 70828d4d6 (plus
+the overlay) through `git diff -U0 eb52114e9` of each test file K2b changed; lines inside a K2b
+hunk cannot be mapped and are reported. Usage: compare_kill_sites.py <k1-table> <k2b-table> <repo> <overlay-root>"""
+import re, subprocess, sys
+k1_table, k2b_table, repo = sys.argv[1], sys.argv[2], sys.argv[3]
+FILES = {  # site path (its last two components) -> repo path
+    "src/s11k_tests.rs": "projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs",
+    "src/structural_adapter.rs": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "tests/s11_site_table.rs": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+    "tests/s11f_site_test.rs": "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs",
+}
+def parse(p):
+    d = {}; cur = None; lines = open(p).read().split('\n'); i = 0
+    while i < len(lines):
+        m = re.match(r'## (\S+)', lines[i])
+        if m: cur = m.group(1); d.setdefault(cur, set()); i += 1; continue
+        m = re.match(r'   (\S+): (\S+)$', lines[i])
+        if m and i + 1 < len(lines):
+            s = re.match(r'      at (\S+?):(\d+):\d+:', lines[i + 1])
+            loc = ('/'.join(s.group(1).split('/')[-2:]), int(s.group(2))) if s else ('?', 0)
+            d[cur].add((m.group(2), loc)); i += 2; continue
+        i += 1
+    return d
+def mapping(path):
+    diff = subprocess.run(['git', '-C', repo, 'diff', '-U0', 'eb52114e9', '--', path], capture_output=True, text=True).stdout
+    hunks = [tuple(int(x or 1) for x in m.groups()) for m in re.finditer(r'^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@', diff, re.M)]
+    def f(line):
+        shift = 0
+        for (os, oc, ns, nc) in hunks:
+            if oc == 0:  # pure insertion after old line os
+                if line > os: shift += nc
+            else:
+                if os <= line < os + oc: return None
+                if line >= os + oc: shift += nc - oc
+        return line + shift
+    return f
+maps = {k: mapping(v) for k, v in FILES.items()}
+def remap(site):
+    test, (f, line) = site
+    fn = maps.get(f)
+    return (test, (f, fn(line))) if fn else site
+k1, k2b = parse(k1_table), parse(k2b_table)
+ORIGINAL = ['KD5-M32a', 'KD5-M32b', 'KD5-E4', 'S11K-RV-OPT1', 'S11K-RV-OPT3', 'S11K-RV-OPT4', 'S11K-RV-PUB',
+            'K1-PIN-BINARY64', 'K1-PIN-BINARY64-B', 'K1-PIN-THIRD', 'K1-PIN-LOOP', 'K1-PIN-LOOP-B',
+            'K1-S11F-KERNEL', 'K1-SITE-SPARSE', 'K1-SITE-FC']
+stop = False
+for mid in ORIGINAL:
+    old = {remap(s) for s in k1.get(mid, set())}; new = k2b.get(mid, set())
+    lost = old - new; added = new - old
+    killed = len(new) > 0
+    stop |= not killed
+    print(f"{mid}: K1 {len(old)} sites, K2b {len(new)} sites, lost {len(lost)}, added {len(added)}, {'KILLED' if killed else 'NOT KILLED -> STOP'}")
+    for t, (f, l) in sorted(lost): print(f"    LOST {t} {f}:{l}")
+    for t, (f, l) in sorted(added): print(f"    added {t} {f}:{l}")
+print("STOP" if stop else "every original pin mutant is still killed")

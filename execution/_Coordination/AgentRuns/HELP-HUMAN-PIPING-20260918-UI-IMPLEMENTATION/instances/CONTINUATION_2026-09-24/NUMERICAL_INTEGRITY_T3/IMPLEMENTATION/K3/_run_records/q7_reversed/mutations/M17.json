@@ -1,0 +1,83 @@
+{
+ "id": "M17",
+ "description": "K3a's round_pack tie rule changed (ties away from zero, the L = 2 path)",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+ "line": 654,
+ "wall_s": 272.2,
+ "rc": 101,
+ "compiled": true,
+ "passed": 218,
+ "failed": 9,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+  "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+  "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+  "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+  "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+  "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+  "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+  "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+  "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "at": "tests/retained_wide_k3/k3_tests.rs:711",
+   "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+   "message": "assertion `left == right` failed: mixed record 2107: +92d96189014000000000000000000000p-349 -92d96189014000000000000000000000p-349"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "at": "tests/retained_wide_k3/k3_tests.rs:711",
+   "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+   "message": "assertion `left == right` failed: p128 record 22: -ffffffffffffffff65a0f0eb01bacda9p-905 +8000000000000000000000000045378ep-904"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "at": "tests/retained_wide_k3/k3_tests.rs:544",
+   "source": "assert_eq!(core, k3a, \"{line}\");",
+   "message": "assertion `left == right` failed: tie add 53 +bf66357c0aa608000000000000000000p24 +e25b7000000000000000000000000000p-10 +bf66357c433ce0000000000000000000p24"
+  },
+  {
+   "test": "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "at": "tests/retained_wide/wide_tests.rs:1033",
+   "source": "assert_eq!(token(result), rest[0], \"{line}\");",
+   "message": "assertion `left == right` failed: angle v1:1.0 128 +d76aa478486770000000000000000000p-1 +8a51407da83460000000000000000000p-1 +fffffffffffffdff700c3bed75f72f93p-1 +fffffffffffffdff700c3bed75f72f8fp-1 +"
+  },
+  {
+   "test": "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+   "at": "tests/retained_wide/wide_tests.rs:419",
+   "source": "assert_eq!(got, f(hw), \"{op} {x:e} {y:e}: {got:?}\");",
+   "message": "assertion `left == right` failed: add 5.49693266136159e48 5.496932661361591e48: +f0b6bf126cf8b8000000000000000000p162"
+  },
+  {
+   "test": "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "at": "tests/retained_wide/wide_tests.rs:822",
+   "source": "assert_eq!(done.hex(), spec.chunks[k], \"{name} chunk {k}\");",
+   "message": "assertion `left == right` failed: mixed chunk 0"
+  },
+  {
+   "test": "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "at": "tests/retained_wide/wide_tests.rs:795",
+   "source": "assert_eq!(token(result), sample[6], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: p128 record 22"
+  },
+  {
+   "test": "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+   "at": "tests/retained_wide/wide_tests.rs:952",
+   "source": "assert_eq!(f(got), a53.mul(&k, &f(u)).unwrap(), \"{k:?} * {u:e}\");",
+   "message": "assertion `left == right` failed: -e0000000000000000000000000000000p775 * -3.8818912684946e17"
+  },
+  {
+   "test": "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle",
+   "at": "tests/retained_wide/wide_tests.rs:517",
+   "source": "assert_eq!(got, fields[5], \"{line}\");",
+   "message": "assertion `left == right` failed: tie add 53 +bf66357c0aa608000000000000000000p24 +e25b7000000000000000000000000000p-10 +bf66357c433ce0000000000000000000p24"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

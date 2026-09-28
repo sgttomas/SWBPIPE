@@ -1,0 +1,5 @@
+projects/chirality-piping/core/solver/frame_kernel/src/lib.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs

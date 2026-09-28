@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4 ... p256: 1000000 operations at L = 4, debug wall time 31.0 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 195 filtered out; finished in 30.95s

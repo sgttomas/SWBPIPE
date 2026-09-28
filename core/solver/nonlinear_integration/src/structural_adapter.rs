@@ -7,12 +7,14 @@ use open_pipe_stress_frame_kernel::rigid_body::{
     assess_rigid_body, ObjectiveFamily, RigidBodyStatus,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    self, CurvedFormation, FormationSource, SparsePattern, SparseStiffness, SparseStructuralSystem,
-    SparseSymmetryEvidence, StiffnessContribution, StructuralError, StructuralSolution,
-    StructuralSystem, SymmetryEvidence,
+    self, assemble_sparse_stiffness, CurvedFormation, ForceScaleReason, ForceScaledError,
+    ForceScaledSolution, ForceScalingRefusal, FormationSource, RangeTrigger, SparseAssemblyOptions,
+    SparsePattern, SparseStiffness, SparseStructuralSystem, SparseSymmetryEvidence, StiffnessBlock,
+    StiffnessContribution, StructuralError, StructuralSolution, StructuralSystem, SymmetryEvidence,
 };
 use open_pipe_stress_frame_kernel::{
-    element_dof_map, FrameElement, Matrix12, UserStiffnessElement,
+    element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus,
+    FrameElement, FrameKernelError, Matrix12, UserStiffnessElement,
 };
 use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
 
@@ -28,6 +30,9 @@ pub struct AssemblyEvidence {
     force_terms: Option<Vec<ForceTerm>>,
     /// K-D5: the primitives the D-5 formation check re-forms from.
     formation: FormationPrimitives,
+    /// K2b (D1 §4.7): the force scale 2^b the evidence was formed at;
+    /// `UNSCALED` for `new`. Never part of `StructuralReport`.
+    force_scale: ForceScale,
 }
 
 /// The formation source recorded by `AssemblyEvidence::new` (K-D5): the
@@ -84,8 +89,41 @@ impl AssemblyEvidence {
             spring_ground: parts.spring_ground,
             force_terms: None,
             formation: parts.formation,
+            force_scale: ForceScale::UNSCALED,
         })
     }
+
+    /// K2b (D1 §4.7, formation-time scaling): `new` on the primitives formed
+    /// at 2^b: frames with E and G times 2^b, user and spring stiffnesses
+    /// times 2^b, and each curved slot's global matrix and formation
+    /// allowances times 2^b, all exactly. The formation allowances, the
+    /// contributions and K-D5's formation primitives are then those of the
+    /// scaled system. A value that cannot stay normal is
+    /// `Range("force-scaled formation outside the normal range")`. With
+    /// `UNSCALED` it is `new`.
+    pub fn new_force_scaled(
+        node_count: usize,
+        frames: &[FrameElement],
+        users: &[UserStiffnessElement],
+        curved: &[CurvedBendStiffnessElement],
+        springs: &[(usize, f64)],
+        force_scale: ForceScale,
+    ) -> Result<Self, StructuralError> {
+        if force_scale.is_unscaled() {
+            return Self::new(node_count, frames, users, curved, springs);
+        }
+        let (frames, users, curved, springs) =
+            force_scaled_primitives(frames, users, curved, springs, force_scale)?;
+        let mut evidence = Self::new(node_count, &frames, &users, &curved, &springs)?;
+        evidence.force_scale = force_scale;
+        Ok(evidence)
+    }
+
+    /// K2b: the force scale this evidence was formed at.
+    pub fn force_scale(&self) -> ForceScale {
+        self.force_scale
+    }
+
     /// Screen each actual connected body using only selected ground constraints.
     pub fn qualified_passive_family(&self) -> bool {
         qualified_passive_family(&self.edges)
@@ -126,6 +164,7 @@ impl AssemblyEvidence {
         prescribed: &[(usize, f64)],
         mode: LinearSolveMode,
     ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
         self.geometry(prescribed)?;
         let symmetry_basis = self.symmetry_basis();
         let system = StructuralSystem {
@@ -184,6 +223,7 @@ impl AssemblyEvidence {
         if !selected {
             return self.solve_assembled(k, f, free, prescribed, mode);
         }
+        unscaled_evidence(self.force_scale)?;
         self.geometry(prescribed)?;
         let symmetry_basis = self.symmetry_basis();
         let source = self.formation_source(curved_sources);
@@ -224,6 +264,7 @@ impl AssemblyEvidence {
         prescribed: &[(usize, f64)],
         mode: LinearSolveMode,
     ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
         self.geometry(prescribed)?;
         let symmetry_basis = self.symmetry_basis();
         let system = StructuralSystem {
@@ -271,6 +312,7 @@ impl AssemblyEvidence {
         prescribed: &[(usize, f64)],
         mode: LinearSolveMode,
     ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
         self.geometry(prescribed)?;
         let symmetry_basis = self.symmetry_basis();
         let system = StructuralSystem::assembled(
@@ -286,6 +328,110 @@ impl AssemblyEvidence {
             }),
         );
         solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
+    }
+
+    /// K2b (D1 §4.7): the force-scaled sibling of `solve_assembled`.
+    /// - `k` is the stiffness formed at this evidence's 2^b (the kernel's
+    ///   assembly with `SparseAssemblyOptions::with_force_scale`, or its dense
+    ///   view). A matrix at another scale fails M03's contribution audit.
+    /// - `f` is the case's **unscaled** ledger force; its terms are taken at
+    ///   2^b here (`AssembledForce::force_scaled`), exactly.
+    /// - The result is unscaled for publication
+    ///   (`structural::unscale_structural_solution`: each residual-record
+    ///   field with its explicit outcome), and a `StructuralError` has its
+    ///   payload unscaled. With `UNSCALED` the solution and errors are
+    ///   `solve_assembled`'s, unchanged.
+    pub fn solve_force_scaled(
+        &self,
+        k: &[Vec<f64>],
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<ForceScaledSolution, ForceScaledError> {
+        let owned;
+        let force = if self.force_scale.is_unscaled() {
+            f
+        } else {
+            owned = f
+                .force_scaled(self.force_scale)
+                .map_err(ForceScaledError::refused)?;
+            &owned
+        };
+        let solved = self.geometry(prescribed).and_then(|()| {
+            let symmetry_basis = self.symmetry_basis();
+            let system = StructuralSystem::assembled(
+                k,
+                force,
+                free,
+                prescribed,
+                Some(&self.contributions),
+                Some(SymmetryEvidence {
+                    absolute_roundoff: &self.absolute_roundoff,
+                    operation_counts: &self.operation_counts,
+                    basis: &symmetry_basis,
+                }),
+            );
+            solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
+        });
+        force_scaled_outcome(solved, self.force_scale, f)
+    }
+
+    /// K2b (D1 §4.7): the force-scaled sibling of K-D5's linear entry
+    /// `solve_assembled_with_formation_check`, with the same selection rule.
+    /// `k`, `f` and the result are as in `solve_force_scaled`. The formation
+    /// source holds the primitives at 2^b (the frames, users and springs this
+    /// evidence was formed from; each curved slot matched to its macro element
+    /// by the bits of the macro element's global matrix times 2^b, with E and
+    /// G times 2^b), so K-D5's re-formation, its ρ and its record (in
+    /// displacement units) are those of the scaled system. With `UNSCALED` it
+    /// is `solve_assembled_with_formation_check`, unchanged.
+    #[allow(clippy::too_many_arguments)]
+    pub fn solve_force_scaled_with_formation_check(
+        &self,
+        k: &[Vec<f64>],
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        selected: bool,
+    ) -> Result<ForceScaledSolution, ForceScaledError> {
+        if !selected {
+            return self.solve_force_scaled(k, f, free, prescribed, mode);
+        }
+        let owned;
+        let force = if self.force_scale.is_unscaled() {
+            f
+        } else {
+            owned = f
+                .force_scaled(self.force_scale)
+                .map_err(ForceScaledError::refused)?;
+            &owned
+        };
+        let solved = self.geometry(prescribed).and_then(|()| {
+            let symmetry_basis = self.symmetry_basis();
+            let source =
+                force_scaled_formation_source(&self.formation, curved_sources, self.force_scale);
+            let system = StructuralSystem::assembled(
+                k,
+                force,
+                free,
+                prescribed,
+                Some(&self.contributions),
+                Some(SymmetryEvidence {
+                    absolute_roundoff: &self.absolute_roundoff,
+                    operation_counts: &self.operation_counts,
+                    basis: &symmetry_basis,
+                }),
+            )
+            .with_formation_source(&source);
+            solve_prepared(
+                structural::prepare_formation_checked_structural(&system)?,
+                mode,
+            )
+        });
+        force_scaled_outcome(solved, self.force_scale, f)
     }
 }
 
@@ -312,6 +458,8 @@ pub struct SparseAssemblyEvidence {
     spring_ground: Vec<usize>,
     force_terms: Option<Vec<ForceTerm>>,
     formation: FormationPrimitives,
+    /// K2b: as `AssemblyEvidence`'s.
+    force_scale: ForceScale,
 }
 
 impl SparseAssemblyEvidence {
@@ -353,7 +501,33 @@ impl SparseAssemblyEvidence {
             spring_ground: parts.spring_ground,
             force_terms: None,
             formation: parts.formation,
+            force_scale: ForceScale::UNSCALED,
         })
+    }
+    /// K2b: `AssemblyEvidence::new_force_scaled` on the pattern of the
+    /// assembly formed at 2^b (the pattern does not depend on b).
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_force_scaled(
+        pattern: &SparsePattern,
+        node_count: usize,
+        frames: &[FrameElement],
+        users: &[UserStiffnessElement],
+        curved: &[CurvedBendStiffnessElement],
+        springs: &[(usize, f64)],
+        force_scale: ForceScale,
+    ) -> Result<Self, StructuralError> {
+        if force_scale.is_unscaled() {
+            return Self::new(pattern, node_count, frames, users, curved, springs);
+        }
+        let (frames, users, curved, springs) =
+            force_scaled_primitives(frames, users, curved, springs, force_scale)?;
+        let mut evidence = Self::new(pattern, node_count, &frames, &users, &curved, &springs)?;
+        evidence.force_scale = force_scale;
+        Ok(evidence)
+    }
+    /// K2b: the force scale this evidence was formed at.
+    pub fn force_scale(&self) -> ForceScale {
+        self.force_scale
     }
     /// `AssemblyEvidence::with_force_terms` (S11-K's C3-detect terms).
     pub fn with_force_terms(mut self, terms: &[ForceTerm]) -> Self {
@@ -427,6 +601,7 @@ impl SparseAssemblyEvidence {
         prescribed: &[(usize, f64)],
         mode: LinearSolveMode,
     ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
         self.check_pattern(k)?;
         self.geometry(prescribed)?;
         let symmetry_basis = symmetry_basis(&self.edges);
@@ -479,6 +654,7 @@ impl SparseAssemblyEvidence {
         if !selected {
             return self.solve_assembled(k, f, free, prescribed, mode);
         }
+        unscaled_evidence(self.force_scale)?;
         self.check_pattern(k)?;
         self.geometry(prescribed)?;
         let symmetry_basis = symmetry_basis(&self.edges);
@@ -533,6 +709,7 @@ impl SparseAssemblyEvidence {
         prescribed: &[(usize, f64)],
         mode: LinearSolveMode,
     ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
         self.check_pattern(k)?;
         self.geometry(prescribed)?;
         let symmetry_basis = symmetry_basis(&self.edges);
@@ -575,6 +752,146 @@ impl SparseAssemblyEvidence {
                 }
             }
         }
+    }
+
+    /// K2b: the pattern-taking sibling of `AssemblyEvidence::solve_force_scaled`
+    /// (the force-scaled `solve_assembled`): `k` formed at this evidence's
+    /// 2^b, `f` the unscaled ledger force, the result unscaled for
+    /// publication. With `UNSCALED` it is `solve_assembled`, unchanged.
+    pub fn solve_force_scaled(
+        &self,
+        k: &SparseStiffness,
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+    ) -> Result<ForceScaledSolution, ForceScaledError> {
+        let owned;
+        let force = if self.force_scale.is_unscaled() {
+            f
+        } else {
+            owned = f
+                .force_scaled(self.force_scale)
+                .map_err(ForceScaledError::refused)?;
+            &owned
+        };
+        let solved = self
+            .check_pattern(k)
+            .and_then(|()| self.geometry(prescribed))
+            .and_then(|()| {
+                let symmetry_basis = symmetry_basis(&self.edges);
+                match mode {
+                    LinearSolveMode::DenseScrutiny => {
+                        let dense = k.to_dense();
+                        let (roundoff, counts) = self.dense_symmetry_view();
+                        let system = StructuralSystem::assembled(
+                            &dense,
+                            force,
+                            free,
+                            prescribed,
+                            Some(&self.contributions),
+                            Some(SymmetryEvidence {
+                                absolute_roundoff: &roundoff,
+                                operation_counts: &counts,
+                                basis: &symmetry_basis,
+                            }),
+                        );
+                        solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
+                    }
+                    LinearSolveMode::SparseInteractive => {
+                        let system = SparseStructuralSystem::assembled(
+                            k,
+                            force,
+                            free,
+                            prescribed,
+                            Some(&self.contributions),
+                            Some(self.sparse_symmetry(&symmetry_basis)),
+                        );
+                        solve_sparse_prepared(structural::prepare_assembled_sparse_structural(
+                            &system,
+                        )?)
+                    }
+                }
+            });
+        force_scaled_outcome(solved, self.force_scale, f)
+    }
+
+    /// K2b: the pattern-taking sibling of
+    /// `AssemblyEvidence::solve_force_scaled_with_formation_check`, with the
+    /// same selection rule and the same force-scaled formation source. With
+    /// `UNSCALED` it is `solve_assembled_with_formation_check`, unchanged.
+    #[allow(clippy::too_many_arguments)]
+    pub fn solve_force_scaled_with_formation_check(
+        &self,
+        k: &SparseStiffness,
+        f: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        selected: bool,
+    ) -> Result<ForceScaledSolution, ForceScaledError> {
+        if !selected {
+            return self.solve_force_scaled(k, f, free, prescribed, mode);
+        }
+        let owned;
+        let force = if self.force_scale.is_unscaled() {
+            f
+        } else {
+            owned = f
+                .force_scaled(self.force_scale)
+                .map_err(ForceScaledError::refused)?;
+            &owned
+        };
+        let solved = self
+            .check_pattern(k)
+            .and_then(|()| self.geometry(prescribed))
+            .and_then(|()| {
+                let symmetry_basis = symmetry_basis(&self.edges);
+                let source = force_scaled_formation_source(
+                    &self.formation,
+                    curved_sources,
+                    self.force_scale,
+                );
+                match mode {
+                    LinearSolveMode::DenseScrutiny => {
+                        let dense = k.to_dense();
+                        let (roundoff, counts) = self.dense_symmetry_view();
+                        let system = StructuralSystem::assembled(
+                            &dense,
+                            force,
+                            free,
+                            prescribed,
+                            Some(&self.contributions),
+                            Some(SymmetryEvidence {
+                                absolute_roundoff: &roundoff,
+                                operation_counts: &counts,
+                                basis: &symmetry_basis,
+                            }),
+                        )
+                        .with_formation_source(&source);
+                        solve_prepared(
+                            structural::prepare_formation_checked_structural(&system)?,
+                            mode,
+                        )
+                    }
+                    LinearSolveMode::SparseInteractive => {
+                        let system = SparseStructuralSystem::assembled(
+                            k,
+                            force,
+                            free,
+                            prescribed,
+                            Some(&self.contributions),
+                            Some(self.sparse_symmetry(&symmetry_basis)),
+                        )
+                        .with_formation_source(&source);
+                        solve_sparse_prepared(
+                            structural::prepare_formation_checked_sparse_structural(&system)?,
+                        )
+                    }
+                }
+            });
+        force_scaled_outcome(solved, self.force_scale, f)
     }
 
     fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
@@ -1032,6 +1349,400 @@ fn formation_source(
         }
     }
     source
+}
+
+// ------------------------------------------------------------------ K2b
+
+/// K2b: the existing entries refuse an evidence formed at 2^b ≠ 1 (fail
+/// closed); only its force-scaled entries unscale for publication. Every
+/// evidence built by `new` is unscaled, so this never refuses one.
+fn unscaled_evidence(force_scale: ForceScale) -> Result<(), StructuralError> {
+    if force_scale.is_unscaled() {
+        Ok(())
+    } else {
+        Err(StructuralError::InvalidInput(
+            "force-scaled assembly evidence: use its force-scaled entry",
+        ))
+    }
+}
+
+type ForceScaledPrimitives = (
+    Vec<FrameElement>,
+    Vec<UserStiffnessElement>,
+    Vec<CurvedBendStiffnessElement>,
+    Vec<(usize, f64)>,
+);
+
+/// K2b: the evidence primitives times 2^b, exactly (E and G of each frame;
+/// each user stiffness; each curved slot's global matrix and formation
+/// allowances; each spring), in their given order.
+fn force_scaled_primitives(
+    frames: &[FrameElement],
+    users: &[UserStiffnessElement],
+    curved: &[CurvedBendStiffnessElement],
+    springs: &[(usize, f64)],
+    force_scale: ForceScale,
+) -> Result<ForceScaledPrimitives, StructuralError> {
+    let range = |_: FrameKernelError| {
+        StructuralError::Range("force-scaled formation outside the normal range")
+    };
+    let frames = frames
+        .iter()
+        .map(|element| element.force_scaled(force_scale).map_err(range))
+        .collect::<Result<Vec<_>, _>>()?;
+    let users = users
+        .iter()
+        .map(|element| element.force_scaled(force_scale).map_err(range))
+        .collect::<Result<Vec<_>, _>>()?;
+    let curved = curved
+        .iter()
+        .map(|slot| {
+            let symmetry_formation = match &slot.symmetry_formation {
+                Some((bounds, counts)) => Some((
+                    force_scaled_matrix("curved allowance*2^b", bounds, force_scale)
+                        .map_err(range)?,
+                    *counts,
+                )),
+                None => None,
+            };
+            Ok(CurvedBendStiffnessElement {
+                element_id: slot.element_id.clone(),
+                node_i: slot.node_i,
+                node_j: slot.node_j,
+                global_stiffness: force_scaled_matrix(
+                    "curved entry*2^b",
+                    &slot.global_stiffness,
+                    force_scale,
+                )
+                .map_err(range)?,
+                symmetry_formation,
+            })
+        })
+        .collect::<Result<Vec<_>, StructuralError>>()?;
+    let springs = springs
+        .iter()
+        .map(|&(dof, stiffness)| {
+            force_scaled_value("spring stiffness*2^b", stiffness, force_scale)
+                .map(|scaled| (dof, scaled))
+                .map_err(range)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok((frames, users, curved, springs))
+}
+
+/// K2b: the formation source of an evidence formed at 2^b. Its frames, users
+/// and springs are already the scaled primitives. Each curved slot (formed at
+/// 2^b) is matched to the macro element whose global matrix, times 2^b, has
+/// its bits, and is re-formed with E and G times 2^b (K-D5's Wide<2>
+/// re-formation then scales exactly: its exponent is 64-bit). A slot with no
+/// match, an explicit slot, or a matched element whose E or G cannot be
+/// scaled normally is named as not re-formable (fail closed). With
+/// `UNSCALED` it is `formation_source`.
+fn force_scaled_formation_source(
+    primitives: &FormationPrimitives,
+    curved_sources: &[CurvedBendMacroElement],
+    force_scale: ForceScale,
+) -> FormationSource {
+    if force_scale.is_unscaled() {
+        return formation_source(primitives, curved_sources);
+    }
+    let mut source = FormationSource {
+        node_count: primitives.node_count,
+        frames: primitives.frames.clone(),
+        users: primitives.users.clone(),
+        curved: Vec::new(),
+        springs: primitives.springs.clone(),
+        unavailable: Vec::new(),
+    };
+    for slot in &primitives.curved {
+        if slot.explicit {
+            source
+                .unavailable
+                .push(format!("curved_bend_explicit_matrix:{}", slot.element_id));
+            continue;
+        }
+        let matched = curved_sources.iter().find(|m| {
+            m.node_i.index == slot.node_i
+                && m.node_j.index == slot.node_j
+                && m.global_stiffness()
+                    .ok()
+                    .and_then(|g| force_scaled_matrix("curved entry*2^b", &g, force_scale).ok())
+                    .is_some_and(|g| {
+                        g.iter()
+                            .flatten()
+                            .zip(slot.global_stiffness.iter().flatten())
+                            .all(|(a, b)| a.to_bits() == b.to_bits())
+                    })
+        });
+        let Some(m) = matched else {
+            source
+                .unavailable
+                .push(format!("curved_bend_source_unmatched:{}", slot.element_id));
+            continue;
+        };
+        let moduli = force_scaled_value("E*2^b", m.elastic_modulus, force_scale).and_then(|e| {
+            force_scaled_value("G*2^b", m.shear_modulus, force_scale).map(|g| (e, g))
+        });
+        match moduli {
+            Ok((elastic_modulus, shear_modulus)) => source.curved.push(CurvedFormation {
+                node_i: m.node_i.index,
+                node_j: m.node_j.index,
+                coordinates_i: m.node_i.coordinates,
+                coordinates_j: m.node_j.coordinates,
+                center: m.center,
+                elastic_modulus,
+                shear_modulus,
+                area: m.area,
+                second_moment: m.second_moment,
+                torsion_constant: m.torsion_constant,
+                in_plane_flexibility_factor: m.in_plane_flexibility_factor,
+                out_of_plane_flexibility_factor: m.out_of_plane_flexibility_factor,
+            }),
+            Err(_) => source
+                .unavailable
+                .push(format!("curved_bend_source_unscalable:{}", slot.element_id)),
+        }
+    }
+    source
+}
+
+/// K2b: a force-scaled solve's result unscaled for publication, or its error
+/// with the payload unscaled.
+fn force_scaled_outcome(
+    solved: Result<StructuralSolution, StructuralError>,
+    force_scale: ForceScale,
+    f: &AssembledForce,
+) -> Result<ForceScaledSolution, ForceScaledError> {
+    match solved {
+        Ok(solution) => Ok(structural::unscale_structural_solution(
+            solution,
+            force_scale,
+            f,
+        )),
+        Err(error) => Err(ForceScaledError::Structural(
+            structural::unscale_structural_error(error, force_scale),
+        )),
+    }
+}
+
+/// K2b: the evidence representation `solve_with_force_scaling` uses.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EvidenceRepresentation {
+    /// `AssemblyEvidence` on the dense view of the kernel's assembly (the
+    /// product's representation today).
+    Dense,
+    /// `SparseAssemblyEvidence` on the pattern (K1).
+    Pattern,
+}
+
+/// K2b: one linear case as the facade forms it, for `solve_with_force_scaling`.
+#[derive(Clone, Copy)]
+pub struct ForceScalingCase<'a> {
+    pub node_count: usize,
+    pub frames: &'a [FrameElement],
+    pub users: &'a [UserStiffnessElement],
+    /// Realized curved bends formed at b = 0, added to the stiffness as
+    /// blocks in this order (after frames and users, before springs).
+    pub curved: &'a [CurvedBendStiffnessElement],
+    /// The macro elements of the curved slots, for K-D5's re-formation.
+    pub curved_sources: &'a [CurvedBendMacroElement],
+    pub springs: &'a [(usize, f64)],
+    /// The case's ledger force, unscaled.
+    pub force: &'a AssembledForce,
+    /// Every boundary DOF with its value (0.0 for a restrained DOF); every
+    /// other DOF is free.
+    pub prescribed: &'a [(usize, f64)],
+    pub mode: LinearSolveMode,
+    /// K-D5's selection (false for an invocation with a nonlinear support).
+    pub selected: bool,
+    pub representation: EvidenceRepresentation,
+}
+
+/// K2b: the result of `solve_with_force_scaling`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ForceScalingOutcome {
+    /// Unscaled for publication; `solution.force_scale` is the b used (0 when
+    /// the evaluation at b = 0 succeeded).
+    pub solution: ForceScaledSolution,
+    /// The stiffness the solve used, formed at that 2^b (for the published
+    /// reactions, `SparseStiffness::force_scaled_reactions`).
+    pub stiffness: SparseStiffness,
+}
+
+/// One evaluation of a case at one scale.
+enum Evaluation {
+    /// A range trigger (D1 §4.7 step 1): K2a's `NumericalRange` at formation,
+    /// or `StructuralError::Range` from the evidence or the M03 solve.
+    Range(RangeTrigger),
+    /// Any other outcome, as today.
+    Failed(ForceScaledError),
+}
+
+/// The census of a case (steps 2–3's inputs): every frame, user element,
+/// curved slot, spring and load term.
+fn force_scale_census(case: &ForceScalingCase<'_>) -> Result<ForceScaleCensus, FrameKernelError> {
+    let mut census = ForceScaleCensus::new();
+    for element in case.frames {
+        census.frame(element)?;
+    }
+    for element in case.users {
+        census.user(element);
+    }
+    for slot in case.curved {
+        census.matrix(&slot.global_stiffness);
+    }
+    for &(_, stiffness) in case.springs {
+        census.spring(stiffness);
+    }
+    for term in case.force.terms() {
+        census.load_term(term);
+    }
+    Ok(census)
+}
+
+/// One evaluation at 2^b: the kernel's assembly formed at 2^b, the evidence
+/// formed at 2^b in the case's representation, and the force-scaled
+/// formation-checked solve, unscaled for publication.
+fn evaluate_force_scaled(
+    case: &ForceScalingCase<'_>,
+    force_scale: ForceScale,
+) -> Result<ForceScalingOutcome, Evaluation> {
+    let blocks: Vec<StiffnessBlock> = case
+        .curved
+        .iter()
+        .map(|slot| StiffnessBlock {
+            node_i: slot.node_i,
+            node_j: slot.node_j,
+            stiffness: slot.global_stiffness,
+        })
+        .collect();
+    let stiffness = assemble_sparse_stiffness(
+        case.node_count,
+        case.frames,
+        case.users,
+        &blocks,
+        case.springs,
+        &SparseAssemblyOptions::new().with_force_scale(force_scale),
+    )
+    .map_err(|error| match error {
+        FrameKernelError::NumericalRange { .. } => {
+            Evaluation::Range(RangeTrigger::Formation(error))
+        }
+        error => Evaluation::Failed(ForceScaledError::Formation(error)),
+    })?;
+    let mut boundary = vec![false; stiffness.dimension()];
+    for &(dof, _) in case.prescribed {
+        if let Some(slot) = boundary.get_mut(dof) {
+            *slot = true;
+        }
+    }
+    let free: Vec<usize> = (0..boundary.len()).filter(|&dof| !boundary[dof]).collect();
+    let solved = match case.representation {
+        EvidenceRepresentation::Dense => AssemblyEvidence::new_force_scaled(
+            case.node_count,
+            case.frames,
+            case.users,
+            case.curved,
+            case.springs,
+            force_scale,
+        )
+        .map_err(ForceScaledError::Structural)
+        .and_then(|evidence| {
+            evidence.solve_force_scaled_with_formation_check(
+                &stiffness.to_dense(),
+                case.force,
+                &free,
+                case.prescribed,
+                case.mode,
+                case.curved_sources,
+                case.selected,
+            )
+        }),
+        EvidenceRepresentation::Pattern => SparseAssemblyEvidence::new_force_scaled(
+            stiffness.pattern(),
+            case.node_count,
+            case.frames,
+            case.users,
+            case.curved,
+            case.springs,
+            force_scale,
+        )
+        .map_err(ForceScaledError::Structural)
+        .and_then(|evidence| {
+            evidence.solve_force_scaled_with_formation_check(
+                &stiffness,
+                case.force,
+                &free,
+                case.prescribed,
+                case.mode,
+                case.curved_sources,
+                case.selected,
+            )
+        }),
+    };
+    match solved {
+        Ok(solution) => Ok(ForceScalingOutcome {
+            solution,
+            stiffness,
+        }),
+        Err(ForceScaledError::Structural(StructuralError::Range(reason))) => Err(
+            Evaluation::Range(RangeTrigger::Evaluation(StructuralError::Range(reason))),
+        ),
+        Err(ForceScaledError::Refused(ForceScalingRefusal {
+            reason: ForceScaleReason::ScaledEvaluation,
+            ..
+        })) => Err(Evaluation::Range(RangeTrigger::Evaluation(
+            StructuralError::Range("force-scaled load terms outside the normal range"),
+        ))),
+        Err(error) => Err(Evaluation::Failed(error)),
+    }
+}
+
+/// K2b (T3 D1 revision 5a.2 §4.7, W2, with ROOT's K2b rulings): one linear
+/// case through the normative b-rule.
+/// 1. **Evaluate at b = 0**, as today: the kernel's assembly, the evidence
+///    and the formation-checked solve. A result, or any error other than a
+///    range trigger (K2a's `NumericalRange` at formation;
+///    `StructuralError::Range` from the evidence or the solve), is returned
+///    as it is: the solution is then the unscaled entry's, byte for byte.
+/// 2. **The census** (`ForceScaleCensus`): a subnormal input is refused.
+/// 3. **The window** and the even b (`ForceScaleCensus::force_scale`).
+/// 4. **Evaluate once at that b.** A range trigger again is refused as
+///    "range: scaled evaluation outside normal range". There is no third
+///    attempt.
+/// 5. **Unscaling for publication** (inside the force-scaled entries): the
+///    report's records are unscaled, each residual-record field with its
+///    explicit outcome (ROOT's K2b checkpoint-A ruling B). The published
+///    reactions (`SparseStiffness::force_scaled_reactions`, on the returned
+///    stiffness) and actions (`structural::unscale_for_publication`) refuse a
+///    value that would underflow or overflow, as "range: publication outside
+///    binary64", never flushed.
+///
+/// Every refusal carries the step-1 trigger, so K2a's names survive.
+pub fn solve_with_force_scaling(
+    case: &ForceScalingCase<'_>,
+) -> Result<ForceScalingOutcome, ForceScaledError> {
+    let trigger = match evaluate_force_scaled(case, ForceScale::UNSCALED) {
+        Ok(outcome) => return Ok(outcome),
+        Err(Evaluation::Range(trigger)) => trigger,
+        Err(Evaluation::Failed(error)) => return Err(error),
+    };
+    let refuse = |reason: ForceScaleReason| {
+        ForceScaledError::Refused(ForceScalingRefusal {
+            reason,
+            trigger: Some(trigger.clone()),
+        })
+    };
+    let force_scale = force_scale_census(case)
+        .map_err(ForceScaledError::Formation)?
+        .force_scale()
+        .map_err(refuse)?;
+    match evaluate_force_scaled(case, force_scale) {
+        Ok(outcome) => Ok(outcome),
+        Err(Evaluation::Range(_)) => Err(refuse(ForceScaleReason::ScaledEvaluation)),
+        Err(Evaluation::Failed(ForceScaledError::Refused(refusal))) => Err(refuse(refusal.reason)),
+        Err(Evaluation::Failed(error)) => Err(error),
+    }
 }
 
 /// Named, unchanged binary64 variant of `sparse_direct::structural::
@@ -1985,6 +2696,10 @@ pub(crate) mod kd5_tests;
 #[cfg(test)]
 #[path = "structural_adapter/k1_tests.rs"]
 mod k1_tests;
+
+#[cfg(test)]
+#[path = "structural_adapter/k2b_tests.rs"]
+mod k2b_tests;
 
 #[cfg(test)]
 mod retention_tests {

@@ -1,0 +1,82 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/skewpin/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s
+     Running tests/m03_skew_scope.rs (<wt>/skewpin-target/debug/deps/m03_skew_scope-4f2c745387a5ac56)
+
+running 5 tests
+I9 (12E)I=2^-1030: E=2.499234299669558e-266 bits=0x08c9c9a8b85573a6; (12E)I=8.691694759794e-311 (6E)I=4.345847379897e-311 (4E)I=2.897231586598e-311 (2E)I=1.448615793299e-311; EA/L 2^-918.22 GJ/L 2^-443.47 12EI/L3 2^-913.00 6EI/L2 2^-953.00 4EI/L 2^-992.58 2EI/L 2^-993.58
+I9 (12E)I=2^-1030: exact relative error 2EI/L 1.137801e-13, 4EI/L 5.675013e-14
+I9 counterfactual (12E)I=2^-1030 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 (12E)I=2^-1030 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 counterfactual (12E)I=2^-1030 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 counterfactual (12E)I=2^-1030 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 (12E)I=2^-1030 skew (1,1,1), yref +z: ACCEPTED; least bound 2^-1001.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1001.21
+I9 counterfactual (12E)I=2^-1040 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 (12E)I=2^-1030 skew (1,2,2), yref +x: ACCEPTED; least bound 2^-1002.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1002.00
+I9 counterfactual (12E)I=2^-1040 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 (12E)I=2^-1040: E=2.4406584957710526e-269 bits=0x0829c9a8b85573a6; (12E)I=8.487983164e-314 (6E)I=4.243991582e-314 (4E)I=2.829327721e-314 (2E)I=1.414663861e-314; EA/L 2^-928.22 GJ/L 2^-443.47 12EI/L3 2^-923.00 6EI/L2 2^-963.00 4EI/L 2^-1002.58 2EI/L 2^-1003.58
+test m03_skew_pin_preconditions_hold ... ok
+I9 (12E)I=2^-1040: exact relative error 2EI/L 1.164154e-10, 4EI/L 5.820757e-11
+I9 counterfactual (12E)I=2^-1040 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 (12E)I=2^-1040 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 counterfactual (12E)I=2^-1045 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 counterfactual (12E)I=2^-1045 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 (12E)I=2^-1040 skew (1,1,1), yref +z: ACCEPTED; least bound 2^-1011.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1011.21
+I9 counterfactual (12E)I=2^-1045 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 (12E)I=2^-1040 skew (1,2,2), yref +x: ACCEPTED; least bound 2^-1012.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1012.00
+I9 counterfactual (12E)I=2^-1050 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 parity (12E)I=2^-1030 skew (1,1,1), yref +z reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 (12E)I=2^-1045: E=7.627057799284539e-271 bits=0x07d9c9a8b85573a6; (12E)I=2.65249474e-315 (6E)I=1.32624737e-315 (4E)I=8.84164915e-316 (2E)I=4.42082455e-316; EA/L 2^-933.22 GJ/L 2^-443.47 12EI/L3 2^-928.00 6EI/L2 2^-968.00 4EI/L 2^-1007.58 2EI/L 2^-1008.58
+I9 (12E)I=2^-1045: exact relative error 2EI/L 3.725290e-9, 4EI/L 1.862645e-9
+I9 counterfactual (12E)I=2^-1050 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 (12E)I=2^-1045 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 counterfactual (12E)I=2^-1050 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 counterfactual (12E)I=2^-1055 axis x, yref +y with 6EI/L^2 = 3.340280600014894e-293: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 (12E)I=2^-1045 skew (1,1,1), yref +z: ACCEPTED; least bound 2^-1016.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1016.21
+I9 counterfactual (12E)I=2^-1055 skew (1,1,1), yref +z with 6EI/L^2 = 3.340280600014894e-293: Ok(()) (least |T| 0.4082)
+I9 (12E)I=2^-1045 skew (1,2,2), yref +x: ACCEPTED; least bound 2^-1017.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1017.00
+I9 (12E)I=2^-1050: E=2.3834555622764186e-272 bits=0x0789c9a8b85573a6; (12E)I=8.289046e-317 (6E)I=4.144523e-317 (4E)I=2.763015e-317 (2E)I=1.381508e-317; EA/L 2^-938.22 GJ/L 2^-443.47 12EI/L3 2^-933.00 6EI/L2 2^-973.00 4EI/L 2^-1012.58 2EI/L 2^-1013.58
+I9 (12E)I=2^-1050: exact relative error 2EI/L 1.192093e-7, 4EI/L 5.960464e-8
+I9 counterfactual (12E)I=2^-1055 skew (1,2,2), yref +x with 6EI/L^2 = 3.340280600014894e-293: Err(Range("product overflow or underflow")) (least |T| 0.2357)
+I9 (12E)I=2^-1050 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 parity (12E)I=2^-1030 skew (1,1,1), yref +z reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 counterfactual S6a (12E)I=2.5*2^-1075 axis x, yref +y with 6EI/L^2 = 3.340280600014894e-293: Ok(()) (least |T| 1.0000)
+I9 (12E)I=2^-1050 skew (1,1,1), yref +z: ACCEPTED; least bound 2^-1021.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1021.21
+I9 counterfactual S6a (12E)I=2.5*2^-1075 skew (1,1,1), yref +z with 6EI/L^2 = 3.340280600014894e-293: Ok(()) (least |T| 0.4082)
+I9 (12E)I=2^-1050 skew (1,2,2), yref +x: ACCEPTED; least bound 2^-1022.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1022.00
+I9 counterfactual S6a (12E)I=2.5*2^-1075 skew (1,2,2), yref +x with 6EI/L^2 = 3.340280600014894e-293: Ok(()) (least |T| 0.2357)
+I9 (12E)I=2^-1055: E=7.448298632113808e-274 bits=0x0739c9a8b85573a6; (12E)I=2.590327e-318 (6E)I=1.295163e-318 (4E)I=8.63444e-319 (2E)I=4.3172e-319; EA/L 2^-943.22 GJ/L 2^-443.47 12EI/L3 2^-938.00 6EI/L2 2^-978.00 4EI/L 2^-1017.58 2EI/L 2^-1018.58
+test m03_skew_scope_guard_documented_limitation_not_desired_behaviour ... ok
+I9 parity (12E)I=2^-1030 skew (1,1,1), yref +z dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 (12E)I=2^-1055 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+test m03_skew_pin_6eil2_is_the_limiting_coefficient ... ok
+I9 (12E)I=2^-1055 skew (1,1,1), yref +z: REFUSED Range("arithmetic outside normal range")
+I9 (12E)I=2^-1055 skew (1,2,2), yref +x: REFUSED Range("arithmetic outside normal range")
+I9 S6a (12E)I=2.5*2^-1075: E=1.7758127765926858e-279 bits=0x06101e0973356848; (12E)I=5e-324 (6E)I=5e-324 (4E)I=0e0 (2E)I=0e0; EA/L 2^-961.89 GJ/L 2^-443.47 12EI/L3 2^-957.00 6EI/L2 2^-996.00 4EI/L 2^-inf 2EI/L 2^-inf
+I9 S6a (12E)I=2.5*2^-1075 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 S6a (12E)I=2.5*2^-1075 skew (1,1,1), yref +z: REFUSED Range("arithmetic outside normal range")
+I9 S6a (12E)I=2.5*2^-1075 skew (1,2,2), yref +x: REFUSED Range("arithmetic outside normal range")
+test m03_skew_pin_rv7_cases_outcomes_and_figures ... ok
+I9 parity (12E)I=2^-1030 skew (1,2,2), yref +x reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1030 skew (1,2,2), yref +x reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1030 skew (1,2,2), yref +x dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,1,1), yref +z reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,1,1), yref +z reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,1,1), yref +z dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,2,2), yref +x reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,2,2), yref +x reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,2,2), yref +x dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,1,1), yref +z reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,1,1), yref +z reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,1,1), yref +z dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,2,2), yref +x reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,2,2), yref +x reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,2,2), yref +x dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1050 skew (1,1,1), yref +z reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1050 skew (1,1,1), yref +z reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1050 skew (1,1,1), yref +z dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1050 skew (1,2,2), yref +x reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1050 skew (1,2,2), yref +x reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1050 skew (1,2,2), yref +x dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+test m03_skew_pin_dense_and_pattern_outcomes_are_identical ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s

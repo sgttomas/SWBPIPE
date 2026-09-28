@@ -1,0 +1,294 @@
+#!/usr/bin/env python3
+"""K2b (I10) mutation patches. Usage: python3 mutate_k2b.py <core-dir> <id>
+Applies one mutant to a clean copy of projects/chirality-piping/core. Each patch is an exact
+text replacement that must match the stated number of times (once unless noted). The ids:
+- the brief's: K2B-LEAK-PUBLISH, K2B-LEAK-EVIDENCE, K2B-LEAK-STEP1 (b != 0 leaking into the
+  b = 0 path; K2B-LEAK-OPTIONS, run first, is kept for the record but does not count: its
+  patch recursed without end and its only kill was a stack-overflow abort),
+  K2B-NOUNSCALE (unscaling skipped), K2B-UNSCALE-OFF and K2B-UNSCALE-STEPWISE (unscaling
+  inexact), K2B-FORMED (b chosen from formed coefficients), K2B-SUBNORMAL-SKIP,
+  K2B-K-NOT-F (scaling K but not f);
+- ROOT's: K2B-ODD-MIDPOINT (ruling 1), K2B-RECORD-REFUSES and K2B-RECORD-SILENT (checkpoint-A
+  ruling B), K2B-PIN-LOOP, K2B-PIN-PLUMBING, K2B-PIN-THIRD (ruling 5's required pin mutants);
+- I10's own: K2B-FLOOR, K2B-MARGIN-LOW, K2B-MARGIN-HIGH, K2B-EXPONENTS, K2B-SENTINEL,
+  K2B-SPRING-UNSCALED, K2B-BLOCK-UNSCALED, K2B-FSRC-UNSCALED, K2B-FSRC-EG, K2B-GUARD,
+  K2B-PRODUCT-BOTH, K2B-CENSUS-NO-INTERMEDIATES, K2B-OPERAND-SUBNORMAL, K2B-TRIGGER-DROP,
+  K2B-DIRECTION;
+- ROOT's, after checkpoint C (ROOT_RULINGS_V1, "K2b: the b-rule's window misses the solve's
+  range"): K2B-THIRD-ATTEMPT, a bounded, deterministic retry over the other even b in the
+  census window after a step-4 range trigger (run in batch 3, from clean archives of
+  8e6698282 with the pin test overlaid). K2B-THIRD-ATTEMPT-B is the same retry written as an
+  iterator, with no `-=`, so that the S11 site table's token scan cannot see it: only a
+  behavioural assertion can kill it.
+- the RV11 fixes (ROOT's rulings on RV11's review; run from clean archives of 087b3a088 with the
+  fix overlaid): K2B-REACT-UNCHECKED (the reaction's formed row published unchecked, as
+  before the fix), K2B-REACT-PARTIAL (the partial sums unchecked), K2B-ACTIONS-UNCHECKED (the
+  member actions unchecked) and K2B-EXACT-ROUNDUP (a scaled value accepted when it is normal
+  only after rounding up, as before RV11-2).
+- the RV11 delta fixes (ROOT's rulings on RV11's delta check; run from clean archives of
+  f385a8bc8 with the delta fix overlaid): K2B-SPRING-UNCHECKED (the spring action's product
+  unchecked: the checkpoint-D recipe) and K2B-PIN-SPRING-EVASION (the loop's module calls the
+  spring helper with the scale written Default::default())."""
+import sys
+
+core, mid = sys.argv[1], sys.argv[2]
+LIB = core + "/solver/frame_kernel/src/lib.rs"
+LL = core + "/solver/frame_kernel/src/load_ledger.rs"
+ST = core + "/solver/frame_kernel/src/structural.rs"
+SP = core + "/solver/frame_kernel/src/structural/sparse.rs"
+SA = core + "/solver/nonlinear_integration/src/structural_adapter.rs"
+NL = core + "/solver/nonlinear_integration/src/lib.rs"
+
+LOOP_CALL = """        assembly.solve_binary64(
+            stiffness,
+            force,
+            &reduced.free_dofs,
+            &prescribed,
+            linear_solve_mode,
+        )?"""
+ANCHOR_SA = "/// Deterministic storage counts of a `SparseAssemblyEvidence`.\n"
+PREDICTED = """        for predicted in [e + a, e + a - l, g + j, g + j - l] {
+            self.exponent(predicted);
+        }
+        // (exponent of k, power of L) for k = 12, 6, 4, 2.
+        for (k, power) in [(3, 3), (2, 2), (2, 1), (1, 1)] {
+            self.exponent(k + e);
+            for i in [iy, iz] {
+                self.exponent(k + e + i);
+                self.exponent(k + e + i - power * l);
+            }
+        }"""
+PARITY = """        let exponent = if middle.rem_euclid(2) == 0 {
+            middle
+        } else if middle - 1 >= low {
+            middle - 1
+        } else if middle + 1 <= high {
+            middle + 1
+        } else {
+            return Err(window);
+        };"""
+
+MUTANTS = {
+    # ---- the brief's
+    # b != 0 leaking into the b = 0 path: today's assembly options default to 2^2.
+    "K2B-LEAK-OPTIONS": [(SP, "            force_scale: ForceScale::UNSCALED,\n", "            force_scale: ForceScale::new(2).unwrap(),\n")],
+    # b != 0 leaking into the b = 0 publication: a solution at b = 0 is unscaled as if at 2^2.
+    "K2B-LEAK-PUBLISH": [(ST, "    let mut records = Vec::new();\n    if !scale.is_unscaled() {",
+                          "    let mut records = Vec::new();\n    let scale = if scale.is_unscaled() { crate::ForceScale::new(2).unwrap() } else { scale };\n    if !scale.is_unscaled() {")],
+    # b != 0 leaking into the b = 0 evidence: `new_force_scaled` at b = 0 forms at 2^2.
+    "K2B-LEAK-EVIDENCE": [(SA, "        if force_scale.is_unscaled() {\n            return Self::new(node_count, frames, users, curved, springs);\n        }",
+                           "        if force_scale.is_unscaled() {\n            return Self::new_force_scaled(\n                node_count,\n                frames,\n                users,\n                curved,\n                springs,\n                ForceScale::new(2).unwrap(),\n            );\n        }")],
+    # b != 0 leaking into step 1: the orchestrator evaluates step 1 at 2^2.
+    "K2B-LEAK-STEP1": [(SA, "let trigger = match evaluate_force_scaled(case, ForceScale::UNSCALED) {",
+                        "let trigger = match evaluate_force_scaled(case, ForceScale::new(2).unwrap()) {")],
+    # Unscaling skipped: the solution is published at scale.
+    "K2B-NOUNSCALE": [(ST, "    let mut records = Vec::new();\n    if !scale.is_unscaled() {", "    let mut records = Vec::new();\n    if false && !scale.is_unscaled() {")],
+    # Unscaling inexact: residual records unscaled by 2^-(b-2).
+    "K2B-UNSCALE-OFF": [(ST, "    let exponent = row.row_scale_exponent - scale.exponent();", "    let exponent = row.row_scale_exponent - scale.exponent() + 2;")],
+    # Unscaling inexact: actions and reactions rounded at scale, then multiplied down in two steps
+    # (an intermediate subnormal rounds twice).
+    "K2B-UNSCALE-STEPWISE": [(ST, "    let value = exact.round_scaled(shift).map_err(|_| outside.clone())?;",
+                              "    let step = shift.clamp(-512, 512);\n    let value = exact.round().map(|v| v * 2f64.powi(step) * 2f64.powi(shift - step)).map_err(|_| outside.clone())?;\n    if !value.is_finite() {\n        return Err(outside);\n    }")],
+    # b chosen from the formed (unchecked) coefficients instead of the predicted exponents.
+    "K2B-FORMED": [(LIB, PREDICTED, """        let _ = (a, j, l, iy, iz);
+        let (e_, g_) = (section.elastic_modulus, section.shear_modulus);
+        let (l2, l3) = (length * length, length * length * length);
+        for i in [section.second_moment_y, section.second_moment_z] {
+            for c in [12.0 * e_ * i / l3, 6.0 * e_ * i / l2, 4.0 * e_ * i / length, 2.0 * e_ * i / length] {
+                if c != 0.0 && c.is_finite() {
+                    self.exponent(structural::binary_exponent(c));
+                }
+            }
+        }
+        for c in [e_ * section.area / length, g_ * section.torsion_constant / length] {
+            if c != 0.0 && c.is_finite() {
+                self.exponent(structural::binary_exponent(c));
+            }
+        }""")],
+    # The subnormal refusal skipped.
+    "K2B-SUBNORMAL-SKIP": [(LIB, "        if self.subnormal {\n            return Err(structural::ForceScaleReason::SubnormalAtFormation);",
+                            "        if false && self.subnormal {\n            return Err(structural::ForceScaleReason::SubnormalAtFormation);")],
+    # Scaling K but not f: the force-scaled entries solve with the unscaled ledger (4 sites).
+    "K2B-K-NOT-F": [(SA, "        let force = if self.force_scale.is_unscaled() {", "        let force = if true {", 4)],
+    # ---- ROOT's
+    # Ruling 1: the odd midpoint (the design's letter).
+    "K2B-ODD-MIDPOINT": [(LIB, PARITY, "        let exponent = middle;")],
+    # Ruling B: step 5's refusal re-applied to residual records.
+    "K2B-RECORD-REFUSES": [(SA, """        Ok(solution) => Ok(structural::unscale_structural_solution(
+            solution,
+            force_scale,
+            f,
+        )),""", """        Ok(solution) => {
+            let published = structural::unscale_structural_solution(solution, force_scale, f);
+            if let Some(record) = published.records.iter().find(|r| {
+                matches!(
+                    r.representability,
+                    structural::RecordRepresentability::Underflow
+                        | structural::RecordRepresentability::Overflow
+                )
+            }) {
+                return Err(ForceScaledError::refused(
+                    ForceScaleReason::PublicationOutsideBinary64 {
+                        global_dof: Some(record.global_dof),
+                    },
+                ));
+            }
+            Ok(published)
+        }""")],
+    # Ruling B: a residual record's underflow published as a silent zero, with no outcome.
+    "K2B-RECORD-SILENT": [(ST, "    } else if value == 0.0 {\n        RecordRepresentability::Underflow\n", "    } else if value == 0.0 {\n        return value;\n")],
+    # Ruling 5 (required): the loop's solve through a force-scaled entry.
+    "K2B-PIN-LOOP": [(NL, LOOP_CALL, """        {
+            // MUTANT K2B-PIN-LOOP
+            let mut ledger = open_pipe_stress_frame_kernel::load_ledger::LoadLedger::new();
+            for (dof, &v) in force.iter().enumerate() {
+                if v != 0.0 {
+                    ledger.push("mutant", dof, v);
+                }
+            }
+            let typed = ledger.finish(force.len()).unwrap();
+            assembly
+                .solve_force_scaled(stiffness, &typed, &reduced.free_dofs, &prescribed, linear_solve_mode)
+                .map(|s| s.solution)
+                .map_err(|e| match e {
+                    open_pipe_stress_frame_kernel::structural::ForceScaledError::Structural(s) => s,
+                    _ => StructuralError::InvalidInput("mutant"),
+                })?
+        }""")],
+    # Ruling 5 (required): the formation-check plumbing outside the sibling's body.
+    "K2B-PIN-PLUMBING": [(SA, ANCHOR_SA, """#[allow(dead_code)]
+fn mutant_plumbing<'a>(system: StructuralSystem<'a>, source: &'a FormationSource) {
+    let _ = system.with_formation_source(source);
+}
+
+""" + ANCHOR_SA)],
+    # Ruling 5 (required): a third definition of the force-scaled formation-checked sibling.
+    "K2B-PIN-THIRD": [(SA, ANCHOR_SA, """struct MutantK2bThird;
+impl MutantK2bThird {
+    #[allow(dead_code)]
+    fn solve_force_scaled_with_formation_check(&self) {}
+}
+
+""" + ANCHOR_SA)],
+    # ---- I10's own
+    "K2B-FLOOR": [(LIB, "        let middle = (low + high).div_euclid(2);", "        let middle = (low + high) / 2;")],
+    "K2B-MARGIN-LOW": [(LIB, "        let low = -1022 + 64 - e_min;", "        let low = -1022 - e_min;")],
+    "K2B-MARGIN-HIGH": [(LIB, "        let high = 1023 - 8 - e_max;", "        let high = 1023 - e_max;")],
+    "K2B-EXPONENTS": [(ST, "            .map(|&exponent| exponent + half)", "            .map(|&exponent| exponent + half + 1)")],
+    "K2B-SENTINEL": [(ST, "    if row.normalized_denominator == 0.0 {\n        return;\n    }\n", "")],
+    "K2B-SPRING-UNSCALED": [(SP, "                force_scaled_value(\"spring stiffness*2^b (force scale)\", stiffness, force_scale)?,",
+                             "                { let _ = force_scale; stiffness },")],
+    "K2B-BLOCK-UNSCALED": [(SP, """                stiffness: force_scaled_matrix(
+                    "block entry*2^b (force scale)",
+                    &block.stiffness,
+                    force_scale,
+                )?,""", "                stiffness: block.stiffness,")],
+    "K2B-FSRC-UNSCALED": [(SA, "    if force_scale.is_unscaled() {\n        return formation_source(primitives, curved_sources);",
+                           "    if true {\n        return formation_source(primitives, curved_sources);")],
+    "K2B-FSRC-EG": [(SA, """        let moduli = force_scaled_value("E*2^b", m.elastic_modulus, force_scale).and_then(|e| {
+            force_scaled_value("G*2^b", m.shear_modulus, force_scale).map(|g| (e, g))
+        });""", """        let moduli: Result<(f64, f64), FrameKernelError> = Ok((m.elastic_modulus, m.shear_modulus));""")],
+    "K2B-GUARD": [(SA, """        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.geometry(prescribed)?;
+        let symmetry_basis = self.symmetry_basis();
+        let system = StructuralSystem::assembled(""", """        mode: LinearSolveMode,
+    ) -> Result<StructuralSolution, StructuralError> {
+        self.geometry(prescribed)?;
+        let symmetry_basis = self.symmetry_basis();
+        let system = StructuralSystem::assembled(""")],
+    "K2B-PRODUCT-BOTH": [(LL, "                ForceTermKind::Product(scaled, y)", "                ForceTermKind::Product(scaled, crate::exact_normal_scaling(y, b)?)")],
+    "K2B-CENSUS-NO-INTERMEDIATES": [(LIB, "            self.exponent(k + e);\n            for i in [iy, iz] {\n                self.exponent(k + e + i);\n",
+                                     "            for i in [iy, iz] {\n"),
+                                    (LIB, "        for predicted in [e + a, e + a - l, g + j, g + j - l] {",
+                                     "        for predicted in [e + a - l, g + j - l] {")],
+    "K2B-OPERAND-SUBNORMAL": [(LIB, "        if operands.iter().any(|(_, value)| value.is_subnormal()) {", "        if operands.iter().any(|(_, value)| value.is_subnormal() && *value == section.elastic_modulus) {")],
+    "K2B-TRIGGER-DROP": [(SA, "            trigger: Some(trigger.clone()),", "            trigger: { let _ = &trigger; None },")],
+    "K2B-DIRECTION": [(ST, "                .map(|&value| descriptive_shift(value, scale.exponent() / 2))", "                .map(|&value| descriptive_shift(value, -scale.exponent() / 2))")],
+    # ---- ROOT's, after checkpoint C: the "third attempt" (a bounded retry within the window).
+    "K2B-THIRD-ATTEMPT": [(SA, """    let force_scale = force_scale_census(case)
+        .map_err(ForceScaledError::Formation)?
+        .force_scale()
+        .map_err(refuse)?;
+    match evaluate_force_scaled(case, force_scale) {
+        Ok(outcome) => Ok(outcome),
+        Err(Evaluation::Range(_)) => Err(refuse(ForceScaleReason::ScaledEvaluation)),""",
+    """    let census = force_scale_census(case).map_err(ForceScaledError::Formation)?;
+    let force_scale = census.force_scale().map_err(refuse)?;
+    match evaluate_force_scaled(case, force_scale) {
+        Ok(outcome) => Ok(outcome),
+        Err(Evaluation::Range(_)) => {
+            // MUTANT K2B-THIRD-ATTEMPT: a bounded, deterministic retry over the other
+            // even b in the census window, from the top down.
+            if let Some((e_min, e_max)) = census.span() {
+                let (low, high) = (-1022 + 64 - e_min, 1023 - 8 - e_max);
+                let mut b = high - high.rem_euclid(2);
+                while b >= low {
+                    if b != force_scale.exponent() {
+                        if let Ok(outcome) =
+                            evaluate_force_scaled(case, ForceScale::new(b).expect("even b"))
+                        {
+                            return Ok(outcome);
+                        }
+                    }
+                    b -= 2;
+                }
+            }
+            Err(refuse(ForceScaleReason::ScaledEvaluation))
+        }""")],
+    # The same retry as an iterator (no `-=`): invisible to the site table's token scan.
+    "K2B-THIRD-ATTEMPT-B": [(SA, """    let force_scale = force_scale_census(case)
+        .map_err(ForceScaledError::Formation)?
+        .force_scale()
+        .map_err(refuse)?;
+    match evaluate_force_scaled(case, force_scale) {
+        Ok(outcome) => Ok(outcome),
+        Err(Evaluation::Range(_)) => Err(refuse(ForceScaleReason::ScaledEvaluation)),""",
+    """    let census = force_scale_census(case).map_err(ForceScaledError::Formation)?;
+    let force_scale = census.force_scale().map_err(refuse)?;
+    match evaluate_force_scaled(case, force_scale) {
+        Ok(outcome) => Ok(outcome),
+        Err(Evaluation::Range(_)) => {
+            // MUTANT K2B-THIRD-ATTEMPT-B: the same retry, from the top of the window down.
+            let window = census
+                .span()
+                .map(|(e_min, e_max)| (-1022 + 64 - e_min, 1023 - 8 - e_max));
+            let retried = window.into_iter().flat_map(|(low, high)| (low..=high).rev()).find_map(|b| {
+                if b.rem_euclid(2) != 0 || b == force_scale.exponent() {
+                    return None;
+                }
+                evaluate_force_scaled(case, ForceScale::new(b).expect("even b")).ok()
+            });
+            match retried {
+                Some(outcome) => Ok(outcome),
+                None => Err(refuse(ForceScaleReason::ScaledEvaluation)),
+            }
+        }""")],
+    # ---- the RV11 fixes (ROOT's rulings on RV11's review)
+    # RV11-1: the reaction's formed row published unchecked (the fix removed).
+    "K2B-REACT-UNCHECKED": [(SP, '                if !self.row_product_stays_normal(dof, u) {\n                    return Err(ForceScaledError::refused(outside));\n                }\n', "")],
+    # RV11-1: the partial sums of the reaction's row unchecked (products still checked).
+    "K2B-REACT-PARTIAL": [(SP, '            partial += product;\n            if partial != 0.0 && !partial.is_normal() {\n                return false;\n            }\n', "            partial += product;\n")],
+    # RV11-1: the member actions unchecked.
+    "K2B-ACTIONS-UNCHECKED": [(LIB, '        let stays_normal = |a: f64, b: f64, product: f64, partial: f64| {\n            (a == 0.0 || b == 0.0 || product.is_normal()) && (partial == 0.0 || partial.is_normal())\n        };\n', "        let stays_normal = |_: f64, _: f64, _: f64, _: f64| true;\n")],
+    # RV11-2: a scaled value accepted when it is normal only after rounding (the check removed).
+    "K2B-EXACT-ROUNDUP": [(LIB, '    if !(-1022..=1023).contains(&(structural::binary_exponent(value) + exponent)) {\n        return None;\n    }\n', ""), (LIB, '    debug_assert!(scaled.is_normal());\n    Some(scaled)\n', "    scaled.is_normal().then_some(scaled)\n")],
+    # ---- the RV11 delta fixes (ROOT's rulings on RV11's delta check)
+    # RV11D-1: the spring action's product unchecked (the checkpoint-D recipe).
+    "K2B-SPRING-UNCHECKED": [(LIB, '    if scaled != 0.0 && displacement != 0.0 && !action.is_normal() {\n        return Err(structural::ForceScaledError::refused(outside));\n    }\n', "    let _ = outside;\n")],
+    # RV11D-N1: the loop's module calls the spring helper, the scale written Default::default().
+    "K2B-PIN-SPRING-EVASION": [(NL, "\n", "\n\n/// MUTANT K2B-PIN-SPRING-EVASION\n#[allow(dead_code)]\nfn k2b_loop_spring_action(u: &[f64]) -> bool {\n    open_pipe_stress_frame_kernel::force_scaled_spring_action((0, 1.0), u, Default::default()).is_ok()\n}\n", "APPEND")],
+}
+
+if mid != "NONE":
+    for patch in MUTANTS[mid]:
+        path, old, new = patch[:3]
+        count = patch[3] if len(patch) > 3 else 1
+        text = open(path).read()
+        if count == "APPEND":
+            open(path, "w").write(text + new)
+            continue
+        assert text.count(old) == count, (mid, path, text.count(old))
+        open(path, "w").write(text.replace(old, new))
+print("applied", mid)

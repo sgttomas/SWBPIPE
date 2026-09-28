@@ -1,0 +1,27 @@
+{
+ "id": "P2",
+ "description": "a [profile.test] with debug-assertions = false",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+ "line": 11,
+ "wall_s": 293.1,
+ "rc": 101,
+ "compiled": true,
+ "passed": 226,
+ "failed": 1,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on",
+   "at": "tests/retained_wide_k3/k3_tests.rs:420",
+   "source": "assert!(",
+   "message": "debug assertions are off in FK's test build"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

@@ -1,0 +1,12 @@
+## NONE
+## K2B-THIRD-ATTEMPT
+   BUILD ERROR in solver/frame_kernel: ['1 target failed:', 'test failed, to rerun pass `--test s11_site_table`']
+   solver/frame_kernel: site_table_is_exactly_the_accumulations_of_the_scanned_files
+      at tests/s11_site_table.rs:529:5: site table mismatch:
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: structural_adapter::k2b_tests::k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves
+      at src/structural_adapter/k2b_tests.rs:1030:13: assertion `left == right` failed: DenseScrutiny Dense: refused at the rule's b
+## K2B-THIRD-ATTEMPT-B
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: structural_adapter::k2b_tests::k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves
+      at src/structural_adapter/k2b_tests.rs:1030:13: assertion `left == right` failed: DenseScrutiny Dense: refused at the rule's b

@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -501,7 +501,7 @@
+         } else if limbs_zero(window.as_ref()) {
+             return Ok(signed_zero(false));
+         }
+-        round_limbs::<L>(big.negative, window.as_ref(), sticky, scale, p)
++        round_limbs::<L>(big.negative, window.as_ref(), false, scale, p)
+     }
+ }

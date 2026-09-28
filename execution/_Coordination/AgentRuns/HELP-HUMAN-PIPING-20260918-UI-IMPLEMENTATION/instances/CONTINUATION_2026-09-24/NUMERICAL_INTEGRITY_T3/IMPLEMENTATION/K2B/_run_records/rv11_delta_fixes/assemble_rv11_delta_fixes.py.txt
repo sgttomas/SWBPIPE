@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""K2b RETURN addendum 2 (I10, the RV11 delta fixes): copy the new run evidence into
+_run_records/rv11_delta_fixes/, sanitized as addendum 1's assemble_rv11_fixes.py did. Earlier run
+records are not touched.
+- Machine paths become placeholders, longest first: <VENV>, <wt>, {REPO_ROOT}, <scratch>, <home>.
+- A log line longer than 600 characters is cut, with a marker naming the characters removed and the
+  sha256 of the full line; summary files are never cut.
+- Trailing whitespace is stripped; each file ends with exactly one newline. Scripts get a .txt suffix.
+Usage: assemble_rv11d.py <wt> <outer-worktree> <venv> <session-scratchpad> <out-dir>"""
+import hashlib, os, sys
+
+wt, outer, venv, pad, out = sys.argv[1:6]
+home = os.path.expanduser("~")
+LIMIT = 600
+PLACES = sorted([(venv, "<VENV>"), (wt, "<wt>"), (outer, "{REPO_ROOT}"), (pad, "<scratch>"),
+                 ("/private" + pad if not pad.startswith("/private") else pad[len("/private"):], "<scratch>"),
+                 (home, "<home>")], key=lambda p: -len(p[0]))
+UNCUT = ("MUTANTS.txt", "kill_sites.txt", "callers.txt")
+count = 0
+
+def clean(text, cut):
+    for path, name in PLACES:
+        text = text.replace(path, name)
+    lines = []
+    for line in text.split("\n"):
+        line = line.rstrip()
+        if cut and len(line) > LIMIT:
+            digest = hashlib.sha256(line.encode()).hexdigest()
+            line = line[:LIMIT] + f" [... K2b-records cut: {len(line) - LIMIT} more characters; sha256 of the full line {digest}]"
+        lines.append(line)
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+def put(src, rel):
+    global count
+    dst = os.path.join(out, rel)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    with open(src, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    with open(dst, "w", encoding="utf-8") as f:
+        f.write(clean(text, not rel.endswith(UNCUT)))
+    count += 1
+
+D = os.path.join(wt, "scratch", "i10", "rv11d")
+for name in ["fk", "sd", "ni", "pp"]:
+    put(os.path.join(D, f"test_{name}.log"), f"targeted/test_{name}.log")
+M = os.path.join(D, "mut")
+for name in ["mutate_k2b.py", "mutate_k1.py", "mutate_rv11.py", "mutate_rv11d.py", "apply.sh", "run_mutant.sh",
+             "drive.sh", "kill_sites.py"]:
+    put(os.path.join(M, name), f"mutations/{name}.txt")
+for name in ["ids.txt", "overlay.txt", "MUTANTS.txt", "kill_sites.txt", "drive.log"]:
+    put(os.path.join(M, name), f"mutations/{name}")
+for name in sorted(os.listdir(os.path.join(M, "logs"))):
+    put(os.path.join(M, "logs", name), f"mutations/logs/{name}")
+put(os.path.join(D, "callers.txt"), "callers.txt")
+put(os.path.join(D, "scan_callers.sh"), "scan_callers.sh.txt")
+put(os.path.join(D, "assemble_rv11d.py"), "assemble_rv11_delta_fixes.py.txt")
+print(f"done: {count} files")

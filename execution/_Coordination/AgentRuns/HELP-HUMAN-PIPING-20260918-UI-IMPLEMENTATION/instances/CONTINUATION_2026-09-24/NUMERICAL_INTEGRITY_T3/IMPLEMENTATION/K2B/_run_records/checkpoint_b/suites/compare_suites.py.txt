@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""K2b checkpoint B (I10): per-test comparison of the K2b candidate suite logs with the Mac main baseline.
+Each test is keyed by (manifest, test target, test name); a doc test's '(line N)' is dropped,
+since a change moves lines. The baseline takes a manifest's no-fail-fast log where one exists."""
+import re, sys, os, glob, json
+base_dir, cand_dir = sys.argv[1], sys.argv[2]
+RUN = re.compile(r'^\s+Running (.+?) \((?:.*/)?deps/([A-Za-z0-9_]+)-[0-9a-f]+\)')
+DOC = re.compile(r'^\s+Doc-tests (\S+)')
+TEST = re.compile(r'^test (.+?) \.\.\. (ok|FAILED|ignored)(?:, .*)?$')
+def parse(path):
+    out = {}; target = None
+    for line in open(path, errors='replace'):
+        m = RUN.match(line)
+        if m: target = f"{m.group(1)}::{m.group(2)}"; continue
+        m = DOC.match(line)
+        if m: target = f"doc::{m.group(1)}"; continue
+        m = TEST.match(line.rstrip('\n'))
+        if m and target:
+            name = re.sub(r' \(line \d+\)', '', m.group(1))
+            key = (target, name)
+            if key in out: out[key] = out[key] + '|' + m.group(2)
+            else: out[key] = m.group(2)
+    return out
+def logs(d):
+    res = {}
+    manifests = [l.strip() for l in open(os.path.join(d, 'manifests.txt')) if l.strip()]
+    for i, mf in enumerate(manifests):
+        tag = mf.replace('/', '_')
+        nff = os.path.join(d, f'nofailfast_{tag}.log')
+        path = nff if os.path.exists(nff) else os.path.join(d, f'{i:03d}_{tag}.log')
+        res[mf] = (os.path.basename(path), parse(path))
+    return res
+base, cand = logs(base_dir), logs(cand_dir)
+report = {'manifests': {}, 'changed': [], 'removed': [], 'added': [], 'cand_failures': [], 'base_failures': []}
+for mf in sorted(set(base) | set(cand)):
+    b = base.get(mf, ('-', {}))[1]; k = cand.get(mf, ('-', {}))[1]
+    def cnt(r): return {s: sum(1 for v in r.values() if v == s) for s in ('ok', 'FAILED', 'ignored')}
+    report['manifests'][mf] = {'base_log': base.get(mf, ('-',))[0], 'base': cnt(b), 'cand': cnt(k)}
+    for key in sorted(set(b) | set(k)):
+        tb, tk = b.get(key), k.get(key)
+        entry = [mf, key[0], key[1], tb, tk]
+        if tb is None: report['added'].append(entry)
+        elif tk is None: report['removed'].append(entry)
+        elif tb != tk: report['changed'].append(entry)
+        if tk == 'FAILED': report['cand_failures'].append(entry)
+        if tb == 'FAILED': report['base_failures'].append(entry)
+json.dump(report, open(sys.argv[3], 'w'), indent=1)
+for mf, v in report['manifests'].items():
+    flag = '' if (v['base']['FAILED'], ) == (v['cand']['FAILED'],) else '  <-- failures differ'
+    print(f"{mf}: base ok={v['base']['ok']} failed={v['base']['FAILED']} ignored={v['base']['ignored']} | cand ok={v['cand']['ok']} failed={v['cand']['FAILED']} ignored={v['cand']['ignored']}{flag}")
+for k in ('changed', 'removed', 'cand_failures', 'base_failures'):
+    print(f"== {k}: {len(report[k])}")
+    for e in report[k]: print('   ', e)
+print(f"== added (new in the candidate): {len(report['added'])}")
+for e in report['added']: print('   ', e[0], e[1], e[2], e[4])

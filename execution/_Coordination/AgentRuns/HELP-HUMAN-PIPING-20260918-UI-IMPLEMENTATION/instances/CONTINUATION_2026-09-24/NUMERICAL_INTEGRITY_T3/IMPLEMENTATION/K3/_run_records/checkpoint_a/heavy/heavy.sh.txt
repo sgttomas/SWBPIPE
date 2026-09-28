@@ -1,0 +1,14 @@
+#!/bin/zsh
+BIN=<wt>/k3-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904
+OUT=<scratch>/runs/heavy
+mkdir -p $OUT
+for t in seeded_fraction_differential_at_p256_l4 seeded_fraction_differential_at_p512_l8 seeded_fraction_differential_at_p1024_l16 seeded_fraction_differential_at_mixed_precision_l4 seeded_fraction_differential_at_mixed_precision_l8 seeded_fraction_differential_at_mixed_precision_l16 seeded_conversion_differential_at_l2 seeded_conversion_differential_at_l4 seeded_conversion_differential_at_l8 seeded_conversion_differential_at_l16 p53_matches_hardware_binary64_bitwise_at_l4 p53_matches_hardware_binary64_bitwise_at_l8 p53_matches_hardware_binary64_bitwise_at_l16 l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests; do
+  load=$(sysctl -n vm.loadavg)
+  s=$(date +%s.%N 2>/dev/null || python3 -c 'import time;print(time.time())')
+  s=$(python3 -c 'import time;print(time.time())')
+  $BIN --exact structural::retained::wide::multi::tests::$t --nocapture --test-threads=1 > $OUT/$t.log 2>&1
+  rc=$?
+  e=$(python3 -c 'import time;print(time.time())')
+  echo "$t rc=$rc wall=$(python3 -c "print(round($e-$s,1))")s load_before=$load" >> $OUT/summary.txt
+done
+echo DONE >> $OUT/summary.txt

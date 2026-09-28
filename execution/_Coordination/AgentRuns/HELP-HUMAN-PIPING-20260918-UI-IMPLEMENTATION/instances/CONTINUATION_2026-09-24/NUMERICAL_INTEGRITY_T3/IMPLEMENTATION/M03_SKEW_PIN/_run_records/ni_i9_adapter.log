@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (.claude/t3/skewpin-target/suites_cand/debug/deps/open_pipe_stress_nonlinear_integration-aa9f5954f99016ca)
+
+running 1 test
+I9 adapter (12E)I=2^-1030 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1030 skew (1,1,1), yref +z SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1030 skew (1,2,2), yref +x DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1030 skew (1,2,2), yref +x SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1040 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1040 skew (1,1,1), yref +z SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1040 skew (1,2,2), yref +x DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1040 skew (1,2,2), yref +x SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1045 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1045 skew (1,1,1), yref +z SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1045 skew (1,2,2), yref +x DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1045 skew (1,2,2), yref +x SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1050 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1050 skew (1,1,1), yref +z SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1050 skew (1,2,2), yref +x DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1050 skew (1,2,2), yref +x SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+test structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 97 filtered out; finished in 0.02s

@@ -1,0 +1,52 @@
+## NONE
+## K2B-SPRING-UNCHECKED
+   BUILD ERROR in solver/frame_kernel: ['1 target failed:', 'test failed, to rerun pass `--test k2b_force_scaling`']
+   solver/frame_kernel: k2b_rv11d_force_scaled_spring_action_checks_its_product_at_every_b
+      at tests/k2b_force_scaling.rs:1251:5: assertion `left == right` failed
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: structural_adapter::k2b_tests::k2b_rv11d_spring_action_at_scale_is_refused_never_a_wrong_normal
+      at src/structural_adapter/k2b_tests.rs:1696:13: assertion `left == right` failed: DenseScrutiny Dense
+## K2B-PIN-SPRING-EVASION
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product
+      at src/s11k_tests.rs:1613:13: assertion `left == right` failed: lib.rs names the force-scaled entry force_scaled_spring_action
+## RV11D-ACTIONS-LOCAL-UNCHECKED
+   BUILD ERROR in solver/frame_kernel: ['1 target failed:', 'test failed, to rerun pass `--test k2b_force_scaling`']
+   solver/frame_kernel: k2b_rv11d_end_actions_check_the_local_displacement_stage_at_every_b
+      at tests/k2b_force_scaling.rs:1207:9: assertion `left == right` failed: b = 0
+## RV11D-ACTIONS-B0-EXEMPT
+   BUILD ERROR in solver/frame_kernel: ['1 target failed:', 'test failed, to rerun pass `--test k2b_force_scaling`']
+   solver/frame_kernel: k2b_rv11d_end_actions_check_the_local_displacement_stage_at_every_b
+      at tests/k2b_force_scaling.rs:1207:9: assertion `left == right` failed: b = 0
+## RV11D-PIN-ACTIONS-EVASION
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product
+      at src/s11k_tests.rs:1613:13: assertion `left == right` failed: lib.rs names the force-scaled entry force_scaled_end_actions
+## K2B-PIN-LOOP
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64
+      at src/s11k_tests.rs:924:13: assertion `left == right` failed: g=0.05 DenseScrutiny
+   solver/nonlinear_integration: s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path
+      at src/s11k_tests.rs:834:17: assertion `left == right` failed: g=0.05 DenseScrutiny assembly=true
+   solver/nonlinear_integration: s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check
+      at src/s11k_tests.rs:1478:17: assertion `left != right` failed: g=0.03 DenseScrutiny: precondition, the unit solve paths differ
+   solver/nonlinear_integration: s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product
+      at src/s11k_tests.rs:1613:13: assertion `left == right` failed: lib.rs names the force-scaled entry solve_force_scaled
+   solver/nonlinear_integration: s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path
+      at src/s11k_tests.rs:519:9: missing legacy call target assembly.solve_binary64(
+   solver/nonlinear_integration: s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point
+      at src/s11k_tests.rs:1222:5: assertion failed: lib.contains("assembly.solve_binary64(")
+   solver/nonlinear_integration: tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt
+      at src/lib.rs:4837:13: assertion failed: product_unsupported_gap_inspection_conditions(&input, &solved).unwrap()
+   solver/nonlinear_integration: tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+      at src/lib.rs:4791:13: assertion failed: product_unsupported_gap_state_is_inspectable(&input, &[], &solved).unwrap()
+## K2B-PIN-PLUMBING
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point
+      at src/s11k_tests.rs:1176:13: assertion `left == right` failed: structural_adapter.rs reaches with_formation_source outside the typed formation-checked entry
+## K2B-PIN-THIRD
+   BUILD ERROR in solver/nonlinear_integration: ['1 target failed:', 'test failed, to rerun pass `--lib`']
+   solver/nonlinear_integration: s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product
+      at src/s11k_tests.rs:1600:17: assertion `left == right` failed: fn solve_force_scaled_with_formation_check(
+   solver/nonlinear_integration: s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point
+      at src/s11k_tests.rs:1560:5: assertion `left == right` failed: the force-scaled formation-checked sibling is defined once in each adapter impl, and nowhere else

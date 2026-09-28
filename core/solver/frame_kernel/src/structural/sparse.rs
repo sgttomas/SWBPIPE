@@ -36,8 +36,8 @@
 use super::*;
 use crate::load_ledger::ReducedForce;
 use crate::{
-    element_dof_map, FrameElement, FrameKernelError, Matrix12, UserStiffnessElement, DOF_PER_NODE,
-    ELEMENT_DOF,
+    element_dof_map, force_scaled_matrix, force_scaled_value, ForceScale, FrameElement,
+    FrameKernelError, Matrix12, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF,
 };
 
 // ------------------------------------------------------------------ pattern
@@ -379,6 +379,93 @@ impl SparseStiffness {
             })
             .collect())
     }
+
+    /// K2b (D1 §4.7 step 5): the E12 reactions of `dofs` for a system formed
+    /// at 2^b. This stiffness is formed at 2^b, `u` holds the solve's
+    /// displacements (never scaled) and `force` is the case's **unscaled**
+    /// ledger force, whose terms are taken at 2^b
+    /// (`AssembledForce::force_scaled`).
+    /// - The formed row `K * u` (`multiply`'s binary64 row, the same bits) is
+    ///   checked at 2^b (RV11-1, ROOT's rulings on RV11's review): each product
+    ///   of nonzero operands, and each partial sum, must be normal (a partial
+    ///   sum may also be an exact zero). Otherwise the reaction is refused
+    ///   with step 5's `PublicationOutsideBinary64`; it is never published.
+    ///   With every value normal, the row is exactly 2^b times the row an
+    ///   unbounded exponent range would give, so no bit is lost to the scale.
+    /// - Each reaction is then one exact sum of that row and the DOF's terms
+    ///   at 2^b, rounded once at 2^-b, with step 5's outcome: normal exact,
+    ///   subnormal with its stated precision, and a nonzero underflow or an
+    ///   overflow refused (never flushed). An exact zero is +0.0, as in
+    ///   `reactions`.
+    /// - The check applies at every b, b = 0 included, so no row that left
+    ///   the normal range is ever published. Every value published at b = 0
+    ///   has the bits of `reactions`.
+    pub fn force_scaled_reactions(
+        &self,
+        u: &[f64],
+        force: &AssembledForce,
+        force_scale: ForceScale,
+        dofs: &[usize],
+    ) -> Result<Vec<PublishedValue>, ForceScaledError> {
+        if force.len() != self.dimension() {
+            return Err(ForceScaledError::Structural(StructuralError::InvalidInput(
+                "force vector",
+            )));
+        }
+        if dofs.iter().any(|&dof| dof >= self.dimension()) {
+            return Err(ForceScaledError::Structural(StructuralError::InvalidInput(
+                "reaction DOF",
+            )));
+        }
+        let owned;
+        let scaled = if force_scale.is_unscaled() {
+            force
+        } else {
+            owned = force
+                .force_scaled(force_scale)
+                .map_err(ForceScaledError::refused)?;
+            &owned
+        };
+        let internal = self.multiply(u).map_err(ForceScaledError::Structural)?;
+        dofs.iter()
+            .map(|&dof| {
+                let outside = ForceScaleReason::PublicationOutsideBinary64 {
+                    global_dof: Some(dof),
+                };
+                if !self.row_product_stays_normal(dof, u) {
+                    return Err(ForceScaledError::refused(outside));
+                }
+                let mut exact = ExactAccumulator::new();
+                exact
+                    .add(internal[dof])
+                    .and_then(|()| scaled.accumulate_dof(dof, &mut exact, true))
+                    .map_err(|_| ForceScaledError::refused(outside))?;
+                publication_outcome(&exact, -force_scale.exponent(), 0.0, Some(dof))
+                    .map_err(ForceScaledError::refused)
+            })
+            .collect()
+    }
+
+    /// K2b (RV11-1): whether row `row`'s formed `K * u`, in `multiply`'s
+    /// order, stays in the normal range: every product of nonzero operands is
+    /// normal, and every partial sum is normal or an exact zero. (A partial
+    /// sum is zero only when the exact sum is zero.) The appended signed
+    /// zeros of `multiply` cannot change a magnitude, so they are not
+    /// re-checked. `u` has the stiffness's dimension (`multiply` checked it).
+    fn row_product_stays_normal(&self, row: usize, u: &[f64]) -> bool {
+        let mut partial = 0.0_f64;
+        for (j, k) in self.row(row) {
+            let product = k * u[j];
+            if k != 0.0 && u[j] != 0.0 && !product.is_normal() {
+                return false;
+            }
+            partial += product;
+            if partial != 0.0 && !partial.is_normal() {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 // ------------------------------------------------------------------ assembly
@@ -387,13 +474,82 @@ impl SparseStiffness {
 /// here, so callers built with `SparseAssemblyOptions::new()` need no change.
 #[derive(Debug, Clone, Default, PartialEq)]
 #[non_exhaustive]
-pub struct SparseAssemblyOptions {}
+pub struct SparseAssemblyOptions {
+    /// K2b (D1 §4.7, formation-time scaling): 2^b, even; `UNSCALED` by default.
+    force_scale: ForceScale,
+}
 
 impl SparseAssemblyOptions {
     /// Today's formation: unscaled.
     pub fn new() -> Self {
-        Self {}
+        Self {
+            force_scale: ForceScale::UNSCALED,
+        }
     }
+
+    /// K2b: form every frame (E and G), user element, block and spring at
+    /// 2^b, exactly (`FrameElement::force_scaled`, `force_scaled_matrix`,
+    /// `force_scaled_value`).
+    pub fn with_force_scale(mut self, force_scale: ForceScale) -> Self {
+        self.force_scale = force_scale;
+        self
+    }
+
+    pub fn force_scale(&self) -> ForceScale {
+        self.force_scale
+    }
+}
+
+/// K2b: the inputs of `assemble_sparse_stiffness` formed at 2^b.
+type ForceScaledInputs = (
+    Vec<FrameElement>,
+    Vec<UserStiffnessElement>,
+    Vec<StiffnessBlock>,
+    Vec<(usize, f64)>,
+);
+
+/// K2b: the frames (E and G), user elements, blocks and springs times 2^b,
+/// exactly, in their given order. A value that cannot stay normal is
+/// `NumericalRange` with the scaled operand's name.
+fn force_scaled_inputs(
+    frames: &[FrameElement],
+    users: &[UserStiffnessElement],
+    blocks: &[StiffnessBlock],
+    springs: &[(usize, f64)],
+    force_scale: ForceScale,
+) -> Result<ForceScaledInputs, FrameKernelError> {
+    let frames = frames
+        .iter()
+        .map(|element| element.force_scaled(force_scale))
+        .collect::<Result<Vec<_>, _>>()?;
+    let users = users
+        .iter()
+        .map(|element| element.force_scaled(force_scale))
+        .collect::<Result<Vec<_>, _>>()?;
+    let blocks = blocks
+        .iter()
+        .map(|block| {
+            Ok(StiffnessBlock {
+                node_i: block.node_i,
+                node_j: block.node_j,
+                stiffness: force_scaled_matrix(
+                    "block entry*2^b (force scale)",
+                    &block.stiffness,
+                    force_scale,
+                )?,
+            })
+        })
+        .collect::<Result<Vec<_>, FrameKernelError>>()?;
+    let springs = springs
+        .iter()
+        .map(|&(dof, stiffness)| {
+            Ok((
+                dof,
+                force_scaled_value("spring stiffness*2^b (force scale)", stiffness, force_scale)?,
+            ))
+        })
+        .collect::<Result<Vec<_>, FrameKernelError>>()?;
+    Ok((frames, users, blocks, springs))
 }
 
 /// An element given by its global 12×12 matrix (a realized curved bend, or
@@ -441,7 +597,20 @@ pub fn assemble_sparse_stiffness(
     springs: &[(usize, f64)],
     options: &SparseAssemblyOptions,
 ) -> Result<SparseStiffness, FrameKernelError> {
-    let SparseAssemblyOptions {} = options;
+    let SparseAssemblyOptions { force_scale } = options;
+    if !force_scale.is_unscaled() {
+        // K2b: the same assembly, of the inputs formed at 2^b.
+        let (frames, users, blocks, springs) =
+            force_scaled_inputs(frames, users, blocks, springs, *force_scale)?;
+        return assemble_sparse_stiffness(
+            node_count,
+            &frames,
+            &users,
+            &blocks,
+            &springs,
+            &SparseAssemblyOptions::new(),
+        );
+    }
     let dimension = node_count * DOF_PER_NODE;
     let mut formed: Vec<(usize, usize, Matrix12)> = Vec::with_capacity(frames.len() + users.len());
     for element in frames {

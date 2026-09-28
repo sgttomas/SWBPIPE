@@ -1,0 +1,16 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -249,11 +249,11 @@
+ /// a += b (same length); returns the carry out of the top limb.
+ fn add_in_place(a: &mut [u64], b: &[u64]) -> bool {
+     let mut carry = false;
+-    for (x, &y) in a.iter_mut().zip(b) {
++    for (i, (x, &y)) in a.iter_mut().zip(b).enumerate() {
+         let (s, c1) = x.overflowing_add(y);
+         let (s, c2) = s.overflowing_add(u64::from(carry));
+         *x = s;
+-        carry = c1 || c2;
++        carry = (c1 || c2) && i == 0;
+     }
+     carry
+ }

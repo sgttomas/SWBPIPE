@@ -1,0 +1,78 @@
+core/gui/viewport_editor/Cargo.toml: base ok=6 failed=0 ignored=0 | cand ok=6 failed=0 ignored=0
+core/library_import/library_import_document/Cargo.toml: base ok=19 failed=0 ignored=0 | cand ok=19 failed=0 ignored=0
+core/loads/load_case_algebra/Cargo.toml: base ok=21 failed=0 ignored=0 | cand ok=21 failed=0 ignored=0
+core/loads/primitive_loads/Cargo.toml: base ok=49 failed=0 ignored=0 | cand ok=49 failed=0 ignored=0
+core/loads/self_weight_wasm/Cargo.toml: base ok=14 failed=0 ignored=0 | cand ok=14 failed=0 ignored=0
+core/loads/stress_recovery/Cargo.toml: base ok=48 failed=0 ignored=0 | cand ok=48 failed=0 ignored=0
+core/loads/user_loads/Cargo.toml: base ok=28 failed=0 ignored=0 | cand ok=28 failed=0 ignored=0
+core/model_operations/operation_applier/Cargo.toml: base ok=194 failed=0 ignored=0 | cand ok=194 failed=0 ignored=0
+core/product_physics/Cargo.toml: base ok=525 failed=1 ignored=1 | cand ok=525 failed=1 ignored=1
+core/reporting/audit_manifest/Cargo.toml: base ok=13 failed=0 ignored=0 | cand ok=13 failed=0 ignored=0
+core/reporting/pdf_emitter/Cargo.toml: base ok=8 failed=0 ignored=0 | cand ok=8 failed=0 ignored=0
+core/reporting/protected_content_linter/Cargo.toml: base ok=23 failed=0 ignored=0 | cand ok=23 failed=0 ignored=0
+core/reporting/report_generator/Cargo.toml: base ok=10 failed=0 ignored=0 | cand ok=10 failed=0 ignored=0
+core/reporting/report_package/Cargo.toml: base ok=20 failed=0 ignored=0 | cand ok=20 failed=0 ignored=0
+core/reporting/report_renderer/Cargo.toml: base ok=8 failed=0 ignored=0 | cand ok=8 failed=0 ignored=0
+core/reporting/report_sections/Cargo.toml: base ok=13 failed=0 ignored=0 | cand ok=13 failed=0 ignored=0
+core/reporting/result_export/Cargo.toml: base ok=91 failed=0 ignored=0 | cand ok=91 failed=0 ignored=0
+core/rules/completeness_checker/Cargo.toml: base ok=12 failed=0 ignored=0 | cand ok=12 failed=0 ignored=0
+core/rules/expression_evaluator/Cargo.toml: base ok=32 failed=0 ignored=0 | cand ok=32 failed=0 ignored=0
+core/rules/rule_check_runner/Cargo.toml: base ok=21 failed=0 ignored=0 | cand ok=21 failed=0 ignored=0
+core/rules/rule_pack_document/Cargo.toml: base ok=10 failed=0 ignored=0 | cand ok=10 failed=0 ignored=0
+core/rules/rule_pack_lifecycle/Cargo.toml: base ok=12 failed=0 ignored=0 | cand ok=12 failed=0 ignored=0
+core/runner/headless/Cargo.toml: base ok=82 failed=2 ignored=0 | cand ok=82 failed=2 ignored=0
+core/serialization/canonical_json/Cargo.toml: base ok=24 failed=0 ignored=0 | cand ok=24 failed=0 ignored=0
+core/solver/curved_bend/Cargo.toml: base ok=25 failed=0 ignored=0 | cand ok=25 failed=0 ignored=0
+core/solver/diagnostics/Cargo.toml: base ok=25 failed=0 ignored=0 | cand ok=25 failed=0 ignored=0
+core/solver/frame_kernel/Cargo.toml: base ok=179 failed=0 ignored=0 | cand ok=193 failed=0 ignored=0
+core/solver/linear_supports/Cargo.toml: base ok=15 failed=0 ignored=0 | cand ok=15 failed=0 ignored=0
+core/solver/nonlinear_integration/Cargo.toml: base ok=101 failed=0 ignored=0 | cand ok=115 failed=0 ignored=0
+core/solver/nonlinear_supports/Cargo.toml: base ok=22 failed=0 ignored=0 | cand ok=22 failed=0 ignored=0
+core/solver/performance_harness/Cargo.toml: base ok=25 failed=0 ignored=0 | cand ok=25 failed=0 ignored=0
+core/solver/sparse_direct/Cargo.toml: base ok=30 failed=0 ignored=0 | cand ok=30 failed=0 ignored=0
+core/solver/straight_pipe/Cargo.toml: base ok=42 failed=0 ignored=0 | cand ok=42 failed=0 ignored=0
+core/units/Cargo.toml: base ok=17 failed=0 ignored=0 | cand ok=17 failed=0 ignored=0
+validation/benchmarks/mechanics/Cargo.toml: base ok=41 failed=0 ignored=0 | cand ok=41 failed=0 ignored=0
+validation/benchmarks/nonlinear/Cargo.toml: base ok=19 failed=0 ignored=0 | cand ok=19 failed=0 ignored=0
+validation/benchmarks/numerical_integrity/Cargo.toml: base ok=0 failed=0 ignored=0 | cand ok=0 failed=0 ignored=0
+validation/benchmarks/physics_audit_regression/Cargo.toml: base ok=15 failed=0 ignored=0 | cand ok=15 failed=0 ignored=0
+validation/benchmarks/stress/Cargo.toml: base ok=23 failed=0 ignored=0 | cand ok=23 failed=0 ignored=0
+== changed: 0
+== removed: 0
+== cand_failures: 3
+    ['core/product_physics/Cargo.toml', 'unittests src/lib.rs::open_pipe_stress_product_physics', 's11g_tests::t13_committed_fallback_uz_is_byte_identical', 'FAILED', 'FAILED']
+    ['core/runner/headless/Cargo.toml', 'tests/load_reference_cli.rs::load_reference_cli', 'cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route', 'FAILED', 'FAILED']
+    ['core/runner/headless/Cargo.toml', 'unittests src/lib.rs::open_pipe_stress_headless_runner', 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes', 'FAILED', 'FAILED']
+== base_failures: 3
+    ['core/product_physics/Cargo.toml', 'unittests src/lib.rs::open_pipe_stress_product_physics', 's11g_tests::t13_committed_fallback_uz_is_byte_identical', 'FAILED', 'FAILED']
+    ['core/runner/headless/Cargo.toml', 'tests/load_reference_cli.rs::load_reference_cli', 'cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route', 'FAILED', 'FAILED']
+    ['core/runner/headless/Cargo.toml', 'unittests src/lib.rs::open_pipe_stress_headless_runner', 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes', 'FAILED', 'FAILED']
+== added (new in the candidate): 28
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_elements_scale_e_g_and_user_stiffnesses_only ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_force_scale_is_even_only ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_force_scaled_reactions_unscale_with_the_outcomes ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_force_scaled_value_is_exact_and_refuses_what_cannot_stay_normal ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_census_refuses_every_kind_of_subnormal_input ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_frame_census_uses_predicted_exponents_not_formed_coefficients ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_ledger_force_scaled_is_exact_term_by_term_and_rounds_each_net_once ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_publication_outcomes ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_refusal_texts_are_the_designs ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_s11g_records_are_dropped_and_unread_by_the_kernel ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_the_window_the_floor_and_the_parity_rule ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_unscaled_error_payloads ok
+    core/solver/frame_kernel/Cargo.toml tests/k2b_force_scaling.rs::k2b_force_scaling k2b_unscaled_residual_records_carry_their_outcome_and_never_refuse ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_existing_entries_refuse_a_force_scaled_evidence ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_lef_small_stays_a_geometry_refusal ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_nonlinear_loop_reaches_no_force_scaled_entry ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_published_reactions_take_the_step_five_outcomes ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_s11k_ledger_terms_and_audit_are_carried_under_b ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_step_four_refuses_a_scaled_evaluation_outside_the_normal_range ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_the_kernel_reads_no_s11g_formation_record ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately ok
+    core/solver/nonlinear_integration/Cargo.toml unittests src/lib.rs::open_pipe_stress_nonlinear_integration structural_adapter::k2b_tests::k2b_the_window_and_subnormal_refusals_keep_the_k2a_trigger ok

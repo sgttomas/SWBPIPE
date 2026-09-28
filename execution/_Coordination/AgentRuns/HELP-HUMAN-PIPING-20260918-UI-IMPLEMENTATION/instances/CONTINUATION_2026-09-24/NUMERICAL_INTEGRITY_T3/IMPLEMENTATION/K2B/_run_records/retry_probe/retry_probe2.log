@@ -1,0 +1,39 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/scratch/i10/d/tree/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.10s
+     Running unittests src/lib.rs (<wt>/k2b-target/d/debug/deps/open_pipe_stress_nonlinear_integration-d01aa3b071f98ccb)
+
+running 1 test
+RETRY2 census span=Some((-1010, 443)) chosen=Ok(312)
+RETRY2 DenseScrutiny Dense b=0 today: Err Range("radix scaling loses normal range")
+RETRY2 DenseScrutiny Dense rule: Err Refused(ForceScalingRefusal { reason: ScaledEvaluation, trigger: Some(Evaluation(Range("radix scaling loses normal range"))) })
+RETRY2 DenseScrutiny Dense forced b=312: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 DenseScrutiny Dense forced b=414: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 DenseScrutiny Dense forced b=416: Err Structural(Range("division overflow or underflow"))
+RETRY2 DenseScrutiny Dense forced b=500: Ok quality=Passed u1=3.5221018286841327e-133 u2=7.044203657368267e-133 records=[]
+RETRY2 DenseScrutiny Dense forced b=572: Ok quality=Passed u1=3.5221018286841327e-133 u2=7.044203657368267e-133 records=[]
+RETRY2 DenseScrutiny Pattern b=0 today: Err Range("radix scaling loses normal range")
+RETRY2 DenseScrutiny Pattern rule: Err Refused(ForceScalingRefusal { reason: ScaledEvaluation, trigger: Some(Evaluation(Range("radix scaling loses normal range"))) })
+RETRY2 DenseScrutiny Pattern forced b=312: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 DenseScrutiny Pattern forced b=414: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 DenseScrutiny Pattern forced b=416: Err Structural(Range("division overflow or underflow"))
+RETRY2 DenseScrutiny Pattern forced b=500: Ok quality=Passed u1=3.5221018286841327e-133 u2=7.044203657368267e-133 records=[]
+RETRY2 DenseScrutiny Pattern forced b=572: Ok quality=Passed u1=3.5221018286841327e-133 u2=7.044203657368267e-133 records=[]
+RETRY2 SparseInteractive Dense b=0 today: Err Range("radix scaling loses normal range")
+RETRY2 SparseInteractive Dense rule: Err Refused(ForceScalingRefusal { reason: ScaledEvaluation, trigger: Some(Evaluation(Range("radix scaling loses normal range"))) })
+RETRY2 SparseInteractive Dense forced b=312: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 SparseInteractive Dense forced b=414: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 SparseInteractive Dense forced b=416: Ok quality=Passed u1=3.522101828684134e-133 u2=7.044203657368268e-133 records=[]
+RETRY2 SparseInteractive Dense forced b=500: Ok quality=Passed u1=3.522101828684134e-133 u2=7.044203657368268e-133 records=[]
+RETRY2 SparseInteractive Dense forced b=572: Ok quality=Passed u1=3.522101828684134e-133 u2=7.044203657368268e-133 records=[]
+RETRY2 SparseInteractive Pattern b=0 today: Err Range("radix scaling loses normal range")
+RETRY2 SparseInteractive Pattern rule: Err Refused(ForceScalingRefusal { reason: ScaledEvaluation, trigger: Some(Evaluation(Range("radix scaling loses normal range"))) })
+RETRY2 SparseInteractive Pattern forced b=312: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 SparseInteractive Pattern forced b=414: Err Structural(Range("radix scaling loses normal range"))
+RETRY2 SparseInteractive Pattern forced b=416: Ok quality=Passed u1=3.522101828684134e-133 u2=7.044203657368268e-133 records=[]
+RETRY2 SparseInteractive Pattern forced b=500: Ok quality=Passed u1=3.522101828684134e-133 u2=7.044203657368268e-133 records=[]
+RETRY2 SparseInteractive Pattern forced b=572: Ok quality=Passed u1=3.522101828684134e-133 u2=7.044203657368268e-133 records=[]
+RETRY2 reference u1=3.522101828684134e-133 u2=7.044203657368268e-133
+test structural_adapter::k2b_tests::k2b_scratch_retry_candidate_two ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 112 filtered out; finished in 0.07s
+

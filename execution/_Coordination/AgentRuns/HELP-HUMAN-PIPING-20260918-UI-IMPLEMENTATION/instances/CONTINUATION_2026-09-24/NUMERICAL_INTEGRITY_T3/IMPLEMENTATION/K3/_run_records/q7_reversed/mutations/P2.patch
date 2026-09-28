@@ -1,0 +1,9 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
++++ b/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
+@@ -9,3 +9,6 @@
+ path = "src/lib.rs"
+
+ [dependencies]
++
++[profile.test]
++debug-assertions = false

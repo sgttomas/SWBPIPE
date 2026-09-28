@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -1187,7 +1187,11 @@
+     #[allow(dead_code)] // K4 API
+     pub(crate) fn round<const M: usize>(&mut self, x: &Wide<M>) -> Result<Wide<L>, WideError> {
+         self.work.charge(OpKind::Round);
+-        round_from::<L, M>(x, self.precision)
++        let mut truncated = *x;
++        if (self.precision as usize) < 64 * M {
++            clear_below(&mut truncated.significand, 64 * M - self.precision as usize);
++        }
++        round_from::<L, M>(&truncated, self.precision)
+     }
+
+     /// ±magnitude · 2^exponent (little-endian limbs, any length) rounded once;

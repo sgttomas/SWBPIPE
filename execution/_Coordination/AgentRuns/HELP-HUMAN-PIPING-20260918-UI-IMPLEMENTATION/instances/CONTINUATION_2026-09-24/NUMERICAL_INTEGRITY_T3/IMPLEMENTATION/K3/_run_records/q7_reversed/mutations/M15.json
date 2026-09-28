@@ -1,0 +1,41 @@
+{
+ "id": "M15",
+ "description": "narrowing truncates instead of rounding",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 1190,
+ "wall_s": 270.3,
+ "rc": 101,
+ "compiled": true,
+ "passed": 224,
+ "failed": 3,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+  "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+  "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:983",
+   "source": "assert_eq!(ctx::<L>(53).round(&big_ones), range);",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2078",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1872",
+   "source": "assert_eq!(tok(&got), fields[5], \"{line}\");",
+   "message": "assertion `left == right` failed: narrow 2 4 53 +ec439f306cace4000000000000000001p-498 +ec439f306cace8p-498"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

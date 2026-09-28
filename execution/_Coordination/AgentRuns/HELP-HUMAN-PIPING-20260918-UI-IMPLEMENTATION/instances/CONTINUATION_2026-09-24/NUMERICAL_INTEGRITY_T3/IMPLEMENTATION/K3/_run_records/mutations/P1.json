@@ -1,0 +1,15 @@
+{
+ "id": "P1",
+ "description": "profile: overflow-checks = false",
+ "file": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+ "line": 20,
+ "wall_s": 27.2,
+ "rc": 0,
+ "compiled": true,
+ "passed": 221,
+ "failed": 0,
+ "failed_tests": [],
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

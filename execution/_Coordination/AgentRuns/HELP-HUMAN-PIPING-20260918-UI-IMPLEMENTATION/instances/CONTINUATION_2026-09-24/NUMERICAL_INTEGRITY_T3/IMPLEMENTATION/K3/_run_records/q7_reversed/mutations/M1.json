@@ -1,0 +1,174 @@
+{
+ "id": "M1",
+ "description": "round toward zero",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 418,
+ "wall_s": 20.7,
+ "rc": 101,
+ "compiled": true,
+ "passed": 205,
+ "failed": 22,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+  "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+  "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+  "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+  "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+  "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+  "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+  "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+  "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+  "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+  "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+  "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+  "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+  "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+  "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+  "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+  "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+  "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+  "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+  "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+  "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+  "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:931",
+   "source": "assert_eq!(c.add(&ones, &half).unwrap(), raw(false, 1, top::<L>()));",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2201",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed: L = 4, p = 53: expansion of +d7e77a8f87daf800000000000000000000000000000000000000000000000000p265 +abcc77118461d000000000000000000000000000000000000000000000000000p-2"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:982",
+   "source": "assert_eq!(ctx::<L>(53).add(&big_ones, &Wide::<L>::ZERO), range);",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2132",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed: -2.753894340421252e-7"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "at": "tests/retained_wide_k3/k3_tests.rs:711",
+   "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+   "message": "assertion `left == right` failed: mixed record 0: -c63b517c0324e23ba59fce47e65db896p1664 +c63b517c0324e23bac652db6758ae47bp1664"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "at": "tests/retained_wide_k3/k3_tests.rs:711",
+   "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+   "message": "assertion `left == right` failed: p128 record 0: +df973cba8c68a80b28c773661fae9d15p1242 +946c68504142a9825d75087420d5f679p1078"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "at": "tests/retained_wide_k3/k3_tests.rs:544",
+   "source": "assert_eq!(core, k3a, \"{line}\");",
+   "message": "assertion `left == right` failed: tie add 53 -85efb84a880560000000000000000000p68 -82063000000000000000000000000000p34 -85efb84aa886f0000000000000000000p68"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2078",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:772",
+   "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+   "message": "assertion `left == right` failed: L = 16: mul -1.0447440937022724e-30 -1.0447440937022726e-30: +e081ab13cbe258000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:772",
+   "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+   "message": "assertion `left == right` failed: L = 4: mul -1.1120122124696969e-61 1.1120122124696969e-61: -82ca747461a9c800000000000000000000000000000000000000000000000000p-405"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:788",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed: L = 8: sqrt 1.8629030607303422e111"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1291",
+   "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: mixed16 record 0"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1291",
+   "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: mixed4 record 0"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1291",
+   "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: mixed8 record 0"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1291",
+   "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: p1024 record 1"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1291",
+   "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: p256 record 0"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+   "message": "assertion `left == right` failed: L = 16: tie add 53 -c3d53aabc7c4bp25 -ca3d18632aep14 -c3ee824ed42a1p25"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+   "message": "assertion `left == right` failed: L = 4: tie add 53 -ae29e228157f3p86 -a77bb91da18p73 -ae2f1e05de6c4p86"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:856",
+   "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+   "message": "assertion `left == right` failed: L = 8: tie add 53 -f49bfd078ba0e8p59 -9d6d1p25 -f49bfd07b2fc3p59"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1993",
+   "source": "assert!(half_ulp_bound(&s, &e, p));",
+   "message": "assertion failed: half_ulp_bound(&s, &e, p)"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1859",
+   "source": "assert_eq!(tok(&s), fields[5], \"{line}\");",
+   "message": "assertion `left == right` failed: twosum 4 53 +95320df71b10fp555 +a2fbcffe6d1ecp582 +a2fbd01113608p582 -8e4ef1p527"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1291",
+   "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: p512 record 1"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

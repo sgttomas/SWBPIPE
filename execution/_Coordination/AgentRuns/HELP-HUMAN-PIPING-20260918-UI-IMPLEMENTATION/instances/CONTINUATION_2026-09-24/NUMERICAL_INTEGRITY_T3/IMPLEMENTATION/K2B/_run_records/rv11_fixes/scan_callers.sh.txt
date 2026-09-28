@@ -1,0 +1,26 @@
+#!/bin/bash
+# K2b records (I10, checkpoint D; RV11 fixes: two names added): where K2b's new public names are referenced, in the K2b worktree
+# at its HEAD. /usr/bin/grep only; Rust, TypeScript and Python sources under projects/ and tools/,
+# build output excluded. Usage: scan_callers.sh <k2b-worktree>
+cd "$1" || exit 1
+echo "K2b callers scan of the working tree (HEAD $(git rev-parse --short=9 HEAD); uncommitted: $(git status --short -- projects/chirality-piping/core | wc -l | tr -d " ") file(s) under core/); /usr/bin/grep -rnw over projects/ and tools/ (*.rs, *.ts, *.tsx, *.py), target/ and node_modules/ excluded"
+NAMES="force_scaled_end_actions row_product_stays_normal ForceScale ForceScaleCensus force_scaled force_scaled_value force_scaled_matrix force_scale_census with_force_scale new_force_scaled solve_force_scaled solve_force_scaled_with_formation_check solve_with_force_scaling ForceScalingCase ForceScalingOutcome EvidenceRepresentation unscale_for_publication unscale_descriptive unscale_structural_solution unscale_structural_error force_scaled_reactions ForceScaledError ForceScaledSolution ForceScalingRefusal ForceScaleReason RangeTrigger PublishedValue Representability RecordRepresentability Reco [... K2b-records cut: 10 more characters; sha256 of the full line 27d426cd21c1dd63831a05da32a1dec53ff335d1a5a78c3272104332eefd64cd]
+for name in $NAMES; do
+  echo
+  echo "== $name"
+  /usr/bin/grep -rnw --include='*.rs' --include='*.ts' --include='*.tsx' --include='*.py' \
+    --exclude-dir=target --exclude-dir=node_modules --exclude-dir=.venv "$name" projects tools 2>/dev/null \
+    | awk -F: '{print $1}' | sort | uniq -c | awk '{print "   " $2 "  (" $1 " lines)"}'
+done
+echo
+echo "== files referencing any name, by kind"
+/usr/bin/grep -rlw --include='*.rs' --include='*.ts' --include='*.tsx' --include='*.py' \
+  --exclude-dir=target --exclude-dir=node_modules --exclude-dir=.venv \
+  -e ForceScale -e force_scaled -e solve_with_force_scaling -e unscale_structural_solution \
+  -e force_scale_census -e new_force_scaled -e force_scaled_reactions projects tools 2>/dev/null | sort | while read f; do
+  case "$f" in
+    */tests/*|*_tests.rs|*/k2b_models.rs) kind=test ;;
+    *) kind=source ;;
+  esac
+  echo "   $kind  $f"
+done

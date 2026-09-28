@@ -1,0 +1,34 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k3/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.22s
+     Running unittests src/lib.rs (<wt>/k3-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 27 tests
+test structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width ... ok
+test structural::retained::wide::multi::tests::attempt_work_merges_across_widths ... ok
+test structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded ... ok
+test structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width ... ok
+test structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention ... ok
+test structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle ... ok
+test structural::retained::wide::multi::tests::existing_wide_error_display_strings_are_unchanged ... ok
+test structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width ... ok
+test structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors ... ok
+test structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53 ... ok
+test structural::retained::wide::multi::tests::limb_multiply_cost_table_is_pinned ... ok
+test structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly ... ok
+test structural::retained::wide::multi::tests::sha256_known_answers ... ok
+test structural::retained::wide::multi::tests::signs_of_zero_the_lift_parts_and_the_precision_range_at_every_width ... ok
+test structural::retained::wide::multi::tests::subnormal_relative_precision_is_rounded_upward ... ok
+test structural::retained::wide::multi::tests::lifted_binary64_values_convert_back_to_the_same_bits_at_every_width ... ok
+test structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4 ... ok
+test structural::retained::wide::multi::tests::committed_vectors_match_their_recorded_sha256 ... ok
+test structural::retained::wide::multi::tests::token_round_trip_and_debug_scheme ... ok
+test structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8 ... ok
+test structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle ... ok
+test structural::retained::wide::multi::tests::wide2_debug_tokens_and_work_counter_are_unchanged ... ok
+test structural::retained::wide::multi::tests::widening_is_exact_and_round_trips ... ok
+test structural::retained::wide::multi::tests::work_is_counted_by_kind_and_width_and_saturates ... ok
+test structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands ... ok
+test structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined ... ok
+test structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16 ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 169 filtered out; finished in 1.03s

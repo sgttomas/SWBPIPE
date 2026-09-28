@@ -1,0 +1,27 @@
+{
+ "id": "M19",
+ "description": "integer constructor ignores limbs far below the kept window (sticky lost)",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 461,
+ "wall_s": 294.8,
+ "rc": 101,
+ "compiled": true,
+ "passed": 226,
+ "failed": 1,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1895",
+   "source": "assert_eq!(tok(&got), fields[7], \"{line}\");",
+   "message": "assertion `left == right` failed: int 4 53 0 -2148 68 19910575c9b65a800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

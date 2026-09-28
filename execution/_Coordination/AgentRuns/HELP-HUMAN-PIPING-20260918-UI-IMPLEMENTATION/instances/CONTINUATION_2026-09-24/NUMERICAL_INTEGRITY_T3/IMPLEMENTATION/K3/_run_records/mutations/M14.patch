@@ -1,0 +1,13 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -611,8 +611,8 @@
+     let av = add_rounded(&s, &negated(&bv), p)?;
+     let da = add_rounded(a, &negated(&av), p)?;
+     let db = add_rounded(b, &negated(&bv), p)?;
+-    let e = add_rounded(&da, &db, p)?;
+-    Ok((s, e))
++    let _e = add_rounded(&da, &db, p)?;
++    Ok((s, signed_zero(false)))
+ }
+
+ /// TwoProduct at p: (s, e) with s = fl_p(a · b) and s + e = a · b, formed as

@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -1082,7 +1082,7 @@
+     where
+         Wide<L>: SupportedWidth,
+     {
+-        self.widths[<Wide<L> as SupportedWidth>::SLOT].merge(&context.work);
++        self.widths[0].merge(&context.work);
+     }
+
+     /// Adds another attempt's counts, width by width.

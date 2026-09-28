@@ -1,0 +1,58 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k2b/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/k2b/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k2b/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/k2b/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/k2b/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/k2b/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/k2b/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k2b/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.30s
+     Running unittests src/lib.rs (<wt>/k2b-target/ni/debug/deps/open_pipe_stress_nonlinear_integration-138914d3df380aaa)
+
+running 15 tests
+test structural_adapter::k2b_tests::k2b_existing_entries_refuse_a_force_scaled_evidence ... ok
+K2B-LEF RF-RANGE-CHAIN-LEF-large DenseScrutiny Dense b=-702 quality=Sensitive worst_ratio=9.747922658634417e1
+K2B-LEF RF-RANGE-CHAIN-LEF-large DenseScrutiny Pattern b=-702 quality=Sensitive worst_ratio=9.747922658634417e1
+K2B-LEF RF-RANGE-CHAIN-LEF-large SparseInteractive Dense b=-702 quality=Sensitive worst_ratio=1.6949376914052152e1
+K2B-LEF RF-RANGE-CHAIN-LEF-large SparseInteractive Pattern b=-702 quality=Sensitive worst_ratio=1.6949376914052152e1
+K2B-LEF RF-RANGE-SKEW-LEF-large DenseScrutiny Dense b=-702 quality=Sensitive worst_ratio=4.970989169521673e3
+K2B-LEF RF-RANGE-SKEW-LEF-large DenseScrutiny Pattern b=-702 quality=Sensitive worst_ratio=4.970989169521673e3
+K2B-LEF RF-RANGE-SKEW-LEF-large SparseInteractive Dense b=-702 quality=Sensitive worst_ratio=8.654025154659335e3
+K2B-LEF RF-RANGE-SKEW-LEF-large SparseInteractive Pattern b=-702 quality=Sensitive worst_ratio=8.654025154659335e3
+K2B-LEF RF-RANGE-CONT-LEF-large DenseScrutiny Dense b=-702 quality=Passed worst_ratio=7.892564614664445e-7
+test s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product ... ok
+test structural_adapter::k2b_tests::k2b_lef_small_stays_a_geometry_refusal ... ok
+test structural_adapter::k2b_tests::k2b_nonlinear_loop_reaches_no_force_scaled_entry ... ok
+K2B-LEF RF-RANGE-CONT-LEF-large DenseScrutiny Pattern b=-702 quality=Passed worst_ratio=7.892564614664445e-7
+test structural_adapter::k2b_tests::k2b_published_reactions_take_the_step_five_outcomes ... ok
+K2B-LEF RF-RANGE-CONT-LEF-large SparseInteractive Dense b=-702 quality=Passed worst_ratio=7.041411666222092e-7
+K2B-LEF RF-RANGE-CONT-LEF-large SparseInteractive Pattern b=-702 quality=Passed worst_ratio=7.041411666222092e-7
+test structural_adapter::k2b_tests::k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing ... ok
+test structural_adapter::k2b_tests::k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit ... ok
+test structural_adapter::k2b_tests::k2b_step_four_refuses_a_scaled_evaluation_outside_the_normal_range ... ok
+test structural_adapter::k2b_tests::k2b_s11k_ledger_terms_and_audit_are_carried_under_b ... ok
+K2B-REACH reach-zero DenseScrutiny Dense b=734 quality=Passed u=[0.1250309069981637] records=[]
+K2B-REACH reach-zero DenseScrutiny Pattern b=734 quality=Passed u=[0.1250309069981637] records=[]
+test structural_adapter::k2b_tests::k2b_the_kernel_reads_no_s11g_formation_record ... ok
+K2B-REACH reach-zero SparseInteractive Dense b=734 quality=Passed u=[0.1250309069981637] records=[]
+K2B-REACH reach-zero SparseInteractive Pattern b=734 quality=Passed u=[0.1250309069981637] records=[]
+K2B-REACH reach-lef DenseScrutiny Dense b=734 quality=Passed u=[0.3695520721184507] records=[]
+K2B-REACH reach-lef DenseScrutiny Pattern b=734 quality=Passed u=[0.3695520721184507] records=[]
+K2B-REACH reach-lef SparseInteractive Dense b=734 quality=Passed u=[0.3695520721184507] records=[]
+K2B-REACH reach-lef SparseInteractive Pattern b=734 quality=Passed u=[0.3695520721184507] records=[]
+K2B-REACH partial-underflow DenseScrutiny Dense b=898 quality=Passed u=[0.0023685054882489455] records=[("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.011111111111111112 }), ("intended_residual_rows.residual", Underflow), ("intended_residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.003703703703703704 })]
+K2B-REACH partial-underflow DenseScrutiny Pattern b=898 quality=Passed u=[0.0023685054882489455] records=[("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.011111111111111112 }), ("intended_residual_rows.residual", Underflow), ("intended_residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.003703703703703704 })]
+K2B-REACH partial-underflow SparseInteractive Dense b=898 quality=Passed u=[0.0023685054882489455] records=[("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.011111111111111112 }), ("intended_residual_rows.residual", Underflow), ("intended_residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.003703703703703704 })]
+K2B-REACH partial-underflow SparseInteractive Pattern b=898 quality=Passed u=[0.0023685054882489455] records=[("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.011111111111111112 }), ("intended_residual_rows.residual", Underflow), ("intended_residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.003703703703703704 })]
+K2B-REACH phys-r4 DenseScrutiny Dense b=536 quality=Passed u=[0.001061032953945969, 0.2829421210522583, 0.42441318157838737, 1.0610329539459693, 0.0, 0.0] records=[("residual_rows.residual", Subnormal { relative_precision: 0.0625 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.002777777777777778 }), ("residual_rows.residual", Subnormal { relative_precision: 0.125 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.01851851851851852 }), ("residual_rows.residual", Subnormal { relative_precision: 0.0625 }), ("residual_rows.evaluation_allowance [... K2b-records cut: 622 more characters; sha256 of the full line bbf6dea8460e321e30d705ec9a633888a0d31bd2f89a34ca79cb8441525c8e74]
+K2B-REACH phys-r4 DenseScrutiny Pattern b=536 quality=Passed u=[0.001061032953945969, 0.2829421210522583, 0.42441318157838737, 1.0610329539459693, 0.0, 0.0] records=[("residual_rows.residual", Subnormal { relative_precision: 0.0625 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.002777777777777778 }), ("residual_rows.residual", Subnormal { relative_precision: 0.125 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.01851851851851852 }), ("residual_rows.residual", Subnormal { relative_precision: 0.0625 }), ("residual_rows.evaluation_allowan [... K2b-records cut: 624 more characters; sha256 of the full line 4c025ffbf020b793197269920e325965245df21988bf9493a067ac46c142bbd0]
+K2B-REACH phys-r4 SparseInteractive Dense b=536 quality=Passed u=[0.001061032953945969, 0.28294212105225847, 0.4244131815783877, 1.061032953945969, 0.0, 0.0] records=[("residual_rows.residual", Subnormal { relative_precision: 0.0625 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.002777777777777778 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.01851851851851852 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.005555555555555556 }), ("intended_residual_rows.residual", Subnormal { relative_precision: 0.166666 [... K2b-records cut: 407 more characters; sha256 of the full line 96c15cf3e9a53b59877988419c60dd4c875e8c9f62e2014eef208a2e125e55ff]
+test structural_adapter::k2b_tests::k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves ... ok
+test structural_adapter::k2b_tests::k2b_the_window_and_subnormal_refusals_keep_the_k2a_trigger ... ok
+K2B-REACH phys-r4 SparseInteractive Pattern b=536 quality=Passed u=[0.001061032953945969, 0.28294212105225847, 0.4244131815783877, 1.061032953945969, 0.0, 0.0] records=[("residual_rows.residual", Subnormal { relative_precision: 0.0625 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.002777777777777778 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.01851851851851852 }), ("residual_rows.evaluation_allowance", Subnormal { relative_precision: 0.005555555555555556 }), ("intended_residual_rows.residual", Subnormal { relative_precision: 0.1666 [... K2b-records cut: 409 more characters; sha256 of the full line c1daa10907b4b53f663f3b2f24d3b93d3cecbf90130bd85b0a5d91167b15eb49]
+test structural_adapter::k2b_tests::k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately ... ok
+test structural_adapter::k2b_tests::k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte ... ok
+test structural_adapter::k2b_tests::k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 97 filtered out; finished in 8.04s
+

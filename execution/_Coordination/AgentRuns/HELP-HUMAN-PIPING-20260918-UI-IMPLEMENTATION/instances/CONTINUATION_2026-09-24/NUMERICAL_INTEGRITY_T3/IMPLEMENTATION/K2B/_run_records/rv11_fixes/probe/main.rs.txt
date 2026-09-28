@@ -1,0 +1,271 @@
+//! K2b checkpoint B: the b = 0 `Debug` probe (T3 I10 brief, "b = 0 bit-identity").
+//! Built twice, from `git archive` trees of main (eb52114e9) and of the candidate,
+//! it runs today's public entries (every one exists on main) on invented models and
+//! writes each result's `Debug` to its own file; the two sha256 lists are compared.
+//! Models: K-D5's generated `kd5_models.rs` (13), and K2b's generated `k2b_models.rs`
+//! (the three RF base cases, the three RF-RANGE LEF-large cases, the five K2a/PHYS-R4
+//! reach cases), read from one tree for both builds (data only).
+use open_pipe_stress_curved_bend::CurvedBendMacroElement;
+use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, LoadLedger};
+use open_pipe_stress_frame_kernel::structural::{
+    assemble_sparse_stiffness, reduce_assembled_sparse_system, solve_assembled_structural_dense,
+    solve_structural_dense, SparseAssemblyOptions, StiffnessBlock, StructuralSystem,
+};
+use open_pipe_stress_frame_kernel::{
+    assemble_global_stiffness_with_user_elements, reduce_assembled_system, FrameDof,
+    FrameElement, FrameNode, FrameSection,
+};
+use open_pipe_stress_nonlinear_integration::structural_adapter::{
+    solve_structural_sparse_binary64, AssemblyEvidence, SparseAssemblyEvidence,
+};
+use open_pipe_stress_nonlinear_integration::{
+    solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
+    CurvedBendStiffnessElement, LinearSolveMode, NonlinearFrameSolveInput,
+};
+use open_pipe_stress_nonlinear_supports::{
+    ActiveSetState, GapDirection, NonlinearSupport, SupportStateRecord,
+};
+use open_pipe_stress_sparse_direct::structural::solve_structural_sparse;
+use std::f64::consts::PI;
+use std::path::{Path, PathBuf};
+
+mod kd5 {
+    pub struct SectionData {
+        pub e: f64,
+        pub g: f64,
+        pub a: f64,
+        pub i: f64,
+        pub j: f64,
+    }
+    pub struct MemberData {
+        pub i: usize,
+        pub j: usize,
+        pub y_reference: [f64; 3],
+        pub bend: Option<([f64; 3], f64)>,
+    }
+    pub struct ModelData {
+        pub name: &'static str,
+        pub section: SectionData,
+        pub nodes: &'static [[f64; 3]],
+        pub members: &'static [MemberData],
+        pub rigid: &'static [usize],
+        pub springs: &'static [(usize, f64)],
+        pub loads: &'static [(usize, f64)],
+        #[allow(dead_code)]
+        pub u_int: &'static [(usize, f64)],
+    }
+    #[path = "KD5_MODELS"]
+    mod models;
+    pub fn all() -> Vec<&'static ModelData> {
+        use models::*;
+        vec![
+            &F122, &F345, &PROBE_C, &PROBE_D, &BENDING_SOFT, &E1, &E6, &CSKEW_8_5,
+            &CSKEW_30_RADIUS_MISMATCH, &M11, &CPLANAR_60, &CSKEW_30_N122, &PP_UTM_2,
+        ]
+    }
+}
+
+#[path = "K2B_MODELS"]
+#[allow(dead_code)]
+mod k2b;
+
+struct Model {
+    name: String,
+    node_count: usize,
+    frames: Vec<FrameElement>,
+    macros: Vec<CurvedBendMacroElement>,
+    slots: Vec<CurvedBendStiffnessElement>,
+    springs: Vec<(usize, f64)>,
+    rigid: Vec<usize>,
+    loads: Vec<(usize, f64)>,
+}
+
+fn product_section(e: f64, g: f64, od: f64, t: f64) -> FrameSection {
+    let id = od - 2.0 * t;
+    let area = PI * (od.powi(2) - id.powi(2)) / 4.0;
+    let i = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    FrameSection::new(e, g, area, i, i, 2.0 * i).unwrap()
+}
+
+fn models() -> Vec<Model> {
+    let mut out = Vec::new();
+    for m in kd5::all() {
+        let node = |i: usize| FrameNode::new(i, m.nodes[i]).unwrap();
+        let s = &m.section;
+        let section = FrameSection::new(s.e, s.g, s.a, s.i, s.i, s.j).unwrap();
+        let mut model = Model {
+            name: format!("kd5-{}", m.name),
+            node_count: m.nodes.len(),
+            frames: vec![],
+            macros: vec![],
+            slots: vec![],
+            springs: m.springs.to_vec(),
+            rigid: m.rigid.to_vec(),
+            loads: m.loads.iter().copied().filter(|l| l.1 != 0.0).collect(),
+        };
+        for (index, member) in m.members.iter().enumerate() {
+            match member.bend {
+                None => model.frames.push(
+                    FrameElement::new(node(member.i), node(member.j), section, member.y_reference)
+                        .unwrap(),
+                ),
+                Some((center, factor)) => {
+                    let e = CurvedBendMacroElement::new(
+                        node(member.i), node(member.j), center, s.e, s.g, s.a, s.i, s.j, factor,
+                        factor,
+                    )
+                    .unwrap();
+                    model.slots.push(
+                        CurvedBendStiffnessElement::from_macro_element(format!("bend-{index}"), &e)
+                            .unwrap(),
+                    );
+                    model.macros.push(e);
+                }
+            }
+        }
+        out.push(model);
+    }
+    for c in k2b::LEF_BASE.iter().chain(k2b::LEF_LARGE) {
+        let node = |i: usize| FrameNode::new(i, c.nodes[i]).unwrap();
+        let section = product_section(c.e, c.g, c.od, c.wall);
+        out.push(Model {
+            name: c.id.to_string(),
+            node_count: c.nodes.len(),
+            frames: c
+                .members
+                .iter()
+                .map(|&(_, i, j)| FrameElement::new(node(i), node(j), section, [0.0, 1.0, 0.0]).unwrap())
+                .collect(),
+            macros: vec![],
+            slots: vec![],
+            springs: c.springs.to_vec(),
+            rigid: c.rigid.to_vec(),
+            loads: c.loads.to_vec(),
+        });
+    }
+    for r in k2b::REACH {
+        let frame = FrameElement::new(
+            FrameNode::new(0, [0.0; 3]).unwrap(),
+            FrameNode::new(1, [r.length, 0.0, 0.0]).unwrap(),
+            product_section(r.e, r.g, r.od, r.wall),
+            [0.0, 1.0, 0.0],
+        )
+        .unwrap();
+        out.push(Model {
+            name: format!("reach-{}", r.id),
+            node_count: 2,
+            frames: vec![frame],
+            macros: vec![],
+            slots: vec![],
+            springs: match (r.free, r.spring) {
+                (Some(f), Some(k)) => vec![(6 + f, k)],
+                _ => vec![],
+            },
+            rigid: (0..12).filter(|&d| d < 6 || r.free.is_some_and(|f| d != 6 + f)).collect(),
+            loads: r.loads.iter().map(|&(d, v)| (6 + d, v)).collect(),
+        });
+    }
+    out
+}
+
+fn write(dir: &Path, name: &str, text: String) {
+    std::fs::write(dir.join(format!("{name}.debug")), text).unwrap();
+}
+
+fn main() {
+    let out = PathBuf::from(std::env::args().nth(1).unwrap());
+    std::fs::create_dir_all(&out).unwrap();
+    let modes = [
+        ("dense", LinearSolveMode::DenseScrutiny),
+        ("sparse", LinearSolveMode::SparseInteractive),
+    ];
+    let mut files = 0;
+    for m in models() {
+        let n = 6 * m.node_count;
+        let mut ledger = LoadLedger::new();
+        for (index, &(dof, v)) in m.loads.iter().enumerate() {
+            ledger.push(format!("load:{index}"), dof, v);
+        }
+        let force: AssembledForce = ledger.finish(n).unwrap();
+        let free: Vec<usize> = (0..n).filter(|d| !m.rigid.contains(d)).collect();
+        let prescribed: Vec<(usize, f64)> = m.rigid.iter().map(|&d| (d, 0.0)).collect();
+        let blocks: Vec<StiffnessBlock> = m
+            .slots
+            .iter()
+            .map(|s| StiffnessBlock { node_i: s.node_i, node_j: s.node_j, stiffness: s.global_stiffness })
+            .collect();
+        let name = &m.name;
+        let mut w = |entry: &str, text: String| {
+            write(&out, &format!("{name}.{entry}"), text);
+            files += 1;
+        };
+        w("fk_dense_assembly", format!("{:?}", assemble_global_stiffness_with_user_elements(m.node_count, &m.frames, &[])));
+        let sparse = assemble_sparse_stiffness(m.node_count, &m.frames, &[], &blocks, &m.springs, &SparseAssemblyOptions::new());
+        w("fk_sparse_assembly", format!("{sparse:?}"));
+        let Ok(k) = sparse else { continue };
+        let dense = k.to_dense();
+        w("fk_reduce_assembled", format!("{:?}", reduce_assembled_system(&dense, &force, &m.rigid)));
+        w("fk_reduce_sparse", format!("{:?}", reduce_assembled_sparse_system(&k, &force, &m.rigid, None)));
+        let typed = StructuralSystem::assembled(&dense, &force, &free, &prescribed, None, None);
+        let typed_result = solve_assembled_structural_dense(&typed);
+        w("fk_solve_assembled_dense", format!("{typed_result:?}"));
+        if let Ok(solution) = &typed_result {
+            w("fk_sparse_reactions", format!("{:?}", k.reactions(&solution.displacements, &force)));
+        }
+        let legacy = StructuralSystem {
+            stiffness: &dense,
+            force: force.values(),
+            free_dofs: &free,
+            prescribed: &prescribed,
+            contributions: None,
+            symmetry: None,
+        };
+        w("fk_solve_dense", format!("{:?}", solve_structural_dense(&legacy)));
+        w("sd_solve_sparse", format!("{:?}", solve_structural_sparse(&legacy)));
+        w("sa_solve_sparse_binary64", format!("{:?}", solve_structural_sparse_binary64(&legacy)));
+        let evidence = AssemblyEvidence::new(m.node_count, &m.frames, &[], &m.slots, &m.springs);
+        w("sa_dense_evidence_ok", format!("{}", evidence.is_ok()));
+        let pattern = SparseAssemblyEvidence::new(k.pattern(), m.node_count, &m.frames, &[], &m.slots, &m.springs);
+        w("sa_pattern_evidence_ok", format!("{}", pattern.is_ok()));
+        for (mode_name, mode) in modes {
+            if let Ok(e) = &evidence {
+                w(&format!("sa_dense_solve_assembled_{mode_name}"), format!("{:?}", e.solve_assembled(&dense, &force, &free, &prescribed, mode)));
+                for selected in [true, false] {
+                    w(&format!("sa_dense_formation_check_{selected}_{mode_name}"), format!("{:?}", e.solve_assembled_with_formation_check(&dense, &force, &free, &prescribed, mode, &m.macros, selected)));
+                }
+                w(&format!("sa_dense_binary64_{mode_name}"), format!("{:?}", e.solve_binary64(&dense, force.values(), &free, &prescribed, mode)));
+            } else {
+                w(&format!("sa_dense_evidence_error_{mode_name}"), format!("{:?}", evidence.as_ref().err()));
+            }
+            if let Ok(p) = &pattern {
+                w(&format!("sa_pattern_solve_assembled_{mode_name}"), format!("{:?}", p.solve_assembled(&k, &force, &free, &prescribed, mode)));
+                for selected in [true, false] {
+                    w(&format!("sa_pattern_formation_check_{selected}_{mode_name}"), format!("{:?}", p.solve_assembled_with_formation_check(&k, &force, &free, &prescribed, mode, &m.macros, selected)));
+                }
+            } else {
+                w(&format!("sa_pattern_evidence_error_{mode_name}"), format!("{:?}", pattern.as_ref().err()));
+            }
+            // The nonlinear loop (solve_binary64), with an open gap on the first free DOF.
+            if m.slots.is_empty() {
+                if let Some(&dof) = free.first() {
+                    let kinds = [FrameDof::Ux, FrameDof::Uy, FrameDof::Uz, FrameDof::Rx, FrameDof::Ry, FrameDof::Rz];
+                    let input = NonlinearFrameSolveInput {
+                        node_count: m.node_count,
+                        elements: m.frames.clone(),
+                        user_stiffness_elements: vec![],
+                        curved_bend_elements: vec![],
+                        force: force.values().to_vec(),
+                        base_restrained_dofs: m.rigid.clone(),
+                        nonlinear_supports: vec![NonlinearSupport::gap("probe-open-gap", dof / 6, kinds[dof % 6], 1.0e30, GapDirection::PositiveDisplacement).unwrap()],
+                        initial_states: vec![SupportStateRecord::new("probe-open-gap", ActiveSetState::Inactive)],
+                        friction_normal_reactions: vec![],
+                        derived_friction_normal_reactions: vec![],
+                        convergence: ConvergenceControl::new("DEC-046-fixture-active-set-count-tightening", ConvergencePolicyStatus::Accepted, 0.0, 0.0, 4).unwrap(),
+                    };
+                    w(&format!("ni_loop_{mode_name}"), format!("{:?}", solve_active_set_frame_with_mode_and_springs(&input, mode, &m.springs)));
+                }
+            }
+        }
+    }
+    eprintln!("files: {files}");
+}

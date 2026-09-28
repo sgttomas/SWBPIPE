@@ -1,0 +1,44 @@
+inputs: L = 2^-39 = 1.8189894035458565e-12; A = 2.8274333882308137e-23 (0x1.1173dc28922fep-75); I = 2.8981192229365835e-46 (0x1.a78f8369ad45dp-152); J = 2I; G = 1e-100
+floor 2^-1022/(g(1/(1-g)+1)(1+64 eps)), binary64: 2^-974.584963; with exact gamma(24) and 2g: 2^-974.584963
+
+(12E)I case -1030: E = 2.499234299669558e-266 (bits 0x08c9c9a8b85573a6, equal to the Rust test's)
+   exact fl(12E)*I = 35184372088831.992 * 2^-1075 = intended value * (1 -1.851e-16); rounds to 8.691694759794e-311
+   12EI/L^3: (kE)I subnormal=True; formed 2^-913.0000; below the floor=False; exact relative error 9.3291072e-17
+   6EI/L^2: (kE)I subnormal=True; formed 2^-953.0000; below the floor=False; exact relative error 9.3291072e-17
+   4EI/L^1: (kE)I subnormal=True; formed 2^-992.5850; below the floor=True; exact relative error 5.6750128e-14
+   2EI/L^1: (kE)I subnormal=True; formed 2^-993.5850; below the floor=True; exact relative error 1.1378013e-13
+
+(12E)I case -1040: E = 2.4406584957710526e-269 (bits 0x0829c9a8b85573a6, equal to the Rust test's)
+   exact fl(12E)*I = 34359738367.999992 * 2^-1075 = intended value * (1 -1.851e-16); rounds to 8.487983164e-314
+   12EI/L^3: (kE)I subnormal=True; formed 2^-923.0000; below the floor=False; exact relative error 9.3291072e-17
+   6EI/L^2: (kE)I subnormal=True; formed 2^-963.0000; below the floor=False; exact relative error 9.3291072e-17
+   4EI/L^1: (kE)I subnormal=True; formed 2^-1002.5850; below the floor=True; exact relative error 5.8207568e-11
+   2EI/L^1: (kE)I subnormal=True; formed 2^-1003.5850; below the floor=True; exact relative error 1.1641542e-10
+
+(12E)I case -1045: E = 7.627057799284539e-271 (bits 0x07d9c9a8b85573a6, equal to the Rust test's)
+   exact fl(12E)*I = 1073741823.9999998 * 2^-1075 = intended value * (1 -1.851e-16); rounds to 2.65249474e-315
+   12EI/L^3: (kE)I subnormal=True; formed 2^-928.0000; below the floor=False; exact relative error 9.3291072e-17
+   6EI/L^2: (kE)I subnormal=True; formed 2^-968.0000; below the floor=False; exact relative error 9.3291072e-17
+   4EI/L^1: (kE)I subnormal=True; formed 2^-1007.5850; below the floor=True; exact relative error 1.8626452e-09
+   2EI/L^1: (kE)I subnormal=True; formed 2^-1008.5850; below the floor=True; exact relative error 3.7252902e-09
+
+(12E)I case -1050: E = 2.3834555622764186e-272 (bits 0x0789c9a8b85573a6, equal to the Rust test's)
+   exact fl(12E)*I = 33554431.999999993 * 2^-1075 = intended value * (1 -1.851e-16); rounds to 8.289046e-317
+   12EI/L^3: (kE)I subnormal=True; formed 2^-933.0000; below the floor=False; exact relative error 9.3291072e-17
+   6EI/L^2: (kE)I subnormal=True; formed 2^-973.0000; below the floor=False; exact relative error 9.3291072e-17
+   4EI/L^1: (kE)I subnormal=True; formed 2^-1012.5850; below the floor=True; exact relative error 5.9604645e-08
+   2EI/L^1: (kE)I subnormal=True; formed 2^-1013.5850; below the floor=True; exact relative error 1.1920929e-07
+
+(12E)I case -1055: E = 7.448298632113808e-274 (bits 0x0739c9a8b85573a6, equal to the Rust test's)
+   exact fl(12E)*I = 1048575.9999999998 * 2^-1075 = intended value * (1 -1.851e-16); rounds to 2.590327e-318
+   12EI/L^3: (kE)I subnormal=True; formed 2^-938.0000; below the floor=False; exact relative error 9.3291072e-17
+   6EI/L^2: (kE)I subnormal=True; formed 2^-978.0000; below the floor=True; exact relative error 9.3291072e-17
+   4EI/L^1: (kE)I subnormal=True; formed 2^-1017.5850; below the floor=True; exact relative error 1.9073486e-06
+   2EI/L^1: (kE)I subnormal=True; formed 2^-1018.5850; below the floor=True; exact relative error 3.8146973e-06
+
+(12E)I case S6a: E = 1.7758127765926858e-279 (bits 0x06101e0973356848, equal to the Rust test's)
+   exact fl(12E)*I = 2.5 * 2^-1075 = intended value * (1 -3.818e-17); rounds to 5e-324
+   12EI/L^3: (kE)I subnormal=True; formed 2^-957.0000; below the floor=False; exact relative error 2.0000000e-01
+   6EI/L^2: (kE)I subnormal=True; formed 2^-996.0000; below the floor=True; exact relative error 6.0000000e-01
+   4EI/L^1: (kE)I subnormal=False; formed 0; below the floor=True; exact relative error 1.0000000e+00
+   2EI/L^1: (kE)I subnormal=False; formed 0; below the floor=True; exact relative error 1.0000000e+00

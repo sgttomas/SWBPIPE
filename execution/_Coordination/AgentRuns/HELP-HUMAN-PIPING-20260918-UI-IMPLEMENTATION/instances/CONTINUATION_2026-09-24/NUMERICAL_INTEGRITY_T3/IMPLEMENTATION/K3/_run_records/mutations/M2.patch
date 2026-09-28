@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -412,7 +412,7 @@
+     }
+     clear_below(&mut significand, width - count);
+     let round = bit_at(mag, lsb as i128 - 1);
+-    let rest = sticky || any_below(mag, lsb as i128 - 1);
++    let rest = any_below(mag, lsb as i128 - 1);
+     let odd = bit_at(&significand, (width - count) as i128);
+     let mut exponent = scale + h as i128;
+     let up = round && (rest || odd);

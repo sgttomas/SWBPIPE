@@ -1,9 +1,10 @@
 //! `Wide<L>`: binary floating point with an `i64` exponent and an L-limb
 //! significand, rounded to a runtime precision (T3 D1 §4.1.1, §4.11; slice K3a).
 //!
-//! K3a implements `Wide<2>` only (128-bit significand, p ≤ 128). The rest of
-//! the family (L = 4, 8, 16) and the rounded conversion back to binary64 are
-//! slice K3.
+//! K3a implements `Wide<2>` only (128-bit significand, p ≤ 128). Slice K3
+//! adds L = 4, 8 and 16, the rounded conversion back to binary64 at every width
+//! (L = 2 included), and K4's arithmetic, in the child module `multi`
+//! (`wide/multi.rs`). K3a's `Wide<2>` code below is unchanged by K3.
 //!
 //! # Value model
 //!
@@ -122,6 +123,8 @@ use crate::exact_sum::{ExactAccumulator, SumError};
 use std::cmp::Ordering;
 use std::fmt;
 
+pub(crate) mod multi;
+
 /// Smallest supported precision.
 pub(crate) const MIN_PRECISION: u32 = 2;
 /// Largest precision of `Wide<2>`.
@@ -156,7 +159,6 @@ pub(crate) enum WideError {
     NegativeSqrt,
     /// `from_parts` with a significand that is neither zero nor normalized,
     /// or a zero with a nonzero exponent.
-    #[allow(dead_code)] // K3 API, slice K3: returned only by `from_parts`
     NotNormalized,
     /// Arctangent argument outside its domain (t ≤ 0, s ≤ 0 or 1 + c ≤ 0).
     AngleDomain,
@@ -165,6 +167,9 @@ pub(crate) enum WideError {
     /// Split of a value of magnitude 2^1024 or more.
     SplitOverflow,
     Accumulator(SumError),
+    /// TwoSum or TwoProduct operand with more significant bits than the
+    /// working precision (slice K3, `multi`).
+    OperandPrecision,
 }
 
 impl fmt::Display for WideError {
@@ -180,6 +185,9 @@ impl fmt::Display for WideError {
             Self::ArctangentLimit => write!(f, "retained arctangent internal limit reached"),
             Self::SplitOverflow => write!(f, "retained value too large for a binary64 split"),
             Self::Accumulator(e) => write!(f, "retained split accumulation: {e}"),
+            Self::OperandPrecision => {
+                write!(f, "retained operand exceeds the working precision")
+            }
         }
     }
 }
@@ -263,7 +271,7 @@ impl Wide<2> {
     }
 
     /// Validated construction from raw parts (value model above).
-    #[allow(dead_code)] // K3 API, slice K3 (raw construction for L = 4, 8, 16)
+    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
     pub(crate) fn from_parts(
         negative: bool,
         exponent: i64,
@@ -292,7 +300,7 @@ impl Wide<2> {
     }
 
     /// (negative, exponent of the leading bit, little-endian significand).
-    #[allow(dead_code)] // K3 API, slice K3 (raw access for L = 4, 8, 16)
+    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
     pub(crate) fn parts(&self) -> (bool, i64, [u64; 2]) {
         (self.negative, self.exponent, self.significand)
     }
@@ -325,13 +333,13 @@ impl Wide<2> {
         self.sig() == 0
     }
 
-    #[allow(dead_code)] // K3 API, slice K3 (conversion outcomes to binary64)
+    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
     pub(crate) fn is_sign_negative(&self) -> bool {
         self.negative
     }
 
     /// Exponent of the leading bit (0 for zero).
-    #[allow(dead_code)] // K3 API, slice K3 (conversion outcomes to binary64)
+    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
     pub(crate) fn exponent(&self) -> i64 {
         self.exponent
     }
@@ -351,7 +359,7 @@ impl Wide<2> {
     }
 
     /// True when the value has at most p significant bits.
-    #[allow(dead_code)] // K3 API, slice K3 (runtime precision)
+    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
     pub(crate) fn fits_precision(&self, p: u32) -> bool {
         p >= 128 || self.sig() & ((1u128 << (128 - p)) - 1) == 0
     }
@@ -844,7 +852,7 @@ pub(crate) struct WorkCounter {
 impl WorkCounter {
     /// Correctly rounded operations (+ − × ÷ √), including those inside the
     /// arctangent.
-    #[allow(dead_code)] // test-only: K-D5 measures its cost in tests; K4 budgets use it
+    #[allow(dead_code)] // test-only: K-D5 measures its cost in tests (K4 counts with multi::AttemptWork)
     pub(crate) fn rounded_operations(&self) -> u64 {
         self.add
             .saturating_add(self.sub)
@@ -872,12 +880,12 @@ impl WideArith {
         })
     }
 
-    #[allow(dead_code)] // K3 API, slice K3 (runtime precision)
+    #[allow(dead_code)] // K3a API, no caller yet (reviewed at T3 close)
     pub(crate) fn precision(&self) -> u32 {
         self.precision
     }
 
-    #[allow(dead_code)] // test-only: K-D5 measures its cost in tests; K4 budgets use it
+    #[allow(dead_code)] // test-only: K-D5 measures its cost in tests (K4 counts with multi::AttemptWork)
     pub(crate) fn work(&self) -> WorkCounter {
         self.work
     }
@@ -924,7 +932,7 @@ impl WideArith {
     }
 
     /// atan t ∈ (0, π/2) for t > 0 (the same reduction and series).
-    #[allow(dead_code)] // K3 API, slice K3 (the arctangent outside the included angle)
+    #[allow(dead_code)] // later-slice API (W1c; K3 Q6)
     pub(crate) fn atan_positive(&mut self, t: &Wide2) -> Result<Wide2, WideError> {
         self.work.atan = self.work.atan.saturating_add(1);
         self.check_atan_precision()?;

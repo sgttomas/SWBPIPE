@@ -1,0 +1,9 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
++++ b/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
+@@ -16,5 +16,5 @@
+ # so test semantics do not change. No dependency or lockfile change.
+ [profile.test]
+ opt-level = 1
+-debug-assertions = true
++debug-assertions = false
+ overflow-checks = true
