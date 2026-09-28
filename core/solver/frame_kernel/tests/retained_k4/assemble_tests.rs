@@ -18,6 +18,17 @@ mod models;
 mod support;
 use support::{ctx, tok};
 
+/// A source's prescribed values lifted exactly (a case's u at its
+/// constrained DOFs, zero elsewhere).
+fn prescribed<const L: usize>(source: &PrimitiveSource) -> Vec<Wide<L>>
+where
+    Wide<L>: SupportedWidth,
+{
+    (0..source.dof_count())
+        .map(|g| support::lift::<L>(source.constraint(g).unwrap_or(0.0)))
+        .collect()
+}
+
 /// The assembled K at p (width L): the structure, the values and the members.
 fn assembled<const L: usize>(
     source: &PrimitiveSource,
@@ -527,11 +538,20 @@ where
     let mut c = ctx::<L>(p);
     let mut sum = ExactWideSum::new();
     let free = source.free_dofs();
-    reduced_rhs(&mut c, &mut sum, source, &structure, &k, &ledger, &free)
-        .unwrap()
-        .iter()
-        .map(tok)
-        .collect()
+    reduced_rhs(
+        &mut c,
+        &mut sum,
+        source,
+        &structure,
+        &k,
+        &ledger,
+        &free,
+        &prescribed::<L>(source),
+    )
+    .unwrap()
+    .iter()
+    .map(tok)
+    .collect()
 }
 
 #[test]
@@ -679,7 +699,11 @@ fn the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once() {
     let free = source.free_dofs();
     let mut c = ctx::<4>(128);
     let mut sum = ExactWideSum::new();
-    let rhs = reduced_rhs(&mut c, &mut sum, &source, &structure, &k, &ledger, &free).unwrap();
+    let u = prescribed::<4>(&source);
+    let rhs = reduced_rhs(
+        &mut c, &mut sum, &source, &structure, &k, &ledger, &free, &u,
+    )
+    .unwrap();
     let mut wider = 0;
     for (a, &i) in free.iter().enumerate() {
         let mut s = ExactWideSum::new();

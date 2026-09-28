@@ -524,7 +524,8 @@ where
 
 /// The reduced right-hand side at p of every free DOF (module documentation,
 /// item 6): the ledger's exact net plus the exact products −K_ic·u_c over the
-/// prescribed columns, rounded once.
+/// prescribed columns, rounded once. `u` holds the prescribed values at p (a
+/// case's binary64 values exactly; a combination's exact sum rounded once).
 pub(crate) fn reduced_rhs<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
@@ -533,6 +534,7 @@ pub(crate) fn reduced_rhs<const L: usize>(
     k: &[Wide<L>],
     ledger: &RetainedLedger,
     free: &[usize],
+    u: &[Wide<L>],
 ) -> Result<Vec<Wide<L>>, AttemptStop>
 where
     Wide<L>: SupportedWidth,
@@ -543,11 +545,8 @@ where
         ledger.add_to(i, sum, false)?;
         for index in structure.pattern.row_range(i) {
             let c = structure.pattern.column(index);
-            if let Some(value) = source.constraint(c) {
-                if value != 0.0 {
-                    let uc = lift::<L>(value)?;
-                    sum.add_product(ctx, &k[index], &uc, true)?;
-                }
+            if source.constraint(c).is_some() && !u[c].is_zero() {
+                sum.add_product(ctx, &k[index], &u[c], true)?;
             }
         }
         out.push(sum.round(ctx)?);

@@ -37,7 +37,7 @@ use super::ledger::{LedgerRefusal, RetainedLedger};
 use super::recover::{
     layout, publish_value, recover, state_encoding, Kind, QuantityId, QuantityMeta, Recovered,
 };
-use super::source::{Dof, PrimitiveSource};
+use super::source::{put_u32, put_u64, Dof, PrimitiveSource};
 use super::wide::multi::{AttemptWork, Binary64Outcome, SupportedWidth, WideContext};
 use super::wide::{Wide, WideError};
 use super::wide_sum::{ExactWideSum, SumRefusal, SumWork};
@@ -106,10 +106,6 @@ impl InvocationMeter {
     }
     fn charge(&mut self, amount: u64) {
         self.charged = self.charged.saturating_add(amount);
-    }
-    /// Charges work done outside a case's schedule (combinations).
-    pub(crate) fn charge_work(&mut self, amount: u64) {
-        self.charge(amount);
     }
 }
 
@@ -207,15 +203,6 @@ impl StageGuard {
             base: 0,
             case_room: u64::MAX,
             invocation_room: u64::MAX,
-        }
-    }
-
-    /// A guard with the given case room and the meter's remaining room.
-    pub(crate) fn rooms(case_room: u64, meter: &InvocationMeter) -> Self {
-        Self {
-            base: 0,
-            case_room,
-            invocation_room: meter.room(),
         }
     }
 
@@ -560,19 +547,78 @@ impl ExtremeTracker {
 
 // ------------------------------------------------------------ per-case and shared preparation
 
-/// A case's precision-independent data.
+/// A case's precision-independent data. A combination (ROOT's ruling on
+/// I12's F-1) is a case of its own: the combined exact ledger Σ cᵢ·fᵢ and the
+/// combined prescribed values Σ cᵢ·vᵢ, on its operands' stiffness source.
 #[derive(Debug)]
 pub(crate) struct CasePrep {
+    /// The stiffness source (for a combination, its first operand's: the
+    /// stiffness identity, layout and extents are its operands' own).
     pub(crate) source: PrimitiveSource,
     pub(crate) ledger: RetainedLedger,
+    /// Per constrained global DOF (ascending), the exact terms c·v of its
+    /// value: [(1, v)] for a case, [(cᵢ, vᵢ)] for a combination. At p the
+    /// value is their exact sum rounded once.
+    pub(crate) prescribed: Vec<(usize, Vec<(f64, f64)>)>,
+    /// The combination's factors (empty for a case).
+    pub(crate) factors: Vec<f64>,
+    /// The source encoding, or for a combination "K4CMB": its factors' bits
+    /// and its operands' source encodings.
+    pub(crate) identity: Vec<u8>,
     pub(crate) layout: Vec<QuantityMeta>,
     /// L_b per body (item 5).
     pub(crate) extents: Vec<f64>,
 }
 
 impl CasePrep {
-    fn new(source: PrimitiveSource) -> Result<Self, LedgerRefusal> {
+    pub(crate) fn new(source: PrimitiveSource) -> Result<Self, LedgerRefusal> {
         let ledger = RetainedLedger::from_source(&source)?;
+        let prescribed = source
+            .constraints()
+            .iter()
+            .map(|c| (c.dof.global(), vec![(1.0, c.value)]))
+            .collect();
+        let identity = source.encoding();
+        Self::with(source, ledger, prescribed, Vec::new(), identity)
+    }
+
+    /// A combination Σ cᵢ·(case i) of case preparations that share one
+    /// stiffness identity and layout (checked by the caller).
+    pub(crate) fn combination(operands: &[(f64, &CasePrep)]) -> Result<Self, LedgerRefusal> {
+        let sources: Vec<(f64, &PrimitiveSource)> =
+            operands.iter().map(|(c, p)| (*c, &p.source)).collect();
+        let ledger = RetainedLedger::combined(&sources)?;
+        let first = &operands[0].1.source;
+        let prescribed = first
+            .constraints()
+            .iter()
+            .map(|c| {
+                let g = c.dof.global();
+                let terms = sources
+                    .iter()
+                    .map(|(factor, s)| (*factor, s.constraint(g).unwrap_or(0.0)))
+                    .collect();
+                (g, terms)
+            })
+            .collect();
+        let mut identity = b"K4CMB\x01".to_vec();
+        put_u32(&mut identity, operands.len() as u32);
+        for (factor, prep) in operands {
+            put_u64(&mut identity, factor.to_bits());
+            put_u32(&mut identity, prep.identity.len() as u32);
+            identity.extend_from_slice(&prep.identity);
+        }
+        let factors = operands.iter().map(|o| o.0).collect();
+        Self::with(first.clone(), ledger, prescribed, factors, identity)
+    }
+
+    fn with(
+        source: PrimitiveSource,
+        ledger: RetainedLedger,
+        prescribed: Vec<(usize, Vec<(f64, f64)>)>,
+        factors: Vec<f64>,
+        identity: Vec<u8>,
+    ) -> Result<Self, LedgerRefusal> {
         let layout = layout(&source);
         let extents = (0..source.body_count())
             .map(|b| {
@@ -587,9 +633,36 @@ impl CasePrep {
         Ok(Self {
             source,
             ledger,
+            prescribed,
+            factors,
+            identity,
             layout,
             extents,
         })
+    }
+
+    /// The prescribed values at the context's precision, written into u: each
+    /// the exact sum of its terms c·v, rounded once.
+    fn prescribed_at<const L: usize>(
+        &self,
+        ctx: &mut WideContext<L>,
+        sum: &mut ExactWideSum,
+        u: &mut [Wide<L>],
+    ) -> Result<(), AttemptStop>
+    where
+        Wide<L>: SupportedWidth,
+    {
+        for (g, terms) in &self.prescribed {
+            sum.clear();
+            for &(factor, value) in terms {
+                if factor != 0.0 && value != 0.0 {
+                    let (c, v) = (Wide::<L>::from_f64(factor)?, Wide::<L>::from_f64(value)?);
+                    sum.add_product(ctx, &c, &v, false)?;
+                }
+            }
+            u[*g] = sum.round(ctx)?;
+        }
+        Ok(())
     }
 }
 
@@ -888,6 +961,10 @@ where
             lme(ctx) + lme(ctx_q) + lme(ctx16) + lme(ctx64) + sum.work().limb_multiply_equivalents()
         };
         let t0 = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
+        // The prescribed values at p (exact for a case's binary64 values; a
+        // combination's exact sum, rounded once).
+        let mut u = vec![Wide::<L>::ZERO; source.dof_count()];
+        prep.prescribed_at(&mut ctx, &mut sum, &mut u)?;
         let rhs = reduced_rhs(
             &mut ctx,
             &mut sum,
@@ -896,6 +973,7 @@ where
             &shared.k,
             &prep.ledger,
             free,
+            &u,
         )?;
         let t1 = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
         stages.rhs = t1 - t0;
@@ -903,12 +981,6 @@ where
         guard.test(total(&ctx, &ctx_q, &ctx16, &ctx64, &sum))?;
         let t2 = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
         stages.solve = t2 - t1;
-        let mut u = vec![Wide::<L>::ZERO; source.dof_count()];
-        for g in 0..source.dof_count() {
-            if let Some(value) = source.constraint(g) {
-                u[g] = Wide::<L>::from_f64(value)?;
-            }
-        }
         let mut corrections = 0u8;
         let mut prior = f64::INFINITY;
         let residual_worst;
@@ -1151,14 +1223,14 @@ where
 
 // ------------------------------------------------------------ states by precision
 
-/// A case's retained state at one precision, with the shared operators it was
-/// solved with.
+/// A case's retained state at one precision (the shared operators it was
+/// solved with stay in the group's cache).
 #[derive(Debug, Clone)]
 pub(crate) enum PrecisionState {
-    P128(Arc<Shared<4, 4>>, Arc<Solved<4>>),
-    P256(Arc<Shared<4, 8>>, Arc<Solved<4>>),
-    P512(Arc<Shared<8, 16>>, Arc<Solved<8>>),
-    P1024(Arc<Shared<16, 16>>, Arc<Solved<16>>),
+    P128(Arc<Solved<4>>),
+    P256(Arc<Solved<4>>),
+    P512(Arc<Solved<8>>),
+    P1024(Arc<Solved<16>>),
 }
 
 impl PrecisionState {
@@ -1174,27 +1246,25 @@ impl PrecisionState {
     /// The published binary64 values (one rounding each).
     pub(crate) fn published(&self) -> Vec<Binary64Outcome> {
         match self {
-            Self::P128(_, s) | Self::P256(_, s) => {
-                s.recovered.values.iter().map(publish_value).collect()
-            }
-            Self::P512(_, s) => s.recovered.values.iter().map(publish_value).collect(),
-            Self::P1024(_, s) => s.recovered.values.iter().map(publish_value).collect(),
+            Self::P128(s) | Self::P256(s) => s.recovered.values.iter().map(publish_value).collect(),
+            Self::P512(s) => s.recovered.values.iter().map(publish_value).collect(),
+            Self::P1024(s) => s.recovered.values.iter().map(publish_value).collect(),
         }
     }
 
     pub(crate) fn encoding(&self) -> Vec<u8> {
         match self {
-            Self::P128(_, s) | Self::P256(_, s) => state_encoding(s.p, &s.u, &s.recovered.q),
-            Self::P512(_, s) => state_encoding(s.p, &s.u, &s.recovered.q),
-            Self::P1024(_, s) => state_encoding(s.p, &s.u, &s.recovered.q),
+            Self::P128(s) | Self::P256(s) => state_encoding(s.p, &s.u, &s.recovered.q),
+            Self::P512(s) => state_encoding(s.p, &s.u, &s.recovered.q),
+            Self::P1024(s) => state_encoding(s.p, &s.u, &s.recovered.q),
         }
     }
 
     fn corrections(&self) -> u8 {
         match self {
-            Self::P128(_, s) | Self::P256(_, s) => s.corrections,
-            Self::P512(_, s) => s.corrections,
-            Self::P1024(_, s) => s.corrections,
+            Self::P128(s) | Self::P256(s) => s.corrections,
+            Self::P512(s) => s.corrections,
+            Self::P1024(s) => s.corrections,
         }
     }
 }
@@ -1208,7 +1278,7 @@ fn compare_states(
     guard: StageGuard,
 ) -> StopDecision {
     match (candidate, verification) {
-        (PrecisionState::P128(_, a), PrecisionState::P256(_, b)) => stop_rule(
+        (PrecisionState::P128(a), PrecisionState::P256(b)) => stop_rule(
             layout,
             extents,
             &a.recovered.values,
@@ -1216,7 +1286,7 @@ fn compare_states(
             256,
             guard,
         ),
-        (PrecisionState::P256(_, a), PrecisionState::P512(_, b)) => stop_rule(
+        (PrecisionState::P256(a), PrecisionState::P512(b)) => stop_rule(
             layout,
             extents,
             &a.recovered.values,
@@ -1224,7 +1294,7 @@ fn compare_states(
             512,
             guard,
         ),
-        (PrecisionState::P512(_, a), PrecisionState::P1024(_, b)) => stop_rule(
+        (PrecisionState::P512(a), PrecisionState::P1024(b)) => stop_rule(
             layout,
             extents,
             &a.recovered.values,
@@ -1301,22 +1371,10 @@ pub(crate) struct AttemptRecord {
     /// Whether this attempt built the shared stages (so charged them to the
     /// invocation).
     pub(crate) shared_built_here: bool,
-    /// The stop-rule work charged to this attempt as a candidate.
+    /// The stop-rule work charged to this attempt as a candidate (a part of
+    /// `work` and `k4_work`, which hold every context and sum it charged).
     pub(crate) stop_rule_work: u64,
     pub(crate) storage: StorageCounts,
-}
-
-impl AttemptRecord {
-    /// This attempt's charge against the case limit.
-    pub(crate) fn case_charge(&self) -> u64 {
-        self.own_work() + self.shared_work
-    }
-    /// This case's own work (contexts, sums and the stop rule).
-    pub(crate) fn own_work(&self) -> u64 {
-        self.work.limb_multiply_equivalents()
-            + self.k4_work.limb_multiply_equivalents()
-            + self.stop_rule_work
-    }
 }
 
 /// A refusal: no rows, no escalation.
@@ -1452,6 +1510,9 @@ pub(crate) struct RetainedEvidence {
 pub(crate) struct RetainedSolve {
     pub(crate) prep: Arc<CasePrep>,
     pub(crate) group: Arc<GroupPrep>,
+    /// The group's shared stages as this solve left them (a combination of
+    /// this solve reuses them: ROOT's ruling on I12's F-1).
+    pub(crate) cache: GroupCache,
     pub(crate) states: Vec<PrecisionState>,
     selected: u32,
     evidence: RetainedEvidence,
@@ -1506,7 +1567,7 @@ pub(crate) enum CaseOutcome {
 type Slot<S> = Option<Result<Arc<S>, (AttemptStop, u64, StageWork)>>;
 
 /// The shared stages of one stiffness identity, per precision.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub(crate) struct GroupCache {
     s128: Slot<Shared<4, 4>>,
     s256: Slot<Shared<4, 8>>,
@@ -1642,10 +1703,7 @@ fn solve_precision(
                         Ok(solved) => {
                             record.corrections = solved.corrections;
                             record.residual_worst = Some(solved.residual_worst);
-                            (
-                                Ok(PrecisionState::$variant(shared, Arc::new(solved))),
-                                record,
-                            )
+                            (Ok(PrecisionState::$variant(Arc::new(solved))), record)
                         }
                         Err(stop) => (Err(stop), record),
                     }
@@ -1677,7 +1735,7 @@ fn terminal(stop: &AttemptStop) -> Result<UnresolvedReason, Refusal> {
 }
 
 /// The schedule of one case (module documentation).
-fn run_schedule(
+pub(crate) fn run_schedule(
     prep: Arc<CasePrep>,
     group: Arc<GroupPrep>,
     cache: &mut GroupCache,
@@ -1776,6 +1834,7 @@ fn run_schedule(
                 return finish_selected(
                     prep,
                     group,
+                    cache.clone(),
                     states,
                     &candidate,
                     verification_p,
@@ -1831,6 +1890,7 @@ fn finish_terminal(
 fn finish_selected(
     prep: Arc<CasePrep>,
     group: Arc<GroupPrep>,
+    cache: GroupCache,
     states: Vec<PrecisionState>,
     selected: &PrecisionState,
     verification_precision: u32,
@@ -1883,7 +1943,7 @@ fn finish_selected(
             .unwrap_or(0.0),
         corrections: selected.corrections(),
         geometry,
-        source_encoding: prep.source.encoding(),
+        source_encoding: prep.identity.clone(),
         ledger_encoding: prep.ledger.encoding(),
         retained_state_encoding: selected.encoding(),
         attempts,
@@ -1891,6 +1951,7 @@ fn finish_selected(
     CaseOutcome::Selected(Box::new(RetainedSolve {
         prep,
         group,
+        cache,
         states,
         selected: selected.precision(),
         evidence,
@@ -2002,32 +2063,37 @@ pub(crate) fn solve_case(
 
 // ------------------------------------------------------------ support for combinations
 
-/// Solves one more precision for an existing retained solve (a combination's
-/// on-demand operand state), charged to the given limits. The operand's
-/// published values, outcome and evidence are not changed.
-pub(crate) fn solve_more(
-    solve: &RetainedSolve,
-    p: u32,
-    budget_case_room: u64,
-    meter: &mut InvocationMeter,
-) -> (Result<PrecisionState, AttemptStop>, AttemptRecord) {
-    let mut cache = GroupCache::default();
-    // Reuse the operand's own shared stages at p when it has them.
-    for state in &solve.states {
-        match state {
-            PrecisionState::P128(s, _) => cache.s128 = Some(Ok(s.clone())),
-            PrecisionState::P256(s, _) => cache.s256 = Some(Ok(s.clone())),
-            PrecisionState::P512(s, _) => cache.s512 = Some(Ok(s.clone())),
-            PrecisionState::P1024(s, _) => cache.s1024 = Some(Ok(s.clone())),
+impl GroupCache {
+    /// The first cached build (or failure) per precision among the caches of
+    /// solves that share one stiffness identity.
+    pub(crate) fn merged<'a>(caches: impl IntoIterator<Item = &'a GroupCache>) -> Self {
+        let mut out = GroupCache::default();
+        for cache in caches {
+            if out.s128.is_none() {
+                out.s128 = cache.s128.clone();
+            }
+            if out.s256.is_none() {
+                out.s256 = cache.s256.clone();
+            }
+            if out.s512.is_none() {
+                out.s512 = cache.s512.clone();
+            }
+            if out.s1024.is_none() {
+                out.s1024 = cache.s1024.clone();
+            }
         }
+        out
     }
-    let mut budget = CaseBudget {
-        limit: budget_case_room,
-        used: 0,
-    };
-    solve_precision(p, &solve.prep, &solve.group, &mut cache, &mut budget, meter)
 }
 
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/adaptive_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/references_tests.rs"]
+mod references_tests;
+
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/classification_tests.rs"]
+mod classification_tests;

@@ -281,7 +281,10 @@ fn the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides
     let k = assemble(&mut c, &mut sum, &guard, &source, &structure, &members, &[]).unwrap();
     let kij = k[structure.pattern.find(0, 6).unwrap()];
     assert_eq!(tok(&kij), tok(&lift::<4>(-(2f64.powi(20)))));
-    let rhs = reduced_rhs(&mut c, &mut sum, &source, &structure, &k, &ledger, &[0]).unwrap();
+    let u: Vec<Wide<4>> = (0..source.dof_count())
+        .map(|g| lift::<4>(source.constraint(g).unwrap_or(0.0)))
+        .collect();
+    let rhs = reduced_rhs(&mut c, &mut sum, &source, &structure, &k, &ledger, &[0], &u).unwrap();
     let expect = w_value::<4>(false, 0, &[1, 1 << 63]); // 1 + 2^-127
     assert_eq!(tok(&rhs[0]), tok(&expect));
     // The ledger's projection alone loses the tail (so a pre-rounded ledger

@@ -1108,6 +1108,48 @@ def models():
     return out
 
 
+def routed_models():
+    """K-D5's D5C-1 controls (PROBE_D, PROBE_C, BENDING_SOFT) and K2b's
+    spring-carried case, from their committed binary64 inputs."""
+    out = []
+    text = KD5_MODELS.read_text()
+    num = r"(-?[0-9.e+-]+)"
+    for name in ("PROBE_D", "PROBE_C", "BENDING_SOFT"):
+        block = text[text.index('name: "%s"' % name):]
+        block = block[:block.index("};")]
+        sec = re.search(r"e: %s, g: %s, a: %s, i: %s, j: %s" % ((num,) * 5), block).groups()
+        E, G, A, I, J = (float(x) for x in sec)
+        nodes = [tuple(float(x) for x in t) for t in re.findall(r"\[%s, %s, %s\]" % ((num,) * 3),
+                                                                block[block.index("nodes:"):block.index("members:")])]
+        m = new_model(name, nodes)
+        y = re.search(r"y_reference: \[%s, %s, %s\]" % ((num,) * 3), block).groups()
+        add_member(m, 1, 0, 1, y=tuple(float(x) for x in y), section=dict(E=E, G=G, A=A, Iy=I, Iz=I, J=J))
+        rigid = re.search(r"rigid: &\[([0-9, ]*)\]", block).group(1)
+        for d in (int(x) for x in rigid.split(",") if x.strip()):
+            fix(m, d // 6, (d % 6,))
+        springs = re.search(r"springs: &\[(.*?)\],\n", block).group(1)
+        for k, (d, v) in enumerate(re.findall(r"\(([0-9]+), %s\)" % num, springs)):
+            spring(m, k + 1, int(d) // 6, int(d) % 6, float(v))
+        loads = re.search(r"loads: &\[(.*?)\],\n", block).group(1)
+        for d, v in re.findall(r"\(([0-9]+), %s\)" % num, loads):
+            load(m, int(d) // 6, int(d) % 6, float(v))
+        out.append(m)
+    text = K2B_MODELS.read_text()
+    block = text[text.index('id: "spring-carried"'):]
+    block = block[:block.index("},\n    ReachCase")]
+    bits = lambda field: f64_of(int(re.search(field + r": f64::from_bits\(0x([0-9a-f]+)\)", block).group(1), 16))
+    length, E, G = bits("length"), bits("e"), bits("g")
+    A, I, J = bits("area"), bits(r"\bi"), bits(r"\bj")
+    m = new_model("SPRING-CARRIED", [(0, 0, 0), (length, 0, 0)])
+    add_member(m, 1, 0, 1, y=(0.0, 1.0, 0.0), section=dict(E=E, G=G, A=A, Iy=I, Iz=I, J=J))
+    fix(m, 0, range(6))
+    fix(m, 1, (0, 1, 2, 4, 5))
+    spring(m, 1, 1, 3, 1.0)
+    load(m, 1, 3, 1.0)
+    out.append(m)
+    return out
+
+
 COMBOS = (
     ("B1-C", ((1.0, "B1-C-A"), (1.0, "B1-C-B"), (-1.0, "B1-C-A2")), "B1-C-NET"),
     ("B1-E", ((1.0, "B1-E-A"), (-1.0, "B1-E-B")), "B1-E-NET"),
@@ -1187,6 +1229,487 @@ def formation_lines():
 # ----------------------------------------------------------------------------
 # Assembly of the files
 # ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# O8: the method emulated bit for bit (ROOT's ruling O8): N05 and N06 at 128
+# and 256, and one skew member at 128; the retained state's sha256
+# ----------------------------------------------------------------------------
+def rcm_em(adjacency):
+    """factor.rs `reverse_cuthill_mckee` (sparse_direct's rules)."""
+    n = len(adjacency)
+    neighbors = [[] for _ in range(n)]
+    for node, raw in enumerate(adjacency):
+        for other in raw:
+            if other != node:
+                neighbors[node].append(other)
+                neighbors[other].append(node)
+    neighbors = [sorted(set(l)) for l in neighbors]
+    degrees = [len(l) for l in neighbors]
+    neighbors = [sorted(l, key=lambda x: (degrees[x], x)) for l in neighbors]
+
+    def reachable(seed):
+        marked = {seed}
+        out, queue = [seed], [seed]
+        while queue:
+            node = queue.pop(0)
+            for nxt in neighbors[node]:
+                if nxt not in marked:
+                    marked.add(nxt)
+                    out.append(nxt)
+                    queue.append(nxt)
+        return out
+
+    def eccentricity(start):
+        marked = {start}
+        level, depth = [start], 0
+        while True:
+            nxt_level = []
+            for node in level:
+                for nxt in neighbors[node]:
+                    if nxt not in marked:
+                        marked.add(nxt)
+                        nxt_level.append(nxt)
+            if not nxt_level:
+                return depth, level
+            depth += 1
+            level = nxt_level
+
+    def peripheral(seed):
+        comp = reachable(seed)
+        cand = min(comp, key=lambda x: (degrees[x], x))
+        ecc, last = eccentricity(cand)
+        while last:
+            nxt = min(last, key=lambda x: (degrees[x], x))
+            e2, l2 = eccentricity(nxt)
+            if e2 > ecc:
+                cand, ecc, last = nxt, e2, l2
+            else:
+                break
+        return cand
+
+    visited = [False] * n
+    order = []
+    for seed in range(n):
+        if visited[seed]:
+            continue
+        start = peripheral(seed)
+        visited[start] = True
+        queue = [start]
+        while queue:
+            node = queue.pop(0)
+            order.append(node)
+            for nxt in neighbors[node]:
+                if not visited[nxt]:
+                    visited[nxt] = True
+                    queue.append(nxt)
+    order.reverse()
+    return order
+
+
+def emulate_state(model, p):
+    """solve_case_at at p (its shared stages included): (u, Q per member,
+    corrections), every rounding mirrored."""
+    q = p + 64
+    rnd = lambda x: rp(x, p)
+    K, members = assemble_em(model, p)
+    Kq, _ = assemble_em(model, q)
+    n = 6 * len(model["nodes"])
+    prescribed = {6 * c["node"] + c["c"]: Fr(c["v"]) for c in model["constraints"]}
+    free = [g for g in range(n) if g not in prescribed]
+    position = {g: a for a, g in enumerate(free)}
+    pattern = {g: set() for g in range(n)}
+    for (r, c) in K:
+        pattern[r].add(c)
+        pattern[c].add(r)
+    get_k = lambda M, r, c: M.get((min(r, c), max(r, c)))
+    adjacency = [[position[c] for c in sorted(pattern[g]) if c in position and c != g] for g in free]
+    order = rcm_em(adjacency)
+    nf = len(free)
+    rank = [0] * nf
+    for k, a in enumerate(order):
+        rank[a] = k
+    first = [min([rank[b] for b in adjacency[a]] + [i]) for i, a in enumerate(order)]
+    scale = [-(k3.floor_log2(get_k(K, g, g)) // 2) for g in free]
+    rows = []
+    for i in range(nf):
+        a = order[i]
+        row = {}
+        for j in range(first[i], i + 1):
+            b = order[j]
+            v = get_k(K, free[a], free[b])
+            row[j] = (v if v is not None else Fr(0)) * Fr(2) ** (scale[a] + scale[b])
+        rows.append(row)
+    get = lambda i, j: rows[i][j] if j >= first[i] else Fr(0)
+    work = [Fr(0)] * nf
+    for i in range(nf):
+        for j in range(first[i], i):
+            s_ = get(i, j)
+            for kk in range(max(first[i], first[j]), j):
+                s_ = rnd(s_ - rnd(work[kk] * get(j, kk)))
+            work[j] = s_
+            rows[i][j] = rnd(s_ / get(j, j))
+        pivot = get(i, i)
+        canc = abs(pivot)
+        for kk in range(first[i], i):
+            term = rnd(work[kk] * get(i, kk))
+            pivot = rnd(pivot - term)
+            canc = rnd(canc + abs(term))
+        m = 2 * (i - first[i]) + 2
+        assert pivot * (2 ** p - m) - 64 * m * canc > 0, "pivot screen"
+        rows[i][i] = pivot
+
+    def solve(b):
+        x = [b[order[i]] * Fr(2) ** scale[order[i]] for i in range(nf)]
+        for i in range(nf):
+            for j in range(first[i], i):
+                x[i] = rnd(x[i] - rnd(get(i, j) * x[j]))
+        for i in range(nf):
+            x[i] = rnd(x[i] / get(i, i))
+        for i in reversed(range(nf)):
+            v = x[i]
+            for j in range(first[i], i):
+                x[j] = rnd(x[j] - rnd(get(i, j) * v))
+        out = [Fr(0)] * nf
+        for i in range(nf):
+            out[order[i]] = x[i]
+        return [out[a] * Fr(2) ** scale[a] for a in range(nf)]
+
+    ledger = {}
+    for l in model["loads"]:
+        g = 6 * l["node"] + l["c"]
+        ledger[g] = ledger.get(g, Fr(0)) + Fr(l["v"])
+    rhs = []
+    for g in free:
+        v = ledger.get(g, Fr(0))
+        for c in pattern[g]:
+            if c in prescribed:
+                v -= get_k(K, g, c) * prescribed[c]
+        rhs.append(rnd(v))
+    u_free = solve(rhs)
+    u = [prescribed.get(g, Fr(0)) for g in range(n)]
+    corrections = 0
+    while True:
+        for a, g in enumerate(free):
+            u[g] = u_free[a]
+        passes, residuals = True, []
+        for g in free:
+            r = ledger.get(g, Fr(0))
+            d = abs(r)
+            count = 0
+            for c in sorted(pattern[g]):
+                kv = get_k(Kq, g, c)
+                if kv == 0 or u[c] == 0:
+                    continue
+                count += 1
+                r -= kv * u[c]
+                d += abs(kv * u[c])
+            m = 2 * count + 2
+            passes = passes and abs(r) * (2 ** p - m) <= 64 * m * d
+            residuals.append(rnd(r))
+        if passes:
+            break
+        assert corrections < 3, "the emulated cases need no more than three corrections"
+        delta = solve(residuals)
+        u_free = [rnd(x + y) for x, y in zip(u_free, delta)]
+        corrections += 1
+    Q = []
+    for mm, op in zip(model["members"], members):
+        dofs = [6 * mm["i"] + k for k in range(6)] + [6 * mm["j"] + k for k in range(6)]
+        axes, inv = op["axes"], op["inv"]
+        d = [rnd(sum((axes[r][c] * u[dofs[3 * blk + c]] for c in range(3)), Fr(0)))
+             for blk in range(4) for r in range(3)]
+        e = [rnd(d[6] - d[0]), rnd(d[9] - d[3])]
+        for rot, tr, sign in ((5, 1, True), (11, 1, True), (4, 2, False), (10, 2, False)):
+            e.append(rnd(d[rot] + (inv * d[tr] - inv * d[tr + 6]) * (1 if sign else -1)))
+        bz, by = op["bz"], op["by"]
+        Q.append([rnd(op["axial"] * e[0]), rnd(op["torsion"] * e[1]),
+                  rnd(4 * bz * e[2] + 2 * bz * e[3]), rnd(2 * bz * e[2] + 4 * bz * e[3]),
+                  rnd(4 * by * e[4] + 2 * by * e[5]), rnd(2 * by * e[4] + 4 * by * e[5])])
+    return u, Q, corrections
+
+
+def state_sha(model, p):
+    L = width_of(p)
+    u, Q, corrections = emulate_state(model, p)
+    out = b"K4RST\x01" + struct.pack("<II", p, L) + struct.pack("<I", len(u))
+    for v in u:
+        out += W_of(v, L).enc()
+    out += struct.pack("<I", len(Q))
+    for qm in Q:
+        for v in qm:
+            out += W_of(v, L).enc()
+    return hashlib.sha256(out).hexdigest(), corrections
+
+
+def o8_lines():
+    by_name = {m["name"]: m for m in models()}
+    lines = []
+    for name, p in (("N05", 128), ("N05", 256), ("N06", 128), ("N06", 256), ("SKEW-K1E-4", 128)):
+        sha, corrections = state_sha(by_name[name], p)
+        lines.append("state %s %d %s %d" % (name, p, sha, corrections))
+    return lines
+
+
+# ----------------------------------------------------------------------------
+# J: S* and the classification (D1 §4.1.6 item 1, §4.1.6.1), a binary64
+# reimplementation (Python floats are IEEE binary64, round to nearest)
+# ----------------------------------------------------------------------------
+R_FLOOR = f64_of(0x3DD0000000000000)  # 2^-34
+SMALL_S = f64_of(0x0230000000000000)  # 2^-988
+K_SQRT2 = f64_of(0x3FF6A09E667F3BCD)
+K_TWO_SQRT2 = f64_of(0x4006A09E667F3BCD)
+TWO64 = 18446744073709551616.0
+
+
+def next_up_f(x):
+    return math.nextafter(x, math.inf)
+
+
+def bound_up(s):
+    nearest = s / TWO64
+    return next_up_f(nearest) if nearest * TWO64 < s else nearest
+
+
+def coupled(s, extent):
+    if extent == 0.0:
+        return list(s)
+    tr, ro, fo, mo = s
+    return [max(tr, extent * ro), max(ro, tr / extent), max(fo, mo / extent), max(mo, extent * fo)]
+
+
+def classify_set(bodies, extents, rows):
+    S = [[0.0] * 4 for _ in range(bodies)]
+    for kind, body, derived, out in rows:
+        if not derived and out[0] in "NS":
+            S[body][kind] = max(S[body][kind], abs(out[1]))
+    scales = [coupled(S[b], extents[b]) for b in range(bodies)]
+    classes = []
+    for kind, body, derived, out in rows:
+        if derived:
+            classes.append("I")
+        elif out[0] in "NS":
+            s = scales[body][kind]
+            if s < SMALL_S or abs(out[1]) < R_FLOOR * s:
+                classes.append("A:%s" % hexf(bound_up(s)))
+            else:
+                classes.append("R")
+        else:
+            classes.append("U")
+    return scales, classes
+
+
+def out_token(out):
+    if out[0] in "NS":
+        return "%s:%s" % (out[0], hexf(out[1]))
+    return out[0] + ("-" if out[1] else "+")
+
+
+def rand_value(rng):
+    r = rng.next() % 64
+    neg = rng.next() & 1 == 1
+    if r == 0:
+        return ("N", 0.0)
+    if r == 1:
+        return ("U", neg)
+    if r == 2:
+        return ("O", neg)
+    if r == 3:
+        v = f64_of(rng.next() % (1 << 52) or 1)
+        return ("S", -v if neg else v)
+    e = (rng.next() % 1600) - 1000
+    v = math.ldexp(1.0 + (rng.next() % (1 << 52)) / 2.0 ** 52, max(min(e, 1000), -1020))
+    return ("N", -v if neg else v)
+
+
+def classification_lines():
+    rng = k3.SplitMix64(seed_of("K4CLASS1"))
+    sets = []
+    for _ in range(400):
+        bodies = 1 + rng.next() % 3
+        extents = [0.0 if rng.next() % 8 == 0 else math.ldexp(1.0 + (rng.next() % 1000) / 1000.0,
+                                                               (rng.next() % 30) - 10) for _ in range(bodies)]
+        rows = [(rng.next() % 4, rng.next() % bodies, rng.next() % 8 == 0, rand_value(rng))
+                for _ in range(1 + rng.next() % 24)]
+        sets.append((bodies, extents, rows))
+    # Targeted: one ulp either side of t = fl(R·S*) (§7.3-20); S* < 2^-988;
+    # 0 < S* < 2^-1011 (b is at least the least subnormal); S* = 0 (b = 0).
+    t = R_FLOOR * 1.0
+    sets.append((1, [0.0], [(0, 0, False, ("N", 1.0)), (0, 0, False, ("N", t)),
+                            (0, 0, False, ("N", math.nextafter(t, 0.0))), (0, 0, False, ("N", next_up_f(t))),
+                            (0, 0, False, ("N", -math.nextafter(t, 0.0)))]))
+    sets.append((1, [2.0], [(1, 0, False, ("N", 3.0)), (1, 0, False, ("N", R_FLOOR * 3.0)),
+                            (1, 0, False, ("N", math.nextafter(R_FLOOR * 3.0, 0.0)))]))
+    tiny = math.ldexp(1.0, -990)
+    sets.append((1, [0.0], [(2, 0, False, ("N", tiny)), (2, 0, False, ("N", tiny / 3.0))]))
+    sets.append((1, [0.0], [(3, 0, False, ("S", math.ldexp(1.0, -1015))), (3, 0, False, ("N", 0.0))]))
+    sets.append((1, [0.0], [(0, 0, False, ("N", 0.0)), (1, 0, False, ("N", 0.0)), (0, 0, True, ("N", 5.0))]))
+    lines = []
+    for k, (bodies, extents, rows) in enumerate(sets):
+        scales, classes = classify_set(bodies, extents, rows)
+        lines.append("set %d %d %s" % (k, bodies, " ".join(hexf(e) for e in extents)))
+        for (kind, body, derived, out), cls in zip(rows, classes):
+            lines.append("row %d %d %d %s %s" % (kind, body, int(derived), out_token(out), cls))
+        for b in range(bodies):
+            lines.append("scales %d %s" % (b, " ".join(hexf(x) for x in scales[b])))
+        lines.append("end")
+    # Item 7: per-member stress scales and k_i = fl↑(k√2·i).
+    for _ in range(300):
+        i = 1.0 + (rng.next() % (1 << 40)) / 2.0 ** 38
+        exact = Fr(K_SQRT2) * Fr(i)
+        nearest = K_SQRT2 * i
+        ki = next_up_f(nearest) if Fr(nearest) < exact else nearest
+        lines.append("kint %s %s" % (hexf(i), hexf(ki)))
+        fo = math.ldexp(1.0 + (rng.next() % 1000) / 999.0, (rng.next() % 60) - 30)
+        mo = math.ldexp(1.0 + (rng.next() % 1000) / 999.0, (rng.next() % 60) - 30)
+        area = math.ldexp(1.0 + (rng.next() % 1000) / 999.0, (rng.next() % 20) - 15)
+        modulus = math.ldexp(1.0 + (rng.next() % 1000) / 999.0, (rng.next() % 20) - 20)
+        for kk in (1.0, K_SQRT2, K_TWO_SQRT2, 4.0, ki):
+            lines.append("stress %s %s %s %s %s %s" % tuple(hexf(x) for x in
+                                                             (fo, mo, area, modulus, kk, fo / area + kk * (mo / modulus))))
+    return lines
+
+
+# ----------------------------------------------------------------------------
+# K: R1's frozen references through the adapter (plan §12.1)
+# ----------------------------------------------------------------------------
+R1_FAMILIES = ("RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-FINITE", "RF-MECH", "RF-CANCEL")
+AXIS_DOF = {"UX": 0, "UY": 1, "UZ": 2, "RX": 3, "RY": 4, "RZ": 5}
+
+
+def r1_cases():
+    """The K4 cases of R1, in references.json order (RF-CANCEL's UDL cases are W1b's)."""
+    ref = json.loads(R1_JSON.read_text())["cases"]
+    out = []
+    for cid, c in ref.items():
+        if c["family"] not in R1_FAMILIES or "member_uniform_loads_N_per_m_global" in c["model"]:
+            continue
+        model = c["model"]
+        if "generator" in model:
+            r1.build_mech()
+            case = next(x for x in r1.CASES if x["id"] == cid)
+            model = r1.model_json(case["defn"], full=True)
+        out.append((cid, c, model))
+    return out
+
+
+def r1_adapt(cid, c, model):
+    """The kernel's binary64 model of an R1 case (plan §12.1) and its key maps."""
+    basis = c.get("basis") or "intended"
+    num = r1.parse_input
+    dec = (lambda x: num(x)) if basis == "intended" else (lambda x: r1.rep(num(x)))
+    names = list(model["nodes_m"])
+    index = {n: k for k, n in enumerate(names)}
+    m = new_model(cid, [tuple(float(num(x)) for x in model["nodes_m"][n]) for n in names])
+    sections = {}
+    for sid, sec in model["sections"].items():
+        od, idd = dec(sec["OD"]), dec(sec["ID"])
+        A = PI_Q * (od * od - idd * idd) / 4
+        I = PI_Q * (od ** 4 - idd ** 4) / 64
+        sections[sid] = dict(E=float(num(sec["E"])), G=float(num(sec["G"])), A=float(A), Iy=float(I),
+                             Iz=float(I), J=2.0 * float(I))
+    member_id = {}
+    kmem = []
+    for k, (mid, ni, nj, sid) in enumerate(model["members"]):
+        xi, xj = m["nodes"][index[ni]], m["nodes"][index[nj]]
+        d = [xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]]
+        y = (1.0, 0.0, 0.0) if d[0] == 0.0 and d[1] == 0.0 else (0.0, 0.0, 1.0)
+        add_member(m, k + 1, index[ni], index[nj], y=y, section=sections[sid])
+        m["stations"].append(dict(id=k + 1, member=k + 1, t=0.5))
+        member_id[mid] = k + 1
+        length = math.sqrt(d[0] * d[0] + d[1] * d[1] + d[2] * d[2])
+        sec = sections[sid]
+        kmem.append((k + 1, (sec["G"] * sec["J"]) / length, (sec["E"] * sec["A"]) / length))
+    spring_key = {}
+    next_id = 1
+    for node, sup in model.get("supports", {}).items():
+        n = index[node]
+        for dof in sup.get("rigid", []):
+            fix(m, n, (AXIS_DOF[dof],))
+        springs = sup.get("springs", [])
+        for kind in ("translation", "rotation"):
+            mine = [(i, sp) for i, sp in enumerate(springs) if sp["kind"] == kind]
+            dirs = [[num(x) for x in sp["direction"]] for _, sp in mine]
+            axis_only = all(sum(1 for x in dv if x != 0) == 1 for dv in dirs)
+            off = 0 if kind == "translation" else 3
+            for (i, sp), dv in zip(mine, dirs):
+                k = float(dec(sp["k"]))
+                if axis_only:
+                    comp = next(a for a in range(3) if dv[a] != 0)
+                    m["springs"].append(dict(id=next_id, node=n, c=off + comp, k=k))
+                    spring_key[(node, i)] = ("spr", next_id, off, comp)
+                else:
+                    m["dsprings"].append(dict(id=next_id, node=n, kind="t" if kind == "translation" else "r",
+                                              n=tuple(float(x) for x in dv), k=k))
+                    spring_key[(node, i)] = ("dspr", next_id, off, None)
+                next_id += 1
+    for node, ld in model.get("loads", {}).items():
+        for key, off in (("F", 0), ("M", 3)):
+            for a, x in enumerate(ld.get(key, ())):
+                v = float(dec(x))
+                if v != 0.0:
+                    load(m, index[node], off + a, v)
+    for k, (node, dof, x) in enumerate(model.get("load_contributions_in_authored_order", [])):
+        load(m, index[node], AXIS_DOF[dof], float(dec(x)), "c%d" % k)
+
+    def key_of(rk):
+        """Our key for an R1 key, or None (a component the kernel does not publish)."""
+        f = rk.split(".")
+        if f[0] in ("u", "th", "R"):
+            return "%s.%d.%d" % ("R" if f[0] == "R" else "u", index[f[1]], AXIS_DOF[f[2]])
+        if f[0] in ("N", "T", "tw", "ext"):
+            return "%s.%d" % (f[0], member_id[f[1]])
+        if f[0] == "Mb":
+            mid = member_id[f[1]]
+            return "Mbs.%d" % mid if f[2] == "mid" else "Mb.%d.%s" % (mid, f[2])
+        if f[0] == "S":
+            kind_, sid, off, comp = spring_key[(f[1], int(f[2]))]
+            a = "XYZ".index(f[3][1])
+            if kind_ == "dspr":
+                return "dspr.%d.%d" % (sid, off + a)
+            return "spr.%d.%d" % (sid, off + a) if a == comp else None
+        raise ValueError(rk)
+    return m, kmem, key_of
+
+
+def r1_lines():
+    floors = json.loads(FLOOR_JSON.read_text())["cases"]
+    lines = []
+    for cid, c, model in r1_cases():
+        m, kmem, key_of = r1_adapt(cid, c, model)
+        lines += model_lines(m, expectations=False)[:-1]
+        outcome = "refuse" if c["family"] == "RF-MECH" and "expected" not in c else "solve"
+        lines.append("case %s %s %s" % (c["family"], c.get("basis") or "-", outcome))
+        for mid, kt, ka in kmem:
+            lines.append("kmem %d %s %s" % (mid, hexf(kt), hexf(ka)))
+        rows = c.get("expected_represented") if c.get("basis") == "represented" else c.get("expected")
+        scales = c.get("scales", {})
+        for row in rows or []:
+            rk, e, cls = row[0], r1.parse_input(row[1]), row[2]
+            scale = r1.parse_input(row[3]) if c["family"] == "RF-CANCEL" else r1.parse_input(scales[cls]["value"])
+            ours = key_of(rk)
+            if ours is None:
+                assert e == 0, (cid, rk)
+                lines.append("zero %s" % rk)
+                continue
+            lines.append("ref %s %s %s %s %s" % (ours, hexf(float(e)), hexf(float(scale)), cls.split("@")[0], rk))
+        for nc in c.get("negative_controls", []):
+            if "defective_outcome" in nc:
+                # An outcome control: the defect is an outcome, not values.
+                lines.append("nco %s %d %s" % (nc["id"], int(bool(nc.get("discriminates"))),
+                                               nc["defective_outcome"].replace(" ", "_")))
+                continue
+            vals = []
+            for rk, v in sorted((nc.get("values") or {}).items()):
+                ours = key_of(rk)
+                if ours is not None:
+                    vals.append("%s=%s" % (ours, hexf(float(r1.parse_input(v)))))
+            lines.append("nc %s %d %s" % (nc["id"], int(bool(nc.get("discriminates"))), " ".join(vals) or "-"))
+        fl = floors.get(cid, {})
+        for rk, _cls, _ratio in fl.get("F_rec_scale_below" if c["family"] == "RF-CANCEL" else "F_scale_below", []):
+            lines.append("floor %s" % key_of(rk))
+        lines.append("end")
+    return lines
+
+
 def build(parts=None):
     files = {}
     summary = {}
@@ -1219,10 +1742,16 @@ def build(parts=None):
         files["streams_sample.txt"] = "\n".join(sample) + "\n"
     if want("formation"):
         files["formation.txt"] = "\n".join(formation_lines()) + "\n"
+    if want("o8"):
+        files["o8_states.txt"] = "\n".join(o8_lines()) + "\n"
+    if want("classification"):
+        files["classification.txt"] = "\n".join(classification_lines()) + "\n"
+    if want("r1"):
+        files["r1_cases.txt"] = "\n".join(r1_lines()) + "\n"
     if want("models"):
         lines = []
         by_name = {}
-        for m in models():
+        for m in models() + routed_models():
             by_name[m["name"]] = m
             lines += model_lines(m)
         for name, operands, net in COMBOS:

@@ -260,6 +260,8 @@ pub(crate) fn published(rows: &[PublishedRow]) -> BTreeMap<String, (f64, Kind, u
             out.insert(key(&r.id), (v, r.kind, r.body));
         }
     }
+    // Derived quantities only where every operand was published (an
+    // underflowing or overflowing operand leaves them out).
     let get = |k: &str| out.get(k).map(|x: &(f64, Kind, u32)| (x.0, x.2));
     let mut extra = Vec::new();
     for k in out.keys() {
@@ -269,27 +271,30 @@ pub(crate) fn published(rows: &[PublishedRow]) -> BTreeMap<String, (f64, Kind, u
             if end == "j" && c == "0" {
                 let (v, b) = get(k).unwrap();
                 extra.push((format!("N.{m}"), (v, Kind::Force, b)));
-                let (t, _) = get(&format!("end.{m}.j.3")).unwrap();
-                extra.push((format!("T.{m}"), (t, Kind::Moment, b)));
+                if let Some((t, _)) = get(&format!("end.{m}.j.3")) {
+                    extra.push((format!("T.{m}"), (t, Kind::Moment, b)));
+                }
             }
             if c == "4" {
                 let (my, b) = get(k).unwrap();
-                let (mz, _) = get(&format!("end.{m}.{end}.5")).unwrap();
-                extra.push((
-                    format!("Mb.{m}.{end}"),
-                    (magnitude(my, mz), Kind::Moment, b),
-                ));
+                if let Some((mz, _)) = get(&format!("end.{m}.{end}.5")) {
+                    extra.push((
+                        format!("Mb.{m}.{end}"),
+                        (magnitude(my, mz), Kind::Moment, b),
+                    ));
+                }
             }
         }
         if let Some(rest) = k.strip_prefix("st.") {
             let parts: Vec<&str> = rest.split('.').collect();
             if parts[1] == "4" {
                 let (my, b) = get(k).unwrap();
-                let (mz, _) = get(&format!("st.{}.5", parts[0])).unwrap();
-                extra.push((
-                    format!("Mbs.{}", parts[0]),
-                    (magnitude(my, mz), Kind::Moment, b),
-                ));
+                if let Some((mz, _)) = get(&format!("st.{}.5", parts[0])) {
+                    extra.push((
+                        format!("Mbs.{}", parts[0]),
+                        (magnitude(my, mz), Kind::Moment, b),
+                    ));
+                }
             }
         }
     }
