@@ -1531,6 +1531,14 @@ const K2B_EXACT_SIBLINGS: [&str; 2] = [
 /// K2b: every force-scaled entry and option. None may be named by the
 /// nonlinear loop's sources (the loop stays on the unscaled binary64 path,
 /// option (c)) or by product_physics until F1b wires them.
+///
+/// The publication helpers `force_scaled_end_actions` and
+/// `force_scaled_spring_action` are named explicitly (RV11D-N1, ROOT's
+/// rulings on RV11's delta check), because a caller can reach them without
+/// naming the `ForceScale` token: the scale can be written
+/// `Default::default()` and its type inferred. That is this text pin's limit
+/// (as RV8-N4 records for the other text pins). A new function taking a
+/// `ForceScale` reached that way must be added here by name.
 const FORCE_SCALED_ENTRY_POINTS: &[&str] = &[
     "solve_force_scaled",
     "new_force_scaled",
@@ -1540,6 +1548,8 @@ const FORCE_SCALED_ENTRY_POINTS: &[&str] = &[
     "force_scaled_reactions",
     "force_scaled(",
     "ForceScale",
+    "force_scaled_end_actions",
+    "force_scaled_spring_action",
 ];
 
 /// K2b (pin extension): `code` with the body of the force-scaled

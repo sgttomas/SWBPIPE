@@ -1633,3 +1633,67 @@ fn k2b_rv11_the_orchestrators_census_includes_the_curved_slots() {
     }
     assert!(bounding > 0, "no K-D5 model's curved slots bound the span");
 }
+
+// ------------------------------------------------------------------ RV11 delta fixes
+// (T3 `ROOT_RULINGS_V1.md`, ROOT's rulings on RV11's delta check; RV11's
+// review `REVIEW/K2B_REVIEW.md`, "Delta check at f385a8bc8", RV11D-1.)
+
+/// RV11D-1, pinned in both modes and both representations: RV11's probe F-S.
+/// The long member W of F-A2 with N0 UY also free and a ground spring of
+/// 2^-600 N/m there. With S the rule's b is -138 and the solve is Passed, with
+/// N0 UY's displacement bit-identical to today's solve without S. The spring
+/// action -k * u is about 1.38e-300 N: normal at b = 0, but its product at 2^b
+/// leaves the normal range, so `force_scaled_spring_action` refuses it (the
+/// checkpoint-D recipe published 0.0 labelled `Normal`). Without S (b = 0) it
+/// is published with today's bits.
+#[test]
+fn k2b_rv11d_spring_action_at_scale_is_refused_never_a_wrong_normal() {
+    use open_pipe_stress_frame_kernel::force_scaled_spring_action;
+    let spring = (1, pow2(-600));
+    let with_spring = |with_s: bool| {
+        let mut model = rv11_long_member(0, with_s);
+        model.prescribed.retain(|&(dof, _)| dof != 1);
+        model.springs.push(spring);
+        model
+    };
+    let plain = with_spring(false);
+    let plain_force = plain.ledger();
+    let model = with_spring(true);
+    let force = model.ledger();
+    let refused = Err(ForceScaledError::Refused(ForceScalingRefusal {
+        reason: ForceScaleReason::PublicationOutsideBinary64 {
+            global_dof: Some(1),
+        },
+        trigger: None,
+    }));
+    for mode in MODES {
+        for representation in REPRESENTATIONS {
+            let ctx = format!("{mode:?} {representation:?}");
+            let today = plain
+                .existing(&plain_force, mode, representation, true)
+                .unwrap();
+            let base =
+                solve_with_force_scaling(&plain.case(&plain_force, mode, representation)).unwrap();
+            assert_eq!(base.solution.force_scale, ForceScale::UNSCALED, "{ctx}");
+            let u0 = &base.solution.solution.displacements;
+            assert_eq!(bits(u0), bits(&today.displacements), "{ctx}");
+            let expected = -(spring.1 * u0[1]);
+            assert!(expected.is_normal() && expected.abs() > 1.3e-300 && expected.abs() < 1.4e-300);
+            let published = force_scaled_spring_action(spring, u0, ForceScale::UNSCALED).unwrap();
+            assert_eq!(published.value.to_bits(), expected.to_bits(), "{ctx}");
+            assert_eq!(published.representability, Representability::Normal);
+            let outcome =
+                solve_with_force_scaling(&model.case(&force, mode, representation)).unwrap();
+            let b = outcome.solution.force_scale;
+            assert_eq!(b, scale(-138), "{ctx}");
+            assert_eq!(
+                outcome.solution.solution.report.quality,
+                SolveQuality::Passed,
+                "{ctx}"
+            );
+            let u = &outcome.solution.solution.displacements;
+            assert_eq!(u[1].to_bits(), u0[1].to_bits(), "{ctx}");
+            assert_eq!(force_scaled_spring_action(spring, u, b), refused, "{ctx}");
+        }
+    }
+}

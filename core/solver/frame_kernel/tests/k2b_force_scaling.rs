@@ -1163,3 +1163,114 @@ fn k2b_rv11_force_scaled_end_actions_are_checked_and_unscaled_once() {
         )))
     );
 }
+
+// ------------------------------------------------------------------ RV11 delta fixes
+// (T3 `ROOT_RULINGS_V1.md`, ROOT's rulings on RV11's delta check; RV11's
+// review `REVIEW/K2B_REVIEW.md`, "Delta check at f385a8bc8", RV11D-1 and
+// RV11D-2.)
+
+/// RV11D-2: `force_scaled_end_actions` checks the local-displacement stage
+/// T * u_e too, at every b, b = 0 included. A member along (3, 4, 0) m has
+/// direction cosines 0.6 and 0.8, so a displacement of 2^-1022 m (the least
+/// normal) at N1 UX gives subnormal products 0.6 * 2^-1022 and 0.8 * 2^-1022
+/// in T * u_e. Those bits are lost before the stiffness stage, and with
+/// E = G = 2^100 Pa the stiffness stage would lift them back to normal values
+/// published as exact. So the actions are refused at b = 0 and at b = 64. With
+/// a displacement of 2^-1000 m every stage is normal and the actions are
+/// published, bit for bit the same at both scales.
+#[test]
+fn k2b_rv11d_end_actions_check_the_local_displacement_stage_at_every_b() {
+    let section = FrameSection::new(pow2(100), pow2(100), 1.0, 1.0, 1.0, 1.0).unwrap();
+    let frame = FrameElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+        FrameNode::new(1, [3.0, 4.0, 0.0]).unwrap(),
+        section,
+        [0.0, 0.0, 1.0],
+    )
+    .unwrap();
+    let t = frame.orientation().unwrap().transformation_matrix();
+    let mut u = vec![0.0; 12];
+    u[6] = pow2(-1022);
+    // Precondition: a product of T * u_e is subnormal, and the stiffness stage
+    // alone would not see it (its products of those values are normal).
+    assert!((0..12).any(|r| {
+        let product = t[r][6] * u[6];
+        product != 0.0 && product.is_subnormal()
+    }));
+    let k = frame.local_stiffness().unwrap();
+    assert!((k[0][6] * (t[6][6] * u[6])).is_normal());
+    let refused = Err(ForceScaledError::Refused(ForceScalingRefusal {
+        reason: ForceScaleReason::PublicationOutsideBinary64 { global_dof: None },
+        trigger: None,
+    }));
+    for b in [0, 64] {
+        assert_eq!(
+            frame.force_scaled_end_actions(&u, scale(b)),
+            refused,
+            "b = {b}"
+        );
+    }
+    u[6] = pow2(-1000);
+    let at0 = frame
+        .force_scaled_end_actions(&u, ForceScale::UNSCALED)
+        .unwrap();
+    let at64 = frame.force_scaled_end_actions(&u, scale(64)).unwrap();
+    assert_eq!(at0, at64);
+    assert!(at0
+        .iter()
+        .all(|p| p.representability == Representability::Normal));
+}
+
+/// RV11D-1: the kernel's spring action at 2^b
+/// (`force_scaled_spring_action`), built as the member actions are. The
+/// product -(k * 2^b) * u of nonzero operands must be normal, or the action is
+/// refused with step 5's `PublicationOutsideBinary64`; it is never a flushed
+/// value labelled `Normal`. It is then unscaled once. At b = 0 a published
+/// value is today's -(k * u), bit for bit.
+#[test]
+fn k2b_rv11d_force_scaled_spring_action_checks_its_product_at_every_b() {
+    use open_pipe_stress_frame_kernel::force_scaled_spring_action as action;
+    let refused = |dof: usize| {
+        Err(ForceScaledError::Refused(ForceScalingRefusal {
+            reason: ForceScaleReason::PublicationOutsideBinary64 {
+                global_dof: Some(dof),
+            },
+            trigger: None,
+        }))
+    };
+    // RV11's F-S at the kernel: k = 2^-600 N/m, u about 2^-400 m. At b = 0 the
+    // action is normal; at b = -138 the product is formed below 2^-1022.
+    let k = pow2(-600);
+    let u = [0.0, -1.2345 * pow2(-397)];
+    let today = -(k * u[1]);
+    assert!(today.is_normal());
+    assert_eq!(
+        action((1, k), &u, ForceScale::UNSCALED),
+        Ok(published(today))
+    );
+    assert_eq!(action((1, k), &u, scale(-138)), refused(1));
+    // A subnormal product (about 2^-1060) is refused too, at b = 0.
+    let small = [0.0, pow2(-460)];
+    assert_eq!(action((1, k), &small, ForceScale::UNSCALED), refused(1));
+    // Normal at scale: exact, and the same bits as at b = 0.
+    assert_eq!(action((1, k), &u, scale(64)), Ok(published(today)));
+    // A zero displacement gives a zero action (its sign kept), not a refusal.
+    let zero = action((1, k), &[0.0, 0.0], scale(-138)).unwrap();
+    assert_eq!(zero.value, 0.0);
+    assert_eq!(zero.representability, Representability::Normal);
+    // Invalid input and an unscalable stiffness.
+    assert_eq!(
+        action((2, k), &u, ForceScale::UNSCALED),
+        Err(ForceScaledError::Structural(StructuralError::InvalidInput(
+            "displacement vector"
+        )))
+    );
+    assert_eq!(
+        action((1, pow2(1000)), &u, scale(100)),
+        Err(ForceScaledError::Formation(
+            FrameKernelError::NumericalRange {
+                name: "spring stiffness*2^b (force scale)"
+            }
+        ))
+    );
+}
