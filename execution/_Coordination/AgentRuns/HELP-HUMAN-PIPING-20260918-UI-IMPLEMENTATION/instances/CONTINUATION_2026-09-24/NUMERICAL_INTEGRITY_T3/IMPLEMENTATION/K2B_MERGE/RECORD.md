@@ -41,7 +41,7 @@
 - **T9 (Mac-only):** 112 of 112 (I10's RETURN, at checkpoint B and again on the RV11 fixes). The base equals the Mac calibration hashes.
 - **DEC-025,** under the owner's Mac decision (`OWNER_DIRECTION.md`, 2026-09-28), **on the final head `33e33c723`**; the evidence is in `dec025/`:
   1. **The sweep invocation** failed at the cargo surface on product_physics's platform test `t13` (fail-fast). The summary is `SWEEP_20260928T113531Z_33e33c723a97.json`, sanitized; the sha256 of the original is `350a3d8331aa60c42eeec1f3deb8e910d4670163eceb53dc88d60958b95abe4a`.
-  2. **All 39 manifests** were run with `--no-fail-fast`. Against the Mac run of main's tree, only frame_kernel (227 → 249) and nonlinear_integration (102 → 120) change, by K2b's tests. The failing tests are exactly the three Mac platform tests (`suites_vs_baseline.txt`).
+  2. **All 39 manifests** were run with `--no-fail-fast`. Against the Mac run of main's tree, only frame_kernel (227 → 249) and nonlinear_integration (102 → 120) change, by K2b's tests. [Correction (RV13-N1): the baseline is the K3 candidate `b7e93650e`'s Mac run, that is main `57617b0fb` less K3's two follow-up tests, and 2 of FK's 22 added tests are those. By `#[test]` counts, K2b adds 20 FK and 18 NI tests. The driver is `M03_SKEW_PIN_MERGE/dec025/dec025_mac.sh.txt`.] The failing tests are exactly the three Mac platform tests (`suites_vs_baseline.txt`).
   3. **Surfaces 2, 3 and 5** all exit 0:
      - pytest: 3023 passed, 32 skipped;
      - vitest: 134 files, 2822 of 2822;
@@ -50,7 +50,7 @@
   - Machine paths are sanitized to `<WORKTREE>`, `<VENV>`, `<wt>`, `<home>` and `<tmp>`.
 - **The gate:** not run. K2b is kernel only (ROOT's K2b rulings); it runs at F1b.
 
-## Rulings and findings, as recorded in ROOT_RULINGS_V1
+## Rulings and findings, as recorded in ROOT_RULINGS_V1 [ROOT's decisions at RV11's delta checks were recorded there late, as "K2b: ROOT's decisions at RV11's delta checks" (RV13-S2)]
 
 - **Even b** amends §4.7 step 3's letter, not its intent. The derivation is in RETURN §4, checked by RV11, with its premise corrected by RV11-3.
 - **Census scope; residual records published descriptively** (ruling B); **the LEF restatement** (ruling C).
@@ -64,3 +64,4 @@
   - consider the b-rule refinement;
   - restate the LEF expectation at product level;
   - RV11's NOTEs N2–N4 and RV11D2-N1 (the double rounding of subnormal published values at b ≠ 0, within the stated precision).
+  - RV11D-N2: the reaction check at b = 0 is stricter than flushing requires; F1b's gate measures its availability cost (added after RV13-S2).

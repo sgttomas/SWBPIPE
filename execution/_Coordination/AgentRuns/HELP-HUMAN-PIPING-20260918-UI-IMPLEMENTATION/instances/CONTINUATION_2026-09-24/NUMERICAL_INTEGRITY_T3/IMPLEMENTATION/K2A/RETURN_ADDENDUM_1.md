@@ -68,7 +68,7 @@ Relative errors are measured against E scaled by 2^600.
 ### 1.3 Restated (replacing §5.3 line 155 and the right-hand column of §5.4)
 
 - **Axis-aligned members:** §5.3 and §5.4 hold as written. Every nonzero element entry below about 2^-974.585 is refused. S1 (§2) corrects the 12EI/L³ figure.
-- **Skew members:** acceptance is decided by the coupling block, that is, by **6EI/L² against the floor.**
+- **Skew members:** acceptance is decided by the coupling block, that is, by **6EI/L² against the floor.** [Imprecise in general: the skew threshold lies up to about 1.6 binades above the floor. See `REVIEW/M03_SKEW_PIN_REVIEW.md` S2(a) and N7, and the scoped `IMPLEMENTATION/M03_SKEW_PIN/RETURN.md` §3.4 (RV13-N5).]
   - Where 6EI/L² is above the floor, M03 accepts subnormal-derived 4EI/L and 2EI/L below the floor, with errors up to 1.2e-7 in RV7's rows. It does so even when 6EI/L² itself comes from a subnormal (6E)·I (the 2^-1030 to 2^-1050 rows).
   - Where 6EI/L² is below the floor, M03 refuses (the 2^-1055 row, and S6a).
   - **1/L row:** "Refused by M03" holds on axis-aligned members only. On skew members, accepted as above.

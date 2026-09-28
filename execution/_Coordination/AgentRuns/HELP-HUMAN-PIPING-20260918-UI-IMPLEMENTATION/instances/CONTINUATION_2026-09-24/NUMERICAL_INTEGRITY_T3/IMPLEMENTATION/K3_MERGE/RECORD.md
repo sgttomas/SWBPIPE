@@ -9,7 +9,7 @@
   - It is kernel only, with no product caller.
   - K3a's `Wide<2>`, which K-D5 publishes through, is byte-identical.
 
-## The chain (base main `6e18505e3`; its piping tree equals `eb52114e9`'s)
+## The chain (base main `6e18505e3`; its piping tree equals `eb52114e9`'s [outside `execution/`, that is in `core`, `fixtures`, `validation` and `schemas` (RV13-N2)])
 
 | Commit | Content |
 |---|---|
@@ -33,7 +33,7 @@
   - pull_request run **36413698754** on `2511f5a3c`: success. Its "Numerical cargo suite" took **about 11.9 minutes** (11:07:15Z–11:19:09Z) against its 45-minute budget. This is the figure the Q7 ruling asked for.
   - pull_request run **36404664521** and the full-SHA dispatch **36404663005** (target_base `98b1723b1…`) on `b7e93650e`: success. They stand for the head, since `e62837f7e` and `2511f5a3c` change only tests and records.
   - The final PR state: 12 checks passing, 0 failing.
-- **T9 (Mac-only):** 112 of 112 byte-identical, base against candidate (I11's RETURN). RV12 checked the final head's outputs against ROOT's Mac main hashes: 112 of 112.
+- **T9 (Mac-only):** 112 of 112 byte-identical, base against candidate (I11's RETURN). RV12 checked the final head's outputs against ROOT's Mac main hashes: 112 of 112. [RV12's T9 ran at `b7e93650e`; the final head changes only FK tests (RV13-N2).]
 - **DEC-025,** under the owner's Mac decision (`OWNER_DIRECTION.md`, 2026-09-28), on `b7e93650e`; the evidence is in `dec025/`:
   1. **The sweep invocation** failed at the cargo surface on product_physics's platform test `t13`, and the later surfaces were recorded as `not_run` (fail-fast). The summary is `SWEEP_20260928T093842Z_b7e93650ea11.json`, sanitized; the sha256 of the original is `b3eeb3515a482ee4a3ad1fbe13124f27c32b87db7056a0c31894683dc329a42d`.
   2. **All 39 manifests** were run with `--no-fail-fast`. Against the Mac baseline of main `98b1723b1`, only frame_kernel changes (184 → 227, K3's tests), and the failing tests are exactly the three Mac platform tests (`suites_vs_baseline.txt`).
@@ -41,7 +41,7 @@
      - pytest: 3023 passed, 32 skipped;
      - the production build passed;
      - **desktop vitest failed one test under host load:** `App.deadControls.test.tsx`, "Next result page … produced no observable DOM change", with a load average above 8 while two reviewers and pytest ran. K3 changes no TypeScript and no desktop input.
-  - **The vitest surface was re-run on a quiet host at the head `2511f5a3c`** (`dec025/vitest_rerun/`, load average about 3 at the start): `build:wasm:desktop` passed, and `test:desktop` gave 134 files and 2822 of 2822 tests. No timeout was raised and no test was skipped.
+  - **The vitest surface was re-run on a quiet host at the head `2511f5a3c`** (`dec025/vitest_rerun/`, load average about 3 at the start) [and 11.91 at the end, 11:22:00Z, per its `meta.txt`. The head, `2511f5a3c`, is established by the sweep worktree's reflog, not by `meta.txt`. The earlier "above 8" loads are not in committed evidence (RV13-N3)]: `build:wasm:desktop` passed, and `test:desktop` gave 134 files and 2822 of 2822 tests. No timeout was raised and no test was skipped.
   - The evidence at `b7e93650e` stands for `2511f5a3c`, which changes only FK tests and records. FK's suite at the head is 229 passed (I11 and RV12, independently).
   - Machine paths are sanitized to `<WORKTREE>`, `<VENV>`, `<wt>`, `<home>` and `<tmp>`.
 - **The gate:** not run. There is no product caller (the K3 rulings).

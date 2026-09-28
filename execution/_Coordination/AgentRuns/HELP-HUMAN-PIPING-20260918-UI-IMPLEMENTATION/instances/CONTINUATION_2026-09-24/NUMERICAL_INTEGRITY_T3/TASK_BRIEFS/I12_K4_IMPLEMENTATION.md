@@ -134,7 +134,7 @@ A TASK drafted this brief. ROOT reviewed it and rules on its open questions as f
 5. **Q5: the mechanism ships, with no numeric limits.**
    - The per-case and per-invocation limits are required parameters with no default.
    - K4 measures deterministic counts only; debug wall times are observations.
-   - **ROOT's reading of §4.1.7, recorded as a ruling:** "No implementing slice ships without them" binds the slice that wires W1 into the product. **F2a does not merge without ROOT's limits,** which are set from the K6 and V-P measurements (C4).
+   - **ROOT's reading of §4.1.7, recorded as a ruling:** "No implementing slice ships without them" binds the slice that wires W1 into the product. **F2a does not merge without ROOT's limits,** which are set from the K6 and V-P measurements (C4). **[Amended: from K6 and V-K, which precede F2a, with K4's deterministic counts; V-P revisits them after F2a. `ROOT_RULINGS_V1.md`, "K4: Q5 amended" (RV13-S3).]**
    - K3's N2 and N3 are handled in K4's attempt record, as recommended.
 6. **Q6: add the kernel-only `DirectionalSpring`** to W1a's source, formed at p as k·n nᵀ/(nᵀn).
    - The geometric screen counts a node's directional springs of one kind as grounding that kind only when their directions span R³, decided exactly. Otherwise the case is refused as unsupported.

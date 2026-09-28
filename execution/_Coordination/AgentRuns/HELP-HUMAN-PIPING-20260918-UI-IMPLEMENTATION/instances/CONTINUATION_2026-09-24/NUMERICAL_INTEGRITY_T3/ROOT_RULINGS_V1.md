@@ -1129,7 +1129,7 @@ RV11 reviewed PR #1040 at `087b3a088`: **FAIL**, with 1 BLOCKING, 3 SHOULD-FIX a
   - the multi-term exact sum in K4's own file;
   - the `exact_sum.rs` accessor approved;
   - the ceiling: no p + 64 residual, with the argument derived and checked;
-  - budgets: the mechanism only, with no limits, and **F2a does not merge without ROOT's limits** from K6 and V-P;
+  - budgets: the mechanism only, with no limits, and **F2a does not merge without ROOT's limits** from K6 and V-P; **[Amended: from K6 and V-K, with V-P revisiting them after F2a. See "K4: Q5 amended" below (RV13-S3).]**
   - a kernel `DirectionalSpring`;
   - RCM ported into `factor.rs`;
   - the site-table extension;
@@ -1137,14 +1137,40 @@ RV11 reviewed PR #1040 at `087b3a088`: **FAIL**, with 1 BLOCKING, 3 SHOULD-FIX a
   - canonical encodings, hashed downstream;
   - K3's outcome type;
   - one slice.
-- **Design text made stale by K1, K2b and K3,** recorded here as rulings. `DESIGN.md` stays hash-pinned.
+- **Design text made stale by K1, K2b and K3** [or found inconsistent within the design (RV13-N9)], recorded here as rulings. `DESIGN.md` stays hash-pinned.
   1. §4.1.1's `wide.rs` is now `wide.rs` (K3a, L = 2) plus `wide/multi.rs` (K3, L = 4, 8 and 16). K4's p = 128 and 192 run at L = 4.
   2. §4.1.2's "one accumulation discipline … shared with `FK/exact_sum.rs`" holds for binary64 terms only. p-bit sums use K4's primitive.
   3. §4.1.2 item 5's projection is K3's `from_integer` plus K4's netting accessor.
   4. §4.1.3's "RCM … shared with the binary64 sparse path" cannot be shared across crates. K4 ports it, and V-K tests the equality.
   5. §4.1.4 with §4.1.6: there is no p + 64 residual at the 1024 ceiling (Q4).
-  6. §4.1.7's "No implementing slice ships without them" binds the product-wiring slice (F2a), per C4's measurement order.
+  6. §4.1.7's "No implementing slice ships without them" binds the product-wiring slice (F2a), per C4's measurement order. **[Amended: the limits come from K6 and V-K, which precede F2a; V-P follows F2a and revisits them. See "K4: Q5 amended" below.]**
   7. §4.1.1's springs are extended with the kernel-only `DirectionalSpring`, for §4.10's directional kernel springs.
   8. §5 item 7's outcomes are carried by two types, K2b's `Representability` and K3's `Binary64Outcome`. F2a unifies them, including the zero conventions.
   9. MOD-D's export gap: the first consumer outside FK adds the `pub use`.
   10. §4.10 and §7.1's "LEF-small … solved": the ordinary route refuses it with `DegenerateAxis` (K2b ruling). Whether W1's source admits LEF-small is V-K's question; RF-RANGE is not in K4's row.
+
+## K2b: ROOT's decisions at RV11's delta checks (ROOT, 2026-09-28; recorded late, RV13-S2)
+
+These decisions were stated in ROOT's resume messages to I10. Until RV13's review of records PR #1042 found the gap, they were recorded only in K2b's RETURN (addenda 1 and 2) and in RV11's review. They are recorded here with their original dates. Nothing in them is new.
+1. **The reaction check applies at every b, b = 0 included** (`IMPLEMENTATION/K2B/RETURN.md`, "The check applies at every b", where I10 left it "ROOT's call"; `REVIEW/K2B_REVIEW.md`, "ROOT's two decisions, against the code").
+   - Where today's E12 would flush a subnormal product at b = 0, `force_scaled_reactions` refuses. F1b may keep today's E12 at b = 0 for byte identity.
+   - RV11D-N2: the check is stricter than flushing requires, which costs availability only. **F1b's gate measures that cost.**
+2. **`force_scaled_end_actions` stays off the pin list,** covered indirectly through the pinned `ForceScale` token. **Reversed** after RV11D-N1 (the `Default::default()` evasion, `RV11D-PIN-ACTIONS-EVASION`).
+   - Both publication helpers, `force_scaled_end_actions` and `force_scaled_spring_action`, are named in `FORCE_SCALED_ENTRY_POINTS`.
+   - The pin's doc records the text-pin limit beside RV8-N4's (`RETURN.md` A2.4).
+3. **The rulings on RV11's first delta check** (ROOT's message; `RETURN.md`, addendum 2):
+   - RV11D-1: a checked spring-action helper, pinned with probe F-S and a mutant;
+   - RV11D-2: tests that kill the two surviving action mutants;
+   - N1: both helpers on the pin list (item 2's reversal);
+   - N3: the doc sentence corrected;
+   - N2: recorded, with no change.
+4. **For F1b,** in addition to `K2B_MERGE/RECORD.md`'s list: RV11D-N2 (item 1), and RV11D-N3 (no end-action variant takes load terms at scale).
+
+## K4: Q5 amended (ROOT, 2026-09-28; RV13-S3)
+
+- **The error.** The Q5 ruling said F2a does not merge without ROOT's limits, "set from the K6 and V-P measurements (C4)". But V-P follows F2a in DESIGN §6 (the V-P row, "after F1 and F2a") and in the selected order. As written, F2a could never merge.
+- **Amended (RV13's option (a)):**
+  - F2a does not merge without ROOT's per-case and per-invocation limits.
+  - ROOT sets them from K6's measurements and V-K's kernel-lane runs, both of which precede F2a, together with K4's deterministic work counts. §4.1.7 asks for "W3/W5 measurements", which this admits.
+  - V-P's product-lane measurements follow F2a, and confirm or revise the limits. A revision is its own ruling.
+- Item 6 of K4's stale-design list, and the brief's Q5 ruling (`TASK_BRIEFS/I12_K4_IMPLEMENTATION.md`), carry bracketed pointers here. K4's own scope is unaffected: it ships the mechanism only.

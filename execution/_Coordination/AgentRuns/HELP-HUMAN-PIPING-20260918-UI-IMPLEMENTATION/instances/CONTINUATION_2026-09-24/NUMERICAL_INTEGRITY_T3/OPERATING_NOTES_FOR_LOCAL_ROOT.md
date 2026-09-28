@@ -1,5 +1,7 @@
 # T3 operating notes for the next ROOT (HELP_HUMAN), 2026-09-28
 
+> **[Status note, added 2026-09-28 (RV13-N7).** This file is a dated snapshot of the cloud-to-Mac handoff, and its present tense is as of that handoff. For current status see the T3 row of the work graph, and `ROOT_RULINGS_V1.md` for the rulings since.]
+
 This is a companion to `HANDOFF_2026-09-28_TO_LOCAL.md`. It records how the cloud ROOT ran T3 through the Type 0/1/2 roles, and what did and did not work. These are practice notes, not rulings. Where they touch a ruling, the ruling in `ROOT_RULINGS_V1.md` governs.
 
 ## 1. Shape of the delegation
@@ -59,6 +61,8 @@ A manager premise needed a third K2a correction. Each came from ruling on a clai
 - **Honour stop rules.** The most valuable findings came from TASKs that stopped instead of forcing a case: I6 on K2a's premise, and I3 and RV5 on M31b. A stop is a result, not a failure.
 
 ## 6. PR and merge mechanics
+
+- **[Added 2026-09-28 (RV11-N7, RV13-N5).]** Run GEN-8 only in a Git working tree of the candidate. In a `git archive` copy nested inside an ignored folder of the outer worktree, the self-check scans only untracked AgentRuns files of an active role, so the run is partial.
 
 - **E2E dispatch:** `piping-desktop-e2e.yml` with a full, real 40-hex `target_base`, which must be an ancestor of the head. Copy it from `git rev-parse`; a mistyped one wastes a run. The pull_request run fails plan validation if main's tip is not in the head, so merge main first (a merge commit, never a rebase).
 - **Merge:** a merge commit with `expectedHeadSha`, once review PASS, green CI, the sweep and the dispatch are all in. Then restart the designated branch from main and force-push it, since it is your own branch. **[Corrected (ROOT, 2026-09-28, RV9's S2): a force push is outside the owner's standing Git grant (`.agents/skills/chirality-change/SKILL.md`: overwriting remote state and rewriting history need separate explicit authorization). Don't restart or force-push a branch without the owner's explicit authorization. Continue on the branch, merging main in (or fast-forwarding to main when the branch is an ancestor). See `IMPLEMENTATION/K1_MERGE/RECORD.md`, "History disclosure".]**

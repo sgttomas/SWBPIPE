@@ -44,7 +44,7 @@
 - **T9 (Mac-only):** base `f12e06876` against the candidate, 112 of 112 byte-identical (RETURN addendum 2). The base equals the Mac hashes of main `649162522`.
 - **The gate:** not run, per ROOT's ruling "K1: spawn timing and no both-entry gate". The gate runs at F1b.
 
-### The DEC-025 sandboxed sweep: the owner's decision for Mac-run slices
+### The DEC-025 sandboxed sweep: the owner's decision for Mac-run slices [The owner's words are for K1; applying them to later slices is ROOT's extension. See `OWNER_DIRECTION.md`, 2026-09-28 (RV13-N4).]
 
 - **The problem.** On the Mac, the sweep's cargo surface cannot pass, even for main. Three tests compare committed Linux bytes whose Mac outputs differ by a macOS `hypot` ulp (`PLATFORM_CALIBRATION_MAC/suites/SUMMARY.md`).
 - **The owner's decision (2026-09-28).** The gate is the Mac sandboxed sweep plus Linux CI:

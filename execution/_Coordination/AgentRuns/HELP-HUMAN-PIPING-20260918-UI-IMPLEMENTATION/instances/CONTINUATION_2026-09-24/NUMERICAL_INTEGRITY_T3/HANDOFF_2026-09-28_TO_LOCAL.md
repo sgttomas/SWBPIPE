@@ -1,5 +1,7 @@
 # T3 handoff to a local session (2026-09-28)
 
+> **[Status note, added 2026-09-28 (RV13-N7).** This file is a dated snapshot of the cloud-to-Mac handoff, and its present tense is as of that handoff. For current status see the T3 row of the work graph, and `ROOT_RULINGS_V1.md` for the rulings since.]
+
 **Decision (ROOT, HELP_HUMAN, 2026-09-28).** T3 (numerical integrity, precision and scale) moves from the cloud container to a local session on the owner's Mac, which has much more CPU and disk.
 - **K2a finishes here.** It is in its gate now.
 - **K1 onward continues on the Mac,** from K1's WIP commit.
