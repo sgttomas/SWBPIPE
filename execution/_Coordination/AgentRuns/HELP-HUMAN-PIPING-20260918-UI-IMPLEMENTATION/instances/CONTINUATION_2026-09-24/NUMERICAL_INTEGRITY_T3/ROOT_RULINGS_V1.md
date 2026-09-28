@@ -1081,7 +1081,7 @@ K2a's `RETURN_ADDENDUM_1` §1.3 left open whether pre-K2a main refuses skew case
 
      The "third attempt" mutant (a retry within the window) must then be killed behaviourally. RETURN §13.3 and the mutation table are updated.
   3. **A design finding, on the T3-close list:** the b-rule's census omits the solve's right-hand-side and intermediate range. Candidate refinements are a per-row load-to-stiffness term in the census, or a bounded, deterministic retry. **F1b's brief must consider it** before F1b wires b into the product. No refinement lands in K2b.
-- **The even-b derivation's premise** (RETURN §4) is also recorded: every rounded operation is zero or normal at both scales. The dense Cholesky factor and the triangular solves have no range checks, so the kernel does not enforce the premise. The forced-b tests pin its consequences. K2b's reviewer checks the derivation and states whether the premise's scope is adequately disclosed.
+- **The even-b derivation's premise** (RETURN §4) is also recorded: every rounded operation is zero or normal at both scales. The dense Cholesky factor and the triangular solves have no range checks, so the kernel does not enforce the premise. **[Corrected by "K2b: rulings on RV11's review" below (RV11-3): the dense Cholesky, the triangular solves and the skyline LDLᵀ are range-checked at the head. What was unchecked is the reaction and member-action arithmetic, and the rounding boundary into the normal range.]** The forced-b tests pin its consequences. K2b's reviewer checks the derivation and states whether the premise's scope is adequately disclosed.
 
 ## K3: Q7 reversed — the test profile is withdrawn (ROOT, 2026-09-28)
 
@@ -1102,3 +1102,22 @@ K2a's `RETURN_ADDENDUM_1` §1.3 left open whether pre-K2a main refuses skew case
      - the measured debug wall time.
   5. **Hosted CI's numerical-job time** on K3's PR goes in the merge record.
 - **A lesson, recorded:** a test must not depend on how the compiler evaluates a function of unspecified precision. Tests that need exact section properties should compute them with explicit, ordered arithmetic on runtime values, or on `black_box`ed constants. This is a T3-close note on test hygiene.
+
+## K2b: rulings on RV11's review (ROOT, 2026-09-28)
+
+RV11 reviewed PR #1040 at `087b3a088`: **FAIL**, with 1 BLOCKING, 3 SHOULD-FIX and 7 NOTE findings (`REVIEW/K2B_REVIEW.md`). Its checks of the kernel-only claim (a lexer scan, and the b = 0 probe re-run at 439/439), the 13-step even-b derivation, the census and the pin, and ruling B all hold. The rulings:
+
+1. **RV11-1 (BLOCKING): reactions and member actions at scale must never publish a wrong value labelled Normal.**
+   - `SparseStiffness::force_scaled_reactions` forms K′·u at 2^b with the unchecked binary64 `multiply`, then unscales. RV11's probe F-A2 publishes reactions of 0, labelled Normal, where today's E12 gives ±1.38e-300 N.
+   - **Fix, fail-closed:** every product and partial sum of the reaction at scale is checked. A value that leaves the normal range (and is not an exact zero) refuses the reaction with the step-5 refusal. It is never published as Normal. An exact alternative (an `ExactAccumulator` sum of exact products) is acceptable if the implementer prefers it and pins it the same way.
+   - **K2b also provides F1b a kernel function for member actions at scale, built the same way,** and RETURN §15's recipe points to it. The recipe must no longer publish end shears through unchecked arithmetic.
+   - **Tests:** F-A2 and its 2^80-larger variant must be refused, or be correct with a normal outcome. They must never be a wrong Normal. Add a mutant that restores the unchecked multiply; it must be killed.
+2. **RV11-2 (SHOULD-FIX, fixed in K2b):** `exact_normal_scaling` must refuse a result that is normal only because it rounded up from the subnormal range: the scaled value must be exact. Add a test, and a mutant.
+3. **RV11-3 (SHOULD-FIX, records):** RETURN §4's premise disclosure and §6's "exact sum of K′·u" are corrected to what the code does. ROOT's own sentence at `97000ab9f` is corrected in place above.
+4. **RV11-4 (SHOULD-FIX, tests):** tests pin the census scope so that both surviving mutants are killed: `Product` recorded at e(x) alone, and curved slots left out of the census. Their effect is availability only, but ruling 2 defines the scope and a test must hold it.
+5. **Process:**
+   - I10 fixes these on the K2b branch;
+   - it re-runs the affected evidence: the targeted tests, the suites against the Mac baseline, the b = 0 probe, T9, and the mutation table's affected rows plus the new mutants;
+   - it adds a RETURN addendum;
+   - RV11 then delta-checks the fix commits.
+   - DEC-025 is re-run on the new head on a quieter host. At `087b3a088`, `App.test.tsx`'s workspace render timed out at 30 s under host load (load average above 8, with two reviewers building). K2b changes no TypeScript; the timeout is not raised, and the surface is re-run.
