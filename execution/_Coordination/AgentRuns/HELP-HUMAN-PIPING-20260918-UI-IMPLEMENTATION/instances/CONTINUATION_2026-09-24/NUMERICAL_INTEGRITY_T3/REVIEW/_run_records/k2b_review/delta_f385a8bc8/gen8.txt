@@ -1,0 +1,10 @@
+GEN-8 on the fixed head f385a8bc8 (RV11 delta check, 2026-09-28)
+
+Where: <wt>/k2b at f385a8bc8, working tree clean (`GIT_OPTIONAL_LOCKS=0 git status --porcelain` empty before and
+after; the index equal to HEAD's tree after). Read-only, as in the first review (see ../gen8.txt for why an archive
+copy cannot be used):
+  GIT_OPTIONAL_LOCKS=0 PYTHONDONTWRITEBYTECODE=1 CHIRALITY_REQUIRE_LIVE_TESTS=1 <VENV>/bin/python -m pytest \
+    tools/practitioner_harness/test_live_baseline.py -k gen8 -p no:cacheprovider -q
+Result:
+  .                                                                        [100%]
+  1 passed, 10 deselected in 31.48s

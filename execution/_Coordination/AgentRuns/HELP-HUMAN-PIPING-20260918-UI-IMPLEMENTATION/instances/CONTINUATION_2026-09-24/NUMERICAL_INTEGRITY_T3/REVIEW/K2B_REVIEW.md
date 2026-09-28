@@ -207,3 +207,80 @@
 - I re-ran 7 of I10's 32 counted mutants (the brief's sample), not all of them.
 - I made no timing or memory claims.
 - I did not assess realistic reach beyond this: RV11-1 needs reaction products below about 2^-1022 at 2^b (in F-A2, a 2^300 m member and 1e-300 N reactions). Its reach in realistic models is nil, as with the pinned limitation, but it fails unsafe, not by refusal.
+
+## Delta check at f385a8bc8
+
+**Verdict: PASS.** No BLOCKING finding remains unresolved.
+- **RV11-1 is resolved in the kernel.** Reactions and member actions at scale now fail closed, and none of my probes finds a wrong published value.
+- **RV11-2, RV11-3 and RV11-4 are resolved.**
+- **The check found 2 new SHOULD-FIX findings and 3 NOTEs:**
+  - RETURN §15 step 5's spring-action recipe still has RV11-1's defect (RV11D-1);
+  - two of the new member-action checks are untested (RV11D-2).
+
+**Scope.** ROOT resumed me for this check at PR #1040's head `f385a8bc8`, which I verified after a fetch. It is three commits on my reviewed head `087b3a088`:
+- `bf4647c21`, the fix;
+- `14f9b093f`, the tests;
+- `f385a8bc8`, RETURN addendum 1 and `_run_records/rv11_fixes/`.
+
+The basis adds `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)" (numerics `4ec82a9b3`), and ROOT's two decisions stated at resume. The evidence is in `_run_records/k2b_review/delta_f385a8bc8/`.
+
+### Findings (delta)
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| RV11-1 | resolved (kernel) | `sparse.rs` `force_scaled_reactions` with `row_product_stays_normal`; `lib.rs` `FrameElement::force_scaled_end_actions` | **F-A2** (`probes/delta_probe.log`): at the rule's b = −138, in both modes and both representations, R(N0 UY) and R(N1 UY) are **refused** with `PublicationOutsideBinary64`, as are W's end actions. The moment reaction R(N1 RZ) is published `Normal` with today's bits. The 2^80 variant is also refused. Without S (b = 0), all are published with today's bits.<br>**F-D:** forced even b over the census window of 13 K-D5 models and 5 long-member variants gives **146,602 published values, 0 wrong**, and 204 refusals (all on the long members).<br>**F-E:** on K2b's own cases (reach_zero, reach_lef, partial underflow, PHYS-R4, three LEF-large, both modes), there are **0 refusals at the rule's b**, and every value published across each window equals the value at the rule's b (0 wrong). | None. |
+| RV11-2 | resolved | `lib.rs` `exact_normal_scaling` | F-B: `force_scaled_value(0x1.fffffffffffffp-1021, b = −2)` is now `NumericalRange`. At the rule's b = −706 the ledger scales y (to 2^54), and the scaled net is exactly 2^b times the net. The acceptance test `binary_exponent(value) + exponent ∈ [−1022, 1023]` is exact for normal inputs. | None. |
+| RV11-3 | resolved | RETURN §4, §6 and §15 (steps 3–4 and the signatures); CHANGE_RECORD "Pending"; ROOT_RULINGS_V1.md:1084 | Read in place (`records_checks.txt` item 8). The superseded sentence is kept and marked wrong. The code docs match. | None. (§15 step 5 is RV11D-1.) |
+| RV11-4 | resolved | the census tests | RV11-CENSUS-PRODUCT-X is killed at `k2b_force_scaling.rs:1023` and RV11-CENSUS-NO-CURVED at `k2b_tests.rs:1631`, the sites I10 recorded. | None. |
+| RV11D-1 | SHOULD-FIX | RETURN §15 step 5 (line 819), unchanged by addendum 1: "Spring actions: −(k·2^b)·u, through `unscale_for_publication`" | **F-S** (`probes/delta_probe_spring.log`): W with N0 UY free and a spring of 2^-600 N/m to ground there, plus S.<br>– At the rule's b = −138 the solve is Passed in both modes and both representations, and u_y is bit-identical to today's.<br>– The recipe's product at 2^b is 0, and `unscale_for_publication` publishes **0.0, `Normal`**. Today's −k·u is **1.3825367244506685e-300 N**.<br>– This is RV11-1's defect in the one step 5 output the fix left. My first review's resolution named "§15 steps 4–5".<br>– No K2b code publishes a spring action, so K2b itself publishes nothing wrong. But §15 is the interface F1b will follow. | Before F1b wires spring actions, correct step 5: the product of nonzero operands must be normal at 2^b, or the value is refused with `PublicationOutsideBinary64`. Better, give F1b a kernel helper built like `force_scaled_end_actions`, and pin F-S. |
+| RV11D-2 | SHOULD-FIX | Test gap: `force_scaled_end_actions` (`lib.rs:986–1047`) | Two of my mutants survive FK, SD and NI in full and PP's two tests (367 of 367 pass):<br>– **RV11D-ACTIONS-LOCAL-UNCHECKED:** the check on the local stage T·u_e removed.<br>– **RV11D-ACTIONS-B0-EXEMPT:** every check skipped at b = 0, although the doc says "the check applies at every b, b = 0 included".<br>The tests exercise only the stiffness stage, at b = −138.<br>The local stage guards the same wrong-`Normal` class. If a T·u_e term is subnormal (a small direction-cosine component times a u near 2^-1022), the local displacement loses bits, and K′ at a large scale can lift the result back to a normal value that is published as exact. | Add an action case whose T·u_e has a subnormal product or partial sum, refused at b = 0 and at a b ≠ 0. Show both mutants killed. |
+| RV11D-N1 | NOTE | ROOT's decision 2: the pin list (`s11k_tests.rs` `FORCE_SCALED_ENTRY_POINTS`) | "Covered indirectly through the pinned `ForceScale` token" is not complete.<br>– **RV11D-PIN-ACTIONS-EVASION** survives every test. It adds a non-test function to the loop's module (NI `lib.rs`) that calls `frame.force_scaled_end_actions(u, Default::default())`. That names no pinned token, because `token_indices` matches text and the scale's type is inferred.<br>– The same evasion reaches `unscale_for_publication` and the other functions that take a `ForceScale`.<br>– At b = 0 the new function returns the straight pipe's values or refuses, so the behavioural risk is small. | Add `"force_scaled_end_actions"` to `FORCE_SCALED_ENTRY_POINTS` (one line; it is also I10's A1.6 suggestion). Record the `Default::default()` limit beside RV8-N4's text-pin limits. |
+| RV11D-N2 | NOTE | ROOT's decision 1: `force_scaled_reactions` at b = 0 | **Verified in the code and pinned.**<br>– `row_product_stays_normal` runs unconditionally, and **RV11D-REACT-B0-EXEMPT** is killed at `k2b_force_scaling.rs:1058`.<br>– A value it publishes at b = 0 has `reactions`' bits: the FK test, F-A2 without S, and F-D's b = 0 comparisons all show this.<br>**The check is stricter than flushing requires.** It refuses when any single product is subnormal, even one far below the rounding of a normal sum, which today's E12 would give accurately to within an ulp. That costs availability only. F-D and F-E show no such refusal on K-D5's or K2b's models. | F1b's gate measures it, as ROOT ruled. |
+| RV11D-N3 | NOTE | `force_scaled_end_actions`' doc and RETURN §15 step 4: "a caller adds its load terms (fixed-end actions) at the same scale" | The function returns actions that are already unscaled, so a caller has no scaled value to add to.<br>– Adding b = 0 fixed-end actions to the published values is today's two-rounding order, and is fine when those loads are in range.<br>– A fixed-end action that must be formed under b (RETURN §14's F1b note) cannot be combined at scale through this interface. | For F1b: a variant that returns the scaled actions, or one that takes the load terms and rounds once. |
+
+### ROOT's two decisions, against the code
+
+1. **The reactions check applies at every b, b = 0 included.**
+   - This holds: `force_scaled_reactions` calls `row_product_stays_normal` with no b guard, and the FK test asserts the refusals at b = 0 and b = 2 (RV11D-REACT-B0-EXEMPT is killed).
+   - The row check mirrors `multiply`'s left fold exactly: the same stored-entry order, and appended signed zeros that cannot change a magnitude.
+   - "Normal products and partial sums" does imply "2^b times the unbounded row". Binary64 rounding commutes with 2^b inside the normal range, and a partial sum rounds to zero only when its exact sum is zero.
+   - Existing `reactions` and `multiply` are untouched (RV11D-N2).
+2. **`force_scaled_end_actions` is not named in the pin list.**
+   - It has no non-test caller outside FK `lib.rs` (my lexer scan, `callers/`).
+   - The indirect coverage has a demonstrated gap (RV11D-N1).
+
+### The other checks ROOT asked for
+
+- **The write set** (`commits_check.txt`):
+  - The fix commits change 5 code paths, all in K2b's declared write set: FK `lib.rs`, `structural/sparse.rs`, the declared `s11_site_table.rs` rows, and K2b's two test files.
+  - Under `IMPLEMENTATION/K2B/`, CHANGE_RECORD, RETURN and SHA256SUMS are modified, and 147 files are added under `_run_records/rv11_fixes/`.
+  - Nothing else changes. No pre-K2b function is touched, and no empty blob is added.
+- **I10's index write** (`index_check.txt`, read-only): it left no trace.
+  - In `<wt>/k2b`, at `f385a8bc8`, which equals its upstream, the index equals HEAD's tree entry for entry: 53,402 entries, same modes and blobs.
+  - No entry carries a nonzero flag, so no intent-to-add entry remains. The working tree is clean.
+  - The 147 `rv11_fixes` entries equal the committed blobs.
+  - The reflog shows only the merge and ROOT's three commits.
+- **b = 0 is unchanged:**
+  - The **b = 0 probe gives 439 of 439 identical** at `f385a8bc8` against `eb52114e9`, against `98b1723b1` and against `087b3a088`. It equals I10's `rv11_fixes` release lists.
+  - **F-C:** 3,040 forced-b comparisons on K-D5's 13 models, with identical u and unscaled `Debug`.
+  - **Head tests pass:** FK 202, SD 30, NI 115 + 4 doc, and PP 11 + 5. There are no new warnings; PP's 10 are pre-existing.
+- **Mutations** (`mutations/`, clean archives of `f385a8bc8`, NONE first, 367 passing):
+  - I10's K2B-REACT-UNCHECKED, K2B-REACT-PARTIAL, K2B-ACTIONS-UNCHECKED and K2B-EXACT-ROUNDUP are killed at exactly the sites A1.7 records.
+  - My RV11-CENSUS-PRODUCT-X and RV11-CENSUS-NO-CURVED are killed (RV11-4).
+  - Of my four new mutants:
+    - RV11D-REACT-B0-EXEMPT is killed;
+    - RV11D-ACTIONS-LOCAL-UNCHECKED and RV11D-ACTIONS-B0-EXEMPT survive (RV11D-2);
+    - RV11D-PIN-ACTIONS-EVASION survives (RV11D-N1).
+- **Records** (`records_checks.txt`, `gen8.txt`):
+  - SHA256SUMS: 318 of 318 verify.
+  - There are no machine paths and no model identifiers.
+  - A1.1's line counts and hashes match the head.
+  - The A1.7 suites claim matches the logs: FK 202, NI 119, 0 changed, 0 removed, 35 added, and the same 3 Mac failures with byte-identical blocks.
+  - T9's records show 112 of 112, equal to the calibration list. T9 is stated Mac-only.
+  - GEN-8 passes, run read-only in `<wt>/k2b` at `f385a8bc8`.
+
+### Not done in the delta check
+
+- **Not re-run:** T9, the 39-manifest suites, or I10's other 51 re-run mutants. I cross-checked their records instead.
+- **No timing or memory claims.**
+- **Host:** the memory guard never fired, and the mutant targets were deleted after each run.
