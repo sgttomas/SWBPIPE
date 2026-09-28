@@ -320,6 +320,95 @@ impl AssembledForce {
         }
         Ok(())
     }
+
+    /// K2b (T3 D1 revision 5a.2 §4.7, formation-time scaling; ROOT's K2b
+    /// ruling 4): this force with every term times 2^b, exactly.
+    /// - A term x becomes x·2^b. A product x·y scales one factor, x first,
+    ///   else y, or splits b across both, whichever keeps each factor normal.
+    ///   A nonzero term that cannot be scaled exactly and normally is
+    ///   `ScaledEvaluation`. A zero term, or a product with a zero factor, is
+    ///   kept as it is.
+    /// - Each DOF's net is the exact sum of its scaled terms, rounded once
+    ///   (as `LoadLedger::finish` rounds it), with the same underflow evidence.
+    /// - Sources, DOFs and the per-DOF term order are unchanged. Nothing is
+    ///   pushed to a ledger. The S11-G formation records are not carried: the
+    ///   kernel's solve never reads them (they serve the product's guard,
+    ///   which reads the unscaled force).
+    pub fn force_scaled(
+        &self,
+        scale: crate::ForceScale,
+    ) -> Result<AssembledForce, crate::structural::ForceScaleReason> {
+        let failed = crate::structural::ForceScaleReason::ScaledEvaluation;
+        let terms = self
+            .terms
+            .iter()
+            .map(|term| force_scaled_term(term, scale).ok_or(failed.clone()))
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut values = Vec::with_capacity(self.values.len());
+        let mut evidence = LedgerEvidence::default();
+        for (dof, indices) in self.by_dof.iter().enumerate() {
+            let mut accumulator = ExactAccumulator::new();
+            for &index in indices {
+                terms[index]
+                    .accumulate(&mut accumulator, false)
+                    .map_err(|_| failed.clone())?;
+            }
+            let value = accumulator.round().map_err(|_| failed.clone())?;
+            if value == 0.0 && !accumulator.is_zero() {
+                evidence.underflowed_dofs.push(dof);
+            }
+            values.push(value);
+        }
+        Ok(AssembledForce {
+            values,
+            by_dof: self.by_dof.clone(),
+            formations: vec![None; terms.len()],
+            terms,
+            evidence,
+        })
+    }
+}
+
+/// K2b: one term times 2^b, exactly (see `AssembledForce::force_scaled`).
+fn force_scaled_term(term: &ForceTerm, scale: crate::ForceScale) -> Option<ForceTerm> {
+    let b = scale.exponent();
+    let kind = match term.kind {
+        _ if b == 0 => term.kind,
+        ForceTermKind::Term(x) if x == 0.0 => term.kind,
+        ForceTermKind::Term(x) => ForceTermKind::Term(crate::exact_normal_scaling(x, b)?),
+        ForceTermKind::Product(x, y) if x == 0.0 || y == 0.0 => term.kind,
+        ForceTermKind::Product(x, y) => {
+            if let Some(scaled) = crate::exact_normal_scaling(x, b) {
+                ForceTermKind::Product(scaled, y)
+            } else if let Some(scaled) = crate::exact_normal_scaling(y, b) {
+                ForceTermKind::Product(x, scaled)
+            } else {
+                if !x.is_normal() || !y.is_normal() {
+                    return None;
+                }
+                // x·2^s and y·2^(b-s) both normal: e(x) + s and
+                // e(y) + b - s in [-1022, 1023].
+                let (ex, ey) = (
+                    crate::structural::binary_exponent(x),
+                    crate::structural::binary_exponent(y),
+                );
+                let low = (-1022 - ex).max(b - 1023 + ey);
+                let high = (1023 - ex).min(b + 1022 + ey);
+                if low > high {
+                    return None;
+                }
+                ForceTermKind::Product(
+                    crate::exact_normal_scaling(x, low)?,
+                    crate::exact_normal_scaling(y, b - low)?,
+                )
+            }
+        }
+    };
+    Some(ForceTerm {
+        source: term.source.clone(),
+        dof: term.dof,
+        kind,
+    })
 }
 
 /// Unit roundoff of binary64, 2^-53.

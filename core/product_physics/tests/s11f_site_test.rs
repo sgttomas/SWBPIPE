@@ -466,6 +466,23 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "reduce_assembled_sparse_system",
         "KS2 over the pattern: one exact sum per free row",
     ),
+    // K2b (ROOT's K2b ruling 5: a declared, additive extension, tests only):
+    // the force-scaled functions that read the case force.
+    (
+        "FK/structural.rs",
+        "unscale_structural_solution",
+        "K2b: republishes a flagged load-audit row's exact net and actual force bits from the unscaled ledger (one exact sum of the DOF's terms); read-only",
+    ),
+    (
+        "FK/structural/sparse.rs",
+        "force_scaled_reactions",
+        "K2b: E12 at 2^b from sparse rows, the formed K*u and the DOF's ledger terms at 2^b in one exact sum, rounded once at 2^-b",
+    ),
+    (
+        "SA/structural_adapter.rs",
+        "force_scale_census",
+        "K2b: reads each ledger term's exponent for the b-rule's census; read-only",
+    ),
 ];
 const FORCE_TOKENS: &[&str] = &[
     ".force[",

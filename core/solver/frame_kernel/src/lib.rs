@@ -852,6 +852,291 @@ fn checked_formation_value(
     Ok(value)
 }
 
+// ------------------------------------------------------------------ K2b
+
+/// K2b (T3 D1 revision 5a.2 §4.7, W2, and ROOT's K2b rulings of
+/// 2026-09-28): an exact power-of-two force scale 2^b, applied at formation to
+/// E, G, user and spring stiffnesses, realized curved-bend matrices and load
+/// terms. The exponent is always even (ROOT's K2b ruling 1): with
+/// K' = 2^b·K and f' = 2^b·f, the gate's power-of-two equilibration then
+/// shifts every scale exponent by exactly b/2 and prepares a bit-identical
+/// matrix, so the solve is invariant (the derivation is in K2b's RETURN).
+/// `UNSCALED` (b = 0) is today's formation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct ForceScale {
+    exponent: i32,
+}
+
+impl ForceScale {
+    /// b = 0: today's formation, unchanged.
+    pub const UNSCALED: Self = Self { exponent: 0 };
+
+    /// The scale 2^exponent; `None` for an odd exponent.
+    pub fn new(exponent: i32) -> Option<Self> {
+        (exponent.rem_euclid(2) == 0).then_some(Self { exponent })
+    }
+
+    /// b.
+    pub fn exponent(self) -> i32 {
+        self.exponent
+    }
+
+    pub fn is_unscaled(self) -> bool {
+        self.exponent == 0
+    }
+}
+
+/// 2^exponent, exactly, for -1074 <= exponent <= 1023.
+fn exact_power_of_two(exponent: i32) -> f64 {
+    debug_assert!((-1074..=1023).contains(&exponent));
+    if exponent >= -1022 {
+        f64::from_bits(((exponent + 1023) as u64) << 52)
+    } else {
+        f64::from_bits(1_u64 << (exponent + 1074))
+    }
+}
+
+/// `value * 2^exponent` when it is exact and normal: `value` normal, and the
+/// result normal. Two multiplications by exact powers of two whose exponents
+/// have the same sign, so the intermediate lies between `value` and the
+/// result and is normal too; each product is then exact.
+pub(crate) fn exact_normal_scaling(value: f64, exponent: i32) -> Option<f64> {
+    if !value.is_normal() || !(-2046..=2046).contains(&exponent) {
+        return None;
+    }
+    let first = exponent / 2;
+    let scaled = value * exact_power_of_two(first) * exact_power_of_two(exponent - first);
+    scaled.is_normal().then_some(scaled)
+}
+
+/// K2b: `value * 2^b`, exact. A zero keeps its value and sign; a nonzero value
+/// must be normal and must stay normal, otherwise `NumericalRange { name }`:
+/// a subnormal input has already lost bits, and a result outside the normal
+/// range would lose them. A non-finite value is `NonFiniteInput`. `UNSCALED`
+/// returns the value unchanged.
+pub fn force_scaled_value(
+    name: &'static str,
+    value: f64,
+    scale: ForceScale,
+) -> Result<f64, FrameKernelError> {
+    if !value.is_finite() {
+        return Err(FrameKernelError::NonFiniteInput { name, value });
+    }
+    if scale.is_unscaled() || value == 0.0 {
+        return Ok(value);
+    }
+    exact_normal_scaling(value, scale.exponent()).ok_or(FrameKernelError::NumericalRange { name })
+}
+
+/// K2b: every entry of `matrix` times 2^b (`force_scaled_value`), for a
+/// realized curved bend's global matrix or its formation allowances.
+pub fn force_scaled_matrix(
+    name: &'static str,
+    matrix: &Matrix12,
+    scale: ForceScale,
+) -> Result<Matrix12, FrameKernelError> {
+    let mut scaled = *matrix;
+    for row in scaled.iter_mut() {
+        for entry in row.iter_mut() {
+            *entry = force_scaled_value(name, *entry, scale)?;
+        }
+    }
+    Ok(scaled)
+}
+
+impl FrameElement {
+    /// K2b: this element with E and G times 2^b, exactly. Its stiffness is
+    /// then formed by the unchanged checked `local_stiffness`, so every K2a
+    /// check runs on the scaled operands, and each accepted coefficient is
+    /// 2^b times the coefficient an unbounded exponent range would give.
+    pub fn force_scaled(&self, scale: ForceScale) -> Result<Self, FrameKernelError> {
+        let mut element = *self;
+        element.section.elastic_modulus =
+            force_scaled_value("E*2^b (force scale)", self.section.elastic_modulus, scale)?;
+        element.section.shear_modulus =
+            force_scaled_value("G*2^b (force scale)", self.section.shear_modulus, scale)?;
+        Ok(element)
+    }
+}
+
+impl UserStiffnessElement {
+    /// K2b: this element with its four stiffnesses times 2^b, exactly.
+    pub fn force_scaled(&self, scale: ForceScale) -> Result<Self, FrameKernelError> {
+        let name = "user stiffness*2^b (force scale)";
+        let mut element = *self;
+        element.axial_stiffness = force_scaled_value(name, self.axial_stiffness, scale)?;
+        element.lateral_stiffness = force_scaled_value(name, self.lateral_stiffness, scale)?;
+        element.angular_stiffness = force_scaled_value(name, self.angular_stiffness, scale)?;
+        element.torsional_stiffness = force_scaled_value(name, self.torsional_stiffness, scale)?;
+        Ok(element)
+    }
+}
+
+/// K2b: the binary-exponent census of the b-rule (D1 §4.7 steps 2–3, with
+/// ROOT's K2b rulings 1 and 2). It runs only after an evaluation at b = 0 has
+/// failed with a range trigger.
+/// - Frames contribute the exponents of E and G, and the **predicted**
+///   exponent (the sum of the operand exponents, including the constants'
+///   exponents 3, 2, 2, 1 for 12, 6, 4, 2) of each of the 24 values K2a
+///   checks that scale with b: E·A, EA/L, G·J, GJ/L, k·E, (k·E)·I and
+///   (k·E·I)/L^n for Iy and Iz. No product is formed. The true exponent of
+///   each lies within [predicted - 3, predicted + 2] (at most three mantissa
+///   factors in [1, 2) above, at most three below), which the margins absorb.
+///   A, I, J and L do not scale with b; only a subnormal one matters.
+/// - User stiffnesses, ground springs, the entries of realized curved-bend
+///   matrices and load terms contribute their exact exponents; a load
+///   product x·y contributes e(x) + e(y).
+/// - A zero takes no part. Any subnormal input is refused.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ForceScaleCensus {
+    span: Option<(i32, i32)>,
+    subnormal: bool,
+}
+
+impl ForceScaleCensus {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    fn exponent(&mut self, exponent: i32) {
+        self.span = Some(match self.span {
+            None => (exponent, exponent),
+            Some((low, high)) => (low.min(exponent), high.max(exponent)),
+        });
+    }
+
+    /// An exact census value that scales with b.
+    fn value(&mut self, value: f64) {
+        if value == 0.0 {
+            return;
+        }
+        if value.is_subnormal() {
+            self.subnormal = true;
+            return;
+        }
+        self.exponent(structural::binary_exponent(value));
+    }
+
+    /// A frame's section and length. The operands are validated as
+    /// `local_stiffness` validates them (the same errors), then E and G and
+    /// the 24 predicted exponents enter the census.
+    pub fn frame(&mut self, element: &FrameElement) -> Result<(), FrameKernelError> {
+        let section = element.section;
+        let length = element.length()?;
+        let operands = [
+            ("elastic_modulus", section.elastic_modulus),
+            ("shear_modulus", section.shear_modulus),
+            ("area", section.area),
+            ("second_moment_y", section.second_moment_y),
+            ("second_moment_z", section.second_moment_z),
+            ("torsion_constant", section.torsion_constant),
+            ("length", length),
+        ];
+        for (name, value) in operands {
+            validate_positive_finite(name, value)?;
+        }
+        if operands.iter().any(|(_, value)| value.is_subnormal()) {
+            self.subnormal = true;
+            return Ok(());
+        }
+        let [e, g, a, iy, iz, j, l] = operands.map(|(_, value)| structural::binary_exponent(value));
+        self.exponent(e);
+        self.exponent(g);
+        for predicted in [e + a, e + a - l, g + j, g + j - l] {
+            self.exponent(predicted);
+        }
+        // (exponent of k, power of L) for k = 12, 6, 4, 2.
+        for (k, power) in [(3, 3), (2, 2), (2, 1), (1, 1)] {
+            self.exponent(k + e);
+            for i in [iy, iz] {
+                self.exponent(k + e + i);
+                self.exponent(k + e + i - power * l);
+            }
+        }
+        Ok(())
+    }
+
+    pub fn user(&mut self, element: &UserStiffnessElement) {
+        self.value(element.axial_stiffness);
+        self.value(element.lateral_stiffness);
+        self.value(element.angular_stiffness);
+        self.value(element.torsional_stiffness);
+    }
+
+    /// The entries of a realized curved bend's global matrix.
+    pub fn matrix(&mut self, matrix: &Matrix12) {
+        for row in matrix {
+            for &entry in row {
+                self.value(entry);
+            }
+        }
+    }
+
+    pub fn spring(&mut self, stiffness: f64) {
+        self.value(stiffness);
+    }
+
+    pub fn load_term(&mut self, term: &load_ledger::ForceTerm) {
+        match term.kind {
+            load_ledger::ForceTermKind::Term(value) => self.value(value),
+            load_ledger::ForceTermKind::Product(x, y) => {
+                if x == 0.0 || y == 0.0 {
+                    return;
+                }
+                if x.is_subnormal() || y.is_subnormal() {
+                    self.subnormal = true;
+                    return;
+                }
+                self.exponent(structural::binary_exponent(x) + structural::binary_exponent(y));
+            }
+        }
+    }
+
+    /// (e_min, e_max), or `None` when no nonzero value was recorded.
+    pub fn span(&self) -> Option<(i32, i32)> {
+        self.span
+    }
+
+    pub fn has_subnormal(&self) -> bool {
+        self.subnormal
+    }
+
+    /// Steps 2–3 of the b-rule, with ROOT's K2b ruling 1 on parity:
+    /// - a subnormal input is refused;
+    /// - b_lo = -1022 + 64 - e_min and b_hi = 1023 - 8 - e_max; b_lo > b_hi
+    ///   is refused with the window reason;
+    /// - m = ⌊(b_lo + b_hi)/2⌋ (toward −∞); b = m if m is even, otherwise
+    ///   m − 1 if that is ≥ b_lo, otherwise m + 1 if that is ≤ b_hi; a window
+    ///   that is a single odd point is refused with the window reason.
+    ///
+    /// With no nonzero value there is nothing to scale: b = 0.
+    pub fn force_scale(&self) -> Result<ForceScale, structural::ForceScaleReason> {
+        if self.subnormal {
+            return Err(structural::ForceScaleReason::SubnormalAtFormation);
+        }
+        let Some((e_min, e_max)) = self.span else {
+            return Ok(ForceScale::UNSCALED);
+        };
+        let window = structural::ForceScaleReason::InfeasibleWindow { e_min, e_max };
+        let low = -1022 + 64 - e_min;
+        let high = 1023 - 8 - e_max;
+        if low > high {
+            return Err(window);
+        }
+        let middle = (low + high).div_euclid(2);
+        let exponent = if middle.rem_euclid(2) == 0 {
+            middle
+        } else if middle - 1 >= low {
+            middle - 1
+        } else if middle + 1 <= high {
+            middle + 1
+        } else {
+            return Err(window);
+        };
+        Ok(ForceScale { exponent })
+    }
+}
+
 pub fn transform_global_stiffness(
     local_stiffness: &Matrix12,
     orientation: &FrameOrientation,

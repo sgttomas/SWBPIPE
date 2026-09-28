@@ -559,6 +559,17 @@ fn option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points(
             code.replace_range(range, "{");
         }
     }
+    // K2b (pin extension, ROOT's K2b ruling 5): the force-scaled siblings of
+    // `solve_assembled` and `solve_assembled_with_formation_check` are the same
+    // exact variants at 2^b; their bodies are blanked the same way, by impl
+    // block (their single definition per impl is pinned in
+    // `k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product`).
+    for header in ADAPTER_IMPLS {
+        for defining in K2B_EXACT_SIBLINGS {
+            let range = body_in_impl(&code, header, defining);
+            code.replace_range(range, "{");
+        }
+    }
     for required in ["fn solve_binary64(", "fn solve_structural_sparse_binary64("] {
         assert!(code.contains(required), "missing legacy variant {required}");
     }
@@ -1142,6 +1153,16 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
                 );
             }
         }
+        // K2b (pin extension, ROOT's K2b ruling 5): the force-scaled sibling
+        // of the formation-checked entry holds the same plumbing, in its body
+        // only; it is defined once in each adapter impl and nowhere else.
+        let blanked;
+        let code = if sa {
+            blanked = k2b_blank_formation_siblings(code);
+            &blanked
+        } else {
+            code
+        };
         for plumbing in FORMATION_ENTRY_POINTS
             .iter()
             .copied()
@@ -1491,6 +1512,109 @@ fn kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check() {
                 checked_iterations >= 1 && result.iterations.len() >= 2,
                 "{ctx}: {} iterations, {checked_iterations} with a derived friction force",
                 result.iterations.len()
+            );
+        }
+    }
+}
+
+// ------------------------- K2b: the force-scaled entries (pin extension)
+// (T3 D1 revision 5a.2 §4.7; ROOT's K2b rulings 5 and 6, on K1's precedent.)
+// Additive: no existing list, count or assertion above changes meaning.
+
+/// K2b: the force-scaled siblings that define exact variants (blanked by
+/// impl block in the option (c) adapter scan above).
+const K2B_EXACT_SIBLINGS: [&str; 2] = [
+    "fn solve_force_scaled(",
+    "fn solve_force_scaled_with_formation_check(",
+];
+
+/// K2b: every force-scaled entry and option. None may be named by the
+/// nonlinear loop's sources (the loop stays on the unscaled binary64 path,
+/// option (c)) or by product_physics until F1b wires them.
+const FORCE_SCALED_ENTRY_POINTS: &[&str] = &[
+    "solve_force_scaled",
+    "new_force_scaled",
+    "solve_with_force_scaling",
+    "ForceScalingCase",
+    "with_force_scale",
+    "force_scaled_reactions",
+    "force_scaled(",
+    "ForceScale",
+];
+
+/// K2b (pin extension): `code` with the body of the force-scaled
+/// formation-checked sibling blanked in each adapter impl, after checking that
+/// it is defined exactly once in each impl and nowhere else.
+fn k2b_blank_formation_siblings(code: &str) -> String {
+    const SIBLING: &str = "fn solve_force_scaled_with_formation_check(";
+    assert_eq!(
+        code.matches(SIBLING).count(),
+        2,
+        "the force-scaled formation-checked sibling is defined once in each adapter impl, and nowhere else"
+    );
+    let mut code = code.to_string();
+    for header in ADAPTER_IMPLS {
+        assert_eq!(
+            function_body(&code, header).matches(SIBLING).count(),
+            1,
+            "{header} defines the force-scaled formation-checked sibling once"
+        );
+        let range = body_in_impl(&code, header, SIBLING);
+        code.replace_range(range, "{");
+    }
+    code
+}
+
+/// K2b: the force-scaled entries are defined in the structural adapter only
+/// (each sibling and constructor once in each adapter impl, the orchestrator
+/// once), and no other non-test module of this crate (the nonlinear loop
+/// included) or of product_physics names any of them. Backed by the
+/// behavioural pin `k2b_nonlinear_loop_reaches_no_force_scaled_entry`.
+#[test]
+fn k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product() {
+    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let modules = non_test_modules(&manifest.join("src"));
+    for known in ["lib.rs", "product_equilibrium.rs", "structural_adapter.rs"] {
+        assert!(
+            modules.iter().any(|(n, _)| n == known),
+            "{known} not reached"
+        );
+    }
+    for (name, code) in &modules {
+        if name == "structural_adapter.rs" {
+            for definition in [
+                "fn solve_force_scaled(",
+                "fn solve_force_scaled_with_formation_check(",
+                "fn new_force_scaled(",
+            ] {
+                assert_eq!(code.matches(definition).count(), 2, "{definition}");
+                for header in ADAPTER_IMPLS {
+                    assert_eq!(
+                        function_body(code, header).matches(definition).count(),
+                        1,
+                        "{header} defines {definition} once"
+                    );
+                }
+            }
+            assert_eq!(code.matches("fn solve_with_force_scaling(").count(), 1);
+            continue;
+        }
+        for token in FORCE_SCALED_ENTRY_POINTS {
+            assert_eq!(
+                token_indices(code, token).len(),
+                0,
+                "{name} names the force-scaled entry {token}"
+            );
+        }
+    }
+    let product = non_test_modules(&manifest.join("../../product_physics/src"));
+    assert!(product.iter().any(|(n, _)| n == "lib.rs"));
+    for (name, code) in &product {
+        for token in FORCE_SCALED_ENTRY_POINTS {
+            assert_eq!(
+                token_indices(code, token).len(),
+                0,
+                "product_physics {name} names the force-scaled entry {token} before F1b"
             );
         }
     }

@@ -1,0 +1,885 @@
+//! K2b kernel tests (T3 D1 revision 5a.2 §4.7, W2 force-radix scaling and the
+//! kernel half of formation-time scaling; ROOT's K2b rulings of 2026-09-28):
+//! the force scale, exact scaling at formation, the b-rule's census and
+//! window, the ledger's force-scaled terms, the sparse assembly option, and
+//! the unscaling outcomes. The adapter-level tests (entries, the orchestrator,
+//! the formation-range cases, the interactions) are in `nonlinear_integration`
+//! (`structural_adapter/k2b_tests.rs`).
+//!
+//! Invented inputs only; every value is stated here. The K2a product-reach
+//! member is PP `tests/k2a_formation_range_runtime.rs`'s `EXACT_ZERO`, with
+//! its section formed as PP `derive_pipe_section` forms it; its expected
+//! census (-1079, -333, b = 734) is the independent generator's
+//! (`IMPLEMENTATION/K2B/_run_records/k2b_models.py.txt`).
+use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+use open_pipe_stress_frame_kernel::load_ledger::{
+    AssembledForce, ForceTerm, ForceTermKind, Formation, LoadLedger,
+};
+use open_pipe_stress_frame_kernel::structural::{
+    assemble_sparse_stiffness, solve_assembled_structural_dense, unscale_descriptive,
+    unscale_for_publication, unscale_structural_error, unscale_structural_solution,
+    ContributionRounding, ForceScaleReason, ForceScaledError, ForceScalingRefusal, PublishedValue,
+    Representability, SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError,
+    StructuralSystem,
+};
+use open_pipe_stress_frame_kernel::{
+    force_scaled_matrix, force_scaled_value, ForceScale, ForceScaleCensus, FrameElement,
+    FrameKernelError, FrameNode, FrameSection, Matrix12, UserStiffnessElement,
+};
+use std::f64::consts::PI;
+
+fn pow2(k: i32) -> f64 {
+    // Exact for -1074 <= k <= 1023 (two steps keep every factor exact).
+    let half = k / 2;
+    2f64.powi(half) * 2f64.powi(k - half)
+}
+
+fn scale(b: i32) -> ForceScale {
+    ForceScale::new(b).expect("even b")
+}
+
+/// The section as PP `derive_pipe_section` forms it (as K2a's tests do).
+fn product_section(e: f64, g: f64, od: f64, t: f64) -> FrameSection {
+    let id = od - 2.0 * t;
+    let area = PI * (od.powi(2) - id.powi(2)) / 4.0;
+    let second_moment = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    FrameSection::new(
+        e,
+        g,
+        area,
+        second_moment,
+        second_moment,
+        2.0 * second_moment,
+    )
+    .unwrap()
+}
+
+fn x_member(section: FrameSection, length: f64) -> FrameElement {
+    FrameElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+        FrameNode::new(1, [length, 0.0, 0.0]).unwrap(),
+        section,
+        [0.0, 1.0, 0.0],
+    )
+    .unwrap()
+}
+
+/// K2a's `EXACT_ZERO` product-reach member (L = 2^-39 m, OD 1e-11 m, wall
+/// 1e-12 m, E 6.4e-280 Pa, G 1e-100 Pa), with its spring and load.
+const REACH_ZERO_SPRING: f64 = 3.7e-289;
+const REACH_ZERO_LOAD: f64 = 9.25e-290;
+fn reach_zero_member() -> FrameElement {
+    x_member(
+        product_section(6.4e-280, 1.0e-100, 1.0e-11, 1.0e-12),
+        1.8189894035458565e-12,
+    )
+}
+
+fn census_of(exponents: &[i32]) -> ForceScaleCensus {
+    let mut census = ForceScaleCensus::new();
+    for &e in exponents {
+        census.spring(pow2(e));
+    }
+    census
+}
+
+fn window(e_min: i32, e_max: i32) -> ForceScaleReason {
+    ForceScaleReason::InfeasibleWindow { e_min, e_max }
+}
+
+// ------------------------------------------------------------------ the scale
+
+#[test]
+fn k2b_force_scale_is_even_only() {
+    assert_eq!(ForceScale::new(0), Some(ForceScale::UNSCALED));
+    assert_eq!(ForceScale::default(), ForceScale::UNSCALED);
+    for b in [-1024, -2, 2, 734, 2046] {
+        assert_eq!(ForceScale::new(b).unwrap().exponent(), b);
+    }
+    for b in [-1023, -3, -1, 1, 3, 735] {
+        assert_eq!(ForceScale::new(b), None, "{b}");
+    }
+    assert!(ForceScale::UNSCALED.is_unscaled());
+    assert!(!scale(2).is_unscaled());
+}
+
+#[test]
+fn k2b_force_scaled_value_is_exact_and_refuses_what_cannot_stay_normal() {
+    let name = "x";
+    // Exact: every normal-to-normal power-of-two step, at both ends.
+    for (value, b) in [
+        (1.5, 1022),
+        (1.5, -1022),
+        (f64::MAX, -2044),
+        (f64::MIN_POSITIVE, 2044),
+        (-0.1, 700),
+        (3.0e-300, 1000),
+    ] {
+        let scaled = force_scaled_value(name, value, scale(b)).unwrap();
+        let mut exact = ExactAccumulator::new();
+        exact.add(value).unwrap();
+        assert_eq!(scaled, exact.round_scaled(b).unwrap(), "{value} {b}");
+        assert!(scaled.is_normal());
+    }
+    // A zero keeps its sign; UNSCALED returns the value, even a subnormal.
+    assert_eq!(
+        force_scaled_value(name, -0.0, scale(64)).unwrap().to_bits(),
+        (-0.0f64).to_bits()
+    );
+    assert_eq!(
+        force_scaled_value(name, 5e-324, ForceScale::UNSCALED).unwrap(),
+        5e-324
+    );
+    let range = Err(FrameKernelError::NumericalRange { name });
+    // A subnormal input, or a result leaving the normal range, is refused.
+    assert_eq!(force_scaled_value(name, 5e-324, scale(1100)), range);
+    assert_eq!(force_scaled_value(name, 1.0, scale(1024)), range);
+    assert_eq!(force_scaled_value(name, 1.0, scale(-1024)), range);
+    assert_eq!(force_scaled_value(name, 1.0, scale(4000)), range);
+    assert!(matches!(
+        force_scaled_value(name, f64::INFINITY, scale(2)),
+        Err(FrameKernelError::NonFiniteInput { .. })
+    ));
+    // A matrix, entry by entry, with the first failing entry's name.
+    let mut m: Matrix12 = [[0.0; 12]; 12];
+    m[0][0] = 3.0;
+    m[5][7] = -0.25;
+    let scaled = force_scaled_matrix("m", &m, scale(-8)).unwrap();
+    assert_eq!(scaled[0][0], 3.0 / 256.0);
+    assert_eq!(scaled[5][7], -0.25 / 256.0);
+    assert_eq!(scaled[1][1].to_bits(), 0);
+    m[3][3] = 1.0e-310;
+    assert_eq!(
+        force_scaled_matrix("m", &m, scale(2)),
+        Err(FrameKernelError::NumericalRange { name: "m" })
+    );
+}
+
+#[test]
+fn k2b_elements_scale_e_g_and_user_stiffnesses_only() {
+    let member = x_member(product_section(2.0e11, 8.0e10, 0.2, 0.01), 3.0);
+    let scaled = member.force_scaled(scale(-40)).unwrap();
+    assert_eq!(scaled.section.elastic_modulus, 2.0e11 * pow2(-40));
+    assert_eq!(scaled.section.shear_modulus, 8.0e10 * pow2(-40));
+    assert_eq!(scaled.section.area, member.section.area);
+    assert_eq!(
+        scaled.section.torsion_constant,
+        member.section.torsion_constant
+    );
+    assert_eq!(scaled.node_j, member.node_j);
+    assert_eq!(member.force_scaled(ForceScale::UNSCALED).unwrap(), member);
+    // The scaled formation is exactly 2^b times today's (normal range).
+    let local = member.global_stiffness().unwrap();
+    let local_scaled = scaled.global_stiffness().unwrap();
+    for (row, row_scaled) in local.iter().zip(&local_scaled) {
+        for (&v, &w) in row.iter().zip(row_scaled) {
+            assert_eq!(w.to_bits(), (v * pow2(-40)).to_bits());
+        }
+    }
+    assert_eq!(
+        member.force_scaled(scale(1024)),
+        Err(FrameKernelError::NumericalRange {
+            name: "E*2^b (force scale)"
+        })
+    );
+    let user = UserStiffnessElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+        FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
+        [0.0, 1.0, 0.0],
+        1.0e6,
+        2.0e6,
+        3.0e6,
+        4.0e6,
+    )
+    .unwrap();
+    let u = user.force_scaled(scale(10)).unwrap();
+    assert_eq!(
+        [
+            u.axial_stiffness,
+            u.lateral_stiffness,
+            u.angular_stiffness,
+            u.torsional_stiffness
+        ],
+        [
+            1.0e6 * 1024.0,
+            2.0e6 * 1024.0,
+            3.0e6 * 1024.0,
+            4.0e6 * 1024.0
+        ]
+    );
+}
+
+// ------------------------------------------------------------------ the b-rule
+
+/// Steps 2-3: b_lo = -1022 + 64 - e_min, b_hi = 1023 - 8 - e_max,
+/// m = floor((b_lo + b_hi)/2) toward -inf, then the even b of ROOT's K2b
+/// ruling 1. Each row pins one branch; the comments give the arithmetic.
+#[test]
+fn k2b_the_window_the_floor_and_the_parity_rule() {
+    // (exponents, expected b or refusal)
+    let rows: &[(&[i32], Result<i32, ForceScaleReason>)] = &[
+        // [-958, 1015]: sum 57, m = 28 (even).
+        (&[0], Ok(28)),
+        // [-958, 1013]: sum 55, m = 27 (odd), m - 1 = 26 >= b_lo.
+        (&[0, 2], Ok(26)),
+        // [-1057, 916]: sum -141, m = floor(-70.5) = -71 (odd) -> -72;
+        // truncation toward zero would give -70.
+        (&[99], Ok(-72)),
+        // [5, 6]: m = 5 (odd), m - 1 = 4 < b_lo, m + 1 = 6 <= b_hi.
+        (&[-963, 1009], Ok(6)),
+        // [5, 5]: a single odd point, refused with the window reason.
+        (&[-963, 1010], Err(window(-963, 1010))),
+        // [5, 3]: infeasible.
+        (&[-963, 1012], Err(window(-963, 1012))),
+        // [4, 4]: a single even point: b = 4, so e_min + b = -958 exactly
+        // (the 64-bit lower margin) and e_max + b = 1015 (the 8-bit upper).
+        (&[-962, 1011], Ok(4)),
+        // [-1968, 5]: m = -982 (even).
+        (&[1010, 1010], Ok(-982)),
+    ];
+    for (exponents, expected) in rows {
+        let census = census_of(exponents);
+        let got = census.force_scale().map(ForceScale::exponent);
+        assert_eq!(&got, expected, "{exponents:?}");
+    }
+    // No nonzero value: nothing to scale.
+    assert_eq!(
+        ForceScaleCensus::new().force_scale(),
+        Ok(ForceScale::UNSCALED)
+    );
+    let mut zeros = ForceScaleCensus::new();
+    zeros.spring(0.0);
+    zeros.spring(-0.0);
+    assert_eq!(zeros.span(), None);
+}
+
+#[test]
+fn k2b_the_refusal_texts_are_the_designs() {
+    assert_eq!(
+        window(-963, 1012).to_string(),
+        "range: exponent span [-963, 1012] exceeds the binary64 normal window after exact power-of-two scaling"
+    );
+    assert_eq!(
+        ForceScaleReason::SubnormalAtFormation.to_string(),
+        "range: subnormal stiffness or load at formation"
+    );
+    assert_eq!(
+        ForceScaleReason::ScaledEvaluation.to_string(),
+        "range: scaled evaluation outside normal range"
+    );
+    assert_eq!(
+        ForceScaleReason::PublicationOutsideBinary64 {
+            global_dof: Some(3)
+        }
+        .to_string(),
+        "range: publication outside binary64"
+    );
+    let refusal = ForceScaledError::Refused(ForceScalingRefusal {
+        reason: ForceScaleReason::ScaledEvaluation,
+        trigger: None,
+    });
+    assert_eq!(
+        refusal.to_string(),
+        "range: scaled evaluation outside normal range"
+    );
+}
+
+#[test]
+fn k2b_the_census_refuses_every_kind_of_subnormal_input() {
+    let refused = Err(ForceScaleReason::SubnormalAtFormation);
+    let normal = || census_of(&[0]);
+    let mut c = normal();
+    c.spring(5e-324);
+    assert_eq!(c.force_scale(), refused);
+    let mut c = normal();
+    c.load_term(&ForceTerm {
+        source: "t".into(),
+        dof: 0,
+        kind: ForceTermKind::Term(-1.0e-310),
+    });
+    assert_eq!(c.force_scale(), refused);
+    let mut c = normal();
+    c.load_term(&ForceTerm {
+        source: "p".into(),
+        dof: 0,
+        kind: ForceTermKind::Product(1.0e300, 1.0e-310),
+    });
+    assert_eq!(c.force_scale(), refused);
+    let mut c = normal();
+    let mut m: Matrix12 = [[0.0; 12]; 12];
+    m[2][2] = 2.0e-310;
+    c.matrix(&m);
+    assert_eq!(c.force_scale(), refused);
+    let mut c = normal();
+    let user = UserStiffnessElement {
+        node_i: FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap(),
+        node_j: FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
+        y_reference: [0.0, 1.0, 0.0],
+        axial_stiffness: 1.0,
+        lateral_stiffness: 0.0,
+        angular_stiffness: 1.0e-310,
+        torsional_stiffness: 1.0,
+    };
+    c.user(&user);
+    assert_eq!(c.force_scale(), refused);
+    // A frame operand that does not scale with b (I here) is still refused,
+    // and so is a subnormal E.
+    for section in [
+        FrameSection::new(2.0e11, 8.0e10, 0.01, 1.0e-310, 1.0e-6, 2.0e-6).unwrap(),
+        FrameSection::new(1.0e-310, 8.0e10, 0.01, 1.0e-6, 1.0e-6, 2.0e-6).unwrap(),
+    ] {
+        let mut c = normal();
+        c.frame(&x_member(section, 2.0)).unwrap();
+        assert!(c.has_subnormal());
+        assert_eq!(c.force_scale(), refused);
+    }
+    // A zero load term or product factor takes no part.
+    let mut c = normal();
+    c.load_term(&ForceTerm {
+        source: "z".into(),
+        dof: 0,
+        kind: ForceTermKind::Product(0.0, 1.0e-310),
+    });
+    assert_eq!(c.force_scale(), Ok(scale(28)));
+}
+
+/// The frame census uses the predicted exponents (the sum of the operand
+/// exponents), never the formed coefficients. For K2a's `EXACT_ZERO` member
+/// the formed (unchecked) 12EI/L^3, 6EI/L^2, 4EI/L and 2EI/L are exactly 0
+/// and take no part, so a census of formed coefficients gives another b
+/// (precondition); the predicted census gives the generator's (-1079, -333)
+/// and b = 734.
+#[test]
+fn k2b_the_frame_census_uses_predicted_exponents_not_formed_coefficients() {
+    let member = reach_zero_member();
+    let s = member.section;
+    let l = member.length().unwrap();
+    let load = ForceTerm {
+        source: "load".into(),
+        dof: 7,
+        kind: ForceTermKind::Term(REACH_ZERO_LOAD),
+    };
+    let mut census = ForceScaleCensus::new();
+    census.frame(&member).unwrap();
+    census.spring(REACH_ZERO_SPRING);
+    census.load_term(&load);
+    assert_eq!(census.span(), Some((-1079, -333)));
+    assert_eq!(census.force_scale(), Ok(scale(734)));
+    // Precondition: the formed (unchecked, as before K2a) coefficients.
+    let (e, g, i) = (s.elastic_modulus, s.shear_modulus, s.second_moment_y);
+    let formed = [
+        e * s.area / l,
+        g * s.torsion_constant / l,
+        12.0 * e * i / (l * l * l),
+        6.0 * e * i / (l * l),
+        4.0 * e * i / l,
+        2.0 * e * i / l,
+    ];
+    assert_eq!(formed[2], 0.0, "12EI/L^3 rounds to 0 unchecked");
+    let mut by_formed = census_of(&[]);
+    by_formed.spring(e);
+    by_formed.spring(g);
+    for value in formed {
+        by_formed.spring(value);
+    }
+    by_formed.spring(REACH_ZERO_SPRING);
+    by_formed.load_term(&load);
+    let formed_b = by_formed.force_scale().unwrap();
+    assert_ne!(
+        formed_b,
+        scale(734),
+        "precondition: the formed census differs"
+    );
+    // Formation at b = 734 passes K2a's checks, and 12EIz/L^3 is 2^734 times
+    // the exact coefficient to within binary64 rounding of the chain.
+    let scaled = member.force_scaled(scale(734)).unwrap();
+    let k = scaled.local_stiffness().unwrap();
+    let exact = 12.0 * (e * pow2(734)) * i / (l * l * l);
+    assert!(((k[1][1] - exact) / exact).abs() < 1e-15);
+    assert_eq!(
+        member.local_stiffness(),
+        Err(FrameKernelError::NumericalRange {
+            name: "12EIy/L^3: (12*E)*Iy"
+        })
+    );
+}
+
+// ------------------------------------------------------------------ the ledger
+
+fn net_bits(force: &AssembledForce) -> Vec<u64> {
+    force.values().iter().map(|v| v.to_bits()).collect()
+}
+
+#[test]
+fn k2b_the_ledger_force_scaled_is_exact_term_by_term_and_rounds_each_net_once() {
+    let mut ledger = LoadLedger::new();
+    ledger.push("a", 0, 3.0);
+    ledger.push("a2", 0, 2f64.powi(-60));
+    ledger.push("a3", 0, 2f64.powi(-60));
+    ledger.push("b", 1, -1.0e-300);
+    ledger.push_product("c", 2, pow2(1000), pow2(-1000));
+    ledger.push_product("d", 3, pow2(300), pow2(300));
+    ledger.push("zero", 4, -0.0);
+    ledger.push_product("zero-factor", 4, 0.0, 7.0);
+    ledger.push_product("under", 5, pow2(-600), pow2(-600));
+    let force = ledger.finish(6).unwrap();
+    assert_eq!(force.evidence().underflowed_dofs, vec![5]);
+
+    // b = +400: every term scales in its first factor, or in its second.
+    let up = force.force_scaled(scale(400)).unwrap();
+    let kinds: Vec<ForceTermKind> = up.terms().iter().map(|t| t.kind).collect();
+    assert_eq!(kinds[0], ForceTermKind::Term(3.0 * pow2(400)));
+    assert_eq!(kinds[3], ForceTermKind::Term(-1.0e-300 * pow2(400)));
+    assert_eq!(kinds[4], ForceTermKind::Product(pow2(1000), pow2(-600)));
+    assert_eq!(kinds[5], ForceTermKind::Product(pow2(700), pow2(300)));
+    assert_eq!(kinds[6], ForceTermKind::Term(-0.0));
+    assert_eq!(kinds[7], ForceTermKind::Product(0.0, 7.0));
+    assert_eq!(kinds[8], ForceTermKind::Product(pow2(-200), pow2(-600)));
+    // Each net is the exact sum at scale, rounded once: 2^b times today's
+    // where both are normal, and now normal where today's underflowed.
+    for dof in 0..5 {
+        assert_eq!(
+            up.values()[dof].to_bits(),
+            (force.values()[dof] * pow2(400)).to_bits(),
+            "{dof}"
+        );
+    }
+    assert_eq!(up.values()[5], pow2(-800));
+    assert!(up.evidence().underflowed_dofs.is_empty());
+    for (term, scaled) in force.terms().iter().zip(up.terms()) {
+        assert_eq!((&term.source, term.dof), (&scaled.source, scaled.dof));
+    }
+
+    // b = -2000: 2^500 * 2^500 splits b across both factors (neither alone
+    // stays normal); the product is exactly 2^-1000.
+    let mut ledger = LoadLedger::new();
+    ledger.push_product("split", 0, pow2(500), pow2(500));
+    let force = ledger.finish(1).unwrap();
+    let down = force.force_scaled(scale(-2000)).unwrap();
+    assert_eq!(
+        down.terms()[0].kind,
+        ForceTermKind::Product(pow2(-1022), pow2(22))
+    );
+    assert_eq!(down.values()[0], pow2(-1000));
+
+    // A term that cannot stay normal: the scaled evaluation is refused.
+    let mut ledger = LoadLedger::new();
+    ledger.push("big", 0, pow2(1000));
+    assert_eq!(
+        ledger.finish(1).unwrap().force_scaled(scale(100)).err(),
+        Some(ForceScaleReason::ScaledEvaluation)
+    );
+
+    // UNSCALED gives the same values and terms.
+    let mut ledger = LoadLedger::new();
+    ledger.push("a", 0, 1.25);
+    let force = ledger.finish(2).unwrap();
+    let same = force.force_scaled(ForceScale::UNSCALED).unwrap();
+    assert_eq!(net_bits(&same), net_bits(&force));
+    assert_eq!(same.terms(), force.terms());
+}
+
+/// ROOT's K2b ruling 4: the S11-G formation records are not carried, and the
+/// kernel never reads them: no kernel source outside `load_ledger.rs` names
+/// `formation_rows` or `has_formation_records` (scan), and a force with
+/// records solves exactly as the same force without (the adapter test
+/// `k2b_the_kernel_reads_no_s11g_formation_record`).
+#[test]
+fn k2b_the_s11g_records_are_dropped_and_unread_by_the_kernel() {
+    let mut ledger = LoadLedger::new();
+    ledger.push_formed(
+        "formed",
+        0,
+        1.5,
+        Formation::Bounded { bound: 1.0e-20 },
+        1.0e-20,
+        false,
+    );
+    let force = ledger.finish(1).unwrap();
+    assert!(force.has_formation_records());
+    let scaled = force.force_scaled(scale(2)).unwrap();
+    assert!(!scaled.has_formation_records());
+    assert_eq!(scaled.values(), &[6.0]);
+    let sources = [
+        ("FK/lib.rs", include_str!("../src/lib.rs")),
+        ("FK/structural.rs", include_str!("../src/structural.rs")),
+        (
+            "FK/structural/sparse.rs",
+            include_str!("../src/structural/sparse.rs"),
+        ),
+        (
+            "FK/structural/formation_check.rs",
+            include_str!("../src/structural/formation_check.rs"),
+        ),
+        (
+            "FK/structural/exact_boundary.rs",
+            include_str!("../src/structural/exact_boundary.rs"),
+        ),
+        (
+            "SA/structural_adapter.rs",
+            include_str!("../../nonlinear_integration/src/structural_adapter.rs"),
+        ),
+        (
+            "sparse_direct/structural.rs",
+            include_str!("../../sparse_direct/src/structural.rs"),
+        ),
+    ];
+    for (name, text) in sources {
+        for token in ["formation_rows(", "has_formation_records("] {
+            assert!(!text.contains(token), "{name} reads {token}");
+        }
+    }
+}
+
+// ------------------------------------------------------------------ assembly
+
+fn assembly_inputs() -> (
+    Vec<FrameElement>,
+    Vec<UserStiffnessElement>,
+    Vec<StiffnessBlock>,
+    Vec<(usize, f64)>,
+) {
+    let node = |i: usize, p: [f64; 3]| FrameNode::new(i, p).unwrap();
+    let section = product_section(2.0e11, 8.0e10, 0.2, 0.01);
+    let frames = vec![
+        FrameElement::new(
+            node(0, [0.0; 3]),
+            node(1, [2.0, 0.0, 0.0]),
+            section,
+            [0.0, 1.0, 0.0],
+        )
+        .unwrap(),
+        FrameElement::new(
+            node(1, [2.0, 0.0, 0.0]),
+            node(2, [3.0, 1.5, 0.5]),
+            section,
+            [0.0, 0.0, 1.0],
+        )
+        .unwrap(),
+    ];
+    let users = vec![UserStiffnessElement::new(
+        node(2, [3.0, 1.5, 0.5]),
+        node(3, [3.0, 2.5, 0.5]),
+        [1.0, 0.0, 0.0],
+        1.0e8,
+        2.0e7,
+        3.0e6,
+        4.0e6,
+    )
+    .unwrap()];
+    let mut block = [[0.0; 12]; 12];
+    for (k, row) in block.iter_mut().enumerate() {
+        row[k] = 1.0e7 + k as f64;
+    }
+    let blocks = vec![StiffnessBlock {
+        node_i: 0,
+        node_j: 3,
+        stiffness: block,
+    }];
+    (frames, users, blocks, vec![(5, 3.0e5), (13, 7.0e4)])
+}
+
+#[test]
+fn k2b_the_sparse_assembly_at_b_is_the_exactly_scaled_assembly() {
+    let (frames, users, blocks, springs) = assembly_inputs();
+    let base = assemble_sparse_stiffness(
+        4,
+        &frames,
+        &users,
+        &blocks,
+        &springs,
+        &SparseAssemblyOptions::new(),
+    )
+    .unwrap();
+    let same = assemble_sparse_stiffness(
+        4,
+        &frames,
+        &users,
+        &blocks,
+        &springs,
+        &SparseAssemblyOptions::new().with_force_scale(ForceScale::UNSCALED),
+    )
+    .unwrap();
+    assert_eq!(same, base);
+    assert_eq!(
+        SparseAssemblyOptions::default(),
+        SparseAssemblyOptions::new()
+    );
+    for b in [-400, -64, 64, 400] {
+        let options = SparseAssemblyOptions::new().with_force_scale(scale(b));
+        assert_eq!(options.force_scale(), scale(b));
+        let scaled =
+            assemble_sparse_stiffness(4, &frames, &users, &blocks, &springs, &options).unwrap();
+        assert_eq!(scaled.pattern(), base.pattern());
+        for (&v, &w) in base.values().iter().zip(scaled.values()) {
+            assert_eq!(w.to_bits(), (v * pow2(b)).to_bits(), "b = {b}");
+        }
+    }
+    // A formation-range member: refused at b = 0 (K2a), formed at its b.
+    let member = reach_zero_member();
+    let refused = assemble_sparse_stiffness(
+        2,
+        &[member],
+        &[],
+        &[],
+        &[(7, REACH_ZERO_SPRING)],
+        &SparseAssemblyOptions::new(),
+    );
+    assert_eq!(
+        refused,
+        Err(FrameKernelError::NumericalRange {
+            name: "12EIy/L^3: (12*E)*Iy"
+        })
+    );
+    let formed = assemble_sparse_stiffness(
+        2,
+        &[member],
+        &[],
+        &[],
+        &[(7, REACH_ZERO_SPRING)],
+        &SparseAssemblyOptions::new().with_force_scale(scale(734)),
+    )
+    .unwrap();
+    assert!(formed.values().iter().all(|v| *v == 0.0 || v.is_normal()));
+    // Scaling that leaves the normal range is refused by the scaled name.
+    assert_eq!(
+        assemble_sparse_stiffness(
+            4,
+            &frames,
+            &users,
+            &blocks,
+            &springs,
+            &SparseAssemblyOptions::new().with_force_scale(scale(1000)),
+        ),
+        Err(FrameKernelError::NumericalRange {
+            name: "E*2^b (force scale)"
+        })
+    );
+}
+
+// ------------------------------------------------------------------ publication
+
+fn published(value: f64) -> PublishedValue {
+    PublishedValue {
+        value,
+        representability: Representability::Normal,
+    }
+}
+
+#[test]
+fn k2b_the_publication_outcomes() {
+    // Normal: exact.
+    assert_eq!(
+        unscale_for_publication(3.0, scale(2), None),
+        Ok(published(0.75))
+    );
+    assert_eq!(
+        unscale_for_publication(pow2(900) * 1.1, scale(900), Some(4)),
+        Ok(published(1.1))
+    );
+    // A zero keeps its sign.
+    let zero = unscale_for_publication(-0.0, scale(600), None).unwrap();
+    assert_eq!(zero.value.to_bits(), (-0.0f64).to_bits());
+    // Subnormal: published with its stated precision 2^-1075/|v|, rounded up.
+    let sub = unscale_for_publication(pow2(-500), scale(560), Some(1)).unwrap();
+    assert_eq!(sub.value, 2f64.powi(-530) * 2f64.powi(-530));
+    assert_eq!(
+        sub.representability,
+        Representability::Subnormal {
+            relative_precision: pow2(-15)
+        }
+    );
+    let three = unscale_for_publication(3.0 * pow2(-500), scale(560), None).unwrap();
+    let Representability::Subnormal { relative_precision } = three.representability else {
+        panic!("subnormal expected");
+    };
+    // 2^-1075 / (3 * 2^-1060) = 2^-15/3, rounded upward.
+    assert!(relative_precision >= pow2(-15) / 3.0);
+    assert!(relative_precision * 3.0 >= pow2(-15));
+    assert_eq!(relative_precision, (pow2(-15) / 3.0).next_up());
+    // Underflow and overflow: refused with the DOF, never flushed.
+    let outside = Err(ForceScaleReason::PublicationOutsideBinary64 {
+        global_dof: Some(9),
+    });
+    assert_eq!(
+        unscale_for_publication(pow2(-600), scale(600), Some(9)),
+        outside
+    );
+    assert_eq!(
+        unscale_for_publication(pow2(600), scale(-600), Some(9)),
+        outside
+    );
+    // Descriptive fields: the same single rounding, never refused.
+    assert_eq!(unscale_descriptive(pow2(-600), scale(600)), 0.0);
+    assert_eq!(
+        unscale_descriptive(-pow2(-600), scale(600)).to_bits(),
+        (-0.0f64).to_bits()
+    );
+    assert_eq!(unscale_descriptive(pow2(600), scale(-600)), f64::INFINITY);
+    assert_eq!(unscale_descriptive(pow2(-500), scale(560)), pow2(-1060));
+}
+
+#[test]
+fn k2b_force_scaled_reactions_unscale_with_the_outcomes() {
+    let k = SparseStiffness::from_dense(&[vec![1.0]]).unwrap();
+    let force = LoadLedger::new().finish(1).unwrap();
+    let react = |u: f64, b: i32| k.force_scaled_reactions(&[u], &force, scale(b), &[0]);
+    assert_eq!(react(3.0, 2), Ok(vec![published(0.75)]));
+    assert_eq!(
+        react(pow2(-500), 560).unwrap()[0].representability,
+        Representability::Subnormal {
+            relative_precision: pow2(-15)
+        }
+    );
+    let outside = Err(ForceScaledError::Refused(ForceScalingRefusal {
+        reason: ForceScaleReason::PublicationOutsideBinary64 {
+            global_dof: Some(0),
+        },
+        trigger: None,
+    }));
+    assert_eq!(react(pow2(-600), 600), outside);
+    assert_eq!(react(pow2(600), -600), outside);
+    // An exact zero is +0.0, as `reactions` gives it.
+    assert_eq!(react(0.0, 400), Ok(vec![published(0.0)]));
+    // With a load: the terms are taken at 2^b (force passed unscaled).
+    let mut ledger = LoadLedger::new();
+    ledger.push("p", 0, 0.5);
+    let force = ledger.finish(1).unwrap();
+    let k2 = SparseStiffness::from_dense(&[vec![2.0 * pow2(64)]]).unwrap();
+    let r = k2
+        .force_scaled_reactions(&[1.0], &force, scale(64), &[0])
+        .unwrap();
+    assert_eq!(r, vec![published(1.5)]);
+    // Unscaled: the bits of `reactions`.
+    let k3 = SparseStiffness::from_dense(&[vec![2.0]]).unwrap();
+    assert_eq!(
+        k3.force_scaled_reactions(&[1.0], &force, ForceScale::UNSCALED, &[0])
+            .unwrap()[0]
+            .value
+            .to_bits(),
+        k3.reactions(&[1.0], &force).unwrap()[0].to_bits()
+    );
+}
+
+/// A two-DOF system the gate solves exactly: K = diag(4, 16), f = (2, 8),
+/// so the equilibrated matrix is the identity and u = (0.5, 0.5). The residual
+/// rows then have exact zero residuals, so their published records are the
+/// denominators and allowances.
+fn exact_two_dof() -> (Vec<Vec<f64>>, AssembledForce) {
+    let mut ledger = LoadLedger::new();
+    ledger.push("p0", 0, 2.0);
+    ledger.push("p1", 1, 8.0);
+    (
+        vec![vec![4.0, 0.0], vec![0.0, 16.0]],
+        ledger.finish(2).unwrap(),
+    )
+}
+
+#[test]
+fn k2b_unscaling_a_solution_applies_the_outcomes_to_the_residual_records_only() {
+    let (k, force) = exact_two_dof();
+    let system = StructuralSystem::assembled(&k, &force, &[0, 1], &[], None, None);
+    let mut solution = solve_assembled_structural_dense(&system).unwrap();
+    assert_eq!(solution.displacements, vec![0.5, 0.5]);
+    // A descriptive record far below the residual records.
+    solution
+        .report
+        .contribution_rounding
+        .push(ContributionRounding {
+            row: 0,
+            col: 1,
+            accumulated_high: 1.0,
+            accumulated_low: pow2(-80),
+            stored_difference_high: pow2(-80),
+            stored_difference_low: 0.0,
+            accumulated_expansion: vec![pow2(-80), 1.0],
+            difference_expansion: vec![pow2(-80)],
+        });
+    // b = 0: unchanged.
+    let same = unscale_structural_solution(solution.clone(), ForceScale::UNSCALED, &force).unwrap();
+    assert_eq!(same.solution, solution);
+    assert!(same.subnormal.is_empty());
+    // b = 1000 (as if solved at 2^1000): the exponents shift, the residual
+    // records are re-formed at the unscaled exponent (the allowances become
+    // subnormal, and are listed), the descriptive record underflows to 0.
+    let unscaled = unscale_structural_solution(solution.clone(), scale(1000), &force).unwrap();
+    let report = &unscaled.solution.report;
+    for (e, e0) in report
+        .scale_exponents
+        .iter()
+        .zip(&solution.report.scale_exponents)
+    {
+        assert_eq!(*e, e0 + 500);
+    }
+    for (row, row0) in report
+        .residual_rows
+        .iter()
+        .zip(&solution.report.residual_rows)
+    {
+        assert_eq!(row.row_scale_exponent, row0.row_scale_exponent - 1000);
+        assert_eq!(row.normalized_denominator, row0.normalized_denominator);
+        assert_eq!(row.guarded_ratio, row0.guarded_ratio);
+        let mut exact = ExactAccumulator::new();
+        exact.add(row0.normalized_denominator).unwrap();
+        assert_eq!(
+            row.denominator,
+            exact.round_scaled(row.row_scale_exponent).unwrap()
+        );
+        assert_eq!(row.residual, row0.residual);
+    }
+    assert!(!unscaled.subnormal.is_empty());
+    for record in &unscaled.subnormal {
+        assert_eq!(record.record, "residual_rows.evaluation_allowance");
+        assert!(record.value.is_subnormal());
+    }
+    let entry = &report.contribution_rounding[0];
+    assert_eq!(entry.accumulated_high, pow2(-1000));
+    assert_eq!(entry.accumulated_low, 0.0);
+    assert_eq!(entry.difference_expansion, vec![0.0]);
+    // Underflow (b = 1100) and overflow (b = -1100) of a residual record:
+    // refused with its DOF.
+    for b in [1100, -1100] {
+        assert!(matches!(
+            unscale_structural_solution(solution.clone(), scale(b), &force),
+            Err(ForceScaleReason::PublicationOutsideBinary64 {
+                global_dof: Some(_)
+            })
+        ));
+    }
+}
+
+#[test]
+fn k2b_unscaled_error_payloads() {
+    let diagonal = StructuralError::NegativeEnergy {
+        direction: vec![0.0, 1.0],
+        energy: -3.0 * pow2(40),
+        allowance: 0.0,
+    };
+    assert_eq!(
+        unscale_structural_error(diagonal.clone(), scale(40)),
+        StructuralError::NegativeEnergy {
+            direction: vec![0.0, 1.0],
+            energy: -3.0,
+            allowance: 0.0,
+        }
+    );
+    let witness = StructuralError::NegativeEnergy {
+        direction: vec![0.5 * pow2(-20), -pow2(-20)],
+        energy: -0.25,
+        allowance: 1.0e-14,
+    };
+    assert_eq!(
+        unscale_structural_error(witness.clone(), scale(40)),
+        StructuralError::NegativeEnergy {
+            direction: vec![0.5, -1.0],
+            energy: -0.25,
+            allowance: 1.0e-14,
+        }
+    );
+    assert_eq!(
+        unscale_structural_error(witness.clone(), ForceScale::UNSCALED),
+        witness
+    );
+    let other = StructuralError::Range("arithmetic outside normal range");
+    assert_eq!(unscale_structural_error(other.clone(), scale(40)), other);
+}
