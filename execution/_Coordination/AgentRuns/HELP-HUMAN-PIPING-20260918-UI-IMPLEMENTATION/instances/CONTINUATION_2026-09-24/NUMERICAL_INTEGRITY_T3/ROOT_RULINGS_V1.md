@@ -1218,3 +1218,43 @@ I12's plan (`<wt>/scratch/i12/CHECKPOINT0_PLAN.md`, sha256 `e1253faa…`, 591 li
 - **O11: measure at A.** If FK's debug suite grows by more than 20 minutes at opt-level 0, report it before B. Tests are never reduced or ignored. Splitting across test functions for parallelism is fine.
 - **Q5, amended** (this file, "K4: Q5 amended"): K4 is unaffected. It ships the mechanism only.
 - **The ceiling argument** (§11's two routes) goes into RETURN step by step, naming the uncertified step in each route. K4's independent reviewer checks it, as ruled under Q4.
+
+## F1b: spawn and rulings (ROOT, 2026-09-28)
+
+- **F1b (facade: the sparse wiring, the dense-scrutiny guard, and W2 at formation in the product) is spawned as I13** from main `e7d930d49`, where K1 and K2b are merged.
+  - A TASK drafted the brief (`TASK_BRIEFS/I13_F1B_IMPLEMENTATION.md`); ROOT reviewed it and ruled on Q1–Q14 in the brief. In short:
+    - the nonlinear loop stays out, and goes to T5;
+    - W2 engages after the ordinary attempt and after exact-block, on linear invocations only;
+    - at b ≠ 0 it admits only frames, ground springs, restraints, prescribed motion and nodal loads;
+    - today's publication functions at b = 0;
+    - R-b′'s Sensitive demotion is accepted;
+    - W2 refusals are `NUMERICAL_INTEGRITY_UNRESOLVED`, with the exact template fixed at checkpoint 0;
+    - the `range_scaling:` line is bounded by S11-G's `NAMED` limit;
+    - a provisional dense-scrutiny ceiling (6 GiB estimated) and no sparse ceiling;
+    - source recovery's dense view for n ≤ 256 only;
+    - PHYS-R4 restated as a named refusal, if A2 confirms it;
+    - the pin and site-test edits under K1's adapted conditions;
+    - the b-rule as merged;
+    - ROOT supplies the Mac gate baseline;
+    - one slice.
+  - K4 (I12) runs in parallel; their write sets are disjoint.
+- **Design text made stale or found inconsistent,** recorded here as rulings. `DESIGN.md` stays hash-pinned.
+  1. **The F1 row's and §4.8's line citations have drifted.** The assembly is now `PP:1826`, `:1957` and `:2276`; the reduction `:2726-2735`; the reactions `:3119`; `solve_preview_reduced_system` `:4392`; `dense_fallback_message` `:4490` (all on `e7d930d49`).
+  2. **"The nonlinear loop moves to sparse"** (the F1 row, §4.6 and §4.8) conflicts with the selection's hard constraint, and K1's pattern path has no binary64 binding. The move goes to T5 (Q1).
+  3. **"LEF-small and LEF-large solved"** (the F1 row, §4.10 and §7.1) is restated per entry in the brief's Scope §6:
+     - LEF-small is refused at model build on both entries;
+     - LEF-large is refused at capture on the captured entry;
+     - on the typed entry, W2 publishes LEF-large Sensitive (Q5).
+  4. **§4.7's "the public fixture then passes the evidence stage"** is unreachable with K2b's census, because the fixture's own exact-pressure operand is subnormal at formation. It is restated as a named refusal once A2 confirms it (Q10). The scaled formation of pressure operands goes on the T3-close list.
+  5. **§4.7's admitted range assumes that loads are exact inputs.** PP forms some loads at b = 0 from products, and a term formed to exactly zero is invisible to the census. So W2 admits only authored nodal loads at b ≠ 0 (Q3).
+  6. **§4.7's "the case stays `NUMERICAL_INTEGRITY_UNRESOLVED`"** is wrong for K2a formation refusals, which main publishes as `SOLVER_SYSTEM_BLOCKED` at the invocation. F1b publishes W2 refusals per case as `NUMERICAL_INTEGRITY_UNRESOLVED` (Q6).
+  7. **§4.7's evidence line and §5 item 6** give no template for subnormal precision or record outcomes, and no composition with F1a's line (Q7).
+  8. **§4.7's mechanism** (a private exponent on `AssemblyEvidence`, and a scaling `solve()`) was implemented by K2b as force-scaled siblings plus an orchestrator.
+  9. **§4.8's "ROOT picks both from measurement," with C4:** V-P follows F1b, and K6 has not run. The ceilings are provisional (Q8).
+  10. **§4.8's dense view for n ≤ 256** also concerns `source_receipt.rs`'s replay, which assembles its own dense K. That file is unchanged (Q9).
+  11. **The design does not order W2 against exact-block,** and §4.4's coexistence rule covers W1 only. W2 runs after exact-block (Q2).
+- **Added to the T3-close list:**
+  - PHYS-R4 with pressure (the scaled formation of exact-pressure operands);
+  - a scale-aware R-b′ bound (Q5(b)), which is also an input to F2a;
+  - W2's coverage beyond nodal loads (Q3(b)), if a real case needs it.
+- **The owner is told** of the provisional dense-scrutiny ceiling (Q8), which is a new refusal class for very large dense-scrutiny models, and of the PHYS-R4 restatement.
