@@ -986,6 +986,84 @@ fn k2b_step_four_refuses_a_scaled_evaluation_outside_the_normal_range() {
     }
 }
 
+/// A DOCUMENTED LIMITATION OF THE b-RULE, NOT DESIRED BEHAVIOUR (T3
+/// `ROOT_RULINGS_V1.md`, "K2b: the b-rule's window misses the solve's range;
+/// 'no third attempt' is not equivalent (ROOT)"). K2b keeps D1 §4.7 step 4
+/// (one scaled evaluation, no third attempt). The refinement of the rule is on
+/// the T3-close list and in F1b's brief; none lands in K2b.
+///
+/// The census covers stiffness and load exponents, but not the gate's
+/// equilibrated right-hand side, which moves by 2^(b/2). An axial chain
+/// N0-N1-N2 with EA/L = 2^440 N/m in both bars, and UX loads of 2^-1010 N at
+/// N1 and 1 N at N2. u1 = (1 + 2^-1010)/2^440 m and u2 = (2 + 2^-1010)/2^440 m
+/// are normal and b-invariant. The census span is [-1010, 443], the window
+/// [52, 572], and the rule's b is 312. There N1's equilibrated right-hand side,
+/// 2^(-1230 + b/2), is subnormal, so the case is refused. At b = 500, also in
+/// the window, it is solved, Passed, within 1e-9. A retry within the window
+/// (the "third attempt" mutant) would therefore publish this solution.
+#[test]
+fn k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves() {
+    let model = axial_chain(pow2(440), &[0.0, 1.0, 2.0], &[(1, pow2(-1010)), (2, 1.0)]);
+    let force = model.ledger();
+    let probe = model.case(
+        &force,
+        LinearSolveMode::DenseScrutiny,
+        EvidenceRepresentation::Dense,
+    );
+    let census = force_scale_census(&probe).unwrap();
+    assert_eq!(census.span(), Some((-1010, 443)));
+    let (low, high) = (-1022 + 64 + 1010, 1023 - 8 - 443);
+    assert_eq!((low, high), (52, 572));
+    assert_eq!(census.force_scale().map(|s| s.exponent()), Ok(312));
+    // The exact displacements, each rounded once to binary64.
+    let exact = [(6, pow2(-440)), (12, pow2(-439))];
+    let range = StructuralError::Range("radix scaling loses normal range");
+    for mode in MODES {
+        for representation in REPRESENTATIONS {
+            let ctx = format!("{mode:?} {representation:?}");
+            assert_eq!(
+                model.existing(&force, mode, representation, true),
+                Err(range.clone()),
+                "{ctx}: the step-1 trigger"
+            );
+            let refusal = solve_with_force_scaling(&model.case(&force, mode, representation));
+            assert_eq!(
+                refusal,
+                Err(ForceScaledError::Refused(ForceScalingRefusal {
+                    reason: ForceScaleReason::ScaledEvaluation,
+                    trigger: Some(RangeTrigger::Evaluation(range.clone())),
+                })),
+                "{ctx}: refused at the rule's b"
+            );
+            assert_eq!(
+                refusal.unwrap_err().to_string(),
+                "range: scaled evaluation outside normal range"
+            );
+            assert_eq!(
+                model.forced(&force, scale(312), mode, representation, true),
+                Err(ForceScaledError::Structural(range.clone())),
+                "{ctx}: the rule's b"
+            );
+            let solved = model
+                .forced(&force, scale(500), mode, representation, true)
+                .unwrap_or_else(|error| panic!("{ctx}: b = 500 in the window: {error:?}"));
+            assert_eq!(
+                solved.solution.report.quality,
+                SolveQuality::Passed,
+                "{ctx}"
+            );
+            assert!(solved.records.is_empty(), "{ctx}");
+            for (dof, expected) in exact {
+                let value = solved.solution.displacements[dof];
+                assert!(
+                    within(value, expected, expected.abs()),
+                    "{ctx} u{dof}: {value:e} against {expected:e}"
+                );
+            }
+        }
+    }
+}
+
 /// Steps 2 and 3, from a K2a trigger: the spring-carried member (GJ/L's G*J
 /// underflows) with, on an anchored DOF, a spring of 2^996 N/m (the window is
 /// then infeasible: [-1082, 996]) or of 1e-310 N/m (subnormal). Each refusal
