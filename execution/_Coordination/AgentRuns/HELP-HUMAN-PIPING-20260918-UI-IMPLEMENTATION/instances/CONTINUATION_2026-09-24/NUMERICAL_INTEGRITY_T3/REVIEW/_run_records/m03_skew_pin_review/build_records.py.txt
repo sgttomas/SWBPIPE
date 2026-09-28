@@ -46,6 +46,7 @@ FILES = [
     ("logs/rv10_product_exact_134.txt", "product/rv10_product_exact_134.txt"),
     ("logs/rv10_product_exact_runs_134.txt", "product/rv10_product_exact_runs_134.txt"),
     ("rec/suites/summary.txt", "suites/summary.txt"),
+    ("delta/delta_scope.txt", "delta_5dd6dfdd8/delta_check.txt"),
 ] + [(f"mut/logs/{m}.log", f"mutations/logs/{m}.log") for m in (
     "NONE", "M-AXIS-BOUND", "M-FLOOR-UP", "M-NO-COUPLING", "M-CLOSE-GAP", "RV10-MAX-NOT-SUM", "RV10-TRANSPOSE",
     "RV10-NO-TORSION-MIX", "RV10-DEEP-REFUSE-1016", "RV10-DEEP-REFUSE-1019", "RV10-K1-PATTERN-SCALE")] + [

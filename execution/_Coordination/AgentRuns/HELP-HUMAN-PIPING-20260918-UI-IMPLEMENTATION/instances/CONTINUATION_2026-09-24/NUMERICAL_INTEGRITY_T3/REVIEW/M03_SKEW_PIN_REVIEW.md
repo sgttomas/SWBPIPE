@@ -1,6 +1,6 @@
 # RV10: independent review of the skew M03 pin (PR #1038)
 
-**Verdict: PASS.** Findings: **0 BLOCKING, 2 SHOULD-FIX, 6 NOTE.**
+**Verdict: PASS.** Findings: **0 BLOCKING, 2 SHOULD-FIX, 6 NOTE.** At the records-only head `5dd6dfdd8`, S1 and S2 are resolved and the verdict remains PASS (§9).
 - **The slice is tests only.** The in-test pre-K2a matrix is 134eefc24's `local_stiffness` bit for bit, and the outcomes are RV7's table. The exact errors re-derive independently. The parity really runs through K1's pattern path, and the guard is labelled as a documented limitation.
 - **I9's product evidence reproduces byte for byte** from fresh archives. No trusted value exists: 0 of 864 runs are `checks_passed`, and none is eligible.
 - **Both SHOULD-FIXes are records-only.**
@@ -261,3 +261,30 @@ Records: `checks/records_hygiene.txt` and `checks/gen8.txt`.
 ## 8. Run records
 
 `REVIEW/_run_records/m03_skew_pin_review/` holds `README.txt`, `toolchain.txt`, `checks/`, `pin/`, `mutations/`, `product/`, `suites/`, `build_records.py.txt` and `SHA256SUMS` (every file there except itself). Machine paths are replaced by `<wt>`, `<VENV>`, `{REPO_ROOT}`, `<home>` and `<scratch>`.
+
+## 9. Delta check at 5dd6dfdd8
+
+**Verdict at the new head: PASS.** S1 and S2 are resolved. Findings: 0 BLOCKING, 0 SHOULD-FIX, one new NOTE (N7).
+
+- **Scope** (record: `_run_records/m03_skew_pin_review/delta_5dd6dfdd8/delta_check.txt`). The PR head is `5dd6dfdd8` after `git fetch`, and the PR's `headRefOid` agrees. It is one commit on `1d105d633`, which is its only parent.
+  - It changes four files, all in `T3/IMPLEMENTATION/M03_SKEW_PIN/`: `RETURN.md` (+6/−1), `SHA256SUMS` (3 lines), `_run_records/trees.txt` and `_run_records/t9/t9_summary.txt`.
+  - It touches no test, product, fixture, tools or `.github` path. The `projects/chirality-piping` trees `core`, `fixtures`, `validation`, `tools`, `.github`, `schemas` and `apps`, and root `tools` and `.github`, have the same tree ids at both heads.
+  - So evidence gathered at `1d105d633` stands for the new head: DEC-025, the suites, T9, the mutants and this review's runs.
+- **S1: resolved.**
+  - `trees.txt` and `t9/t9_summary.txt` now give `824fc637…` and `be78e978…`, each once in each file, and "+150 lines appended". Both hashes equal the test files' bytes at `5dd6dfdd8`.
+  - Each file ends with a bracketed correction note, attributed to ROOT before merge.
+  - The superseded hashes appear nowhere in the folder. "+149" appears only inside the two notes, which quote the old text.
+- **S2: resolved.**
+  - RETURN §3.4's consequence is now scoped to "Iy = Iz; subnormal-derived bending coefficients; L = 2^-39 m; the two skew orientations tested".
+  - A new "It does not generalize" list gives (a) to (c) as found. (c) is identified as the torsion analogue of B1, covered by K2a's `GJ/L: G*J` refusal on current main.
+  - The general skew scope is stated to stay a documented limitation, pinned by the guard only in that configuration.
+- **N7 (NOTE, optional wording):** point (a) also holds inside the scoped configuration.
+  - The two tested orientations are exactly where the threshold is about 2^-973.8 and 2^-973.0.
+  - So "ends … at the 6EI/L² floor" in the scoped sentence would read more exactly as "at a 6EI/L² threshold within about 1.6 binades above the floor".
+  - The listed (a) already tells the reader this. My own S2 fix asked for (a) to be listed as outside the scope, so this is mine to note, not a defect of the commit.
+- **Hygiene at `5dd6dfdd8`:**
+  - `SHA256SUMS` verifies 60 of 60, and the listed and present sets are identical.
+  - GEN-8 passes on a full `git archive` of `5dd6dfdd8` (1 passed, 10 deselected).
+  - The harness's `MACHINE_ABS_PATH_RE`, applied directly to all 61 files of the folder including `.txt` and `.log`, finds 0 hits, as does the RV10 grep on the four changed files.
+- **Not re-run:** nothing that builds. No build input changed.
+- **This file:** uncommitted, as are the review's run records, whose `SHA256SUMS` now covers the new delta record.

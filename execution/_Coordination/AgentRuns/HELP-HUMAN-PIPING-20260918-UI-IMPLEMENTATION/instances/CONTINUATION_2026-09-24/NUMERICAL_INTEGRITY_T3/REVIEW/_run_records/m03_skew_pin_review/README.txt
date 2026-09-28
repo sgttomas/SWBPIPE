@@ -23,4 +23,6 @@ product/    run_probe_rv10.sh.txt (I9's probe, unchanged, on fresh archives of 1
             rerun_compare.txt (byte comparison with I9's raw logs; statuses; the committed jsonl's trust check);
             rv10_product_exact*.py.txt and outputs (RV10's own Fraction solve of the 52 published runs).
 suites/     the three crates in full on base and cand; summary.txt.
+delta_5dd6dfdd8/ delta_check.txt: the delta check of the records-only head 5dd6dfdd8 (scope, SHA256SUMS, the corrected
+            hashes, GEN-8 on a full archive, the machine-path regex).
 build_records.py.txt builds this folder; SHA256SUMS covers every file here except itself.
