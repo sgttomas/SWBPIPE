@@ -201,3 +201,12 @@ This follows ROOT_RULINGS_V1, "K1: spawn timing and no both-entry gate (ROOT)".
 - **K2a-interaction tests:** draft them read-only against K2a's branch, and land them after K2a merges and main is merged into your branch.
 - **No both-entry gate.** The parity tests and T9 are the evidence. Record this ruling in RETURN, in place of "ROOT's call".
 - **Cargo:** in your slot, build only the named crates you need. Check free disk before each build and prune afterwards.
+
+## Addendum 2 (2026-09-28): the S11 site table
+
+This follows ROOT_RULINGS_V1, "K1: the S11 site table for sparse.rs and formation_check.rs (ROOT)".
+- **sparse.rs:** add it to `frame_kernel/tests/s11_site_table.rs` SOURCES, additively, under the five conditions there.
+- **formation_check.rs:** add its rows as a separate change on K1's PR, so it lands as a separate commit. Stiffness and re-formation sites are exemptions, with reasons, and a binary64-fold mutant there must be killed.
+  - **A plain binary64 load, force or RHS accumulation in formation_check.rs stops the work.** Report it as a K-D5 finding before touching anything.
+- At your clean point, tell the manager which hunks belong to which change, or keep the formation_check.rs rows as a patch file in your records.
+- Declare both in CHANGE_RECORD and RETURN as separate items.

@@ -857,3 +857,18 @@ Both are generalizations from a few probes that were never derived. I6 found bot
 - **K2a-interaction tests.** I8 drafts them read-only against K2a's branch, and lands them after K2a merges and main is merged into K1's branch.
 - **No both-entry gate for K1.** K1 is kernel only and changes no published byte. The evidence is the parity tests and T9 (the committed-fixture diff). The gate runs at F1b, when `PP` switches to the sparse representation.
 - **Host.** One heavy job at a time. I6 prunes between phases. I8 builds only named crates in its slot. Before deleting anything hash-cited to free disk, ask ROOT.
+
+## K1: the S11 site table for sparse.rs and formation_check.rs (ROOT, 2026-09-28)
+
+- **Issue.** `frame_kernel/tests/s11_site_table.rs` (S11 §4.3 rule 7, R3-3) scans only its fixed SOURCES list. K1's new `FK/structural/sparse.rs` would carry accumulation sites the table cannot see. K-D5's `FK/structural/formation_check.rs` is not in SOURCES either; the T3 manager found this while ruling on K1.
+- **sparse.rs: option (a) endorsed.** K1 adds sparse.rs to SOURCES as a declared, additive write-set extension, under five conditions:
+  1. no existing row, count or disposition changes;
+  2. each sparse.rs site has a disposition under S11 §2.5. Stiffness-side sites are explicit exemptions with reasons, and any load, force or RHS accumulation goes through `ExactAccumulator` (count 0);
+  3. a binary64-fold mutant in sparse.rs is killed by the table;
+  4. the extension is declared in CHANGE_RECORD and RETURN;
+  5. a site that fits no existing disposition stops the work, and I8 reports it.
+- **formation_check.rs rides K1's PR as a separate commit,** in the same test file.
+  - It adds per-function rows and dispositions, with no change to existing rows. Stiffness and re-formation sites are explicit exemptions, with reasons.
+  - A binary64-fold mutant in formation_check.rs must be killed by the table.
+  - **If any formation_check.rs site is a load, force or RHS accumulation in plain binary64** (a real rule-7 violation, not a table gap), I8 stops and reports it as a K-D5 finding before touching anything. That would be product code, not a table edit.
+  - It is declared in K1's CHANGE_RECORD and RETURN as a separate item. K1's reviewer covers both commits.
