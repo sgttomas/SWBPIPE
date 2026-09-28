@@ -29,3 +29,16 @@
   - `scripts/*.py.txt`;
   - `uncommitted_sha256.txt`, the digests of the large files kept in ROOT's scratch.
 - **The memory guard** logged no event. Load peaked at 9.28, and available memory stayed at 95–96%.
+
+## Addendum: the full-envelope re-run (2026-09-28)
+
+- **Why:** P1's `run.envelope` is a summary that omits published bytes (I13, F1b A2 §7). ROOT ruled that every gate compares a hash of the full serialized `MechanicsEnvelope` (`ROOT_RULINGS_V1.md`, "F1b: rulings on I13's A2").
+- **Method:** G1 re-ran part 1 on `e7d930d49` with the full-envelope probe variant.
+  - The variant is `main.rs` `cd1052f7…`, which adds `full_envelope()` and `run.envelope_sha256`, and `sha2` in the probe's own manifest. `variant_diff.txt` shows that removing the addition gives back `404e1ff0…` exactly, and that `run.envelope` is unchanged.
+  - The binary is `577b10d4…`. The run took 344 s, from 16:09:02Z to 16:14:46Z, under the same scheduling as the first run.
+- **Result:**
+  - 794 full-envelope hashes, one per ok run. Each written envelope's sha256 equals the reported hash.
+  - **0 differences from the first run** in all 884 runs: summary bytes, classification, ok/ERR, exit code, stderr tails and error texts.
+  - The gate check gives PASS again: 764 evaluated, 328 trusted, 0 trusted breaches, equal row by row (`full_envelope/comparison_vs_first_run_8525c06d.json`).
+- **Files:** `full_envelope/`, holding G1's README, the variant diff, `envelope_sha256.tsv` (the summary and full hashes per run), the result, the comparison, the scripts, and `uncommitted_sha256.txt` (the digests of the large files kept in ROOT's scratch).
+- **This is the baseline for every gate on `e7d930d49`'s product tree:** F1b's and K5's part 1.

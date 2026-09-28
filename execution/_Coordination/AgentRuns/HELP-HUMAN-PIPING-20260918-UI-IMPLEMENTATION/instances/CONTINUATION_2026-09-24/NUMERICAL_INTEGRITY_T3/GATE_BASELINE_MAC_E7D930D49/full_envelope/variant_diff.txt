@@ -1,0 +1,62 @@
+--- gate_base_e7d930d49/probe/src/main.rs (404e1ff0)
++++ i13/a2/probe_cand/src/main.rs (cd1052f7)
+@@ -58,6 +58,21 @@
+     })
+ }
+ 
++/// F1b A2 variant of P1's probe (scratch; proposed to ROOT for G1's base
++/// re-run): the sha256 of the complete serialized `MechanicsEnvelope`
++/// (`serde_json::to_vec`, the struct's field order), as `run.envelope_sha256`,
++/// and the bytes themselves when `T3_FULL_ENVELOPE_PATH` names a file. It is a
++/// sibling of `run.envelope`, whose bytes are unchanged, and `run_one`'s
++/// classification reads neither.
++fn full_envelope(e: &MechanicsEnvelope) -> String {
++    use sha2::{Digest, Sha256};
++    let bytes = serde_json::to_vec(e).expect("envelope serializes");
++    if let Ok(path) = std::env::var("T3_FULL_ENVELOPE_PATH") {
++        std::fs::write(path, &bytes).expect("full envelope written");
++    }
++    format!("{:x}", Sha256::digest(&bytes))
++}
++
+ fn main() {
+     let args: Vec<String> = std::env::args().collect();
+     let text = std::fs::read_to_string(&args[1]).expect("request file");
+@@ -70,7 +85,7 @@
+             Ok(r) => {
+                 let e = run_linear_static_preview_with_mode(r, mode);
+                 let secs = t0.elapsed().as_secs_f64();
+-                json!({"entry": "typed_run_linear_static_preview_with_mode", "ok": true, "solve_seconds": secs, "envelope": summarize(&e, &request, mode)})
++                json!({"entry": "typed_run_linear_static_preview_with_mode", "ok": true, "solve_seconds": secs, "envelope": summarize(&e, &request, mode), "envelope_sha256": full_envelope(&e)})
+             }
+             Err(err) => json!({"entry": "typed_run_linear_static_preview_with_mode", "ok": false, "error": format!("DTO: {err}")}),
+         }
+@@ -78,7 +93,7 @@
+         match run_linear_static_preview_value_with_mode(request.clone(), mode) {
+             Ok(e) => {
+                 let secs = t0.elapsed().as_secs_f64();
+-                json!({"entry": "captured_run_linear_static_preview_value_with_mode", "ok": true, "solve_seconds": secs, "envelope": summarize(&e, &request, mode)})
++                json!({"entry": "captured_run_linear_static_preview_value_with_mode", "ok": true, "solve_seconds": secs, "envelope": summarize(&e, &request, mode), "envelope_sha256": full_envelope(&e)})
+             }
+             Err(err) => json!({"entry": "captured_run_linear_static_preview_value_with_mode", "ok": false, "solve_seconds": t0.elapsed().as_secs_f64(), "error": err}),
+         }
+--- first run Cargo.toml (paths as <G>/tree)
++++ variant Cargo.toml (paths as <F>/tree)
+@@ -8,6 +8,7 @@
+ open_pipe_stress_product_physics = { path = "<tree>/projects/chirality-piping/core/product_physics" }
+ open_pipe_stress_result_export = { path = "<tree>/projects/chirality-piping/core/reporting/result_export" }
+ serde_json = { version = "1", features = ["float_roundtrip"] }
++sha2 = "0.10"
+ 
+ [profile.release]
+ debug = false
+--- first run Cargo.lock (6ccdc17f)
++++ variant Cargo.lock (d7bdd546)
+@@ -300,6 +300,7 @@
+  "open_pipe_stress_product_physics",
+  "open_pipe_stress_result_export",
+  "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]
