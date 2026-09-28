@@ -798,14 +798,14 @@ Both are generalizations from a few probes that were never derived. I6 found bot
   | 12EIy/L³, 12EIz/L³ | (12·E)·I | 1/L³ |
 
   With L ≥ 1e-12 m (the FK axis tolerance), a numerator that rounds to 0, or to the least subnormal 2^-1074, has a true value below about 2^-1074. The true coefficient is then at most about 2^-1074/L^k: about 2^-1034 for k = 1, about 2^-994 for k = 2, and about 2^-955 for k = 3.
-- **M03's acceptance floor** (FK `structural.rs:1832-1866`, `transform_roundoff`). The roundoff bound per axis-aligned entry c is about 2·gamma(24)·|c|, and `checked_value` refuses a subnormal bound. So M03 refuses when a *nonzero* entry is below about 2^-974.6. Exact zeros are exempt. I6's threshold scan agrees: refused at 2^-981.8, passed at 2^-971.8.
+- **M03's acceptance floor** (FK `structural.rs:1832-1866`, `transform_roundoff`). The roundoff bound per axis-aligned entry c is about 2·gamma(24)·|c|, and `checked_value` refuses a subnormal bound. So M03 refuses when a *nonzero* entry is below about 2^-974.6. **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]** Exact zeros are exempt. I6's threshold scan agrees: refused at 2^-981.8, passed at 2^-971.8.
 - **Consequence.**
   - **1/L-lifted coefficients** (EA/L, GJ/L, 4EI/L, 2EI/L): a zeroed or wrongly rounded value has a true value of at most about 2^-1034. Against any retained nonzero entry that passes M03 (at least about 2^-974.6), that is a relative effect of at most about 2^-59.4, below the 1e-9 criterion. This is the only place the ~2^-60 figure holds. **[Superseded by "K2a product reach: correction 3 (ROOT)" below: the floor bounds element entries only, not ground springs.]**
   - **1/L²-lifted coefficients** (6EI/L²): the true value is at most about 2^-994, also below the floor. But against the smallest acceptable retained entry, the relative effect can reach about 2^-19.4 (about 1.4e-6), above the criterion. Whether an admissible input realizes that is **not established**. Manager's check: the manager, not I6, noticed this while recording. RETURN must derive it or probe it, and must not assume main is accurate there. **[Superseded by "K2a product reach: correction 3 (ROOT)" below: the floor bounds element entries only, not ground springs.]**
   - **1/L³-lifted coefficients** (12EI/L³): the true value can reach about 2^-955, above the floor. M03 accepts both an exact zero and a normal but grossly wrong value rounded from a least-subnormal numerator (reach_zero and reach_lef below).
-  - **M03 does refuse** a partial underflow that leaves a nonzero subnormal-derived coefficient below the floor.
+  - **M03 does refuse** a partial underflow that leaves a nonzero subnormal-derived coefficient below the floor. **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]**
 
-**Cases on main** (`5ae22926e`, both entries, both modes, linear route and open gap; I6, using the main-built harness binary). Both are one member with L = 2^-39 m, OD 1e-11 m, wall 1e-12 m and G = 1e-100 Pa, with UY at N1 the only free DOF. All inputs are normal binary64.
+**Cases on main** (`5ae22926e`, both entries, both modes, linear route and open gap; I6, using the main-built harness binary). Both are one member with L = 2^-39 m, OD 1e-11 m, wall 1e-12 m and G = 1e-100 Pa, with UY at N1 the only free DOF. All inputs are normal binary64. **[Evidenced on the captured entry only; the typed entry was not run: K2A/RETURN_ADDENDUM_1 §3.]**
 - **reach_zero:**
   - E = 6.4e-280 Pa, so (12·E)·I (about 2.23e-324) rounds to exactly 0. Main's 12EI/L³ is 0 against a true value of about 3.70e-289.
   - A ground spring of 3.7e-289 N/m carries the load, P = 9.25e-290 N.
@@ -820,7 +820,7 @@ Both are generalizations from a few probes that were never derived. I6 found bot
   - linear route: NUMERICAL_INTEGRITY_SENSITIVE in both modes, from K-D5's re-formation; exact-block recovery is unavailable.
   - open gap: unresolved (RECOVERY_BASIS_UNQUALIFIED), because the nonlinear proof hits the exact-radix range.
 - **No trusted route was found on main.** On the linear route before K-D5 (`c61a540ea`), main's standing is **not established**. No claim is made either way.
-- **Partial underflow that M03 does refuse:** probes A/B and the drafted partial-underflow case, where a nonzero coefficient is subnormal-derived. Main refuses these as UNRESOLVED (M03 `Range`).
+- **Partial underflow that M03 does refuse:** probes A/B and the drafted partial-underflow case, where a nonzero coefficient is subnormal-derived. Main refuses these as UNRESOLVED (M03 `Range`). **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]**
 
 **Rulings:**
 1. **Adopt a third product test (reach_zero) and a fourth (reach_lef),** each on both entries and in both modes, with the same structure:
@@ -830,8 +830,8 @@ Both are generalizations from a few probes that were never derived. I6 found bot
    - K2a's refusal by name.
 2. **RETURN derives, step by step:** every coefficient with its lift (the table above), the M03 floor at about 2^-974.6, and for each coefficient which zeros or roundings main bounds and which it does not.
 3. **The benefit, restated:**
-   - M03 refuses partial underflow **only when a nonzero coefficient is subnormal-derived** (below about 2^-974.6).
-   - Where a 12EI/L³ numerator rounds to exactly 0, or to the least subnormal with its siblings exactly 0 (the LEF pattern), M03 accepts. Main then publishes a grossly wrong value (99.95% in reach_zero, 32.4% in reach_lef), flagged only downstream: Sensitive through K-D5, or unresolved through the nonlinear proof.
+   - M03 refuses partial underflow **only when a nonzero coefficient is subnormal-derived** (below about 2^-974.6). **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]**
+   - Where a 12EI/L³ numerator rounds to exactly 0, or to the least subnormal with its siblings exactly 0 (the LEF pattern), M03 accepts. Main then publishes a grossly wrong value (99.95% in reach_zero, 32.4% in reach_lef), flagged only downstream: Sensitive through K-D5, or unresolved through the nonlinear proof. **[On skew members M03 also accepts other patterns (subnormal-derived 4EI/L and 2EI/L below the floor): K2A/RETURN_ADDENDUM_1; see there.]**
    - K2a refuses all of these at formation, by name, independent of M03, of K-D5 and of the nonlinear proof.
    - K2a also refuses a zero in 6EI/L², where main's accuracy is not established (see the consequence above).
    - **The cost is unchanged:** exact zeros in the 1/L-lifted coefficients (for example the spring-carried GJ/L case), where main was accurate, are now refused. **[Reworded by "K2a product reach: correction 3 (ROOT)" below.]**
@@ -840,7 +840,7 @@ Both are generalizations from a few probes that were never derived. I6 found bot
 
 ## K2a product reach: correction 3 (ROOT, 2026-09-27)
 
-**What is superseded.** Correction 2's 1/L and 1/L² consequence bullets (each marked in place). They bounded a zero's relative effect against "any retained nonzero entry that passes M03". But M03's floor comes from `transform_roundoff` and applies to **element entries only**. Ground springs added to K are not subject to it, and main accepts springs far below the floor. So neither bullet states a bound, and the "~2^-60 holds for 1/L" sentence is withdrawn. The premise was the **manager's**, added while recording correction 2, and falls under lesson 5. I6 found it while probing the 6EI/L² item.
+**What is superseded.** Correction 2's 1/L and 1/L² consequence bullets (each marked in place). They bounded a zero's relative effect against "any retained nonzero entry that passes M03". But M03's floor comes from `transform_roundoff` and applies to **element entries only**. **[Per-entry only for axis-aligned members; on skew members the transformed bounds mix coefficients: K2A/RETURN_ADDENDUM_1.]** Ground springs added to K are not subject to it, and main accepts springs far below the floor. So neither bullet states a bound, and the "~2^-60 holds for 1/L" sentence is withdrawn. The premise was the **manager's**, added while recording correction 2, and falls under lesson 5. I6 found it while probing the 6EI/L² item.
 
 **Rulings:**
 1. **What limits trusted publication.** On the linear route it is K-D5's re-formation trigger: an **estimate-based** demotion, not a proved bound on the true error. I6's probes reach_six2 and reach_gj (`IMPLEMENTATION/K2A/_run_records/product_reach/`, NOTES items 6 and 7) are consistent with it: runs published checks-passed stayed within the criterion, and larger errors were demoted to Sensitive. The nonlinear route ended unresolved in every probe. Pre-K-D5 behaviour is not claimed.

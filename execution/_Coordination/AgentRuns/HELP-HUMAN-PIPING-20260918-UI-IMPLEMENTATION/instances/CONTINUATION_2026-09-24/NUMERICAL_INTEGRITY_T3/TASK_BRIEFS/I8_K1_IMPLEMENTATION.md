@@ -229,3 +229,7 @@ This follows ROOT_RULINGS_V1, "K1: the S11-F site test's KERNEL list, and the ha
 - **Add sparse.rs to `product_physics/tests/s11f_site_test.rs`'s KERNEL list** as its own hunk, under the site-table conditions. The WIP carries it as a patch, `IMPLEMENTATION/K1/kernel_list_s11f.patch`.
 - **The C3-detect helper:** see WIP_STATE.md for whether it was pre-existing. If it was, it is restored and routed to ROOT.
 - **K1 continues on the owner's Mac,** from the WIP commit and `IMPLEMENTATION/K1/WIP_STATE.md`, with a fresh implementation TASK working under this brief and addenda 1–4. `HANDOFF_2026-09-28_TO_LOCAL.md` §5 lists the first steps, including platform calibration before any comparison.
+
+## Addendum 5 (2026-09-28): the skew M03 pin from K2a's review
+
+K2a merged as PR #1032. Its reviewer found that M03's element-entry floor holds per entry only for axis-aligned members (`K2A/RETURN_ADDENDUM_1.md`). ROOT addressed a pin to K1's pattern-path M03 tests, with K5 as fallback. Add a kernel test that pins M03's outcome on RV7's confirmed cases, in both representations: axis-x refused; skew (1,1,1) and (1,2,2) accepted for (12E)·I from 2^-1030 to 2^-1050; all refused at 2^-1055 and in S6a. The exact members and figures are in the work graph's K2a entry and in `REVIEW/K2A_REVIEW.md`. The pin records M03's current scope; it does not change M03.
