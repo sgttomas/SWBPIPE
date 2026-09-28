@@ -717,6 +717,23 @@ fn k2b_the_publication_outcomes() {
     );
     assert_eq!(unscale_descriptive(pow2(600), scale(-600)), f64::INFINITY);
     assert_eq!(unscale_descriptive(pow2(-500), scale(560)), pow2(-1060));
+    // One rounding, never two (checkpoint C): the exact scaled value is
+    // rounded once at 2^-b. Stepwise power-of-two multiplication (an
+    // intermediate subnormal, then a second rounding) would give 0xff90c for
+    // the first value and 0 (a flushed least subnormal) for the second. The
+    // expected bits are an independent exact-rational rounding of each value
+    // (the K2b run record's double-rounding search).
+    let once = f64::from_bits(0x1eaf_f219_0006_b700);
+    let least = f64::from_bits(0x1d40_0563_f122_86dd);
+    for (value, b, bits) in [(once, 522, 0xf_f90d_u64), (least, 520, 1)] {
+        let published = unscale_for_publication(value, scale(b), None).unwrap();
+        assert_eq!(published.value.to_bits(), bits, "{value:e} at b = {b}");
+        assert!(matches!(
+            published.representability,
+            Representability::Subnormal { .. }
+        ));
+        assert_eq!(unscale_descriptive(value, scale(b)).to_bits(), bits);
+    }
 }
 
 #[test]
@@ -895,6 +912,19 @@ fn k2b_unscaled_residual_records_carry_their_outcome_and_never_refuse() {
     assert_eq!(entry.accumulated_high, pow2(-1000));
     assert_eq!(entry.accumulated_low, 0.0);
     assert_eq!(entry.difference_expansion, vec![0.0]);
+    // A row with no nonzero term (no load, u = 0 on it) carries the exponent
+    // sentinel 0 and zero records at every scale: f = (2, 0) gives u = (0.5, 0).
+    let mut ledger = LoadLedger::new();
+    ledger.push("p0", 0, 2.0);
+    let force = ledger.finish(2).unwrap();
+    let system = StructuralSystem::assembled(&k, &force, &[0, 1], &[], None, None);
+    let solution = solve_assembled_structural_dense(&system).unwrap();
+    let row = &solution.report.residual_rows[1];
+    assert_eq!((row.global_dof, row.row_scale_exponent), (1, 0));
+    assert_eq!(row.normalized_denominator, 0.0);
+    let unscaled = unscale_structural_solution(solution.clone(), scale(1000), &force);
+    assert_eq!(unscaled.solution.report.residual_rows[1], *row);
+    assert!(unscaled.records.iter().all(|r| r.global_dof != 1));
 }
 
 #[test]
