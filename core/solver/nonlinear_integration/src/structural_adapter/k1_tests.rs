@@ -1018,3 +1018,392 @@ fn k1_nonlinear_loop_reaches_neither_formation_entry() {
         );
     }
 }
+
+// ------------------------------------------------------------------ RV8 (review findings)
+
+// RV8-1 to RV8-3 (T3 REVIEW/K1_REVIEW.md): three test gaps the independent
+// review found. Each case is RV8's (invented), and each first asserts, on the
+// dense side only, that it discriminates the alternative its mutant takes.
+
+/// The product's dense assembly in a chosen order: frames and users
+/// (`assemble_global_stiffness_with_user_elements`), then the curved blocks
+/// in order (or reversed), then the springs (or the springs before the
+/// blocks). `(false, false)` is the product's order, `Case::product_dense`.
+fn dense_in_order(case: &Case, blocks_reversed: bool, springs_first: bool) -> Vec<Vec<f64>> {
+    let mut k =
+        assemble_global_stiffness_with_user_elements(case.node_count, &case.frames, &case.users)
+            .unwrap();
+    let add_springs = |k: &mut Vec<Vec<f64>>| {
+        for &(dof, value) in &case.springs {
+            k[dof][dof] += value;
+        }
+    };
+    if springs_first {
+        add_springs(&mut k);
+    }
+    let mut slots: Vec<&CurvedBendStiffnessElement> = case.slots.iter().collect();
+    if blocks_reversed {
+        slots.reverse();
+    }
+    for s in slots {
+        let map = element_dof_map(s.node_i, s.node_j);
+        for (r, &row) in map.iter().enumerate() {
+            for (c, &col) in map.iter().enumerate() {
+                k[row][col] += s.global_stiffness[r][c];
+            }
+        }
+    }
+    if !springs_first {
+        add_springs(&mut k);
+    }
+    k
+}
+
+fn matrix_bits(k: &[Vec<f64>]) -> Vec<Vec<u64>> {
+    k.iter().map(|row| bits(row)).collect()
+}
+
+/// K1's representation of `case` against the product's dense assembly, bit
+/// for bit: the pattern values, the evidence contributions coalesced on the
+/// pattern, K*u (PP's `multiply_matrix_vector` form) and E12's reactions.
+fn assert_assembly_bit_identical(case: &Case, ctx: &str) {
+    let product = case.product_dense();
+    let k = case.sparse();
+    assert_eq!(
+        matrix_bits(&k.to_dense()),
+        matrix_bits(&product),
+        "{ctx}: K bits"
+    );
+    let coalesced = SparseStiffness::from_pattern_and_contributions(
+        k.pattern().clone(),
+        &case.dense_evidence().contributions,
+    )
+    .unwrap();
+    assert_eq!(
+        bits(coalesced.values()),
+        bits(k.values()),
+        "{ctx}: coalesced contributions"
+    );
+    let u: Vec<f64> = (0..6 * case.node_count)
+        .map(|d| match d % 4 {
+            0 => 1e-3 * (d as f64 + 1.0).sin(),
+            1 => -0.0,
+            2 => -2.5e-4 * d as f64,
+            _ => 7e-5,
+        })
+        .collect();
+    let product_ku: Vec<f64> = product
+        .iter()
+        .map(|row| row.iter().zip(&u).map(|(a, b)| a * b).sum())
+        .collect();
+    assert_eq!(
+        bits(&k.multiply(&u).unwrap()),
+        bits(&product_ku),
+        "{ctx}: K*u"
+    );
+    let f = case.ledger();
+    let expected: Vec<f64> = product_ku
+        .iter()
+        .enumerate()
+        .map(|(dof, &internal)| {
+            let mut a = open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator::new();
+            a.add(internal)
+                .and_then(|()| f.accumulate_dof(dof, &mut a, true))
+                .and_then(|()| a.round())
+                .unwrap_or(f64::NAN)
+        })
+        .collect();
+    assert_eq!(
+        bits(&k.reactions(&u, &f).unwrap()),
+        bits(&expected),
+        "{ctx}: reactions"
+    );
+}
+
+/// The adapter's entries on the dense view and the pattern entries, plain and
+/// formation-checked, byte-identical in both modes and solved (not vacuous).
+fn assert_entries_byte_identical(case: &Case, ctx: &str) {
+    for mode in MODES {
+        let (d, s) = both_plain(case, mode);
+        assert_eq!(d, s, "{ctx} {mode:?} plain");
+        assert!(s.starts_with("Ok("), "{ctx} {mode:?} plain: {s}");
+        let (d, s) = both_checked(case, mode, &case.macros);
+        assert_eq!(render(&d), render(&s), "{ctx} {mode:?} formation-checked");
+        assert!(s.is_ok(), "{ctx} {mode:?} formation-checked: {s:?}");
+    }
+}
+
+/// RV8's bend geometry (invented): R = 0.6 m bends in the XY plane on K-D5's
+/// pipe section (E 200 GPa, G 80 GPa), with flexibility factor `flex` in both
+/// planes.
+const RV8_R: f64 = 0.6;
+
+fn rv8_frame_section() -> FrameSection {
+    FrameSection::new(
+        2.0e11,
+        8.0e10,
+        0.005969026041820614,
+        2.700984283923829e-05,
+        2.700984283923829e-05,
+        5.401968567847658e-05,
+    )
+    .unwrap()
+}
+
+fn rv8_bend(
+    i: usize,
+    pi: [f64; 3],
+    j: usize,
+    pj: [f64; 3],
+    center: [f64; 3],
+    flex: f64,
+) -> CurvedBendMacroElement {
+    CurvedBendMacroElement::new(
+        FrameNode::new(i, pi).unwrap(),
+        FrameNode::new(j, pj).unwrap(),
+        center,
+        2.0e11,
+        8.0e10,
+        0.005969026041820614,
+        2.700984283923829e-05,
+        5.401968567847658e-05,
+        flex,
+        flex,
+    )
+    .unwrap()
+}
+
+/// A case with realized bends: each bend's slot is built from its macro
+/// element, as the product builds it, and added after the frames.
+fn rv8_case(
+    node_count: usize,
+    frames: Vec<FrameElement>,
+    bends: Vec<CurvedBendMacroElement>,
+    springs: Vec<(usize, f64)>,
+    rigid: &[usize],
+    loads: Vec<(usize, f64)>,
+) -> Case {
+    let slots = bends
+        .iter()
+        .enumerate()
+        .map(|(k, b)| {
+            CurvedBendStiffnessElement::from_macro_element(format!("rv8-bend-{k}"), b).unwrap()
+        })
+        .collect();
+    let mut case = Case {
+        node_count,
+        frames,
+        users: Vec::new(),
+        macros: bends,
+        slots,
+        springs,
+        free: Vec::new(),
+        prescribed: Vec::new(),
+        loads,
+    };
+    case.set_boundary(rigid.iter().map(|&d| (d, 0.0)).collect());
+    case
+}
+
+/// RV8-1: the realized bends are added in the product's order. A tee at a
+/// bend-bend junction: bends b1 (node 0 to 1, about the origin) and b2 (node 1
+/// to 2, about (0, 2R, 0)), anchored straight runs 3-0 and 2-4, and a straight
+/// branch 1-5, so node 1 carries the branch and both bends. Kills
+/// RV8-BLOCK-ORDER (the blocks added in reverse).
+#[test]
+fn k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1() {
+    let r = RV8_R;
+    let p = [
+        [r, 0.0, 0.0],
+        [0.0, r, 0.0],
+        [-r, 2.0 * r, 0.0],
+        [r, -2.0, 0.0],
+        [-r, 2.0 * r + 2.0, 0.0],
+        [0.0, r, 2.2],
+    ];
+    let s = rv8_frame_section();
+    for flex in [1.0, 1.7] {
+        let case = rv8_case(
+            6,
+            vec![
+                frame(3, p[3], 0, p[0], s, [0.0, 0.0, 1.0]),
+                frame(2, p[2], 4, p[4], s, [0.0, 0.0, 1.0]),
+                frame(1, p[1], 5, p[5], s, [1.0, 0.0, 0.0]),
+            ],
+            vec![
+                rv8_bend(0, p[0], 1, p[1], [0.0, 0.0, 0.0], flex),
+                rv8_bend(1, p[1], 2, p[2], [0.0, 2.0 * r, 0.0], flex),
+            ],
+            Vec::new(),
+            &(18..36).collect::<Vec<_>>(),
+            vec![(7, -2500.0), (8, 400.0), (11, 55.0), (13, 900.0)],
+        );
+        let ctx = format!("bend-bend tee flex={flex}");
+        // Precondition (dense only): the bends in reverse order change bits.
+        assert_ne!(
+            matrix_bits(&dense_in_order(&case, true, false)),
+            matrix_bits(&case.product_dense()),
+            "{ctx}: precondition, the block order changes the assembled bits"
+        );
+        assert_assembly_bit_identical(&case, &ctx);
+        assert_entries_byte_identical(&case, &ctx);
+    }
+}
+
+/// RV8-2: the springs are added after the realized bends, as the product adds
+/// them. A bend (node 0 to 1) between anchored straight runs 2-0 and 1-3, with
+/// support springs on every DOF of both bend ends, over RV8's eight
+/// magnitudes (1.1e3 to 9.7e8 N/m) and two flexibility factors. Kills
+/// RV8-SPRING-FIRST (the springs added before the blocks).
+#[test]
+fn k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2() {
+    let r = RV8_R;
+    let p = [[r, 0.0, 0.0], [0.0, r, 0.0], [r, -2.0, 0.0], [-2.4, r, 0.3]];
+    let s = rv8_frame_section();
+    let mut discriminating = Vec::new();
+    for flex in [1.0, 1.7] {
+        for kk in [1.1e3, 3.7e4, 2.9e5, 1.3e6, 7.9e6, 4.4e7, 2.1e8, 9.7e8] {
+            let springs: Vec<(usize, f64)> = (0..6)
+                .flat_map(|d| {
+                    [
+                        (d, kk * (1.0 + 0.07 * d as f64)),
+                        (6 + d, kk * (1.3 - 0.05 * d as f64)),
+                    ]
+                })
+                .collect();
+            let case = rv8_case(
+                4,
+                vec![
+                    frame(2, p[2], 0, p[0], s, [0.0, 0.0, 1.0]),
+                    frame(1, p[1], 3, p[3], s, [0.0, 0.0, 1.0]),
+                ],
+                vec![rv8_bend(0, p[0], 1, p[1], [0.0, 0.0, 0.0], flex)],
+                springs,
+                &(12..24).collect::<Vec<_>>(),
+                vec![(1, -1800.0), (8, 350.0), (9, 42.0), (10, 700.0)],
+            );
+            let ctx = format!("bend supports flex={flex} k={kk:e}");
+            if matrix_bits(&dense_in_order(&case, false, true))
+                != matrix_bits(&case.product_dense())
+            {
+                discriminating.push(ctx.clone());
+            }
+            assert_assembly_bit_identical(&case, &ctx);
+            assert_entries_byte_identical(&case, &ctx);
+        }
+    }
+    // Precondition (dense only; checked last so that a wrong order fails at
+    // the bitwise assertion above): some magnitudes round differently when a
+    // spring precedes the bend on a shared diagonal, so the test discriminates.
+    assert!(
+        !discriminating.is_empty(),
+        "precondition: no magnitude discriminates the spring-against-bend order"
+    );
+    eprintln!("k1 rv8-2 discriminating cases: {discriminating:?}");
+}
+
+/// RV8-3: the sparse formation check reads the same load inputs as the dense
+/// one: the ledger terms, not the folded force. K-D5's demoting models F122
+/// and CSKEW_8_5 with each load split into three ledger terms (0.1v, 0.7v and
+/// v - 0.1v - 0.7v), whose exact sum is not the rounded net on some load. In
+/// both modes the records are identical and the case demotes in both
+/// representations. Kills RV8-FC-TERMS (the sparse check drops the terms), in
+/// SparseInteractive.
+#[test]
+fn k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3() {
+    for m in [&F122, &CSKEW_8_5] {
+        let case = Case::from_model(m);
+        let mut split = LoadLedger::new();
+        let mut parts = Vec::new();
+        for (i, &(dof, v)) in case.loads.iter().enumerate() {
+            let (a, b) = (v * 0.1, v * 0.7);
+            let c = v - a - b;
+            split.push(format!("load:{i}:a"), dof, a);
+            split.push(format!("load:{i}:b"), dof, b);
+            split.push(format!("load:{i}:c"), dof, c);
+            parts.push((dof, [a, b, c]));
+        }
+        let split = split.finish(6 * case.node_count).unwrap();
+        // The folded values as one-term ledger entries: what the check reads
+        // when the terms are dropped.
+        let mut folded = LoadLedger::new();
+        for (dof, &v) in split.values().iter().enumerate() {
+            if v != 0.0 {
+                folded.push(format!("folded:{dof}"), dof, v);
+            }
+        }
+        let folded = folded.finish(6 * case.node_count).unwrap();
+        // Precondition 1: on some load the three terms' exact sum is not the
+        // rounded net.
+        assert!(
+            parts.iter().any(|&(dof, terms)| {
+                let mut exact = open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator::new();
+                for t in terms {
+                    exact.add(t).unwrap();
+                }
+                exact.add(-split.values()[dof]).unwrap();
+                !exact.is_zero()
+            }),
+            "{}: precondition, exact net equals the rounded net on every load",
+            m.name
+        );
+        let k = case.sparse();
+        let dense = k.to_dense();
+        for mode in MODES {
+            let dense_entry = |f: &AssembledForce| {
+                case.dense_evidence().solve_assembled_with_formation_check(
+                    &dense,
+                    f,
+                    &case.free,
+                    &case.prescribed,
+                    mode,
+                    &case.macros,
+                    true,
+                )
+            };
+            let d = dense_entry(&split).unwrap();
+            let s = case
+                .sparse_evidence(&k)
+                .solve_assembled_with_formation_check(
+                    &k,
+                    &split,
+                    &case.free,
+                    &case.prescribed,
+                    mode,
+                    &case.macros,
+                    true,
+                )
+                .unwrap();
+            // Precondition 2 (dense only): the record depends on the terms.
+            let d_folded = dense_entry(&folded).unwrap();
+            assert_ne!(
+                format!("{:?}", d.formation_check),
+                format!("{:?}", d_folded.formation_check),
+                "{} {mode:?}: precondition, the terms and the folded force give different records",
+                m.name
+            );
+            // Parity: the same solution and record in both representations.
+            assert_eq!(
+                format!("{d:?}"),
+                format!("{s:?}"),
+                "{} {mode:?}: split ledger",
+                m.name
+            );
+            // A demoting case in both representations.
+            for (representation, solution) in [("dense", &d), ("sparse", &s)] {
+                assert_eq!(
+                    solution.report.quality,
+                    SolveQuality::Sensitive,
+                    "{} {mode:?} {representation}",
+                    m.name
+                );
+                assert_eq!(
+                    solution.formation_check.as_ref().expect("demoted").reason,
+                    FormationCheckReason::Estimate,
+                    "{} {mode:?} {representation}",
+                    m.name
+                );
+            }
+        }
+    }
+}
