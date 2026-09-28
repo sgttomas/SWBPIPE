@@ -4,6 +4,8 @@
 - **K2a finishes here.** It is in its gate now.
 - **K1 onward continues on the Mac,** from K1's WIP commit.
 
+**Read `OPERATING_NOTES_FOR_LOCAL_ROOT.md` next.** It covers how the roles and delegation were run, messaging and host arbitration, keeping the pipeline full, epistemic discipline, and PR mechanics.
+
 The owner's direction for T3 is unchanged: prioritize solver correctness and the validation programme; don't populate material or component libraries or code rules; preserve evidence and completed gates (`OWNER_DIRECTION.md`).
 
 All paths below are relative to this folder (`T3/` = `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/`), unless they start with `projects/` or `.agents/`.
