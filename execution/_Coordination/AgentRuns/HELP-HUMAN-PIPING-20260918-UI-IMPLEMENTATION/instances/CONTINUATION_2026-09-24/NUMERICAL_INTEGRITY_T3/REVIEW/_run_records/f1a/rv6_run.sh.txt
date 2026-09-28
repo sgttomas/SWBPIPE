@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# RV6 targeted F1a runs: baseline, then evasion mutants, one build dir, sequential.
+set -u
+S=<scratch>
+C=$S/rv6/projects/chirality-piping/core/product_physics
+L=$C/src/lib.rs
+OUT=$S/rv6_logs
+mkdir -p "$OUT"
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=<wt>/rv6-target
+cd "$C" || exit 2
+restore() { git -C <wt>/f1a show 559ecb64a:projects/chirality-piping/core/product_physics/src/lib.rs > "$L"; }
+free_gb() { df -BG --output=avail / | tail -1 | tr -dc 0-9; }
+restore
+echo "free $(free_gb)G before baseline" > "$OUT/disk.txt"
+cargo test --offline --locked --lib -- f1a_ under_restrained_model_reports_solver_diagnostic > "$OUT/BASE_lib.log" 2>&1; echo "BASE_lib rc=$?" >> "$OUT/summary.txt"
+echo "free $(free_gb)G after lib build" >> "$OUT/disk.txt"
+cargo test --offline --locked --test formation_check_runtime > "$OUT/BASE_kd5.log" 2>&1; echo "BASE_kd5 rc=$?" >> "$OUT/summary.txt"
+echo "free $(free_gb)G after kd5 build" >> "$OUT/disk.txt"
+for m in E1_SPARSE_DROP E2_FIELD_ORDER E3_LINE_WITHOUT_RECORD E4_DISPLAY_F64 E5_DROP_WHEN_S11G E6_RAW_ROW; do
+  if [ "$(free_gb)" -lt 8 ]; then echo "STOP disk below 8G before $m" >> "$OUT/summary.txt"; break; fi
+  restore
+  python3 "$S/rv6_mutate.py" "$L" "$m" > "$OUT/$m.log" 2>&1
+  cargo test --offline --locked --lib -- f1a_ under_restrained_model_reports_solver_diagnostic >> "$OUT/$m.log" 2>&1
+  echo "$m rc=$?" >> "$OUT/summary.txt"
+done
+restore
+echo "free $(free_gb)G at end" >> "$OUT/disk.txt"
+echo DONE >> "$OUT/summary.txt"

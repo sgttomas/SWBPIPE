@@ -1,0 +1,16 @@
+CSKEW_8_5 3 u_act 1e-06 I3 u_int 1e-06 match  u_formula-u_act 4.456329e-79
+CSKEW_8_5 6 u_act -9.555882713359803e-15 I3 u_int -9.555882713359802e-15 DIFF  u_formula-u_act 3.727872604e-85
+CSKEW_8_5 7 u_act -3.0000012613241705e-07 I3 u_int -3.0000012613241705e-07 match  u_formula-u_act -2.4444444444444444e-23
+CSKEW_8_5 8 u_act 5.00770132207552e-14 I3 u_int 5.007701322075519e-14 DIFF  u_formula-u_act 1.7777777777777775e-23
+CSKEW_8_5 9 u_act 1.0000008192123101e-06 I3 u_int 1.0000008192123101e-06 match  u_formula-u_act 4.456331e-79
+CSKEW_8_5 10 u_act -7.484568999892296e-15 I3 u_int -7.484568999892298e-15 DIFF  u_formula-u_act 1.2131567061e-84
+CSKEW_8_5 11 u_act 7.397540506642205e-14 I3 u_int 7.397540506642205e-14 match  u_formula-u_act 1.648831734e-84
+{"name": "CSKEW_8_5", "admissible": [{"ok": true, "phi": 1.5707963267948968, "rel_mismatch": 0.0}], "max_trigger_correct": 1.74833812719443e-07, "max_trigger_m31b": 5.9601690894854085e-08, "max_delta_row": {"dof": 7, "ef_correct": 8.74169063597215e-08, "ef_m31b": 2.9800845447427043e-08, "delta": 5.7616060912294464e-08, "actual": 8.74169063597215e-08}, "max_actual_row": {"dof": 7, "ef_correct": 8.74169063597215e-08, "ef_m31b": 2.9800845447427043e-08, "delta": 5.7616060912294464e-08, "actual": 8.74169063597215e-08}, "demote_correct": false, "demote_m31b": false}
+CSKEW_30_RADIUS_MISMATCH 3 u_act 1e-06 I3 u_int 1e-06 match  u_formula-u_act 1.4998063e-79
+CSKEW_30_RADIUS_MISMATCH 6 u_act -3.37266448715852e-14 I3 u_int -3.372664487158519e-14 DIFF  u_formula-u_act -1.062376371e-84
+CSKEW_30_RADIUS_MISMATCH 7 u_act -3.0000044517323667e-07 I3 u_int -3.0000044517323667e-07 match  u_formula-u_act -4.596196332277083e-17
+CSKEW_30_RADIUS_MISMATCH 8 u_act 1.767423998441374e-13 I3 u_int 1.7674239984413735e-13 DIFF  u_formula-u_act 1.8384777341783333e-16
+CSKEW_30_RADIUS_MISMATCH 9 u_act 1.0000028913375648e-06 I3 u_int 1.0000028913375648e-06 match  u_formula-u_act 1.499809e-79
+CSKEW_30_RADIUS_MISMATCH 10 u_act -2.6416125754347284e-14 I3 u_int -2.6416125754347284e-14 match  u_formula-u_act -3.587789675e-84
+CSKEW_30_RADIUS_MISMATCH 11 u_act 2.610896649403131e-13 I3 u_int 2.610896649403131e-13 match  u_formula-u_act -4.0924834e-84
+{"name": "CSKEW_30_RADIUS_MISMATCH", "admissible": [{"ok": true, "phi": 1.5707963267948968, "rel_mismatch": 9.192387587632218e-10}], "max_trigger_correct": 0.8666642094465956, "max_trigger_m31b": 1.9979250052552106e-07, "max_delta_row": {"dof": 8, "ef_correct": 0.4333321047232978, "ef_m31b": 3.151814756737187e-14, "delta": 0.4333321047232663, "actual": 0.4333321047232978}, "max_actual_row": {"dof": 8, "ef_correct": 0.4333321047232978, "ef_m31b": 3.151814756737187e-14, "delta": 0.4333321047232663, "actual": 0.4333321047232978}, "demote_correct": false, "demote_m31b": false}

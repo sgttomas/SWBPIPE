@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""F1a mutants (I7). Usage: mutate.py <core dir> <mutant id>. M1-M8 and M9b are one exact,
+unique string replacement in product_physics/src/lib.rs; M9a renames the enum variant
+`FormationCheckReason::Estimate` to `EstimateExceeded` at every whole-word use (an editor-wide
+rename, the rendered token left as written); NONE leaves the tree unchanged."""
+import os
+import re
+import sys
+
+LINE_APPEND = """    if let (Some(check), Some(record)) = (formation_check, diagnostics.last_mut()) {
+        record.message = format!(
+            "{} {}",
+            record.message,
+            formation_check_evidence_line(model, check)
+        );
+    }
+"""
+S11G_STEP = """    if let (Some(finding), Some(record)) = (formation, diagnostics.last_mut()) {
+        formation_guard::demote(record, finding);
+    }
+"""
+MUTANTS = {
+    "NONE": [],
+    # M1: the record is never rendered.
+    "M1_NO_LINE": [(LINE_APPEND, "    let _ = formation_check;\n")],
+    # M2: the linear call site drops the record.
+    "M2_CALLSITE_NONE": [("                linear.formation_check.as_ref(),\n", "                None,\n")],
+    # M3: the line is appended before the S11-G step (ordering).
+    "M3_BEFORE_S11G": [(S11G_STEP + LINE_APPEND, LINE_APPEND + S11G_STEP)],
+    # M4: the unavailable reason is rendered with the estimate token.
+    "M4_REASON_TOKEN": [('"formation_check: reason=formation_check_unavailable; detail={detail}"',
+                         '"formation_check: reason=estimate; detail={detail}"')],
+    # M5: trigger_ratio prints the scale.
+    "M5_WRONG_FIELD": [("            check.scale,\n            check.ratio,\n", "            check.scale,\n            check.scale,\n")],
+    # M6: the line is joined with a newline instead of one space.
+    "M6_SEPARATOR": [('            "{} {}",\n            record.message,\n            formation_check_evidence_line',
+                      '            "{}\\n{}",\n            record.message,\n            formation_check_evidence_line')],
+    # M7: SUP-17 reverted to main's text.
+    "M7_SUP17_REVERT": [("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}",
+                         "fewer than six independent ground DOFs including positive springs; restrained global DOF classes: {restrained}; missing global rigid-body DOF classes: {missing}; support contributions: {}")],
+    # M8: the record is Debug-rendered instead of the evidence line.
+    "M8_DEBUG_RECORD": [("            formation_check_evidence_line(model, check)\n        );", "            format!(\"{check:?}\")\n        );")],
+    # M9b: a hard-coded token that is not the variant's identifier.
+    "M9B_TOKEN_STRING": [('"formation_check: reason=estimate; row={}', '"formation_check: reason=exceeded; row={}')],
+    "M9A_VARIANT_RENAME": [],
+}
+RENAME_FILES = [
+    "solver/frame_kernel/src/structural/formation_check.rs",
+    "solver/frame_kernel/src/structural/formation_check_tests.rs",
+    "solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs",
+    "product_physics/src/lib.rs",
+    "product_physics/src/f1a_tests.rs",
+]
+
+core, mid = sys.argv[1], sys.argv[2]
+if mid == "M9A_VARIANT_RENAME":
+    total = 0
+    for rel in RENAME_FILES:
+        f = os.path.join(core, rel)
+        t = open(f, encoding="utf-8").read()
+        t, n = re.subn(r"\bEstimate\b", "EstimateExceeded", t)
+        total += n
+        open(f, "w", encoding="utf-8").write(t)
+    assert total == 9, total
+    print(f"{mid}: {total} renames")
+    sys.exit(0)
+path = os.path.join(core, "product_physics/src/lib.rs")
+text = open(path, encoding="utf-8").read()
+for old, new in MUTANTS[mid]:
+    assert text.count(old) == 1, (mid, old[:70], text.count(old))
+    text = text.replace(old, new)
+open(path, "w", encoding="utf-8").write(text)
+print(f"{mid}: {len(MUTANTS[mid])} replacement(s)")

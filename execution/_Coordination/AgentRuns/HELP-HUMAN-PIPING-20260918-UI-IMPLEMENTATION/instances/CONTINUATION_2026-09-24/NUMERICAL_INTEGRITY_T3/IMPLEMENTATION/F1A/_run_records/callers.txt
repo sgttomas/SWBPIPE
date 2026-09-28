@@ -1,0 +1,95 @@
+# F1a caller enumeration (I7), by lexer scan (scan_callers.py.txt, adapted from K-D5's) of every .rs
+# file under projects/chirality-piping outside execution/, target/ and node_modules/, on the F1a candidate
+# (base 5ae22926e plus the F1a working tree). Comments and string literals are removed first;
+# #[cfg(test)] items, *tests.rs module files and tests/ are marked TEST. Each non-test site is classified.
+# Patterns: append_integrity_report, formation_check_evidence_line, PreviewLinearSolve,
+# solve_preview_reduced_system, .formation_check, formation_guard::demote, amend_integrity_report,
+# support_restraint_summary, support_contribution_summary, FormationCheckReason, FormationCheck{ > ,}
+# Result: the record reaches text only through PP append_integrity_report's linear call (PP:2999); the
+# nonlinear call (PP:3041) passes None; PreviewLinearSolve is private, built once, and never formatted
+# or serialized; the SUP-17 message has one producer. Text consumers of the SUP-17 message (all files,
+# git grep outside execution/): only PP's own test tests::under_restrained_model_reports_solver_diagnostic.
+# The [fn] label is the nearest preceding `fn`, so module-level items carry the previous function's name.
+core/product_physics/src/f1a_tests.rs:403 [unit_record] test FormationCheck> :: check: Option<&FormationCheck>,  ==> TEST
+core/product_physics/src/f1a_tests.rs:406 [unit_record] test append_integrity_report( :: append_integrity_report(  ==> TEST
+core/product_physics/src/f1a_tests.rs:419 [estimate] test FormationCheck { :: fn estimate(global_dof: usize, doubled: f64, scale: f64) -> FormationCheck {  ==> TEST
+core/product_physics/src/f1a_tests.rs:420 [estimate] test FormationCheck { :: FormationCheck {  ==> TEST
+core/product_physics/src/f1a_tests.rs:421 [estimate] test FormationCheckReason :: reason: FormationCheckReason::Estimate,  ==> TEST
+core/product_physics/src/f1a_tests.rs:436 [f1a_evidence_line_exact_text] test formation_check_evidence_line( :: formation_check_evidence_line(&model, &check),  ==> TEST
+core/product_physics/src/f1a_tests.rs:442 [f1a_evidence_line_exact_text] test FormationCheck { :: let zero_scale = FormationCheck {  ==> TEST
+core/product_physics/src/f1a_tests.rs:443 [f1a_evidence_line_exact_text] test FormationCheckReason :: reason: FormationCheckReason::Estimate,  ==> TEST
+core/product_physics/src/f1a_tests.rs:450 [f1a_evidence_line_exact_text] test formation_check_evidence_line( :: formation_check_evidence_line(&model, &zero_scale),  ==> TEST
+core/product_physics/src/f1a_tests.rs:454 [f1a_evidence_line_exact_text] test formation_check_evidence_line( :: assert!(formation_check_evidence_line(&model, &outside).contains("; row=global_dof=12; "));  ==> TEST
+core/product_physics/src/f1a_tests.rs:455 [f1a_evidence_line_exact_text] test FormationCheck { :: let unavailable = FormationCheck {  ==> TEST
+core/product_physics/src/f1a_tests.rs:456 [f1a_evidence_line_exact_text] test FormationCheckReason :: reason: FormationCheckReason::FormationCheckUnavailable {  ==> TEST
+core/product_physics/src/f1a_tests.rs:465 [f1a_evidence_line_exact_text] test formation_check_evidence_line( :: formation_check_evidence_line(&model, &unavailable),  ==> TEST
+core/product_physics/src/f1a_tests.rs:486 [f1a_composition_with_s11g_layout_and_no_op_rule] test formation_check_evidence_line( :: let line = formation_check_evidence_line(&unit_model(), &check);  ==> TEST
+core/product_physics/src/f1a_tests.rs:519 [f1a_composition_with_s11g_layout_and_no_op_rule] test amend_integrity_report( :: assert!(!formation_guard::amend_integrity_report(  ==> TEST
+core/product_physics/src/f1a_tests.rs:564 [snake] test FormationCheckReason :: FormationCheckReason::Estimate,  ==> TEST
+core/product_physics/src/f1a_tests.rs:565 [snake] test FormationCheckReason :: FormationCheckReason::FormationCheckUnavailable { detail: "d".into() },  ==> TEST
+core/product_physics/src/f1a_tests.rs:569 [snake] test FormationCheckReason :: FormationCheckReason::Estimate => "estimate",  ==> TEST
+core/product_physics/src/f1a_tests.rs:570 [snake] test FormationCheckReason :: FormationCheckReason::FormationCheckUnavailable { .. } => "formation_check_unavailable",  ==> TEST
+core/product_physics/src/f1a_tests.rs:573 [snake] test FormationCheck { :: let check = FormationCheck {  ==> TEST
+core/product_physics/src/f1a_tests.rs:580 [snake] test formation_check_evidence_line( :: let line = formation_check_evidence_line(&model, &check);  ==> TEST
+core/product_physics/src/f1a_tests.rs:610 [main_append_integrity_report] test formation_guard::demote( :: formation_guard::demote(record, finding);  ==> TEST
+core/product_physics/src/f1a_tests.rs:641 [f1a_no_record_is_byte_identical_to_main] test append_integrity_report( :: append_integrity_report(&mut ours, "c", &report, &model, None, finding.as_ref(), None);  ==> TEST
+core/product_physics/src/f1a_tests.rs:651 [f1a_no_record_is_byte_identical_to_main] test append_integrity_report( :: append_integrity_report(&mut with, "c", &report, &model, None, finding.as_ref(), Some(&check));  ==> TEST
+core/product_physics/src/f1a_tests.rs:655 [f1a_no_record_is_byte_identical_to_main] test formation_check_evidence_line( :: formation_check_evidence_line(&model, &check)  ==> TEST
+core/product_physics/src/lib.rs:41 [<module>] non-test FormationCheck, :: FormationCheck, FormationCheckReason, LoadFidelityReport, SolveQuality, StructuralError,  ==> F1a: import, renderer parameter or renderer match
+core/product_physics/src/lib.rs:41 [<module>] non-test FormationCheckReason :: FormationCheck, FormationCheckReason, LoadFidelityReport, SolveQuality, StructuralError,  ==> F1a: import, renderer parameter or renderer match
+core/product_physics/src/lib.rs:1087 [append_integrity_report] non-test FormationCheck> :: formation_check: Option<&FormationCheck>,  ==> F1a: import, renderer parameter or renderer match
+core/product_physics/src/lib.rs:1099 [append_integrity_report] non-test formation_guard::demote( :: formation_guard::demote(record, finding);  ==> S11-G load-row step (unchanged); precedes the D-5 line
+core/product_physics/src/lib.rs:1105 [append_integrity_report] non-test formation_check_evidence_line( :: formation_check_evidence_line(model, check)  ==> F1a: the only caller of the renderer
+core/product_physics/src/lib.rs:1114 [formation_check_evidence_line] non-test FormationCheckReason :: FormationCheckReason::Estimate => format!(  ==> F1a: import, renderer parameter or renderer match
+core/product_physics/src/lib.rs:1123 [formation_check_evidence_line] non-test FormationCheckReason :: FormationCheckReason::FormationCheckUnavailable { detail } => format!(  ==> F1a: import, renderer parameter or renderer match
+core/product_physics/src/lib.rs:1808 [run_linear_static_preview_captured_once] non-test support_restraint_summary( :: let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs);  ==> SUP-17 site: the only producer of the under-restraint message
+core/product_physics/src/lib.rs:1810 [run_linear_static_preview_captured_once] non-test support_contribution_summary( :: format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}", support_contribution_summary(&model)),  ==> SUP-17 site: the only producer of the under-restraint message
+core/product_physics/src/lib.rs:2745 [solve_load_case] non-test solve_preview_reduced_system( :: let attempted_linear = solve_preview_reduced_system(  ==> LINEAR: the only caller; the result gains the private record field (read at PP:3006)
+core/product_physics/src/lib.rs:2999 [solve_load_case] non-test append_integrity_report( :: append_integrity_report(  ==> LINEAR: the ordinary route's integrity report; passes linear.formation_check
+core/product_physics/src/lib.rs:3006 [solve_load_case] non-test .formation_check :: linear.formation_check.as_ref(),  ==> LINEAR: the record handed to append_integrity_report
+core/product_physics/src/lib.rs:3041 [solve_load_case] non-test append_integrity_report( :: append_integrity_report(  ==> NONLINEAR: the loop's integrity report; passes None (no record exists on this route)
+core/product_physics/src/lib.rs:3853 [solve_load_case] non-test amend_integrity_report( :: formation_guard::amend_integrity_report(  ==> S11-G R-b' after the recovery loop (unchanged); no-op on a record carrying a line (a record implies SENSITIVE)
+core/product_physics/src/lib.rs:4367 [product_preview_policy_support_classes] non-test PreviewLinearSolve :: struct PreviewLinearSolve {  ==> struct definition at module level (the scan's enclosing-fn label is the preceding fn): private, derive(Debug, Clone) only
+core/product_physics/src/lib.rs:4374 [product_preview_policy_support_classes] non-test FormationCheck> :: formation_check: Option<FormationCheck>,  ==> the private field on PreviewLinearSolve (module level; enclosing label is the preceding fn)
+core/product_physics/src/lib.rs:4403 [solve_preview_reduced_system] non-test PreviewLinearSolve :: ) -> Result<PreviewLinearSolve, StructuralError> {  ==> the single constructor / return type in solve_preview_reduced_system
+core/product_physics/src/lib.rs:4469 [solve_preview_reduced_system] non-test PreviewLinearSolve :: Ok(PreviewLinearSolve {  ==> the single constructor / return type in solve_preview_reduced_system
+core/product_physics/src/lib.rs:4473 [solve_preview_reduced_system] non-test .formation_check :: formation_check: checked.formation_check,  ==> LINEAR: the record carried from the one StructuralSolution, beside its report
+core/product_physics/src/lib.rs:4498 [append_linear_solver_mode_evidence] non-test PreviewLinearSolve :: linear_solve: &PreviewLinearSolve,  ==> reads named fields only (never the record); not Debug-formatted or serialized
+core/product_physics/src/s11f_tests.rs:1919 [n6_product_residual_rows_use_the_exact_numerator] test solve_preview_reduced_system( :: let solve = solve_preview_reduced_system(  ==> TEST
+core/product_physics/src/s11g_tests.rs:844 [no_op_rule_leaves_a_non_passed_record_untouched] test formation_guard::demote( :: assert!(!formation_guard::demote(&mut record, &finding));  ==> TEST
+core/product_physics/src/s11g_tests.rs:857 [no_op_rule_leaves_a_non_passed_record_untouched] test formation_guard::demote( :: assert!(formation_guard::demote(&mut passed, &finding));  ==> TEST
+core/product_physics/src/s11g_tests.rs:873 [no_op_rule_leaves_a_non_passed_record_untouched] test formation_guard::demote( :: assert!(formation_guard::demote(&mut diagnostics[0], &load_row));  ==> TEST
+core/product_physics/src/s11g_tests.rs:875 [no_op_rule_leaves_a_non_passed_record_untouched] test amend_integrity_report( :: assert!(!formation_guard::amend_integrity_report(  ==> TEST
+core/solver/frame_kernel/src/structural.rs:8 [<module>] non-test FormationCheck, :: CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, FORMATION_CRITERION,  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural.rs:8 [<module>] non-test FormationCheckReason :: CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, FORMATION_CRITERION,  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural.rs:312 [fmt] non-test FormationCheck> :: pub formation_check: Option<FormationCheck>,  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:80 [<module>] non-test FormationCheckReason :: pub enum FormationCheckReason {  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:92 [<module>] non-test FormationCheck { :: pub struct FormationCheck {  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:93 [<module>] non-test FormationCheckReason :: pub reason: FormationCheckReason,  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:105 [<module>] non-test FormationCheck { :: impl FormationCheck {  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:108 [unavailable] non-test FormationCheckReason :: reason: FormationCheckReason::FormationCheckUnavailable {  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:162 [check] non-test FormationCheck> :: ) -> Option<FormationCheck>  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:189 [evaluate] non-test FormationCheck> :: ) -> Result<Option<FormationCheck>, Failure>  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:306 [evaluate] non-test FormationCheck> :: let mut worst: Option<FormationCheck> = None;  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:329 [evaluate] non-test FormationCheck { :: worst = Some(FormationCheck {  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check.rs:330 [evaluate] non-test FormationCheckReason :: reason: FormationCheckReason::Estimate,  ==> KERNEL (K-D5, unchanged by F1a): definition, export or the only constructor of the record
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:205 [kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force] test FormationCheckReason :: assert_eq!(fired.reason, FormationCheckReason::Estimate);  ==> TEST
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:246 [kd5_unavailable_family_and_wide_error_fail_closed_and_never_err] test .formation_check :: assert_eq!(result.formation_check, None);  ==> TEST
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:257 [kd5_unavailable_family_and_wide_error_fail_closed_and_never_err] test .formation_check :: result.formation_check.unwrap().reason,  ==> TEST
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:258 [kd5_unavailable_family_and_wide_error_fail_closed_and_never_err] test FormationCheckReason :: FormationCheckReason::FormationCheckUnavailable {  ==> TEST
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:270 [kd5_unavailable_family_and_wide_error_fail_closed_and_never_err] test .formation_check :: result.formation_check.unwrap().reason,  ==> TEST
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:271 [kd5_unavailable_family_and_wide_error_fail_closed_and_never_err] test FormationCheckReason :: FormationCheckReason::FormationCheckUnavailable { .. }  ==> TEST
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:341 [kd5_curved_arctangent_domain_errors_fail_closed] test .formation_check :: match result.formation_check.unwrap().reason {  ==> TEST
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:342 [kd5_curved_arctangent_domain_errors_fail_closed] test FormationCheckReason :: FormationCheckReason::FormationCheckUnavailable { detail } => {  ==> TEST
+core/solver/nonlinear_integration/src/s11k_tests.rs:1205 [kd5_nonlinear_loop_reaches_no_formation_check] test .formation_check :: assert_eq!(binary64.formation_check, None);  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:14 [<module>] test FormationCheckReason :: use open_pipe_stress_frame_kernel::structural::{FormationCheckReason, SolveQuality};  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:253 [assert_demoted_only_in_quality] test .formation_check :: assert!(checked.formation_check.is_some());  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:258 [assert_unchanged] test .formation_check :: assert_eq!(checked.formation_check, None);  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:269 [record] test .formation_check :: .formation_check  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:274 [record] test .formation_check :: checked.formation_check.is_some()  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:279 [estimate] test .formation_check :: let record = checked.formation_check.as_ref().expect("demoted");  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:280 [estimate] test FormationCheckReason :: assert_eq!(record.reason, FormationCheckReason::Estimate);  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:285 [unavailable_detail] test .formation_check :: match &checked.formation_check.as_ref().expect("demoted").reason {  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:286 [unavailable_detail] test FormationCheckReason :: FormationCheckReason::FormationCheckUnavailable { detail } => detail.clone(),  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:512 [kd5_curved_matching_is_order_independent] test .formation_check :: assert_eq!(forward.formation_check, None);  ==> TEST
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:513 [kd5_curved_matching_is_order_independent] test .formation_check :: assert_eq!(backward.formation_check, None);  ==> TEST

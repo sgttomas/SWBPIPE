@@ -1,0 +1,53 @@
+"""RV5: recount the gate part-1 runs and compare the candidate with the main probe run by run."""
+import json, sys, collections, hashlib
+cand_path, main_path = sys.argv[1], sys.argv[2]
+def load(p):
+    out = {}
+    for line in open(p):
+        r = json.loads(line)
+        k = (r['case'], r['mode'], r['entry'])
+        assert k not in out, k
+        out[k] = r
+    return out
+C = load(cand_path); M = load(main_path)
+cases = sorted({k[0] for k in C}); modes = sorted({k[1] for k in C}); entries = sorted({k[2] for k in C})
+print("candidate runs", len(C), "cases", len(cases), "modes", modes, "entries", entries)
+missing = [(c, m, e) for c in cases for m in modes for e in entries if (c, m, e) not in C]
+print("missing (case,mode,entry) in candidate:", missing)
+print("timeouts in candidate:", [k for k, r in C.items() if r['timed_out']])
+print("timeout_seconds used:", collections.Counter(r['timeout_seconds'] for r in C.values()))
+def canon(r):
+    p = r.get('probe') or {}
+    run = p.get('run') or {}
+    env = run.get('envelope')
+    return env
+def quality(env):
+    if env is None: return None
+    return tuple(c.get('solve_quality') for c in env['numerical_quality'].get('cases', []))
+diff_env = []; diff_q = []; outcome = []
+for k, m in M.items():
+    c = C.get(k)
+    if c is None:
+        print("main run absent in candidate:", k); continue
+    em, ec = canon(m), canon(c)
+    if (em is None) != (ec is None) or m['exit_code'] != c['exit_code'] or m['timed_out'] != c['timed_out']:
+        outcome.append(k)
+        continue
+    if em is None:
+        if (m.get('stderr_tail') or '')[-300:] != (c.get('stderr_tail') or '')[-300:]:
+            outcome.append(k)
+        continue
+    if quality(em) != quality(ec):
+        diff_q.append((k, quality(em), quality(ec)))
+    if json.dumps(em, sort_keys=True) != json.dumps(ec, sort_keys=True):
+        diff_env.append(k)
+print("main runs compared:", len(M))
+print("outcome differences:", outcome)
+print("quality differences:", diff_q)
+print("envelope byte differences (sorted-key JSON):", len(diff_env))
+for k in diff_env:
+    em, ec = canon(M[k]), canon(C[k])
+    keys = [x for x in em if json.dumps(em[x], sort_keys=True) != json.dumps(ec.get(x), sort_keys=True)]
+    print("  ", k, "differing top-level fields:", keys)
+    if 'results' in keys:
+        print("     results differ!")

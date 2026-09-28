@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""F1a caller enumeration (I7; adapted from K-D5's scan_callers.py): lexer scan of every .rs file
+under projects/chirality-piping (outside execution/, target/ and node_modules/) for uses of the
+functions, struct and field F1a changes or adds,
+with comments and string literals removed and #[cfg(test)] items separated.
+
+Usage: python3 -B scan_callers.py <repo_root>   (prints one line per call site; standard library)
+Each line: <path>:<line> [<enclosing fn>] <test|non-test> <pattern> :: <source line>
+(A file named *tests.rs is a #[cfg(test)] module file in every crate here, or under tests/.)
+"""
+import os
+import re
+import sys
+
+PATTERNS = [
+    "append_integrity_report(", "formation_check_evidence_line(", "PreviewLinearSolve",
+    "solve_preview_reduced_system(", ".formation_check", "formation_guard::demote(",
+    "amend_integrity_report(", "support_restraint_summary(", "support_contribution_summary(",
+    "FormationCheckReason", "FormationCheck {", "FormationCheck>", "FormationCheck,",
+]
+SOLVE_ON_ASSEMBLY = re.compile(r"(?!x)x")  # unused in F1a
+
+
+def lex(src):
+    out, i, n = [], 0, len(src)
+    while i < n:
+        c = src[i]
+        if src.startswith("//", i):
+            j = src.find("\n", i)
+            i = n if j < 0 else j
+            continue
+        if src.startswith("/*", i):
+            depth, i = 1, i + 2
+            while i < n and depth:
+                if src.startswith("/*", i):
+                    depth, i = depth + 1, i + 2
+                elif src.startswith("*/", i):
+                    depth, i = depth - 1, i + 2
+                else:
+                    if src[i] == "\n":
+                        out.append("\n")
+                    i += 1
+            continue
+        m = re.match(r'b?r(#*)"', src[i:]) if (c in "rb" and (i == 0 or not (src[i - 1].isalnum() or src[i - 1] == "_"))) else None
+        if m:
+            end = src.find('"' + m.group(1), i + m.end())
+            end = n if end < 0 else end + 1 + len(m.group(1))
+            out.append('""' + "\n" * src[i:end].count("\n"))
+            i = end
+            continue
+        if c == '"':
+            j = i + 1
+            while j < n and src[j] != '"':
+                j += 2 if src[j] == "\\" else 1
+            out.append('""' + "\n" * src[i:j].count("\n"))
+            i = j + 1
+            continue
+        if c == "'" and i + 2 < n and src[i + 1] != "\\" and src[i + 2] == "'":
+            out.append("' '")
+            i += 3
+            continue
+        out.append(c)
+        i += 1
+    return "".join(out)
+
+
+def test_mask(code):
+    """True per character inside a #[cfg(test)] item."""
+    mask = [False] * len(code)
+    for m in re.finditer(r"#\[cfg\(test\)\]", code):
+        depth, started, k = 0, False, m.end()
+        while k < len(code):
+            ch = code[k]
+            if ch == "{":
+                depth, started = depth + 1, True
+            elif ch == "}":
+                depth -= 1
+                if started and depth == 0:
+                    break
+            elif ch == ";" and not started:
+                break
+            k += 1
+        for q in range(m.start(), min(k + 1, len(code))):
+            mask[q] = True
+    return mask
+
+
+def enclosing(code, pos):
+    best = None
+    for m in re.finditer(r"\bfn\s+([A-Za-z_][A-Za-z0-9_]*)", code[:pos]):
+        best = m.group(1)
+    return best or "<module>"
+
+
+def main():
+    root = sys.argv[1]
+    base = os.path.join(root, "projects", "chirality-piping")
+    rows = []
+    for dp, dn, fn in os.walk(base):
+        dn[:] = sorted(d for d in dn if d not in ("execution", "target", "node_modules", ".git"))
+        for f in sorted(fn):
+            if not f.endswith(".rs"):
+                continue
+            path = os.path.join(dp, f)
+            src = open(path, encoding="utf-8").read()
+            code = lex(src)
+            mask = test_mask(code)
+            src_lines = src.split("\n")
+            hits = []
+            for pat in PATTERNS:
+                start = 0
+                while True:
+                    k = code.find(pat, start)
+                    if k < 0:
+                        break
+                    start = k + 1
+                    prev = code[k - 1] if k else " "
+                    if pat[0].isalpha() and (prev.isalnum() or prev == "_"):
+                        continue
+                    # skip definitions
+                    if re.search(r"\bfn\s*$", code[max(0, k - 20):k]):
+                        continue
+                    hits.append((k, pat))
+            for m in SOLVE_ON_ASSEMBLY.finditer(code):
+                hits.append((m.start(), ".solve("))
+            for k, pat in sorted(hits):
+                line = code.count("\n", 0, k) + 1
+                rel = os.path.relpath(path, base)
+                test_file = f.endswith("tests.rs") or "/tests/" in "/" + rel + "/"
+                kind = "test" if (mask[k] or test_file) else "non-test"
+                rows.append(f"{rel}:{line} [{enclosing(code, k)}] {kind} {pat} :: {src_lines[line - 1].strip()}")
+    print("\n".join(rows))
+
+
+main()

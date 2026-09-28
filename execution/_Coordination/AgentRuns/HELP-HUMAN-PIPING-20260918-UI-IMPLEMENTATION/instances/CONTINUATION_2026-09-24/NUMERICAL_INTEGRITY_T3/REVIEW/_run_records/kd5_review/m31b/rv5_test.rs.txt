@@ -1,0 +1,63 @@
+
+// ------------------------------------------------------------------ RV5 (review scratch only)
+// M31b counterexample attack (RV5 brief addendum 1). Appended in the reviewer's scratch copy only.
+#[path = "rv5_models.rs"]
+mod rv5_models;
+use rv5_models::*;
+
+fn rv5_row(model: &ModelData, mode: LinearSolveMode) -> (SolveQuality, f64, f64, Option<(f64, Option<usize>, String)>) {
+    let built = Built::from_model(model);
+    let plain = built.plain(mode);
+    let actual = actual_ratio(model, &plain.displacements);
+    let checked = built.checked(mode);
+    let trigger = checked
+        .formation_check
+        .as_ref()
+        .map(|r| (r.ratio, r.global_dof, format!("{:?}", r.reason)));
+    eprintln!(
+        "rv5 {} {mode:?} plain={:?} rcond={:e} actual={actual:.6} demoted={} trigger={trigger:?}",
+        model.name,
+        plain.report.quality,
+        plain.report.reciprocal_condition_estimate,
+        checked.formation_check.is_some()
+    );
+    if checked.formation_check.is_some() {
+        assert_demoted_only_in_quality(&plain, &checked);
+    } else {
+        assert_unchanged(&plain, &checked);
+    }
+    (plain.report.quality, plain.report.reciprocal_condition_estimate, actual, trigger)
+}
+
+/// Records the triggers of every RV5 model (both variants run this; numbers only).
+#[test]
+fn rv5_m31b_record_all_models() {
+    for model in [
+        &RV5_CANT90_PLANAR, &RV5_CANT60_PLANAR, &RV5_CANT30_SKEW, &RV5_CANT10_SKEW, &RV5_PP_UTM,
+        &RV5_CSKEW30_K1000, &RV5_CSKEW30_K100, &RV5_CSKEW30_K60, &RV5_CSKEW30_K45, &RV5_CSKEW30_K30,
+        &CSKEW_30_RADIUS_MISMATCH, &CSKEW_8_5,
+        &RV5_NEARPI_1E6_MAXMIS, &RV5_NEARPI_2E9_MAXMIS, &RV5_NEARPI_2E9_EXACT,
+    ] {
+        for mode in MODES {
+            rv5_row(model, mode);
+        }
+    }
+}
+
+/// The counterexample: admissible models, published Passed with an actual error
+/// above the criterion against the exact intended solution; the correct check
+/// demotes with EF tracking the actual error. M31b does not demote them.
+#[test]
+fn rv5_m31b_counterexample_actual_error_above_criterion_is_demoted() {
+    for model in [&RV5_CANT60_PLANAR, &RV5_CANT30_SKEW, &RV5_CANT10_SKEW, &RV5_PP_UTM] {
+        for mode in MODES {
+            let (quality, _, actual, trigger) = rv5_row(model, mode);
+            assert_eq!(quality, SolveQuality::Passed, "{} {mode:?}", model.name);
+            assert!(actual > 1.0, "{} {mode:?}: actual {actual}", model.name);
+            let (ratio, _, reason) = trigger.unwrap_or_else(|| panic!("{} {mode:?}: not demoted (actual {actual})", model.name));
+            assert_eq!(reason, "Estimate");
+            let ef = ratio / 2.0;
+            assert!((ef / actual - 1.0).abs() < 0.05, "{} {mode:?}: EF {ef} actual {actual}", model.name);
+        }
+    }
+}

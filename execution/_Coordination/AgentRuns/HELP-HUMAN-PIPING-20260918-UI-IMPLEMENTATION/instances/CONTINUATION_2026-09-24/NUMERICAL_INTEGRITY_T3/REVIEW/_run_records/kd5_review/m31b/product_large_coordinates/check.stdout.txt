@@ -1,0 +1,23 @@
+centre [500000.0104698496, 349999.7001827519, 0.0] admissible (True, 0.03490658496853718, 0.2999999999888039, 0.29999999998835847)
+out_dense_scrutiny_captured.json ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] curved rows: [] actual/criterion=0.0441 at DOF 8
+out_dense_scrutiny_typed.json ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] curved rows: [] actual/criterion=0.0441 at DOF 8
+out_sparse_interactive_captured.json ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] curved rows: [] actual/criterion=0.0431 at DOF 8
+out_sparse_interactive_typed.json ['NUMERICAL_INTEGRITY_CHECKS_PASSED'] curved rows: [] actual/criterion=0.0431 at DOF 8
+== PP-UTM-5e6-phi5
+centre [5000000.026146722, 3499999.7011415907, 0.0] admissible (True, 0.08726646309615131, 0.2999999997852894, 0.2999999998137355)
+out_PP-UTM-5e6-phi5_dense_scrutiny_captured.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=1.1257 at DOF 8
+out_PP-UTM-5e6-phi5_dense_scrutiny_typed.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=1.1257 at DOF 8
+out_PP-UTM-5e6-phi5_sparse_interactive_captured.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=1.1258 at DOF 8
+out_PP-UTM-5e6-phi5_sparse_interactive_typed.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=1.1258 at DOF 8
+== PP-UTM-5e6-phi2
+centre [5000000.010469854, 3499999.7001827518, 0.0] admissible (True, 0.034906585715696895, 0.30000000031161406, 0.30000000027939683)
+out_PP-UTM-5e6-phi2_dense_scrutiny_captured.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=3.1227 at DOF 8
+out_PP-UTM-5e6-phi2_dense_scrutiny_typed.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=3.1227 at DOF 8
+out_PP-UTM-5e6-phi2_sparse_interactive_captured.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=3.1212 at DOF 8
+out_PP-UTM-5e6-phi2_sparse_interactive_typed.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=3.1212 at DOF 8
+== PP-UTM-7.3e6-phi10
+centre [7300000.052094451, 5109999.704557673, 0.0] admissible (True, 0.17453292376449148, 0.3000000006334588, 0.30000000074505806)
+out_PP-UTM-7.3e6-phi10_dense_scrutiny_captured.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=2.2755 at DOF 8
+out_PP-UTM-7.3e6-phi10_dense_scrutiny_typed.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=2.2755 at DOF 8
+out_PP-UTM-7.3e6-phi10_sparse_interactive_captured.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=2.2754 at DOF 8
+out_PP-UTM-7.3e6-phi10_sparse_interactive_typed.json ['NUMERICAL_INTEGRITY_SENSITIVE'] curved rows: [] actual/criterion=2.2754 at DOF 8

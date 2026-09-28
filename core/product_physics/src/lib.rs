@@ -24,6 +24,8 @@ pub mod self_weight;
 mod source_recovery;
 mod source_receipt;
 #[cfg(test)]
+mod f1a_tests;
+#[cfg(test)]
 mod s11f_tests;
 #[cfg(test)]
 mod s11g_tests;
@@ -36,7 +38,8 @@ use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    LoadFidelityReport, SolveQuality, StructuralError, StructuralReport,
+    FormationCheck, FormationCheckReason, LoadFidelityReport, SolveQuality, StructuralError,
+    StructuralReport,
 };
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_user_elements, element_dof_map, reduce_assembled_system,
@@ -1065,6 +1068,13 @@ fn integrity_diagnostic_id(case_id: &str) -> String {
 /// `NUMERICAL_INTEGRITY_SENSITIVE` with one reason sentence appended; the
 /// `StructuralReport` text stays truthful. The no-op rule: a case already
 /// Sensitive is left exactly as today (no sentence, no byte change).
+///
+/// F1a (T3 D1 §4.3.1 D5C-3, §5 item 5a): `formation_check` is K-D5's
+/// `FormationCheck` record, present only when the D-5 check demoted the case.
+/// When present it is rendered as one evidence line after the S11-G step
+/// (whose no-op rule leaves a K-D5-Sensitive record without a guard
+/// sentence); when absent the record is byte-identical to today's.
+#[allow(clippy::too_many_arguments)]
 fn append_integrity_report(
     diagnostics: &mut Vec<Diagnostic>,
     case_id: &str,
@@ -1074,6 +1084,7 @@ fn append_integrity_report(
         &open_pipe_stress_nonlinear_integration::product_equilibrium::ProductEquilibriumReport,
     >,
     formation: Option<&formation_guard::FormationFinding>,
+    formation_check: Option<&FormationCheck>,
 ) {
     let code = if report.quality == SolveQuality::Sensitive {
         "NUMERICAL_INTEGRITY_SENSITIVE"
@@ -1086,6 +1097,32 @@ fn append_integrity_report(
         vec![case_id.to_string()]));
     if let (Some(finding), Some(record)) = (formation, diagnostics.last_mut()) {
         formation_guard::demote(record, finding);
+    }
+    if let (Some(check), Some(record)) = (formation_check, diagnostics.last_mut()) {
+        record.message = format!(
+            "{} {}",
+            record.message,
+            formation_check_evidence_line(model, check)
+        );
+    }
+}
+
+/// F1a: K-D5's `FormationCheck` record as one evidence line of the integrity
+/// diagnostic (D5C-3; the record is never part of `StructuralReport`).
+fn formation_check_evidence_line(model: &PreviewModel, check: &FormationCheck) -> String {
+    match &check.reason {
+        FormationCheckReason::Estimate => format!(
+            "formation_check: reason=estimate; row={}; doubled_correction={:?}; scale={:?}; trigger_ratio={:?}",
+            check
+                .global_dof
+                .map_or_else(|| "none".to_string(), |dof| integrity_dof_label(model, dof)),
+            check.doubled_correction,
+            check.scale,
+            check.ratio,
+        ),
+        FormationCheckReason::FormationCheckUnavailable { detail } => format!(
+            "formation_check: reason=formation_check_unavailable; detail={detail}"
+        ),
     }
 }
 
@@ -1770,7 +1807,7 @@ fn run_linear_static_preview_captured_once(
     if !ground_dofs.is_empty() && ground_dofs.len() < DOF_PER_NODE {
         let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs);
         diagnostics.push(diag("diagnostic:physics:under-restrained", "SOLVER_SYSTEM_BLOCKED", "blocking",
-            format!("fewer than six independent ground DOFs including positive springs; restrained global DOF classes: {restrained}; missing global rigid-body DOF classes: {missing}; support contributions: {}", support_contribution_summary(&model)),
+            format!("fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}", support_contribution_summary(&model)),
             vec!["supports".to_string()]));
     }
     for finding in &boundary.findings {
@@ -2966,6 +3003,7 @@ fn solve_load_case(
                 model,
                 None,
                 load_row_finding.as_ref(),
+                linear.formation_check.as_ref(),
             );
             if let Some(report) = &linear.load_fidelity {
                 append_load_contribution_absorbed(diagnostics, &load_case.id, report);
@@ -3007,6 +3045,7 @@ fn solve_load_case(
                 model,
                 Some(&iteration.product_equilibrium),
                 load_row_finding.as_ref(),
+                None,
             );
         }
     }
@@ -4330,6 +4369,9 @@ struct PreviewLinearSolve {
     /// S11 section 6: the kernel's load-fidelity findings (a detected loss is
     /// Sensitive, never a refusal); `None` when nothing is flagged.
     load_fidelity: Option<LoadFidelityReport>,
+    /// F1a: K-D5's formation-check record, `Some` only when the check demoted
+    /// the case; rendered only as the integrity diagnostic's evidence line.
+    formation_check: Option<FormationCheck>,
     solution: Vec<f64>,
     solution_basis: &'static str,
     sparse_entry_count: Option<usize>,
@@ -4428,6 +4470,7 @@ fn solve_preview_reduced_system(
         solution: free.iter().map(|&i| checked.displacements[i]).collect(),
         structural_report: checked.report,
         load_fidelity: checked.load_fidelity,
+        formation_check: checked.formation_check,
         solution_basis: match solver_mode {
             PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
             PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",
@@ -21254,6 +21297,10 @@ mod tests {
         );
         request.model.supports.truncate(1);
         request.model.supports[0].restraints = vec!["UZ".to_string()];
+        let contribution = format!(
+            "{}@{}=UZ",
+            request.model.supports[0].id, request.model.supports[0].node
+        );
 
         let result = run_linear_static_preview(request);
 
@@ -21263,12 +21310,19 @@ mod tests {
             .iter()
             .find(|item| item.code == "SOLVER_SYSTEM_BLOCKED")
             .expect("under-restraint diagnostic should be present");
-        assert!(diagnostic
-            .message
-            .contains("restrained global DOF classes: UZ"));
-        assert!(diagnostic
-            .message
-            .contains("missing global rigid-body DOF classes: UX,UY,RX,RY,RZ"));
+        // SUP-17 (T3 D1 §4.9): the whole message, in the design's wording.
+        assert_eq!(
+            diagnostic.message,
+            format!(
+                "fewer than six independent ground constraints including positive springs: \
+                 the six rigid-body modes of a connected structure cannot all be removed; \
+                 directly restrained global DOF classes: UZ; \
+                 global DOF classes with no direct restraint: UX,UY,RX,RY,RZ \
+                 (not a rigid-body mode analysis; separated restraints can resist rotations); \
+                 support contributions: {contribution}"
+            )
+        );
+        assert!(!diagnostic.message.contains("missing global rigid-body DOF classes"));
     }
 
     #[test]
