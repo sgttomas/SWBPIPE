@@ -1369,3 +1369,25 @@ I12's A1 (`cef218a10`) found that the stop rule, which compares p with 2p and fo
   - **K4 does not reach checkpoint B until the addendum is selected and implemented in K4.** Until then, no K4 test pins the present behaviour of F-2 or F-3.
 - **K4's ceiling argument** (§11, route 1 step 10 and route 2) leans on §4.1.9's claim. RETURN must restate it in light of the addendum.
 - **The F2a gate is unchanged:** F2a does not merge without this addendum implemented, as well as the budget limits.
+
+## K5: rulings on I14's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I14's plan (`<wt>/scratch/i14/CHECKPOINT0_PLAN.md`, sha256 `7f50c788…`, 943 lines) is **approved**, with the rulings below.
+- **Approved as planned:**
+  - the FK API: `assess_constrained_bodies` over one connected body, the `ConstrainedGround` rows including directional rows, `TieRefusal`, and canonical input ordering;
+  - the tie reduction, six unknowns per body, derived in RETURN against the full stacked map;
+  - the libm-free screen: a power-of-two characteristic length, the `sqrt` forms of the Jacobi `hypot`, and m counting nonzero rows;
+  - the exact witness with canonical scaling;
+  - curved qualification by K-D5's source match plus coordinate agreement, with the Q2 condition derived in RETURN;
+  - the SA wiring on the four selected bodies only, with no public signature change and the contact-seed guard closed by derivation;
+  - Q9, no site-table change;
+  - the test, mutant and product-run lists;
+  - gate part 1 compared directly with G1's baseline, since the product trees are identical;
+  - positions P1–P11.
+- **The Mac-main product run is recorded.** The constructed curved mechanism is refused `NUMERICAL_INTEGRITY_UNRESOLVED` (a pivot failure) on main at 0 m, about 1 km and 5e6 m, on both entries and in both modes. So on this corpus K5-C1 changes a refusal's code to `NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM` with a direction, and **removes no published result.** Checkpoint B's corpus uses dyadic geometry, because non-dyadic bends at 5e6 m are refused earlier by the curved-bend radius check.
+- **S1: Q7 is reversed to (a). The basis text is unchanged on every entry.**
+  - A selected-only text breaks at least seven K-D5 tests that compare the selected branch's report `Debug` with the unselected path's. A text on every entry would change nonlinear invocations, which is forbidden.
+  - The text "physical rigid-null witness unqualified for bodies containing user/curved elements" now under-claims on the selected branches. That is conservative, and is recorded.
+  - Correcting it is on the T3-close list and F2a's input list, where the publication types are unified.
+  - K5-C3 no longer exists.
+- **Brief correction, recorded:** `invented_preview_model.json` is refused at `PP:1711` (legacy pressure), not at the joint check. The conclusion, that no element is built, holds.
