@@ -1,5 +1,7 @@
 # I11 return: slice K3 (the rest of W1's arithmetic)
 
+> **Addendum 1 (Q7 reversed) supersedes §8 and the `FK/Cargo.toml` row of §2.** FK has no test profile. The evidence was re-run at opt-level 0 on the merged tree `de719cbdc`. See the end of this file.
+
 **Status: complete, with no stop.**
 - `Wide<L>` is added at L = 4, 8 and 16 beside K3a's unchanged `Wide<2>`.
 - The correctly rounded conversion to binary64, with its outcome, is added at every width.
@@ -535,3 +537,72 @@ impl AttemptWork {
   - GEN-8 is to be re-run after ROOT commits the records.
 - **`git diff --check`** (as `--no-index` against `/dev/null`) is clean on every file in this folder.
 - **`SHA256SUMS`** covers every file in this folder except itself.
+
+## Addendum 1: Q7 reversed (ROOT's `ffc9ea275`, "K3: Q7 reversed — the test profile is withdrawn")
+
+### The finding (ROOT's)
+- ROOT merged main `98b1723b1` (the skew M03 pin) into K3 as `de719cbdc`, and ran FK's suite under K3's `[profile.test] opt-level = 1`.
+- **One test failed:** `m03_skew_scope.rs::m03_skew_pin_rv7_cases_outcomes_and_figures`. 2EI/L's exact error came out 1.1364e-13, against the pinned 1.1378e-13.
+- **The cause:** the test forms the second moment from compile-time constants with `od.powi(4)`. At opt-level ≥ 1, LLVM constant-folds `powi` through the host's `pow`; at opt-level 0 the runtime repeated multiplication runs.
+- **The premise was false.** Q7's premise ("the results cannot change with the opt-level") holds for + − × ÷ √. It does not hold for functions of unspecified precision that the compiler evaluates.
+- **The product is not affected:** its `powi` inputs are runtime data, and T9's release-built outputs have always matched the debug-built tests.
+
+### My part
+- At checkpoint B I checked the conditions ROOT set for the profile: the same test list, and K3a's and K-D5's pins unchanged. That base (`6e18505e3`) did not yet contain the skew pin.
+- On it, no test of FK's computed through a compile-time-folded function of unspecified precision, so those checks could not see the effect.
+- I did not derive the general claim either.
+- Hosted CI's whole numerical job takes about 4–5.5 minutes of its 45 on current main (ROOT), so the profile was never needed.
+
+### The revert
+- `FK/Cargo.toml` equals main's file byte for byte (sha256 `c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317`, the same bytes as at the base `6e18505e3`). There is no `[profile.test]`.
+- **The guard test stays** (§6): it asserts that overflow checks and debug assertions are on in FK's default test build.
+
+### The re-run at opt-level 0, on `de719cbdc` plus the revert (`_run_records/q7_reversed/`)
+- **The tree:** a clean `git archive` of `core/`, with the reverted `Cargo.toml` copied over it.
+- **FK's full suite** (`--no-fail-fast`, `-j 8`, `RUST_TEST_THREADS=4`): **227 passed, 0 failed.**
+  - The breakdown: lib 197, `k1_k2a_interaction` 3, `k2a_checked_formation` 13, `m03_skew_scope` 5, `s11_site_table` 3, doc 6.
+  - **Wall time:** 230.7 s for the tests (the lib part 227.3 s), at load averages 2.5–5.4. The build is recorded separately in `fk_cand_build.log`.
+- **Per test against main:** main `98b1723b1`'s FK suite (184 tests: the `eb52114e9` baseline's 179 plus the skew pin's 5) passes 184 of 184.
+  - All 184 are in the candidate, with the same status.
+  - The candidate adds exactly K3's 43.
+  - Against the `eb52114e9` baseline: +5 (the skew pin, from main) and +43 (K3), with none removed or changed.
+  - The lists are `fk/fk_{base_eb52114e9,main,cand}_tests.txt`.
+- **The suites' FK line** on the merged tree is therefore 227 passed, 0 failed, 0 ignored (baseline 179; main 184).
+- **The other 38 manifests and T9 are unaffected.**
+  - FK's profile only ever applied when FK was the root package. Every other manifest built FK under its own unoptimized test profile, and T9's harness built FK under its own release profile.
+  - The merge of main adds only tests (FK `tests/m03_skew_scope.rs`, NI `structural_adapter/k1_tests.rs`).
+
+- **The guard's doc comment** described the withdrawn profile. After the mutation run it was reworded (comment only, the same four lines, so the kill-site lines :416 and :420 are unchanged).
+  - FK's full suite on the final worktree tree (the merged tree, the revert and the reworded comment): **227 passed, 0 failed, in 231.5 s**.
+  - The non-test FK build has no warnings.
+  - The log is `fk/fk_worktree_final_o0_full.log`.
+
+### The mutation table at opt-level 0
+- **Method:** clean archives of `de719cbdc` with the reverted `Cargo.toml` overlaid, the NONE control first, then at most three at once at `-j 4`, `RUST_TEST_THREADS=4`.
+- **The driver** is `q7_reversed/mutations/mutate.py.txt`, with the same patches as §13 except P1 and P2.
+- **NONE:** 227 passed.
+- **All 25 source mutants are killed.** For every one, the set of killing tests equals checkpoint C's, test for test. M9 again has its 2 failures that are not counted as kills.
+- **P1 and P2** are now a `[profile.test]` added to FK's profile-free manifest, with `overflow-checks = false` (P1) or `debug-assertions = false` (P2). **Both are killed by the guard:** `assert!(overflowed.is_err(), …)` at `k3_tests.rs:416`, and `assert!(cfg!(debug_assertions), …)` at `k3_tests.rs:420`.
+- **The M17 note (§13) stands.** At opt-level 0, FK's `formation_check` tests again pass under M17. K-D5's NI and PP tests always built at opt-level 0.
+- **Wall time per mutant:** 18–367 s. About 20 s when the failures end the streams early; about 270 s when the streams run to the end.
+- `MUTANTS.txt` and `summary.json` give every row, with its kill sites.
+
+### Wall times at opt-level 0 (the Q7 observation, restated)
+- FK's full suite: 230.7 s here, and 231.9 s at checkpoint A (§8).
+- Per stream: §8's table, which was measured at opt-level 0.
+- These are observations, not performance claims. Hosted CI's numerical-job time on K3's PR goes in the merge record (ROOT).
+
+### The lesson (ROOT's, recorded here too)
+- A test must not depend on how the compiler evaluates a function of unspecified precision. Tests that need exact values from such functions should compute them with explicit, ordered arithmetic on runtime values, or on `black_box`ed constants.
+- **K3's own tests and code call no such function** (checked with `/usr/bin/grep` for `powi`, `powf`, `exp*`, `ln*`, `log*`, trigonometric and hyperbolic functions, `hypot` and `cbrt`: no hits). They use:
+  - integer arithmetic;
+  - binary64 + − × ÷ and `sqrt`, which IEEE 754 specifies as correctly rounded at every level;
+  - `mul_add` and `next_up`, which are specified exactly.
+
+### What this addendum supersedes
+- §8 (the profile and its conditions).
+- The `FK/Cargo.toml` row of §2: that file is now unchanged against the base.
+- In §13, the definitions of P1 and P2 (now "add a profile that switches the check off"), and the phrase "with the committed profile".
+- §9's FK line: now 227 on the merged tree.
+- `CHANGE_RECORD.md` is updated to match.
+- The earlier run records are kept as they were. The new ones are under `_run_records/q7_reversed/`.

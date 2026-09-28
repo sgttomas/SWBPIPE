@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -760,7 +760,7 @@
+     pub(crate) fn widen<const M: usize>(&self) -> Wide<M> {
+         const { assert!(M >= L) };
+         let mut significand = [0u64; M];
+-        significand[M - L..].copy_from_slice(&self.significand);
++        significand[..L].copy_from_slice(&self.significand);
+         Wide {
+             negative: self.negative,
+             exponent: self.exponent,

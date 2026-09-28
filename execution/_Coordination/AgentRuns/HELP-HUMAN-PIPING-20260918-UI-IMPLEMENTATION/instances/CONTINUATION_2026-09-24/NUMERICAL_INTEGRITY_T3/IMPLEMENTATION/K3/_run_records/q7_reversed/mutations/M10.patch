@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -729,7 +729,7 @@
+         let mut kept = word_at(significand, index);
+         let round = bit_at(significand, index - 1);
+         let rest = any_below(significand, index - 1);
+-        if round && (rest || kept & 1 == 1) {
++        if round && (rest || kept & 1 == 1) && !(!rest && quantum == 971 && kept == (1 << 53) - 1) {
+             kept += 1;
+         }
+         if kept == 1 << 53 {

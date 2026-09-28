@@ -5,12 +5,15 @@ This is the draft PR record for slice K3 of T3 (numerical integrity), following 
 - **Branch:** `codex/piping-k3-20260928`, from main `6e18505e3`. Its piping tree equals `eb52114e9`'s, ROOT's Mac baseline.
 - **Checked revisions:**
   - checkpoint A, `74add6078`;
-  - checkpoint B, `8cacbfaf4` (the test profile);
-  - the guard-test commit (tests only) and the records commit are added by ROOT, who records the final candidate, PR and merge revisions.
+  - checkpoint B, `8cacbfaf4` (a test profile, since withdrawn);
+  - the guard `9aee9854c` and the records `664ef5c5e`;
+  - main `98b1723b1` (the skew M03 pin) merged in as `de719cbdc`;
+  - the profile revert and the records addendum on top.
+  - ROOT records the final candidate, PR and merge revisions.
 - **Basis:**
   - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`): §4.1.1 (`wide.rs`), §4.1.2, §4.1.7, §4.1.8, §4.11, §5 item 7, the K3 row of §6, §7.3, §7.4;
   - `TASK_BRIEFS/I11_K3_IMPLEMENTATION.md` with its ROOT rulings;
-  - `ROOT_RULINGS_V1.md`: "K3: spawn and rulings", "K3: rulings on I11's checkpoint-0 plan" (`d2df479f3`) and "K3: Q7, the differential's debug cost" (`973438aa7`);
+  - `ROOT_RULINGS_V1.md`: "K3: spawn and rulings", "K3: rulings on I11's checkpoint-0 plan" (`d2df479f3`), and "K3: Q7, the differential's debug cost" (`973438aa7`) as reversed by "K3: Q7 reversed — the test profile is withdrawn" (`ffc9ea275`);
   - ROOT's relayed checkpoint-B and checkpoint-C rulings (RETURN §1).
 
 ## What changes
@@ -33,13 +36,12 @@ K3 completes W1's in-repo arithmetic beside K3a's `Wide<2>`, which is unchanged 
     - `atan_positive`: "later-slice API (W1c; K3 Q6)";
     - **`rounded_operations` and `WideArith::work`:** "test-only: K-D5 measures its cost in tests (K4 counts with multi::AttemptWork)", replacing the untrue "…; K4 budgets use it". Declared here; ROOT accepted it at checkpoint B.
 - **`FK/src/structural/retained/mod.rs`:** comments only.
-- **`FK/Cargo.toml` (declared; ROOT's Q7 ruling):** `[profile.test]` with `opt-level = 1`, `debug-assertions = true` and `overflow-checks = true`.
-  - It keeps every full-count stream in FK's default suite, and so in hosted CI.
-  - FK's suite goes from 231.9 s to 16.1 s on the Mac (observations, not a performance claim).
-  - It applies only when FK is the root package.
-  - No lockfile or dependency change.
+- **`FK/Cargo.toml`: unchanged** against the base.
+  - The `[profile.test]` added at checkpoint B is withdrawn (ROOT's `ffc9ea275`).
+  - At opt-level ≥ 1, LLVM constant-folds `powi` over constants, which moved the skew pin's figure. Hosted CI's numerical job has room for the full-count streams at opt-level 0.
+  - FK's tests build at opt-level 0 like every other crate's, and every stream stays at full count.
 - **`FK/tests/retained_wide_k3/` (new; the test module is declared from `multi.rs`, as ROOT approved):**
-  - `k3_tests.rs`: 43 tests, including the guard of the test profile;
+  - `k3_tests.rs`: 43 tests, including a guard that overflow checks and debug assertions are on in FK's test build;
   - `gen_wide_k3_vectors.py`: standard library only, with `--check`;
   - the vectors: `targeted_l{4,8,16}.txt`, `conversion.txt`, `eft.txt`, `differential.txt` and `differential_sample.txt`;
   - `SHA256SUMS`.
@@ -62,7 +64,6 @@ K3 completes W1's in-repo arithmetic beside K3a's `Wide<2>`, which is unchanged 
 | `P/core/solver/frame_kernel/src/structural/retained/wide/multi.rs` (new) | +1233 | 1233 |
 | `P/core/solver/frame_kernel/src/structural/retained/wide.rs` | +21 −13 | 997 |
 | `P/core/solver/frame_kernel/src/structural/retained/mod.rs` | +12 −3 | 24 |
-| `P/core/solver/frame_kernel/Cargo.toml` | +9 | 20 |
 | `P/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs` (new) | +2352 | 2352 |
 | `P/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py` (new) | +969 | 969 |
 | `P/core/solver/frame_kernel/tests/retained_wide_k3/{targeted_l4,targeted_l8,targeted_l16,conversion,eft,differential,differential_sample}.txt` and `SHA256SUMS` (new; generated) | +17306 | 17306 |
@@ -81,14 +82,17 @@ All were run on `aarch64-apple-darwin` with rustc 1.97.1, `CARGO_INCREMENTAL=0` 
   - the work counts.
 - **The differentials:** 3 × 10^6 full-precision operations, 3 × 2·10^5 mixed-precision operations and 4 × 10^6 conversions, each from a recorded seed, with committed digests. K3a's two streams also run through the new core at L = 2 (RETURN §11).
 - **Suites:** all 39 manifests of CI's cargo profile, `--no-fail-fast`, per test against the Mac baseline of main:
-  - equal except frame_kernel, 179 → 221 (+42 K3 tests; 222 with the guard);
+  - equal except frame_kernel (179 → 221 at `8cacbfaf4`);
   - the only failures are the three Mac platform tests, with failure blocks identical to main's;
   - warnings identical to main's.
+- **FK on the merged tree at opt-level 0** (`de719cbdc` plus the revert): 227 passed, 0 failed, in 230.7 s.
+  - That is main `98b1723b1`'s 184 (the baseline's 179 plus the skew pin's 5), all present with the same status, plus K3's 43.
+  - The other manifests and T9 are unaffected by the revert: the profile only applied when FK was the root package.
 - **T9:** 112 of 112 byte-identical (Mac-only), as above.
-- **Mutations:**
-  - the NONE control is clean;
-  - 25 source mutants (M1–M22 with variants), each killed at a behavioural test assertion, with none compile-only;
-  - the profile mutants P1 (`overflow-checks = false`) and P2 (`debug-assertions = false`) are killed by the guard test;
+- **Mutations, re-run at opt-level 0 on the merged tree:**
+  - the NONE control is clean (227);
+  - 25 source mutants (M1–M22 with variants), each killed at a behavioural test assertion, with the same killing tests as at checkpoint C and none compile-only;
+  - adding a `[profile.test]` with `overflow-checks = false` (P1) or `debug-assertions = false` (P2) is killed by the guard test;
   - M17 (K3a's tie rule) is killed by K3a's suite and by K3's L = 2 cross-check, **not by K-D5's tests** (a note, ROOT; RETURN §13).
 - **Hygiene:**
   - rustfmt (stable 1.9.0) is clean on K3's files;
@@ -100,10 +104,10 @@ All were run on `aarch64-apple-darwin` with rustc 1.97.1, `CARGO_INCREMENTAL=0` 
 ## Remaining
 
 - **For ROOT and the manager:**
-  - the guard-test and records commits;
+  - the profile-revert and records-addendum commits;
   - hosted CI, recording the numerical job's time in the merge record (Q7 condition);
   - the DEC-025 sweep under the owner's Mac decision;
-  - the independent complete-diff review, with an oracle independent of K3's generator, which also checks the profile change;
+  - the independent complete-diff review, with an oracle independent of K3's generator;
   - GEN-8 on the committed records.
 - **K4:**
   - the first caller;
@@ -114,3 +118,4 @@ All were run on `aarch64-apple-darwin` with rustc 1.97.1, `CARGO_INCREMENTAL=0` 
   - unifying `Binary64Outcome` with K2b's `Representability` (K4, F1b or F2a);
   - a faster ÷ and √ (Knuth's algorithm D, with its own vectors);
   - the review of the unused K3a accessors at T3 close.
+- **The lesson (ROOT's, a T3-close note on test hygiene):** a test must not depend on how the compiler evaluates a function of unspecified precision. K3's tests call no such function (RETURN, addendum 1).

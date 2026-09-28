@@ -1,0 +1,7 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/q7r/cand/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.79s
+  Executable unittests src/lib.rs (<scratch>/q7r/target_cand/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+  Executable tests/k1_k2a_interaction.rs (<scratch>/q7r/target_cand/debug/deps/k1_k2a_interaction-dfd952cd9bde6092)
+  Executable tests/k2a_checked_formation.rs (<scratch>/q7r/target_cand/debug/deps/k2a_checked_formation-0387eee873bbe84e)
+  Executable tests/m03_skew_scope.rs (<scratch>/q7r/target_cand/debug/deps/m03_skew_scope-4f2c745387a5ac56)
+  Executable tests/s11_site_table.rs (<scratch>/q7r/target_cand/debug/deps/s11_site_table-c8ba14d9f767e011)
