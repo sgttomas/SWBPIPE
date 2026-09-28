@@ -1,0 +1,330 @@
+{
+ "GS-ROT-y345-N": {
+  "k4": {
+   "current": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "verification failed:ResidualGate(worst ratio 1.44e+16)"
+     ],
+     [
+      512,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ]
+    ]
+   },
+   "iii": {
+    "selected": 512,
+    "attempts": [
+     [
+      128,
+      "verification failed:ResidualGate(worst ratio 1.44e+16)"
+     ],
+     [
+      512,
+      "accepted"
+     ]
+    ],
+    "honesty": [
+     2.3649706551231174e-05,
+     [
+      "rea",
+      0
+     ],
+     "absolute"
+    ]
+   }
+  },
+  "abs": {
+   "current": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ]
+    ]
+   },
+   "iii": {
+    "selected": 512,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "accepted"
+     ]
+    ],
+    "honesty": [
+     0.00015313574818281726,
+     [
+      "rea",
+      1
+     ],
+     "absolute"
+    ]
+   }
+  }
+ },
+ "GS-TRANS-y345-N": {
+  "k4": {
+   "current": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "failed:ResidualGate(worst ratio 7.19e+34)"
+     ],
+     [
+      256,
+      "failed:ResidualGate(worst ratio 3.64e+73)"
+     ],
+     [
+      512,
+      "failed:ResidualGate(worst ratio 1.85)"
+     ]
+    ]
+   },
+   "iii": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "failed:ResidualGate(worst ratio 7.19e+34)"
+     ],
+     [
+      256,
+      "failed:ResidualGate(worst ratio 3.64e+73)"
+     ],
+     [
+      512,
+      "failed:ResidualGate(worst ratio 1.85)"
+     ]
+    ]
+   }
+  },
+  "abs": {
+   "current": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ]
+    ]
+   },
+   "iii": {
+    "selected": 512,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "accepted"
+     ]
+    ],
+    "honesty": [
+     0.0006077768362865015,
+     [
+      "rea",
+      1
+     ],
+     "absolute"
+    ]
+   }
+  }
+ },
+ "GS-ROT-y345-LOADED-N": {
+  "k4": {
+   "current": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "failed:ResidualGate(worst ratio 5.01e+15)"
+     ],
+     [
+      256,
+      "failed:ResidualGate(worst ratio 4.09e+15)"
+     ],
+     [
+      512,
+      "failed:ResidualGate(worst ratio 7.34e+15)"
+     ]
+    ]
+   },
+   "iii": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "failed:ResidualGate(worst ratio 5.01e+15)"
+     ],
+     [
+      256,
+      "failed:ResidualGate(worst ratio 4.09e+15)"
+     ],
+     [
+      512,
+      "failed:ResidualGate(worst ratio 7.34e+15)"
+     ]
+    ]
+   }
+  },
+  "abs": {
+   "current": {
+    "selected": 128,
+    "attempts": [
+     [
+      128,
+      "accepted"
+     ]
+    ],
+    "honesty": [
+     6.950409020012662e-08,
+     [
+      "u",
+      19
+     ],
+     "relative"
+    ]
+   },
+   "iii": {
+    "selected": 128,
+    "attempts": [
+     [
+      128,
+      "accepted"
+     ]
+    ],
+    "honesty": [
+     6.950409020012662e-08,
+     [
+      "u",
+      19
+     ],
+     "relative"
+    ]
+   }
+  }
+ },
+ "GS-ROT-y001-N": {
+  "k4": {
+   "current": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ]
+    ]
+   },
+   "iii": {
+    "selected": 512,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "accepted"
+     ]
+    ],
+    "honesty": [
+     0.0003062714963656345,
+     [
+      "rea",
+      1
+     ],
+     "absolute"
+    ]
+   }
+  },
+  "abs": {
+   "current": {
+    "selected": null,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ]
+    ]
+   },
+   "iii": {
+    "selected": 512,
+    "attempts": [
+     [
+      128,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      256,
+      "rejected:(('end', 0, 'i', 0), 'fo')"
+     ],
+     [
+      512,
+      "accepted"
+     ]
+    ],
+    "honesty": [
+     0.0003062714963656345,
+     [
+      "rea",
+      1
+     ],
+     "absolute"
+    ]
+   }
+  }
+ }
+}
