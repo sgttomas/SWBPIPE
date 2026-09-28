@@ -1046,3 +1046,18 @@ K2a's `RETURN_ADDENDUM_1` §1.3 left open whether pre-K2a main refuses skew case
 - **Current main refuses every probed case at formation, by name** (K2a).
 - **The claim "6EI/L² is the limiting coefficient" holds only in RV7's configuration.** RV10's S2 and the scoped §3.4 give the counterexamples. Among them is the torsion analogue of B1 (a subnormal-derived GJ/L), which K2a's `GJ/L: G*J` refusal covers on current main.
 - **Added to the T3-close list:** M03's element-entry floor is an axis-aligned argument, and its skew scope in general is a documented limitation. The skew M03 pin (PR #1038) guards it in RV7's configuration only. The item asks whether M03's bound should be made orientation-robust, or whether formation-time checks (K2a) and W1 are the accepted defence. ROOT decides at T3 close.
+
+## K3: Q7, the differential's debug cost (ROOT, 2026-09-28)
+
+- **The measurement.** I11's checkpoint A was taken on the Mac, as observations and not a performance claim. With K3's 10^6-operation streams per precision (the §4.11 minimum), FK's full debug test suite takes about 232 s, against about 6 s before. The L = 16 streams dominate: the bit-serial ÷ and √ over 1,026 steps. Hosted CI runners are slower, and the numerical job has a 45-minute budget across all 39 manifests.
+- **The ruling:** add a `[profile.test]` section to `FK/Cargo.toml` as a declared K3 change, and keep every stream at full count in the default suite. §7.4's placement is kept, with no `#[ignore]` and no reduced count.
+  - Use the smallest `opt-level` (1, else 2) that brings FK's suite to about a minute on the Mac.
+  - Set `debug-assertions = true` and `overflow-checks = true` explicitly, so that test semantics do not change.
+  - There is no lockfile change.
+- **Why the results cannot change.** Rust gives IEEE-754 binary64 semantics at every optimization level: no fast-math, no reassociation, and no FMA contraction by default. The K3 arithmetic is integer-only. FK's own bit-exact tests (K3a's vectors, the K1 parity, K-D5's and K2a's pins) prove the claim on this tree.
+- **Conditions, checked at B:**
+  - FK's full suite passes with the same test list under the new profile;
+  - K3a's and K-D5's pins are unchanged;
+  - the measured wall times at each opt-level tried are recorded;
+  - hosted CI's numerical job time on K3's PR is recorded in the merge record.
+- The design's §7.4 placement stands. K3's reviewer checks the profile change.
