@@ -1,0 +1,15 @@
+RV10 suites re-run (frame_kernel, sparse_direct, nonlinear_integration in full; cargo test --offline --locked -j 8 --no-fail-fast; RUST_TEST_THREADS=4; one manifest at a time) on git archives of eb52114e9 (base) and 1d105d633 (cand); targets <wt>/rv10-target/suites_{base,cand}.
+  base frame_kernel: 179 passed, 0 failed, 0 ignored over 5 targets
+  base sparse_direct: 30 passed, 0 failed, 0 ignored over 2 targets
+  base nonlinear_integration: 101 passed, 0 failed, 0 ignored over 2 targets
+  cand frame_kernel: 184 passed, 0 failed, 0 ignored over 6 targets
+  cand sparse_direct: 30 passed, 0 failed, 0 ignored over 2 targets
+  cand nonlinear_integration: 102 passed, 0 failed, 0 ignored over 2 targets
+Per-test difference (base -> cand), all crates:
+  > test m03_skew_pin_6eil2_is_the_limiting_coefficient ... ok
+  > test m03_skew_pin_dense_and_pattern_outcomes_are_identical ... ok
+  > test m03_skew_pin_preconditions_hold ... ok
+  > test m03_skew_pin_rv7_cases_outcomes_and_figures ... ok
+  > test m03_skew_scope_guard_documented_limitation_not_desired_behaviour ... ok
+  > test structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes ... ok
+I9's claim (RETURN §8; suites/summary.txt): FK 179 -> 184, SD 30 -> 30, NI 101 -> 102, 0 changed, 0 removed, 6 added: reproduced.

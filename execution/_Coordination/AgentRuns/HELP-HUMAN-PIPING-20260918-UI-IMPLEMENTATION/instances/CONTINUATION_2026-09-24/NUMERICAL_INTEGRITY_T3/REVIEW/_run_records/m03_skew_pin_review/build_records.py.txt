@@ -1,0 +1,83 @@
+"""RV10: build T3/REVIEW/_run_records/m03_skew_pin_review/ from RV10's scratch directory, with machine paths replaced
+by placeholders (<wt>, <VENV>, {REPO_ROOT}, <home>, <scratch>). The prefixes come from the environment, so this file
+names no machine path. Text is copied line for line; trailing spaces and trailing blank lines are stripped.
+Usage: RV10_WT=<wt> RV10_REPO={REPO_ROOT} python3 -B build_records.py <dest>"""
+import hashlib, os, re, shutil, sys
+
+WT = os.environ["RV10_WT"]
+REPO = os.environ["RV10_REPO"]
+HOME = os.path.expanduser("~")
+S = WT + "/scratch/rv10"
+DEST = sys.argv[1]
+SUBS = [
+    (REPO + "/projects/chirality-piping/.venv", "<VENV>"),
+    (WT, "<wt>"),
+    (REPO, "{REPO_ROOT}"),
+    (HOME, "<home>"),
+]
+SCRATCHPAD = re.compile("/" + "priv" + "ate/tmp/[^\\s\"']*")
+PE134_TESTS = "/trees/pe134/projects/chirality-piping/core/solver/frame_kernel/tests/"
+FILES = [
+    ("build_records.py", "build_records.py.txt"),
+    ("rec/toolchain.txt", "toolchain.txt"),
+    ("rec/checks/merge_and_scope.txt", "checks/merge_and_scope.txt"),
+    ("rec/checks/records_hygiene.txt", "checks/records_hygiene.txt"),
+    ("rec/checks/gen8.txt", "checks/gen8.txt"),
+    ("logs/fk_m03_cand.log", "pin/fk_m03_cand.log"),
+    ("logs/ni_i9_cand.log", "pin/ni_i9_cand.log"),
+    ("probe/rv10_probe.rs", "pin/rv10_probe.rs.txt"),
+    ("probe/replicas_verbatim.rs.inc", "pin/replicas_verbatim.rs.inc.txt"),
+    ("logs/rv10_probe_134.log", "pin/rv10_probe_134.log"),
+    (PE134_TESTS[1:] + "rv10_probe_f.rs", "pin/rv10_probe_f.rs.txt"),
+    ("logs/rv10_probe_f_134.log", "pin/rv10_probe_f_134.log"),
+    (PE134_TESTS[1:] + "rv10_probe_g.rs", "pin/rv10_probe_g.rs.txt"),
+    ("logs/rv10_probe_g_134.log", "pin/rv10_probe_g_134.log"),
+    (PE134_TESTS[1:] + "rv10_probe_h.rs", "pin/rv10_probe_h.rs.txt"),
+    ("logs/rv10_probe_h_134.log", "pin/rv10_probe_h_134.log"),
+    ("probe/rv10_exact.py", "pin/rv10_exact.py.txt"),
+    ("logs/rv10_exact.stdout.txt", "pin/rv10_exact.stdout.txt"),
+    ("mut/mutate_rv10.py", "mutations/mutate_rv10.py.txt"),
+    ("mut/run_mutant_rv10.sh", "mutations/run_mutant_rv10.sh.txt"),
+    ("rec/mutations/kills.txt", "mutations/kills.txt"),
+    ("run_probe_rv10.sh", "product/run_probe_rv10.sh.txt"),
+    ("rec/product/rerun_compare.txt", "product/rerun_compare.txt"),
+    ("probe/rv10_product_exact.py", "product/rv10_product_exact.py.txt"),
+    ("probe/rv10_product_exact_runs.py", "product/rv10_product_exact_runs.py.txt"),
+    ("logs/rv10_product_exact_134.txt", "product/rv10_product_exact_134.txt"),
+    ("logs/rv10_product_exact_runs_134.txt", "product/rv10_product_exact_runs_134.txt"),
+    ("rec/suites/summary.txt", "suites/summary.txt"),
+] + [(f"mut/logs/{m}.log", f"mutations/logs/{m}.log") for m in (
+    "NONE", "M-AXIS-BOUND", "M-FLOOR-UP", "M-NO-COUPLING", "M-CLOSE-GAP", "RV10-MAX-NOT-SUM", "RV10-TRANSPOSE",
+    "RV10-NO-TORSION-MIX", "RV10-DEEP-REFUSE-1016", "RV10-DEEP-REFUSE-1019", "RV10-K1-PATTERN-SCALE")] + [
+    (f"suites/{t}_{c}.log", f"suites/{t}_{c}.log") for t in ("base", "cand")
+    for c in ("frame_kernel", "sparse_direct", "nonlinear_integration")]
+
+
+def sanitize(text):
+    for a, b in SUBS:
+        text = text.replace(a, b)
+    return SCRATCHPAD.sub("<scratch>", text)
+
+
+if os.path.exists(DEST):
+    shutil.rmtree(DEST)
+for src, dst in FILES:
+    text = sanitize(open(os.path.join(S, src), errors="strict").read())
+    lines = [l.rstrip() for l in text.split("\n")]
+    while lines and lines[-1] == "":
+        lines.pop()
+    path = os.path.join(DEST, dst)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, "w").write("\n".join(lines) + "\n")
+readme = os.path.join(S, "rec/README.txt")
+shutil.copyfile(readme, os.path.join(DEST, "README.txt"))
+entries = []
+for root, _, names in os.walk(DEST):
+    for name in names:
+        rel = os.path.relpath(os.path.join(root, name), DEST)
+        if rel != "SHA256SUMS":
+            entries.append((rel, hashlib.sha256(open(os.path.join(root, name), "rb").read()).hexdigest()))
+with open(os.path.join(DEST, "SHA256SUMS"), "w") as out:
+    for rel, digest in sorted(entries):
+        out.write(f"{digest}  {rel}\n")
+print(f"{len(entries)} files and SHA256SUMS written")

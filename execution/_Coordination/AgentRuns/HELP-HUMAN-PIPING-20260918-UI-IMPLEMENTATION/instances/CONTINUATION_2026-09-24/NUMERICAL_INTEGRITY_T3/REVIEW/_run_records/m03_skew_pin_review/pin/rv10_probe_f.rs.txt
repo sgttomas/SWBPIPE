@@ -1,0 +1,35 @@
+//! RV10 probe F (reviewer's): Iy != Iz on a generic skew member with a dense rotation.
+use open_pipe_stress_frame_kernel::structural::transform_roundoff;
+use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection, DOF_PER_NODE, RZ, UY, UZ, RY};
+use std::f64::consts::PI;
+fn p2(k: i32) -> f64 { if k >= -1022 { 2f64.powi(k) } else { f64::from_bits(1u64 << (k + 1074)) } }
+#[test]
+fn rv10_probe_f() {
+    let (od, wall) = (1.0e-11_f64, 1.0e-12_f64);
+    let id = od - 2.0 * wall;
+    let a = PI * (od.powi(2) - id.powi(2)) / 4.0;
+    let i = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    let j = 2.0 * i;
+    let l = p2(-39);
+    let norm = (1.0f64 + 4.0 + 9.0).sqrt();
+    let dir = [l / norm, 2.0 * l / norm, 3.0 * l / norm];
+    let e = (1.0 / (12.0 * i)) * p2(-1000) * p2(-30);
+    let f = open_pipe_stress_frame_kernel::structural::gamma(24);
+    let floor = f64::MIN_POSITIVE / (f * (1.0 / (1.0 - f) + 1.0) * (1.0 + 64.0 * f64::EPSILON));
+    for (name, nj, yref) in [("generic(1,2,3) yref(0.3,0.5,1)", dir, [0.3, 0.5, 1.0]), ("skew111", [l / 3f64.sqrt(); 3], [0.0, 0.0, 1.0])] {
+        for shift in [0, 10, 20, 23, 25] {
+            let iz = i * p2(-shift);
+            let el = FrameElement::new(FrameNode::new(0, [0.0; 3]).unwrap(), FrameNode::new(1, nj).unwrap(),
+                FrameSection::new(e, 1.0e-100, a, i, iz, j).unwrap(), yref).unwrap();
+            let k = el.local_stiffness().unwrap();
+            let o = el.orientation().unwrap();
+            let t = o.transformation_matrix();
+            let r = transform_roundoff(&k, &t);
+            let n = DOF_PER_NODE;
+            let rmin = o.local_axes.iter().flatten().map(|v| v.abs()).fold(f64::INFINITY, f64::min);
+            println!("RV10F {name} Iz=Iy*2^-{shift}: M03 {}; least |R| {rmin:.4}; 6EIz/L2 2^{:.3} ({} axis floor) 4EIz/L 2^{:.3} 2EIz/L 2^{:.3}; 6EIy/L2 2^{:.3}",
+                match &r { Ok(_) => "ACCEPTED".to_string(), Err(e) => format!("{e:?}") },
+                k[UY][RZ].log2(), if k[UY][RZ] >= floor { "above" } else { "below" }, k[RZ][RZ].log2(), k[RZ][RZ + n].log2(), (-k[UZ][RY]).log2());
+        }
+    }
+}

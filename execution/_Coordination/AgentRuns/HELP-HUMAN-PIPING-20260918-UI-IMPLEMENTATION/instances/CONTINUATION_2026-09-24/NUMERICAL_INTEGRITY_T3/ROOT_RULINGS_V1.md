@@ -1019,3 +1019,21 @@ I10 stopped at checkpoint A under ruling 1's stop clause. Two of the four restat
   - CHAIN and SKEW are Sensitive, as their bases are today: flagged, not claimed accurate.
 - K2b adds no accuracy beyond the ordinary path. W1 is the route to accuracy on those bases.
 - reach_zero, reach_lef, PHYS-R4 (b = 536, against the design's "≈ 500") and partial underflow (under B) are solved and accurate, as required.
+
+## K3: rulings on I11's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I11's plan keeps K3a's `Wide<2>` code untouched. `wide.rs` gains one module line, a doc pointer, one appended `WideError` variant (`OperandPrecision`) with its `Display` arm, and the allowance relabels. All new arithmetic goes in a child module. The rulings on its eight open positions:
+
+1. **Approved: the child module `retained/wide/multi.rs`,** under brief ruling 10. Its test module is declared from `multi.rs` and pointed at `FK/tests/retained_wide_k3/k3_tests.rs`. It stays a unit-test module in FK's own suite, and so in CI. Both are declared in CHANGE_RECORD.
+2. **Dead-code labels must name the real consumer.** This amends the brief's blanket "K4 API".
+   - Each allowance names the slice that will actually call the item.
+   - K4 runs at L ≥ 4, so K3a's `Wide<2>`-only items get no K4 caller:
+     - `atan_positive` is labelled "later-slice API (W1c; K3 Q6)";
+     - `Wide<2>` accessors with no known consumer are labelled "K3a API, no caller yet (reviewed at T3 close)".
+   - The T3-close list gains that review.
+3. **Approved:** `from_integer` of a zero magnitude returns +0 whatever the sign flag, following D1 §4.1.2 ("an exact zero is +0.0").
+4. **Approved:** the accumulator cross-check allows one more difference. The conversion gives `Normal(−0.0)` for an exact −0 (the Q5 convention); the accumulator never returns −0.0.
+5. **Approved:** the literal §7.3-13 and §7.3-16 analogues are kept where they are lossy (at low p), and a scaled variant, whose small term is about 2^-(p+16) of the large one, is added at every p. The fold must lose that small term.
+6. **Approved:** about 5 MB of test data, with the brief's 1,000 sample records per stream kept. The digests cover every record.
+7. **Q7 stays open until checkpoint A,** when ROOT rules on the measured debug wall times. The bit-serial ÷ and √ (64L + 2 bits, K3a's small-trust-base choice) are approved. Knuth's algorithm D is left to a later optimization with its own vectors.
+8. **For K4's brief:** the new core exists at L = 2 only in tests, so K4's p = 128 and 192 run at L = 4 (together with Q8's ceiling question).
