@@ -1,0 +1,32 @@
+"""I9: per-test comparison of the base and candidate suite logs (frame_kernel, sparse_direct,
+nonlinear_integration). Tests are keyed by crate, target and name (a doc test's line number
+is dropped). Usage: python3 -B compare_suites_i9.py <base dir> <cand dir>"""
+import re, sys
+def parse(path):
+    tests, target = {}, None
+    for line in open(path, errors="replace"):
+        m = re.match(r"\s+Running (?:unittests )?(\S+)", line)
+        if m:
+            target = re.sub(r"-[0-9a-f]{16}\)?$", "", m.group(1).split("/")[-1].rstrip(")"))
+            continue
+        if line.startswith("   Doc-tests"):
+            target = "doctests"
+            continue
+        m = re.match(r"^test (.+?) \.\.\. (ok|FAILED|ignored)", line)
+        if m:
+            name = re.sub(r" - line \d+", "", m.group(1)) if target == "doctests" else m.group(1)
+            tests[(target, name)] = m.group(2)
+    return tests
+base_dir, cand_dir = sys.argv[1], sys.argv[2]
+total = {"changed": 0, "removed": 0, "added": 0}
+for crate in ("frame_kernel", "sparse_direct", "nonlinear_integration"):
+    b, c = parse(f"{base_dir}/{crate}.log"), parse(f"{cand_dir}/{crate}.log")
+    changed = [k for k in b if k in c and b[k] != c[k]]
+    removed = [k for k in b if k not in c]
+    added = [(k, c[k]) for k in c if k not in b]
+    total["changed"] += len(changed); total["removed"] += len(removed); total["added"] += len(added)
+    print(f"{crate}: base {len(b)} ({sum(v == 'ok' for v in b.values())} ok), candidate {len(c)} ({sum(v == 'ok' for v in c.values())} ok); changed {len(changed)}, removed {len(removed)}, added {len(added)}")
+    for k in changed: print(f"   CHANGED {k}: {b[k]} -> {c[k]}")
+    for k in removed: print(f"   REMOVED {k}")
+    for k, v in added: print(f"   added {k[0]} :: {k[1]} ({v})")
+print(f"TOTAL: changed {total['changed']}, removed {total['removed']}, added {total['added']}")

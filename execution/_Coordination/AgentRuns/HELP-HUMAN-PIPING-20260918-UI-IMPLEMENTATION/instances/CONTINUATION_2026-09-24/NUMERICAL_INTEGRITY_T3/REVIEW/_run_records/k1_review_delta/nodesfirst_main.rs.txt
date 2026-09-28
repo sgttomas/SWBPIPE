@@ -1,0 +1,22 @@
+//! RV8: RV8-K2A-NODESFIRST's divergence, shown on one invented model: element 0
+//! is K2a's reach_zero member (refused at formation), element 1 names node 2 of a
+//! 2-node model. Prints the dense and the sparse assembly's error.
+use open_pipe_stress_frame_kernel::structural::{assemble_sparse_stiffness, SparseAssemblyOptions};
+use open_pipe_stress_frame_kernel::{assemble_global_stiffness_with_user_elements, FrameElement, FrameNode, FrameSection};
+use std::f64::consts::PI;
+fn section(e: f64, g: f64, od: f64, t: f64) -> FrameSection {
+    let id = od - 2.0 * t;
+    let a = PI * (od.powi(2) - id.powi(2)) / 4.0;
+    let i = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    FrameSection::new(e, g, a, i, i, 2.0 * i).unwrap()
+}
+fn main() {
+    let l = 1.8189894035458565e-12;
+    let zero = FrameElement::new(FrameNode::new(0, [0.0; 3]).unwrap(), FrameNode::new(1, [l, 0.0, 0.0]).unwrap(),
+        section(6.4e-280, 1.0e-100, 1.0e-11, 1.0e-12), [0.0, 1.0, 0.0]).unwrap();
+    let outside = FrameElement::new(FrameNode::new(1, [l, 0.0, 0.0]).unwrap(), FrameNode::new(2, [2.0, 0.0, 0.0]).unwrap(),
+        section(200e9, 80e9, 0.2, 0.01), [0.0, 1.0, 0.0]).unwrap();
+    let frames = [zero, outside];
+    println!("dense : {:?}", assemble_global_stiffness_with_user_elements(2, &frames, &[]).err());
+    println!("sparse: {:?}", assemble_sparse_stiffness(2, &frames, &[], &[], &[], &SparseAssemblyOptions::new()).err());
+}

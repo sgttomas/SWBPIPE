@@ -1,0 +1,12 @@
+T9 cross-check (records only; T9 not re-run by RV8):
+T9 (Mac-only), the combined tree: base = git archive of merged main f12e06876 (K2a, PR #1032); candidate = git archive of
+3b86b111f (K1 with K2a merged in, including the RV8 tests 340e87a2d) with the uncommitted frame_kernel/tests/k1_k2a_interaction.rs copied over it;
+both without execution/. Harness: S11-K fixdiff_main.rs (sha256 ec089c1d4a2a46dda689aad3ac55948cf858537ed5c986726c7accdd63cade53), --release --offline --locked, aarch64-apple-darwin, rustc 1.97.1.
+outputs: base 112, candidate 112 (core 10, fixtures 72, validation 30)
+base vs candidate: byte-identical 112/112 (raw outputs identical)
+base f12e06876 vs ROOT's Mac main 649162522 hashes (sha_native.txt): identical 112/112 (K2a changes no committed output on the Mac either)
+ERR outputs (identical in both): 6
+
+RV8: combined base (f12e06876) vs combined candidate: 112 / 112
+RV8: combined base vs ROOT's Mac main 649162522 hashes (<wt>/scratch/calib/fixdiff/sha_native.txt): 112 / 112
+RV8: combined candidate vs the pre-merge K1 candidate (19925122b) outputs: 112 / 112

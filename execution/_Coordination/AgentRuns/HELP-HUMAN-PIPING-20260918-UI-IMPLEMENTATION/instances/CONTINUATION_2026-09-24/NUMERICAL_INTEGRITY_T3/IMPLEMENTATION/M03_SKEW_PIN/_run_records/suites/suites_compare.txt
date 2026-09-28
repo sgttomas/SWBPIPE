@@ -1,0 +1,10 @@
+frame_kernel: base 179 (179 ok), candidate 184 (184 ok); changed 0, removed 0, added 5
+   added m03_skew_scope.rs :: m03_skew_pin_preconditions_hold (ok)
+   added m03_skew_scope.rs :: m03_skew_pin_6eil2_is_the_limiting_coefficient (ok)
+   added m03_skew_scope.rs :: m03_skew_pin_rv7_cases_outcomes_and_figures (ok)
+   added m03_skew_scope.rs :: m03_skew_scope_guard_documented_limitation_not_desired_behaviour (ok)
+   added m03_skew_scope.rs :: m03_skew_pin_dense_and_pattern_outcomes_are_identical (ok)
+sparse_direct: base 30 (30 ok), candidate 30 (30 ok); changed 0, removed 0, added 0
+nonlinear_integration: base 101 (101 ok), candidate 102 (102 ok); changed 0, removed 0, added 1
+   added lib.rs :: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes (ok)
+TOTAL: changed 0, removed 0, added 6

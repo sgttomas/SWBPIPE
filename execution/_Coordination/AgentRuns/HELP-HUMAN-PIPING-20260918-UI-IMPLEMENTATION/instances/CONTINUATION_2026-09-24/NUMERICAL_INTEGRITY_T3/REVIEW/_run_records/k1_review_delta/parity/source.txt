@@ -1,0 +1,3 @@
+The probe source is the review's parity main.rs, unchanged:
+3636a9aaffb1c5408e11f63425beb4221b3872e15825e13f63689479e1543a11  41551 bytes  788 lines  main.rs
+(committed as REVIEW/_run_records/k1_review/parity/main.rs.txt, placeholders applied)

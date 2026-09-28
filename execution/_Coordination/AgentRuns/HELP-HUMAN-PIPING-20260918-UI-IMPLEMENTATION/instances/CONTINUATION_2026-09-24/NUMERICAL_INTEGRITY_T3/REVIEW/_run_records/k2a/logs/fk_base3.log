@@ -1,0 +1,33 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv7/fk_base)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+     Running tests/rv7_rotated_m03.rs (<wt>/rv7-target/fk_base/debug/deps/rv7_rotated_m03-a7631ed8f982ac18)
+
+running 1 test
+RV7 (12E)I=2^-1030: E=2.499234299669558e-266; intermediates (12E)I=8.691694759794e-311 (6E)I=4.345847379897e-311 (4E)I=2.897231586598e-311 (2E)I=1.448615793299e-311; GJ/L=3.186515784299919e-134; EA/L=3.884804655883318e-277(2^-918.22, rel 0.00e0) 12EIy/L3=1.4441555006918637e-275(2^-913.00, rel 2.22e-16) 6EIy/L2=1.3134517764154804e-287(2^-953.00, rel 2.22e-16) 4EIy/L=1.5927699089120697e-299(2^-992.58, rel 5.68e-14) 2EIy/L=7.963849544561706e-300(2^-993.58, rel 1.14e-13)
+    axis x, yref +y: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,1,1), yref +z: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1001.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1001.21
+    skew (1,2,2), yref +x: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1002.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1002.00
+RV7 (12E)I=2^-1040: E=2.4406584957710526e-269; intermediates (12E)I=8.487983164e-314 (6E)I=4.243991582e-314 (4E)I=2.829327721e-314 (2E)I=1.414663861e-314; GJ/L=3.186515784299919e-134; EA/L=3.7937545467610527e-280(2^-928.22, rel 0.00e0) 12EIy/L3=1.4103081061443981e-278(2^-923.00, rel 2.22e-16) 6EIy/L2=1.2826677504057426e-290(2^-963.00, rel 2.22e-16) 4EIy/L=1.555439364081493e-302(2^-1002.58, rel 5.82e-11) 2EIy/L=7.777196821765542e-303(2^-1003.58, rel 1.16e-10)
+    axis x, yref +y: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,1,1), yref +z: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1011.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1011.21
+    skew (1,2,2), yref +x: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1012.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1012.00
+RV7 (12E)I=2^-1045: E=7.627057799284539e-271; intermediates (12E)I=2.65249474e-315 (6E)I=1.32624737e-315 (4E)I=8.84164915e-316 (2E)I=4.42082455e-316; GJ/L=3.186515784299919e-134; EA/L=1.185548295862829e-281(2^-933.22, rel 0.00e0) 12EIy/L3=4.407212831701244e-280(2^-928.00, rel 2.22e-16) 6EIy/L2=4.008336720017946e-292(2^-968.00, rel 2.22e-16) 4EIy/L=4.860748022091447e-304(2^-1007.58, rel 1.86e-9) 2EIy/L=2.4303739974649505e-304(2^-1008.58, rel 3.73e-9)
+    axis x, yref +y: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,1,1), yref +z: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1016.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1016.21
+    skew (1,2,2), yref +x: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1017.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1017.00
+RV7 (12E)I=2^-1050: E=2.3834555622764186e-272; intermediates (12E)I=8.289046e-317 (6E)I=4.144523e-317 (4E)I=2.763015e-317 (2E)I=1.381508e-317; GJ/L=3.186515784299919e-134; EA/L=3.7048384245713405e-283(2^-938.22, rel 0.00e0) 12EIy/L3=1.3772540099066388e-281(2^-933.00, rel 2.22e-16) 6EIy/L2=1.252605225005608e-293(2^-973.00, rel 2.22e-16) 4EIy/L=1.5189836635357624e-305(2^-1012.58, rel 5.96e-8) 2EIy/L=7.594919675756118e-306(2^-1013.58, rel 1.19e-7)
+    axis x, yref +y: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,1,1), yref +z: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1021.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1021.21
+    skew (1,2,2), yref +x: L=1.8189894035458565e-12; transform_roundoff ACCEPTED; least positive bound 2^-1022.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1022.00
+RV7 (12E)I=2^-1055: E=7.448298632113808e-274; intermediates (12E)I=2.590327e-318 (6E)I=1.295163e-318 (4E)I=8.63444e-319 (2E)I=4.3172e-319; GJ/L=3.186515784299919e-134; EA/L=1.1577620076785439e-284(2^-943.22, rel 0.00e0) 12EIy/L3=4.303918780958246e-283(2^-938.00, rel 2.22e-16) 6EIy/L2=3.914391328142525e-295(2^-978.00, rel 2.22e-16) 4EIy/L=4.746833285330738e-307(2^-1017.58, rel 1.91e-6) 2EIy/L=2.3734030618923067e-307(2^-1018.58, rel 3.81e-6)
+    axis x, yref +y: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,1,1), yref +z: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,2,2), yref +x: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+RV7 S6a (12E)I=2.5*2^-1075: E=1.7758127765926858e-279; intermediates (12E)I=5e-324 (6E)I=5e-324 (4E)I=0e0 (2E)I=0e0; GJ/L=3.186515784299919e-134; EA/L=2.760319728084908e-290(2^-961.89, rel 0.00e0) 12EIy/L3=8.209073602596753e-289(2^-957.00, rel 2.00e-1) 6EIy/L2=1.4932217896051502e-300(2^-996.00, rel 6.00e-1) 4EIy/L=0e0(2^-inf, rel 1.00e0) 2EIy/L=0e0(2^-inf, rel 1.00e0)
+    axis x, yref +y: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,1,1), yref +z: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+    skew (1,2,2), yref +x: L=1.8189894035458565e-12; transform_roundoff REFUSED Range("arithmetic outside normal range")
+test rv7_rotated_member_m03_floor ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

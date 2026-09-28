@@ -1,0 +1,3 @@
+I8R's mutate_k1.py (the candidate's IMPLEMENTATION/K1/_run_records/mutations/mutate_k1.py.txt),
+used unchanged for the re-kills of I8R's mutants:
+c2b54737dfb3dd261643ac16f52230ab8ba97828d86807c4987e4db13978a71a  14954 bytes  243 lines  mutate_k1.py

@@ -1,0 +1,114 @@
+The parity probe built against a mutated candidate archive (RV8's own mutants).
+Full outputs are recorded by hash; the named (non-random) model mismatches are listed.
+
+== RV8-BLOCK-ORDER: 3cad99e74d2fefe9b91f6d4b96c6443d93fb42a21ff0b1939d0152484c33811d  47248755 bytes  29151 lines  probe_mut_RV8-BLOCK-ORDER.txt
+   SUMMARY models=800 assembled=800 checks=45046 mismatches=9693
+   mismatches on the 800 generated models: 9651
+   mismatches on named models: 42
+     bendbend-tee-f1 K bits (to_dense)
+     bendbend-tee-f1 cancel DenseScrutiny fc
+     bendbend-tee-f1 cancel DenseScrutiny fc unmatched
+     bendbend-tee-f1 cancel DenseScrutiny solve_assembled
+     bendbend-tee-f1 cancel SparseInteractive fc
+     bendbend-tee-f1 cancel SparseInteractive fc unmatched
+     bendbend-tee-f1 cancel SparseInteractive solve_assembled
+     bendbend-tee-f1 cancel c3
+     bendbend-tee-f1 cancel legacy sparse path
+     bendbend-tee-f1 cancel typed
+     bendbend-tee-f1 from_pattern_and_contributions
+     bendbend-tee-f1 multiply 2
+     bendbend-tee-f1 plain DenseScrutiny fc
+     bendbend-tee-f1 plain DenseScrutiny fc unmatched
+     bendbend-tee-f1 plain DenseScrutiny solve_assembled
+     bendbend-tee-f1 plain SparseInteractive fc
+     bendbend-tee-f1 plain SparseInteractive fc unmatched
+     bendbend-tee-f1 plain SparseInteractive solve_assembled
+     bendbend-tee-f1 plain c3
+     bendbend-tee-f1 plain legacy sparse path
+     bendbend-tee-f1 plain typed
+     bendbend-tee-f1 reactions 2
+     bendbend-tee-f1.7 K bits (to_dense)
+     bendbend-tee-f1.7 cancel DenseScrutiny fc
+     bendbend-tee-f1.7 cancel DenseScrutiny fc unmatched
+     bendbend-tee-f1.7 cancel DenseScrutiny solve_assembled
+     bendbend-tee-f1.7 cancel SparseInteractive fc
+     bendbend-tee-f1.7 cancel SparseInteractive fc unmatched
+     bendbend-tee-f1.7 cancel SparseInteractive solve_assembled
+     bendbend-tee-f1.7 cancel c3
+     bendbend-tee-f1.7 cancel legacy sparse path
+     bendbend-tee-f1.7 cancel typed
+     bendbend-tee-f1.7 from_pattern_and_contributions
+     bendbend-tee-f1.7 plain DenseScrutiny fc
+     bendbend-tee-f1.7 plain DenseScrutiny fc unmatched
+     bendbend-tee-f1.7 plain DenseScrutiny solve_assembled
+     bendbend-tee-f1.7 plain SparseInteractive fc
+     bendbend-tee-f1.7 plain SparseInteractive fc unmatched
+     bendbend-tee-f1.7 plain SparseInteractive solve_assembled
+     bendbend-tee-f1.7 plain c3
+     bendbend-tee-f1.7 plain legacy sparse path
+     bendbend-tee-f1.7 plain typed
+
+== RV8-SPRING-FIRST: 725107872bfe07860258b20d92fbf9dcf332b78ebe665b7025f25ce2e23cba92  56919198 bytes  32631 lines  probe_mut_RV8-SPRING-FIRST.txt
+   SUMMARY models=800 assembled=800 checks=45686 mismatches=10853
+   mismatches on the 800 generated models: 10809
+   mismatches on named models: 44
+     bend-supports-f1-k5 K bits (to_dense)
+     bend-supports-f1-k5 from_pattern_and_contributions
+     bend-supports-f1-k5 multiply 1
+     bend-supports-f1-k5 reactions 1
+     bend-supports-f1-k6 K bits (to_dense)
+     bend-supports-f1-k6 from_pattern_and_contributions
+     bend-supports-f1-k6 multiply 0
+     bend-supports-f1-k6 multiply 1
+     bend-supports-f1-k6 multiply 2
+     bend-supports-f1-k6 reactions 0
+     bend-supports-f1-k6 reactions 1
+     bend-supports-f1-k6 reactions 2
+     bend-supports-f1-k7 K bits (to_dense)
+     bend-supports-f1-k7 from_pattern_and_contributions
+     bend-supports-f1-k7 multiply 0
+     bend-supports-f1-k7 multiply 1
+     bend-supports-f1-k7 multiply 2
+     bend-supports-f1-k7 reactions 0
+     bend-supports-f1-k7 reactions 1
+     bend-supports-f1-k7 reactions 2
+     bend-supports-f1.7-k5 K bits (to_dense)
+     bend-supports-f1.7-k5 from_pattern_and_contributions
+     bend-supports-f1.7-k5 multiply 0
+     bend-supports-f1.7-k5 multiply 1
+     bend-supports-f1.7-k5 multiply 2
+     bend-supports-f1.7-k5 reactions 0
+     bend-supports-f1.7-k5 reactions 1
+     bend-supports-f1.7-k5 reactions 2
+     bend-supports-f1.7-k6 K bits (to_dense)
+     bend-supports-f1.7-k6 from_pattern_and_contributions
+     bend-supports-f1.7-k6 multiply 0
+     bend-supports-f1.7-k6 multiply 1
+     bend-supports-f1.7-k6 multiply 2
+     bend-supports-f1.7-k6 reactions 0
+     bend-supports-f1.7-k6 reactions 1
+     bend-supports-f1.7-k6 reactions 2
+     bend-supports-f1.7-k7 K bits (to_dense)
+     bend-supports-f1.7-k7 from_pattern_and_contributions
+     bend-supports-f1.7-k7 multiply 0
+     bend-supports-f1.7-k7 multiply 1
+     bend-supports-f1.7-k7 multiply 2
+     bend-supports-f1.7-k7 reactions 0
+     bend-supports-f1.7-k7 reactions 1
+     bend-supports-f1.7-k7 reactions 2
+
+== RV8-FC-TERMS: ba2c1c436d358313d6d9b1b244ef77e43724477d932ba56c8ed1ae576f91c8a5  70910 bytes  105 lines  probe_mut_RV8-FC-TERMS.txt
+   SUMMARY models=800 assembled=800 checks=44846 mismatches=11
+   mismatches on the 800 generated models: 0
+   mismatches on named models: 11
+     BENDING_SOFT-E1 split-ledger fc SparseInteractive
+     CPLANAR_60-E0.9 split-ledger fc SparseInteractive
+     CPLANAR_60-E1 split-ledger fc SparseInteractive
+     CSKEW_30_N122-E0.9 split-ledger fc SparseInteractive
+     CSKEW_30_N122-E1 split-ledger fc SparseInteractive
+     CSKEW_30_RADIUS_MISMATCH-E1 split-ledger fc SparseInteractive
+     CSKEW_8_5-E0.9 split-ledger fc SparseInteractive
+     CSKEW_8_5-E1 split-ledger fc SparseInteractive
+     F122-E0.9 split-ledger fc SparseInteractive
+     F122-E1 split-ledger fc SparseInteractive
+     PROBE_C-E1 split-ledger fc SparseInteractive

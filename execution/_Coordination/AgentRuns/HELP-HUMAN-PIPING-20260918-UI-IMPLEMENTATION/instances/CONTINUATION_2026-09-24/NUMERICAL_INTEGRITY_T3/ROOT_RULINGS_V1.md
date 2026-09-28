@@ -742,10 +742,10 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
 - **The only floor is geometric:** FK `AXIS_TOLERANCE` = 1e-12 m. This is what stops RF-RANGE LEF-small (DegenerateAxis). LEF-large is refused at capture.
 
 **The ruling:**
-1. **I6 adds a product-level partial-underflow case.** Main publishes a *wrong* value there (actual error above 1e-9 against an exact or extended-precision reference computed in the test), and K2a refuses it on both entries and in both modes. This case justifies K2a on the product route, and its precondition proves main's value is wrong and by how much. **If no admissible input yields a wrong published value above 1e-9, I6 stops and reports; it does not force one.**
+1. **I6 adds a product-level partial-underflow case.** Main publishes a *wrong* value there (actual error above 1e-9 against an exact or extended-precision reference computed in the test), and K2a refuses it on both entries and in both modes. This case justifies K2a on the product route, and its precondition proves main's value is wrong and by how much. **If no admissible input yields a wrong published value above 1e-9, I6 stops and reports; it does not force one.** **[Superseded by "K2a product reach: correction (ROOT)" below: main publishes no wrong value through partial underflow where M03 applies, and the wrong-value requirement is withdrawn. See also corrections 2 and 3.]**
 2. **The spring-carried case stays as a test:** a 2 m member, OD 1e-6 m, wall 1e-7 m, E 2e11 Pa, G 1e-300 Pa. G·J rounds to 0, the spring carries the torque, and main is accurate to 1e-9.
    - **Its refusal is accepted as K2a's intended interim.** The design forms or publishes no zero or subnormal coefficient, and scaling comes with K2b and F1b.
-   - CHANGE_RECORD discloses it plainly as **an availability change on admissible but physically absurd inputs, where main's value was accurate.**
+   - CHANGE_RECORD discloses it plainly as **an availability change on admissible but physically absurd inputs, where main's value was accurate.** **[Reworded by "K2a product reach: correction 3 (ROOT)" below: 1/L-lifted zeros, where main's published value was within its K-D5-limited criterion.]**
    - It is recorded on the K2b and F1b list as a case K2b's scaling should restore.
 3. **The missing lower magnitude bound on inputs** is a finding for the input-validation owner. It is routed out of T3, not fixed here.
 
@@ -771,7 +771,7 @@ K-D5's `FormationCheck` record, present only when the check demotes, is rendered
 1. **The partial-underflow wrong-value requirement is withdrawn.** The drafted test is kept, restated truthfully: main refuses the case as UNRESOLVED (M03 `Range`) on both variants and in both modes, and K2a refuses it earlier, by name (`NumericalRange`). Its precondition pins main's actual M03 refusal. The L = 2^-39 pair and the threshold scan stay as evidence in `_run_records`.
 2. **The availability trade-off stands, with its benefit restated.** K2a proceeds as designed.
    - **Benefit:** K2a corrects no published value on the product route; S11-K's M03 already refuses partial underflow. **[Superseded by "K2a product reach: correction 2 (ROOT)" below: M03 does not refuse partial underflow in general, and main can publish grossly wrong values (untrusted) that K2a refuses.]** Its value is a formation-layer guarantee that does not depend on M03: a named, earlier refusal, and protection for every consumer of `local_stiffness` that does not pass through M03's check. I6 lists those consumers from its caller scan (for example K-D5's re-formation and curved_bend).
-   - **Cost:** refusing exact-zero cases on physically absurd inputs, where main's value was accurate.
+   - **Cost:** refusing exact-zero cases on physically absurd inputs, where main's value was accurate. **[Reworded by "K2a product reach: correction 3 (ROOT)" below: 1/L-lifted zeros, where main's published value was within its K-D5-limited criterion.]**
    - **The bound claim** (an exact zero moves a published value by at most about 2^-60 relative) must be derived step by step in K2a's RETURN, not asserted. K2a's reviewer checks it. **[Superseded by "K2a product reach: correction 2 (ROOT)" below.]**
 3. **Lesson (standing):** a claim about product behaviour needs a product run. This is the counterpart of the performance lesson: formation-level or adapter-level arithmetic is not evidence of what the product publishes.
 
@@ -798,14 +798,14 @@ Both are generalizations from a few probes that were never derived. I6 found bot
   | 12EIy/L³, 12EIz/L³ | (12·E)·I | 1/L³ |
 
   With L ≥ 1e-12 m (the FK axis tolerance), a numerator that rounds to 0, or to the least subnormal 2^-1074, has a true value below about 2^-1074. The true coefficient is then at most about 2^-1074/L^k: about 2^-1034 for k = 1, about 2^-994 for k = 2, and about 2^-955 for k = 3.
-- **M03's acceptance floor** (FK `structural.rs:1832-1866`, `transform_roundoff`). The roundoff bound per axis-aligned entry c is about 2·gamma(24)·|c|, and `checked_value` refuses a subnormal bound. So M03 refuses when a *nonzero* entry is below about 2^-974.6. Exact zeros are exempt. I6's threshold scan agrees: refused at 2^-981.8, passed at 2^-971.8.
+- **M03's acceptance floor** (FK `structural.rs:1832-1866`, `transform_roundoff`). The roundoff bound per axis-aligned entry c is about 2·gamma(24)·|c|, and `checked_value` refuses a subnormal bound. So M03 refuses when a *nonzero* entry is below about 2^-974.6. **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]** Exact zeros are exempt. I6's threshold scan agrees: refused at 2^-981.8, passed at 2^-971.8.
 - **Consequence.**
   - **1/L-lifted coefficients** (EA/L, GJ/L, 4EI/L, 2EI/L): a zeroed or wrongly rounded value has a true value of at most about 2^-1034. Against any retained nonzero entry that passes M03 (at least about 2^-974.6), that is a relative effect of at most about 2^-59.4, below the 1e-9 criterion. This is the only place the ~2^-60 figure holds. **[Superseded by "K2a product reach: correction 3 (ROOT)" below: the floor bounds element entries only, not ground springs.]**
   - **1/L²-lifted coefficients** (6EI/L²): the true value is at most about 2^-994, also below the floor. But against the smallest acceptable retained entry, the relative effect can reach about 2^-19.4 (about 1.4e-6), above the criterion. Whether an admissible input realizes that is **not established**. Manager's check: the manager, not I6, noticed this while recording. RETURN must derive it or probe it, and must not assume main is accurate there. **[Superseded by "K2a product reach: correction 3 (ROOT)" below: the floor bounds element entries only, not ground springs.]**
   - **1/L³-lifted coefficients** (12EI/L³): the true value can reach about 2^-955, above the floor. M03 accepts both an exact zero and a normal but grossly wrong value rounded from a least-subnormal numerator (reach_zero and reach_lef below).
-  - **M03 does refuse** a partial underflow that leaves a nonzero subnormal-derived coefficient below the floor.
+  - **M03 does refuse** a partial underflow that leaves a nonzero subnormal-derived coefficient below the floor. **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]**
 
-**Cases on main** (`5ae22926e`, both entries, both modes, linear route and open gap; I6, using the main-built harness binary). Both are one member with L = 2^-39 m, OD 1e-11 m, wall 1e-12 m and G = 1e-100 Pa, with UY at N1 the only free DOF. All inputs are normal binary64.
+**Cases on main** (`5ae22926e`, both entries, both modes, linear route and open gap; I6, using the main-built harness binary). Both are one member with L = 2^-39 m, OD 1e-11 m, wall 1e-12 m and G = 1e-100 Pa, with UY at N1 the only free DOF. All inputs are normal binary64. **[Evidenced on the captured entry only; the typed entry was not run: K2A/RETURN_ADDENDUM_1 §3.]**
 - **reach_zero:**
   - E = 6.4e-280 Pa, so (12·E)·I (about 2.23e-324) rounds to exactly 0. Main's 12EI/L³ is 0 against a true value of about 3.70e-289.
   - A ground spring of 3.7e-289 N/m carries the load, P = 9.25e-290 N.
@@ -820,7 +820,7 @@ Both are generalizations from a few probes that were never derived. I6 found bot
   - linear route: NUMERICAL_INTEGRITY_SENSITIVE in both modes, from K-D5's re-formation; exact-block recovery is unavailable.
   - open gap: unresolved (RECOVERY_BASIS_UNQUALIFIED), because the nonlinear proof hits the exact-radix range.
 - **No trusted route was found on main.** On the linear route before K-D5 (`c61a540ea`), main's standing is **not established**. No claim is made either way.
-- **Partial underflow that M03 does refuse:** probes A/B and the drafted partial-underflow case, where a nonzero coefficient is subnormal-derived. Main refuses these as UNRESOLVED (M03 `Range`).
+- **Partial underflow that M03 does refuse:** probes A/B and the drafted partial-underflow case, where a nonzero coefficient is subnormal-derived. Main refuses these as UNRESOLVED (M03 `Range`). **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]**
 
 **Rulings:**
 1. **Adopt a third product test (reach_zero) and a fourth (reach_lef),** each on both entries and in both modes, with the same structure:
@@ -830,8 +830,8 @@ Both are generalizations from a few probes that were never derived. I6 found bot
    - K2a's refusal by name.
 2. **RETURN derives, step by step:** every coefficient with its lift (the table above), the M03 floor at about 2^-974.6, and for each coefficient which zeros or roundings main bounds and which it does not.
 3. **The benefit, restated:**
-   - M03 refuses partial underflow **only when a nonzero coefficient is subnormal-derived** (below about 2^-974.6).
-   - Where a 12EI/L³ numerator rounds to exactly 0, or to the least subnormal with its siblings exactly 0 (the LEF pattern), M03 accepts. Main then publishes a grossly wrong value (99.95% in reach_zero, 32.4% in reach_lef), flagged only downstream: Sensitive through K-D5, or unresolved through the nonlinear proof.
+   - M03 refuses partial underflow **only when a nonzero coefficient is subnormal-derived** (below about 2^-974.6). **[Scoped to axis-aligned members by K2A/RETURN_ADDENDUM_1; see there.]**
+   - Where a 12EI/L³ numerator rounds to exactly 0, or to the least subnormal with its siblings exactly 0 (the LEF pattern), M03 accepts. Main then publishes a grossly wrong value (99.95% in reach_zero, 32.4% in reach_lef), flagged only downstream: Sensitive through K-D5, or unresolved through the nonlinear proof. **[On skew members M03 also accepts other patterns (subnormal-derived 4EI/L and 2EI/L below the floor): K2A/RETURN_ADDENDUM_1; see there.]**
    - K2a refuses all of these at formation, by name, independent of M03, of K-D5 and of the nonlinear proof.
    - K2a also refuses a zero in 6EI/L², where main's accuracy is not established (see the consequence above).
    - **The cost is unchanged:** exact zeros in the 1/L-lifted coefficients (for example the spring-carried GJ/L case), where main was accurate, are now refused. **[Reworded by "K2a product reach: correction 3 (ROOT)" below.]**
@@ -840,10 +840,59 @@ Both are generalizations from a few probes that were never derived. I6 found bot
 
 ## K2a product reach: correction 3 (ROOT, 2026-09-27)
 
-**What is superseded.** Correction 2's 1/L and 1/L² consequence bullets (each marked in place). They bounded a zero's relative effect against "any retained nonzero entry that passes M03". But M03's floor comes from `transform_roundoff` and applies to **element entries only**. Ground springs added to K are not subject to it, and main accepts springs far below the floor. So neither bullet states a bound, and the "~2^-60 holds for 1/L" sentence is withdrawn. The premise was the **manager's**, added while recording correction 2, and falls under lesson 5. I6 found it while probing the 6EI/L² item.
+**What is superseded.** Correction 2's 1/L and 1/L² consequence bullets (each marked in place). They bounded a zero's relative effect against "any retained nonzero entry that passes M03". But M03's floor comes from `transform_roundoff` and applies to **element entries only**. **[Per-entry only for axis-aligned members; on skew members the transformed bounds mix coefficients: K2A/RETURN_ADDENDUM_1.]** Ground springs added to K are not subject to it, and main accepts springs far below the floor. So neither bullet states a bound, and the "~2^-60 holds for 1/L" sentence is withdrawn. The premise was the **manager's**, added while recording correction 2, and falls under lesson 5. I6 found it while probing the 6EI/L² item.
 
 **Rulings:**
 1. **What limits trusted publication.** On the linear route it is K-D5's re-formation trigger: an **estimate-based** demotion, not a proved bound on the true error. I6's probes reach_six2 and reach_gj (`IMPLEMENTATION/K2A/_run_records/product_reach/`, NOTES items 6 and 7) are consistent with it: runs published checks-passed stayed within the criterion, and larger errors were demoted to Sensitive. The nonlinear route ended unresolved in every probe. Pre-K-D5 behaviour is not claimed.
 2. **No fifth test.** The 6EI/L² item produced no admissible case in which main publishes a trusted value wrong beyond the criterion.
 3. **The cost clause, reworded:** K2a refuses 1/L-lifted zeros where main's published value was within its K-D5-limited criterion (for example the spring-carried GJ/L case).
 4. **Process: rulings stop restating numeric bounds on this topic.** The authoritative statement of K2a's product reach is the derivation section of I6's K2a RETURN, checked by K2a's independent reviewer. Rulings and the work graph cite it by section and do not restate its figures. Where the figures in corrections 1 and 2 differ from that section, the RETURN section governs.
+
+## K1: spawn timing and no both-entry gate (ROOT, 2026-09-28)
+
+- **Spawn.** K1 (I8) is spawned now, not when K2a's PR opens, because the write sets are disjoint. K2a writes `FK/lib.rs`, `diagnostics` and new tests. K1 writes `FK/structural.rs`, new `FK/structural/sparse.rs`, `sparse_direct` and `structural_adapter.rs`. The worktree is `<wt>/k1`, on branch `codex/piping-k1-20260928` from main `134eefc24`, with target `<wt>/k1-target`.
+- **The brief's conditions stand** (`TASK_BRIEFS/I8_K1_IMPLEMENTATION.md`):
+  1. K1 does not edit `FK/lib.rs`. If it would need to, it stops, and K1 moves to after K2a's merge.
+  2. K1's PR cannot merge before K2a's.
+- **K2a-interaction tests.** I8 drafts them read-only against K2a's branch, and lands them after K2a merges and main is merged into K1's branch.
+- **No both-entry gate for K1.** K1 is kernel only and changes no published byte. The evidence is the parity tests and T9 (the committed-fixture diff). The gate runs at F1b, when `PP` switches to the sparse representation.
+- **Host.** One heavy job at a time. I6 prunes between phases. I8 builds only named crates in its slot. Before deleting anything hash-cited to free disk, ask ROOT.
+
+## K1: the S11 site table for sparse.rs and formation_check.rs (ROOT, 2026-09-28)
+
+- **Issue.** `frame_kernel/tests/s11_site_table.rs` (S11 §4.3 rule 7, R3-3) scans only its fixed SOURCES list. K1's new `FK/structural/sparse.rs` would carry accumulation sites the table cannot see. K-D5's `FK/structural/formation_check.rs` is not in SOURCES either; the T3 manager found this while ruling on K1.
+- **sparse.rs: option (a) endorsed.** K1 adds sparse.rs to SOURCES as a declared, additive write-set extension, under five conditions:
+  1. no existing row, count or disposition changes;
+  2. each sparse.rs site has a disposition under S11 §2.5. Stiffness-side sites are explicit exemptions with reasons, and any load, force or RHS accumulation goes through `ExactAccumulator` (count 0);
+  3. a binary64-fold mutant in sparse.rs is killed by the table;
+  4. the extension is declared in CHANGE_RECORD and RETURN;
+  5. a site that fits no existing disposition stops the work, and I8 reports it.
+- **formation_check.rs rides K1's PR as a separate commit,** in the same test file.
+  - It adds per-function rows and dispositions, with no change to existing rows. Stiffness and re-formation sites are explicit exemptions, with reasons.
+  - A binary64-fold mutant in formation_check.rs must be killed by the table.
+  - **If any formation_check.rs site is a load, force or RHS accumulation in plain binary64** (a real rule-7 violation, not a table gap), I8 stops and reports it as a K-D5 finding before touching anything. That would be product code, not a table edit.
+  - It is declared in K1's CHANGE_RECORD and RETURN as a separate item. K1's reviewer covers both commits.
+
+## K1: extending the K-D5 and option-(c) source pins for the sparse siblings (ROOT, 2026-09-28)
+
+- **Issue (I8).** K1's brief requires pattern-taking `SA` entries beside the existing ones, plain and with the formation check, and also that existing suites stay unchanged. Two text pins in `nonlinear_integration/src/s11k_tests.rs` encode "exactly one definition":
+  - `kd5_nonlinear_sources_name_no_formation_check_entry_point`: one definition of the formation-checked entry, with its plumbing tokens only in that body;
+  - `option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points`: it blanks only the first definition of each listed signature, then forbids exact-entry tokens elsewhere.
+
+  The sparse siblings in `SparseAssemblyEvidence` are second definitions, so they trip both pins. `StructuralSystem::assembled(` also matches inside `SparseStructuralSystem::assembled(`. The invariant the pins protect still holds: the nonlinear loop and the legacy binary64 variants reach no exact or formation-check entry. I8 declined to rename or move code to evade the scans.
+- **Approved, in the manager's tightened form.** The edits to `s11k_tests.rs` are additive:
+  - blanking and definition counts are scoped by impl block: `AssemblyEvidence`'s originals as today, plus `SparseAssemblyEvidence`'s named siblings only, with exactly one definition of the formation-checked entry in each;
+  - tokens match on identifier boundaries;
+  - `solve_binary64` and `solve_structural_sparse_binary64` stay checked as today;
+  - zero crate calls of the new siblings, and exactly one product call (PP's `solve_preview_reduced_system`) until F1b;
+  - **required:** a behavioural pin that the loop reaches neither the dense nor the pattern formation entry;
+  - **required mutants, each killed:** an exact-entry call inside `solve_binary64`; a loop call to the pattern formation entry; a third definition in a new impl.
+- **No weakening, proved.** The mutants the original pins were written against are re-run, and each must still be killed by the extended pins at a named assertion. These are K-D5's E4 patch (and E1–E3 where they touch these pins), and the option-(c) mutants recorded in S11-K's and K-D5's records. They are listed with their kill sites in K1's RETURN.
+- It is declared in K1's CHANGE_RECORD and RETURN as a pin extension. K1's independent reviewer checks it against the pins' original intent.
+- **Rejected:** dropping the pattern formation entry from K1. The F1b interface stays.
+
+## K1: the S11-F site test's KERNEL list, and the handoff (ROOT, 2026-09-28)
+
+- **sparse.rs in `product_physics/tests/s11f_site_test.rs`'s KERNEL list: approved,** under the site-table conditions. The addition is additive only, a mutant in sparse.rs is killed by the test, and it is declared as a write-set extension into product_physics **tests only**. It lands as its own hunk.
+- **The C3-detect helper** I8 removed from `sparse_direct`: if it was pre-existing code, it is restored and routed to ROOT. If it was I8's own draft, no action is needed. `IMPLEMENTATION/K1/WIP_STATE.md` records which.
+- **Handoff.** K1 moves to a local session on the owner's Mac (`HANDOFF_2026-09-28_TO_LOCAL.md`). I8 ran no cargo, and its work is committed as one WIP commit, "K1 WIP (handoff; not reviewed)", on `codex/piping-k1-20260928`. K2a finishes in the cloud session.

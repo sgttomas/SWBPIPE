@@ -1,0 +1,87 @@
+//! RV7 probe (not part of the candidate): does main's M03 element-entry floor
+//! (transform_roundoff) refuse a subnormal-derived 1/L coefficient on a
+//! ROTATED member, as RETURN 5.3/5.4 state? Main's (pre-K2a) local matrix is
+//! formed here operation for operation; FK's own orientation and
+//! transform_roundoff are used. Invented inputs; pipe section as PP forms it.
+use open_pipe_stress_frame_kernel::structural::transform_roundoff;
+use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection, Matrix12, DOF_PER_NODE, RX, RY, RZ, UX, UY, UZ};
+use std::f64::consts::PI;
+
+fn main_local(e: f64, g: f64, a: f64, iy: f64, iz: f64, j: f64, l: f64) -> Matrix12 {
+    let (l2, l3) = (l * l, l * l * l);
+    let c = [e * a / l, g * j / l, 12.0 * e * iy / l3, 6.0 * e * iy / l2, 4.0 * e * iy / l, 2.0 * e * iy / l,
+             12.0 * e * iz / l3, 6.0 * e * iz / l2, 4.0 * e * iz / l, 2.0 * e * iz / l];
+    let mut k = [[0.0; 12]; 12];
+    let n = DOF_PER_NODE;
+    for (d, v) in [(UX, c[0]), (RX, c[1])] {
+        k[d][d] = v; k[d + n][d + n] = v; k[d][d + n] = -v; k[d + n][d] = -v;
+    }
+    let mut add = |idx: [usize; 4], t: [[f64; 4]; 4]| { for r in 0..4 { for s in 0..4 { k[idx[r]][idx[s]] += t[r][s]; } } };
+    let (z12, z6, z4, z2) = (c[6], c[7], c[8], c[9]);
+    add([UY, RZ, UY + n, RZ + n], [[z12, z6, -z12, z6], [z6, z4, -z6, z2], [-z12, -z6, z12, -z6], [z6, z2, -z6, z4]]);
+    let (y12, y6, y4, y2) = (c[2], c[3], c[4], c[5]);
+    add([UZ, RY, UZ + n, RY + n], [[y12, -y6, -y12, -y6], [-y6, y4, y6, y2], [-y12, y6, y12, y6], [-y6, y2, y6, y4]]);
+    k
+}
+
+/// 2^k exactly, including subnormal powers (powi(-1030) would give 1/inf = 0).
+fn p2(k: i32) -> f64 { if k >= -1022 { 2f64.powi(k) } else { f64::from_bits(1u64 << (k + 1074)) } }
+
+fn names() -> [&'static str; 10] { ["EA/L","GJ/L","12EIy/L3","6EIy/L2","4EIy/L","2EIy/L","12EIz/L3","6EIz/L2","4EIz/L","2EIz/L"] }
+
+#[test]
+fn rv7_rotated_member_m03_floor() {
+    let l = 2f64.powi(-39);
+    let (od, w) = (1.0e-11f64, 1.0e-12f64);
+    let id = od - 2.0 * w;
+    let a = PI * (od.powi(2) - id.powi(2)) / 4.0;
+    let i = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    let j = 2.0 * i;
+    let g = 1.0e-100;
+    // (12E)I targets: 2^-1030 .. 2^-1050 (2EI/L, 4EI/L below the floor, 6EI/L2 above);
+    // 2^-1055 (6EI/L2 below the floor too, (2E)I nonzero); and "S6a": (12E)I exact
+    // = 2.5 * 2^-1075, so (6E)I rounds to the least subnormal and (4E)I, (2E)I to 0.
+    let cases: Vec<(String, f64)> = [-1030, -1040, -1045, -1050, -1055]
+        .iter().map(|t| (format!("(12E)I=2^{t}"), (1.0 / (12.0 * i)) * p2(-1000) * p2(t + 1000)))
+        .chain(std::iter::once(("S6a (12E)I=2.5*2^-1075".to_string(), (2.5 / (12.0 * i)) * p2(-1000) * p2(-75))))
+        .collect();
+    let s = l / 3f64.sqrt();
+    for (label, e) in cases {
+        let local = main_local(e, g, a, i, i, j, l);
+        let es = e * 2f64.powi(600);
+        let refs = [es * a / l, g * j / l * 2f64.powi(600), 12.0 * es * i / (l * l * l), 6.0 * es * i / (l * l), 4.0 * es * i / l, 2.0 * es * i / l,
+                    12.0 * es * i / (l * l * l), 6.0 * es * i / (l * l), 4.0 * es * i / l, 2.0 * es * i / l];
+        let formed = [e * a / l, g * j / l, 12.0 * e * i / (l * l * l), 6.0 * e * i / (l * l), 4.0 * e * i / l, 2.0 * e * i / l,
+                      12.0 * e * i / (l * l * l), 6.0 * e * i / (l * l), 4.0 * e * i / l, 2.0 * e * i / l];
+        let mut desc = String::new();
+        for k in [0usize, 2, 3, 4, 5] {
+            let r = refs[k] * 2f64.powi(-600);
+            let rel = if k == 1 { 0.0 } else { ((formed[k] - r) / r).abs() };
+            desc += &format!(" {}={:e}(2^{:.2}, rel {:.2e})", names()[k], formed[k], if formed[k] > 0.0 { formed[k].log2() } else { f64::NEG_INFINITY }, rel);
+        }
+        println!("RV7 {label}: E={e:e}; intermediates (12E)I={:e} (6E)I={:e} (4E)I={:e} (2E)I={:e}; GJ/L={:e};{desc}",
+            12.0 * e * i, 6.0 * e * i, 4.0 * e * i, 2.0 * e * i, formed[1]);
+        for (name, nj, yref) in [
+            ("axis x, yref +y", [l, 0.0, 0.0], [0.0, 1.0, 0.0]),
+            ("skew (1,1,1), yref +z", [s, s, s], [0.0, 0.0, 1.0]),
+            ("skew (1,2,2), yref +x", [l / 3.0, 2.0 * l / 3.0, 2.0 * l / 3.0], [1.0, 0.0, 0.0]),
+        ] {
+            let el = FrameElement::new(FrameNode::new(0, [0.0; 3]).unwrap(), FrameNode::new(1, nj).unwrap(),
+                FrameSection::new(e, g, a, i, i, j).unwrap(), yref).unwrap();
+            let len = el.properties().unwrap().length;
+            let t = el.orientation().unwrap().transformation_matrix();
+            match transform_roundoff(&local, &t) {
+                Ok(r) => {
+                    let b = r.absolute_roundoff;
+                    let minb = b.iter().flatten().copied().filter(|v| *v > 0.0).fold(f64::INFINITY, f64::min);
+                    // bounds on the rotational block (RX..RZ at node 0) and on the coupling block (UX..UZ x RX..RZ)
+                    let rot = (3..6).flat_map(|p| (3..6).map(move |q| (p, q))).map(|(p, q)| b[p][q]).fold(f64::INFINITY, f64::min);
+                    let cpl = (0..3).flat_map(|p| (3..6).map(move |q| (p, q))).map(|(p, q)| b[p][q]).filter(|v| *v > 0.0).fold(f64::INFINITY, f64::min);
+                    println!("    {name}: L={len:e}; transform_roundoff ACCEPTED; least positive bound 2^{:.2}; least rotational-block bound 2^{:.2}; least positive coupling-block bound 2^{:.2}",
+                        minb.log2(), rot.log2(), cpl.log2());
+                }
+                Err(err) => println!("    {name}: L={len:e}; transform_roundoff REFUSED {err:?}"),
+            }
+        }
+    }
+}

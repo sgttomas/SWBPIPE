@@ -1,0 +1,44 @@
+"""RV7 mutants on the K2a candidate's FK lib.rs (exact-string patches; each anchor must match once)."""
+import sys, pathlib
+VALUE_IF = "    if operands_in_range && !value.is_normal() {"
+def sub_ok(names):
+    cond = " || ".join(f'name == "{n}"' for n in names)
+    return [(VALUE_IF, f"    if operands_in_range && !value.is_normal() && !(value.is_subnormal() && ({cond})) {{")]
+M = {
+  "NONE": [],
+  # skip the subnormal refusal at one site class only
+  "R1_sub_ok_12EI_L3_quotients": sub_ok(["12EIy/L^3: (12*E*Iy)/L^3", "12EIz/L^3: (12*E*Iz)/L^3"]),
+  "R2_sub_ok_EA_GJ": sub_ok(["EA/L: E*A", "EA/L: (E*A)/L", "GJ/L: G*J", "GJ/L: (G*J)/L"]),
+  "R3_sub_ok_L3": sub_ok(["L^3 (for 12EI/L^3): L^2*L"]),
+  "R4_sub_ok_12EIz_product": sub_ok(["12EIz/L^3: (12*E)*Iz"]),
+  "R5_sub_ok_12E": sub_ok(["12EIy/L^3 and 12EIz/L^3: 12*E"]),
+  # skip the subnormal refusal at every product (quotients still fully checked)
+  "R9_sub_ok_all_products": [("    checked_formation_value(name, left, right, left * right)\n",
+      "    let v = left * right;\n    if v.is_subnormal() { return Ok(v); }\n    checked_formation_value(name, left, right, v)\n")],
+  # check a differently rounded value than the one returned (quotient via reciprocal)
+  "R5b_check_reciprocal_product": [("    checked_formation_value(name, numerator, denominator, numerator / denominator)\n",
+      "    checked_formation_value(name, numerator, denominator, numerator * (1.0 / denominator))?;\n    Ok(numerator / denominator)\n")],
+  # reorder one product (6EIz numerator as 6*(E*Iz))
+  "R6_reorder_6EIz": [('checked_formation_product("6EIz/L^2: (6*E)*Iz", six_e, iz)?',
+                       'checked_formation_product("6EIz/L^2: (6*E)*Iz", 6.0, e * iz)?')],
+  # reorder 12EIz/L^3 as (12E)*(Iz/L^3)
+  "R7_reorder_12EIz_quotient_first": [('''    let bend_z_12 = checked_formation_quotient(
+        "12EIz/L^3: (12*E*Iz)/L^3",
+        checked_formation_product("12EIz/L^3: (12*E)*Iz", twelve_e, iz)?,
+        length3,
+    )?;''', '''    let bend_z_12 = checked_formation_product(
+        "12EIz/L^3: (12*E)*Iz",
+        twelve_e,
+        checked_formation_quotient("12EIz/L^3: (12*E*Iz)/L^3", iz, length3)?,
+    )?;''')],
+  # boundary: also refuse exactly 2^-1022
+  "R10_refuse_min_positive": [(VALUE_IF, "    if operands_in_range && (!value.is_normal() || value.abs() == f64::MIN_POSITIVE) {")],
+}
+if __name__ == "__main__":
+    name, src, dst = sys.argv[1], pathlib.Path(sys.argv[2]), pathlib.Path(sys.argv[3])
+    text = src.read_text()
+    for old, new in M[name]:
+        assert text.count(old) == 1, (name, old[:60], text.count(old))
+        text = text.replace(old, new)
+    dst.write_text(text)
+    print("applied", name, len(M[name]))

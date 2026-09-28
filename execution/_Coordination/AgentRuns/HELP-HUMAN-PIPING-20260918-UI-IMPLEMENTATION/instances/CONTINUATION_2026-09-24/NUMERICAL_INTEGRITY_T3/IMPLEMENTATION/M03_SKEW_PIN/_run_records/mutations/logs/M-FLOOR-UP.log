@@ -1,0 +1,159 @@
+== mutant M-FLOOR-UP
+M-FLOOR-UP: 1 hunk(s) applied
+== FK --test m03_skew_scope
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.45s
+     Running tests/m03_skew_scope.rs (<wt>/skewpin-mut/M-FLOOR-UP/target/debug/deps/m03_skew_scope-4f2c745387a5ac56)
+
+running 5 tests
+test m03_skew_pin_preconditions_hold ... FAILED
+test m03_skew_pin_6eil2_is_the_limiting_coefficient ... FAILED
+test m03_skew_pin_rv7_cases_outcomes_and_figures ... FAILED
+test m03_skew_scope_guard_documented_limitation_not_desired_behaviour ... FAILED
+test m03_skew_pin_dense_and_pattern_outcomes_are_identical ... FAILED
+
+failures:
+
+---- m03_skew_pin_preconditions_hold stdout ----
+
+thread 'm03_skew_pin_preconditions_hold' (1717067) panicked at tests/m03_skew_scope.rs:444:9:
+assertion `left == right` failed: floor scale 1.0000000009313226: Err(Range("arithmetic outside normal range"))
+  left: false
+ right: true
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- m03_skew_pin_6eil2_is_the_limiting_coefficient stdout ----
+I9 counterfactual (12E)I=2^-1030 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 counterfactual (12E)I=2^-1030 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 counterfactual (12E)I=2^-1030 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 counterfactual (12E)I=2^-1040 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 counterfactual (12E)I=2^-1040 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 counterfactual (12E)I=2^-1040 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 counterfactual (12E)I=2^-1045 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 counterfactual (12E)I=2^-1045 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 counterfactual (12E)I=2^-1045 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 counterfactual (12E)I=2^-1050 axis x, yref +y with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 counterfactual (12E)I=2^-1050 skew (1,1,1), yref +z with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+I9 counterfactual (12E)I=2^-1050 skew (1,2,2), yref +x with 6EI/L^2 = 5.219188437523272e-295: Err(Range("arithmetic outside normal range")) (least |T| 0.2357)
+I9 counterfactual (12E)I=2^-1055 axis x, yref +y with 6EI/L^2 = 3.340280600014894e-293: Err(Range("arithmetic outside normal range")) (least |T| 1.0000)
+I9 counterfactual (12E)I=2^-1055 skew (1,1,1), yref +z with 6EI/L^2 = 3.340280600014894e-293: Err(Range("arithmetic outside normal range")) (least |T| 0.4082)
+
+thread 'm03_skew_pin_6eil2_is_the_limiting_coefficient' (1717065) panicked at tests/m03_skew_scope.rs:637:13:
+assertion `left == right` failed: (12E)I=2^-1055 skew (1,1,1), yref +z with 6EI/L^2 = 3.340280600014894e-293
+  left: Err(Range("arithmetic outside normal range"))
+ right: Ok(())
+
+---- m03_skew_pin_rv7_cases_outcomes_and_figures stdout ----
+I9 (12E)I=2^-1030: E=2.499234299669558e-266 bits=0x08c9c9a8b85573a6; (12E)I=8.691694759794e-311 (6E)I=4.345847379897e-311 (4E)I=2.897231586598e-311 (2E)I=1.448615793299e-311; EA/L 2^-918.22 GJ/L 2^-443.47 12EI/L3 2^-913.00 6EI/L2 2^-953.00 4EI/L 2^-992.58 2EI/L 2^-993.58
+I9 (12E)I=2^-1030: exact relative error 2EI/L 1.137801e-13, 4EI/L 5.675013e-14
+I9 (12E)I=2^-1030 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 (12E)I=2^-1030 skew (1,1,1), yref +z: ACCEPTED; least bound 2^-1001.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1001.21
+I9 (12E)I=2^-1030 skew (1,2,2), yref +x: ACCEPTED; least bound 2^-1002.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1002.00
+I9 (12E)I=2^-1040: E=2.4406584957710526e-269 bits=0x0829c9a8b85573a6; (12E)I=8.487983164e-314 (6E)I=4.243991582e-314 (4E)I=2.829327721e-314 (2E)I=1.414663861e-314; EA/L 2^-928.22 GJ/L 2^-443.47 12EI/L3 2^-923.00 6EI/L2 2^-963.00 4EI/L 2^-1002.58 2EI/L 2^-1003.58
+I9 (12E)I=2^-1040: exact relative error 2EI/L 1.164154e-10, 4EI/L 5.820757e-11
+I9 (12E)I=2^-1040 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 (12E)I=2^-1040 skew (1,1,1), yref +z: ACCEPTED; least bound 2^-1011.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1011.21
+I9 (12E)I=2^-1040 skew (1,2,2), yref +x: ACCEPTED; least bound 2^-1012.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1012.00
+I9 (12E)I=2^-1045: E=7.627057799284539e-271 bits=0x07d9c9a8b85573a6; (12E)I=2.65249474e-315 (6E)I=1.32624737e-315 (4E)I=8.84164915e-316 (2E)I=4.42082455e-316; EA/L 2^-933.22 GJ/L 2^-443.47 12EI/L3 2^-928.00 6EI/L2 2^-968.00 4EI/L 2^-1007.58 2EI/L 2^-1008.58
+I9 (12E)I=2^-1045: exact relative error 2EI/L 3.725290e-9, 4EI/L 1.862645e-9
+I9 (12E)I=2^-1045 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+I9 (12E)I=2^-1045 skew (1,1,1), yref +z: ACCEPTED; least bound 2^-1016.21; least rotational-block bound 2^-492.47; least positive coupling-block bound 2^-1016.21
+I9 (12E)I=2^-1045 skew (1,2,2), yref +x: ACCEPTED; least bound 2^-1017.00; least rotational-block bound 2^-494.05; least positive coupling-block bound 2^-1017.00
+I9 (12E)I=2^-1050: E=2.3834555622764186e-272 bits=0x0789c9a8b85573a6; (12E)I=8.289046e-317 (6E)I=4.144523e-317 (4E)I=2.763015e-317 (2E)I=1.381508e-317; EA/L 2^-938.22 GJ/L 2^-443.47 12EI/L3 2^-933.00 6EI/L2 2^-973.00 4EI/L 2^-1012.58 2EI/L 2^-1013.58
+I9 (12E)I=2^-1050: exact relative error 2EI/L 1.192093e-7, 4EI/L 5.960464e-8
+I9 (12E)I=2^-1050 axis x, yref +y: REFUSED Range("arithmetic outside normal range")
+
+thread 'm03_skew_pin_rv7_cases_outcomes_and_figures' (1717068) panicked at tests/m03_skew_scope.rs:562:40:
+(12E)I=2^-1050 skew (1,1,1), yref +z: RV7's table says accepted, got Err(Range("arithmetic outside normal range")) (orientation 1)
+
+---- m03_skew_scope_guard_documented_limitation_not_desired_behaviour stdout ----
+
+thread 'm03_skew_scope_guard_documented_limitation_not_desired_behaviour' (1717069) panicked at tests/m03_skew_scope.rs:931:5:
+assertion `left == right` failed: M03's skew scope changed: every other case (all axis-aligned rows, 2^-1055 and S6a) is refused with Range("arithmetic outside normal range")
+  left: [("(12E)I=2^-1030", "skew (1,1,1), yref +z"), ("(12E)I=2^-1030", "skew (1,2,2), yref +x"), ("(12E)I=2^-1040", "skew (1,1,1), yref +z"), ("(12E)I=2^-1040", "skew (1,2,2), yref +x"), ("(12E)I=2^-1045", "skew (1,1,1), yref +z"), ("(12E)I=2^-1045", "skew (1,2,2), yref +x")]
+ right: [("(12E)I=2^-1030", "skew (1,1,1), yref +z"), ("(12E)I=2^-1030", "skew (1,2,2), yref +x"), ("(12E)I=2^-1040", "skew (1,1,1), yref +z"), ("(12E)I=2^-1040", "skew (1,2,2), yref +x"), ("(12E)I=2^-1045", "skew (1,1,1), yref +z"), ("(12E)I=2^-1045", "skew (1,2,2), yref +x"), ("(12E)I=2^-1050", "skew (1,1,1), yref +z"), ("(12E)I=2^-1050", "skew (1,2,2), yref +x")]
+
+---- m03_skew_pin_dense_and_pattern_outcomes_are_identical stdout ----
+I9 parity (12E)I=2^-1030 skew (1,1,1), yref +z reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1030 skew (1,1,1), yref +z reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1030 skew (1,1,1), yref +z dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1030 skew (1,2,2), yref +x reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1030 skew (1,2,2), yref +x reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1030 skew (1,2,2), yref +x dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,1,1), yref +z reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,1,1), yref +z reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,1,1), yref +z dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,2,2), yref +x reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,2,2), yref +x reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1040 skew (1,2,2), yref +x dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,1,1), yref +z reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,1,1), yref +z reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,1,1), yref +z dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,2,2), yref +x reversed=false: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,2,2), yref +x reversed=true: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+I9 parity (12E)I=2^-1045 skew (1,2,2), yref +x dense Cholesky: floor accepted; gate Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) }
+
+thread 'm03_skew_pin_dense_and_pattern_outcomes_are_identical' (1717066) panicked at tests/m03_skew_scope.rs:869:37:
+(12E)I=2^-1050 skew (1,1,1), yref +z: floor outcome Err(Range("arithmetic outside normal range"))
+
+
+failures:
+    m03_skew_pin_6eil2_is_the_limiting_coefficient
+    m03_skew_pin_dense_and_pattern_outcomes_are_identical
+    m03_skew_pin_preconditions_hold
+    m03_skew_pin_rv7_cases_outcomes_and_figures
+    m03_skew_scope_guard_documented_limitation_not_desired_behaviour
+
+test result: FAILED. 0 passed; 5 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--test m03_skew_scope`
+error: 1 target failed:
+    `--test m03_skew_scope`
+== FK exit 101
+== NI --lib i9_
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/skewpin-mut/M-FLOOR-UP/tree/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.56s
+     Running unittests src/lib.rs (<wt>/skewpin-mut/M-FLOOR-UP/target/debug/deps/open_pipe_stress_nonlinear_integration-8ecf23423897b5ab)
+
+running 1 test
+test structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes ... FAILED
+
+failures:
+
+---- structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes stdout ----
+I9 adapter (12E)I=2^-1030 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1030 skew (1,1,1), yref +z SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1030 skew (1,2,2), yref +x DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1030 skew (1,2,2), yref +x SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1040 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1040 skew (1,1,1), yref +z SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1040 skew (1,2,2), yref +x DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1040 skew (1,2,2), yref +x SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1045 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1045 skew (1,1,1), yref +z SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+I9 adapter (12E)I=2^-1045 skew (1,2,2), yref +x DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+I9 adapter (12E)I=2^-1045 skew (1,2,2), yref +x SparseInteractive: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(11) })
+
+thread 'structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes' (1719263) panicked at src/structural_adapter/k1_tests.rs:1525:18:
+M03's element-entry floor accepts the skew member: Range("arithmetic outside normal range")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 97 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+    `--lib`
+== NI exit 101

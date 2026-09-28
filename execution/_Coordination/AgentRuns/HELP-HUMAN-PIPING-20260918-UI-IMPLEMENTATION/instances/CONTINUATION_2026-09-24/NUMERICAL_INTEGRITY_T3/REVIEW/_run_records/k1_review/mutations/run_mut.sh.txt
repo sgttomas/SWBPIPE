@@ -1,0 +1,25 @@
+#!/bin/bash
+# RV8 mutant runner: one clean git-archive copy and one target per mutant.
+# Usage: run_mut.sh <id>
+set -u
+WT=<wt>
+S=$WT/scratch/rv7
+id=$1
+M=$S/mut/$id
+T=$WT/rv7-target/mut/$id
+rm -rf $M $T; mkdir -p $M $T
+cd $WT/numerics && git archive 43f9e6a78d68feb71f72ff244e3fc1ae27edd4a5 projects/chirality-piping/core | tar -x -C $M
+CORE=$M/projects/chirality-piping/core
+case $id in
+  RV8-*) python3 $S/rv8_mutants.py $CORE $id ;;
+  *) python3 $S/mutate_k1.py $CORE $id ;;
+esac
+source $S/env.sh
+export RUST_TEST_THREADS=4
+LOG=$S/mutlogs/$id.log; mkdir -p $S/mutlogs; : > $LOG
+for crate in ${CRATES:-frame_kernel sparse_direct nonlinear_integration}; do
+  echo "=== $crate" >> $LOG
+  (cd $CORE/solver/$crate && CARGO_TARGET_DIR=$T cargo test --offline --locked -j 4 --no-fail-fast >> $LOG 2>&1); echo "exit $crate $?" >> $LOG
+done
+rm -rf $T $M
+echo "done $id" >> $LOG

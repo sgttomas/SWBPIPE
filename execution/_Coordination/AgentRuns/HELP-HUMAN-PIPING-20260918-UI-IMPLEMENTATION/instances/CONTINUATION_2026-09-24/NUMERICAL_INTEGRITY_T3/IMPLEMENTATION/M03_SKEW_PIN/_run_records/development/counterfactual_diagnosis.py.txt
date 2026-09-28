@@ -1,0 +1,95 @@
+import math
+from fractions import Fraction as F
+u=2.0**-53
+def gamma(n): return n*u/(1-n*u)
+class R(Exception): pass
+def sub(x): return x!=0 and abs(x)<2.0**-1022
+def cprod(a,b):
+    x=a*b
+    if not math.isfinite(x) or (a!=0 and b!=0 and (x==0 or sub(x))): raise R('product overflow or underflow')
+    return x
+def cval(x):
+    if not math.isfinite(x) or sub(x): raise R('arithmetic outside normal range')
+    return x
+def troundoff(local,T):
+    temp=[[0.0]*12 for _ in range(12)]; mag=[[0.0]*12 for _ in range(12)]
+    for i in range(12):
+        for j in range(12):
+            for k in range(12):
+                t=cprod(local[i][k],T[k][j]); temp[i][j]=cval(temp[i][j]+t); mag[i][j]=cval(mag[i][j]+abs(t))
+    g=gamma(24); b=[[0.0]*12 for _ in range(12)]
+    for i in range(12):
+        for j in range(12):
+            inh=0.0; sec=0.0
+            for k in range(12):
+                inh=cval(inh+cprod(abs(T[k][i]),mag[k][j])); sec=cval(sec+cprod(abs(T[k][i]),abs(temp[k][j])))
+            b[i][j]=cval(g*(inh/(1.0-g)+sec)*(1.0+64.0*2.0**-52))
+    return b
+def coeffs(e,g,a,iy,iz,j,L):
+    L2=L*L; L3=L2*L
+    return [e*a/L,g*j/L,12.0*e*iy/L3,6.0*e*iy/L2,4.0*e*iy/L,2.0*e*iy/L,12.0*e*iz/L3,6.0*e*iz/L2,4.0*e*iz/L,2.0*e*iz/L]
+def local(c):
+    ax,to,y12,y6,y4,y2,z12,z6,z4,z2=c
+    K=[[0.0]*12 for _ in range(12)]
+    UX,UY,UZ,RX,RY,RZ=range(6)
+    K[UX][UX+6]=K[UX+6][UX]=-ax; K[UX][UX]=K[UX+6][UX+6]=ax
+    K[RX][RX+6]=K[RX+6][RX]=-to; K[RX][RX]=K[RX+6][RX+6]=to
+    def add(idx,t):
+        for r in range(4):
+            for s in range(4): K[idx[r]][idx[s]]+=t[r][s]
+    add([UY,RZ,UY+6,RZ+6],[[z12,z6,-z12,z6],[z6,z4,-z6,z2],[-z12,-z6,z12,-z6],[z6,z2,-z6,z4]])
+    add([UZ,RY,UZ+6,RY+6],[[y12,-y6,-y12,-y6],[-y6,y4,y6,y2],[-y12,y6,y12,y6],[-y6,y2,y6,y4]])
+    return K
+def dot(a,b): return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
+def norm(a): return math.sqrt(dot(a,a))
+def scale(a,s): return [a[0]*s,a[1]*s,a[2]*s]
+def subv(a,b): return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]
+def cross(l,r): return [l[1]*r[2]-l[2]*r[1], l[2]*r[0]-l[0]*r[2], l[0]*r[1]-l[1]*r[0]]
+def normalize(v): return scale(v,1.0/norm(v))
+def orient(d,yref):
+    x=normalize(d); p=dot(yref,x); y=normalize(subv(yref,scale(x,p))); z=normalize(cross(x,y)); return [x,y,z]
+def Tmat(Rm):
+    T=[[0.0]*12 for _ in range(12)]
+    for b in range(4):
+        for r in range(3):
+            for s in range(3): T[3*b+r][3*b+s]=Rm[r][s]
+    return T
+def p2(k): return math.ldexp(1.0,k)
+L=p2(-39); od,w=1e-11,1e-12; id_=od-2.0*w
+A=math.pi*((od*od)-(id_*id_))/4.0
+I=math.pi*((od*od)*(od*od)-(id_*id_)*(id_*id_))/64.0
+J=2.0*I
+s=L/math.sqrt(3.0)
+ORI=[("axis",[L,0.0,0.0],[0.0,1.0,0.0]),("skew111",[s,s,s],[0.0,0.0,1.0]),("skew122",[L/3.0,2.0*L/3.0,2.0*L/3.0],[1.0,0.0,0.0])]
+# --- I9 counterfactual diagnosis (development record): a standard-library replica of main's
+# pre-K2a formation, FK's orientation and FK's transform_roundoff, reporting WHERE the bound
+# refuses. Not evidence by itself; the Rust tests (FK tests/m03_skew_scope.rs) are.
+floor = 2.0**-1022 / (gamma(24) * (1.0 / (1.0 - gamma(24)) + 1.0) * (1.0 + 64.0 * 2.0**-52))
+def troundoff_where(local, T):
+    temp=[[0.0]*12 for _ in range(12)]; mag=[[0.0]*12 for _ in range(12)]
+    for i in range(12):
+        for j in range(12):
+            for k in range(12):
+                t=cprod(local[i][k],T[k][j]); temp[i][j]=cval(temp[i][j]+t); mag[i][j]=cval(mag[i][j]+abs(t))
+    g=gamma(24)
+    for i in range(12):
+        for j in range(12):
+            inh=0.0; sec=0.0
+            for k in range(12):
+                try:
+                    inh=cval(inh+cprod(abs(T[k][i]),mag[k][j])); sec=cval(sec+cprod(abs(T[k][i]),abs(temp[k][j])))
+                except R as ex:
+                    return f"refused at bound ({i},{j}), term k={k}: |T|={abs(T[k][i]):.4f} x magnitude 2^{math.log2(mag[k][j]):.2f}: {ex}"
+            b=g*(inh/(1.0-g)+sec)*(1.0+64.0*2.0**-52)
+            if sub(b): return f"refused at bound ({i},{j}) = 2^{math.log2(b):.2f}: arithmetic outside normal range"
+    return "accepted"
+cases=[(f"2^{t}",(1.0/(12.0*I))*p2(-1000)*p2(t+1000)) for t in (-1030,-1040,-1045,-1050,-1055)]+[("S6a",(2.5/(12.0*I))*p2(-1000)*p2(-75))]
+for label,E in cases:
+    for name,d,yref in ORI:
+        Rm=orient(d,yref); T=Tmat(Rm)
+        c=coeffs(E,1e-100,A,I,I,J,L)
+        base=troundoff_where(local(c),T)
+        moved = floor/8 if c[3] > floor else 8*floor
+        c[3]=c[7]=moved
+        print(f"{label:9s} {name:8s} as formed: {base}")
+        print(f"{'':9s} {'':8s} 6EI/L^2 -> {moved:.3e}: {troundoff_where(local(c),T)}")

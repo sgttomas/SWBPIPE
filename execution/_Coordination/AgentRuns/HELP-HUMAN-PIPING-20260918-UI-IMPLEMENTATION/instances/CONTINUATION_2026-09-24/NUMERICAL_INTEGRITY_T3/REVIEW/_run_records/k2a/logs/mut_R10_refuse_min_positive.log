@@ -1,0 +1,19 @@
+applied R10_refuse_min_positive 1
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv7/fk_mut)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.95s
+     Running tests/k2a_checked_formation.rs (<wt>/rv7-target/fk_mut/debug/deps/k2a_checked_formation-739570a890748b5e)
+
+running 10 tests
+test k2a_each_checked_intermediate_is_refused_by_its_own_name ... ok
+test k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical ... ok
+test k2a_partial_underflow_control_is_refused ... ok
+test k2a_refused_formation_is_refused_before_the_formation_check_runs ... ok
+test k2a_rf_range_lef_large_overflow_is_refused_by_name_on_all_three_bases ... ok
+test k2a_rf_range_lef_small_is_silent_unchecked_and_refused_by_name_on_all_three_bases ... ok
+test k2a_subnormal_intermediate_control_is_refused_although_every_coefficient_is_normal ... ok
+test k2a_zero_operand_keeps_its_existing_refusal ... ok
+test k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations ... ok
+test k2a_normal_formations_are_bit_identical_to_the_unchecked_formation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

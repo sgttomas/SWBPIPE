@@ -1,0 +1,72 @@
+import math, sys
+from fractions import Fraction as F
+u=2.0**-53
+def gamma(n): return n*u/(1-n*u)
+class R(Exception): pass
+def isnormal(x): return x!=0 and math.isfinite(x) and abs(x)>=2.0**-1022
+def sub(x): return x!=0 and abs(x)<2.0**-1022
+def cprod(a,b):
+    x=a*b
+    if not math.isfinite(x) or (a!=0 and b!=0 and (x==0 or sub(x))): raise R('product overflow or underflow')
+    return x
+def cval(x):
+    if not math.isfinite(x) or sub(x): raise R('arithmetic outside normal range')
+    return x
+def troundoff(local,T):
+    temp=[[0.0]*12 for _ in range(12)]; mag=[[0.0]*12 for _ in range(12)]
+    for i in range(12):
+        for j in range(12):
+            for k in range(12):
+                t=cprod(local[i][k],T[k][j]); temp[i][j]=cval(temp[i][j]+t); mag[i][j]=cval(mag[i][j]+abs(t))
+    g=gamma(24); b=[[0.0]*12 for _ in range(12)]
+    for i in range(12):
+        for j in range(12):
+            inh=0.0; sec=0.0
+            for k in range(12):
+                inh=cval(inh+cprod(abs(T[k][i]),mag[k][j])); sec=cval(sec+cprod(abs(T[k][i]),abs(temp[k][j])))
+            b[i][j]=cval(g*(inh/(1.0-g)+sec)*(1.0+64.0*2.0**-52))
+    return b
+def local(e,g,a,iy,iz,j,L):
+    L2=L*L; L3=L2*L
+    ax=e*a/L; to=g*j/L
+    c=dict(ax=ax,to=to,y12=12.0*e*iy/L3,y6=6.0*e*iy/L2,y4=4.0*e*iy/L,y2=2.0*e*iy/L,z12=12.0*e*iz/L3,z6=6.0*e*iz/L2,z4=4.0*e*iz/L,z2=2.0*e*iz/L)
+    K=[[0.0]*12 for _ in range(12)]
+    UX,UY,UZ,RX,RY,RZ=range(6)
+    K[UX][UX+6]=K[UX+6][UX]=-ax; K[UX][UX]=K[UX+6][UX+6]=ax
+    K[RX][RX+6]=K[RX+6][RX]=-to; K[RX][RX]=K[RX+6][RX+6]=to
+    def add(idx,t):
+        for r in range(4):
+            for s in range(4): K[idx[r]][idx[s]]+=t[r][s]
+    z12,z6,z4,z2=c['z12'],c['z6'],c['z4'],c['z2']
+    add([UY,RZ,UY+6,RZ+6],[[z12,z6,-z12,z6],[z6,z4,-z6,z2],[-z12,-z6,z12,-z6],[z6,z2,-z6,z4]])
+    y12,y6,y4,y2=c['y12'],c['y6'],c['y4'],c['y2']
+    add([UZ,RY,UZ+6,RY+6],[[y12,-y6,-y12,-y6],[-y6,y4,y6,y2],[-y12,y6,y12,y6],[-y6,y2,y6,y4]])
+    return K,c
+def rot(d,yref):
+    n=math.sqrt(sum(x*x for x in d)); ex=[x/n for x in d]
+    # z = x cross yref, y = z cross x
+    ez=[ex[1]*yref[2]-ex[2]*yref[1],ex[2]*yref[0]-ex[0]*yref[2],ex[0]*yref[1]-ex[1]*yref[0]]
+    m=math.sqrt(sum(x*x for x in ez)); ez=[x/m for x in ez]
+    ey=[ez[1]*ex[2]-ez[2]*ex[1],ez[2]*ex[0]-ez[0]*ex[2],ez[0]*ex[1]-ez[1]*ex[0]]
+    Rm=[ex,ey,ez]
+    T=[[0.0]*12 for _ in range(12)]
+    for b in range(4):
+        for r in range(3):
+            for s in range(3): T[3*b+r][3*b+s]=Rm[r][s]
+    return T
+def section(od,w):
+    i_=od-2.0*w; a=math.pi*(od**2-i_**2)/4.0; I=math.pi*(od**4-i_**4)/64.0; return a,I,2.0*I
+L=2.0**-39; od,w=1e-11,1e-12
+a,I,J=section(od,w)
+for target in [-1030,-1040,-1045,-1050]:
+    e=2.0**target/(12*I)
+    g=1e-100
+    K,c=local(e,g,a,I,I,J,L)
+    p2=2.0*e*I
+    ref2=F(2.0*e)*F(I)/F(L)   # exact numerator from the formed 2E
+    rel=abs(F(c['y2'])-ref2)/ref2
+    info=f"target 2^{target}: E={e:.3e} (2E)I={p2:.3e} sub={sub(p2)} 2EI/L={c['y2']:.3e} log2={math.log2(c['y2']):.2f} 4EI/L log2={math.log2(c['y4']):.2f} 6EI/L2 log2={math.log2(c['y6']):.2f} 12EI/L3 log2={math.log2(c['y12']):.2f} EA/L log2={math.log2(c['ax']):.2f} GJ/L log2={math.log2(c['to']):.2f} rel_err(2EI/L)={float(rel):.2e}"
+    print(info)
+    for name,T in [('axis',rot([1,0,0],[0,1,0])),('skew',rot([1,1,1],[0,0,1])),('skew2',rot([1,2,2],[1,0,0]))]:
+        try: troundoff(K,T); print('   ',name,'ACCEPTED by transform_roundoff')
+        except R as ex: print('   ',name,'refused',ex)

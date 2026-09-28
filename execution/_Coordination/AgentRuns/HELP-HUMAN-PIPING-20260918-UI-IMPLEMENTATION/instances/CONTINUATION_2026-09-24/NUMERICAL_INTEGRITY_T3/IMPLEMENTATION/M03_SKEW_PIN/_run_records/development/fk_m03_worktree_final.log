@@ -1,0 +1,12 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/skewpin/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running tests/m03_skew_scope.rs (<wt>/skewpin-target/debug/deps/m03_skew_scope-4f2c745387a5ac56)
+
+running 5 tests
+test m03_skew_pin_preconditions_hold ... ok
+test m03_skew_pin_6eil2_is_the_limiting_coefficient ... ok
+test m03_skew_pin_rv7_cases_outcomes_and_figures ... ok
+test m03_skew_scope_guard_documented_limitation_not_desired_behaviour ... ok
+test m03_skew_pin_dense_and_pattern_outcomes_are_identical ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s

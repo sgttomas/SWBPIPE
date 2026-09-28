@@ -1,0 +1,3 @@
+The probe source is the review's dense_diff.rs, unchanged:
+0d6c1d7de4e4427b3bbfb80e84eaaa4de6c5a86d1e195ca67c526b950434a1f0  25425 bytes  500 lines  dense_diff.rs
+(committed as REVIEW/_run_records/k1_review/dense_differential/dense_diff.rs.txt, placeholders applied)
