@@ -1,0 +1,5 @@
+host: macOS 26.6.2, arm64 (aarch64-apple-darwin), 128 GB, no swap
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo 1.97.1 (c980f4866 2026-06-30)
+RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 --offline --locked -j 4 RUST_TEST_THREADS=2; one cargo job at a time; default dev profile (opt-level 0)
+python: <VENV>/bin/python 3.13.14 (standard library only); some comparison helpers ran on the python3 on PATH, 3.13.14

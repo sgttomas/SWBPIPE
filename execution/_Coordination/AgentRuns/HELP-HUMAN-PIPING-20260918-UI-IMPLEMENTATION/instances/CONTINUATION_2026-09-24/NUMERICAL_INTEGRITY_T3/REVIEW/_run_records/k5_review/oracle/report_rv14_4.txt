@@ -1,0 +1,13 @@
+RV14 oracle report
+cases=6 results=6
+count MechanismWitnessed def RIGID-NONFINITE 1
+count NumericallyUnresolved def ok 4
+count NumericallyUnresolved full ok 1
+findings=1
+FINDING H_tiny_free_x: rigid_parameters not finite: [inf, 0.0, 0.0, 0.0, 0.0, 0.0] (L = 8e-323)
+H_tiny_free_x|MechanismWitnessed|nullity=1|RIGID-NONFINITE|
+H_huge_2e1000|NumericallyUnresolved|nullity=1|ok|exact canonical witness exists but was not found (completeness)
+H_huge_2e1019|NumericallyUnresolved|nullity=1|ok|exact canonical witness exists but was not found (completeness)
+H_huge_2e1020|NumericallyUnresolved|nullity=1|ok|exact canonical witness exists but was not found (completeness)
+H_huge_2e1023|NumericallyUnresolved|nullity=1|ok|exact canonical witness exists but was not found (completeness)
+B_cycle_band_min|NumericallyUnresolved|nullity=0|ok|

@@ -1,0 +1,222 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling proc-macro2 v1.0.106
+   Compiling version_check v0.9.5
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.228
+   Compiling libc v0.2.189
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling serde_json v1.0.149
+   Compiling serde v1.0.228
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/diagnostics)
+   Compiling serde_derive v1.0.228
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_product_physics v0.2.0 (<wt>/scratch/rv14/mut/copies/RV14-M4/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8711:4
+     |
+8711 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:63:9
+   |
+62 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+63 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:92:9
+   |
+91 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+92 |     pub support_id: String,
+   |         ^^^^^^^^^^
+93 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+94 |     pub value: f64,
+   |         ^^^^^
+95 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:117:9
+    |
+116 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+117 |     pub dofs: usize,
+    |         ^^^^
+118 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+119 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 |     pub blocks: usize,
+    |         ^^^^^^
+121 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+122 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+123 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+124 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+125 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+126 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+127 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+128 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+129 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+130 |     pub max_relative_projection_error: f64,
+131 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:144:5
+    |
+138 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+144 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:170:12
+    |
+153 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+170 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:524:19
+    |
+453 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+524 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings
+warning: function `lone_arc` is never used
+  --> tests/rv14_pp_probe.rs:89:4
+   |
+89 | fn lone_arc(k: f64) -> Value {
+   |    ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `unpressurized` is never used
+   --> tests/rv14_pp_probe.rs:123:4
+    |
+123 | fn unpressurized(mut model: Value) -> Value {
+    |    ^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (test "rv14_pp_probe") generated 2 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.17s
+     Running tests/rv14_pp_probe.rs (<wt>/rv14-target/mut-RV14-M4/debug/deps/rv14_pp_probe-24616d13b6e514fb)
+
+running 1 test
+K5RUN constructed_mechanism_r0.25_o1024 captured SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=316bc254b08dd7cf8dd6fe83b278b5dd0fd2d1a1a01f3d43b296b83ec3a82393 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN constructed_mechanism_r0.25_o1024 typed SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ca961f1dbdbc633bc15388db0f96afa103b9fa01dc459c2feb3affd0dd3e5fa8 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN constructed_mechanism_r0.25_o1024 captured DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=316bc254b08dd7cf8dd6fe83b278b5dd0fd2d1a1a01f3d43b296b83ec3a82393 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN constructed_mechanism_r0.25_o1024 typed DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ca961f1dbdbc633bc15388db0f96afa103b9fa01dc459c2feb3affd0dd3e5fa8 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN constructed_gap_r0.25_o1024 captured SparseInteractive mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=5b87c150440f17e652b867b5cdfc5ebe15682c0a89bac593a2ed169761ac8940 integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(3)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"nod
+K5RUN constructed_gap_r0.25_o1024 typed SparseInteractive mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=5b87c150440f17e652b867b5cdfc5ebe15682c0a89bac593a2ed169761ac8940 integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(3)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"nod
+K5RUN constructed_gap_r0.25_o1024 captured DenseScrutiny mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=741c7744d2313613f1af7d5f5053a3bdc035fd65bc4587408201d105c71c68dc integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(22)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"no
+K5RUN constructed_gap_r0.25_o1024 typed DenseScrutiny mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=741c7744d2313613f1af7d5f5053a3bdc035fd65bc4587408201d105c71c68dc integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(22)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"no
+K5RUN constructed_companion_r0.25_o1024 captured SparseInteractive mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=882fb9da13d09baaa05178c7580c0aba88f6b3d4bdf47092f7cce2fd4b21b5f8 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_skyline_LDL",_scale_ex
+K5RUN constructed_companion_r0.25_o1024 typed SparseInteractive mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=882fb9da13d09baaa05178c7580c0aba88f6b3d4bdf47092f7cce2fd4b21b5f8 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_skyline_LDL",_scale_ex
+K5RUN constructed_companion_r0.25_o1024 captured DenseScrutiny mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=16ca869226ddd7806c93e406abf0b62f6795d3916ee45499197471b6cfcec8fd integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_dense_Cholesky",_scale
+K5RUN constructed_companion_r0.25_o1024 typed DenseScrutiny mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=16ca869226ddd7806c93e406abf0b62f6795d3916ee45499197471b6cfcec8fd integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_dense_Cholesky",_scale
+K5RUN constructed_mechanism_r0.2_o0 captured SparseInteractive mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=0978222a1dc95b265f7798e2dc9c20e2164126819a89a7fbdb08bf508660b8be integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(3)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"nod
+K5RUN constructed_mechanism_r0.2_o0 typed SparseInteractive mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=0da6710413061b40096e6bcd0823b1bfb848326135562973884f6971f7da2152 integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(3)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"nod
+K5RUN constructed_mechanism_r0.2_o0 captured DenseScrutiny mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=3019362df0bd4d1e2cd362d4cc1de32302b386d0d5869a42122fa1ef890f7422 integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(22)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"no
+K5RUN constructed_mechanism_r0.2_o0 typed DenseScrutiny mechanics=MODEL_INCOMPLETE nq=unresolved blocking=NUMERICAL_INTEGRITY_UNRESOLVED sha256=c9a5257aa5d9de8ad0b290e0ecf28ed0d2e9e5c153668672de3ee3de3997e527 integrity=Load_case_case:z:_structural_integrity:_NumericallyUnresolved_{_reason:_"nonpositive_or_cancellation-unresolved_structural_pivot",_global_dof:_Some(22)_};_global_dof_map=["node:a:UX",_"node:a:UY",_"no
+K5RUN constructed_mechanism_r0.3_o1000 captured SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=316bc254b08dd7cf8dd6fe83b278b5dd0fd2d1a1a01f3d43b296b83ec3a82393 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN constructed_mechanism_r0.3_o1000 typed SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ca961f1dbdbc633bc15388db0f96afa103b9fa01dc459c2feb3affd0dd3e5fa8 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN constructed_mechanism_r0.3_o1000 captured DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=316bc254b08dd7cf8dd6fe83b278b5dd0fd2d1a1a01f3d43b296b83ec3a82393 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN constructed_mechanism_r0.3_o1000 typed DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ca961f1dbdbc633bc15388db0f96afa103b9fa01dc459c2feb3affd0dd3e5fa8 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN arc_model_k2 captured SparseInteractive mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=885a2d5b72756700c3e6217303c650e5661a4ed07a7912dbebf7c457586d8647 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_skyline_LDL",_scale_ex
+K5RUN arc_model_k2 typed SparseInteractive mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=885a2d5b72756700c3e6217303c650e5661a4ed07a7912dbebf7c457586d8647 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_skyline_LDL",_scale_ex
+K5RUN arc_model_k2 captured DenseScrutiny mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=cb98c50172801a96bdac5976c2d083bef8f439cbcc878300c0cfb3270beea485 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_dense_Cholesky",_scale
+K5RUN arc_model_k2 typed DenseScrutiny mechanics=MECHANICS_SOLVED nq=checks_passed blocking=- sha256=cb98c50172801a96bdac5976c2d083bef8f439cbcc878300c0cfb3270beea485 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:z:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Passed,_factorization:_"positive_dense_Cholesky",_scale
+K5RUN pp_route_utm_5e6 captured SparseInteractive mechanics=MECHANICS_SOLVED nq=sensitive blocking=- sha256=f722d765f3152551e43757c2d5cf5e60dfeadef100998cc4e07965de64800d38 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Sensitive,_factorization:_"positive_skyline_LDL",_scale_e
+K5RUN pp_route_utm_5e6 typed SparseInteractive mechanics=MECHANICS_SOLVED nq=sensitive blocking=- sha256=5be157ad7c9cd9a551d58d12fde232ffb5b65314405b08199b2e11bdac7256d3 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Sensitive,_factorization:_"positive_skyline_LDL",_scale_e
+K5RUN pp_route_utm_5e6 captured DenseScrutiny mechanics=MECHANICS_SOLVED nq=sensitive blocking=- sha256=854ffe06c7e3b897a44f56255d311915442dff0171b2023a4d5137512156156f integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Sensitive,_factorization:_"positive_dense_Cholesky",_scal
+K5RUN pp_route_utm_5e6 typed DenseScrutiny mechanics=MECHANICS_SOLVED nq=sensitive blocking=- sha256=fb6c92e216a85d237ce27162bfbd8e9899e22583380ec0d8a9b99699937d4bc2 integrity=M03-INTEGRITY-v1_represented_original-equation_structural_evidence_for_load_case_case:_StructuralReport_{_policy:_"M03-INTEGRITY-v1",_quality:_Sensitive,_factorization:_"positive_dense_Cholesky",_scal
+K5RUN rv14_lone_arc_pinned_o0 captured SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=c8152b88c5156e1ea159e50f3f419f71f467388453a623a2cb926c0070942109 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_lone_arc_pinned_o0 typed SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ed81c41c24f6135bf7f2a97f54875ab166e34900cd3b297c0885c1a2405e269c integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_lone_arc_pinned_o0 captured DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=c8152b88c5156e1ea159e50f3f419f71f467388453a623a2cb926c0070942109 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_lone_arc_pinned_o0 typed DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ed81c41c24f6135bf7f2a97f54875ab166e34900cd3b297c0885c1a2405e269c integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_lone_arc_pinned_o4096 captured SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=c8152b88c5156e1ea159e50f3f419f71f467388453a623a2cb926c0070942109 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_lone_arc_pinned_o4096 typed SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ed81c41c24f6135bf7f2a97f54875ab166e34900cd3b297c0885c1a2405e269c integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_lone_arc_pinned_o4096 captured DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=c8152b88c5156e1ea159e50f3f419f71f467388453a623a2cb926c0070942109 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_lone_arc_pinned_o4096 typed DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ed81c41c24f6135bf7f2a97f54875ab166e34900cd3b297c0885c1a2405e269c integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_map=["node:b:UX",_"node:b:UY",_"node:b:UZ",_"node:b:RX",_"node
+K5RUN rv14_mechanism_r0.25_o12345.678 captured SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=316bc254b08dd7cf8dd6fe83b278b5dd0fd2d1a1a01f3d43b296b83ec3a82393 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN rv14_mechanism_r0.25_o12345.678 typed SparseInteractive mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ca961f1dbdbc633bc15388db0f96afa103b9fa01dc459c2feb3affd0dd3e5fa8 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN rv14_mechanism_r0.25_o12345.678 captured DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=316bc254b08dd7cf8dd6fe83b278b5dd0fd2d1a1a01f3d43b296b83ec3a82393 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+K5RUN rv14_mechanism_r0.25_o12345.678 typed DenseScrutiny mechanics=MODEL_INCOMPLETE nq=failed blocking=NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM sha256=ca961f1dbdbc633bc15388db0f96afa103b9fa01dc459c2feb3affd0dd3e5fa8 integrity=Load_case_case:z:_structural_integrity:_Mechanism_{_direction:_[0.0,_0.0,_0.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_-1.0,_1.0,_1.0,_0.0,_0.0,_0.0,_0.0,_1.0,_1.0,_0.0]_};_global_dof_
+test rv14_pp_probe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.87s
+
+exit=0

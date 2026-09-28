@@ -1,0 +1,5 @@
+memory guard log <wt>/guard/memguard.log at the end of RV14's work, 2026-09-28T21:44:04Z:
+  2026-09-27 19:36:07 memguard start floor=35% pid=5266
+  2026-09-27 19:36:20 memguard start floor=35% pid=5387
+  lines 2, sha256 79e2ce8eb2bd8f4a6432beb5b919cb46f37c22046c08a057b21a36183801cc41
+unchanged from the start of the review (2 start records, sha256 79e2ce8e...): no SIGKILL, no low-memory record.
