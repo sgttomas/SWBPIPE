@@ -222,3 +222,10 @@ This follows ROOT_RULINGS_V1, "K1: extending the K-D5 and option-(c) source pins
 - **Required:** the behavioural loop pin, and the three new mutants.
 - **Prove there is no weakening:** re-run K-D5's E4 (and E1–E3 where relevant) and the option-(c) mutants from S11-K's and K-D5's records against the extended pins. List each with its kill site in RETURN. **A mutant that is no longer killed stops the work;** report it to the manager.
 - Declare it in CHANGE_RECORD and RETURN as a pin extension.
+
+## Addendum 4 (2026-09-28): the KERNEL list, and the handoff
+
+This follows ROOT_RULINGS_V1, "K1: the S11-F site test's KERNEL list, and the handoff (ROOT)".
+- **Add sparse.rs to `product_physics/tests/s11f_site_test.rs`'s KERNEL list** as its own hunk, under the site-table conditions. The WIP carries it as a patch, `IMPLEMENTATION/K1/kernel_list_s11f.patch`.
+- **The C3-detect helper:** see WIP_STATE.md for whether it was pre-existing. If it was, it is restored and routed to ROOT.
+- **K1 continues on the owner's Mac,** from the WIP commit and `IMPLEMENTATION/K1/WIP_STATE.md`, with a fresh implementation TASK working under this brief and addenda 1–4. `HANDOFF_2026-09-28_TO_LOCAL.md` §5 lists the first steps, including platform calibration before any comparison.

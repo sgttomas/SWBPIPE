@@ -890,3 +890,9 @@ Both are generalizations from a few probes that were never derived. I6 found bot
 - **No weakening, proved.** The mutants the original pins were written against are re-run, and each must still be killed by the extended pins at a named assertion. These are K-D5's E4 patch (and E1–E3 where they touch these pins), and the option-(c) mutants recorded in S11-K's and K-D5's records. They are listed with their kill sites in K1's RETURN.
 - It is declared in K1's CHANGE_RECORD and RETURN as a pin extension. K1's independent reviewer checks it against the pins' original intent.
 - **Rejected:** dropping the pattern formation entry from K1. The F1b interface stays.
+
+## K1: the S11-F site test's KERNEL list, and the handoff (ROOT, 2026-09-28)
+
+- **sparse.rs in `product_physics/tests/s11f_site_test.rs`'s KERNEL list: approved,** under the site-table conditions. The addition is additive only, a mutant in sparse.rs is killed by the test, and it is declared as a write-set extension into product_physics **tests only**. It lands as its own hunk.
+- **The C3-detect helper** I8 removed from `sparse_direct`: if it was pre-existing code, it is restored and routed to ROOT. If it was I8's own draft, no action is needed. `IMPLEMENTATION/K1/WIP_STATE.md` records which.
+- **Handoff.** K1 moves to a local session on the owner's Mac (`HANDOFF_2026-09-28_TO_LOCAL.md`). I8 ran no cargo, and its work is committed as one WIP commit, "K1 WIP (handoff; not reviewed)", on `codex/piping-k1-20260928`. K2a finishes in the cloud session.
