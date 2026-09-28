@@ -1416,3 +1416,30 @@ A2 is committed as `e215c6007` on `codex/piping-f1b-20260928`. Every Scope §6 p
   - The 13 gate cases of 1,000 or more members are observed in F1b's gate slot, typed and in sparse mode, where the candidate completes them.
   - The 10,000-member cases are included only if sparse mode completes them within the gate's limits; otherwise their omission is disclosed.
 - **The b-rule (Q12):** of the 38 `ScaledEvaluation` refusals probed at every even b in [−1100, 1100], only K2b's documented limitation chain has a solving b. It stays a documented limitation, and the refinement stays on the T3-close list.
+
+## D1 revision 5a.3: rulings on V4's verification (ROOT, 2026-09-28)
+
+V4 (`DESIGN_NUMERICS/REV_5A3_CANDIDATE/V4_VERIFICATION.md`, sha256 `0222d0ec…`): **NOT VERIFIED**, with 0 BLOCKING, 7 SHOULD-FIX and 13 NOTEs.
+- **What held:** option (iii)'s rule held under V4's independent emulator, which is built from K4's Rust with its own exact oracle.
+  - On 200 saturating models, today's rule made 38 false claims and (iii) made none.
+  - Φ = 2^-438·Ê is correct.
+  - V4 re-counted λ from K4's Rust at ≤ 68g units, against DS1's 139g; both are within 2^8.
+- **DS1 revises the candidate to resolve every SHOULD-FIX item, and V4 then runs a delta check.** ROOT selects only after VERIFIED. ROOT's decisions on the two items that are ROOT's to make:
+  - **V4-S2: the premise becomes a runtime check, not an accepted risk.** The premise, that the solve's backward error carried into forces and moments stays within V, remains a conjecture.
+    - DS1's §8.1 estimator is adopted: one extra correction solve at 2p from the exact residual K4 already forms. A case whose estimate exceeds V escalates, and at the ceiling it is Unresolved.
+    - The revision specifies it exactly, with its work charged and its mutant.
+    - Rationale: the standing lesson. A claim relied on for publication is derived or checked, never assumed.
+  - **V4-S3: my O12 ruling is reversed.** The residual gate's denominator becomes the bounded operator, at contribution level, not M03's coalesced |K||u|.
+    - V4 found in emulation that the coalesced form refuses an ordinary loaded cantilever at every precision when y_reference has a chord component: y_ref (3,4,5) on a (3,4,0) run, with a gate ratio of about 6e15.
+    - The revision specifies the denominator. K4 builds a Rust control for that cantilever and confirms it before checkpoint B.
+- **The other SHOULD-FIX items, resolved in the revision:**
+  - **S1:** the demotion claim is restated with its threshold, |q| < 2^-472·Ê.
+  - **S4:** V, Φ and G5b's item 6a are computed from the same binary64 ê, bit for bit.
+  - **S5:** g, the directional blocks, the unpublishable rows and E's rounding direction are specified computably.
+  - **S6:** behavioural controls are added for M2, M7 and M10.
+  - **S7:** a published-data lower bound on ê (V4's) is added to G5a, so a D2 reader can check it at p = 512.
+- **NOTEs to carry:**
+  - **the saturated-assembled-entry reaction** (−1.5 N published `relative_verified` against a truth of 0): add a control;
+  - **the combination's prescribed rows are rounded twice when published** (1 + 2^-53 + 2^-150 publishes 1.0 at p = 128). **This is a K4 defect, independent of S\*.** K4 fixes it now: publish from the exact sum, rounded once;
+  - **the binary64 publication rounding** can exceed b by up to 2^-24·b. The guarantee's statement says so; the gap already existed in 5a.2;
+  - Lemma 2's binade-boundary hypothesis is corrected.
