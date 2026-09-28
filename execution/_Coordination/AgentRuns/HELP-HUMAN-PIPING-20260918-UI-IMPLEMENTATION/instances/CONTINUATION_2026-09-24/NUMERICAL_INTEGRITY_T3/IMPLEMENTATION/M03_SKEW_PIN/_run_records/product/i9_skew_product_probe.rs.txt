@@ -1,0 +1,170 @@
+//! I9 probe (not part of the candidate; placed only in scratch archive copies
+//! of main 134eefc24 and eb52114e9): the better-conditioned skew model on the
+//! product route. One member N0 -> N1, N0 anchored (UX..RZ), N1 free in all six
+//! DOFs, a global RZ moment of 0.1*EI/L at N1 (RV7's load). Both entries
+//! (captured value and typed), both modes.
+//!
+//! Invented inputs: L = 2^-39 m (N1 at [L,0,0], [s,s,s] with s = L/sqrt(3), or
+//! [L/3, 2L/3, 2L/3]); pipe OD 1e-11 m, wall 1e-12 m; E so that (12E)*I rounds
+//! to 2^t, t = -1030, -1040, -1045, -1050 (so (4E)*I and (2E)*I are subnormal
+//! and 4EI/L, 2EI/L are subnormal-derived); G = E/2.6 (the primary, "G
+//! comparable to E": an isotropic nu = 0.3), and a supplementary sweep
+//! G = E*2^k, k = 20, 30, 36, 40, 48, 56, 64, and RV7's G = 1e-100 Pa.
+//! Prints one JSON line per run (I9PROBE) and the FK geometry and section bits
+//! the exact reference uses (I9GEOM, I9SECTION).
+use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection};
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
+    LinearStaticPreviewRequest, PreviewSolverMode,
+};
+use serde_json::{json, Value};
+use std::f64::consts::PI;
+
+const PROV: &str = "invented_i9_skew_pin_probe_no_library_data";
+
+fn request(id: &str, n1: [f64; 3], yref: [f64; 3], e: f64, g: f64, moment: f64) -> Value {
+    json!({
+        "model": {
+            "schema_version": "0.1.0",
+            "document_kind": "openpipestress.product_preview.model",
+            "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+                "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+            "project": {"id": format!("invented:i9:{id}"),
+                "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC", "stress": "Pa"}},
+            "nodes": [
+                {"id": "N0", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": PROV},
+                {"id": "N1", "position": {"x": n1[0], "y": n1[1], "z": n1[2]}, "provenance": PROV}
+            ],
+            "pipe_segments": [{"id": "M1", "from": "N0", "to": "N1", "material": "mat:I9",
+                "y_reference": {"x": yref[0], "y": yref[1], "z": yref[2]},
+                "section": {"outside_diameter": {"value": 1.0e-11, "unit": "m"}, "wall_thickness": {"value": 1.0e-12, "unit": "m"}},
+                "provenance": PROV}],
+            "materials": [{"id": "mat:I9", "elastic_modulus": {"value": e, "unit": "Pa"},
+                "shear_modulus": {"value": g, "unit": "Pa"}, "provenance": PROV}],
+            "supports": [{"id": "rigid:N0", "node": "N0", "restraints": ["UX","UY","UZ","RX","RY","RZ"], "family": "anchor", "provenance": PROV}],
+            "load_cases": [{"id": "case", "label": id, "kind": "primitive_user_load",
+                "primitive_loads": [{"id": "load:0", "category": "concentrated_moment", "target": {"type": "node", "node": "N1"},
+                    "direction": "RZ", "magnitude": {"value": moment, "unit": "N*m"}, "dimension": "moment", "provenance": PROV}],
+                "provenance": PROV}],
+            "combinations": []
+        },
+        "materials": []
+    })
+}
+
+/// 2^k exactly, including subnormal powers.
+fn p2(k: i32) -> f64 {
+    if k >= -1022 {
+        2f64.powi(k)
+    } else {
+        f64::from_bits(1u64 << (k + 1074))
+    }
+}
+
+#[test]
+fn i9_skew_product_probe() {
+    let l = p2(-39);
+    let (od, w) = (1.0e-11f64, 1.0e-12f64);
+    let id = od - 2.0 * w;
+    // As PP derive_pipe_section forms them.
+    let a = PI * (od.powi(2) - id.powi(2)) / 4.0;
+    let i = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    let j = 2.0 * i;
+    println!(
+        "I9SECTION {}",
+        json!({"A": a.to_bits(), "I": i.to_bits(), "J": j.to_bits(), "L": l.to_bits()})
+    );
+    let s = l / 3f64.sqrt();
+    let orients = [
+        ("axis", [l, 0.0, 0.0], [0.0, 1.0, 0.0]),
+        ("skew111", [s, s, s], [0.0, 0.0, 1.0]),
+        ("skew122", [l / 3.0, 2.0 * l / 3.0, 2.0 * l / 3.0], [1.0, 0.0, 0.0]),
+    ];
+    for (name, n1, yref) in orients {
+        let el = FrameElement::new(
+            FrameNode::new(0, [0.0; 3]).unwrap(),
+            FrameNode::new(1, n1).unwrap(),
+            FrameSection::new(1.0, 1.0, a, i, i, j).unwrap(),
+            yref,
+        )
+        .unwrap();
+        let axes = el.orientation().unwrap().local_axes;
+        let bits: Vec<Vec<u64>> = axes
+            .iter()
+            .map(|r| r.iter().map(|v| v.to_bits()).collect())
+            .collect();
+        println!(
+            "I9GEOM {}",
+            json!({"member": name, "length": el.length().unwrap().to_bits(), "axes": bits,
+                   "n1": n1.iter().map(|v| v.to_bits()).collect::<Vec<_>>()})
+        );
+    }
+    for t in [-1030, -1040, -1045, -1050] {
+        let e = (1.0 / (12.0 * i)) * p2(-1000) * p2(t + 1000);
+        let moment = 0.1 * (e * p2(600) * i / l) * p2(-600);
+        let gs: Vec<(String, f64)> = std::iter::once(("E/2.6".to_string(), e / 2.6))
+            .chain(
+                [20, 30, 36, 40, 48, 56, 64]
+                    .iter()
+                    .map(|&k| (format!("E*2^{k}"), e * p2(k))),
+            )
+            .chain(std::iter::once(("1e-100".to_string(), 1.0e-100)))
+            .collect();
+        for (glabel, g) in gs {
+            for (name, n1, yref) in orients {
+                let req = request(name, n1, yref, e, g, moment);
+                for mode in [
+                    PreviewSolverMode::SparseInteractive,
+                    PreviewSolverMode::DenseScrutiny,
+                ] {
+                    let typed_req: LinearStaticPreviewRequest =
+                        serde_json::from_value(req.clone()).unwrap();
+                    for (entry, env) in [
+                        (
+                            "captured",
+                            run_linear_static_preview_value_with_mode(req.clone(), mode).unwrap(),
+                        ),
+                        ("typed", run_linear_static_preview_with_mode(typed_req, mode)),
+                    ] {
+                        let v = serde_json::to_value(&env).unwrap();
+                        let codes: Vec<String> =
+                            env.diagnostics.iter().map(|d| d.code.clone()).collect();
+                        let messages: Vec<String> = env
+                            .diagnostics
+                            .iter()
+                            .filter(|d| {
+                                d.severity == "blocking"
+                                    || d.code.contains("UNRESOLVED")
+                                    || d.code.contains("SENSITIVE")
+                                    || d.code.contains("INTEGRITY")
+                            })
+                            .map(|d| format!("{}: {}", d.code, d.message.chars().take(300).collect::<String>()))
+                            .collect();
+                        let cases: Vec<Value> = v["numerical_quality"]["cases"]
+                            .as_array()
+                            .map(|c| {
+                                c.iter()
+                                    .map(|x| json!([x["structural_status"], x["solve_quality"], x["accuracy_evidence"]]))
+                                    .collect()
+                            })
+                            .unwrap_or_default();
+                        let n1r: Vec<Value> = v["results"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .filter(|r| r["id"].as_str().is_some_and(|x| x.starts_with("result:disp:N1:")))
+                            .map(|r| json!([r["id"], r["value"], r["unit"]]))
+                            .collect();
+                        println!(
+                            "I9PROBE {}",
+                            json!({"t": t, "g_label": glabel, "E": e.to_bits(), "G": g.to_bits(),
+                                "moment": moment.to_bits(), "member": name, "mode": format!("{mode:?}"),
+                                "entry": entry, "status": v["numerical_quality"]["status"], "cases": cases,
+                                "codes": codes, "messages": messages, "N1": n1r})
+                        );
+                    }
+                }
+            }
+        }
+    }
+}

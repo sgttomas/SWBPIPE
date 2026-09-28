@@ -1,0 +1,89 @@
+"""I9 mutants of FK transform_roundoff (structural.rs). Usage: mutate_i9.py <tree root> <mutant id>.
+Each anchor must match exactly once. NONE applies nothing."""
+import sys
+root, mid = sys.argv[1], sys.argv[2]
+path = root + "/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs"
+BOUND_SUMS = """                inherited = checked_value(
+                    inherited + checked_product(transform[k][i].abs(), magnitudes[k][j])?,
+                )?;
+                second = checked_value(
+                    second + checked_product(transform[k][i].abs(), temp[k][j].abs())?,
+                )?;
+"""
+BOUND_SET = """            bounds[i][j] =
+                checked_value(g * (inherited / (1.0 - g) + second) * (1.0 + 64.0 * f64::EPSILON))?;
+"""
+BOUND_LOOP_HEAD = """        for j in 0..12 {
+            let mut inherited = 0.0;
+            let mut second = 0.0;
+"""
+FN_HEAD = """) -> Result<TransformationRoundoff, StructuralError> {
+    let mut temp = [[0.0; 12]; 12];
+"""
+MUTANTS = {
+    "NONE": [],
+    # Required 1: the axis-aligned per-entry bound on every member: each entry is bounded by
+    # the local coefficient at its own position, 2g|c| (T treated as the identity in the bound;
+    # on an axis-x member this is today's bound exactly).
+    "M-AXIS-BOUND": [(BOUND_SUMS, """                let _ = (magnitudes[k][j], temp[k][j]);
+                if k == i {
+                    inherited = checked_value(inherited + local[i][j].abs())?;
+                    second = checked_value(second + local[i][j].abs())?;
+                }
+""")],
+    # Extra: the per-entry bound from the transformed entry's own magnitude, 2g|K_global(i,j)|.
+    "M-AXIS-BOUND-GLOBAL": [(BOUND_SUMS, """                let _ = magnitudes[k][j];
+                let entry = transform[k][i] * temp[k][j];
+                inherited += entry;
+                second += entry;
+"""), (BOUND_SET, """            let (inherited, second) = (inherited.abs(), second.abs());
+            bounds[i][j] =
+                checked_value(g * (inherited / (1.0 - g) + second) * (1.0 + 64.0 * f64::EPSILON))?;
+""")],
+    # Required 2: the floor changed (raised sixteenfold, to about 2^-970.585).
+    "M-FLOOR-UP": [(BOUND_SET, BOUND_SET + """            if bounds[i][j] != 0.0 && bounds[i][j] < 16.0 * f64::MIN_POSITIVE {
+                return Err(StructuralError::Range("arithmetic outside normal range"));
+            }
+""")],
+    # Extra: the floor lowered (a subnormal bound down to 2^-1040 is accepted).
+    "M-FLOOR-DOWN": [(BOUND_SET, """            bounds[i][j] = {
+                let b = g * (inherited / (1.0 - g) + second) * (1.0 + 64.0 * f64::EPSILON);
+                if !b.is_finite() || (b != 0.0 && b < f64::from_bits(1u64 << 34)) {
+                    return Err(StructuralError::Range("arithmetic outside normal range"));
+                }
+                b
+            };
+""")],
+    # Required 3: the coupling block dropped from the bound (translation-rotation entries get
+    # no bound and no check).
+    "M-NO-COUPLING": [(BOUND_LOOP_HEAD, """        for j in 0..12 {
+            if (i % 6 < 3) != (j % 6 < 3) {
+                continue;
+            }
+            let mut inherited = 0.0;
+            let mut second = 0.0;
+""")],
+    # Own 1: M03 closes the skew gap: every nonzero local coefficient must have a normal
+    # axis-aligned bound, on every orientation (the change the guard exists to make visible).
+    "M-CLOSE-GAP": [(FN_HEAD, """) -> Result<TransformationRoundoff, StructuralError> {
+    for row in local {
+        for &c in row {
+            if c != 0.0 {
+                let g = gamma(24);
+                checked_value(g * (c.abs() / (1.0 - g) + c.abs()) * (1.0 + 64.0 * f64::EPSILON))?;
+            }
+        }
+    }
+    let mut temp = [[0.0; 12]; 12];
+""")],
+    # Own 2: the bound's products unchecked (the second limit, the product underflow, removed).
+    "M-UNCHECKED-PRODUCTS": [(BOUND_SUMS, """                inherited = checked_value(inherited + transform[k][i].abs() * magnitudes[k][j])?;
+                second = checked_value(second + transform[k][i].abs() * temp[k][j].abs())?;
+""")],
+}
+text = open(path).read()
+for old, new in MUTANTS[mid]:
+    assert text.count(old) == 1, (mid, old[:60], text.count(old))
+    text = text.replace(old, new)
+open(path, "w").write(text)
+print(f"{mid}: {len(MUTANTS[mid])} hunk(s) applied")

@@ -1,0 +1,17 @@
+probe_pe134.log: cell = axis / skew(1,1,1) / skew(1,2,2); each over its 4 runs (2 modes x 2 entries)
+t \ G   |         E/2.6          |         E*2^20         |         E*2^30         |         E*2^36         |         E*2^40         |         E*2^48         |         E*2^56         |         E*2^64         |         1e-100
+ -1030  |         R R R          |         R R R          |  R S(6e-08) S(1e-07)   |  R S(1e-10) S(8e-06)   |  R S(6e-05) S(1e-04)   |         R P P          |         R P P          |         R P P          |         R P P
+ -1040  |         R R R          |         R R R          |         R R R          |  R S(1e-10) S(8e-06)   |  R S(6e-05) S(1e-04)   |         R P P          |         R P P          |         R P P          |         R P P
+ -1045  |         R R R          |         R R R          |         R R R          |      R S(2e-06) R      |  R S(6e-05) S(2e-04)   |         R P P          |         R P P          |         R P P          |         R P P
+ -1050  |         R R R          |         R R R          |         R R R          |         R R R          |         R R R          |         R P P          |         R P P          |         R P P          |         R P P
+
+probe_pe_eb5.log: cell = axis / skew(1,1,1) / skew(1,2,2); each over its 4 runs (2 modes x 2 entries)
+t \ G   |         E/2.6          |         E*2^20         |         E*2^30         |         E*2^36         |         E*2^40         |         E*2^48         |         E*2^56         |         E*2^64         |         1e-100
+ -1030  |     K:GJ K:GJ K:GJ     | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy
+ -1040  |     K:GJ K:GJ K:GJ     |     K:GJ K:GJ K:GJ     | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy
+ -1045  |     K:GJ K:GJ K:GJ     |     K:GJ K:GJ K:GJ     | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy
+ -1050  |     K:GJ K:GJ K:GJ     |     K:GJ K:GJ K:GJ     |     K:GJ K:GJ K:GJ     | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy | K:12EIy K:12EIy K:12EIy
+
+R: M03 Range("arithmetic outside normal range"), unresolved, nothing published; P: NumericallyUnresolved pivot, unresolved, nothing published;
+S(e): published with status sensitive (never checks_passed), e = the largest criterion error of its 4 runs against the exact reference;
+K:x: K2a SOLVER_SYSTEM_BLOCKED by name at formation (x = the site), not_assessed, nothing published.

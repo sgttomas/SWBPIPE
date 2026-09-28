@@ -1407,3 +1407,153 @@ fn k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representation
         }
     }
 }
+
+// ------------------------------------------- I9: the skew M03 pin (append)
+//
+// I9 (T3; tests only): RV7's accepted skew rows (K2A_REVIEW.md B1) through
+// the adapter's two evidences, `AssemblyEvidence` and K1's
+// `SparseAssemblyEvidence`, in both modes. K2a's `local_stiffness` refuses
+// these formations, so main's pre-K2a matrix is formed here and carried as an
+// explicit slot with its own `transform_roundoff` evidence: the same bounds
+// and counts a frame's evidence records. (The slot differs from a frame, in
+// both evidences alike, only in being unqualified for the rigid-body screen
+// and in the symmetry-basis text of the report.) The
+// refused rows are refused by `transform_roundoff` itself, before either
+// evidence exists; the kernel pin is FK `tests/m03_skew_scope.rs`.
+
+use open_pipe_stress_frame_kernel::{transform_global_stiffness, FrameProperties, RZ};
+
+/// Main's pre-K2a local matrix, operation for operation (FK `local_stiffness`
+/// at 134eefc24, `lib.rs:716-741`). FK's pin asserts this formation equals
+/// FK's own, bit for bit, on normal inputs.
+fn i9_pre_k2a_local(p: &FrameProperties) -> Matrix12 {
+    let s = p.section;
+    let (e, g, iy, iz) = (
+        s.elastic_modulus,
+        s.shear_modulus,
+        s.second_moment_y,
+        s.second_moment_z,
+    );
+    let length = p.length;
+    let length2 = length * length;
+    let length3 = length2 * length;
+    let axial = e * s.area / length;
+    let torsion = g * s.torsion_constant / length;
+    let (y12, y6, y4, y2) = (
+        12.0 * e * iy / length3,
+        6.0 * e * iy / length2,
+        4.0 * e * iy / length,
+        2.0 * e * iy / length,
+    );
+    let (z12, z6, z4, z2) = (
+        12.0 * e * iz / length3,
+        6.0 * e * iz / length2,
+        4.0 * e * iz / length,
+        2.0 * e * iz / length,
+    );
+    let mut k = [[0.0; 12]; 12];
+    for (d, v) in [(0, axial), (3, torsion)] {
+        k[d][d + 6] = -v;
+        k[d + 6][d] = -v;
+        k[d][d] = v;
+        k[d + 6][d + 6] = v;
+    }
+    let mut add = |idx: [usize; 4], t: [[f64; 4]; 4]| {
+        for r in 0..4 {
+            for c in 0..4 {
+                k[idx[r]][idx[c]] += t[r][c];
+            }
+        }
+    };
+    add(
+        [1, 5, 7, 11],
+        [
+            [z12, z6, -z12, z6],
+            [z6, z4, -z6, z2],
+            [-z12, -z6, z12, -z6],
+            [z6, z2, -z6, z4],
+        ],
+    );
+    add(
+        [2, 4, 8, 10],
+        [
+            [y12, -y6, -y12, -y6],
+            [-y6, y4, y6, y2],
+            [-y12, y6, y12, y6],
+            [-y6, y2, y6, y4],
+        ],
+    );
+    k
+}
+
+#[test]
+fn i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes() {
+    use std::f64::consts::PI;
+    // Invented: L = 2^-39 m; OD 1e-11 m, wall 1e-12 m (the section as PP forms
+    // it); G = 1e-100 Pa; E so that (12E)*I rounds to 2^t; a global RZ moment
+    // of 0.1*EI/L at N1, as RV7's product probe loads it.
+    let l = 2f64.powi(-39);
+    let (od, wall) = (1.0e-11_f64, 1.0e-12_f64);
+    let id = od - 2.0 * wall;
+    let area = PI * (od.powi(2) - id.powi(2)) / 4.0;
+    let inertia = PI * (od.powi(4) - id.powi(4)) / 64.0;
+    let s = l / 3f64.sqrt();
+    let mut runs = 0;
+    for t in [-1030, -1040, -1045, -1050] {
+        let e = (1.0 / (12.0 * inertia)) * 2f64.powi(-1000) * 2f64.powi(t + 1000);
+        for (label, node_j, y_reference) in [
+            ("skew (1,1,1), yref +z", [s, s, s], [0.0, 0.0, 1.0]),
+            (
+                "skew (1,2,2), yref +x",
+                [l / 3.0, 2.0 * l / 3.0, 2.0 * l / 3.0],
+                [1.0, 0.0, 0.0],
+            ),
+        ] {
+            let ctx = format!("(12E)I=2^{t} {label}");
+            let element = FrameElement::new(
+                FrameNode::new(0, [0.0; 3]).unwrap(),
+                FrameNode::new(1, node_j).unwrap(),
+                FrameSection::new(e, 1.0e-100, area, inertia, inertia, 2.0 * inertia).unwrap(),
+                y_reference,
+            )
+            .unwrap();
+            // K2a refuses the formation by name; main's matrix is formed here.
+            assert!(element.local_stiffness().is_err(), "{ctx}");
+            let local = i9_pre_k2a_local(&element.properties().unwrap());
+            let orientation = element.orientation().unwrap();
+            let r = structural::transform_roundoff(&local, &orientation.transformation_matrix())
+                .expect("M03's element-entry floor accepts the skew member");
+            let mut case = Case {
+                node_count: 2,
+                frames: Vec::new(),
+                users: Vec::new(),
+                macros: Vec::new(),
+                slots: vec![CurvedBendStiffnessElement {
+                    element_id: "i9-pre-k2a-element".to_string(),
+                    node_i: 0,
+                    node_j: 1,
+                    global_stiffness: transform_global_stiffness(&local, &orientation),
+                    symmetry_formation: Some((r.absolute_roundoff, r.operation_counts)),
+                }],
+                springs: Vec::new(),
+                free: Vec::new(),
+                prescribed: Vec::new(),
+                loads: vec![(
+                    6 + RZ,
+                    0.1 * (e * 2f64.powi(600) * inertia / l) * 2f64.powi(-600),
+                )],
+            };
+            case.set_boundary((0..6).map(|d| (d, 0.0)).collect());
+            for mode in MODES {
+                let (dense, sparse) = both_plain(&case, mode);
+                assert_eq!(dense, sparse, "{ctx} {mode:?}");
+                eprintln!(
+                    "I9 adapter {ctx} {mode:?}: {}",
+                    dense.chars().take(160).collect::<String>()
+                );
+                runs += 1;
+            }
+        }
+    }
+    assert_eq!(runs, 16);
+}
