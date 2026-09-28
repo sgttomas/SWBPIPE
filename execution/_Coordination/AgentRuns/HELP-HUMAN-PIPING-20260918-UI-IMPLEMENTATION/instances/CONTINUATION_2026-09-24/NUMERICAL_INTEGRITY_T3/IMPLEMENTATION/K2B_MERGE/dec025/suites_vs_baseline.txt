@@ -1,0 +1,5 @@
+Failing tests, K2b final head 33e33c723 against the Mac run of the K3 candidate b7e93650e (main 57617b0fb less 2 K3 tests; 39 manifests, --no-fail-fast):
+  core_product_physics_Cargo.toml  s11g_tests::t13_committed_fallback_uz_is_byte_identical
+  core_runner_headless_Cargo.toml  cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route
+  core_runner_headless_Cargo.toml  load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes
+identical: True
