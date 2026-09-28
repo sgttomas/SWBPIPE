@@ -1174,3 +1174,47 @@ These decisions were stated in ROOT's resume messages to I10. Until RV13's revie
   - ROOT sets them from K6's measurements and V-K's kernel-lane runs, both of which precede F2a, together with K4's deterministic work counts. §4.1.7 asks for "W3/W5 measurements", which this admits.
   - V-P's product-lane measurements follow F2a, and confirm or revise the limits. A revision is its own ruling.
 - Item 6 of K4's stale-design list, and the brief's Q5 ruling (`TASK_BRIEFS/I12_K4_IMPLEMENTATION.md`), carry bracketed pointers here. K4's own scope is unaffected: it ships the mechanism only.
+
+## K4: rulings on I12's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I12's plan (`<wt>/scratch/i12/CHECKPOINT0_PLAN.md`, sha256 `e1253faa…`, 591 lines) is **approved as written**, with the rulings below. The plan and its scratch probes go into K4's `_run_records/` at checkpoint D.
+- **Approved as positions or refinements,** each recorded in RETURN with the design's words:
+  - the multi-term sum, `retained/wide_sum.rs`: stack magnitudes, a span limit of 8,128 bits that refuses, and one rounding through `from_integer`;
+  - values only ever widen, and each lower-precision quantity is rounded once from its exact sum;
+  - the pivot screen, the residual gate and the stop rule are decided exactly, with no binary64 γ;
+  - directed roundings of the evidence ratios (the summary ratios upward, the pivot margin downward);
+  - radix equilibration as in M03, with rcond on the equilibrated K;
+  - RCM on the structural free–free pattern. V-K's equality test feeds both paths the same adjacency;
+  - the negative-energy allowance;
+  - frame dot products formed exactly. This is a refinement of D1's "every operation rounded to p": it is strictly more accurate, with a single rounding per step;
+  - the brief's item C holds at p = 53 on normal results only, with the exact-projection form added;
+  - item E's K-D5 cross-check is a test-only port;
+  - factor reuse. Each case's limit counts the full shared work, and the invocation meter counts it once;
+  - the budget API (required parameters, no `Default`, no numbers);
+  - the canonical encodings;
+  - O3, ids on members, springs, stations and groups;
+  - O4, a span refusal is terminal and the maximum span is recorded;
+  - O6, the K4-M16 control;
+  - O7, the combination rules;
+  - O9, unpublishable rows are listed, excluded from S\* and the classification, and F2a decides their standing;
+  - O10;
+  - O12, M03's coalesced denominator.
+- **O1: Q6 amended. A body with a directional ground that does not span R³ skips the geometric witness; it is not refused.**
+  - **The problem.** As ruled, Q6 refused a body whose directional springs of one kind do not span R³. That refuses RF-SKEW-T-PIN-AX's six cases. Each is restrained: both nodes are translation-pinned, and one rotational spring lies along the member axis. So §4.10's not-covered set would change, which is a stop item in the brief.
+  - **Amended rule:**
+    - Per node and kind, the directional springs **together with that node's global-axis springs and rigid DOFs of the kind** count as grounding the kind fully when their directions span R³, decided exactly. The kind is then passed to `assess_rigid_body` as grounded at that node.
+    - A body with any remaining directional ground that does not span is **not assessed geometrically**: no witness is sought, and none of `assess_rigid_body`'s outcomes is used for it. It proceeds as `NumericallyUnresolved` does.
+    - The attempt evidence records it: geometry not assessed, a non-spanning directional ground at node N, kind K.
+  - **Why this is safe.** "A witnessed mechanism is refused and never escalated" (§4.1.3) is unchanged. Such a body is simply not witnessed. A true mechanism there fails the pivot screen or the rcond test at every p, or is rejected by the stop rule, so it ends unresolved and is never published. The design already relies on that for `NumericallyUnresolved` bodies. The cost is work only.
+  - **Scope.** Directional springs are kernel-only; the product never builds one, so the product's geometry-first path is unchanged. RF-SKEW is 36 compared.
+  - **Routed:** a full geometric treatment of partial directional grounds belongs to W4/K5's generalized assessment (§4.9). RETURN derives the safety argument above, and K4's reviewer checks it.
+- **O2: the optional `SupportGroup` list is approved,** so that the per-support magnitude rows and `reaction_resultant` are formed at p and checked by the stop rule. F2a maps the product's supports onto groups.
+- **O5: an evidence-level kill of K4-M11 suffices, under two conditions.**
+  1. The killing assertion is on K4's returned attempt evidence, its correction count and golden work. F2a publishes these as evidence; they are not internal state.
+  2. RETURN derives the published-value equivalence step by step, and the reviewer checks it independently.
+
+  This follows the M31b lesson: an equivalence is accepted only when derived and checked, never by assertion.
+- **O8: approved.** The generator emulates the method bit for bit for three tiny cases (N05 and N06 at 128 and 256, and one skew member at 128), and pins their retained-state sha256. If the emulation proves disproportionate at A, stop and report before falling back to Rust-produced goldens; do not fall back silently.
+- **O11: measure at A.** If FK's debug suite grows by more than 20 minutes at opt-level 0, report it before B. Tests are never reduced or ignored. Splitting across test functions for parallelism is fine.
+- **Q5, amended** (this file, "K4: Q5 amended"): K4 is unaffected. It ships the mechanism only.
+- **The ceiling argument** (§11's two routes) goes into RETURN step by step, naming the uncertified step in each route. K4's independent reviewer checks it, as ruled under Q4.
