@@ -1391,3 +1391,28 @@ I14's plan (`<wt>/scratch/i14/CHECKPOINT0_PLAN.md`, sha256 `7f50c788…`, 943 li
   - Correcting it is on the T3-close list and F2a's input list, where the publication types are unified.
   - K5-C3 no longer exists.
 - **Brief correction, recorded:** `invented_preview_model.json` is refused at `PP:1711` (legacy pressure), not at the joint check. The conclusion, that no element is built, holds.
+
+## F1b: rulings on I13's A2 (ROOT, 2026-09-28)
+
+A2 is committed as `e215c6007` on `codex/piping-f1b-20260928`. Every Scope §6 prediction was confirmed by a product run.
+- **(a) The admission order is approved.** Thermal/eigen, pressure thrust and exact-pressure operands are now checked before the element-primitive check. Only the reported family names change; the set of refused cases is the same.
+- **(b) Three admission checks cannot be reached in the product:** user-stiffness element, pressure thrust, and non-nodal term. They are pinned at unit level, and RETURN derives why each is unreachable.
+- **(c) Coexistence: I13's derivation is accepted, with a condition.** Exact-block cannot select a range-triggered case: its exact solve fails at `exact_radix` or at source closure, and large-magnitude triggers never reach the captured entry.
+  - The candidates were tried on Mac main, and the gate base has 16 selections, none after a Range.
+  - **Condition:** the derivation is written step by step in RETURN, and F1b's independent reviewer checks it (the M31b lesson). The candidate-side test stays.
+- **(d) The mixed captured invocation is pinned as observed.** It finalizes with a `partial` receipt: A `qualified`, B `unsupported` with OQ2's decline, and B's `ordinary_attempt` following W2's verdict (OQ15).
+- **(e) and (f) are approved under Q10 and Q11:** the NI K2b pin's product half as the declared table `F1B_PRODUCT_SITES` and `F1B_PRODUCT_NEVER`, and the restated linear variants.
+- **The C1 list is approved: 28 runs,** equal to the proposed list:
+  - 14 published: CHAIN-E-1000 ×4 at b = 540, Sensitive; THIN-B ×4 at b = 536, `CHECKS_PASSED`; the three LEF-large cases, typed ×2 each, at b = −702;
+  - 6 refused by W2's template;
+  - 8 in the new class "W2 published at b ≠ 0, then the derived-row non-finite check refuses": CONT-E-1000 and SKEW-E-1000 ×4 each, where `displacement_magnitude` overflows.
+  - The gate's PASS requires C1 ⊆ this list, **0 trusted breaches** (the published range cases are checked against the references), and C3 byte identity elsewhere.
+- **The full-envelope probe variant is approved,** and it is the method for every gate from now on:
+  - P1's `main.rs` plus `full_envelope()`, which emits `run.envelope_sha256` over `serde_json::to_vec(&MechanicsEnvelope)`;
+  - `sha2` is added to the probe's own `Cargo.toml`;
+  - `run.envelope` is unchanged, and `compare.classify` is unaffected.
+  - P1's summary omits published bytes (I13's A2 §7), so C3 byte identity is judged on the full hash. **G1 re-runs the base's part 1 with the variant** before any gate compares against it.
+- **RV11D-N2:** 0 refused and 0 mismatched across 766 runs of b = 0 publications (3,666 reactions, 251 spring actions, 3,456 end-action sets).
+  - The 13 gate cases of 1,000 or more members are observed in F1b's gate slot, typed and in sparse mode, where the candidate completes them.
+  - The 10,000-member cases are included only if sparse mode completes them within the gate's limits; otherwise their omission is disclosed.
+- **The b-rule (Q12):** of the 38 `ScaledEvaluation` refusals probed at every even b in [−1100, 1100], only K2b's documented limitation chain has a solving b. It stays a documented limitation, and the refinement stays on the T3-close list.
