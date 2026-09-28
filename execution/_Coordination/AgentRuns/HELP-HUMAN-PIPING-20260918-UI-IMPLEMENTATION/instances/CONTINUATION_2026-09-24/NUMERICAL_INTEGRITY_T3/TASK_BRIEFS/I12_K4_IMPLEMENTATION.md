@@ -147,7 +147,7 @@ A TASK drafted this brief. ROOT reviewed it and rules on its open questions as f
 11. **Q11: K4 publishes with K3's `Binary64Outcome` and D1's +0.0 rule for exact sums.** F2a unifies the types with K2b's.
 12. **Q12: one slice,** with the optional A1/A2 checkpoint split. K3's N5 streams (10^6 operations at 128, 192, 320 and 576) are required. They add several minutes to FK's debug suite; hosted CI's numerical job (about 11 minutes of 45) has room. Record the measured CI time in the merge record.
 
-## Scope: kernel only (ROOT to rule, Q1)
+## Scope: kernel only (ruled, Q1)
 
 - `retained` is private to `FK/structural.rs` (`mod retained;` at `:5`, MOD-D). K4's items are `pub(crate)`, so no other crate can call them, and no FK code outside `retained` calls them. K4 has no product caller.
 - **K4 changes no published byte, by construction.**
@@ -161,12 +161,12 @@ A TASK drafted this brief. ROOT reviewed it and rules on its open questions as f
 | File | Change | Status |
 |---|---|---|
 | new `FK/src/structural/retained/{source, ledger, assemble, factor, recover, combine, adaptive}.rs` | the method (items 1, 2 and 4–12 above) | in the K4 row |
-| new `FK/src/structural/retained/<name>.rs` (named at checkpoint 0) | the correctly rounded exact multi-term sum (item 3) | **ROOT to rule** (Q2; recommended here, not in `multi.rs`) |
+| new `FK/src/structural/retained/<name>.rs` (named at checkpoint 0) | the correctly rounded exact multi-term sum (item 3) | **approved** (Q2(a)) |
 | `FK/src/structural/retained/mod.rs` | the `pub(crate) mod` lines for K4's files, and documentation | in the row ("declared from `retained/mod.rs`") |
-| `FK/src/exact_sum.rs` | one additive `pub(crate)` read accessor (K3's Q4) | **ROOT to rule** (Q3; a declared write-set extension; recommended) |
+| `FK/src/exact_sum.rs` | one additive `pub(crate)` read accessor (K3's Q4) | **approved** (Q3; a declared write-set extension) |
 | new `FK/tests/retained_k4/` | the test modules, compiled as `#[cfg(test)] #[path = …] mod tests;` of K4's files (as K3's are of `multi.rs`); a standard-library generator with `--check`; adapters from the frozen references; vectors; the stream manifest and samples; its own `SHA256SUMS` | in the row (tests). A new directory is needed: K3a's and K3's vector checks cover their own directories |
-| `FK/tests/s11_site_table.rs` | K4's `retained/` files added to SOURCES, additively, on K1's precedent | **ROOT to rule** (Q8; only after K2b, which also edits this file, is on main) |
-| `FK/src/structural/retained/wide/multi.rs` | nothing, unless Q2(b) or Q4(b) | **ROOT to rule** (recommended: nothing) |
+| `FK/tests/s11_site_table.rs` | K4's `retained/` files added to SOURCES, additively, on K1's precedent | **approved** (Q8; K2b is on main at the base) |
+| `FK/src/structural/retained/wide/multi.rs` | nothing, unless Q2(b) or Q4(b) | **nothing** (Q2(a) and Q4(a) ruled) |
 | `T3/IMPLEMENTATION/K4/**` in `<wt>/k4` | records | certain |
 
 **Not in scope. Stop and ask before touching any of these:**
@@ -233,7 +233,7 @@ T3's records are read at `<wt>/numerics`, which carries ROOT's latest rulings. K
    - `K3_MERGE/RECORD.md`, "For K4's brief";
    - `REVIEW/K3_REVIEW.md`: S1, N2–N5, §3.4 and §3.6.
 7. **K1's records:** `IMPLEMENTATION/K1/RETURN.md` §12 (`SparsePattern` and the pattern path).
-8. **K2b's records:** `IMPLEMENTATION/K2B/RETURN.md` §6, §9 (ruling A), §15 and §19. Read them from `origin/codex/piping-k2b-20260928` until PR #1040 merges.
+8. **K2b's records:** `IMPLEMENTATION/K2B/RETURN.md` §6, §9 (ruling A), §15 and §19. K2b is merged (PR #1040), so read them on your base.
 9. **K-D5's records:** `IMPLEMENTATION/KD5/RETURN.md` §3a (the 122 true positive) and the D5C-1 controls in its tests.
 10. **The references:**
     - `T3/REFERENCES/README.md`, `references.json` (sha256 `7b176dbb…`) and `references.py` (`80d473a7…`). `references.py --model <id>` prints RF-MECH-LINE-IN-CHAIN1000's full model.
@@ -255,8 +255,8 @@ T3's records are read at `<wt>/numerics`, which carries ROOT's latest rulings. K
 ## Base, branch and paths
 
 - **Branch:** `codex/piping-k4-20260928`, from current main. ROOT creates it in `<wt>/k4` and records the SHA at spawn.
-  - At drafting, main is `57617b0fb` (K3 merged). K2b (PR #1040) is not yet merged.
-  - Under Q8, spawning after K2b merges avoids the one possible file overlap.
+  - **At spawn, the base is main `e7d930d49`** (K1, K3 and K2b merged). ROOT created the branch there.
+  - K2b merged before the spawn, so Q8's file overlap does not arise.
 - **Target:** `<wt>/k4-target`.
 - **Scratch:** `<wt>/scratch/i12`.
 - **Mutants:** one clean copy and one clean target per mutant, under `<wt>/k4-mut/<mutant>/`. Delete each target afterwards.
@@ -265,14 +265,14 @@ T3's records are read at `<wt>/numerics`, which carries ROOT's latest rulings. K
 
 ## Coordination
 
-**K2b (I10, PR #1040, near merge).**
+**K2b (I10, PR #1040, merged at `e7d930d49`, K4's base).**
 - Its write set:
   - `FK/lib.rs`, `FK/structural.rs`, `FK/structural/sparse.rs` and `FK/load_ledger.rs` (`force_scaled`);
   - `SA`;
   - `NI/src/s11k_tests.rs`, `FK/tests/s11_site_table.rs` and `PP/tests/s11f_site_test.rs`;
   - new tests: `FK/tests/k2b_force_scaling.rs`, and NI's `k2b_models.rs` and `k2b_tests.rs`.
 - **Write-set overlap: none** in K4's certain rows. K2b does not write `retained/` or `exact_sum.rs`.
-  - The one possible overlap is `FK/tests/s11_site_table.rs`, if ROOT approves Q8. K4 then edits it only after K2b is on main and main is merged into K4's branch.
+  - The one possible overlap was `FK/tests/s11_site_table.rs` (Q8, approved). K2b's edit is already on K4's base, so K4 edits the file on top of it.
 - **Semantic touchpoints:**
   1. **Two publication types.** K2b publishes with `Representability`/`PublishedValue`; K3 gives `Binary64Outcome` (Q11).
   2. **The zero conventions.** K2b gives a reaction's exact zero as +0.0, and "keeps its sign for an action". D1 §4.1.2 gives +0.0 for every exact sum.
