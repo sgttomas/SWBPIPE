@@ -1,0 +1,3 @@
+exp: macOS differs from correctly rounded on 0 of 6 distinct arguments (max 0 ulp)
+expm1: macOS differs from correctly rounded on 1 of 10 distinct arguments (max 1 ulp)
+hypot: macOS differs from correctly rounded on 16 of 334 distinct arguments (max 1 ulp)
