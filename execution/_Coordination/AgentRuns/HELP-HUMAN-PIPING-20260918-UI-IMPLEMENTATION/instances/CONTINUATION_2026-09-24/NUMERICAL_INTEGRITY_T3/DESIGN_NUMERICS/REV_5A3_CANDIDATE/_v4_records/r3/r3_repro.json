@@ -1,0 +1,735 @@
+{
+ "lever2": {
+  "LEVER2-k90-s40": {
+   "selected": null,
+   "attempts": [
+    [
+     "128",
+     "failed:Pivot"
+    ],
+    [
+     "256",
+     "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 10724.072727247936)"
+    ],
+    [
+     "512",
+     "rejected:('stop_rule', ('end', 0, 'i', 2), 'fo')"
+    ]
+   ]
+  },
+  "LEVER2-k100-s40": {
+   "selected": null,
+   "attempts": [
+    [
+     "128",
+     "failed:Pivot"
+    ],
+    [
+     "256",
+     "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 10981450.472701887)"
+    ],
+    [
+     "512",
+     "rejected:('stop_rule', ('end', 0, 'i', 2), 'fo')"
+    ]
+   ]
+  },
+  "LEVER2-k110-s20": {
+   "selected": null,
+   "attempts": [
+    [
+     "128",
+     "failed:Pivot"
+    ],
+    [
+     "256",
+     "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 11244978027.120613)"
+    ],
+    [
+     "512",
+     "rejected:('stop_rule', ('end', 0, 'i', 2), 'fo')"
+    ]
+   ]
+  }
+ },
+ "controls": {
+  "F-2": {
+   "selected": 512,
+   "classes": {
+    "relative": 6,
+    "absolute": 20,
+    "input_derived": 11
+   },
+   "honesty": [
+    9.588073174409622e-85,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "classes": {
+    "relative": 9,
+    "absolute": 36,
+    "input_derived": 14
+   },
+   "honesty": [
+    4.8586315428176796e-08,
+    "('umag', 2)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "classes": {
+    "relative": 3,
+    "absolute": 23,
+    "input_derived": 11
+   },
+   "honesty": [
+    7.938424105303848e-164,
+    "('end', 0, 'i', 0)",
+    "absolute"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 4.257474626813616e-09)"
+   ]
+  },
+  "PTAIL": {
+   "selected": 512,
+   "classes": {
+    "relative": 2,
+    "absolute": 24,
+    "input_derived": 12
+   },
+   "honesty": [
+    6.885485328865383e-182,
+    "('end', 0, 'i', 0)",
+    "absolute"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "PTAIL-FREE": {
+   "selected": 512,
+   "classes": {
+    "relative": 4,
+    "absolute": 41,
+    "input_derived": 17
+   },
+   "honesty": [
+    1.7213713322163457e-182,
+    "('end', 0, 'i', 0)",
+    "absolute"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "classes": {
+    "relative": 10,
+    "absolute": 42,
+    "input_derived": 18
+   },
+   "honesty": [
+    7.785096460459184e-05,
+    "('rea', 1)",
+    "absolute"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.00040193320578516223)"
+   ]
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "classes": {
+    "relative": 7,
+    "absolute": 57,
+    "input_derived": 6
+   },
+   "honesty": [
+    0.0005381058673469387,
+    "('end', 1, 'i', 2)",
+    "absolute"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.001692791374362245)"
+   ]
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "classes": {
+    "relative": 8,
+    "absolute": 37,
+    "input_derived": 6
+   },
+   "honesty": [
+    0.0002644856770833333,
+    "('end', 0, 'i', 0)",
+    "absolute"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.000682431175595238)"
+   ]
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "classes": {
+    "relative": 2,
+    "absolute": 24,
+    "input_derived": 12
+   },
+   "honesty": [
+    0.0,
+    "None",
+    null
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "classes": {
+    "relative": 4,
+    "absolute": 41,
+    "input_derived": 17
+   },
+   "honesty": [
+    4.8586315428176796e-08,
+    "('umag', 2)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "classes": {
+    "relative": 4,
+    "absolute": 41,
+    "input_derived": 17
+   },
+   "honesty": [
+    4.8586315428176796e-08,
+    "('umag', 2)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "LOADONLY-y345-N": {
+   "selected": 128,
+   "classes": {
+    "relative": 31,
+    "absolute": 33,
+    "input_derived": 6
+   },
+   "honesty": [
+    8.296131716933125e-08,
+    "('u', 19)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.0007840607943917754)"
+   ]
+  },
+  "GS-ROT-y345-LOADED-N": {
+   "selected": 128,
+   "classes": {
+    "relative": 31,
+    "absolute": 33,
+    "input_derived": 6
+   },
+   "honesty": [
+    6.950409020012662e-08,
+    "('u', 19)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.00014652758258417163)"
+   ]
+  },
+  "LOADONLY-y001-N": {
+   "selected": 128,
+   "classes": {
+    "relative": 31,
+    "absolute": 33,
+    "input_derived": 6
+   },
+   "honesty": [
+    8.296131716933125e-08,
+    "('u', 19)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.002518338941620796)"
+   ]
+  },
+  "N05": {
+   "selected": 128,
+   "classes": {
+    "relative": 6,
+    "absolute": 27,
+    "input_derived": 5
+   },
+   "honesty": [
+    6.060436034309793e-08,
+    "('u', 3)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 4.825341262724394e-05)"
+   ]
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "classes": {
+    "relative": 12,
+    "absolute": 17,
+    "input_derived": 3
+   },
+   "honesty": [
+    4.976201932971652e-08,
+    "('end', 0, 'i', 3)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 2.4970255959385343e-05)"
+   ]
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "classes": {
+    "relative": 52,
+    "absolute": 72,
+    "input_derived": 3
+   },
+   "honesty": [
+    7.42893466968903e-08,
+    "('u', 32)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 2.3538416082208808e-06)"
+   ]
+  },
+  "PIVOT": {
+   "selected": 256,
+   "classes": {
+    "relative": 5,
+    "absolute": 22,
+    "input_derived": 5
+   },
+   "honesty": [
+    3.276901491275192e-08,
+    "('u', 3)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 0.00010860416064592028)"
+   ]
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "classes": {
+    "relative": 9,
+    "absolute": 36,
+    "input_derived": 12
+   },
+   "honesty": [
+    2.5431315104166665e-08,
+    "('u', 12)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 1.100960281564317e-08)"
+   ]
+  },
+  "ZERO-TORSION-345": {
+   "selected": 128,
+   "classes": {
+    "relative": 6,
+    "absolute": 20,
+    "input_derived": 6
+   },
+   "honesty": [
+    8.612572328933305e-08,
+    "('u', 10)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.00036797990579929684)"
+   ]
+  },
+  "ALL-ZERO-BODY": {
+   "selected": 128,
+   "classes": {
+    "relative": 8,
+    "absolute": 44,
+    "input_derived": 12
+   },
+   "honesty": [
+    4.0369269719342187e-08,
+    "('u', 10)",
+    "relative"
+   ],
+   "g5a": [],
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 5.053758888319644e-06)"
+   ]
+  }
+ },
+ "probe": {
+  "PROBE-y345-1m-general": {
+   "selected": 128,
+   "honesty": [
+    8.537867914941484e-08,
+    "('u', 11)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y345-1m-inplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #2)"
+   }
+  },
+  "PROBE-y345-1m-outofplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 10)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #2)"
+   }
+  },
+  "PROBE-y345-1m-axial": {
+   "selected": 128,
+   "honesty": [
+    6.713983392621398e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #2)"
+   }
+  },
+  "PROBE-y345-1m-torque": {
+   "selected": 128,
+   "honesty": [
+    4.952056043334036e-08,
+    "('u', 9)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #2)"
+   }
+  },
+  "PROBE-y345-3m-general": {
+   "selected": 128,
+   "honesty": [
+    8.330006612069235e-08,
+    "('umag', 1)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y345-3m-inplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #1)"
+   }
+  },
+  "PROBE-y345-3m-outofplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 9)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #2)"
+   }
+  },
+  "PROBE-y345-3m-axial": {
+   "selected": 128,
+   "honesty": [
+    6.713983392621398e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #2)"
+   }
+  },
+  "PROBE-y345-3m-torque": {
+   "selected": 128,
+   "honesty": [
+    4.952056043334036e-08,
+    "('u', 9)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 3,
+    "accepted_by": "bounded(best of 4, #2)"
+   }
+  },
+  "PROBE-y001-1m-general": {
+   "selected": 128,
+   "honesty": [
+    8.537867914941484e-08,
+    "('u', 11)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-1m-inplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-1m-outofplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 10)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-1m-axial": {
+   "selected": 128,
+   "honesty": [
+    6.713983392621398e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-1m-torque": {
+   "selected": 128,
+   "honesty": [
+    4.952056043334036e-08,
+    "('u', 9)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-3m-general": {
+   "selected": 128,
+   "honesty": [
+    8.330006612069235e-08,
+    "('umag', 1)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-3m-inplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-3m-outofplane": {
+   "selected": 128,
+   "honesty": [
+    6.761596070583625e-08,
+    "('u', 9)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-3m-axial": {
+   "selected": 128,
+   "honesty": [
+    6.713983392621398e-08,
+    "('u', 6)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  },
+  "PROBE-y001-3m-torque": {
+   "selected": 128,
+   "honesty": [
+    4.952056043334036e-08,
+    "('u', 9)",
+    "relative"
+   ],
+   "g5a": [],
+   "gate128": {
+    "corrections": 0,
+    "accepted_by": "coalesced"
+   }
+  }
+ },
+ "seeded": {
+  "selected": null,
+  "attempts": [
+   [
+    "128",
+    "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 3.4844914371897797e+45)"
+   ],
+   [
+    "256",
+    "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 4.034765434417431e+122)"
+   ],
+   [
+    "512",
+    "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 5.409735998704032e+276)"
+   ]
+  ]
+ }
+}

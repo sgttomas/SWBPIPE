@@ -1493,3 +1493,24 @@ V4's delta check at R2 (appended to `V4_VERIFICATION.md`, sha256 `c2f5539b…`):
   - **Why not change it now:** the result is a refusal, never a wrong value, and it is reachable only through the FK API. Moving on to the next candidate would change FK's result classes and the probe hash, which would reopen the oracle and probe checks for no correctness gain.
   - **Where it is recorded:** I14 records it in K5's RETURN as a known limitation, and it joins the T3-close list as a candidate refinement.
 - **DEC-025:** after the D1 fix and RV14's delta, on the final head, once F1b's part 2 frees the Mac.
+
+## D1 revision 5a.3: rulings on V4's delta check at R3 (ROOT, 2026-09-28)
+
+- **Verdict accepted:** NOT VERIFIED, with 1 BLOCKING (V4-T1) and 5 NOTEs. V4's fix for V4-R1 is implemented faithfully, and V4-R2 to R8 are resolved.
+- **V4-T1: adopt V4's closure, both parts together.**
+  1. **The 3p + 64 option becomes specified text.** W's contributions are formed at q_W = 3p + 64 bits, capped at 1024. The extra formation pass is charged as work.
+  2. **The runtime charge.** Add to §4.1.6.3 the test C_q = 62.5·2^-q_W·F·est·‖a_q·S‖₁·‖S·Ā·|u|‖_∞ ≤ 60·2^-2p·ê(body, kind), inside the 124 units V leaves; at p = 512, test it against 2^-22·b.
+     - **The terms:** est is the verification's Hager–Higham estimate of ‖K̃⁻¹‖₁, S is K4's radix equilibration, Ā·|u| comes from E's reaction pass, and a_q is the recovery row.
+     - **F is pinned:** it is the same allowance that the condition screen and W's accuracy already rest on, with no new uncertified step.
+     - **On failure:** the precision is not selected at this p, and the next p is tried.
+- **Rigour required in R4.** R4 bounds e_q beyond first order: the second-order remainder is bounded, or dominated, under the design's own screens, for example ‖K⁻¹δK‖ ≤ 1/2 with a factor of 2. Alternatively R4 states exactly which first-order step remains and why the screens make it safe. No step is left "argued".
+- **Tests and mutants in R4's emulator:**
+  - LEVER2 and TILT-LEVER are charged out or refused;
+  - all 44 controls and the 20 probe cases keep their R3 precisions and classes at q_W;
+  - a mutant that drops the charge is killed by a control that the charge alone refuses;
+  - a mutant that uses q = 2p + 64 for W is detected.
+- **NOTEs:**
+  - **V4-T2:** R4 drops its citation of V4's false R2 statement and records the erratum.
+  - **V4-T3, T4, T5:** recorded as V4 states them. M16's survival is acceptable.
+- **The limitation that remains, disclosed:** the honesty guarantee rests, to the factor F, on Hager–Higham's uncertified norm estimate. The condition screen and W already rest on it, and this closure adds no new reliance. R4 states it in §9, and ROOT carries it to the owner's list.
+- **Next:** DS1 writes R4, V4 runs a delta check, and ROOT selects only after VERIFIED. K4 stays blocked until then.

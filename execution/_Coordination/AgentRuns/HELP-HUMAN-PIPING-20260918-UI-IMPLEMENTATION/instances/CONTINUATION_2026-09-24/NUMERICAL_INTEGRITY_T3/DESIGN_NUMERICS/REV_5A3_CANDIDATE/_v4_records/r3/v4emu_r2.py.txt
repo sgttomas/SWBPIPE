@@ -1,0 +1,460 @@
+#!/usr/bin/env python3
+"""V4's implementation of D1 revision 5a.3 R2 (sha256 326a8d78...), written by V4 from R2's
+text (§3.1, §5.1, §5.3-§5.6, §6.3) on top of V4's K4 emulator (v4emu.py). It does not import
+or copy DS1's emu2.
+
+R2 pieces: g exact from the formation's Gram-Schmidt residual; the stage-rounded bounded
+operator A-bar (element blocks |D|B-bar then B-bar^T(|D|B-bar), each rounded once, times g,
+assembled with one rounding, plus |k| of springs); E stage-rounded at the state's precision;
+V and Phi from item 6a's binary64 e-hat; the verification estimate W (residual reused from the
+gate's last evaluation, or recomputed on the final state: both are implemented, see W_RESIDUAL);
+the hybrid gate (coalesced-driven refinement, bounded acceptance); G5a items 1-5.
+
+Simplifications as v4emu (ascending order, exact rcond, no directional springs or support groups).
+"""
+import math
+from fractions import Fraction as Fr
+from v4emu import (rnd, rsqrt, f64, up64, Ar, form_member, assemble, row, ledger, prescribed, factor,
+                   solve, rcond_exact, recover, exact_state, layout, bodies, extents, row_body, coupled,
+                   dofs_of, Stop, EPS)
+
+SEED = {}            # model name -> [(dof, Fraction)] added to the solved state after the gate (test hook)
+W_RESIDUAL = "reuse"  # "reuse": the gate's last residual (R2 §5.5 item 1); "recompute": on the final state
+GATE_STATE = "last"  # "last" (R2) or "best" (R3 §5.6: smallest worst bounded ratio, earliest on a tie)
+W_K = "assembled"    # "assembled": K^q entries rounded once at q (R2); "contributions": the exact sum of the
+                     # q-formed element entries and binary64 spring stiffnesses, unrounded (V4's proposal)
+
+
+def g_r2(op):
+    yy = sum(c * c for c in op["yr"])
+    cc = sum(c * c for c in op["yc"])
+    k = 0
+    while Fr(4) ** k * cc < yy:
+        k += 1
+    return Fr(2) ** k
+
+
+def bbar(op):
+    inv = abs(op["inv"])
+    B = [[Fr(0)] * 12 for _ in range(6)]
+    for k in range(3):
+        B[0][k] = B[0][6 + k] = Fr(1)
+        B[1][3 + k] = B[1][9 + k] = Fr(1)
+        for rw, rot in ((2, 3), (3, 9), (4, 3), (5, 9)):
+            B[rw][k] = B[rw][6 + k] = inv
+            B[rw][rot + k] = Fr(1)
+    return B
+
+
+def dabs(op):
+    bz, by = abs(op["bz"]), abs(op["by"])
+    return [[(0, abs(op["axial"]))], [(1, abs(op["torsion"]))], [(2, 4 * bz), (3, 2 * bz)], [(2, 2 * bz), (3, 4 * bz)],
+            [(4, 4 * by), (5, 2 * by)], [(4, 2 * by), (5, 4 * by)]]
+
+
+def abar_r2(ar, m, ops):
+    """R2 §5.4 item 3: stage-rounded bounded operator, assembled with one rounding per entry."""
+    r = ar.r
+    contrib = {}
+    for op in ops:
+        g = g_r2(op)
+        B = bbar(op)
+        D = dabs(op)
+        DB = [[r(sum(c * B[s][col] for s, c in D[rw])) for col in range(12)] for rw in range(6)]
+        dd = dofs_of(op)
+        for a in range(12):
+            for b_ in range(12):
+                v = r(sum(B[rw][a] * DB[rw][b_] for rw in range(6)))
+                if v:
+                    contrib.setdefault((dd[a], dd[b_]), []).append(g * v)
+    for dof, k in m["springs"]:
+        contrib.setdefault((dof, dof), []).append(abs(Fr(k)))
+    return {key: r(sum(v)) for key, v in contrib.items()}
+
+
+def E_r2(m, st):
+    """R2 §3.1: E_q per force/moment row, stage-rounded at the state's precision; returns (E by (body,kind), E per row)."""
+    ar = Ar(st["P"])
+    r = ar.r
+    u = st["u"]
+    ops = st["ops"]
+    A = abar_r2(ar, m, ops)
+    nb = bodies(m)
+    lay = layout(m)
+    Nt = [r(sum(abs(u[6 * a + k]) for k in range(3))) for a in range(len(m["nodes"]))]
+    Nr = [r(sum(abs(u[6 * a + 3 + k]) for k in range(3))) for a in range(len(m["nodes"]))]
+    actE, QE = [], []
+    for op in ops:
+        g = g_r2(op)
+        i, j = op["i"], op["j"]
+        inv = abs(op["inv"])
+        e = [r(Nt[j] + Nt[i]), r(Nr[j] + Nr[i]), r(Nr[i] + inv * Nt[i] + inv * Nt[j]), r(Nr[j] + inv * Nt[i] + inv * Nt[j]),
+             r(Nr[i] + inv * Nt[i] + inv * Nt[j]), r(Nr[j] + inv * Nt[i] + inv * Nt[j])]
+        Q = [r(sum(c * e[s] for s, c in row_)) for row_ in dabs(op)]
+        Vy = r(inv * Q[2] + inv * Q[3])
+        Vz = r(inv * Q[4] + inv * Q[5])
+        QE.append([g * x for x in Q])
+        actE.append([g * x for x in (Q[0], Vy, Vz, Q[1], Q[4], Q[2], Q[0], Vy, Vz, Q[1], Q[5], Q[3])])
+    Erow = {}
+    n = 6 * len(m["nodes"])
+    for idx, (key, kind, inp) in enumerate(lay):
+        if kind not in ("fo", "mo"):
+            continue
+        t = key[0]
+        if t == "end":
+            Erow[idx] = actE[key[1]][(0 if key[2] == "i" else 6) + key[3]]
+        elif t == "sta":
+            e_, tt = m["stations"][key[1]]
+            c = key[2]
+            if c < 4:
+                Erow[idx] = actE[e_][6 + c]
+            else:
+                tt = abs(Fr(tt))
+                Q = QE[e_]
+                a_, b_ = (5, 4) if c == 4 else (3, 2)
+                Erow[idx] = r(tt * Q[a_] + tt * Q[b_] + Q[b_])
+        elif t == "spr":
+            dof, k = m["springs"][key[1]]
+            Erow[idx] = r(abs(Fr(k)) * abs(u[dof]))
+        elif t == "rea":
+            gg = key[1]
+            Erow[idx] = r(abs(ledger(m, gg)) + sum(A.get((gg, jj), 0) * abs(u[jj]) for jj in range(n)))
+    E = {}
+    for idx, v in Erow.items():
+        key, kind, _ = lay[idx]
+        b = row_body(m, key, nb)
+        E[(b, kind)] = max(E.get((b, kind), Fr(0)), v)
+    return E, Erow
+
+
+def ehat(E, b, Lb):
+    Efo = Fr(up64(E.get((b, "fo"), 0)))
+    Emo = Fr(up64(E.get((b, "mo"), 0)))
+    if Lb == 0:
+        return Efo, Emo
+    return max(Efo, f64(Emo / Fr(Lb))), max(Emo, f64(Fr(Lb) * Efo))
+
+
+def solve_r2(m, P, gate="hybrid", estimate=True):
+    """K4's solve at P with R2's gate (§5.6) and, for a verification, R2's estimate (§5.5)."""
+    ar = Ar(P)
+    ops = [form_member(ar, m["nodes"], mb) for mb in m["members"]]
+    K, n = assemble(ar, m, ops)
+    u = [Fr(0)] * n
+    for gg, v in prescribed(ar, m).items():
+        u[gg] = v
+    free = [gg for gg in range(n) if gg not in m["cons"]]
+    rhs = []
+    for i in free:
+        s = ledger(m, i)
+        for j, kij in row(K, n, i):
+            if j in m["cons"] and u[j] != 0:
+                s -= kij * u[j]
+        rhs.append(ar.r(s))
+    info = dict(corrections=0, accepted_by=None)
+    last_rows = []
+    Lr = Dg = None
+    q = P + 64 if P < 1024 else P
+    arq = Ar(q)
+    opsq = [form_member(arq, m["nodes"], mb) for mb in m["members"]]
+    Kq, _ = assemble(arq, m, opsq)
+    Aq = abar_r2(arq, m, opsq) if gate in ("hybrid", "pure") else None
+
+    def residual(uu):
+        out = []
+        for i in free:
+            rr = ledger(m, i)
+            dc = abs(ledger(m, i))
+            cnt = 0
+            for j, kij in row(Kq, n, i):
+                if kij == 0 or uu[j] == 0:
+                    continue
+                cnt += 1
+                rr -= kij * uu[j]
+                dc += abs(kij * uu[j])
+            db = abs(ledger(m, i)) + (sum(Aq.get((i, j), 0) * abs(uu[j]) for j in range(n)) if Aq is not None else 0)
+            out.append((rr, dc, db, 2 * cnt + 2))
+        return out
+
+    def passes(rows_, which):
+        return all(abs(x[0]) * (Fr(2) ** P - x[3]) <= 64 * x[3] * x[which] for x in rows_)
+
+    def worst(rows_, which):
+        w = 0.0
+        for x in rows_:
+            d = x[which]
+            w = max(w, float(abs(x[0]) * (Fr(2) ** P - x[3]) / (64 * x[3] * d)) if d else (0.0 if x[0] == 0 else math.inf))
+        return w
+    if free:
+        Lr, Dg = factor(ar, K, free)
+        if rcond_exact(K, free) <= Fr(1, 2 ** (P - 1)):
+            raise Stop("Condition")
+        uf = solve(ar, Lr, Dg, rhs)
+        prior = None
+        evaluated = []
+        drive = 2 if gate == "pure" else 1
+        while True:
+            for a, gg in enumerate(free):
+                u[gg] = uf[a]
+            rows_ = residual(u)
+            last_rows = rows_
+            w = worst(rows_, drive)
+            if passes(rows_, drive):
+                info["accepted_by"] = "bounded" if gate == "pure" else "coalesced"
+                break
+            evaluated.append((worst(rows_, 2), list(uf), rows_))
+            if info["corrections"] == 3 or (prior is not None and w >= prior):
+                if gate == "hybrid" and GATE_STATE == "best":
+                    bw, buf, brows = min(evaluated, key=lambda t: t[0])
+                    if passes(brows, 2):
+                        uf = buf; rows_ = brows; last_rows = brows
+                        info["accepted_by"] = "bounded(best of %d, #%d)" % (len(evaluated), [e[0] for e in evaluated].index(bw) + 1)
+                        break
+                    raise Stop("ResidualGate(%.3g)" % w)
+                if gate == "hybrid" and passes(rows_, 2):
+                    info["accepted_by"] = "bounded"
+                    break
+                raise Stop("ResidualGate(%.3g)" % w)
+            prior = w
+            delta = solve(ar, Lr, Dg, [ar.r(x[0]) for x in rows_])
+            uf = [ar.r(a_ + b_) for a_, b_ in zip(uf, delta)]
+            info["corrections"] += 1
+        for a, gg in enumerate(free):
+            u[gg] = uf[a]
+    for dof, val in SEED.get(m["name"], []):
+        u[dof] = ar.r(u[dof] + val)
+    vals, _ = recover(ar, m, ops, K, n, u)
+    st = dict(P=P, u=u, vals=vals, ops=ops, K=K, n=n, info=info)
+    if estimate and free:
+        if W_K == "contributions":
+            contrib = {}
+            for op in opsq:
+                dd = dofs_of(op)
+                for a_ in range(12):
+                    for b_ in range(12):
+                        contrib[(dd[a_], dd[b_])] = contrib.get((dd[a_], dd[b_]), Fr(0)) + op["ke"][a_][b_]
+            for dof, kk in m["springs"]:
+                contrib[(dof, dof)] = contrib.get((dof, dof), Fr(0)) + Fr(kk)
+            rows_ = []
+            for i in free:
+                rr = ledger(m, i) - sum(v * u[j] for (ii, j), v in contrib.items() if ii == i)
+                rows_.append((rr,))
+        else:
+            rows_ = last_rows if W_RESIDUAL == "reuse" else residual(u)
+        delta = solve(ar, Lr, Dg, [ar.r(x[0]) for x in rows_])
+        dfull = [Fr(0)] * n
+        for a, gg in enumerate(free):
+            dfull[gg] = delta[a]
+        m0 = dict(m)
+        m0["loads"] = {}
+        lin, _ = recover(ar, m0, ops, K, n, dfull)
+        st["W"] = [abs(v) for v in lin]
+    elif estimate:
+        st["W"] = [Fr(0)] * len(vals)
+    return st
+
+
+def stop_r2(m, cand, ver, E, use_W=True, floor=True):
+    """R2 §5.1: (a) |dq| + V <= eps max(|q2|, S*) with S* floored at 512; (b) W <= 2^(6-2p) e-hat."""
+    lay = layout(m)
+    nb = bodies(m)
+    ext = extents(m)
+    p = cand["P"]
+    ar2 = Ar(ver["P"])
+    nbod = len(ext)
+    S = [dict(tr=Fr(0), ro=Fr(0), fo=Fr(0), mo=Fr(0)) for _ in range(nbod)]
+    for idx, (key, kind, inp) in enumerate(lay):
+        if inp:
+            continue
+        b = row_body(m, key, nb)
+        S[b][kind] = max(S[b][kind], abs(ver["vals"][idx]))
+    Ss = [coupled(S[b], ext[b], ar2.r) for b in range(nbod)]
+    eh = [ehat(E, b, ext[b]) for b in range(nbod)]
+    if p == 512 and floor:
+        for b in range(nbod):
+            Ss[b]["fo"] = max(Ss[b]["fo"], Fr(up64(Fr(2) ** -438 * eh[b][0])))
+            Ss[b]["mo"] = max(Ss[b]["mo"], Fr(up64(Fr(2) ** -438 * eh[b][1])))
+    for idx, (key, kind, inp) in enumerate(lay):
+        b = row_body(m, key, nb)
+        q2 = ver["vals"][idx]
+        M = max(abs(q2), Ss[b][kind])
+        v = Fr(0)
+        if kind in ("fo", "mo"):
+            v = Fr(2) ** (8 - 2 * p) * (eh[b][0] if kind == "fo" else eh[b][1])
+        if abs(cand["vals"][idx] - q2) + v > EPS * M:
+            return False, ("stop_rule", key, kind)
+    if use_W:
+        worstW = 0.0
+        for idx, (key, kind, inp) in enumerate(lay):
+            if kind not in ("fo", "mo"):
+                continue
+            b = row_body(m, key, nb)
+            thr = Fr(2) ** (6 - 2 * p) * (eh[b][0] if kind == "fo" else eh[b][1])
+            w = ver["W"][idx]
+            if w > thr:
+                return False, ("verification_estimate", key, kind, float(w / thr) if thr else math.inf)
+            if thr:
+                worstW = max(worstW, float(w / (4 * thr)))
+        return True, ("W/V", worstW)
+    return True, None
+
+
+def schedule_r2(m, gate="hybrid", use_W=True, floor=True, cache=None):
+    cache = {} if cache is None else cache
+
+    def get(P):
+        if P not in cache:
+            try:
+                cache[P] = solve_r2(m, P, gate)
+            except Stop as s:
+                cache[P] = s
+        return cache[P]
+    attempts = []
+    c = 0
+    pending = None
+    precs = [128, 256, 512, 1024]
+    while c < 3:
+        p = precs[c]
+        cand = pending if pending is not None else get(p)
+        pending = None
+        if isinstance(cand, Stop):
+            attempts.append((p, "failed:%s" % cand))
+            c += 1
+            continue
+        ver = get(precs[c + 1])
+        if isinstance(ver, Stop):
+            attempts.append((p, "verification failed:%s" % ver))
+            c += 2
+            continue
+        E, _ = E_r2(m, ver)
+        ok, why = stop_r2(m, cand, ver, E, use_W, floor)
+        if ok:
+            attempts.append((p, "accepted", why))
+            return dict(selected=p, cand=cand, ver=ver, E=E, attempts=attempts)
+        attempts.append((p, "rejected:%s" % (why,)))
+        if c + 1 < 3:
+            pending = ver
+        c += 1
+    return dict(selected=None, attempts=attempts)
+
+
+def publish_r2(m, res):
+    lay = layout(m)
+    nb = bodies(m)
+    ext = extents(m)
+    pub = [f64(v) for v in res["cand"]["vals"]]
+    nbod = len(ext)
+    S = [dict(tr=Fr(0), ro=Fr(0), fo=Fr(0), mo=Fr(0)) for _ in range(nbod)]
+    for idx, (key, kind, inp) in enumerate(lay):
+        if inp:
+            continue
+        b = row_body(m, key, nb)
+        S[b][kind] = max(S[b][kind], abs(pub[idx]))
+    Sc = [coupled(S[b], ext[b], f64) for b in range(nbod)]
+    Sp = [dict(s) for s in Sc]
+    if res["selected"] == 512:
+        for b in range(nbod):
+            efo, emo = ehat(res["E"], b, ext[b])
+            Sp[b]["fo"] = max(Sp[b]["fo"], Fr(up64(Fr(2) ** -438 * efo)))
+            Sp[b]["mo"] = max(Sp[b]["mo"], Fr(up64(Fr(2) ** -438 * emo)))
+    rows = []
+    for idx, (key, kind, inp) in enumerate(lay):
+        if inp:
+            rows.append((key, kind, pub[idx], "input_derived", None))
+            continue
+        b = row_body(m, key, nb)
+        s = Sp[b][kind]
+        t = f64(Fr(2) ** -34 * s)
+        if s < Fr(2) ** -988 or abs(pub[idx]) < t:
+            rows.append((key, kind, pub[idx], "absolute", Fr(up64(s / Fr(2) ** 64))))
+        else:
+            rows.append((key, kind, pub[idx], "relative", None))
+    return rows, Sp, Sc
+
+
+def g5a(m, res, rows, Sc):
+    """G5a items 1-4 (R2 §6.3) on published data; returns a list of failures."""
+    fails = []
+    nb = bodies(m)
+    ext = extents(m)
+    c = Fr(float.fromhex("0x1.0000000001000p+0"))
+    assert c == 1 + Fr(1, 2 ** 40)
+    u = {}
+    for (key, kind, qp, cls, b) in rows:
+        if key[0] == "u":
+            u[key[1]] = abs(qp)
+    for b in range(len(ext)):
+        Efo = Fr(up64(res["E"].get((b, "fo"), 0)))
+        Emo = Fr(up64(res["E"].get((b, "mo"), 0)))
+        efo, emo = ehat(res["E"], b, ext[b])
+        # 2: zero rule
+        for (key, kind, qp, cls, bb), in [((r_,)) for r_ in rows]:
+            pass
+        for (key, kind, qp, cls, bb) in rows:
+            if row_body(m, key, nb) != b:
+                continue
+            if kind == "fo" and Efo == 0 and qp != 0:
+                fails.append(("zero_rule", b, key))
+            if kind == "mo" and Emo == 0 and qp != 0:
+                fails.append(("zero_rule", b, key))
+        # 3: sanity bound
+        if f64(efo * c) < Sc[b]["fo"]:
+            fails.append(("sanity_fo", b))
+        if f64(emo * c) < Sc[b]["mo"]:
+            fails.append(("sanity_mo", b))
+        # 4: the published-data lower bound
+        lbfo = lbmo = Fr(0)
+        str_, sro = Sc[b]["tr"], Sc[b]["ro"]
+        for mb in m["members"]:
+            if nb[mb["i"]] != b:
+                continue
+            xi, xj = m["nodes"][mb["i"]], m["nodes"][mb["j"]]
+            dx = [xj[k] - xi[k] for k in range(3)]
+            L = math.sqrt((dx[0] * dx[0] + dx[1] * dx[1]) + dx[2] * dx[2])
+            ka = Fr((mb["E"] * mb["A"]) / L)
+            kt = Fr((mb["G"] * mb["J"]) / L)
+
+            def nsum(node, off):
+                return f64(f64(u[6 * node + off] + u[6 * node + off + 1]) + u[6 * node + off + 2])
+            Nt = f64(nsum(mb["i"], 0) + nsum(mb["j"], 0))
+            Nr = f64(nsum(mb["i"], 3) + nsum(mb["j"], 3))
+            if Nt > Fr(2) ** -59 * str_:
+                lbfo = max(lbfo, f64(ka * f64(Nt - Fr(2) ** -60 * str_)))
+            if Nr > Fr(2) ** -59 * sro:
+                lbmo = max(lbmo, f64(kt * f64(Nr - Fr(2) ** -60 * sro)))
+        if f64(efo * c) < lbfo:
+            fails.append(("lower_bound_fo", b, float(efo), float(lbfo)))
+        if f64(emo * c) < lbmo:
+            fails.append(("lower_bound_mo", b, float(emo), float(lbmo)))
+    return fails
+
+
+def honesty_rows(rows, truth):
+    worst = (0.0, None, None)
+    for (key, kind, qp, cls, b), qt in zip(rows, truth["vals"]):
+        if cls == "input_derived":
+            continue
+        err = abs(qp - qt)
+        if err == 0:
+            continue
+        if cls == "absolute":
+            r = math.inf if b == 0 else float(err / b)
+        else:
+            r = math.inf if qt == 0 else float(err / (Fr(1, 10 ** 9) * abs(qt)))
+        if r > worst[0]:
+            worst = (r, key, cls)
+    return worst
+
+
+def run_r2(m, gate="hybrid", use_W=True, truth=True):
+    res = schedule_r2(m, gate, use_W)
+    rec = dict(selected=res["selected"], attempts=[tuple(str(x) for x in a) for a in res["attempts"]])
+    if res["selected"] is not None:
+        rows, Sp, Sc = publish_r2(m, res)
+        rec["classes"] = {c: sum(1 for r_ in rows if r_[3] == c) for c in ("relative", "absolute", "input_derived")}
+        rec["g5a_failures"] = [str(x) for x in g5a(m, res, rows, Sc)]
+        if truth:
+            h = honesty_rows(rows, exact_state(m))
+            rec["honesty"] = [h[0], str(h[1]), h[2]]
+        rec["corrections"] = {str(k): (v.get("corrections") if isinstance(v, dict) else None) for k, v in []}
+    return rec

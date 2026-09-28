@@ -333,3 +333,78 @@ Each script is stored as `.py.txt`, beside its `.json` and `.log`. Some logs rep
 To rerun (from `<wt>/scratch/v4/`): `python3 delta_r2/r2_controls.py`, `python3 delta_r2/r2_probe_seed.py`, `python3 delta_r2/r2_lever2.py`, `python3 delta_r2/r2_lever_fix.py`, and `python3 delta_r2/r2_sweep.py 3 200 1500`.
 
 Uncommitted.
+
+## Delta check at R3
+
+This covers R3, `D1_REV_5A3_SSTAR_RESOLUTION_R3.md` (sha256 `2cbb6582…`, 732 lines, numerics `c85dc1151`), against:
+- ROOT's rulings on the R2 delta (`ROOT_RULINGS_V1.md`, section "D1 revision 5a.3: rulings on V4's delta check at R2");
+- R3's §9 ("could not resolve") and §12 (the map of V4's R2 findings to their resolutions).
+
+**Method.**
+- V4's own emulator is extended to R3's specification: W's residual is one exact sum over the q-formed contributions on the final state, and the hybrid gate takes the best state. It is V4's code, not DS1's emu3.
+- Python only, at most one process at a time, under `nice -n 19`. No cargo.
+- The records are in `_v4_records/r3/`, with their own `SHA256SUMS`; `_v4_records/SHA256SUMS` is regenerated.
+
+### Verdict at R3
+
+**NOT VERIFIED. 1 BLOCKING, 0 SHOULD-FIX, 5 NOTE.**
+
+R3 implements V4's R2 fix faithfully, and every R2 finding is resolved. **One gap remains, by ROOT's standard: e_q.** It is the formation error of individual q-formed entries, and R3 states its negligibility as a conjecture.
+
+V4 could not show that e_q is unreachable. It could not build an adversary either: its element-level attempt is refused, with a derived reason. V4 shows that e_q can be **charged at runtime** from quantities the design already forms. With the 3p + 64 option, the charge costs nothing on every model tested.
+
+That is the closure V4 recommends. A delta check of the added text and the charge's specification should then suffice.
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| V4-T1 | **BLOCKING** | §5.5 (§4.1.6.3) e_q; §5.2; §5.7; §4; §8 item 1; §9 | **(a) DS1's bound is correct** (derived, first order). u\* − ũ = K\*⁻¹(K^c − K\*)ũ, and \|K^c − K\*\| ≤ 62.5·2^-q·Ā entrywise (V4's count, with Ā carrying g ≥ 1). So \|e_q\| ≤ 62.5·2^-q·Γ_q. The excess over b is ≤ 2^-66·(Γ_q/ê)·b at p = 128 and 256 (b ≥ V) and ≤ 2^-516·(Γ_q/ê)·b at 512 (b ≥ 2^-502·ê); b holds whenever Γ_q ≲ 2^65·ê.<br>**(b) Γ_q can be bounded at runtime** (derived), contrary to §5.5's "the rcond screen … does not bound Γ_q":<br>Γ_q ≤ ‖a_q·S‖₁ · ‖K̃⁻¹‖₁ · ‖S·Ā·\|u\|‖_∞,<br>where K̃ = S·K·S is K4's radix equilibration, ‖K̃⁻¹‖₁ is the verification's own Hager–Higham estimate times its uncertified factor F, Ā·\|u\| comes from E's reaction pass, and a_q is the recovery row.<br>**Demonstrated** (`r3/r3_charge.*`, exact ‖K̃⁻¹‖₁):<br>• at R3's q = 2p + 64, this charge exceeds e_q's allowance on the conditioned controls: SKEW-K1E-28 by 4.4e19, PIVOT by 1.4e18, SKEW6-K1E-12 by 2.7e6. Charging at q would move them from 256 to 512;<br>• at q_W = 3p + 64, every non-LEVER model (22 controls, 10 probe cases) passes with a margin of at least 2^62 (worst 1.3e-19 of the allowance);<br>• LEVER2 would also be charged out at 256.<br>**(c) Adversary.** TILT-LEVER (`r3/r3_tilt.*`) puts a within-entry loss in the lever arm: a tilt of 2^-290 whose axial (t/L)² term is below half an ulp at 576 bits, under a prescribed rigid rotation about the link node. It is refused at every gain (2^90, 2^100, 2^110). **Derived why:** a member is rotation-invariant in truth, so the lost tail's error lives in the computed state. It must be representable both at the leak site and at the output member, which are a lever arm apart, and that forces κ past the rcond screen. The other cases:<br>• a directional block's saturated tail is proportional to n nᵀ, so it acts only through the real stretch;<br>• springs enter exactly;<br>• tails acting on deformation are proportional to the element's real forces, and need a gain above 2^(2p).<br>This is a case analysis, not a proof: mixed cases, the constant relating \|K_e\|\|w\| to the element's forces, noise-formed elements and multi-element coherence are not closed.<br>**(d)** By ROOT's standard this is a gap, and BLOCKING until closed | **Close it by a runtime charge.** Add to §4.1.6.3 the test<br>C_q = 62.5·2^-q_W·F·est·‖a_q·S‖₁·‖S·Ā·\|u\|‖_∞ ≤ 60·2^-2p·ê(body, kind),<br>inside the 124 units V leaves. At p = 512, test it against 2^-22·b, or against the same remainder. Here est is the verification's Hager–Higham estimate and F a pinned allowance.<br>**Adopt the 3p + 64 option with it**, so the charge does not bind in practice (demonstrated).<br>This closes e_q by derivation to first order, **modulo F**: the same uncertified step as the rcond screen and W's own accuracy. The 3p + 64 option alone only shrinks the term by 2^p. The charge alone at q = 2p + 64 closes it too, at the cost of three conditioned controls |
+| V4-T2 | NOTE | §5.5 "*Argued.* … V4 argued that in an exactly representable structure only assembly-level sums can saturate" | **V4 erratum, demonstrated** (TILT-LEVER's formation): a dyadic-tilted member is formed exactly at every P ≤ 576, yet its (uy,uy) entry carries an axial (t/L)² tail lost within the entry. So V4's R2 statement is false. DS1's own example (direction components differing by more than 2^(p+32)) is right | Drop the citation of V4's claim; keep DS1's sentence |
+| V4-T3 | NOTE | §5.6 best state; §7 M16 survives | **Derived:** the gate's choice selects which state is final, and the stop rule, V and W then judge that same state. So the choice affects availability, never honesty. **M16 surviving is acceptable** | None |
+| V4-T4 | NOTE | §5.6 "the chosen state is the second, third or fourth of four" | **Demonstrated** (`r3/r3_repro.*`): in V4's emulator the best state is #2 of 4 in seven of the eight single-mode probe cases and #1 in one. All 20 are selected at 128 and honest either way. This is an emulation detail | None |
+| V4-T5 | NOTE | §5.5 "*Argued.* Such error enters the stop rule's Δ at its p-level size unless …" | **Demonstrated** (TILT-LEVER): that near-degenerate within-entry case exists, and the stop rule refuses it at the leak site (Δ ≠ 0 at 256 and at 512). This supports the argument | None |
+
+### The checks ROOT asked for
+
+1. **V4's fix, as specified. Faithful.**
+   - §5.5 item 1 forms one exact expansion over the q-formed element and directional-block entries plus the binary64 spring stiffnesses, over every DOF, on the final state, recomputed.
+   - Its work is charged in item 7.
+   - **Demonstrated** (`r3/r3_repro.*`): **LEVER2 is refused at 2^90, 2^100 and 2^110**, by the pivot test at 128, the estimate at 256 and the stop rule at 512. V4's W/(V/4) values of 1.07e4, 1.10e7 and 1.12e10 equal DS1's W/V of 2,681, 2.7e6 and 2.8e9.
+   - SEEDED-COMMON is refused by the estimate at 128, 256 and 512.
+2. **e_q:** V4-T1, and (a) to (d) in its row.
+3. **V4-R2 to R8, as resolved. All verified.**
+   - R2: the residual is recomputed on the final state; SEEDED-COMMON is caught.
+   - R3: labelled emulation.
+   - R4: the two-case proof is correct.
+   - R5: best state; M16's survival is acceptable (V4-T3).
+   - R6: the conversion is absorbed. **Derived:** fl(ê·c) ≥ E·(1 + 2^-41) > E·(1 + 2^-47) ≥ LB.
+   - R7: the errata are recorded.
+   - R8: nothing is needed in the design.
+4. **The false rigid-cancellation assumption. No step of R3 relies on it** (derived).
+   - Every use is an upper bound: the λ count's leakage, the gate's point 2, and F-3's availability.
+   - LEVER2 and ASSEMBLY-SAT rest on axis-aligned dyadic elements, whose products are exact, so the mirrored triangle negates exactly.
+   - The only related error was V4's own (V4-T2).
+5. **R2's p = 512 reframing, and R3's derivations. Correct** (derived).
+   - At 512 the excess is ≤ 62.5·2^-1024·Γ_q ÷ (2^-502·ê) ≈ 2^-516·(Γ_q/ê)·b.
+   - (i-g)'s 2^-(p+4)·(Γ_q/ê)·b holds for its non-floored kinds.
+   - The gate's 2^-71 availability bound holds.
+   - §5.2's inequality holds, and so do G5a item 4's constants.
+   - **New errors:** V4 found none beyond V4-T1's "does not bound Γ_q" and V4-T2's citation.
+
+**Also demonstrated.**
+- R3 on V4's 22 controls and 20 probe cases gives the same selected precisions and classes as R2. All are honest, with 0 G5a failures.
+- On V4's 200 adversarial models (`r3/r3_sweep_3.*`): 13 selected at 256, 187 at 512, 0 false claims, 0 G5a failures, the estimate never fired, worst W/V 0.0035.
+
+**Records** (`_v4_records/r3/`, stored as `.py.txt`, each beside its `.json` and `.log`):
+
+| File | What it is |
+|---|---|
+| `v4emu.py.txt`, `v4emu_r2.py.txt` | Now carrying R3's switches |
+| `r2_controls.py.txt`, `r2_lever2.py.txt` | Made import-safe |
+| `r3_repro` | The reproduction |
+| `r3_charge` | The runtime bound |
+| `r3_tilt` | The element-level adversary |
+| `r3_sweep` | The adversarial sweep |
+
+To rerun, from `<wt>/scratch/v4/`: `nice -n 19 python3 r3/<script>.py`; for the sweep, `nice -n 19 python3 r3/r3_sweep.py 3 200 1500`.
+
+Uncommitted.
