@@ -1,6 +1,6 @@
 # RV7: independent complete-diff review of slice K2a
 
-**Verdict at head `79c0d320b`: NOT PASS.** There is 1 BLOCKING finding (records only), 3 SHOULD-FIX findings and 5 NOTEs. The code is correct. The final verdict on the closing head is in §8.
+**Final verdict: PASS at head `aad23e82d`** (§8). At the reviewed head `79c0d320b` the verdict was NOT PASS: 1 BLOCKING finding (records only), 3 SHOULD-FIX findings and 5 NOTEs. The code was correct. All of them are closed by RETURN_ADDENDUM_1 and the added per-site test rows.
 
 **Reviewer.** RV7 is a Type 2 TASK, briefed by the T3 manager to review PR #1032.
 - **Independence.** I did not design, check or implement K2a, K-D5 or M03. This is not owner review.
@@ -155,4 +155,58 @@
 - I did not probe a better-conditioned skew model on main.
 
 ## 8. Final verdict
-Pending. This section records the delta check (`git diff --stat 79c0d320b <new head>`, expected to touch only FK `tests/k2a_checked_formation.rs` and K2A record paths), the re-run of R1–R5, R5b and R10 on the new tree, and the verdict on that head.
+
+**PASS, for PR #1032 at head `aad23e82dd5d836b0a6da95b4d26b990beca1b63`** (parent `79c0d320b`). There are no open BLOCKING or SHOULD-FIX findings.
+
+### 8.1 Re-run of the former survivors (`_run_records/k2a/rerun_a1029d7da/`)
+- **Tree:** a `git archive` of the FK crate at local commit `a1029d7da`. Its FK test files are identical to the head's (§8.2). `src/lib.rs` is unchanged (`7622e7cc…`), and the test file is `0fa172eb…`.
+- **Method:** a clean target per mutant; the patches are §4's, applied unchanged.
+- **Control:** NONE passes 13/13. That is also the FK k2a run on this tree.
+
+| Mutant | Killed by (`tests/k2a_checked_formation.rs`) | Behaviour under the mutant |
+|---|---|---|
+| R1 | `k2a_each_zero_or_infinite_site_also_refuses_a_subnormal_by_its_own_name` :501 | row `12EIy/L^3: (12*E*Iy)/L^3` is `Ok` instead of refused |
+| R2 | the same test :501; and `k2a_the_quotient_itself_is_checked_not_the_product_with_the_reciprocal` :541 | row `EA/L: E*A` is `Ok`; the quotient case is `Ok` |
+| R3 | :501 | row `L^3 …` is refused under the wrong name (`12EIy/L^3: (12*E*Iy)/L^3`) |
+| R4 | :501 | row `12EIz/L^3: (12*E)*Iz` is refused under `(12*E*Iz)/L^3` |
+| R5 | :501 | row `… 12*E` is refused under `12EIy/L^3: (12*E)*Iy` |
+| R5b | the quotient test :541 | `Ok` instead of `Err(NumericalRange "EA/L: (E*A)/L")` |
+| R10 | `k2a_the_smallest_normal_intermediate_is_accepted_bit_identically` :519 | `expect` panics with `NumericalRange "EA/L: E*A"` |
+
+Every mutant in I6's set and in RV7's set is now killed.
+
+### 8.2 Delta check (`_run_records/k2a/delta_aad23e82d.txt`)
+- **Paths.** `git diff --stat 79c0d320b aad23e82d` shows 13 files, all additions. They are:
+  - FK `tests/k2a_checked_formation.rs` (+135) and `tests/k2a/rf_range_models.rs` (+19);
+  - otherwise, only paths under `T3/IMPLEMENTATION/K2A/`.
+- **Sources.** No FK, diagnostics or PP source changes, and no PP test changes.
+- **FK tests.** The FK test files are identical to `a1029d7da`: `0fa172eb…` and `3463d227…`.
+- **K2A SHA256SUMS:**
+  - 10 lines are added and none are changed;
+  - it verifies with 170 entries and covers exactly the tree;
+  - there are no machine paths.
+- **S3 log.** `phase1/pp_k2a_4.log` is absent from the tree and from SHA256SUMS. The genuine rerun is at `addendum1/pp_k2a_rerun_20260927.log` (3/3), with its provenance file giving the command, the tree hashes (test file `18ec1d5e…`, FK `7622e7cc…`, diagnostics `a3feef13…`), the run time and the sanitization.
+- **Generator.** `k2a_models_v2.py` regenerates `rf_range_models.rs` byte-identically, and its JSON matches.
+- **Gate extract.** `runs_extract.jsonl` (888 runs) shows typed LEF-large as `SOLVER_SYSTEM_BLOCKED "… at GJ/L: G*J"`.
+- **Build basis.** The ROOT DEC-025 sweep and CI on `79c0d320b` stand for this delta, because it adds only tests and records. RV7's kills and I6's `fk_k2a_rows.log` (13/13) cover the added tests.
+
+### 8.3 Closure of the findings (RETURN_ADDENDUM_1)
+
+| Finding | Closed by | Note |
+|---|---|---|
+| **B1** | §1 | Scopes RETURN §5.3/§5.4/§5.7 and CHANGE_RECORD to axis-aligned members, and states RV7's FK figures and main's skew product outcome. The skew 12EI/L³ and EA/L case is marked not established |
+| **S1** | §2 | Derives both thresholds (L ≤ 2^-33.14 m above the floor, L ≤ 2^-17.33 m normal) |
+| **S2** | §3 | Captured entry only; the overstated PP comment is recorded |
+| **S3** | §4 | – |
+| **N1** | §5 | – |
+| **N3** | §6 | – |
+| **N4** | §7 | – |
+| **N5** | §8 | – |
+| **N2** | §9 | Per-site rows, and the kills above |
+
+**Still for the manager:** the in-place pointers in ROOT_RULINGS_V1 (correction 2 at :801, :806, :823, :833 and :834; correction 3 at :843). They are outside this PR.
+
+**Carried forward, not blocking:**
+- a skew kernel pin, and a better-conditioned skew product model on main (addendum §1.4);
+- the routed input-validation finding, including N1;
+- the T3-close item for other 1/L² and 1/L³ formation paths (RETURN §5.9).
