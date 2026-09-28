@@ -1,0 +1,9 @@
+RV11 second delta check: <wt>/k2b working state, read-only (GIT_OPTIONAL_LOCKS=0).
+HEAD 112c1729df1e8617cf5274b91e9fa7ced2cb6821 on codex/piping-k2b-20260928; upstream 112c1729df1e8617cf5274b91e9fa7ced2cb6821
+status --porcelain=v2 --untracked-files=all: 0 lines; index vs HEAD: 0; worktree vs index: 0
+index (mode, blob, path) == HEAD tree: yes; entries with nonzero flags: 0
+reflog (last 4):
+  112c1729df commit: T3: K2b RETURN addendum 2, RV11's delta fixes (records)
+  85ae94b410 commit: K2b: tests for RV11's delta findings, and the scaled action helpers on the pin list (tests only)
+  f9a15fbd6c commit: K2b: a checked kernel helper for spring actions at scale (RV11D-1)
+  f385a8bc84 commit: T3: K2b RETURN addendum 1, RV11's fixes (records)

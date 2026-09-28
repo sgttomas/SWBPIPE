@@ -1,0 +1,6 @@
+#!/bin/bash
+X=$1; CORE=$2; m=$3
+case $m in
+  RV11D2-*) python3 -B $X/mutate_rv11d2.py $CORE $m ;;
+  RV11D-*) python3 -B $X/mutate_rv11d.py $CORE $m ;;
+esac

@@ -284,3 +284,47 @@ The basis adds `ROOT_RULINGS_V1.md`, "K2b: rulings on RV11's review (ROOT)" (num
 - **Not re-run:** T9, the 39-manifest suites, or I10's other 51 re-run mutants. I cross-checked their records instead.
 - **No timing or memory claims.**
 - **Host:** the memory guard never fired, and the mutant targets were deleted after each run.
+
+## Delta check at 112c1729d
+
+**Verdict: PASS.** All five items from the delta check at `f385a8bc8` are resolved. No BLOCKING or SHOULD-FIX finding remains; this check adds one NOTE.
+
+**Scope.** ROOT resumed me for a short check of PR #1040's head `112c1729d`, verified after a fetch. It is three commits on `f385a8bc8`:
+- `f9a15fbd6`: FK `lib.rs`, the spring helper and the doc fix;
+- `85ae94b41`: tests only;
+- `112c1729d`: RETURN addendum 2 and `_run_records/rv11_delta_fixes/`.
+
+The evidence is in `_run_records/k2b_review/delta_112c1729d/`.
+
+| ID | Status | Evidence |
+|---|---|---|
+| RV11D-1 | **resolved** | The new `force_scaled_spring_action` takes k at 2^b exactly, requires the product of nonzero operands to be normal, and unscales it once.<br>**F-S re-run** (`probes/delta2_probe_spring.log`): at the rule's b = −138, in both modes and both representations, the solve is Passed and u_y is bit-identical to today's. The withdrawn recipe still gives 0.0 labelled `Normal`; **the helper refuses**. Without S, at b = 0, the helper gives today's −(k·u) bits (1.3825367244506685e-300 N).<br>**Sweep (F-S2):** every even b in the census window of the model without S gives 537 bit-identical solves: 419 spring actions published, **all with today's bits**, and 118 refused. **None is wrong.**<br>RETURN §15 step 5 and the signatures now point to the helper, and the recipe is marked withdrawn. |
+| RV11D-2 | **resolved** | My two survivors are now killed at `k2b_force_scaling.rs:1207`, the site I10 recorded: RV11D-ACTIONS-LOCAL-UNCHECKED and RV11D-ACTIONS-B0-EXEMPT.<br>The new test's member along (3, 4, 0) has subnormal T·u_e products. It asserts that the stiffness stage alone would lift them to normal values, and that the actions are refused at b = 0 and at b = 64. |
+| RV11D-N1 | **resolved** | Both helpers are added to `FORCE_SCALED_ENTRY_POINTS`, and the pin's `Default::default()` limit is documented.<br>– My **RV11D-PIN-ACTIONS-EVASION** (the loop's module) is killed at `s11k_tests.rs:1613`.<br>– My new **RV11D2-SPRING-EVASION-PP** (product_physics calls the spring helper with `Default::default()`) is killed at `:1624`, the product-side assertion. |
+| RV11D-N3 | **resolved** | The helper's doc and RETURN §15 step 4 now say the actions come back already unscaled.<br>– A fixed-end action formed at b = 0 is added as today, with a second rounding.<br>– One that must be formed under b needs an F1b variant.<br>The spring helper returns a complete action. |
+| RV11D-N2 | recorded, no change | As ROOT ruled (addendum 2, A2.6). |
+| RV11D2-N1 | NOTE (new, informational) | **A subnormal outcome at b ≠ 0 is rounded twice:** once for the product at 2^b, then again when it is unscaled. This applies to the spring helper and the member actions. (A reaction's row is rounded the same way at b = 0.)<br>**Probe F-R:** k = `0x1.613ad2cbdb465p-600`, u = `0x1.735c964a2c882p-462`, b = 400.<br>– The helper publishes 8,198 quanta of 2^-1074 as `Subnormal`, with relative precision 6.099e-5.<br>– The exact value is 8,198.5 quanta plus a tail below 2^-40 of a quantum, and a single rounding gives 8,199.<br>– The error is at most half a quantum plus 2^-40 of one, so the stated precision holds to within a factor of 1 + 2^-39.<br>– At b = 0 the helper refuses this product.<br>**Resolution:** none required. Optional: form the spring action as one exact product (`ExactAccumulator::add_product`), rounded once at 2^-b. |
+
+**Other checks:**
+- **The write set** (`commits_check.txt`):
+  - The code changes are FK `lib.rs` (the new free function and doc text only; no line of an existing body is removed) and K2b's test files, including the pin list (ruling 5).
+  - Under `IMPLEMENTATION/K2B/`: CHANGE_RECORD, RETURN and SHA256SUMS are modified, and 30 files are added under `_run_records/rv11_delta_fixes/`.
+  - Nothing else changes, and no empty blob is added.
+  - RETURN's 4 removed lines are the in-place corrections, each marked "addendum 2".
+- **`<wt>/k2b`** (`state_check.txt`): clean at `112c1729d`, which equals its upstream. The index equals HEAD's tree, and no entry carries a flag.
+- **b = 0 is unchanged:**
+  - Head tests pass in full: FK 204, SD 30, NI 116 + 4 doc, and PP `s11f_site_test` 11 and `formation_check_runtime` 5. There are no new warnings.
+  - The **b = 0 probe gives all 439 of 439 outputs identical** to the lists for `eb52114e9`, `98b1723b1` and `f385a8bc8`.
+- **Mutations** (`mutations/`, clean archives of `112c1729d`, NONE first, 370 passing):
+  - my three re-runs are killed at I10's recorded sites;
+  - my RV11D2-SPRING-B0-EXEMPT (the spring check skipped at b = 0) is killed at `k2b_force_scaling.rs:1254`;
+  - my RV11D2-SPRING-EVASION-PP is killed at `s11k_tests.rs:1624`.
+- **Records** (`records_checks.txt`, `gen8.txt`):
+  - SHA256SUMS: 348 of 348 verify.
+  - There are no machine paths and no model identifiers.
+  - A2.1's line counts and hashes match the head.
+  - `git diff --check` is clean.
+  - I10's copy of my `mutate_rv11d.py` is unchanged.
+  - GEN-8 passes, run read-only in `<wt>/k2b` at `112c1729d`.
+
+**Not re-run:** T9, the 39-manifest suites, and I10's K2B-SPRING-UNCHECKED and pin mutants. I read their records: the kill sites in `rv11_delta_fixes/mutations/MUTANTS.txt` match A2.7. I made no timing or memory claims. The memory guard never fired, and the mutant targets were deleted.
