@@ -1334,3 +1334,38 @@ I13's plan (`<wt>/scratch/i13/CHECKPOINT0_PLAN.md`, sha256 `ba90de63…`, 856 li
 - **Added to the T3-close list:**
   - `assess_rigid_body`'s `hypot` dependence (frame-only bodies);
   - wiring K4's geometry-first check to K5's directional rows.
+
+## F1b: I13's A2 stop on the non-finite mechanics test (ROOT, 2026-09-28)
+
+- **The stop.** With W2, `lib.rs` `tests::audit_nonfinite_computed_mechanics_never_publishes_solved_rows` behaves differently. Its model is linear, with a 1e308 N load.
+  - It now range-triggers, W2 publishes the direct values, and the derived stresses overflow.
+  - The invocation is then blocked by today's `SOLVER_SYSTEM_BLOCKED` ("computed mechanics must be finite") and `ELEMENT_FORCE_RECOVERY_FAILED`, not by the case's `NUMERICAL_INTEGRITY_UNRESOLVED`.
+  - No wrong value is published. This is OQ6 as ruled.
+- **Ruling: (a), tightened.**
+  - Only the test's third assertion changes, and it asserts the one deterministic new outcome in both modes: the range line, then the non-finite block.
+  - The no-solved-rows assertions are unchanged.
+  - It is an approved assertion change, declared in CHANGE_RECORD and RETURN.
+  - OQ6 stands; option (b) is not taken, and (c), a changed test input, is refused.
+- **A new C1 outcome class:** W2 publishes at b ≠ 0, then the derived-row non-finite check refuses the invocation.
+
+## K4: A1 findings F-1 to F-3, the stop rule's blind spot (ROOT, 2026-09-28)
+
+I12's A1 (`cef218a10`) found that the stop rule, which compares p with 2p and forms S\* from computed values only, **cannot see information lost identically at both precisions.** The probes are in `<wt>/scratch/i12/a1_probes/`.
+- **F-1: a combination published wrong zeros labelled exact.**
+  - The combination was formed as Σcᵢuᵢ of operands whose loads differ by a relative 2^-1060. It was selected at 128 with every row 0, as `AbsoluteVerified{bound 0}`. The truth is nonzero.
+  - **Ruling: option (a).** A combination is its own solve.
+    - Its right-hand side is one exact expansion of the combined ledger Σcᵢfᵢ and the combined prescribed coupling, rounded once to p. Its prescribed values are the exact combination, rounded once.
+    - It reuses the cached factor of the shared stiffness source, and runs its own schedule and stop rule.
+    - The operands' results never change.
+  - The Σcᵢuᵢ formulation is withdrawn. This refines §4.1.1 and §4.1.2 ("combinations … formed exactly and rounded once") within their intent: with a linear, shared K, the two are equal in exact arithmetic, and (a) avoids the cancellation.
+  - B1-E must still be caught, and the CEIL-NET truth reproduced.
+- **F-2: a single case published wrong zeros labelled exact.**
+  - One member, a prescribed ux = 1 (EA/L = 512), and a load of 2^-300.
+  - u cannot represent 1 + 2^-309 at 128 or 256, so the end actions and reactions are 0 at both, and S\*(force) = 0. The case is selected at 128 as exact, but the truth is N = 2^-300.
+- **F-3: an availability gap.** An unloaded body moved rigidly by prescribed values leaks reactions of about 2^-(p−27) at every p, and ends Unresolved at the ceiling. It is safe; nothing wrong is published.
+- **F-2 and F-3 are a design gap in D1 §4.1.6 and §4.1.6.1** (S\* has no resolution floor tied to the elastic-action scale of the quantities' formation). **They refute §4.1.9's claim** that only a precision-independent, common-mode error can pass the stop rule. A precision-dependent loss below both p's and 2p's resolution passes too.
+  - The fix changes S\*'s meaning, and so D2's published-row S\* and its G5a–G5c checks, which may then need the scale published as evidence. **ROOT does not improvise it.**
+  - A design TASK drafts an addendum, "D1 revision 5a.3: the stop rule's resolution floor". It gives options, a derivation, the effects on D2 and on the discriminating controls, and a recommendation. It is independently verified, and ROOT selects.
+  - **K4 does not reach checkpoint B until the addendum is selected and implemented in K4.** Until then, no K4 test pins the present behaviour of F-2 or F-3.
+- **K4's ceiling argument** (§11, route 1 step 10 and route 2) leans on §4.1.9's claim. RETURN must restate it in light of the addendum.
+- **The F2a gate is unchanged:** F2a does not merge without this addendum implemented, as well as the budget limits.
