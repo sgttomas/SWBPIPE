@@ -1,14 +1,14 @@
 # SWBPIPE answers to the App v4 relay questions (RELAY-v0.3)
 
 - **Answers:** `RELAY_QUESTIONS_SWBPIPE.md` RELAY-v0.3, as committed on main at `c6f81a4f2` (sha256 `a8cae06fd4b208087614e9c4cc7e2b91e36f3b98cd11e6f4093fd946d1177f2b`), SQ-01…SQ-32. That file is in `projects/chirality-app-v4/execution/PKG-09_Candidate examination and connected journeys/1_Working/DEL-09-06_Connected activity contract and workflow round trip/Design/`.
-- **Answering party:** the SWBPIPE (chirality-piping) ROOT session, a HELP_HUMAN agent working on the owner's Mac at the owner's request, 2026-09-28. The owner relays this file.
+- **Answering party:** the SWBPIPE (chirality-piping) ROOT session, a HELP_HUMAN agent working on the owner's Mac at the owner's request, 2026-09-28. At the owner's direction, this session placed this file and its fact sheet beside the questions (see §6).
   - **These are not the owner's personal answers, and no commitment is made on the owner's behalf.** Every item that is the owner's to decide is marked **OWNER DECISION** and left open.
   - In the terms of the App's return ledger (§4 of the questions), every entry here is an **answer** about the current state of SWBPIPE. None is a *commitment*, a *delivered contribution* or an owner's *stated intention*. Where a SWBPIPE record states a plan, it is cited as the record's plan.
 - **The ROOT session's own standing:** it runs SWBPIPE's T3 numerical-integrity work (solver correctness, result publication, and the both-entry and T9 gates). The agent-facing work these questions concern is outside T3 and is currently deferred by the owner (see A-2 below). Facts outside T3 come from a read-only research pass, which ROOT reviewed.
 - **SWBPIPE basis:**
-  - main `24dea2dae`. Main has since moved to `df6d59e3c`, but that delta touches only `projects/chirality-app-v4/`, so the piping tree is identical;
+  - main `24dea2dae`. Main has since moved to `65e2d6c2a`, the base of the delivery, but that delta touches only `projects/chirality-app-v4/`, so the piping tree is identical;
   - draft PR #885 (sgttomas/chirality), head `12907f393`: **open, unmerged, deferred**.
-- **Evidence:** every statement below rests on a file:line citation in the fact sheet `FACTS_SQ01_SQ32.md`, kept beside this file (sha256 in `SHA256SUMS`). Paths use `P/` = `projects/chirality-piping/`.
+- **Evidence:** every statement below rests on a file:line citation in the fact sheet `FACTS_SQ01_SQ32.md`, kept beside this file (sha256 `2f61d3ba4e1cc9bedb799bf15c600d67e4820b7305741a1269d4a08355b4ddfc`). Paths use `P/` = `projects/chirality-piping/`.
 
 **Standing labels used below.**
 
@@ -375,8 +375,10 @@ When any of these happens, SWBPIPE records it in its own work graph and decision
 
 - **Research method:** read-only, over product source and schemas at main, SWBPIPE decision and design records, and PR #885's head files. Nothing was run to produce these answers, and no candidate was built.
 - **Standing of draft facts:** "DRAFT #885" facts describe unmerged code, which may change before any merge.
-- **No App file was changed.** This file is kept in SWBPIPE's records. The owner places a copy beside the questions in the App project, which records returns in its own ledger.
+- **No existing App file was changed.** This file and the fact sheet were added as two new files beside the questions (§6). The App project records returns in its own ledger.
 
-## 6. SWBPIPE-side record
+## 6. Delivery and SWBPIPE-side record
 
-This file and the fact sheet are kept on the SWBPIPE records branch `codex/piping-numerical-integrity-20260926`, under `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/APP_V4_RELAY_2026-09-28/`, with SHA256SUMS. It is the first SWBPIPE record of the App v4 relay.
+- **Delivered:** 2026-09-28, at the owner's direction, as two new files in this `Design/` folder beside `RELAY_QUESTIONS_SWBPIPE.md`: this file and the fact sheet `FACTS_SQ01_SQ32.md`. The main commit that adds them is the delivery's revision (`git log -- RELAY_ANSWERS_SWBPIPE.md`).
+- **Fact sheet:** delivered as the researcher prepared it, unchanged. Its opening line says nothing in it was relayed to the App; that describes it when it was prepared.
+- **SWBPIPE-side record:** identical copies of both files are kept in SWBPIPE's records under `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/APP_V4_RELAY_2026-09-28/`, with SHA256SUMS, on the SWBPIPE records branch `codex/piping-numerical-integrity-20260926`. They reach main with SWBPIPE's next records PR. This is the first SWBPIPE record of the App v4 relay.
