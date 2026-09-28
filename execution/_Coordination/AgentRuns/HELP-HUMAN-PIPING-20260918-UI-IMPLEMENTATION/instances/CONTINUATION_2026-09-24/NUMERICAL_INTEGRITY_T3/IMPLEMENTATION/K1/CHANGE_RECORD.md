@@ -111,6 +111,7 @@ All run on `aarch64-apple-darwin` with rustc 1.97.1, `CARGO_INCREMENTAL=0` and `
   - K1-LABEL-ORDER is mutation 10's demonstrated form.
   - Every original pin mutant (K-D5's M32a, M32b and E4; S11-K's RV-OPT1, RV-OPT3, RV-OPT4 and RV-PUB) keeps its original kill set.
 - **The gate was not run,** per ROOT's ruling: K1 changes no published byte, and the gate runs at F1b.
+- **RV8's independent review** (PASS; 3 SHOULD-FIX test gaps) is answered by three nonlinear_integration tests (`340e87a2d`, tests only). They kill RV8-BLOCK-ORDER, RV8-SPRING-FIRST and RV8-FC-TERMS at behavioural assertions (RETURN addendum 1).
 
 ## Remaining
 

@@ -491,6 +491,7 @@ pub fn prepare_assembled_sparse_structural<'s>(system: &'s AssembledSparseStruct
 pub fn prepare_formation_checked_sparse_structural<'s>(system: &'s FormationCheckedSparseSystem<'s>) -> Result<SparsePreparedSystem<'s>, StructuralError>;
 pub fn prepare_sparse_structural_with_force_terms<'s>(system: &'s SparseStructuralSystem<'s>, force_terms: &'s [ForceTerm]) -> Result<SparsePreparedSystem<'s>, StructuralError>;
 pub fn factor_sparse_structural_profile<'p, 's>(prepared: &'p SparsePreparedSystem<'s>, order: &[usize], first: &[usize]) -> Result<SparsePositiveFactor<'p, 's>, StructuralError>;
+impl SparsePositiveFactor<'_, '_> { pub fn pivots(&self) -> &[PivotEvidence]; }   // (addendum 1, N7)
 pub fn finish_sparse_structural(factor: &SparsePositiveFactor<'_, '_>) -> Result<StructuralSolution, StructuralError>;
 pub fn audit_sparse_load_fidelity(system: &SparseStructuralSystem<'_>, u: &[f64], force_terms: &[ForceTerm]) -> Result<LoadFidelityReport, StructuralError>;
 pub fn verify_sparse_negative_direction(prepared: &SparsePreparedSystem<'_>, direction: &[f64]) -> Result<Option<StructuralError>, StructuralError>;
@@ -586,11 +587,66 @@ pub struct SparseEvidenceCounts { pub pattern_entries: usize, pub contributions:
   - Machine paths became `<scratch>`, `<wt>` and `<home>`.
   - In logs, a line over 600 characters (Debug renderings of whole documents in failure output) is cut, with a marker giving the number of characters removed and the sha256 of the full line.
   - The summaries (`MUTANTS.txt`, `kill_sites.txt`, `suites_compare.*`, `callers.txt`) are not cut.
-  - Trailing spaces and trailing blank lines were stripped from the logs and `MUTANTS.txt` so that `git diff --check` is clean (ROOT, at commit). No other byte changed, and no failure block of `suites/failure_blocks_sha256.txt` was affected.
-  - Trailing spaces and trailing blank lines were stripped from the logs and `MUTANTS.txt` so that `git diff --check` is clean (ROOT, at commit). No other byte changed, and no failure block of `suites/failure_blocks_sha256.txt` was affected.
+  - Trailing spaces and trailing blank lines were stripped from the logs and `MUTANTS.txt` (ROOT, at commit), so `git diff --check` is clean for the logs. The WIP `.patch` files keep their patch-syntax spaces: an empty context line is a single space, which `--check` flags (see addendum 1, N2). No other byte changed, and no failure block of `suites/failure_blocks_sha256.txt` was affected.
 - **The WIP artefacts are unedited:** `WIP_STATE.md`, `kernel_list_s11f.patch` and `wip/`. `kernel_list_s11f.patch.NOTE.md` is new.
 - **`SHA256SUMS`** covers every file in this folder except itself.
 - **GEN-8** (`pytest tools/practitioner_harness/test_live_baseline.py -k gen8`, run from `<wt>/k1` with `<VENV>`) passed: 1 passed, 10 deselected.
   - GEN-8 scans git-tracked files only, and these records were not yet committed, so it did not cover them.
   - The harness's own `MACHINE_ABS_PATH_RE` (`surface_roles.py`) was therefore applied directly to every file in this folder: 123 files, 0 hits.
   - GEN-8 is to be re-run after ROOT commits the records.
+
+## RETURN addendum 1 (RV8 findings)
+
+**RV8's independent review** (`T3/REVIEW/K1_REVIEW.md`, numerics `369dc2f16`; its probe, models and mutant patches are in `T3/REVIEW/_run_records/k1_review/`):
+- **Verdict:** PASS at `43f9e6a78`, with 0 BLOCKING, 3 SHOULD-FIX and 7 NOTE findings.
+- **The three SHOULD-FIX findings** are test gaps. Each is a mutant of RV8's that survived K1's frame_kernel, sparse_direct and nonlinear_integration suites. The product code was correct and is unchanged.
+- **The fixes are tests only,** committed by ROOT as `340e87a2d` on `43f9e6a78` (append-only: 389 lines at the end of `P/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs`).
+- **Main (with K2a) was then merged** as `3b86b111f`.
+
+### A1.1 The three fixes
+
+The tests are in nonlinear_integration because that is where realized bends exist; frame_kernel has no dependency on `curved_bend`.
+- Each test first asserts, on the dense side only, that its case discriminates the alternative its mutant takes. A mutant therefore fails at the test's behavioural assertion, not at a precondition.
+- The cases are RV8's (invented): R = 0.6 m bends in the XY plane on K-D5's pipe section, E 200 GPa and G 80 GPa.
+
+| Finding | Test | Case | Assertions | RV8 mutant (patch unchanged, `rv8_mutants.py.txt`) | Killed at |
+|---|---|---|---|---|---|
+| RV8-1: the accumulation order of blocks (realized bends) | `k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1` | a tee at a bend–bend junction: b1 (0→1) and b2 (1→2), anchored runs 3–0 and 2–4, and a branch 1–5, so node 1 carries the branch and both bends; flexibility factors 1.0 and 1.7 | precondition: the bends in reverse order change the dense bits. Then: K bits against PP's dense order; the evidence contributions coalesced on the pattern; K·u; E12 reactions; SA's plain and formation-checked entries, byte-identical in both modes and `Ok` | RV8-BLOCK-ORDER (`blocks.iter().rev()` at sparse.rs:496) | `k1_tests.rs:1072`, the K-bits assertion ("bend-bend tee flex=1: K bits") |
+| RV8-2: springs against blocks on a shared diagonal | `k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2` | a bend between anchored runs 2–0 and 1–3, with support springs on all 12 DOFs of both bend ends, at RV8's 8 magnitudes (1.1e3–9.7e8 N/m) and 2 flexibility factors | the same checks, on 16 cases. The dense precondition, "some magnitude discriminates", is asserted last. It discriminates on 6 cases (k = 4.4e7, 2.1e8 and 9.7e8 N/m at both factors), RV8's k5–k7 | RV8-SPRING-FIRST (springs before blocks) | `k1_tests.rs:1072`, the K-bits assertion ("bend supports flex=1 k=4.4e7: K bits") |
+| RV8-3: the formation check's load input in the sparse representation | `k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3` | K-D5's F122 and CSKEW_8_5, with each load split into three ledger terms (0.1v, 0.7v, v − 0.1v − 0.7v) | precondition 1: on some load, the exact sum of the terms is not the rounded net. Precondition 2 (dense only): the record with the terms differs from the record with the folded values. Then, in each mode, dense and sparse are byte-identical, and both **demote** (Sensitive, `Estimate`) in both representations | RV8-FC-TERMS (the sparse check drops the ledger terms) | `k1_tests.rs:1386`, the dense/sparse parity assertion ("F122 SparseInteractive: split ledger"). DenseScrutiny passes first, as expected: the pattern entry uses the dense path in that mode. |
+
+- **Runs** (`_run_records/rv8_fixes/`), by checkpoint C's method:
+  - each run is a clean `git archive` of `43f9e6a78` (without `execution/`, with fresh mtimes), with the working-tree `k1_tests.rs` copied over it (`overlay.txt`), and its own target under `<wt>/k1-mut/<id>/`, both deleted after the run;
+  - tests: FK, SD and NI in full, plus PP `--test s11f_site_test --test formation_check_runtime`; `-j 4`, `RUST_TEST_THREADS=4`, `--no-fail-fast`.
+- **NONE (control): clean.** FK 154 + 3 + 6; SD 30; NI 97 + 4 doc (the earlier 98, plus the 3 new); PP 11 + 5.
+- **Each RV8 mutant** exits 101 in NI only, with 0 compile errors.
+- In `kill_sites.txt`, a "BUILD ERROR" line is the extractor's label for cargo's `error: 1 target failed` summary of failing tests, not a compile error. `MUTANTS.txt` records `compile_errors=0`.
+- The worktree run of the three tests, with the list of discriminating cases, is `test_ni_rv8_worktree.log`.
+- The files in `rv8_fixes/` were sanitized by `sanitize_copy.py.txt`: the same placeholders and 600-character cuts, plus the removal of trailing whitespace at copy time.
+
+**Mutation-table extension** (to §10):
+
+| Mutant | Change | Kill sites |
+|---|---|---|
+| RV8-BLOCK-ORDER | realized bends (blocks) added in reverse | NI `k1_bend_bend_tee_…_rv8_1` (k1_tests.rs:1072, K bits) |
+| RV8-SPRING-FIRST | springs added before the blocks | NI `k1_bend_support_springs_…_rv8_2` (k1_tests.rs:1072, K bits) |
+| RV8-FC-TERMS | the sparse formation check ignores the ledger terms | NI `k1_split_ledger_…_rv8_3` (k1_tests.rs:1386, SparseInteractive parity) |
+
+**No existing kill site moved.** The change only appends at the end of the file, so every existing test and line is unchanged, and the §10 table stands. My earlier mutants were not re-run against the new tests. The new tests can add kill sites to them (for example the bitwise checks for K1-M8 or K1-COALESCE-SCATTER), but cannot move one.
+
+**RV8's suggestion to add the junction to FK's `k1_coalesced_values_…`** was not taken: FK cannot build a realized bend. The NI test pins PP's order with real bends. F1b must still pass PP's curved order to `assemble_sparse_stiffness` (N7).
+
+### A1.2 The NOTEs
+
+- **N1: commit mapping.** The reshape moved the pre-reshape commits this RETURN cites.
+  - `d08b0efc7` (I8's WIP) → its code went into (a) `826a9eed4`, and its WIP artefacts into (d) `43f9e6a78`, blob-identical.
+  - `9d4ba0e17` (checkpoint A's test fixes) → (a) `826a9eed4`.
+  - `19925122b` (the KERNEL-list hunk; the tested candidate of checkpoints B and C) → (c) `4319854dc`. The two have the same code tree, and `git diff 19925122b 4319854dc -- projects/chirality-piping/core` is empty. `19925122b` also carried I8's WIP records, which (c) does not.
+  - `3513fd8ab` (the checkpoint-D records snapshot) → (d) `43f9e6a78`, with the same tree `3048ebed0`.
+  - (b) `85626dbe0` is the `formation_check.rs` site-table commit split out of (a) at the reshape.
+  - **After the reshape:** the RV8 fixes are `340e87a2d`, and the merge of main (`f12e06876`, K2a) is `3b86b111f`.
+  - All four pre-reshape commits remain reachable through `origin/codex/piping-k1-wip-20260928`.
+- **N2: ROOT's §16 bullet.** ROOT's commit-time edit duplicated the whitespace bullet in §16 and overstated it ("so that `git diff --check` is clean"). The duplicate is deleted, and the remaining line now reads: `git diff --check` is clean for the logs; the WIP `.patch` files keep their patch-syntax spaces (an empty context line is a single space), which `--check` flags. There are three such lines, in `kernel_list_s11f.patch` and `wip/site_table_formation_check_hunks.patch`, kept byte-identical to `d08b0efc7`.
+- **N3: `order_sparse_structural` allocates a profile-sized array.** It calls `SymmetricProfileMatrix::from_entries_with_order`, which allocates and fills a profile-sized `values` vector (`sparse_direct/src/lib.rs`) before `SparseStructuralOrdering` returns `profile_entry_count`. §12's "counts before the factor allocates" is true of the factor, but one profile-sized allocation has already happened. **For F1b:** the resource guard must count before calling `order_sparse_structural` (for example from the skyline alone: the first-column pass over the ordered entries), or use a count-only entry. This is not implemented here.
+- **N7:** `SparsePositiveFactor::pivots()` is added to the §12 list. **For F1b:** nothing maps SA's curved slots (`CurvedBendStiffnessElement`) to `StiffnessBlock`s. F1b must build the blocks in PP's curved order itself, or add a crate-local helper; RV8-1's test pins that order.
+- **N4, N5 and N6** need no action (the text pins' documented limit; the fixture changes are not weakenings; the invalid-input differences are acceptable).

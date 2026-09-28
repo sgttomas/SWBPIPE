@@ -1,0 +1,18 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/k1/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.39s
+     Running unittests src/lib.rs (<wt>/k1-target/debug/deps/open_pipe_stress_nonlinear_integration-0a1253be2e77f2b3)
+
+running 3 tests
+test structural_adapter::k1_tests::k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3 ... ok
+test structural_adapter::k1_tests::k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1 ... ok
+k1 rv8-2 discriminating cases: ["bend supports flex=1 k=4.4e7", "bend supports flex=1 k=2.1e8", "bend supports flex=1 k=9.7e8", "bend supports flex=1.7 k=4.4e7", "bend supports flex=1.7 k=2.1e8", "bend supports flex=1.7 k=9.7e8"]
+test structural_adapter::k1_tests::k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2 ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 94 filtered out; finished in 0.72s
