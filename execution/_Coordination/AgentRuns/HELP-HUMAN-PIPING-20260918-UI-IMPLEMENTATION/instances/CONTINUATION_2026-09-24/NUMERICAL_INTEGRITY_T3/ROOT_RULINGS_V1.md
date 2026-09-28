@@ -872,3 +872,21 @@ Both are generalizations from a few probes that were never derived. I6 found bot
   - A binary64-fold mutant in formation_check.rs must be killed by the table.
   - **If any formation_check.rs site is a load, force or RHS accumulation in plain binary64** (a real rule-7 violation, not a table gap), I8 stops and reports it as a K-D5 finding before touching anything. That would be product code, not a table edit.
   - It is declared in K1's CHANGE_RECORD and RETURN as a separate item. K1's reviewer covers both commits.
+
+## K1: extending the K-D5 and option-(c) source pins for the sparse siblings (ROOT, 2026-09-28)
+
+- **Issue (I8).** K1's brief requires pattern-taking `SA` entries beside the existing ones, plain and with the formation check, and also that existing suites stay unchanged. Two text pins in `nonlinear_integration/src/s11k_tests.rs` encode "exactly one definition":
+  - `kd5_nonlinear_sources_name_no_formation_check_entry_point`: one definition of the formation-checked entry, with its plumbing tokens only in that body;
+  - `option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points`: it blanks only the first definition of each listed signature, then forbids exact-entry tokens elsewhere.
+
+  The sparse siblings in `SparseAssemblyEvidence` are second definitions, so they trip both pins. `StructuralSystem::assembled(` also matches inside `SparseStructuralSystem::assembled(`. The invariant the pins protect still holds: the nonlinear loop and the legacy binary64 variants reach no exact or formation-check entry. I8 declined to rename or move code to evade the scans.
+- **Approved, in the manager's tightened form.** The edits to `s11k_tests.rs` are additive:
+  - blanking and definition counts are scoped by impl block: `AssemblyEvidence`'s originals as today, plus `SparseAssemblyEvidence`'s named siblings only, with exactly one definition of the formation-checked entry in each;
+  - tokens match on identifier boundaries;
+  - `solve_binary64` and `solve_structural_sparse_binary64` stay checked as today;
+  - zero crate calls of the new siblings, and exactly one product call (PP's `solve_preview_reduced_system`) until F1b;
+  - **required:** a behavioural pin that the loop reaches neither the dense nor the pattern formation entry;
+  - **required mutants, each killed:** an exact-entry call inside `solve_binary64`; a loop call to the pattern formation entry; a third definition in a new impl.
+- **No weakening, proved.** The mutants the original pins were written against are re-run, and each must still be killed by the extended pins at a named assertion. These are K-D5's E4 patch (and E1–E3 where they touch these pins), and the option-(c) mutants recorded in S11-K's and K-D5's records. They are listed with their kill sites in K1's RETURN.
+- It is declared in K1's CHANGE_RECORD and RETURN as a pin extension. K1's independent reviewer checks it against the pins' original intent.
+- **Rejected:** dropping the pattern formation entry from K1. The F1b interface stays.

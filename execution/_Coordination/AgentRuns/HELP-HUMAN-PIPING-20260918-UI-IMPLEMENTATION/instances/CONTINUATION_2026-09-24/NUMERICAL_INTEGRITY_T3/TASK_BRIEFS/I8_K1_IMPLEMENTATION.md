@@ -210,3 +210,15 @@ This follows ROOT_RULINGS_V1, "K1: the S11 site table for sparse.rs and formatio
   - **A plain binary64 load, force or RHS accumulation in formation_check.rs stops the work.** Report it as a K-D5 finding before touching anything.
 - At your clean point, tell the manager which hunks belong to which change, or keep the formation_check.rs rows as a patch file in your records.
 - Declare both in CHANGE_RECORD and RETURN as separate items.
+
+## Addendum 3 (2026-09-28): the K-D5 and option-(c) source pins
+
+This follows ROOT_RULINGS_V1, "K1: extending the K-D5 and option-(c) source pins for the sparse siblings (ROOT)".
+- **Edit `nonlinear_integration/src/s11k_tests.rs` additively,** as that ruling states:
+  - blanking and definition counts scoped by impl block;
+  - tokens matched on identifier boundaries;
+  - the binary64 legacy bodies checked as today;
+  - zero crate calls of the siblings, and one product call until F1b.
+- **Required:** the behavioural loop pin, and the three new mutants.
+- **Prove there is no weakening:** re-run K-D5's E4 (and E1–E3 where relevant) and the option-(c) mutants from S11-K's and K-D5's records against the extended pins. List each with its kill site in RETURN. **A mutant that is no longer killed stops the work;** report it to the manager.
+- Declare it in CHANGE_RECORD and RETURN as a pin extension.
