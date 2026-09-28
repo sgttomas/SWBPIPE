@@ -1037,3 +1037,12 @@ I11's plan keeps K3a's `Wide<2>` code untouched. `wide.rs` gains one module line
 6. **Approved:** about 5 MB of test data, with the brief's 1,000 sample records per stream kept. The digests cover every record.
 7. **Q7 stays open until checkpoint A,** when ROOT rules on the measured debug wall times. The bit-serial ÷ and √ (64L + 2 bits, K3a's small-trust-base choice) are approved. Knuth's algorithm D is left to a later optimization with its own vectors.
 8. **For K4's brief:** the new core exists at L = 2 only in tests, so K4's p = 128 and 192 run at L = 4 (together with Q8's ceiling question).
+
+## K2a product reach: main's skew standing is now established (ROOT, 2026-09-28)
+
+K2a's `RETURN_ADDENDUM_1` §1.3 left open whether pre-K2a main refuses skew cases downstream in general. I9's product runs answer it, and RV10 reproduced them byte for byte (`IMPLEMENTATION/M03_SKEW_PIN/RETURN.md` §6; `REVIEW/M03_SKEW_PIN_REVIEW.md`). As correction 3, ruling 4 requires, the figures stay in those sections and are not restated here.
+- **Pre-K2a main (`134eefc24`) published no trusted value** on the probed skew cases: no checks_passed or numerically_eligible result.
+- **It did publish skew cases as Sensitive (untrusted)** at intermediate G/E, some wrong beyond the criterion. So refusal downstream is **not general**: main flagged these cases and did not refuse them. This matches correction 3's statement that K-D5's estimate-based demotion is what limits trusted publication.
+- **Current main refuses every probed case at formation, by name** (K2a).
+- **The claim "6EI/L² is the limiting coefficient" holds only in RV7's configuration.** RV10's S2 and the scoped §3.4 give the counterexamples. Among them is the torsion analogue of B1 (a subnormal-derived GJ/L), which K2a's `GJ/L: G*J` refusal covers on current main.
+- **Added to the T3-close list:** M03's element-entry floor is an axis-aligned argument, and its skew scope in general is a documented limitation. The skew M03 pin (PR #1038) guards it in RV7's configuration only. The item asks whether M03's bound should be made orientation-robust, or whether formation-time checks (K2a) and W1 are the accepted defence. ROOT decides at T3 close.
