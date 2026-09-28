@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""K3 checkpoint B: per-manifest and per-test comparison of the 39-manifest
+`--no-fail-fast` suites (candidate) against ROOT's Mac baseline of main.
+
+Usage: compare_suites.py <baseline_dir> <candidate_dir> <out_prefix>
+Each directory holds run_suites_nff.sh's per-manifest logs and manifests.txt.
+A failure block is compared after replacing each side's tree root with <tree>.
+"""
+import hashlib
+import json
+import re
+import sys
+from pathlib import Path
+
+base, cand, out = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3]
+ROOTS = [re.compile(r"/[^\s:'\"]*/projects/chirality-piping/")]
+
+
+def norm(text):
+    for r in ROOTS:
+        text = r.sub("<tree>/projects/chirality-piping/", text)
+    return re.sub(r"\(\d+\)", "(<tid>)", text)
+
+
+def tests(log):
+    status = {}
+    for m in re.finditer(r"^test (.+?) \.\.\. (ok|FAILED|ignored)\s*$", log, re.M):
+        status[m.group(1)] = m.group(2)
+    return status
+
+
+def failure_blocks(log):
+    blocks = {}
+    for m in re.finditer(r"^---- (\S+) stdout ----\n(.*?)(?=^---- |^failures:$)", log, re.M | re.S):
+        blocks[m.group(1)] = hashlib.sha256(norm(m.group(2)).encode()).hexdigest()
+    return blocks
+
+
+report = {"manifests": [], "added": [], "removed": [], "changed": [], "failures": []}
+lines = []
+manifests = (base / "manifests.txt").read_text().split()
+assert manifests == (cand / "manifests.txt").read_text().split(), "manifest lists differ"
+for i, mf in enumerate(manifests):
+    name = "%03d_%s.log" % (i, mf.replace("/", "_"))
+    b, c = (base / name).read_text(), (cand / name).read_text()
+    tb, tc = tests(b), tests(c)
+    added = sorted(set(tc) - set(tb))
+    removed = sorted(set(tb) - set(tc))
+    changed = sorted(t for t in set(tb) & set(tc) if tb[t] != tc[t])
+    fb, fc = failure_blocks(b), failure_blocks(c)
+    fails = sorted(t for t, s in tc.items() if s == "FAILED")
+    for t in fails:
+        report["failures"].append({"manifest": mf, "test": t, "same_block_as_main": fb.get(t) == fc.get(t), "sha256": fc.get(t)})
+    counts = lambda d: {s: sum(1 for v in d.values() if v == s) for s in ("ok", "FAILED", "ignored")}
+    entry = {"manifest": mf, "base": counts(tb), "candidate": counts(tc), "added": len(added), "removed": len(removed), "changed": len(changed)}
+    report["manifests"].append(entry)
+    report["added"] += ["%s :: %s" % (mf, t) for t in added]
+    report["removed"] += ["%s :: %s" % (mf, t) for t in removed]
+    report["changed"] += ["%s :: %s (%s -> %s)" % (mf, t, tb[t], tc[t]) for t in changed]
+    lines.append("%-62s base ok=%d failed=%d ignored=%d | cand ok=%d failed=%d ignored=%d | +%d -%d changed %d" % (
+        mf, entry["base"]["ok"], entry["base"]["FAILED"], entry["base"]["ignored"],
+        entry["candidate"]["ok"], entry["candidate"]["FAILED"], entry["candidate"]["ignored"],
+        len(added), len(removed), len(changed)))
+lines.append("")
+lines.append("added tests: %d; removed: %d; changed status: %d" % (len(report["added"]), len(report["removed"]), len(report["changed"])))
+for f in report["failures"]:
+    lines.append("FAILED %s :: %s ; failure block identical to main's (tree roots and thread ids normalized): %s" % (f["manifest"], f["test"], f["same_block_as_main"]))
+Path(out + ".json").write_text(json.dumps(report, indent=1) + "\n")
+Path(out + ".txt").write_text("\n".join(lines) + "\n")
+print("\n".join(lines[-6:]))

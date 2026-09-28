@@ -1,0 +1,81 @@
+{
+ "id": "M9",
+ "description": "conversion flushes subnormals (reports underflow)",
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 751,
+ "wall_s": 28.9,
+ "rc": 101,
+ "compiled": true,
+ "passed": 212,
+ "failed": 9,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined",
+  "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+  "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+  "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+  "structural::retained::wide::multi::tests::lifted_binary64_values_convert_back_to_the_same_bits_at_every_width",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1420",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1526",
+   "source": "assert_eq!(sub.value().unwrap().to_bits(), (1 << 63) | 3);",
+   "message": "called `Option::unwrap()` on a `None` value"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+   "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+   "message": "assertion `left == right` failed: conv 2 min_subnormal +8p-1074 S:0000000000000001:3fe0000000000000"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv16 record 1"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv2 record 5"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv4 record 0"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv8 record 2"
+  }
+ ],
+ "other_failures": [
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1747",
+   "source": "Binary64Outcome::Underflow { .. } => panic!(\"unreachable: {value:?}\"),",
+   "message": "unreachable: +c3f20000000000000000000000000000p-1060"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::lifted_binary64_values_convert_back_to_the_same_bits_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1692",
+   "source": "let back = Wide2::from_f64(x).unwrap().to_binary64().value().unwrap();",
+   "message": "called `Option::unwrap()` on a `None` value"
+  }
+ ],
+ "killed": true
+}

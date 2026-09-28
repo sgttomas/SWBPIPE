@@ -1,0 +1,9 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -1165,7 +1165,6 @@
+
+     #[allow(dead_code)] // K4 API
+     pub(crate) fn mul(&mut self, a: &Wide<L>, b: &Wide<L>) -> Result<Wide<L>, WideError> {
+-        self.work.charge(OpKind::Mul);
+         mul_rounded(a, b, self.precision)
+     }

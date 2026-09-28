@@ -1,0 +1,72 @@
+{
+ "NONE": {
+  "id": "NONE",
+  "description": "control: no patch",
+  "overlay": [
+   "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs"
+  ],
+  "wall_s": 25.0,
+  "rc": 0,
+  "compiled": true,
+  "passed": 222,
+  "failed": 0,
+  "failed_tests": [],
+  "behavioural_kills": [],
+  "other_failures": [],
+  "killed": false
+ },
+ "P2": {
+  "id": "P2",
+  "description": "profile: debug-assertions = false",
+  "overlay": [
+   "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs"
+  ],
+  "file": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+  "line": 19,
+  "wall_s": 24.2,
+  "rc": 101,
+  "compiled": true,
+  "passed": 221,
+  "failed": 1,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on",
+    "at": "tests/retained_wide_k3/k3_tests.rs:420",
+    "source": "assert!(",
+    "message": "debug assertions are off in FK's test build"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "P1": {
+  "id": "P1",
+  "description": "profile: overflow-checks = false",
+  "overlay": [
+   "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs"
+  ],
+  "file": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+  "line": 20,
+  "wall_s": 27.8,
+  "rc": 101,
+  "compiled": true,
+  "passed": 221,
+  "failed": 1,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on",
+    "at": "tests/retained_wide_k3/k3_tests.rs:416",
+    "source": "assert!(",
+    "message": "overflow checks are off in FK's test build (u64::MAX + 1 wrapped)"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ }
+}

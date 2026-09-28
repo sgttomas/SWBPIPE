@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4 ... mixed4: 200000 operations at L = 4, debug wall time 5.5 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 195 filtered out; finished in 5.48s

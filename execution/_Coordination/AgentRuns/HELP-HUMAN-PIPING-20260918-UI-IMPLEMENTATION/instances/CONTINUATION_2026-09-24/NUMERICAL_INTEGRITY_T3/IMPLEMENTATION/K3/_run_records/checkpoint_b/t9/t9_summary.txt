@@ -1,0 +1,11 @@
+T9 (Mac-only): base = git archive of eb52114e9; candidate = git archive of 74add6078 with the then
+uncommitted FK/Cargo.toml test profile copied over it, a tree byte-identical to 8cacbfaf4's (diff -r);
+both without execution/, on this Mac.
+Harness: S11-K's fixdiff_main.rs (sha256 ec089c1d4a2a46dda689aad3ac55948cf858537ed5c986726c7accdd63cade53),
+ROOT's harness Cargo.lock (sha256 1c69935d85770777eb55ce77c03acfa023c444b86e46df1c49c9e459e9e0235f),
+--release --offline --locked, aarch64-apple-darwin, rustc 1.97.1.
+outputs: base 112, candidate 112
+base vs candidate: byte-identical 112/112
+base vs ROOT Mac main (fixdiff/sha_native.txt): identical 112/112
+ERR outputs (identical in both): 6; PANIC outputs: 0
+Never compared with Linux records (T3/PLATFORM_CALIBRATION_MAC/).

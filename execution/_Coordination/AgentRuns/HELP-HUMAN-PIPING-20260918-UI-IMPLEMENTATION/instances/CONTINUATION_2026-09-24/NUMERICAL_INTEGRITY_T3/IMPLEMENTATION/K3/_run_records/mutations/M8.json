@@ -1,0 +1,59 @@
+{
+ "id": "M8",
+ "description": "conversion double-rounds (to 53 bits, then to the subnormal quantum)",
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 727,
+ "wall_s": 31.5,
+ "rc": 101,
+ "compiled": true,
+ "passed": 215,
+ "failed": 6,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+  "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+  "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1445",
+   "source": "assert_eq!(v(false, -1075, t1).to_binary64(), min_sub);",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+   "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+   "message": "assertion `left == right` failed: conv 2 below_up_to_normal +fffffffffffff7fffffffffffffffffep-1023 S:000fffffffffffff:3ca0000000000002"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv16 record 16"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv2 record 20"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv4 record 11"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+   "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+   "message": "assertion `left == right` failed: conv8 record 28"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

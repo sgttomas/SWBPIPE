@@ -1,0 +1,38 @@
+{
+ "id": "M21",
+ "description": "widening places the limbs at the bottom",
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 763,
+ "wall_s": 29.1,
+ "rc": 101,
+ "compiled": true,
+ "passed": 218,
+ "failed": 3,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+  "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+  "structural::retained::wide::multi::tests::widening_is_exact_and_round_trips"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2180",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed: L = 4, p = 53: expansion of +d7e77a8f87daf800000000000000000000000000000000000000000000000000p265 +abcc77118461d000000000000000000000000000000000000000000000000000p-2"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1987",
+   "source": "assert_eq!(",
+   "message": "assertion `left == right` failed: L = 4, p = 53: TwoProduct +b095bf4114b0d000000000000000000000000000000000000000000000000000p-132 -82b92ca17c872800000000000000000000000000000000000000000000000000p33"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::widening_is_exact_and_round_trips",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2027",
+   "source": "assert_eq!(&x16.significand[14..], &x2.significand[..]);",
+   "message": "assertion `left == right` failed"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}
