@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+"""K3 records, addendum 2 "RV12's review" (I11): new files under
+_run_records/rv12_fixes/ only; no existing run-record file is rewritten.
+
+Sanitizing, as assemble_run_records.py does and nothing else: machine paths
+become <VENV>, <scratch>, <wt>, <home>; trailing spaces, tabs and trailing blank
+lines are stripped. No line is cut.
+
+Usage: assemble_rv12_fixes.py <wt> <venv> <run_records_dir>
+"""
+import json
+import os
+import sys
+from pathlib import Path
+
+WT, VENV, RR = sys.argv[1], sys.argv[2], Path(sys.argv[3])
+SCRATCH = os.path.join(WT, "scratch", "i11")
+HOME = os.path.expanduser("~")
+OUT = RR / "rv12_fixes"
+assert not OUT.exists(), "the addendum directory already exists"
+
+
+def clean(text):
+    for real, placeholder in ((VENV, "<VENV>"), (SCRATCH, "<scratch>"), (WT, "<wt>"), (HOME, "<home>")):
+        text = text.replace(real, placeholder)
+    lines = [line.rstrip(" \t") for line in text.split("\n")]
+    while lines and lines[-1] == "":
+        lines.pop()
+    return "\n".join(lines) + "\n"
+
+
+def put(src, rel):
+    dst = OUT / rel
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(clean(Path(src).read_text(encoding="utf-8", errors="replace")))
+
+
+def put_text(text, rel):
+    dst = OUT / rel
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(clean(text))
+
+
+S = Path(SCRATCH)
+F = S / "rv12fix"
+put(__file__, "assemble_rv12_fixes.py.txt")
+# The generator's run (the appended taildecides vectors) and its --check, the
+# new and targeted tests, and FK's full suite at opt-level 0.
+for name in ("generate.log", "gen_check.log", "targeted_new.log", "fk_full_o0.log"):
+    put(F / name, name)
+# RV12's mutants RV1, RV2, RV4 and RV5, with the NONE control, from clean
+# archives of b7e93650e with the six changed test files overlaid.
+M = S / "mut"
+put(M / "mutate.py", "mutations/mutate.py.txt")
+for p in sorted((M / "out_rv12").iterdir()):
+    put(p, "mutations/" + p.name)
+summary = json.loads((M / "out_rv12" / "summary.json").read_text())
+rows = ["id\tsite\tcompiled\tpassed\tfailed\tkilled\twall_s\tbehavioural kills (test @ assertion)"]
+for key, rec in summary.items():
+    site = "%s:%s" % (rec.get("file", "-").split("/")[-1], rec.get("line", "-"))
+    kills = "; ".join("%s @ %s" % (k["test"].split("::")[-1], k["at"].split("/")[-1]) for k in rec["behavioural_kills"])
+    rows.append("%s\t%s\t%s\t%d\t%d\t%s\t%s\t%s" % (key, site, rec["compiled"], rec["passed"], rec["failed"],
+                                                 rec["killed"], rec["wall_s"], kills or "-"))
+put_text("\n".join(rows), "mutations/MUTANTS.txt")
+print("assembled", sum(1 for p in OUT.rglob("*") if p.is_file()), "files")

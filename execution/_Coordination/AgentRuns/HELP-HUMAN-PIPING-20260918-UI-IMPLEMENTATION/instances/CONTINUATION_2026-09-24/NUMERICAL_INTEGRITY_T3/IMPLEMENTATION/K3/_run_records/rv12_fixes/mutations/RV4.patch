@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -603,7 +603,7 @@
+ where
+     Wide<L>: CoreWidth,
+ {
+-    if !fits(a, p) || !fits(b, p) {
++    if !fits(a, p) {
+         return Err(WideError::OperandPrecision);
+     }
+     let s = add_rounded(a, b, p)?;

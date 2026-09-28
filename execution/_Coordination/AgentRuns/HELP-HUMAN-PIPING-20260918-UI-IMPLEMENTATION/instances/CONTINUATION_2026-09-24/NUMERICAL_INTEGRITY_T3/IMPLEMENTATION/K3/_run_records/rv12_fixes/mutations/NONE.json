@@ -1,0 +1,21 @@
+{
+ "id": "NONE",
+ "description": "control: no patch",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS"
+ ],
+ "wall_s": 236.9,
+ "rc": 0,
+ "compiled": true,
+ "passed": 229,
+ "failed": 0,
+ "failed_tests": [],
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

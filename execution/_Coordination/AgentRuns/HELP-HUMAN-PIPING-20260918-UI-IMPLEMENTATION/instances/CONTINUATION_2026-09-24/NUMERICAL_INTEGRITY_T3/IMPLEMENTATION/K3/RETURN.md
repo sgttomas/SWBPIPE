@@ -1,6 +1,8 @@
 # I11 return: slice K3 (the rest of W1's arithmetic)
 
 > **Addendum 1 (Q7 reversed) supersedes §8 and the `FK/Cargo.toml` row of §2.** FK has no test profile. The evidence was re-run at opt-level 0 on the merged tree `de719cbdc`. See the end of this file.
+>
+> **Addendum 2 (RV12's review)** adds tests for S2 and N1, records S1 (the K4 interface has no correctly rounded exact multi-term sum), and records N2–N5 as notes for K4's brief.
 
 **Status: complete, with no stop.**
 - `Wide<L>` is added at L = 4, 8 and 16 beside K3a's unchanged `Wide<2>`.
@@ -469,6 +471,8 @@ impl AttemptWork {
 
 ## 15. For K4's brief
 
+> **See addendum 2.** The K4 interface has **no correctly rounded exact multi-term sum** (RV12's S1). RV12's N2–N5 are further notes for K4's brief.
+
 - **Q8, the ceiling's refinement.** A 512-bit candidate is verified at 1024. A p + 64 residual on that verification solve would need 1088 bits, and `Wide<16>` holds 1024. ROOT settles it in K4's brief: either no p + 64 residual on the ceiling's verification-only solve, or one more width.
 - **The widths K4 runs at** (ruling 8). The new core exists at L = 2 only in the tests, so K4 runs p = 128 and 192 at L = 4.
   - The W1 schedule then maps as: 128, 192 and 256 at L = 4; 320 and 512 at L = 8; 576 and 1024 at L = 16.
@@ -606,3 +610,73 @@ impl AttemptWork {
 - §9's FK line: now 227 on the merged tree.
 - `CHANGE_RECORD.md` is updated to match.
 - The earlier run records are kept as they were. The new ones are under `_run_records/q7_reversed/`.
+
+## Addendum 2: RV12's review (PASS: 0 BLOCKING, 2 SHOULD-FIX, 7 NOTE)
+
+- **Basis:** RV12's `T3/REVIEW/K3_REVIEW.md` and `REVIEW/_run_records/k3_review/`, read from `<wt>/numerics`, where they are uncommitted. ROOT's relayed instructions.
+- **The candidate:** `b7e93650e`, PR #1041.
+- **These are tests and records only.** No arithmetic changed: `multi.rs`, `wide.rs`, `mod.rs` and `FK/Cargo.toml` are unchanged.
+- **The new run records** are under `_run_records/rv12_fixes/`. No earlier run record is modified.
+
+### S2: value assertions (`K3T`, two new tests at L = 4, 8 and 16)
+- **`cmp_value_and_mul_pow2_pin_order_and_scale_at_every_width`:**
+  - `cmp_value` on 400 same-sign pairs of different magnitude per width, both signs and both orders, plus mixed-sign and equal pairs. The larger value has the same exponent and one more unit, or a larger exponent.
+  - `mul_pow2(k)` for k ∈ {±1, ±2, 7, −64, 511, −1000, 1022}, compared with `from_parts` (the same significand, exponent + k) and with a correctly rounded product by the binary64 2^k built from its bits. Also k = 123,456,789 and −987,654,321, against `from_parts`.
+- **`two_sum_and_two_product_refuse_a_wide_operand_in_either_position`:** at p = 53, 64 and 64L − 1, both TwoSum and TwoProduct:
+  - refuse an operand of p + 1 bits in either position (`OperandPrecision`);
+  - accept one of exactly p bits in either position.
+
+### N1: far subtractions whose (1 − f) tail decides a tie
+- **The generator** appends a `taildecides` class to each `targeted_l{4,8,16}.txt`: 32 vectors per width.
+  - p = 64L and 64L − 1;
+  - an odd full-width big, minus an all-ones small at gaps 64L + 1 and 64L + 2;
+  - both the `add` (opposite signs) and `sub` forms.
+- **Nothing else moved.** The class uses its own random generator, so every earlier vector is byte-identical (each file's prefix compares equal). `conversion.txt`, `eft.txt` and the stream files are unchanged, and only the three targeted lines of `SHA256SUMS` change. `--check` gives OK for 8 of 8.
+- **The oracle agrees with the analysis:** at p = 64L the Fraction result is big itself in all 16 vectors per width, because the exact value lies just above the midpoint below big.
+- `targeted_hard_classes_…` asserts the class's coverage at 64L and 64L − 1.
+
+### The kills (`_run_records/rv12_fixes/mutations/`)
+- **Method:** clean archives of `b7e93650e` (`core/`) with the six changed test files overlaid; RV12's own patches; NONE first; at `-j 4`; `RUST_TEST_THREADS=4`; opt-level 0.
+
+| Mutant | Site | Result | Behavioural kill (test @ assertion) |
+|---|---|---|---|
+| NONE | — | 229 passed | — |
+| RV1: `cmp_value` orders two negatives as if positive | `multi.rs:929` | killed (1 failure) | `cmp_value_and_mul_pow2_…` @ `K3T:1149` (`small.neg().cmp_value(&large.neg())`) |
+| RV2: `mul_pow2` scales by 2^(2k) | `multi.rs:902` | killed (1) | `cmp_value_and_mul_pow2_…` @ `K3T:1172` (against `from_parts`) |
+| RV4: TwoSum checks only its first operand | `multi.rs:606` | killed (1) | `two_sum_and_two_product_refuse_…` @ `K3T:1214` (`c.two_sum(&one, &wide)`) |
+| RV5: far subtraction drops the (1 − f) tail | `multi.rs:504` | killed (4) | **`targeted_hard_classes_…_l4`, `_l8` and `_l16` @ `K3T:856` (the `taildecides` vectors)**, and, as before, the L = 2 cross-check @ `K3T:711` |
+
+### The re-run at opt-level 0 (the worktree)
+- **FK's full suite:** **229 passed, 0 failed.** That is 227 plus the two new tests: lib 199, `k1_k2a_interaction` 3, `k2a_checked_formation` 13, `m03_skew_scope` 5, `s11_site_table` 3, doc 6.
+  - Wall time: 249.1 s for the tests (the lib part 243.2 s), at load 3.7–8.8.
+- **The non-test FK build** has no warnings.
+- **rustfmt** is clean on `K3T`.
+- **`K3T` is 2,479 lines** (+127). `targeted_l4.txt`, `targeted_l8.txt` and `targeted_l16.txt` are 817, 1,621 and 3,229 lines (+32 each). `gen_wide_k3_vectors.py` is 989 lines (+20).
+
+### S1: the K4 interface has no correctly rounded exact multi-term sum
+- **What D1 requires.** §4.1.1, §4.1.2 items 4 and 6, §4.1.4 item 2 and §4.1.5 form each K entry, reduced right-hand side, residual, reaction, recovery sum and combination as **"one exact expansion … rounded once to p"**.
+- **What K3 provides.** TwoSum and TwoProduct, which build such an expansion error-free. It does **not** provide a single correct rounding of the expansion:
+  - `WideContext::round` rounds one value;
+  - `from_integer` rounds one integer;
+  - `ExactAccumulator` takes binary64 terms, at quantum 2^−2148;
+  - the binary64 split stays at L = 2 (Q6).
+- **A naive fold misrounds.** RV12's counterexample at p = 128 (`oracle/fold_demo.*`): e₁ = 1 + 2^−127, e₂ = 2^−128, e₃ = −2^−400.
+  - Rounded once, the sum is 1 + 2^−127.
+  - Folded at p in either order, it is 1 + 2^−126.
+  - The tie at e₂ is decided by e₃'s far tail, which a fold loses.
+- **So K4 needs the primitive:** either a correctly rounded sum of a nonoverlapping expansion, or a wide integer accumulator whose magnitude feeds `from_integer`. Either must be tested against Fraction, including ties decided by a far tail.
+- **K4's brief assigns it** (ROOT): in a K4 file under `retained/`, or as a declared `multi.rs` write-set extension. No K3 code changes for it.
+- **What the API does cover:** §4.1.6's stop rule (`widen`, then TwoSum at the wider width for an exact difference, `mul_pow2(-64)`, `from_f64` and `cmp_value`), §4.1.4's p + 64 re-formation, and §4.1.2's frame formation.
+
+### Notes for K4's brief (RV12's N2–N5)
+- **N2: `AttemptWork::record` adds a context's cumulative counts.** There is no reset or `take`, and `WideContext` derives `Clone`, which carries its counts. Recording a context twice, or a clone and its original, double-counts silently, though deterministically.
+  - K4's pattern: one context per width and attempt, recorded once when the attempt ends. An optional `take` would make misuse impossible.
+- **N3: `from_integer` is charged as `Round`,** 2L limb-multiply equivalents, whatever the magnitude's length.
+  - The ledger projection passes 68 limbs, so its step count is about 68 + 2L.
+  - The table (§7) stays deterministic, but its "taken from the algorithm's step count" does not hold for this kind.
+  - ROOT accounts for it when setting the limits (§4.1.7), or K4 charges the input length.
+- **N4: `ExactAccumulator` holds separate positive and negative magnitudes** (`exact_sum.rs:45-48`), not one signed integer. K4's read accessor (Q4) must net them into a sign and a magnitude, using the accumulator's `compare` and `subtract`, before `from_integer` takes the limbs.
+- **N5: the sub-full-width precisions K4 uses** (p = 128 and 192 at L = 4, 320 at L = 8, 576 at L = 16) get only about 10^4 operations each at their own width from the default suite's mixed streams (RV12: about 1.4·10^4, 0.7·10^4 and 0.4·10^4). The core at L = 2 also has 1.2·10^6 operations at p ≤ 128 from K3a's streams. **K4 adds 10^6-operation streams at the precisions it uses** (§4.11, per ROOT).
+- **N6 and N7 need no action.**
+  - N6: the carry branch's `lost` bit is always zero, so its mutant is equivalent.
+  - N7: the relative-precision test's "least upper value" check is weaker when m = 2^52, but K2b's formula in the same test, and RV12's `nextafter` check, cover that case.
