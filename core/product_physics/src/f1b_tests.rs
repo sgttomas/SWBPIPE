@@ -1518,6 +1518,62 @@ fn f1b_non_range_failure_at_b_keeps_the_integrity_code() {
     );
 }
 
+/// W2 engages only after a range trigger (the design's "b != 0 leaking into
+/// b = 0", F1b checkpoint C): a linear case whose ordinary attempt fails with a
+/// non-range error (a witnessed mechanism) publishes exactly main's refusal,
+/// `append_integrity_failure`'s diagnostic for that error with no
+/// `range_scaling:` text, on both entries and in both modes.
+#[test]
+fn f1b_a_non_range_failure_never_engages_w2() {
+    let request = mechanism_request();
+    let bases = product_bases(&request);
+    let basis = &bases[0];
+    let stiffness = assemble_basis_stiffness(&basis.built, &basis.springs).unwrap();
+    let (_, force, _) = &basis.cases[0];
+    let prescribed: Vec<(usize, f64)> = basis.restrained.iter().map(|&d| (d, 0.0)).collect();
+    let model = serde_json::from_value::<LinearStaticPreviewRequest>(request.clone())
+        .unwrap()
+        .model;
+    for mode in MODES {
+        let error = pattern_attempt_result(
+            &basis.built,
+            &basis.springs,
+            &stiffness,
+            force,
+            &prescribed,
+            mode,
+        )
+        .unwrap_err();
+        assert!(!matches!(error, StructuralError::Range(_)), "{error:?}");
+        let mut expected = Vec::new();
+        append_integrity_failure(&mut expected, "case", &error, &model);
+        let envelopes = [
+            run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap(),
+            run_linear_static_preview_with_mode(
+                serde_json::from_value(request.clone()).unwrap(),
+                mode,
+            ),
+        ];
+        for envelope in envelopes {
+            let found: Vec<_> = envelope
+                .diagnostics
+                .iter()
+                .filter(|d| d.id == integrity_diagnostic_id("case"))
+                .collect();
+            assert_eq!(found.len(), 1, "{mode:?}");
+            assert_eq!(
+                serde_json::to_string(found[0]).unwrap(),
+                serde_json::to_string(&expected[0]).unwrap(),
+                "{mode:?}"
+            );
+            assert!(envelope
+                .diagnostics
+                .iter()
+                .all(|d| !d.message.contains("range_scaling")));
+        }
+    }
+}
+
 // ------------------------------------------------ D models (unit level)
 
 fn pow2(exponent: i32) -> f64 {
@@ -2213,6 +2269,73 @@ fn f1b_an_in_range_reaction_is_the_scaled_exact_sum_rounded_once() {
             compared += 1;
         }
         assert!(compared >= 2, "{mode:?}: {compared}");
+    }
+}
+
+/// Publication at b != 0 of a spring action (RV11D-1 at the rounding level;
+/// F1b checkpoint C, F1B-M8): K2a's least-subnormal member with a ground
+/// spring k = f64 bits `0x0410240000000000` N/m on N1:UY and a 2^-1021 N load
+/// there (b = 734). The spring action is subnormal, and the checked helper's
+/// value (the product at 2^b rounded once, then unscaled) differs by one
+/// quantum from unchecked `-k*u` (a single rounding into the subnormal
+/// range) in both modes, with the same u: the product publishes the helper's
+/// value as the spring's support component, on both entries.
+#[test]
+fn f1b_a_subnormal_spring_action_is_the_checked_helpers_value() {
+    let k = f64::from_bits(0x0410240000000000);
+    let request = reach_request(
+        "fs-rounding",
+        1.8189894035458565e-12,
+        1.0e-11,
+        1.0e-12,
+        9.6e-280,
+        1.0e-100,
+        "UY",
+        Some(k),
+        pow2(-1021),
+    );
+    let bases = product_bases(&request);
+    let basis = &bases[0];
+    let (_, force, _) = &basis.cases[0];
+    let prescribed: Vec<(usize, f64)> = basis.restrained.iter().map(|&d| (d, 0.0)).collect();
+    let inputs = attempt_inputs(&basis.built, &basis.springs, force, &prescribed);
+    for mode in MODES {
+        let outcome =
+            solve_with_force_scaling(&orchestrator_case(basis, &inputs, force, &prescribed, mode))
+                .unwrap();
+        assert_eq!(outcome.solution.force_scale.exponent(), 734, "{mode:?}");
+        let u = &outcome.solution.solution.displacements;
+        let dof = basis.springs[0].node_dof.global_index();
+        let spring = basis.springs[0].stiffness.value;
+        assert_eq!(spring.to_bits(), k.to_bits());
+        let helper =
+            force_scaled_spring_action((dof, spring), u, outcome.solution.force_scale).unwrap();
+        assert!(
+            matches!(helper.representability, Representability::Subnormal { .. }),
+            "{mode:?}"
+        );
+        let unchecked = -spring * u[dof];
+        assert_ne!(helper.value.to_bits(), unchecked.to_bits(), "{mode:?}");
+        let envelopes = [
+            run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap(),
+            run_linear_static_preview_with_mode(
+                serde_json::from_value(request.clone()).unwrap(),
+                mode,
+            ),
+        ];
+        for envelope in envelopes {
+            let rows: Vec<_> = envelope
+                .results
+                .iter()
+                .filter(|r| {
+                    r.kind == "support_reaction_component_v2"
+                        && r.entity_ref == "spring:N1:0"
+                        && r.metadata.as_ref().is_some_and(|m| m.component == "Fy")
+                })
+                .collect();
+            assert_eq!(rows.len(), 1, "{mode:?}: {:?}", envelope.diagnostics);
+            assert_eq!(rows[0].value.to_bits(), helper.value.to_bits(), "{mode:?}");
+        }
     }
 }
 
