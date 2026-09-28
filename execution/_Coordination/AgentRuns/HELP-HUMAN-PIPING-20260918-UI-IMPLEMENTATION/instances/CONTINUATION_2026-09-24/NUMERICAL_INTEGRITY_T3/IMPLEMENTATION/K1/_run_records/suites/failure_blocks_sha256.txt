@@ -1,0 +1,6 @@
+Failure output of the two crates with Mac platform failures, from the first '---- ' line to
+'failures:', thread ids removed; base = ROOT's Mac main no-fail-fast logs, k1 = this run.
+0d9771e7f2410ccda7bd589414fb481306c52506e5205748d635926ff7b95b33  300 bytes  base product_physics
+0d9771e7f2410ccda7bd589414fb481306c52506e5205748d635926ff7b95b33  300 bytes  k1 product_physics
+0d12d0cc333aa0ee04ad3889b7a72938c33718978ea1dfda00688ead1c8f5d43  952879 bytes  base runner_headless
+0d12d0cc333aa0ee04ad3889b7a72938c33718978ea1dfda00688ead1c8f5d43  952879 bytes  k1 runner_headless

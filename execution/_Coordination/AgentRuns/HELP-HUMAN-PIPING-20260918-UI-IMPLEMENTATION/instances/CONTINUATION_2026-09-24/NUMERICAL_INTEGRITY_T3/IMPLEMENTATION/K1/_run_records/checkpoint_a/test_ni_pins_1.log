@@ -1,0 +1,31 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (<wt>/k1-target/debug/deps/open_pipe_stress_nonlinear_integration-0a1253be2e77f2b3)
+
+running 25 tests
+test s11k_tests::k12_typed_nonlinear_siblings_treat_negative_zero_as_different_bits ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_refuse_a_one_ulp_difference_in_any_entry ... ok
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_delegate_on_bit_equal_force ... ok
+test s11k_tests::k7_adapter_with_force_terms_flags_the_folded_force_in_both_modes ... ok
+test s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 ... ok
+test s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path ... ok
+test s11k_tests::option_c_product_equilibrium_uses_the_binary64_residual ... ok
+test s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points ... ok
+test s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check ... ok
+test s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path ... ok
+test structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord ... ok
+test structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error ... ok
+test structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion ... ok
+test structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed ... ok
+test structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_not_selected_invocation_runs_the_unchanged_solve_assembled ... ok
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent ... ok
+test structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote ... ok
+test structural_adapter::k1_tests::k1_kd5_parity_cases_demote_identically_in_both_representations ... ok
+test structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed ... ok
+test structural_adapter::kd5_tests::kd5_skew_345_and_invented_m11_do_not_demote ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 69 filtered out; finished in 0.55s

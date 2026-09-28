@@ -1,0 +1,21 @@
+K1 storage counts (deterministic counts, not measurements; no timing or memory claim, K6 owns those).
+Source: sparse_direct k1_storage_counts_of_the_rf_large_chain_and_tree, run with --nocapture (checkpoint_a/test_sd_k1_final.log).
+Kernel level, pattern path only (assemble_sparse_stiffness, prepare_sparse_structural, order_sparse_structural); no dense matrix at any size.
+Columns: family, orientation, members n, global DOFs, stored entries (both triangles), stored on/below diagonal, free-block stored entries, free-block lower entries (explicit zeros included), free-block lower nonzero entries, RCM skyline profile entries, max half-bandwidth, dense n^2.
+fam   ori       n   dofs   stored   lower   f_stor f_lower  f_lo_nz profile hbw       dense
+CHAIN AX       10     66     1116     591     1008     534      152     168   4        4356
+CHAIN AX      100    606    10836    5721    10728    5664     1592    1788   4      367236
+CHAIN AX     1000   6006   108036   57021   107928   56964    15992   17988   4    36072036
+CHAIN AX    10000  60006  1080036  570021  1079928  569964   159992  179988   4  3600720036
+CHAIN ROT      10     66     1116     591     1008     534      396     529  13        4356
+CHAIN ROT     100    606    10836    5721    10728    5664     4176    5569  13      367236
+CHAIN ROT    1000   6006   108036   57021   107928   56964    41976   55969  13    36072036
+CHAIN ROT   10000  60006  1080036  570021  1079928  569964   419976  559969  13  3600720036
+TREE  AX       10     66     1116     591     1008     534      172     389  17        4356
+TREE  AX      100    606    10836    5721    10728    5664     1792    4933  19      367236
+TREE  AX     1000   6006   108036   57021   107928   56964    17992   49933  19    36072036
+TREE  AX    10000  60006  1080036  570021  1079928  569964   179992  499933  19  3600720036
+TREE  ROT      10     66     1116     591     1008     534      446     595  17        4356
+TREE  ROT     100    606    10836    5721    10728    5664     4721    6715  17      367236
+TREE  ROT    1000   6006   108036   57021   107928   56964    47471   67915  17    36072036
+TREE  ROT   10000  60006  1080036  570021  1079928  569964   474971  679915  17  3600720036
