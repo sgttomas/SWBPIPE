@@ -193,6 +193,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/load_ledger.rs", "force_scaled", 0, "K2b: the ledger's terms times 2^b, exactly; each DOF's net one exact sum, rounded once (as finish)"),
     ("FK/structural/sparse.rs", "force_scaled_reactions", 0, "K2b: E12 at 2^b, the formed K*u and the DOF's ledger terms at 2^b in one exact sum, rounded once at 2^-b"),
     ("FK/structural.rs", "unscale_structural_solution", 0, "K2b: a flagged load-audit row's exact net, one exact sum of the unscaled ledger terms; the records are rescaled by single roundings"),
+    // ---- K2b, RV11-1 (ROOT's rulings on RV11's review: declared, additive).
+    ("FK/structural/sparse.rs", "row_product_stays_normal", 1, "K2b (RV11-1): a range check, not a published value: the partial sums of multiply's row K*u at 2^b, each required normal or an exact zero (the reaction itself is multiply's row in one exact sum with the ledger terms)"),
+    ("FK/lib.rs", "force_scaled_end_actions", 2, "exempt: formed elastic end actions K_local*(T*u_e) at 2^b in the straight pipe's order, no case force; every product and partial sum checked normal (or an exact zero), else refused; each action unscaled once"),
 ];
 
 // ------------------------------------------------------------- scanner

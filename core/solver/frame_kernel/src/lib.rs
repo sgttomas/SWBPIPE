@@ -897,16 +897,23 @@ fn exact_power_of_two(exponent: i32) -> f64 {
 }
 
 /// `value * 2^exponent` when it is exact and normal: `value` normal, and the
-/// result normal. Two multiplications by exact powers of two whose exponents
-/// have the same sign, so the intermediate lies between `value` and the
-/// result and is normal too; each product is then exact.
+/// **exact** result normal, that is `binary_exponent(value) + exponent` in
+/// [-1022, 1023] (RV11-2: a result that is normal only because it rounded up
+/// from the subnormal range, to 2^-1022, is inexact and refused). Two
+/// multiplications by exact powers of two whose exponents have the same sign,
+/// so the intermediate lies between `value` and the result and is normal too;
+/// each product is then exact.
 pub(crate) fn exact_normal_scaling(value: f64, exponent: i32) -> Option<f64> {
     if !value.is_normal() || !(-2046..=2046).contains(&exponent) {
         return None;
     }
+    if !(-1022..=1023).contains(&(structural::binary_exponent(value) + exponent)) {
+        return None;
+    }
     let first = exponent / 2;
     let scaled = value * exact_power_of_two(first) * exact_power_of_two(exponent - first);
-    scaled.is_normal().then_some(scaled)
+    debug_assert!(scaled.is_normal());
+    Some(scaled)
 }
 
 /// K2b: `value * 2^b`, exact. A zero keeps its value and sign; a nonzero value
@@ -956,6 +963,87 @@ impl FrameElement {
         element.section.shear_modulus =
             force_scaled_value("G*2^b (force scale)", self.section.shear_modulus, scale)?;
         Ok(element)
+    }
+
+    /// K2b (D1 §4.7 step 5; RV11-1, ROOT's rulings on RV11's review): this
+    /// element's 12 local elastic end actions, `K_local * (T * u_e)`, for a
+    /// solve at 2^b, published. `u` holds the solve's global displacements
+    /// (never scaled); `u_e` is this element's 12 entries.
+    /// - The local displacements `T * u_e` and then the actions
+    ///   `K'_local * (T * u_e)`, with K'_local formed at 2^b by the checked
+    ///   `local_stiffness` of `force_scaled`, are formed in the straight
+    ///   pipe's order (`+=` from +0.0, row by row, column by column).
+    /// - Every product of nonzero operands and every partial sum is checked:
+    ///   each must be normal (a partial sum may also be an exact zero).
+    ///   Otherwise the element's actions are refused with step 5's
+    ///   `PublicationOutsideBinary64`; none is published.
+    /// - Each action is then unscaled by 2^-b with `unscale_for_publication`
+    ///   (one rounding; normal exact, subnormal with its precision, underflow
+    ///   or overflow refused).
+    /// - The check applies at every b, b = 0 included. These are the elastic
+    ///   actions only; a caller adds its load terms (fixed-end actions) at the
+    ///   same scale.
+    pub fn force_scaled_end_actions(
+        &self,
+        u: &[f64],
+        scale: ForceScale,
+    ) -> Result<[structural::PublishedValue; ELEMENT_DOF], structural::ForceScaledError> {
+        let map = element_dof_map(self.node_i.index, self.node_j.index);
+        if map
+            .iter()
+            .any(|&dof| u.get(dof).is_none_or(|value| !value.is_finite()))
+        {
+            return Err(structural::ForceScaledError::Structural(
+                structural::StructuralError::InvalidInput("displacement vector"),
+            ));
+        }
+        let formation = structural::ForceScaledError::Formation;
+        let stiffness = self
+            .force_scaled(scale)
+            .and_then(|element| element.local_stiffness())
+            .map_err(formation)?;
+        let transform = self
+            .orientation()
+            .map_err(formation)?
+            .transformation_matrix();
+        let outside = || {
+            structural::ForceScaledError::refused(
+                structural::ForceScaleReason::PublicationOutsideBinary64 { global_dof: None },
+            )
+        };
+        let stays_normal = |a: f64, b: f64, product: f64, partial: f64| {
+            (a == 0.0 || b == 0.0 || product.is_normal()) && (partial == 0.0 || partial.is_normal())
+        };
+        let global = map.map(|dof| u[dof]);
+        let mut local = [0.0; ELEMENT_DOF];
+        for row in 0..ELEMENT_DOF {
+            for col in 0..ELEMENT_DOF {
+                let product = transform[row][col] * global[col];
+                local[row] += product;
+                if !stays_normal(transform[row][col], global[col], product, local[row]) {
+                    return Err(outside());
+                }
+            }
+        }
+        let mut actions = [0.0; ELEMENT_DOF];
+        for row in 0..ELEMENT_DOF {
+            for col in 0..ELEMENT_DOF {
+                let product = stiffness[row][col] * local[col];
+                actions[row] += product;
+                if !stays_normal(stiffness[row][col], local[col], product, actions[row]) {
+                    return Err(outside());
+                }
+            }
+        }
+        let mut published = [structural::PublishedValue {
+            value: 0.0,
+            representability: structural::Representability::Normal,
+        }; ELEMENT_DOF];
+        for (slot, action) in published.iter_mut().zip(actions) {
+            *slot = structural::unscale_for_publication(action, scale, None)
+                .map_err(structural::ForceScaledError::refused)?;
+        }
+        Ok(published)
     }
 }
 

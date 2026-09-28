@@ -384,12 +384,22 @@ impl SparseStiffness {
     /// at 2^b. This stiffness is formed at 2^b, `u` holds the solve's
     /// displacements (never scaled) and `force` is the case's **unscaled**
     /// ledger force, whose terms are taken at 2^b
-    /// (`AssembledForce::force_scaled`). Each reaction is one exact sum of the
-    /// formed `K * u` (`multiply`) and the DOF's terms at 2^b, rounded once at
-    /// 2^-b, with step 5's outcome: normal exact, subnormal with its stated
-    /// precision, and a nonzero underflow or an overflow refused (never
-    /// flushed). An exact zero is +0.0, as in `reactions`. With b = 0 a
-    /// published value has the bits of `reactions`.
+    /// (`AssembledForce::force_scaled`).
+    /// - The formed row `K * u` (`multiply`'s binary64 row, the same bits) is
+    ///   checked at 2^b (RV11-1, ROOT's rulings on RV11's review): each product
+    ///   of nonzero operands, and each partial sum, must be normal (a partial
+    ///   sum may also be an exact zero). Otherwise the reaction is refused
+    ///   with step 5's `PublicationOutsideBinary64`; it is never published.
+    ///   With every value normal, the row is exactly 2^b times the row an
+    ///   unbounded exponent range would give, so no bit is lost to the scale.
+    /// - Each reaction is then one exact sum of that row and the DOF's terms
+    ///   at 2^b, rounded once at 2^-b, with step 5's outcome: normal exact,
+    ///   subnormal with its stated precision, and a nonzero underflow or an
+    ///   overflow refused (never flushed). An exact zero is +0.0, as in
+    ///   `reactions`.
+    /// - The check applies at every b, b = 0 included, so no row that left
+    ///   the normal range is ever published. Every value published at b = 0
+    ///   has the bits of `reactions`.
     pub fn force_scaled_reactions(
         &self,
         u: &[f64],
@@ -422,6 +432,9 @@ impl SparseStiffness {
                 let outside = ForceScaleReason::PublicationOutsideBinary64 {
                     global_dof: Some(dof),
                 };
+                if !self.row_product_stays_normal(dof, u) {
+                    return Err(ForceScaledError::refused(outside));
+                }
                 let mut exact = ExactAccumulator::new();
                 exact
                     .add(internal[dof])
@@ -431,6 +444,27 @@ impl SparseStiffness {
                     .map_err(ForceScaledError::refused)
             })
             .collect()
+    }
+
+    /// K2b (RV11-1): whether row `row`'s formed `K * u`, in `multiply`'s
+    /// order, stays in the normal range: every product of nonzero operands is
+    /// normal, and every partial sum is normal or an exact zero. (A partial
+    /// sum is zero only when the exact sum is zero.) The appended signed
+    /// zeros of `multiply` cannot change a magnitude, so they are not
+    /// re-checked. `u` has the stiffness's dimension (`multiply` checked it).
+    fn row_product_stays_normal(&self, row: usize, u: &[f64]) -> bool {
+        let mut partial = 0.0_f64;
+        for (j, k) in self.row(row) {
+            let product = k * u[j];
+            if k != 0.0 && u[j] != 0.0 && !product.is_normal() {
+                return false;
+            }
+            partial += product;
+            if partial != 0.0 && !partial.is_normal() {
+                return false;
+            }
+        }
+        true
     }
 }
 
