@@ -365,6 +365,16 @@ pub fn diagnostic_from_frame_error(error: &FrameKernelError) -> SolverDiagnostic
             DiagnosticSource::MechanicsSolver,
             format!("force vector length must be {expected}, got {actual}"),
         ),
+        // K2a: checked formation (T3 D1 section 4.7 step 1). No new code: the
+        // same code, severity and source as a formation overflow before K2a
+        // (`NonFiniteInput` "computed local stiffness"), so readers need not
+        // change; the message names the coefficient and the intermediate.
+        FrameKernelError::NumericalRange { name } => SolverDiagnostic::new(
+            SolverDiagnosticCode::InvalidNumericInput,
+            DiagnosticSeverity::Blocking,
+            DiagnosticSource::ModelValidation,
+            format!("range: stiffness formation outside the binary64 normal range at {name}"),
+        ),
     }
 }
 
@@ -793,6 +803,45 @@ mod tests {
             report.diagnostics[0].provenance.source_location,
             "core/solver/diagnostics"
         );
+    }
+
+    #[test]
+    fn k2a_maps_numerical_range_to_the_existing_formation_code_with_its_name() {
+        use open_pipe_stress_frame_kernel::{local_stiffness, FrameProperties, FrameSection};
+        // A real formation refusal from the kernel: G*J = 2^1000 * 2^100
+        // overflows (invented inputs; every other intermediate is normal).
+        let section = FrameSection::new(1.0, 2f64.powi(1000), 1.0, 1.0, 1.0, 2f64.powi(100))
+            .expect("positive finite section");
+        let error = local_stiffness(FrameProperties::new(section, 1.0).unwrap())
+            .expect_err("checked formation refuses G*J");
+        assert_eq!(
+            error,
+            FrameKernelError::NumericalRange { name: "GJ/L: G*J" }
+        );
+        let diagnostic = diagnostic_from_frame_error(&error);
+        // No new diagnostic code: the same code, severity, source and class as
+        // the formation overflow before K2a (NonFiniteInput "computed local
+        // stiffness"), so no reader changes.
+        let before = diagnostic_from_frame_error(&FrameKernelError::NonFiniteInput {
+            name: "computed local stiffness",
+            value: f64::INFINITY,
+        });
+        assert_eq!(diagnostic.code, SolverDiagnosticCode::InvalidNumericInput);
+        assert_eq!(diagnostic.code, before.code);
+        assert_eq!(diagnostic.severity, DiagnosticSeverity::Blocking);
+        assert_eq!(diagnostic.severity, before.severity);
+        assert_eq!(diagnostic.source, DiagnosticSource::ModelValidation);
+        assert_eq!(diagnostic.source, before.source);
+        assert_eq!(diagnostic.class, before.class);
+        assert_eq!(diagnostic.analysis_boundary_class(), "SOLVE_BLOCKING");
+        assert_eq!(diagnostic.remediation, before.remediation);
+        assert_eq!(
+            diagnostic.message,
+            "range: stiffness formation outside the binary64 normal range at GJ/L: G*J"
+        );
+        let report = report_frame_error(&error);
+        assert_eq!(report.status, SolverStatus::SolveFailed);
+        assert!(report.is_blocked());
     }
 
     #[test]

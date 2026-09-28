@@ -1,0 +1,8 @@
+K2a gate provenance (I6)
+HEAD 5ae22926efbe1dc8632d077f552f888fd3efd649
+probe sha256 8a3aa17ef6d9898e7b126ab7866cb56d63ab87bc4332f86aed6b10636167cadc, built 2026-09-27T23:52:36Z against the candidate working tree
+uncommitted product paths at build (sha256, mtime):
+  a3feef135cdab15941d047d0f0e17b710b4df03939397a17276f8e286a876a10 2026-09-27 21:34:40.144556293 +0000 projects/chirality-piping/core/solver/diagnostics/src/lib.rs
+  7622e7ccc821a57f2301d1e76cb0313fb18875f7d8919ebbb27ec9f7775ff52b 2026-09-27 21:28:38.506934382 +0000 projects/chirality-piping/core/solver/frame_kernel/src/lib.rs
+P1 probe main.rs 8dc727f4... (unchanged); run.py 8d9a32a3...; compare.py 1c91b6c6...; gen.py c515ec63...; gate_run_parts.py 6e9a8b50... (K-D5 combined); gate_check.py 8ad89fca...
+generator: gen.py on references.py/json c0f14201c (references.json 7b176dbb...) and numerical_integrity/fixtures.json: 252 cases, 222 authorable

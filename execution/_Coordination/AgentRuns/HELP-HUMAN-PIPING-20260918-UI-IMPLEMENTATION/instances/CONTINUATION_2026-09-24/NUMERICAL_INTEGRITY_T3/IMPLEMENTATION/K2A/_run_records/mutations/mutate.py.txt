@@ -1,0 +1,106 @@
+#!/usr/bin/env python3
+"""K2a (I6) mutants of FK `local_stiffness` (D1 section 7.3 mutation 18, and I6's own).
+
+Usage: python3 -B mutate.py <frame_kernel/src/lib.rs> <mutant>      (rewrites the file in place)
+       python3 -B mutate.py --list
+
+Each mutant is an exact string replacement on the candidate's lib.rs; the replaced text must occur
+exactly once (otherwise the script fails, so a stale anchor cannot silently yield an unmutated build).
+Standard library only.
+"""
+import re
+import sys
+
+VALUE_BODY = """    let operands_in_range = left != 0.0 && right != 0.0 && left.is_finite() && right.is_finite();
+    if operands_in_range && !value.is_normal() {
+        return Err(FrameKernelError::NumericalRange { name });
+    }
+    Ok(value)"""
+
+PRODUCT_BODY = "    checked_formation_value(name, left, right, left * right)"
+QUOTIENT_BODY = "    checked_formation_value(name, numerator, denominator, numerator / denominator)"
+
+MUTANTS = {
+    # 18a: revert to unchecked formation (every operation unchecked; the final finiteness check stays).
+    "M18a_unchecked": [(VALUE_BODY, "    let _ = (name, left, right);\n    Ok(value)")],
+    # 18b: check only the final coefficient: products (and L^2, L^3) unchecked; each final quotient
+    # refused when it is not normal, whatever its operands.
+    "M18b_final_only": [
+        (PRODUCT_BODY, "    let _ = name;\n    Ok(left * right)"),
+        (QUOTIENT_BODY, "    let value = numerator / denominator;\n    if !value.is_normal() {\n        return Err(FrameKernelError::NumericalRange { name });\n    }\n    Ok(value)"),
+    ],
+    # 18c: final coefficient only, keeping the zero-operand exemption (a zero product then passes).
+    "M18c_final_only_exempt": [(PRODUCT_BODY, "    let _ = name;\n    Ok(left * right)")],
+    # I6: treat a subnormal as acceptable (refuse only zero and non-finite).
+    "M_subnormal_accepted": [("if operands_in_range && !value.is_normal() {",
+                              "if operands_in_range && (value == 0.0 || !value.is_finite()) {")],
+    # I6: reassociate one coefficient (bit identity must catch an operation-order change).
+    "M_reassociate_12EIy": [(
+        """        checked_formation_product("12EIy/L^3: (12*E)*Iy", twelve_e, iy)?,""",
+        """        checked_formation_product("12EIy/L^3: (12*E)*Iy", 12.0, e * iy)?,""")],
+}
+
+SITES = [
+    "L^2 (for 6EI/L^2 and 12EI/L^3): L*L", "L^3 (for 12EI/L^3): L^2*L", "EA/L: E*A", "EA/L: (E*A)/L",
+    "GJ/L: G*J", "GJ/L: (G*J)/L", "12EIy/L^3 and 12EIz/L^3: 12*E", "12EIy/L^3: (12*E)*Iy",
+    "12EIy/L^3: (12*E*Iy)/L^3", "6EIy/L^2 and 6EIz/L^2: 6*E", "6EIy/L^2: (6*E)*Iy", "6EIy/L^2: (6*E*Iy)/L^2",
+    "4EIy/L and 4EIz/L: 4*E", "4EIy/L: (4*E)*Iy", "4EIy/L: (4*E*Iy)/L", "2EIy/L and 2EIz/L: 2*E",
+    "2EIy/L: (2*E)*Iy", "2EIy/L: (2*E*Iy)/L", "12EIz/L^3: (12*E)*Iz", "12EIz/L^3: (12*E*Iz)/L^3",
+    "6EIz/L^2: (6*E)*Iz", "6EIz/L^2: (6*E*Iz)/L^2", "4EIz/L: (4*E)*Iz", "4EIz/L: (4*E*Iz)/L",
+    "2EIz/L: (2*E)*Iz", "2EIz/L: (2*E*Iz)/L",
+]
+
+
+def drop_site(src, name):
+    """Replace the one checked call named `name` by its plain binary64 operation."""
+    pat = re.compile(r'checked_formation_(product|quotient)\(\s*"' + re.escape(name) + r'",\s*')
+    hits = list(pat.finditer(src))
+    assert len(hits) == 1, (name, len(hits))
+    m = hits[0]
+    # find the matching close paren of this call
+    depth, i = 1, m.end()
+    while depth:
+        if src[i] == "(":
+            depth += 1
+        elif src[i] == ")":
+            depth -= 1
+        i += 1
+    args = src[m.end():i - 1]
+    # split the two remaining arguments at the top-level comma
+    depth, cut = 0, None
+    for k, ch in enumerate(args):
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            cut = k
+            break
+    left, right = args[:cut].strip(), args[cut + 1:].strip().rstrip(",").strip()
+    op = "*" if m.group(1) == "product" else "/"
+    # the call is followed by `?`; wrap the plain value so `?` still type-checks
+    return src[:m.start()] + "Ok::<f64, FrameKernelError>((%s) %s (%s))" % (left, op, right) + src[i:]
+
+
+def site_key(n):
+    return "M_drop_%02d" % (SITES.index(n) + 1)
+
+
+def main():
+    if sys.argv[1] == "--list":
+        print("\n".join(list(MUTANTS) + [site_key(n) + "\t" + n for n in SITES]))
+        return
+    path, mutant = sys.argv[1], sys.argv[2]
+    src = open(path, encoding="utf-8").read()
+    if mutant in MUTANTS:
+        for old, new in MUTANTS[mutant]:
+            assert src.count(old) == 1, (mutant, old[:60], src.count(old))
+            src = src.replace(old, new)
+    else:
+        idx = int(mutant.split("_")[-1]) - 1
+        assert site_key(SITES[idx]) == mutant
+        src = drop_site(src, SITES[idx])
+    open(path, "w", encoding="utf-8").write(src)
+
+
+main()

@@ -1,0 +1,22 @@
+"""K2a (I6): LEF-small-pattern probe (reach_lef/): (12*E)*I rounds to the least subnormal while (6*E)*I,
+(4*E)*I, (2*E)*I round to 0; 12EIz/L^3 is normal and wrong, its siblings exactly 0. N1's only free DOF, UY,
+carries only the element's 12EIz/L^3. Usage: python3 -B lef_probe.py <reach_requests.py> <outdir>"""
+import math, json, sys
+from fractions import Fraction as Fr
+ns = {}; exec(open(sys.argv[1]).read().split('out = sys.argv[1]')[0], ns)
+out = sys.argv[2]
+L = 2.0 ** -39; od = 1e-11; t = 1e-12; G = 1e-100
+idd = od - 2 * t
+a = math.pi * (od * od - idd * idd) / 4; i = math.pi * ((od * od) * (od * od) - (idd * idd) * (idd * idd)) / 64
+E = 9.6e-280
+l3 = L * L * L
+k12 = 12.0 * E * i / l3
+kt = 12 * Fr(E) * Fr(i) / Fr(L) ** 3
+P = float('%.3g' % (k12 * 0.25))
+u_main = P / k12; u_true = Fr(P) / kt
+print('E', E, '(12E)I', 12.0 * E * i, '(6E)I', 6.0 * E * i, '(4E)I', 4.0 * E * i, '(2E)I', 2.0 * E * i, 'EA/L 2^%.1f' % math.log2(E * a / L),
+      'formed 12EI/L3', k12, 'true', float(kt), 'coef rel', float(abs(Fr(k12) - kt) / kt), 'P', P, 'u_main', u_main, 'u_true', float(u_true),
+      'u rel', float(abs(Fr(u_main) - u_true) / u_true))
+for gap in (False, True):
+    name = 'LEF1' + ('-gap' if gap else '')
+    json.dump(ns['request'](name, L, od, t, E, G, 'UY', None, P, gap), open('%s/%s.json' % (out, name), 'w'))

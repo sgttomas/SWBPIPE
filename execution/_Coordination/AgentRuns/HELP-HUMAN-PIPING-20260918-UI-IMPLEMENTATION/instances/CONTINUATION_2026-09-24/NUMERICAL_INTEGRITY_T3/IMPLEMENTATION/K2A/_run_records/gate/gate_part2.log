@@ -1,0 +1,8 @@
+loadavg RF-LARGE-CHAIN-n01000-ROT dense_scrutiny captured ['0.45', '0.51', '0.86'] ['1.00', '1.00', '1.00']
+RF-LARGE-CHAIN-n01000-ROT dense_scrutiny captured ERR 1800.1589 3694528
+loadavg RF-LARGE-CHAIN-n01000-ROT dense_scrutiny typed ['1.00', '1.00', '1.00'] ['1.10', '1.05', '1.01']
+RF-LARGE-CHAIN-n01000-ROT dense_scrutiny typed ERR 1800.1648 3692628
+loadavg RF-LARGE-TREE-n01000-AX dense_scrutiny captured ['1.10', '1.05', '1.01'] ['1.18', '1.11', '1.03']
+RF-LARGE-TREE-n01000-AX dense_scrutiny captured ERR 1800.2864 3697044
+loadavg RF-LARGE-TREE-n01000-AX dense_scrutiny typed ['1.18', '1.11', '1.03'] ['1.00', '1.00', '1.00']
+RF-LARGE-TREE-n01000-AX dense_scrutiny typed ERR 1800.1754 3693948
