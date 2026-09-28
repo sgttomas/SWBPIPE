@@ -897,6 +897,14 @@ where
             assert!(has("sticky", op, p) > 0, "L = {L}: sticky {op} {p}");
         }
     }
+    // Far subtractions whose (1 − f) tail decides a tie at p = 64L (RV12's N1).
+    for op in ["add", "sub"] {
+        assert!(has("taildecides", op, nb) > 0, "L = {L}: taildecides {op}");
+        assert!(
+            has("taildecides", op, nb - 1) > 0,
+            "L = {L}: taildecides {op}"
+        );
+    }
 }
 
 #[test]
@@ -1097,6 +1105,125 @@ fn signs_of_zero_the_lift_parts_and_the_precision_range_at_every_width() {
     zeros_lift_parts_and_precision::<4>();
     zeros_lift_parts_and_precision::<8>();
     zeros_lift_parts_and_precision::<16>();
+}
+
+/// The exact binary64 power of two 2^k, for |k| ≤ 1022 (built from its bits).
+fn pow2(k: i64) -> f64 {
+    assert!((-1022..=1023).contains(&k));
+    f64::from_bits(((1023 + k) as u64) << 52)
+}
+
+fn orders_and_scales<const L: usize>()
+where
+    Wide<L>: SupportedWidth,
+{
+    // cmp_value on same-sign pairs of different magnitude, both signs and
+    // both orders (RV12's S2: its RV1 ordered two negative values as if they
+    // were positive).
+    let mut rng = SplitMix64(0xC3F0 ^ L as u64);
+    for i in 0..400 {
+        let e = (rng.next() % 2001) as i64 - 1000;
+        let small = raw::<L>(false, e, rand_sig::<L>(&mut rng));
+        let large = if i % 2 == 0 {
+            // the same exponent, one unit more in the last place
+            let mut s = small.significand;
+            if add_bit(&mut s, 0) {
+                raw::<L>(false, e + 1, top::<L>())
+            } else {
+                raw::<L>(false, e, s)
+            }
+        } else {
+            // a larger exponent, any significand
+            raw::<L>(
+                false,
+                e + 1 + (rng.next() % 60) as i64,
+                rand_sig::<L>(&mut rng),
+            )
+        };
+        assert_eq!(
+            small.cmp_value(&large),
+            Ordering::Less,
+            "{small:?} {large:?}"
+        );
+        assert_eq!(large.cmp_value(&small), Ordering::Greater);
+        assert_eq!(small.neg().cmp_value(&large.neg()), Ordering::Greater);
+        assert_eq!(large.neg().cmp_value(&small.neg()), Ordering::Less);
+        assert_eq!(large.neg().cmp_value(&small), Ordering::Less);
+        assert_eq!(small.cmp_value(&large.neg()), Ordering::Greater);
+        assert_eq!(small.neg().cmp_value(&small.neg()), Ordering::Equal);
+        assert_eq!(large.cmp_value(&large), Ordering::Equal);
+    }
+    assert_eq!(lift::<L>(-2.0).cmp_value(&lift(-3.0)), Ordering::Greater);
+    assert_eq!(lift::<L>(-3.0).cmp_value(&lift(-2.0)), Ordering::Less);
+    assert_eq!(lift::<L>(1.5).cmp_value(&lift(1.25)), Ordering::Greater);
+    assert_eq!(lift::<L>(-1.5).cmp_value(&lift(-1.25)), Ordering::Less);
+    // mul_pow2(k) for k ≠ 0 is exactly 2^k times the value: the same
+    // significand with the exponent moved by k (compared with from_parts), and
+    // the same value as a correctly rounded product by the binary64 2^k (its
+    // S2: RV2 scaled by 2^(2k)).
+    let mut c = ctx::<L>(64 * L as u32);
+    for _ in 0..200 {
+        let negative = rng.next() & 1 == 1;
+        let e = (rng.next() % 2001) as i64 - 1000;
+        let sig = rand_sig::<L>(&mut rng);
+        let x = raw::<L>(negative, e, sig);
+        for k in [1i64, -1, 2, -2, 7, -64, 511, -1000, 1022] {
+            let scaled = x.mul_pow2(k).unwrap();
+            assert_eq!(
+                scaled,
+                Wide::<L>::from_parts(negative, e + k, sig).unwrap(),
+                "{x:?} * 2^{k}"
+            );
+            assert_eq!(scaled, c.mul(&x, &lift(pow2(k))).unwrap(), "{x:?} * 2^{k}");
+        }
+        for k in [123_456_789i64, -987_654_321] {
+            assert_eq!(
+                x.mul_pow2(k).unwrap(),
+                Wide::<L>::from_parts(negative, e + k, sig).unwrap()
+            );
+        }
+    }
+}
+
+#[test]
+fn cmp_value_and_mul_pow2_pin_order_and_scale_at_every_width() {
+    orders_and_scales::<4>();
+    orders_and_scales::<8>();
+    orders_and_scales::<16>();
+}
+
+fn wide_operands_refused<const L: usize>()
+where
+    Wide<L>: SupportedWidth,
+{
+    // TwoSum and TwoProduct refuse an operand wider than p in either position,
+    // and accept one of exactly p bits in either position (its S2: RV4 checked
+    // only TwoSum's first operand).
+    let nb = 64 * L as u32;
+    for p in [53, 64, nb - 1] {
+        let mut c = ctx::<L>(p);
+        let mut exact = top::<L>();
+        set_range(&mut exact, (nb - p) as usize, nb as usize);
+        let at_p = raw::<L>(false, 3, exact);
+        let mut wider = exact;
+        set_bit(&mut wider, (nb - p - 1) as usize);
+        let wide = raw::<L>(true, -5, wider);
+        let one = Wide::<L>::ONE;
+        let refused = Err(WideError::OperandPrecision);
+        assert_eq!(c.two_sum(&wide, &one), refused, "p = {p}");
+        assert_eq!(c.two_sum(&one, &wide), refused, "p = {p}");
+        assert_eq!(c.two_product(&wide, &one), refused, "p = {p}");
+        assert_eq!(c.two_product(&one, &wide), refused, "p = {p}");
+        assert!(c.two_sum(&at_p, &one).is_ok() && c.two_sum(&one, &at_p).is_ok());
+        assert!(c.two_product(&at_p, &one).is_ok() && c.two_product(&one, &at_p).is_ok());
+    }
+}
+
+#[test]
+fn two_sum_and_two_product_refuse_a_wide_operand_in_either_position() {
+    wide_operands_refused::<4>();
+    wide_operands_refused::<8>();
+    wide_operands_refused::<16>();
 }
 
 // ---------------------------------------------------------------------------

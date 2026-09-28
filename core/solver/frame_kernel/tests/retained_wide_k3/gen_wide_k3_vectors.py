@@ -20,7 +20,9 @@ Writes, beside this script:
                            hard classes (ties at every limb boundary, carries
                            through every limb, cancellation, exact and
                            near-exact division and square root, sticky paths)
-                           at every required precision of each width
+                           at every required precision of each width, and
+                           (appended last, from their own generator) far
+                           subtractions whose (1 - f) tail decides a tie
   conversion.txt           the binary64 conversion's boundary classes at
                            L = 2, 4, 8 and 16
   eft.txt                  TwoSum and TwoProduct, narrowing, and the integer
@@ -742,6 +744,24 @@ def targeted(L):
                 m2 = (sq >> (bl - nb)) + 1
                 if m2 <= full:
                     emit("sticky", "sqrt", p, Wi(False, m2, bl - nb), None)
+
+    # --- far subtractions whose (1 - f) tail decides a tie (the independent
+    # review RV12's N1): an odd full-width big minus an all-ones small at gap
+    # 64L + 1 lies just above the midpoint below big, so at p = 64L only the
+    # tail left after the borrow keeps the result at big. Gap 64L + 2 and
+    # p = 64L - 1 are neighbours. Their own generator, appended last, so every
+    # vector above is unchanged.
+    T = random.Random(TARGET_SEED * 100 + L + 50)
+    for p in (nb, nb - 1):
+        for _ in range(4):
+            n = T.getrandbits(nb) | top | 1
+            e = T.randint(-100, 100)
+            neg = T.random() < 0.5
+            big = W(L, neg, e, n)
+            for gap in (nb + 1, nb + 2):
+                small = W(L, not neg, e - gap, full)
+                emit("taildecides", "add", p, big, small)
+                emit("taildecides", "sub", p, big, small.negate())
     return lines
 
 
