@@ -980,3 +980,10 @@ I10 read the design, the rulings and the code at `eb52114e9`, and asked for seve
    - The window text renders §4.7 step 3's template with integer exponents.
 
 **Also recorded for F1b's list (I10's note):** loads that PP forms at b = 0 from out-of-range products (for example a thermal E·A·α·ΔT) have lost bits before the kernel, and the kernel cannot restore a term that underflowed to zero. F1b must form such loads under the chosen b, or refuse them.
+
+## K3: spawn and rulings (ROOT, 2026-09-28)
+
+- **K3 is spawned** as I11, in parallel with K2b (I10), because their write sets are disjoint (`TASK_BRIEFS/I11_K3_IMPLEMENTATION.md`). A TASK drafted the brief, and ROOT reviewed it and ruled on its questions. The rulings are in the brief, under "ROOT rulings for this slice".
+- **The key scope finding.** `Wide<2>` is on the product path through K-D5, carrying the D-5 evidence line's EF values and `WideError`'s `Display`. So K3 builds its new widths **beside** `Wide<2>`, and a change to any existing `Wide<2>` result, `Debug` token or `Display` string stops the work.
+- **Evidence and gates.** K3 adds no product caller, so the evidence is T9 at 112 of 112 (Mac-only), K-D5's suites unchanged, and a `Display` pin. **The both-entry gate is not run.**
+- **K4's needs.** K4 cannot edit `wide.rs`, so K3 also supplies K4's arithmetic: widening and narrowing, TwoSum and TwoProduct, an exact-integer constructor, and per-width work counts. K4 adds the `exact_sum.rs` accessor.
