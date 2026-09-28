@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -538,7 +538,7 @@
+         sub_in_place(&mut remainder, &b.significand);
+         set_bit(quotient.as_mut(), top);
+     }
+-    for k in 1..=top {
++    for k in 1..top {
+         let carry = shl_small(&mut remainder, 1) != 0;
+         if carry || cmp_limbs(&remainder, &b.significand) != Ordering::Less {
+             sub_in_place(&mut remainder, &b.significand);

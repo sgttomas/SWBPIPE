@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -697,7 +697,7 @@
+         (-(t - 1), 1u128 << 52)
+     } else {
+         let numerator = 1u128 << (52 + t);
+-        let m = numerator.div_ceil(d);
++        let m = (numerator + d / 2) / d;
+         if m == 1u128 << 53 {
+             (-(t - 1), 1u128 << 52)
+         } else {

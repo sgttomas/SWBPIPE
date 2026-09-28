@@ -1,0 +1,16 @@
+{
+ "id": "NONE",
+ "description": "control: no patch",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs"
+ ],
+ "wall_s": 25.0,
+ "rc": 0,
+ "compiled": true,
+ "passed": 222,
+ "failed": 0,
+ "failed_tests": [],
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

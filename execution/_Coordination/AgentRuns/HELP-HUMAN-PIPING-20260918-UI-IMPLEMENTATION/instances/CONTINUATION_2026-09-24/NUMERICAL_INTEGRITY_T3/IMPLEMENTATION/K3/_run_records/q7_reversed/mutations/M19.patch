@@ -1,0 +1,13 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -458,7 +458,9 @@
+     if limbs_zero(magnitude) {
+         return Ok(signed_zero(false));
+     }
+-    round_limbs::<L>(negative, magnitude, false, i128::from(exponent), p)
++    let top_limb = highest_bit(magnitude).unwrap() / 64;
++    let lo = top_limb.saturating_sub(L + 1);
++    round_limbs::<L>(negative, &magnitude[lo..], false, i128::from(exponent) + 64 * lo as i128, p)
+ }
+
+ fn add_rounded<const L: usize>(a: &Wide<L>, b: &Wide<L>, p: u32) -> Result<Wide<L>, WideError>

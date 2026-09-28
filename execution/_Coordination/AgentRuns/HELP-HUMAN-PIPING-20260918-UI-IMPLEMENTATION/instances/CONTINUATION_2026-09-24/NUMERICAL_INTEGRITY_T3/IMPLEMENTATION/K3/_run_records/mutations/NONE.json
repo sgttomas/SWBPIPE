@@ -1,0 +1,13 @@
+{
+ "id": "NONE",
+ "description": "control: no patch",
+ "wall_s": 25.3,
+ "rc": 0,
+ "compiled": true,
+ "passed": 221,
+ "failed": 0,
+ "failed_tests": [],
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

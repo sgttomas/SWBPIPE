@@ -1,0 +1,27 @@
+{
+ "id": "P1",
+ "description": "a [profile.test] with overflow-checks = false",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+ "line": 11,
+ "wall_s": 306.9,
+ "rc": 101,
+ "compiled": true,
+ "passed": 226,
+ "failed": 1,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on",
+   "at": "tests/retained_wide_k3/k3_tests.rs:416",
+   "source": "assert!(",
+   "message": "overflow checks are off in FK's test build (u64::MAX + 1 wrapped)"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

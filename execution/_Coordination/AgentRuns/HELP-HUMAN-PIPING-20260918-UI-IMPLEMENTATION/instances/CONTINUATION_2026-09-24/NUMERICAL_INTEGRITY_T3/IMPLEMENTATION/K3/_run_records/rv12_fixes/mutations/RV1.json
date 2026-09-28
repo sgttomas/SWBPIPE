@@ -1,0 +1,32 @@
+{
+ "id": "RV1",
+ "description": "cmp_value orders two negative values as if positive (RV12)",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+  "projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 929,
+ "wall_s": 258.2,
+ "rc": 101,
+ "compiled": true,
+ "passed": 228,
+ "failed": 1,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::cmp_value_and_mul_pow2_pin_order_and_scale_at_every_width"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::cmp_value_and_mul_pow2_pin_order_and_scale_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1149",
+   "source": "assert_eq!(small.neg().cmp_value(&large.neg()), Ordering::Greater);",
+   "message": "assertion `left == right` failed"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

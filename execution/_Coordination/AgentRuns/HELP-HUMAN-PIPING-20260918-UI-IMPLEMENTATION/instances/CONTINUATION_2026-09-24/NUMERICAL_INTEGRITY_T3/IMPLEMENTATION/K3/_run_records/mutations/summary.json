@@ -1,0 +1,2003 @@
+{
+ "NONE": {
+  "id": "NONE",
+  "description": "control: no patch",
+  "wall_s": 25.3,
+  "rc": 0,
+  "compiled": true,
+  "passed": 221,
+  "failed": 0,
+  "failed_tests": [],
+  "behavioural_kills": [],
+  "other_failures": [],
+  "killed": false
+ },
+ "M3": {
+  "id": "M3",
+  "description": "ties away from zero",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 418,
+  "wall_s": 17.9,
+  "rc": 101,
+  "compiled": true,
+  "passed": 203,
+  "failed": 18,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2111",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: -1.1641759454787645e17"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 22: -ffffffffffffffff65a0f0eb01bacda9p-905 +8000000000000000000000000045378ep-904"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: tie add 53 +bf66357c0aa608000000000000000000p24 +e25b7000000000000000000000000000p-10 +bf66357c433ce0000000000000000000p24"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 2107: +92d96189014000000000000000000000p-349 -92d96189014000000000000000000000p-349"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2052",
+    "source": "assert_eq!(c.round(&tie).unwrap(), Wide::<4>::ONE);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 16: add -1.0447440937022724e-30 -1.0447440937022726e-30: -a984f8c840e178000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 4: add 2.7294558013724715e81 2.729455801372471e81: +b82814aaa244b800000000000000000000000000000000000000000000000000p271"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 8: add 1.354400420557878e19 1.3544004205578783e19: +bbf5f810d5eb88000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 334"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 605"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 932"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 161"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 56"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 4"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: tie add 53 -f2ddbbb39424dp8 -cd47510328p-9 -f2de22573ca66p8"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: tie add 53 -de4beb6c51f268p-3 -9f3fp-41 -de4beb6c546f6p-3"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: tie add 53 +db7796a1a65b9p20 +eb8ff4p-12 +db7796a291eb8p20"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1851",
+    "source": "assert_eq!(tok(&got), fields[5], \"{line}\");",
+    "message": "assertion `left == right` failed: narrow 2 4 53 +f4a2eb7b4b5154p47 +f4a2eb7b4b515p47"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M1": {
+  "id": "M1",
+  "description": "round toward zero",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 418,
+  "wall_s": 19.0,
+  "rc": 101,
+  "compiled": true,
+  "passed": 199,
+  "failed": 22,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+   "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+   "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:910",
+    "source": "assert_eq!(c.add(&ones, &half).unwrap(), raw(false, 1, top::<L>()));",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2180",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: L = 4, p = 53: expansion of +d7e77a8f87daf800000000000000000000000000000000000000000000000000p265 +abcc77118461d000000000000000000000000000000000000000000000000000p-2"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:961",
+    "source": "assert_eq!(ctx::<L>(53).add(&big_ones, &Wide::<L>::ZERO), range);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2111",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: -2.753894340421252e-7"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 0: -c63b517c0324e23ba59fce47e65db896p1664 +c63b517c0324e23bac652db6758ae47bp1664"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 0: +df973cba8c68a80b28c773661fae9d15p1242 +946c68504142a9825d75087420d5f679p1078"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: tie add 53 -85efb84a880560000000000000000000p68 -82063000000000000000000000000000p34 -85efb84aa886f0000000000000000000p68"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2057",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 16: mul -1.0447440937022724e-30 -1.0447440937022726e-30: +e081ab13cbe258000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 4: mul -1.1120122124696969e-61 1.1120122124696969e-61: -82ca747461a9c800000000000000000000000000000000000000000000000000p-405"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:767",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: L = 8: sqrt 1.8629030607303422e111"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: tie add 53 -c3d53aabc7c4bp25 -ca3d18632aep14 -c3ee824ed42a1p25"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: tie add 53 -ae29e228157f3p86 -a77bb91da18p73 -ae2f1e05de6c4p86"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: tie add 53 -f49bfd078ba0e8p59 -9d6d1p25 -f49bfd07b2fc3p59"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1972",
+    "source": "assert!(half_ulp_bound(&s, &e, p));",
+    "message": "assertion failed: half_ulp_bound(&s, &e, p)"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1838",
+    "source": "assert_eq!(tok(&s), fields[5], \"{line}\");",
+    "message": "assertion `left == right` failed: twosum 4 53 +95320df71b10fp555 +a2fbcffe6d1ecp582 +a2fbd01113608p582 -8e4ef1p527"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M2": {
+  "id": "M2",
+  "description": "dropped sticky bit (the external sticky fraction)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 415,
+  "wall_s": 21.4,
+  "rc": 101,
+  "compiled": true,
+  "passed": 209,
+  "failed": 12,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 1328: -9e249bd8b2ba9df1eb8372623b3b389ep-917 -9e249bd8b2ba9df1eb8372623b3b38acp-917"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 2: +92c5b5fbd2d7c8826bb8f09736930d5cp373 -e584223ccc08eda77d7a89a9fa4af391p365"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: sticky sub 53 -b56c297884f094000000000000000000p7 +80000000000000000000000000000000p-346 -b56c297884f098000000000000000000p7"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 367"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 27"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 13"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 19"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 25"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: sticky div 53 +915db47d8715080a807b27dc5814a2a76fabe305564604b5052e21e17ec14882bf081f91d314ac6e9759db0f0eeb07c24d31cbb9666f70168fc80f08abe88a37372d4d766dbea7d"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: sticky div 53 +fdb7e9388f9bd0a32ba3b0fbca3448304657c3e05eb9b0fd78e3fb5c5562d6b2p255 +b18b7a89a9cd686603d9391419323c473d4c908c1e1986b83a7fe5b607a53dbdp255 +b6ea"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: sticky div 53 +c23b23fb366654383ae290c70500f83ccd91758434f131bcf2a91a220a05a200d2574775889dc722f58a16d2107857aa11f48bd60198ebfc9fa1076e56cc84b6p511 +9556351d3c"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M5": {
+  "id": "M5",
+  "description": "addition carry chain stopped after one limb",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 251,
+  "wall_s": 16.5,
+  "rc": 101,
+  "compiled": true,
+  "passed": 201,
+  "failed": 20,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+   "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:906",
+    "source": "assert_eq!(c.add(&ones, &unit).unwrap(), raw(false, 1, top::<L>()));",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:942",
+    "source": "assert_eq!(c.add(&big, &big), range);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::integer_constructor_matches_exact_accumulator_at_p53",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2111",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: -2.753894340421252e-7"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 2: -ffffffffffffffff596bdc49f339273dp899 -80000000000000006223c6901d2fb8f0p900"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 47: +ffffffffffffffffffffffffffffd48ep-1316 -80000000000000001e45338e9c7f65e0p-1315"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: carry add 53 +93f0730fe297c2d41bec36cfb8dea8d8p173 +93f0730fe297c2d41bec36cfb8dea8d8p173 +93f0730fe297c0000000000000000000p174"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 16: sub 3.514193579796681e32 -3.514193579796681e32: +a9c497e5f76f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 4: sub -1.1120122124696969e-61 1.1120122124696969e-61: -dbedafe7ffae8000000000000000000000000000000000000000000000000000p-204"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 8: sub 1.8629030607303422e111 -1.8629030607303422e111: +8c9bbaeb7cc06000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 20"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 8"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 11"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 4"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: carry add 53 +ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: carry add 53 +ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp264 +ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp264 +8p266"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: carry add 53 +ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp483 +fffffffffff"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1972",
+    "source": "assert!(half_ulp_bound(&s, &e, p));",
+    "message": "assertion failed: half_ulp_bound(&s, &e, p)"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1838",
+    "source": "assert_eq!(tok(&s), fields[5], \"{line}\");",
+    "message": "assertion `left == right` failed: twosum 4 53 +abe3daaeb1eaa8p258 +abe3daaeb1eaa8p258 +abe3daaeb1eaa8p259 Z+"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M6": {
+  "id": "M6",
+  "description": "schoolbook product drops each row's top carry",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 344,
+  "wall_s": 16.2,
+  "rc": 101,
+  "compiled": true,
+  "passed": 202,
+  "failed": 19,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+   "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+   "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2175",
+    "source": "assert!(!components.is_empty() && components.len() <= 2);",
+    "message": "assertion failed: !components.is_empty() && components.len() <= 2"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:940",
+    "source": "assert_eq!(c.mul(&big, &big), range);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 0: -c63b517c0324e23ba59fce47e65db896p1664 +c63b517c0324e23bac652db6758ae47bp1664"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 0: +df973cba8c68a80b28c773661fae9d15p1242 +946c68504142a9825d75087420d5f679p1078"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: tie mul 53 +96600000000000000000000000000000p-20 +e9972cb3c1a000000000000000000000p7 +89362ce216dc60000000000000000000p-12"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 16: mul 3.514193579796681e32 -3.514193579796681e32: -e31b7ac442000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 4: mul -1.1120122124696969e-61 1.1120122124696969e-61: -8ff4819f24000000000000000000000000000000000000000000000000000000p-469"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::p53_matches_hardware_binary64_bitwise_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:751",
+    "source": "assert_eq!(got, lift(hw), \"L = {L}: {op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: L = 8: mul 1.8629030607303422e111 -1.8629030607303422e111: -845ecb6409000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 4"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 4"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 2"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 18"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 4"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: tie mul 53 -f4ed9c68p50 -c363428p19 +baeff5a66d59p70"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: tie mul 53 +81c3b33452b6fp81 -ap33 -a234a0016764bp114"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: tie mul 53 -d4dced3aap17 -f27c2p8 +c9a00ddff14cdp26"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1987",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: L = 4, p = 53: TwoProduct -8000000000000000000000000000000000000000000000000000000000000000p-182 +d8be7aa5b4719000000000000000000000000000000000000000000000000000p165"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1838",
+    "source": "assert_eq!(tok(&s), fields[5], \"{line}\");",
+    "message": "assertion `left == right` failed: twoprod 4 53 +95320df71b10fp555 +a2fbcffe6d1ecp582 +bdf8dc43a1ea5p1137 -bfbf2d29872cp1082"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M4": {
+  "id": "M4",
+  "description": "off-by-one shift across a middle limb (word 2 takes word 3's bits one place off)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 199,
+  "wall_s": 21.2,
+  "rc": 101,
+  "compiled": true,
+  "passed": 207,
+  "failed": 14,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 7: +b26be76f805780000000000000000000p526 +8050f9c2d98daae1fb051d744ba29d22p539"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 28: +9cf90760f1c417592d28ae40bdae77d4p-1894 -aa42b8a438e4c12f44e0000000000000p-1966"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: tie mul 53 -82373840000000000000000000000000p58 +c96d7518000000000000000000000000p45 -ccea10794a4510000000000000000000p103"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 6"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 17"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: cancel sub 63 +8p-220 +fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: cancel sub 53 +8p-271 +fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffep-272 +8p-526"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: cancel sub 64 +8p-230 +ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp-231 +8"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1972",
+    "source": "assert!(half_ulp_bound(&s, &e, p));",
+    "message": "assertion failed: half_ulp_bound(&s, &e, p)"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1838",
+    "source": "assert_eq!(tok(&s), fields[5], \"{line}\");",
+    "message": "assertion `left == right` failed: twosum 4 128 +98ae1c3d4e3aae4b9e25b7dcb2a520bbp75 +ba44909e2cc5901eda52f92c6e60518ap147 +ba44909e2cc5901edaeba748abae8c38p147 +973c4b6fb9654a4176p18"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M7": {
+  "id": "M7",
+  "description": "division remainder ignored as sticky",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 548,
+  "wall_s": 20.9,
+  "rc": 101,
+  "compiled": true,
+  "passed": 209,
+  "failed": 12,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 1328: -9e249bd8b2ba9df1eb8372623b3b389ep-917 -9e249bd8b2ba9df1eb8372623b3b38acp-917"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 12: +9ed78d6c6b3535e2aaab08955d0bb05ep-834 +d8ccad9d3f7e90aa16cf4749501e3727p-835"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: sticky div 53 +f78032ff1d2915f374f8d9f259096943p127 +ea593c6d0628aeece4916e62927239a7p127 +872f04a47cc1b8000000000000000000p0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 77"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 13"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 30"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 3"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 25"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: sticky div 53 +915db47d8715080a807b27dc5814a2a76fabe305564604b5052e21e17ec14882bf081f91d314ac6e9759db0f0eeb07c24d31cbb9666f70168fc80f08abe88a37372d4d766dbea7d"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: sticky div 53 +fdb7e9388f9bd0a32ba3b0fbca3448304657c3e05eb9b0fd78e3fb5c5562d6b2p255 +b18b7a89a9cd686603d9391419323c473d4c908c1e1986b83a7fe5b607a53dbdp255 +b6ea"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: sticky div 53 +c23b23fb366654383ae290c70500f83ccd91758434f131bcf2a91a220a05a200d2574775889dc722f58a16d2107857aa11f48bd60198ebfc9fa1076e56cc84b6p511 +9556351d3c"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1297",
+    "source": "assert_eq!(done.hex(), chunks[k], \"{name} chunk {k}\");",
+    "message": "assertion `left == right` failed: mixed16 chunk 0"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M7b": {
+  "id": "M7b",
+  "description": "square-root remainder ignored as sticky",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 592,
+  "wall_s": 20.8,
+  "rc": 101,
+  "compiled": true,
+  "passed": 209,
+  "failed": 12,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 2: +92c5b5fbd2d7c8826bb8f09736930d5cp373 -e584223ccc08eda77d7a89a9fa4af391p365"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: neartie sqrt 64 +817e0be17f76a0c8145974c7159001b9p128 - +80be783a11137a4d0000000000000000p64"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 9341: +d7774922031787a460c76f9305857d02p1472 +f03a03568e5f73d07d6a204066906467p1450"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 367"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 27"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 19"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 36"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: sticky sqrt 512 +a1ba0ed1faa7d436636fe36821b6559a1c3dd23a9708ee90af08dcf795c4e00c640782d912cd48b7c784e591afb34f093a4db0ebf9a5f0c32eaa6887fd9066534fae989484a0d"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: sticky sqrt 128 +f57cf5c8ff11f38ebf6d6e8916db5462dd8b953aea885131410cccce0b206eefp257 - +fab06064835d133f4696449c3d30948bp128"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: sticky sqrt 256 +8e10611c2a2e309faec68d02a7554639cfd95826035367c7e900852ed4bfbec3e7b8ea5c366288356e02488918ebab6adf5fdc6a54f396b72bcdb6cec74e6c29p512 - +86d948"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1297",
+    "source": "assert_eq!(done.hex(), chunks[k], \"{name} chunk {k}\");",
+    "message": "assertion `left == right` failed: mixed8 chunk 0"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M8": {
+  "id": "M8",
+  "description": "conversion double-rounds (to 53 bits, then to the subnormal quantum)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 727,
+  "wall_s": 31.5,
+  "rc": 101,
+  "compiled": true,
+  "passed": 215,
+  "failed": 6,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1445",
+    "source": "assert_eq!(v(false, -1075, t1).to_binary64(), min_sub);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+    "message": "assertion `left == right` failed: conv 2 below_up_to_normal +fffffffffffff7fffffffffffffffffep-1023 S:000fffffffffffff:3ca0000000000002"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv16 record 16"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv2 record 20"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv4 record 11"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv8 record 28"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M9": {
+  "id": "M9",
+  "description": "conversion flushes subnormals (reports underflow)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 751,
+  "wall_s": 28.9,
+  "rc": 101,
+  "compiled": true,
+  "passed": 212,
+  "failed": 9,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined",
+   "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+   "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::multi::tests::lifted_binary64_values_convert_back_to_the_same_bits_at_every_width",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1420",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1526",
+    "source": "assert_eq!(sub.value().unwrap().to_bits(), (1 << 63) | 3);",
+    "message": "called `Option::unwrap()` on a `None` value"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+    "message": "assertion `left == right` failed: conv 2 min_subnormal +8p-1074 S:0000000000000001:3fe0000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv16 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv2 record 5"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv4 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv8 record 2"
+   }
+  ],
+  "other_failures": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1747",
+    "source": "Binary64Outcome::Underflow { .. } => panic!(\"unreachable: {value:?}\"),",
+    "message": "unreachable: +c3f20000000000000000000000000000p-1060"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::lifted_binary64_values_convert_back_to_the_same_bits_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1692",
+    "source": "let back = Wide2::from_f64(x).unwrap().to_binary64().value().unwrap();",
+    "message": "called `Option::unwrap()` on a `None` value"
+   }
+  ],
+  "killed": true
+ },
+ "M10": {
+  "id": "M10",
+  "description": "overflow midpoint rounds down to MAX",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 732,
+  "wall_s": 29.2,
+  "rc": 101,
+  "compiled": true,
+  "passed": 214,
+  "failed": 7,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined",
+   "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1455",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_at_l2_matches_exact_accumulator_round_where_both_are_defined",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1741",
+    "source": "assert_eq!(acc.round().unwrap().to_bits(), x.to_bits(), \"{value:?}\");",
+    "message": "called `Result::unwrap()` on an `Err` value: NonRepresentable"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+    "message": "assertion `left == right` failed: conv 2 midpoint +fffffffffffffcp1023 O+"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv16 record 723"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1619",
+    "source": "assert_eq!(done.hex(), chunks[k], \"{name} chunk {k}\");",
+    "message": "assertion `left == right` failed: conv2 chunk 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1619",
+    "source": "assert_eq!(done.hex(), chunks[k], \"{name} chunk {k}\");",
+    "message": "assertion `left == right` failed: conv4 chunk 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv8 record 598"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M11": {
+  "id": "M11",
+  "description": "nonzero underflow returned as a silent zero (normal outcome)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 739,
+  "wall_s": 29.0,
+  "rc": 101,
+  "compiled": true,
+  "passed": 213,
+  "failed": 8,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+   "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1436",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+    "message": "assertion `left == right` failed: conv 2 half_min_subnormal +8p-1075 U+"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1509",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:980",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv16 record 9"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv2 record 0"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv4 record 4"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv8 record 8"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M12a": {
+  "id": "M12a",
+  "description": "sign of an exact zero lost in the conversion",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 719,
+  "wall_s": 29.1,
+  "rc": 101,
+  "compiled": true,
+  "passed": 214,
+  "failed": 7,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+   "structural::retained::wide::multi::tests::lifted_binary64_values_convert_back_to_the_same_bits_at_every_width",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+    "message": "assertion `left == right` failed: conv 2 zero Z- N:8000000000000000"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1498",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: -0 at L = 16"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::lifted_binary64_values_convert_back_to_the_same_bits_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1693",
+    "source": "assert_eq!(back.to_bits(), x.to_bits());",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv16 record 154"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv2 record 545"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv4 record 22"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv8 record 359"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M12b": {
+  "id": "M12b",
+  "description": "sign of an underflow lost in the conversion",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 740,
+  "wall_s": 29.4,
+  "rc": 101,
+  "compiled": true,
+  "passed": 213,
+  "failed": 8,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+   "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1436",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+    "message": "assertion `left == right` failed: conv 2 half_min_subnormal -8p-1075 U-"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1509",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:980",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv16 record 27"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv2 record 7"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv4 record 4"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv8 record 8"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M13": {
+  "id": "M13",
+  "description": "unchecked exponent arithmetic in the new path (no range check; wraps)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 424,
+  "wall_s": 29.5,
+  "rc": 101,
+  "compiled": true,
+  "passed": 220,
+  "failed": 1,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:940",
+    "source": "assert_eq!(c.mul(&big, &big), range);",
+    "message": "assertion `left == right` failed"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M14": {
+  "id": "M14",
+  "description": "TwoSum returns e = 0",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 614,
+  "wall_s": 29.8,
+  "rc": 101,
+  "compiled": true,
+  "passed": 217,
+  "failed": 4,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2175",
+    "source": "assert!(!components.is_empty() && components.len() <= 2);",
+    "message": "assertion failed: !components.is_empty() && components.len() <= 2"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:516",
+    "source": "assert_eq!(format!(\"{e:?}\"), fields[6], \"{line}\");",
+    "message": "assertion `left == right` failed: eft twosum 53 +84f17ed368a0e8000000000000000000p93 -9173374d2c6950000000000000000000p318 -9173374d2c6950000000000000000000p318 +84f17ed368a0e8000000000000000000p93"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1979",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: L = 4, p = 53: TwoSum +b095bf4114b0d000000000000000000000000000000000000000000000000000p-132 -82b92ca17c872800000000000000000000000000000000000000000000000000p33"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1839",
+    "source": "assert_eq!(tok(&e), fields[6], \"{line}\");",
+    "message": "assertion `left == right` failed: twosum 4 53 +95320df71b10fp555 +a2fbcffe6d1ecp582 +a2fbd01113608p582 -8e4ef1p527"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M15": {
+  "id": "M15",
+  "description": "narrowing truncates instead of rounding",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 1190,
+  "wall_s": 29.3,
+  "rc": 101,
+  "compiled": true,
+  "passed": 218,
+  "failed": 3,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+   "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:962",
+    "source": "assert_eq!(ctx::<L>(53).round(&big_ones), range);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::narrowing_rounds_ties_and_far_sticky_bits_correctly",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2057",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1851",
+    "source": "assert_eq!(tok(&got), fields[5], \"{line}\");",
+    "message": "assertion `left == right` failed: narrow 2 4 53 +ec439f306cace4000000000000000001p-498 +ec439f306cace8p-498"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M16a": {
+  "id": "M16a",
+  "description": "a width's operations charged to the wrong width (every context to the L = 4 slot)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 1085,
+  "wall_s": 29.7,
+  "rc": 101,
+  "compiled": true,
+  "passed": 219,
+  "failed": 2,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::attempt_work_merges_across_widths",
+   "structural::retained::wide::multi::tests::work_is_counted_by_kind_and_width_and_saturates"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::attempt_work_merges_across_widths",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2328",
+    "source": "assert_eq!(first.width::<8>().sqrt, 1);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::work_is_counted_by_kind_and_width_and_saturates",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2258",
+    "source": "assert_eq!(attempt.width::<4>(), c4.work());",
+    "message": "assertion `left == right` failed"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M16b": {
+  "id": "M16b",
+  "description": "a width's multiplication not charged",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 1168,
+  "wall_s": 29.5,
+  "rc": 101,
+  "compiled": true,
+  "passed": 219,
+  "failed": 2,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::attempt_work_merges_across_widths",
+   "structural::retained::wide::multi::tests::work_is_counted_by_kind_and_width_and_saturates"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::attempt_work_merges_across_widths",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2326",
+    "source": "assert_eq!(first.width::<4>().mul, 2);",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::work_is_counted_by_kind_and_width_and_saturates",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2238",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M17": {
+  "id": "M17",
+  "description": "K3a's round_pack tie rule changed (ties away from zero, the L = 2 path)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+  "line": 654,
+  "wall_s": 29.2,
+  "rc": 101,
+  "compiled": true,
+  "passed": 212,
+  "failed": 9,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+   "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+   "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+   "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+   "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 2107: +92d96189014000000000000000000000p-349 -92d96189014000000000000000000000p-349"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 22: -ffffffffffffffff65a0f0eb01bacda9p-905 +8000000000000000000000000045378ep-904"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: tie add 53 +bf66357c0aa608000000000000000000p24 +e25b7000000000000000000000000000p-10 +bf66357c433ce0000000000000000000p24"
+   },
+   {
+    "test": "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+    "at": "tests/retained_wide/wide_tests.rs:1033",
+    "source": "assert_eq!(token(result), rest[0], \"{line}\");",
+    "message": "assertion `left == right` failed: angle v1:1.0 128 +d76aa478486770000000000000000000p-1 +8a51407da83460000000000000000000p-1 +fffffffffffffdff700c3bed75f72f93p-1 +fffffffffffffdff700c3bed75f72f8fp-1 +"
+   },
+   {
+    "test": "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+    "at": "tests/retained_wide/wide_tests.rs:419",
+    "source": "assert_eq!(got, f(hw), \"{op} {x:e} {y:e}: {got:?}\");",
+    "message": "assertion `left == right` failed: add 5.49693266136159e48 5.496932661361591e48: +f0b6bf126cf8b8000000000000000000p162"
+   },
+   {
+    "test": "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+    "at": "tests/retained_wide/wide_tests.rs:822",
+    "source": "assert_eq!(done.hex(), spec.chunks[k], \"{name} chunk {k}\");",
+    "message": "assertion `left == right` failed: mixed chunk 0"
+   },
+   {
+    "test": "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+    "at": "tests/retained_wide/wide_tests.rs:795",
+    "source": "assert_eq!(token(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p128 record 22"
+   },
+   {
+    "test": "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+    "at": "tests/retained_wide/wide_tests.rs:952",
+    "source": "assert_eq!(f(got), a53.mul(&k, &f(u)).unwrap(), \"{k:?} * {u:e}\");",
+    "message": "assertion `left == right` failed: -e0000000000000000000000000000000p775 * -3.8818912684946e17"
+   },
+   {
+    "test": "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide/wide_tests.rs:517",
+    "source": "assert_eq!(got, fields[5], \"{line}\");",
+    "message": "assertion `left == right` failed: tie add 53 +bf66357c0aa608000000000000000000p24 +e25b7000000000000000000000000000p-10 +bf66357c433ce0000000000000000000p24"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M18": {
+  "id": "M18",
+  "description": "subnormal relative precision rounded to nearest, not upward",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 700,
+  "wall_s": 28.1,
+  "rc": 101,
+  "compiled": true,
+  "passed": 214,
+  "failed": 7,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+   "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+   "structural::retained::wide::multi::tests::subnormal_relative_precision_is_rounded_upward"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1420",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1351",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");",
+    "message": "assertion `left == right` failed: conv 2 max_subnormal +fffffffffffffp-1023 S:000fffffffffffff:3ca0000000000002"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv16 record 14"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l2",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv2 record 5"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv4 record 11"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_conversion_differential_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1608",
+    "source": "assert_eq!(outcome_token(outcome), sample[3], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: conv8 record 10"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::subnormal_relative_precision_is_rounded_upward",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1791",
+    "source": "assert!(m * two_k >= scale, \"k = {k}: below 1/(2k)\");",
+    "message": "k = 3: below 1/(2k)"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M19": {
+  "id": "M19",
+  "description": "integer constructor ignores limbs far below the kept window (sticky lost)",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 461,
+  "wall_s": 29.6,
+  "rc": 101,
+  "compiled": true,
+  "passed": 220,
+  "failed": 1,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1874",
+    "source": "assert_eq!(tok(&got), fields[7], \"{line}\");",
+    "message": "assertion `left == right` failed: int 4 53 0 -2148 68 19910575c9b65a800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M20": {
+  "id": "M20",
+  "description": "TwoProduct residual has the wrong sign when the product rounds up",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 647,
+  "wall_s": 29.3,
+  "rc": 101,
+  "compiled": true,
+  "passed": 218,
+  "failed": 3,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:516",
+    "source": "assert_eq!(format!(\"{e:?}\"), fields[6], \"{line}\");",
+    "message": "assertion `left == right` failed: eft twoprod 53 +84f17ed368a0e8000000000000000000p93 -9173374d2c6950000000000000000000p318 -97113c135a5bd0000000000000000000p411 +d9eb6e956e8f80000000000000000000p356"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1987",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: L = 4, p = 53: TwoProduct +c5c3e0cd7956e800000000000000000000000000000000000000000000000000p157 +cdb49db3276f8800000000000000000000000000000000000000000000000000p80"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1839",
+    "source": "assert_eq!(tok(&e), fields[6], \"{line}\");",
+    "message": "assertion `left == right` failed: twoprod 4 53 +95320df71b10fp555 +a2fbcffe6d1ecp582 +bdf8dc43a1ea5p1137 -bfbf2d29872cp1082"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M21": {
+  "id": "M21",
+  "description": "widening places the limbs at the bottom",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 763,
+  "wall_s": 29.1,
+  "rc": 101,
+  "compiled": true,
+  "passed": 218,
+  "failed": 3,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+   "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+   "structural::retained::wide::multi::tests::widening_is_exact_and_round_trips"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2180",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: L = 4, p = 53: expansion of +d7e77a8f87daf800000000000000000000000000000000000000000000000000p265 +abcc77118461d000000000000000000000000000000000000000000000000000p-2"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1987",
+    "source": "assert_eq!(",
+    "message": "assertion `left == right` failed: L = 4, p = 53: TwoProduct +b095bf4114b0d000000000000000000000000000000000000000000000000000p-132 -82b92ca17c872800000000000000000000000000000000000000000000000000p33"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::widening_is_exact_and_round_trips",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2027",
+    "source": "assert_eq!(&x16.significand[14..], &x2.significand[..]);",
+    "message": "assertion `left == right` failed"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M22": {
+  "id": "M22",
+  "description": "bit-serial division one quotient bit short",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+  "line": 541,
+  "wall_s": 20.3,
+  "rc": 101,
+  "compiled": true,
+  "passed": 209,
+  "failed": 12,
+  "failed_tests": [
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+   "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+   "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8"
+  ],
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: mixed record 1660: -da2ff0e9f00b2dcf8eb4c0fb21e24e35p1006 +df8be159b7fdebb7b9be222f04c7e17fp1058"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:690",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");",
+    "message": "assertion `left == right` failed: p128 record 12: +9ed78d6c6b3535e2aaab08955d0bb05ep-834 +d8ccad9d3f7e90aa16cf4749501e3727p-835"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:523",
+    "source": "assert_eq!(core, k3a, \"{line}\");",
+    "message": "assertion `left == right` failed: cancel1ulp div 128 +c1bc8dc13ee1d18b8970f7be35934c15p-201 +c1bc8dc13ee1d18b8970f7be35934c16p-201 +ffffffffffffffffffffffffffffffffp-1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed16 record 28"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed4 record 194"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: mixed8 record 13"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p1024_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p1024 record 41"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p256_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p256 record 3"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_p512_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1270",
+    "source": "assert_eq!(res_tok(result), sample[6], \"{name} record {i}\");",
+    "message": "assertion `left == right` failed: p512 record 1"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 16: cancel div 1024 +cf951fbb89c2f0d111737250376d900ca83a4da3d1084f29d2430392eda24da96cf7e925f8155e5bc7598157685c1c879f2aea967ab80c55490b794c73a93f1eb579cf41524b7"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 4: cancel div 256 +d549bece2867975909cd4c804c1b8a8c4b76086368070e698bbd37aad5646ed8p-128 +d549bece2867975909cd4c804c1b8a8c4b76086368070e698bbd37aad5646ed9p-128 +f"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:835",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");",
+    "message": "assertion `left == right` failed: L = 8: nearexactdiv div 512 +9b1461160d602697ee01c26f6d079d949c2ee21bf39f2c46fdc960958d32bd5ebfa0f546b62012ddfe11dff8f7dd513336e190d97348e06d07e1b8eb08p485 +f9b01b827"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "P1": {
+  "id": "P1",
+  "description": "profile: overflow-checks = false",
+  "file": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+  "line": 20,
+  "wall_s": 27.2,
+  "rc": 0,
+  "compiled": true,
+  "passed": 221,
+  "failed": 0,
+  "failed_tests": [],
+  "behavioural_kills": [],
+  "other_failures": [],
+  "killed": false
+ }
+}

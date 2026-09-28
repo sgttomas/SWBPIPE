@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::wide::multi::tests::seeded_conversion_differential_at_l4 ... conv4: 1000000 conversions at L = 4 [465801, 292419, 165101, 76679], debug wall time 2.8 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 195 filtered out; finished in 2.80s

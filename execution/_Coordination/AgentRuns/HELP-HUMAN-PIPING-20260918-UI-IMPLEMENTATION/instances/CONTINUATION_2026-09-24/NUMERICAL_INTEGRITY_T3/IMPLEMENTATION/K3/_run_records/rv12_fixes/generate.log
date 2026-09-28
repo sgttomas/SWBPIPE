@@ -1,0 +1,42 @@
+{
+ "conversion_conv16_outcomes_normal_subnormal_underflow_overflow": [
+  465423,
+  292127,
+  165249,
+  77201
+ ],
+ "conversion_conv16_sha256": "0f8ab6f552d53f9db2c5819cd2db23d79e9a1d2af8eec9dde4100a05aba8c399",
+ "conversion_conv2_outcomes_normal_subnormal_underflow_overflow": [
+  465260,
+  293441,
+  165034,
+  76265
+ ],
+ "conversion_conv2_sha256": "1ba34603ed627e0aa38e119399a72c0852a4aaef25882b45797f0986418f6bc7",
+ "conversion_conv4_outcomes_normal_subnormal_underflow_overflow": [
+  465801,
+  292419,
+  165101,
+  76679
+ ],
+ "conversion_conv4_sha256": "e981f6c305bce84eb71b1a15aa2e26f30cb5a02ee3c5a228045d051f481dab39",
+ "conversion_conv8_outcomes_normal_subnormal_underflow_overflow": [
+  464088,
+  293859,
+  164641,
+  77412
+ ],
+ "conversion_conv8_sha256": "bb71e0ae1e29505d60246c14d679c35318982de334df06254f90f466fed0584a",
+ "conversion_lines": 400,
+ "eft_lines": 1242,
+ "stream_mixed16_sha256": "18cfe622fa201e749626efd81f955ba63d0741fe2120e855a58cf57c97b87a40",
+ "stream_mixed4_sha256": "c349ad66ed947815581044683fe1874ac743fadd4b1d0abe1719e5bd0c6facb7",
+ "stream_mixed8_sha256": "cff8b4cebc94cf1acbeb3c02de206a6d9d8d2f5ca9f588570cde5414eb4fb830",
+ "stream_p1024_sha256": "1c48951d9a2d9313cf8acdff0e58360669a6a49e202df39e6bda4ab8cdcf7f20",
+ "stream_p256_sha256": "f0e952f6cd2bdde4a00cc79da8aa80a6024ae6c502e8707281a3f40d2b7fafde",
+ "stream_p512_sha256": "a33ea753cc4c08f0633b66d8914a100a30e66dc0534c29a2a1463c6dcf41c590",
+ "targeted_l16_lines": 3229,
+ "targeted_l4_lines": 817,
+ "targeted_l8_lines": 1621
+}
+$VENV/bin/python gen_wide_k3_vectors.py  124.19s user 0.56s system 99% cpu 2:04.88 total

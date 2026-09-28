@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -737,7 +737,7 @@
+             quantum += 1;
+         }
+         if kept == 0 {
+-            return Binary64Outcome::Underflow { negative };
++            return Binary64Outcome::Underflow { negative: false };
+         }
+         if kept >= 1 << 52 {
+             let leading = quantum + 52;

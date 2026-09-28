@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+@@ -645,7 +645,7 @@
+         residual = <Wide<L> as CoreWidth>::DOUBLE_ZERO;
+         set_bit(residual.as_mut(), lsb);
+         sub_in_place(residual.as_mut(), low.as_ref());
+-        !negative
++        negative
+     } else {
+         negative
+     };

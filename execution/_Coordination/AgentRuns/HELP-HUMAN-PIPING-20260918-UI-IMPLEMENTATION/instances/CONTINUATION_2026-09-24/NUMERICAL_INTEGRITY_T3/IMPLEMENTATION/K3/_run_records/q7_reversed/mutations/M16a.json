@@ -1,0 +1,34 @@
+{
+ "id": "M16a",
+ "description": "a width's operations charged to the wrong width (every context to the L = 4 slot)",
+ "overlay": [
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+ ],
+ "file": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+ "line": 1085,
+ "wall_s": 273.8,
+ "rc": 101,
+ "compiled": true,
+ "passed": 225,
+ "failed": 2,
+ "failed_tests": [
+  "structural::retained::wide::multi::tests::attempt_work_merges_across_widths",
+  "structural::retained::wide::multi::tests::work_is_counted_by_kind_and_width_and_saturates"
+ ],
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::attempt_work_merges_across_widths",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2349",
+   "source": "assert_eq!(first.width::<8>().sqrt, 1);",
+   "message": "assertion `left == right` failed"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::work_is_counted_by_kind_and_width_and_saturates",
+   "at": "tests/retained_wide_k3/k3_tests.rs:2279",
+   "source": "assert_eq!(attempt.width::<4>(), c4.work());",
+   "message": "assertion `left == right` failed"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

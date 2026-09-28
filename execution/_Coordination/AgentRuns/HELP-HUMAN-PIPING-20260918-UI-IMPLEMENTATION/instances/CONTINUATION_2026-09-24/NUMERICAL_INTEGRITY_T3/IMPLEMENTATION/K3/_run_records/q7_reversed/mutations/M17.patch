@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs
+@@ -651,7 +651,7 @@
+     let round = m.bit(drop - 1);
+     let rest = sticky || m.any_below(drop - 1);
+     let mut keep = keep;
+-    if round && (rest || keep & 1 == 1) {
++    if round {
+         let (next, overflow) = keep.overflowing_add(1);
+         if overflow || (p < 128 && next >> p != 0) {
+             keep = 1u128 << (p - 1);
