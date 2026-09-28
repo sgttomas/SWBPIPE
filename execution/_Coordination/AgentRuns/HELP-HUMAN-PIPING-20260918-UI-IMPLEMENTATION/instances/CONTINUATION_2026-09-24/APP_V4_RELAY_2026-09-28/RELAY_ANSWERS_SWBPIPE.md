@@ -236,7 +236,7 @@
 
 #### SQ-15 Locality and sandbox
 
-- **Transport: strictly local** (DRAFT #885). A macOS Unix domain socket and descriptor in a randomly named private directory under `/private/tmp` (directory 0700, entries 0600). There is no network listener.
+- **Transport: strictly local** (DRAFT #885). A macOS Unix domain socket and descriptor in a randomly named private directory under the macOS system temporary directory (`private/tmp`) (directory 0700, entries 0600). There is no network listener.
 - **Sandbox:** not addressed in any SWBPIPE record.
   - By construction, the caller must read the descriptor file and connect to the socket in that directory. So a sandbox that forbids that path would block the CLI.
   - That is an inference from the design, **not observed**.
