@@ -9,12 +9,3 @@ publish = false
 path = "src/lib.rs"
 
 [dependencies]
-
-# Slice K3 (T3 ROOT ruling on Q7): FK's own test builds are optimized, so the
-# full-count `Wide` differentials (D1 §4.11, §7.4) stay in the default suite at
-# a practical run time. Debug assertions and overflow checks are kept explicitly,
-# so test semantics do not change. No dependency or lockfile change.
-[profile.test]
-opt-level = 1
-debug-assertions = true
-overflow-checks = true

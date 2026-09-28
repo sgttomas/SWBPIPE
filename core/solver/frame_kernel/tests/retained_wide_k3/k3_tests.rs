@@ -402,10 +402,10 @@ fn token_round_trip_and_debug_scheme() {
     assert_eq!(format!("{:?}", lift::<16>(-3.0)).len(), 1 + 256 + 2);
 }
 
-/// FK's `[profile.test]` (T3 ROOT ruling on Q7) optimizes FK's own test
-/// builds and keeps overflow checks and debug assertions on explicitly, so test
-/// semantics do not change. Both are observable here (ROOT's ruling on the
-/// checkpoint-C profile mutants P1 and P2).
+/// FK's tests rely on overflow checks and debug assertions in the test build
+/// (the default test profile; ROOT withdrew K3's optimized test profile in the
+/// Q7 reversal). Both are observable here: a profile that switches either off
+/// (the mutants P1 and P2) fails this test.
 #[test]
 fn test_profile_keeps_overflow_checks_and_debug_assertions_on() {
     let overflowed = std::panic::catch_unwind(|| {
