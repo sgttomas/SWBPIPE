@@ -1,0 +1,3 @@
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/frame_kernel)
+    Checking open_pipe_stress_sparse_direct v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/sparse_direct)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.69s

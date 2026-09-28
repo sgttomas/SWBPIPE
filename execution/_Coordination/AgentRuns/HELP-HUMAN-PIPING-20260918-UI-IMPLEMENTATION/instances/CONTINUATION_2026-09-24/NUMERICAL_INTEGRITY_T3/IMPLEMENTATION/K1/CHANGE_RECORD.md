@@ -74,7 +74,7 @@ K1 gives the kernel one sparse representation of the global stiffness, and the s
   - The sparse representation reaches K-D5's check through a `StructuralSystem` view with empty stiffness. `check` reads only `force` and `free_dofs`, and the attempt's factor through `solve` (`formation_check.rs:193-194, 223`).
   - `formation_check.rs` gains only its site-table rows (item 2).
 
-## Files (against `134eefc24`; line counts at `19925122b`)
+## Files (against `134eefc24`; line counts at `19925122b`, and for the last two rows at the combined tree)
 
 | File | +/− | Lines |
 |---|---|---|
@@ -88,8 +88,10 @@ K1 gives the kernel one sparse representation of the global stiffness, and the s
 | `P/core/solver/nonlinear_integration/src/s11k_tests.rs` (pin extension) | +86 −20 | 1497 |
 | `P/core/solver/frame_kernel/tests/s11_site_table.rs` (sparse.rs hunks 1, 3; formation_check.rs hunks 2, 4) | +28 | 566 |
 | `P/core/product_physics/tests/s11f_site_test.rs` (KERNEL list) | +62 | 1540 |
+| `P/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs`, RV8's three tests (`340e87a2d`, append-only) | +389 | 1409 |
+| `P/core/solver/frame_kernel/tests/k1_k2a_interaction.rs` (new; after K2a merged) | +206 | 206 |
 
-There are no other product, fixture, schema, Cargo or lockfile changes. `FK/lib.rs`, `PP`, `nonlinear_integration/src/lib.rs`, `curved_bend` and `diagnostics` are untouched.
+There are no other product, fixture, schema, Cargo or lockfile changes. K1 does not touch `FK/lib.rs`, `PP`, `nonlinear_integration/src/lib.rs`, `curved_bend` or `diagnostics`; K2a's changes to `FK/lib.rs` and `diagnostics` arrive through the merge of main.
 
 ## Checks (RETURN §5–§11)
 
@@ -111,10 +113,11 @@ All run on `aarch64-apple-darwin` with rustc 1.97.1, `CARGO_INCREMENTAL=0` and `
   - K1-LABEL-ORDER is mutation 10's demonstrated form.
   - Every original pin mutant (K-D5's M32a, M32b and E4; S11-K's RV-OPT1, RV-OPT3, RV-OPT4 and RV-PUB) keeps its original kill set.
 - **The gate was not run,** per ROOT's ruling: K1 changes no published byte, and the gate runs at F1b.
+- **The combined tree** (K2a merged, and the interaction tests): suites equal to merged main's Mac baseline apart from 34 added passing tests; T9 112 of 112 byte-identical (Mac-only); 28 mutants all killed, with every pre-merge kill site kept (RETURN addendum 2).
 - **RV8's independent review** (PASS; 3 SHOULD-FIX test gaps) is answered by three nonlinear_integration tests (`340e87a2d`, tests only). They kill RV8-BLOCK-ORDER, RV8-SPRING-FIRST and RV8-FC-TERMS at behavioural assertions (RETURN addendum 1).
 
 ## Remaining
 
-- **K2a interaction tests:** drafted (`wip/k1_k2a_interaction.rs.txt`), and landed only after K2a merges and main is merged into this branch. The combined tree is then re-run.
+- **K2a interaction tests:** landed after K2a merged (main `f12e06876`, merged into this branch as `3b86b111f`) as `P/core/solver/frame_kernel/tests/k1_k2a_interaction.rs`. The combined tree was re-verified (RETURN addendum 2).
 - **Belonging to ROOT and the manager:** the PR's hosted CI (the surface-4 dispatch), the DEC-025 sweep, the independent complete-diff review, the history reshaping (including the separate `formation_check.rs` site-table commit), and GEN-8 on the records commit.
 - **F1b:** switching PP to the pattern path, wiring the resource guard and the dense-scrutiny ceiling, and the both-entry gate. **K2b:** b at formation. **K6:** timing and memory.

@@ -1,0 +1,155 @@
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k1/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (<wt>/k1/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (<wt>/k1/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_product_physics v0.2.0 (<wt>/k1/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8711:4
+     |
+8711 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:63:9
+   |
+62 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+63 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:92:9
+   |
+91 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+92 |     pub support_id: String,
+   |         ^^^^^^^^^^
+93 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+94 |     pub value: f64,
+   |         ^^^^^
+95 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:117:9
+    |
+116 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+117 |     pub dofs: usize,
+    |         ^^^^
+118 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+119 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+120 |     pub blocks: usize,
+    |         ^^^^^^
+121 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+122 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+123 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+124 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+125 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+126 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+127 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+128 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+129 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+130 |     pub max_relative_projection_error: f64,
+131 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:144:5
+    |
+138 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+144 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:170:12
+    |
+153 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+170 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:524:19
+    |
+453 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+524 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.48s
+     Running tests/formation_check_runtime.rs (<wt>/k1-target/debug/deps/formation_check_runtime-48a8a93daa86891c)
+
+running 5 tests
+test kd5_required_true_positive_122_demotes_in_both_modes_on_both_entries ... ok
+test kd5_large_coordinate_pp_route_elbow_is_published_accurately_and_not_demoted ... ok
+test kd5_very_large_coordinate_pp_route_elbow_demotes_on_both_entries ... ok
+test kd5_nonlinear_support_invocation_is_never_selected ... ok
+test kd5_skew_345_and_chain_continuity_controls_do_not_demote ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+     Running tests/s11f_site_test.rs (<wt>/k1-target/debug/deps/s11f_site_test-687ae271410dcab7)
+
+running 11 tests
+test rule_4_generic_kernels_are_called_only_by_observation_lanes ... ok
+test rule_2_values_are_copied_only_in_allow_listed_functions ... ok
+test rule_3_force_bindings_are_mutated_only_in_allow_listed_functions ... ok
+test rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites ... ok
+test scanner_self_checks ... ok
+test sparse_direct_factor_inherits_the_prepared_ledger_binding ... ok
+test t10b_routing_site_calls_the_tested_predicates ... ok
+test rule_5_the_ledger_producers_are_exactly_the_section_4_2_list ... ok
+test rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams ... ok
+test t8_every_case_force_producer_is_classified ... ok
+test rule_8_every_accumulation_in_the_listed_files_is_in_the_table ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.01s

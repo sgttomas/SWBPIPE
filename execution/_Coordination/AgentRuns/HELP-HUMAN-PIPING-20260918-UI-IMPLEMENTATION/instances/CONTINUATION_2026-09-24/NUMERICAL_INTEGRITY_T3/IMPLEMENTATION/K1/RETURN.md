@@ -650,3 +650,113 @@ The tests are in nonlinear_integration because that is where realized bends exis
 - **N3: `order_sparse_structural` allocates a profile-sized array.** It calls `SymmetricProfileMatrix::from_entries_with_order`, which allocates and fills a profile-sized `values` vector (`sparse_direct/src/lib.rs`) before `SparseStructuralOrdering` returns `profile_entry_count`. §12's "counts before the factor allocates" is true of the factor, but one profile-sized allocation has already happened. **For F1b:** the resource guard must count before calling `order_sparse_structural` (for example from the skyline alone: the first-column pass over the ordered entries), or use a count-only entry. This is not implemented here.
 - **N7:** `SparsePositiveFactor::pivots()` is added to the §12 list. **For F1b:** nothing maps SA's curved slots (`CurvedBendStiffnessElement`) to `StiffnessBlock`s. F1b must build the blocks in PP's curved order itself, or add a crate-local helper; RV8-1's test pins that order.
 - **N4, N5 and N6** need no action (the text pins' documented limit; the fixture changes are not weakenings; the invalid-input differences are acceptable).
+
+## RETURN addendum 2 (the combined tree: K2a merged, the interaction tests, A–C re-run)
+
+**The tree:**
+- `3b86b111f`, ROOT's merge of main `f12e06876` (K2a, PR #1032) into K1 after the RV8 tests `340e87a2d`. There were no conflicts.
+- K2a's final head `aad23e82d` is in `f12e06876`. `git diff aad23e82d f12e06876 -- projects/chirality-piping/core` is empty.
+- On top: the K2a interaction tests (A2.1) and these records, uncommitted at the time of the runs. Every run below used `3b86b111f` with `frame_kernel/tests/k1_k2a_interaction.rs` copied over it.
+- **No product code changed** in this addendum.
+
+**Result:** the combined tree is green.
+- The suites add no failure against the Mac baseline of merged main.
+- T9 is byte-identical, 112 of 112 (Mac-only).
+- 28 mutants and the NONE control were run. Every pre-merge kill site is kept at the same `file:line`, and the two K2a interaction mutants are killed at behavioural assertions.
+- No stop rule triggered, and K2a's merged behaviour contradicts no K1 assumption.
+
+### A2.1 Step 6: the K2a interaction tests
+
+**Re-read before adapting the draft:**
+- K2a's merged code: `FrameKernelError::NumericalRange { name: &'static str }`, and `local_stiffness`'s checked intermediates (`checked_formation_product`, `checked_formation_quotient`, `checked_formation_value`).
+- `tests/k2a/rf_range_models.rs`: `RangeMember` and `RF_RANGE_MEMBERS`, plus the operand tables.
+- K2a's own `tests/k2a_checked_formation.rs`:
+  - LEF-small is refused on the element route as `DegenerateAxis { "element length" }`;
+  - LEF-large is refused as `NumericalRange { "GJ/L: G*J" }` through `local_stiffness`, `global_stiffness` and `assemble_global_stiffness`;
+  - every other vector forms bit-identically.
+- The product-reach operands in `product_physics/tests/k2a_formation_range_runtime.rs` (`EXACT_ZERO`, `LEAST_SUBNORMAL`).
+
+**How K1 meets K2a.** K1's sparse assembly forms each element with `global_stiffness()?`, in the dense order and before any accumulation. K2a's refusal therefore reaches both representations through the same call. This is as the draft assumed; nothing contradicts it.
+
+**The test:** `P/core/solver/frame_kernel/tests/k1_k2a_interaction.rs` (new, 206 lines, sha256 prefix `cf241452b7a82c75`), I8's draft `wip/k1_k2a_interaction.rs.txt` adapted. The three tests:
+- **`k1_k2a_rf_range_members_form_or_refuse_identically_in_both_representations`:** all 162 RF-RANGE members.
+  - **Refused, 16** (LEF-large on the three bases): `NumericalRange { "GJ/L: G*J" }`, the same error in both representations and equal to the member's `refusal`.
+  - **Formed, 98:** K bit-identical in both.
+  - **Degenerate, 48:** LEF-small, L-240 and SIM-a, whose lengths (1.2e-60 m, 1.1e-72 m and 1.5e-36 m) are at or below FK's axis tolerance (1e-12 m). `FrameElement::new` refuses them (`DegenerateAxis { "element length" }`) before either assembly, identically for both.
+- **`k1_k2a_reach_zero_and_reach_lef_are_refused_with_the_same_named_error`:** both give `NumericalRange { "12EIy/L^3: (12*E)*Iy" }`, identically in both. K2a's per-site subnormal rows make the least subnormal a refusal at the same site as the zero.
+- **`k1_k2a_the_first_failing_element_is_the_same_in_both_representations`:** a normal member, then reach_zero, then a LEF-large member.
+  - Both report reach_zero's refusal, which equals the refusal of reach_zero alone.
+  - In reverse order, both report LEF-large's.
+
+**Changes from the draft:**
+- The degenerate class is explicit: a member is degenerate if and only if its length is at or below the tolerance, and it then gives exactly `DegenerateAxis { "element length" }`. The draft's comment named LEF-small only, but L-240 and SIM-a are degenerate too.
+- LEF-small is asserted never to reach assembly.
+- `#[allow(dead_code)]` on the shared K2a models module, since this file uses only the members.
+- K2a's `member_properties` form, and rustfmt.
+
+**The brief's "RF-RANGE LEF-small … refused with the same named error in both representations"** holds only at the element: LEF-small never reaches either assembly. I8 found this and this test verifies it. Its named `NumericalRange` exists only at `local_stiffness` level, which is not an assembly entry. This agrees with K2a's records (P1: `PIPE_ELEMENT_INPUT_INVALID`).
+
+### A2.2 A: the compile and targeted tests (`_run_records/combined/checkpoint_a/`)
+
+- `cargo check --tests` on FK, SD and NI: 0 errors, 0 warnings.
+- Tests, all passing:
+
+| Crate | Passed |
+|---|---|
+| frame_kernel | 179: lib 154, `k1_k2a_interaction` 3, `k2a_checked_formation` 13, `s11_site_table` 3, doc 6 |
+| sparse_direct | 30 |
+| nonlinear_integration | 101: lib 97 (with the 3 RV8 tests) and doc 4 |
+| PP `s11f_site_test` | 11 |
+| PP `formation_check_runtime` | 5 |
+
+### A2.3 B: the suites (`_run_records/combined/suites/`)
+
+- **Method:** all 39 manifests with `--no-fail-fast`, on the combined candidate archive.
+- **Baseline:** ROOT's Mac run of merged main `f12e06876`, every manifest with `--no-fail-fast` (`<wt>/scratch/calib/suites_main_f12e06876/`).
+- **Per test:** 0 changed and 0 removed. 34 were added, all passing: FK 17 (14 sparse and 3 interaction), NI 12 (9 adapter and 3 RV8), SD 5.
+- **Per crate:** frame_kernel 162 → 179; sparse_direct 25 → 30; nonlinear_integration 89 → 101. PP (525 passed, 1 failed, 1 ignored, 18 targets) and headless (82 passed, 2 failed) equal the baseline, as do the other 34 manifests.
+- **Failures:** exactly the three Mac platform tests (PP `t13_committed_fallback_uz…`; headless `load_reference_one_actual_solve…` and `cli_load_reference_one…`). Their failure output is byte-identical to the baseline's with thread ids removed: 300 bytes and 952,879 bytes (`failure_blocks_sha256.txt`).
+
+### A2.4 B: T9 (Mac-only; `_run_records/combined/t9/`)
+
+- **Setup:** base, a `git archive` of merged main `f12e06876`; candidate, a `git archive` of `3b86b111f` with the interaction test copied over it. Both are without `execution/`. The trees differ only in K1's files.
+- **Harness:** S11-K's `fixdiff_main.rs` (`ec089c1d…`), `--release --offline --locked`.
+- **Result:** **112 of 112 byte-identical**, base against candidate (core 10, fixtures 72, validation 30; 6 are `ERR` on both), and the raw outputs are identical.
+- **Cross-check:** the base's hashes equal ROOT's Mac main `649162522` hashes on all 112, so K2a changes no committed output on the Mac either.
+- This is never compared with Linux records.
+
+### A2.5 C: the mutation table (`_run_records/combined/mutations/`)
+
+- **Method:** checkpoint C's, on the combined tree: `run_mutant_combined.sh.txt`, dispatching through `apply.sh.txt`.
+  - Patches: `mutate_k1.py` (as `mutations/mutate_k1.py.txt`), RV8's `rv8_mutants.py` (as `rv8_fixes/rv8_mutants.py.txt`), both unchanged, and the new `mutate_k2a.py.txt`.
+  - All 28 anchors match once on the combined tree.
+- **NONE: clean.** FK 154 + 3 + 13 + 3 + 6; SD 30; NI 97 + 4; PP 5 + 11.
+- **28 mutants:** my 23, RV8's 3 and 2 K2a interaction mutants. **All are killed, with 0 compile errors.**
+- **Every pre-merge kill site is kept** (`kill_site_comparison.txt`, from `compare_kill_sites.py.txt`): all 26 pre-merge mutants have 0 sites lost, at the same `file:line`.
+- **Kill sites the combined tree adds,** all through the RV8 tests:
+  - K1-M8: rv8_2 at k1_tests.rs:1072, and rv8_3 at :1364 (the dense entry on the mutated view is refused);
+  - K1-COALESCE: rv8_1 and rv8_2 at :1082 (the coalesced contributions);
+  - K1-COALESCE-SCATTER: rv8_1 and rv8_2 at :1072;
+  - K1-LABEL-ORDER: rv8_1 and rv8_2 at :1128 (plain byte identity), and rv8_3 at :1386;
+  - K1-LABEL: rv8_1 and rv8_2 through the same invariant panic at sparse.rs:153.
+- **K1-LABEL is still killed only by that invariant**, as ruled.
+
+**The K2a interaction mutants** (new; `mutate_k2a.py.txt`):
+
+| Mutant | Change | Kill sites |
+|---|---|---|
+| K1-K2A-SKIP | the sparse assembly skips K2a's checked-formation refusal: a frame refused with `NumericalRange` is accumulated as a zero block | FK `k1_k2a_interaction.rs:104` (`assert_same`'s representation-mismatch arm: dense `Err(NumericalRange)`, sparse `Ok`), in all three tests (RF-RANGE LEF-large M1; reach_zero; "ordered") |
+| K1-K2A-FIRST | the sparse assembly refuses a different first element: every frame's formation is checked in reverse order before the unchanged forward formation | FK `k1_k2a_interaction.rs:101` (`assert_eq!(dense, sparse)` on the error, "ordered", in `k1_k2a_the_first_failing_element_…`) |
+
+### A2.6 Callers on the combined tree (`_run_records/combined/callers.txt`)
+
+The same lexer scan, run on the combined candidate, finds 284 sites.
+- **The 74 non-test sites are unchanged**, line numbers aside.
+- The only additions are test callers: K2a's `k2a_checked_formation.rs` and `k2a_formation_range_runtime.rs`, the interaction test, and the RV8 tests.
+
+### A2.7 Records
+
+- **New folders:** `_run_records/rv8_fixes/` (addendum 1) and `_run_records/combined/` (this addendum).
+- **Sanitized at copy** by `rv8_fixes/sanitize_copy.py.txt`: the same placeholders and 600-character cuts as before, and trailing whitespace removed.
+- **No existing log was rewritten.**
+- `SHA256SUMS` is regenerated over the whole folder.

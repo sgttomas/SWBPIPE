@@ -1,0 +1,12 @@
+#!/bin/bash
+W=$1; S=$2; T=$S/combined/t9; M=$S/combined/mut; L2=$S/combined/logs
+K=$W/k1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K1
+O=$K/_run_records/combined
+args=()
+for f in check_frame_kernel.log check_sparse_direct.log check_nonlinear_integration.log test_fk_k1_k2a_1.log test_fk_k1_k2a_2.log test_fk_full.log test_sd_full.log test_ni_full.log test_pp_site_fc.log; do args+=("$L2/$f=checkpoint_a/$f"); done
+args+=("$S/combined/callers.txt=callers.txt" "$S/run_suites_k1.sh=suites/run_suites_k1.sh.txt" "$S/combined/suites.log=suites/suites.log" "$S/compare_suites.py=suites/compare_suites.py.txt" "$S/combined/suites_compare.txt=suites/suites_compare.txt" "$S/combined/suites_compare.json=suites/suites_compare.json" "$S/combined/failure_blocks_sha256.txt=suites/failure_blocks_sha256.txt")
+for f in $(ls $S/combined/suites); do args+=("$S/combined/suites/$f=suites/logs/$f"); done
+for v in base cand; do args+=("$T/h_$v/Cargo.toml=t9/harness_${v}_Cargo.toml.txt" "$T/build_$v.log=t9/build_$v.log" "$T/run_$v.log=t9/run_$v.log" "$T/sha_$v.txt=t9/output_sha256_$v.txt"); done
+args+=("$T/t9_summary.txt=t9/t9_summary.txt" "$M/run_mutant_combined.sh=mutations/run_mutant_combined.sh.txt" "$M/apply.sh=mutations/apply.sh.txt" "$M/mutate_k2a.py=mutations/mutate_k2a.py.txt" "$M/overlay.txt=mutations/overlay.txt" "$M/ids.txt=mutations/ids.txt" "$M/MUTANTS.txt=mutations/MUTANTS.txt" "$M/kill_sites.txt=mutations/kill_sites.txt" "$S/records/assemble_combined.sh=assemble_combined.sh.txt")
+for f in $(ls $M/logs); do args+=("$M/logs/$f=mutations/logs/$f"); done
+python3 -B $S/records/sanitize_copy.py $W $S $O "${args[@]}"

@@ -1,0 +1,799 @@
+{
+ "manifests": {
+  "core/gui/viewport_editor/Cargo.toml": {
+   "base_log": "000_core_gui_viewport_editor_Cargo.toml.log",
+   "base": {
+    "ok": 6,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 6,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/library_import/library_import_document/Cargo.toml": {
+   "base_log": "001_core_library_import_library_import_document_Cargo.toml.log",
+   "base": {
+    "ok": 19,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 19,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/loads/load_case_algebra/Cargo.toml": {
+   "base_log": "002_core_loads_load_case_algebra_Cargo.toml.log",
+   "base": {
+    "ok": 21,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 21,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/loads/primitive_loads/Cargo.toml": {
+   "base_log": "003_core_loads_primitive_loads_Cargo.toml.log",
+   "base": {
+    "ok": 49,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 49,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/loads/self_weight_wasm/Cargo.toml": {
+   "base_log": "004_core_loads_self_weight_wasm_Cargo.toml.log",
+   "base": {
+    "ok": 14,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 14,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/loads/stress_recovery/Cargo.toml": {
+   "base_log": "005_core_loads_stress_recovery_Cargo.toml.log",
+   "base": {
+    "ok": 48,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 48,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/loads/user_loads/Cargo.toml": {
+   "base_log": "006_core_loads_user_loads_Cargo.toml.log",
+   "base": {
+    "ok": 28,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 28,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/model_operations/operation_applier/Cargo.toml": {
+   "base_log": "007_core_model_operations_operation_applier_Cargo.toml.log",
+   "base": {
+    "ok": 194,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 194,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/product_physics/Cargo.toml": {
+   "base_log": "008_core_product_physics_Cargo.toml.log",
+   "base": {
+    "ok": 525,
+    "FAILED": 1,
+    "ignored": 1
+   },
+   "k1": {
+    "ok": 525,
+    "FAILED": 1,
+    "ignored": 1
+   }
+  },
+  "core/reporting/audit_manifest/Cargo.toml": {
+   "base_log": "009_core_reporting_audit_manifest_Cargo.toml.log",
+   "base": {
+    "ok": 13,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 13,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/reporting/pdf_emitter/Cargo.toml": {
+   "base_log": "010_core_reporting_pdf_emitter_Cargo.toml.log",
+   "base": {
+    "ok": 8,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 8,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/reporting/protected_content_linter/Cargo.toml": {
+   "base_log": "011_core_reporting_protected_content_linter_Cargo.toml.log",
+   "base": {
+    "ok": 23,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 23,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/reporting/report_generator/Cargo.toml": {
+   "base_log": "012_core_reporting_report_generator_Cargo.toml.log",
+   "base": {
+    "ok": 10,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 10,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/reporting/report_package/Cargo.toml": {
+   "base_log": "013_core_reporting_report_package_Cargo.toml.log",
+   "base": {
+    "ok": 20,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 20,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/reporting/report_renderer/Cargo.toml": {
+   "base_log": "014_core_reporting_report_renderer_Cargo.toml.log",
+   "base": {
+    "ok": 8,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 8,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/reporting/report_sections/Cargo.toml": {
+   "base_log": "015_core_reporting_report_sections_Cargo.toml.log",
+   "base": {
+    "ok": 13,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 13,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/reporting/result_export/Cargo.toml": {
+   "base_log": "016_core_reporting_result_export_Cargo.toml.log",
+   "base": {
+    "ok": 91,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 91,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/rules/completeness_checker/Cargo.toml": {
+   "base_log": "017_core_rules_completeness_checker_Cargo.toml.log",
+   "base": {
+    "ok": 12,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 12,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/rules/expression_evaluator/Cargo.toml": {
+   "base_log": "018_core_rules_expression_evaluator_Cargo.toml.log",
+   "base": {
+    "ok": 32,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 32,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/rules/rule_check_runner/Cargo.toml": {
+   "base_log": "019_core_rules_rule_check_runner_Cargo.toml.log",
+   "base": {
+    "ok": 21,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 21,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/rules/rule_pack_document/Cargo.toml": {
+   "base_log": "020_core_rules_rule_pack_document_Cargo.toml.log",
+   "base": {
+    "ok": 10,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 10,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/rules/rule_pack_lifecycle/Cargo.toml": {
+   "base_log": "021_core_rules_rule_pack_lifecycle_Cargo.toml.log",
+   "base": {
+    "ok": 12,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 12,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/runner/headless/Cargo.toml": {
+   "base_log": "022_core_runner_headless_Cargo.toml.log",
+   "base": {
+    "ok": 82,
+    "FAILED": 2,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 82,
+    "FAILED": 2,
+    "ignored": 0
+   }
+  },
+  "core/serialization/canonical_json/Cargo.toml": {
+   "base_log": "023_core_serialization_canonical_json_Cargo.toml.log",
+   "base": {
+    "ok": 24,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 24,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/curved_bend/Cargo.toml": {
+   "base_log": "024_core_solver_curved_bend_Cargo.toml.log",
+   "base": {
+    "ok": 25,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 25,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/diagnostics/Cargo.toml": {
+   "base_log": "025_core_solver_diagnostics_Cargo.toml.log",
+   "base": {
+    "ok": 25,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 25,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/frame_kernel/Cargo.toml": {
+   "base_log": "026_core_solver_frame_kernel_Cargo.toml.log",
+   "base": {
+    "ok": 162,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 179,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/linear_supports/Cargo.toml": {
+   "base_log": "027_core_solver_linear_supports_Cargo.toml.log",
+   "base": {
+    "ok": 15,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 15,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/nonlinear_integration/Cargo.toml": {
+   "base_log": "028_core_solver_nonlinear_integration_Cargo.toml.log",
+   "base": {
+    "ok": 89,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 101,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/nonlinear_supports/Cargo.toml": {
+   "base_log": "029_core_solver_nonlinear_supports_Cargo.toml.log",
+   "base": {
+    "ok": 22,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 22,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/performance_harness/Cargo.toml": {
+   "base_log": "030_core_solver_performance_harness_Cargo.toml.log",
+   "base": {
+    "ok": 25,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 25,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/sparse_direct/Cargo.toml": {
+   "base_log": "031_core_solver_sparse_direct_Cargo.toml.log",
+   "base": {
+    "ok": 25,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 30,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/solver/straight_pipe/Cargo.toml": {
+   "base_log": "032_core_solver_straight_pipe_Cargo.toml.log",
+   "base": {
+    "ok": 42,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 42,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "core/units/Cargo.toml": {
+   "base_log": "033_core_units_Cargo.toml.log",
+   "base": {
+    "ok": 17,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 17,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "validation/benchmarks/mechanics/Cargo.toml": {
+   "base_log": "034_validation_benchmarks_mechanics_Cargo.toml.log",
+   "base": {
+    "ok": 41,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 41,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "validation/benchmarks/nonlinear/Cargo.toml": {
+   "base_log": "035_validation_benchmarks_nonlinear_Cargo.toml.log",
+   "base": {
+    "ok": 19,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 19,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "validation/benchmarks/numerical_integrity/Cargo.toml": {
+   "base_log": "036_validation_benchmarks_numerical_integrity_Cargo.toml.log",
+   "base": {
+    "ok": 0,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 0,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "validation/benchmarks/physics_audit_regression/Cargo.toml": {
+   "base_log": "037_validation_benchmarks_physics_audit_regression_Cargo.toml.log",
+   "base": {
+    "ok": 15,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 15,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  },
+  "validation/benchmarks/stress/Cargo.toml": {
+   "base_log": "038_validation_benchmarks_stress_Cargo.toml.log",
+   "base": {
+    "ok": 23,
+    "FAILED": 0,
+    "ignored": 0
+   },
+   "k1": {
+    "ok": 23,
+    "FAILED": 0,
+    "ignored": 0
+   }
+  }
+ },
+ "changed": [],
+ "removed": [],
+ "added": [
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "tests/k1_k2a_interaction.rs::k1_k2a_interaction",
+   "k1_k2a_reach_zero_and_reach_lef_are_refused_with_the_same_named_error",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "tests/k1_k2a_interaction.rs::k1_k2a_interaction",
+   "k1_k2a_rf_range_members_form_or_refuse_identically_in_both_representations",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "tests/k1_k2a_interaction.rs::k1_k2a_interaction",
+   "k1_k2a_the_first_failing_element_is_the_same_in_both_representations",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_assembly_refusals_match_the_dense_assembly",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_coalesced_values_are_bit_identical_to_the_dense_assembly",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_gate_stages_are_byte_identical_for_a_fixed_order",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_matrix_references_have_the_same_outcome_class_in_both_representations",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_multiply_reactions_and_reduction_match_the_dense_forms",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_pattern_is_a_function_of_the_positions_only",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/frame_kernel/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_frame_kernel",
+   "structural::sparse::tests::krev05_on_sparse_completion_requires_positive_source_bound_factor",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_c3_detect_solve_is_identical_in_both_representations",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_kd5_parity_cases_demote_identically_in_both_representations",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_n_references_have_the_same_outcome_class_and_values_in_both_modes",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_nonlinear_loop_reaches_neither_formation_entry",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_pattern_entries_are_byte_identical_to_todays_entries_in_both_modes",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_relabelled_model_gives_the_same_answers",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_sparse_evidence_is_the_dense_evidence_on_the_pattern",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::k1_t0r_reactions_from_sparse_rows_match_the_references",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/nonlinear_integration/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_nonlinear_integration",
+   "structural_adapter::k1_tests::krev01_on_sparse_geometry_witnesses_are_unchanged",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/sparse_direct/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_sparse_direct",
+   "structural::k1_tests::k1_adjacency_order_and_profile_equal_the_dense_derived_path",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/sparse_direct/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_sparse_direct",
+   "structural::k1_tests::k1_explicit_zero_by_cancellation_takes_no_part_in_the_order",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/sparse_direct/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_sparse_direct",
+   "structural::k1_tests::k1_krev02_through_the_pattern_path",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/sparse_direct/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_sparse_direct",
+   "structural::k1_tests::k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path",
+   null,
+   "ok"
+  ],
+  [
+   "core/solver/sparse_direct/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_sparse_direct",
+   "structural::k1_tests::k1_storage_counts_of_the_rf_large_chain_and_tree",
+   null,
+   "ok"
+  ]
+ ],
+ "k1_failures": [
+  [
+   "core/product_physics/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_product_physics",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+   "FAILED",
+   "FAILED"
+  ],
+  [
+   "core/runner/headless/Cargo.toml",
+   "tests/load_reference_cli.rs::load_reference_cli",
+   "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+   "FAILED",
+   "FAILED"
+  ],
+  [
+   "core/runner/headless/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_headless_runner",
+   "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes",
+   "FAILED",
+   "FAILED"
+  ]
+ ],
+ "base_failures": [
+  [
+   "core/product_physics/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_product_physics",
+   "s11g_tests::t13_committed_fallback_uz_is_byte_identical",
+   "FAILED",
+   "FAILED"
+  ],
+  [
+   "core/runner/headless/Cargo.toml",
+   "tests/load_reference_cli.rs::load_reference_cli",
+   "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+   "FAILED",
+   "FAILED"
+  ],
+  [
+   "core/runner/headless/Cargo.toml",
+   "unittests src/lib.rs::open_pipe_stress_headless_runner",
+   "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes",
+   "FAILED",
+   "FAILED"
+  ]
+ ]
+}

@@ -1,0 +1,9 @@
+#!/bin/bash
+# Dispatch one mutant id to its patch script: RV8-* -> rv8_mutants.py (RV8's, unchanged);
+# K1-K2A-* -> mutate_k2a.py; everything else -> mutate_k1.py (checkpoint C's).
+X=$1; CORE=$2; m=$3
+case $m in
+  RV8-*) python3 -B $X/rv8_mutants.py $CORE $m ;;
+  K1-K2A-*) python3 -B $X/mutate_k2a.py $CORE $m ;;
+  *) python3 -B $X/mutate_k1.py $CORE $m ;;
+esac
