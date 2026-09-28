@@ -1,0 +1,12 @@
+RV13 GEN-8 runs, from <wt>/numerics at HEAD a8895ee8457037371136de49575f8927da597814 (the candidate; working tree = candidate plus untracked files).
+
+Run 1 (before this review's files existed; untracked: the RV13 brief only):
+$ <VENV>/bin/python -m pytest tools/practitioner_harness/test_live_baseline.py -k gen8 -q
+1 passed, 10 deselected in 31.08s
+
+Run 2 (with RECORDS_PR1042_REVIEW.md and _run_records/records_pr1042/ present, untracked):
+$ PYTHONDONTWRITEBYTECODE=1 <VENV>/bin/python -m pytest tools/practitioner_harness/test_live_baseline.py -k gen8 -p no:cacheprovider -q
+1 passed, 10 deselected in 31.58s
+
+git status --porcelain identical before and after run 2: yes
+Python: Python 3.13.14

@@ -1,0 +1,102 @@
+candidate a8895ee8457037371136de49575f8927da597814
+base e7d930d493bf5b2fad00284727974cb3a22d0caa; merge-base e7d930d493bf5b2fad00284727974cb3a22d0caa
+changed paths: 331 (A 320, M 11, other 0)
+
+== 1. scope
+paths outside projects/chirality-piping/execution/: 0
+by extension: {'log': 118, 'txt': 90, 'json': 30, 'py.txt': 27, 'md': 21, 'sh.txt': 18, 'SHA256SUMS': 11, 'rs.txt': 8, 'patch.txt': 3, 'stdout.txt': 3, 'toml.txt': 1, 'inc.txt': 1}
+
+== 2. machine paths and model identifiers
+files with a machine-path pattern hit (full content): 2
+    T3/REVIEW/_run_records/m03_skew_pin_review/build_records.py.txt:18
+    T3/REVIEW/_run_records/m03_skew_pin_review/checks/records_hygiene.txt:9
+    T3/REVIEW/_run_records/m03_skew_pin_review/checks/records_hygiene.txt:10
+files with a model-identifier hit (full content): 0
+added lines: 88372; root-anchored system-tool strings: {'/usr/bin/grep`).': 1, '/usr/bin/grep': 23, '/usr/bin/grep`)': 2}
+
+== 3. SHA256SUMS
+T3/IMPLEMENTATION/K1_MERGE: 10 listed, 10 tracked, 10 verify; OK
+T3/IMPLEMENTATION/K2A_MERGE: 4 listed, 4 tracked, 4 verify; OK
+T3/IMPLEMENTATION/K2B_MERGE: 13 listed, 13 tracked, 13 verify; OK
+T3/IMPLEMENTATION/K3_MERGE: 14 listed, 14 tracked, 14 verify; OK
+T3/IMPLEMENTATION/M03_SKEW_PIN_MERGE: 12 listed, 12 tracked, 12 verify; OK
+T3/PLATFORM_CALIBRATION_MAC: 22 listed, 22 tracked, 22 verify; OK
+T3/REVIEW/_run_records/k2b_review: 105 listed, 105 tracked, 105 verify; OK
+T3/REVIEW/_run_records/k3_review: 108 listed, 108 tracked, 108 verify; OK
+T3/REVIEW/_run_records/k3_review/delta_2511f5a3c: 27 listed, 27 tracked, 27 verify; OK
+T3/REVIEW/_run_records/m03_skew_pin_review: 47 listed, 47 tracked, 47 verify; OK
+T3/REVIEW/_run_records/records_pr1035: 4 listed, 4 tracked, 4 verify; OK
+changed files in folders without a SHA256SUMS:
+    T3/: 4
+    T3/REVIEW/: 4
+    T3/TASK_BRIEFS/: 6
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/: 1
+ALL SUMS OK
+
+== 4. in-place edits, commit by commit (first parent after 5a2b9d112)
+a2c3421d29 T3: RV9's records review (PASS at 59660791a); its fixes; skew-pin and K2b brief
+    T3/HANDOFF_2026-09-28_TO_LOCAL.md old 82-82 -> new 82-82: insert-only
+a2c3421d29 T3: RV9's records review (PASS at 59660791a); its fixes; skew-pin and K2b brief
+    T3/IMPLEMENTATION/K2A_MERGE/RECORD.md old 54-54 -> new 54-54: insert-only
+a2c3421d29 T3: RV9's records review (PASS at 59660791a); its fixes; skew-pin and K2b brief
+    T3/OPERATING_NOTES_FOR_LOCAL_ROOT.md old 64-64 -> new 64-64: insert-only
+a2c3421d29 T3: RV9's records review (PASS at 59660791a); its fixes; skew-pin and K2b brief
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md old 35-35 -> new 35-35: OLD TEXT CHANGED
+a2c3421d29 T3: RV9's records review (PASS at 59660791a); its fixes; skew-pin and K2b brief
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md old 62-62 -> new 62-62: OLD TEXT CHANGED
+a95adb5403 T3: ROOT's rulings on I10's K2b checkpoint-A stop (spring-carried stays refused
+    T3/ROOT_RULINGS_V1.md old 924-924 -> new 924-924: insert-only
+a95adb5403 T3: ROOT's rulings on I10's K2b checkpoint-A stop (spring-carried stays refused
+    T3/ROOT_RULINGS_V1.md old 957-957 -> new 957-957: insert-only
+bea34e7f01 T3: RV10's skew M03 pin review, delta check at 5dd6dfdd8 (PASS); a disclosure a
+    T3/REVIEW/M03_SKEW_PIN_REVIEW.md old 3-3 -> new 3-3: insert-only
+3b4ba23d00 T3: the skew M03 pin merge record (PR #1038, e8b416e43), with DEC-025 evidence;
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md old 35-35 -> new 35-35: OLD TEXT CHANGED
+3b4ba23d00 T3: the skew M03 pin merge record (PR #1038, e8b416e43), with DEC-025 evidence;
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md old 62-62 -> new 62-62: OLD TEXT CHANGED
+ffc9ea2756 T3: ROOT reverses the K3 Q7 test-profile ruling (its premise was false for powi
+    T3/ROOT_RULINGS_V1.md old 1050-1050 -> new 1050-1052: insert-only
+4ec82a9b37 T3: ROOT rulings on RV11's K2b review (FAIL: RV11-1 reactions at scale; fixes, 
+    T3/ROOT_RULINGS_V1.md old 1084-1084 -> new 1084-1084: insert-only
+053e9f7bea T3: K3 merge record (PR #1041, 57617b0fb), with DEC-025 evidence and a quiet-ho
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md old 62-62 -> new 62-62: OLD TEXT CHANGED
+1f9ee11ba1 T3: K2b merge record (PR #1040, e7d930d49), with DEC-025 evidence on the final 
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md old 62-62 -> new 62-62: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 150-150 -> new 150-150: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 164-164 -> new 164-164: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 166-166 -> new 166-166: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 168-169 -> new 168-169: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 236-236 -> new 236-236: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 258-259 -> new 258-259: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 268-268 -> new 268-268: OLD TEXT CHANGED
+ca5a489d3e T3: K4 brief brought to its spawn state (base e7d930d49; write-set statuses as 
+    T3/TASK_BRIEFS/I12_K4_IMPLEMENTATION.md old 275-275 -> new 275-275: OLD TEXT CHANGED
+a8895ee845 T3 work graph: K3 and K2b merged; K4 in implementation
+    projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md old 35-35 -> new 35-35: insert-only
+
+== 5. suites (passed counts that differ)
+K1 combined (eb52114e9 tree): 39 manifests; failing: {'core/product_physics/Cargo.toml': 1, 'core/runner/headless/Cargo.toml': 2}
+M03 1d105d633: 39 manifests; failing: {'core/product_physics/Cargo.toml': 1, 'core/runner/headless/Cargo.toml': 2}
+K3 b7e93650e: 39 manifests; failing: {'core/product_physics/Cargo.toml': 1, 'core/runner/headless/Cargo.toml': 2}
+K2b 33e33c723: 39 manifests; failing: {'core/product_physics/Cargo.toml': 1, 'core/runner/headless/Cargo.toml': 2}
+K1 combined (eb52114e9 tree) -> M03 1d105d633: {'core/solver/nonlinear_integration/Cargo.toml': ((0, 101, 0, 0), (0, 102, 0, 0)), 'core/solver/frame_kernel/Cargo.toml': ((0, 179, 0, 0), (0, 184, 0, 0))}
+M03 1d105d633 -> K3 b7e93650e: {'core/solver/frame_kernel/Cargo.toml': ((0, 184, 0, 0), (0, 227, 0, 0))}
+K3 b7e93650e -> K2b 33e33c723: {'core/solver/nonlinear_integration/Cargo.toml': ((0, 102, 0, 0), (0, 120, 0, 0)), 'core/solver/frame_kernel/Cargo.toml': ((0, 227, 0, 0), (0, 249, 0, 0))}
+
+== 6. T9 hash lists against the Mac calibration's native main list
+IMPLEMENTATION/M03_SKEW_PIN/_run_records/t9/output_sha256_base.txt: 112 outputs, 112 of 112 equal to calibration
+IMPLEMENTATION/M03_SKEW_PIN/_run_records/t9/output_sha256_cand.txt: 112 outputs, 112 of 112 equal to calibration
+IMPLEMENTATION/K3/_run_records/checkpoint_b/t9/output_sha256_base.txt: 112 outputs, 112 of 112 equal to calibration
+IMPLEMENTATION/K3/_run_records/checkpoint_b/t9/output_sha256_cand.txt: 112 outputs, 112 of 112 equal to calibration
+IMPLEMENTATION/K2B/_run_records/checkpoint_b/t9/output_sha256_base.txt: 112 outputs, 112 of 112 equal to calibration
+IMPLEMENTATION/K2B/_run_records/checkpoint_b/t9/output_sha256_cand.txt: 112 outputs, 112 of 112 equal to calibration
+IMPLEMENTATION/K2B/_run_records/rv11_fixes/t9/output_sha256_base.txt: 112 outputs, 112 of 112 equal to calibration
+IMPLEMENTATION/K2B/_run_records/rv11_fixes/t9/output_sha256_cand.txt: 112 outputs, 112 of 112 equal to calibration
+REVIEW/_run_records/k3_review/t9/output_sha256_head.txt: 112 outputs, 112 of 112 equal to calibration
