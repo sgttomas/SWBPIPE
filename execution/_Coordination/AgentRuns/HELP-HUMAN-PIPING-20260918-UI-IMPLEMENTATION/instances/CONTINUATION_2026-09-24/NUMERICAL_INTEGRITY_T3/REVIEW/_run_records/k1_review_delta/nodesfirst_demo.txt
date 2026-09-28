@@ -1,0 +1,10 @@
+RV8-K2A-NODESFIRST, demonstrated (invented model): element 0 is K2a's reach_zero member (L = 2^-39 m,
+OD 1e-11 m, wall 1e-12 m, E 6.4e-280 Pa, G 1e-100 Pa), refused at formation; element 1 (OD 0.2 m, wall 0.01 m,
+E 200 GPa, G 80 GPa) names node 2 of a 2-node model. Program: nodesfirst_main.rs.txt, built against FK of the
+combined head (unmutated) and of the same tree with RV8-K2A-NODESFIRST applied.
+--- unmutated b6f1724b4:
+dense : Some(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })
+sparse: Some(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })
+--- RV8-K2A-NODESFIRST:
+dense : Some(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })
+sparse: Some(InvalidNodeIndex { node_index: 2, node_count: 2 })

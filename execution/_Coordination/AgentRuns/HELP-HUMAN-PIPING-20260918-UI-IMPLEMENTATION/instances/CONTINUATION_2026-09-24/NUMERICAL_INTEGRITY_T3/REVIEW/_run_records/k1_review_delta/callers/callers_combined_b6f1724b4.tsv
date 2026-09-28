@@ -1,0 +1,642 @@
+core/product_physics/src/lib.rs:60	non-test	use	AssemblyEvidence	[-]	AssemblyEvidence, StrictGapEvidence,
+core/product_physics/src/lib.rs:4418	non-test	use	AssemblyEvidence	[solve_preview_reduced_system]	let assembly = AssemblyEvidence::new(
+core/product_physics/src/lib.rs:4441	non-test	use	solve_assembled_with_formation_check	[solve_preview_reduced_system]	let checked = assembly.solve_assembled_with_formation_check(
+core/product_physics/src/s11f_tests.rs:808	test	use	solve_structural_dense_with_force_terms	[c3_detect_flags]	solve_structural_dense_with_force_terms, StructuralSystem,
+core/product_physics/src/s11f_tests.rs:843	test	use	solve_structural_dense_with_force_terms	[c3_detect_flags]	let solution = solve_structural_dense_with_force_terms(&system, &terms).unwrap();
+core/product_physics/src/source_recovery.rs:9	non-test	use	AssemblyEvidence	[-]	parse_load_dimension, support_stiffness_input, AssemblyEvidence, BuiltModel, LoadDimension,
+core/product_physics/src/source_recovery.rs:320	non-test	use	AssemblyEvidence	[-]	assembly: AssemblyEvidence,
+core/product_physics/src/source_recovery.rs:879	non-test	use	AssemblyEvidence	[prepare_sources]	let assembly = AssemblyEvidence::new(
+core/product_physics/tests/k2a_formation_range_runtime.rs:314	test	use	solve_formation_checked_structural_dense	[main_linear_route_at_kernel_level]	solve_formation_checked_structural_dense, transform_roundoff, FormationSource,
+core/product_physics/tests/k2a_formation_range_runtime.rs:368	test	use	solve_formation_checked_structural_dense	[main_linear_route_at_kernel_level]	solve_formation_checked_structural_dense(&system.with_formation_source(&source)).unwrap()
+core/solver/frame_kernel/src/rigid_body.rs:314	test	use	solve_structural_dense	[full_ground_rank_does_not_assert_internal_stiffness_rank]	assert!(crate::structural::solve_structural_dense(&s).is_err());
+core/solver/frame_kernel/src/structural.rs:1898	non-test	def	solve_structural_dense	[solve_structural_dense]	pub fn solve_structural_dense(
+core/solver/frame_kernel/src/structural.rs:2217	test	use	solve_structural_dense	[soft_diagonal_and_unit_congruence_are_not_mechanisms]	let result = solve_structural_dense(&system(&k, &f, &free, &[])).unwrap();
+core/solver/frame_kernel/src/structural.rs:2229	test	use	solve_structural_dense	[invalid_energy_zero_load_and_skew_are_not_solved]	solve_structural_dense(&system(&negative, &f, &free, &[])),
+core/solver/frame_kernel/src/structural.rs:2234	test	use	solve_structural_dense	[invalid_energy_zero_load_and_skew_are_not_solved]	solve_structural_dense(&system(&singular, &[0.0, 0.0], &free, &[])),
+core/solver/frame_kernel/src/structural.rs:2239	test	use	solve_structural_dense	[invalid_energy_zero_load_and_skew_are_not_solved]	solve_structural_dense(&system(&skew, &f, &free, &[])),
+core/solver/frame_kernel/src/structural.rs:2253	test	use	solve_structural_dense	[original_residual_kills_wrong_solution_wrong_matrix_and_missing_load]	let wrong_result = solve_structural_dense(&system(&wrong_k, &f, &free, &[])).unwrap();
+core/solver/frame_kernel/src/structural.rs:2270	test	use	solve_structural_dense	[prescribed_and_constrained_load_semantics]	let solved = solve_structural_dense(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2275	test	use	solve_structural_dense	[prescribed_and_constrained_load_semantics]	let fixed = solve_structural_dense(&system(&k, &f, &[], &all)).unwrap();
+core/solver/frame_kernel/src/structural.rs:2277	test	use	solve_structural_dense	[prescribed_and_constrained_load_semantics]	assert!(solve_structural_dense(&system(&k, &f, &[1], &[(0, 0.0)])).is_err());
+core/solver/frame_kernel/src/structural.rs:2306	test	use	solve_structural_dense	[np_b_banded_family_does_not_require_comparison_inverse_certificate]	let result = solve_structural_dense(&system(&k, &f, &free, &[])).unwrap();
+core/solver/frame_kernel/src/structural.rs:2350	test	use	solve_structural_dense	[lost_stabilizer_retains_unresolved_instead_of_physical_mechanism]	solve_structural_dense(&s),
+core/solver/frame_kernel/src/structural.rs:2358	test	use	solve_structural_dense	[generic_nonsymmetric_api_is_preserved]	assert!(solve_structural_dense(&system(&k, &[3.0, 1.0], &[0, 1], &[])).is_err());
+core/solver/frame_kernel/src/structural.rs:2363	test	use	solve_structural_dense	[nonfinite_and_unrepresentable_range_block]	assert!(solve_structural_dense(&system(&k, &[1.0], &[0], &[])).is_err());
+core/solver/frame_kernel/src/structural.rs:2365	test	use	solve_structural_dense	[nonfinite_and_unrepresentable_range_block]	assert!(solve_structural_dense(&system(&k, &[1e300], &[0], &[])).is_err());
+core/solver/frame_kernel/src/structural.rs:2423	test	use	solve_structural_dense	[krev02_prescribed_contribution_error_is_not_zero_fidelity]	let result = solve_structural_dense(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2429	test	use	solve_structural_dense	[krev02_prescribed_contribution_error_is_not_zero_fidelity]	assert!(solve_structural_dense(&s).is_err());
+core/solver/frame_kernel/src/structural.rs:1905	non-test	def	solve_structural_dense_binary64	[solve_structural_dense_binary64]	pub fn solve_structural_dense_binary64(
+core/solver/frame_kernel/src/structural.rs:1925	non-test	def	solve_structural_dense_with_force_terms	[solve_structural_dense_with_force_terms]	pub fn solve_structural_dense_with_force_terms(
+core/solver/frame_kernel/src/structural.rs:1918	non-test	def	solve_assembled_structural_dense	[solve_assembled_structural_dense]	pub fn solve_assembled_structural_dense(
+core/solver/frame_kernel/src/structural.rs:1912	non-test	def	solve_formation_checked_structural_dense	[solve_formation_checked_structural_dense]	pub fn solve_formation_checked_structural_dense(
+core/solver/frame_kernel/src/structural.rs:1936	non-test	use	negative_pair_witness	[solve_prepared_dense]	Err(error) => return Err(negative_pair_witness(&prepared)?.unwrap_or(error)),
+core/solver/frame_kernel/src/structural.rs:2166	non-test	def	negative_pair_witness	[negative_pair_witness]	pub fn negative_pair_witness(
+core/solver/frame_kernel/src/structural.rs:2492	test	use	negative_pair_witness	[krev04_witness_helpers_reject_internally_corrupted_shape_without_panic]	std::panic::catch_unwind(|| negative_pair_witness(&prepared))
+core/solver/frame_kernel/src/structural.rs:2507	test	use	negative_pair_witness	[krev04_witness_helpers_reject_internally_corrupted_shape_without_panic]	std::panic::catch_unwind(|| negative_pair_witness(&prepared))
+core/solver/frame_kernel/src/structural.rs:2123	non-test	def	verify_negative_direction	[verify_negative_direction]	pub fn verify_negative_direction(
+core/solver/frame_kernel/src/structural.rs:2180	non-test	use	verify_negative_direction	[negative_pair_witness]	if let Some(witness) = verify_negative_direction(prepared, &v)? {
+core/solver/frame_kernel/src/structural.rs:2487	test	use	verify_negative_direction	[krev04_witness_helpers_reject_internally_corrupted_shape_without_panic]	std::panic::catch_unwind(|| verify_negative_direction(&prepared, &[1.0, -1.0]))
+core/solver/frame_kernel/src/structural.rs:2499	test	use	verify_negative_direction	[krev04_witness_helpers_reject_internally_corrupted_shape_without_panic]	std::panic::catch_unwind(|| verify_negative_direction(&prepared, &[1.0, -1.0]))
+core/solver/frame_kernel/src/structural.rs:1635	non-test	def	finish_checked_factor	[finish_checked_factor]	fn finish_checked_factor<R, P, F>(
+core/solver/frame_kernel/src/structural.rs:1890	non-test	use	finish_checked_factor	[finish_structural]	finish_checked_factor(
+core/solver/frame_kernel/src/structural.rs:1387	non-test	use	evaluate_original_residual_bound	[evaluate_original_residual]	evaluate_original_residual_bound(system, ForceBinding::Binary64, u)
+core/solver/frame_kernel/src/structural.rs:1394	non-test	use	evaluate_original_residual_bound	[evaluate_assembled_original_residual]	evaluate_original_residual_bound(&system.system, ForceBinding::Assembled(system.force), u)
+core/solver/frame_kernel/src/structural.rs:1396	non-test	def	evaluate_original_residual_bound	[evaluate_original_residual_bound]	fn evaluate_original_residual_bound<R: Represented + ?Sized>(
+core/solver/frame_kernel/src/structural.rs:1678	non-test	use	evaluate_original_residual_bound	[finish_checked_factor]	let residual = evaluate_original_residual_bound(equations, force_binding, &u)?;
+core/solver/frame_kernel/src/structural.rs:886	non-test	def	audit_intended_action	[audit_intended_action]	fn audit_intended_action<R: Represented + ?Sized>(
+core/solver/frame_kernel/src/structural.rs:1684	non-test	use	audit_intended_action	[finish_checked_factor]	let intended = audit_intended_action(equations, &u)?;
+core/solver/frame_kernel/src/structural.rs:2430	test	use	audit_intended_action	[krev02_prescribed_contribution_error_is_not_zero_fidelity]	assert!(!audit_intended_action(&s, &[1.0, 0.5]).unwrap()[0].passed);
+core/solver/frame_kernel/src/structural.rs:1027	non-test	use	audit_load_row	[audit_load_fidelity]	let row = match audit_load_row(system.view(), &parts, &restrained, i, terms) {
+core/solver/frame_kernel/src/structural.rs:1083	non-test	def	audit_load_row	[audit_load_row]	fn audit_load_row(
+core/solver/frame_kernel/src/structural.rs:1035	non-test	use	unaudited_row	[audit_load_fidelity]	Some(unaudited_row(system.view(), &restrained, i, terms, reason))
+core/solver/frame_kernel/src/structural.rs:1054	non-test	def	unaudited_row	[unaudited_row]	fn unaudited_row(
+core/solver/frame_kernel/src/structural.rs:1203	non-test	def	exact_scaled_rhs	[exact_scaled_rhs]	fn exact_scaled_rhs(
+core/solver/frame_kernel/src/structural.rs:1269	non-test	use	exact_scaled_rhs	[prepare_bound]	rhs[r] = exact_scaled_rhs(
+core/solver/frame_kernel/src/structural.rs:489	non-test	use	estimate_rcond	[gate_rcond]	estimate_rcond(&self.matrix, solve)
+core/solver/frame_kernel/src/structural.rs:1521	non-test	def	estimate_rcond	[estimate_rcond]	pub fn estimate_rcond<F>(a: &[Vec<f64>], solve: &F) -> Result<f64, StructuralError>
+core/solver/frame_kernel/src/structural.rs:1525	non-test	use	estimate_rcond	[estimate_rcond]	ConditionMatrix::estimate_rcond(a, solve)
+core/solver/frame_kernel/src/structural.rs:1537	non-test	def	estimate_rcond	[estimate_rcond]	fn estimate_rcond<F>(&self, solve: &F) -> Result<f64, StructuralError>
+core/solver/frame_kernel/src/structural.rs:2388	test	use	estimate_rcond	[public_factor_dimensions_are_errors_not_panics]	assert!(estimate_rcond(&[vec![1.0]], &|_| Ok(vec![])).is_err());
+core/solver/frame_kernel/src/structural.rs:1962	non-test	def	factor_structural_profile	[factor_structural_profile]	fn factor_structural_profile(
+core/solver/frame_kernel/src/structural.rs:2027	non-test	def	factor_structural_profile	[factor_structural_profile]	pub fn factor_structural_profile<'p, 's>(
+core/solver/frame_kernel/src/structural.rs:2067	non-test	use	factor_structural_profile	[factor_structural_profile]	let (factor, pivots) = factor.factor_structural_profile(prepared.source.free_dofs)?;
+core/solver/frame_kernel/src/structural.rs:2520	test	use	factor_structural_profile	[krev05_completion_requires_positive_source_bound_factor]	assert!(factor_structural_profile(&prepared, &[0, 1], &[0, 0]).is_err());
+core/solver/frame_kernel/src/structural.rs:2529	test	use	factor_structural_profile	[krev05_completion_requires_positive_source_bound_factor]	assert!(factor_structural_profile(&prepared, &[0, 0], &[0, 0]).is_err());
+core/solver/frame_kernel/src/structural.rs:2530	test	use	factor_structural_profile	[krev05_completion_requires_positive_source_bound_factor]	assert!(factor_structural_profile(&prepared, &[0, 1], &[0, 1]).is_err());
+core/solver/frame_kernel/src/structural.rs:446	non-test	use	audit_load_fidelity	[load_fidelity]	audit_load_fidelity(self, u, terms)
+core/solver/frame_kernel/src/structural.rs:985	non-test	def	audit_load_fidelity	[audit_load_fidelity]	pub fn audit_load_fidelity(
+core/solver/frame_kernel/src/structural.rs:1883	non-test	def	finish_structural	[finish_structural]	pub fn finish_structural(
+core/solver/frame_kernel/src/structural.rs:1938	non-test	use	finish_structural	[solve_prepared_dense]	finish_structural(&factor)
+core/solver/frame_kernel/src/structural.rs:2526	test	use	finish_structural	[krev05_completion_requires_positive_source_bound_factor]	let result = finish_structural(&factor).unwrap();
+core/solver/frame_kernel/src/structural.rs:1157	non-test	def	prepare_structural	[prepare_structural]	pub fn prepare_structural<'s>(
+core/solver/frame_kernel/src/structural.rs:1901	non-test	use	prepare_structural	[solve_structural_dense]	solve_prepared_dense(prepare_structural(system)?)
+core/solver/frame_kernel/src/structural.rs:2384	test	use	prepare_structural	[public_factor_dimensions_are_errors_not_panics]	let mut prepared = prepare_structural(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2421	test	use	prepare_structural	[krev02_prescribed_contribution_error_is_not_zero_fidelity]	let prepared = prepare_structural(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2458	test	use	prepare_structural	[krev03_offdiagonal_expansion_retains_lost_low_tail]	let prepared = prepare_structural(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2484	test	use	prepare_structural	[krev04_witness_helpers_reject_internally_corrupted_shape_without_panic]	let mut prepared = prepare_structural(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2496	test	use	prepare_structural	[krev04_witness_helpers_reject_internally_corrupted_shape_without_panic]	let mut prepared = prepare_structural(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2503	test	use	prepare_structural	[krev04_witness_helpers_reject_internally_corrupted_shape_without_panic]	let mut prepared = prepare_structural(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2518	test	use	prepare_structural	[krev05_completion_requires_positive_source_bound_factor]	let prepared = prepare_structural(&s).unwrap();
+core/solver/frame_kernel/src/structural.rs:2524	test	use	prepare_structural	[krev05_completion_requires_positive_source_bound_factor]	let pp = prepare_structural(&ps).unwrap();
+core/solver/frame_kernel/src/structural.rs:1182	non-test	def	prepare_assembled_structural	[prepare_assembled_structural]	pub fn prepare_assembled_structural<'s>(
+core/solver/frame_kernel/src/structural.rs:1921	non-test	use	prepare_assembled_structural	[solve_assembled_structural_dense]	solve_prepared_dense(prepare_assembled_structural(system)?)
+core/solver/frame_kernel/src/structural.rs:1174	non-test	def	prepare_formation_checked_structural	[prepare_formation_checked_structural]	pub fn prepare_formation_checked_structural<'s>(
+core/solver/frame_kernel/src/structural.rs:1915	non-test	use	prepare_formation_checked_structural	[solve_formation_checked_structural_dense]	solve_prepared_dense(prepare_formation_checked_structural(system)?)
+core/solver/frame_kernel/src/structural.rs:1189	non-test	def	prepare_structural_with_force_terms	[prepare_structural_with_force_terms]	pub fn prepare_structural_with_force_terms<'s>(
+core/solver/frame_kernel/src/structural.rs:1929	non-test	use	prepare_structural_with_force_terms	[solve_structural_dense_with_force_terms]	solve_prepared_dense(prepare_structural_with_force_terms(system, force_terms)?)
+core/solver/frame_kernel/src/structural.rs:1166	non-test	def	prepare_structural_binary64	[prepare_structural_binary64]	pub fn prepare_structural_binary64<'s>(
+core/solver/frame_kernel/src/structural.rs:1908	non-test	use	prepare_structural_binary64	[solve_structural_dense_binary64]	solve_prepared_dense(prepare_structural_binary64(system)?)
+core/solver/frame_kernel/src/structural.rs:19	non-test	use	SparsePattern	[-]	SparsePattern, SparsePositiveFactor, SparsePreparedSystem, SparseReducedSystem,
+core/solver/frame_kernel/src/structural.rs:20	non-test	use	SparseStiffness	[-]	SparseStiffness, SparseStorageCounts, SparseStructuralSystem, SparseSymmetryEvidence,
+core/solver/frame_kernel/src/structural.rs:13	non-test	use	assemble_sparse_stiffness	[-]	assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
+core/solver/frame_kernel/src/structural.rs:18	non-test	use	SparseAssemblyOptions	[-]	AssembledSparseStructuralSystem, FormationCheckedSparseSystem, SparseAssemblyOptions,
+core/solver/frame_kernel/src/structural.rs:21	non-test	use	StiffnessBlock	[-]	StiffnessBlock,
+core/solver/frame_kernel/src/structural.rs:16	non-test	use	reduce_assembled_sparse_system	[-]	prepare_sparse_structural_with_force_terms, reduce_assembled_sparse_system,
+core/solver/frame_kernel/src/structural.rs:19	non-test	use	SparseReducedSystem	[-]	SparsePattern, SparsePositiveFactor, SparsePreparedSystem, SparseReducedSystem,
+core/solver/frame_kernel/src/structural.rs:20	non-test	use	SparseStructuralSystem	[-]	SparseStiffness, SparseStorageCounts, SparseStructuralSystem, SparseSymmetryEvidence,
+core/solver/frame_kernel/src/structural.rs:18	non-test	use	AssembledSparseStructuralSystem	[-]	AssembledSparseStructuralSystem, FormationCheckedSparseSystem, SparseAssemblyOptions,
+core/solver/frame_kernel/src/structural.rs:18	non-test	use	FormationCheckedSparseSystem	[-]	AssembledSparseStructuralSystem, FormationCheckedSparseSystem, SparseAssemblyOptions,
+core/solver/frame_kernel/src/structural.rs:20	non-test	use	SparseSymmetryEvidence	[-]	SparseStiffness, SparseStorageCounts, SparseStructuralSystem, SparseSymmetryEvidence,
+core/solver/frame_kernel/src/structural.rs:19	non-test	use	SparsePreparedSystem	[-]	SparsePattern, SparsePositiveFactor, SparsePreparedSystem, SparseReducedSystem,
+core/solver/frame_kernel/src/structural.rs:19	non-test	use	SparsePositiveFactor	[-]	SparsePattern, SparsePositiveFactor, SparsePreparedSystem, SparseReducedSystem,
+core/solver/frame_kernel/src/structural.rs:20	non-test	use	SparseStorageCounts	[-]	SparseStiffness, SparseStorageCounts, SparseStructuralSystem, SparseSymmetryEvidence,
+core/solver/frame_kernel/src/structural.rs:15	non-test	use	prepare_sparse_structural	[-]	prepare_formation_checked_sparse_structural, prepare_sparse_structural,
+core/solver/frame_kernel/src/structural.rs:14	non-test	use	prepare_assembled_sparse_structural	[-]	finish_sparse_structural, prepare_assembled_sparse_structural,
+core/solver/frame_kernel/src/structural.rs:15	non-test	use	prepare_formation_checked_sparse_structural	[-]	prepare_formation_checked_sparse_structural, prepare_sparse_structural,
+core/solver/frame_kernel/src/structural.rs:16	non-test	use	prepare_sparse_structural_with_force_terms	[-]	prepare_sparse_structural_with_force_terms, reduce_assembled_sparse_system,
+core/solver/frame_kernel/src/structural.rs:13	non-test	use	factor_sparse_structural_profile	[-]	assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
+core/solver/frame_kernel/src/structural.rs:14	non-test	use	finish_sparse_structural	[-]	finish_sparse_structural, prepare_assembled_sparse_structural,
+core/solver/frame_kernel/src/structural.rs:13	non-test	use	audit_sparse_load_fidelity	[-]	assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
+core/solver/frame_kernel/src/structural.rs:17	non-test	use	verify_sparse_negative_direction	[-]	sparse_negative_pair_witness, verify_sparse_negative_direction,
+core/solver/frame_kernel/src/structural.rs:17	non-test	use	sparse_negative_pair_witness	[-]	sparse_negative_pair_witness, verify_sparse_negative_direction,
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:4	test	use	solve_structural_dense	[-]	factor_structural_cholesky, prepare_formation_checked_structural, solve_structural_dense,
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:238	test	use	solve_structural_dense	[kd5_unavailable_family_and_wide_error_fail_closed_and_never_err]	let plain = solve_structural_dense(&system).unwrap();
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:335	test	use	solve_structural_dense	[kd5_curved_arctangent_domain_errors_fail_closed]	let plain = solve_structural_dense(&system()).unwrap();
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:240	test	use	solve_formation_checked_structural_dense	[kd5_unavailable_family_and_wide_error_fail_closed_and_never_err]	let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:338	test	use	solve_formation_checked_structural_dense	[kd5_curved_arctangent_domain_errors_fail_closed]	let result = super::super::solve_formation_checked_structural_dense(&checked).unwrap();
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:185	test	use	finish_structural	[kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force]	let solution = super::super::finish_structural(&factor).unwrap();
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:4	test	use	prepare_formation_checked_structural	[-]	factor_structural_cholesky, prepare_formation_checked_structural, solve_structural_dense,
+core/solver/frame_kernel/src/structural/formation_check_tests.rs:183	test	use	prepare_formation_checked_structural	[kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force]	let prepared = prepare_formation_checked_structural(&checked).unwrap();
+core/solver/frame_kernel/src/structural/s11f_tests.rs:77	test	use	solve_structural_dense_with_force_terms	[n5_audit_input_error_is_sensitive_never_an_error]	let solution = solve_structural_dense_with_force_terms(&system, &bad).expect("");
+core/solver/frame_kernel/src/structural/s11f_tests.rs:163	test	use	solve_structural_dense_with_force_terms	[audited_row_signature]	let solution = solve_structural_dense_with_force_terms(&system, &terms).unwrap();
+core/solver/frame_kernel/src/structural/s11f_tests.rs:28	test	use	solve_assembled_structural_dense	[n5_unauditable_ledger_row_is_sensitive_never_an_error]	let solution = solve_assembled_structural_dense(&system).expect("");
+core/solver/frame_kernel/src/structural/s11f_tests.rs:49	test	use	audit_load_fidelity	[n5_unauditable_ledger_row_is_sensitive_never_an_error]	let direct = audit_load_fidelity(system.system(), &[1e-300], force.terms()).unwrap();
+core/solver/frame_kernel/src/structural/s11f_tests.rs:74	test	use	audit_load_fidelity	[n5_audit_input_error_is_sensitive_never_an_error]	audit_load_fidelity(&system, &[0.5], &bad).is_err(),
+core/solver/frame_kernel/src/structural/s11k_tests.rs:208	test	use	solve_structural_dense	[k7_audit_flags_v1_check_l_and_passes_every_control]	let legacy = solve_structural_dense(&StructuralSystem {
+core/solver/frame_kernel/src/structural/s11k_tests.rs:256	test	use	solve_structural_dense	[k7_typed_route_report_is_byte_identical_to_legacy_when_forces_agree]	let legacy = solve_structural_dense(&StructuralSystem {
+core/solver/frame_kernel/src/structural/s11k_tests.rs:290	test	use	solve_structural_dense	[k7_zero_witness_at_the_intended_action_residual]	let solution = solve_structural_dense(&system).unwrap();
+core/solver/frame_kernel/src/structural/s11k_tests.rs:452	test	use	solve_structural_dense	[k11_dense_profile_and_typed_structural_paths_are_exact]	let dense = solve_structural_dense(&system).unwrap();
+core/solver/frame_kernel/src/structural/s11k_tests.rs:605	test	use	solve_structural_dense	[option_c_binary64_variants_keep_todays_fold_on_probe_p]	let dense = solve_structural_dense(&system).unwrap();
+core/solver/frame_kernel/src/structural/s11k_tests.rs:604	test	use	solve_structural_dense_binary64	[option_c_binary64_variants_keep_todays_fold_on_probe_p]	let solution = solve_structural_dense_binary64(&system).unwrap();
+core/solver/frame_kernel/src/structural/s11k_tests.rs:133	test	use	solve_structural_dense_with_force_terms	[c3_detect]	solve_structural_dense_with_force_terms(&system, terms).unwrap()
+core/solver/frame_kernel/src/structural/s11k_tests.rs:147	test	use	solve_assembled_structural_dense	[c3_full]	solve_assembled_structural_dense(&system).unwrap()
+core/solver/frame_kernel/src/structural/s11k_tests.rs:252	test	use	solve_assembled_structural_dense	[k7_typed_route_report_is_byte_identical_to_legacy_when_forces_agree]	let typed = solve_assembled_structural_dense(&StructuralSystem::assembled(
+core/solver/frame_kernel/src/structural/s11k_tests.rs:472	test	use	solve_assembled_structural_dense	[k11_dense_profile_and_typed_structural_paths_are_exact]	let typed = solve_assembled_structural_dense(&StructuralSystem::assembled(
+core/solver/frame_kernel/src/structural/s11k_tests.rs:503	test	use	finish_checked_factor	[k11_forced_refinement_step_stays_exact]	let solution = finish_checked_factor(
+core/solver/frame_kernel/src/structural/s11k_tests.rs:466	test	use	factor_structural_profile	[k11_dense_profile_and_typed_structural_paths_are_exact]	finish_structural(&factor_structural_profile(&prepared, &order, &first).unwrap())
+core/solver/frame_kernel/src/structural/s11k_tests.rs:466	test	use	finish_structural	[k11_dense_profile_and_typed_structural_paths_are_exact]	finish_structural(&factor_structural_profile(&prepared, &order, &first).unwrap())
+core/solver/frame_kernel/src/structural/s11k_tests.rs:454	test	use	prepare_structural	[k11_dense_profile_and_typed_structural_paths_are_exact]	let prepared = prepare_structural(&system).unwrap();
+core/solver/frame_kernel/src/structural/s11k_tests.rs:500	test	use	prepare_structural	[k11_forced_refinement_step_stays_exact]	let prepared = prepare_structural(&system).unwrap();
+core/solver/frame_kernel/src/structural/s11k_tests.rs:551	test	use	prepare_structural	[legacy_all_zero_prescribed_rows_keep_todays_zero_sign]	let prepared = prepare_structural(&system).unwrap();
+core/solver/frame_kernel/src/structural/s11k_tests.rs:593	test	use	prepare_structural_binary64	[option_c_binary64_variants_keep_todays_fold_on_probe_p]	let prepared = prepare_structural_binary64(&system).unwrap();
+core/solver/frame_kernel/src/structural/sparse.rs:1618	non-test	use	finish_checked_factor	[finish_sparse_structural]	finish_checked_factor(
+core/solver/frame_kernel/src/structural/sparse.rs:1671	non-test	use	audit_load_row	[audit_sparse_load_fidelity]	let row = match audit_load_row(system.view(), &parts, &restrained, i, terms) {
+core/solver/frame_kernel/src/structural/sparse.rs:1674	non-test	use	unaudited_row	[audit_sparse_load_fidelity]	Some(unaudited_row(system.view(), &restrained, i, terms, reason))
+core/solver/frame_kernel/src/structural/sparse.rs:1191	non-test	use	exact_scaled_rhs	[prepare_sparse_bound]	rhs[r] = exact_scaled_rhs(
+core/solver/frame_kernel/src/structural/sparse.rs:1506	non-test	use	estimate_rcond	[gate_rcond]	ConditionMatrix::estimate_rcond(self, solve)
+core/solver/frame_kernel/src/structural/sparse.rs:1605	non-test	use	factor_structural_profile	[factor_sparse_structural_profile]	let (factor, pivots) = factor.factor_structural_profile(prepared.source.free_dofs)?;
+core/solver/frame_kernel/src/structural/sparse.rs:48	non-test	def	SparsePattern	[-]	pub struct SparsePattern {
+core/solver/frame_kernel/src/structural/sparse.rs:55	non-test	def	SparsePattern	[-]	impl SparsePattern {
+core/solver/frame_kernel/src/structural/sparse.rs:219	non-test	use	SparsePattern	[-]	pattern: SparsePattern,
+core/solver/frame_kernel/src/structural/sparse.rs:228	non-test	use	SparsePattern	[from_pattern_and_contributions]	pattern: SparsePattern,
+core/solver/frame_kernel/src/structural/sparse.rs:248	non-test	use	SparsePattern	[from_contributions]	SparsePattern::from_positions(dimension, contributions.iter().map(|c| (c.row, c.col)))?;
+core/solver/frame_kernel/src/structural/sparse.rs:268	non-test	use	SparsePattern	[from_dense]	let pattern = SparsePattern::from_sorted_rows(n, rows);
+core/solver/frame_kernel/src/structural/sparse.rs:278	non-test	use	SparsePattern	[pattern]	pub fn pattern(&self) -> &SparsePattern {
+core/solver/frame_kernel/src/structural/sparse.rs:478	non-test	use	SparsePattern	[assemble_sparse_stiffness]	let pattern = SparsePattern::from_connectivity(node_count, &connectivity, &spring_dofs)
+core/solver/frame_kernel/src/structural/sparse.rs:515	non-test	use	SparsePattern	[scatter_block]	pattern: &SparsePattern,
+core/solver/frame_kernel/src/structural/sparse.rs:218	non-test	def	SparseStiffness	[-]	pub struct SparseStiffness {
+core/solver/frame_kernel/src/structural/sparse.rs:223	non-test	def	SparseStiffness	[-]	impl SparseStiffness {
+core/solver/frame_kernel/src/structural/sparse.rs:443	non-test	use	SparseStiffness	[assemble_sparse_stiffness]	) -> Result<SparseStiffness, FrameKernelError> {
+core/solver/frame_kernel/src/structural/sparse.rs:509	non-test	use	SparseStiffness	[assemble_sparse_stiffness]	Ok(SparseStiffness { pattern, values })
+core/solver/frame_kernel/src/structural/sparse.rs:561	non-test	use	SparseStiffness	[reduce_assembled_sparse_system]	stiffness: &SparseStiffness,
+core/solver/frame_kernel/src/structural/sparse.rs:691	non-test	use	SparseStiffness	[-]	stiffness: &'a SparseStiffness,
+core/solver/frame_kernel/src/structural/sparse.rs:705	non-test	use	SparseStiffness	[new]	stiffness: &'a SparseStiffness,
+core/solver/frame_kernel/src/structural/sparse.rs:735	non-test	use	SparseStiffness	[assembled]	stiffness: &'a SparseStiffness,
+core/solver/frame_kernel/src/structural/sparse.rs:765	non-test	use	SparseStiffness	[stiffness]	pub fn stiffness(&self) -> &'a SparseStiffness {
+core/solver/frame_kernel/src/structural/sparse.rs:436	non-test	def	assemble_sparse_stiffness	[assemble_sparse_stiffness]	pub fn assemble_sparse_stiffness(
+core/solver/frame_kernel/src/structural/sparse.rs:390	non-test	def	SparseAssemblyOptions	[-]	pub struct SparseAssemblyOptions {}
+core/solver/frame_kernel/src/structural/sparse.rs:392	non-test	def	SparseAssemblyOptions	[-]	impl SparseAssemblyOptions {
+core/solver/frame_kernel/src/structural/sparse.rs:442	non-test	use	SparseAssemblyOptions	[assemble_sparse_stiffness]	options: &SparseAssemblyOptions,
+core/solver/frame_kernel/src/structural/sparse.rs:444	non-test	use	SparseAssemblyOptions	[assemble_sparse_stiffness]	let SparseAssemblyOptions {} = options;
+core/solver/frame_kernel/src/structural/sparse.rs:403	non-test	def	StiffnessBlock	[-]	pub struct StiffnessBlock {
+core/solver/frame_kernel/src/structural/sparse.rs:440	non-test	use	StiffnessBlock	[assemble_sparse_stiffness]	blocks: &[StiffnessBlock],
+core/solver/frame_kernel/src/structural/sparse.rs:560	non-test	def	reduce_assembled_sparse_system	[reduce_assembled_sparse_system]	pub fn reduce_assembled_sparse_system(
+core/solver/frame_kernel/src/structural/sparse.rs:537	non-test	def	SparseReducedSystem	[-]	pub struct SparseReducedSystem {
+core/solver/frame_kernel/src/structural/sparse.rs:548	non-test	def	SparseReducedSystem	[-]	impl SparseReducedSystem {
+core/solver/frame_kernel/src/structural/sparse.rs:565	non-test	use	SparseReducedSystem	[reduce_assembled_sparse_system]	) -> Result<SparseReducedSystem, FrameKernelError> {
+core/solver/frame_kernel/src/structural/sparse.rs:664	non-test	use	SparseReducedSystem	[reduce_assembled_sparse_system]	Ok(SparseReducedSystem {
+core/solver/frame_kernel/src/structural/sparse.rs:690	non-test	def	SparseStructuralSystem	[-]	pub struct SparseStructuralSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:703	non-test	def	SparseStructuralSystem	[-]	impl<'a> SparseStructuralSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:796	non-test	use	SparseStructuralSystem	[-]	system: SparseStructuralSystem<'a>,
+core/solver/frame_kernel/src/structural/sparse.rs:801	non-test	use	SparseStructuralSystem	[system]	pub fn system(&self) -> &SparseStructuralSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:823	non-test	use	SparseStructuralSystem	[-]	system: SparseStructuralSystem<'a>,
+core/solver/frame_kernel/src/structural/sparse.rs:829	non-test	use	SparseStructuralSystem	[system]	pub fn system(&self) -> &SparseStructuralSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:846	non-test	use	SparseStructuralSystem	[validate_sparse]	fn validate_sparse(system: &SparseStructuralSystem<'_>) -> Result<(), StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:921	non-test	def	SparseStructuralSystem	[-]	impl Represented for SparseStructuralSystem<'_> {
+core/solver/frame_kernel/src/structural/sparse.rs:1000	non-test	use	SparseStructuralSystem	[sparse_contribution_sums]	system: &SparseStructuralSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1037	non-test	use	SparseStructuralSystem	[-]	source: &'s SparseStructuralSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:1088	non-test	use	SparseStructuralSystem	[prepare_sparse_structural]	system: &'s SparseStructuralSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:1108	non-test	use	SparseStructuralSystem	[prepare_sparse_structural_with_force_terms]	system: &'s SparseStructuralSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:1115	non-test	use	SparseStructuralSystem	[prepare_sparse_bound]	system: &'s SparseStructuralSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:1304	non-test	use	SparseStructuralSystem	[legacy_zero_product_fold]	system: &SparseStructuralSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1631	non-test	use	SparseStructuralSystem	[audit_sparse_load_fidelity]	system: &SparseStructuralSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:741	non-test	use	AssembledSparseStructuralSystem	[assembled]	) -> AssembledSparseStructuralSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:742	non-test	use	AssembledSparseStructuralSystem	[assembled]	AssembledSparseStructuralSystem {
+core/solver/frame_kernel/src/structural/sparse.rs:795	non-test	def	AssembledSparseStructuralSystem	[-]	pub struct AssembledSparseStructuralSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:800	non-test	def	AssembledSparseStructuralSystem	[-]	impl<'a> AssembledSparseStructuralSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:1094	non-test	use	AssembledSparseStructuralSystem	[prepare_assembled_sparse_structural]	system: &'s AssembledSparseStructuralSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:758	non-test	use	FormationCheckedSparseSystem	[with_formation_source]	) -> FormationCheckedSparseSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:759	non-test	use	FormationCheckedSparseSystem	[with_formation_source]	FormationCheckedSparseSystem {
+core/solver/frame_kernel/src/structural/sparse.rs:811	non-test	use	FormationCheckedSparseSystem	[with_formation_source]	) -> FormationCheckedSparseSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:812	non-test	use	FormationCheckedSparseSystem	[with_formation_source]	FormationCheckedSparseSystem {
+core/solver/frame_kernel/src/structural/sparse.rs:822	non-test	def	FormationCheckedSparseSystem	[-]	pub struct FormationCheckedSparseSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:828	non-test	def	FormationCheckedSparseSystem	[-]	impl<'a> FormationCheckedSparseSystem<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:1100	non-test	use	FormationCheckedSparseSystem	[prepare_formation_checked_sparse_structural]	system: &'s FormationCheckedSparseSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:680	non-test	def	SparseSymmetryEvidence	[-]	pub struct SparseSymmetryEvidence<'a> {
+core/solver/frame_kernel/src/structural/sparse.rs:696	non-test	use	SparseSymmetryEvidence	[-]	symmetry: Option<SparseSymmetryEvidence<'a>>,
+core/solver/frame_kernel/src/structural/sparse.rs:710	non-test	use	SparseSymmetryEvidence	[new]	symmetry: Option<SparseSymmetryEvidence<'a>>,
+core/solver/frame_kernel/src/structural/sparse.rs:740	non-test	use	SparseSymmetryEvidence	[assembled]	symmetry: Option<SparseSymmetryEvidence<'a>>,
+core/solver/frame_kernel/src/structural/sparse.rs:1036	non-test	def	SparsePreparedSystem	[-]	pub struct SparsePreparedSystem<'s> {
+core/solver/frame_kernel/src/structural/sparse.rs:1057	non-test	def	SparsePreparedSystem	[-]	impl SparsePreparedSystem<'_> {
+core/solver/frame_kernel/src/structural/sparse.rs:1089	non-test	use	SparsePreparedSystem	[prepare_sparse_structural]	) -> Result<SparsePreparedSystem<'s>, StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:1095	non-test	use	SparsePreparedSystem	[prepare_assembled_sparse_structural]	) -> Result<SparsePreparedSystem<'s>, StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:1101	non-test	use	SparsePreparedSystem	[prepare_formation_checked_sparse_structural]	) -> Result<SparsePreparedSystem<'s>, StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:1110	non-test	use	SparsePreparedSystem	[prepare_sparse_structural_with_force_terms]	) -> Result<SparsePreparedSystem<'s>, StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:1117	non-test	use	SparsePreparedSystem	[prepare_sparse_bound]	) -> Result<SparsePreparedSystem<'s>, StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:1270	non-test	use	SparsePreparedSystem	[prepare_sparse_bound]	let mut prepared = SparsePreparedSystem {
+core/solver/frame_kernel/src/structural/sparse.rs:1335	non-test	use	SparsePreparedSystem	[sparse_audit_contributions]	prepared: &SparsePreparedSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1436	non-test	use	SparsePreparedSystem	[validate_sparse_prepared]	fn validate_sparse_prepared(prepared: &SparsePreparedSystem<'_>) -> Result<(), StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:1484	non-test	def	SparsePreparedSystem	[-]	impl ConditionMatrix for SparsePreparedSystem<'_> {
+core/solver/frame_kernel/src/structural/sparse.rs:1498	non-test	def	SparsePreparedSystem	[-]	impl PreparedGate for SparsePreparedSystem<'_> {
+core/solver/frame_kernel/src/structural/sparse.rs:1543	non-test	use	SparsePreparedSystem	[-]	prepared: &'p SparsePreparedSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:1559	non-test	use	SparsePreparedSystem	[factor_sparse_structural_profile]	prepared: &'p SparsePreparedSystem<'s>,
+core/solver/frame_kernel/src/structural/sparse.rs:1691	non-test	use	SparsePreparedSystem	[verify_sparse_negative_direction]	prepared: &SparsePreparedSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1724	non-test	use	SparsePreparedSystem	[negative_verdict]	prepared: &SparsePreparedSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1753	non-test	use	SparsePreparedSystem	[sparse_negative_pair_witness]	prepared: &SparsePreparedSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1760	non-test	use	SparsePreparedSystem	[sparse_negative_pair_witness_counted]	prepared: &SparsePreparedSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1796	non-test	use	SparsePreparedSystem	[pair_energy]	prepared: &SparsePreparedSystem<'_>,
+core/solver/frame_kernel/src/structural/sparse.rs:1542	non-test	def	SparsePositiveFactor	[-]	pub struct SparsePositiveFactor<'p, 's> {
+core/solver/frame_kernel/src/structural/sparse.rs:1548	non-test	def	SparsePositiveFactor	[-]	impl SparsePositiveFactor<'_, '_> {
+core/solver/frame_kernel/src/structural/sparse.rs:1562	non-test	use	SparsePositiveFactor	[factor_sparse_structural_profile]	) -> Result<SparsePositiveFactor<'p, 's>, StructuralError> {
+core/solver/frame_kernel/src/structural/sparse.rs:1606	non-test	use	SparsePositiveFactor	[factor_sparse_structural_profile]	Ok(SparsePositiveFactor {
+core/solver/frame_kernel/src/structural/sparse.rs:1616	non-test	use	SparsePositiveFactor	[finish_sparse_structural]	factor: &SparsePositiveFactor<'_, '_>,
+core/solver/frame_kernel/src/structural/sparse.rs:206	non-test	def	SparseStorageCounts	[-]	pub struct SparseStorageCounts {
+core/solver/frame_kernel/src/structural/sparse.rs:309	non-test	use	SparseStorageCounts	[storage_counts]	pub fn storage_counts(&self) -> SparseStorageCounts {
+core/solver/frame_kernel/src/structural/sparse.rs:311	non-test	use	SparseStorageCounts	[storage_counts]	SparseStorageCounts {
+core/solver/frame_kernel/src/structural/sparse.rs:1087	non-test	def	prepare_sparse_structural	[prepare_sparse_structural]	pub fn prepare_sparse_structural<'s>(
+core/solver/frame_kernel/src/structural/sparse.rs:1093	non-test	def	prepare_assembled_sparse_structural	[prepare_assembled_sparse_structural]	pub fn prepare_assembled_sparse_structural<'s>(
+core/solver/frame_kernel/src/structural/sparse.rs:1099	non-test	def	prepare_formation_checked_sparse_structural	[prepare_formation_checked_sparse_structural]	pub fn prepare_formation_checked_sparse_structural<'s>(
+core/solver/frame_kernel/src/structural/sparse.rs:1107	non-test	def	prepare_sparse_structural_with_force_terms	[prepare_sparse_structural_with_force_terms]	pub fn prepare_sparse_structural_with_force_terms<'s>(
+core/solver/frame_kernel/src/structural/sparse.rs:1558	non-test	def	factor_sparse_structural_profile	[factor_sparse_structural_profile]	pub fn factor_sparse_structural_profile<'p, 's>(
+core/solver/frame_kernel/src/structural/sparse.rs:1615	non-test	def	finish_sparse_structural	[finish_sparse_structural]	pub fn finish_sparse_structural(
+core/solver/frame_kernel/src/structural/sparse.rs:968	non-test	use	audit_sparse_load_fidelity	[load_fidelity]	audit_sparse_load_fidelity(self, u, terms)
+core/solver/frame_kernel/src/structural/sparse.rs:1630	non-test	def	audit_sparse_load_fidelity	[audit_sparse_load_fidelity]	pub fn audit_sparse_load_fidelity(
+core/solver/frame_kernel/src/structural/sparse.rs:1690	non-test	def	verify_sparse_negative_direction	[verify_sparse_negative_direction]	pub fn verify_sparse_negative_direction(
+core/solver/frame_kernel/src/structural/sparse.rs:1752	non-test	def	sparse_negative_pair_witness	[sparse_negative_pair_witness]	pub fn sparse_negative_pair_witness(
+core/solver/frame_kernel/src/structural/sparse.rs:1755	non-test	use	sparse_negative_pair_witness_counted	[sparse_negative_pair_witness]	sparse_negative_pair_witness_counted(prepared).map(|(witness, _)| witness)
+core/solver/frame_kernel/src/structural/sparse.rs:1759	non-test	def	sparse_negative_pair_witness_counted	[sparse_negative_pair_witness_counted]	pub(crate) fn sparse_negative_pair_witness_counted(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1355	test	use	solve_structural_dense	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let cholesky = solve_structural_dense(&ds);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1422	test	use	solve_structural_dense	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	assert!(solve_structural_dense(&ds).is_err(), "");
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1181	test	use	negative_pair_witness	[k1_negative_witness_matches_the_dense_search_and_verification]	let dw = negative_pair_witness(&dp).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1226	test	use	negative_pair_witness	[k1_negative_witness_visits_only_pattern_pairs]	assert!(negative_pair_witness(&prepare_structural(&ds).unwrap())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1194	test	use	verify_negative_direction	[k1_negative_witness_matches_the_dense_search_and_verification]	format!("", verify_negative_direction(&dp, &direction)),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:626	test	use	factor_structural_profile	[solve_both]	let d = factor_structural_profile(&dense, &order, &first).and_then(|f| finish_structural(&f));
+core/solver/frame_kernel/src/structural/sparse/tests.rs:766	test	use	audit_load_fidelity	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	audit_load_fidelity(&ds, &detected.displacements, force.terms())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:626	test	use	finish_structural	[solve_both]	let d = factor_structural_profile(&dense, &order, &first).and_then(|f| finish_structural(&f));
+core/solver/frame_kernel/src/structural/sparse/tests.rs:643	test	use	prepare_structural	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_structural(&ds),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:695	test	use	prepare_structural	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_structural(&bare_dense),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:834	test	use	prepare_structural	[k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal]	let d = prepare_structural(&ds);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1001	test	use	prepare_structural	[krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity]	prepare_structural(&ds),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1014	test	use	prepare_structural	[krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity]	prepare_structural(&ds),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1072	test	use	prepare_structural	[krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail]	prepare_structural(&ds),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1179	test	use	prepare_structural	[k1_negative_witness_matches_the_dense_search_and_verification]	let dp = prepare_structural(&ds).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1226	test	use	prepare_structural	[k1_negative_witness_visits_only_pattern_pairs]	assert!(negative_pair_witness(&prepare_structural(&ds).unwrap())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1357	test	use	prepare_structural	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_structural(&ds),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1417	test	use	prepare_structural	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_structural(&ds),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1480	test	use	prepare_structural	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_structural(&ds),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:666	test	use	prepare_assembled_structural	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_assembled_structural(&dt),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:795	test	use	prepare_assembled_structural	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	prepare_assembled_structural(&dt),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:674	test	use	prepare_structural_with_force_terms	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_structural_with_force_terms(&ds, terms),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:754	test	use	prepare_structural_with_force_terms	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	prepare_structural_with_force_terms(&ds, force.terms()),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1441	test	use	prepare_structural_with_force_terms	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_structural_with_force_terms(&ds, force.terms()),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:338	test	use	SparsePattern	[k1_pattern_is_a_function_of_the_positions_only]	let from_positions = SparsePattern::from_positions(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:346	test	use	SparsePattern	[k1_pattern_is_a_function_of_the_positions_only]	let reversed = SparsePattern::from_positions(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:93	test	use	SparseStiffness	[sparse]	fn sparse(&self) -> SparseStiffness {
+core/solver/frame_kernel/src/structural/sparse/tests.rs:390	test	use	SparseStiffness	[k1_coalesced_values_are_bit_identical_to_the_dense_assembly]	SparseStiffness::from_contributions(model.node_count * 6, &model.contributions())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:476	test	use	SparseStiffness	[-]	sparse: SparseStiffness,
+core/solver/frame_kernel/src/structural/sparse/tests.rs:814	test	use	SparseStiffness	[k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal]	let sparse = SparseStiffness::from_dense(&k).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:963	test	use	SparseStiffness	[krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity]	let sparse = SparseStiffness::from_dense(&matrix).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1047	test	use	SparseStiffness	[krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail]	let sparse = SparseStiffness::from_contributions(2, &entries).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1081	test	use	SparseStiffness	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	let sparse = SparseStiffness::from_dense(&matrix).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1123	test	use	SparseStiffness	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let sparse = SparseStiffness::from_dense(&matrix).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1133	test	use	SparseStiffness	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let ps = SparseStiffness::from_dense(&positive).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1167	test	use	SparseStiffness	[k1_negative_witness_matches_the_dense_search_and_verification]	let sparse = SparseStiffness::from_dense(&k).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1345	test	use	SparseStiffness	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let sparse = SparseStiffness::from_dense(k).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1405	test	use	SparseStiffness	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let sparse = SparseStiffness::from_dense(&k).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1426	test	use	SparseStiffness	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let sparse = SparseStiffness::from_dense(&k).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1467	test	use	SparseStiffness	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let coalesced = SparseStiffness::from_contributions(1, &entries).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:94	test	use	assemble_sparse_stiffness	[sparse]	assemble_sparse_stiffness(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:413	test	use	assemble_sparse_stiffness	[k1_assembly_refusals_match_the_dense_assembly]	let sparse = assemble_sparse_stiffness(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:444	test	use	assemble_sparse_stiffness	[k1_assembly_refusals_match_the_dense_assembly]	assemble_sparse_stiffness(3, &frames, &[], &[], &[], &SparseAssemblyOptions::new())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:459	test	use	assemble_sparse_stiffness	[k1_assembly_refusals_match_the_dense_assembly]	assemble_sparse_stiffness(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:100	test	use	SparseAssemblyOptions	[sparse]	&SparseAssemblyOptions::new(),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:419	test	use	SparseAssemblyOptions	[k1_assembly_refusals_match_the_dense_assembly]	&SparseAssemblyOptions::new(),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:444	test	use	SparseAssemblyOptions	[k1_assembly_refusals_match_the_dense_assembly]	assemble_sparse_stiffness(3, &frames, &[], &[], &[], &SparseAssemblyOptions::new())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:465	test	use	SparseAssemblyOptions	[k1_assembly_refusals_match_the_dense_assembly]	&SparseAssemblyOptions::new()
+core/solver/frame_kernel/src/structural/sparse/tests.rs:33	test	use	StiffnessBlock	[-]	blocks: Vec<StiffnessBlock>,
+core/solver/frame_kernel/src/structural/sparse/tests.rs:274	test	use	StiffnessBlock	[tree]	let blocks = vec![StiffnessBlock {
+core/solver/frame_kernel/src/structural/sparse/tests.rs:916	test	use	reduce_assembled_sparse_system	[k1_multiply_reactions_and_reduction_match_the_dense_forms]	reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &boundary, Some(&values))
+core/solver/frame_kernel/src/structural/sparse/tests.rs:929	test	use	reduce_assembled_sparse_system	[k1_multiply_reactions_and_reduction_match_the_dense_forms]	reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &boundary, None).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:940	test	use	reduce_assembled_sparse_system	[k1_multiply_reactions_and_reduction_match_the_dense_forms]	reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &repeated, None)
+core/solver/frame_kernel/src/structural/sparse/tests.rs:952	test	use	reduce_assembled_sparse_system	[k1_multiply_reactions_and_reduction_match_the_dense_forms]	reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &outside, Some(&[1.0]))
+core/solver/frame_kernel/src/structural/sparse/tests.rs:543	test	use	SparseStructuralSystem	[sparse_system]	fn sparse_system(&self, contributions: bool) -> SparseStructuralSystem<'_> {
+core/solver/frame_kernel/src/structural/sparse/tests.rs:544	test	use	SparseStructuralSystem	[sparse_system]	SparseStructuralSystem::new(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:657	test	use	SparseStructuralSystem	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	let st = SparseStructuralSystem::assembled(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:686	test	use	SparseStructuralSystem	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	let bare_sparse = SparseStructuralSystem::new(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:745	test	use	SparseStructuralSystem	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	let ss = SparseStructuralSystem::new(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:786	test	use	SparseStructuralSystem	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	let st = SparseStructuralSystem::assembled(
+core/solver/frame_kernel/src/structural/sparse/tests.rs:833	test	use	SparseStructuralSystem	[k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal]	SparseStructuralSystem::new(&sparse, &force, &free, &prescribed, None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:998	test	use	SparseStructuralSystem	[krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity]	let ss = SparseStructuralSystem::new(&sparse, &force, &free, &bc, Some(&entries), None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1050	test	use	SparseStructuralSystem	[krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail]	let ss = SparseStructuralSystem::new(&sparse, &force, &free, &[], Some(&entries), None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1084	test	use	SparseStructuralSystem	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	let ss = SparseStructuralSystem::new(&sparse, &force, &free, &[], None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1111	test	use	SparseStructuralSystem	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	let bad = SparseStructuralSystem::new(&sparse, &force, &wrong_free, &[], None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1126	test	use	SparseStructuralSystem	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let ss = SparseStructuralSystem::new(&sparse, &force, &free, &[], None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1134	test	use	SparseStructuralSystem	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let pss = SparseStructuralSystem::new(&ps, &force, &free, &[], None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1178	test	use	SparseStructuralSystem	[k1_negative_witness_matches_the_dense_search_and_verification]	let ss = SparseStructuralSystem::new(&sparse, &force, &free, &[], None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1354	test	use	SparseStructuralSystem	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let ss = SparseStructuralSystem::new(&sparse, f, free, prescribed, None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1415	test	use	SparseStructuralSystem	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let ss = SparseStructuralSystem::new(&sparse, &force, &[0], &[], Some(&entries), None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1439	test	use	SparseStructuralSystem	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let ss = SparseStructuralSystem::new(&sparse, &zero, &[0], &[], None, None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1478	test	use	SparseStructuralSystem	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	let ss = SparseStructuralSystem::new(&coalesced, &one, &[0], &[], Some(&entries), None);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:526	test	use	SparseSymmetryEvidence	[sparse_evidence]	fn sparse_evidence(&self) -> SparseSymmetryEvidence<'_> {
+core/solver/frame_kernel/src/structural/sparse/tests.rs:527	test	use	SparseSymmetryEvidence	[sparse_evidence]	SparseSymmetryEvidence {
+core/solver/frame_kernel/src/structural/sparse/tests.rs:567	test	use	SparsePreparedSystem	[assert_prepared_equal]	fn assert_prepared_equal(dense: &PreparedSystem<'_>, sparse: &SparsePreparedSystem<'_>, ctx: &str) {
+core/solver/frame_kernel/src/structural/sparse/tests.rs:610	test	use	SparsePreparedSystem	[solve_both]	sparse: Result<SparsePreparedSystem<'_>, StructuralError>,
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1085	test	use	SparsePreparedSystem	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	let corruptions: [fn(&mut SparsePreparedSystem<'_>); 6] = [
+core/solver/frame_kernel/src/structural/sparse/tests.rs:644	test	use	prepare_sparse_structural	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_sparse_structural(&ss),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:696	test	use	prepare_sparse_structural	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_sparse_structural(&bare_sparse),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:702	test	use	prepare_sparse_structural	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_sparse_structural(&bare_sparse),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:835	test	use	prepare_sparse_structural	[k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal]	let s = prepare_sparse_structural(&ss);
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1002	test	use	prepare_sparse_structural	[krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity]	prepare_sparse_structural(&ss),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1011	test	use	prepare_sparse_structural	[krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity]	let prepared = prepare_sparse_structural(&ss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1015	test	use	prepare_sparse_structural	[krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity]	prepare_sparse_structural(&ss),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1051	test	use	prepare_sparse_structural	[krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail]	let prepared = prepare_sparse_structural(&ss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1073	test	use	prepare_sparse_structural	[krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail]	prepare_sparse_structural(&ss),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1096	test	use	prepare_sparse_structural	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	let mut prepared = prepare_sparse_structural(&ss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1109	test	use	prepare_sparse_structural	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	let mut prepared = prepare_sparse_structural(&ss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1127	test	use	prepare_sparse_structural	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let prepared = prepare_sparse_structural(&ss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1135	test	use	prepare_sparse_structural	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let pp = prepare_sparse_structural(&pss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1180	test	use	prepare_sparse_structural	[k1_negative_witness_matches_the_dense_search_and_verification]	let sp = prepare_sparse_structural(&ss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1209	test	use	prepare_sparse_structural	[k1_negative_witness_visits_only_pattern_pairs]	let prepared = prepare_sparse_structural(&ss).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1230	test	use	prepare_sparse_structural	[k1_negative_witness_visits_only_pattern_pairs]	sparse_negative_pair_witness(&prepare_sparse_structural(&ss).unwrap())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1358	test	use	prepare_sparse_structural	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_sparse_structural(&ss),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1418	test	use	prepare_sparse_structural	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_sparse_structural(&ss),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1481	test	use	prepare_sparse_structural	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_sparse_structural(&ss),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:667	test	use	prepare_assembled_sparse_structural	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_assembled_sparse_structural(&st),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:796	test	use	prepare_assembled_sparse_structural	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	prepare_assembled_sparse_structural(&st),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:675	test	use	prepare_sparse_structural_with_force_terms	[k1_gate_stages_are_byte_identical_for_a_fixed_order]	prepare_sparse_structural_with_force_terms(&ss, terms),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:755	test	use	prepare_sparse_structural_with_force_terms	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	prepare_sparse_structural_with_force_terms(&ss, force.terms()),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1442	test	use	prepare_sparse_structural_with_force_terms	[k1_matrix_references_have_the_same_outcome_class_in_both_representations]	prepare_sparse_structural_with_force_terms(&ss, force.terms()),
+core/solver/frame_kernel/src/structural/sparse/tests.rs:627	test	use	factor_sparse_structural_profile	[solve_both]	let s = factor_sparse_structural_profile(&sparse, &order, &first)
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1128	test	use	factor_sparse_structural_profile	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	assert!(factor_sparse_structural_profile(&prepared, &[0, 1], &[0, 0]).is_err());
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1129	test	use	factor_sparse_structural_profile	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	assert!(factor_sparse_structural_profile(&prepared, &[0, 0], &[0, 0]).is_err());
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1131	test	use	factor_sparse_structural_profile	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	assert!(factor_sparse_structural_profile(&prepared, &[0, 1], &[0, 1]).is_err());
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1136	test	use	factor_sparse_structural_profile	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let factor = factor_sparse_structural_profile(&pp, &[0, 1], &[0, 1]).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:628	test	use	finish_sparse_structural	[solve_both]	.and_then(|f| finish_sparse_structural(&f));
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1137	test	use	finish_sparse_structural	[krev05_on_sparse_completion_requires_positive_source_bound_factor]	let result = finish_sparse_structural(&factor).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:770	test	use	audit_sparse_load_fidelity	[k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations]	audit_sparse_load_fidelity(&ss, &detected.displacements, force.terms())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1099	test	use	verify_sparse_negative_direction	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	std::panic::catch_unwind(|| verify_sparse_negative_direction(&prepared, &[1.0, -1.0]))
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1195	test	use	verify_sparse_negative_direction	[k1_negative_witness_matches_the_dense_search_and_verification]	format!("", verify_sparse_negative_direction(&sp, &direction))
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1104	test	use	sparse_negative_pair_witness	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	std::panic::catch_unwind(|| sparse_negative_pair_witness(&prepared))
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1114	test	use	sparse_negative_pair_witness	[krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic]	std::panic::catch_unwind(|| sparse_negative_pair_witness(&prepared))
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1182	test	use	sparse_negative_pair_witness	[k1_negative_witness_matches_the_dense_search_and_verification]	let sw = sparse_negative_pair_witness(&sp).unwrap();
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1230	test	use	sparse_negative_pair_witness	[k1_negative_witness_visits_only_pattern_pairs]	sparse_negative_pair_witness(&prepare_sparse_structural(&ss).unwrap())
+core/solver/frame_kernel/src/structural/sparse/tests.rs:1210	test	use	sparse_negative_pair_witness_counted	[k1_negative_witness_visits_only_pattern_pairs]	let (witness, visited) = sparse_negative_pair_witness_counted(&prepared).unwrap();
+core/solver/frame_kernel/tests/k1_k2a_interaction.rs:19	test	use	assemble_sparse_stiffness	[-]	use open_pipe_stress_frame_kernel::structural::{assemble_sparse_stiffness, SparseAssemblyOptions};
+core/solver/frame_kernel/tests/k1_k2a_interaction.rs:84	test	use	assemble_sparse_stiffness	[assert_same]	let sparse = assemble_sparse_stiffness(
+core/solver/frame_kernel/tests/k1_k2a_interaction.rs:19	test	use	SparseAssemblyOptions	[-]	use open_pipe_stress_frame_kernel::structural::{assemble_sparse_stiffness, SparseAssemblyOptions};
+core/solver/frame_kernel/tests/k1_k2a_interaction.rs:90	test	use	SparseAssemblyOptions	[assert_same]	&SparseAssemblyOptions::new(),
+core/solver/frame_kernel/tests/k2a_checked_formation.rs:18	test	use	solve_formation_checked_structural_dense	[-]	solve_formation_checked_structural_dense, transform_roundoff, FormationCheckReason,
+core/solver/frame_kernel/tests/k2a_checked_formation.rs:737	test	use	solve_formation_checked_structural_dense	[k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations]	solve_formation_checked_structural_dense(&system.with_formation_source(&source))
+core/solver/nonlinear_integration/src/lib.rs:2008	non-test	use	solve_structural_dense_binary64	[solve_linearized_system_evidence]	open_pipe_stress_frame_kernel::structural::solve_structural_dense_binary64(
+core/solver/nonlinear_integration/src/lib.rs:2013	non-test	use	solve_structural_sparse_binary64	[solve_linearized_system_evidence]	structural_adapter::solve_structural_sparse_binary64(&original)?
+core/solver/nonlinear_integration/src/lib.rs:17	non-test	use	AssemblyEvidence	[-]	use structural_adapter::{AssemblyEvidence, StrictGapEvidence};
+core/solver/nonlinear_integration/src/lib.rs:600	non-test	use	AssemblyEvidence	[solve_active_set_frame_with_mode_and_springs]	let assembly = AssemblyEvidence::new(
+core/solver/nonlinear_integration/src/lib.rs:1307	test	use	AssemblyEvidence	[solve_iteration_with_sliding_friction]	let assembly = AssemblyEvidence::new(
+core/solver/nonlinear_integration/src/lib.rs:1328	non-test	use	AssemblyEvidence	[solve_iteration_with_sliding_friction_evidence]	assembly: &AssemblyEvidence,
+core/solver/nonlinear_integration/src/lib.rs:1971	non-test	use	AssemblyEvidence	[solve_linearized_system_evidence]	assembly: Option<&AssemblyEvidence>,
+core/solver/nonlinear_integration/src/lib.rs:4990	test	use	AssemblyEvidence	[strict_gap_budget_and_duplicate_dofs_remain_explicit_without_projection]	let assembly = AssemblyEvidence::new(
+core/solver/nonlinear_integration/src/lib.rs:1990	non-test	use	solve_binary64	[solve_linearized_system_evidence]	assembly.solve_binary64(
+core/solver/nonlinear_integration/src/product_equilibrium.rs:124	test	use	solve_structural_dense	[successor_both_backends_original_load_and_prescribed_mutations]	structural::solve_structural_dense(&system)
+core/solver/nonlinear_integration/src/product_equilibrium.rs:153	test	use	solve_structural_dense	[successor_both_backends_original_load_and_prescribed_mutations]	structural::solve_structural_dense(&original)
+core/solver/nonlinear_integration/src/product_equilibrium.rs:122	test	use	solve_structural_sparse	[successor_both_backends_original_load_and_prescribed_mutations]	open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&system)
+core/solver/nonlinear_integration/src/product_equilibrium.rs:151	test	use	solve_structural_sparse	[successor_both_backends_original_load_and_prescribed_mutations]	open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&original)
+core/solver/nonlinear_integration/src/s11k_tests.rs:720	test	use	solve_structural_dense_binary64	[expected_binary64]	open_pipe_stress_frame_kernel::structural::solve_structural_dense_binary64(&system)
+core/solver/nonlinear_integration/src/s11k_tests.rs:724	test	use	solve_structural_sparse_binary64	[expected_binary64]	crate::structural_adapter::solve_structural_sparse_binary64(&system).unwrap()
+core/solver/nonlinear_integration/src/s11k_tests.rs:5	test	use	AssemblyEvidence	[-]	use crate::structural_adapter::AssemblyEvidence;
+core/solver/nonlinear_integration/src/s11k_tests.rs:186	test	use	AssemblyEvidence	[cantilever_evidence]	fn cantilever_evidence() -> (AssemblyEvidence, Vec<Vec<f64>>) {
+core/solver/nonlinear_integration/src/s11k_tests.rs:197	test	use	AssemblyEvidence	[cantilever_evidence]	AssemblyEvidence::new(2, &[element], &[], &[], &[]).unwrap(),
+core/solver/nonlinear_integration/src/s11k_tests.rs:697	test	use	AssemblyEvidence	[expected_binary64]	assembly: Option<&AssemblyEvidence>,
+core/solver/nonlinear_integration/src/s11k_tests.rs:778	test	use	AssemblyEvidence	[option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path]	let assembly = AssemblyEvidence::new(3, &elements, &[], &[], &[]).unwrap();
+core/solver/nonlinear_integration/src/s11k_tests.rs:895	test	use	AssemblyEvidence	[option_c_active_set_loop_first_closed_gap_iteration_is_binary64]	let assembly = AssemblyEvidence::new(3, &elements, &[], &[], &[]).unwrap();
+core/solver/nonlinear_integration/src/s11k_tests.rs:1396	test	use	AssemblyEvidence	[kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check]	let assembly = AssemblyEvidence::new(3, &elements, &[], &[], &[]).unwrap();
+core/solver/nonlinear_integration/src/s11k_tests.rs:718	test	use	solve_binary64	[expected_binary64]	(Some(a), mode) => a.solve_binary64(k, f, &free, &prescribed, mode).unwrap(),
+core/solver/nonlinear_integration/src/s11k_tests.rs:1269	test	use	solve_binary64	[kd5_nonlinear_loop_reaches_no_formation_check]	.solve_binary64(&built.k, &built.f, &built.free, &built.prescribed, mode)
+core/solver/nonlinear_integration/src/s11k_tests.rs:1447	test	use	solve_assembled_with_formation_check	[kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check]	.solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter.rs:148	non-test	use	solve_structural_dense	[solve]	LinearSolveMode::DenseScrutiny => structural::solve_structural_dense(&system),
+core/solver/nonlinear_integration/src/structural_adapter.rs:559	non-test	use	solve_structural_dense	[solve]	structural::solve_structural_dense(&system)
+core/solver/nonlinear_integration/src/structural_adapter.rs:150	non-test	use	solve_structural_sparse	[solve]	open_pipe_stress_sparse_direct::structural::solve_structural_sparse(&system)
+core/solver/nonlinear_integration/src/structural_adapter.rs:1041	non-test	def	solve_structural_sparse_binary64	[solve_structural_sparse_binary64]	pub fn solve_structural_sparse_binary64(
+core/solver/nonlinear_integration/src/structural_adapter.rs:1057	non-test	use	factor_structural_ldlt	[solve_prepared]	open_pipe_stress_sparse_direct::structural::factor_structural_ldlt(&prepared)
+core/solver/nonlinear_integration/src/structural_adapter.rs:1062	non-test	use	negative_pair_witness	[solve_prepared]	Err(error) => return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error)),
+core/solver/nonlinear_integration/src/structural_adapter.rs:1064	non-test	use	finish_structural	[solve_prepared]	structural::finish_structural(&factor)
+core/solver/nonlinear_integration/src/structural_adapter.rs:288	non-test	use	prepare_assembled_structural	[solve_assembled]	solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
+core/solver/nonlinear_integration/src/structural_adapter.rs:449	non-test	use	prepare_assembled_structural	[solve_assembled]	solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
+core/solver/nonlinear_integration/src/structural_adapter.rs:204	non-test	use	prepare_formation_checked_structural	[solve_assembled_with_formation_check]	structural::prepare_formation_checked_structural(&system)?,
+core/solver/nonlinear_integration/src/structural_adapter.rs:504	non-test	use	prepare_formation_checked_structural	[solve_assembled_with_formation_check]	structural::prepare_formation_checked_structural(&system)?,
+core/solver/nonlinear_integration/src/structural_adapter.rs:144	non-test	use	prepare_structural_with_force_terms	[solve]	let prepared = structural::prepare_structural_with_force_terms(&system, terms)?;
+core/solver/nonlinear_integration/src/structural_adapter.rs:556	non-test	use	prepare_structural_with_force_terms	[solve]	let prepared = structural::prepare_structural_with_force_terms(&system, terms)?;
+core/solver/nonlinear_integration/src/structural_adapter.rs:241	non-test	use	prepare_structural_binary64	[solve_binary64]	solve_prepared(structural::prepare_structural_binary64(&system)?, mode)
+core/solver/nonlinear_integration/src/structural_adapter.rs:1045	non-test	use	prepare_structural_binary64	[solve_structural_sparse_binary64]	structural::prepare_structural_binary64(system)?,
+core/solver/nonlinear_integration/src/structural_adapter.rs:10	non-test	use	SparsePattern	[-]	self, CurvedFormation, FormationSource, SparsePattern, SparseStiffness, SparseStructuralSystem,
+core/solver/nonlinear_integration/src/structural_adapter.rs:307	non-test	use	SparsePattern	[-]	pattern: SparsePattern,
+core/solver/nonlinear_integration/src/structural_adapter.rs:321	non-test	use	SparsePattern	[new]	pattern: &SparsePattern,
+core/solver/nonlinear_integration/src/structural_adapter.rs:374	non-test	use	SparsePattern	[pattern]	pub fn pattern(&self) -> &SparsePattern {
+core/solver/nonlinear_integration/src/structural_adapter.rs:660	non-test	use	SparsePattern	[-]	pattern: SparsePattern,
+core/solver/nonlinear_integration/src/structural_adapter.rs:10	non-test	use	SparseStiffness	[-]	self, CurvedFormation, FormationSource, SparsePattern, SparseStiffness, SparseStructuralSystem,
+core/solver/nonlinear_integration/src/structural_adapter.rs:412	non-test	use	SparseStiffness	[check_pattern]	fn check_pattern(&self, k: &SparseStiffness) -> Result<(), StructuralError> {
+core/solver/nonlinear_integration/src/structural_adapter.rs:424	non-test	use	SparseStiffness	[solve_assembled]	k: &SparseStiffness,
+core/solver/nonlinear_integration/src/structural_adapter.rs:471	non-test	use	SparseStiffness	[solve_assembled_with_formation_check]	k: &SparseStiffness,
+core/solver/nonlinear_integration/src/structural_adapter.rs:530	non-test	use	SparseStiffness	[solve]	k: &SparseStiffness,
+core/solver/nonlinear_integration/src/structural_adapter.rs:10	non-test	use	SparseStructuralSystem	[-]	self, CurvedFormation, FormationSource, SparsePattern, SparseStiffness, SparseStructuralSystem,
+core/solver/nonlinear_integration/src/structural_adapter.rs:452	non-test	use	SparseStructuralSystem	[solve_assembled]	let system = SparseStructuralSystem::assembled(
+core/solver/nonlinear_integration/src/structural_adapter.rs:509	non-test	use	SparseStructuralSystem	[solve_assembled_with_formation_check]	let system = SparseStructuralSystem::assembled(
+core/solver/nonlinear_integration/src/structural_adapter.rs:562	non-test	use	SparseStructuralSystem	[solve]	let system = SparseStructuralSystem::new(
+core/solver/nonlinear_integration/src/structural_adapter.rs:11	non-test	use	SparseSymmetryEvidence	[-]	SparseSymmetryEvidence, StiffnessContribution, StructuralError, StructuralSolution,
+core/solver/nonlinear_integration/src/structural_adapter.rs:580	non-test	use	SparseSymmetryEvidence	[sparse_symmetry]	fn sparse_symmetry<'e>(&'e self, basis: &'e str) -> SparseSymmetryEvidence<'e> {
+core/solver/nonlinear_integration/src/structural_adapter.rs:581	non-test	use	SparseSymmetryEvidence	[sparse_symmetry]	SparseSymmetryEvidence {
+core/solver/nonlinear_integration/src/structural_adapter.rs:574	non-test	use	prepare_sparse_structural	[solve]	None => solve_sparse_prepared(structural::prepare_sparse_structural(&system)?),
+core/solver/nonlinear_integration/src/structural_adapter.rs:460	non-test	use	prepare_assembled_sparse_structural	[solve_assembled]	solve_sparse_prepared(structural::prepare_assembled_sparse_structural(&system)?)
+core/solver/nonlinear_integration/src/structural_adapter.rs:518	non-test	use	prepare_formation_checked_sparse_structural	[solve_assembled_with_formation_check]	solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
+core/solver/nonlinear_integration/src/structural_adapter.rs:572	non-test	use	prepare_sparse_structural_with_force_terms	[solve]	structural::prepare_sparse_structural_with_force_terms(&system, terms)?,
+core/solver/nonlinear_integration/src/structural_adapter.rs:17	non-test	use	solve_sparse_prepared	[-]	use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
+core/solver/nonlinear_integration/src/structural_adapter.rs:460	non-test	use	solve_sparse_prepared	[solve_assembled]	solve_sparse_prepared(structural::prepare_assembled_sparse_structural(&system)?)
+core/solver/nonlinear_integration/src/structural_adapter.rs:518	non-test	use	solve_sparse_prepared	[solve_assembled_with_formation_check]	solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
+core/solver/nonlinear_integration/src/structural_adapter.rs:571	non-test	use	solve_sparse_prepared	[solve]	Some(terms) => solve_sparse_prepared(
+core/solver/nonlinear_integration/src/structural_adapter.rs:574	non-test	use	solve_sparse_prepared	[solve]	None => solve_sparse_prepared(structural::prepare_sparse_structural(&system)?),
+core/solver/nonlinear_integration/src/structural_adapter.rs:305	non-test	def	SparseAssemblyEvidence	[-]	pub struct SparseAssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter.rs:317	non-test	def	SparseAssemblyEvidence	[-]	impl SparseAssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter.rs:391	non-test	use	SparseEvidenceCounts	[storage_counts]	pub fn storage_counts(&self) -> SparseEvidenceCounts {
+core/solver/nonlinear_integration/src/structural_adapter.rs:392	non-test	use	SparseEvidenceCounts	[storage_counts]	SparseEvidenceCounts {
+core/solver/nonlinear_integration/src/structural_adapter.rs:591	non-test	def	SparseEvidenceCounts	[-]	pub struct SparseEvidenceCounts {
+core/solver/nonlinear_integration/src/structural_adapter.rs:65	non-test	use	EvidenceParts	[new]	let parts = EvidenceParts::new(
+core/solver/nonlinear_integration/src/structural_adapter.rs:332	non-test	use	EvidenceParts	[new]	let parts = EvidenceParts::new(
+core/solver/nonlinear_integration/src/structural_adapter.rs:711	non-test	def	EvidenceParts	[-]	struct EvidenceParts<S> {
+core/solver/nonlinear_integration/src/structural_adapter.rs:720	non-test	def	EvidenceParts	[-]	impl<S: EvidenceStore> EvidenceParts<S> {
+core/solver/nonlinear_integration/src/structural_adapter.rs:95	non-test	use	BodyEvidence	[geometry]	BodyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter.rs:367	non-test	use	BodyEvidence	[geometry]	BodyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter.rs:888	non-test	def	BodyEvidence	[-]	struct BodyEvidence<'e> {
+core/solver/nonlinear_integration/src/structural_adapter.rs:894	non-test	def	BodyEvidence	[-]	impl BodyEvidence<'_> {
+core/solver/nonlinear_integration/src/structural_adapter.rs:20	non-test	def	AssemblyEvidence	[-]	pub struct AssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter.rs:56	non-test	def	AssemblyEvidence	[-]	impl AssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter.rs:1589	non-test	use	AssemblyEvidence	[scrutinize_gaps]	assembly: &AssemblyEvidence,
+core/solver/nonlinear_integration/src/structural_adapter.rs:2074	test	use	AssemblyEvidence	[ret01_long_id_and_nested_error_are_reserved_before_summary_comparison]	AssemblyEvidence::new(input.node_count, &input.elements, &[], &[], &[]).unwrap();
+core/solver/nonlinear_integration/src/structural_adapter.rs:2210	test	use	AssemblyEvidence	[actual_adapter_retains_adjacent_response_and_separate_ordinary_projected_states]	AssemblyEvidence::new(input.node_count, &input.elements, &[], &[], &[]).unwrap();
+core/solver/nonlinear_integration/src/structural_adapter.rs:219	non-test	def	solve_binary64	[solve_binary64]	pub fn solve_binary64(
+core/solver/nonlinear_integration/src/structural_adapter.rs:174	non-test	def	solve_assembled_with_formation_check	[solve_assembled_with_formation_check]	pub fn solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter.rs:469	non-test	def	solve_assembled_with_formation_check	[solve_assembled_with_formation_check]	pub fn solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter.rs:399	non-test	def	dense_symmetry_view	[dense_symmetry_view]	pub fn dense_symmetry_view(&self) -> (Vec<Vec<f64>>, Vec<Vec<usize>>) {
+core/solver/nonlinear_integration/src/structural_adapter.rs:436	non-test	use	dense_symmetry_view	[solve_assembled]	let (roundoff, counts) = self.dense_symmetry_view();
+core/solver/nonlinear_integration/src/structural_adapter.rs:489	non-test	use	dense_symmetry_view	[solve_assembled_with_formation_check]	let (roundoff, counts) = self.dense_symmetry_view();
+core/solver/nonlinear_integration/src/structural_adapter.rs:542	non-test	use	dense_symmetry_view	[solve]	let (roundoff, counts) = self.dense_symmetry_view();
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:60	test	use	SparseStiffness	[sparse]	fn sparse(&self) -> SparseStiffness {
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:103	test	use	SparseStiffness	[sparse_evidence]	fn sparse_evidence(&self, k: &SparseStiffness) -> SparseAssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:1077	test	use	SparseStiffness	[assert_assembly_bit_identical]	let coalesced = SparseStiffness::from_pattern_and_contributions(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:19	test	use	assemble_sparse_stiffness	[-]	assemble_sparse_stiffness, FormationCheckReason, SolveQuality, SparseAssemblyOptions,
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:61	test	use	assemble_sparse_stiffness	[sparse]	assemble_sparse_stiffness(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:19	test	use	SparseAssemblyOptions	[-]	assemble_sparse_stiffness, FormationCheckReason, SolveQuality, SparseAssemblyOptions,
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:67	test	use	SparseAssemblyOptions	[sparse]	&SparseAssemblyOptions::new(),
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:20	test	use	StiffnessBlock	[-]	StiffnessBlock,
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:50	test	use	StiffnessBlock	[blocks]	fn blocks(&self) -> Vec<StiffnessBlock> {
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:53	test	use	StiffnessBlock	[blocks]	.map(|s| StiffnessBlock {
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:103	test	use	SparseAssemblyEvidence	[sparse_evidence]	fn sparse_evidence(&self, k: &SparseStiffness) -> SparseAssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:104	test	use	SparseAssemblyEvidence	[sparse_evidence]	SparseAssemblyEvidence::new(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:93	test	use	AssemblyEvidence	[dense_evidence]	fn dense_evidence(&self) -> AssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:94	test	use	AssemblyEvidence	[dense_evidence]	AssemblyEvidence::new(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:1007	test	use	solve_binary64	[k1_nonlinear_loop_reaches_neither_formation_entry]	.solve_binary64(&dense, &case.force(), &case.free, &case.prescribed, mode)
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:228	test	use	solve_assembled_with_formation_check	[both_checked]	let d = case.dense_evidence().solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:239	test	use	solve_assembled_with_formation_check	[both_checked]	.solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:385	test	use	solve_assembled_with_formation_check	[k1_kd5_parity_cases_demote_identically_in_both_representations]	let d = case.dense_evidence().solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:396	test	use	solve_assembled_with_formation_check	[k1_kd5_parity_cases_demote_identically_in_both_representations]	.solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:1354	test	use	solve_assembled_with_formation_check	[k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3]	case.dense_evidence().solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:1367	test	use	solve_assembled_with_formation_check	[k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3]	.solve_assembled_with_formation_check(
+core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:275	test	use	dense_symmetry_view	[k1_sparse_evidence_is_the_dense_evidence_on_the_pattern]	let (roundoff, counts) = sparse.dense_symmetry_view();
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:144	test	use	AssemblyEvidence	[assembly]	pub(crate) fn assembly(&self) -> AssemblyEvidence {
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:145	test	use	AssemblyEvidence	[assembly]	AssemblyEvidence::new(
+core/solver/nonlinear_integration/src/structural_adapter/kd5_tests.rs:179	test	use	solve_assembled_with_formation_check	[checked_selected]	.solve_assembled_with_formation_check(
+core/solver/sparse_direct/src/structural.rs:31	non-test	def	solve_structural_sparse	[solve_structural_sparse]	pub fn solve_structural_sparse(
+core/solver/sparse_direct/src/structural.rs:139	test	use	solve_structural_sparse	[run]	solve_structural_sparse(&s)
+core/solver/sparse_direct/src/structural.rs:174	test	use	solve_structural_sparse	[mapped_prescribed_equations_and_loaded_constraint]	let result = solve_structural_sparse(&s).unwrap();
+core/solver/sparse_direct/src/structural.rs:218	test	use	solve_structural_sparse	[krev02_sparse_prescribed_contribution_fidelity]	solve_structural_sparse(&s).unwrap().displacements,
+core/solver/sparse_direct/src/structural.rs:222	test	use	solve_structural_sparse	[krev02_sparse_prescribed_contribution_fidelity]	assert!(solve_structural_sparse(&s).is_err());
+core/solver/sparse_direct/src/structural.rs:19	non-test	def	factor_structural_ldlt	[factor_structural_ldlt]	pub fn factor_structural_ldlt<'p, 's>(
+core/solver/sparse_direct/src/structural.rs:35	non-test	use	factor_structural_ldlt	[solve_structural_sparse]	let factor = match factor_structural_ldlt(&prepared) {
+core/solver/sparse_direct/src/structural.rs:37	non-test	use	negative_pair_witness	[solve_structural_sparse]	Err(error) => return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error)),
+core/solver/sparse_direct/src/structural.rs:29	non-test	use	factor_structural_profile	[factor_structural_ldlt]	structural::factor_structural_profile(prepared, &order, &profile.first_columns)
+core/solver/sparse_direct/src/structural.rs:39	non-test	use	finish_structural	[solve_structural_sparse]	structural::finish_structural(&factor)
+core/solver/sparse_direct/src/structural.rs:34	non-test	use	prepare_structural	[solve_structural_sparse]	let prepared = structural::prepare_structural(system)?;
+core/solver/sparse_direct/src/structural.rs:16	non-test	use	SparseStructuralSystem	[-]	PreparedSystem, SparsePositiveFactor, SparsePreparedSystem, SparseStructuralSystem,
+core/solver/sparse_direct/src/structural.rs:102	non-test	use	SparseStructuralSystem	[solve_sparse_structural]	system: &SparseStructuralSystem<'_>,
+core/solver/sparse_direct/src/structural.rs:15	non-test	use	AssembledSparseStructuralSystem	[-]	self, AssembledSparseStructuralSystem, FormationCheckedSparseSystem, PositiveFactor,
+core/solver/sparse_direct/src/structural.rs:109	non-test	use	AssembledSparseStructuralSystem	[solve_assembled_sparse_structural]	system: &AssembledSparseStructuralSystem<'_>,
+core/solver/sparse_direct/src/structural.rs:15	non-test	use	FormationCheckedSparseSystem	[-]	self, AssembledSparseStructuralSystem, FormationCheckedSparseSystem, PositiveFactor,
+core/solver/sparse_direct/src/structural.rs:116	non-test	use	FormationCheckedSparseSystem	[solve_formation_checked_sparse_structural]	system: &FormationCheckedSparseSystem<'_>,
+core/solver/sparse_direct/src/structural.rs:16	non-test	use	SparsePreparedSystem	[-]	PreparedSystem, SparsePositiveFactor, SparsePreparedSystem, SparseStructuralSystem,
+core/solver/sparse_direct/src/structural.rs:57	non-test	use	SparsePreparedSystem	[order_sparse_structural]	prepared: &SparsePreparedSystem<'_>,
+core/solver/sparse_direct/src/structural.rs:80	non-test	use	SparsePreparedSystem	[factor_sparse_structural_ldlt]	prepared: &'p SparsePreparedSystem<'s>,
+core/solver/sparse_direct/src/structural.rs:89	non-test	use	SparsePreparedSystem	[solve_sparse_prepared]	prepared: SparsePreparedSystem<'_>,
+core/solver/sparse_direct/src/structural.rs:16	non-test	use	SparsePositiveFactor	[-]	PreparedSystem, SparsePositiveFactor, SparsePreparedSystem, SparseStructuralSystem,
+core/solver/sparse_direct/src/structural.rs:81	non-test	use	SparsePositiveFactor	[factor_sparse_structural_ldlt]	) -> Result<SparsePositiveFactor<'p, 's>, StructuralError> {
+core/solver/sparse_direct/src/structural.rs:104	non-test	use	prepare_sparse_structural	[solve_sparse_structural]	solve_sparse_prepared(structural::prepare_sparse_structural(system)?)
+core/solver/sparse_direct/src/structural.rs:111	non-test	use	prepare_assembled_sparse_structural	[solve_assembled_sparse_structural]	solve_sparse_prepared(structural::prepare_assembled_sparse_structural(system)?)
+core/solver/sparse_direct/src/structural.rs:118	non-test	use	prepare_formation_checked_sparse_structural	[solve_formation_checked_sparse_structural]	solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
+core/solver/sparse_direct/src/structural.rs:83	non-test	use	factor_sparse_structural_profile	[factor_sparse_structural_ldlt]	structural::factor_sparse_structural_profile(prepared, &ordering.order, &ordering.first_columns)
+core/solver/sparse_direct/src/structural.rs:97	non-test	use	finish_sparse_structural	[solve_sparse_prepared]	structural::finish_sparse_structural(&factor)
+core/solver/sparse_direct/src/structural.rs:94	non-test	use	sparse_negative_pair_witness	[solve_sparse_prepared]	return Err(structural::sparse_negative_pair_witness(&prepared)?.unwrap_or(error))
+core/solver/sparse_direct/src/structural.rs:56	non-test	def	order_sparse_structural	[order_sparse_structural]	pub fn order_sparse_structural(
+core/solver/sparse_direct/src/structural.rs:82	non-test	use	order_sparse_structural	[factor_sparse_structural_ldlt]	let ordering = order_sparse_structural(prepared)?;
+core/solver/sparse_direct/src/structural.rs:79	non-test	def	factor_sparse_structural_ldlt	[factor_sparse_structural_ldlt]	pub fn factor_sparse_structural_ldlt<'p, 's>(
+core/solver/sparse_direct/src/structural.rs:91	non-test	use	factor_sparse_structural_ldlt	[solve_sparse_prepared]	let factor = match factor_sparse_structural_ldlt(&prepared) {
+core/solver/sparse_direct/src/structural.rs:88	non-test	def	solve_sparse_prepared	[solve_sparse_prepared]	pub fn solve_sparse_prepared(
+core/solver/sparse_direct/src/structural.rs:104	non-test	use	solve_sparse_prepared	[solve_sparse_structural]	solve_sparse_prepared(structural::prepare_sparse_structural(system)?)
+core/solver/sparse_direct/src/structural.rs:111	non-test	use	solve_sparse_prepared	[solve_assembled_sparse_structural]	solve_sparse_prepared(structural::prepare_assembled_sparse_structural(system)?)
+core/solver/sparse_direct/src/structural.rs:118	non-test	use	solve_sparse_prepared	[solve_formation_checked_sparse_structural]	solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
+core/solver/sparse_direct/src/structural.rs:101	non-test	def	solve_sparse_structural	[solve_sparse_structural]	pub fn solve_sparse_structural(
+core/solver/sparse_direct/src/structural.rs:108	non-test	def	solve_assembled_sparse_structural	[solve_assembled_sparse_structural]	pub fn solve_assembled_sparse_structural(
+core/solver/sparse_direct/src/structural.rs:115	non-test	def	solve_formation_checked_sparse_structural	[solve_formation_checked_sparse_structural]	pub fn solve_formation_checked_sparse_structural(
+core/solver/sparse_direct/src/structural.rs:46	non-test	def	SparseStructuralOrdering	[-]	pub struct SparseStructuralOrdering {
+core/solver/sparse_direct/src/structural.rs:58	non-test	use	SparseStructuralOrdering	[order_sparse_structural]	) -> Result<SparseStructuralOrdering, StructuralError> {
+core/solver/sparse_direct/src/structural.rs:70	non-test	use	SparseStructuralOrdering	[order_sparse_structural]	Ok(SparseStructuralOrdering {
+core/solver/sparse_direct/src/structural/k1_tests.rs:543	test	use	solve_structural_sparse	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	format!("", solve_structural_sparse(&bare_ds)),
+core/solver/sparse_direct/src/structural/k1_tests.rs:564	test	use	solve_structural_sparse	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	let legacy_today = solve_structural_sparse(&ds);
+core/solver/sparse_direct/src/structural/k1_tests.rs:691	test	use	solve_structural_sparse	[k1_krev02_through_the_pattern_path]	format!("", solve_structural_sparse(&s)),
+core/solver/sparse_direct/src/structural/k1_tests.rs:369	test	use	factor_structural_ldlt	[today]	let factor = match factor_structural_ldlt(&prepared) {
+core/solver/sparse_direct/src/structural/k1_tests.rs:12	test	use	negative_pair_witness	[-]	assemble_sparse_stiffness, gamma, negative_pair_witness, transform_roundoff, FormationSource,
+core/solver/sparse_direct/src/structural/k1_tests.rs:371	test	use	negative_pair_witness	[today]	Err(error) => return Err(negative_pair_witness(&prepared)?.unwrap_or(error)),
+core/solver/sparse_direct/src/structural/k1_tests.rs:373	test	use	finish_structural	[today]	structural::finish_structural(&factor)
+core/solver/sparse_direct/src/structural/k1_tests.rs:416	test	use	prepare_structural	[k1_adjacency_order_and_profile_equal_the_dense_derived_path]	let dp = structural::prepare_structural(&ds).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:477	test	use	prepare_structural	[k1_explicit_zero_by_cancellation_takes_no_part_in_the_order]	let dp = structural::prepare_structural(&ds).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:612	test	use	prepare_assembled_structural	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	today(structural::prepare_assembled_structural(&dt).unwrap())
+core/solver/sparse_direct/src/structural/k1_tests.rs:640	test	use	prepare_formation_checked_structural	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	today(structural::prepare_formation_checked_structural(&dt).unwrap())
+core/solver/sparse_direct/src/structural/k1_tests.rs:576	test	use	prepare_structural_with_force_terms	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	structural::prepare_structural_with_force_terms(&ds, ledger.terms())
+core/solver/sparse_direct/src/structural/k1_tests.rs:13	test	use	SparseStiffness	[-]	SparseAssemblyOptions, SparseStiffness, SparseSymmetryEvidence, StiffnessBlock,
+core/solver/sparse_direct/src/structural/k1_tests.rs:51	test	use	SparseStiffness	[sparse]	fn sparse(&self) -> SparseStiffness {
+core/solver/sparse_direct/src/structural/k1_tests.rs:141	test	use	SparseStiffness	[symmetry]	fn symmetry(&self, k: &SparseStiffness) -> Symmetry {
+core/solver/sparse_direct/src/structural/k1_tests.rs:462	test	use	SparseStiffness	[k1_explicit_zero_by_cancellation_takes_no_part_in_the_order]	let sparse = SparseStiffness::from_contributions(5, &entries).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:653	test	use	SparseStiffness	[k1_krev02_through_the_pattern_path]	let sparse = SparseStiffness::from_dense(&matrix).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:708	test	use	SparseStiffness	[large]	fn large(n: usize, tree: bool, rotated: bool) -> (SparseStiffness, Vec<usize>) {
+core/solver/sparse_direct/src/structural/k1_tests.rs:12	test	use	assemble_sparse_stiffness	[-]	assemble_sparse_stiffness, gamma, negative_pair_witness, transform_roundoff, FormationSource,
+core/solver/sparse_direct/src/structural/k1_tests.rs:52	test	use	assemble_sparse_stiffness	[sparse]	assemble_sparse_stiffness(
+core/solver/sparse_direct/src/structural/k1_tests.rs:759	test	use	assemble_sparse_stiffness	[large]	let k = assemble_sparse_stiffness(
+core/solver/sparse_direct/src/structural/k1_tests.rs:13	test	use	SparseAssemblyOptions	[-]	SparseAssemblyOptions, SparseStiffness, SparseSymmetryEvidence, StiffnessBlock,
+core/solver/sparse_direct/src/structural/k1_tests.rs:58	test	use	SparseAssemblyOptions	[sparse]	&SparseAssemblyOptions::new(),
+core/solver/sparse_direct/src/structural/k1_tests.rs:765	test	use	SparseAssemblyOptions	[large]	&SparseAssemblyOptions::new(),
+core/solver/sparse_direct/src/structural/k1_tests.rs:13	test	use	StiffnessBlock	[-]	SparseAssemblyOptions, SparseStiffness, SparseSymmetryEvidence, StiffnessBlock,
+core/solver/sparse_direct/src/structural/k1_tests.rs:40	test	use	StiffnessBlock	[-]	blocks: Vec<StiffnessBlock>,
+core/solver/sparse_direct/src/structural/k1_tests.rs:322	test	use	StiffnessBlock	[tree]	blocks: vec![StiffnessBlock {
+core/solver/sparse_direct/src/structural/k1_tests.rs:408	test	use	SparseStructuralSystem	[k1_adjacency_order_and_profile_equal_the_dense_derived_path]	let ss = SparseStructuralSystem::new(
+core/solver/sparse_direct/src/structural/k1_tests.rs:476	test	use	SparseStructuralSystem	[k1_explicit_zero_by_cancellation_takes_no_part_in_the_order]	let ss = SparseStructuralSystem::new(&sparse, &force, &free, &[], None, None);
+core/solver/sparse_direct/src/structural/k1_tests.rs:534	test	use	SparseStructuralSystem	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	let bare_ss = SparseStructuralSystem::new(
+core/solver/sparse_direct/src/structural/k1_tests.rs:556	test	use	SparseStructuralSystem	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	let ss = SparseStructuralSystem::new(
+core/solver/sparse_direct/src/structural/k1_tests.rs:601	test	use	SparseStructuralSystem	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	let st = SparseStructuralSystem::assembled(
+core/solver/sparse_direct/src/structural/k1_tests.rs:628	test	use	SparseStructuralSystem	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	let st = SparseStructuralSystem::assembled(
+core/solver/sparse_direct/src/structural/k1_tests.rs:688	test	use	SparseStructuralSystem	[k1_krev02_through_the_pattern_path]	let ss = SparseStructuralSystem::new(&sparse, &force, &free, &bc, Some(&entries), None);
+core/solver/sparse_direct/src/structural/k1_tests.rs:781	test	use	SparseStructuralSystem	[k1_storage_counts_of_the_rf_large_chain_and_tree]	let ss = SparseStructuralSystem::new(&k, &force, &free, &prescribed, None, None);
+core/solver/sparse_direct/src/structural/k1_tests.rs:13	test	use	SparseSymmetryEvidence	[-]	SparseAssemblyOptions, SparseStiffness, SparseSymmetryEvidence, StiffnessBlock,
+core/solver/sparse_direct/src/structural/k1_tests.rs:227	test	use	SparseSymmetryEvidence	[sparse]	fn sparse(&self) -> SparseSymmetryEvidence<'_> {
+core/solver/sparse_direct/src/structural/k1_tests.rs:228	test	use	SparseSymmetryEvidence	[sparse]	SparseSymmetryEvidence {
+core/solver/sparse_direct/src/structural/k1_tests.rs:417	test	use	prepare_sparse_structural	[k1_adjacency_order_and_profile_equal_the_dense_derived_path]	let sp = structural::prepare_sparse_structural(&ss).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:478	test	use	prepare_sparse_structural	[k1_explicit_zero_by_cancellation_takes_no_part_in_the_order]	let sp = structural::prepare_sparse_structural(&ss).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:782	test	use	prepare_sparse_structural	[k1_storage_counts_of_the_rf_large_chain_and_tree]	let sp = structural::prepare_sparse_structural(&ss).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:583	test	use	prepare_sparse_structural_with_force_terms	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	structural::prepare_sparse_structural_with_force_terms(
+core/solver/sparse_direct/src/structural/k1_tests.rs:421	test	use	order_sparse_structural	[k1_adjacency_order_and_profile_equal_the_dense_derived_path]	let ordering = order_sparse_structural(&sp).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:480	test	use	order_sparse_structural	[k1_explicit_zero_by_cancellation_takes_no_part_in_the_order]	let ordering = order_sparse_structural(&sp).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:783	test	use	order_sparse_structural	[k1_storage_counts_of_the_rf_large_chain_and_tree]	let ordering = order_sparse_structural(&sp).unwrap();
+core/solver/sparse_direct/src/structural/k1_tests.rs:497	test	use	solve_sparse_prepared	[k1_explicit_zero_by_cancellation_takes_no_part_in_the_order]	format!("", solve_sparse_prepared(sp))
+core/solver/sparse_direct/src/structural/k1_tests.rs:582	test	use	solve_sparse_prepared	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	solve_sparse_prepared(
+core/solver/sparse_direct/src/structural/k1_tests.rs:544	test	use	solve_sparse_structural	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	format!("", solve_sparse_structural(&bare_ss)),
+core/solver/sparse_direct/src/structural/k1_tests.rs:568	test	use	solve_sparse_structural	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	format!("", solve_sparse_structural(&ss)),
+core/solver/sparse_direct/src/structural/k1_tests.rs:689	test	use	solve_sparse_structural	[k1_krev02_through_the_pattern_path]	let pattern = solve_sparse_structural(&ss);
+core/solver/sparse_direct/src/structural/k1_tests.rs:614	test	use	solve_assembled_sparse_structural	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	format!("", solve_assembled_sparse_structural(&st)),
+core/solver/sparse_direct/src/structural/k1_tests.rs:642	test	use	solve_formation_checked_sparse_structural	[k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path]	format!("", solve_formation_checked_sparse_structural(&st)),
+# unreached .rs files (not in any crate module tree; tests/ dirs expected):
+#   apps/desktop/src-tauri/build.rs
+#   core/library_import/library_import_document/tests/provenance_parity.rs
+#   core/loads/self_weight_wasm/tests/applied_self_weight.rs
+#   core/model_operations/operation_applier/tests/canonical_hash_parity.rs
+#   core/model_operations/operation_applier/tests/contract_corpus.rs
+#   core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs
+#   core/model_operations/operation_applier/tests/exact_authoring.rs
+#   core/model_operations/operation_applier/tests/generated_self_weight.rs
+#   core/model_operations/operation_applier/tests/load_state_authoring.rs
+#   core/model_operations/operation_applier/tests/load_state_delete_control.rs
+#   core/model_operations/operation_applier/tests/support_authoring_conflicts.rs
+#   core/product_physics/examples/exact_pressure_connected.rs
+#   core/product_physics/examples/physics_source_connected.rs
+#   core/product_physics/examples/preview_physics_capture.rs
+#   core/product_physics/examples/preview_result.rs
+#   core/product_physics/tests/elastic_extrema_runtime.rs
+#   core/product_physics/tests/formation_check_runtime.rs
+#   core/product_physics/tests/k2a_formation_range_runtime.rs
+#   core/product_physics/tests/load_reference_state_runtime.rs
+#   core/product_physics/tests/load_reference_state_runtime_extension.rs
+#   core/product_physics/tests/physics_source_runtime.rs
+#   core/product_physics/tests/pressure_grouping_limits.rs
+#   core/product_physics/tests/pressure_membrane_range.rs
+#   core/product_physics/tests/pressure_runtime.rs
+#   core/product_physics/tests/pressure_section_geometry.rs
+#   core/product_physics/tests/preview_physics_runtime.rs
+#   core/product_physics/tests/represented_gap_publication.rs
+#   core/product_physics/tests/s11f_site_test.rs
+#   core/product_physics/tests/source_block_recovery.rs
+#   core/product_physics/tests/stress_maximum_coverage.rs
+#   core/product_physics/tests/support_reactions_runtime.rs
+#   core/reporting/pdf_emitter/tests/emit.rs
+#   core/reporting/protected_content_linter/tests/cli_scope.rs
+#   core/reporting/report_package/tests/container.rs
+#   core/reporting/report_renderer/tests/render.rs
+#   core/reporting/result_export/tests/derivative_contract.rs
+#   core/reporting/result_export/tests/load_reference_contract.rs
+#   core/reporting/result_export/tests/load_reference_source_contract.rs
+#   core/reporting/result_export/tests/physics_contract.rs
+#   core/reporting/result_export/tests/physics_source_contract.rs
+#   core/reporting/result_export/tests/precision_contract.rs
+#   core/reporting/result_export/tests/preview_physics_contract.rs
+#   core/reporting/result_export/tests/source_blocks.rs
+#   core/rules/expression_evaluator/tests/conformance_corpus.rs
+#   core/rules/rule_check_runner/tests/acceptability_relation_run.rs
+#   core/rules/rule_check_runner/tests/invented_demo_run.rs
+#   core/rules/rule_pack_document/tests/corpus_parity.rs
+#   core/rules/rule_pack_document/tests/invented_demo_document.rs
+#   core/runner/headless/tests/load_reference_cli.rs
+#   core/runner/headless/tests/physics_source_connected.rs
+#   core/runner/headless/tests/preview_physics_admission.rs
+#   core/runner/headless/tests/s11g_zero_work_receipt.rs
+#   core/serialization/canonical_json/tests/binary64_profile.rs
+#   core/serialization/canonical_json/tests/checked_profile.rs
+#   core/serialization/canonical_json/tests/precision_transport.rs
+#   core/solver/frame_kernel/tests/k1_k2a_interaction.rs
+#   core/solver/frame_kernel/tests/k2a/rf_range_models.rs
+#   core/solver/frame_kernel/tests/k2a_checked_formation.rs
+#   core/solver/frame_kernel/tests/s11_site_table.rs
+#   core/solver/performance_harness/examples/sparse_default_promotion_observation.rs
+#   validation/benchmarks/physics_audit_regression/tests/authored_units_product.rs
