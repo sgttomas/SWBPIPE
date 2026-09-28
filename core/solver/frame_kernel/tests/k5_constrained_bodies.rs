@@ -11,13 +11,14 @@ use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::rigid_body::{
     assess_constrained_bodies, assess_rigid_body, objective_sub_bodies, user_element_tie,
     ConstrainedAssessment, ConstrainedGround, GroundKind, ObjectiveFamily, RigidBodyStatus,
-    TieRefusal,
+    TieRefusal, CONSTRAINED_RANK_UNRESOLVED, CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE,
 };
 use open_pipe_stress_frame_kernel::structural::StructuralError;
 use open_pipe_stress_frame_kernel::{FrameNode, UserStiffnessElement};
 
 const SAMPLE: &str = include_str!("k5_constrained/b1_sample.txt");
 const CASES: &str = include_str!("k5_constrained/cases.txt");
+const SUBNORMAL: &str = include_str!("k5_constrained/subnormal.txt");
 const SOURCE: &str = include_str!("../src/rigid_body.rs");
 
 // ------------------------------------------------------------------ records
@@ -159,11 +160,24 @@ fn verify_witness(record: &Record, result: &ConstrainedAssessment) {
             theta.map(f64::to_bits)
         );
     }
-    // The published parameters: [u(node 0)/L, θ].
+    // The published parameters: [u(node 0)/L, θ], finite and exact (RV14-4).
     let parameters = result.rigid_parameters.expect("parameters");
-    let length = result.characteristic_length;
     assert!(
-        length > 0.0 && length.to_bits() & ((1 << 52) - 1) == 0,
+        parameters.iter().all(|p| p.is_finite()),
+        "{}: parameters {parameters:?}",
+        record.name
+    );
+    // L is a power of two: a normal L has a zero fraction; a subnormal L
+    // (RV14's tiny corpus) has exactly one bit set.
+    let length = result.characteristic_length;
+    let bits = length.to_bits();
+    assert!(
+        length > 0.0
+            && if bits >> 52 == 0 {
+                bits.count_ones() == 1
+            } else {
+                bits & ((1 << 52) - 1) == 0
+            },
         "L = {length}"
     );
     for k in 0..3 {
@@ -252,8 +266,25 @@ fn check(record: &Record, result: &ConstrainedAssessment) -> char {
             record.name,
             result.status
         ),
+        'P' => assert_eq!(
+            (result.status.clone(), result.unresolved),
+            (
+                NumericallyUnresolved,
+                Some(CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE)
+            ),
+            "{}",
+            record.name
+        ),
         other => panic!("expectation {other}"),
     }
+    // The reason is carried exactly when the status is unresolved.
+    assert_eq!(
+        result.unresolved.is_some(),
+        result.status == NumericallyUnresolved,
+        "{}: {:?}",
+        record.name,
+        result.unresolved
+    );
     if witnessed {
         verify_witness(record, result);
         if let Some(expected) = &record.motion {
@@ -410,6 +441,30 @@ fn k5_b4_cycles() {
     let (_, blocks) = check_named("b4_inside_blocks");
     assert_eq!(blocks.status, RigidBodyStatus::Restrained);
     assert_eq!((blocks.rows, blocks.cycles), (7, 1));
+    // RV14-1: a cycle in the τ_B band. The exact rank is full (the cycle
+    // restrains the rotation about z), σ_min lies at or below τ_B, and the
+    // candidate θ = e_z passes the prefilter (|θ × ĉ| ≈ ε). Only the exact tie
+    // check refuses it: the status is unresolved, never a witness.
+    for name in ["b4_cycle_band_rv14_0", "b4_cycle_band_rv14_4"] {
+        let (_, band) = check_named(name);
+        assert_eq!(
+            band.status,
+            RigidBodyStatus::NumericallyUnresolved,
+            "{name}"
+        );
+        assert_eq!(band.unresolved, Some(CONSTRAINED_RANK_UNRESOLVED), "{name}");
+        assert_eq!((band.rows, band.cycles), (8, 1), "{name}");
+        let min = band
+            .singular_values
+            .iter()
+            .copied()
+            .fold(f64::INFINITY, f64::min);
+        assert!(
+            min <= band.rank_screen,
+            "{name}: {min} > {}",
+            band.rank_screen
+        );
+    }
 }
 
 // ------------------------------------------------------------------ B5
@@ -997,5 +1052,58 @@ fn k5_t4_tripwire_user_tie_space_is_the_represented_null_space() {
                 assert!(g[r + 6][c] == -g[r][c], "G_ji != -G_ii at {r},{c}");
             }
         }
+    }
+}
+
+// ------------------------------------------------------------------ RV14-4
+
+/// RV14-4: `rigid_parameters` = [t/L, θ] is published only when it is exact.
+/// At a subnormal span, L is tiny and t/L overflows: RV14's minimal case (two
+/// nodes 2^-1070 apart, grounds d1-d5, a free x translation with exact node
+/// motion (1, 0, 0)) is refused as unresolved, with the named reason, and
+/// publishes nothing. The control is RV14's tiny-coordinate corpus
+/// (`subnormal.txt`, the first 300 of its 1,500 cases after the minimal case;
+/// the full set runs with `K5_SUBNORMAL_VECTORS=<path>`, written by
+/// `gen_k5_vectors.py --full-subnormal`). There, every published witness has
+/// finite, exact parameters (`verify_witness`), and every one-dimensional
+/// mechanism whose canonical [t/L, θ] is not representable is refused (`P`).
+#[test]
+fn k5_b5_parameters_are_exact_or_refused() {
+    // 2^-1070 = 16·2^-1074, from the bits (no function of unspecified precision).
+    let tiny = f64::from_bits(16);
+    let result = assess_constrained_bodies(
+        &[[0.0, 0.0, 0.0], [tiny, 0.0, 0.0]],
+        &[vec![0, 1]],
+        &[],
+        &[1, 2, 3, 4, 5].map(ConstrainedGround::Dof),
+    )
+    .unwrap();
+    assert_eq!(result.status, RigidBodyStatus::NumericallyUnresolved);
+    assert_eq!(
+        result.unresolved,
+        Some(CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE)
+    );
+    assert_eq!(result.characteristic_length, tiny);
+    assert!(result.rigid_parameters.is_none() && result.node_motion.is_none());
+    let run = |text: &str| {
+        let mut tally = std::collections::BTreeMap::new();
+        for record in records(text) {
+            let outcome = check(&record, &assess(&record));
+            *tally
+                .entry(format!("{}->{}", record.expect, outcome))
+                .or_insert(0) += 1;
+        }
+        tally
+    };
+    let tally = run(SUBNORMAL);
+    eprintln!("k5 rv14-4 subnormal sample: {tally:?}");
+    assert_eq!(tally.values().sum::<usize>(), 301);
+    assert_eq!(tally.get("P->U").copied(), Some(24));
+    if let Ok(path) = std::env::var("K5_SUBNORMAL_VECTORS") {
+        let full = std::fs::read_to_string(path).expect("K5_SUBNORMAL_VECTORS");
+        let tally = run(&full);
+        eprintln!("k5 rv14-4 subnormal full: {tally:?}");
+        assert_eq!(tally.values().sum::<usize>(), 1501);
+        assert_eq!(tally.get("P->U").copied(), Some(146));
     }
 }

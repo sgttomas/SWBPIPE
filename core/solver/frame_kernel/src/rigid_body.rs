@@ -285,6 +285,15 @@ pub enum ConstrainedGround {
     },
 }
 
+/// K5: `ConstrainedAssessment::unresolved` when the rank lies in the τ_B band,
+/// or no candidate is an exact, representable null motion.
+pub const CONSTRAINED_RANK_UNRESOLVED: &str = "constrained-body rank unresolved";
+/// K5 (RV14-4): `ConstrainedAssessment::unresolved` when an exact witness was
+/// found, but its `[t/L, θ]` is not exactly representable (t/L overflows for a
+/// tiny L, or rounds for a huge one). Nothing is published.
+pub const CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE: &str =
+    "constrained-body witness parameters not representable";
+
 /// K5: W4's assessment of one constrained body. `status` is never
 /// `UnqualifiedFamily`: qualifying the elements is the caller's (the tie rule
 /// `user_element_tie`; the adapter's curved rule).
@@ -303,11 +312,16 @@ pub struct ConstrainedAssessment {
     pub characteristic_length: f64,
     /// The coordinates of local node 0 (the origin o).
     pub origin: [f64; 3],
-    /// `[t/L, θ]` of the published witness (dimensionless translation).
+    /// `[t/L, θ]` of the published witness (dimensionless translation), exact:
+    /// `rigid_parameters[i]·L` is node 0's `u_i` bit for bit.
     pub rigid_parameters: Option<[f64; 6]>,
     /// Exact `[u, θ]` per local node; `Some` only with `MechanismWitnessed`.
     pub node_motion: Option<Vec<[f64; 6]>>,
     pub iterations: usize,
+    /// Why the status is `NumericallyUnresolved` (`None` for the other
+    /// statuses): `CONSTRAINED_RANK_UNRESOLVED` or
+    /// `CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`.
+    pub unresolved: Option<&'static str>,
 }
 
 /// K5 (Q5(a)): why today's user element is not a tie.
@@ -591,9 +605,11 @@ pub fn assess_constrained_bodies(
         rigid_parameters: None,
         node_motion: None,
         iterations,
+        unresolved: Some(CONSTRAINED_RANK_UNRESOLVED),
     };
     if converged && singular[index] > screen {
         result.status = RigidBodyStatus::Restrained;
+        result.unresolved = None;
         return Ok(result);
     }
 
@@ -979,17 +995,22 @@ impl WitnessContext<'_> {
         Ok(Some(motions))
     }
 
+    /// Publishes the verified witness, unless its `[t/L, θ]` is not exact
+    /// (RV14-4). With L = 2^e, t_i/L is exact exactly when it is finite and
+    /// scales back to t_i: an overflow (tiny L) gives ∞, and a rounding (huge
+    /// L, a subnormal quotient) scales back to another value. Then the witness
+    /// is refused: the status stays `NumericallyUnresolved`, with
+    /// `CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`, and nothing is published.
     fn publish(&self, mut result: ConstrainedAssessment, found: Witness) -> ConstrainedAssessment {
         let r = found.parameters;
+        let t = [r[0] / self.length, r[1] / self.length, r[2] / self.length];
+        if (0..3).any(|i| !(t[i].is_finite() && t[i] * self.length == r[i])) {
+            result.unresolved = Some(CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE);
+            return result;
+        }
         result.status = RigidBodyStatus::MechanismWitnessed;
-        result.rigid_parameters = Some([
-            r[0] / self.length,
-            r[1] / self.length,
-            r[2] / self.length,
-            r[3],
-            r[4],
-            r[5],
-        ]);
+        result.unresolved = None;
+        result.rigid_parameters = Some([t[0], t[1], t[2], r[3], r[4], r[5]]);
         result.node_motion = Some(found.motions);
         result
     }

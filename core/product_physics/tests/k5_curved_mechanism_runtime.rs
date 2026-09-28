@@ -42,8 +42,15 @@ fn force(id: &str, node: &str, dir: &str, v: f64) -> Value {
 /// at a and d: the rotation about the line a–d is free. `rx` adds RX at a;
 /// `gap` adds an open gap support at b (a nonlinear support).
 fn model(o: f64, rx: bool, gap: bool) -> Value {
+    model_with(o, 0.25, rx, gap, false)
+}
+
+/// `model` with bend radius r (c = (o+1+r, o+r), d = (o+1+r, o+1+r)); `x_case`
+/// adds the load case `case:x` (1 kN along global x at b), as I14's product-run
+/// harness builds its constructed mechanisms (`_run_records/a2/`).
+fn model_with(o: f64, r: f64, rx: bool, gap: bool, x_case: bool) -> Value {
     let bend = json!({"id": "component:bend", "label": "k5 arc", "kind": "bend", "node": "node:c",
-        "geometry": {"bend_pipe_ref": "pipe:b-c", "bend_radius": {"value": 0.25, "unit": "m"},
+        "geometry": {"bend_pipe_ref": "pipe:b-c", "bend_radius": {"value": r, "unit": "m"},
             "bend_angle": {"value": std::f64::consts::FRAC_PI_2, "unit": "rad"},
             "bend_plane_orientation": "global_xy_preview", "bend_geometry_source_reference": "k5"},
         "modifiers": {"flexibility_factor_user_value": {"value": 2.0, "unit": "none"}, "source_reference": "k5_invented"},
@@ -67,13 +74,19 @@ fn model(o: f64, rx: bool, gap: bool) -> Value {
             "provenance": "k5 invented: an open gap support that never closes"}),
         );
     }
+    let mut load_cases = vec![json!({"id": "case:z",
+        "primitive_loads": [force("z", "node:b", "global_z", 1000.0)], "provenance": "k5"})];
+    if x_case {
+        load_cases.push(json!({"id": "case:x",
+            "primitive_loads": [force("x", "node:b", "global_x", 1000.0)], "provenance": "k5"}));
+    }
     json!({"model": {"schema_version": "0.2.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:k5", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
             "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
-        "nodes": [node("node:a", o, o), node("node:b", o + 1.0, o), node("node:c", o + 1.25, o + 0.25),
-            node("node:d", o + 1.25, o + 1.25)],
+        "nodes": [node("node:a", o, o), node("node:b", o + 1.0, o), node("node:c", o + 1.0 + r, o + r),
+            node("node:d", o + 1.0 + r, o + 1.0 + r)],
         "pipe_segments": [pipe("pipe:a-b", "node:a", "node:b", [0.0, 1.0, 0.0]),
             pipe("pipe:b-c", "node:b", "node:c", [std::f64::consts::FRAC_1_SQRT_2, -std::f64::consts::FRAC_1_SQRT_2, 0.0]),
             pipe("pipe:c-d", "node:c", "node:d", [1.0, 0.0, 0.0])],
@@ -85,7 +98,7 @@ fn model(o: f64, rx: bool, gap: bool) -> Value {
             "temperature_points": [{"id": "point:hot", "temperature": {"value": 300.0, "unit": "degC"},
                 "elastic_modulus": {"value": 180e9, "unit": "Pa"}, "shear_modulus": {"value": 69.2e9, "unit": "Pa"}}],
             "provenance": "k5_invented_test_values"}],
-        "load_cases": [{"id": "case:z", "primitive_loads": [force("z", "node:b", "global_z", 1000.0)], "provenance": "k5"}],
+        "load_cases": load_cases,
         "combinations": []},
         "materials": []})
 }
@@ -223,6 +236,32 @@ fn k5_curved_mechanism_with_a_nonlinear_support_keeps_todays_refusal() {
                     "{o} {entry} {mode:?}"
                 );
             }
+        }
+    }
+}
+
+/// RV14-3: K5-C2 is a published change class. I14's product input
+/// `constructed_mechanism_r0.2_o0` (R = 0.2 m at the origin) is an exact
+/// mechanism whose canonical witness is not representable (u(c) needs
+/// 0.2 − 1.2, 54 significant bits). Mac main refused it with a pivot failure
+/// ("nonpositive or cancellation-unresolved structural pivot"); W4 refuses it
+/// as unresolved with its own reason, on both entries and in both modes.
+#[test]
+fn k5_curved_mechanism_without_a_representable_witness_is_unresolved() {
+    let value = model_with(0.0, 0.2, false, false, true);
+    let reason =
+        r#"NumericallyUnresolved { reason: "constrained-body rank unresolved", global_dof: None }"#;
+    for mode in MODES {
+        for (entry, envelope) in both_entries(&value, mode) {
+            let ctx = format!("{entry} {mode:?}");
+            assert_eq!(envelope.status.mechanics, "MODEL_INCOMPLETE", "{ctx}");
+            let refusals = blocking(&envelope);
+            assert!(!refusals.is_empty(), "{ctx}");
+            for (code, message) in &refusals {
+                assert_eq!(code, "NUMERICAL_INTEGRITY_UNRESOLVED", "{ctx}");
+                assert!(message.contains(reason), "{ctx}: {message}");
+            }
+            assert!(envelope.results.is_empty(), "{ctx}: no rows are published");
         }
     }
 }

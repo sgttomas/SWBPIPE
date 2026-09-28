@@ -1256,3 +1256,78 @@ fn k5_basis_text_and_family_flag_are_unchanged() {
         }
     }
 }
+
+// ------------------------------------------------------------------ RV14's review (the addendum)
+
+/// Each selected entry against its own unselected sibling (the same entry with
+/// `selected = false`): the matrix gate's outcome, as today.
+fn selected_is_unselected(m: &Model, sources: &[CurvedBendMacroElement], what: &str) {
+    for mode in MODES {
+        let plain = unselected(m, mode);
+        let sibling = |name: &str| &plain.iter().find(|o| o.0 == name).unwrap().1;
+        let names = [
+            "dense checked, not selected",
+            "dense force-scaled checked, not selected",
+            "sparse checked, not selected",
+            "sparse force-scaled checked, not selected",
+        ];
+        for (result, name) in selected(m, mode, 0, sources).iter().zip(names) {
+            assert!(!is_mechanism(result), "{what} {mode:?} {name}");
+            same_geometry(result, sibling(name), &format!("{what} {mode:?} {name}"));
+        }
+    }
+}
+
+/// RV14-2 (Q2(b), RETURN §2.3 Step 2): two matched bends meet at node 1, which
+/// no frame or user element touches, and their macro sources disagree on it:
+/// A ends at (0.25, 0.25, 0), B starts at (0.5, 0.25, 0). W4 takes a
+/// curved-only node's coordinates from its matched sources, so they must agree
+/// with each other, not only with a frame. The body is unqualified
+/// (`CurvedCoordinates` at node 1, reported by the second slot), and every
+/// selected entry gives the matrix gate's outcome, never a `Mechanism`.
+/// Translation pins at nodes 0 and 2.
+#[test]
+fn k5_curved_sources_agree_at_a_curved_only_node() {
+    let mut m = Model::empty(3);
+    m.bend(
+        (0, [0.0, 0.0, 0.0]),
+        (1, [0.25, 0.25, 0.0]),
+        [0.0, 0.25, 0.0],
+    );
+    m.bend(
+        (1, [0.5, 0.25, 0.0]),
+        (2, [0.75, 0.5, 0.0]),
+        [0.5, 0.5, 0.0],
+    );
+    m.pin(&[0, 1, 2, 12, 13, 14]);
+    m.loads = vec![(8, 1.0)];
+    assert_eq!(
+        m.dense_evidence_at(ForceScale::UNSCALED).coordinates,
+        vec![None, None, None]
+    );
+    assert_eq!(
+        m.w4_body(&m.macros, ForceScale::UNSCALED),
+        W4Body::Unqualified(W4Unqualified::CurvedCoordinates {
+            element_id: "bend-1".to_string(),
+            node: 1,
+        })
+    );
+    selected_is_unselected(&m, &m.macros, "curved sources disagree");
+}
+
+/// RV14-N2: a positive spring is a W4 ground, as it is for frames. The curved
+/// mechanism held about the line a-d by an RX spring of 1e6 at a (in place of
+/// K5's RX pin) is `Restrained` for W4, and every selected entry publishes as
+/// its unselected sibling.
+#[test]
+fn k5_positive_springs_ground_w4_bodies() {
+    let mut m = curved_mechanism(0.0, false);
+    m.springs = vec![(3, 1.0e6)];
+    match m.w4_body(&m.macros, ForceScale::UNSCALED) {
+        W4Body::Assessed { assessment, .. } => {
+            assert_eq!(assessment.status, RigidBodyStatus::Restrained)
+        }
+        other => panic!("spring-held curved line: {other:?}"),
+    }
+    selected_is_unselected(&m, &m.macros, "spring-held curved line");
+}

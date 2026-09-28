@@ -20,11 +20,22 @@ a selection filter, not an oracle; it mirrors the reduction only to pick cases.
 Separately, every B1 case asserts that the reduced rows' nullity equals the
 unreduced map's (a cross-check of the reduction's derivation).
 
+RV14-4 (the addendum): `subnormal.txt` carries RV14's tiny-coordinate corpus
+(the reviewer's `tiny_case`, seed 1403, ported below; the first
+N_SUBNORMAL_SAMPLE of its 1,500 cases) after RV14's minimal case
+`rv14_h_tiny_free_x`, with expectations from the same exact oracle, plus the
+function's characteristic length L (a power of two from the exact virtual
+positions rounded to binary64): a one-dimensional null space whose canonical
+witness has a translation t_i with t_i/L not exactly representable is `P`.
+
 Usage:
   gen_k5_vectors.py [--out DIR]          write b1_sample.txt, b1_summary.txt,
-                                         cases.txt and SHA256SUMS into DIR
+                                         cases.txt, subnormal.txt,
+                                         subnormal_summary.txt and SHA256SUMS
+                                         into DIR
   gen_k5_vectors.py --check [--out DIR]  regenerate and compare byte for byte
   gen_k5_vectors.py --full PATH          also write all B1 records to PATH
+  gen_k5_vectors.py --full-subnormal PATH  also write all 1,501 subnormal records
 
 Record line (space-separated fields):
   <name> <expect> n=<N> subs=<a,b;c> ties=<a-b,..|-> grounds=<g,..|->
@@ -36,6 +47,9 @@ Record line (space-separated fields):
           U  NumericallyUnresolved
           D  nullity >= 2: W (checked exactly by the test) or unresolved
           N  not witnessed: Restrained or unresolved
+          P  one-dimensional null space whose canonical [t/L, θ] is not
+             exactly representable: NumericallyUnresolved, "constrained-body
+             witness parameters not representable" (RV14-4)
   motion: 6 values per node [u, θ], the canonical representative.
   rigid:  the welded union's (every tie a rigid link) exact outcome.
 """
@@ -260,8 +274,10 @@ def rigid_link_nullity(case):
 
 # ------------------------------------------------------------------ the reduced rows (filter only)
 
-def reduced_rows(case):
-    """The function's reduced rows in [t/L, θ], exactly (a selection filter)."""
+def reduction(case):
+    """The function's tie reduction, exactly: the exact coordinates, the
+    virtual positions v and their binary64 roundings, L, the canonical ties and
+    which are tree ties."""
     xs = exact_coords(case)
     o = xs[0]
     bodies = sorted((sorted(s) for s in case.subs), key=lambda s: s[0])
@@ -297,6 +313,12 @@ def reduced_rows(case):
     vhat = [tuple(F(float(c)) for c in p) for p in v]
     m = max(abs(c) for p in vhat for c in p)
     length = F(1) if m == 0 else F(2) ** (math.frexp(float(m))[1] - 1)
+    return xs, v, vhat, length, ties, tree
+
+
+def reduced_rows(case):
+    """The function's reduced rows in [t/L, θ], exactly (a selection filter)."""
+    xs, v, vhat, length, ties, tree = reduction(case)
     rows = []
     for g in case.grounds:
         if g[0] == "d":
@@ -630,6 +652,15 @@ def constructed():
         [(1, 2), (0, 3)], ground_z, "W")
     add("b4_inside_free", [(0, 0, 0), (3, 0, 0)], [[0, 1]], [(0, 1)], pins(0) + [("d", 4), ("d", 5)], "W")
     add("b4_inside_blocks", [(0, 0, 0), (3, 0, 0)], [[0, 1]], [(0, 1)], pins(0) + [("d", 3), ("d", 4)], "R")
+    # B4 (RV14-1): RV14's band cycles T1_cycle_band_0 and _4. Sub-bodies {0,2}
+    # and {1,3}, tree tie 0-1, cycle 2-3 with exact offset c = (ε, 0, 1), ε =
+    # 9u and 901u (u = 2^-53). The cycle restrains the rotation about z
+    # (exact nullity 0), but σ_min lies below τ_B. The violated cycle row's
+    # |θ × ĉ| ≈ ε passes the 2^-20 prefilter, so only the exact tie check
+    # refuses θ = e_z.
+    for tag, ulps in (("0", 9), ("4", 901)):
+        add(f"b4_cycle_band_rv14_{tag}", [(0, 0, 0), (1, 0, 0), (0, 1, 0), (up(-ulps, 1.0), 1, -1)],
+            [[0, 2], [1, 3]], [(0, 1), (2, 3)], ground_z, "U")
     # B5: KREV-01 analogues through a tie: the rounded candidate looks null,
     # the exact check refutes it.
     add("b5_big16", [(1e16, 1e16, 0), (-1e16, -1e16, 0), (5, 5, 5), (5, 7, 5)], [[0, 1], [2, 3]],
@@ -682,6 +713,102 @@ def constructed():
     return cases
 
 
+# ------------------------------------------------------------------ RV14-4: tiny coordinates
+
+SUBNORMAL_SEED = 1403
+N_SUBNORMAL = 1500
+N_SUBNORMAL_SAMPLE = 300
+
+
+def rv14_partition(rng, n, s):
+    """RV14's `partition` (REVIEW/_run_records/k5_review/oracle/rv14_oracle.py.txt)."""
+    nodes = list(range(n))
+    rng.shuffle(nodes)
+    cuts = sorted(rng.sample(range(1, n), s - 1)) if s > 1 else []
+    parts, prev = [], 0
+    for c in cuts + [n]:
+        parts.append(sorted(nodes[prev:c]))
+        prev = c
+    return parts
+
+
+def rv14_rand_dir(rng):
+    """RV14's `rand_dir`."""
+    while True:
+        style = rng.random()
+        if style < 0.4:
+            d = [float(rng.randint(-3, 3)) for _ in range(3)]
+        elif style < 0.7:
+            d = [round(rng.uniform(-1, 1), 3) for _ in range(3)]
+        else:
+            d = [rng.uniform(-1, 1) for _ in range(3)]
+        if any(d):
+            return d
+
+
+def rv14_tiny_case(rng, name):
+    """RV14's `tiny_case`: 1-7 nodes, subnormal, edge and mixed coordinates."""
+    n = rng.randint(1, 7)
+    s = rng.randint(1, min(n, 4))
+    subs = rv14_partition(rng, n, s)
+    ties = []
+    order = list(range(s))
+    rng.shuffle(order)
+    for i in range(1, s):
+        ties.append((rng.choice(subs[order[rng.randrange(i)]]), rng.choice(subs[order[i]])))
+    for _ in range(rng.randint(0, 2)):
+        a, b = rng.randrange(n), rng.randrange(n)
+        if a != b:
+            ties.append((a, b))
+    eta = 2.0 ** -1074
+    style = rng.choice(["sub", "sub", "edge", "mix"])
+
+    def c():
+        if style == "sub":
+            return rng.randint(-2 ** rng.randint(0, 22), 2 ** rng.randint(0, 22)) * eta
+        if style == "edge":
+            return rng.choice([1, -1]) * rng.randint(1, 8) * 2.0 ** rng.randint(-1060, -1018)
+        return rng.choice([0.0, rng.randint(-8, 8) * eta, rng.randint(-8, 8) * 2.0 ** -1030])
+    coords = [[c() for _ in range(3)] for _ in range(n)]
+    grounds = [("d", d) for d in rng.sample(range(6 * n), rng.randint(0, min(6 * n, 12)))]
+    for _ in range(rng.choice([0, 1, 2])):
+        grounds.append((rng.choice("tr"), rng.randrange(n), tuple(rv14_rand_dir(rng))))
+    return Case(name, coords, subs, ties, grounds)
+
+
+def subnormal_expect(case):
+    """The exact expectation, with RV14-4's representability of [t/L, θ]."""
+    nullity, motion = assess_oracle(case)
+    case.nullity = nullity
+    case.motion = motion
+    if nullity == 0:
+        return "N"
+    if nullity >= 2:
+        return "D"
+    if motion is None:
+        return "U"
+    length = reduction(case)[3]
+    if any(as_binary64(F(motion[0][i]) / length) is None for i in range(3)):
+        return "P"
+    return "M"
+
+
+def subnormal_cases():
+    # RV14's minimal case: two nodes 2^-1070 apart, grounds d1-d5. The free x
+    # translation is exact (u = (1, 0, 0) at both nodes), but L = 2^-1070 and
+    # t/L = 2^1070 overflows.
+    h = Case("rv14_h_tiny_free_x", [(0, 0, 0), (2.0 ** -1070, 0, 0)], [[0, 1]], [],
+             [("d", k) for k in range(1, 6)])
+    out = [h]
+    rng = random.Random(SUBNORMAL_SEED)
+    out += [rv14_tiny_case(rng, f"rv14_S{i:04d}") for i in range(N_SUBNORMAL)]
+    for case in out:
+        case.expect = subnormal_expect(case)
+        case.klass = "rv14_tiny"
+    assert out[0].expect == "P"
+    return out
+
+
 # ------------------------------------------------------------------ output
 
 def fmt(case):
@@ -722,7 +849,28 @@ def build():
     summary += [f"class {k} {tally[k]}" for k in sorted(tally)]
     summary = "\n".join(summary) + "\n"
     cases = "\n".join(fmt(c) for c in constructed()) + "\n"
-    return {"b1_sample.txt": sample, "b1_summary.txt": summary, "cases.txt": cases}, full
+    tiny = subnormal_cases()
+    tiny_lines = [fmt(c) for c in tiny]
+    tiny_full = "\n".join(tiny_lines) + "\n"
+    tiny_sample = "\n".join(tiny_lines[:N_SUBNORMAL_SAMPLE + 1]) + "\n"
+    tiny_tally = {}
+    for c in tiny:
+        tiny_tally[c.expect] = tiny_tally.get(c.expect, 0) + 1
+    sample_tally = {}
+    for c in tiny[:N_SUBNORMAL_SAMPLE + 1]:
+        sample_tally[c.expect] = sample_tally.get(c.expect, 0) + 1
+    tiny_summary = [
+        "K5 RV14-4 subnormal summary (gen_k5_vectors.py)",
+        f"source=RV14's tiny-coordinate corpus (tiny_case), seed={SUBNORMAL_SEED}, plus rv14_h_tiny_free_x",
+        f"records={len(tiny)} committed_sample={N_SUBNORMAL_SAMPLE + 1}",
+        f"full_sha256={hashlib.sha256(tiny_full.encode()).hexdigest()}",
+        f"sample_sha256={hashlib.sha256(tiny_sample.encode()).hexdigest()}",
+    ]
+    tiny_summary += [f"full expect {k} {tiny_tally[k]}" for k in sorted(tiny_tally)]
+    tiny_summary += [f"sample expect {k} {sample_tally[k]}" for k in sorted(sample_tally)]
+    tiny_summary = "\n".join(tiny_summary) + "\n"
+    return {"b1_sample.txt": sample, "b1_summary.txt": summary, "cases.txt": cases,
+            "subnormal.txt": tiny_sample, "subnormal_summary.txt": tiny_summary}, (full, tiny_full)
 
 
 def main():
@@ -730,8 +878,9 @@ def main():
     parser.add_argument("--out", default=os.path.dirname(os.path.abspath(__file__)))
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--full")
+    parser.add_argument("--full-subnormal")
     args = parser.parse_args()
-    files, full = build()
+    files, (full, tiny_full) = build()
     with open(os.path.abspath(__file__), "rb") as f:
         gen = f.read()
     sums = "".join(f"{hashlib.sha256(files[n].encode()).hexdigest()}  {n}\n" for n in sorted(files))
@@ -740,6 +889,9 @@ def main():
     if args.full:
         with open(args.full, "w") as f:
             f.write(full)
+    if args.full_subnormal:
+        with open(args.full_subnormal, "w") as f:
+            f.write(tiny_full)
     if args.check:
         bad = []
         for name, text in files.items():

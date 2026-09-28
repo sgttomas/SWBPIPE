@@ -7,9 +7,10 @@ This is the draft PR record for slice K5 of T3 (numerical integrity), following 
   - `0c732061b`: checkpoint A1, the FK function;
   - `6bf64f5a9`: checkpoint A2, the SA wiring and the tests;
   - `416b0d456`: checkpoint B, records;
-  - `f89662e1f`: checkpoint C, the mutation table and two tests.
-- **Proposed next commit:** checkpoint D, records only (this record, RETURN, `_run_records/callers.txt`, `_run_records/d/`, SHA256SUMS).
-- **Size:** 11 product and test files, +5,654 −5, plus records under `T3/IMPLEMENTATION/K5/`.
+  - `f89662e1f`: checkpoint C, the mutation table and two tests;
+  - `b379e5b27`: checkpoint D, records (reviewed by RV14: PASS, 0 BLOCKING, 4 SHOULD-FIX, 5 NOTEs).
+- **Proposed next commit:** the addendum for RV14's review: FK `publish`'s exactness check (RV14-4), four tests and two vector files, RETURN §16, `_run_records/rv14/`, this record and SHA256SUMS. ROOT then merges main (`df6d59e3c`, app-v4 only; the piping tree is unchanged).
+- **Size:** at `b379e5b27`, 11 product and test files, +5,654 −5; the addendum changes 7 of them (+423 −24) and adds 2 vector files (+316). Records are under `T3/IMPLEMENTATION/K5/`.
 - **Basis:**
   - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`): §4.9 (W4), §2.5, §4.1.3, §4.3, and the K5 row of §6;
   - `ROOT_RULINGS_V1.md`: "K5: spawn and rulings" and "K5: rulings on I14's checkpoint-0 plan" (Q7 reversed to (a));
@@ -91,3 +92,39 @@ This is the draft PR record for slice K5 of T3 (numerical integrity), following 
   - the curved rule on the corpus;
   - an exact rational null-space oracle for the constructed cases, independent of K5's generator;
   - a re-run of the loop pin's and K1's pins' original mutants.
+
+## RV14's review and the addendum (`RETURN.md` §16)
+
+RV14's independent review at `b379e5b27` (`REVIEW/K5_REVIEW.md`, numerics `3a17799e4`) was **PASS**: no false witness, no missed mechanism, and byte identity, the Q2 condition, P6 and the prefilter equivalence all held. Its four SHOULD-FIX items are resolved as ROOT directed.
+
+- **RV14-4 (an FK API defect).**
+  - The defect: `rigid_parameters` = [t/L, θ] published +∞ at subnormal spans.
+  - The fix: `WitnessContext::publish` now publishes only when each t_i/L is finite and scales back to t_i exactly. Otherwise the witness is refused as `NumericallyUnresolved`, with the new `ConstrainedAssessment::unresolved` = "constrained-body witness parameters not representable".
+  - `unresolved` is `Some` exactly when the status is unresolved; its other reason is "constrained-body rank unresolved".
+  - The control is RV14's tiny-coordinate sweep, ported bit for bit into the generator: 301 records committed, 1,501 via `K5_SUBNORMAL_VECTORS`, with a new expectation `P`.
+  - On RV14's whole 4,226-case corpus, exactly its 349 non-finite witnesses become unresolved, every other result is byte-identical, and RV14's oracle reports 0 findings.
+  - SA's mapping and published text are unchanged. From SA-built evidence the refusal needs |t_i| > 2^952, or a rounding t_i/L, which product-scale coordinates do not reach.
+- **Three test gaps, now pinned:**
+
+| Finding | New test |
+|---|---|
+| RV14-1: a cycle in the τ_B band | two FK cases from RV14's construction, in `k5_b4_cycles` |
+| RV14-2: two curved sources that disagree at a curved-only node | SA `k5_curved_sources_agree_at_a_curved_only_node` |
+| RV14-3: K5-C2's published reason on `constructed_mechanism_r0.2_o0`, both entries and both modes | PP `k5_curved_mechanism_without_a_representable_witness_is_unresolved` |
+
+- **NOTEs:**
+  - N1: §6's line numbers renumbered to `b379e5b27`, and §2.5 cites both the base and the head;
+  - N2: the spring-ground assertion added (`k5_positive_springs_ground_w4_bodies`);
+  - N3, N4: no action;
+  - N5: ROOT merges main.
+- **Mutations**, each from a clean `git archive b379e5b27` plus the addendum's files, after a NONE control:
+  - RV14-M1, M2 and M4 are killed at the new tests' assertions;
+  - RV14-M3 is now killed at an assertion;
+  - the new K5-M20 (the exactness check removed) is killed.
+- **Tests** (targeted):
+  - FK: 8 + 15 + 1, and `s11_site_table` 3;
+  - NI: 129;
+  - PP: 4;
+  - `gen_k5_vectors.py --check` OK;
+  - NI's non-test build has no warnings.
+- **Not re-run:** T9, gate part 1, the 39-manifest suites and the product-run table. SA and PP sources are unchanged, and W4 runs in no T9 or gate run.

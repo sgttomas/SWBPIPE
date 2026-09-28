@@ -1,0 +1,2 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k5/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.84s

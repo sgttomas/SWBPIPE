@@ -1,0 +1,9 @@
+Addendum (RV14's review): b379e5b27 plus the files in overlay_d2.txt, NONE first. RV14's patches from its committed rv14_mutate.py (sha256 9ef6da73...); K5-M20 from mutate_k5.py.
+| Mutant | Site | Result | Killing tests (assertion site) |
+|---|---|---|---|
+| D2-NONE | no patch (control, addendum: b379e5b27 plus the addendum's files) | control passes | — |
+| RV14-M1 | FK `null_translations`: the exact tie loop removed (RV14's patch) | KILLED | fk `k5_b4_cycles` (k5_constrained_bodies.rs:256) |
+| RV14-M2 | SA `W4Context::body`: `.or(curved_points[l])` dropped (RV14's patch) | KILLED | ni `k5_curved_sources_agree_at_a_curved_only_node` (k5_tests.rs:1308) |
+| RV14-M4 | SA `W4Context::screen`: the K5-C2 arm mapped to `Ok` (RV14's patch) | KILLED | pp `k5_curved_mechanism_without_a_representable_witness_is_unresolved` (k5_curved_mechanism_runtime.rs:262) |
+| RV14-M3 | SA `W4Context::body`: spring grounds dropped (RV14's patch) | KILLED | ni `k1_kd5_parity_cases_demote_identically_in_both_representations` (k1_tests.rs:349); ni `k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3` (k1_tests.rs:1364); ni `k5_positive_springs_ground_w4_bodies` (k5_tests.rs:1328); ni `kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error` (kd5_tests.rs:188) (+3 more) |
+| K5-M20 | FK `WitnessContext::publish`: the parameters' exactness check removed (RV14-4) | KILLED | fk `k5_b5_parameters_are_exact_or_refused` (k5_constrained_bodies.rs:1081) |

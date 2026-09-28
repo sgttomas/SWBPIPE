@@ -1,6 +1,6 @@
 # K5 RETURN (W4: the constrained-body witness and the curved rule)
 
-I14, a Type 2 TASK, for ROOT (HELP_HUMAN). This is the return at checkpoint D. CHANGE_RECORD.md is the PR record; SHA256SUMS covers every file of `IMPLEMENTATION/K5/` except itself.
+I14, a Type 2 TASK, for ROOT (HELP_HUMAN). This is the return at checkpoint D, with an addendum (§16) resolving RV14's review. CHANGE_RECORD.md is the PR record; SHA256SUMS covers every file of `IMPLEMENTATION/K5/` except itself.
 
 **Placeholders:**
 - `<wt>` is the T3 worktree root; `<scratch>` is `<wt>/scratch/i14`; `<VENV>` is the repository venv.
@@ -19,7 +19,8 @@ I14, a Type 2 TASK, for ROOT (HELP_HUMAN). This is the return at checkpoint D. C
 | A2 | `6bf64f5a9` | SA wiring, SA and PP tests, the product-run table |
 | B | `416b0d456` | records: suites, T9, gate part 1 |
 | C | `f89662e1f` | mutation table; two tests added (FK's `b9_directional_exactness` case, NI's `k5_frame_only_bodies_keep_todays_witness`); P6 derived |
-| D | (ROOT) | these records only: RETURN, CHANGE_RECORD, `_run_records/callers.txt`, `_run_records/d/`, SHA256SUMS |
+| D | `b379e5b27` | these records only: RETURN, CHANGE_RECORD, `_run_records/callers.txt`, `_run_records/d/`, SHA256SUMS |
+| Addendum | (ROOT) | RV14's four SHOULD-FIX items: FK `publish`'s exactness check (RV14-4); four tests and two vector files; RETURN §16, `_run_records/rv14/` (§16) |
 
 ## 1. Scope as ruled
 
@@ -216,7 +217,7 @@ This is as in I14's plan §4, and in the doc comment of `assess_constrained_bodi
 3. **W2's orchestrator** `solve_with_force_scaling` passes `case.selected`; a nonlinear invocation passes false.
    - Before F1b, PP does not call it. After F1b, PP passes the same `selected` (F1b's brief); checked at the merge, with no PP edit by K5.
 4. **The contact-seed guard.**
-   - `permits_contact_seed_trial` admits any `Mechanism` (`SA:1900`). A W4 `Mechanism` exists only on a selected branch, that is with `built.nonlinear_supports` empty.
+   - `permits_contact_seed_trial` admits any `Mechanism` (`SA:1900` on the base `24dea2dae`; `SA:2142` at the head). A W4 `Mechanism` exists only on a selected branch, that is with `built.nonlinear_supports` empty.
    - PP's arm (`PP:2884`) also requires `eligible_contact_dofs(…, &built.nonlinear_supports, …).is_some()`, which is `None` for an empty support list (NI `:439`).
    - The loop never sees a W4 error (item 2).
    - **So the guard stays closed.**
@@ -497,6 +498,7 @@ The candidate's refusal envelopes are identical in both modes: the geometric scr
 
 **Method.**
 - Each mutant ran in its own clean `git archive` copy with its own target, deleted afterwards, with a NONE control first. At most two ran at once, each at `-j 4`.
+- **Line numbers are at `b379e5b27`**, the head RV14 reviewed (RV14-N1). C's round 1 ran on the tree before C's pin was inserted, so its logs show NI `k5_tests.rs` lines above 703 32 lower (K5-M13's `:1065` in the log is `:1097` here). FK lines, and NI lines up to 703, are the same in both trees. The addendum (§16) only appends to `k5_tests.rs`, so the NI numbers also hold after it; it inserts lines in `k5_constrained_bodies.rs`'s `verify_witness` and `check`, so the FK numbers are `b379e5b27`'s.
 - A kill counts only when the panic is located in test code. A panic in product code, an abort, a signal or a compile error is never counted. There were none of the last three.
 - Records: `_run_records/c/` (`c_record.txt`, `MUTANTS.txt`, logs) and `_run_records/d/`.
 
@@ -506,19 +508,19 @@ The candidate's refusal envelopes are identical in both modes: the geometric scr
 | K5-7 (§7.3 item 7, W4) | SA: W4 branch disabled | `k5_w4_runs_in_the_four_selected_branches_only` (`k5_tests.rs:493`), `k5_first_failing_body…` (`:683`), `k5_nonlinear_loop_keeps_todays_geometry` (`:571`) | killed |
 | K5-M1 | FK: cycle rows dropped, cycle ties skipped | `k5_b4_cycles`, `k5_b1` (`:234`) | killed |
 | K5-M2 | FK: offset x_b − x_a | `k5_b1`, `k5_b2`, `k5_b3` (`:235`) | killed |
-| K5-M3 | FK: stiffness check removed | `k5_c_user_tie_rule` (`:888`); NI `k5_user_elements_tie_only_with_positive_stiffnesses` (`k5_tests.rs:908`) | killed |
-| K5-M4a, K5-M4b | SA: explicit or unmatched slot qualified | `k5_curved_slots_qualify_by_their_matched_source` (`k5_tests.rs:1017`) | killed |
+| K5-M3 | FK: stiffness check removed | `k5_c_user_tie_rule` (`:888`); NI `k5_user_elements_tie_only_with_positive_stiffnesses` (`k5_tests.rs:940`) | killed |
+| K5-M4a, K5-M4b | SA: explicit or unmatched slot qualified | `k5_curved_slots_qualify_by_their_matched_source` (`k5_tests.rs:1049`) | killed |
 | K5-M5 | Q2(a) screen | — | not applicable under Q2(b): no product code computes a screen ratio |
 | K5-M6 | FK: exact tie and ground checks skipped | `k5_b5_exactness`, `k5_b9_directional_grounds` (`:249`), `k5_b2` (`:242`) | killed |
 | K5-M7 | FK: `Restrained` when no witness verifies | `k5_b5_exactness`, `k5_b2` (`:242`) | killed |
-| K5-M8a | SA: W4 in `solve_binary64` | `k5_w4_entry_is_named_only_in_the_four_selected_bodies` (`:835`), `k5_w4_runs…` (`:532`) | killed |
-| K5-M8b | SA: dense W4 before `if !selected` | the same two (`:853`, `:532`) | killed |
+| K5-M8a | SA: W4 in `solve_binary64` | `k5_w4_entry_is_named_only_in_the_four_selected_bodies` (`:867`), `k5_w4_runs…` (`:532`) | killed |
+| K5-M8b | SA: dense W4 before `if !selected` | the same two (`:885`, `:532`) | killed |
 | K5-M9 | SA: every body through W4 | `k5_frame_only_bodies_keep_todays_witness` (`k5_tests.rs:730`) | survived round 1; killed after C's test |
 | K5-M9b | SA: mixed bodies screened after every frame-only body | `k5_first_failing_body_in_seed_order_decides` (`:683`) | killed |
-| K5-M10 | SA: curved edges objective | `k5_basis_text_and_family_flag_are_unchanged` (`:1200`), `k5_curved_slots…` (`:1030`) … | killed |
+| K5-M10 | SA: curved edges objective | `k5_basis_text_and_family_flag_are_unchanged` (`:1232`), `k5_curved_slots…` (`:1062`) … | killed |
 | K5-M11 | FK: `zeta.hypot(1.0)` | `k5_b10_libm_free_source_scan` (`:858`) | killed |
-| K5-M12 | SA: coordinate check removed | `k5_curved_slots…` (`:1017`) | killed |
-| K5-M13 | SA: force-scaled match on b = 0 bits | `k5_curved_matching_agrees_with_the_formation_source` (`:1065`), `k5_force_scaled…` (`:493`) | killed |
+| K5-M12 | SA: coordinate check removed | `k5_curved_slots…` (`:1049`) | killed |
+| K5-M13 | SA: force-scaled match on b = 0 bits | `k5_curved_matching_agrees_with_the_formation_source` (`:1097`), `k5_force_scaled…` (`:493`) | killed |
 | K5-M14a, K5-M14b | FK: grounds or ties not sorted | `k5_b6_order_independence` (`:511`) | killed |
 | K5-M15 (own) | FK: L = M | `k5_b1`, `k5_b2`, `k5_b4` (`:165`) | killed |
 | K5-M16 (own) | FK: zero rows kept | `k5_b1` (`:235`), `k5_b4` (`:234`) | killed |
@@ -526,7 +528,7 @@ The candidate's refusal envelopes are identical in both modes: the geometric scr
 | K5-M18 (own) | FK: canonical scaling dropped | `k5_b1`, `k5_b5`, `k5_b9` (`:260`) | killed |
 | K5-M19 (own) | FK: rationalized candidates removed | `k5_b1` (`:235`), `k5_b7_power_of_two_invariance` (`:524`) | killed |
 | K5-PREFILTER (declared equivalent) | FK: the prefilter's row loop removed | — | survives, as §2.8 derives (run at D, supporting only) |
-| KD5-SELECT | SA: dense `if !selected` removed | `k1_tests.rs:405`, `k2b_tests.rs:437`, `k5_tests.rs:853`, `:532` | killed |
+| KD5-SELECT | SA: dense `if !selected` removed | `k1_tests.rs:405`, `k2b_tests.rs:437`, `k5_tests.rs:885`, `:532` | killed |
 | K1-PIN-BINARY64, -B | SA: exact entry in `solve_binary64` | `s11k_tests.rs:1478`, `:807`, `:577` / `:595` | killed |
 | K1-PIN-THIRD | SA: third formation-checked definition | `s11k_tests.rs:1141` | killed |
 | K1-PIN-LOOP, -B | NI loop through a formation-checked entry or helper | `k1_tests.rs:997` / `:1000`, `s11k_tests.rs:1280`–`:1283`, and for -B `k5_tests.rs:613` | killed |
@@ -597,8 +599,13 @@ pub enum ConstrainedGround {                                          // :274
     Directional { node: usize, kind: GroundKind, direction: [f64; 3] },
 }
 
+// The addendum (RV14-4): the named unresolved reasons.
+pub const CONSTRAINED_RANK_UNRESOLVED: &str = "constrained-body rank unresolved";          // :290
+pub const CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE: &str =
+    "constrained-body witness parameters not representable";                              // :294
+
 #[derive(Debug, Clone, PartialEq)]
-pub struct ConstrainedAssessment {                                    // :292
+pub struct ConstrainedAssessment {                                    // :301
     pub status: RigidBodyStatus,          // never UnqualifiedFamily
     pub singular_values: [f64; 6],
     pub rank_screen: f64,                 // τ_B = 64·γ(max(m, 6))·σ_max
@@ -606,24 +613,25 @@ pub struct ConstrainedAssessment {                                    // :292
     pub cycles: usize,                    // non-tree ties
     pub characteristic_length: f64,       // L, a power of two
     pub origin: [f64; 3],                 // local node 0
-    pub rigid_parameters: Option<[f64; 6]>,   // [t/L, θ] of the witness
+    pub rigid_parameters: Option<[f64; 6]>,   // [t/L, θ] of the witness, exact (RV14-4)
     pub node_motion: Option<Vec<[f64; 6]>>,   // exact [u, θ] per local node
     pub iterations: usize,
+    pub unresolved: Option<&'static str>,     // Some exactly when NumericallyUnresolved (RV14-4)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TieRefusal { Stiffness(&'static str), Orientation }         // :315
+pub enum TieRefusal { Stiffness(&'static str), Orientation }         // :329
 
 pub fn user_element_tie(element: &UserStiffnessElement)
-    -> Result<[usize; 2], TieRefusal>;                                // :330
+    -> Result<[usize; 2], TieRefusal>;                                // :344
 pub fn objective_sub_bodies(node_count: usize, links: &[[usize; 2]])
-    -> Result<Vec<Vec<usize>>, StructuralError>;                      // :351
+    -> Result<Vec<Vec<usize>>, StructuralError>;                      // :365
 pub fn assess_constrained_bodies(
     coordinates: &[[f64; 3]],
     sub_bodies: &[Vec<usize>],
     ties: &[[usize; 2]],
     grounds: &[ConstrainedGround],
-) -> Result<ConstrainedAssessment, StructuralError>;                  // :464
+) -> Result<ConstrainedAssessment, StructuralError>;                  // :478
 ```
 
 **The contract of `assess_constrained_bodies`.**
@@ -637,8 +645,10 @@ pub fn assess_constrained_bodies(
 - **Range.** An exact difference or virtual position outside binary64 is `Range("constrained relative coordinates")`. It is unreachable from SA-built evidence (§2.7), but reachable through direct FK calls.
 - **Order.** Input order never matters: status and bits depend on the content only (B6).
 - **Output.**
-  - `MechanismWitnessed` carries the exact, canonical witness.
-  - `NumericallyUnresolved` means the rank is in the τ_B band, or no candidate verified. It is never a rounded direction.
+  - `MechanismWitnessed` carries the exact, canonical witness, and `rigid_parameters` = [t/L, θ] exactly (`rigid_parameters[i]·L` is node 0's u_i bit for bit).
+  - A witness whose [t/L, θ] is not exactly representable (t/L overflows at a tiny L, or rounds at a huge one) is refused: `NumericallyUnresolved` with `unresolved = CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`, nothing published (the addendum, RV14-4).
+  - `NumericallyUnresolved` with `CONSTRAINED_RANK_UNRESOLVED` means the rank is in the τ_B band, or no candidate verified. It is never a rounded direction.
+  - `unresolved` is `Some` exactly when the status is `NumericallyUnresolved`. SA publishes its own reason text for both ("constrained-body rank unresolved"), unchanged.
   - **`Restrained` is not a restraint proof.** A caller still runs its matrix gate, as SA does.
 - **Platform.** The function calls no function of unspecified precision (§2.6). Its output is a function of the input bits on every IEEE-754 platform.
 - **Directional rows.** The exact check uses `direction` as given. The screen uses it scaled by a power of two.
@@ -819,5 +829,177 @@ See §10.
 | `c/` | the mutation tooling, `MUTANTS.txt`, `c_record.txt` and every log |
 | `d/` | the prefilter mutant with its NONE control; D's mutation tooling; Q10's instrument, summary and raw logs |
 | `callers.txt`, `scan_callers_k5.py.txt` | the caller scan (§8) |
+| `rv14/` | the addendum (§16): targeted test logs; the mutation tooling, RV14's patch script, `MUTANTS_RV14.txt` and every log; RV14's FK probe with the corpus comparison and RV14's oracle summary |
 
 `IMPLEMENTATION/K5/SHA256SUMS` lists every file under `IMPLEMENTATION/K5/` except itself, as `./<path>`.
+
+## 16. Addendum: RV14's review (PASS at `b379e5b27`; 0 BLOCKING, 4 SHOULD-FIX, 5 NOTEs)
+
+**Basis.** RV14's review is `T3/REVIEW/K5_REVIEW.md`, with `REVIEW/_run_records/k5_review/`, committed on the numerics branch at `3a17799e4`. ROOT directed that all four SHOULD-FIX items be resolved, with RV14-M1, M2 and M4 and a new mutant re-killed from clean archives. Records are in `_run_records/rv14/`.
+
+| Finding | Resolution | Pinned by | Mutant (clean archive) |
+|---|---|---|---|
+| RV14-1: the exact tie loop, the only guard against a cycle in the τ_B band (test gap) | two FK cases from RV14's construction | `k5_b4_cycles` | RV14-M1 killed at `k5_constrained_bodies.rs:256` |
+| RV14-2: agreement of two curved sources at a curved-only node (test gap) | an SA test on RV14's P1 | `k5_curved_sources_agree_at_a_curved_only_node` | RV14-M2 killed at `k5_tests.rs:1308` |
+| RV14-3: K5-C2's published reason (test gap, product-reachable) | a PP test on `constructed_mechanism_r0.2_o0` | `k5_curved_mechanism_without_a_representable_witness_is_unresolved` | RV14-M4 killed at `k5_curved_mechanism_runtime.rs:262` |
+| RV14-4: `rigid_parameters` = +∞ at subnormal spans (FK API defect) | FK `publish` refuses a witness whose [t/L, θ] is not exact, with a named reason | `k5_b5_parameters_are_exact_or_refused`, and RV14's tiny corpus | K5-M20 killed at `k5_constrained_bodies.rs:1081` |
+| RV14-N1: stale line numbers | §6 renumbered to `b379e5b27` and stated; §2.5 cites the base and the head lines | — | — |
+| RV14-N2: spring grounds killed only by `unwrap` panics | an SA test on RV14's P2 (cheap) | `k5_positive_springs_ground_w4_bodies` | RV14-M3 now also killed at `k5_tests.rs:1328` (an assertion) |
+| RV14-N3, N4 | no action | — | — |
+| RV14-N5: main moved to `df6d59e3c` (app-v4 only) | ROOT merges main after committing the addendum; the piping tree is unchanged | — | — |
+
+Line numbers in this table are those of the addendum's tree.
+
+### 16.1 RV14-1: a cycle in the τ_B band
+
+- **The cases.** `gen_k5_vectors.py` adds `b4_cycle_band_rv14_0` and `b4_cycle_band_rv14_4` to `cases.txt`: RV14's `T1_cycle_band_0` and `T1_cycle_band_4`, bit for bit.
+  - Nodes (0,0,0), (1,0,0), (0,1,0) and (1−ε, 1, −1), with ε = 9u and 901u (u = 2^-53).
+  - Sub-bodies {0,2} and {1,3}; tree tie 0-1; cycle tie 2-3, whose exact offset is c = (ε, 0, 1).
+  - Grounds: node 0's translations, RX and RY.
+- **Expectation `U`, from the generator's exact oracle.** The unreduced map has nullity 0: the cycle restrains the rotation about z.
+- **What `k5_b4_cycles` asserts:**
+  - `NumericallyUnresolved`, with `CONSTRAINED_RANK_UNRESOLVED`;
+  - 8 rows and 1 cycle;
+  - σ_min ≤ τ_B (the band).
+- **Why it pins the tie loop.** The candidate θ = e_z passes the prefilter, since |θ × ĉ| ≈ ε. Without the exact tie loop, the function publishes it: RV14-M1 fails the first case with `MechanismWitnessed` against `NumericallyUnresolved`.
+- **The other corpus tests pass on both cases:** B6 (order) and B7 (2^±k scaling; the rows are scale-invariant at normal scales).
+
+### 16.2 RV14-2: two curved sources at a curved-only node
+
+- **The model** is RV14's P1: two matched bends, A from node 0 (0,0,0) to node 1 (0.25, 0.25, 0), and B from node 1 (0.5, 0.25, 0) to node 2 (0.75, 0.5, 0). Translation pins at nodes 0 and 2, and a load at node 1.
+- **What the test asserts:**
+  - the evidence records no coordinate for any node;
+  - `W4Context::body` gives `Unqualified(CurvedCoordinates { element_id: "bend-1", node: 1 })`;
+  - every selected entry (dense and sparse, unscaled and force-scaled, both modes) equals its unselected sibling and is never a `Mechanism`.
+- **Under RV14-M2** the body is `Assessed`, with a false `MechanismWitnessed`, and the first assertion fails.
+
+### 16.3 RV14-3: K5-C2's published reason
+
+- **The model** is I14's product input `constructed_mechanism_r0.2_o0`. PP's test model gains a radius parameter and the harness's second load case (`model_with`); the three existing tests' inputs are byte-identical.
+- **What the test asserts, on both entries and in both modes:**
+  - `MODEL_INCOMPLETE`;
+  - every blocking diagnostic is `NUMERICAL_INTEGRITY_UNRESOLVED`, and its message contains `NumericallyUnresolved { reason: "constrained-body rank unresolved", global_dof: None }`;
+  - no result rows.
+- **Under RV14-M4** the outcome reverts to Mac main's ("nonpositive or cancellation-unresolved structural pivot"), and the reason assertion fails in the first run (captured, SparseInteractive).
+
+### 16.4 RV14-4: `rigid_parameters` is exact, or the witness is refused
+
+**The fix** (`FK/src/rigid_body.rs`, `WitnessContext::publish`; RV14 recommended "publish the field only when every r_i/L is finite and exact").
+- `publish` forms t_i = fl(r_i/L) for the three translation components.
+- It publishes only if, for each i, t_i is finite and fl(t_i·L) = r_i.
+- Otherwise the status stays `NumericallyUnresolved`, with the new field `unresolved = Some(CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE)` ("constrained-body witness parameters not representable"), and nothing is published.
+- `ConstrainedAssessment` gains `pub unresolved: Option<&'static str>`. It is `Some` exactly when the status is `NumericallyUnresolved`: the new reason, or `CONSTRAINED_RANK_UNRESOLVED` for the τ_B band or no verified candidate. Both reason strings are public consts.
+- The SA mapping is unchanged: SA reads only `status` and `node_motion`, and publishes "constrained-body rank unresolved" for either reason.
+- I chose the refusal, not ROOT's alternative of publishing the parameters in a form that is always exact. The field's documented meaning, [t/L, θ] as `assess_rigid_body` publishes it, then stays unchanged for every published witness.
+
+**Why the test is exact.** L = 2^e is a power of two.
+- **L ≥ 1** (a quotient scaled down):
+  - if r_i/L is exact, t_i·L = r_i exactly;
+  - if the quotient rounds (subnormal), t_i·L is an exact scaling up of a different value, so it differs from r_i;
+  - if it underflows to 0 (r_i ≠ 0), 0·L = 0 ≠ r_i.
+- **L < 1** (a quotient scaled up):
+  - r_i/L is exact unless it overflows, and ∞ fails the finiteness test;
+  - if it is exact, t_i·L = r_i, because the product's exact value r_i is representable.
+- **So the test passes exactly when [t/L, θ] is r scaled exactly.**
+- **The θ components are never divided.**
+
+**Mutant K5-M20** removes the check (`if false && …`). It publishes `MechanismWitnessed` with +∞ on RV14's minimal case, and is killed at the test's first assertion (`k5_constrained_bodies.rs:1081`).
+
+**The control: RV14's tiny-coordinate sweep.**
+- **The corpus.** `gen_k5_vectors.py` ports RV14's `tiny_case` (seed 1403). Its 1,500 cases are **byte-identical to RV14's `cases_tiny.txt`**, checked in scratch.
+- **The minimal case.** RV14's `H_tiny_free_x` precedes them, as `rv14_h_tiny_free_x`: two nodes 2^-1070 apart, grounds d1–d5.
+- **Expectations**, from the same exact oracle plus the function's L, taken from the exact virtual positions rounded to binary64:
+  - `N`: nullity 0;
+  - `D`: nullity 2 or more;
+  - `U`: nullity 1 with no representable canonical motion;
+  - `M`: nullity 1, with a representable canonical witness and representable parameters;
+  - **`P` (new):** nullity 1, with a representable canonical witness whose t/L is not exact.
+- **What is committed.** `subnormal.txt` holds the first 301 records. `subnormal_summary.txt` holds the full set's counts and sha256, and `--full-subnormal` writes the full set.
+- **What the test asserts:**
+  - the minimal case directly: `NumericallyUnresolved` with the named reason, L = 2^-1070, and neither field published;
+  - `check()` on every record;
+  - that the test's `verify_witness` now asserts finite parameters. Its power-of-two check on L now also admits a subnormal L, which the corpus reaches.
+- **Results** (`_run_records/rv14/tests/fk.txt`):
+
+| Set | P→U | M→W | D→W | D→U | N→R | N→U | U→U |
+|---|---|---|---|---|---|---|---|
+| Sample (301 records) | 24 | 25 | 55 | 47 | 134 | 1 | 15 |
+| Full (1,501 records; `K5_SUBNORMAL_VECTORS`) | 146 | 127 | 282 | 277 | 583 | 4 | 82 |
+
+**The fix against RV14's whole corpus** (`_run_records/rv14/probe/comparison.txt`).
+- RV14's own FK probe (unchanged) ran on RV14's 4,226 cases in the addendum's clean copy.
+- **Exactly the 349 head witnesses that published a non-finite component change,** `MechanismWitnessed` → `NumericallyUnresolved`. Only the status, `rigid_parameters` and `node_motion` columns differ.
+- **Every other result is byte-identical** to RV14's head results (`862d4614…`).
+- **RV14's oracle on the new results:** 0 findings, 0 false witnesses, 0 non-finite parameters.
+
+**Reach.** The fix changes an outcome only for a witness whose t/L overflows or rounds.
+- **SA-built bodies.** L ≥ 2^-72 for any body with a frame link (span above 10^-12) or a matched curved link (a chord of at least 2R·sin(φ/2) with R > 10^-12 and φ ≥ 10^-9). L = 1 for a body of ties only (v ≡ 0).
+- **So for an SA-built body:**
+  - an overflow needs |t_i| > 2^952;
+  - a rounding needs |t_i| < 2^-1022·L.
+- Neither arises at product-scale coordinates. If one did, SA would publish K5-C2's refusal instead of a mechanism, which is conservative.
+- **None of the regression corpora can see the change.** W4 runs in no T9 or gate part 1 run (no curved bend, no user element), and SA and PP sources are untouched. So the addendum re-runs targeted tests only (ROOT's direction). T9, gate part 1, the 39-manifest suites and the 152-run product table stand as recorded at B.
+
+### 16.5 The NOTEs
+
+- **N1.**
+  - §6's NI line numbers are renumbered to `b379e5b27` (+32 above line 703: K5-M3 `:940`, K5-M4 and M12 `:1049`, K5-M8a `:867`, K5-M8b and KD5-SELECT `:885`, K5-M10 `:1232` and `:1062`, K5-M13 `:1097`), and the table says which tree it uses.
+  - §2.5 now cites `SA:1900` on the base and `SA:2142` at the head.
+  - §9.1's FK anchors are updated to the addendum's tree.
+- **N2.** `k5_positive_springs_ground_w4_bodies` is RV14's P2: K5's curved line held about a–d by an RX spring of 1e6 at a.
+  - It asserts W4's `Restrained` and each selected entry equal to its unselected sibling.
+  - RV14-M3 is now killed at that assertion (`k5_tests.rs:1328`) as well as by the K1 and K-D5 helpers' `unwrap` panics.
+- **N3** (M0438's completeness gap) and **N4** (the host name at RETURN.md:12) need no action.
+- **N5.** ROOT merges main (`df6d59e3c`, app-v4 only) after committing the addendum. I14 made no Git write.
+
+### 16.6 Evidence
+
+**Tests** (targeted, `<wt>/k5`'s working tree, target `<wt>/k5-target`):
+
+| Suite | Result |
+|---|---|
+| FK `--lib` (`rigid_body::`, `k5_`) | 8 |
+| FK `k5_constrained_bodies` | 15 (+1: `k5_b5_parameters_are_exact_or_refused`), with the full subnormal set |
+| FK `k5_scale` | 1 |
+| FK `s11_site_table` | 3 |
+| NI `--lib` | 129 (+2: `k5_curved_sources_agree_at_a_curved_only_node`, `k5_positive_springs_ground_w4_bodies`) |
+| PP `k5_curved_mechanism_runtime` | 4 (+1: `k5_curved_mechanism_without_a_representable_witness_is_unresolved`) |
+
+- NI's non-test build has no warnings.
+- `gen_k5_vectors.py --check` is OK, and `b1_sample.txt` and `b1_summary.txt` are unchanged. The reduction was factored into `reduction()` with no output change.
+- `rigid_body.rs:1-248` still hashes `d9598efa…`.
+
+**Mutations** (`_run_records/rv14/mutations/`).
+- Each ran in a clean `git archive b379e5b27` copy, plus the addendum's nine files (`overlay_d2.txt`), with its own target deleted afterwards. The NONE control ran first: FK 8 + 15 + 1, NI 129, PP 4.
+- RV14's patches were applied from its committed `rv14_mutate.py` (sha256 `9ef6da73…`, copied as `rv14_mutate.py.txt`); K5-M20 from `mutate_k5.py`. At most two ran at once, at `-j 4`.
+
+| Mutant | Result (assertion site) |
+|---|---|
+| RV14-M1 (exact tie loop removed) | killed: `k5_b4_cycles` (`k5_constrained_bodies.rs:256`) |
+| RV14-M2 (curved-to-curved agreement dropped) | killed: `k5_curved_sources_agree_at_a_curved_only_node` (`k5_tests.rs:1308`) |
+| RV14-M4 (K5-C2 mapped to `Ok`) | killed: `k5_curved_mechanism_without_a_representable_witness_is_unresolved` (`k5_curved_mechanism_runtime.rs:262`); NI 129 still pass |
+| RV14-M3 (spring grounds dropped) | killed: `k5_positive_springs_ground_w4_bodies` (`k5_tests.rs:1328`), and the `unwrap` panics RV14 recorded (`k1_tests.rs:349`, `:1364`, `kd5_tests.rs:188`) |
+| K5-M20 (own; RV14-4's check removed) | killed: `k5_b5_parameters_are_exact_or_refused` (`k5_constrained_bodies.rs:1081`) |
+
+**Host.** The Mac was shared with I13's F1b build, at load 6 to 10. The memory guard was unchanged: 2 lines, `79e2ce8e…`.
+
+**The addendum's files (sha256):**
+
+| File | Lines | Diff against `b379e5b27` | sha256 |
+|---|---|---|---|
+| `FK/src/rigid_body.rs` | 1,407 | +30 −9 | `3e5b9be1…` |
+| `FK/tests/k5_constrained_bodies.rs` | 1,109 | +112 −4 | `f56d77d0…` |
+| `FK/tests/k5_constrained/gen_k5_vectors.py` | 910 | +157 −5 | `2e4a850c…` |
+| `FK/tests/k5_constrained/cases.txt` | 29 | +2 | `75657e93…` |
+| `FK/tests/k5_constrained/SHA256SUMS` | 6 | +4 −2 | `4b00b516…` |
+| `FK/tests/k5_constrained/subnormal.txt` (new) | 301 | +301 | `7e41bf9c…` |
+| `FK/tests/k5_constrained/subnormal_summary.txt` (new) | 15 | +15 | `63ad0f61…` |
+| `NI/src/structural_adapter/k5_tests.rs` | 1,333 | +75 (appended) | `bacf221b…` |
+| `PP/tests/k5_curved_mechanism_runtime.rs` | 267 | +43 −4 | `6450e9db…` |
+
+No SA, PP, NI `lib.rs`, CB or other source changes. No dependency or lockfile change.
+
+**Disclosures.**
+- `_run_records/rv14/tests/fk.txt`, `fk_site.txt`, `ni.txt` and `pp.txt` are cargo's raw output, with machine paths replaced by placeholders. They keep cargo's blank line at the end of the file, verbatim. They are the only whitespace items the addendum adds; §14's four remain.
+- RV14's committed scripts are reused unchanged: `rv14_mutate.py` (`9ef6da73…`), `rv14_fk_probe.rs` (`9a2c7878…`) and `rv14_oracle.py` (`03586d4b…`). They were copied from `REVIEW/_run_records/k5_review/`, and the first two are kept here as `.txt`. RV14's `tiny_case`, `partition` and `rand_dir` are ported into `gen_k5_vectors.py` with attribution, and their output is byte-identical to RV14's corpus.
+- The candidate's probe results (1.7 MB) are not committed. Their sha256 is in `probe/comparison.txt`.
