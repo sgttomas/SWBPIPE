@@ -1,0 +1,44 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv7/fk_base)
+error[E0689]: can't call method `powi` on ambiguous numeric type `{float}`
+  --> tests/rv7_rotated_m03.rs:34:22
+   |
+32 |     let (od, w) = (1.0e-11, 1.0e-12);
+   |          -- you must specify a type for this binding, like `f32`
+33 |     let id = od - 2.0 * w;
+34 |     let a = PI * (od.powi(2) - id.powi(2)) / 4.0;
+   |                      ^^^^
+
+error[E0689]: can't call method `powi` on ambiguous numeric type `{float}`
+  --> tests/rv7_rotated_m03.rs:34:35
+   |
+34 |     let a = PI * (od.powi(2) - id.powi(2)) / 4.0;
+   |                                   ^^^^
+   |
+help: you must specify a type for this binding, like `f32`
+   |
+33 |     let id: f32 = od - 2.0 * w;
+   |           +++++
+
+error[E0689]: can't call method `powi` on ambiguous numeric type `{float}`
+  --> tests/rv7_rotated_m03.rs:35:22
+   |
+32 |     let (od, w) = (1.0e-11, 1.0e-12);
+   |          -- you must specify a type for this binding, like `f32`
+...
+35 |     let i = PI * (od.powi(4) - id.powi(4)) / 64.0;
+   |                      ^^^^
+
+error[E0689]: can't call method `powi` on ambiguous numeric type `{float}`
+  --> tests/rv7_rotated_m03.rs:35:35
+   |
+35 |     let i = PI * (od.powi(4) - id.powi(4)) / 64.0;
+   |                                   ^^^^
+   |
+help: you must specify a type for this binding, like `f32`
+   |
+33 |     let id: f32 = od - 2.0 * w;
+   |           +++++
+
+For more information about this error, try `rustc --explain E0689`.
+error: could not compile `open_pipe_stress_frame_kernel` (test "rv7_rotated_m03") due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...

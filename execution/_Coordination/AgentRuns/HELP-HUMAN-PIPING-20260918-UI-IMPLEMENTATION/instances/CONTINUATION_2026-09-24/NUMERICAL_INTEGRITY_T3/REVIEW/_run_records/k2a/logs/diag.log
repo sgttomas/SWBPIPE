@@ -1,0 +1,13 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv7/src/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<scratch>/rv7/src/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<scratch>/rv7/src/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<scratch>/rv7/src/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<scratch>/rv7/src/projects/chirality-piping/core/solver/diagnostics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.13s
+     Running unittests src/lib.rs (<wt>/rv7-target/diag/debug/deps/open_pipe_stress_solver_diagnostics-7ae4014a7f513d5b)
+
+running 1 test
+test tests::k2a_maps_numerical_range_to_the_existing_formation_code_with_its_name ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.00s
+

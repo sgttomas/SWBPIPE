@@ -1,0 +1,8 @@
+disk before fk_base: 11524852 kB
+fk_base exit 0
+disk before pp: 11524824 kB
+pp exit 0
+654M	<wt>/rv7-target
+disk before pp_main: 11524756 kB
+pp_main_skew exit 0
+372M	<wt>/rv7-target

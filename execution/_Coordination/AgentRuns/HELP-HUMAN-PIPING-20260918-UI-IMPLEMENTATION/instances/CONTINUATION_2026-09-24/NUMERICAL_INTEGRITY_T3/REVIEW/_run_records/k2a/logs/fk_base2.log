@@ -1,0 +1,53 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv7/fk_base)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.38s
+     Running tests/k2a_checked_formation.rs (<wt>/rv7-target/fk_base/debug/deps/k2a_checked_formation-739570a890748b5e)
+
+running 10 tests
+test k2a_each_checked_intermediate_is_refused_by_its_own_name ... ok
+test k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical ... ok
+test k2a_partial_underflow_control_is_refused ... ok
+test k2a_rf_range_lef_large_overflow_is_refused_by_name_on_all_three_bases ... ok
+test k2a_rf_range_lef_small_is_silent_unchecked_and_refused_by_name_on_all_three_bases ... ok
+test k2a_subnormal_intermediate_control_is_refused_although_every_coefficient_is_normal ... ok
+test k2a_zero_operand_keeps_its_existing_refusal ... ok
+test k2a_refused_formation_is_refused_before_the_formation_check_runs ... ok
+test k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations ... ok
+test k2a_normal_formations_are_bit_identical_to_the_unchecked_formation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/rv7_rotated_m03.rs (<wt>/rv7-target/fk_base/debug/deps/rv7_rotated_m03-a7631ed8f982ac18)
+
+running 1 test
+RV7 (12E)I=2^-1030: E=0e0; intermediates (12E)I=0e0 (6E)I=0e0 (4E)I=0e0 (2E)I=0e0; GJ/L=3.186515784299919e-134; EA/L=0e0(2^-inf, rel NaN) 12EIy/L3=0e0(2^-inf, rel NaN) 6EIy/L2=0e0(2^-inf, rel NaN) 4EIy/L=0e0(2^-inf, rel NaN) 2EIy/L=0e0(2^-inf, rel NaN)
+
+thread 'rv7_rotated_member_m03_floor' (388) panicked at tests/rv7_rotated_m03.rs:67:53:
+called `Result::unwrap()` on an `Err` value: NonPositiveInput { name: "elastic_modulus", value: 0.0 }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::result::unwrap_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1867:5
+   3: <core::result::Result<open_pipe_stress_frame_kernel::FrameSection, open_pipe_stress_frame_kernel::FrameKernelError>>::unwrap
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/result.rs:1233:23
+   4: rv7_rotated_m03::rv7_rotated_member_m03_floor
+             at ./tests/rv7_rotated_m03.rs:67:53
+   5: rv7_rotated_m03::rv7_rotated_member_m03_floor::{closure#0}
+             at ./tests/rv7_rotated_m03.rs:30:34
+   6: <rv7_rotated_m03::rv7_rotated_member_m03_floor::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+test rv7_rotated_member_m03_floor ... FAILED
+
+failures:
+
+failures:
+    rv7_rotated_member_m03_floor
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `--test rv7_rotated_m03`
