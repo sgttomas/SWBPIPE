@@ -1,0 +1,61 @@
+"""RV7: exact reference for rv7_skew_runtime's one-member cantilever (N0 anchored, N1 free, moment RZ at N1).
+Inputs are the binary64 values the product forms (PP derive_pipe_section, FK norm and orientation, taken as exact);
+the stiffness is formed and solved exactly (Fraction). Compares with main's binary64 formation (subnormal-rounded).
+Usage: python3 -B skew_ref.py"""
+import math
+from fractions import Fraction as F
+def dot(a,b): return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
+def sub(a,b): return [a[i]-b[i] for i in range(3)]
+def scale(a,s): return [x*s for x in a]
+def cross(a,b): return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]
+def norm(a): return math.sqrt(dot(a,a))
+def normalize(a): m=norm(a); return scale(a,1.0/m)
+def orient(xv,yref):
+    x=normalize(xv); y=normalize(sub(yref,scale(x,dot(yref,x)))); z=normalize(cross(x,y)); return [x,y,z]
+def local(c, exact):
+    ax,to,y12,y6,y4,y2,z12,z6,z4,z2=c
+    Z=F(0) if exact else 0.0
+    K=[[Z]*12 for _ in range(12)]
+    for d,v in ((0,ax),(3,to)):
+        K[d][d]=v;K[d+6][d+6]=v;K[d][d+6]=-v;K[d+6][d]=-v
+    def add(idx,t):
+        for r in range(4):
+            for s in range(4): K[idx[r]][idx[s]]+=t[r][s]
+    add([1,5,7,11],[[z12,z6,-z12,z6],[z6,z4,-z6,z2],[-z12,-z6,z12,-z6],[z6,z2,-z6,z4]])
+    add([2,4,8,10],[[y12,-y6,-y12,-y6],[-y6,y4,y6,y2],[-y12,y6,y12,y6],[-y6,y2,y6,y4]])
+    return K
+def solve(A,b):
+    n=len(A); M=[row[:]+[b[i]] for i,row in enumerate(A)]
+    for c in range(n):
+        p=next(r for r in range(c,n) if M[r][c]!=0); M[c],M[p]=M[p],M[c]
+        for r in range(n):
+            if r!=c and M[r][c]!=0:
+                f=M[r][c]/M[c][c]; M[r]=[M[r][k]-f*M[c][k] for k in range(n+1)]
+    return [M[i][n]/M[i][i] for i in range(n)]
+L=2.0**-39; od,w=1e-11,1e-12; id_=od-2.0*w
+A=math.pi*(od**2-id_**2)/4.0; I=math.pi*(od**4-id_**4)/64.0; J=2.0*I; G=1e-100
+s=L/math.sqrt(3.0)
+for target in (-1045,-1050):
+    E=2.0**target/(12.0*I)
+    moment=0.1*(E*2.0**600*I/L)*2.0**-600
+    for name,n1,yref in (("axis",[L,0.0,0.0],[0.0,1.0,0.0]),("skew111",[s,s,s],[0.0,0.0,1.0]),("skew122",[L/3.0,2.0*L/3.0,2.0*L/3.0],[1.0,0.0,0.0])):
+        Lm=norm(n1); R=orient(n1,yref)
+        l2=Lm*Lm; l3=l2*Lm
+        cb=[E*A/Lm,G*J/Lm,12.0*E*I/l3,6.0*E*I/l2,4.0*E*I/Lm,2.0*E*I/Lm,12.0*E*I/l3,6.0*E*I/l2,4.0*E*I/Lm,2.0*E*I/Lm]
+        FE,FI,FL=F(E),F(I),F(Lm)
+        ce=[FE*F(A)/FL,F(G)*F(J)/FL]+[F(12.0*E)*FI/FL**3,F(6.0*E)*FI/FL**2,F(4.0*E)*FI/FL,F(2.0*E)*FI/FL]*2
+        out={}
+        for tag,c,ex in (("main_binary64_coeffs",[F(x) for x in cb],True),("exact",ce,True)):
+            K=local(c,True)
+            T=[[F(0)]*12 for _ in range(12)]
+            for b in range(4):
+                for r in range(3):
+                    for q in range(3): T[3*b+r][3*b+q]=F(R[r][q])
+            KT=[[sum(K[i][k]*T[k][j] for k in range(12) if K[i][k]!=0 and T[k][j]!=0) for j in range(12)] for i in range(12)]
+            Kg=[[sum(T[k][i]*KT[k][j] for k in range(12) if T[k][i]!=0) for j in range(12)] for i in range(12)]
+            Kff=[row[6:12] for row in Kg[6:12]]
+            f=[F(0)]*6; f[5]=F(moment)
+            out[tag]=solve(Kff,f)
+        rel=max(abs(out["main_binary64_coeffs"][k]-out["exact"][k])/max(abs(x) for x in out["exact"]) for k in range(6))
+        print(f"target 2^{target} {name}: L={Lm!r} exact N1 (ux,uy,uz m; rx,ry,rz rad)={[float(x) for x in out['exact']]}")
+        print(f"   main-coefficient solve (exact arithmetic on main's rounded coefficients) = {[float(x) for x in out['main_binary64_coeffs']]}; max rel dev (vs max |u|) {float(rel):.3e}")

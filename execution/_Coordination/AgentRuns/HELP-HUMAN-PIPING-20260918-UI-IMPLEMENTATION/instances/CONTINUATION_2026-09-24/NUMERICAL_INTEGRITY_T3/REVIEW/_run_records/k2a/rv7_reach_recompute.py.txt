@@ -1,0 +1,24 @@
+import math
+from fractions import Fraction as F
+def section(od,w):
+    i_=od-2.0*w; a=math.pi*(od**2-i_**2)/4.0; I=math.pi*(od**4-i_**4)/64.0; return a,I,2.0*I
+L=1.8189894035458565e-12; assert L==2.0**-39
+od,w=1e-11,1e-12; a,I,J=section(od,w)
+for name,E,spring,P in [('zero',6.4e-280,3.7e-289,9.25e-290),('lef',9.6e-280,0.0,2.05e-289)]:
+    L3=L*L*L
+    p12=12.0*E*I; ex12=F(12.0*E)*F(I)
+    formed=p12/L3
+    true=ex12/F(L)**3   # exact numerator (12E formed) / exact L^3
+    trueE=F(12)*F(E)*F(I)/F(L)**3
+    print(name,'(12E)I formed',p12,'exact',float(ex12),'/2^-1075=',float(ex12/F(2)**-1075))
+    for k in (6.0,4.0,2.0): print('  ',k,'formed',k*E*I,'exact/2^-1075',float(F(k*E)*F(I)/F(2)**-1075))
+    print('  12EI/L3 formed',formed,'true',float(trueE),'log2',math.log2(float(trueE)),'rel',float(abs(F(formed)-trueE)/trueE))
+    print('  EA/L',E*a/L,'log2',math.log2(E*a/L),'GJ/L',1e-100*J/L)
+    um=F(P)/(F(formed)+F(spring)); ut=F(P)/(trueE+F(spring))
+    print('  u main mm',float(um)*1e3,'true mm',float(ut)*1e3,'err',float(abs(um-ut)/ut))
+# lifts
+l=math.log2(1e-12)
+print('log2 1e-12',l, [ -1075-k*l for k in (1,2,3)], [-1022-k*l for k in (1,2,3)])
+u=2.0**-53; g=24*u/(1-24*u); print('log2 g',math.log2(g),'2g',math.log2(2*g),'floor',-1022-math.log2(2*g*(1+64*2**-52)/(1)) )
+print('floor exact-ish', -1022 - math.log2(g*(1/(1-g)+1)*(1+64*2.0**-52)))
+print('-1074+3*39.863', -1074-3*l)

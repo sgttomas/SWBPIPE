@@ -1,0 +1,21 @@
+     Running unittests src/lib.rs (<scratch>/calib/suites_main_target/debug/deps/open_pipe_stress_headless_runner-ec0898b3fc54c00d)
+test load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes ... FAILED
+thread 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes' (111326) panicked at src/load_reference_route_tests.rs:212:13:
+assertion `left == right` failed: connected/sparse_interactive: actual producer changed
+test result: FAILED. 50 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 29.48s
+     Running unittests src/bin/headless_preview_runner.rs (<scratch>/calib/suites_main_target/debug/deps/headless_preview_runner-fca6333f11472dde)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running unittests src/bin/openpipestress-runner.rs (<scratch>/calib/suites_main_target/debug/deps/openpipestress_runner-4b758f8ec9e3e7fd)
+test result: ok. 18 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.23s
+     Running tests/load_reference_cli.rs (<scratch>/calib/suites_main_target/debug/deps/load_reference_cli-4afd6de0dbaed459)
+test cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route ... FAILED
+thread 'cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route' (114112) panicked at tests/load_reference_cli.rs:261:13:
+assertion `left == right` failed: cli connected/sparse_interactive
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.41s
+     Running tests/physics_source_connected.rs (<scratch>/calib/suites_main_target/debug/deps/physics_source_connected-51558f285fac980e)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.55s
+     Running tests/preview_physics_admission.rs (<scratch>/calib/suites_main_target/debug/deps/preview_physics_admission-6af724a804667b4b)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.51s
+     Running tests/s11g_zero_work_receipt.rs (<scratch>/calib/suites_main_target/debug/deps/s11g_zero_work_receipt-8e5f0327c6931917)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.32s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

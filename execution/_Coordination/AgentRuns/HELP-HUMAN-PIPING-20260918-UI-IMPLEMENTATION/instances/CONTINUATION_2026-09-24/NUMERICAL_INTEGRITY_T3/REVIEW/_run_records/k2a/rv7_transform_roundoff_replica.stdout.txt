@@ -1,0 +1,16 @@
+target 2^-1030: E=2.499e-266 (2E)I=1.449e-311 sub=True 2EI/L=7.964e-300 log2=-993.58 4EI/L log2=-992.58 6EI/L2 log2=-953.00 12EI/L3 log2=-913.00 EA/L log2=-918.22 GJ/L log2=-443.47 rel_err(2EI/L)=1.14e-13
+    axis refused arithmetic outside normal range
+    skew ACCEPTED by transform_roundoff
+    skew2 ACCEPTED by transform_roundoff
+target 2^-1040: E=2.441e-269 (2E)I=1.415e-314 sub=True 2EI/L=7.777e-303 log2=-1003.58 4EI/L log2=-1002.58 6EI/L2 log2=-963.00 12EI/L3 log2=-923.00 EA/L log2=-928.22 GJ/L log2=-443.47 rel_err(2EI/L)=1.16e-10
+    axis refused arithmetic outside normal range
+    skew ACCEPTED by transform_roundoff
+    skew2 ACCEPTED by transform_roundoff
+target 2^-1045: E=7.627e-271 (2E)I=4.421e-316 sub=True 2EI/L=2.430e-304 log2=-1008.58 4EI/L log2=-1007.58 6EI/L2 log2=-968.00 12EI/L3 log2=-928.00 EA/L log2=-933.22 GJ/L log2=-443.47 rel_err(2EI/L)=3.73e-09
+    axis refused arithmetic outside normal range
+    skew ACCEPTED by transform_roundoff
+    skew2 ACCEPTED by transform_roundoff
+target 2^-1050: E=2.383e-272 (2E)I=1.382e-317 sub=True 2EI/L=7.595e-306 log2=-1013.58 4EI/L log2=-1012.58 6EI/L2 log2=-973.00 12EI/L3 log2=-933.00 EA/L log2=-938.22 GJ/L log2=-443.47 rel_err(2EI/L)=1.19e-07
+    axis refused arithmetic outside normal range
+    skew ACCEPTED by transform_roundoff
+    skew2 ACCEPTED by transform_roundoff

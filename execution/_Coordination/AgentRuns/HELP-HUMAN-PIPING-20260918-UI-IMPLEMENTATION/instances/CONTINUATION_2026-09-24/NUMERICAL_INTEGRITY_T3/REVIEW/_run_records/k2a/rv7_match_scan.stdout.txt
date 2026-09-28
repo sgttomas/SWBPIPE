@@ -1,0 +1,16 @@
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:285: PATTERN: FrameKernelError::SingularSystem { pivot } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:291: PATTERN: FrameKernelError::RepeatedRestrainedDof { dof } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:297: PATTERN: FrameKernelError::RestrainedDofOutOfRange { dof, total_dofs } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:303: PATTERN: FrameKernelError::RepeatedPrescribedDof { dof } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:310: PATTERN: FrameKernelError::PrescribedDofOutOfRange { dof, total_dofs } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:317: PATTERN: FrameKernelError::InvalidNodeIndex {
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:326: PATTERN: FrameKernelError::RepeatedElementNodeIndex { node_index } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:332: PATTERN: FrameKernelError::DegenerateAxis { detail } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:338: PATTERN: FrameKernelError::InvalidOrientation { detail } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:344: PATTERN: FrameKernelError::NonFiniteInput { name, value } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:350: PATTERN: FrameKernelError::NonPositiveInput { name, value } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:356: PATTERN: FrameKernelError::InvalidMatrixDimensions { rows, cols } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:362: PATTERN: FrameKernelError::InvalidVectorLength { expected, actual } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/diagnostics/src/lib.rs:372: PATTERN: FrameKernelError::NumericalRange { name } => SolverDiagnostic::new(
+projects/chirality-piping/core/solver/frame_kernel/src/lib.rs:2035: PATTERN: FrameKernelError::NonFiniteInput { name, value } => {
+total 15

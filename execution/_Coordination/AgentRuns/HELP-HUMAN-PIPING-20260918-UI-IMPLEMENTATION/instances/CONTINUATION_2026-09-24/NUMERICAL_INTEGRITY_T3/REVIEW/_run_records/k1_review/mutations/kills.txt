@@ -1,0 +1,82 @@
+RV8 mutant runs: one clean git archive of 43f9e6a78 (projects/chirality-piping/core; the full piping tree without execution/ for K1-S11F-KERNEL) and one target per mutant, deleted after each run.
+NONE first, alone; then at most three at once at -j 4, RUST_TEST_THREADS=4, --no-fail-fast. Crates per run as logged (FK, SD, NI in full; NI only for pin and evasion mutants; FK only for the site-table mutants; PP --test s11f_site_test for K1-S11F-KERNEL).
+Kill sites are a test's panic location. Line numbers are at 43f9e6a78.
+
+NONE [done] exits=frame_kernel=0 sparse_direct=0 nonlinear_integration=0 compile_errors=0
+  failed (0):
+  panic sites:
+K1-DENSEPAIRS [done] exits=frame_kernel=101 sparse_direct=0 nonlinear_integration=0 compile_errors=0
+  failed (1): structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs
+  panic sites: src/structural/sparse/tests.rs:1214x1
+K1-KFC [done] exits=frame_kernel=101 sparse_direct=101 nonlinear_integration=0 compile_errors=0
+  failed (6): structural::k1_tests::k1_krev02_through_the_pattern_path structural::k1_tests::k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path structural::sparse::tests::k1_gate_stages_are_byte_identical_for_a_fixed_order structural::sparse::tests::k1_matrix_references_have_the_same_outcome_class_in_both_representations structural::sparse::tests::k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations structural::sparse::tests::krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity
+  panic sites: src/structural/k1_tests.rs:566x1 src/structural/k1_tests.rs:690x1 src/structural/sparse/tests.rs:568x4
+K1-LABEL-ORDER [done] exits=frame_kernel=0 sparse_direct=101 nonlinear_integration=101 compile_errors=0
+  failed (9): structural::k1_tests::k1_adjacency_order_and_profile_equal_the_dense_derived_path structural::k1_tests::k1_explicit_zero_by_cancellation_takes_no_part_in_the_order structural::k1_tests::k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path structural_adapter::k1_tests::k1_c3_detect_solve_is_identical_in_both_representations structural_adapter::k1_tests::k1_kd5_parity_cases_demote_identically_in_both_representations structural_adapter::k1_tests::k1_n_references_have_the_same_outcome_class_and_values_in_both_modes structural_adapter::k1_tests::k1_pattern_entries [cut: 209 chars removed; full line sha256 c0399a90ec16170cc1e9afc88af0fd97539fce6431f4bb5edc1b55b703b14e37]
+  panic sites: src/structural/k1_tests.rs:422x1 src/structural/k1_tests.rs:481x1 src/structural/k1_tests.rs:566x1 src/structural_adapter/k1_tests.rs:323x1 src/structural_adapter/k1_tests.rs:350x1 src/structural_adapter/k1_tests.rs:436x1 src/structural_adapter/k1_tests.rs:514x3
+K1-M8 [done] exits=frame_kernel=101 sparse_direct=101 nonlinear_integration=101 compile_errors=0
+  failed (10): structural::k1_tests::k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path structural::sparse::tests::k1_coalesced_values_are_bit_identical_to_the_dense_assembly structural::sparse::tests::k1_gate_stages_are_byte_identical_for_a_fixed_order structural::sparse::tests::k1_multiply_reactions_and_reduction_match_the_dense_forms structural_adapter::k1_tests::k1_c3_detect_solve_is_identical_in_both_representations structural_adapter::k1_tests::k1_kd5_parity_cases_demote_identically_in_both_representations structural_adapter::k1_tests::k1_nonlinear_loop_reaches_nei [cut: 264 chars removed; full line sha256 21e9b0357ca550e717f39fc44fa5fb0a787e10ac9d3016ac77acdc0c4e05ca6e]
+  panic sites: src/structural/k1_tests.rs:566x1 src/structural/sparse/tests.rs:377x1 src/structural/sparse/tests.rs:576x1 src/structural/sparse/tests.rs:875x1 src/structural_adapter/k1_tests.rs:261x1 src/structural_adapter/k1_tests.rs:349x1 src/structural_adapter/k1_tests.rs:437x1 src/structural_adapter/k1_tests.rs:791x1 src/structural_adapter/k1_tests.rs:855x1 src/structural_adapter/k1_tests.rs:987x1
+K1-ORDER [done] exits=frame_kernel=101 sparse_direct=101 nonlinear_integration=0 compile_errors=0
+  failed (4): structural::k1_tests::k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path structural::sparse::tests::k1_coalesced_values_are_bit_identical_to_the_dense_assembly structural::sparse::tests::k1_gate_stages_are_byte_identical_for_a_fixed_order structural::sparse::tests::k1_multiply_reactions_and_reduction_match_the_dense_forms
+  panic sites: src/structural/k1_tests.rs:566x1 src/structural/sparse/tests.rs:377x1 src/structural/sparse/tests.rs:576x1 src/structural/sparse/tests.rs:875x1
+K1-PIN-BINARY64-B [done] exits=frame_kernel=0 sparse_direct=0 nonlinear_integration=101 compile_errors=0
+  failed (5): s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:4781x1 src/lib.rs:4827x1 src/s11k_tests.rs:1457x1 src/s11k_tests.rs:584x1 src/s11k_tests.rs:796x1
+K1-PIN-BINARY64 [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (5): s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:4781x1 src/lib.rs:4827x1 src/s11k_tests.rs:1457x1 src/s11k_tests.rs:566x1 src/s11k_tests.rs:796x1
+K1-PIN-LOOP-B [done] exits=frame_kernel=0 sparse_direct=0 nonlinear_integration=101 compile_errors=0
+  failed (14): s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path structural_adapter::k1_tests::k1_nonlinear_loop_reaches_neither_formation_entry tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_curr [cut: 461 chars removed; full line sha256 86860a31da9cf402857149e9ad377240f23c9bd5152409b0363a51cbdd26e32f]
+  panic sites: src/lib.rs:3516x1 src/lib.rs:3877x1 src/lib.rs:3984x1 src/lib.rs:4121x1 src/lib.rs:4781x1 src/lib.rs:4827x1 src/lib.rs:5462x1 src/s11k_tests.rs:1130x1 src/s11k_tests.rs:1262x1 src/s11k_tests.rs:1457x1 src/s11k_tests.rs:519x1 src/s11k_tests.rs:823x1 src/s11k_tests.rs:913x1 src/structural_adapter/k1_tests.rs:1000x1
+K1-PIN-LOOP [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (47): s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path structural_adapter::k1_tests::k1_nonlinear_loop_reaches_neither_formation_entry structural_adapter::retention_tests::actual_adapter_retains_adjacen [cut: 2861 chars removed; full line sha256 b953ee86e91eee03f7b89daa8ccc0e9445706ce17165fdf847910fc1d7d5b285]
+  panic sites: src/lib.rs:2603x1 src/lib.rs:2641x1 src/lib.rs:2713x1 src/lib.rs:2745x1 src/lib.rs:2992x1 src/lib.rs:3041x1 src/lib.rs:3134x1 src/lib.rs:3278x1 src/lib.rs:3324x1 src/lib.rs:3362x1 src/lib.rs:3385x1 src/lib.rs:3410x1 src/lib.rs:3541x1 src/lib.rs:3575x1 src/lib.rs:3796x1 src/lib.rs:3902x1 src/lib.rs:3933x1 src/lib.rs:4009x1 src/lib.rs:4146x1 src/lib.rs:4279x1 src/lib.rs:4308x1 src/lib.rs:4625x1 src/lib.rs:4703x1 src/lib.rs:4737x1 src/lib.rs:4802x1 src/lib.rs:4827x1 src/lib.rs:4851x1 src/lib.rs:4925x1 src/lib.rs:4980x1 src/lib.rs:5041x1 src/lib.rs:5116x1 src/lib.rs:5223x1 src/lib.r [cut: 352 chars removed; full line sha256 93f9ec14ab175810ebb113715bfe971a53b4f3240872e455cef9dbf272b62cdc]
+K1-PIN-THIRD [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (1): s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point
+  panic sites: src/s11k_tests.rs:1130x1
+K1-S11F-KERNEL [done] exits=product_physics=101 compile_errors=0
+  failed (1): rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites
+  panic sites: tests/s11f_site_test.rs:1194x1
+K1-SITE-FC [done] exits=frame_kernel=101 compile_errors=0
+  failed (1): site_table_is_exactly_the_accumulations_of_the_scanned_files
+  panic sites: tests/s11_site_table.rs:524x1
+K1-SITE-SPARSE [done] exits=frame_kernel=101 compile_errors=0
+  failed (1): site_table_is_exactly_the_accumulations_of_the_scanned_files
+  panic sites: tests/s11_site_table.rs:524x1
+KD5-E4 [done] exits=frame_kernel=0 sparse_direct=0 nonlinear_integration=101 compile_errors=0
+  failed (2): s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point
+  panic sites: src/s11k_tests.rs:1130x1 src/s11k_tests.rs:1477x1
+S11K-RV-OPT4 [done] exits=frame_kernel=0 nonlinear_integration=101 compile_errors=0
+  failed (7): s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:4783x1 src/lib.rs:4829x1 src/s11k_tests.rs:1201x1 src/s11k_tests.rs:1457x1 src/s11k_tests.rs:519x1 src/s11k_tests.rs:823x1 src/s11k_tests.rs:913x1
+S11K-RV-PUB [done] exits=frame_kernel=101 nonlinear_integration=101 compile_errors=0
+  failed (3): structural::s11k_tests::option_c_public_original_residual_stays_binary64_on_coupled_rows tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:4781x1 src/lib.rs:4827x1 src/structural/s11k_tests.rs:660x1
+RV8-BLOCK-ORDER [done] exits=frame_kernel=0 sparse_direct=0 nonlinear_integration=0 compile_errors=0
+  failed (0):
+  panic sites:
+RV8-BLOCK-VALUE [done] exits=frame_kernel=101 sparse_direct=101 nonlinear_integration=101 compile_errors=0
+  failed (4): structural::k1_tests::k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path structural::sparse::tests::k1_coalesced_values_are_bit_identical_to_the_dense_assembly structural::sparse::tests::k1_gate_stages_are_byte_identical_for_a_fixed_order structural_adapter::k1_tests::k1_sparse_evidence_is_the_dense_evidence_on_the_pattern
+  panic sites: src/structural/k1_tests.rs:566x1 src/structural/sparse/tests.rs:377x1 src/structural/sparse/tests.rs:576x1 src/structural_adapter/k1_tests.rs:261x1
+RV8-EV-ALIAS [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (4): s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:4781x1 src/lib.rs:4827x1 src/s11k_tests.rs:1457x1 src/s11k_tests.rs:796x1
+RV8-EV-NEWIMPL [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (6): s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:4792x1 src/lib.rs:4838x1 src/s11k_tests.rs:1457x1 src/s11k_tests.rs:584x1 src/s11k_tests.rs:823x1 src/s11k_tests.rs:913x1
+RV8-EV-SIBLING [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (7): s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path structural_adapter::k1_tests::k1_nonlinear_loop_reaches_neither_formation_entry tests::contact_recovery_caps_and_later_singularity_are_honest tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:3049x1 src/lib.rs:4792x1 src/lib.rs:4838x1 src/s11k_tests.rs:1272x1 src/s11k_tests.rs:823x1 src/s11k_tests.rs:913x1 src/structural_adapter/k1_tests.rs:1009x1
+RV8-EV-STRING [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (5): s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification
+  panic sites: src/lib.rs:4781x1 src/lib.rs:4827x1 src/s11k_tests.rs:1457x1 src/s11k_tests.rs:566x1 src/s11k_tests.rs:796x1
+RV8-EV-UFCS [done] exits=nonlinear_integration=101 compile_errors=0
+  failed (46): s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path structural_adapter::k1_tests::k1_nonlinear_loop_reaches_neither_formation_entry structural_adapter::retention_tests::actual_adapter_retains_adjacent_response_and_separate_ordinary_projected_states structural_adapter::rete [cut: 2787 chars removed; full line sha256 3d36cfba19ff5bcb4080546881445d5f41d8183583d12c7d13a7454208d46cfa]
+  panic sites: src/lib.rs:2613x1 src/lib.rs:2651x1 src/lib.rs:2723x1 src/lib.rs:2755x1 src/lib.rs:3002x1 src/lib.rs:3051x1 src/lib.rs:3144x1 src/lib.rs:3288x1 src/lib.rs:3334x1 src/lib.rs:3372x1 src/lib.rs:3395x1 src/lib.rs:3420x1 src/lib.rs:3551x1 src/lib.rs:3585x1 src/lib.rs:3806x1 src/lib.rs:3912x1 src/lib.rs:3943x1 src/lib.rs:4019x1 src/lib.rs:4156x1 src/lib.rs:4289x1 src/lib.rs:4318x1 src/lib.rs:4635x1 src/lib.rs:4713x1 src/lib.rs:4747x1 src/lib.rs:4812x1 src/lib.rs:4837x1 src/lib.rs:4861x1 src/lib.rs:4935x1 src/lib.rs:4990x1 src/lib.rs:5051x1 src/lib.rs:5126x1 src/lib.rs:5233x1 src/lib.r [cut: 328 chars removed; full line sha256 85a39b08c8bc72bd2cf27506dbba64dbcab93fcc7d0341342b45ed84d1aab9a6]
+RV8-FC-TERMS [done] exits=frame_kernel=0 sparse_direct=0 nonlinear_integration=0 compile_errors=0
+  failed (0):
+  panic sites:
+RV8-SPRING-FIRST [done] exits=frame_kernel=0 sparse_direct=0 nonlinear_integration=0 compile_errors=0
+  failed (0):
+  panic sites:

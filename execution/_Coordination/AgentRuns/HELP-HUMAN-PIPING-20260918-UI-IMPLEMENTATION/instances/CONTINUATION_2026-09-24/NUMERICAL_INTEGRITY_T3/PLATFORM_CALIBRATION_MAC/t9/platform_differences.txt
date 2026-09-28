@@ -1,0 +1,69 @@
+T9 on main (Mac, aarch64-apple-darwin, rustc 1.97.1) against the Linux records: 100 of 112 byte-identical.
+With correctly rounded libm results replayed: 112 of 112 byte-identical.
+Leaf differences below: Mac native | Linux (= the correctly rounded replay, whose hash equals the Linux record).
+
+core/product_physics__tests__fixtures__exact_pressure_connected_request.json.sparse_interactive.out: 1 leaf(s)
+  .results[122].value [support_reaction_force_magnitude_v2]: 3741.6573867739435 | 3741.657386773944 (1 ulp)
+
+core/product_physics__tests__fixtures__preview_physics_unicode_ids_model.json.dense_scrutiny.out: 1 leaf(s)
+  .results[284].value [displacement_magnitude]: 1.9846472695235164 | 1.9846472695235162 (1 ulp)
+
+core/product_physics__tests__fixtures__preview_physics_unicode_ids_model.json.sparse_interactive.out: 1 leaf(s)
+  .results[275].value [displacement_magnitude]: 0.3953184540205334 | 0.39531845402053334 (1 ulp)
+
+core/reporting__result_export__tests__fixtures__load_reference_fallback_uz.request.json.sparse_interactive.out: 1 leaf(s)
+  .results[22].value [support_reaction_moment_magnitude_v2]: 2.000000000000002e-06 | 2.0000000000000025e-06 (1 ulp)
+
+fixtures/model_operations__exact_pressure_authoring_model.json.sparse_interactive.out: 1 leaf(s)
+  .results[122].value [support_reaction_force_magnitude_v2]: 3741.6573867739435 | 3741.657386773944 (1 ulp)
+
+fixtures/model_operations__physics_thermal_ui_model.json.sparse_interactive.out: 1 leaf(s)
+  .results[122].value [support_reaction_force_magnitude_v2]: 3741.6573867739435 | 3741.657386773944 (1 ulp)
+
+fixtures/model_operations__precision_connected_ui_model.json.dense_scrutiny.out: 2 leaf(s)
+  .results[22].value [support_reaction_force_magnitude_v2]: 3741.657386773941 | 3741.6573867739417 (1 ulp)
+  .results[23].value [support_reaction_moment_magnitude_v2]: 3629.04946232481 | 3629.0494623248105 (1 ulp)
+
+fixtures/model_operations__precision_connected_ui_model.json.sparse_interactive.out: 1 leaf(s)
+  .results[21].value [support_reaction_force_magnitude_v2]: 3741.657386773941 | 3741.6573867739417 (1 ulp)
+
+fixtures/product_preview__load_reference__connected.request.json.dense_scrutiny.out: 1 leaf(s)
+  .results[170].value [support_reaction_force_magnitude_v2]: 1172235.122530021 | 1172235.1225300212 (1 ulp)
+
+fixtures/product_preview__load_reference__connected.request.json.sparse_interactive.out: 2 leaf(s)
+  .results[28].value [support_reaction_force_magnitude_v2]: 298575.2677594065 | 298575.26775940653 (1 ulp)
+  .results[168].value [support_reaction_force_magnitude_v2]: 1172235.122530021 | 1172235.1225300212 (1 ulp)
+
+validation/qualification__fixtures__load_reference__coefficient_definition.preview_request.json.dense_scrutiny.out: 21 leaf(s)
+  .contract_evidence.exact_cases[2].pipe_materials[2].resolved_eigenstrain: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .contract_evidence.exact_cases[2].pipe_stress_extrema[2].global_upper_bound_pa: 0.0 | 1.95032357056742e-08
+  .contract_evidence.exact_cases[2].pipe_stress_extrema[2].value_lower_pa: 0.0 | 1.95032357056742e-08
+  .contract_evidence.exact_cases[2].pipe_stress_extrema[2].value_upper_pa: 0.0 | 1.95032357056742e-08
+  .contract_evidence.load_reference_states[2].contributions[2].value: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .contract_evidence.load_reference_states[2].members[2].thermal_strain: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .contract_evidence.load_reference_states[2].members[2].total_eigenstrain: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .results[502].value [support_reaction_component_v2]: 0.0 | -1.1641532182693481e-10
+  .results[508].value [support_reaction_force_magnitude_v2]: 0.0 | 1.1641532182693481e-10
+  .results[612].value [element_local_axial_force]: 0.0 | -1.1641532182693481e-10
+  .results[613].value [element_local_axial_force]: 0.0 | 1.1641532182693481e-10
+  .results[624].value [element_local_axial_force]: -0.0 | 1.1641532182693481e-10
+  .results[630].value [element_local_axial_force]: -0.0 | 1.1641532182693481e-10
+  .results[636].value [element_local_axial_force]: -0.0 | 1.1641532182693481e-10
+  .results[642].value [element_local_axial_normal_stress]: -0.0 | 1.95032357056742e-14
+  .results[646].value [element_local_axial_normal_stress]: -0.0 | 1.95032357056742e-14
+  .results[650].value [element_local_axial_normal_stress]: -0.0 | 1.95032357056742e-14
+  .results[654].value [element_local_axial_normal_stress]: -0.0 | 1.95032357056742e-14
+  .results[658].value [element_local_axial_normal_stress]: -0.0 | 1.95032357056742e-14
+  .results[662].value [pipe_elastic_normal_stress_maximum_v2]: 0.0 | 1.95032357056742e-08
+  .diagnostics[5].message: text differs at char 8498: ...'14, passed: true }, ResidualRow { global_dof: 30, residual: 0.0, denominator: 2090073.3883936002, ro' | ...'14, passed: true }, ResidualRow { global_dof: 30, residual: 1.1641532182693481e-10, denominator: 209'
+
+validation/qualification__fixtures__load_reference__coefficient_definition.preview_request.json.sparse_interactive.out: 7 leaf(s)
+  .contract_evidence.exact_cases[2].pipe_materials[2].resolved_eigenstrain: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .contract_evidence.load_reference_states[2].contributions[2].value: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .contract_evidence.load_reference_states[2].members[2].thermal_strain: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .contract_evidence.load_reference_states[2].members[2].total_eigenstrain: 0.0008753829241780745 | 0.0008753829241780744 (1 ulp)
+  .results[446].value [displacement_magnitude]: 0.8753829241780745 | 0.8753829241780744 (1 ulp)
+  .results[477].value [global_nodal_displacement_x]: 0.8753829241780745 | 0.8753829241780744 (1 ulp)
+  .diagnostics[5].message: text differs at char 8476: ...' global_dof: 30, residual: 0.0, denominator: 2090073.3883936002, row_scale_exponent: 20, normalized_' | ...' global_dof: 30, residual: 0.0, denominator: 2090073.3883936, row_scale_exponent: 20, normalized_res'
+
+Total: 12 outputs, 40 leaves.

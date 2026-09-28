@@ -1,0 +1,6 @@
+Callers on the combined head b6f1724b4 (RV8's lexer, the same rv8_callers.py as the review):
+RV8 scan rows: pre-merge head 569 (206 non-test uses, 280 test); combined head 580 (206 non-test uses, 291 test). The 11 added rows are all test rows.
+non-test use rows, file/name/enclosing fn/text (line numbers dropped), pre-merge head 43f9e6a78 vs combined head: 0 differing lines
+
+I8R's combined callers.txt: 284 sites, 74 non-test
+I8R's 74 non-test rows, line numbers dropped, pre-merge vs combined: 0 differing lines

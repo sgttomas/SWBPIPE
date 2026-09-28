@@ -1,0 +1,79 @@
+applied R6_reorder_6EIz 1
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<scratch>/rv7/fk_mut)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.00s
+     Running tests/k2a_checked_formation.rs (<wt>/rv7-target/fk_mut/debug/deps/k2a_checked_formation-739570a890748b5e)
+
+running 10 tests
+test k2a_each_checked_intermediate_is_refused_by_its_own_name ... ok
+test k2a_partial_underflow_control_is_refused ... ok
+test k2a_kd5_formation_check_outcome_is_unchanged_for_normal_formations ... ok
+test k2a_rf_range_lef_large_overflow_is_refused_by_name_on_all_three_bases ... ok
+test k2a_rf_range_lef_small_is_silent_unchecked_and_refused_by_name_on_all_three_bases ... ok
+test k2a_subnormal_intermediate_control_is_refused_although_every_coefficient_is_normal ... ok
+test k2a_zero_operand_keeps_its_existing_refusal ... ok
+test k2a_refused_formation_is_refused_before_the_formation_check_runs ... ok
+test k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical ... FAILED
+test k2a_normal_formations_are_bit_identical_to_the_unchecked_formation ... FAILED
+
+failures:
+
+---- k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical stdout ----
+
+thread 'k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical' (31104) panicked at tests/k2a_checked_formation.rs:300:17:
+assertion `left == right` failed: RF-RANGE-CHAIN-L-240 M1
+  left: [3657426479758134726, 0, 0, 0, 0, 0, 12880798516612910534, 0, 0, 0, 0, 0, 0, 3629594579780725895, 0, 0, 0, 2548730669211806854, 0, 12852966616635501703, 0, 0, 0, 2548730669211806854, 0, 0, 3629594579780725895, 0, 11772102706066582663, 0, 0, 0, 12852966616635501703, 0, 11772102706066582663, 0, 0, 0, 0, 1459302935307255334, 0, 0, 0, 0, 0, 10682674972162031142, 0, 0, 0, 0, 11772102706066582663, 0, 1469470198478642607, 0, 0, 0, 2548730669211806855, 0, 1464966598851272111, 0, 0, 2548730669211806854, 0, 0, 0, 1469470198478642607, 0, 11772102706066582662, 0, 0, 0, 1464966598851272111, 12880798516612910534, 0, 0, 0, 0, 0, 3657426479758134726, 0, 0, 0, 0, 0, 0, 12852966616635501703, 0, 0, 0, 11772102706066582662, 0, 3629594579780725895, 0, 0, 0, 11772102706066582662, 0, 0, 12852966616635501703, 0, 2548730669211806855, 0, 0, 0, 3629594579780725895, 0, 2548730669211806855, 0, 0, 0, 0, 10682674972162031142, 0, 0, 0, 0, 0, 1459302935307255334, 0, 0, 0, 0, 11772102706066582663, 0, 1464966598851272111, 0, 0, 0, 2548730669211806855, 0, 1469470198478642607, 0, 0, 2548730669211806854, 0, 0, 0, 1464966598851272111, 0, 11772102706066582662, 0, 0, 0, 1469470198478642607]
+ right: [3657426479758134726, 0, 0, 0, 0, 0, 12880798516612910534, 0, 0, 0, 0, 0, 0, 3629594579780725895, 0, 0, 0, 2548730669211806855, 0, 12852966616635501703, 0, 0, 0, 2548730669211806855, 0, 0, 3629594579780725895, 0, 11772102706066582663, 0, 0, 0, 12852966616635501703, 0, 11772102706066582663, 0, 0, 0, 0, 1459302935307255334, 0, 0, 0, 0, 0, 10682674972162031142, 0, 0, 0, 0, 11772102706066582663, 0, 1469470198478642607, 0, 0, 0, 2548730669211806855, 0, 1464966598851272111, 0, 0, 2548730669211806855, 0, 0, 0, 1469470198478642607, 0, 11772102706066582663, 0, 0, 0, 1464966598851272111, 12880798516612910534, 0, 0, 0, 0, 0, 3657426479758134726, 0, 0, 0, 0, 0, 0, 12852966616635501703, 0, 0, 0, 11772102706066582663, 0, 3629594579780725895, 0, 0, 0, 11772102706066582663, 0, 0, 12852966616635501703, 0, 2548730669211806855, 0, 0, 0, 3629594579780725895, 0, 2548730669211806855, 0, 0, 0, 0, 10682674972162031142, 0, 0, 0, 0, 0, 1459302935307255334, 0, 0, 0, 0, 11772102706066582663, 0, 1464966598851272111, 0, 0, 0, 2548730669211806855, 0, 1469470198478642607, 0, 0, 2548730669211806855, 0, 0, 0, 1464966598851272111, 0, 11772102706066582663, 0, 0, 0, 1469470198478642607]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<alloc::vec::Vec<u64>, alloc::vec::Vec<u64>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: k2a_checked_formation::k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical
+             at ./tests/k2a_checked_formation.rs:300:17
+   5: k2a_checked_formation::k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical::{closure#0}
+             at ./tests/k2a_checked_formation.rs:285:87
+   6: <k2a_checked_formation::k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- k2a_normal_formations_are_bit_identical_to_the_unchecked_formation stdout ----
+
+thread 'k2a_normal_formations_are_bit_identical_to_the_unchecked_formation' (31106) panicked at tests/k2a_checked_formation.rs:459:21:
+assertion `left == right` failed: 0.0213 0.02 210000000000 0.05
+  left: [4727646389869496508, 0, 0, 0, 0, 0, 13951018426724272316, 0, 0, 0, 0, 0, 0, 4719002754689040366, 0, 0, 0, 4694837247660287577, 0, 13942374791543816174, 0, 0, 0, 4694837247660287577, 0, 0, 4719002754689040366, 0, 13918209284515063384, 0, 0, 0, 13942374791543816174, 0, 13918209284515063384, 0, 0, 0, 0, 4662129223371945165, 0, 0, 0, 0, 0, 13885501260226720973, 0, 0, 0, 0, 13918209284515063384, 0, 4672758585227941847, 0, 0, 0, 4694837247660287576, 0, 4668254985600571351, 0, 0, 4694837247660287577, 0, 0, 0, 4672758585227941847, 0, 13918209284515063385, 0, 0, 0, 4668254985600571351, 13951018426724272316, 0, 0, 0, 0, 0, 4727646389869496508, 0, 0, 0, 0, 0, 0, 13942374791543816174, 0, 0, 0, 13918209284515063385, 0, 4719002754689040366, 0, 0, 0, 13918209284515063385, 0, 0, 13942374791543816174, 0, 4694837247660287576, 0, 0, 0, 4719002754689040366, 0, 4694837247660287576, 0, 0, 0, 0, 13885501260226720973, 0, 0, 0, 0, 0, 4662129223371945165, 0, 0, 0, 0, 13918209284515063384, 0, 4668254985600571351, 0, 0, 0, 4694837247660287576, 0, 4672758585227941847, 0, 0, 4694837247660287577, 0, 0, 0, 4668254985600571351, 0, 13918209284515063385, 0, 0, 0, 4672758585227941847]
+ right: [4727646389869496508, 0, 0, 0, 0, 0, 13951018426724272316, 0, 0, 0, 0, 0, 0, 4719002754689040366, 0, 0, 0, 4694837247660287576, 0, 13942374791543816174, 0, 0, 0, 4694837247660287576, 0, 0, 4719002754689040366, 0, 13918209284515063384, 0, 0, 0, 13942374791543816174, 0, 13918209284515063384, 0, 0, 0, 0, 4662129223371945165, 0, 0, 0, 0, 0, 13885501260226720973, 0, 0, 0, 0, 13918209284515063384, 0, 4672758585227941847, 0, 0, 0, 4694837247660287576, 0, 4668254985600571351, 0, 0, 4694837247660287576, 0, 0, 0, 4672758585227941847, 0, 13918209284515063384, 0, 0, 0, 4668254985600571351, 13951018426724272316, 0, 0, 0, 0, 0, 4727646389869496508, 0, 0, 0, 0, 0, 0, 13942374791543816174, 0, 0, 0, 13918209284515063384, 0, 4719002754689040366, 0, 0, 0, 13918209284515063384, 0, 0, 13942374791543816174, 0, 4694837247660287576, 0, 0, 0, 4719002754689040366, 0, 4694837247660287576, 0, 0, 0, 0, 13885501260226720973, 0, 0, 0, 0, 0, 4662129223371945165, 0, 0, 0, 0, 13918209284515063384, 0, 4668254985600571351, 0, 0, 0, 4694837247660287576, 0, 4672758585227941847, 0, 0, 4694837247660287576, 0, 0, 0, 4668254985600571351, 0, 13918209284515063384, 0, 0, 0, 4672758585227941847]
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<alloc::vec::Vec<u64>, alloc::vec::Vec<u64>>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:394:5
+   4: k2a_checked_formation::k2a_normal_formations_are_bit_identical_to_the_unchecked_formation
+             at ./tests/k2a_checked_formation.rs:459:21
+   5: k2a_checked_formation::k2a_normal_formations_are_bit_identical_to_the_unchecked_formation::{closure#0}
+             at ./tests/k2a_checked_formation.rs:446:72
+   6: <k2a_checked_formation::k2a_normal_formations_are_bit_identical_to_the_unchecked_formation::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    k2a_every_other_rf_range_vector_keeps_every_coefficient_normal_and_byte_identical
+    k2a_normal_formations_are_bit_identical_to_the_unchecked_formation
+
+test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `--test k2a_checked_formation`
+error: 1 target failed:
+    `--test k2a_checked_formation`
