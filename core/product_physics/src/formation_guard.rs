@@ -55,7 +55,7 @@ const DESIGN_FLOOR_MIN_SCALE: f64 = f64::from_bits((1023 - 988) << 52);
 const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
 const SENSITIVE: &str = "NUMERICAL_INTEGRITY_SENSITIVE";
 /// At most this many fired rows or ends are named in a sentence.
-const NAMED: usize = 6;
+pub(crate) const NAMED: usize = 6;
 
 /// Which guard fired.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

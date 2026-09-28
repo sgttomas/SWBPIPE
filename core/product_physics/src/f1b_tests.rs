@@ -960,3 +960,1355 @@ fn f1b_source_recovery_budget_refusal_precedes_every_stiffness_read() {
         (without.stage, &without.error, without.work)
     );
 }
+
+// ============================================================ A2: W2 (unit)
+
+/// A three-node model: DOF labels N0:UX to N2:RZ (18 DOFs).
+fn w2_unit_model() -> PreviewModel {
+    serde_json::from_value::<LinearStaticPreviewRequest>(chain_request(2))
+        .unwrap()
+        .model
+}
+
+/// F1a's unit report (`f1a_tests::unit_report`), repeated here.
+fn w2_unit_report(quality: SolveQuality) -> StructuralReport {
+    StructuralReport {
+        policy: "M03-INTEGRITY-v1",
+        quality,
+        factorization: "unit",
+        scale_exponents: vec![],
+        pivots: vec![],
+        condition_estimator: "unit",
+        reciprocal_condition_estimate: 0.5,
+        residual_rows: vec![],
+        refinement_attempts: 0,
+        contribution_audit_performed: true,
+        contribution_rounding: vec![],
+        assembly_relative_perturbation_estimate: 0.0,
+        assembly_amplification_estimate: 0.0,
+        assembly_load_perturbation_estimate: 0.0,
+        intended_residual_rows: vec![],
+        symmetry_projection_performed: false,
+        maximum_scaled_skew: 0.0,
+        symmetry_basis: None,
+    }
+}
+
+fn w2_estimate() -> FormationCheck {
+    FormationCheck {
+        reason: FormationCheckReason::Estimate,
+        global_dof: Some(7),
+        doubled_correction: 3e-9,
+        scale: 1.0,
+        ratio: 3.0,
+    }
+}
+
+fn w2_load_row_finding() -> formation_guard::FormationFinding {
+    formation_guard::FormationFinding {
+        guard: formation_guard::Guard::LoadRow,
+        sentence: "S11-G formation-noise guard: load case c is Sensitive".into(),
+        fired: vec![],
+    }
+}
+
+fn w2_recovery_finding() -> formation_guard::FormationFinding {
+    formation_guard::FormationFinding {
+        guard: formation_guard::Guard::Recovery,
+        sentence: "S11-G recovery guard (R-b'): load case c is Sensitive".into(),
+        fired: vec![],
+    }
+}
+
+fn normal(value: f64) -> PublishedValue {
+    PublishedValue {
+        value,
+        representability: Representability::Normal,
+    }
+}
+
+fn subnormal(value: f64, relative_precision: f64) -> PublishedValue {
+    PublishedValue {
+        value,
+        representability: Representability::Subnormal { relative_precision },
+    }
+}
+
+/// A publication at b with every value normal: N0's six reactions, one spring
+/// at N1:UY and one member.
+fn plain_publication(b: i32) -> ForceScaledPublication {
+    ForceScaledPublication {
+        force_scale_exponent: b,
+        reactions: (0..DOF_PER_NODE)
+            .map(|dof| (dof, normal(dof as f64)))
+            .collect(),
+        spring_actions: vec![normal(2.0)],
+        end_actions: vec![[normal(1.0); ELEMENT_DOF]],
+        members: vec!["M1".into()],
+        spring_dofs: vec![7],
+        records: vec![],
+    }
+}
+
+/// Main's `append_integrity_report` at `e7d930d49` (after F1a), verbatim
+/// (kept unformatted, as main has it).
+#[allow(clippy::too_many_arguments)]
+#[rustfmt::skip]
+fn main_append_integrity_report_e7d930d49(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    report: &StructuralReport,
+    model: &PreviewModel,
+    equilibrium: Option<
+        &open_pipe_stress_nonlinear_integration::product_equilibrium::ProductEquilibriumReport,
+    >,
+    formation: Option<&formation_guard::FormationFinding>,
+    formation_check: Option<&FormationCheck>,
+) {
+    let code = if report.quality == SolveQuality::Sensitive {
+        "NUMERICAL_INTEGRITY_SENSITIVE"
+    } else {
+        "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    };
+    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, if report.quality == SolveQuality::Sensitive { "warning" } else { "info" },
+        format!("{} represented original-equation structural evidence for load case {}: {:?}; global_dof_map={:?}. {} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.", report.policy, case_id, report, integrity_dof_map(model),
+            equilibrium.map(|e|format!("{} final same-state evaluated equilibrium and derived residual-work evidence: {:?}; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed",e.policy,e)).unwrap_or_else(||"The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable.".into())),
+        vec![case_id.to_string()]));
+    if let (Some(finding), Some(record)) = (formation, diagnostics.last_mut()) {
+        formation_guard::demote(record, finding);
+    }
+    if let (Some(check), Some(record)) = (formation_check, diagnostics.last_mut()) {
+        record.message = format!(
+            "{} {}",
+            record.message,
+            formation_check_evidence_line(model, check)
+        );
+    }
+}
+
+/// A-ORACLE: with no range record, `append_integrity_report` is byte-identical
+/// to main's on every combination of quality, S11-G finding and K-D5 record.
+#[test]
+fn f1b_no_range_record_is_byte_identical_to_main() {
+    let model = w2_unit_model();
+    let findings = [
+        None,
+        Some(w2_load_row_finding()),
+        Some(w2_recovery_finding()),
+    ];
+    let checks = [None, Some(w2_estimate())];
+    let existing = diag("diagnostic:x", "X", "info", "x", vec![]);
+    let mut compared = 0;
+    for quality in [SolveQuality::Passed, SolveQuality::Sensitive] {
+        for finding in &findings {
+            for check in &checks {
+                let report = w2_unit_report(quality);
+                let mut ours = vec![existing.clone()];
+                let mut mains = vec![existing.clone()];
+                append_integrity_report(
+                    &mut ours,
+                    "c",
+                    &report,
+                    &model,
+                    None,
+                    finding.as_ref(),
+                    check.as_ref(),
+                    None,
+                );
+                main_append_integrity_report_e7d930d49(
+                    &mut mains,
+                    "c",
+                    &report,
+                    &model,
+                    None,
+                    finding.as_ref(),
+                    check.as_ref(),
+                );
+                assert_eq!(
+                    serde_json::to_string(&ours).unwrap(),
+                    serde_json::to_string(&mains).unwrap(),
+                    "{quality:?} {finding:?} {check:?}"
+                );
+                compared += 1;
+            }
+        }
+    }
+    assert_eq!(compared, 12);
+}
+
+/// The `range_scaling:` line (ROOT Q7, fixed at checkpoint 0): the exact text
+/// with every value normal; eight synthetic outcomes in DOF order (records,
+/// then reactions, then spring actions at each DOF), then member end actions,
+/// with S11-G's `NAMED` (6) named and `more=2`; the `global_dof=` label
+/// fallback; and six outcomes with no `more=`.
+#[test]
+fn f1b_range_scaling_line_exact_text_named_and_more() {
+    let model = w2_unit_model();
+    assert_eq!(formation_guard::NAMED, 6);
+    assert_eq!(
+        range_scaling_evidence_line(&model, &plain_publication(-702)),
+        "range_scaling: force_scale_exponent=-702; basis=exact power-of-two"
+    );
+    let record = |record: &'static str, global_dof: usize, representability| RecordOutcome {
+        record,
+        global_dof,
+        value: 0.0,
+        representability,
+    };
+    let mut publication = plain_publication(898);
+    publication.records = vec![
+        record(
+            "residual_rows.residual",
+            7,
+            RecordRepresentability::Subnormal {
+                relative_precision: 0.25,
+            },
+        ),
+        record(
+            "intended_residual_rows.evaluation_allowance",
+            7,
+            RecordRepresentability::Underflow,
+        ),
+        record(
+            "residual_rows.denominator",
+            1,
+            RecordRepresentability::Overflow,
+        ),
+        record(
+            "residual_rows.residual",
+            40,
+            RecordRepresentability::Subnormal {
+                relative_precision: 0.125,
+            },
+        ),
+    ];
+    publication.reactions[1].1 = subnormal(1e-320, 0.5);
+    publication.spring_actions[0] = subnormal(-1e-320, 0.0625);
+    publication.end_actions[0][1] = subnormal(1e-321, 2.0);
+    publication.end_actions[0][11] = subnormal(-1e-322, 4.0);
+    publication.end_actions.push([normal(3.0); ELEMENT_DOF]);
+    publication.members.push("M2".into());
+    assert_eq!(
+        range_scaling_evidence_line(&model, &publication),
+        "range_scaling: force_scale_exponent=898; basis=exact power-of-two; \
+         record=residual_rows.denominator@N0:UY:overflow; \
+         subnormal=reaction@N0:UY:relative_precision=0.5; \
+         record=residual_rows.residual@N1:UY:subnormal(relative_precision=0.25); \
+         record=intended_residual_rows.evaluation_allowance@N1:UY:underflow; \
+         subnormal=spring_action@N1:UY:relative_precision=0.0625; \
+         record=residual_rows.residual@global_dof=40:subnormal(relative_precision=0.125); \
+         more=2"
+    );
+    // Six outcomes: every one named, and no `more=`; the end actions follow
+    // every DOF-located entry, in member and local order.
+    publication.records.truncate(2);
+    publication.spring_actions[0] = normal(-1.0);
+    assert_eq!(
+        range_scaling_evidence_line(&model, &publication),
+        "range_scaling: force_scale_exponent=898; basis=exact power-of-two; \
+         subnormal=reaction@N0:UY:relative_precision=0.5; \
+         record=residual_rows.residual@N1:UY:subnormal(relative_precision=0.25); \
+         record=intended_residual_rows.evaluation_allowance@N1:UY:underflow; \
+         subnormal=end_action@M1.i:Fy:relative_precision=2.0; \
+         subnormal=end_action@M1.j:Mz:relative_precision=4.0"
+    );
+}
+
+fn w2_record(
+    quality: SolveQuality,
+    finding: Option<&formation_guard::FormationFinding>,
+    check: Option<&FormationCheck>,
+    publication: Option<&ForceScaledPublication>,
+) -> Diagnostic {
+    let mut diagnostics = Vec::new();
+    append_integrity_report(
+        &mut diagnostics,
+        "c",
+        &w2_unit_report(quality),
+        &w2_unit_model(),
+        None,
+        finding,
+        check,
+        publication,
+    );
+    assert_eq!(diagnostics.len(), 1);
+    diagnostics.pop().unwrap()
+}
+
+/// The line's composition: one space after the base text, S11-G's load-row
+/// sentence or F1a's `formation_check:` line, whatever the code (it is method
+/// evidence, not a demotion); R-b' follows it under S11-G's no-op rule.
+#[test]
+fn f1b_range_scaling_line_composition_and_no_op_rule() {
+    let model = w2_unit_model();
+    let publication = plain_publication(734);
+    let line = range_scaling_evidence_line(&model, &publication);
+    let json = |d: &Diagnostic| serde_json::to_string(d).unwrap();
+    for quality in [SolveQuality::Passed, SolveQuality::Sensitive] {
+        let base = w2_record(quality, None, None, None);
+        let with = w2_record(quality, None, None, Some(&publication));
+        let mut expected = base.clone();
+        expected.message = format!("{} {line}", base.message);
+        assert_eq!(json(&with), json(&expected), "{quality:?}");
+        assert_eq!(with.message.matches("range_scaling:").count(), 1);
+    }
+    let passed = w2_record(SolveQuality::Passed, None, None, None);
+    assert_eq!(passed.code, "NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    // After S11-G's load-row sentence (a Passed record it demotes).
+    let finding = w2_load_row_finding();
+    let demoted = w2_record(
+        SolveQuality::Passed,
+        Some(&finding),
+        None,
+        Some(&publication),
+    );
+    assert_eq!(demoted.code, "NUMERICAL_INTEGRITY_SENSITIVE");
+    assert_eq!(
+        demoted.message,
+        format!("{} {} {line}", passed.message, finding.sentence)
+    );
+    // After F1a's line.
+    let check = w2_estimate();
+    let sensitive = w2_record(SolveQuality::Sensitive, None, None, None);
+    let both = w2_record(
+        SolveQuality::Sensitive,
+        None,
+        Some(&check),
+        Some(&publication),
+    );
+    assert_eq!(
+        both.message,
+        format!(
+            "{} {} {line}",
+            sensitive.message,
+            formation_check_evidence_line(&model, &check)
+        )
+    );
+    // R-b' after the recovery loop: it demotes a Passed record carrying the
+    // line and follows it; a Sensitive one is left byte for byte (no-op).
+    let recovery = w2_recovery_finding();
+    let passed_with = w2_record(SolveQuality::Passed, None, None, Some(&publication));
+    let mut after = vec![passed_with.clone()];
+    assert!(formation_guard::amend_integrity_report(
+        &mut after,
+        &integrity_diagnostic_id("c"),
+        &recovery
+    ));
+    assert_eq!(after[0].code, "NUMERICAL_INTEGRITY_SENSITIVE");
+    assert_eq!(
+        after[0].message,
+        format!("{} {line} {}", passed.message, recovery.sentence)
+    );
+    let sensitive_with = w2_record(SolveQuality::Sensitive, None, None, Some(&publication));
+    let mut unchanged = vec![sensitive_with.clone()];
+    assert!(!formation_guard::amend_integrity_report(
+        &mut unchanged,
+        &integrity_diagnostic_id("c"),
+        &recovery
+    ));
+    assert_eq!(json(&unchanged[0]), json(&sensitive_with));
+}
+
+/// The W2 refusal (ROOT Q6 with OQ1 c2 and OQ4; the template fixed at
+/// checkpoint 0): the exact diagnostic of every failure the product publishes.
+/// `force_scale_exponent=none` where no b exists (steps 2-3); b omitted where
+/// the orchestrator does not return it (step 4, a non-range failure); b where
+/// the outcome carries it (admission and publication).
+#[test]
+fn f1b_force_scaling_refusal_exact_template() {
+    let model = w2_unit_model();
+    let map = format!("{:?}", integrity_dof_map(&model));
+    let evaluation =
+        RangeTrigger::Evaluation(StructuralError::Range("arithmetic outside normal range"));
+    let formation = RangeTrigger::Formation(FrameKernelError::NumericalRange { name: "GJ/L: G*J" });
+    let refused = |reason: ForceScaleReason, trigger: &RangeTrigger| {
+        ForceScalingFailure::Refused(ForceScalingRefusal {
+            reason,
+            trigger: Some(trigger.clone()),
+        })
+    };
+    let cases: Vec<(ForceScalingFailure, &RangeTrigger, &str, String)> = vec![
+        (
+            refused(ForceScaleReason::SubnormalAtFormation, &evaluation),
+            &evaluation,
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            "range: subnormal stiffness or load at formation; range_scaling: attempted; step1_trigger=Evaluation(Range(\"arithmetic outside normal range\")); force_scale_exponent=none".into(),
+        ),
+        (
+            refused(
+                ForceScaleReason::InfeasibleWindow {
+                    e_min: -1082,
+                    e_max: 40,
+                },
+                &formation,
+            ),
+            &formation,
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            "range: exponent span [-1082, 40] exceeds the binary64 normal window after exact power-of-two scaling; range_scaling: attempted; step1_trigger=Formation(NumericalRange { name: \"GJ/L: G*J\" }); force_scale_exponent=none".into(),
+        ),
+        (
+            refused(ForceScaleReason::ScaledEvaluation, &formation),
+            &formation,
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            "range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Formation(NumericalRange { name: \"GJ/L: G*J\" })".into(),
+        ),
+        (
+            ForceScalingFailure::Failed(ForceScaledError::Structural(StructuralError::InvalidInput(
+                "x",
+            ))),
+            &evaluation,
+            "NUMERICAL_INTEGRITY_FAILED",
+            format!(
+                "{}; range_scaling: attempted; step1_trigger=Evaluation(Range(\"arithmetic outside normal range\"))",
+                StructuralError::InvalidInput("x")
+            ),
+        ),
+        (
+            ForceScalingFailure::Failed(ForceScaledError::Formation(
+                FrameKernelError::NumericalRange { name: "EA/L: E*A" },
+            )),
+            &formation,
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            format!(
+                "{}; range_scaling: attempted; step1_trigger=Formation(NumericalRange {{ name: \"GJ/L: G*J\" }})",
+                FrameKernelError::NumericalRange { name: "EA/L: E*A" }
+            ),
+        ),
+        (
+            ForceScalingFailure::NotAdmitted {
+                family: "thermal_or_eigen_load",
+                b: 536,
+            },
+            &evaluation,
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            "range: family not admitted under force scaling: thermal_or_eigen_load; range_scaling: attempted; step1_trigger=Evaluation(Range(\"arithmetic outside normal range\")); force_scale_exponent=536; basis=exact power-of-two".into(),
+        ),
+        (
+            ForceScalingFailure::Publication {
+                quantity: "reaction@N0:UY".into(),
+                b: -702,
+            },
+            &formation,
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            "range: publication outside binary64; at=reaction@N0:UY; range_scaling: attempted; step1_trigger=Formation(NumericalRange { name: \"GJ/L: G*J\" }); force_scale_exponent=-702; basis=exact power-of-two".into(),
+        ),
+        (
+            ForceScalingFailure::NotEngaged,
+            &evaluation,
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            "range: force scaling did not engage after a range trigger; range_scaling: attempted; step1_trigger=Evaluation(Range(\"arithmetic outside normal range\"))".into(),
+        ),
+    ];
+    for (failure, trigger, code, reason) in cases {
+        let mut diagnostics = vec![diag("diagnostic:x", "X", "info", "x", vec![])];
+        append_force_scaling_refusal(&mut diagnostics, "c", &failure, trigger, &model);
+        assert_eq!(diagnostics.len(), 2);
+        let d = &diagnostics[1];
+        assert_eq!(d.id, "diagnostic:numerical-integrity:c", "{failure:?}");
+        assert_eq!(d.code, code, "{failure:?}");
+        assert_eq!(d.severity, "blocking");
+        assert_eq!(d.affected_refs, vec!["c".to_string()]);
+        assert_eq!(
+            d.message,
+            format!(
+                "Load case c: {reason}; global_dof_map={map}; no structural rejection is bypassed by generic LU or output quantization"
+            ),
+            "{failure:?}"
+        );
+    }
+}
+
+/// The ordinary attempt's result (F1b's pattern evidence), as a value.
+fn pattern_attempt_result(
+    built: &BuiltModel,
+    springs: &[SpringEntry],
+    stiffness: &SparseStiffness,
+    force: &AssembledForce,
+    prescribed: &[(usize, f64)],
+    mode: PreviewSolverMode,
+) -> Result<open_pipe_stress_frame_kernel::structural::StructuralSolution, StructuralError> {
+    let (curved, springs, free, curved_sources) = attempt_inputs(built, springs, force, prescribed);
+    SparseAssemblyEvidence::new(
+        stiffness.pattern(),
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.user_stiffness_elements,
+        &curved,
+        &springs,
+    )
+    .and_then(|assembly| {
+        assembly.solve_assembled_with_formation_check(
+            stiffness,
+            force,
+            &free,
+            prescribed,
+            linear_mode(mode),
+            &curved_sources,
+            built.nonlinear_supports.is_empty(),
+        )
+    })
+}
+
+/// A floating body (N2-N3 has no ground): a witnessed mechanism.
+fn mechanism_request() -> Value {
+    frame_request(
+        "mechanism",
+        &[
+            ("N0", [0.0, 0.0, 0.0]),
+            ("N1", [1.0, 0.0, 0.0]),
+            ("N2", [0.0, 2.0, 0.0]),
+            ("N3", [1.0, 2.0, 0.0]),
+        ],
+        &[("M1", "N0", "N1"), ("M2", "N2", "N3")],
+        vec![anchor("N0")],
+        &[("load:y", "N3", "UY", 10.0)],
+    )
+}
+
+/// OQ4: a non-range failure at the chosen b keeps `append_integrity_failure`'s
+/// code (one shared `integrity_failure_code`), here on a real mechanism and on
+/// two constructed errors.
+#[test]
+fn f1b_non_range_failure_at_b_keeps_the_integrity_code() {
+    let model = w2_unit_model();
+    let bases = product_bases(&mechanism_request());
+    let basis = &bases[0];
+    let stiffness = assemble_basis_stiffness(&basis.built, &basis.springs).unwrap();
+    let (_, force, _) = &basis.cases[0];
+    let prescribed: Vec<(usize, f64)> = basis.restrained.iter().map(|&d| (d, 0.0)).collect();
+    let mechanism = pattern_attempt_result(
+        &basis.built,
+        &basis.springs,
+        &stiffness,
+        force,
+        &prescribed,
+        PreviewSolverMode::SparseInteractive,
+    )
+    .unwrap_err();
+    let trigger = RangeTrigger::Evaluation(StructuralError::Range("r"));
+    let mut codes = Vec::new();
+    for error in [
+        mechanism,
+        StructuralError::InvalidInput("x"),
+        StructuralError::Range("r"),
+    ] {
+        let mut main_route = Vec::new();
+        append_integrity_failure(&mut main_route, "c", &error, &model);
+        let mut w2 = Vec::new();
+        append_force_scaling_refusal(
+            &mut w2,
+            "c",
+            &ForceScalingFailure::Failed(ForceScaledError::Structural(error.clone())),
+            &trigger,
+            &model,
+        );
+        assert_eq!(w2[0].code, main_route[0].code, "{error:?}");
+        assert!(w2[0]
+            .message
+            .starts_with(&format!("Load case c: {error}; ")));
+        codes.push(w2[0].code.clone());
+    }
+    assert_eq!(
+        codes,
+        [
+            "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
+            "NUMERICAL_INTEGRITY_FAILED",
+            "NUMERICAL_INTEGRITY_UNRESOLVED"
+        ]
+    );
+}
+
+// ------------------------------------------------ D models (unit level)
+
+fn pow2(exponent: i32) -> f64 {
+    assert!((-1022..=1023).contains(&exponent));
+    f64::from_bits(((exponent + 1023) as u64) << 52)
+}
+
+/// K2a's product-reach shape (`tests/k2a_formation_range_runtime.rs`
+/// `request`): one member N0 -> N1 along x; N0 anchored; N1 anchored in every
+/// DOF but `free`, which carries the load and, when given, a ground spring.
+#[allow(clippy::too_many_arguments)]
+fn reach_request(
+    id: &str,
+    length: f64,
+    od: f64,
+    wall: f64,
+    e: f64,
+    g: f64,
+    free: &str,
+    spring: Option<f64>,
+    load: f64,
+) -> Value {
+    let all = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
+    let anchored: Vec<&str> = all.iter().copied().filter(|d| *d != free).collect();
+    let mut supports = vec![
+        anchor("N0"),
+        json!({"id": "rigid:N1", "node": "N1", "restraints": anchored, "family": "anchor", "provenance": PROV}),
+    ];
+    let rotational = free.starts_with('R');
+    if let Some(k) = spring {
+        let unit = if rotational { "N*m/rad" } else { "N/m" };
+        supports.push(
+            json!({"id": "spring:N1:0", "node": "N1", "family": "spring", "restraints": [free],
+            "stiffness": {"dof": free, "value": {"value": k, "unit": unit}}, "provenance": PROV}),
+        );
+    }
+    let mut request = frame_request(
+        id,
+        &[("N0", [0.0, 0.0, 0.0]), ("N1", [length, 0.0, 0.0])],
+        &[("M1", "N0", "N1")],
+        supports,
+        &[("load:0", "N1", free, load)],
+    );
+    let model = &mut request["model"];
+    model["pipe_segments"][0]["section"] = json!({
+        "outside_diameter": {"value": od, "unit": "m"}, "wall_thickness": {"value": wall, "unit": "m"}});
+    model["materials"][0]["elastic_modulus"]["value"] = json!(e);
+    model["materials"][0]["shear_modulus"]["value"] = json!(g);
+    request
+}
+
+/// The four K2a reach cases' linear variants (K2a's constants).
+fn reach_requests() -> Vec<(&'static str, Value)> {
+    vec![
+        (
+            "spring-carried",
+            reach_request(
+                "spring-carried",
+                2.0,
+                1.0e-6,
+                1.0e-7,
+                2.0e11,
+                1.0e-300,
+                "RX",
+                Some(1.0),
+                1.0,
+            ),
+        ),
+        (
+            "partial-underflow",
+            reach_request(
+                "partial-underflow",
+                9.5367431640625e-07,
+                3.0e-8,
+                3.0e-9,
+                1.3e-292,
+                1.0e-200,
+                "UY",
+                None,
+                1.0e-307,
+            ),
+        ),
+        (
+            "exact-zero",
+            reach_request(
+                "exact-zero",
+                1.8189894035458565e-12,
+                1.0e-11,
+                1.0e-12,
+                6.4e-280,
+                1.0e-100,
+                "UY",
+                Some(3.7e-289),
+                9.25e-290,
+            ),
+        ),
+        (
+            "least-subnormal",
+            reach_request(
+                "least-subnormal",
+                1.8189894035458565e-12,
+                1.0e-11,
+                1.0e-12,
+                9.6e-280,
+                1.0e-100,
+                "UY",
+                None,
+                2.05e-289,
+            ),
+        ),
+    ]
+}
+
+/// A skew chain of `members` members scaled by exact powers of two (the
+/// RF-RANGE LEF-large construction, K2b RETURN §9 C): lengths and section
+/// dimensions by 2^pl, moduli by 2^pm, forces by 2^pf and moments by
+/// 2^(pf+pl). (0, 0, 0) is the base model.
+fn scaled_chain_request(members: usize, pl: i32, pm: i32, pf: i32) -> Value {
+    let length = pow2(pl);
+    let mut request = chain_request(members);
+    let model = &mut request["model"];
+    for node in model["nodes"].as_array_mut().unwrap() {
+        for axis in ["x", "y", "z"] {
+            let value = node["position"][axis].as_f64().unwrap();
+            node["position"][axis] = json!(value * length);
+        }
+    }
+    for member in model["pipe_segments"].as_array_mut().unwrap() {
+        member["section"] = json!({
+            "outside_diameter": {"value": 0.2 * length, "unit": "m"},
+            "wall_thickness": {"value": 0.01 * length, "unit": "m"}});
+    }
+    model["materials"][0]["elastic_modulus"]["value"] = json!(2.0e11 * pow2(pm));
+    model["materials"][0]["shear_modulus"]["value"] = json!(8.0e10 * pow2(pm));
+    for load in model["load_cases"][0]["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+    {
+        let scale = if load["dimension"] == "moment" {
+            pow2(pf + pl)
+        } else {
+            pow2(pf)
+        };
+        let value = load["magnitude"]["value"].as_f64().unwrap();
+        load["magnitude"]["value"] = json!(value * scale);
+    }
+    request
+}
+
+/// K2b's documented-limitation chain (K2b RETURN §13.3) at product level:
+/// N0-N1-N2 along x, 1 m bars, E = 2^440 Pa, G = 2^439 Pa, UX loads of
+/// 2^-1010 N at N1 and 1 N at N2; N1 and N2 are free in UX only.
+fn limitation_chain_request() -> Value {
+    let free_ux = |node: &str| {
+        json!({"id": format!("rigid:{node}"), "node": node, "family": "anchor",
+               "restraints": ["UY", "UZ", "RX", "RY", "RZ"], "provenance": PROV})
+    };
+    let mut request = frame_request(
+        "limitation-chain",
+        &[
+            ("N0", [0.0, 0.0, 0.0]),
+            ("N1", [1.0, 0.0, 0.0]),
+            ("N2", [2.0, 0.0, 0.0]),
+        ],
+        &[("M1", "N0", "N1"), ("M2", "N1", "N2")],
+        vec![anchor("N0"), free_ux("N1"), free_ux("N2")],
+        &[
+            ("load:n1", "N1", "UX", pow2(-1010)),
+            ("load:n2", "N2", "UX", 1.0),
+        ],
+    );
+    let model = &mut request["model"];
+    model["materials"][0]["elastic_modulus"]["value"] = json!(pow2(440));
+    model["materials"][0]["shear_modulus"]["value"] = json!(pow2(439));
+    request
+}
+
+/// PHYS-R4 (`tests/pressure_membrane_range.rs` `fixture`, with its inputs):
+/// OD 4e-77 m, wall 1e-77 m, L 1 m, E 1 Pa, nu 0.1. `pressurized`: both ends
+/// fixed and p = 4.7e-170 Pa (the public fixture); otherwise a cantilever
+/// with tip Fy = tip Mx = f64 bits 0x0031fa182c40c60d (about 1e-307).
+fn phys_r4_request(pressurized: bool) -> Value {
+    let a = "node:section-a";
+    let b = "node:section-b";
+    let anchor_at = |id: &str, node: &str| {
+        json!({"id": id, "node": node, "family": "anchor",
+               "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"],
+               "provenance": "independent_section_geometry_control"})
+    };
+    let mut supports = vec![anchor_at("support:section-a", a)];
+    let mut loads = Vec::new();
+    let mut regions = Vec::new();
+    if pressurized {
+        supports.push(anchor_at("support:section-b", b));
+        regions.push(json!({"id": "region:source-section", "member_pipe_ids": ["pipe:source-section"],
+            "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": {"value": 4.7e-170, "unit": "Pa"},
+            "terminals": [
+                {"node_ref": a, "closure_transfer": "transfers_to_wall", "provenance": "explicit_test_closure"},
+                {"node_ref": b, "closure_transfer": "transfers_to_wall", "provenance": "explicit_test_closure"}],
+            "provenance": "independent_geometry_pressure_reference"}));
+    } else {
+        let tip = f64::from_bits(0x0031fa182c40c60d);
+        loads.push(json!({"id": "load:tip-y", "category": "concentrated_force",
+            "target": {"type": "node", "node": b}, "direction": "global_y", "dimension": "force",
+            "magnitude": {"value": tip, "unit": "N"}, "provenance": "independent_section_geometry_reference"}));
+        loads.push(json!({"id": "load:tip-torque", "category": "concentrated_moment",
+            "target": {"type": "node", "node": b}, "direction": "rotation_x", "dimension": "moment",
+            "magnitude": {"value": tip, "unit": "N*m"}, "provenance": "independent_section_geometry_reference"}));
+    }
+    json!({"model": {
+        "schema_version": "0.3.0", "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {"version": "2.0.0", "mode": "exact_straight_pressure_v2"},
+        "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N", "angle": "rad",
+            "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+            "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+        "nodes": [{"id": a, "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": "synthetic"},
+            {"id": b, "position": {"x": 1.0, "y": 0.0, "z": 0.0}, "provenance": "synthetic"}],
+        "pipe_segments": [{"id": "pipe:source-section", "from": a, "to": b, "section": {
+            "outside_diameter": {"value": 4e-77, "unit": "m"},
+            "wall_thickness": {"value": 1e-77, "unit": "m"}},
+            "material": "material:section", "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+            "provenance": "arithmetic_geometry_control_not_manufactured_pipe"}],
+        "materials": [{"id": "material:section", "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {"value": 1.0, "unit": "Pa"},
+            "poisson_ratio": {"value": 0.1, "unit": "1"},
+            "provenance": "synthetic_isotropic_input"}],
+        "supports": supports, "components": [],
+        "load_cases": [{"id": "case:source-section", "primitive_loads": loads, "pressure_regions": regions,
+            "provenance": "independent_reference"}], "combinations": []
+    }, "materials": []})
+}
+
+/// The D models whose case ledger is nodal (so `product_bases` forms the
+/// product's own ledger): K2a's reach set, the LEF-large analogue, the
+/// limitation chain, PHYS-R4 without pressure, and a mechanism.
+fn w2_nodal_models() -> Vec<(&'static str, Value)> {
+    let mut models = reach_requests();
+    models.push(("lef-large analogue", scaled_chain_request(5, 200, 300, 600)));
+    models.push(("limitation chain", limitation_chain_request()));
+    models.push(("phys-r4 without pressure", phys_r4_request(false)));
+    models.push(("mechanism", mechanism_request()));
+    models
+}
+
+/// The product's step 1 for one case: the ordinary attempt on the basis as
+/// `form_basis_stiffness` formed it (a deferred formation refusal is the
+/// attempt's failure).
+fn step_one(
+    basis: &Basis,
+    stiffness: &BasisStiffness,
+    force: &AssembledForce,
+    prescribed: &[(usize, f64)],
+    mode: PreviewSolverMode,
+) -> Result<open_pipe_stress_frame_kernel::structural::StructuralSolution, OrdinaryFailure> {
+    match stiffness {
+        BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
+        BasisStiffness::Formed(formed) => pattern_attempt_result(
+            &basis.built,
+            &basis.springs,
+            formed,
+            force,
+            prescribed,
+            mode,
+        )
+        .map_err(OrdinaryFailure::Structural),
+    }
+}
+
+/// The orchestrator's case, formed as `force_scaling_attempt` forms it.
+fn orchestrator_case<'a>(
+    basis: &'a Basis,
+    inputs: &'a AttemptInputs,
+    force: &'a AssembledForce,
+    prescribed: &'a [(usize, f64)],
+    mode: PreviewSolverMode,
+) -> ForceScalingCase<'a> {
+    ForceScalingCase {
+        node_count: basis.built.nodes.len(),
+        frames: &basis.built.frame_elements,
+        users: &basis.built.user_stiffness_elements,
+        curved: &inputs.0,
+        curved_sources: &inputs.3,
+        springs: &inputs.1,
+        force,
+        prescribed,
+        mode: linear_mode(mode),
+        selected: true,
+        representation: EvidenceRepresentation::Pattern,
+    }
+}
+
+/// D-CLASS (T3 D1 §4.7 step 1; F1b's derivation D1): PP's range
+/// classification of the ordinary attempt equals the orchestrator's step 1 on
+/// every linear case of the declared B subset and the D models, in both modes:
+/// - PP finds no range trigger: the orchestrator returns PP's own b = 0
+///   result (the same solution, byte for byte in `Debug`, with no record; or
+///   the same error);
+/// - PP finds a trigger: the orchestrator goes on past b = 0 (published at
+///   b != 0, or refused with PP's trigger recorded, or a failure at the
+///   chosen b or of the census).
+#[test]
+fn f1b_range_classification_equals_the_orchestrators() {
+    let mut models = declared_subset();
+    models.extend(w2_nodal_models());
+    let (mut not_range, mut range) = (0, 0);
+    for (name, request) in &models {
+        for basis in product_bases(request) {
+            if !basis.built.nonlinear_supports.is_empty() {
+                continue; // W2 never engages there
+            }
+            let stiffness = form_basis_stiffness(&basis.built, &basis.springs, true).unwrap();
+            for (case, force, values) in &basis.cases {
+                let prescribed: Vec<(usize, f64)> = basis
+                    .restrained
+                    .iter()
+                    .enumerate()
+                    .map(|(k, &dof)| (dof, values.as_ref().map_or(0.0, |v| v[k])))
+                    .collect();
+                let inputs = attempt_inputs(&basis.built, &basis.springs, force, &prescribed);
+                for mode in MODES {
+                    let ctx = format!("{name} [{}] {case} {mode:?}", basis.label);
+                    let ours = step_one(&basis, &stiffness, force, &prescribed, mode);
+                    let trigger = ours.as_ref().err().and_then(ordinary_range_trigger);
+                    let theirs = solve_with_force_scaling(&orchestrator_case(
+                        &basis,
+                        &inputs,
+                        force,
+                        &prescribed,
+                        mode,
+                    ));
+                    match (&ours, &trigger, &theirs) {
+                        (Ok(solution), None, Ok(outcome)) => {
+                            assert!(outcome.solution.force_scale.is_unscaled(), "{ctx}");
+                            assert!(outcome.solution.records.is_empty(), "{ctx}");
+                            assert_eq!(
+                                format!("{:?}", outcome.solution.solution),
+                                format!("{solution:?}"),
+                                "{ctx}"
+                            );
+                            not_range += 1;
+                        }
+                        (
+                            Err(OrdinaryFailure::Structural(error)),
+                            None,
+                            Err(ForceScaledError::Structural(theirs)),
+                        ) => {
+                            assert_eq!(error, theirs, "{ctx}");
+                            not_range += 1;
+                        }
+                        (Err(_), Some(_), Ok(outcome)) => {
+                            assert!(!outcome.solution.force_scale.is_unscaled(), "{ctx}");
+                            range += 1;
+                        }
+                        (Err(_), Some(ours), Err(ForceScaledError::Refused(refusal))) => {
+                            assert_eq!(refusal.trigger.as_ref(), Some(ours), "{ctx}");
+                            range += 1;
+                        }
+                        (Err(_), Some(_), Err(_)) => range += 1,
+                        _ => panic!("{ctx}: PP {ours:?} (trigger {trigger:?}) against the orchestrator {theirs:?}"),
+                    }
+                }
+            }
+        }
+    }
+    // Not vacuous: both directions are exercised. Range: the seven D range
+    // models (the mechanism is not one) in both modes; not range: the nine
+    // linear cases of the B subset and the mechanism, in both modes.
+    assert_eq!((not_range, range), (18, 14));
+}
+
+/// RV11-N4: the product passes the case's unscaled ledger to the orchestrator
+/// (the NI pin keeps `force_scaled(` and `with_force_scale` out of every
+/// product module, so no scaled ledger exists there). The value tests detect
+/// a pre-scaled ledger: on K2a's exact-zero case (b = 734) the unscaled ledger
+/// gives u_y within 1e-9 of the exact reference, and the same ledger scaled by
+/// 2^b first gives a different u (here, 2^b times it at b = 0).
+#[test]
+fn f1b_rv11_n4_a_pre_scaled_ledger_is_detected_by_the_values() {
+    let request = reach_requests().remove(2).1;
+    let bases = product_bases(&request);
+    let basis = &bases[0];
+    let (_, force, _) = &basis.cases[0];
+    let prescribed: Vec<(usize, f64)> = basis.restrained.iter().map(|&d| (d, 0.0)).collect();
+    let inputs = attempt_inputs(&basis.built, &basis.springs, force, &prescribed);
+    let reference = f64::from_bits(0x3fc001034445ee29);
+    for mode in MODES {
+        let outcome =
+            solve_with_force_scaling(&orchestrator_case(basis, &inputs, force, &prescribed, mode))
+                .unwrap();
+        let scale = outcome.solution.force_scale;
+        assert_eq!(scale.exponent(), 734, "{mode:?}");
+        let u = outcome.solution.solution.displacements[7];
+        assert!(((u - reference) / reference).abs() <= 1e-9, "{mode:?}: {u}");
+        let prescaled = force.force_scaled(scale).unwrap();
+        match solve_with_force_scaling(&orchestrator_case(
+            basis,
+            &inputs,
+            &prescaled,
+            &prescribed,
+            mode,
+        )) {
+            Ok(twice) => {
+                let moved = twice.solution.solution.displacements[7];
+                assert!(
+                    ((moved - reference) / reference).abs() > 1.0,
+                    "{mode:?}: {moved}"
+                );
+            }
+            Err(error) => panic!("{mode:?}: the pre-scaled ledger was refused: {error:?}"),
+        }
+    }
+}
+
+/// One case's admission inputs, formed by the product's front end.
+struct AdmissionInputs {
+    model: PreviewModel,
+    built: BuiltModel,
+    load_application: LoadApplication,
+    force: AssembledForce,
+}
+
+fn admission_inputs(request: &Value) -> AdmissionInputs {
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+    let mut model = parsed.model;
+    let mut materials = if parsed.materials.is_empty() {
+        model.materials.clone()
+    } else {
+        parsed.materials
+    };
+    let mut d = Vec::new();
+    resolve_shared_sections(&mut model, &mut d);
+    normalize_model_units(&mut model, &mut materials, &mut d);
+    let built = build_model(&model, &materials, &mut d).unwrap();
+    let primitives = build_load_case_primitive_loads(&model, &model.load_cases[0], &mut d);
+    let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &primitives);
+    let force = nodal_and_eigen_case_force(&load_application, &[], &built).unwrap();
+    AdmissionInputs {
+        model,
+        built,
+        load_application,
+        force,
+    }
+}
+
+impl AdmissionInputs {
+    fn admit(
+        &self,
+        built: Option<&BuiltModel>,
+        thermal: &[ThermalElementLoad],
+        thrust: &[PressureThrustLoad],
+        force: Option<&AssembledForce>,
+    ) -> Result<(), ForceScalingFailure> {
+        force_scaling_admission(
+            &self.model,
+            built.unwrap_or(&self.built),
+            &self.model.load_cases[0],
+            &self.load_application,
+            thermal,
+            thrust,
+            None,
+            force.unwrap_or(&self.force),
+            734,
+        )
+    }
+}
+
+fn family_of(result: Result<(), ForceScalingFailure>) -> &'static str {
+    match result {
+        Ok(()) => "admitted",
+        Err(ForceScalingFailure::NotAdmitted { family, b }) => {
+            assert_eq!(b, 734);
+            family
+        }
+        Err(other) => panic!("{other:?}"),
+    }
+}
+
+/// Admission (ROOT Q3, OQ13 narrowed; the A2 order): each check names its
+/// family, including the three the product cannot reach at b != 0 (a
+/// user-stiffness element: every realizable one is refused by M07 containment
+/// or input validation; a pressure thrust; a non-nodal ledger term), and a
+/// thermal load is named as thermal although it is also an element primitive.
+/// (The exact-pressure operand is reached at product level, in
+/// `tests/f1b_w2_runtime.rs`.)
+#[test]
+fn f1b_admission_names_each_family() {
+    let base = admission_inputs(&chain_request(2));
+    assert_eq!(family_of(base.admit(None, &[], &[], None)), "admitted");
+    // 1. A user-stiffness joint (M07 refuses its solve; the builder forms it).
+    let mut joint = chain_request(2);
+    joint["model"]["components"] = json!([{"id": "component:joint", "label": "invented joint",
+        "kind": "expansion_joint", "node": "N1",
+        "geometry": {"expansion_joint_pipe_ref": "M2", "effective_area": {"value": 0.01, "unit": "m^2"},
+                     "expansion_joint_source_reference": "invented"},
+        "modifiers": {"axial_stiffness_user_value": {"value": 3.2e6, "unit": "N/m"},
+                      "lateral_stiffness_user_value": {"value": 9.0e5, "unit": "N/m"},
+                      "angular_stiffness_user_value": {"value": 4.8e5, "unit": "N*m/rad"},
+                      "torsional_stiffness_user_value": {"value": 6.2e5, "unit": "N*m/rad"},
+                      "source_reference": "invented"},
+        "mechanics_interface": {"solver_consumption": "mechanics_geometry_and_user_flexibility",
+                                "rule_check_consumption": "user_rule_pack_inputs_only"},
+        "provenance": PROV}]);
+    let joint = admission_inputs(&joint);
+    assert!(!joint.built.user_stiffness_elements.is_empty());
+    assert_eq!(
+        family_of(base.admit(Some(&joint.built), &[], &[], None)),
+        "user_stiffness_element"
+    );
+    // 2. A realized curved bend.
+    let elbow = admission_inputs(&curved_elbow_request());
+    assert_eq!(
+        family_of(base.admit(Some(&elbow.built), &[], &[], None)),
+        "curved_bend_macro_element"
+    );
+    // 3-5. Thermal (named first, with its element primitive), pressure
+    // thrust, and an element primitive alone.
+    let thermal = [ThermalElementLoad {
+        element_index: 0,
+        source: "load:t".into(),
+        axial_load: 1.0,
+        thermal_strain: 1.0e-5,
+    }];
+    let thrust = [PressureThrustLoad {
+        element_index: 0,
+        axial_load: 1.0,
+        source_load_id: "load:p".into(),
+        source: PressureThrustSource::PipeInternalArea,
+    }];
+    let mut uniform = chain_request(2);
+    uniform["model"]["load_cases"][0]["primitive_loads"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"id": "load:w", "category": "distributed_force",
+            "target": {"type": "element", "pipe": "M1"}, "direction": "global_z",
+            "magnitude": {"value": -50.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": PROV}));
+    let uniform = admission_inputs(&uniform);
+    assert_eq!(uniform.load_application.element_uniform_loads.len(), 1);
+    assert_eq!(
+        family_of(uniform.admit(None, &thermal, &[], None)),
+        "thermal_or_eigen_load"
+    );
+    assert_eq!(
+        family_of(uniform.admit(None, &[], &thrust, None)),
+        "pressure_thrust_load"
+    );
+    assert_eq!(
+        family_of(uniform.admit(None, &[], &[], None)),
+        "uniform_element_load"
+    );
+    // 7. A consumed constant-effort support.
+    let mut effort = chain_request(2);
+    effort["model"]["supports"].as_array_mut().unwrap().push(json!({
+        "id": "support:ce", "node": "N1", "family": "constant_effort_support", "restraints": ["UY"],
+        "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 375.0, "unit": "N"},
+                   "travel_range": {"value": 0.05, "unit": "m"}, "source_reference": "invented"},
+        "provenance": PROV}));
+    let effort = admission_inputs(&effort);
+    assert_eq!(
+        family_of(effort.admit(None, &[], &[], None)),
+        "constant_effort_support"
+    );
+    // 8-9. A ledger term that is not an authored nodal load, and an authored
+    // nodal term of exactly zero (OQ13 narrowed: refused, disclosed).
+    let n = base.force.len();
+    let ledger = |source: &str, value: f64| {
+        let mut ledger = open_pipe_stress_frame_kernel::load_ledger::LoadLedger::new();
+        ledger.push("load:tip-y", 13, 1250.0);
+        ledger.push(source, 7, value);
+        ledger.finish(n).unwrap()
+    };
+    assert_eq!(
+        family_of(base.admit(None, &[], &[], Some(&ledger("support:x", 1.0)))),
+        "non_nodal_load_term"
+    );
+    assert_eq!(
+        family_of(base.admit(None, &[], &[], Some(&ledger("load:tip-rx", 0.0)))),
+        "zero_nodal_load_term"
+    );
+    assert_eq!(
+        family_of(base.admit(None, &[], &[], Some(&ledger("load:tip-rx", -0.0)))),
+        "zero_nodal_load_term"
+    );
+    assert_eq!(
+        family_of(base.admit(None, &[], &[], Some(&ledger("load:tip-rx", 1.0)))),
+        "admitted"
+    );
+}
+
+/// F-A2 at unit level (RV11D-1): on K2a's exact-zero case, the orchestrator's
+/// own outcome with its displacements scaled by 2^-80 makes N0's reactions
+/// underflow after unscaling; the publication refuses them by name (never a
+/// flushed or wrong `Normal` value), and the unmodified outcome publishes.
+#[test]
+fn f1b_publication_refuses_an_underflowing_reaction_by_name() {
+    let request = reach_requests().remove(2).1;
+    let bases = product_bases(&request);
+    let basis = &bases[0];
+    let (_, force, _) = &basis.cases[0];
+    let prescribed: Vec<(usize, f64)> = basis.restrained.iter().map(|&d| (d, 0.0)).collect();
+    let inputs = attempt_inputs(&basis.built, &basis.springs, force, &prescribed);
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+    let model = parsed.model;
+    let outcome = solve_with_force_scaling(&orchestrator_case(
+        basis,
+        &inputs,
+        force,
+        &prescribed,
+        PreviewSolverMode::SparseInteractive,
+    ))
+    .unwrap();
+    let published = force_scaled_publication(
+        &model,
+        &basis.built,
+        &basis.springs,
+        &basis.restrained,
+        &outcome,
+        force,
+    )
+    .unwrap();
+    assert_eq!(published.force_scale_exponent, 734);
+    assert!(published.reactions.iter().all(|(_, p)| p.value.is_finite()));
+    let mut shrunk = outcome.clone();
+    for u in &mut shrunk.solution.solution.displacements {
+        *u *= pow2(-80);
+    }
+    match force_scaled_publication(
+        &model,
+        &basis.built,
+        &basis.springs,
+        &basis.restrained,
+        &shrunk,
+        force,
+    ) {
+        Err(ForceScalingFailure::Publication { quantity, b }) => {
+            assert_eq!(b, 734);
+            assert!(quantity.starts_with("reaction@"), "{quantity}");
+        }
+        other => panic!("{other:?}"),
+    }
+}
+
+/// Publication at b != 0: an in-range reaction is 2^-b times the scaled exact
+/// sum `sum_j K'_ij u_j - f'_i` (K' and f' formed at 2^b), rounded once, on
+/// K2a's exact-zero case (b = 734), wherever the published value is normal.
+#[test]
+fn f1b_an_in_range_reaction_is_the_scaled_exact_sum_rounded_once() {
+    let request = reach_requests().remove(2).1;
+    let bases = product_bases(&request);
+    let basis = &bases[0];
+    let (_, force, _) = &basis.cases[0];
+    let prescribed: Vec<(usize, f64)> = basis.restrained.iter().map(|&d| (d, 0.0)).collect();
+    let inputs = attempt_inputs(&basis.built, &basis.springs, force, &prescribed);
+    let model = serde_json::from_value::<LinearStaticPreviewRequest>(request.clone())
+        .unwrap()
+        .model;
+    for mode in MODES {
+        let outcome =
+            solve_with_force_scaling(&orchestrator_case(basis, &inputs, force, &prescribed, mode))
+                .unwrap();
+        let scale = outcome.solution.force_scale;
+        let b = scale.exponent();
+        let scaled_force = force.force_scaled(scale).unwrap();
+        let u = &outcome.solution.solution.displacements;
+        let published = force_scaled_publication(
+            &model,
+            &basis.built,
+            &basis.springs,
+            &basis.restrained,
+            &outcome,
+            force,
+        )
+        .unwrap();
+        let mut compared = 0;
+        for &(dof, value) in &published.reactions {
+            if value.representability != Representability::Normal || value.value == 0.0 {
+                continue;
+            }
+            let mut sum = ExactAccumulator::new();
+            for (column, displacement) in u.iter().enumerate() {
+                sum.add_product(outcome.stiffness.get(dof, column), *displacement)
+                    .unwrap();
+            }
+            scaled_force.accumulate_dof(dof, &mut sum, true).unwrap();
+            let rounded = sum.round().unwrap();
+            let expected = rounded * pow2(-b / 2) * pow2(-b + b / 2);
+            assert_eq!(
+                value.value.to_bits(),
+                expected.to_bits(),
+                "{mode:?} dof {dof}"
+            );
+            compared += 1;
+        }
+        assert!(compared >= 2, "{mode:?}: {compared}");
+    }
+}
+
+// ------------------------------------------------------------------ E
+
+/// E (ROOT OQ3): an input whose ordinary evidence was formed at b != 0 is
+/// refused `Unsupported`, named, with nothing charged or rejected, before any
+/// read of the input (here an empty stiffness, which `solve` refuses as a
+/// dimension mismatch after charging); at b = 0 the wrapper is `solve`.
+#[test]
+fn f1b_solve_ordinary_refuses_force_scaled_evidence_with_zero_work() {
+    let request = chain_request(2);
+    let bases = product_bases(&request);
+    let basis = &bases[0];
+    let n = basis.built.nodes.len() * DOF_PER_NODE;
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+    let model = parsed.model;
+    let (_, force, _) = &basis.cases[0];
+    let free: Vec<usize> = (0..n).filter(|d| !basis.restrained.contains(d)).collect();
+    let prescribed: Vec<(usize, f64)> = basis.restrained.iter().map(|&d| (d, 0.0)).collect();
+    let mut d = Vec::new();
+    let primitives = build_load_case_primitive_loads(&model, &model.load_cases[0], &mut d);
+    let loads = prepare_loads(
+        basis.built.nodes.len(),
+        basis.built.pipes.len(),
+        &primitives,
+    );
+    let empty: Vec<Vec<f64>> = Vec::new();
+    let limits = exact::Limits {
+        operations: 1_000_000,
+        ..Default::default()
+    };
+    let attempt = |scale: ForceScale| {
+        source_recovery::solve_ordinary(
+            source_recovery::Input {
+                model: &model,
+                built: &basis.built,
+                stiffness: &empty,
+                force,
+                free: &free,
+                prescribed: &prescribed,
+                spring_entries: &basis.springs,
+                load_case: &model.load_cases[0],
+                load_application: &loads,
+                thermal_loads: &[],
+                pressure_thrust_loads: &[],
+                load_state: None,
+            },
+            limits,
+            scale,
+        )
+        .map(|_| ())
+        .unwrap_err()
+    };
+    for b in [2, -2, 734, -702] {
+        let refused = attempt(ForceScale::new(b).unwrap());
+        assert_eq!(refused.stage, "source closure", "{b}");
+        assert_eq!(
+            refused.error,
+            source_recovery::RecoveryError::Unsupported(
+                "force-scaled ordinary evidence (b != 0) is not a retained-source input"
+            ),
+            "{b}"
+        );
+        assert_eq!((refused.work.charged, refused.work.rejected), (0, 0), "{b}");
+    }
+    // At b = 0 the wrapper is `solve`: the empty stiffness reaches its
+    // dimension check (a different, charged refusal).
+    let unscaled = attempt(ForceScale::UNSCALED);
+    assert_eq!(
+        unscaled.error,
+        source_recovery::RecoveryError::SourceMismatch("actual model/source dimensions")
+    );
+    assert!(unscaled.work.charged > 0);
+}
+
+/// E (ROOT OQ2, option B): a formation-range case is declined without an
+/// attempt, named, with zero work, like S11-G's load-row decline.
+#[test]
+fn f1b_range_formation_decline_is_named_and_charges_nothing() {
+    let decline = source_recovery::range_formation_decline_without_attempt();
+    let guard = source_recovery::formation_decline_without_attempt();
+    assert_eq!(decline.stage, "range formation");
+    assert_eq!(decline.helper_stage, guard.helper_stage);
+    assert_eq!(
+        decline.error,
+        source_recovery::RecoveryError::Unsupported(
+            "the ordinary stiffness was not formed (range at formation); no retained-source attempt"
+        )
+    );
+    assert_eq!(
+        (
+            decline.work.charged,
+            decline.work.rejected,
+            decline.work.limit
+        ),
+        (0, 0, 0)
+    );
+}

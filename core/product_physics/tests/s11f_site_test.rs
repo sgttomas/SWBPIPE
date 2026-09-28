@@ -1546,7 +1546,23 @@ fn t10b_routing_site_calls_the_tested_predicates() {
     let zero = case
         .find("formation_decline_without_attempt()")
         .expect("E-1 decline");
-    let solve = case.find("source_recovery::solve(").expect("the attempt");
+    // F1b (ROOT OQ3): the attempt enters through `solve_ordinary`, with the
+    // ordinary evidence's scale `ForceScale::UNSCALED`, and no other non-test
+    // product code calls `source_recovery::solve(` directly.
+    let solve = case
+        .find("source_recovery::solve_ordinary(")
+        .expect("the attempt");
+    let ordinary = call_arguments(&case, "source_recovery::solve_ordinary(");
+    assert_eq!(ordinary.len(), 1);
+    assert_eq!(last_argument(&ordinary[0]), "ForceScale::UNSCALED");
+    for source in PRODUCT.iter().filter(|s| s.name != "PP/source_recovery.rs") {
+        assert_eq!(
+            calls(&code_of(source.text), "source_recovery::solve(").count(),
+            0,
+            "{}",
+            source.name
+        );
+    }
     assert!(zero < solve);
     assert!(case[..zero].contains("needs_source_recovery(report_sensitive, attempt_err, None)"));
     // G-3: the decline precedes the 0.4.0 replay reservation.

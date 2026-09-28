@@ -12,6 +12,13 @@
 //! underflowed intermediate there became an exact 0, or a subnormal with few
 //! bits, and was published through the solve. All inputs are invented, and
 //! every one is a normal binary64 number.
+//!
+//! F1b (ROOT's rulings on I13's plan, Q10 approved): on a linear invocation
+//! K2a's formation refusal is now the step-1 trigger of W2, K2b's force
+//! scaling reached through its orchestrator. The linear variants' expectations
+//! are restated: published at the orchestrator's b, or refused by W2's named
+//! template with K2a's name kept as the trigger. The nonlinear (`open_gap`)
+//! variants are unchanged: W2 never engages there.
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
     LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
@@ -149,6 +156,103 @@ fn assert_refused_by_name(r: &Reach, name: &str) {
     }
 }
 
+/// F1b (Q10): on both entries and in both modes, W2 refuses the case: no
+/// result is published, and the only blocking diagnostic is the case's
+/// integrity diagnostic, `NUMERICAL_INTEGRITY_UNRESOLVED`, with the
+/// orchestrator's `reason`, K2a's name kept as the step-1 trigger, and no b
+/// (ROOT OQ1, c2: a step-4 refusal does not carry b).
+fn assert_w2_refused(r: &Reach, reason: &str, name: &str) {
+    let expected = format!(
+        "Load case case: {reason}; range_scaling: attempted; step1_trigger=Formation(NumericalRange {{ name: {name:?} }}); global_dof_map="
+    );
+    let value = request(r);
+    for mode in [
+        PreviewSolverMode::SparseInteractive,
+        PreviewSolverMode::DenseScrutiny,
+    ] {
+        for (entry, envelope) in both_entries(&value, mode) {
+            let ctx = format!("{} {entry} {mode:?}", r.id);
+            assert!(envelope.results.is_empty(), "{ctx}: no result is published");
+            let blocking: Vec<_> = envelope
+                .diagnostics
+                .iter()
+                .filter(|d| d.severity == "blocking")
+                .collect();
+            assert_eq!(blocking.len(), 1, "{ctx}: {:?}", envelope.diagnostics);
+            assert_eq!(
+                blocking[0].id, "diagnostic:numerical-integrity:case",
+                "{ctx}"
+            );
+            assert_eq!(blocking[0].code, "NUMERICAL_INTEGRITY_UNRESOLVED", "{ctx}");
+            assert!(
+                blocking[0].message.starts_with(&expected),
+                "{ctx}: {}",
+                blocking[0].message
+            );
+            assert!(
+                !blocking[0].message.contains("force_scale_exponent"),
+                "{ctx}"
+            );
+        }
+    }
+}
+
+/// F1b (Q10): on both entries and in both modes, W2 publishes the case at
+/// b = `b`: N1's `free` displacement (mm) is within the unchanged 1e-9
+/// criterion of the exact reference `reference_m` (m); nothing blocks; the
+/// case's integrity diagnostic is `NUMERICAL_INTEGRITY_SENSITIVE` (S11-G's
+/// R-b' fails closed at b != 0, ROOT Q5(a)) and carries the `range_scaling:`
+/// evidence line exactly once, before R-b''s text.
+fn assert_w2_published(r: &Reach, b: i32, reference_m: f64) {
+    let line = format!("range_scaling: force_scale_exponent={b}; basis=exact power-of-two");
+    let kind = format!("global_nodal_displacement_{}", r.free[1..].to_lowercase());
+    let expected_mm = reference_m * 1000.0;
+    let value = request(r);
+    for mode in [
+        PreviewSolverMode::SparseInteractive,
+        PreviewSolverMode::DenseScrutiny,
+    ] {
+        for (entry, envelope) in both_entries(&value, mode) {
+            let ctx = format!("{} {entry} {mode:?}", r.id);
+            assert!(
+                envelope
+                    .diagnostics
+                    .iter()
+                    .all(|d| d.severity != "blocking"),
+                "{ctx}: {:?}",
+                envelope.diagnostics
+            );
+            let rows: Vec<_> = envelope
+                .results
+                .iter()
+                .filter(|row| row.entity_ref == "N1" && row.kind == kind)
+                .collect();
+            assert_eq!(rows.len(), 1, "{ctx}");
+            assert_eq!(rows[0].unit, "mm", "{ctx}");
+            let error = ((rows[0].value - expected_mm) / expected_mm).abs();
+            assert!(
+                error <= 1e-9,
+                "{ctx}: {} mm against {expected_mm} mm",
+                rows[0].value
+            );
+            let integrity: Vec<_> = envelope
+                .diagnostics
+                .iter()
+                .filter(|d| d.id == "diagnostic:numerical-integrity:case")
+                .collect();
+            assert_eq!(integrity.len(), 1, "{ctx}");
+            assert_eq!(integrity[0].code, "NUMERICAL_INTEGRITY_SENSITIVE", "{ctx}");
+            let message = &integrity[0].message;
+            assert_eq!(message.matches("range_scaling:").count(), 1, "{ctx}");
+            let at = message
+                .find(&line)
+                .unwrap_or_else(|| panic!("{ctx}: {message}"));
+            let guard = message.find("S11-G recovery guard (R-b')").expect("R-b'");
+            assert!(at < guard, "{ctx}: the line precedes R-b''s text");
+        }
+    }
+}
+
 const SPRING_CARRIED: Reach = Reach {
     id: "product-reach-torsion-underflow-spring-carried",
     length: 2.0,
@@ -170,6 +274,9 @@ fn k2a_product_reach_spring_carried_torsion_underflow_is_refused_on_both_entries
     // carried by a 1 N*m/rad spring. Paths differ: on main's unchecked
     // formation G*J = 5.8e-326 rounds to exactly 0, so GJ/L = 0 and the case
     // solved on the spring alone (accurate, since GJ/L is truly ~3e-326).
+    // F1b (Q10): W2 does not restore it. The one evaluation at the chosen b
+    // also leaves the normal range (step 4), so W2 refuses the case by its
+    // template and keeps K2a's name as the step-1 trigger.
     let r = &SPRING_CARRIED;
     let (area, i, j) = product_section(r.od, r.wall);
     assert!(r.g.is_normal() && j.is_normal() && i.is_normal());
@@ -177,7 +284,11 @@ fn k2a_product_reach_spring_carried_torsion_underflow_is_refused_on_both_entries
     assert_eq!(r.g * j / r.length, 0.0);
     assert!((r.e * area / r.length).is_normal());
     assert!((12.0 * r.e * i / (r.length * r.length * r.length)).is_normal());
-    assert_refused_by_name(r, "GJ/L: G*J");
+    assert_w2_refused(
+        r,
+        "range: scaled evaluation outside normal range",
+        "GJ/L: G*J",
+    );
 }
 
 /// A 2^-20 m member (above the 1e-12 m axis tolerance), OD 3e-8 m, wall
@@ -255,6 +366,9 @@ fn k2a_product_reach_partial_underflow_refused_unresolved_on_main_is_refused_by_
     // envelopes), because its formed 6EI/L^2, 4EI/L and 2EI/L are subnormal.
     // K2a refuses it earlier, at formation, by name. K2a corrects no
     // published value here.
+    // F1b (Q10): the linear variant is published at b = 898, within 1e-9 of
+    // K2b's exact reference u_y = 0x3f63671db398fdda m; the nonlinear
+    // variant is unchanged (W2 never engages there).
     use open_pipe_stress_frame_kernel::structural::{transform_roundoff, StructuralError};
     for r in [&PARTIAL_UNDERFLOW, &PARTIAL_UNDERFLOW_NONLINEAR] {
         let (area, i, j) = product_section(r.od, r.wall);
@@ -297,7 +411,12 @@ fn k2a_product_reach_partial_underflow_refused_unresolved_on_main_is_refused_by_
             r.id
         );
         // K2a: refused at formation, by name, on both entries, both modes.
-        assert_refused_by_name(r, "12EIy/L^3: (12*E)*Iy");
+        // F1b (Q10): the linear variant is published by W2 instead.
+        if r.open_gap {
+            assert_refused_by_name(r, "12EIy/L^3: (12*E)*Iy");
+        } else {
+            assert_w2_published(r, 898, f64::from_bits(0x3f63671db398fdda));
+        }
     }
 }
 
@@ -422,11 +541,21 @@ fn k2a_product_reach_wrong_12ei_accepted_by_m03_and_flagged_only_downstream_is_r
     // exact-radix range), both entries and both modes (run record
     // product_reach/main_zero_probe.jsonl and main_lef_probe.jsonl). K2a
     // refuses the formation, by name.
+    // F1b (Q10): the linear variants are published at b = 734, within 1e-9
+    // of the exact references u_y = 0x3fc001034445ee29 m (exact zero) and
+    // 0x3fd7a6bdbbfabce5 m (least subnormal); the nonlinear variants are
+    // unchanged.
     use open_pipe_stress_frame_kernel::structural::{FormationCheckReason, SolveQuality};
     assert_eq!(EXACT_ZERO.length, 2f64.powi(-39));
-    for (r, low, high, twelve_e_i) in [
-        (&EXACT_ZERO, 0.99, 1.0, 0.0),
-        (&LEAST_SUBNORMAL, 0.32, 0.33, f64::from_bits(1)),
+    for (r, low, high, twelve_e_i, reference) in [
+        (&EXACT_ZERO, 0.99, 1.0, 0.0, 0x3fc001034445ee29_u64),
+        (
+            &LEAST_SUBNORMAL,
+            0.32,
+            0.33,
+            f64::from_bits(1),
+            0x3fd7a6bdbbfabce5,
+        ),
     ] {
         let (area, i, j) = product_section(r.od, r.wall);
         assert!((r.e * area / r.length).is_normal() && (r.g * j / r.length).is_normal());
@@ -492,12 +621,19 @@ fn k2a_product_reach_wrong_12ei_accepted_by_m03_and_flagged_only_downstream_is_r
         );
         // K2a: refused at formation, by name, on the linear and the
         // nonlinear variant, both entries and both modes.
+        // F1b (Q10): the nonlinear variant only; W2 publishes the linear one,
+        // and u_y is the true value, not main's.
         let nonlinear = Reach {
             open_gap: true,
             ..*r
         };
-        for variant in [r, &nonlinear] {
-            assert_refused_by_name(variant, "12EIy/L^3: (12*E)*Iy");
-        }
+        assert_refused_by_name(&nonlinear, "12EIy/L^3: (12*E)*Iy");
+        let reference = f64::from_bits(reference);
+        assert!(
+            ((reference - u_true) / u_true).abs() < 1e-12,
+            "{}: the reference is the true u_y ({reference} m, {u_true} m)",
+            r.id
+        );
+        assert_w2_published(r, 734, reference);
     }
 }

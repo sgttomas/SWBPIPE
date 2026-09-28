@@ -498,7 +498,7 @@ fn a_resolved_eigenload_without_its_built_section_blocks_instead_of_disappearing
         "member"
     );
     let mut diagnostics = Vec::new();
-    let k = crate::assemble_basis_stiffness(&parts.built, &parts.springs).unwrap();
+    let k = crate::form_basis_stiffness(&parts.built, &parts.springs, true).unwrap();
     let solve = solve_load_case(
         &parts.model,
         &parts.built,
