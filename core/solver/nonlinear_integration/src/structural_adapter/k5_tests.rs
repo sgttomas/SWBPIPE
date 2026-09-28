@@ -700,6 +700,38 @@ fn k5_first_failing_body_in_seed_order_decides() {
     }
 }
 
+/// Q1(b): a body of frames only keeps today's screen in the selected
+/// branches, with today's witness and not W4's. A free translation separates
+/// the two. Today's witness moves each node by the characteristic length
+/// max |x − o| = hypot(4, 0) = 4 (exact: IEEE hypot(x, ±0) = |x|). W4's
+/// canonical representative moves each node by k = 1 (checked below on the
+/// same body).
+#[test]
+fn k5_frame_only_bodies_keep_todays_witness() {
+    let (a, b) = ([10.0, 10.0, 0.0], [14.0, 10.0, 0.0]);
+    let mut m = Model::empty(2);
+    m.frame((0, a), (1, b), [0.0, 0.0, 1.0]);
+    // Node 0 held in uy, uz and every rotation: only the x translation is free.
+    m.pin(&[1, 2, 3, 4, 5]);
+    let expected = bits(&flat(&[[4.0, 0.0, 0.0, 0.0, 0.0, 0.0]; 2]));
+    match m
+        .dense_evidence_at(ForceScale::UNSCALED)
+        .geometry(&m.prescribed)
+    {
+        Err(StructuralError::Mechanism { direction }) => assert_eq!(bits(&direction), expected),
+        other => panic!("frame line: {other:?}"),
+    }
+    let grounds = [1, 2, 3, 4, 5].map(ConstrainedGround::Dof);
+    let w4 = assess_constrained_bodies(&[a, b], &[vec![0, 1]], &[], &grounds).unwrap();
+    assert_eq!(w4.status, RigidBodyStatus::MechanismWitnessed);
+    assert_eq!(w4.node_motion.unwrap(), [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]; 2]);
+    for mode in MODES {
+        for result in selected(&m, mode, 0, &m.macros) {
+            assert_eq!(direction(&result), expected, "{mode:?}");
+        }
+    }
+}
+
 /// Lexed source with comments removed and literal contents blanked
 /// (lifetimes kept).
 fn lex(src: &str) -> String {

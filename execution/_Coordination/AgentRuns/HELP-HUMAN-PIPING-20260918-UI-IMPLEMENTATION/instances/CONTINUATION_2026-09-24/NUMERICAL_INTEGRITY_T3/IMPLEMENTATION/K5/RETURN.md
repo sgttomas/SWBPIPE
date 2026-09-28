@@ -201,12 +201,28 @@ This is as in I14's plan §5.7.
 - **The tie graph over the sub-bodies is connected:** the body is connected through frames, curved elements and users, and the sub-bodies are the components of the first two.
 - **The ground DOFs are local** by construction.
 
-**`Range("constrained relative coordinates")` is not excluded by this argument.**
-- An exact virtual position sums tie offsets along the spanning tree. Each element's own span is finite, but their sum along a path need not be.
-- It needs sub-bodies spanning about 1e308, joined by ties that alternate in direction. For a chain of single-node sub-bodies the offsets telescope (v = 0).
-- Whether FK's frame and curved formation admit elements that long (their stiffness terms 12EI/L³ and so on underflow at such L) is not claimed here.
+**`Range("constrained relative coordinates")` is unreachable from built evidence as well (checkpoint C, P6).** The derivation follows; no test can construct the case.
 
-**The branch leaves the body to the matrix gate** (today's outcome) and never refuses it (P6). This corrects I14's plan, which called the branch unreachable. At checkpoint C, I14 either constructs the case as a test or records why built evidence cannot reach it.
+*Every element that enters a W4 body has a span below 2^513.*
+- **Frame (link).** `FrameElement::length` is √(Δ·Δ). If Δ·Δ overflows, the length is +∞ and `FrameProperties::new` refuses it ("length"; SA: "frame local stiffness"). So |Δ| ≤ 2^512.
+- **User element (tie).** `orientation` normalizes Δ. If Δ·Δ overflows, the axis is 0, which `normalize` refuses as `DegenerateAxis`, or NaN, which `from_x_axis_and_y_reference` refuses as `NonFiniteInput`. SA refuses both as "user orientation". So |Δ| ≤ 2^512.
+- **Curved slot (link, qualified only through its matched macro source).**
+  - The constructor's `orientation()` refuses a zero or NaN radial axis at node i, so |r_i|² is finite.
+  - The radius-match test does not bound R_j, because ∞ > 10⁻⁹·∞ is false.
+  - But R = (R_i + R_j)/2 = ∞ makes every diagonal flexibility entry R·(≥ 0) non-finite. FK's `solve_dense` refuses that matrix, so `global_stiffness()` is Err, `w4_curved_source` matches nothing, and the slot is `CurvedUnmatched`.
+  - So a qualified slot has |r_j|² finite too, and its chord is at most |r_i| + |r_j| ≤ 2^513.
+- **The bounds hold for W4's coordinates.** SA's `node` refuses a node recorded with two coordinates. W4 refuses a curved source that disagrees with a recorded coordinate (Q2(b)).
+
+*The sums the reduction forms stay far inside the range.*
+- **Tree offsets.** s_B = s_A + x_near − x_far adds one tie span per tree tie, so |s| ≤ T·2^512 for T ties.
+- **Virtual positions.** v(x) = s + x − o. The two ends of a tie share v, so v is a sum of within-sub-body link displacements along a path from o, and |v| ≤ (N − 1)·2^513.
+- **When `Expansion::add` fails.** It returns Err only when a two-sum is non-finite, which needs an exact partial sum of at least 2^1024 − 2^970 in magnitude.
+- **Every partial sum here is small enough.** Each is, in magnitude, at most one binary64 coordinate (≤ 2^1024 − 2^971) plus 2(|s| + |v|). The factor 2 covers the nonoverlapping terms of the expansion already held. Reaching the threshold would need 2(|s| + |v|) ≥ 2^970, that is T + 2(N − 1) ≥ 2^457. Element and node counts are `usize`, below 2^64.
+- **Rounding.** `round` of v and of the cycle offsets (|v_a − v_b| ≤ 2(N − 1)·2^513) is representable. `exact_rounded_sum`'s accumulator has 64 carry bits, far beyond these term counts.
+
+**The branch stays as written.** It leaves the body to the matrix gate (today's outcome) and never refuses it (P6). The SA comment on `W4Unqualified::Geometry` ("Unreachable from built evidence") now holds for every cause.
+
+**This supersedes A2's "not excluded" paragraph**, which assumed element spans up to about 1e308.
 
 **A NaN or infinite user stiffness never reaches W4:** `EvidenceParts::new` refuses a non-finite global stiffness ("user stiffness"; `k5_user_elements_tie_only_with_positive_stiffnesses`).
 

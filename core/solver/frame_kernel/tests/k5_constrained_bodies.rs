@@ -661,6 +661,10 @@ fn k5_b9_directional_grounds() {
     }
     let (_, axial) = check_named("b9_line_axial_rotation");
     assert_eq!(axial.status, RigidBodyStatus::Restrained);
+    // A directional row's action is checked exactly: here it is 1 exactly and
+    // 0 in binary64 ((2^53 + 1) - 2^53), so no witness is published.
+    let (_, exactness) = check_named("b9_directional_exactness");
+    assert_ne!(exactness.status, RigidBodyStatus::MechanismWitnessed);
     for name in [
         "b9_line_perpendicular_rotation",
         "b9_nonspanning",

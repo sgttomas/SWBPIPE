@@ -671,6 +671,14 @@ def constructed():
     # whose virtual position lies on the line.
     add("b9_tied_line", [(0, 0, 0), (1, 2, 2), (7, 7, 7), (8, 9, 9)], [[0, 1], [2, 3]], [(1, 2)],
         triad(0, oblique) + triad(3, axes), "W")
+    # B9 (K5-M17): the exact check of a directional row. The origin is pinned
+    # and two rotation rows leave only rotations about w = (1, 0, 1); node 2 at
+    # (1, -2^53, 0) then moves u = w x v = (2^53, 1, -2^53) under θ = w, and the
+    # translation row n = (1, 1, 1) there has exact action 1 (so the body is
+    # restrained exactly), while its binary64 evaluation (2^53 + 1) - 2^53 = 0
+    # cancels. A binary64 check would publish θ = w as a false witness.
+    add("b9_directional_exactness", [(0, 0, 0), (1, 0, 1), (1, -(2.0 ** 53), 0)], [[0, 1, 2]], [],
+        pins(0) + [("r", 0, (1.0, 0.0, -1.0)), ("r", 0, (0.0, 1.0, 0.0)), ("t", 2, (1.0, 1.0, 1.0))], "N")
     return cases
 
 

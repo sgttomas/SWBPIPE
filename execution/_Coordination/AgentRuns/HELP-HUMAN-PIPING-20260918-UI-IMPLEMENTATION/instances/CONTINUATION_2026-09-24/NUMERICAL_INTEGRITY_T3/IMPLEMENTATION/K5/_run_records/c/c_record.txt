@@ -1,0 +1,96 @@
+K5 checkpoint C (I14): the mutation run. Mac, 2026-09-28 (UTC times from batch.log).
+
+Base
+  Each mutant ran in its own clean copy: `git archive 416b0d456` of core/, fixtures/,
+  schemas/ and validation/, with the working-tree files listed in overlay.txt copied
+  over it, and one cargo target. Both lived under <wt>/k5-mut/<id>/.
+  Each target was deleted after its run (none remained). The copies were deleted at the end.
+
+  The overlay is the uncommitted C test changes (sha256):
+    91be7c57dbb8feb5629309aabf7b4b5d138a31f331043f949b35332ea4e0e4be  .../frame_kernel/tests/k5_constrained/SHA256SUMS
+    54ad4083a2bb85a641fada65fad8eb5648cd763d699be29fea0e0f36cc741518  .../frame_kernel/tests/k5_constrained/cases.txt
+    15345b31376ee375aaca83267d0303ac2a3a738139730b8bf00fe22fa0fe187e  .../frame_kernel/tests/k5_constrained/gen_k5_vectors.py
+    2adeb4a2468ae5867dab2f7e1c4a5fded39456860092ebc6a374ab6b2d4a3188  .../frame_kernel/tests/k5_constrained_bodies.rs
+    e51030a8732a100fdf0d322c833317ad7a15ef009c1f9ba1a1e9b8fd149cbf4c  .../nonlinear_integration/src/structural_adapter/k5_tests.rs
+
+  The first four files add the constructed case b9_directional_exactness, for K5-M17.
+  The fifth adds k5_frame_only_bodies_keep_todays_witness, for K5-M9.
+  `gen_k5_vectors.py --check` reproduces all four generated files byte for byte.
+
+Rounds
+  Round 1, 16:38:27Z to 16:43:17Z, first four overlay files:
+    NONE alone, then the 32 mutants in queue.txt.
+  Round 2, 16:49:34Z to 16:50:09Z, all five overlay files:
+    NONE, and K5-M9 again.
+  Round 3, 16:56:21Z to 16:56:36Z, all five overlay files:
+    K5-M9b, which was added after round 2.
+
+  Round 1's NONE and K5-M9 logs are in logs-round1/. All other logs are in logs/.
+
+Execution limits
+  At most two mutants at once (xargs -P 2), each cargo at -j 4, with RUST_TEST_THREADS=4.
+  Environment: RUSTUP_TOOLCHAIN=1.97.1, RUSTUP_AUTO_INSTALL=0, CARGO_INCREMENTAL=0,
+  --offline --locked, --no-fail-fast.
+  The load average was 6 to 12. The host was shared with another implementer's mutation run.
+  The memory guard log (<wt>/guard/memguard.log) was unchanged: 2 lines, both start records,
+  sha256 79e2ce8eb2bd8f4a6432beb5b919cb46f37c22046c08a057b21a36183801cc41.
+
+Test sets (run_mutant.sh.txt; queue.txt gives each mutant's sets)
+  fk   FK: --test k5_constrained_bodies --test k5_scale --lib (filters rigid_body::, k5_)
+  ni   NI: --lib (127 tests with the fifth overlay file)
+  pp   PP: --test k5_curved_mechanism_runtime
+
+Patches
+  mutate_k5.py.txt: exact text replacements, each asserted to match once.
+  The K1 and K-D5 original mutants used K1's mutate_k1.py. It is byte-identical to
+  K1/_run_records/mutations/mutate_k1.py.txt (c2b54737dfb3dd261643ac16f52230ab8ba97828d86807c4987e4db13978a71a).
+
+Counting rule (parse_results.py.txt)
+  A kill is a failing test whose panic is located in test code: tests/*.rs, *_tests.rs,
+  or rigid_body.rs's k5_unit_tests.
+  None of these counts as a kill: a panic located in product code, an allocator abort,
+  a signal, or a compile error.
+  No mutant produced a compile error, an abort or a signal.
+  The K1 and K-D5 pin mutants also panic in product code (NI lib.rs).
+    - Those panics are the loop's own expect sites under a rerouted solve.
+    - Each of these mutants is also killed at s11k_tests.rs or k1_tests.rs assertions,
+      and only those assertions are counted.
+
+Result (MUTANTS.txt)
+  - NONE passes in rounds 1 and 2: FK 8 + 14 + 1, NI 126 then 127, PP 3.
+  - 33 of 33 mutants are killed at a test assertion.
+
+K5-M9 survived round 1 (SA BodyEvidence::geometry: `if true {`, every body through W4).
+  Why it survived:
+  - A frame-only body is then screened by W4 before today's assess_rigid_body.
+  - The two agree on every frame-only body in round 1's tests.
+  - That includes the rotation witness [0,0,0,3,4,0] of the 3-4-5 line in
+    k5_first_failing_body_in_seed_order_decides. Both publish (3,4,0): W4 through its
+    canonical k = 3, today's screen through its unnormalized-difference candidate.
+  Why it is not equivalent: a free translation separates them.
+  - Today's witness translates by its characteristic length:
+    max |x − o| = hypot(4, 0) = 4 exactly.
+  - W4's canonical representative translates by k = 1.
+  The new test pins today's witness, and asserts W4's 1.0 on the same body:
+  - the frame (10,10,0)-(14,10,0);
+  - node 0 held in uy, uz and every rotation.
+  Round 2 kills K5-M9 at k5_tests.rs:730: 1.0 against 4.0, in each selected branch.
+
+K5-M9b (the brief's "or their order changed")
+  Every mixed body is screened after all frame-only bodies.
+  Killed at k5_tests.rs:683: the frame line's witness replaces the mixed body's.
+
+Brief mutants 12 and 7 are K5-12 and K5-7.
+
+K5-M5 (the Q2(a) screen) is not applicable under Q2(b).
+  - No product code computes a screen ratio.
+  - The ratio is formed only in the SA test module and the product-run harness,
+    as an observation (RETURN §4.3).
+  - A curved slot qualifies by its matched macro source and coordinate agreement alone.
+
+Declared equivalent, not run (plan §16): removing the prefilter.
+  It is a performance filter only. An exact null vector passes it, and every candidate is
+  then verified exactly (plan §5.3).
+
+P6: RETURN §2.7 derives why built evidence cannot reach
+Range("constrained relative coordinates"), so no test constructs it.
