@@ -1,0 +1,34 @@
+{
+ "orientation": "each difference is [calibration 649162522, base e7d930d49]",
+ "runs_base": 884,
+ "runs_calibration": 884,
+ "only_in_base": [],
+ "only_in_calibration": [],
+ "gate_rows_base": 764,
+ "gate_rows_calibration": 764,
+ "ok_base": 794,
+ "ok_calibration": 794,
+ "outcomes_base": {
+  "memory_refused": 24,
+  "refused_blocked": 136,
+  "solved": 658,
+  "refused_capture": 64,
+  "refused_error": 2
+ },
+ "outcomes_calibration": {
+  "memory_refused": 24,
+  "refused_blocked": 136,
+  "solved": 658,
+  "refused_capture": 64,
+  "refused_error": 2
+ },
+ "difference_counts": {
+  "payload_value_differs": 6
+ },
+ "runs_with_any_classification_or_ok_difference": 0,
+ "differences_by_family": {},
+ "payload_value_differs_by_family (informational)": {
+  "RF-RANGE": 6
+ },
+ "differences": []
+}
