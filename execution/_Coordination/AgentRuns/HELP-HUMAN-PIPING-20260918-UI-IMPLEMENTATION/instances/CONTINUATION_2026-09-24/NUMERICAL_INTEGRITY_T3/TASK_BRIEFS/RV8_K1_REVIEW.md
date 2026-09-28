@@ -1,4 +1,6 @@
-# RV7: independent full-diff review of slice K1
+# RV8: independent full-diff review of slice K1
+
+**Renumbered (ROOT, 2026-09-28).** This brief was first committed as `RV7_K1_REVIEW.md` (`88c3a3125`). The cloud session's T3 manager had already assigned RV7 to K2a's reviewer, so K1's reviewer is RV8. The reviewer's working paths keep the names it was spawned with: `<wt>/rv7-target` and `<wt>/scratch/rv7`.
 
 This is a review TASK. Read Root `AGENTS.md`, `agents/AGENT_TASK.md` and `_COMMON.md` first. This brief overrides `_COMMON.md` where they differ. In particular, the Mac host rules in `I8R_K1_RESUME.md` ("The Mac host") apply to you in full.
 
