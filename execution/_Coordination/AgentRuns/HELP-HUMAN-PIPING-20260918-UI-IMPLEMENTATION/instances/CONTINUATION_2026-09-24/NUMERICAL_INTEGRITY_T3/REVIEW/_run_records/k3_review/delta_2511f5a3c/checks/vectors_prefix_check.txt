@@ -1,0 +1,18 @@
+# Earlier vectors byte-identical (b7e93650e -> 2511f5a3c)
+targeted_l4.txt: old 785 lines, new 817 lines; the first 785 lines are byte-identical to the old file; appended:  32 taildecides
+  sha256 old 93c77de1e7fe685d047dfb8c89727510de4992f0a1bae344f926cb098ab2694c new 6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec
+targeted_l8.txt: old 1589 lines, new 1621 lines; the first 1589 lines are byte-identical to the old file; appended:  32 taildecides
+  sha256 old e676b72bfd6202a4fdfd85bdd4d459e31098b0727308ac3f2aa6b8fa4cee3cbb new 9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d
+targeted_l16.txt: old 3197 lines, new 3229 lines; the first 3197 lines are byte-identical to the old file; appended:  32 taildecides
+  sha256 old cc8a400270947f36d2c62e74d5219194633d9a030de30dbff1b76a7a16b8d50d new d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d
+conversion.txt: blob unchanged
+eft.txt: blob unchanged
+differential.txt: blob unchanged
+differential_sample.txt: blob unchanged
+SHA256SUMS diff:
+-93c77de1e7fe685d047dfb8c89727510de4992f0a1bae344f926cb098ab2694c  targeted_l4.txt
+-e676b72bfd6202a4fdfd85bdd4d459e31098b0727308ac3f2aa6b8fa4cee3cbb  targeted_l8.txt
+-cc8a400270947f36d2c62e74d5219194633d9a030de30dbff1b76a7a16b8d50d  targeted_l16.txt
++6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec  targeted_l4.txt
++9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d  targeted_l8.txt
++d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d  targeted_l16.txt

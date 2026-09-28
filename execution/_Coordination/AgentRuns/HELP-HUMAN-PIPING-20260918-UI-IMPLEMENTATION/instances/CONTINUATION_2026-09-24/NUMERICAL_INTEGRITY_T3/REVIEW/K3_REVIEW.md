@@ -244,3 +244,95 @@ The scripts, logs and results, with their hashes, are in `REVIEW/_run_records/k3
 - **K4's design** beyond the interface questions in §3.4.
 - **Timing.** I make no performance claim. The wall times quoted are observations.
 - **Linux.** Nothing here was compared with Linux records.
+
+## Delta check at 2511f5a3c
+
+**Delta verdict: PASS.**
+- S2 and N1 are resolved.
+- S1 is now stated accurately in the records, and ROOT assigns the primitive in K4's brief.
+- N2–N5 are recorded as notes for K4's brief. N6 and N7 needed no action.
+- There is one new NOTE, D1.
+- The review's verdict stands: PASS, with no BLOCKING findings.
+
+**The delta:** `b7e93650e..2511f5a3c` on `codex/piping-k3-20260928`.
+- `e62837f7e` is tests only: two new tests in `K3T`, a `taildecides` class in the generator, 32 vectors appended to each `targeted_l{4,8,16}.txt`, and three changed `SHA256SUMS` lines.
+- `2511f5a3c` is records only: RETURN addendum 2, CHANGE_RECORD, `K3/SHA256SUMS`, and 22 new files under `_run_records/rv12_fixes/`.
+- The remote head is `2511f5a3c` (`git ls-remote`), and `e62837f7e`'s parent is `b7e93650e`.
+- I did not fetch. The objects were already present.
+
+**Records:** `REVIEW/_run_records/k3_review/delta_2511f5a3c/` holds 28 files with their own `SHA256SUMS`. The review folder's `SHA256SUMS` gains those 28 entries, and its 80 earlier lines are unchanged.
+
+### D.1 Checks
+
+**No arithmetic change** (`checks/delta_checks.txt`).
+- `multi.rs`, `wide.rs`, `mod.rs` and `FK/Cargo.toml` have the same blobs at `2511f5a3c` as at `b7e93650e`: `07eb3fc1…`, `ddc41ca7…`, `e11ac446…` and `956eeb6d…`.
+- Nothing under `FK/src`, `FK/Cargo.lock` or K3a's `tests/retained_wide/` changed.
+- The only product paths changed are the six files under `FK/tests/retained_wide_k3/`.
+- In the records, only `CHANGE_RECORD.md`, `RETURN.md` and `SHA256SUMS` are modified. The other 22 changes are new files under `rv12_fixes/`, so no earlier run record changed.
+
+**Earlier vectors byte-identical** (`checks/vectors_prefix_check.txt`).
+- In each `targeted_l{4,8,16}.txt`, the first 785, 1,589 and 3,197 lines are byte-identical to the old file. The appended 32 lines per width are all `taildecides`.
+- `conversion.txt`, `eft.txt`, `differential.txt` and `differential_sample.txt` have unchanged blobs.
+- The vector `SHA256SUMS` changes only in its three targeted lines, and checks 7 of 7 OK on the archive.
+- `gen_wide_k3_vectors.py --check` gives OK for 8 of 8, and all ten stream digests are unchanged. K3a's `gen_wide_vectors.py --check` gives OK for 6 of 6.
+- The vector data is now 4,959,650 bytes, within ROOT's "about 5 MB".
+
+**The new vectors, against my own oracle** (`checks/taildecides_oracle.txt`).
+- All 96 `taildecides` vectors agree with the review's `rv12_oracle.py`.
+- 24 of them, the 8 per width at p = 64L and gap 64L + 1, are ones where RV5's arithmetic (the tail dropped) gives a different result.
+- At p = 64L the expected result equals big in 16 of 16 vectors per width, as addendum 2 states.
+
+**The new tests are sound.**
+- `cmp_value_and_mul_pow2_pin_order_and_scale_at_every_width` covers:
+  - same-sign pairs of different magnitude, both signs and both orders, including one-unit neighbours and a carry into the next binade;
+  - `mul_pow2(k)` for k ≠ 0, against `from_parts` and against a correctly rounded product by the binary64 2^k (built from bits), at p = 64L;
+  - large k, against `from_parts`.
+- `two_sum_and_two_product_refuse_a_wide_operand_in_either_position` builds exactly p bits and p + 1 bits at p = 53, 64 and 64L − 1. It checks refusal in both positions for both operations, and acceptance at exactly p bits.
+- The coverage assertion for `taildecides` at 64L and 64L − 1 is in `targeted_classes` (`K3T:900-907`).
+
+**The four mutants, re-run from clean archives of `2511f5a3c`** (`mutations/`).
+- I used my review patches verbatim. I11's `rv12_fixes` patches are the same four edits.
+- The NONE control ran first: 8 passed.
+- Test filters were aimed at the new tests. RV5 ran with only the L = 4, 8 and 16 targeted tests, so K3a's L = 2 cross-check cannot be its kill.
+
+| Mutant | Result | Behavioural kill (test @ assertion) |
+|---|---|---|
+| RV1 `cmp_value` (−,−) ordered as (+,+) | killed | `cmp_value_and_mul_pow2_…` @ `K3T:1149` (`small.neg().cmp_value(&large.neg())`) |
+| RV2 `mul_pow2` scales by 2^(2k) | killed | `cmp_value_and_mul_pow2_…` @ `K3T:1172` (against `from_parts`) |
+| RV4 TwoSum checks only its first operand | killed | `two_sum_and_two_product_refuse_…` @ `K3T:1214` (`c.two_sum(&one, &wide)`) |
+| RV5 far subtraction drops the (1 − f) tail | killed at every width | `targeted_hard_classes_…_l4`, `_l8` and `_l16` @ `K3T:856`, first failing on a `taildecides add` vector at p = 64L at each width |
+
+Every kill is an `assert` in a test file. None is a panic or a compile failure. The kill sites match I11's addendum 2.
+
+**S1 is stated accurately** (RETURN addendum 2, §15's pointer, and CHANGE_RECORD "Remaining → K4").
+- It names the same D1 sites (§4.1.1, §4.1.2 items 4 and 6, §4.1.4 item 2, §4.1.5).
+- It says why `round`, `from_integer`, `ExactAccumulator` and the L = 2 split do not provide the rounding.
+- It gives the counterexample with the correct mechanism: the tie at e₂ is decided by e₃'s far tail.
+- It states both remedies (an expansion sum, or a wide integer accumulator feeding `from_integer`) and requires a `Fraction` test with far-tail ties.
+- It leaves the assignment to ROOT in K4's brief.
+- Its summary of what the API does cover matches my §3.4.
+- N2–N5 are carried faithfully. N5's "K4 adds 10⁶-operation streams at the precisions it uses (per ROOT)" is recorded as ROOT's decision.
+
+**FK at opt-level 0 on the head** (`head_tests/`, archive of `2511f5a3c`, no profile).
+- 229 passed, 0 failed: lib 199, `k1_k2a_interaction` 3, `k2a_checked_formation` 13, `m03_skew_scope` 5, `s11_site_table` 3, doc 6.
+- That is the review's 227 plus the two new tests. The observed wall time was about 236 s.
+- A fresh non-test build has no warnings. `rustfmt --check` is clean.
+
+**Records hygiene** (`checks/`).
+- **`K3/SHA256SUMS`:** 303 of 303 entries OK, and the listed set equals the file set.
+- **Machine paths and model names:** 0 files in K3's source, tests and records at `2511f5a3c`.
+- **Whitespace:** `git diff --check b7e93650e 2511f5a3c` is clean.
+- **GEN-8:** passes on `<wt>/k3` at `2511f5a3c` (1 passed, 10 deselected), with `git status` clean before and after.
+- **Hosted CI on `2511f5a3c`:** was still running when I checked (`checks/ci_status.txt`). Its result and the numerical job's time are for ROOT's merge record.
+
+### D.2 Findings of the delta
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| D1 | NOTE | `K3/CHANGE_RECORD.md` "Checks" (line 76: "Targeted and class tests (RETURN §6), 43 of 43"; line 90: "… plus K3's 43") | CHANGE_RECORD now says `k3_tests.rs` has 45 tests and that FK is 229 with the follow-ups. Two nearby lines still carry the pre-follow-up count 43. RETURN's body keeps its earlier figures by design, and addendum 2 gives the new ones, so RETURN is consistent. CHANGE_RECORD is the PR record, so a reader meets both counts there. | Optional: "45 of 45" and "plus K3's 45" (or "43, then 45 with RV12's follow-ups") in the PR record. It does not block. |
+
+### D.3 What I did not check in the delta
+
+- **The 38 other manifests and T9.** I did not re-run them. The delta changes only FK test files and records; no product source changed, so T9's outputs cannot move.
+- **The whole-suite form of the four mutants.** I used targeted filters, as ROOT allowed. I11's `rv12_fixes` records have them over the whole suite, with the same kill sites.
+- **Hosted CI's final result** on `2511f5a3c`.
