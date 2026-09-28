@@ -1047,7 +1047,9 @@ K2a's `RETURN_ADDENDUM_1` §1.3 left open whether pre-K2a main refuses skew case
 - **The claim "6EI/L² is the limiting coefficient" holds only in RV7's configuration.** RV10's S2 and the scoped §3.4 give the counterexamples. Among them is the torsion analogue of B1 (a subnormal-derived GJ/L), which K2a's `GJ/L: G*J` refusal covers on current main.
 - **Added to the T3-close list:** M03's element-entry floor is an axis-aligned argument, and its skew scope in general is a documented limitation. The skew M03 pin (PR #1038) guards it in RV7's configuration only. The item asks whether M03's bound should be made orientation-robust, or whether formation-time checks (K2a) and W1 are the accepted defence. ROOT decides at T3 close.
 
-## K3: Q7, the differential's debug cost (ROOT, 2026-09-28)
+## K3: Q7, the differential's debug cost (ROOT, 2026-09-28) — SUPERSEDED
+
+**Superseded (2026-09-28)** by "K3: Q7 reversed — the test profile is withdrawn (ROOT)" below. Its premise, that results cannot change with optimization level, is false for `powi` over compile-time constants. The text is kept as the record of the earlier ruling.
 
 - **The measurement.** I11's checkpoint A was taken on the Mac, as observations and not a performance claim. With K3's 10^6-operation streams per precision (the §4.11 minimum), FK's full debug test suite takes about 232 s, against about 6 s before. The L = 16 streams dominate: the bit-serial ÷ and √ over 1,026 steps. Hosted CI runners are slower, and the numerical job has a 45-minute budget across all 39 manifests.
 - **The ruling:** add a `[profile.test]` section to `FK/Cargo.toml` as a declared K3 change, and keep every stream at full count in the default suite. §7.4's placement is kept, with no `#[ignore]` and no reduced count.
@@ -1080,3 +1082,23 @@ K2a's `RETURN_ADDENDUM_1` §1.3 left open whether pre-K2a main refuses skew case
      The "third attempt" mutant (a retry within the window) must then be killed behaviourally. RETURN §13.3 and the mutation table are updated.
   3. **A design finding, on the T3-close list:** the b-rule's census omits the solve's right-hand-side and intermediate range. Candidate refinements are a per-row load-to-stiffness term in the census, or a bounded, deterministic retry. **F1b's brief must consider it** before F1b wires b into the product. No refinement lands in K2b.
 - **The even-b derivation's premise** (RETURN §4) is also recorded: every rounded operation is zero or normal at both scales. The dense Cholesky factor and the triangular solves have no range checks, so the kernel does not enforce the premise. The forced-b tests pin its consequences. K2b's reviewer checks the derivation and states whether the premise's scope is adequately disclosed.
+
+## K3: Q7 reversed — the test profile is withdrawn (ROOT, 2026-09-28)
+
+- **What happened.** ROOT merged main (with the skew M03 pin) into K3 and ran FK's suite under K3's `[profile.test] opt-level = 1`. One test failed: `m03_skew_scope.rs::m03_skew_pin_rv7_cases_outcomes_and_figures` (2EI/L's exact error came out 1.1364e-13 against the pinned 1.1378e-13).
+  - The test computes the pipe's second moment from compile-time constants with `od.powi(4)`.
+  - At opt-level ≥ 1, LLVM constant-folds `powi` through the host's `pow`. At opt-level 0 it calls the runtime repeated multiplication. The two differ by an ulp, and the pinned figure moved.
+- **ROOT's premise was false.** The Q7 ruling said "Rust gives IEEE-754 binary64 semantics at every optimization level … so the results cannot change". That holds for + − × ÷ √. It does **not** hold for functions of unspecified precision, such as `powi`, when the compiler evaluates them at compile time.
+  - ROOT asserted the claim without deriving or checking it: a breach of the standing lesson on general claims. The skew pin, which was written and reviewed at opt-level 0, caught it.
+  - **The product is not affected.** Its `powi` inputs are runtime data, and T9's release-built outputs have always matched the debug-built tests.
+- **The measurement that settles it.** Hosted CI's whole "Numerical cargo suite" job (all 39 manifests) takes about 4–5.5 minutes on current main (runs 36380608240 and 36391476996), against its 45-minute budget. K3's full-count streams at opt-level 0 fit easily. The profile was never needed for CI, and it adds a class of opt-level-dependent test behaviour that FK alone would carry.
+- **The ruling:**
+  1. **K3 reverts the `[profile.test]` section** in `FK/Cargo.toml`. FK's tests build at opt-level 0, like every other crate's.
+  2. **Every stream stays at full count** in the default suite (§4.11, §7.4).
+  3. **The P1/P2 guard test stays.** It still asserts that overflow checks and debug assertions are on in FK's test build.
+  4. **The evidence is re-run at opt-level 0 on the merged tree:**
+     - FK's full suite, including the skew pin's tests;
+     - the full mutation table, with the NONE control first;
+     - the measured debug wall time.
+  5. **Hosted CI's numerical-job time** on K3's PR goes in the merge record.
+- **A lesson, recorded:** a test must not depend on how the compiler evaluates a function of unspecified precision. Tests that need exact section properties should compute them with explicit, ordered arithmetic on runtime values, or on `black_box`ed constants. This is a T3-close note on test hygiene.
