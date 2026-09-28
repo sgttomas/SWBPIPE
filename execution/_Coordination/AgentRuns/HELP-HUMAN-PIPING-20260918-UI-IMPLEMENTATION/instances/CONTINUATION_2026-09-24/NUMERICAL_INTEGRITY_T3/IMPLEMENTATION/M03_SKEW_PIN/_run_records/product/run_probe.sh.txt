@@ -1,0 +1,12 @@
+#!/bin/bash
+# I9 product evidence: the skew probe on a git archive (without execution/), captured and typed entries, both modes.
+# Usage: run_probe.sh <tree-name> ; caps: -j 8, RUST_TEST_THREADS=4; own target per tree.
+set -u
+WT=<wt>
+S=$WT/scratch/i9
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4 CARGO_TARGET_DIR=$WT/skewpin-target/$1
+cd $S/trees/$1/projects/chirality-piping/core/product_physics
+date -u +%FT%TZ > $S/logs/probe_$1.time
+cargo test --offline --locked -j 8 --test i9_skew_product_probe -- --nocapture > $S/logs/probe_$1.log 2>&1
+echo "exit $?" >> $S/logs/probe_$1.time
+date -u +%FT%TZ >> $S/logs/probe_$1.time

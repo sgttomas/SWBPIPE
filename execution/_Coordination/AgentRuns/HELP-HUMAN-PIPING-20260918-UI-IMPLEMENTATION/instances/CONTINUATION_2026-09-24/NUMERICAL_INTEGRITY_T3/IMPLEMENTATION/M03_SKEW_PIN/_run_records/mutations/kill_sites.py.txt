@@ -1,0 +1,20 @@
+"""I9: kill sites from the mutant logs: per mutant, each target's exit status and each failing test's
+panic site (file:line) with the first line of its message. Usage: python3 -B kill_sites.py <logs dir>"""
+import os, re, sys
+d = sys.argv[1]
+order = ["NONE", "M-AXIS-BOUND", "M-FLOOR-UP", "M-NO-COUPLING", "M-CLOSE-GAP", "M-UNCHECKED-PRODUCTS",
+         "M-AXIS-BOUND-GLOBAL", "M-FLOOR-DOWN"]
+for mid in order:
+    lines = open(os.path.join(d, mid + ".log"), errors="replace").read().splitlines()
+    exits = [l for l in lines if re.match(r"== (FK|NI) exit", l)]
+    results = [l for l in lines if l.startswith("test result:")]
+    print(f"{mid}: {'; '.join(exits)}")
+    for r in results:
+        print(f"   {r}")
+    for i, l in enumerate(lines):
+        m = re.match(r"thread '([^']+)' \(\d+\) panicked at (\S+):", l)
+        if m:
+            msg = lines[i + 1] if i + 1 < len(lines) else ""
+            if msg.startswith("assertion") and i + 2 < len(lines):
+                msg = msg + " | " + lines[i + 2].strip() + (" | " + lines[i + 3].strip() if i + 3 < len(lines) else "")
+            print(f"   KILL {m.group(1)} at {m.group(2)}: {msg[:260]}")

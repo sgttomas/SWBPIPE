@@ -1,0 +1,220 @@
+== probe_pe134.log: 432 runs
+   t=-1030 G=E/2.6    axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E/2.6    skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E/2.6    skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^20   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^20   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^20   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^30   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^30   skew111  all 4 runs sensitive; Sensitive (published); max err 5.96e-08 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.27e-13
+   t=-1030 G=E*2^30   skew122  all 4 runs sensitive; Sensitive (published); max err 1.19e-07 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.27e-13
+   t=-1030 G=E*2^36   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^36   skew111  all 4 runs sensitive; Sensitive (published); max err 1.16e-10 (>1e-9: 0/4); exact solve of main's formed coefficients: 2.27e-13
+   t=-1030 G=E*2^36   skew122  all 4 runs sensitive; Sensitive (published); max err 7.63e-06 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.27e-13
+   t=-1030 G=E*2^40   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^40   skew111  all 4 runs sensitive; Sensitive (published); max err 6.10e-05 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.27e-13
+   t=-1030 G=E*2^40   skew122  all 4 runs sensitive; Sensitive (published); max err 1.22e-04 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.27e-13
+   t=-1030 G=E*2^48   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^48   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1030 G=E*2^48   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1030 G=E*2^56   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^56   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1030 G=E*2^56   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1030 G=E*2^64   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=E*2^64   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1030 G=E*2^64   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1030 G=1e-100   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1030 G=1e-100   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1030 G=1e-100   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=E/2.6    axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E/2.6    skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E/2.6    skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^20   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^20   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^20   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^30   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^30   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^30   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^36   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^36   skew111  all 4 runs sensitive; Sensitive (published); max err 1.16e-10 (>1e-9: 0/4); exact solve of main's formed coefficients: 2.33e-10
+   t=-1040 G=E*2^36   skew122  all 4 runs sensitive; Sensitive (published); max err 7.63e-06 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.33e-10
+   t=-1040 G=E*2^40   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^40   skew111  all 4 runs sensitive; Sensitive (published); max err 6.10e-05 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.33e-10
+   t=-1040 G=E*2^40   skew122  all 4 runs sensitive; Sensitive (published); max err 1.22e-04 (>1e-9: 4/4); exact solve of main's formed coefficients: 2.33e-10
+   t=-1040 G=E*2^48   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^48   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=E*2^48   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=E*2^56   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^56   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=E*2^56   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=E*2^64   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=E*2^64   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=E*2^64   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=1e-100   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1040 G=1e-100   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1040 G=1e-100   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=E/2.6    axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E/2.6    skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E/2.6    skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^20   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^20   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^20   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^30   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^30   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^30   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^36   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^36   skew111  all 4 runs sensitive; Sensitive (published); max err 1.91e-06 (>1e-9: 2/4); exact solve of main's formed coefficients: 7.45e-09
+   t=-1045 G=E*2^36   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^40   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^40   skew111  all 4 runs sensitive; Sensitive (published); max err 6.10e-05 (>1e-9: 4/4); exact solve of main's formed coefficients: 7.45e-09
+   t=-1045 G=E*2^40   skew122  all 4 runs sensitive; Sensitive (published); max err 1.87e-04 (>1e-9: 4/4); exact solve of main's formed coefficients: 7.45e-09
+   t=-1045 G=E*2^48   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^48   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=E*2^48   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=E*2^56   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^56   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=E*2^56   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=E*2^64   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=E*2^64   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=E*2^64   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=1e-100   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1045 G=1e-100   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1045 G=1e-100   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=E/2.6    axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E/2.6    skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E/2.6    skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^20   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^20   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^20   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^30   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^30   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^30   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^36   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^36   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^36   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^40   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^40   skew111  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^40   skew122  all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^48   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^48   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=E*2^48   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=E*2^56   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^56   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=E*2^56   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=E*2^64   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=E*2^64   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=E*2^64   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=1e-100   axis     all 4 runs unresolved; Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "; no values published
+   t=-1050 G=1e-100   skew111  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+   t=-1050 G=1e-100   skew122  all 4 runs unresolved; NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", glob; no values published
+== probe_pe_eb5.log: 432 runs
+   t=-1030 G=E/2.6    axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1030 G=E/2.6    skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1030 G=E/2.6    skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1030 G=E*2^20   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^20   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^20   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^30   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^30   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^30   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^36   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^36   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^36   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^40   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^40   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^40   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^48   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^48   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^48   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^56   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^56   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^56   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^64   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^64   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=E*2^64   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=1e-100   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=1e-100   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1030 G=1e-100   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E/2.6    axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1040 G=E/2.6    skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1040 G=E/2.6    skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1040 G=E*2^20   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1040 G=E*2^20   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1040 G=E*2^20   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1040 G=E*2^30   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^30   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^30   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^36   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^36   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^36   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^40   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^40   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^40   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^48   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^48   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^48   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^56   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^56   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^56   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^64   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^64   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=E*2^64   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=1e-100   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=1e-100   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1040 G=1e-100   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E/2.6    axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1045 G=E/2.6    skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1045 G=E/2.6    skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1045 G=E*2^20   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1045 G=E*2^20   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1045 G=E*2^20   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1045 G=E*2^30   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^30   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^30   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^36   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^36   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^36   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^40   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^40   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^40   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^48   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^48   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^48   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^56   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^56   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^56   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^64   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^64   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=E*2^64   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=1e-100   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=1e-100   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1045 G=1e-100   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E/2.6    axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E/2.6    skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E/2.6    skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E*2^20   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E*2^20   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E*2^20   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E*2^30   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E*2^30   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E*2^30   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from ; no values published
+   t=-1050 G=E*2^36   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^36   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^36   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^40   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^40   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^40   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^48   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^48   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^48   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^56   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^56   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^56   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^64   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^64   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=E*2^64   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=1e-100   axis     all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=1e-100   skew111  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+   t=-1050 G=1e-100   skew122  all 4 runs not_assessed; range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-f; no values published
+
+STOP RULE (a trusted value wrong by more than 1e-9 on either tree): not triggered

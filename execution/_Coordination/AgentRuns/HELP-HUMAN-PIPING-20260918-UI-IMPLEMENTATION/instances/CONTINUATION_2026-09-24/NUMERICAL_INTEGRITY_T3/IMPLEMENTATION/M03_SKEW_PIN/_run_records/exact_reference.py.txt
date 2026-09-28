@@ -1,0 +1,56 @@
+"""I9 (T3): exact references for the skew M03 pin (FK tests/m03_skew_scope.rs).
+
+Standard-library Python only; no product code. The inputs are formed in binary64
+exactly as the Rust test forms them (Rust f64::powi(2) = x*x and powi(4) =
+(x*x)*(x*x) at these call sites; the E bits are checked against the Rust test's
+printed bits), and every reference is exact rational arithmetic (fractions.Fraction)
+on those binary64 values taken exactly. Usage: python3 -B exact_reference.py
+"""
+import math
+from fractions import Fraction as F
+
+def p2(k):
+    return math.ldexp(1.0, k)
+
+L = p2(-39)
+od, wall = 1.0e-11, 1.0e-12
+idd = od - 2.0 * wall
+A = math.pi * ((od * od) - (idd * idd)) / 4.0
+I = math.pi * ((od * od) * (od * od) - (idd * idd) * (idd * idd)) / 64.0
+J = 2.0 * I
+print(f"inputs: L = 2^-39 = {L!r}; A = {A!r} ({A.hex()}); I = {I!r} ({I.hex()}); J = 2I; G = 1e-100")
+
+# E bits as the Rust test prints them (fk_m03 log, lines "I9 <case>: E=... bits=...").
+RUST_E_BITS = {
+    -1030: 0x08c9c9a8b85573a6, -1040: 0x0829c9a8b85573a6, -1045: 0x07d9c9a8b85573a6,
+    -1050: 0x0789c9a8b85573a6, -1055: 0x0739c9a8b85573a6, "S6a": 0x06101e0973356848,
+}
+import struct
+def bits(x):
+    return struct.unpack("<Q", struct.pack("<d", x))[0]
+
+cases = [(t, (1.0 / (12.0 * I)) * p2(-1000) * p2(t + 1000)) for t in (-1030, -1040, -1045, -1050, -1055)]
+cases.append(("S6a", (2.5 / (12.0 * I)) * p2(-1000) * p2(-75)))
+
+u = F(1, 2**53)
+g_exact = 24 * u / (1 - 24 * u)
+g = 24 * 2.0**-53 / (1 - 24 * 2.0**-53)
+floor_b64 = 2.0**-1022 / (g * (1.0 / (1.0 - g) + 1.0) * (1.0 + 64.0 * 2.0**-52))
+print(f"floor 2^-1022/(g(1/(1-g)+1)(1+64 eps)), binary64: 2^{math.log2(floor_b64):.6f}; with exact gamma(24) and 2g: 2^{math.log2(float(F(2)**-1022 / (2 * g_exact))):.6f}")
+
+for label, E in cases:
+    assert bits(E) == RUST_E_BITS[label], (label, hex(bits(E)))
+    fE, fI, fL = F(E), F(I), F(L)
+    prod12 = F(12.0 * E) * fI
+    print(f"\n(12E)I case {label}: E = {E!r} (bits {bits(E):#018x}, equal to the Rust test's)")
+    target = F(5, 2) * F(2)**-1075 if label == "S6a" else F(2)**label
+    print(f"   exact fl(12E)*I = {float(prod12 / F(2)**-1075):.17g} * 2^-1075 = intended value * (1 {float(prod12 / target - 1):+.3e}); rounds to {12.0 * E * I!r}")
+    for k, n in ((12, 3), (6, 2), (4, 1), (2, 1)):
+        product = (float(k) * E) * I
+        denom = L if n == 1 else (L * L if n == 2 else (L * L) * L)
+        formed = product / denom
+        exact = F(k) * fE * fI / fL**n
+        rel = abs(F(formed) - exact) / exact
+        sub = product != 0.0 and abs(product) < 2.0**-1022
+        where = f"2^{math.log2(formed):.4f}" if formed > 0 else "0"
+        print(f"   {k}EI/L^{n}: (kE)I subnormal={sub}; formed {where}; below the floor={formed < floor_b64}; exact relative error {float(rel):.7e}")
