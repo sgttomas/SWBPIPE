@@ -132,3 +132,20 @@ RV11's review was FAIL: 1 BLOCKING, 3 SHOULD-FIX. The fixes follow ROOT's ruling
   - b = 0 probe: 439 of 439 identical;
   - T9 (Mac-only): 112 of 112;
   - the full mutation table re-run, NONE first (addendum 1, A1.7).
+
+## RV11 delta fixes (`RETURN.md` addendum 2)
+
+RV11's delta check at `f385a8bc8` was PASS, with 2 SHOULD-FIX findings. The fixes follow ROOT's rulings on the delta check.
+- **RV11D-1:** new `force_scaled_spring_action`.
+  - It takes k at 2^b exactly and checks the product −(k·2^b)·u. A product of nonzero operands must be normal, or the action is refused. It is then unscaled once.
+  - RETURN §15 step 5 points to it.
+  - RV11's F-S is pinned as refused in both modes and both representations.
+  - The unchecked-recipe mutant is killed.
+- **RV11D-2:** a test pins `force_scaled_end_actions`' local-displacement stage at b = 0 and b = 64. RV11's two surviving action mutants are killed.
+- **RV11D-N1:** both publication helpers are named in the loop-and-product pin list, and the pin's `Default::default()` limit is recorded. RV11's evasion mutant and a spring-helper evasion mutant are killed.
+- **RV11D-N3:** the "load terms at the same scale" sentence is corrected, in the doc and in RETURN §15.
+- **RV11D-N2:** recorded; no change.
+- **Evidence:**
+  - FK, SD and NI in full, and PP's pins, pass;
+  - 8 mutants plus the NONE control, from clean archives: all killed.
+  - The b = 0 probe, T9 and the suites were not re-run, because no existing entry changed.

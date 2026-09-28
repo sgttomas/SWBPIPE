@@ -685,6 +685,10 @@ impl FrameElement {
     pub fn force_scaled_end_actions(&self, u: &[f64], scale: ForceScale)
         -> Result<[structural::PublishedValue; ELEMENT_DOF], structural::ForceScaledError>;
 }
+// addendum 2 (RV11D-1): a ground spring's action -(k*2^b)*u_dof, checked, unscaled once;
+// spring = (dof, k) with k unscaled
+pub fn force_scaled_spring_action(spring: (usize, f64), u: &[f64], scale: ForceScale)
+    -> Result<structural::PublishedValue, structural::ForceScaledError>;
 impl UserStiffnessElement {
     pub fn force_scaled(&self, scale: ForceScale) -> Result<Self, FrameKernelError>;         // the four stiffnesses
 }
@@ -815,8 +819,8 @@ pub fn solve_with_force_scaling(case: &ForceScalingCase<'_>) -> Result<ForceScal
    - `outcome.solution.force_scale.exponent()` is the b for the `range_scaling:` line, when it is nonzero;
    - `outcome.solution.records` lists the residual-record outcomes that are not normal.
 3. **Reactions:** `outcome.stiffness.force_scaled_reactions(&u, case.force, b, &rigid)`. Since addendum 1 it checks the formed row at scale and refuses rather than flush (RV11-1).
-4. **Member actions:** `FrameElement::force_scaled_end_actions(&u, b)` (addendum 1, RV11-1). It gives the elastic end actions K′_local·(T·u_e) in the straight pipe's order, every product and partial sum checked, each unscaled once; F1b adds the load terms at the same scale. *[The checkpoint-D recipe (form K′ and publish through unchecked arithmetic) is withdrawn: RV11 showed it publishes end shears of 0, labelled Normal.]*
-5. **Spring actions:** −(k·2^b)·u, through `unscale_for_publication`.
+4. **Member actions:** `FrameElement::force_scaled_end_actions(&u, b)` (addendum 1, RV11-1). It gives the elastic end actions K′_local·(T·u_e) in the straight pipe's order, every product and partial sum checked, each unscaled once. The actions come back already unscaled (published values). *[Corrected by addendum 2, RV11D-N3: the earlier text said "F1b adds the load terms at the same scale", but there is no scaled value to add to.]* A fixed-end action formed at b = 0 and in range can be added to the published value as today, with a second rounding. One that must be formed under b (§14) needs a variant that returns the scaled actions, or one that takes the load terms and rounds once; that is F1b's. *[The checkpoint-D recipe (form K′ and publish through unchecked arithmetic) is withdrawn: RV11 showed it publishes end shears of 0, labelled Normal.]*
+5. **Spring actions:** `force_scaled_spring_action((dof, k), &u, b)` (addendum 2, RV11D-1). It takes k at 2^b exactly, forms the product −(k·2^b)·u_dof, checks that it is normal (for nonzero operands) or refuses, and unscales once. *[The checkpoint-D recipe (−(k·2^b)·u through `unscale_for_publication`, unchecked) is withdrawn: RV11's probe F-S showed it publishes 0.0, labelled Normal, at b = −138.]*
 6. **Errors:**
    - `Refused(r)` is NUMERICAL_INTEGRITY_UNRESOLVED with `r`'s `Display` text; `r.trigger` keeps K2a's name;
    - `Structural(e)` and `Formation(e)` are today's outcomes.
@@ -1038,7 +1042,7 @@ pub fn solve_with_force_scaling(case: &ForceScalingCase<'_>) -> Result<ForceScal
   - **N4:** the force-scaled entries take the **unscaled** ledger, and nothing in the type enforces it. A marker type, or a documented invariant with a test, is F1b's.
 - **N6:** the checkpoint-D raw logs' trailing blank lines (40 `.log` files, "new blank line at EOF"). They were disclosed in `ca20b9eca`'s message, and are disclosed here.
 - **N7:** GEN-8 was run in `<wt>/k2b`, a git working tree of the candidate, never on an archive copy.
-- **The new function and the pin.** `force_scaled_end_actions` has no product caller (`_run_records/rv11_fixes/callers.txt`). The loop-and-product pin (`FORCE_SCALED_ENTRY_POINTS`) does not name it. A product call would need a `ForceScale` value, and `ForceScale` is a pinned token, so it is covered indirectly. Naming it explicitly is a one-line pin extension I did not make.
+- **The new function and the pin.** `force_scaled_end_actions` has no product caller (`_run_records/rv11_fixes/callers.txt`). The loop-and-product pin (`FORCE_SCALED_ENTRY_POINTS`) does not name it. A product call would need a `ForceScale` value, and `ForceScale` is a pinned token, so it is covered indirectly. Naming it explicitly is a one-line pin extension I did not make. *[Wrong, corrected by addendum 2 (RV11D-N1): the coverage has a gap. A scale written `Default::default()` names no pinned token. Both publication helpers are now named in the pin list.]*
 
 ### A1.7 The evidence, re-run on the fixed candidate (`_run_records/rv11_fixes/`)
 
@@ -1112,8 +1116,140 @@ The evidence covers the tree of commit 3, which is the same code as commit 2.
 - The both-entry gate: not run for K2b.
 - Hosted CI and the DEC-025 sweep: ROOT's; ROOT's ruling re-runs DEC-025 on the new head on a quieter host.
 - Linux: not run; T9 is Mac-only.
-- The loop-and-product pin was not extended to the new name (A1.6).
+- The loop-and-product pin was not extended to the new name (A1.6). *[Done in addendum 2.]*
 - No timing or memory claims.
 - **Process disclosure: one index write, reverted.** While checking the records for whitespace, I ran `git add -N` on `_run_records/rv11_fixes/` in `<wt>/k2b`. That is an intent-to-add entry in the index, and so a Git write, which my brief forbids. I removed it at once with `git reset -q -- <that path>`.
   - No commit, ref, branch, stash or file content changed.
   - The folder is untracked again, as before.
+
+## RETURN addendum 2: RV11 delta fixes (2026-09-28)
+
+**What prompted it.** RV11's delta check at `f385a8bc8` (the RV11-fix commits `bf4647c21`, `14f9b093f` and `f385a8bc8`) is **PASS**: RV11-1 to RV11-4 are fixed, with 146,602 values across the forced-b grids and 0 wrong. It raises 2 SHOULD-FIX findings and 3 NOTEs.
+- I read `REVIEW/K2B_REVIEW.md`, "Delta check at f385a8bc8", and its `_run_records/k2b_review/delta_f385a8bc8/` (probe F-S; the mutants `mutate_rv11d.py`) from disk in `<wt>/numerics`.
+- ROOT's rulings came in its message of 2026-09-28:
+  1. RV11D-1: a spring helper, pinned with F-S and a mutant;
+  2. RV11D-2: tests that kill the two surviving action mutants;
+  3. N1: both publication helpers named in the pin list;
+  4. N3: the doc sentence corrected;
+  5. N2: recorded, no change.
+- The fixes are uncommitted in `<wt>/k2b` on `f385a8bc8`, which was clean before them.
+- No earlier run record is rewritten. The new ones are in `_run_records/rv11_delta_fixes/`.
+- In RETURN only three things are corrected in place, each marked "addendum 2": §15 steps 4–5 and the signatures; addendum 1's A1.6 pin sentence; and A1.9's pin line.
+
+### A2.1 Files (against `f385a8bc8`)
+
+| File | + | − | Lines | sha256 (first 16) | Part |
+|---|---:|---:|---:|---|---|
+| `FK/src/lib.rs` | 53 | 3 | 2,624 | `627404d6c0de08e6` | the fix (RV11D-1 helper; RV11D-N3 doc) |
+| `FK/tests/k2b_force_scaling.rs` | 111 | 0 | 1,276 | `9013583e1d4ff054` | the tests (RV11D-1, RV11D-2) |
+| `NI/src/structural_adapter/k2b_tests.rs` | 64 | 0 | 1,699 | `cd66fe5be1fc7da1` | the tests (RV11D-1, F-S) |
+| `NI/src/s11k_tests.rs` | 10 | 0 | 1,631 | `4c869a29c2f1d510` | the pin list (RV11D-N1), tests only |
+
+- rustfmt ran on each changed file. For `lib.rs` it ran with `skip_children`, so no module file was touched.
+- rustfmt re-sorted `lib.rs`'s `mod` lines. I restored the existing order, so no unrelated line changes.
+
+### A2.2 RV11D-1: a kernel helper for spring actions at scale
+
+**The defect.** RETURN §15 step 5's recipe was −(k·2^b)·u through `unscale_for_publication`, with the product unchecked. At RV11's F-S (b = −138) it published 0.0, labelled `Normal`, where today's −k·u is 1.3825367244506685e-300 N. It is RV11-1's class, in the one step-5 output addendum 1 left.
+
+**The fix: `open_pipe_stress_frame_kernel::force_scaled_spring_action(spring: (usize, f64), u: &[f64], scale: ForceScale) -> Result<PublishedValue, ForceScaledError>`**, built like `force_scaled_end_actions`:
+1. k (unscaled, as the case lists it) is taken at 2^b exactly with `force_scaled_value`. A stiffness that cannot stay normal is a `Formation` error.
+2. The product −(k·2^b)·u_dof, when both operands are nonzero, must be normal. Otherwise it is refused: `PublicationOutsideBinary64 { global_dof: Some(dof) }`.
+3. It is unscaled once with `unscale_for_publication`.
+
+- The check applies at every b. A value published at b = 0 is today's −(k·u), bit for bit.
+- A missing or non-finite displacement is `InvalidInput("displacement vector")`.
+- The helper has no accumulation, so it needs no site-table row; FK's site test passes unchanged.
+- RETURN §15 step 5 and the signatures now point to it.
+
+**Tests:**
+- FK `k2b_rv11d_force_scaled_spring_action_checks_its_product_at_every_b`:
+  - at b = 0 it gives today's −(k·u) bits, `Normal`;
+  - at b = −138 the product underflows, so it is refused;
+  - a subnormal product (about 2^-1060) at b = 0 is refused;
+  - at b = 64 it gives the same bits as b = 0;
+  - a zero displacement gives a zero, not a refusal;
+  - it is `InvalidInput` for a missing DOF, and a `Formation` error for 2^1000 at b = 100.
+- NI `k2b_rv11d_spring_action_at_scale_is_refused_never_a_wrong_normal` pins **F-S** in both modes and both representations:
+  - the rule's b is −138, the solve is Passed, and N0 UY's displacement is bit-identical to today's solve without S;
+  - the spring action is **refused**;
+  - without S (b = 0) it is published with today's bits, about 1.38e-300 N.
+
+**Mutant** K2B-SPRING-UNCHECKED (the product check removed: the checkpoint-D recipe) is killed at `k2b_force_scaling.rs:1251` and `k2b_tests.rs:1696`.
+
+### A2.3 RV11D-2: `force_scaled_end_actions`' local stage, and every b, are pinned
+
+FK `k2b_rv11d_end_actions_check_the_local_displacement_stage_at_every_b`:
+- **The case.** A member along (3, 4, 0) m with E = G = 2^100 Pa. Its direction cosines are 0.6 and 0.8.
+- **Why it matters.** A displacement of 2^-1022 m at N1 UX gives subnormal products in T·u_e. The stiffness stage alone would lift them back to normal values published as exact. The test asserts both preconditions.
+- **The assertions:**
+  - the actions are **refused at b = 0 and at b = 64**;
+  - with 2^-1000 m, every stage is normal, and the actions are published `Normal` with the same bits at both scales.
+- **RV11's two survivors are killed**, both at `k2b_force_scaling.rs:1207` ("b = 0"):
+  - RV11D-ACTIONS-LOCAL-UNCHECKED;
+  - RV11D-ACTIONS-B0-EXEMPT.
+
+### A2.4 RV11D-N1: both publication helpers are named in the pin list (ROOT reversed its decision)
+
+- `"force_scaled_end_actions"` and `"force_scaled_spring_action"` are added to `FORCE_SCALED_ENTRY_POINTS` in NI `s11k_tests.rs`.
+- The pin's doc now records its limit, beside RV8-N4's: a scale written `Default::default()` names no pinned token. So a new function that takes a `ForceScale` and can be reached that way must be added by name.
+- **Killed at `s11k_tests.rs:1613`** by `k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product`:
+  - RV11's **RV11D-PIN-ACTIONS-EVASION**: the loop's module calls `force_scaled_end_actions` with `Default::default()`;
+  - my **K2B-PIN-SPRING-EVASION**: the same for the spring helper.
+- K2b's three pin mutants (K2B-PIN-LOOP, K2B-PIN-PLUMBING and K2B-PIN-THIRD) were re-run because the pin list changed. They are killed by the same tests as in addendum 1's run: 8, 1 and 2.
+
+### A2.5 RV11D-N3: the doc sentence is corrected
+
+- **In `force_scaled_end_actions`' doc and RETURN §15 step 4:** the actions are returned already unscaled (published values), so no scaled value is left to add a load term to.
+- **What this means for load terms:**
+  - A fixed-end action formed at b = 0 and in range can be added to the published value as today, with a second rounding.
+  - One that must be formed under b (§14) needs a variant that returns the scaled actions, or one that takes the load terms and rounds once. That is left to F1b.
+- **The spring helper** returns a complete action, so it has no load term.
+
+### A2.6 RV11D-N2: recorded, no change
+
+- The reactions check (and the actions' and spring's) refuses whenever any single product of nonzero operands is subnormal. That includes a product far below the rounding of a normal sum, which today's E12 would give accurately to within an ulp.
+- It is stricter than flushing requires. **The cost is availability only**: it is never a wrong value.
+- RV11's F-D and F-E show no such refusal on K-D5's or K2b's models.
+- F1b's gate measures it, as ROOT ruled.
+
+### A2.7 The evidence, re-run (`_run_records/rv11_delta_fixes/`)
+
+**Targeted tests, in `<wt>/k2b` on the final bytes** (`targeted/`): FK, SD and NI in full, with PP's pins and runtime tests.
+- FK: 204 (addendum 1's 202 + 2);
+- SD: 30;
+- NI: 116 + 4 doc (addendum 1's 115 + 1);
+- PP: `s11f_site_test` 11, `formation_check_runtime` 5, `k2a_formation_range_runtime` 3.
+- All pass, with no warnings in K2b's crates. PP's 11 warnings are pre-existing.
+
+**Mutations** (`mutations/`): clean archives of `f385a8bc8` with the four delta files overlaid, -j 4, at most three at once, with the NONE control first and alone.
+- **NONE is clean:** FK 204, SD 30, NI 116 + 4 doc, PP 11 + 5.
+- **All 8 are killed**, each at a behavioural or pin assertion:
+  - the new K2B-SPRING-UNCHECKED and K2B-PIN-SPRING-EVASION;
+  - RV11's three survivors: RV11D-ACTIONS-LOCAL-UNCHECKED, RV11D-ACTIONS-B0-EXEMPT and RV11D-PIN-ACTIONS-EVASION, run with its own `mutate_rv11d.py`, copied unchanged;
+  - K2b's three pin mutants.
+- Kill sites are in `kill_sites.txt`.
+
+**Callers** (`callers.txt`): the new helper has no product caller. Its only references are its definition, K2b's tests, and the pin list.
+
+**Not re-run, because no existing entry was touched:**
+- the b = 0 probe;
+- T9;
+- the 39-manifest suites.
+
+The delta adds one new function and changes only doc text in addendum 1's new function. No entry that existed before K2b, and no entry the probe runs, changes.
+
+### A2.8 Proposed commits (ROOT commits)
+
+1. **The fix:** `FK/src/lib.rs` (the spring helper, and `force_scaled_end_actions`' doc).
+2. **The tests:** `FK/tests/k2b_force_scaling.rs`, `NI/src/structural_adapter/k2b_tests.rs` and NI `s11k_tests.rs` (the pin list).
+3. **The records:** `RETURN.md` (addendum 2 and the in-place corrections), `CHANGE_RECORD.md`, `_run_records/rv11_delta_fixes/` and `SHA256SUMS`.
+
+### A2.9 Not done
+
+- The probe, T9 and the suites were not re-run (A2.7).
+- The both-entry gate is not run for K2b.
+- Hosted CI and DEC-025 are ROOT's.
+- Linux was not run; T9 is Mac-only.
+- F1b's load-term variant (A2.5) is not provided.
+- No timing or memory claims.
