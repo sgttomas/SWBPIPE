@@ -14,6 +14,9 @@ use super::*;
 #[path = "support.rs"]
 mod support;
 use support::*;
+#[allow(dead_code)]
+#[path = "models.rs"]
+mod models;
 
 const LEDGER: &str = include_str!("ledger.txt");
 
@@ -326,4 +329,47 @@ fn the_ledger_encoding_is_canonical_and_order_independent() {
     assert_eq!(a.net(7).unwrap().magnitude.len(), 1);
     let cancelled = make(vec![(1, 1, 5.0, "x"), (1, 1, -5.0, "y")]);
     assert!(cancelled.net(7).unwrap().is_zero());
+}
+
+#[test]
+fn canonical_encodings_equal_the_generators_independent_bytes() {
+    // Q10: GEN builds K4SRC, K4STF and K4LED (and combination ledgers) from
+    // the models' own lists, independently of source.rs and ledger.rs, and
+    // records their sha256 with hashlib.
+    let hex = |bytes: &[u8]| bytes.iter().map(|b| format!("{b:02x}")).collect::<String>();
+    let mut kinds = std::collections::BTreeMap::new();
+    for line in include_str!("encodings.txt").lines() {
+        let f: Vec<&str> = line.split_whitespace().collect();
+        let (kind, name, sha, expected) = (f[1], f[2], f[3], f[4]);
+        let bytes = match kind {
+            "src" => models::model(name).source().encoding(),
+            "stf" => models::model(name).source().stiffness_encoding(),
+            "led" => RetainedLedger::from_source(&models::model(name).source())
+                .unwrap()
+                .encoding(),
+            "cled" => {
+                let combo = models::combos()
+                    .into_iter()
+                    .find(|c| c.name == name)
+                    .unwrap();
+                let sources: Vec<PrimitiveSource> = combo
+                    .operands
+                    .iter()
+                    .map(|(_, n)| models::model(n).source())
+                    .collect();
+                let operands: Vec<(f64, &PrimitiveSource)> = combo
+                    .operands
+                    .iter()
+                    .zip(&sources)
+                    .map(|((factor, _), s)| (*factor, s))
+                    .collect();
+                RetainedLedger::combined(&operands).unwrap().encoding()
+            }
+            other => panic!("{other}"),
+        };
+        assert_eq!(hex(&bytes), expected, "{kind} {name}");
+        assert_eq!(sha256_hex(&bytes), sha, "{kind} {name}");
+        *kinds.entry(kind.to_string()).or_insert(0) += 1;
+    }
+    assert_eq!(kinds.values().sum::<usize>(), 27, "{kinds:?}");
 }

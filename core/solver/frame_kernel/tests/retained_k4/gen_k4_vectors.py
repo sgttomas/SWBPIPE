@@ -1230,6 +1230,122 @@ def formation_lines():
 # Assembly of the files
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
+# Q10: the canonical encodings built independently (plan §9): K4SRC, K4STF
+# and K4LED for a representative set, and combination ledgers
+# ----------------------------------------------------------------------------
+def u32b(v):
+    return struct.pack("<I", v)
+
+
+def dofb(node, c):
+    return u32b(node) + bytes([c])
+
+
+def f64b(x):
+    return struct.pack("<d", x)
+
+
+def source_bytes(m, stiffness=False):
+    """source.rs `encoding` (K4SRC) or `stiffness_encoding` (K4STF), from the
+    model's own lists in their canonical order."""
+    out = b"K4STF\x01" if stiffness else b"K4SRC\x01"
+    out += u32b(len(m["nodes"])) + b"".join(f64b(c) for pt in m["nodes"] for c in pt)
+    members = sorted(m["members"], key=lambda x: x["id"])
+    out += u32b(len(members))
+    for mm in members:
+        out += u32b(mm["id"]) + u32b(mm["i"]) + u32b(mm["j"])
+        out += b"".join(f64b(mm[k]) for k in ("E", "G", "A", "Iy", "Iz", "J"))
+        out += b"".join(f64b(c) for c in mm["y"])
+    springs = sorted(m["springs"], key=lambda x: x["id"])
+    out += u32b(len(springs))
+    for sp in springs:
+        out += u32b(sp["id"]) + dofb(sp["node"], sp["c"]) + f64b(sp["k"])
+    dsprings = sorted(m["dsprings"], key=lambda x: x["id"])
+    out += u32b(len(dsprings))
+    for sp in dsprings:
+        out += u32b(sp["id"]) + u32b(sp["node"]) + bytes([0 if sp["kind"] == "t" else 1])
+        out += b"".join(f64b(c) for c in sp["n"]) + f64b(sp["k"])
+    constraints = sorted(m["constraints"], key=lambda x: (x["node"], x["c"]))
+    out += u32b(len(constraints))
+    for c in constraints:
+        out += dofb(c["node"], c["c"]) + (b"" if stiffness else f64b(c["v"]))
+    if stiffness:
+        return out
+    loads = sorted(m["loads"], key=lambda l: (l["node"], l["c"], l["src"].encode(),
+                                              struct.unpack("<Q", f64b(l["v"]))[0]))
+    out += u32b(len(loads))
+    for l in loads:
+        out += dofb(l["node"], l["c"]) + u32b(len(l["src"].encode())) + l["src"].encode() + f64b(l["v"])
+    stations = sorted(m["stations"], key=lambda x: x["id"])
+    out += u32b(len(stations))
+    for st in stations:
+        out += u32b(st["id"]) + u32b(st["member"]) + f64b(st["t"])
+    supports = sorted(m["supports"], key=lambda x: x["id"])
+    out += u32b(len(supports))
+    for g in supports:
+        out += u32b(g["id"]) + u32b(g["node"]) + bytes(int(bool(x)) for x in g["r"])
+        for ids in (sorted(set(g["springs"])), sorted(set(g["dsprings"]))):
+            out += u32b(len(ids)) + b"".join(u32b(i) for i in ids)
+    return out
+
+
+def ledger_bytes(terms):
+    """ledger.rs `encoding` (K4LED): {global DOF: exact net}."""
+    out = b"K4LED\x01" + u32b(len(terms))
+    for dof in sorted(terms):
+        net = terms[dof]
+        out += dofb(dof // 6, dof % 6)
+        if net == 0:
+            out += bytes([0]) + struct.pack("<q", 0) + u32b(0)
+            continue
+        a = abs(net)
+        num, den = a.numerator, a.denominator
+        assert den & (den - 1) == 0
+        e = -(den.bit_length() - 1)
+        while num % 2 == 0:
+            num //= 2
+            e += 1
+        limbs = []
+        while num:
+            limbs.append(num & ((1 << 64) - 1))
+            num >>= 64
+        out += bytes([int(net < 0)]) + struct.pack("<q", e) + u32b(len(limbs))
+        out += b"".join(struct.pack("<Q", l) for l in limbs)
+    return out
+
+
+def ledger_terms(operands):
+    """The exact nets of Σ c·(case loads), per loaded DOF."""
+    terms = {}
+    for factor, m in operands:
+        for l in m["loads"]:
+            g = 6 * l["node"] + l["c"]
+            terms[g] = terms.get(g, Fr(0)) + Fr(factor) * Fr(l["v"])
+    return terms
+
+
+ENCODED_MODELS = ("N01", "N05", "N06", "SKEW6-K1E-12", "PRESCRIBED", "DIRECTIONAL-SPAN", "B1-C-A", "B1-L")
+
+
+def encoding_lines():
+    by_name = {m["name"]: m for m in models()}
+    lines = []
+
+    def emit(kind, name, data):
+        lines.append("enc %s %s %s %s" % (kind, name, hashlib.sha256(data).hexdigest(), data.hex()))
+    for name in ENCODED_MODELS:
+        m = by_name[name]
+        emit("src", name, source_bytes(m))
+        emit("stf", name, source_bytes(m, stiffness=True))
+        emit("led", name, ledger_bytes(ledger_terms([(1.0, m)])))
+    for name, operands, _ in COMBOS:
+        if name == "PRECISION-RULE":
+            continue
+        emit("cled", name, ledger_bytes(ledger_terms([(f, by_name[n]) for f, n in operands])))
+    return lines
+
+
+# ----------------------------------------------------------------------------
 # O8: the method emulated bit for bit (ROOT's ruling O8): N05 and N06 at 128
 # and 256, and one skew member at 128; the retained state's sha256
 # ----------------------------------------------------------------------------
@@ -1742,6 +1858,8 @@ def build(parts=None):
         files["streams_sample.txt"] = "\n".join(sample) + "\n"
     if want("formation"):
         files["formation.txt"] = "\n".join(formation_lines()) + "\n"
+    if want("encodings"):
+        files["encodings.txt"] = "\n".join(encoding_lines()) + "\n"
     if want("o8"):
         files["o8_states.txt"] = "\n".join(o8_lines()) + "\n"
     if want("classification"):
