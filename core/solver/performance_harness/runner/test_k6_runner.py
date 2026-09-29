@@ -382,34 +382,63 @@ class PlanAdmission(unittest.TestCase):
         self.assertEqual(decision['decision'], 'admitted')
         self.assertTrue(decision['reason'].startswith('p1_linux_peak'))
 
-    def test_rho_is_the_largest_ratio_at_smaller_sizes_net_of_baseline(self):
+    def test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline(self):
         run = run_of('RF-LARGE-CHAIN-n10000-AX', 'sparse')
         counts = fake_counts({run['model']: {'sparse': 1 * r.GIB}})
 
-        def rec(model_id, members, rss, heap, estimate):
+        def rec(model_id, members, footprint, rss, heap, estimate):
             return {'order': 1, 'model': model_id, 'mode': 'sparse', 'family': 'CHAIN', 'members': members,
-                    'classification': 'ok', 'peak_rss_bytes': rss, 'repeats_heap_peak_move': heap,
-                    'estimate_adm_bytes': estimate}
-        measured = [rec('RF-LARGE-CHAIN-n00010-AX', 10, 50 * r.MIB, 1, 1 * r.MIB),       # small: excluded at >= 1000
-                    rec('RF-LARGE-CHAIN-n00100-AX', 100, 11 * r.MIB, 3 * r.MIB, 4 * r.MIB),
-                    rec('RF-LARGE-CHAIN-n01000-AX', 1000, 21 * r.MIB, 10 * r.MIB, 40 * r.MIB)]
-        decision = r.admission(run, counts, measured, 1 * r.MIB)
-        # rho = max(max(11-1, 3)/4, max(21-1, 10)/40) = max(2.5, 0.5) = 2.5: 1 GiB x 2.5 <= 4 GiB.
+                    'classification': 'ok', 'peak_rss_bytes': rss, 'rss': {'time_peak_footprint_bytes': footprint},
+                    'repeats_heap_peak_move': heap, 'estimate_adm_bytes': estimate}
+        measured = [rec('RF-LARGE-CHAIN-n00010-AX', 10, 50 * r.MIB, 60 * r.MIB, 1, 1 * r.MIB),   # excluded
+                    rec('RF-LARGE-CHAIN-n00100-AX', 100, 11 * r.MIB, 12 * r.MIB, 3 * r.MIB, 4 * r.MIB),
+                    rec('RF-LARGE-CHAIN-n01000-AX', 1000, 21 * r.MIB, 25 * r.MIB, 10 * r.MIB, 40 * r.MIB)]
+        decision = r.admission(run, counts, measured, 2 * r.MIB, baseline_footprint_bytes=1 * r.MIB)
+        # rho (footprint) = max(max(11-1, 3)/4, max(21-1, 10)/40) = 2.5; rho_rss = max((12-2)/4, (25-2)/40) = 2.5
         self.assertAlmostEqual(decision['rho'], 2.5)
+        self.assertAlmostEqual(decision['rho_rss'], 2.5)
         self.assertEqual(decision['decision'], 'admitted')
-        measured[1]['peak_rss_bytes'] = 18 * r.MIB     # rho 4.25: 4.25 GiB > 4 GiB
-        decision = r.admission(run, counts, measured, 1 * r.MIB)
+        measured[1]['rss']['time_peak_footprint_bytes'] = 18 * r.MIB     # rho 4.25: 4.25 GiB > 4 GiB
+        decision = r.admission(run, counts, measured, 2 * r.MIB, baseline_footprint_bytes=1 * r.MIB)
         self.assertEqual(decision['decision'], 'deferred')
+        self.assertTrue(decision['reason'].startswith('deferred:estimate_fails_admission'))
 
-    def test_admission_ignores_non_run_rows(self):
-        run = run_of('RF-LARGE-CHAIN-n00100-AX', 'sparse')
-        counts = fake_counts({run['model']: {'sparse': r.MIB}})
-        measured = [{'kind': 'cross_mode', 'model': 'RF-LARGE-CHAIN-n00010-AX', 'class_equal': True},
-                    {'order': 1, 'model': 'RF-LARGE-CHAIN-n00010-AX', 'mode': 'sparse', 'family': 'CHAIN',
-                     'members': 10, 'classification': 'ok', 'peak_rss_bytes': 3 * r.MIB,
-                     'repeats_heap_peak_move': r.MIB // 4, 'estimate_adm_bytes': r.MIB // 2}]
-        decision = r.admission(run, counts, measured, 2 * r.MIB)
+    def test_footprint_not_rss_decides_rho(self):
+        run = run_of('RF-LARGE-CHAIN-n10000-AX', 'sparse')
+        counts = fake_counts({run['model']: {'sparse': 1 * r.GIB}})
+        measured = [{'order': 1, 'model': 'RF-LARGE-CHAIN-n01000-AX', 'mode': 'sparse', 'family': 'CHAIN',
+                     'members': 1000, 'classification': 'ok', 'peak_rss_bytes': 180 * r.MIB,
+                     'rss': {'time_peak_footprint_bytes': 101 * r.MIB}, 'repeats_heap_peak_move': 90 * r.MIB,
+                     'estimate_adm_bytes': 100 * r.MIB}]
+        decision = r.admission(run, counts, measured, 0, baseline_footprint_bytes=1 * r.MIB)
+        self.assertAlmostEqual(decision['rho'], 1.0)          # footprint-based: admitted at 1 GiB
+        self.assertAlmostEqual(decision['rho_rss'], 1.8)      # RSS-based, recorded for comparison
         self.assertEqual(decision['decision'], 'admitted')
+        self.assertAlmostEqual(decision['rss_to_footprint'], 180 / 101)
+
+    def test_projected_rss_above_0_8_c_is_deferred_by_name(self):
+        run = run_of('RF-LARGE-CHAIN-n10000-AX', 'sparse')
+        counts = fake_counts({run['model']: {'sparse': 3 * r.GIB}})
+        measured = [{'order': 1, 'model': 'RF-LARGE-CHAIN-n01000-AX', 'mode': 'sparse', 'family': 'CHAIN',
+                     'members': 1000, 'classification': 'ok', 'peak_rss_bytes': 250 * r.MIB,
+                     'rss': {'time_peak_footprint_bytes': 100 * r.MIB}, 'repeats_heap_peak_move': 90 * r.MIB,
+                     'estimate_adm_bytes': 100 * r.MIB}]
+        decision = r.admission(run, counts, measured, 0, baseline_footprint_bytes=0)
+        # footprint estimate 3 GiB x rho 1.0 <= 4 GiB, but projected RSS 3 GiB x 2.5 = 7.5 GiB > 6.4 GiB.
+        self.assertEqual(decision['decision'], 'deferred')
+        self.assertTrue(decision['reason'].startswith('deferred:projected_rss_exceeds_0.8C'))
+
+    def test_dense_uses_the_ruled_rss_ratio_floor(self):
+        run = run_of('RF-LARGE-TREE-n01000-ROT', 'dense')
+        counts = fake_counts({run['model']: {'dense': 3312 * r.MIB}})
+        measured = [{'order': 1, 'model': 'RF-LARGE-TREE-n00100-ROT', 'mode': 'dense', 'family': 'TREE',
+                     'members': 100, 'classification': 'ok', 'peak_rss_bytes': 46 * r.MIB,
+                     'rss': {'time_peak_footprint_bytes': 45 * r.MIB}, 'repeats_heap_peak_move': 35 * r.MIB,
+                     'estimate_adm_bytes': 35 * r.MIB}]
+        decision = r.admission(run, counts, measured, 0, baseline_footprint_bytes=0)
+        self.assertEqual(decision['rss_to_footprint'], r.RSS_TO_FOOTPRINT_DEFAULT)
+        self.assertEqual(decision['decision'], 'admitted')     # P1 3,617.2 MiB x 1.45 = 5.1 GiB <= 6.4 GiB
+        self.assertEqual(decision['projected_rss_bytes'], int(int(3617.2 * r.MIB) * 1.45))
 
     def test_record_consumers_ignore_cross_mode_rows(self):
         rows = [{'kind': 'cross_mode', 'model': 'RF-LARGE-CHAIN-n00010-AX', 'class_equal': True},

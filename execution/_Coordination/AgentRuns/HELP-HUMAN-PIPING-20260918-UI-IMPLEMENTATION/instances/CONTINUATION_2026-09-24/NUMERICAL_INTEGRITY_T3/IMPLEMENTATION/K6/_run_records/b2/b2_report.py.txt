@@ -1,0 +1,155 @@
+"""I15's B2 report figures (read-only over the records; no runs).
+
+Usage: python3 b2_report.py <runner dir> <records dir> <counts>
+"""
+import json
+import os
+import sys
+
+runner_dir, record_dir, counts_path = sys.argv[1:4]
+sys.path.insert(0, runner_dir)
+import k6_runner as r  # noqa: E402
+
+MIB, GIB = r.MIB, r.GIB
+records = r.read_records(record_dir)
+runs = [x for x in r.run_entries(records) if 'family' in x]
+counts = r.read_counts(counts_path)
+
+# The T3b baseline (the current tier's no-op run of the same binary), as admission uses it.
+base = json.load(open(os.path.join(record_dir, 'baseline_T3b.record.json'))) \
+    if os.path.exists(os.path.join(record_dir, 'baseline_T3b.record.json')) else None
+if base is None:
+    for name in sorted(os.listdir(record_dir)):
+        if name.startswith('baseline') and 'T3b' in name and name.endswith('.record.json'):
+            base = json.load(open(os.path.join(record_dir, name)))
+base_rss = base.get('peak_rss_bytes')
+base_fp = base.get('rss', {}).get('time_peak_footprint_bytes')
+print('T3b baseline: RSS %d B, footprint %d B' % (base_rss, base_fp))
+
+
+def mib(b):
+    return '-' if b is None else '%.0f' % (b / MIB)
+
+
+print('\n== rho per run (members >= 100, classification ok; nets of the T3b baseline)')
+print('run | model | mode | E_adm MiB | heap move MiB | footprint MiB | RSS MiB | rho_fp | rho_rss | RSS/fp')
+best = {}
+for x in sorted(runs, key=lambda x: x['order']):
+    if x['members'] < 100 or x.get('classification') != 'ok' or not x.get('estimate_adm_bytes'):
+        continue
+    fp = r.measured_footprint_ratio(x, base_fp)
+    rs = r.measured_ratio(x, base_rss)
+    rf = r.rss_to_footprint(x)
+    key = (x['family'], x['mode'])
+    b = best.setdefault(key, {'fp': 0, 'rss': 0, 'rf': 0, 'fp_at': None, 'rss_at': None, 'rf_at': None})
+    if fp and fp > b['fp']:
+        b.update(fp=fp, fp_at=x['model'])
+    if rs and rs > b['rss']:
+        b.update(rss=rs, rss_at=x['model'])
+    if rf and rf > b['rf']:
+        b.update(rf=rf, rf_at=x['model'])
+    print('%s | %s | %s | %s | %s | %s | %s | %.3f | %.3f | %s' % (
+        x['run_id'][:3], x['model'], x['mode'], mib(x['estimate_adm_bytes']),
+        mib((x.get('summary') or {}).get('repeats_heap_peak_move')), mib(r.peak_footprint(x)),
+        mib(x.get('peak_rss_bytes')), fp, rs, '%.3f' % rf if rf else '-'))
+print('\n== largest per family and mode (what admission takes)')
+for key in sorted(best):
+    b = best[key]
+    print('%s %s: rho_fp %.3f (%s); rho_rss %.3f (%s); RSS/fp %.3f (%s)' % (
+        key[0], key[1], b['fp'], b['fp_at'], b['rss'], b['rss_at'], b['rf'], b['rf_at']))
+
+print('\n== B3 (T6, the ceiling chain) admission under the ruled rule, C = 16 GiB')
+for run in r.schedule():
+    if run['tier'] != 'T6':
+        continue
+    a = r.admission(run, counts, records, base_rss, baseline_footprint_bytes=base_fp)
+    print(json.dumps(a, indent=1, sort_keys=True))
+    if a.get('projected_rss_bytes'):
+        print('projected RSS %.2f GiB against 0.8 x 16 GiB = %.2f GiB; footprint estimate %.2f GiB; C/2 %.2f GiB'
+              % (a['projected_rss_bytes'] / GIB, a['projected_rss_limit_bytes'] / GIB,
+                 a['footprint_estimate_bytes'] / GIB, a['half_cap_bytes'] / GIB))
+    line = counts.get(run['model'])
+    print('ceiling counts: dofs %s, dense F1b 96n^2 %s B (%.2f GiB), E_adm %s B'
+          % (line['dofs'], line['estimate_f1b_bytes_dense'], line['estimate_f1b_bytes_dense'] / GIB,
+             line['estimate_adm_bytes_dense']))
+
+print('\n== dense fits (per family and orientation; n = dofs; F1b = 96 n^2)')
+for fam in ('CHAIN', 'TREE', 'CONT'):
+    for o in ('AX', 'ROT'):
+        pts = []
+        for n in (10, 100, 1000):
+            mid = 'RF-LARGE-%s-n%05d-%s' % (fam, n, o)
+            xs = [x for x in runs if x['model'] == mid and x['mode'] == 'dense']
+            if not xs:
+                continue
+            x = xs[-1]
+            line = counts[mid]
+            dofs, f1b = line['dofs'], line['estimate_f1b_bytes_dense']
+            st = x.get('stages') or {}
+            heap = (x.get('summary') or {}).get('repeats_heap_peak')
+            if heap is None:   # a timed-out run: the stage peaks up to the kill
+                heap = max([s['heap_peak'] for s in st.values()] or [0]) or None
+            fac = st.get('factor', {})
+            pts.append((dofs, heap, r.peak_footprint(x), x.get('peak_rss_bytes'), fac.get('median_ns'), x))
+            print('%s dense: %s | dofs %d | heap/F1b %s | fp/F1b %s | RSS/F1b %s | factor %s s (ok=%s) | wall %.1f s'
+                  % (mid, x['classification'], dofs,
+                     '%.4f' % (heap / f1b) if heap else '-',
+                     '%.4f' % (r.peak_footprint(x) / f1b) if r.peak_footprint(x) else '-',
+                     '%.4f' % (x['peak_rss_bytes'] / f1b) if x.get('peak_rss_bytes') else '-',
+                     '%.2f' % (fac['median_ns'] / 1e9) if fac else '-', fac.get('ok'), x['wall_s']))
+        for label, k in (('heap', 1), ('footprint', 2), ('RSS', 3), ('factor time', 4)):
+            for scope, sel in (('10-1000', pts), ('100-1000', [p for p in pts if p[0] >= 600])):
+                usable = [(p[0], p[k]) for p in sel if p[k] and (k != 4 or (p[5].get('stages') or {})
+                                                                     .get('factor', {}).get('ok'))]
+                fit = r.fit_loglog(usable)
+                if fit:
+                    print('   fit %s ~ n^%.3f over %s [%s] (residuals %s)' % (
+                        label, fit['slope'], [p[0] for p in fit['points']], scope,
+                        ', '.join('%.3f' % v for v in fit['residuals'])))
+
+print('\n== lane-lu (heap / E_adm, RSS) at 1,000 members')
+for x in sorted(runs, key=lambda x: x['order']):
+    if x['mode'] == 'lane-lu' and x['members'] == 1000:
+        heap = (x.get('summary') or {}).get('repeats_heap_peak_move')
+        print('%s %s: %s %.1f s heap %s MiB (/E_adm %s) fp %s MiB RSS %s MiB' % (
+            x['run_id'][:3], x['model'], x['classification'], x['wall_s'], mib(heap),
+            '%.3f' % (heap / x['estimate_adm_bytes']) if heap else '-', mib(r.peak_footprint(x)),
+            mib(x.get('peak_rss_bytes'))))
+
+print('\n== N10 stage breakdowns (the two known dense timeouts)')
+for mid in r.KNOWN_DENSE_TIMEOUTS:
+    xs = [x for x in runs if x['model'] == mid and x['mode'] == 'dense']
+    if not xs:
+        print('%s: not run yet' % mid)
+        continue
+    x = xs[-1]
+    objects = r.jsonl(open(os.path.join(record_dir, x['run_id'] + '.jsonl')))
+    done = [o for o in objects if o.get('kind') == 'stage']
+    begun = [o['stage'] for o in objects if o.get('kind') == 'stage_begin']
+    finished = [o['stage'] for o in done]
+    in_flight = [s for s in begun if s not in finished]
+    total = sum(o['elapsed_ns'] for o in done) / 1e9
+    print('%s (%s): %s, wall %.1f s, timeout %s s, time budget %s s, peak RSS %s MiB, footprint %s MiB'
+          % (mid, x['run_id'], x['classification'], x['wall_s'], x['timeout_s'], x['time_budget_s'],
+             mib(x.get('peak_rss_bytes')), mib(r.peak_footprint(x))))
+    for o in done:
+        print('   %-10s ok=%-5s %10.3f s heap_peak %s MiB%s' % (
+            o['stage'], o['ok'], o['elapsed_ns'] / 1e9, mib(o['heap_peak']),
+            ('  error: ' + o['error']) if o.get('error') else ''))
+    for s in in_flight:
+        print('   %-10s began, in flight at the kill: about %.1f s (wall - completed stages %.1f s;'
+              ' includes start-up and counts, an upper bound)' % (s, x['wall_s'] - total, total))
+    print('   observed class: %s' % r.observed_class(objects))
+for x in records:
+    if x.get('kind') == 'cross_mode' and x['run_id'].startswith(('cross_1', 'cross_097')):
+        print('cross_mode %s: sparse %s, dense %s, class_equal %s, relative %s' % (
+            x['model'], x['sparse_class'], x['dense_class'], x['class_equal'], x.get('relative')))
+
+print('\n== grid 128x128')
+for x in runs:
+    if x['model'] == 'K6-GRID-128x128':
+        print(json.dumps({k: x.get(k) for k in ('run_id', 'classification', 'wall_s', 'peak_rss_bytes',
+                                                  'peak_footprint_bytes', 'estimate_adm_bytes', 'admission')}))
+        print('heap move %s MiB; rho_fp %.3f; rho_rss %.3f' % (
+            mib((x.get('summary') or {}).get('repeats_heap_peak_move')),
+            r.measured_footprint_ratio(x, base_fp) or 0, r.measured_ratio(x, base_rss) or 0))

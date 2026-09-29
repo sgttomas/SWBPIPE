@@ -295,6 +295,13 @@ MODES = ('sparse', 'dense', 'lane-id', 'lane-lu')
 N2_MODES = ('dense', 'lane-lu')
 N2_REFUSAL_MEMBERS = 10000
 RHO_DEFAULT = 2.0
+# ROOT's ruling at I15's B2 stop: Q3's premise and rho are read on the macOS physical footprint;
+# a run admitted on it must also have projected RSS <= 0.8 C, projected RSS = the footprint
+# estimate x the largest RSS-to-footprint ratio measured in the same family and mode. 1.45 is the
+# ruled figure from CHAIN dense at 1,000 members; it is the fallback where nothing is measured,
+# and the floor for dense (whose ratio at 100 members, about 1.02, understates 1,000's 1.40).
+RSS_TO_FOOTPRINT_DEFAULT = 1.45
+PROJECTED_RSS_FRACTION = 0.8
 RHO_MIN_MEMBERS_FOR_LARGE = 100   # ROOT's A1-stop ruling Q2
 LARGE_MEMBERS = 1000
 KNOWN_DENSE_TIMEOUTS = ('RF-LARGE-CHAIN-n01000-ROT', 'RF-LARGE-TREE-n01000-AX')
@@ -419,7 +426,8 @@ def estimate_key(mode):
 
 
 def measured_ratio(record, baseline_rss_bytes):
-    """ρ for one measured run: max(RSS net of the no-op baseline, move-model heap peak) / E_adm."""
+    """The RSS-based ρ (the A1-stop rule, kept for comparison): max(RSS net of the no-op
+    baseline, move-model heap peak) / E_adm."""
     estimate = record.get('estimate_adm_bytes')
     if not estimate:
         return None
@@ -427,6 +435,29 @@ def measured_ratio(record, baseline_rss_bytes):
     rss_net = max(0, rss - (baseline_rss_bytes or 0)) if rss is not None else 0
     heap = record.get('repeats_heap_peak_move') or 0
     return max(rss_net, heap) / estimate
+
+
+def peak_footprint(record):
+    return (record.get('rss') or {}).get('time_peak_footprint_bytes')
+
+
+def measured_footprint_ratio(record, baseline_footprint_bytes):
+    """ρ as ruled at the B2 stop: max(macOS peak footprint net of the no-op baseline's, move-model
+    heap peak) / E_adm. Where no footprint was recorded (not macOS), RSS stands in."""
+    estimate = record.get('estimate_adm_bytes')
+    if not estimate:
+        return None
+    footprint = peak_footprint(record)
+    if footprint is None:
+        return measured_ratio(record, baseline_footprint_bytes)
+    net = max(0, footprint - (baseline_footprint_bytes or 0))
+    heap = record.get('repeats_heap_peak_move') or 0
+    return max(net, heap) / estimate
+
+
+def rss_to_footprint(record):
+    footprint, rss = peak_footprint(record), record.get('peak_rss_bytes')
+    return rss / footprint if footprint and rss else None
 
 
 def previous_size(model_id):
@@ -444,8 +475,9 @@ def previous_size(model_id):
     return None
 
 
-def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True):
-    """ROOT's K6 ruling Q3, with N9 and the A1-stop ruling Q2.
+def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True, baseline_footprint_bytes=None):
+    """ROOT's K6 ruling Q3, with N9, the A1-stop ruling Q2 and the B2-stop ruling: ρ on the
+    macOS footprint (the RSS-based ρ recorded beside it), and projected RSS <= 0.8 C.
 
     counts: {model: counts line}; measured: runner records so far.
     Returns a dict with decision (never / admitted / deferred), reason, the
@@ -454,8 +486,9 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True)
     model_id, mode, members = run['model'], run['mode'], run['members']
     measured = [r for r in run_entries(measured) if 'family' in r]
     half = run['rss_cap_bytes'] // 2
-    out = {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None,
-           'half_cap_bytes': half}
+    out = {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None, 'rho_rss': None,
+           'half_cap_bytes': half, 'footprint_estimate_bytes': None, 'rss_to_footprint': None,
+           'projected_rss_bytes': None, 'projected_rss_limit_bytes': int(PROJECTED_RSS_FRACTION * run['rss_cap_bytes'])}
     never = refusal_by_name(model_id, mode, members)
     if never:
         out.update(decision='never', reason=never)
@@ -473,22 +506,38 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True)
         if not done:
             out.update(decision='deferred', reason='deferred:ascent_previous_size_not_recorded (%s)' % previous)
             return out
+    floor = RHO_MIN_MEMBERS_FOR_LARGE if members >= LARGE_MEMBERS else 0
+    same = [r for r in measured if r['family'] == run['family'] and r['mode'] == mode
+            and floor <= r['members'] < members and r.get('classification') == 'ok']
+    footprint_ratios = [x for x in (measured_footprint_ratio(r, baseline_footprint_bytes) for r in same)
+                        if x is not None]
+    rss_ratios = [x for x in (measured_ratio(r, baseline_rss_bytes) for r in same) if x is not None]
+    rho = max(footprint_ratios) if footprint_ratios else RHO_DEFAULT
+    out['rho'] = rho
+    out['rho_rss'] = max(rss_ratios) if rss_ratios else RHO_DEFAULT
+    measured_rf = [x for x in (rss_to_footprint(r) for r in same) if x is not None]
+    if mode == 'dense':
+        measured_rf.append(RSS_TO_FOOTPRINT_DEFAULT)
+    rf = max(measured_rf) if measured_rf else RSS_TO_FOOTPRINT_DEFAULT
+    out['rss_to_footprint'] = rf
     p1 = P1_LINUX_PEAK_MIB.get((model_id, mode))
     if p1 is not None and p1 * MIB <= half:
-        out.update(decision='admitted', reason='p1_linux_peak %.1f MiB <= C/2' % p1)
-        return out
-    floor = RHO_MIN_MEMBERS_FOR_LARGE if members >= LARGE_MEMBERS else 0
-    ratios = [measured_ratio(r, baseline_rss_bytes) for r in measured
-              if r['family'] == run['family'] and r['mode'] == mode
-              and floor <= r['members'] < members and r.get('classification') == 'ok']
-    ratios = [x for x in ratios if x is not None]
-    rho = max(ratios) if ratios else RHO_DEFAULT
-    out['rho'] = rho
-    if estimate * rho <= half:
-        out.update(decision='admitted', reason='estimate %d B x rho %.3f <= C/2' % (estimate, rho))
+        footprint_estimate = max(int(p1 * MIB), estimate)
+        branch = 'p1_linux_peak %.1f MiB <= C/2' % p1
+    elif estimate * rho <= half:
+        footprint_estimate = int(estimate * rho)
+        branch = 'estimate %d B x rho %.3f <= C/2' % (estimate, rho)
     else:
         out.update(decision='deferred', reason='deferred:estimate_fails_admission (%d B x rho %.3f > C/2)'
                    % (estimate, rho))
+        return out
+    projected = int(footprint_estimate * rf)
+    out.update(footprint_estimate_bytes=footprint_estimate, projected_rss_bytes=projected)
+    if projected > out['projected_rss_limit_bytes']:
+        out.update(decision='deferred', reason='deferred:projected_rss_exceeds_0.8C (%d B x %.3f = %d B > %d B)'
+                   % (footprint_estimate, rf, projected, out['projected_rss_limit_bytes']))
+        return out
+    out.update(decision='admitted', reason='%s; projected RSS %d B <= 0.8C' % (branch, projected))
     return out
 
 
@@ -1020,7 +1069,8 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
             fh.write('\n')
     base = baseline_run(binary, record_dir, tier)
     baseline_rss = base.get('peak_rss_bytes')
-    log('baseline (no-op) peak RSS %s bytes' % baseline_rss)
+    baseline_footprint = base.get('rss', {}).get('time_peak_footprint_bytes')
+    log('baseline (no-op) peak RSS %s bytes, footprint %s bytes' % (baseline_rss, baseline_footprint))
     stop, stop_after_tier = [], []
     for run in [r for r in schedule() if r['tier'] == tier]:
         records = read_records(record_dir)
@@ -1028,8 +1078,9 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
                for x in run_entries(records)):
             log('%s %s %s: already recorded; not repeated' % (run['run_id'], run['model'], run['mode']))
             continue
-        decision = admission(run, counts, records, baseline_rss)
-        entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss, source_commit=source_commit,
+        decision = admission(run, counts, records, baseline_rss, baseline_footprint_bytes=baseline_footprint)
+        entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss,
+                     baseline_footprint_bytes=baseline_footprint, source_commit=source_commit,
                      source_tree=source_tree)
         if decision['decision'] != 'admitted' or run['conditional']:
             if run['conditional'] and decision['decision'] == 'admitted':
@@ -1047,6 +1098,7 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
             objects = jsonl(fh)
         entry.update({k: v for k, v in record.items() if k not in ('watchdog_samples',)})
         entry['quiet_host'] = quiet
+        entry['peak_footprint_bytes'] = record['rss'].get('time_peak_footprint_bytes')
         entry['estimate_adm_bytes'] = decision['estimate_adm_bytes']
         entry['estimate_f1b_bytes'] = counts.get(run['model'], {}).get(
             'estimate_f1b_bytes_' + run['mode'].replace('-', '_'))
