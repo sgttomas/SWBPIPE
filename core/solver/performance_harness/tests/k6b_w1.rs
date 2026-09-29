@@ -235,6 +235,11 @@ fn prefixes_stop_on_the_case_budget_after_each_segment() {
     assert_eq!(segs.last().unwrap().end, full.charged);
     let limits = prefix_limits(&full_attempts);
     assert_eq!(limits.len(), 3);
+    // Each prefix limit is its segment's exact end (b_j), not a neighbour of it.
+    assert_eq!(
+        limits.iter().map(|l| l.1).collect::<Vec<_>>(),
+        segs[..3].iter().map(|s| s.end).collect::<Vec<_>>()
+    );
     for (j, (_, limit)) in limits.iter().enumerate() {
         let prefix = run(
             id,
