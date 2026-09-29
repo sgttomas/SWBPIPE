@@ -2123,3 +2123,36 @@ The plan is `IMPLEMENTATION/VK/PLAN_CHECKPOINT0.md` on the V-K branch (sha256 `a
 - **Next:**
   - A1 without the export, now: the generator, the cases file, the exact engine and the parts of VR that do not call `retained`. One cargo job at `-j 4`.
   - A1's kernel lane waits for A0. ROOT cherry-picks A0 onto the V-K branch once it is committed on K6b's.
+
+## K6b: rulings on I16's checkpoint-0 plan, and A0's export (ROOT, 2026-09-29)
+
+The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `7d6b7af3…`; committed by ROOT at `c0436769f`). **It is approved, with these rulings.**
+
+- **C-1 (the flat `pub use` does not compile): the facade module is approved.** Declare `pub mod retained_api { pub use super::retained::…; }` in `FK/structural.rs`, right after the private `mod retained;`. K4's names stay as they are (`adaptive::POLICY` included), nothing new enters `structural`'s namespace, and the product scan is one grep for `retained_api`.
+- **C-2 (`PrecisionState` exposes the private `Solved`):** `PrecisionState` and `RetainedSolve::state` stay crate-private. No `#[allow(private_interfaces)]`. Neither K6b nor V-K uses them. If F2a needs the retained-state digest (§4.1.8), it asks for an accessor that exposes no private type.
+- **What A0 exports** is RETURN §16's list, as extended by "V-K: rulings on I17's checkpoint-0 plan" Q8:
+  - the fields of the plain-data input types and of the output and evidence records;
+  - the methods `Binary64Outcome::value`, `Component::{index, from_index, ALL}` and `Dof::{global, from_global}`;
+  - `Binary64Outcome`'s variants, which become public with the enum;
+  - the fields of `AttemptWork`, `WidthWork` and `SumWork` only if V-K or K6b reads them. I17 says whether V-K needs them.
+  - **Types whose invariants matter keep private fields:** `PrimitiveSource`, `RetainedSolve`, `CaseLimit` and `InvocationMeter`.
+  - Nothing that lets a caller supply a matrix, factor, closure or label becomes public.
+  - Remove the `#[allow(dead_code)] // F2a API` markers on items that are now public.
+  - **Before ROOT commits A0, I17 confirms it covers V-K's needs.** The final count of items, methods and fields goes in A0's commit message and in both RETURNs.
+- **Q1:** approved: option (a), per-precision memory from budget-truncated prefix calls through the public API, with the overshoot derived. The 512 and 1024 increments stay derived; no escalating invented model.
+- **Q2:** approved: the mode is `w1a`, with a new JSONL kind `attempt`. "Reused unchanged" means K6's existing kinds keep their schema; adding a kind is allowed.
+- **Q3:** the four tiers are approved.
+  - `CaseLimit` and `InvocationMeter` are both `u64::MAX`, recorded in each run's start line; a budget outcome is a stop.
+  - W1-T4 (10,000 members) runs only as ROOT approves, after W1-T3 has measured ρ.
+  - **W1 counts-only runs at 1,000 and 10,000 members during A2 are approved** (O(nnz), no solve, a 512 MiB cap), as for K6's N7.
+- **Q4 to Q7:** approved as planned.
+  - K6's tiers keep a frozen four-mode tuple, so K6's 138 rows are unchanged.
+  - K6b's row checks at R1's 1e-9 are not the honesty check (that is K4's and V-K's); a failure is still a stop.
+- **R1's rows in H's CI test:** `include_str!` of `K4T/r1_large.txt` is approved. The test asserts that file's sha256, so a change to it is visible.
+- **The brief-to-code conflicts are recorded:**
+  - K6's profile counts cannot stand for W1's storage;
+  - a wide value takes 8L + 16 bytes;
+  - RF-LARGE's memory is dominated by the per-member operators;
+  - swapping Iy and Iz is equivalent here;
+  - `solve_cases` gets an equality test only.
+- **Next:** A0 now. Report it as soon as it compiles and FK's suite passes; one cargo job at `-j 4`. I17 works on V-K's parts that do not call `retained`.
