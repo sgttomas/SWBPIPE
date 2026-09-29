@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""R5 section 4.1.6.3 item 7 (V4-U1): the certified bound Uc against the exact
+||K~_P^-1||_1 and against Hager-Higham's est.
+
+(a) Every verification state (P = 256, 512, 1024) of every model with at most 40 free
+    DOFs among models5's controls and the 20-case probe set: est and Uc as emu5's
+    solve_at forms them (Uc from the P-bit factor, every operation on nonnegative
+    data rounded upward), exact by Gauss-Jordan in Fractions. It covers DS1's 195
+    est_check4 states and V4's HH-FOOL-m frames (m = 40, 100, loaded and unloaded).
+(b) V4's matrix family F2 (`_v4_records/r4/r4_hh.py.txt`, rebuilt here) at p = 128
+    and p = 256 (verified at 2p), and HH-FOOL at m = 80 and 200: the factor mirrors
+    emu5's loops (K4's profile LDL^T with its pivot screen), U and Uc with the same
+    upward rounding.
+Reports Uc >= exact (required), U/exact and exact/est.
+Output: uc_check5.stdout.json."""
+import json, sys, time
+from fractions import Fraction as Fr
+import emu5, models5
+from emu5 import Case, solve_at, assemble, floor_log2, rp, ru, rd, Stop
+from gate_probe3_cases import LOADS, run_345
+
+
+def exact_inv_norm1(A):
+    n = len(A)
+    M = [list(row) + [Fr(int(i == j)) for j in range(n)] for i, row in enumerate(A)]
+    for c in range(n):
+        piv = next(r for r in range(c, n) if M[r][c] != 0)
+        M[c], M[piv] = M[piv], M[c]
+        pv = M[c][c]
+        M[c] = [x / pv for x in M[c]]
+        for r in range(n):
+            if r != c and M[r][c] != 0:
+                f = M[r][c]
+                M[r] = [x - f * y for x, y in zip(M[r], M[c])]
+    inv = [row[n:] for row in M]
+    return max(sum(abs(inv[i][j]) for i in range(n)) for j in range(n))
+
+
+def factor(Kt, p):
+    """emu5's profile LDL^T loop on a dense scaled matrix (natural order)."""
+    n = len(Kt)
+    first = [min(j for j in range(i + 1) if Kt[i][j] != 0) for i in range(n)]
+    rows = [dict() for _ in range(n)]
+    for i in range(n):
+        for j in range(first[i], i + 1):
+            rows[i][j] = Kt[i][j]
+    get = lambda i, j: rows[i].get(j, Fr(0)) if j >= first[i] else Fr(0)
+    work = [Fr(0)] * n
+    ok = True
+    for i in range(n):
+        for j in range(first[i], i):
+            s = get(i, j)
+            for kk in range(max(first[i], first[j]), j):
+                s = rp(s - rp(work[kk] * get(j, kk), p), p)
+            work[j] = s
+            rows[i][j] = rp(s / get(j, j), p)
+        piv = get(i, i)
+        canc = abs(piv)
+        for kk in range(first[i], i):
+            t = rp(work[kk] * get(i, kk), p)
+            piv = rp(piv - t, p)
+            canc = rp(canc + abs(t), p)
+        ops = 2 * (i - first[i]) + 2
+        if not (piv * (2 ** p - ops) - 64 * ops * canc > 0):
+            ok = False
+            if piv <= 0:
+                return None, None, False
+        rows[i][i] = piv
+    return rows, first, ok
+
+
+def uc_of(rows, first, p):
+    """U and Uc exactly as emu5's solve_at forms them."""
+    n = len(rows)
+    get = lambda i, j: rows[i].get(j, Fr(0)) if j >= first[i] else Fr(0)
+    a_ = [Fr(1)] * n
+    for i in range(n):
+        acc = Fr(1)
+        for j in range(first[i], i):
+            lij = abs(get(i, j))
+            if lij:
+                acc = ru(acc + ru(lij * a_[j], p), p)
+        a_[i] = acc
+    c_ = [ru(a_[i] / get(i, i), p) for i in range(n)]
+    for i in reversed(range(n)):
+        for j in range(first[i], i):
+            lij = abs(get(i, j))
+            if lij:
+                c_[j] = ru(c_[j] + ru(lij * c_[i], p), p)
+    U = max(c_)
+    at = [Fr(1)] * n
+    for i in range(n):
+        for j in range(first[i], i):
+            lij = abs(get(i, j))
+            if lij:
+                at[j] = ru(at[j] + lij, p)
+    bt = [ru(get(i, i) * at[i], p) for i in range(n)]
+    ct = list(bt)
+    for i in range(n):
+        for j in range(first[i], i):
+            lij = abs(get(i, j))
+            if lij:
+                ct[i] = ru(ct[i] + ru(lij * bt[j], p), p)
+    NL = max(ct)
+    mm = 2 * n + 2
+    gam = ru(Fr(mm) / (Fr(2) ** p - mm), p)
+    t = ru(ru(U * gam, p) * NL, p)
+    den = rd(1 - t, p) if t < 1 else Fr(0)
+    return U, (ru(U / den, p) if den > 0 else None)
+
+
+def f2(m, nv=12):
+    n = nv + 4
+    hpos = [0, 2, 4, 6]
+    vpos = [i for i in range(n) if i not in hpos]
+    K = [[Fr(0)] * n for _ in range(n)]
+    ks = [Fr(1) if t % 2 == 0 else Fr(3) for t in range(nv - 1)]
+    for t, k in enumerate(ks):
+        a, b = vpos[t], vpos[t + 1]
+        K[a][a] += k; K[b][b] += k; K[a][b] -= k; K[b][a] -= k
+    K[vpos[0]][vpos[0]] += Fr(1, 4)
+    K[vpos[-1]][vpos[-1]] += Fr(1, 4)
+    w = [Fr(1), Fr(-1), Fr(-1), Fr(1)]
+    d = Fr(1, 2 ** m)
+    for a in range(4):
+        for b in range(4):
+            K[hpos[a]][hpos[b]] = Fr(int(a == b)) - w[a] * w[b] / 4 + d * w[a] * w[b] / 4
+    return K
+
+
+def equilibrate(K):
+    n = len(K)
+    s = [-(floor_log2(K[i][i]) // 2) for i in range(n)]
+    return [[K[i][j] * Fr(2) ** (s[i] + s[j]) for j in range(n)] for i in range(n)]
+
+
+def model_states(m):
+    case = Case(m)
+    free = case.free
+    if not free or len(free) > 40:
+        return "skipped (%d free)" % len(free)
+    rec = {}
+    for P in (256, 512, 1024):
+        try:
+            st = solve_at(case, P)
+        except Stop as e:
+            rec[P] = "stop:%s" % e.what
+            continue
+        K = assemble(case.m, P)[0]
+        sc = [-(floor_log2(abs(K[(g, g)])) // 2) for g in free]
+        Kt = [[K.get((a, b), Fr(0)) * Fr(2) ** (sa + sb) for b, sb in zip(free, sc)] for a, sa in zip(free, sc)]
+        ex = exact_inv_norm1(Kt)
+        uc = st["uc"]
+        est = st["est_hh"]
+        rec[P] = dict(exact_over_est=float(ex / est), U_over_exact=float(uc["U"] / ex),
+                      Uc_over_exact=(float(uc["Uc"] / ex) if uc["Uc"] else None),
+                      Uc_ge_exact=(uc["Uc"] >= ex if uc["Uc"] else False), Uc_over_est=(float(uc["Uc"] / est) if uc["Uc"] else None))
+    return rec
+
+
+if __name__ == "__main__":
+    ms = list(models5.models())
+    ms.append(models5.hh_fool(80, False))
+    ms.append(models5.hh_fool(200, False))
+    for y in ((3.0, 4.0, 5.0), (0.0, 0.0, 1.0)):
+        for members in (1, 3):
+            for label, tip in LOADS:
+                m = run_345(y, members, tip)
+                m["name"] = "PROBE-%s-%dm-%s" % ("".join("%g" % c for c in y), members, label.split()[0])
+                ms.append(m)
+    out = dict(models={}, matrices={})
+    agg = dict(states=0, uc_fail=0, worst_U_over_exact=(0.0, None), worst_Uc_over_exact=(0.0, None),
+               worst_exact_over_est=(0.0, None), min_Uc_over_exact=(9e99, None))
+    for m in ms:
+        t = time.time()
+        r = model_states(m)
+        out["models"][m["name"]] = r
+        if isinstance(r, dict):
+            for P, v in r.items():
+                if not isinstance(v, dict):
+                    continue
+                agg["states"] += 1
+                if not v["Uc_ge_exact"]:
+                    agg["uc_fail"] += 1
+                for key, k2 in (("worst_U_over_exact", "U_over_exact"), ("worst_Uc_over_exact", "Uc_over_exact"), ("worst_exact_over_est", "exact_over_est")):
+                    if v[k2] is not None and v[k2] > agg[key][0]:
+                        agg[key] = (v[k2], (m["name"], P))
+                if v["Uc_over_exact"] is not None and v["Uc_over_exact"] < agg["min_Uc_over_exact"][0]:
+                    agg["min_Uc_over_exact"] = (v["Uc_over_exact"], (m["name"], P))
+        print(m["name"], r if isinstance(r, str) else {P: (v if isinstance(v, str) else "ex/est=%.3g U/ex=%.4g Uc>=ex=%s" % (v["exact_over_est"], v["U_over_exact"], v["Uc_ge_exact"])) for P, v in r.items()}, "(%.1fs)" % (time.time() - t), flush=True)
+    # (b) V4's F2 matrix family at p = 128 and 256, candidate and verification factors
+    for p in (128, 256):
+        for mexp in ((20, 60, 100, 110) if p == 128 else (120, 200, 230)):
+            K = f2(mexp)
+            Kt = equilibrate(K)
+            ex = exact_inv_norm1(Kt)
+            rec = {}
+            for tag, prec in (("cand", p), ("ver", 2 * p)):
+                rows, first, ok = factor(Kt, prec)
+                if rows is None:
+                    rec[tag] = "negative pivot"
+                    continue
+                U, Uc = uc_of(rows, first, prec)
+                rec[tag] = dict(pivot_ok=ok, U_over_exact=float(U / ex), Uc_ge_exact=(Uc is not None and Uc >= ex),
+                                Uc_over_exact=(float(Uc / ex) if Uc else None))
+                agg["states"] += 1
+                if not rec[tag]["Uc_ge_exact"]:
+                    agg["uc_fail"] += 1
+            out["matrices"]["F2-m%d-p%d" % (mexp, p)] = rec
+            print("F2-m%d-p%d" % (mexp, p), rec, flush=True)
+    out["aggregate"] = agg
+    print("aggregate:", agg)
+    json.dump(out, open("uc_check5.stdout.json", "w"), indent=1, default=str)

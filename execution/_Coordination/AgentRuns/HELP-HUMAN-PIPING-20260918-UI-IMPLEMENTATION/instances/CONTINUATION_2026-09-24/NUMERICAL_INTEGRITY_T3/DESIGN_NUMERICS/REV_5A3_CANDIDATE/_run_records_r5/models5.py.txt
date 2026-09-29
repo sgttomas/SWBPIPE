@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+"""R5's controls: R4's 48 (models4) plus
+- V4's R4 controls (`_v4_records/r4/r4_kills.py.txt`, `r4_hhframe.py.txt`), ported:
+  THETA-ZERO-BODY, G-FIXED-MEMBER, SEEDED-SOFT (with its test-only seed),
+  HH-FOOL-m40, HH-FOOL-m40-LOADED, HH-FOOL-m100, HH-FOOL-m100-LOADED;
+- DS1's R5 controls:
+  THETA-STUB    a loaded unit cantilever plus, at its fixed root, a stub whose far node's
+                only free DOF (uz) carries no state; the stub's bending stiffness at uz is
+                about 2^-200 and its axial EA/L 2^50, so the scaled bounded operator there is
+                about 2^250 (theta > 1/2 at P = 256, in a body that carries data) while the
+                stub's rows' ||a-bar_q S||_1 stays near 2^150, so every charge passes: an
+                availability kill of M20;
+  G-PRESC-MEMBER a loaded unit cantilever plus, at its fixed root, a member to a fully
+                prescribed node moved 2^-300 m, with y_ref 2^-244 off its axis (g = 2^245):
+                the g check applies (a nonzero prescribed DOF in a body with data) and
+                fails at P = 256 (an availability kill of M23);
+  HH-SLENDER    HH-FOOL-m40 (unloaded) plus a CHARGE-SLENDER body: the hidden mode lifts
+                Uc about 7.7e8 above est, so the slender body's charge exceeds its
+                allowance at 128 under Uc, and passes under est (kills M24 and M17)."""
+import copy
+from fractions import Fraction as Fr
+import models4
+from emu4 import new_model, add_member, fix, spring, load
+
+SEEDS = dict(models4.SEEDS)
+SEEDS["SEEDED-SOFT"] = [(6 * 2 + 0, Fr(2) ** 40)]
+UNIT = dict(E=1.0, G=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0)
+
+
+def clone(m, name):
+    c = copy.deepcopy(m)
+    c["name"] = name
+    return c
+
+
+def theta_zero_body(base):
+    m = clone(base, "THETA-ZERO-BODY")
+    a = len(m["nodes"])
+    m["nodes"] += [(50.0, 0.0, 0.0), (51.0, 0.0, 0.0)]
+    I = 2.0 ** -400
+    add_member(m, 900, a, a + 1, section=dict(UNIT, Iy=I, Iz=I))
+    fix(m, a, range(6))
+    return m
+
+
+def g_fixed_member(base):
+    m = clone(base, "G-FIXED-MEMBER")
+    a = len(m["nodes"])
+    m["nodes"] += [(60.0, 0.0, 0.0), (61.0, 0.0, 0.0)]
+    add_member(m, 901, a, a + 1, y=(1.0, 2.0 ** -300, 0.0), section=UNIT)
+    fix(m, a, range(6))
+    fix(m, a + 1, range(6))
+    return m
+
+
+def seeded_soft():
+    m = new_model("SEEDED-SOFT", [(0, 0, 0), (1, 0, 0), (2, 0, 0)])
+    add_member(m, 1, 0, 1, section=UNIT)
+    tiny = 2.0 ** -300
+    add_member(m, 2, 1, 2, section=dict(UNIT, A=tiny, Iy=tiny, Iz=tiny, J=tiny))
+    fix(m, 0, range(6))
+    for nd in (1, 2):
+        fix(m, nd, (1, 2, 3, 4, 5))
+    load(m, 1, 0, 1.0)
+    load(m, 2, 0, 2.0 ** -240)
+    return m
+
+
+def hh_fool(mexp, loaded, name=None):
+    H = [(0, 0, 0), (1, -1, 0), (2, -2, 0), (3, -3, 0)]
+    nv = 8
+    V = [(10 + k, 5, 0) for k in range(nv)]
+    nodes = [H[0], V[0], H[1], V[1], H[2], V[2], H[3]] + V[3:]
+    hn = [0, 2, 4, 6]
+    vn = [1, 3, 5] + list(range(7, 7 + nv - 3))
+    md = new_model(name or ("HH-FOOL-m%d%s" % (mexp, "-LOADED" if loaded else "")), nodes)
+    sec_h = dict(UNIT, Iy=2.0 ** -mexp, Iz=2.0 ** -mexp)
+    mid = 1
+    for a, b in ((0, 1), (2, 3), (0, 2), (1, 3)):
+        add_member(md, mid, hn[a], hn[b], y=(0, 0, 1), section=sec_h)
+        mid += 1
+    for k in range(nv - 1):
+        add_member(md, mid, vn[k], vn[k + 1], y=(0, 0, 1), section=dict(UNIT, A=(1.0 if k % 2 == 0 else 3.0)))
+        mid += 1
+    comp = {hn[0]: 0, hn[1]: 1, hn[2]: 1, hn[3]: 0}
+    for nd in range(len(nodes)):
+        keep = comp.get(nd, 0)
+        fix(md, nd, [c for c in range(6) if c != keep])
+    spring(md, 1, vn[0], 0, 0.25)
+    spring(md, 2, vn[-1], 0, 0.25)
+    if loaded:
+        load(md, vn[nv // 2], 0, 1.0)
+        load(md, hn[0], 0, 1.0)
+    return md
+
+
+def theta_stub():
+    m = new_model("THETA-STUB", [(0, 0, 0), (1, 0, 0), (0, 1, 0)])
+    add_member(m, 1, 0, 1, section=UNIT)
+    I = 2.0 ** -204
+    add_member(m, 2, 0, 2, y=(0.0, 0.0, 1.0), section=dict(UNIT, A=2.0 ** 50, Iy=I, Iz=I))
+    fix(m, 0, range(6))
+    fix(m, 2, (0, 1, 3, 4, 5))          # node 2: only uz free, with no load: its state is 0
+    load(m, 1, 1, 1.0)
+    return m
+
+
+def g_presc_member():
+    m = new_model("G-PRESC-MEMBER", [(0, 0, 0), (1, 0, 0), (0, 0, 1)])
+    add_member(m, 1, 0, 1, section=UNIT)
+    add_member(m, 2, 0, 2, y=(2.0 ** -244, 0.0, 1.0), section=UNIT)
+    fix(m, 0, range(6))
+    fix(m, 2, (1, 2, 3, 4, 5))
+    fix(m, 2, (0,), Fr(2) ** -300)
+    load(m, 1, 1, 1.0)
+    return m
+
+
+def hh_slender(mexp=40, I_exp=-180):
+    md = hh_fool(mexp, False, name="HH-SLENDER-m%d" % mexp)
+    a = len(md["nodes"])
+    md["nodes"] += [(100.0, 0.0, 0.0), (101.0, 0.0, 0.0)]
+    I = 2.0 ** I_exp
+    add_member(md, 50, a, a + 1, section=dict(UNIT, Iy=I, Iz=I))
+    fix(md, a, range(6))
+    load(md, a + 1, 1, 1.0)
+    return md
+
+
+def models():
+    out = list(models4.models())
+    base = {m["name"]: m for m in out}
+    out += [theta_zero_body(base["N05"]), g_fixed_member(base["N05"]), seeded_soft(),
+            hh_fool(40, False), hh_fool(40, True), hh_fool(100, False), hh_fool(100, True),
+            theta_stub(), g_presc_member(), hh_slender()]
+    return out

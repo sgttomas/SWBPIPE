@@ -1,0 +1,141 @@
+[
+ {
+  "model": "SEEDED-SOFT",
+  "run": "M22",
+  "selected": 128,
+  "attempts": [
+   [
+    128,
+    "accepted"
+   ],
+   [
+    256,
+    "verified"
+   ]
+  ],
+  "worst_ratio": 953.6743164053827,
+  "worst_row": "('u', 2, 0)",
+  "honest": false,
+  "counts": {
+   "absolute": 40,
+   "relative": 5,
+   "input_derived": 16,
+   "unpublishable": 0
+  }
+ },
+ {
+  "model": "SEEDED-SOFT",
+  "run": "M15",
+  "selected": 128,
+  "attempts": [
+   [
+    128,
+    "accepted"
+   ],
+   [
+    256,
+    "verified"
+   ]
+  ],
+  "worst_ratio": 953.6743164053827,
+  "worst_row": "('u', 2, 0)",
+  "honest": false,
+  "counts": {
+   "absolute": 40,
+   "relative": 5,
+   "input_derived": 16,
+   "unpublishable": 0
+  }
+ },
+ {
+  "model": "SEEDED-SOFT",
+  "run": "today",
+  "selected": 128,
+  "attempts": [
+   [
+    128,
+    "accepted"
+   ],
+   [
+    256,
+    "verified"
+   ]
+  ],
+  "worst_ratio": 953.6743164053827,
+  "worst_row": "('u', 2, 0)",
+  "honest": false,
+  "counts": {
+   "absolute": 40,
+   "relative": 5,
+   "input_derived": 16,
+   "unpublishable": 0
+  }
+ },
+ {
+  "model": "SEEDED-SOFT",
+  "run": "R5",
+  "selected": null,
+  "attempts": [
+   [
+    128,
+    "rejected:stop_rule:('u', 2, 0)"
+   ],
+   [
+    256,
+    "rejected:stop_rule:('u', 2, 0)"
+   ],
+   [
+    512,
+    "rejected:stop_rule:('u', 2, 0)"
+   ]
+  ]
+ },
+ {
+  "model": "SEEDED-COMMON",
+  "run": "M11",
+  "selected": 128,
+  "attempts": [
+   [
+    128,
+    "accepted"
+   ],
+   [
+    256,
+    "verified"
+   ]
+  ],
+  "worst_ratio": 23.029977148131252,
+  "worst_row": "('end', 1, 'i', 2)",
+  "honest": false,
+  "counts": {
+   "absolute": 27,
+   "relative": 6,
+   "input_derived": 5,
+   "unpublishable": 0
+  }
+ },
+ {
+  "model": "SEEDED-COMMON",
+  "run": "M15",
+  "selected": 128,
+  "attempts": [
+   [
+    128,
+    "accepted"
+   ],
+   [
+    256,
+    "verified"
+   ]
+  ],
+  "worst_ratio": 23.029977148131252,
+  "worst_row": "('end', 1, 'i', 2)",
+  "honest": false,
+  "counts": {
+   "absolute": 27,
+   "relative": 6,
+   "input_derived": 5,
+   "unpublishable": 0
+  }
+ }
+]
