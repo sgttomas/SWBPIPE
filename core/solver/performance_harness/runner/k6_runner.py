@@ -515,7 +515,11 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
     if line is None:
         out.update(decision='deferred', reason='deferred:no_counts_line')
         return out
-    estimate = line[estimate_key(mode)]
+    estimate = line.get(estimate_key(mode))
+    if estimate is None:
+        # K6's own counts lines carry no W1 estimate (K6b).
+        out.update(decision='deferred', reason='deferred:no_estimate_for_mode_in_counts_line')
+        return out
     out['estimate_adm_bytes'] = estimate
     previous = previous_size(model_id)
     if require_ascent and previous is not None:
@@ -551,6 +555,14 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
         return out
     projected = int(footprint_estimate * rf)
     out.update(footprint_estimate_bytes=footprint_estimate, projected_rss_bytes=projected)
+    # The binary's own backstop (k6_observe, 'estimate_exceeds_half_cap'): it refuses a run whose
+    # admission estimate exceeds half the heap cap, independently of the runner. A row the runner
+    # would admit but the binary would refuse is deferred by name here (ROOT's ruling after
+    # W1-T4's stop), so every admitted row is one the binary also admits.
+    if estimate > run['heap_cap_bytes'] // 2:
+        out.update(decision='deferred', reason='deferred:binary_backstop_refuses (estimate %d B > heap cap / 2 = %d B)'
+                   % (estimate, run['heap_cap_bytes'] // 2))
+        return out
     if projected > out['projected_rss_limit_bytes']:
         out.update(decision='deferred', reason='deferred:projected_rss_exceeds_0.8C (%d B x %.3f = %d B > %d B)'
                    % (footprint_estimate, rf, projected, out['projected_rss_limit_bytes']))

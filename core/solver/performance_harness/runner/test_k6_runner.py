@@ -628,6 +628,34 @@ class PlanAdmission(unittest.TestCase):
             self.assertTrue(all(x['classification'] == 'not_run' for x in records))
             self.assertTrue(all(x['admission']['reason'].startswith('deferred:') for x in records))
 
+    def test_every_admitted_row_passes_the_binarys_backstop(self):
+        """ROOT's ruling after W1-T4's stop: for every row the runner admits, the binary's own
+        backstop (estimate <= heap cap / 2) admits it too, or the row is deferred by name. Checked
+        on the committed K6b counts at plan time, and on a w1a row whose measured rho would
+        otherwise admit it (W1-T4's row 247)."""
+        counts = r.read_counts(os.path.join(os.path.dirname(OBSERVATIONS), 'k6b', 'counts.jsonl'))
+        admitted = 0
+        for run in r.schedule():
+            decision = r.admission(run, counts, [], None, require_ascent=False)
+            if decision['decision'] == 'admitted':
+                admitted += 1
+                self.assertLessEqual(decision['estimate_adm_bytes'], run['heap_cap_bytes'] // 2, run['run_id'])
+        self.assertGreater(admitted, 200)
+        run = next(x for x in r.schedule() if x['order'] == 247)
+        self.assertEqual((run['model'], run['mode']), ('RF-LARGE-CHAIN-n10000-AX', 'w1a'))
+        smaller = next(x for x in r.schedule() if x['tier'] == 'W1-T3' and x['mode'] == 'w1a'
+                       and x['family'] == 'CHAIN')
+        measured = [dict(smaller, classification='ok', estimate_adm_bytes=10 ** 9,
+                         repeats_heap_peak_move=184 * 10 ** 6, rss={'time_peak_footprint_bytes': 1})]
+        counts = fake_counts({run['model']: {'w1a': 9230781374}})
+        decision = r.admission(run, counts, measured, None, require_ascent=False)
+        self.assertAlmostEqual(decision['rho'], 0.184)
+        self.assertEqual(decision['decision'], 'deferred')
+        self.assertTrue(decision['reason'].startswith('deferred:binary_backstop_refuses'), decision['reason'])
+        # Just under the backstop, the same row is admitted.
+        counts = fake_counts({run['model']: {'w1a': run['heap_cap_bytes'] // 2}})
+        self.assertEqual(r.admission(run, counts, measured, None, require_ascent=False)['decision'], 'admitted')
+
     def test_measured_runs_are_kept_and_not_run_records_are_run(self):
         # The resume skip (I15's B1 fix; C mutant K6-M26): run_tier keeps a measured run and runs
         # a not_run record again. Launch, the baseline, the quiet-host wait and admission are stubbed.
