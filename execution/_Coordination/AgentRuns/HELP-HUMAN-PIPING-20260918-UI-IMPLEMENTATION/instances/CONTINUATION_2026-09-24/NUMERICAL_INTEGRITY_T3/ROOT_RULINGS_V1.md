@@ -1985,3 +1985,21 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - K4-M12 and D13 are killed at bit level only, since the corrections repair the fold;
   - K4-M30 now describes the design, and its inverse, K4-M30i, is killed.
 - **Next:** D.
+
+## K4: D accepted; to review (ROOT, 2026-09-29)
+
+- **D accepted.** ROOT committed it for I12 on the K4 branch at `7d8fa9c0e`; I12 made no Git write.
+  - ROOT checked the five files' sha256 against I12's return, the `_run_records/` `SHA256SUMS` (214 files; its own sha256 `f79cfe57…`), rustfmt on the three test files, and a scan of the records for machine paths and model identifiers. All pass.
+- **The tightened predicate meets the C ruling.** `compare_honest` checks each selected row against the claim it publishes, with the binary64 rounding stated (RETURN §22.9). No selected unmutated control fails it: 99 controls and 5,490 rows, the worst at 0.28 of its allowance; the recovery test's 43 models pass. So there is no stop.
+- **The evidence pass is recorded as returned:** F-2-SPOS (R7-M1) and CEIL5A3 (K4-M24) are newly caught as dishonest; all eight K4-M37 moves are caught.
+- **PRESCRIBED-TAIL and PRESCRIBED-TAIL-FREE under R7-M1: accepted as a limit of the test's binary64 expectations,** not of the method.
+  - The false b = 0 at 128 is real, as R7 counts it. Its truth, 2^-1091 N, lies below binary64's smallest subnormal, so a binary64 expectation cannot show the claim failing.
+  - The mutant is killed regardless, by its selection changes; unmutated, the case is selected at 512 and its floored b covers the truth.
+  - **Routed to the T3-close list:** expectation files that mark an exact value as nonzero (an underflow marker), so that a false b = 0 on such a row is caught directly. V-K may carry it.
+- **I12's two new arguments go to the reviewer; ROOT adopts neither as design text.**
+  1. **§6 item 4:** that θ ≤ 1/2 with the certified B forces a data-carrying block's K\* to be nonsingular, by Lemma C's Neumann step. This is I12's reading of R7's proof, not a sentence R7 states. The honesty guarantee does not rest on it: the no-data-block residue stays under R7's standing premise, "K\* nonsingular per body".
+  2. **§9 step 12:** route 1's constant under the bounded majorant, ‖Ā‖₁ ≤ 9·g_max·‖|K|_contrib‖₁, derived in the unscaled 1-norm and argued in the equilibrated norm. It is availability, not honesty, and no 1024 verification on the controls uses the bounded gate. It is recorded as one of K4's limits (RETURN §19).
+- **Next:**
+  - the PR, with hosted CI and the full-SHA dispatch;
+  - an independent reviewer (RV19), directed to RETURN §22.1, §22.2, §9 steps 10 to 12, §6 item 4 and §22.9;
+  - then DEC-025 with a fresh target, GEN-8, the merge and the merge record.
