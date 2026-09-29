@@ -1,0 +1,1 @@
+RF-LARGE-CHAIN-n01000-ROT {"selected": 128, "attempts": [[128, "accepted"], [256, "verified"]], "honest": true, "worst": 1.107221077855248e-07, "counts": {"absolute": 2, "relative": 25005, "input_derived": 6, "unpublishable": 0}, "g5a": 0, "charge": 1.4212387866199858e-39, "theta": 4.953346391226074e-57, "seconds": 149.8}

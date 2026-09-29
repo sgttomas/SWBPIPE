@@ -1775,3 +1775,21 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
 - **Native witnesses: ruled as join items** (§7.5), as the brief proposed. The gate covers the product's solve path on both entries, the src-tauri suite covers the desktop's Rust side, and F1b changes no native shell or desktop file.
 - **Still provisional, for the owner:** the dense-scrutiny and observation-lane ceilings at 6 GiB. The kernel-to-product gap and macOS RSS inflation are recorded from K6; V-P's product-level runs are needed as well.
 - **Next on the facade path:** F2a, after D1 5a.3 is selected, K4 merges, and ROOT sets the budget limits from K6 and V-K.
+
+## D1 revision 5a.3: rulings on V4's delta check at R6 (ROOT, 2026-09-29)
+
+- **Verdict accepted:** NOT VERIFIED, with 0 BLOCKING, 1 SHOULD-FIX (V4-W1) and 2 NOTEs.
+- **The design is confirmed:**
+  - V4-V1 is resolved, and Lemma E is correct step by step.
+  - V4's stress test (95,142 shifted factorizations, 14,186 bounds) found no case of S below the exact norm.
+  - "No uncertified step remains" holds: the estimate only screens and chooses σ.
+  - The per-block decomposition is sound.
+  - RF-LARGE availability is confirmed independently. At 1,000 members, S/‖K̃⁻¹‖₁ is 2^7.09 to 2^7.29 against the exact binary64 norm, and S is at least the norm on all six.
+- **V4-W1: fix the evidence in R7, with no design change.**
+  - emu6 indexes the Hager–Higham estimator's vectors by elimination rank; K4 indexes them by free position.
+  - R7 re-indexes emu6 as K4 does and reruns the estimate-dependent evidence: the mutants, the sweep, the controls and the HH-FOOL figures.
+  - It corrects the HH-FOOL statements: the hidden block's miss is 2^37.8 at m40 and 2^97.8 at m100.
+  - It records M24 as kept for the derivation, unless another control kills it. K4's control list must not expect HH-SLENDER-m40 to kill M24.
+- **V4-W2:** R7 labels M27's "no selection kill at design precisions" as argued, since it rests on the estimate-based condition screen. M27's low-precision kill stands.
+- **V4-W3:** R7 states that S is polynomially loose only when the estimate is within about 8× of the norm, and that otherwise availability falls back on Uc. It also states that up to three extra factorizations are charged to the work budget, and that their cost on large models is for K6b and V-K to measure.
+- **Next:** DS1 writes R7, V4 runs a delta check, and ROOT selects only after VERIFIED.

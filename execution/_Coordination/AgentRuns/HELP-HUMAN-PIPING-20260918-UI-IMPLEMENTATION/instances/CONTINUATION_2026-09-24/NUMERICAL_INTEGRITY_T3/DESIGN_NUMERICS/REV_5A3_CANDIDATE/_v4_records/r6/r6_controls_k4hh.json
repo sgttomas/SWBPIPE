@@ -1,0 +1,1049 @@
+{
+ "per_control": {
+  "N05": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "N06": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "SKEW-K1E-28": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "failed:Condition",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "failed:Condition",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "SKEW6-K1E-12": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('u', 0, 3)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('u', 0, 3)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "SKEW-K1E-12": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "SKEW-K1E-4": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "AXIS-K1E-4": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "OBLIQUE-K1E-4": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "B1-L": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "S8-W-1e-10": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "S8-W-1e-14": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "DUPLICATE": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "PRESCRIBED": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "PIVOT": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "failed:Pivot",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "failed:Pivot",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "REACTIONS-ONLY": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('R', 0, 1)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('R', 0, 1)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "MIXED-2^-200": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 2, 'i', 1)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 2, 'i', 1)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "RIGID-UNLOADED": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "TWO-SPAN": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "ZERO-TORSION-345": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "ALL-ZERO-BODY": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "SKEW-K1E-60": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('u', 0, 3)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('u', 0, 3)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "F-2": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "F-2-CEIL": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "F-3-FREE": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "F-3-ROT": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "F-2-SPOS": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "PRESCRIBED-TAIL": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "PRESCRIBED-TAIL-FREE": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "DEMOTION2": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('u', 2, 1)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('u', 2, 1)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "ASSEMBLY-SAT": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "LOADONLY-y345": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "LOADONLY-y001": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "GS-TRANS-y345": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "GS-ROT-y345": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "GS-ROT-y345-LOADED": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "SEEDED-COMMON": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "rejected:verification_estimate:('end', 1",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:verification_estimate:('end', 1"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "rejected:verification_estimate:('end', 1",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:verification_estimate:('end', 1"
+    ]
+   }
+  },
+  "M7-GS1": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "M10-ANISO": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "M10-G": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "EXACT-RIGID": {
+   "emu6": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 512,
+    "attempts": [
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "rejected:stop_rule:('end', 1, 'i', 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "LEVER2-k90-s40": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   }
+  },
+  "LEVER2-k100-s40": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   }
+  },
+  "LEVER2-k110-s20": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:verification_estimate:('end', 1",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   }
+  },
+  "CHARGE-SLENDER": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "TILT-LEVER-k90-s40": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('end', 1, 'i', 2)",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('end', 1, 'i', 2)",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   }
+  },
+  "TILT-LEVER-k100-s40": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('end', 1, 'i', 2)",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('end', 1, 'i', 2)",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   }
+  },
+  "TILT-LEVER-k110-s20": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('end', 1, 'i', 2)",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "failed:Pivot",
+     "rejected:stop_rule:('end', 1, 'i', 2)",
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   }
+  },
+  "THETA-ZERO-BODY": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "G-FIXED-MEMBER": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "SEEDED-SOFT": {
+   "emu6": {
+    "selected": null,
+    "attempts": [
+     "rejected:stop_rule:('u', 2, 0)",
+     "rejected:stop_rule:('u', 2, 0)",
+     "rejected:stop_rule:('u', 2, 0)"
+    ]
+   },
+   "k4_indexed": {
+    "selected": null,
+    "attempts": [
+     "rejected:stop_rule:('u', 2, 0)",
+     "rejected:stop_rule:('u', 2, 0)",
+     "rejected:stop_rule:('u', 2, 0)"
+    ]
+   }
+  },
+  "HH-FOOL-m40": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "HH-FOOL-m40-LOADED": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "HH-FOOL-m100": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "HH-FOOL-m100-LOADED": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('u', 0, 0)",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "rejected:stop_rule:('u', 0, 0)",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "THETA-STUB": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "G-PRESC-MEMBER": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "rejected:g_validity:None",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "rejected:g_validity:None",
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "HH-SLENDER-m40": {
+   "emu6": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 128,
+    "attempts": [
+     "accepted",
+     "verified"
+    ]
+   }
+  },
+  "THETA-STUB-COUPLED": {
+   "emu6": {
+    "selected": 256,
+    "attempts": [
+     "rejected:theta:None",
+     "accepted",
+     "verified"
+    ]
+   },
+   "k4_indexed": {
+    "selected": 256,
+    "attempts": [
+     "rejected:theta:None",
+     "accepted",
+     "verified"
+    ]
+   }
+  }
+ },
+ "different": []
+}

@@ -1,0 +1,74 @@
+{
+ "matrices": 1500,
+ "shifted_factors": 95142,
+ "positive": 31773,
+ "with_S": 14186,
+ "viol_lambda": 0,
+ "viol_S": 0,
+ "m27_with_S": 31773,
+ "m27_viol_lambda": 6448,
+ "m27_viol_S": 566,
+ "sigma_above_lambda_positive": 6448,
+ "near_zero_cases": 2691,
+ "min_S_over_exact": [
+  1.3964060552769677,
+  {
+   "it": 443,
+   "kind": "near",
+   "P": 24,
+   "n": 4,
+   "sigma_over_lam": 0.9990000128746033
+  }
+ ],
+ "min_m27_S_over_exact": [
+  0.44532284623562834,
+  {
+   "it": 375,
+   "kind": "near",
+   "P": 24
+  }
+ ],
+ "examples_m27": [
+  {
+   "it": 3,
+   "kind": "near",
+   "P": 10,
+   "n": 9,
+   "S27_over_exact": 0.663085552873889,
+   "sigma_over_lam": 3.0
+  },
+  {
+   "it": 3,
+   "kind": "near",
+   "P": 12,
+   "n": 9,
+   "S27_over_exact": 0.662116129550974,
+   "sigma_over_lam": 3.0
+  },
+  {
+   "it": 3,
+   "kind": "near",
+   "P": 24,
+   "n": 9,
+   "S27_over_exact": 0.6617930673352076,
+   "sigma_over_lam": 3.0
+  },
+  {
+   "it": 11,
+   "kind": "near",
+   "P": 10,
+   "n": 4,
+   "S27_over_exact": 0.6011719896644573,
+   "sigma_over_lam": 3.0
+  },
+  {
+   "it": 11,
+   "kind": "near",
+   "P": 12,
+   "n": 4,
+   "S27_over_exact": 0.6002930832468192,
+   "sigma_over_lam": 3.0
+  }
+ ],
+ "violations": []
+}

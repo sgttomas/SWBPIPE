@@ -682,3 +682,126 @@ To rerun, from `<wt>/scratch/v4/r5/`, one at a time:
 **Delegation.** V4 ran as a Claude Code background subagent that ROOT launched through the Agent tool, and continued on ROOT's follow-up messages. ROOT is the only return path. V4 dispatched nothing.
 
 Uncommitted.
+
+## Delta check at R6
+
+This covers R6, `D1_REV_5A3_SSTAR_RESOLUTION_R6.md` (sha256 `7cdb91c9…`, 1,198 lines, numerics `e47f853ba`), against:
+- ROOT's rulings on the R5 delta (`ROOT_RULINGS_V1.md`, section "D1 revision 5a.3: rulings on V4's delta check at R5");
+- R6's §9, §15 (the map of V4's R5 findings), §16 (the evidence in `_run_records_r6/`), and DS1's `emu6.py` (sha256 `767c9381…`).
+
+**Method.**
+- Lemma E and the per-block decomposition are checked step by step, against K4's `retained/factor.rs` (`81f81f24…`, as R6 cites) and `wide.rs`.
+- **V4's own code:**
+  - a low-precision stress of Lemma E;
+  - the certified bounds on R1's RF-LARGE references, with its own factor loop, estimator port and directed rounding;
+  - the norm at 1,000 members;
+  - a check of emu6's estimator against K4's indexing.
+- **DS1's emu6 re-executed read-only:** the R6 schedule on RF-LARGE at 100 members and on the 1,000-member CHAIN-ROT, and a copy of it re-indexed as K4 indexes (below).
+- Python only, one process at a time, under `nice -n 19`. No cargo.
+- The records are in `_v4_records/r6/`, with their own `SHA256SUMS`; `_v4_records/SHA256SUMS` is regenerated.
+
+### Verdict at R6
+
+**NOT VERIFIED. 0 BLOCKING, 1 SHOULD-FIX, 2 NOTE.**
+
+**V4-V1 is resolved.**
+- **Lemma E is correct step by step,** and the shift bound is certified.
+- **In V4's own stress,** S never fell below the exact norm. That includes 6,448 factors where σ ≥ λ_min but every shifted pivot passed by rounding; in all of them σ′ < λ_min held.
+- **V4 reproduces DS1's bounds on RF-LARGE** to every printed digit, at 10 and 100 members.
+- **V4 computed the norm at 1,000 members** (binary64): S/norm is 2^7.09 to 2^7.29, and S ≥ the norm in every case.
+- **emu6's R6 schedule, re-executed,** selects all six 100-member frames and the 1,000-member CHAIN-ROT at 128, honest.
+
+**The honesty guarantee has no uncertified step.** est only screens and chooses σ, and any σ leaves Lemma E true. The per-block decomposition is sound for every norm the Theorem uses.
+
+**One emulation defect (V4-W1).**
+- **The defect:** emu6 indexes the Hager–Higham estimate's vectors by RCM rank; K4 indexes them by free position.
+- **What stands:** honesty is unaffected. RF-LARGE's estimates, and all 59 controls' R6 selections, are unchanged under K4's indexing.
+- **What does not stand:**
+  - R6's statement that HH-FOOL fools the estimate by only about 2^5.6 "in K4's order" is wrong;
+  - M24's kill by HH-SLENDER-m40 disappears.
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| V4-W1 | SHOULD-FIX | emu6's condition estimate; §5.5 item 8 ("In K4's order the HH-FOOL frames fool the estimate less (it misses by about 2^5.6)"); §5.9; §7 HH-FOOL, HH-SLENDER-m40 and M24 rows; §9 (M24); §15 | **K4's `condition` indexes its vectors over free positions** (ascending global DOF): x, the sign vector, the argmax (last index on ties) and the alternating vector. They are mapped into the RCM order only inside `solve_scaled` (`factor.rs`). emu6 instead sets `case.free` to the RCM order and runs the same loops over that list, so its alternating vector and its tie-break are indexed by RCM rank.<br>**Demonstrated** (`r6/r6_k4hh.*`): emu6_k4hh is a copy of emu6.py in which only those two loops are re-indexed as K4's are.<br>• On HH-FOOL-m40 and -m100 at P = 256, H's est_c is 2^-2.1 against a norm of 2^35.7 and 2^95.7, a miss of 2^37.8 and 2^97.8. The global est is 2^6.2, a miss of 2^29.5 and 2^89.5. emu6 gives 2^30.1 and 2^90.1, the "about 2^5.6".<br>• **M24 on HH-SLENDER-m40:** emu6 selects 256 (the kill), emu6_k4hh selects 128, the same as R6. So the kill is an artifact.<br>**What is unaffected:**<br>• all five HH frames' R6 selections;<br>• **all 59 controls:** identical R6 selections and attempts under both indexings (`r6/r6_controls_k4hh.*`);<br>• **RF-LARGE:** on all 12 frames at 10 and 100 members, the K4-indexed est equals the RCM-indexed est to every digit, so σ, S and the selections stand (`r6/r6_rflarge_k4hh.*`);<br>• honesty, because no step of the guarantee uses est | Index emu6's estimate over free positions, as K4 does, and rerun the est-dependent evidence: the mutants, and the sweep (not rerun by V4). Correct the HH-FOOL statements.<br>Record M24 as kept for the derivation, like M17, unless another control kills it. K4's M24 test must not expect a kill from HH-SLENDER-m40 |
+| V4-W2 | NOTE | §7 M27: "Not killed on any control or RF-LARGE case (derived): … the condition screen bounds κ at the candidate" | The condition screen's κ bound is est·‖K̃‖₁ < 2^(p−1), and est's miss is unbounded within the screens (V4-U1). In K4's indexing it misses by 2^97.8 on a screened frame (V4-W1). So "no selection or honesty kill exists at the design's precisions" is argued, not derived.<br>**Also demonstrated** (`r6/r6_lemmaE.*`): M27's term is load-bearing at low precision. ⌈√n⌉/σ fell below the exact norm in 566 of V4's factors (smallest ratio 0.45), and λ_min ≤ σ in 6,448 | Label it argued. The low-precision kill is acceptable evidence that the term is needed |
+| V4-W3 | NOTE | §5.5 item 7c and "Looseness"; §6.7; §9 | **(a) S's polynomial looseness depends on est_c** (derived). At least one of the three shifts succeeds only if 8·est_c exceeds ‖K̃_c⁻¹‖₂ (σ/4 < λ_min) by more than the backward error. Where est_c is fooled (V4-W1), B falls back to Uc: on HH-FOOL that is exact, but a block that is both fooled and Uc-loose would be rejected with `uc`. §9's "a poor σ_c costs the shift bound" covers this; say that availability then rests on Uc.<br>**(b) Work budget:** the up to three extra factorizations count against the verification's work budget (D1 §4.1.7). Their effect on large models' budgets is not measured | State both |
+
+### The checks ROOT asked for
+
+1. **Lemma E, step by step. Correct** (derived).
+   - **The Rayleigh-quotient Weyl step is valid with the rounded shifted diagonal.**
+     - The loop factors Ĝ = K̃_c − σI + E_s, where E_s is the diagonal rounding.
+     - So K̃_c = A′ + σI − E_s − ΔG, and for a unit x, xᵀK̃_c x > σ − ‖E_s‖₂ − ‖ΔG‖₂, because xᵀA′x > 0.
+   - **δ is exact and bounds the shift's rounding.** It is a power-of-two multiple of a P-bit number. For round to nearest, |x − fl(x)| ≤ 2^-P·|fl(x)|, including when fl(x) is a power of two, so δ carries a factor of 2 to spare.
+   - **γ_m's backward error is applied to the right input:** Ĝ, the matrix the loop actually factors. Lemma D's step 1 uses only the loop's roundings (K4's recurrence gives γ_(t+1)), and E_s carries the difference from K̃ − σI.
+   - **‖Y‖₂ ≤ ‖Y‖₁ is used only where it holds:** for Y = γ_m·\|L′\|D′\|L′ᵀ\|, which is symmetric and nonnegative since D′ > 0. \|ΔG\| ≤ Y gives ‖ΔG‖₂ ≤ ‖Y‖₂ by Perron–Frobenius monotonicity.
+   - **d′ > 0 suffices:** A′ = L′D′L′ᵀ is exactly positive definite. Weyl, not positivity, carries the backward error.
+   - **The directed rounding is complete:**
+     - σ may be any positive P-bit value, and the same value enters d̃ and σ′;
+     - d̃ is rounded to nearest and covered by δ;
+     - N′_L and γ_m are rounded upward, and γ_m's denominator 2^P − m is exact;
+     - the bracket is rounded upward and the difference downward;
+     - ⌈√n⌉ is exact, and the quotient is rounded upward;
+     - σ′ ≤ 0 gives no S.
+   - **Stressed with V4's own implementation** (`r6/r6_lemmaE.*`):
+     - 1,500 random radix-equilibrated SPD matrices at P = 8 to 24, with σ swept from 0.25 to 3 times λ_min, plus σ′ ≈ 0;
+     - 95,142 shifted factorizations; 31,773 had every pivot positive, and 14,186 gave S;
+     - **0 cases with λ_min(K̃) ≤ σ′** (tested exactly: K̃ − σ′I positive definite by rational LDLᵀ), and **0 with S < exact**. This includes the 6,448 factors where σ ≥ λ_min and the pivots still passed, and 2,691 cases with σ′ < σ/16;
+     - the smallest S/exact was 1.40.
+2. **"No uncertified step remains." Confirmed** (derived).
+   - Re-traced with S and per-block bounds: Lemmas A to E, the Theorem, the Corollary and item 14's encoding bound.
+     - The encoding bound: θ_c ≤ 1/2 with ‖SĀS‖_c ≥ 1/4 gives B_c ≤ 2^(P−6), because K̃_ii ∈ [1, 4) and Ā_ii ≥ K_P,ii·(1 − 2^-(P−8)).
+   - **est enters only three places, all availability:** the condition screen, the trigger (Uc_c > 2⌈√n_c⌉·est_c) and σ_c. Lemma E holds for any σ > 0, so a bad σ only fails the shift. Demonstrated: σ up to 3·λ_min never gave S < exact.
+   - The standing premises are unchanged: K4 conforms, and K\* is nonsingular per body.
+3. **Trying to break S: no break.**
+   - **(a) d′ > 0 with λ_min < σ′:** none, in 14,186 cases.
+   - **(b) σ′ ≈ 0:** none, in 2,691 cases.
+   - **(c) Missed coupling:** impossible (derived).
+     - Blocks come from the structural pattern, a superset of every nonzero of K\*, K^c and K_P: all 144 member positions, the spring diagonals, and the directional 3×3 blocks.
+     - Cross-block entries of L, D and the work vector are exact zeros.
+     - Coupling through a constrained DOF is not coupling in K_𝓕𝓕.
+4. **Availability. Confirmed for R6, and for K4's indexing.**
+   - **V4's own bounds at P = 256** (`r6/r6_bounds.*`) equal DS1's per-block log₂ U, Uc, est and S on all 12 frames at 10 and 100 members.
+     - At 10 members, B ≥ the rational norm on all six. B/norm is 2^3.28 to 2^4.00 where the shift ran, and CONT-AX's B is Uc, equal to the norm.
+     - At 100 members, B/norm = 2^5.46 to 2^5.64 (norm in binary64). CONT-AX's B is Uc, equal to the norm.
+   - **The norm at 1,000 members was computed** (`r6/r6_exact1000.*`: binary64, one solve per column, 9 to 24 s per model):
+     - 2^41.25 (CHAIN-AX), 2^47.40 (CHAIN-ROT), 2^43.39 (TREE-AX), 2^44.21 (TREE-ROT), 2^18.47 (CONT-AX) and 2^20.63 (CONT-ROT);
+     - DS1's B/norm is 2^7.09 to 2^7.29, and B ≥ the norm on all six;
+     - est is at most 2^0.19 below the norm (TREE-ROT), and equals it to binary64 accuracy on the rest.
+     - Rational solves at 6,000 DOFs are infeasible in pure Python, and binary64 is ample against a 2^7 margin.
+   - **emu6's R6 schedule, re-executed** (`r6/r6_sched*`): the six 100-member frames and CHAIN-ROT at 1,000 members are all selected at 128. They are honest against emu6's P = 2048 reference, with 0 G5a failures, as DS1 records.
+5. **The per-block decomposition. Sound** (derived).
+   - **Lemmas A, C, D and E are per block.**
+   - **Every vector the Theorem bounds vanishes on data-less blocks.** r, r₂, δ̂, x̃ and Δ·ũ all do: a block coupled to a nonzero prescription carries data by definition. So Hölder's inequality block by block gives the body's maximum over its data blocks.
+   - **N_u's ∞-norm over a data block's rows** involves only that block's columns and constrained DOFs, because Ā shares K's pattern.
+   - **The charge's per-body maximum** is therefore an upper bound for every row of the body.
+6. **The mutants.**
+   - **The availability-only kills are acceptable under ROOT's ruling:** M20 (THETA-STUB-COUPLED), M23, M25, M26, M28 and M29.
+   - **M24's kill does not hold in K4's indexing** (V4-W1).
+   - **M27's low-precision-only kill is acceptable.** V4's stress also shows the term is load-bearing mathematically. DS1's "no kill at design precisions" is argued, not derived (V4-W2).
+7. **V3 to V7: resolved as ruled.**
+   - V3: scope restated, and "no charge covers the term".
+   - V4: "derived".
+   - V5: θ per data block, with THETA-STUB-COUPLED.
+   - V6: `receipt_encoding`, derived unreachable.
+   - V7: recorded.
+   - **New errors:** V4-W1, V4-W2 and V4-W3.
+
+**Records** (`_v4_records/r6/`, scripts stored as `.py.txt`, each beside its `.json` and `.log`). The dependency hashes are in `dependencies.sha256`.
+
+| File | What it is |
+|---|---|
+| `r6_lemmaE` | Lemma E and M27 at low precision |
+| `r6_bounds` | V4's own Uc, S and B on RF-LARGE at 10 and 100 members |
+| `r6_exact1000` | The norm at 1,000 members (binary64) against DS1's S |
+| `r6_sched` | emu6's R6 schedule re-executed on RF-LARGE-100 and on the 1,000-member CHAIN-ROT |
+| `r6_k4hh` | emu6_k4hh (re-indexed as K4), HH-FOOL and M24 on HH-SLENDER-m40 |
+| `emu6_k4hh.py.txt` | The patched copy of DS1's emu6.py; the two loops are the only change |
+| `r6_rflarge_k4hh` | RF-LARGE est and S under K4's indexing |
+| `r6_controls_k4hh` | R6's selections on the 59 controls under both indexings |
+
+To rerun, from `<wt>/scratch/v4/r6/`, one at a time: `PYTHONDONTWRITEBYTECODE=1 nice -n 19 python3 <script>.py`, with arguments as the logs record. `r6_k4hh.py` regenerates `emu6_k4hh.py` from DS1's `emu6.py`.
+
+**Delegation.** V4 ran as a Claude Code background subagent that ROOT launched through the Agent tool, and continued on ROOT's follow-up messages. ROOT is the only return path. V4 dispatched nothing.
+
+Uncommitted.

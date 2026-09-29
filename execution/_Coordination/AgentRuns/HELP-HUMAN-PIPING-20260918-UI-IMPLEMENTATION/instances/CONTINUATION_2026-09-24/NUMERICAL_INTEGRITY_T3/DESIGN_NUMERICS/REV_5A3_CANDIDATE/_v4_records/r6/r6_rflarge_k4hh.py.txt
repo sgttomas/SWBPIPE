@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""V4, delta check at R6, check 4: R6's availability on RF-LARGE with the condition
+estimate indexed as K4 indexes it. K4's `condition` (factor.rs) forms its vectors,
+argmax and alternating vector over free positions (ascending global DOF) and maps them
+into the RCM order only inside `solve_scaled`. emu6, and r6_bounds, index them by RCM
+rank. Here est, sigma = 1/(2 est) (downward) and S are recomputed with K4's indexing
+on the same P = 256 factor (V4's code: r6_bounds's loop and directed rounding), for R1's
+RF-LARGE references at 10 and 100 members, and compared with the RCM-indexed values and
+the norm (rationals at 10 members, binary64 column solves above).
+Usage: python3 r6_rflarge_k4hh.py [sizes, default 10,100]
+Output: r6_rflarge_k4hh_<sizes>.json."""
+import json, math, os, sys
+from fractions import Fraction as Fr
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+sys.dont_write_bytecode = True
+import r6_bounds
+from r6_bounds import (r1_adapter, Case, assemble, floor_log2, rcm, T3, P, factor, solve, hh_est, passes, lg,
+                       ldl64, exact64, ceil_sqrt, exact_inverse, rn, up, down)
+
+
+def scaled_rcm_with_order(case):
+    K, _, pattern, _, _ = assemble(case.m, P)
+    free = case.free
+    pos = {g: a for a, g in enumerate(free)}
+    sc = [-(floor_log2(abs(K[(g, g)])) // 2) for g in free]
+    adj = [[] for _ in free]
+    for (r, c) in pattern:
+        if r != c and r in pos and c in pos:
+            adj[pos[r]].append(pos[c])
+    order = rcm(adj)
+    n = len(free)
+    rank = [0] * n
+    for k, a in enumerate(order):
+        rank[a] = k
+    first = [min([rank[b] for b in adj[a]] + [i]) for i, a in enumerate(order)]
+    rows = []
+    for i, a in enumerate(order):
+        row = {}
+        for b in adj[a] + [a]:
+            j = rank[b]
+            if j <= i:
+                v = K.get((free[a], free[b]), Fr(0))
+                if v:
+                    row[j] = v * Fr(2) ** (sc[a] + sc[b])
+        rows.append(row)
+    return rows, first, n, order
+
+
+def hh_k4(L, D, n, order):
+    """factor.rs `condition`: vectors over free positions a; solve in RCM rank i = rank[a]."""
+    def sol(X):
+        y = solve(L, D, n, [X[order[i]] for i in range(n)])
+        Y = [Fr(0)] * n
+        for i in range(n):
+            Y[order[i]] = y[i]
+        return Y
+    x = [rn(Fr(1, n), P)] * n
+    est = Fr(0)
+    prev = n
+    for _ in range(5):
+        y = sol(x)
+        cur = rn(sum(abs(v) for v in y), P)
+        if cur <= est and est != 0:
+            break
+        est = cur
+        z = sol([Fr(1) if v >= 0 else Fr(-1) for v in y])
+        j = 0
+        for a in range(1, n):
+            if abs(z[a]) >= abs(z[j]):
+                j = a
+        dot = rn(sum(z[a] * x[a] for a in range(n)), P)
+        if abs(z[j]) <= dot or j == prev:
+            break
+        prev = j
+        x = [Fr(0)] * n
+        x[j] = Fr(1)
+    alt = [(Fr(1) if n == 1 else rn(Fr(n - 1 + a, n - 1), P)) * (1 if a % 2 == 0 else -1) for a in range(n)]
+    y = sol(alt)
+    return max(est, rn(rn(sum(abs(v) for v in y), P) * 2 / (3 * n), P))
+
+
+def shift_S(rows, first, n, est):
+    m_ = 2 * n + 2
+    gam = up(Fr(m_) / (Fr(2) ** P - m_), P)
+    sg = down(1 / (2 * est), P)
+    for tries in (1, 2, 3):
+        f = factor(rows, first, n, shift=sg)
+        if f is None:
+            sg = sg / 2
+            continue
+        L2, D2, dt = f
+        _, NL2 = passes(L2, D2, n)
+        delta = Fr(2) ** (1 - P) * max(abs(x) for x in dt)
+        e = up(up(gam * NL2, P) + delta, P)
+        if sg - e > 0:
+            return up(Fr(ceil_sqrt(n)) / down(sg - e, P), P), tries
+        return None, tries
+    return None, 3
+
+
+if __name__ == "__main__":
+    sizes = [int(x) for x in (sys.argv[1] if len(sys.argv) > 1 else "10,100").split(",")]
+    cases = r1_adapter.load_refs(T3)
+    out = []
+    for cid, c in cases.items():
+        if c["family"] != "RF-LARGE" or "generator" in c["model"] or len(c["model"]["members"]) not in sizes:
+            continue
+        m, index = r1_adapter.adapt(cid, c, c["model"])
+        case = Case(m)
+        rows, first, n, order = scaled_rcm_with_order(case)
+        L, D, _ = factor(rows, first, n)
+        e_rcm = hh_est(L, D, n)
+        e_k4 = hh_k4(L, D, n, order)
+        S_k4, tries = shift_S(rows, first, n, e_k4)
+        if n <= 60:
+            Kt = [[Fr(0)] * n for _ in range(n)]
+            for i, r in enumerate(rows):
+                for j, v in r.items():
+                    Kt[i][j] = v
+                    Kt[j][i] = v
+            inv = exact_inverse(Kt)
+            ex = lg(max(sum(abs(inv[i][j]) for i in range(n)) for j in range(n)))
+        else:
+            rf = [{j: float(v) for j, v in r.items()} for r in rows]
+            Lf, Df = ldl64(rf, first)
+            ex = math.log2(exact64(Lf, Df, first))
+        rec = dict(case=cid, free=n, log2_est_rcm_indexed=lg(e_rcm), log2_est_k4_indexed=lg(e_k4), log2_exact=ex,
+                   log2_S_k4=lg(S_k4), shift_tries_k4=tries)
+        out.append(rec)
+        print(json.dumps(rec), flush=True)
+    json.dump(out, open(os.path.join(HERE, "r6_rflarge_k4hh_%s.json" % "_".join(map(str, sizes))), "w"), indent=1)

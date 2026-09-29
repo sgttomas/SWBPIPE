@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""V4, delta check at R6: R6's selection on DS1's 59 controls (models6, with its test-only
+seeds) under emu6 as DS1 wrote it and under emu6_k4hh (r6_k4hh.py: the condition
+estimate's vectors indexed by free position, as K4's `condition` indexes them). Reports
+every control whose selected precision or attempts differ. No honesty reference
+(availability only).
+Output: r6_controls_k4hh.json."""
+import json, os, sys, time
+HERE = os.path.dirname(os.path.abspath(__file__))
+WT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+DS1 = os.path.join(WT, "scratch", "ds1")
+sys.path.insert(0, HERE)
+sys.path.insert(0, DS1)
+sys.dont_write_bytecode = True
+import emu6, emu6_k4hh, models6
+
+out = {}
+diffs = []
+for m in models6.models():
+    rec = {}
+    for tag, mod in (("emu6", emu6), ("k4_indexed", emu6_k4hh)):
+        mod.SEED.clear()
+        mod.SEED.update(models6.SEEDS)
+        mod.GATE = "hybrid"
+        case = mod.Case(m)
+        r = mod.schedule(case, "r6", {})
+        rec[tag] = dict(selected=r["selected"], attempts=[a[1][:40] for a in r["attempts"]])
+    out[m["name"]] = rec
+    if rec["emu6"] != rec["k4_indexed"]:
+        diffs.append(m["name"])
+    print(m["name"], rec["emu6"]["selected"], rec["k4_indexed"]["selected"],
+          "same" if rec["emu6"] == rec["k4_indexed"] else "DIFFERENT", flush=True)
+print("different:", diffs)
+json.dump(dict(per_control=out, different=diffs), open(os.path.join(HERE, "r6_controls_k4hh.json"), "w"), indent=1)
