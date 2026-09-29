@@ -83,3 +83,27 @@ No other file changes. The vector data is now about 11.2 MB; `models5a3.txt` is 
 - D2's G5 takes b_row;
 - ROOT adopts A1 into the design text;
 - then hosted CI and the merge record.
+
+## Addendum 2: RV19's delta check at `a5fa0eaf7`
+
+RV19's delta check PASSES with 0 BLOCKING and 1 SHOULD-FIX. ROOT's rulings (numerics `83909efd4`) ask for RV19-D4 and DN2 before merge. Both are done on `a5fa0eaf7`'s tree; ROOT records the commit. The detail is in RETURN's addendum 2, and the evidence in `_run_records/rv19d/`.
+
+| Item | Change |
+|---|---|
+| RV19-D4 (SHOULD-FIX) | `method_tests.rs`: `sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star` gives `decide` four vectors, the overflow and underflow pairs each way round. A row whose candidate cannot be published sets no S\*; one whose verification only cannot be published does. RV19's mutant RV19-D4 (the skip keyed on the verification value) is killed by that vector alone, from a clean copy of `a5fa0eaf7` with this change. NONE passes 116 of 116. |
+| DN2 | GEN: `models.txt`'s PRECISION-RULE gains expectations (the combination as its own case). `combine_tests.rs`: a new PRECISION-RULE test (selected at 256; G5a; `compare_honest`), and `check_combo` (B1-C, B1-E) runs `compare_honest` and G5a too. RETURN's unscoped sentence is scoped. |
+
+**Files** (against `a5fa0eaf7`):
+- `K4T/{method_tests,combine_tests}.rs`;
+- `K4T/gen_k4_vectors.py`;
+- `K4T/models.txt` and `K4T/SHA256SUMS`;
+- `T3/IMPLEMENTATION/K4/{RETURN.md,CHANGE_RECORD.md}`, `_run_records/SHA256SUMS` and `_run_records/rv19d/`.
+
+No source file changes.
+
+**Checks:**
+- K4's suite: 127 tests;
+- FK's full suite: 394 passed (addendum 1's 392 plus the two new tests);
+- `gen_k4_vectors.py --check`: 23 of 23 OK (14 min 43 s);
+- rustfmt clean;
+- the memory guard logged no kill.

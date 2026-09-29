@@ -1,0 +1,8 @@
+# Files changed against a5fa0eaf7 at addendum 2 (RV19-D4, DN2), excluding _run_records/; sha256 of the working-tree bytes
+a8854bc262376b2f5edf86c901a851859949155fb049fdf4773aaffac041dda8  projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS
+a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5  projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs
+55c367788dcd882cb1e9ebbf59c90352a8b86430420ee0d1ce8b6c022d73449b  projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py
+300973605f521a037a4fe2ebda332eabd2dacf5ef8da1eeadac134b45385592c  projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs
+5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e  projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt
+dbbd89bf81b8e7746312a4e702511af1c1f3dcd7622f028279561b6c87b44de2  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/CHANGE_RECORD.md
+78b576e8efd6667fd0f6b629308a5fd8066230cb25e1c5a2de3bfdb6f444c226  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/RETURN.md

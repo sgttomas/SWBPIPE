@@ -113,7 +113,40 @@ fn check_combo(name: &str, net: &str) -> (Box<RetainedSolve>, Vec<Box<RetainedSo
         compared >= 30 && worst <= 1.0,
         "{name}: {worst} at {at} ({compared})"
     );
+    honest_combination(&combination, &c);
     (combination, operands.into_iter().map(|o| o.1).collect())
+}
+
+/// A selected combination against the claim each row publishes, with GEN's
+/// 128-bit expectations and nothing skipped (`compare_honest`), and G5a.
+fn honest_combination(combination: &RetainedSolve, c: &models::Combo) {
+    assert!(!c.exact.is_empty(), "{}: no exact expectation", c.name);
+    models::g5a(combination).unwrap_or_else(|e| panic!("{}: G5a {e}", c.name));
+    let (worst, at, compared) = models::compare_honest(
+        combination.publish(),
+        combination.selected_precision(),
+        &c.exact,
+    );
+    assert!(
+        worst <= 1.0 && compared >= combination.publish().rows.len(),
+        "{}: {worst} at {at} ({compared})",
+        c.name
+    );
+}
+
+#[test]
+fn precision_rule_is_selected_at_256_and_honest() {
+    // RV19-DN2 (ROOT's ruling on RV19's delta check): models.txt's one
+    // combination without a net case, SKEW-K1E-28-AXIAL + SKEW-K1E-28 (each
+    // selected at 256), against GEN's expectations for the combination as
+    // its own case.
+    let c = combo("PRECISION-RULE");
+    let operands: Vec<(f64, Box<RetainedSolve>)> =
+        c.operands.iter().map(|(f, n)| (*f, selected(n))).collect();
+    let refs: Vec<(f64, &RetainedSolve)> = operands.iter().map(|(f, s)| (*f, s.as_ref())).collect();
+    let combination = combined(&refs);
+    assert_eq!(combination.selected_precision(), 256);
+    honest_combination(&combination, &c);
 }
 
 #[test]

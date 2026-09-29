@@ -1,9 +1,9 @@
 # I12 return: slice K4 (the W1a kernel method)
 
-**Status (checkpoint D, with addendum 1 after RV19's review): complete; no stop.** Addendum 1 (at the end) records the fixes of RV19's findings, ROOT's amendment A1 and what they change; the statements below are corrected to match.
+**Status (checkpoint D, with addenda 1 and 2 after RV19's review and delta check): complete; no stop.** Addendum 1 (at the end) records the fixes of RV19's findings, ROOT's amendment A1 and what they change; addendum 2 closes the delta check's RV19-D4 and DN2. The statements below are corrected to match.
 - W1a's kernel method is implemented under `FK/src/structural/retained/`, with no product caller (Q1). A combination is its own solve (ROOT's F-1 ruling).
 - **D1 revision 5a.3 (R7) is implemented:** the stop rule's resolution term V, the verification estimate, the formation charge with its certified per-block bound B_c = min(Uc_c, S_c), θ and the g check, the ceiling floor Φ (item 6a), the hybrid residual gate and the evidence fields (§22).
-- **Tests:** 125 K4 tests pass (`K4T/`; 122 at D, three added at addendum 1), with the S11 site table's 3; FK's full suite, the SD and NI suites and CI's 39-manifest profile match the Mac baseline of main (§17). K3a's, K3's, K-D5's and `exact_sum`'s tests are unchanged and pass.
+- **Tests:** 127 K4 tests pass (`K4T/`; 122 at D, three added at addendum 1, two at addendum 2), with the S11 site table's 3; FK's full suite, the SD and NI suites and CI's 39-manifest profile match the Mac baseline of main (§17). K3a's, K3's, K-D5's and `exact_sum`'s tests are unchanged and pass.
 - **Controls:** every control and combination equals the generator's schedule (GEN, the bit oracle) and R7's expectations. Every selected control and combination of the controls test (117; RF-LARGE at 100 members runs in the references lane) and RF-LARGE's six 100-member frames satisfy the claim each row publishes, checked against GEN's 128-bit exact expectations with no row skipped (addendum 1; at D, 13 selected controls without expectations and the unpublishable rows were skipped, RV19-2), and pass a test-only G5a checker.
 - **References:** R1's 128 K4 cases pass R1's predicate (6,475 passes, 0 failures), and the not-covered set equals §4.10's list; the RF-LARGE frames at 10 and 100 members are selected at 128 and honest.
 - **Mutations:** every killable mutant is killed; the four derivation guards move no control (§17). At addendum 1, the reverted RV19-1 fix, the reverted amendment A1, RV19-M2 and RV19-M6 are killed too.
@@ -758,7 +758,7 @@ It replaces "1e-9 relative, or b for an absolute row", which no longer passes: a
 **Basis.** RV19's review of head `7d8fa9c0e` (`REVIEW/K4_REVIEW.md`, `d906539e…`): FAIL, with 1 BLOCKING, 5 SHOULD-FIX and 7 NOTEs. ROOT's binding rulings, "K4: rulings on RV19's review" (numerics `e9f8ebe1d`), which include D1 revision 5a.3 amendment A1. RV19's probes, oracle and probed fix (`REVIEW/_run_records/k4_review/`) were read, and its OVF-ROT, TINY-S and GROUP-DIR models were reused as controls.
 
 **Status: no stop.**
-- Every selected control and combination satisfies the new checks.
+- Every selected control and combination of the controls test (117), and RF-LARGE's six 100-member frames, satisfy the new checks. [Scoped at addendum 2 (RV19-DN2): `models.txt`'s combinations were not in that set. Addendum 2 checks PRECISION-RULE, B1-C and B1-E directly; CEILING is never selected.]
 - No control's outcome moved. GEN's `outcomes.txt` gains only the six new controls; every earlier line is byte-identical.
 - Every edit is inside K4's write set: `FK/src/structural/retained/{adaptive,combine,wide_sum}.rs`, `K4T/`, and `T3/IMPLEMENTATION/K4/`.
 - I made no Git writes.
@@ -880,7 +880,7 @@ None of them is ever selected.
   - `Overflow`: a truth of its sign that may reach 2^1024 − 2^970;
 - an expectation that is neither a published row nor a derived key fails.
 
-The controls test asserts that every selected control and combination has expectations and that the number checked equals its rows plus its derived keys. The recovery test asserts that every selected model has expectations.
+The controls test asserts that every selected control and combination it runs (every model and 5a.3 combination of the default lane) has expectations, and that the number checked equals its rows plus its derived keys. The recovery test asserts that every selected model has expectations.
 
 **Results:**
 - **The controls test:** 117 selected controls and combinations (RF-LARGE at 100 members excepted), 9,412 checks. The worst is 0.949 of an allowance, at B1-C-A u.0.3, the row and figure RV19's independent oracle reported.
@@ -968,3 +968,51 @@ Host rules as before: rustc 1.97.1, `--offline --locked`, `-j 4`, `RUST_TEST_THR
   - the S11 site table;
 - `mutations/`: the harness, the evidence script, `results.jsonl`, `evidence.jsonl`, each run's logs, and each evidence run's controls log;
 - `changed_files.txt`: every file changed against `7d8fa9c0e`, with its sha256.
+
+## Addendum 2: RV19's delta check at `a5fa0eaf7`
+
+**Basis.** RV19's delta check of `a5fa0eaf7` (`REVIEW/K4_REVIEW.md`, "Delta check at a5fa0eaf7") PASSES with 0 BLOCKING, 1 SHOULD-FIX and 4 NOTEs. ROOT's rulings on it (numerics `83909efd4`) ask for two items before merge: RV19-D4 and DN2.
+
+**Status: no stop.**
+- No control moves, and no expectation other than PRECISION-RULE's changes.
+- Every edit is inside K4's write set. I made no Git writes.
+
+### A2.1 RV19-D4: the RV19-1 skip is keyed on the candidate
+
+- **The gap.** No test pinned which value the skip reads. RV19's mutant keys it on the verification value instead, and it survived 114 tests. The two keys differ only when a row's p and 2p values straddle binary64's overflow or underflow threshold.
+- **The new vector.** `sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star` (`method_tests.rs`, beside SD-G5's) runs `decide` at P = 256 on two displacement rows. Row 0 straddles the threshold. Row 1's allowance, 2^-64·max(|q_2p|, S\*), shows whether row 0 set S\*.
+
+  | Case | Row 0: candidate / verification | Row 1 | Verdict |
+  |---|---|---|---|
+  | Overflow | 2^1024 − 2^970 (the threshold: a tie that rounds to 2^1024, `Overflow`) / 2^1024 − 2^970 − 2^950 (rounds to f64::MAX) | Uy; verification 1, \|Δ\| = 2^-40 | Row 0 sets no S\*, so S\* = 1 and row 1 is rejected (`StopRule { index: 1 }`) |
+  | Overflow, swapped | the two values exchanged | the same | Row 0 sets S\* ≈ 2^1024, and the case is accepted |
+  | Underflow | 2^-1075 (a tie that rounds to zero, `Underflow`) / 2^-1075 + 2^-1200 (rounds to 2^-1074) | Rx through S\*(rot) = max(rot, tr/L_b), with L_b = 2^-60; verification 2^-1020, \|Δ\| = 2^-1080 | Row 0 sets no S\*(tr), so S\*(rot) = 2^-1020 and row 1 is rejected |
+  | Underflow, swapped | the two values exchanged | the same | Row 0 sets S\*(tr) = 2^-1075, so S\*(rot) = 2^-1015 and the case is accepted |
+
+  Keyed on the verification value, each of the four verdicts would turn over, since each pair straddles the threshold the other way. The mutant run stops at the first. The test also asserts each value's binary64 outcome.
+- **The mutant.** RV19-D4 (RV19's edit, verbatim) ran from a clean copy: `git archive a5fa0eaf7` of FK, with the files this addendum changes copied over it, a fresh target and the counted edit. The result is **killed**: only the new vector fails, at its first case (the overflowing candidate is accepted), while the other 115 tests pass. The NONE control passes 116 of 116 (the 114 of addendum 1 and the two new tests).
+
+### A2.2 DN2: PRECISION-RULE and the wording
+
+- **GEN.** `models.txt`'s PRECISION-RULE (SKEW-K1E-28-AXIAL + SKEW-K1E-28), its one combination without a net case, now carries expectations: the combination solved as its own case (`combined_model`), exactly, with 128-bit tokens. No other line of `models.txt` changes.
+- **The tests** (`combine_tests.rs`):
+  - `precision_rule_is_selected_at_256_and_honest` combines the two operands. It asserts selection at 256, G5a, and `compare_honest` with every row checked.
+  - `check_combo`, behind B1-C and B1-E, now also runs `compare_honest` and G5a. So every `models.txt` combination K4 selects is checked directly. CEILING's operands are withheld under 5a.3, so it is never selected.
+- **The NOTEs DN1, DN3 and DN4** are recorded, as ruled; they affect no check.
+- **The wording.** RETURN's addendum-1 status line ("every selected control and combination …", RV19's line 761) is scoped to what is tested, with the scope of addendum 1's check stated alongside it.
+
+### A2.3 Re-runs and records
+
+Host rules as before: `-j 4`, `RUST_TEST_THREADS=2`, at most two cargo jobs, and the memory guard (no kill).
+
+- **FK's full suite** on the final tree, with `--nocapture`: 394 passed, 0 failed: addendum 1's 392 plus the two new tests, with the lib's 328 in 691.4 s at 2 threads. The controls test's claims line is unchanged: 117 controls, 9,412 checks, worst 0.949. It includes K4's suite, now 127 tests (the D4 vector and the PRECISION-RULE test added), with the controls token-equal to GEN.
+- **`gen_k4_vectors.py --check`:** 23 of 23 OK (the 22 vector files, including the regenerated `models.txt`, and SHA256SUMS), 14 min 43 s, with FK's suite running beside it for 11 min 37 s of that. The pinned inputs' sha256 hold.
+- **rustfmt:** clean on K4's files.
+
+**Records.** `_run_records/rv19d/` holds:
+- the mutant harness and results, with each run's logs;
+- the GEN check;
+- FK's full suite;
+- the changed files with their sha256.
+
+`_run_records/SHA256SUMS` is regenerated over the whole folder.

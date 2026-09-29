@@ -1567,6 +1567,113 @@ fn sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order() {
     );
 }
 
+/// Two displacement rows of body 0 at node 1 (`components`), with a report
+/// at P = 256 that carries no V, estimate, charge or bound for them.
+fn two_displacement_rows(components: [Component; 2]) -> (Vec<QuantityMeta>, VerificationReport<4>) {
+    let layout = components
+        .iter()
+        .map(|&component| QuantityMeta {
+            id: QuantityId::Displacement(Dof { node: 1, component }),
+            kind: if component.index() < 3 {
+                Kind::Translation
+            } else {
+                Kind::Rotation
+            },
+            body: 0,
+            input_derived: false,
+        })
+        .collect();
+    let mut r = report::<4>(256, 1.0, None, None, None, Wide::<4>::ZERO);
+    r.e_rows = vec![None, None];
+    r.w = vec![None, None];
+    r.a_s = vec![None, None];
+    r.charge = vec![None, None];
+    r.w_plus = vec![None, None];
+    (layout, r)
+}
+
+#[test]
+fn sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star() {
+    // RV19-D4 (ROOT's ruling on RV19's delta check): O9 on the stop rule is
+    // keyed on the candidate's binary64 value, as the classification's is on
+    // the published one. Row 0 straddles binary64's range, its candidate on
+    // one side and its verification on the other; row 1's allowance
+    // 2^-64·max(|q_2p|, S*) shows whether row 0 set S*. Keyed on the
+    // verification instead, every verdict below turns over.
+    let mut ctx = WideContext::<4>::new(256).unwrap();
+    let w = |e: i64| Wide::<4>::ONE.mul_pow2(e).unwrap();
+    // Overflow: T = 2^1024 − 2^970, binary64's threshold (a tie that rounds
+    // to 2^1024); T − 2^950 rounds to f64::MAX.
+    let t = ctx.sub(&w(1024), &w(970)).unwrap();
+    let below_t = ctx.sub(&t, &w(950)).unwrap();
+    assert!(t.to_binary64().value().is_none());
+    assert!(below_t.to_binary64().value().is_some());
+    let (layout, r) = two_displacement_rows([Component::Ux, Component::Uy]);
+    let one = Wide::<4>::ONE;
+    let off = ctx.add(&one, &w(-40)).unwrap();
+    // The candidate overflows, its verification does not: row 0 sets no S*,
+    // so row 1's |Δ| = 2^-40 meets S* = 1 and is rejected.
+    assert_eq!(
+        verdict2(&layout, &[t, off], &[below_t, one], &r),
+        Some(Rejection::StopRule { index: 1 })
+    );
+    // The verification overflows, the candidate does not: row 0 sets S*
+    // (about 2^1024), and row 1 passes against it.
+    assert_eq!(verdict2(&layout, &[below_t, off], &[t, one], &r), None);
+    // Underflow, through the coupling S*(rot) = max(rot, tr/L_b) with
+    // L_b = 2^-60: 2^-1075 (a tie that rounds to zero) against
+    // 2^-1075 + 2^-1200 (which rounds to 2^-1074).
+    let tiny = w(-1075);
+    let above_tiny = ctx.add(&tiny, &w(-1200)).unwrap();
+    assert!(tiny.to_binary64().value().is_none());
+    assert!(above_tiny.to_binary64().value().is_some());
+    let (layout, mut r) = two_displacement_rows([Component::Ux, Component::Rx]);
+    r.resolution = vec![[1.0, 1.0]];
+    let extent = [support::pow2(-60)];
+    let rot = w(-1020);
+    let rot_off = ctx.add(&rot, &w(-1080)).unwrap();
+    // The candidate underflows: row 0 sets no S*(tr), so S*(rot) = 2^-1020
+    // and row 1's |Δ| = 2^-1080 exceeds 2^-64·2^-1020.
+    assert_eq!(
+        verdict2_at(&layout, &extent, &[tiny, rot_off], &[above_tiny, rot], &r),
+        Some(Rejection::StopRule { index: 1 })
+    );
+    // The verification underflows, the candidate does not: row 0 sets
+    // S*(tr) = 2^-1075, S*(rot) = 2^-1075/2^-60 = 2^-1015, and row 1 passes.
+    assert_eq!(
+        verdict2_at(&layout, &extent, &[above_tiny, rot_off], &[tiny, rot], &r),
+        None
+    );
+}
+
+fn verdict2(
+    layout: &[QuantityMeta],
+    candidate: &[Wide<4>],
+    verification: &[Wide<4>],
+    r: &VerificationReport<4>,
+) -> Option<Rejection> {
+    verdict2_at(layout, &[0.0], candidate, verification, r)
+}
+
+fn verdict2_at(
+    layout: &[QuantityMeta],
+    extents: &[f64],
+    candidate: &[Wide<4>],
+    verification: &[Wide<4>],
+    r: &VerificationReport<4>,
+) -> Option<Rejection> {
+    let d = decide(
+        layout,
+        extents,
+        candidate,
+        verification,
+        r,
+        StageGuard::unlimited(),
+    );
+    assert!(d.result.is_ok(), "{:?}", d.result);
+    d.rejection
+}
+
 #[test]
 fn sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row() {
     // (d) for the candidate p = 256 (P = 512: 60·ê·2^-P) and p = 512

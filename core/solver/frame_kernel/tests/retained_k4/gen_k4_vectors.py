@@ -78,10 +78,12 @@ After ROOT's rulings on RV19's review:
   HH-SLENDER-m40, R115-SEED3, RF-LARGE's ROT frames at 10 and 100 members,
   OVF-ROT), the bound `err:<e>` (|x − q*| ≤ 2^e) of a decimal solve at 300
   digits checked against one at 240 (`solve_hp`). Every model and combination K4 selects now
-  carries expectations; none do the mechanisms N02, N03-RZ and N04, the
-  combination PRECISION-RULE (no net case) and the three TILT-LEVER controls
+  carries expectations; none do the mechanisms N02, N03-RZ and N04 and the
+  three TILT-LEVER controls
   (withheld; a pivot of the decimal solve falls below its singular test). The
   binary64 fields of the existing lines are unchanged.
+- after RV19's delta check (RV19-DN2): `models.txt`'s PRECISION-RULE carries
+  the expectations of the combination as its own case (`combined_model`).
 
 Usage:  python3 gen_k4_vectors.py [--check]
 
@@ -4781,6 +4783,9 @@ def build(parts=None):
             lines.append("combo %s %s" % (name, " ".join("%s:%s" % (hexf(c), mname) for c, mname in operands)))
             if net is not None:
                 lines += expectation_lines(by_name[net])
+            else:
+                # PRECISION-RULE (RV19-DN2): the combination as its own case.
+                lines += expectation_lines(combined_model(name, operands, by_name))
             lines.append("end")
         # NP-A's represented (stored binary64) answers, which W1 must not give.
         fixtures = json.loads(NI_FIXTURES.read_text())
