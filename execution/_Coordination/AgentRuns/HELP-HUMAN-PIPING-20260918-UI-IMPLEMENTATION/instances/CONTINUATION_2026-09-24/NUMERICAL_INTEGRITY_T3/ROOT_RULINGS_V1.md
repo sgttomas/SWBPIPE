@@ -2437,3 +2437,16 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
   - RV20-M4 and RV20-M5 are killed from clean archives.
   - N3's figures check.
   - SHA256SUMS verifies 42 of 42.
+
+## KF1 merged (ROOT, 2026-09-29)
+
+- **Merged:** [PR1056](https://github.com/sgttomas/chirality/pull/1056) at head `66adfede4`, merge `0f5d8c7b4`, 2026-09-29 21:34:25Z. The merge record is `IMPLEMENTATION/KF1_MERGE/RECORD.md`.
+- **The gates:**
+  - RV20 PASSED the review and confirmed the final head;
+  - hosted CI was green, and the dispatch (36628173972) succeeded;
+  - DEC-025 was clean on the final head: only frame_kernel changes, 394 → 402;
+  - GEN-8 passed.
+- **Next:**
+  - **K6b (I16):** merge main, recompute E_max from KF1's code, then re-run W1-T3 and run W1-T4 in slot K6B-S3. I17 holds cargo during the slot.
+  - **V-K (I17):** merge main, re-run the A2 kill matrix, then B in its own slot after K6b's.
+  - **Then** ROOT's W1 limits from K6, K6b, V-K and K4's work counts, and F2a.
