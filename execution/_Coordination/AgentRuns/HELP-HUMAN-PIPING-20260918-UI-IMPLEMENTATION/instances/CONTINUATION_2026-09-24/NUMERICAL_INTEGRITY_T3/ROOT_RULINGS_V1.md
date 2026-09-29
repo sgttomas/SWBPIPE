@@ -1554,3 +1554,27 @@ These rulings were given in ROOT's message to I14 after RV14's review. They are 
   - N3 and N4 take no action;
   - N5 (main moved) is resolved by ROOT's merge of main.
 - **Erratum (RV16-N11).** The K5 merge commit `28517eaaa`'s message says "Merge main `df6d59e3c`", but its second parent is `65e2d6c2a`. RV14's delta check states the parents correctly. K5's merge record will disclose this.
+
+## K6: rulings on I15's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 lines) is **approved**, with the rulings below. RV16-N4's ruling is implemented: every n² mode at 10,000 members or more, and CONT n10000 `lane-id`, is refused by name, independently in the runner and in the binary.
+
+- **N10 (the known dense timeouts at 1,000 members):** record, finish the running tier, then stop and report.
+  - I15's hypothesis, which is not yet a finding: the dense pivot screen refuses a pivot the skyline passes, and the refusal then runs the O(n⁴) dense witness.
+  - If K6's stage timings or outcome classes confirm it, the result is a **solver finding on main's dense path**, not K6's to fix. ROOT routes it. It bears on the F1b gate's part-2 timeouts at the same sizes.
+- **N11 (the slot):** B splits into separately granted slots:
+  - **B1:** everything except T3b and the ceiling run;
+  - **B2:** T3b, dense and lane-lu at 1,000 members;
+  - **B3:** the Q4 ceiling run, last and alone.
+
+  Use `--repeats 1` for the two timeout cases and for lane-lu; their memory figure is deterministic. The two-hour stop applies per slot.
+- **N7:** approved. After the host is released, `--counts-only` may run at 1,000 and 10,000 members at A1–A2, one process at a time, under a 512 MiB cap. It does O(nnz) work with no n² allocation, so it is not a "run above 100 members" under Q13.
+- **N9:** approved. Admission uses 96·n² + E_base. The claim ratio stays against F1b's bare 96·n².
+- **N8:** approved. There are two peak models, with the cap enforced on the in-place one, and ρ = max(RSS, move).
+- **N4:** confirmed. RF-LARGE's `y_reference` follows P1's rule.
+- **N5 and N19:** approved. The copies of SA's and PP's private items are pinned by test E and a mutant each.
+- **N6:** approved. After K5 merges, K6 merges main and re-runs E. If E fails on frame-only models, that is a stop.
+- **N15, the DEC-025 sandbox:** at A2, run the pytest wrapper once through the DEC-025 sweep entry, invoked as ROOT invokes it. If `ps` or `killpg` is denied, the test fails and is reported; nothing is skipped.
+- **N18:** approved. `memorystatus_level ≥ 80` before each run, and the memguard log is checked after each tier.
+- **N1–N3, N12–N14, N16, N17, N20:** approved as proposed. N14's 128×128 grid stays conditional, as the plan states.
+- **Next:** A1 (the Rust side) starts when ROOT releases the host, after F1b's gate part 2.
