@@ -10,8 +10,14 @@ feature off and outside `cfg(test)`, FK's code is the base code, token for
 token apart from comments (plus the new file `retained/seeded.rs`, itself
 gated by its `mod` line, and the `[features]` table of FK's Cargo.toml).
 
-Usage: python3 check_fault_sites.py <base revision>   (from the repository)
+With `--allow-commit <rev>`, the lines that commit's own patch removed and
+added (for example K6b's A0 export, on the V-K branch but not yet on main) are
+also allowed, each at most as many times as the patch has it: the base can
+then be main after a merge, and every other difference is still reported.
+
+Usage: python3 check_fault_sites.py <base revision> [--allow-commit <rev>]   (from the repository)
 """
+import collections
 import difflib
 import subprocess
 import sys
@@ -56,8 +62,23 @@ def strip_gated(text):
         i = k
 
 
+def patch_lines(root, rev, path):
+    """(removed, added) line multisets of `rev`'s own patch to `path`."""
+    diff = subprocess.check_output(['git', 'diff', '-U0', rev + '^', rev, '--', path], cwd=root, text=True)
+    removed, added = collections.Counter(), collections.Counter()
+    for line in diff.splitlines():
+        if line.startswith('---') or line.startswith('+++'):
+            continue
+        if line.startswith('-'):
+            removed[line[1:]] += 1
+        elif line.startswith('+'):
+            added[line[1:]] += 1
+    return removed, added
+
+
 def main():
     base = sys.argv[1]
+    allow = sys.argv[sys.argv.index('--allow-commit') + 1] if '--allow-commit' in sys.argv else None
     root = Path(subprocess.check_output(['git', 'rev-parse', '--show-toplevel'], text=True).strip())
     changed = subprocess.check_output(['git', 'diff', '--name-only', base, '--', FK + '/src'],
                                       cwd=root, text=True).split()
@@ -71,9 +92,22 @@ def main():
         extra = [line for line in difflib.ndiff(old.splitlines(), stripped.splitlines())
                  if line[:2] in ('+ ', '- ')]
         bad = [line for line in extra if not (line.startswith('+ ') and line[2:].strip().startswith('//'))]
+        comments = len(extra) - len(bad)
+        allowed = 0
+        if allow:
+            removed, added = patch_lines(root, allow, path)
+            rest = []
+            for line in bad:
+                pool = removed if line.startswith('- ') else added
+                if pool[line[2:]] > 0:
+                    pool[line[2:]] -= 1
+                    allowed += 1
+                else:
+                    rest.append(line)
+            bad = rest
         gated = new.count(ATTR)
-        print('%s: %d gated item(s); %d added comment line(s); %d other difference(s)'
-              % (path, gated, len(extra) - len(bad), len(bad)))
+        print('%s: %d gated item(s); %d added comment line(s); %d line(s) of %s; %d other difference(s)'
+              % (path, gated, comments, allowed, allow or '-', len(bad)))
         for line in bad:
             print('   ', line)
         problems += len(bad)

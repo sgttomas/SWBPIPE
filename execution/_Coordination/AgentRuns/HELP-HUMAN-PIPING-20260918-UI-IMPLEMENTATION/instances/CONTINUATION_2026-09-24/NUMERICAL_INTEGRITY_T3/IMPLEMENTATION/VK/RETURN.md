@@ -1,14 +1,14 @@
 # I17 return: slice V-K (the VP-ROBUST kernel lane, `numerical_robustness`)
 
-> **Draft at D, written before B.** Sections marked **[PENDING-KF1]** and
-> **[PENDING-B]** are placeholders. After KF1 (PR #1056) merges, V-K merges
-> main, re-runs the A2 kill matrix, and runs B in a slot ROOT grants. Those
-> sections are then filled and this banner is removed. Everything else stands
-> unless a later step changes it, and any such change will be noted where it
-> is made.
+> **Draft at D, before B.** KF1 (PR #1056) has merged, and V-K is on the new
+> main: ROOT's merge `485320e95`. The post-KF1 re-run is done (§12.4).
+> Sections marked **[PENDING-B]** are placeholders. B runs in a slot ROOT
+> grants after K6b's timed slot. Those sections are then filled and this
+> banner is removed. Everything else stands unless a later step changes it,
+> and any such change will be noted where it is made.
 
 - **Brief:** `T3/TASK_BRIEFS/I17_VK_IMPLEMENTATION.md`. As dispatched it had sha256 `06b16b82…`, committed at `306e225fe`, read at the numerics head.
-- **Branch:** `codex/piping-vk-20260929`, from main `ab02ee3a6` (K4 merged). This draft checks head `e24e911e6` (C), plus the uncommitted D records.
+- **Branch:** `codex/piping-vk-20260929`, from main `ab02ee3a6` (K4 merged). The checked head is `485320e95`: ROOT's merge of main `0f5d8c7b4` (KF1) into the D draft `24449b5c8`. The runner and README edits of §12.4 are not yet committed.
 - **Platform:** `aarch64-apple-darwin` (macOS 26.6.2, arm64), with rustc and cargo 1.97.1 (`_run_records/a1/toolchain.txt`).
   - **Every observation is Mac-only.**
 - **Observations only.** No test or record asserts a threshold, a time or a memory bound. V-K records outcomes and work. ROOT sets the limits.
@@ -34,7 +34,9 @@
     - `3018343c2`: K6b's A0 export, cherry-picked by ROOT, with the same patch-id as `bb89e4f8f`;
     - `37bff1780`: A1;
     - `c1fea8574`: A2;
-    - `e24e911e6`: C.
+    - `e24e911e6`: C;
+  - `24449b5c8`: D, the draft;
+  - `485320e95`: main `0f5d8c7b4` (KF1) merged in, with no conflict.
 - **Basis:**
   - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`):
     - §4.10, "W5 — the VP-ROBUST harness" (`:850`), with its kernel lane (`:857`);
@@ -276,11 +278,14 @@
 - **Every site is gated** by `#[cfg(any(test, feature = "mutation-controls"))]`.
   - The selector is `K4R/seeded.rs`. It reads `FK_SEEDED_FAULT` once. Unset, empty or `NONE` means no fault, and an unknown id panics.
   - `VR/runner/check_fault_sites.py 37bff1780` strips the gated items and finds only added comment lines. So with the feature off and outside `cfg(test)`, FK is its base code.
+  - After the merge, `check_fault_sites.py 0f5d8c7b4 --allow-commit 3018343c2` checks against main while allowing only A0's own patch lines, which are on this branch but not yet on main. It reports OK (§12.4).
   - No site is on KF1's `ExtremeTracker` lines, as ROOT required.
-- **FK's suite with the variable unset passes 394,** the baseline count.
+- **FK's suite with the variable unset passes 394,** the baseline count, and 402 after KF1's merge (§12.4).
   - K4's source scan and the S11 site table pass. `seeded.rs`, which neither scans, was checked by hand against both pattern sets.
 
-### 12.2 The matrix (VR's 40 tests at A2; NONE first)
+### 12.2 The matrix (NONE first)
+
+At A2 it ran VR's 40 tests. The post-KF1 re-run ran 43 and matched A2 row for row (§12.4). The committed `observations/seeded/kill_matrix.jsonl` is now the post-KF1 run, and A2's is in `_run_records/a2/`.
 
 | Fault | Maps to | The fault | Verdict | Killed by |
 |---|---|---|---|---|
@@ -318,16 +323,33 @@
 
 - The other §7.3 items are outside the kernel lane: 9, 11, 12, 14, 15, 18–20 and 23–32. Items 21 and 22 are harness mutants (VK-H5, VK-H3). R7's other mutants need constructed controls outside R1, and K4's controls kill them.
 
-### 12.4 After KF1: the kill matrix re-run **[PENDING-KF1]**
+### 12.4 After KF1: the merge and the kill-matrix re-run (`_run_records/kf1_merge/`)
 
-- **To do after KF1 (PR #1056) merges:**
-  - merge main into the V-K branch; the fault sites are clear of KF1's tracker lines;
-  - re-run `check_fault_sites.py` against the merge base, K4's source scan and the S11 site table (with KF1's added row);
-  - run FK's full suite with the variable unset (KF1 records 401);
-  - run VR's suite, where the committed per-case records must still match: KF1 at T = 512 adds no work on any control or 100-member frame, per ROOT's KF1 addendum ruling;
-  - run the kill matrix again, 15 faults with NONE first, then the release check of VK-R28.
-- **Results:** *(to be filled)*.
-- **Changed records:** *(to be filled, with sha256)*.
+- **The merge.** ROOT merged main `0f5d8c7b4` (KF1, PR #1056) into the V-K branch as `485320e95`, with no conflict.
+  - `adaptive.rs` merged automatically, with V-K's three fault sites and KF1's bounded trackers both present. In base coordinates KF1's hunks are at lines 542–595, 999–1852 and 3152–3156; V-K's sites are at 409, 2793 and 2830.
+  - The merge changed no VR path. So the harness matrix (§13) is not re-run.
+- **`check_fault_sites` against the new base** (`0f5d8c7b4`, `--allow-commit 3018343c2`): **OK.**
+  - Every changed FK source, with the gated items removed, equals main apart from added comment lines and A0's own patch lines, with 0 other differences.
+  - A0 accounts for 525 lines, for example 281 in `adaptive.rs`, 159 in `source.rs` and 25 in `structural.rs`.
+  - The option is new in this step. It allows each line of that commit's patch at most as often as the patch has it.
+- **The scans:**
+  - the S11 site table passes 3 of 3, with KF1's added row;
+  - K4's source scan passes;
+  - FK and VR compile without warnings with the feature off, with it on, and for tests and examples;
+  - the merged `adaptive.rs` and `seeded.rs` are rustfmt-clean.
+- **FK's full suite with the variable unset passes 402, with 0 failed.** The lib goes from 328 to 336 (KF1's tests), and every integration binary's count is unchanged.
+- **VR's suite passes 43 of 43.** The lane tests compare the committed per-case records byte for byte, work counts included. So **KF1 moves no CI case's evidence or work**, as ROOT's KF1 ruling expected at T = 512.
+- **The kill matrix (668 s):** NONE passes 43 of 43, all 15 faults are killed, and the unknown id panics. Each row's verdict, failing tests and kill kinds equal A2's. Only `tests_run` changes, from 40 to 43, because the three `tests/engine.rs` tests use constructed inputs and no fault reaches them.
+- **VK-R28's release check** (rebuilt in release on the merged tree) is identical to A2's:
+  - NONE selects all 12 RF-LARGE frames at 128;
+  - under VK-R28, CHAIN-n00100-AX goes to 512 and TREE-n00100-AX to 256, the two ROT frames to 512 and CONT-ROT to 256, and all 9,054 rows pass.
+- **Changed in this step:**
+  - `VR/runner/check_fault_sites.py` (the `--allow-commit` option);
+  - `VR/README.md` (one bullet on it);
+  - `VR/observations/seeded/kill_matrix.jsonl` and `SHA256SUMS` (the post-KF1 run);
+  - `_run_records/kf1_merge/`;
+  - RETURN, CHANGE_RECORD and `SHA256SUMS`.
+  - The sha256 values are in the checkpoint report.
 
 ## 13. The harness mutants (C; `VR/observations/harness/harness_matrix.jsonl`)
 
@@ -393,7 +415,8 @@
 - **FK:**
   - the full suite passes 394 with the variable unset (A2; lib 328 in 692 s debug; `_run_records/a2/a2_fk_suite.log`);
   - FK compiles without warnings with the feature off, with it on, and for tests;
-  - after KF1: **[PENDING-KF1]**.
+  - after KF1's merge the full suite passes 402, with lib 336 in 682 s debug (`_run_records/kf1_merge/fk_suite.log`).
+- **VR's suite after the merge** passes 43 of 43, with the test binaries summing to about 35 s (`_run_records/kf1_merge/vr_suite.log`).
 - **Not run by V-K** (the brief's gates, run by ROOT on the PR): DEC-025's sweep with VR's manifest, hosted CI, and the independent review. T9 and the both-entry gate are not run, because no product path changes (§12.1).
 - **Toolchain:** rustc and cargo 1.97.1 (`8bab26f4f`, 2026-07-14), LLVM 22.1.6, `aarch64-apple-darwin`.
   - `RUSTUP_TOOLCHAIN=1.97.1`, `RUSTUP_AUTO_INSTALL=0`, `CARGO_INCREMENTAL=0`, `--offline --locked`, one cargo job at `-j 4`, `RUST_TEST_THREADS=2`.
@@ -426,7 +449,7 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
   - At 256 the largest are residual formation and wide formation, then the shift and condition estimation. The per-(p, stage) maxima and the cases at them are in `work_summary.txt`.
 - **The CI maximum is 111.0 M LME per case,** on RF-LARGE-CHAIN-n00100-ROT. RF-LARGE at 1,000 and 10,000 members: **[PENDING-B]**.
 - **Refused cases charge 0.** The eight RF-MECH mechanisms are refused by geometry before any factor.
-- **After KF1:** the records are re-checked by VR's lane tests (§12.4). ROOT's KF1 ruling says T = 512 adds no work on any control or 100-member frame. Any moved figure will be listed here.
+- **After KF1:** no figure moves. On the merged tree VR's lane tests match every committed record byte for byte, work included (§12.4).
 
 ### 16.2 The per-case record (`vk-case-record-v1`; `VR/src/records.rs`)
 
@@ -488,7 +511,7 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
 
 ## 17. What was not done
 
-- **B**, the scale runs at 1,000 and 10,000 members, and **the post-KF1 kill-matrix re-run.** Both wait for KF1's merge. **[PENDING-B] [PENDING-KF1]**
+- **B**, the scale runs at 1,000 and 10,000 members. They run in ROOT's slot after K6b's timed slot. **[PENDING-B]**
 - **The product lane** (V-P, after F2a), and every product-level run.
 - **Linux or Windows runs.** Every observation is Mac-only.
 - **Any limit or threshold.** ROOT sets W1's limits from K6, K6b and V-K's records.
@@ -506,6 +529,9 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
 6. **A2's ordering:** stable rustfmt changed whitespace only at VK-F13's site in `ledger.rs` after the kill matrix, FK's suite and the R28 release check had run. The scans, `check_fault_sites`, the compile checks and VR's suite ran after it.
 7. **A1's first debug parity run** hung on the RF-MECH-DISC dense witness, which takes about 300 s in release. It was stopped, and ROOT ruled CI parity at up to 100 members (C4).
 8. **VK-H10b's committed log is trimmed** to the first 20 FAILURE lines per family. The full log's sha256, `e5ede5a8…3627` over 2.85 MB, is in its header.
+9. **One Git write:** a `git fetch` in `<wt>/vk`, made on ROOT's first post-KF1 instruction before ROOT's correction arrived.
+   - It updated one remote-tracking ref, `origin/claude/chirality-app-v4-60-percent-a41fd5`, and nothing else.
+   - No merge was run, and no index, branch or working-tree state was touched by Git. ROOT made the merge.
 
 ## 19. Records (`T3/IMPLEMENTATION/VK/`)
 
@@ -533,5 +559,11 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
   - `run2/`: the matrix, the run log, VR's suite in the worktree, and 8 logs and diffs;
   - the toolchain.
 - **`_run_records/d/`:** `work_summary.py` and its outputs (§16.1).
+- **`_run_records/kf1_merge/`:**
+  - `check_fault_sites`, the scans and the compile checks;
+  - FK's and VR's suites;
+  - the kill matrix, its run log, its rebuild log and the 17 per-fault logs;
+  - the VK-R28 release check (the build, NONE, and VK-R28);
+  - the toolchain.
 - **`_run_records/b/`: [PENDING-B]**
 - **`SHA256SUMS`** covers every file under `IMPLEMENTATION/VK/` except itself. It is regenerated whenever a file changes, and last at D's close.

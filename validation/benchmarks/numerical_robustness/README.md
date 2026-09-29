@@ -89,6 +89,9 @@ FK carries V-K's seeded faults behind its `mutation-controls` feature.
 - **The products:** `runner/check_fault_sites.py <base revision>` checks that
   removing the gated items from FK leaves only added comments. With the
   feature off, every product build is FK's base code.
+  - `--allow-commit <rev>` also allows that commit's own patch lines, each at
+    most as often as the patch has it. This lets the base be main while K6b's
+    A0 export is on this branch but not yet on main.
 
 ## The harness mutants (checkpoint C; never CI)
 

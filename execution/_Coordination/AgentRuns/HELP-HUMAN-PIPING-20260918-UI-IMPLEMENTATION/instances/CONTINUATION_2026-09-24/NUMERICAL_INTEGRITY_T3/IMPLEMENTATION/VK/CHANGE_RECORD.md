@@ -2,9 +2,9 @@
 
 This is the draft PR record for slice V-K of T3 (numerical integrity). It follows `.agents/skills/chirality-change/SKILL.md`. I17 (TASK) implemented the slice, and ROOT made every commit. The details are in `RETURN.md`.
 
-> **Draft at D, written before B.** The parts marked **[PENDING-KF1]** and
-> **[PENDING-B]** are filled after KF1 (PR #1056) merges. At that point V-K
-> merges main, re-runs the kill matrix, and runs B.
+> **Draft at D, before B.** KF1 (PR #1056) has merged, and V-K is on the new
+> main (`485320e95`), with the kill matrix re-run. The parts marked
+> **[PENDING-B]** are filled after B.
 
 - **Branch:** `codex/piping-vk-20260929`, from main `ab02ee3a6` (K4 merged).
 - **Commits (made by ROOT):**
@@ -13,7 +13,9 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
   - `37bff1780`: A1, the crate, the generator and cases, the exact engine, the kernel lane at CI scale, the floor check, parity, invariance and the records;
   - `c1fea8574`: A2, the seeded faults behind FK's `mutation-controls` feature, and the kill matrix;
   - `e24e911e6`: C, the harness mutants, with `tests/engine.rs` closing three paths R1's data cannot discriminate;
-  - **[PENDING-KF1]:** main merged in after KF1, with the kill matrix re-run;
+  - `24449b5c8`: D, the draft;
+  - `485320e95`: main `0f5d8c7b4` (KF1, #1056) merged in, with no conflict. The kill matrix was re-run on it (RETURN §12.4);
+  - **proposed next:** the post-KF1 records, plus `check_fault_sites.py`'s `--allow-commit` option and its README line;
   - **[PENDING-B]:** B, the scale runs;
   - **D:** this record, RETURN, `_run_records/` and SHA256SUMS.
 - **Size** (the product tree, against the export base `3018343c2`; `e24e911e6`):
@@ -83,7 +85,12 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
 - **The kill matrix (A2):**
   - NONE passes 40 of 40, and all 15 seeded faults are killed. VK-F05, F06, F07 and R28 are killed on evidence, as ruled. An unknown id panics.
   - FK's suite with the variable unset passes 394.
-  - The post-KF1 re-run: **[PENDING-KF1]**.
+  - **After KF1's merge:**
+    - the same 15 faults are killed, with identical failing tests and kinds, and NONE passes 43 of 43;
+    - `check_fault_sites` against main, allowing only A0's patch lines, reports OK;
+    - FK's suite passes 402;
+    - VR's suite passes 43 of 43, with every committed per-case record unchanged, work included;
+    - VK-R28's release selections are unchanged.
 - **The harness mutants (C):** all 18 are killed. NONE (43 of 43) and NONE-GEN, whose regeneration is byte-identical, pass.
 - **The CI cost:** VR's fresh build takes 3.8 s, and its tests take 37.9 s in debug on the Mac.
 - **The scale runs at 1,000 and 10,000 members:** **[PENDING-B]**.
@@ -106,7 +113,7 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
 - **Suites:**
   - FK's full suite with the feature off, which includes K4's;
   - VR's suite, with its time;
-  - after KF1: **[PENDING-KF1]**.
+  - after KF1's merge: FK 402 and VR 43, both passing on `485320e95`.
 - **Hosted CI** with the full-SHA dispatch, and **DEC-025**, where the sweep gains VR's manifest and every other suite is unchanged against the Mac baseline.
 - **GEN-8** before the records commit that goes to main.
 - **T9 and the both-entry gate are not run.** The scans show no product path change: the export is unused by product crates, and the feature is off in every product manifest.
