@@ -204,3 +204,64 @@ I built a probe copy of the head. Its only additions are test-only: a `#[cfg(tes
   - no GEN `--check` (GEN and its vectors are unchanged), no DEC-025 sweep, no GEN-8 run (my own scan instead), no T9 or both-entry gate (kernel only), and no Linux run;
   - no timing or memory measurement (K6b's).
 - **Abbreviations.** `P/` = `projects/chirality-piping/`; `T3/` = the T3 folder; `FK` = `P/core/solver/frame_kernel`. Line numbers are for the head's `FK/src/structural/retained/adaptive.rs` unless a file is named.
+
+## Confirmation at 66adfede4
+
+- **Requested by ROOT** as a narrow delta check. The head is `66adfede4` (`66adfede42de817efb5e0090342c02e3e4382f21`), and its parent is `1854911d1`, the head reviewed above.
+- **Date:** 2026-09-29.
+- **Verdict: PASS.** RV20-1, N1, N3 and N5 are closed. 0 BLOCKING, 0 SHOULD-FIX and 1 new NOTE (C-N1).
+- **Records:** `_run_records/kf1_review/final/`.
+
+**1. No production code changes.** `git diff 1854911d1 66adfede4` touches 11 files, none under a `src/` directory (`final/records_checks.txt`):
+- `FK/tests/retained_k4/kf1_tracker_tests.rs`, +48;
+- RETURN, CHANGE_RECORD and SHA256SUMS;
+- seven new files under `_run_records/rv20/`.
+
+**2. RV20-1 is closed.**
+- **The assertion.** The shared-cap test (`kf1_tracker_tests.rs:626-635`) now asserts, after each round's finishes, `lme(&c16s) >= lme(&c16r)`. This is the unconditional form I proposed and checked.
+- **It is sound.** Both contexts are fresh for each round (`:575`), and every evaluation costs the same on both sides. Per tracker, every row that K4's `finish` evaluates, up to and including its first refusal, is evaluated exactly once by the bounded tracker, at a collapse or at `finish`:
+  - If K4's first refusal e\* was collapsed, every earlier row of K_n was in the window when offered. So it was collapsed at or before e\*'s collapse.
+  - If e\* is still unevaluated, the bounded `finish` walks `lazy` up to e\*, and every other row of K_n was collapsed.
+  - With no refusal, collapsed ∪ `lazy` ⊇ K_n.
+- **My re-run,** each from a clean `git archive` of the head with a fresh target, using my own edit script (`final/confirm_mutants.py.txt`):
+  - NONE passes 8 of 8.
+  - **RV20-M4 is killed** by `kf1_the_shared_cap_bounds_a_calls_trackers_together`: "round 0: the set's work 1032854 < K4's 3413670", the same figures as my fix check.
+- **I18's own record** (`_run_records/rv20/`) uses the same M4 edit and reports the same kill.
+
+**3. N1 is closed: the order test kills RV20-M5.**
+- `kf1_the_stop_rules_trackers_finish_in_k4s_map_order` (`:640-677`) is my order test, with `exact_ratio(1.5, 3.0)` rows.
+- On my re-run it kills RV20-M5 with "assertion failed: RuleTest::Estimate < RuleTest::Charge". No other test fails under M5.
+- RV20-M1 and M2 are recorded as equivalent, as ruled.
+
+**4. N3 and N5 are closed.**
+- **The restated figures in RETURN addendum 2 are right.** At 4,304 B a row:
+  - the stop rule: G = 4,096 rows (17,629,184 B) between offers, and G + T = 4,608 (19,832,832 B) at the peak;
+  - a standalone tracker: T = 512 (2,203,648 B), and 1.5T = 768 (3,305,472 B);
+  - the fallback: 4T = 2,048 (8,814,592 B), and 2,304 (9,916,416 B) with one tracker growing;
+  - a solve attempt: 2,560 (11,018,240 B), and 2,816 (12,120,064 B).
+- **The reason for the transient is stated,** with its assumption: one tracker grows per offer, and the allocator does not grow in place.
+- **The tables' unconditional bound** is stated as |Λ| + |Σ| ≤ |K_i|: at most one 40 B entry per row kept in a window, about 0.93% of 4,304 B. The one-value-entry figure is marked practical and outside the proof.
+- **N5's pointers are in place:**
+  - RETURN §0 opens with "Shipped values: T = 512 and G = 4,096" and points to addenda 1 and 2;
+  - RETURN §4 and addendum 1's bound table point to addendum 2;
+  - CHANGE_RECORD's head carries the same pointer.
+  - Addendum 2 also corrects the site count to six construction sites.
+
+**5. The records verify.**
+- KF1's `SHA256SUMS` at the head lists 42 files: all 42 match the committed bytes, and the set equals the folder.
+- GEN-8's `MACHINE_ABS_PATH_RE` and a user-name scan find 0 hits in the PR's 47 files.
+- The changed test file is rustfmt-clean (`final/rustfmt.txt`). NONE's run gives the same coverage, sizes and shared-cap lines as the review's run, with 0 "moved" lines at T = 512 and 129 at T = 1.
+
+**The new NOTE**
+
+| ID | Class | Site | Evidence | Fix |
+|---|---|---|---|---|
+| C-N1 | NOTE | CHANGE_RECORD addendum 2 ("every reachable refusal is `Span`"); RETURN addendum 2, N1 | **The equivalence of M1 and M2 is stated as fact.** It follows ROOT's ruling. My evidence is narrower: every refusal the tests and I could construct is `Span`, and a row's operands have already passed `approximate_ratio`'s rounding and division at 64 bits. I did not prove that no other stop is reachable. §3's proof does not depend on this: it covers the refusal order for any stop. | Optional: "every refusal constructed so far is `Span`" when the records are next touched. |
+
+**Not re-run:** FK's full suite. Only `kf1_tracker_tests.rs` changed, and my review's run of 401 at `1854911d1` covers the unchanged code; KF1's 8 tests ran on each clean copy. Nor did I run DEC-025, GEN-8's pytest (my own scan instead) or CI.
+
+**Git and host use.**
+- Git was read-only in `<wt>/kf1`: `rev-parse`, `log`, `cat-file`, `diff`, `show`, `ls-tree` and `archive`. I made no Git, index or GitHub write.
+- Cargo ran one job at a time, at `-j 4`.
+- `<wt>/rv20c` and `<wt>/rv20c-target` are deleted.
+- My writes are this section and `_run_records/kf1_review/final/`, with `kf1_review/SHA256SUMS` regenerated, all uncommitted.

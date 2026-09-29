@@ -2432,3 +2432,8 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
 - **N2 and N4 are recorded.** M12 (fallback collapse work uncharged) is the disclosed limit; the code charges it correctly by reading. "No control gains work at T = 512" is printed, not asserted, and K6b re-measures at W1's sizes.
 
 **Then:** CI and the dispatch on the new head, DEC-025 on it (the run under way on `1854911d1` is kept as the earlier head's record), GEN-8, a delta confirmation by RV20, and the merge.
+- **RV20 confirms the final head `66adfede4`: PASS,** with no findings apart from one NOTE (C-N1, corrected above in brackets).
+  - The change touches no `src/` file.
+  - RV20-M4 and RV20-M5 are killed from clean archives.
+  - N3's figures check.
+  - SHA256SUMS verifies 42 of 42.
