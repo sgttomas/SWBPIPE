@@ -1,0 +1,27 @@
+//! RV17 (F1b review) scratch probe, never committed: runs every request in $RV17_REQUESTS through
+//! both entries and both modes and writes each full envelope (serde_json::to_vec, the gate's
+//! full-envelope bytes) to $RV17_OUT, for comparison with Mac main's recorded probe outputs.
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
+    LinearStaticPreviewRequest, PreviewSolverMode,
+};
+
+#[test]
+fn rv17_probe_coexistence_requests() {
+    let dir = std::env::var("RV17_REQUESTS").expect("RV17_REQUESTS");
+    let out = std::env::var("RV17_OUT").expect("RV17_OUT");
+    std::fs::create_dir_all(&out).unwrap();
+    let mut names: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().path()).collect();
+    names.sort();
+    for path in names {
+        let case = path.file_stem().unwrap().to_string_lossy().to_string();
+        let request: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+        for (mode, tag) in [(PreviewSolverMode::SparseInteractive, "sparse_interactive"), (PreviewSolverMode::DenseScrutiny, "dense_scrutiny")] {
+            let typed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+            let t = run_linear_static_preview_with_mode(typed, mode);
+            std::fs::write(format!("{out}/{case}__{tag}__typed.json"), serde_json::to_vec(&t).unwrap()).unwrap();
+            let c = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+            std::fs::write(format!("{out}/{case}__{tag}__captured.json"), serde_json::to_vec(&c).unwrap()).unwrap();
+        }
+    }
+}

@@ -1,0 +1,8 @@
+RV17: gate part 1 partition from the committed tables only: base G1 full-envelope TSV (sha256 6a906ecfa24fd16c...), candidate gate2 part1/envelope_sha256.tsv (sha256 dce20359309795c8...), C1 = the 28 rows of gate2 c1_table.tsv, C2 = the 24 RF-LARGE n10000 runs. Fields compared: outcome, ok, exit_code, full_envelope_sha256, summary_envelope_sha256, error_text_sha256.
+runs 884 884 keys_equal True
+C1 28 C2 24 C1&C2 0
+C3 runs 832
+changed total 52
+changed outside C1 and C2 []
+C1 unchanged (should be empty) []
+C2 changed 24

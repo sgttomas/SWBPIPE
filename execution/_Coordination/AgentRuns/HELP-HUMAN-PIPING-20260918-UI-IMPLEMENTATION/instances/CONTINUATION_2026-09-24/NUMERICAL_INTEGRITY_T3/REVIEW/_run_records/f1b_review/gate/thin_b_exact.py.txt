@@ -1,0 +1,35 @@
+"""RV17: an own exact-rational solve of RF-RANGE-THIN-B (a C1 run published by W2 at b = 536).
+Cantilever N0 (anchored) -> N1 along x, L = 1 m, OD 4e-77 m, wall 1e-77 m, E = 1 Pa,
+G = 0.45454545454545453 Pa (the binary64 input, as an exact rational), tip Fy = 1e-300 N and
+Mx = 1e-300 N*m (binary64 inputs as exact rationals). Euler-Bernoulli with no shear deformation,
+as the frame kernel's 12x12 element: u_y = F L^3/(3 E Iz), rz = F L^2/(2 E Iz), rx = T L/(G J).
+Section: ro = OD/2, ri = ro - wall; Iz = pi (ro^4 - ri^4)/4 and J = 2 Iz, with ro, ri from the
+decimal inputs as exact rationals and pi to 50 digits (the product's binary64 section differs by
+about 1e-16 relative, far inside the 1e-9 criterion). Standard library only."""
+import json, sys
+from fractions import Fraction as Fr
+from decimal import Decimal, getcontext
+getcontext().prec = 60
+PI = Fr(Decimal('3.14159265358979323846264338327950288419716939937510'))
+od, wall = Fr(4e-77), Fr(1e-77)          # binary64 inputs, exactly
+ro = od / 2; ri = ro - wall
+Iz = PI * (ro**4 - ri**4) / 4
+J = 2 * Iz
+E, G, L = Fr(1.0), Fr(0.45454545454545453), Fr(1)
+F = T = Fr(1e-300)
+exact = {
+    'uy_mm': F * L**3 / (3 * E * Iz) * 1000,
+    'rz': F * L**2 / (2 * E * Iz),
+    'rx': T * L / (G * J),
+}
+ids = {'uy_mm': 'result:disp:N1:uy', 'rz': 'result:disp:N1:rz', 'rx': 'result:disp:N1:rx'}
+worst = 0.0
+for path in sys.argv[1:]:
+    env = json.load(open(path))
+    by_id = {r['id']: r['value'] for r in env['results']}
+    for key, ref in exact.items():
+        obs = Fr(by_id[ids[key]])
+        ratio = abs(obs - ref) / abs(ref)
+        worst = max(worst, float(ratio))
+        print(f"{path.rsplit('/', 1)[-1]} {key}: published {float(obs)!r} exact {float(ref)!r} rel {float(ratio):.3e}")
+print('worst relative difference', f'{worst:.3e}', 'criterion 1e-9:', 'PASS' if worst <= 1e-9 else 'FAIL')

@@ -1,0 +1,48 @@
+CX-F-small-axial-3x2m1016 sparse_interactive captured main MECHANICS_SOLVED selected receipt - d953a68396df615a
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 6.518771069845318e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -4.2721418083338267e-306)]
+CX-F-small-axial-3x2m1016 sparse_interactive captured cand MECHANICS_SOLVED selected receipt - d953a68396df615a
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 6.518771069845318e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -4.2721418083338267e-306)]
+  CX-F-small-axial-3x2m1016 sparse_interactive captured: main == cand full envelope: True
+CX-F-small-axial-3x2m1016 sparse_interactive typed main MODEL_INCOMPLETE - - - ca8eda4164a91d23
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N1:UZ", "N1:RX", "N1:RY", "N1:RZ"]; no structural rejection is')
+CX-F-small-axial-3x2m1016 sparse_interactive typed cand MODEL_INCOMPLETE - - W2 853fd2e71818819e
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range("division overflow or underflow")); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:')
+  CX-F-small-axial-3x2m1016 sparse_interactive typed: main == cand full envelope: False
+CX-F-small-axial-3x2m1016 dense_scrutiny captured main MECHANICS_SOLVED selected receipt - 10d312a1f3fc2f7f
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 6.518771069845318e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -4.2721418083338267e-306)]
+CX-F-small-axial-3x2m1016 dense_scrutiny captured cand MECHANICS_SOLVED selected receipt - 10d312a1f3fc2f7f
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 6.518771069845318e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -4.2721418083338267e-306)]
+  CX-F-small-axial-3x2m1016 dense_scrutiny captured: main == cand full envelope: True
+CX-F-small-axial-3x2m1016 dense_scrutiny typed main MODEL_INCOMPLETE - - - ca8eda4164a91d23
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N1:UZ", "N1:RX", "N1:RY", "N1:RZ"]; no structural rejection is')
+CX-F-small-axial-3x2m1016 dense_scrutiny typed cand MODEL_INCOMPLETE - - W2 853fd2e71818819e
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range("division overflow or underflow")); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:')
+  CX-F-small-axial-3x2m1016 dense_scrutiny typed: main == cand full envelope: False
+CX-G-small-axial-2m1015 sparse_interactive captured main MECHANICS_SOLVED selected receipt - b4957b5c4393d1fc
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 4.345847379896878e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -2.848094538889218e-306)]
+CX-G-small-axial-2m1015 sparse_interactive captured cand MECHANICS_SOLVED selected receipt - b4957b5c4393d1fc
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 4.345847379896878e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -2.848094538889218e-306)]
+  CX-G-small-axial-2m1015 sparse_interactive captured: main == cand full envelope: True
+CX-G-small-axial-2m1015 sparse_interactive typed main MODEL_INCOMPLETE - - - baf11f87655da4a8
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N1:UZ", "N1:RX", "N1:RY", "N1:RZ"]; no structural rejection is')
+CX-G-small-axial-2m1015 sparse_interactive typed cand MODEL_INCOMPLETE - - W2 92384def49db8655
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range("division overflow or underflow")); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:')
+  CX-G-small-axial-2m1015 sparse_interactive typed: main == cand full envelope: False
+CX-G-small-axial-2m1015 dense_scrutiny captured main MECHANICS_SOLVED selected receipt - 2cb72f9747316a59
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 4.345847379896878e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -2.848094538889218e-306)]
+CX-G-small-axial-2m1015 dense_scrutiny captured cand MECHANICS_SOLVED selected receipt - 2cb72f9747316a59
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'info', 'Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:U')
+     disp: [('result:disp:N1:ux', 4.345847379896878e-308), ('result:disp:N1:uy', 0.0), ('result:disp:N1:uz', 0.0)] reactions: [('Fx', -2.848094538889218e-306)]
+  CX-G-small-axial-2m1015 dense_scrutiny captured: main == cand full envelope: True
+CX-G-small-axial-2m1015 dense_scrutiny typed main MODEL_INCOMPLETE - - - baf11f87655da4a8
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: structural integrity: Range("division overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N1:UZ", "N1:RX", "N1:RY", "N1:RZ"]; no structural rejection is')
+CX-G-small-axial-2m1015 dense_scrutiny typed cand MODEL_INCOMPLETE - - W2 92384def49db8655
+     integrity: ('NUMERICAL_INTEGRITY_UNRESOLVED', 'blocking', 'Load case case: range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range("division overflow or underflow")); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:')
+  CX-G-small-axial-2m1015 dense_scrutiny typed: main == cand full envelope: False

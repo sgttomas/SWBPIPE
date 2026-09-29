@@ -1,0 +1,54 @@
+"""RV17: candidate constructions for D10 step 4 (a captured, source-eligible linear case whose b = 0
+M03 attempt range-triggers on the small-magnitude side, and that main's exact-block may select).
+Invented inputs only. One member N0 -> N1 along x (L = 1 m, OD 0.2 m, wall 0.01 m); N0 anchored in
+all six DOFs; N1 anchored in every DOF but `free`; one nodal load on `free`.
+The idea: M03's scaled right-hand side is about f / sqrt(K) = sqrt(f * u) per decoupled DOF, while the
+exact method needs only exact products (short-mantissa loads) and a projection |u| >= ~2^-1044."""
+import json, sys, os
+PROV = "invented_rv17_f1b_review_input_no_library_data"
+ALL = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+def model(case_id, free, value, e=2.0e5, g=8.0e4):
+    dof = free
+    load = ({"id": "load:0", "category": "concentrated_force", "target": {"type": "node", "node": "N1"},
+             "direction": "global_" + dof[1:].lower(), "magnitude": {"value": value, "unit": "N"},
+             "dimension": "force", "provenance": PROV})
+    return {"model": {
+        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+                            "rule_check": "not_performed_user_rule_inputs_missing",
+                            "professional_acceptance": "not_provided"},
+        "project": {"id": f"invented:rv17-coex:{case_id}",
+                    "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa",
+                              "temperature": "degC", "stress": "Pa"}},
+        "nodes": [{"id": "N0", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": PROV},
+                  {"id": "N1", "position": {"x": 1.0, "y": 0.0, "z": 0.0}, "provenance": PROV}],
+        "pipe_segments": [{"id": "M1", "from": "N0", "to": "N1", "material": "mat:C",
+                           "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+                           "section": {"outside_diameter": {"value": 0.2, "unit": "m"},
+                                       "wall_thickness": {"value": 0.01, "unit": "m"}},
+                           "provenance": PROV}],
+        "materials": [{"id": "mat:C", "elastic_modulus": {"value": e, "unit": "Pa"},
+                       "shear_modulus": {"value": g, "unit": "Pa"}, "provenance": PROV}],
+        "supports": [{"id": "anchor:N0", "node": "N0", "family": "anchor", "restraints": ALL, "provenance": PROV},
+                     {"id": "anchor:N1", "node": "N1", "family": "anchor",
+                      "restraints": [d for d in ALL if d != free], "provenance": PROV}],
+        "load_cases": [{"id": "case", "label": case_id, "kind": "primitive_user_load",
+                        "primitive_loads": [load], "provenance": PROV}],
+        "combinations": []}, "materials": []}
+cases = {
+    # K = EA/L ~ 1193.8 N/m (e_K = 10, M03 row exponent -5); f = 2^-1020 N (normal):
+    # f * 2^-5 = 2^-1025 is subnormal (M03 range trigger); u = f / K ~ 2^-1030.2.
+    "CX-A-axial-f2m1020": model("CX-A", "UX", 2.0 ** -1020),
+    # The same with a subnormal, one-bit load f = 2^-1030 N: u ~ 2^-1040.2.
+    "CX-B-axial-f2m1030": model("CX-B", "UX", 2.0 ** -1030),
+    # Control (I13's kind): a full-mantissa subnormal load 1e-310 N.
+    "CX-C-axial-1e-310": model("CX-C", "UX", 1e-310),
+    # Bending: K = 12EI/L^3 ~ 65 N/m (e_K = 6, exponent -3); f = 2^-1020 N: 2^-1023 subnormal.
+    "CX-D-bend-f2m1020": model("CX-D", "UY", 2.0 ** -1020),
+    # Control: a full-mantissa normal load 1e-307 N on the axial DOF (f * 2^-5 subnormal).
+    "CX-E-axial-1e-307": model("CX-E", "UX", 1e-307),
+}
+os.makedirs("requests", exist_ok=True)
+for k, v in cases.items():
+    json.dump(v, open(f"requests/{k}.json", "w"), indent=1)
+    print(k, repr(v["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"]))

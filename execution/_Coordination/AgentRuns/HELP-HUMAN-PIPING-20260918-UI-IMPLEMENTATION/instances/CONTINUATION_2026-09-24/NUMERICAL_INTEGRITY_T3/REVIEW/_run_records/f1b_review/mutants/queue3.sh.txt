@@ -1,0 +1,14 @@
+#!/bin/bash
+# RV17: the NI pins' original mutants on the PR head c4879c496 (NI's tests in full; the kill site is
+# NI's s11k pin tests), one at a time in my first cargo slot.
+cd <wt>/scratch/rv17/runs
+export REV=c4879c496
+for spec in "mutate_k2b.py K2B-PIN-LOOP" "mutate_k2b.py K2B-PIN-PLUMBING" "mutate_k2b.py K2B-PIN-THIRD" \
+            "mutate_k1.py KD5-M32a" "mutate_k1.py KD5-M32b" "mutate_k1.py KD5-E4" \
+            "mutate_k1.py S11K-RV-OPT1" "mutate_k1.py S11K-RV-OPT3" "mutate_k1.py S11K-RV-OPT4" "mutate_k1.py S11K-RV-PUB" \
+            "mutate_k1.py K1-PIN-BINARY64" "mutate_k1.py K1-PIN-BINARY64-B" "mutate_k1.py K1-PIN-THIRD" \
+            "mutate_k1.py K1-PIN-LOOP" "mutate_k1.py K1-PIN-LOOP-B"; do
+  set -- $spec
+  KEEP=0 JOBS=6 ./run_mutant2.sh H-$2 $1 solver/nonlinear_integration > logs/H-$2.driver 2>&1
+done
+echo QUEUE3-DONE >> MUTANTS.txt

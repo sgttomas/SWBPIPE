@@ -1,0 +1,38 @@
+#!/bin/bash
+# RV17: one mutant on a clean git archive copy. Usage: run_mutant.sh <id> <patcher|NONE> <crates...>
+# crates: space-separated crate dirs relative to projects/chirality-piping/core, each run with
+# `cargo test --offline --locked --no-fail-fast -j $JOBS`; a crate given as "check:<dir>" runs
+# `cargo check --offline --locked` instead (compile proof only).
+set -u
+W=<wt>
+R=$W/scratch/rv17/runs; REV=9aeed9c22
+m=$1; patcher=$2; shift 2
+D=$W/rv17/$m; T=$W/rv17-target/$m; LOG=$R/logs/$m.log
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=$T RUST_TEST_THREADS=4
+JOBS=${JOBS:-4}
+rm -rf $D $T; mkdir -p $D/tree
+git -C $W/f1b archive --format=tar $REV projects/chirality-piping ':(exclude)projects/chirality-piping/execution' | tar -x -m -C $D/tree
+CORE=$D/tree/projects/chirality-piping/core
+: > $LOG
+echo "mutant=$m patcher=$patcher rev=$REV jobs=$JOBS start=$(date -u +%FT%TZ)" >> $LOG
+if [ "$patcher" != NONE ]; then
+  python3 -B $R/$patcher $CORE $m >> $LOG 2>&1 || { echo "$m PATCH-FAILED" >> $R/MUTANTS.txt; rm -rf $D $T; exit 1; }
+fi
+(cd $D/tree && find projects/chirality-piping/core -name '*.rs' -newer $LOG -print) >> $LOG
+rc_all=""
+for c in "$@"; do
+  case $c in
+    check:*) dir=${c#check:}; echo "=== $dir: cargo check" >> $LOG
+      (cd $CORE/$dir && cargo check --offline --locked -j $JOBS >> $LOG 2>&1); rc_all="$rc_all check:${dir##*/}=$?";;
+    *) dir=$c; echo "=== $dir: cargo test --no-fail-fast" >> $LOG
+      (cd $CORE/$dir && cargo test --offline --locked --no-fail-fast -j $JOBS >> $LOG 2>&1); rc_all="$rc_all ${dir##*/}=$?";;
+  esac
+done
+echo "end=$(date -u +%FT%TZ)" >> $LOG
+killers=$(/usr/bin/grep -E '^test .* FAILED$' $LOG | awk '{print $2}' | sort -u | tr '\n' ' ')
+comp=$(/usr/bin/grep -c '^error\[\|^error: could not compile' $LOG)
+aborts=$(/usr/bin/grep -cE 'memory allocation of [0-9]+ bytes failed|stack overflow|SIGABRT|signal: 6' $LOG)
+sites=$(/usr/bin/grep -oE "panicked at [^ ]+:[0-9]+:[0-9]+" $LOG | sed 's/panicked at //' | sort | uniq -c | awk '{print $2"x"$1}' | tr '\n' ' ')
+passed=$(/usr/bin/grep -E '^test result:' $LOG | awk '{p+=$4; f+=$6; i+=$8} END {print "passed="p" failed="f" ignored="i}')
+echo "$m exit:$rc_all $passed compile_errors=$comp aborts=$aborts failed: ${killers:-NONE} panic_sites: ${sites:-NONE}" >> $R/MUTANTS.txt
+if [ "${KEEP:-0}" != 1 ]; then rm -rf $D $T; fi

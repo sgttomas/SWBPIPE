@@ -1397,7 +1397,7 @@ I14's plan (`<wt>/scratch/i14/CHECKPOINT0_PLAN.md`, sha256 `7f50c788…`, 943 li
 A2 is committed as `e215c6007` on `codex/piping-f1b-20260928`. Every Scope §6 prediction was confirmed by a product run.
 - **(a) The admission order is approved.** Thermal/eigen, pressure thrust and exact-pressure operands are now checked before the element-primitive check. Only the reported family names change; the set of refused cases is the same.
 - **(b) Three admission checks cannot be reached in the product:** user-stiffness element, pressure thrust, and non-nodal term. They are pinned at unit level, and RETURN derives why each is unreachable.
-- **(c) Coexistence: I13's derivation is accepted, with a condition.** Exact-block cannot select a range-triggered case: its exact solve fails at `exact_radix` or at source closure, and large-magnitude triggers never reach the captured entry.
+- **(c) Coexistence: I13's derivation is accepted, with a condition.** [Superseded: RV17-1 showed that exact-block does select range-triggered cases (CX-F, CX-G), so the next sentence is false. See "F1b: rulings on RV17's review".] Exact-block cannot select a range-triggered case: its exact solve fails at `exact_radix` or at source closure, and large-magnitude triggers never reach the captured entry.
   - The candidates were tried on Mac main, and the gate base has 16 selections, none after a Range.
   - **Condition:** the derivation is written step by step in RETURN, and F1b's independent reviewer checks it (the M31b lesson). The candidate-side test stays.
 - **(d) The mixed captured invocation is pinned as observed.** It finalizes with a `partial` receipt: A `qualified`, B `unsupported` with OQ2's decline, and B's `ordinary_attempt` following W2's verdict (OQ15).
@@ -1702,3 +1702,23 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - B's binary is built from `git archive 1f354c20b`, and every record carries `--source-commit`.
   - **An added host condition** for timed runs, as the gate used: before each run, wait while the 1-minute load average is above 8, until it is below 6; record the load at start and end. Other agents are building intermittently. Memory figures are deterministic; timings carry the recorded load.
   - Send `--project` after T2. B2 and B3 are separate grants.
+
+## F1b: rulings on RV17's review (ROOT, 2026-09-29)
+
+- **Verdict accepted:** PASS at `f183e1fa9`, with 0 BLOCKING, 4 SHOULD-FIX and 5 NOTEs (`REVIEW/F1B_REVIEW.md`). All four SHOULD-FIX findings are fixed before merge.
+- **RV17-1: A2(c) is re-ruled.**
+  - My A2(c) premise, "exact-block cannot select a range-triggered case", is **false**. CX-F and CX-G (a 1 m member, EA/L ≈ 2^16 N/m, a tip load of 3·2^-1016 or 2^-1015 N) are range-triggered, and main publishes them `MECHANICS_SOLVED` through exact-block, with a receipt.
+  - **Coexistence still holds, on a different ground.** The selected exact-block arm comes before the W2 arm, so wherever exact-block selects, F1b publishes main's bytes by construction. RV17 confirmed this on all 10 selected runs, on the recorded probe and on its own build.
+  - **Fix:** I13 corrects D10, dropping the false step 4 and resting coexistence on the ordering. I13 also adds the brief's positive coexistence test with CX-F or CX-G (F1b equals main in full-envelope sha256, on both entries and in both modes), with a mutant that moves W2 before exact-block, killed.
+- **RV17-2 and RV17-3: add the tests.**
+  - Pin the nonlinear blocked envelope in full, which kills RV17-M1 (`let linear = true;`).
+  - Add a two-spring W2 publication test, which kills RV17-M2 (every spring action taken from the first spring).
+- **RV17-4: disclose it; "within the criterion" means trusted publications only.** 8 of the 14 published C1 runs are outside R1's exact references (up to 9.7e-8, and 1.7e-5 for SKEW-LEF-large). All are Sensitive and equal main's same-family Sensitive pattern.
+  - This matches the K6 ruling: Sensitive publications carry no accuracy claim at that level, and `gate_check` counts trusted publications.
+  - I13 records it in RETURN's C1 section.
+- **NOTEs:**
+  - N1 (RV17-M4 changes only the refusal text on an input main also refuses): recorded.
+  - N2 (the lane's peak is about 16P + 24P′, while the guard estimates 24P for the identity build): recorded in RETURN. K6 measures the lane against both (Q12). The ceiling ruling will consider it; D12 is unaffected.
+  - N3 (96 B per n² is the n² coefficient, not a total-heap bound; the largest admitted model is 3.1 MB under the ceiling): recorded. K6's B3 ceiling run measures it.
+  - N4 and N5: recorded.
+- **Next:** I13 makes the fixes (tests and records), with mutants from clean archives. Then RV17 runs a delta check, followed by hosted CI with the full-SHA dispatch, DEC-025 in a quiet slot (after K6's B1) and GEN-8.

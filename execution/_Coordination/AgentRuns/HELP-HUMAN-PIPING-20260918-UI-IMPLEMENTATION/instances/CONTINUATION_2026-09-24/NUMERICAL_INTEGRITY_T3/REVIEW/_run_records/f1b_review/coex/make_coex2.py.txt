@@ -1,0 +1,23 @@
+"""RV17: coexistence candidates whose selected response can also finalize: every published value in
+the product's units (mm, MPa, N) normal. Small pipe OD 0.02 m, wall 0.002 m (A ~ 1.131e-4 m^2),
+L = 1 m; E chosen so that K = EA/L ~ 2^16 N/m (M03 row exponent -8); load f = 3 * 2^-1016 N on N1:UX:
+f * 2^-8 = 3 * 2^-1024 is subnormal (the M03 trigger); u = f/K ~ 2^-1031.4 m (u_mm normal);
+sigma = f/A ~ 2^-1001.3 Pa (MPa normal); exact products short-mantissa."""
+import json, math, os
+from make_coex import model
+def small(case_id, free, value, e, g):
+    m = model(case_id, free, value, e, g)
+    m["model"]["pipe_segments"][0]["section"] = {"outside_diameter": {"value": 0.02, "unit": "m"},
+                                                 "wall_thickness": {"value": 0.002, "unit": "m"}}
+    return m
+ro, ri = 0.01, 0.008
+A = math.pi * (ro * ro - ri * ri)
+E = 65536.0 / A
+cases = {
+    "CX-F-small-axial-3x2m1016": small("CX-F", "UX", 3 * 2.0 ** -1016, E, E / 2.6),
+    "CX-G-small-axial-2m1015": small("CX-G", "UX", 2.0 ** -1015, E, E / 2.6),
+}
+os.makedirs("requests2", exist_ok=True)
+for k, v in cases.items():
+    json.dump(v, open(f"requests2/{k}.json", "w"), indent=1)
+    print(k, repr(v["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"]), repr(E), 'A', A, 'K~', E * A)

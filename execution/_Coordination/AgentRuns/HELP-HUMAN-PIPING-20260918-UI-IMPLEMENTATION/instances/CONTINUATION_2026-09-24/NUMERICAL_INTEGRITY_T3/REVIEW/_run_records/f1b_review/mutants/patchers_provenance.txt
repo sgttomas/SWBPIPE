@@ -1,0 +1,7 @@
+RV17: the patchers reused from I13's committed records (byte-identical copies; sha256 of my copy = sha256 of the committed .txt at c4879c496):
+  mutate_f1b.py: dd901b1c12bf53081f00f97b8b26ae155de161dfd95c7901b20a6d3d124acac2 equal to _run_records/mutations/mutate_f1b.py.txt
+  mutate_k1.py: c2b54737dfb3dd261643ac16f52230ab8ba97828d86807c4987e4db13978a71a equal to _run_records/mutations/mutate_k1.py.txt
+  mutate_k2b.py: 0769eeba276119b700361e148501a0703ec40fea4fd2415917dfb5f654b62ec1 equal to _run_records/mutations/mutate_k2b.py.txt
+  mutate_lane.py: d0f5940389b1d058da8ec0150586e89ce776288be4018b0cee812533d53bb7b1 equal to _run_records/d_130445db2/lane_mutant/mutate_lane.py.txt
+RV17's own patcher: mutate_rv17.py (sha256 dd84cc054db02d6063c8c9d3ff5cde5d75767f57a34d9345cbf5a54b50cf3fb1)
+Every patch was dry-run on git archives of 9aeed9c22 and of c4879c496 (dry.sh): each applied (exactly one match).

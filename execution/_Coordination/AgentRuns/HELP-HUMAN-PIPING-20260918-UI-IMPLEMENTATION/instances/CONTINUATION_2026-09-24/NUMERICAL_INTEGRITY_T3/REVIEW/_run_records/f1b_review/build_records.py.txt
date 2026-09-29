@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""RV17: assemble T3/REVIEW/_run_records/f1b_review/ from <wt>/scratch/rv17, replacing machine paths
+with placeholders, stripping trailing whitespace, ending every text file with one newline, and writing
+SHA256SUMS. Standard library only."""
+import hashlib, os, re, shutil, sys
+WT = '<wt>'
+SRC = WT + '/scratch/rv17'
+DST = WT + ('/numerics/projects/chirality-piping/execution/_Coordination/AgentRuns/'
+            'HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/'
+            'NUMERICAL_INTEGRITY_T3/REVIEW/_run_records/f1b_review')
+SUBS = [
+    ('<scratch>', '<scratch>'),
+    (WT, '<wt>'),
+    ('<repo>', '<repo>'),
+    ('<home>', '<home>'),
+    ('<tmp>', '<tmp>'),
+]
+FILES = {
+    # record path: source path (relative to SRC)
+    'README.txt': 'README.txt',
+    'revisions.txt': 'revisions.txt',
+    'records_checks.txt': 'records_checks.txt',
+    'k5m_checks.txt': 'k5m_checks.txt',
+    'toolchain.txt': 'toolchain.txt',
+    'memguard.txt': 'memguard.txt',
+    'collect_revisions.sh.txt': 'collect_revisions.sh',
+    'collect_records.sh.txt': 'collect_records.sh',
+    'build_records.py.txt': 'build_records.py',
+    'gate/c3_check.py.txt': 'c3_check.py',
+    'gate/c3_check.out': 'gate/c3_check.out',
+    'gate/raw_full_check.py.txt': 'raw_full_check.py',
+    'gate/raw_full_check.out': 'gate/raw_full_check.out',
+    'gate/breach_ratio.py.txt': 'breach_ratio.py',
+    'gate/c1_references.out': 'gate/c1_references.out',
+    'gate/thin_b_exact.py.txt': 'thin_b_exact.py',
+    'gate/thin_b_exact.out': 'gate/thin_b_exact.out',
+    'coex/make_coex.py.txt': 'coex/make_coex.py',
+    'coex/make_coex2.py.txt': 'coex/make_coex2.py',
+    'coex/run_coex.py.txt': 'coex/run_coex.py',
+    'coex/coex_summary.txt': 'coex/coex_summary.txt',
+    'coex/coex2_summary.txt': 'coex/coex2_summary.txt',
+    'coex/coex_runs_a_to_e.jsonl': 'coex/out/coex_runs.jsonl',
+    'coex/coex_runs_f_g.jsonl': 'coex/out2/coex_runs.jsonl',
+    'coex/head_compare.txt': 'coex/head_compare.txt',
+    'coex/selected_excerpt.txt': 'coex/selected_excerpt.txt',
+    'mutants/run_mutant.sh.txt': 'runs/run_mutant.sh',
+    'mutants/run_mutant2.sh.txt': 'runs/run_mutant2.sh',
+    'mutants/queue.sh.txt': 'runs/queue.sh',
+    'mutants/queue2.sh.txt': 'runs/queue2.sh',
+    'mutants/queue3.sh.txt': 'runs/queue3.sh',
+    'mutants/dry.sh.txt': 'runs/dry.sh',
+    'mutants/probe.sh.txt': 'runs/probe.sh',
+    'mutants/mutate_rv17.py.txt': 'runs/mutate_rv17.py',
+    'mutants/patchers_provenance.txt': 'runs/patchers_provenance.txt',
+    'mutants/MUTANTS.txt': 'runs/MUTANTS.txt',
+    'mutants/compare_ni_sites.py.txt': 'runs/compare_ni_sites.py',
+    'mutants/compare_ni_sites.out': 'runs/compare_ni_sites.out',
+    'probes/rv17_probe.rs.txt': 'probe/rv17_probe.rs',
+    'probes/rv17_probe_coex.rs.txt': 'probe/rv17_probe_coex.rs',
+    'probes/rv17_probe_mem.rs.txt': 'probe/rv17_probe_mem.rs',
+    'probes/make_probe_requests.py.txt': 'probe/make_probe_requests.py',
+    'probes/probe_compare.txt': 'probe/probe_compare.txt',
+}
+for d in ('coex/requests', 'coex/requests2'):
+    for f in sorted(os.listdir(os.path.join(SRC, d))):
+        FILES[f'coex/{os.path.basename(d)}/{f}'] = f'{d}/{f}'
+for f in sorted(os.listdir(os.path.join(SRC, 'probe/requests'))):
+    FILES[f'probes/requests/{f}'] = f'probe/requests/{f}'
+for f in sorted(os.listdir(os.path.join(SRC, 'runs/logs'))):
+    FILES[f'mutants/logs/{f}'] = f'runs/logs/{f}'
+ENVELOPES = {
+    'coex/envelopes/CX-F__sparse_interactive__captured__main_e7d930d49.json': 'coex/out2/CX-F-small-axial-3x2m1016__sparse_interactive__captured__main.json',
+    'coex/envelopes/CX-F__dense_scrutiny__captured__main_e7d930d49.json': 'coex/out2/CX-F-small-axial-3x2m1016__dense_scrutiny__captured__main.json',
+    'coex/envelopes/CX-G__sparse_interactive__captured__main_e7d930d49.json': 'coex/out2/CX-G-small-axial-2m1015__sparse_interactive__captured__main.json',
+    'coex/envelopes/CX-G__dense_scrutiny__captured__main_e7d930d49.json': 'coex/out2/CX-G-small-axial-2m1015__dense_scrutiny__captured__main.json',
+    'probes/envelopes/m1__sparse__typed__NONE.json': 'probe/out/NONE/m1-partial-underflow-open-gap__sparse__typed.json',
+    'probes/envelopes/m1__sparse__typed__RV17-M1.json': 'probe/out/RV17-M1/m1-partial-underflow-open-gap__sparse__typed.json',
+    'probes/envelopes/m2a__sparse__typed__H-NONE.json': 'probe/out/H-NONE/m2a-exact-zero-two-springs__sparse__typed.json',
+    'probes/envelopes/m2a__sparse__typed__H-RV17-M2.json': 'probe/out/H-RV17-M2/m2a-exact-zero-two-springs__sparse__typed.json',
+    'probes/envelopes/m4__sparse__typed__H-NONE.json': 'probe/out/H-NONE/m4-spring-overflow__sparse__typed.json',
+    'probes/envelopes/m4__sparse__typed__H-RV17-M4.json': 'probe/out/H-RV17-M4/m4-spring-overflow__sparse__typed.json',
+}
+if os.path.exists(DST):
+    shutil.rmtree(DST)
+envelope_notes = []
+for rec, src in list(FILES.items()) + list(ENVELOPES.items()):
+    path = os.path.join(SRC, src)
+    raw = open(path, 'rb').read()
+    out = os.path.join(DST, rec)
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    if rec in ENVELOPES:
+        # Envelopes are kept byte for byte (their sha256 is the evidence); checked for machine paths.
+        text = raw.decode('utf-8')
+        assert not any(s in text for s, _ in SUBS), rec
+        open(out, 'wb').write(raw)
+        envelope_notes.append(f'{rec} sha256 {hashlib.sha256(raw).hexdigest()}')
+        continue
+    text = raw.decode('utf-8', 'replace')
+    for s, r in SUBS:
+        text = text.replace(s, r)
+    lines = [l.rstrip(' \t') for l in text.split('\n')]
+    text = '\n'.join(lines).rstrip('\n') + '\n'
+    open(out, 'w').write(text)
+with open(os.path.join(DST, 'envelopes_sha256.txt'), 'w') as fh:
+    fh.write('RV17: envelopes kept byte for byte (no sanitization; no trailing newline added), with their sha256:\n')
+    for n in envelope_notes:
+        fh.write(n + '\n')
+# Final scans.
+bad = []
+for root, _, files in os.walk(DST):
+    for f in files:
+        p = os.path.join(root, f)
+        t = open(p, 'rb').read().decode('utf-8', 'replace')
+        if re.search(r'[/](Users|private|home|tmp)[/][A-Za-z0-9]|[/]var[/]folders[/][A-Za-z0-9]|claude-50[0-9]|Users-[a-z]', t):
+            bad.append(p)
+assert not bad, bad
+lines = []
+for root, _, files in sorted(os.walk(DST)):
+    for f in sorted(files):
+        p = os.path.join(root, f)
+        rel = './' + os.path.relpath(p, DST)
+        lines.append(f'{hashlib.sha256(open(p, "rb").read()).hexdigest()}  {rel}')
+open(os.path.join(DST, 'SHA256SUMS'), 'w').write('\n'.join(sorted(lines, key=lambda l: l[66:])) + '\n')
+print('files', len(lines))

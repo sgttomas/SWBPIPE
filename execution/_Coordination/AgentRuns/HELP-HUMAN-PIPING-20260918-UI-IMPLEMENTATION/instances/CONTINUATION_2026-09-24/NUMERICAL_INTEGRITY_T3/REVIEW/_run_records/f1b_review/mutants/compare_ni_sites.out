@@ -1,0 +1,19 @@
+K2B-PIN-LOOP: I13 8 NI sites, RV17 8, lost 0, added 0, KILLED
+K2B-PIN-PLUMBING: I13 1 NI sites, RV17 1, lost 0, added 0, KILLED
+K2B-PIN-THIRD: I13 2 NI sites, RV17 2, lost 0, added 0, KILLED
+KD5-M32a: I13 8 NI sites, RV17 8, lost 0, added 0, KILLED
+KD5-M32b: I13 9 NI sites, RV17 9, lost 0, added 0, KILLED
+KD5-E4: I13 2 NI sites, RV17 2, lost 0, added 0, KILLED
+S11K-RV-OPT1: I13 3 NI sites, RV17 3, lost 0, added 0, KILLED
+S11K-RV-OPT3: I13 2 NI sites, RV17 2, lost 0, added 0, KILLED
+S11K-RV-OPT4: I13 7 NI sites, RV17 7, lost 0, added 0, KILLED
+S11K-RV-PUB: I13 2 NI sites, RV17 2, lost 0, added 0, KILLED
+K1-PIN-BINARY64: I13 5 NI sites, RV17 5, lost 0, added 0, KILLED
+K1-PIN-BINARY64-B: I13 5 NI sites, RV17 5, lost 0, added 0, KILLED
+K1-PIN-THIRD: I13 1 NI sites, RV17 1, lost 0, added 0, KILLED
+K1-PIN-LOOP: I13 47 NI sites, RV17 47, lost 0, added 0, KILLED
+K1-PIN-LOOP-B: I13 14 NI sites, RV17 15, lost 0, added 1, KILLED
+    added structural_adapter::k5_tests::k5_nonlinear_loop_keeps_todays_geometry
+F1B-PIN-SECOND: I13 1 NI sites, RV17 1, lost 0, added 0, KILLED
+F1B-PIN-HELPER: I13 1 NI sites, RV17 1, lost 0, added 0, KILLED
+F1B-PIN-NEVER: I13 1 NI sites, RV17 1, lost 0, added 0, KILLED

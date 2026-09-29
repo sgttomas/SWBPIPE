@@ -1,0 +1,21 @@
+RV17: the 14 published C1 runs against R1's exact references (the rows of gen_out/cases.json, P1's compare.py predicate |obs-exp| <= 1e-9 max(|exp|, scale), every published observation, trusted or not), with main's same-family Sensitive publications at b = 0 for comparison. 'worst ratio' is |obs-exp| / max(|exp|, scale).
+  RF-RANGE-CHAIN-E-1000__dense_scrutiny__captured.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 9.748e-08 at S.N0.0.MX
+  RF-RANGE-CHAIN-E-1000__dense_scrutiny__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 9.748e-08 at S.N0.0.MX
+  RF-RANGE-CHAIN-E-1000__sparse_interactive__captured.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 1.695e-08 at T.M3
+  RF-RANGE-CHAIN-E-1000__sparse_interactive__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 1.695e-08 at T.M3
+  RF-RANGE-CHAIN-LEF-large__dense_scrutiny__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 9.748e-08 at S.N0.0.MX
+  RF-RANGE-CHAIN-LEF-large__sparse_interactive__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 1.695e-08 at T.M3
+  RF-RANGE-CONT-LEF-large__dense_scrutiny__typed.json: observations 147, outside 1e-9: 0 (0 keys), worst ratio 7.893e-16 at Mb.B5.j
+  RF-RANGE-CONT-LEF-large__sparse_interactive__typed.json: observations 147, outside 1e-9: 0 (0 keys), worst ratio 6.290e-16 at th.S5.RZ
+  RF-RANGE-SKEW-LEF-large__dense_scrutiny__typed.json: observations 30, outside 1e-9: 16 (14 keys), worst ratio 1.318e-05 at th.N1.RX
+  RF-RANGE-SKEW-LEF-large__sparse_interactive__typed.json: observations 30, outside 1e-9: 13 (12 keys), worst ratio 1.693e-05 at th.N1.RX
+  RF-RANGE-THIN-B__dense_scrutiny__captured.json: observations 24, outside 1e-9: 0 (0 keys), worst ratio 4.253e-16 at th.N1.RX
+  RF-RANGE-THIN-B__dense_scrutiny__typed.json: observations 24, outside 1e-9: 0 (0 keys), worst ratio 4.253e-16 at th.N1.RX
+  RF-RANGE-THIN-B__sparse_interactive__captured.json: observations 24, outside 1e-9: 0 (0 keys), worst ratio 4.129e-16 at u.N1.UY
+  RF-RANGE-THIN-B__sparse_interactive__typed.json: observations 24, outside 1e-9: 0 (0 keys), worst ratio 4.129e-16 at u.N1.UY
+  RF-RANGE-CHAIN-SIM-b__dense_scrutiny__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 9.748e-08 at S.N0.0.MX
+  RF-RANGE-CHAIN-SIM-b__sparse_interactive__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 1.695e-08 at T.M3
+  RF-RANGE-CHAIN-L+240__dense_scrutiny__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 9.748e-08 at S.N0.0.MX
+  RF-RANGE-CHAIN-L+240__sparse_interactive__typed.json: observations 74, outside 1e-9: 17 (12 keys), worst ratio 1.695e-08 at T.M3
+  RF-RANGE-SKEW-SIM-b__dense_scrutiny__typed.json: observations 30, outside 1e-9: 16 (14 keys), worst ratio 1.318e-05 at th.N1.RX
+  RF-RANGE-SKEW-SIM-b__sparse_interactive__typed.json: observations 30, outside 1e-9: 13 (12 keys), worst ratio 1.693e-05 at th.N1.RX

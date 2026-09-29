@@ -1,0 +1,38 @@
+#!/bin/bash
+# RV17: checks of F1b's committed records and of the uncommitted raw gate files.
+W=<wt>; R=$W/scratch/rv17
+P=projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/F1B
+echo "RV17 records checks (2026-09-29). T3/IMPLEMENTATION/F1B/ extracted with git archive at each commit."
+for rev in 9aeed9c22 c4879c496 f183e1fa9; do
+  D=$R/records_$rev; rm -rf $D; mkdir -p $D; git -C $W/f1b archive $rev $P | tar -x -C $D; cd $D/$P
+  echo; echo "== $rev"
+  echo "SHA256SUMS lines: $(wc -l < SHA256SUMS | tr -d ' '); files (excluding SHA256SUMS): $(find . -type f ! -name SHA256SUMS | wc -l | tr -d ' '); shasum -c failures: $(shasum -a 256 -c SHA256SUMS 2>&1 | grep -vc ': OK$')"
+  python3 - <<'PY'
+import os, re
+disc = {}
+for line in open('_run_records/trailing_whitespace.txt'):
+    m = re.match(r'\s*(\d+)\s+(\S+)$', line)
+    if m: disc[m.group(2)] = int(m.group(1))
+actual = {}
+for root, _, files in os.walk('.'):
+    for f in files:
+        p = os.path.join(root, f)[2:]
+        try: lines = open(p, encoding='utf-8').read().split('\n')
+        except UnicodeDecodeError: continue
+        n = sum(1 for l in lines if l != l.rstrip(' \t'))
+        if n: actual[p[len('_run_records/'):] if p.startswith('_run_records/') else p] = n
+print(f"trailing whitespace: {len(actual)} files, {sum(actual.values())} lines; disclosed list {len(disc)} files; per-file counts equal: {disc == actual}")
+print("CHANGE_RECORD.md and RETURN.md trailing-whitespace lines:", actual.get('CHANGE_RECORD.md', 0), actual.get('RETURN.md', 0))
+for f in ('CHANGE_RECORD.md', 'RETURN.md'):
+    print(f, 'ends with one newline:', open(f, 'rb').read().endswith(b'\n') and not open(f, 'rb').read().endswith(b'\n\n'))
+PY
+  echo "machine-path scan (the Users, private, home, tmp and var/folders roots): $(grep -rlE '[/](Users|private|home|tmp)[/]|[/]var[/]folders[/]' . | wc -l | tr -d ' ') files"
+  echo "model-identifier scan (claude-<digit>, opus, sonnet, gpt-): $(grep -rliE 'claude-[0-9]|opus|sonnet|gpt-' . | wc -l | tr -d ' ') files"
+  cd $R; rm -rf $D
+done
+echo
+echo "== uncommitted raw gate files (<wt>/scratch/i13), against _run_records/uncommitted_sha256.txt"
+cd $W/scratch/i13
+shasum -a 256 gate/part1/runs.jsonl gate/rv11d_large/runs.jsonl gate2/part1/runs.jsonl gate2/obs/rv11d_cont/runs.jsonl gate2/SHA256SUMS
+echo "gate2/SHA256SUMS verification (every listed file, full envelopes included):"
+(cd gate2 && shasum -a 256 -c SHA256SUMS 2>&1 | awk '{print $NF}' | sort | uniq -c)

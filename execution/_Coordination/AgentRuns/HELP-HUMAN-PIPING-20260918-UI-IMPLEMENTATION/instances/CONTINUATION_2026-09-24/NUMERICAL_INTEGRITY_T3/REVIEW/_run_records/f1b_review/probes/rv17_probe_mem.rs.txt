@@ -1,0 +1,42 @@
+//! RV17 (F1b review) scratch probe, never committed: the peak heap increment of one captured
+//! sparse-mode solve of the request at $RV17_REQUEST (its own test binary; a counting global
+//! allocator with a 6 GiB safety cap). Printed to stderr; no assertion.
+use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
+use std::alloc::{GlobalAlloc, Layout, System};
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+static CURRENT: AtomicUsize = AtomicUsize::new(0);
+static PEAK: AtomicUsize = AtomicUsize::new(0);
+struct Counting;
+impl Counting {
+    fn grow(size: usize) {
+        let now = CURRENT.fetch_add(size, Ordering::SeqCst) + size;
+        if now > (6usize << 30) {
+            std::process::abort();
+        }
+        PEAK.fetch_max(now, Ordering::SeqCst);
+    }
+}
+unsafe impl GlobalAlloc for Counting {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 { Self::grow(layout.size()); unsafe { System.alloc(layout) } }
+    unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 { Self::grow(layout.size()); unsafe { System.alloc_zeroed(layout) } }
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) { unsafe { System.dealloc(ptr, layout) }; CURRENT.fetch_sub(layout.size(), Ordering::SeqCst); }
+    unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
+        if new_size > layout.size() { Self::grow(new_size - layout.size()); } else { CURRENT.fetch_sub(layout.size() - new_size, Ordering::SeqCst); }
+        unsafe { System.realloc(ptr, layout, new_size) }
+    }
+}
+#[global_allocator]
+static GLOBAL: Counting = Counting;
+
+#[test]
+fn rv17_probe_m3_captured_sparse_peak() {
+    let path = std::env::var("RV17_REQUEST").expect("RV17_REQUEST");
+    let request: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+    let base = CURRENT.load(Ordering::SeqCst);
+    PEAK.store(base, Ordering::SeqCst);
+    let envelope = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::SparseInteractive).unwrap();
+    let peak = PEAK.load(Ordering::SeqCst) - base;
+    let quality: Vec<_> = envelope.diagnostics.iter().filter(|d| d.code.starts_with("NUMERICAL_INTEGRITY") || d.code.starts_with("SOURCE_BLOCK")).map(|d| d.code.clone()).collect();
+    eprintln!("RV17-MEM request={path} mechanics={} peak_increment_bytes={peak} diagnostics={quality:?}", envelope.status.mechanics);
+}

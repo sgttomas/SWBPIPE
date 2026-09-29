@@ -1,0 +1,66 @@
+RV17 revisions (read-only git; 2026-09-29)
+
+PR #1052 final head reviewed: f183e1fa9 (ROOT's messages; 9aeed9c22 at spawn, then c4879c496, then f183e1fa9).
+Branch history, first parent:
+f183e1fa98 F1b: records addendum 2 - re-run after K5's merge at c4879c496 (39 suites: only added tests change; T9 112/112; gate part 1 PASS, 884/884 identical to the 130445db2 gate)
+c4879c4969 Merge remote-tracking branch 'origin/main' into codex/piping-f1b-20260928
+07bed26385 F1b: product pin for the pressure_thrust_load admission route (tests only), with records addendum 1
+9aeed9c22e Merge remote-tracking branch 'origin/main' into codex/piping-f1b-20260928
+9ecf2bdca3 F1b: checkpoint D records (CHANGE_RECORD, RETURN, run records)
+130445db29 F1b: guard the DEC-050/053 sparse observation lane at the provisional ceiling (ROOT's ruling on the heap-cap finding)
+948e0bb99c F1b checkpoint C: two tests that kill the first-round survivors (LEAK-W2: a non-range failure never engages W2; M8: a subnormal spring action publishes the checked helper's value, a double-rounding tie)
+e215c60077 F1b checkpoint A2: W2 at formation in the product (after the ordinary attempt and exact-block, linear invocations only)
+
+F1b slice commits (e7d930d49..130445db2):
+130445db29 F1b: guard the DEC-050/053 sparse observation lane at the provisional ceiling (ROOT's ruling on the heap-cap finding)
+948e0bb99c F1b checkpoint C: two tests that kill the first-round survivors (LEAK-W2: a non-range failure never engages W2; M8: a subnormal spring action publishes the checked helper's value, a double-rounding tie)
+e215c60077 F1b checkpoint A2: W2 at formation in the product (after the ordinary attempt and exact-block, linear invocations only)
+94e543a24a F1b checkpoint A1: product sparse wiring and dense-scrutiny guard (pure refactor at b = 0)
+
+Code numstat e7d930d49..130445db2 under core/ (the product slice):
+3	2	projects/chirality-piping/core/product_physics/src/f1a_tests.rs
+2602	0	projects/chirality-piping/core/product_physics/src/f1b_tests.rs
+1	1	projects/chirality-piping/core/product_physics/src/formation_guard.rs
+1141	164	projects/chirality-piping/core/product_physics/src/lib.rs
+3	2	projects/chirality-piping/core/product_physics/src/s11f_tests.rs
+1	1	projects/chirality-piping/core/product_physics/src/source_receipt/load_state_join_tests.rs
+2	1	projects/chirality-piping/core/product_physics/src/source_receipt/load_state_tests.rs
+59	1	projects/chirality-piping/core/product_physics/src/source_recovery.rs
+163	0	projects/chirality-piping/core/product_physics/tests/f1b_guard_ceiling.rs
+165	0	projects/chirality-piping/core/product_physics/tests/f1b_sparse_pattern_memory.rs
+1046	0	projects/chirality-piping/core/product_physics/tests/f1b_w2_runtime.rs
+144	8	projects/chirality-piping/core/product_physics/tests/k2a_formation_range_runtime.rs
+23	4	projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs
+178	4	projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs
+
+Merge 9aeed9c22: parents 9ecf2bdca3 b37331092a; merge base of the parents e7d930d493
+  git diff <merge base> b37331092 equals git diff 9ecf2bdca 9aeed9c22: IDENTICAL
+  git show --remerge-diff 9aeed9c22: 0 lines
+  main's delta paths outside projects/chirality-app-v4/ and projects/chirality-piping/execution/: 0
+
+Pin commit 07bed2638 (its parent 9aeed9c22): files under core/:
+59	2	projects/chirality-piping/core/product_physics/tests/f1b_w2_runtime.rs
+
+Merge c4879c496: parents 07bed26385 1cdeae2c1d; merge base of the parents b37331092a
+  git diff <merge base> 1cdeae2c1 equals git diff 07bed2638 c4879c496: IDENTICAL
+  git show --remerge-diff c4879c496: 0 lines
+  main's delta outside projects/chirality-app-v4/ and projects/chirality-piping/execution/ (K5, PR #1044):
+267	0	projects/chirality-piping/core/product_physics/tests/k5_curved_mechanism_runtime.rs
+1004	0	projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs
+6	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS
+1000	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt
+11	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt
+29	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt
+910	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py
+301	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt
+15	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt
+1160	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs
+131	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs
+253	5	projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs
+1333	0	projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs
+
+core/product_physics/src identical at 130445db2 and c4879c496: yes
+git diff --check e7d930d49 c4879c496 on the slice's product files: 0 lines
+
+Records-only commit f183e1fa9 (parent c4879c4969): 73 files changed; outside T3/IMPLEMENTATION/F1B/: 0
+projects/chirality-piping/core identical at c4879c496 and f183e1fa9: yes

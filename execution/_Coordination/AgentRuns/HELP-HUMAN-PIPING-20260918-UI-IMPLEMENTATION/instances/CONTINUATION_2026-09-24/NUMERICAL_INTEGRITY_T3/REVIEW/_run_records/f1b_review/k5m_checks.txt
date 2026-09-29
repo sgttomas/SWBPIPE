@@ -1,0 +1,15 @@
+RV17: spot-verification of F1b RETURN addendum 2 (f183e1fa9; runs on c4879c496), 2026-09-29
+
+- Records: see records_checks.txt (== f183e1fa9: SHA256SUMS 449/449, whitespace as disclosed, no machine paths).
+- Gate part 1 at c4879c496, from the committed tables only (k5_merge_c4879c496/gate_part1/part1/envelope_sha256.tsv and c1_table.tsv, against G1's full-envelope base TSV):
+    runs 884 884 keys_equal True
+    C1 28 C2 24 C1&C2 0
+    C3 runs 832
+    changed total 52
+    changed outside C1 and C2 []
+    C1 unchanged (should be empty) []
+    C2 changed 24
+- c4879c496 gate against the 130445db2 gate (same six fields): 884 and 884 runs, keys equal True, differences 0
+- Uncommitted k5m/part1/runs.jsonl: 61b5405d58c6c4a1889e85743632ae1bd4e8c4177b5bb1d311e73f2573e79553 (uncommitted_sha256.txt: 61b5405d58c6c4a1889e85743632ae1bd4e8c4177b5bb1d311e73f2573e79553)
+- T9 at c4879c496 (t9/output_sha256_c4879c496.txt) against PLATFORM_CALIBRATION_MAC/t9/output_sha256_main_mac_native.txt: 112 entries each, 112 equal.
+- Suites (suites/suites_vs_a2.txt, suites/logs/008): PP 566 passed, 1 failed (t13), 1 ignored; FK 267; NI 134; the other 36 manifests unchanged against A2. RV17's own H-NONE run on c4879c496 gives the same PP and NI counts.

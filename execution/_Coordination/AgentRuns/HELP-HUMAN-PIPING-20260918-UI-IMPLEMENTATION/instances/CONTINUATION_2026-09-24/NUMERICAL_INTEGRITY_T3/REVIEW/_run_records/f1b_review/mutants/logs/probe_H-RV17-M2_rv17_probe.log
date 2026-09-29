@@ -1,0 +1,131 @@
+warning: unused variable: `spring_index`
+    --> src/lib.rs:4074:18
+     |
+4074 |             for (spring_index, spring) in spring_entries
+     |                  ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_spring_index`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:9668:4
+     |
+9668 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `stage` is never read
+  --> src/source_recovery.rs:68:9
+   |
+67 | pub(super) struct RecoveryFailure {
+   |                   --------------- field in this struct
+68 |     pub stage: &'static str,
+   |         ^^^^^
+   |
+   = note: `RecoveryFailure` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: function `expected_primary` is never used
+  --> src/source_receipt/rows.rs:55:15
+   |
+55 | pub(super) fn expected_primary(
+   |               ^^^^^^^^^^^^^^^^
+
+warning: function `derived` is never used
+   --> src/source_receipt/rows.rs:329:15
+    |
+329 | pub(super) fn derived(
+    |               ^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics` to apply 1 suggestion)
+   Compiling open_pipe_stress_product_physics v0.2.0 (<wt>/rv17/H-RV17-M2/tree/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running tests/rv17_probe.rs (<wt>/rv17-target/H-RV17-M2/debug/deps/rv17_probe-31c04107e28fa0aa)
+
+running 1 test
+test rv17_probe_m2_two_springs ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.05s
+
+probe H-RV17-M2 rv17_probe rc=0
