@@ -2073,3 +2073,10 @@ RV19 (`REVIEW/K4_REVIEW.md`, sha256 `d906539e…`; records `REVIEW/_run_records/
 - **Next on the kernel path:**
   - K6b (I16) and V-K (I17), from main `ab02ee3a6`. K6b's A0 adds the `retained` export, and V-K reuses that commit;
   - then ROOT's W1 limits, F2a, and the owner's ceiling decision with V-P.
+
+## K6b and V-K: spawn (ROOT, 2026-09-29)
+
+- **K6b is spawned as I16** (`TASK_BRIEFS/I16_K6B_IMPLEMENTATION.md`), on branch `codex/piping-k6b-20260929` in `<wt>/k6b`, from main `ab02ee3a6` (K4 merged).
+- **V-K is spawned as I17** (`TASK_BRIEFS/I17_VK_IMPLEMENTATION.md`), on branch `codex/piping-vk-20260929` in `<wt>/vk`, from the same main. ROOT cherry-picks K6b's A0 export commit onto it once that commit exists.
+- **The briefs cite K4 at `7d8fa9c0e`.** The merged head is `5a46a6278`. RETURN §16's export list is unchanged by the review fixes, apart from `CombinationReason::OperandsDiffer` (RV19-3). Re-locate every line on main.
+- **Checkpoint 0 is read and design only** for both. There is no build until ROOT approves each plan.
