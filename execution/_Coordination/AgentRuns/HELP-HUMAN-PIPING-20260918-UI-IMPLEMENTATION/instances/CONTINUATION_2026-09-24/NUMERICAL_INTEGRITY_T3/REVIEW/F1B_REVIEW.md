@@ -317,3 +317,104 @@ Both merges add exactly main's delta, with an empty remerge diff (§ Revisions).
 - **The shared scratchpad.** I wrote two diffs (`lib.diff`, `sr.diff`) to the shared session scratchpad, then moved them to `<wt>/scratch/rv17`. I cannot rule out that files of the same names were there before.
 - **Stopped runs.** An old-head RV17-M2 run was stopped when the head moved, and left no result. Its tree and target were deleted, including one orphaned test process of mine that I stopped.
 - **Workspace.** Everything under `<wt>/rv17` and `<wt>/rv17-target` is deleted at the end (README).
+
+## Delta check at 6fa422979
+
+- **Head checked:** `6fa42297926e7a218a1dc55187895a6784474aa1`, one commit after `f183e1fa9`: tests and records only.
+- **Date:** 2026-09-29.
+- **Verdict: PASS.**
+  - RV17-1 to RV17-4 are resolved. No new BLOCKING or SHOULD-FIX finding.
+  - One new NOTE: RV17-D1, a line-citation slip.
+- **Records:** `R/delta/` (README, records, platform check, runs); `R/SHA256SUMS` is regenerated over the whole folder.
+
+### D.1 What changed (`R/delta/records_delta.txt`)
+
+- **Under `P/core`,** only W2RT changes: +337 −9, 1,431 lines, sha256 `c350af2e30d40bdb…`, with `git diff --check` clean.
+  - `product_physics/src` and `solver/` are unchanged.
+  - No file changes outside `P/core` and `T3/IMPLEMENTATION/F1B/`.
+- **Records.** F1b's `SHA256SUMS` verifies 470 of 470.
+  - Trailing whitespace is exactly the disclosed 24 files, and CHANGE_RECORD and RETURN have none.
+  - GEN-8's `MACHINE_ABS_PATH_RE` finds nothing, and there are no model identifiers.
+  - I13's three request files (`cx_f`, `m1`, `m2a`) equal mine as parsed JSON.
+
+### D.2 My runs
+
+Each run is from a clean `git archive 6fa422979`, one cargo job at a time, `-j 4`, `RUST_TEST_THREADS=4`, `--no-fail-fast`, with NI and PP in full (`R/delta/mutants/`). The memory guard log is unchanged, and all trees and targets are deleted.
+
+| Run | Result | Kill site |
+|---|---|---|
+| D-NONE | NI 134 and PP 569 passed; only the known Mac `t13` failed (`s11g_tests.rs:1666`); 1 ignored | — |
+| D-F1B-M2 (W2 before exact-block; I13's patcher) | **killed** | W2RT:1274, the positive test's `MECHANICS_SOLVED` assertion: the captured CX-F run is W2-refused instead of selected. W2RT:1098, the unselected side's count: no exact-block attempt, 0 against 1. W2RT:463, the mixed invocation's captured entry returns `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")`, an `unwrap` panic; the two assertion kills suffice |
+| D-RV17-M1 (`let linear = true;`) | **killed** | W2RT:1350: the diagnostic list, captured and sparse first, gains `LOAD_CATEGORY_PREVIEW_MAPPED` |
+| D-RV17-M2 (every spring action the first spring's) | **killed** | W2RT:1422: `spring:N1:UZ` is not −k·u of its own DOF |
+
+- **The three new tests and the pressure pin pass on my build.** So all three full-envelope pins equal Mac main's bytes on an independent archive build of the head: CX-F sparse `d953a683…` and dense `10d312a1…`, m1 `a29e29f2…`, and the pressure twin.
+- **Everything reproduces I13's addendum 3:** the PP count, the three kill sites for F1B-M2, and one kill site each for RV17-M1 and RV17-M2.
+- **Totals.** F1b now has 41 added tests and 53 counted mutants, all killed. RV17-M4 remains the recorded NOTE survivor.
+
+### D.3 RV17-1: D10 now stands
+
+**D10 (RETURN.md:783-810)** now claims only what is true.
+- **Its claim** is byte identity wherever exact-block selects, proven by the arm order: the selected arm precedes W2's arm.
+- **The withdrawn step 4** is removed, and the stated reason is the right one: short-mantissa loads make the exact products representable, and M03's scaled right-hand side is about √(f·u).
+- **Steps 1–3 remain as context.** Step 3 is labelled a bound sketch, and no conclusion depends on it.
+
+**The new test**, `f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes` (W2RT:1261-1321), is the brief's positive coexistence test.
+- It is built field for field from my CX-F.
+- **On the captured entry, in both modes,** it asserts:
+  - `MECHANICS_SOLVED` and exactly one `SOURCE_BLOCK_RECOVERY_SELECTED`;
+  - the receipt;
+  - the info-severity rejected-attempt record with its `Range("division overflow or underflow")` trigger;
+  - no `range_scaling` text;
+  - main's full-envelope sha256.
+
+**The typed-entry deviation from ROOT's "both entries" wording is right.**
+- **The positive property is structural.** Exact-block is eligible only on the captured entry: `source_eligible` needs a capture.
+- **On the typed entry the two sides must differ.** Main refuses CX-F with its blocking ordinary Range record (`ca8eda41…`). F1b's W2 then refuses it by name (`853fd2e7…`; `R/coex/head_compare.txt`), which is exactly the C1 kind: a range refusal on a linear invocation that exact-block did not recover. So byte equality on the typed entry is impossible by design, and it is not part of coexistence.
+- **The typed half** asserts the W2 refusal's reason and step-1 trigger, which match my runs. The brief's own wording of the test is "a captured, source-eligible case".
+
+**The unselected-side test's** doc comment no longer states A2's general claim, and its assertions are unchanged.
+
+### D.4 RV17-2 and RV17-3
+
+**RV17-2.** `f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope` (W2RT:1331-1367) pins m1 on both entries and in both modes:
+- the exact one-entry diagnostic list;
+- no results;
+- main's full-envelope sha256.
+
+It kills RV17-M1 at a direct assertion.
+
+**RV17-3: the two-spring test's 1e-9 comparison is sound.** `f1b_w2_two_spring_publication_gives_each_spring_its_own_action` (W2RT:1375-1431) compares each spring's action within 1e-9 of −k·u, not bit for bit. That is sound, for three reasons:
+- **Why no exact oracle exists in the test.** The checked helper publishes fl(−k·u) of the solver's own u: k·2^b is exact, there is one rounding at scale, and the unscaling is exact in the normal range. But the test can read u only from the published mm row divided by 1000, which adds two roundings.
+- **Why sparse and dense differ.** Their solves return u one ulp apart (skyline LDL against Cholesky; within the DEC-053 basis), so their UY actions differ by one ulp (−4.363400364938612e-290 against −4.3634003649386115e-290, as in my probes).
+- **Why the tolerance cannot hide the mutant.** The predicate is the brief's unchanged `|obs − exp| ≤ 1e-9·|exp|`. The defect it guards against is a wrong DOF or a wrong spring, which is off by a factor of about 4.2 here (−4.36e-290 against −1.84e-289 N), far outside 1e-9. The test also asserts that the two actions differ.
+- **The checked-helper bits themselves** remain pinned by the earlier M8 tie test.
+
+### D.5 RV17-4, the NOTEs, and the platform independence of the new pins
+
+- **RV17-4** is disclosed under RETURN §9.3's C1 table (RETURN.md:402-408), with my numbers and ROOT's "trusted publications only" ruling. CHANGE_RECORD.md:88 repeats it.
+- **N1–N5** are recorded as ruled (addendum 3 §A3.6). RETURN §6.2 (RETURN.md:239) and CHANGE_RECORD.md:32 now say that 24P bounds the identity-order build, not the lane's peak.
+- **CX-F is platform-independent on inspection** (`R/delta/platform_check.txt`).
+  - The exact-block publication path calls no function of unspecified precision: the only hits are `powi` constants inside `exact_boundary.rs`'s test module, which starts at line 1664.
+  - `source_receipt::scaled_norm` uses only `sqrt` and basic operations.
+  - Every nonzero row of the CX-F envelope is either one component or a magnitude with exactly one nonzero component (N1 UX, the anchor's Fx, the axial stress), so `hypot` is exact.
+  - There is no thermal load.
+- **m1** is a blocked envelope with no computed value.
+- **Hosted Linux CI remains the arbiter.** Both pins name their re-pin duty in their doc comments.
+
+### D.6 New NOTE
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| RV17-D1 | NOTE | RETURN.md:804 and :1228 (and the earlier :194, :902, :906): the arm citations `:3689` and `:3714` | At `6fa422979` (and at `130445db2`), the selected arm `Err(OrdinaryFailure::Structural(error)) if selected_source.is_some()` is PP:3690 and the W2 arm `Err(failure) =>` is PP:3713. Each citation is off by one. The argument is unaffected. | Correct the citations when the records are next touched. |
+
+### D.7 Not done, and disclosures
+
+**Not done:**
+- FK and SD, which are unchanged since `c4879c496`;
+- T9 and the gate: no product file changed;
+- hosted CI, DEC-025 and GEN-8.
+
+**Disclosures:**
+- I made no Git write. I compared my committed review with the working file by `git show`, not `git status`.
+- One cargo job at a time throughout.

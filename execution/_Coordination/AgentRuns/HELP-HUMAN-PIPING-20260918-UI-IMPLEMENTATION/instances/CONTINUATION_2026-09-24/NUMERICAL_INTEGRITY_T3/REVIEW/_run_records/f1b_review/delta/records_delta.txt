@@ -1,0 +1,23 @@
+RV17 delta check at 6fa422979 (2026-09-29): revisions and records
+
+6fa422979 is 6fa42297926e7a218a1dc55187895a6784474aa1; parent f183e1fa98 (f183e1fa9).
+6fa4229792 F1b: tests for RV17's SHOULD-FIX findings; D10 corrected; records addendum 3
+Files changed f183e1fa9..6fa422979: 26; under projects/chirality-piping/core:
+337	9	projects/chirality-piping/core/product_physics/tests/f1b_w2_runtime.rs
+Outside core and T3/IMPLEMENTATION/F1B/: 0
+product_physics/src and solver/ unchanged: yes
+git diff --check f183e1fa9 6fa422979 on the test file: 0 lines
+f1b_w2_runtime.rs at 6fa422979: 1431 lines, sha256 c350af2e30d40bdbd3667ec456cd9b5af044f3dadce27ecea63c15ef7082aecb
+
+== T3/IMPLEMENTATION/F1B/ at 6fa422979
+SHA256SUMS lines: 470; files (excluding SHA256SUMS): 470; shasum -c failures: 0
+trailing whitespace: 24 files, 325 lines; disclosed 24 files; per-file counts equal: True
+CHANGE_RECORD.md and RETURN.md trailing-whitespace lines: 0 0
+CHANGE_RECORD.md ends with exactly one newline: True
+RETURN.md ends with exactly one newline: True
+GEN-8 MACHINE_ABS_PATH_RE hits in the folder: 0
+model-identifier scan (claude-<digit>, opus, sonnet, gpt-): 0 files
+review_fixes_rv17/requests vs RV17's committed requests (equal as parsed JSON values):
+  cx_f: equal as JSON values: True
+  m1: equal as JSON values: True
+  m2a: equal as JSON values: True
