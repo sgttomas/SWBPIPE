@@ -1,0 +1,268 @@
+"""K6 checkpoint D: the tables RETURN draws on, computed from the recorded runs (read-only).
+
+Usage: python3 d_tables.py <runner dir> <records dir> <counts> <out dir>
+Writes: schedule_as_run.txt, results_table.txt, stages_table.txt, fits.txt, f1b_ratios.txt,
+rss_over_footprint.txt, parity.txt, product_gap.txt, and d_tables.json (everything above).
+"""
+import json
+import math
+import os
+import sys
+
+runner_dir, record_dir, counts_path, out_dir = sys.argv[1:5]
+sys.path.insert(0, runner_dir)
+import k6_runner as r  # noqa: E402
+
+MIB, GIB = r.MIB, r.GIB
+os.makedirs(out_dir, exist_ok=True)
+counts = r.read_counts(counts_path)
+records = r.read_records(record_dir)
+entries = r.run_entries(records)
+measured = [x for x in entries if x.get('classification') not in (None, 'not_run')]
+by_order = {}
+for x in entries:
+    by_order.setdefault(x['order'], []).append(x)
+cross = [x for x in records if x.get('kind') == 'cross_mode']
+out = {}
+
+
+def mib(b):
+    return '-' if b is None else '%.1f' % (b / MIB)
+
+
+def tier_baseline_fp(tier):
+    path = os.path.join(record_dir, 'baseline_%s.record.json' % tier)
+    if not os.path.exists(path):
+        return None
+    return (json.load(open(path)).get('rss') or {}).get('time_peak_footprint_bytes')
+
+
+def objects_of(x):
+    path = os.path.join(record_dir, x['run_id'] + '.jsonl')
+    return r.jsonl(open(path)) if os.path.exists(path) else []
+
+
+def write(name, lines):
+    with open(os.path.join(out_dir, name), 'w') as fh:
+        fh.write('\n'.join(l.rstrip() for l in lines) + '\n')
+
+
+# ------------------------------------------------------------ schedule as run
+lines = ['# The approved schedule (138 rows, _run_records/a2/plan.txt) as run. Final state per row;',
+         '# a row deferred in one slot and run in a later one shows both.',
+         'order | tier | slot | model | mode | final | detail']
+sched_rows = []
+for run in r.schedule():
+    rows = by_order.get(run['order'], [])
+    done = [x for x in rows if x.get('classification') not in (None, 'not_run')]
+    nr = [x for x in rows if x.get('classification') == 'not_run']
+    if done:
+        x = done[-1]
+        final = x['classification']
+        detail = 'admitted: %s' % (x.get('admission') or {}).get('reason')
+        if nr:
+            detail += ' | earlier: %s' % (nr[-1].get('admission') or {}).get('reason')
+    elif nr:
+        final = 'not_run'
+        detail = (nr[-1].get('admission') or {}).get('reason')
+    else:
+        final, detail = 'MISSING', ''
+    sched_rows.append({'order': run['order'], 'tier': run['tier'], 'slot': run['slot'], 'model': run['model'],
+                       'mode': run['mode'], 'final': final, 'detail': detail})
+    lines.append('%d | %s | %s | %s | %s | %s | %s' % (run['order'], run['tier'], run['slot'], run['model'],
+                                                     run['mode'], final, detail))
+summary = {}
+for s in sched_rows:
+    summary[s['final']] = summary.get(s['final'], 0) + 1
+lines.append('# totals: %s' % json.dumps(summary, sort_keys=True))
+write('schedule_as_run.txt', lines)
+out['schedule'] = sched_rows
+
+# ------------------------------------------------------------ results and stages
+lines = ['# One row per measured run. Heap = peak requested heap (in place / move model); fp = macOS peak',
+         '# memory footprint (time -l); RSS = peak RSS (time -l, or the ps watchdog peak where time wrote nothing).',
+         '# class = runner classification; outcome = repeat 0 outcome class (FactorRefused: the dense factor',
+         '# refused and the run was killed in the witness). Times: wall, and the staged total (sum of stage medians).',
+         'order | model | mode | class | outcome | reps | wall_s | heap MiB | heap_move MiB | fp MiB | RSS MiB (src) | '
+         'E_adm MiB | load start']
+stage_lines = ['# Per-stage median and minimum (s) over the completed repeats, and the stage heap peak (MiB).',
+               'order | model | mode | stage | samples | median_s | min_s | heap_peak MiB | heap_peak_move MiB | ok']
+res = []
+for x in sorted(measured, key=lambda x: x['order']):
+    objs = objects_of(x)
+    s = x.get('summary') or {}
+    stages = x.get('stages') or {}
+    heap = s.get('repeats_heap_peak') or (max([o['heap_peak'] for o in objs if o.get('kind') == 'stage'] or [0]) or None)
+    move = s.get('repeats_heap_peak_move') or (max([o['heap_peak_move'] for o in objs if o.get('kind') == 'stage'] or [0]) or None)
+    row = {'order': x['order'], 'run_id': x['run_id'], 'model': x['model'], 'mode': x['mode'], 'family': x['family'],
+           'members': x['members'], 'dofs': counts.get(x['model'], {}).get('dofs'),
+           'classification': x['classification'], 'outcome': r.observed_class(objs),
+           'repeats_completed': s.get('repeats_completed'), 'stop_reason': s.get('stop_reason'),
+           'wall_s': x['wall_s'], 'heap': heap, 'heap_move': move, 'footprint': r.peak_footprint(x),
+           'rss': x.get('peak_rss_bytes'), 'rss_source': x.get('peak_rss_source'),
+           'estimate_adm_bytes': x.get('estimate_adm_bytes'), 'estimate_f1b_bytes': x.get('estimate_f1b_bytes'),
+           'load_before': (x.get('load_before') or [None])[0], 'load_after': (x.get('load_after') or [None])[0],
+           'baseline_rss': x.get('baseline_rss_bytes'),
+           # B1's records predate the B2-stop rule's `baseline_footprint_bytes`; the tier's no-op
+           # baseline record (same binary, same slot) carries the footprint.
+           'baseline_fp': x.get('baseline_footprint_bytes') or tier_baseline_fp(x['tier']),
+           'runner_commit': x.get('runner_commit'), 'stdout_sha256': x.get('stdout_sha256'),
+           'stages': stages}
+    res.append(row)
+    lines.append('%d | %s | %s | %s | %s | %s | %.1f | %s | %s | %s | %s (%s) | %s | %s' % (
+        x['order'], x['model'], x['mode'], x['classification'], row['outcome'], row['repeats_completed'],
+        x['wall_s'], mib(heap), mib(move), mib(row['footprint']), mib(row['rss']), row['rss_source'],
+        mib(row['estimate_adm_bytes']), '%.2f' % row['load_before'] if row['load_before'] is not None else '-'))
+    for name, st in sorted(stages.items(), key=lambda kv: kv[0]):
+        stage_lines.append('%d | %s | %s | %s | %d | %.4f | %.4f | %s | %s | %s' % (
+            x['order'], x['model'], x['mode'], name, st['samples'], st['median_ns'] / 1e9, st['min_ns'] / 1e9,
+            mib(st['heap_peak']), mib(st['heap_peak_move']), st['ok']))
+    begun = [o['stage'] for o in objs if o.get('kind') == 'stage_begin' and o.get('repeat') == 0]
+    finished = [o['stage'] for o in objs if o.get('kind') == 'stage' and o.get('repeat') == 0]
+    for name in begun:
+        if name not in finished:
+            total = sum(o['elapsed_ns'] for o in objs if o.get('kind') == 'stage') / 1e9
+            stage_lines.append('%d | %s | %s | %s | in flight at the kill | %.1f (wall - completed stages) | - | - | - | -'
+                               % (x['order'], x['model'], x['mode'], name, x['wall_s'] - total))
+write('results_table.txt', lines)
+write('stages_table.txt', stage_lines)
+out['results'] = res
+
+# ------------------------------------------------------------ fits
+def fit_lines(label, pts):
+    f = r.fit_loglog(pts)
+    if not f:
+        return None, '   %s: fewer than two points' % label
+    return f, '   %s: slope %.4f, intercept %.4f; points %s; residuals %s' % (
+        label, f['slope'], f['intercept'], ', '.join('(%d, %d)' % p for p in f['points']),
+        ', '.join('%.4f' % v for v in f['residuals']))
+
+
+lines = ['# Observed log-log least-squares fits against members (n), per family and mode, over ok runs.',
+         '# heap = peak requested heap (in place); heap_move = move model; fp_net and rss_net are net of the run\'s',
+         '# own tier baseline (a no-op run of the same binary in the same slot). "all" = every measured size;',
+         '# ">=100" drops the 10-member point, where the process baseline dominates. Observations, not thresholds.']
+fits = {}
+series = {}
+for row in res:
+    if row['classification'] != 'ok':
+        continue
+    series.setdefault((row['family'], row['mode']), []).append(row)
+for (fam, mode), rows in sorted(series.items()):
+    lines.append('%s / %s (members: %s)' % (fam, mode, sorted(set(x['members'] for x in rows))))
+    fits['%s/%s' % (fam, mode)] = {}
+    for label, key in (('heap', 'heap'), ('heap_move', 'heap_move'), ('fp_net', 'fp_net'), ('rss_net', 'rss_net')):
+        for scope, sel in (('all', rows), ('>=100', [x for x in rows if x['members'] >= 100])):
+            pts = []
+            for x in sel:
+                if key == 'fp_net':
+                    v = (x['footprint'] - x['baseline_fp']) if x['footprint'] and x['baseline_fp'] else None
+                elif key == 'rss_net':
+                    v = (x['rss'] - x['baseline_rss']) if x['rss'] and x['baseline_rss'] else None
+                else:
+                    v = x[key]
+                if v and v > 0:
+                    pts.append((x['members'], v))
+            f, text = fit_lines('%s [%s]' % (label, scope), sorted(pts))
+            lines.append(text)
+            if f:
+                fits['%s/%s' % (fam, mode)]['%s [%s]' % (label, scope)] = {
+                    'slope': f['slope'], 'intercept': f['intercept'], 'points': f['points'],
+                    'residuals': f['residuals']}
+write('fits.txt', lines)
+out['fits'] = fits
+
+# ------------------------------------------------------------ F1b ratios
+lines = ["# F1b's estimates (quoted from PP at 130445db2, never imported): dense 96 x n^2 (PP@F1b:2878);",
+         '# lane 24 bytes per identity-order profile entry (PP@F1b:2958). Also RV17-N2\'s form for the lane,',
+         '# 16 P + 24 P\' (P = identity profile entries, P\' = lane entries; I15\'s reading of the note).',
+         "# F1b's provisional ceiling: 6 GiB = 6,442,450,944 B.",
+         'model | mode | members | dofs | estimate B | heap/est | heap_move/est | fp/est | RSS/est | extra']
+ratios = []
+for row in sorted(res, key=lambda x: (x['mode'], x['family'], x['members'], x['model'])):
+    c = counts.get(row['model'], {})
+    if row['mode'] == 'dense':
+        est = 96 * row['dofs'] * row['dofs']
+        extra = 'heap/6GiB ceiling %.4f' % (row['heap'] / (6 * GIB)) if row['heap'] else ''
+    elif row['mode'] == 'lane-id':
+        est = 24 * c['identity_profile_entries']
+        alt = 16 * c['identity_profile_entries'] + 24 * c['lane_entries']
+        extra = "16P+24P' = %d B: heap/alt %.3f, move/alt %.3f" % (alt, row['heap'] / alt, row['heap_move'] / alt)
+    else:
+        continue
+    q = {'model': row['model'], 'mode': row['mode'], 'members': row['members'], 'dofs': row['dofs'],
+         'estimate': est, 'classification': row['classification'],
+         'heap': row['heap'] / est if row['heap'] else None,
+         'heap_move': row['heap_move'] / est if row['heap_move'] else None,
+         'fp': row['footprint'] / est if row['footprint'] else None,
+         'rss': row['rss'] / est if row['rss'] else None, 'extra': extra}
+    ratios.append(q)
+
+    def f4(v):
+        return '-' if v is None else '%.4f' % v
+    lines.append('%s | %s | %d | %s | %d | %s | %s | %s | %s | %s%s' % (
+        row['model'], row['mode'], row['members'], row['dofs'], est, f4(q['heap']), f4(q['heap_move']),
+        f4(q['fp']), f4(q['rss']), extra, '' if row['classification'] == 'ok' else ' [%s]' % row['classification']))
+write('f1b_ratios.txt', lines)
+out['f1b_ratios'] = ratios
+
+# ------------------------------------------------------------ RSS over footprint
+lines = ['# macOS peak RSS / peak footprint per run (time -l, both from the same run), by mode, family and size.',
+         'mode | family | members | model | RSS/fp | fp MiB | RSS MiB | load start']
+rf = []
+for row in sorted(res, key=lambda x: (x['mode'], x['family'], x['members'], x['model'])):
+    if not row['footprint'] or not row['rss'] or row['rss_source'] != 'time':
+        continue
+    v = row['rss'] / row['footprint']
+    rf.append({'mode': row['mode'], 'family': row['family'], 'members': row['members'], 'model': row['model'],
+               'rss_over_fp': v})
+    lines.append('%s | %s | %d | %s | %.3f | %s | %s | %s' % (row['mode'], row['family'], row['members'], row['model'],
+                                                         v, mib(row['footprint']), mib(row['rss']),
+                                                         '%.2f' % row['load_before'] if row['load_before'] else '-'))
+write('rss_over_footprint.txt', lines)
+out['rss_over_footprint'] = rf
+
+# ------------------------------------------------------------ parity
+items = {}
+for x in measured:
+    for o in objects_of(x):
+        if o.get('kind') == 'parity':
+            k = (o.get('item'), o.get('equal'))
+            items[k] = items.get(k, 0) + 1
+lines = ['# Parity lines over every measured run (the binary\'s own checks), by item and result.']
+for (item, eq), n in sorted(items.items(), key=lambda kv: str(kv[0])):
+    lines.append('%s: equal=%s x %d' % (item, eq, n))
+lines.append('# Cross-mode rows (sparse vs dense, same model): outcome classes and the DEC-053 basis.')
+lines.append('model | sparse | dense | class_equal | relative delta | DEC-053 asserted | within')
+for c in sorted(cross, key=lambda c: c['model']):
+    lines.append('%s | %s | %s | %s | %s | %s | %s' % (c['model'], c['sparse_class'], c['dense_class'], c['class_equal'],
+                                                  '%.3e' % c['relative'] if c.get('relative') is not None else '-',
+                                                  c.get('dec053_asserted'), c.get('dec053_within')))
+write('parity.txt', lines)
+out['parity_items'] = {'%s=%s' % k: v for k, v in items.items()}
+out['cross_mode'] = cross
+
+# ------------------------------------------------------------ product-level gap (P1, Linux, product level)
+lines = ["# P1's product-level Linux peak RSS (DETECTION/RETURN.md:224-289, c61a540ea; quoted in the runner as",
+         '# P1_LINUX_PEAK_MIB) against K6\'s kernel figures on the Mac, same model and mode. Different OS, level',
+         '# and allocator: context, not a comparison of builds.',
+         'model | mode | P1 Linux RSS MiB | K6 heap MiB | K6 fp MiB | K6 RSS MiB | heap/P1 | fp/P1 | RSS/P1']
+gap = []
+for row in sorted(res, key=lambda x: (x['mode'], x['members'], x['model'])):
+    p1 = r.P1_LINUX_PEAK_MIB.get((row['model'], row['mode']))
+    if p1 is None:
+        continue
+    g = {'model': row['model'], 'mode': row['mode'], 'p1_mib': p1, 'heap_mib': row['heap'] / MIB,
+         'fp_mib': row['footprint'] / MIB if row['footprint'] else None, 'rss_mib': row['rss'] / MIB}
+    gap.append(g)
+    lines.append('%s | %s | %.1f | %.1f | %s | %.1f | %.3f | %s | %.3f' % (
+        row['model'], row['mode'], p1, g['heap_mib'], '%.1f' % g['fp_mib'] if g['fp_mib'] else '-', g['rss_mib'],
+        g['heap_mib'] / p1, '%.3f' % (g['fp_mib'] / p1) if g['fp_mib'] else '-', g['rss_mib'] / p1))
+write('product_gap.txt', lines)
+out['product_gap'] = gap
+
+with open(os.path.join(out_dir, 'd_tables.json'), 'w') as fh:
+    json.dump(out, fh, indent=1, sort_keys=True, default=str)
+    fh.write('\n')
+print('schedule totals', json.dumps(summary, sort_keys=True))
+print('measured', len(res), 'fits', len(fits), 'ratios', len(ratios), 'rf', len(rf), 'gap', len(gap))

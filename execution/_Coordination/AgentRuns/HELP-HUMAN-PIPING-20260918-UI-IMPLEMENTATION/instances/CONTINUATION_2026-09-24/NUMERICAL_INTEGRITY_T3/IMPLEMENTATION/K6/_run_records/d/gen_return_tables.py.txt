@@ -1,0 +1,157 @@
+"""K6 checkpoint D: render RETURN's tables from d_tables.json, counts.jsonl and C's mutation table.
+
+Usage: python3 gen_return_tables.py <d_tables.json> <counts.jsonl> <mutation_table.json> <out.md>
+Each table is emitted under a marker line `<<NAME>>`, which RETURN's assembly replaces.
+"""
+import json
+import sys
+
+d = json.load(open(sys.argv[1]))
+counts = {}
+for line in open(sys.argv[2]):
+    o = json.loads(line)
+    counts[o['model']] = o
+mutation = json.load(open(sys.argv[3]))
+MIB = 1024 ** 2
+out = []
+
+
+def emit(name, lines):
+    out.append('<<%s>>' % name)
+    out.extend(lines)
+    out.append('<</%s>>' % name)
+
+
+def short(model):
+    return model.replace('RF-LARGE-', '').replace('DEC053:invented-', 'DEC053 ').replace('K6-', '')
+
+
+def m(v):
+    return '-' if v is None else '{:,.1f}'.format(v / MIB)
+
+
+def s(stages, key):
+    st = stages.get(key)
+    return '-' if not st else '%.3g / %.3g' % (st['median_ns'] / 1e9, st['min_ns'] / 1e9)
+
+
+def staged_total(stages):
+    keys = [k for k in stages if k not in ('entry_checked', 'entry_plain')]
+    return sum(stages[k]['median_ns'] for k in keys) / 1e9 if keys else None
+
+
+# ---------------------------------------------------------------- counts
+lines = ['| Model | Nodes | Members | DOFs | Pattern | Free lower (nonzero) | RCM profile (hbw) | Identity profile | Contributions |',
+         '|---|---|---|---|---|---|---|---|---|']
+for mid, c in sorted(counts.items(), key=lambda kv: (kv[1]['family'], kv[1]['members'], kv[0])):
+    lines.append('| %s | %d | %d | %d | %d | %d (%d) | %d (%d) | %d | %d |' % (
+        short(mid), c['nodes'], c['members'], c['dofs'], c['pattern_entries'], c['free_lower_entries'],
+        c['free_lower_nonzero'], c['rcm_profile_entries'], c['rcm_half_bandwidth'], c['identity_profile_entries'],
+        c['contributions']))
+emit('COUNTS', lines)
+
+# ---------------------------------------------------------------- per-run results, one table per mode
+for mode in ('sparse', 'dense', 'lane-id', 'lane-lu'):
+    main_stage = {'sparse': 'factor', 'dense': 'factor', 'lane-id': 'lane_solve', 'lane-lu': 'lane_solve'}[mode]
+    lines = ['| # | Model | Outcome | Reps | Wall s | Heap MiB | Move MiB | Footprint MiB | RSS MiB | Staged total s | %s med / min s | entry_checked s |' % main_stage,
+             '|---|---|---|---|---|---|---|---|---|---|---|---|']
+    rows = [r for r in d['results'] if r['mode'] == mode]
+    for r in sorted(rows, key=lambda r: (r['family'], r['members'], r['model'])):
+        tot = staged_total(r['stages'])
+        outcome = r['outcome'] if r['classification'] == 'ok' else '%s (%s)' % (r['outcome'], r['classification'])
+        lines.append('| %d | %s | %s | %s | %.1f | %s | %s | %s | %s%s | %s | %s | %s |' % (
+            r['order'], short(r['model']), outcome, r['repeats_completed'] if r['repeats_completed'] else '-',
+            r['wall_s'], m(r['heap']), m(r['heap_move']), m(r['footprint']), m(r['rss']),
+            '' if r['rss_source'] == 'time' else ' (ps)', '%.3f' % tot if tot is not None else '-',
+            s(r['stages'], main_stage), s(r['stages'], 'entry_checked')))
+    emit('RESULTS_' + mode.upper().replace('-', '_'), lines)
+
+# ---------------------------------------------------------------- fits
+lines = ['| Family / mode | Members | Heap, all | Heap, ≥100 | Move, ≥100 | Footprint net, ≥100 | RSS net, all | RSS net, ≥100 |',
+         '|---|---|---|---|---|---|---|---|']
+for key in sorted(d['fits']):
+    v = d['fits'][key]
+    pts = v.get('heap [all]', {}).get('points', [])
+
+    def g(label):
+        return '%.3f' % v[label]['slope'] if label in v else '-'
+    lines.append('| %s | %s | %s | %s | %s | %s | %s | %s |' % (
+        key, ', '.join(str(p) for p in sorted(set(p[0] for p in pts))), g('heap [all]'), g('heap [>=100]'),
+        g('heap_move [>=100]'), g('fp_net [>=100]'), g('rss_net [all]'), g('rss_net [>=100]')))
+emit('FITS', lines)
+
+# ---------------------------------------------------------------- F1b ratios
+for mode, label in (('dense', 'DENSE'), ('lane-id', 'LANE')):
+    if mode == 'dense':
+        lines = ['| Model | Members | DOFs | 96·n² (B) | Heap | Move | Footprint | RSS | Heap / 6 GiB |',
+                 '|---|---|---|---|---|---|---|---|---|']
+    else:
+        lines = ["| Model | Members | 24·P_id (B) | Heap | Move | Footprint | RSS | 16P + 24P′ (B) | Heap / that | Move / that |",
+                 '|---|---|---|---|---|---|---|---|---|---|']
+    rows = [q for q in d['f1b_ratios'] if q['mode'] == mode]
+    for q in sorted(rows, key=lambda q: (q['model'].startswith('DEC053'), q['members'], q['model'])):
+        f = lambda v: '-' if v is None else '%.4f' % v
+        tag = '' if q['classification'] == 'ok' else ' (%s)' % q['classification']
+        if mode == 'dense':
+            heap_bytes = q['heap'] * q['estimate']
+            lines.append('| %s%s | %d | %d | {:,} | %s | %s | %s | %s | %.4f |'.format(q['estimate']) % (
+                short(q['model']), tag, q['members'], q['dofs'], f(q['heap']), f(q['heap_move']), f(q['fp']),
+                f(q['rss']), heap_bytes / (6 * 1024 ** 3)))
+        else:
+            c = counts[q['model']]
+            alt = 16 * c['identity_profile_entries'] + 24 * c['lane_entries']
+            lines.append('| %s | %d | {:,} | %s | %s | %s | %s | {:,} | %.3f | %.3f |'.format(q['estimate'], alt) % (
+                short(q['model']), q['members'], f(q['heap']), f(q['heap_move']), f(q['fp']), f(q['rss']),
+                q['heap'] * q['estimate'] / alt, q['heap_move'] * q['estimate'] / alt))
+    emit('F1B_' + label, lines)
+
+# ---------------------------------------------------------------- RSS over footprint
+groups = {}
+for x in d['rss_over_footprint']:
+    size = 'DEC053 nine' if x['family'] == 'DEC053' else ('grid %d' % x['members'] if x['family'] == 'GRID'
+                                                          else str(x['members']))
+    groups.setdefault((x['mode'], size), []).append(x['rss_over_fp'])
+lines = ['| Mode | Size (members) | Runs | RSS / footprint, min–max |', '|---|---|---|---|']
+order = {'10': 0, '100': 1, '1000': 2, '1364': 3, '10000': 4}
+for (mode, size), vals in sorted(groups.items(), key=lambda kv: (kv[0][0], order.get(kv[0][1], 9), kv[0][1])):
+    lines.append('| %s | %s | %d | %.3f–%.3f |' % (mode, size, len(vals), min(vals), max(vals)))
+emit('RSS_FP', lines)
+
+# ---------------------------------------------------------------- product gap
+lines = ["| Mode | Members | P1 Linux RSS MiB (product) | K6 heap MiB | K6 footprint MiB | K6 RSS MiB | Heap / P1 | Footprint / P1 |",
+         '|---|---|---|---|---|---|---|---|']
+grp = {}
+for g in d['product_gap']:
+    members = int(g['model'].split('-n')[1][:5])
+    grp.setdefault((g['mode'], members), []).append(g)
+for (mode, members), gs in sorted(grp.items()):
+    def rng(key, scale=1.0):
+        vals = [x[key] for x in gs if x[key] is not None]
+        return '%.1f–%.1f' % (min(vals), max(vals)) if vals else '-'
+
+    def rr(num):
+        vals = [x[num] / x['p1_mib'] for x in gs if x[num] is not None]
+        return '%.3f–%.3f' % (min(vals), max(vals)) if vals else '-'
+    lines.append('| %s | %d | %s | %s | %s | %s | %s | %s |' % (mode, members, rng('p1_mib'), rng('heap_mib'),
+                                                            rng('fp_mib'), rng('rss_mib'), rr('heap_mib'), rr('fp_mib')))
+emit('GAP', lines)
+
+# ---------------------------------------------------------------- cross-mode
+lines = ['| Model | Sparse | Dense | Classes equal | Relative delta | DEC-053 asserted | Within 1e-9 |', '|---|---|---|---|---|---|---|']
+for c in sorted(d['cross_mode'], key=lambda c: c['model']):
+    lines.append('| %s | %s | %s | %s | %s | %s | %s |' % (
+        short(c['model']), c['sparse_class'], c['dense_class'], c['class_equal'],
+        '%.3e' % c['relative'] if c.get('relative') is not None else '-', c.get('dec053_asserted'),
+        c.get('dec053_within') if c.get('dec053_within') is not None else '-'))
+emit('CROSS', lines)
+
+# ---------------------------------------------------------------- mutation table
+lines = ['| Mutant | Side | Mutation | Result | Killed by |', '|---|---|---|---|---|']
+for row in mutation:
+    lines.append('| %s | %s | %s | %s | %s |' % (row['id'], row['kind'], row['what'], row['status'],
+                                                 '; '.join(row['tests'])[:300]))
+emit('MUTATION', lines)
+
+with open(sys.argv[4], 'w') as fh:
+    fh.write('\n'.join(line.rstrip() for line in out) + '\n')
+print('tables:', sum(1 for l in out if l.startswith('<<') and not l.startswith('<</')))
