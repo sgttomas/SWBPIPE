@@ -1011,6 +1011,7 @@ where
     let mut ctx = WideContext::<L>::new(p).unwrap();
     let mut ctx_q = WideContext::<R>::new(q).unwrap();
     let mut ctx64 = WideContext::<4>::new(64).unwrap();
+    let mut ctx16 = WideContext::<16>::new(1024).unwrap();
     let mut sum = ExactWideSum::new();
     let free = &group.ordering.free;
     let mut u = vec![Wide::<L>::ZERO; source.dof_count()];
@@ -1031,11 +1032,12 @@ where
         for (a, &g) in free.iter().enumerate() {
             u[g] = u_free[a];
         }
-        let mut tracker = ExtremeTracker::new(Direction::Up);
+        let mut tracker = BoundedExtremeTracker::new(Direction::Up);
         let rows = residual_rows(
             &mut ctx,
             &mut ctx_q,
             &mut ctx64,
+            &mut ctx16,
             &mut sum,
             p,
             &group.structure,

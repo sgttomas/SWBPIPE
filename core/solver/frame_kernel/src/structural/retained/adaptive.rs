@@ -537,59 +537,303 @@ fn approximate_ratio(
 /// evaluation (the approximations are within 2 ulps of the exact ratios).
 const WINDOW_ULPS: u64 = 1 << 13;
 
-/// The exact directed extreme of a stream of ratios num/den (both exact): the
-/// rows whose 64-bit approximation lies within `WINDOW_ULPS` of the running
-/// approximate extreme are kept (compared as bit patterns, integers only) and
-/// evaluated exactly at the end, so the result is the directed rounding of the
-/// true extreme.
-pub(crate) struct ExtremeTracker {
-    direction: Direction,
-    best: Option<u64>,
-    kept: Vec<(ExactWideSum, ExactWideSum, u64)>,
+/// KF1: T, the most rows one tracker holds unevaluated. At T it evaluates them
+/// (a collapse), so a tracker's memory does not depend on its rows. T = 512
+/// (ROOT's ruling "KF1: D received; T reopened and set to 512"): no result
+/// depends on T, only the work of rows collapsed and later dropped.
+pub(crate) const TRACKER_ROWS: usize = 512;
+
+/// KF1: G, the most unevaluated rows (counted by allocated capacity) the
+/// trackers of one call hold together: 8·T, so the eight trackers `rule` keeps
+/// for one body never reach it, and many small bodies are bounded as well.
+pub(crate) const TRACKER_SET_ROWS: usize = 8 * TRACKER_ROWS;
+
+#[cfg(not(test))]
+fn tracker_rows() -> usize {
+    TRACKER_ROWS
 }
 
-impl ExtremeTracker {
+/// T, or this thread's test override (KF1's model-level differential).
+#[cfg(test)]
+fn tracker_rows() -> usize {
+    tracker_hook::get().unwrap_or(TRACKER_ROWS)
+}
+
+fn tracker_set_rows() -> usize {
+    tracker_rows().saturating_mul(TRACKER_SET_ROWS / TRACKER_ROWS)
+}
+
+/// Whether key k lies within the window of the best key b (as bit patterns).
+fn in_window(k: u64, b: u64) -> bool {
+    k.abs_diff(b) <= WINDOW_ULPS
+}
+
+/// A row evaluated at a collapse: its exact directed ratio, or the refusal its
+/// exact evaluation met, with the row's place in the stream.
+#[derive(Debug, Clone)]
+enum Evaluated {
+    Ratio(f64),
+    Refused { seq: u64, stop: AttemptStop },
+}
+
+impl Evaluated {
+    /// Whether `self` decides `finish` ahead of `other`: a refusal before any
+    /// ratio, the earlier of two refusals, and the more extreme of two ratios.
+    fn beats(&self, other: &Self, direction: Direction) -> bool {
+        match (self, other) {
+            (Self::Refused { seq: a, .. }, Self::Refused { seq: b, .. }) => a < b,
+            (Self::Refused { .. }, Self::Ratio(_)) => true,
+            (Self::Ratio(_), Self::Refused { .. }) => false,
+            (Self::Ratio(a), Self::Ratio(b)) => match direction {
+                Direction::Up => a > b,
+                Direction::Down => a < b,
+            },
+        }
+    }
+}
+
+fn extreme(best: Option<f64>, value: f64, direction: Direction) -> f64 {
+    match (best, direction) {
+        (None, _) => value,
+        (Some(b), Direction::Up) => b.max(value),
+        (Some(b), Direction::Down) => b.min(value),
+    }
+}
+
+/// The exact directed extreme of a stream of ratios num/den (both exact), in
+/// memory that does not depend on the stream (KF1).
+///
+/// A row counts while its 64-bit approximation (its key, compared as a bit
+/// pattern) lies within `WINDOW_ULPS` of the running approximate extreme,
+/// exactly as K4's tracker kept it; `finish` returns the directed extreme of
+/// the exact ratios of the rows that count, or the refusal of the earliest of
+/// them whose exact evaluation refuses, bit for bit as K4's did.
+///
+/// At most T rows are held unevaluated. A collapse evaluates them exactly and
+/// keeps (key, outcome) entries, pruned to those that no entry nearer the best
+/// key (larger for Up, smaller for Down) with an outcome that decides `finish`
+/// at least as early dominates. The window removes rows by key alone, and a
+/// dominating entry's key is nearer the best, so it outlasts every row it
+/// dominates: the result is the same for any collapse schedule (KF1 plan §2).
+pub(crate) struct BoundedExtremeTracker {
+    direction: Direction,
+    limit: usize,
+    best: Option<u64>,
+    offered: u64,
+    /// Unevaluated rows: (num, den, key, place in the stream).
+    lazy: Vec<(ExactWideSum, ExactWideSum, u64, u64)>,
+    /// Evaluated entries (key, outcome), nearest the best first.
+    table: Vec<(u64, Evaluated)>,
+}
+
+impl BoundedExtremeTracker {
     pub(crate) fn new(direction: Direction) -> Self {
+        Self::with_limit(direction, tracker_rows())
+    }
+
+    pub(crate) fn with_limit(direction: Direction, limit: usize) -> Self {
         Self {
             direction,
+            limit: limit.max(1),
             best: None,
-            kept: Vec::new(),
+            offered: 0,
+            lazy: Vec::new(),
+            table: Vec::new(),
         }
     }
 
     pub(crate) fn offer(
         &mut self,
         ctx64: &mut WideContext<4>,
+        ctx16: &mut WideContext<16>,
         num: ExactWideSum,
         den: ExactWideSum,
     ) -> Result<(), AttemptStop> {
-        let approx = approximate_ratio(ctx64, &num, &den)?.to_bits();
+        let key = approximate_ratio(ctx64, &num, &den)?.to_bits();
+        let seq = self.offered;
+        self.offered += 1;
         let better = match (self.best, self.direction) {
             (None, _) => true,
-            (Some(b), Direction::Up) => approx > b,
-            (Some(b), Direction::Down) => approx < b,
+            (Some(b), Direction::Up) => key > b,
+            (Some(b), Direction::Down) => key < b,
         };
         if better {
-            self.best = Some(approx);
-            self.kept.retain(|k| k.2.abs_diff(approx) <= WINDOW_ULPS);
+            self.best = Some(key);
+            self.lazy.retain(|row| in_window(row.2, key));
+            if self.lazy.is_empty() {
+                self.lazy = Vec::new();
+            }
+            self.table.retain(|entry| in_window(entry.0, key));
         }
-        if self.best.is_some_and(|b| approx.abs_diff(b) <= WINDOW_ULPS) {
-            self.kept.push((num, den, approx));
+        if self.best.is_some_and(|b| in_window(key, b)) {
+            if self.lazy.len() >= self.limit {
+                self.collapse(ctx16);
+            }
+            self.lazy.push((num, den, key, seq));
         }
         Ok(())
     }
 
+    /// Evaluates the unevaluated rows exactly (a refusal is recorded, not
+    /// returned) and releases their memory.
+    pub(crate) fn collapse(&mut self, ctx16: &mut WideContext<16>) {
+        let lazy = std::mem::take(&mut self.lazy);
+        if lazy.is_empty() {
+            return;
+        }
+        for (num, den, key, seq) in &lazy {
+            let outcome = match directed_ratio(ctx16, num, den, self.direction) {
+                Ok(value) => Evaluated::Ratio(value),
+                Err(stop) => Evaluated::Refused { seq: *seq, stop },
+            };
+            self.table.push((*key, outcome));
+        }
+        drop(lazy);
+        self.prune();
+    }
+
+    /// Keeps the entries no other entry dominates: sorted nearest the best
+    /// first (within a key, the most decisive first), an entry stays only if it
+    /// decides `finish` ahead of every entry kept before it.
+    fn prune(&mut self) {
+        let direction = self.direction;
+        self.table.sort_by(|a, b| {
+            let by_key = match direction {
+                Direction::Up => b.0.cmp(&a.0),
+                Direction::Down => a.0.cmp(&b.0),
+            };
+            by_key.then_with(|| {
+                if a.1.beats(&b.1, direction) {
+                    CmpOrdering::Less
+                } else if b.1.beats(&a.1, direction) {
+                    CmpOrdering::Greater
+                } else {
+                    CmpOrdering::Equal
+                }
+            })
+        });
+        let mut kept: Vec<(u64, Evaluated)> = Vec::new();
+        for entry in self.table.drain(..) {
+            if kept
+                .last()
+                .is_none_or(|last| entry.1.beats(&last.1, direction))
+            {
+                kept.push(entry);
+            }
+        }
+        kept.shrink_to_fit();
+        self.table = kept;
+    }
+
     pub(crate) fn finish(self, ctx16: &mut WideContext<16>) -> Result<Option<f64>, AttemptStop> {
         let mut best: Option<f64> = None;
-        for (num, den, _) in &self.kept {
+        let mut refused: Option<(u64, AttemptStop)> = None;
+        for (_, outcome) in self.table {
+            match outcome {
+                Evaluated::Ratio(value) => best = Some(extreme(best, value, self.direction)),
+                Evaluated::Refused { seq, stop } => {
+                    if refused.as_ref().is_none_or(|r| seq < r.0) {
+                        refused = Some((seq, stop));
+                    }
+                }
+            }
+        }
+        // A refusal among the evaluated rows came before every unevaluated row.
+        if let Some((_, stop)) = refused {
+            return Err(stop);
+        }
+        for (num, den, _, _) in &self.lazy {
             let exact = directed_ratio(ctx16, num, den, self.direction)?;
-            best = Some(match (best, self.direction) {
-                (None, _) => exact,
-                (Some(b), Direction::Up) => b.max(exact),
-                (Some(b), Direction::Down) => b.min(exact),
-            });
+            best = Some(extreme(best, exact, self.direction));
         }
         Ok(best)
+    }
+
+    fn capacity(&self) -> usize {
+        self.lazy.capacity()
+    }
+
+    /// (Unevaluated rows, their allocated capacity, evaluated entries).
+    #[cfg(test)]
+    pub(crate) fn held(&self) -> (usize, usize, usize) {
+        (self.lazy.len(), self.lazy.capacity(), self.table.len())
+    }
+}
+
+/// The trackers of one call, by key, with G bounding their unevaluated rows
+/// together (counted by allocated capacity). When an offer takes them above
+/// G, every tracker holding rows collapses.
+pub(crate) struct TrackerSet<K: Ord + Copy> {
+    trackers: std::collections::BTreeMap<K, BoundedExtremeTracker>,
+    /// The trackers with allocated unevaluated rows.
+    holding: std::collections::BTreeSet<K>,
+    held: usize,
+    limit: usize,
+}
+
+impl<K: Ord + Copy> TrackerSet<K> {
+    pub(crate) fn new() -> Self {
+        Self::with_limit(tracker_set_rows())
+    }
+
+    pub(crate) fn with_limit(limit: usize) -> Self {
+        Self {
+            trackers: std::collections::BTreeMap::new(),
+            holding: std::collections::BTreeSet::new(),
+            held: 0,
+            limit,
+        }
+    }
+
+    pub(crate) fn offer(
+        &mut self,
+        key: K,
+        direction: Direction,
+        ctx64: &mut WideContext<4>,
+        ctx16: &mut WideContext<16>,
+        num: ExactWideSum,
+        den: ExactWideSum,
+    ) -> Result<(), AttemptStop> {
+        let tracker = self
+            .trackers
+            .entry(key)
+            .or_insert_with(|| BoundedExtremeTracker::new(direction));
+        let before = tracker.capacity();
+        tracker.offer(ctx64, ctx16, num, den)?;
+        let after = tracker.capacity();
+        self.held = self.held - before + after;
+        if before == 0 && after > 0 {
+            self.holding.insert(key);
+        } else if before > 0 && after == 0 {
+            self.holding.remove(&key);
+        }
+        if self.held > self.limit {
+            for k in std::mem::take(&mut self.holding) {
+                if let Some(t) = self.trackers.get_mut(&k) {
+                    t.collapse(ctx16);
+                }
+            }
+            self.held = 0;
+        }
+        Ok(())
+    }
+
+    /// The trackers in key order.
+    pub(crate) fn into_trackers(
+        self,
+    ) -> std::collections::btree_map::IntoIter<K, BoundedExtremeTracker> {
+        self.trackers.into_iter()
+    }
+
+    /// (Unevaluated rows' allocated capacity, over every tracker; G.)
+    #[cfg(test)]
+    pub(crate) fn held(&self) -> (usize, usize) {
+        (self.held, self.limit)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn trackers(&self) -> impl Iterator<Item = (&K, &BoundedExtremeTracker)> {
+        self.trackers.iter()
     }
 }
 
@@ -994,7 +1238,7 @@ where
         gp.check(&ctx, &sum)?;
         let rcond_value = publish_value(&rcond).value().unwrap_or(0.0);
         // The pivot margin minimum, rounded downward.
-        let mut tracker = ExtremeTracker::new(Direction::Down);
+        let mut tracker = BoundedExtremeTracker::new(Direction::Down);
         for screen in &factor.screens {
             let mut num = ExactWideSum::new();
             num.add_wide_scaled(&screen.pivot, false, 1, i64::from(p))?;
@@ -1004,7 +1248,7 @@ where
             if den.is_zero() {
                 continue;
             }
-            tracker.offer(&mut ctx64, num, den)?;
+            tracker.offer(&mut ctx64, &mut ctx16, num, den)?;
         }
         let margin = tracker.finish(&mut ctx16)?.unwrap_or(f64::INFINITY);
         let t5 = lme(&ctx)
@@ -1063,6 +1307,7 @@ fn residual_rows<const L: usize, const R: usize>(
     ctx: &mut WideContext<L>,
     ctx_q: &mut WideContext<R>,
     ctx64: &mut WideContext<4>,
+    ctx16: &mut WideContext<16>,
     sum: &mut ExactWideSum,
     p: u32,
     structure: &Structure,
@@ -1070,7 +1315,7 @@ fn residual_rows<const L: usize, const R: usize>(
     ledger: &RetainedLedger,
     free: &[usize],
     u: &[Wide<L>],
-    tracker: &mut ExtremeTracker,
+    tracker: &mut BoundedExtremeTracker,
 ) -> Result<Vec<(bool, f64, Wide<L>)>, AttemptStop>
 where
     Wide<L>: SupportedWidth,
@@ -1116,7 +1361,7 @@ where
         let passes = sum.signum() >= 0;
         let ratio = approximate_ratio(ctx64, &num, &den)?;
         let rounded = r.round(ctx)?;
-        tracker.offer(ctx64, num, den)?;
+        tracker.offer(ctx64, ctx16, num, den)?;
         rows.push((passes, ratio, rounded));
     }
     Ok(rows)
@@ -1223,7 +1468,8 @@ where
         &shared.directional_q,
     )?;
     let mut worsts: Vec<Option<Option<GateRatio>>> = Vec::with_capacity(evaluated.len());
-    let mut states: Vec<Option<(bool, ExtremeTracker)>> = Vec::with_capacity(evaluated.len());
+    let mut states: Vec<Option<(bool, BoundedExtremeTracker)>> =
+        Vec::with_capacity(evaluated.len());
     for u_free in evaluated {
         let mut u = u_base.to_vec();
         for (a, &g) in free.iter().enumerate() {
@@ -1231,7 +1477,7 @@ where
         }
         let mut eligible = true;
         let mut all_pass = true;
-        let mut tracker = ExtremeTracker::new(Direction::Up);
+        let mut tracker = BoundedExtremeTracker::new(Direction::Up);
         let mut rows: Vec<(ExactWideSum, ExactWideSum, f64)> = Vec::new();
         for &i in free {
             let mut r = ExactWideSum::new();
@@ -1270,7 +1516,7 @@ where
                 break;
             }
             let approx = approximate_ratio(ctx64, &num, &den)?;
-            tracker.offer(ctx64, num.clone(), den.clone())?;
+            tracker.offer(ctx64, ctx16, num.clone(), den.clone())?;
             rows.push((num, den, approx));
         }
         if !eligible {
@@ -1369,11 +1615,12 @@ where
                 u[g] = u_free[a];
             }
             evaluated.push(u_free.clone());
-            let mut tracker = ExtremeTracker::new(Direction::Up);
+            let mut tracker = BoundedExtremeTracker::new(Direction::Up);
             let rows = residual_rows(
                 &mut ctx,
                 &mut ctx_q,
                 &mut ctx64,
+                &mut ctx16,
                 &mut sum,
                 p,
                 &group.structure,
@@ -1636,6 +1883,17 @@ where
     )
 }
 
+/// The tests of `rule` that keep a summary tracker, in R7's order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum RuleTest {
+    /// (a): (|Δ| + V)/M.
+    Disagreement,
+    /// (b): Ŵ/V.
+    Estimate,
+    /// (d): C over its allowance.
+    Charge,
+}
+
 #[allow(clippy::too_many_lines)]
 fn rule<const L: usize, const M: usize>(
     layout: &[QuantityMeta],
@@ -1718,9 +1976,9 @@ where
                 *s_star
             }
         };
-        // (a)
-        let mut trackers: std::collections::BTreeMap<(u32, Kind), ExtremeTracker> =
-            std::collections::BTreeMap::new();
+        // (a). One set holds the trackers of (a), (b) and (d), by (test, body,
+        // kind), so G bounds them together (KF1).
+        let mut trackers: TrackerSet<(RuleTest, u32, Kind)> = TrackerSet::new();
         for (index, meta) in layout.iter().enumerate() {
             let q2 = &verification[index];
             let magnitude = magnitude_of(index, meta);
@@ -1757,17 +2015,21 @@ where
             if !magnitude.is_zero() {
                 let mut den = ExactWideSum::new();
                 den.add_wide(&magnitude, false)?;
-                trackers
-                    .entry((meta.body, meta.kind))
-                    .or_insert_with(|| ExtremeTracker::new(Direction::Up))
-                    .offer(&mut ctx64, difference, den)?;
+                trackers.offer(
+                    (RuleTest::Disagreement, meta.body, meta.kind),
+                    Direction::Up,
+                    &mut ctx64,
+                    &mut ctx16,
+                    difference,
+                    den,
+                )?;
             }
             if index % 64 == 63 {
                 guard.test(spent(&ctx, &ctx16, &ctx64, &sum))?;
             }
         }
         let Some(r) = report else {
-            for ((body, kind), tracker) in trackers {
+            for ((_, body, kind), tracker) in trackers.into_trackers() {
                 let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
                 summary.push((body, kind, worst));
             }
@@ -1775,8 +2037,6 @@ where
             return Ok(true);
         };
         // (b): Ŵ_q ≤ 2^(6−2p)·ê, with the summary Ŵ/V.
-        let mut estimate: std::collections::BTreeMap<(u32, Kind), ExtremeTracker> =
-            std::collections::BTreeMap::new();
         for (index, meta) in layout.iter().enumerate() {
             let Some(w) = &r.w[index] else { continue };
             let e = Wide::<M>::from_f64(hat(meta.body, meta.kind))?;
@@ -1792,10 +2052,14 @@ where
                 num.add_wide(w, false)?;
                 let mut den = ExactWideSum::new();
                 den.add_wide_scaled(&e, false, 1, 8 - big_p)?;
-                estimate
-                    .entry((meta.body, meta.kind))
-                    .or_insert_with(|| ExtremeTracker::new(Direction::Up))
-                    .offer(&mut ctx64, num, den)?;
+                trackers.offer(
+                    (RuleTest::Estimate, meta.body, meta.kind),
+                    Direction::Up,
+                    &mut ctx64,
+                    &mut ctx16,
+                    num,
+                    den,
+                )?;
             }
         }
         // (c): `uc`, θ, g.
@@ -1815,8 +2079,6 @@ where
             return Ok(false);
         }
         // (d): the charge.
-        let mut charge: std::collections::BTreeMap<(u32, Kind), ExtremeTracker> =
-            std::collections::BTreeMap::new();
         for (index, meta) in layout.iter().enumerate() {
             let Some(c) = &r.charge[index] else { continue };
             let mut allowance = ExactWideSum::new();
@@ -1836,26 +2098,28 @@ where
             if !allowance.is_zero() {
                 let mut num = ExactWideSum::new();
                 num.add_wide(c, false)?;
-                charge
-                    .entry((meta.body, meta.kind))
-                    .or_insert_with(|| ExtremeTracker::new(Direction::Up))
-                    .offer(&mut ctx64, num, allowance)?;
+                trackers.offer(
+                    (RuleTest::Charge, meta.body, meta.kind),
+                    Direction::Up,
+                    &mut ctx64,
+                    &mut ctx16,
+                    num,
+                    allowance,
+                )?;
             }
             if index % 64 == 63 {
                 guard.test(spent(&ctx, &ctx16, &ctx64, &sum))?;
             }
         }
-        for ((body, kind), tracker) in trackers {
+        // In (test, body, kind) order: (a)'s, then (b)'s, then (d)'s, each by
+        // (body, kind), as K4 finished its three maps.
+        for ((test, body, kind), tracker) in trackers.into_trackers() {
             let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
-            summary.push((body, kind, worst));
-        }
-        for ((body, kind), tracker) in estimate {
-            let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
-            estimate_summary.push((body, kind, worst));
-        }
-        for ((body, kind), tracker) in charge {
-            let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
-            charge_summary.push((body, kind, worst));
+            match test {
+                RuleTest::Disagreement => summary.push((body, kind, worst)),
+                RuleTest::Estimate => estimate_summary.push((body, kind, worst)),
+                RuleTest::Charge => charge_summary.push((body, kind, worst)),
+            }
         }
         guard.test(spent(&ctx, &ctx16, &ctx64, &sum))?;
         Ok(true)
@@ -3163,9 +3427,32 @@ pub(crate) mod seed {
     }
 }
 
+/// KF1's test hook: this thread's T for the trackers built on it (None: T =
+/// `TRACKER_ROWS`); G follows as 8·T. Test builds only.
+#[cfg(test)]
+pub(crate) mod tracker_hook {
+    use std::cell::Cell;
+
+    thread_local! {
+        static ROWS: Cell<Option<usize>> = const { Cell::new(None) };
+    }
+
+    pub(crate) fn set(rows: Option<usize>) {
+        ROWS.with(|r| r.set(rows));
+    }
+
+    pub(crate) fn get() -> Option<usize> {
+        ROWS.with(|r| r.get())
+    }
+}
+
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/adaptive_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/kf1_tracker_tests.rs"]
+mod kf1_tracker_tests;
 
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/references_tests.rs"]
