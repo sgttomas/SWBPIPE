@@ -1,0 +1,36 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M33/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused variable: `value`
+   --> src/structural/retained/adaptive.rs:661:20
+    |
+661 |         for (meta, value) in self.layout.iter().zip(values.iter_mut()) {
+    |                    ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.07s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M33/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_a_combined_prescribed_value_is_published_from_its_exact_sum_.log =====
+
+running 1 test
+test structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once ... FAILED
+
+failures:
+
+---- structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once stdout ----
+
+thread 'structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once' (12162035) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:426:5:
+assertion `left == right` failed: 1 + 2^-52
+  left: Normal(1.0)
+ right: Normal(1.0000000000000002)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.09s
+
+

@@ -1,0 +1,56 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/D15/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.49s
+  Executable unittests src/lib.rs (<wt>/k4-mut/D15/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_a_combination_runs_its_own_stop_rule.log =====
+
+running 1 test
+test structural::retained::combine::tests::a_combination_runs_its_own_stop_rule ... FAILED
+
+failures:
+
+---- structural::retained::combine::tests::a_combination_runs_its_own_stop_rule stdout ----
+
+thread 'structural::retained::combine::tests::a_combination_runs_its_own_stop_rule' (12172936) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:250:5:
+assertion failed: matches!(attempts[0].outcome,
+    AttemptOutcome::Rejected(AttemptReason::StopRule { .. }))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::combine::tests::a_combination_runs_its_own_stop_rule
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.30s
+
+
+===== test_b1_e_is_caught_the_combination_reproduces_the_truth_that_a_s.log =====
+
+running 1 test
+test structural::retained::combine::tests::b1_e_is_caught_the_combination_reproduces_the_truth_that_a_sum_of_states_loses ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.11s
+
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly stdout ----
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12172971) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:379:9:
+assertion `left == right` failed: CEIL5A3
+  left: ("256", ["128:failed:Pivot", "256:accepted", "512:verified"])
+ right: ("-", ["128:failed:Pivot", "256:rejected:verification_estimate:37", "512:rejected:stop_rule:37"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.56s
+
+

@@ -1,0 +1,52 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M32/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused variable: `a`
+   --> src/structural/retained/factor.rs:706:14
+    |
+706 |         for (a, &g) in ordering.free.iter().enumerate() {
+    |              ^ help: if this is intentional, prefix it with an underscore: `_a`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.93s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M32/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_a_constructed_ill_conditioned_matrix_whose_pivots_pass_escal.log =====
+
+running 1 test
+test structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly stdout ----
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12161126) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:379:9:
+assertion `left == right` failed: CEIL5A3
+  left: ("-", ["128:failed:Pivot", "256:failed:Condition", "512:rejected:stop_rule:37"])
+ right: ("-", ["128:failed:Pivot", "256:rejected:verification_estimate:37", "512:rejected:stop_rule:37"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.18s
+
+
+===== test_k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_agai.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_against_512 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.06s
+
+

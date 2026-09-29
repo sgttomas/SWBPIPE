@@ -1,0 +1,45 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M27/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.89s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M27/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly stdout ----
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12157621) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:701:9:
+N01: 499999999.99999994 at Mbs.1 (50)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.78s
+
+
+===== test_every_recovered_kind_matches_its_exact_reference.log =====
+
+running 1 test
+test structural::retained::recover::tests::every_recovered_kind_matches_its_exact_reference ... FAILED
+
+failures:
+
+---- structural::retained::recover::tests::every_recovered_kind_matches_its_exact_reference stdout ----
+
+thread 'structural::retained::recover::tests::every_recovered_kind_matches_its_exact_reference' (12157616) panicked at src/structural/retained/../../../tests/retained_k4/recover_tests.rs:50:9:
+N01: 499999999.99999994 at Mbs.1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::recover::tests::every_recovered_kind_matches_its_exact_reference
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.05s
+
+

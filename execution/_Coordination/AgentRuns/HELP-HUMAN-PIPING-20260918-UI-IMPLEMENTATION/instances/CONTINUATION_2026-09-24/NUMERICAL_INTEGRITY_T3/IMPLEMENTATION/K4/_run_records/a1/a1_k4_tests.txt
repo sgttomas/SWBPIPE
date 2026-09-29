@@ -1,0 +1,131 @@
+
+running 54 tests
+test exact_sum::tests::k1_probe_x_cases ... ok
+test exact_sum::tests::k1_probe_d_is_correctly_rounded_where_ascending_naive_sum_is_not ... ok
+test exact_sum::tests::k1_scaling_is_applied_before_the_single_rounding ... ok
+test exact_sum::tests::k1_cancellations_of_three_or_more_terms ... ok
+test exact_sum::tests::k1_ties_overflow_adjacent_and_subnormal_nets ... ok
+test exact_sum::tests::k2_every_zero_is_positive_zero ... ok
+test exact_sum::tests::k1_seeded_random_dots_match_fraction_reference ... ok
+test exact_sum::tests::k1_seeded_random_sums_match_fraction_reference ... ok
+N01: selected 128 worst 0.000e0 at  (50 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::assemble::tests::a_prescribed_motion_control_matches_its_exact_reference ... ok
+N08-0: selected 128 worst 0.000e0 at  (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+N08-1: selected 128 worst 0.000e0 at  (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+N08-2: selected 128 worst 0.000e0 at  (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+N08-3: selected 128 worst 0.000e0 at  (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::adaptive::tests::refinement_stops_after_three_corrections_and_the_attempt_escalates ... ok
+worst |K4 − K-D5| at 128, in ulps of the largest entry: 1
+test structural::retained::assemble::tests::at_128_the_element_agrees_with_k_d5s_re_formation_within_64_ulps_of_its_largest_entry ... ok
+N09-B: selected 128 worst 3.101e-30 at Mb.1.j (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+N09-T: selected 128 worst 0.000e0 at  (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::assemble::tests::at_p53_the_axis_aligned_element_agrees_with_the_products_local_stiffness ... ok
+N05: selected 128 worst 0.000e0 at  (45 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+N06: selected 128 worst 0.000e0 at  (45 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+M-AX worst |K_e r|_a / (2^-p A_a): [(128, 0.0), (192, 0.0), (256, 0.0), (320, 0.0), (512, 0.0), (576, 0.0), (1024, 0.0)]
+N05-TRANSVERSE: selected 128 worst 0.000e0 at  (45 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+M-345 worst |K_e r|_a / (2^-p A_a): [(128, 0.5858641874644299), (192, 0.5858641874644299), (256, 0.5842960094447744), (320, 0.5858641874644299), (512, 0.5858641874644299), (576, 0.5842960094447744), (1024, 0.585084906340168)]
+SKEW-K1E-28: selected 256 worst 1.665e-34 at end.1.i.1 (36 compared) 0.03s ["128:Failed(Stop(Condition)):c0", "256:Accepted:c0", "512:Verified:c0"] geom [Restrained]
+M-236 worst |K_e r|_a / (2^-p A_a): [(128, 1.0482637364811402), (192, 1.0680375968746607), (256, 0.9247183675387203), (320, 1.0482637364811402), (512, 1.3758461541314966), (576, 0.9247183675387203), (1024, 1.2459221164920533)]
+M-122 worst |K_e r|_a / (2^-p A_a): [(128, 0.525882175986854), (192, 0.7707307951017286), (256, 0.8734949011152925), (320, 0.8734949011152925), (512, 0.8734949011152925), (576, 0.8734949011152925), (1024, 1.0739691407155236)]
+M-OFF worst |K_e r|_a / (2^-p A_a): [(128, 1.0677277757908687), (192, 0.8089636932135084), (256, 1.0548403733030058), (320, 0.48014907874509566), (512, 0.7886104881598627), (576, 0.9398039769868907), (1024, 1.2780530733002622)]
+test structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit ... ok
+test structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member ... ok
+test structural::retained::assemble::tests::permuting_every_list_gives_bit_identical_k_rhs_and_encodings ... ok
+test structural::retained::assemble::tests::the_pattern_from_positions_equals_the_connectivity_pattern_where_both_apply ... ok
+test structural::retained::assemble::tests::the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once ... ok
+test structural::retained::factor::tests::a_constructed_indefinite_pair_is_a_negative_energy_witness_and_its_definite_neighbour_is_not ... ok
+DUPLICATE worst |K_e r|_a / (2^-p A_a): [(128, 0.5842960094447744), (192, 0.5847700754015054), (256, 0.5842960094447744), (320, 0.5847700754015054), (512, 0.5847700754015054), (576, 0.5842960094447744), (1024, 0.5847700754015054)]
+SKEW6-K1E-12: selected 256 worst 8.201e-49 at R.0.2 (151 compared) 0.15s ["128:Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation }):c0", "256:Accepted:c0", "512:Verified:c0"] geom [Restrained]
+SKEW-K1E-12: selected 128 worst 1.518e-11 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::factor::tests::a_directional_ground_that_does_not_span_is_not_assessed_and_is_never_refused_as_a_mechanism ... ok
+test structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only ... ok
+DIRECTIONAL-SPAN worst |K_e r|_a / (2^-p A_a): [(128, 0.5823299340768616), (192, 0.5823299340768616), (256, 0.5823299340768616), (320, 0.5823299340768616), (512, 0.5823299340768616), (576, 0.5823299340768616), (1024, 0.5823299340768616)]
+test structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p ... ok
+SKEW-K1E-4: selected 128 worst 1.201e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+AXIS-K1E-4: selected 128 worst 3.256e-19 at R.0.2 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::factor::tests::a_pivot_that_fails_at_128_escalates_and_passes_at_256 ... ok
+test structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does ... ok
+test structural::retained::factor::tests::the_span_decision_is_exact ... ok
+test structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis ... ok
+test structural::retained::ledger::tests::cancelling_contributions_are_exact_per_dof ... ok
+OBLIQUE-K1E-4: selected 128 worst 1.654e-7 at Mb.1.i (36 compared) 0.02s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero ... ok
+test structural::retained::ledger::tests::the_ledger_encoding_is_canonical_and_order_independent ... ok
+test structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie ... FAILED
+B1-L: selected 128 worst 2.786e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::factor::tests::the_ceiling_attempt_uses_its_own_k_as_the_residual_basis ... ok
+test structural::retained::ledger::tests::the_projection_at_p53_gives_round_on_normal_results_and_the_exact_projection_everywhere ... ok
+test structural::retained::source::tests::a_valid_source_is_canonical_and_its_bodies_are_numbered_by_lowest_node ... ok
+test structural::retained::source::tests::every_invalid_input_is_refused_with_its_reason ... ok
+test structural::retained::source::tests::the_degenerate_axis_decision_is_exact ... ok
+test structural::retained::source::tests::the_source_encodings_do_not_depend_on_list_order ... ok
+test structural::retained::wide_sum::tests::a_refused_span_adds_nothing ... ok
+B1-C-A: selected 128 worst 3.679e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves ... ok
+B1-C-B: selected 128 worst 4.354e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::ledger::tests::the_projection_matches_the_fraction_oracle_at_every_precision ... ok
+B1-C-A2: selected 128 worst 3.679e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+B1-E-A: selected 128 worst 4.354e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+B1-E-B: selected 128 worst 4.354e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+B1-E-NET: selected 128 worst 3.148e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+B1-C-NET: selected 128 worst 4.354e-19 at end.1.i.1 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+S8-W-1e-10: selected 128 worst 0.000e0 at  (65 compared) 0.02s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+S8-W-1e-14: selected 128 worst 0.000e0 at  (65 compared) 0.02s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+DUPLICATE: selected 128 worst 3.378e-31 at Mb.1.j (94 compared) 0.02s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+PRESCRIBED: selected 128 worst 1.822e-30 at Mb.2.j (62 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+PIVOT: selected 256 worst 0.000e0 at  (36 compared) 0.02s ["128:Failed(Stop(Pivot { global_dof: 3 })):c0", "256:Accepted:c0", "512:Verified:c0"] geom [Restrained]
+test structural::retained::wide_sum::tests::committed_vectors_match_their_recorded_sha256 ... ok
+REACTIONS-ONLY: selected 256 worst 4.078e-47 at R.0.1 (65 compared) 0.03s ["128:Rejected(StopRule { quantity: Reaction(Dof { node: 0, component: Uy }), body: 0, kind: Force }):c0", "256:Accepted:c0", "512:Verified:c0"] geom [Restrained]
+RIGID-UNLOADED: unresolved Ceiling ["128:Rejected(StopRule { quantity: Reaction(Dof { node: 0, component: Uy }), body: 0, kind: Force })", "256:Rejected(StopRule { quantity: Reaction(Dof { node: 0, component: Uy }), body: 0, kind: Force })", "512:Rejected(StopRule { quantity: Reaction(Dof { node: 0, component: Uy }), body: 0, kind: Force })", "1024:Solved"] [Restrained, Restrained] 0.05s
+TWO-SPAN: selected 128 worst 0.000e0 at  (65 compared) 0.01s ["128:Accepted:c1", "256:Verified:c1"] geom [Restrained]
+ZERO-TORSION-345: selected 128 worst 6.069e-30 at R.0.2 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+ALL-ZERO-BODY: selected 128 worst 3.028e-30 at Mb.1.j (72 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained, Restrained]
+DIRECTIONAL-SPAN: selected 256 worst 6.905e-51 at end.1.i.2 (42 compared) 0.03s ["128:Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation }):c0", "256:Accepted:c0", "512:Verified:c0"] geom [Restrained]
+N02: refused MechanismWitnessed { body: 0, rigid_parameters: [0.0, 0.0, 0.0, 0.6, 0.8, 0.0] } [] 0.00s
+N03-RX: selected 128 worst 0.000e0 at  (0 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+N03-RZ: refused MechanismWitnessed { body: 0, rigid_parameters: [0.0, 0.0, 0.0, 0.6, 0.8, 0.0] } [] 0.00s
+N04: refused MechanismWitnessed { body: 1, rigid_parameters: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0] } [] 0.00s
+SKEW-K1E-60: selected 512 worst 1.073e-79 at R.0.2 (36 compared) 0.05s ["128:Failed(Stop(Pivot { global_dof: 5 })):c0", "256:Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation }):c0", "512:Accepted:c0", "1024:Verified:c0"] geom [Restrained]
+SKEW-K1E-300: unresolved Ceiling ["128:Failed(Stop(Pivot { global_dof: 5 }))", "256:Failed(Stop(Pivot { global_dof: 5 }))", "512:Failed(Stop(Pivot { global_dof: 5 }))"] [Restrained] 0.01s
+SKEW-K1E-28-AXIAL: selected 256 worst 6.154e-32 at u.0.5 (36 compared) 0.03s ["128:Failed(Stop(Condition)):c0", "256:Accepted:c0", "512:Verified:c0"] geom [Restrained]
+CEIL-A: selected 128 worst 2.465e-19 at spr.4.4 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+CEIL-B: selected 128 worst 2.465e-19 at spr.4.4 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+CEIL-NET: selected 128 worst 2.465e-19 at spr.4.4 (36 compared) 0.01s ["128:Accepted:c0", "256:Verified:c0"] geom [Restrained]
+test structural::retained::adaptive::tests::survey_models ... ok
+p192: 1000000 operations at p = 192, L = 4, debug wall time 28.4 s
+test structural::retained::wide_sum::tests::n5_stream_p192_l4 ... ok
+test structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it ... ok
+p128: 1000000 operations at p = 128, L = 4, debug wall time 28.5 s
+test structural::retained::wide_sum::tests::n5_stream_p128_l4 ... ok
+sum128: 100000 sums (3296864 terms) at p = 128, L = 4, debug wall time 4.8 s
+test structural::retained::wide_sum::tests::sum_differential_p128 ... ok
+sum192: 100000 sums (3305269 terms) at p = 192, L = 4, debug wall time 5.5 s
+test structural::retained::wide_sum::tests::sum_differential_p192 ... ok
+sum256: 100000 sums (3296269 terms) at p = 256, L = 4, debug wall time 6.2 s
+test structural::retained::wide_sum::tests::sum_differential_p256 ... ok
+sum1024: 100000 sums (3296751 terms) at p = 1024, L = 16, debug wall time 19.0 s
+test structural::retained::wide_sum::tests::sum_differential_p1024 ... ok
+sum320: 100000 sums (3296099 terms) at p = 320, L = 8, debug wall time 8.7 s
+test structural::retained::wide_sum::tests::sum_differential_p320 ... ok
+sum512: 100000 sums (3299524 terms) at p = 512, L = 8, debug wall time 11.5 s
+test structural::retained::wide_sum::tests::sum_differential_p512 ... ok
+test structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle ... FAILED
+test structural::retained::wide_sum::tests::zero_negation_absolute_value_and_reuse ... ok
+test structural::retained::wide_sum::tests::n5_stream_p320_l8 has been running for over 60 seconds
+test structural::retained::wide_sum::tests::n5_stream_p576_l16 has been running for over 60 seconds
+sum576: 100000 sums (3298967 terms) at p = 576, L = 16, debug wall time 16.0 s
+test structural::retained::wide_sum::tests::sum_differential_p576 ... ok
+p320: 1000000 operations at p = 320, L = 8, debug wall time 72.5 s
+test structural::retained::wide_sum::tests::n5_stream_p320_l8 ... ok
+p576: 1000000 operations at p = 576, L = 16, debug wall time 208.1 s
+test structural::retained::wide_sum::tests::n5_stream_p576_l16 ... ok
+
+failures:
+
+failures:
+    structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie
+    structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle
+
+test result: FAILED. 52 passed; 2 failed; 0 ignored; 0 measured; 191 filtered out; finished in 208.91s
+

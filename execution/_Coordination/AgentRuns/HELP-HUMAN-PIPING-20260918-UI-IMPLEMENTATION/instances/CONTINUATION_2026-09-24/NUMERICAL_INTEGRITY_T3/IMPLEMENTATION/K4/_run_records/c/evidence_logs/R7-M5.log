@@ -1,0 +1,33 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/ev-R7-M5/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.97s
+     Running unittests src/lib.rs (<wt>/k4-mut/ev-R7-M5/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... EVIDENCE ASSEMBLY-SAT: 128 ["128:accepted", "256:verified"] (GEN 512 ["128:rejected:stop_rule:21", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"]) DISHONEST 1.5e9 at R.1.0
+EVIDENCE BLOCK-PRESC: 512 ["128:rejected:charge:40", "256:rejected:charge:40", "512:accepted", "1024:verified"] (GEN 128 ["128:accepted", "256:verified"])
+EVIDENCE DEMOTION2: 512 ["128:rejected:stop_rule:13", "256:rejected:charge:34", "512:accepted", "1024:verified"] (GEN 512 ["128:rejected:stop_rule:13", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"])
+EVIDENCE EXACT-RIGID: 128 ["128:accepted", "256:verified"] (GEN 512 ["128:rejected:stop_rule:14", "256:rejected:stop_rule:14", "512:accepted", "1024:verified"])
+EVIDENCE M10-G: 128 ["128:accepted", "256:verified"] (GEN 256 ["128:rejected:stop_rule:21", "256:accepted", "512:verified"])
+EVIDENCE M7-GS1: - ["128:rejected:stop_rule:27", "256:rejected:stop_rule:27", "512:rejected:stop_rule:27"] (GEN 512 ["128:rejected:stop_rule:14", "256:rejected:stop_rule:14", "512:accepted", "1024:verified"])
+EVIDENCE N02: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE N03-RZ: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE N04: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE PRESCRIBED-TAIL: 128 ["128:accepted", "256:verified"] (GEN 512 ["128:rejected:stop_rule:14", "256:rejected:stop_rule:14", "512:accepted", "1024:verified"])
+EVIDENCE PT-A: 128 ["128:accepted", "256:verified"] (GEN 512 ["128:rejected:stop_rule:14", "256:rejected:stop_rule:14", "512:accepted", "1024:verified"])
+EVIDENCE RIGID-UNLOADED: - ["128:rejected:stop_rule:53", "256:rejected:stop_rule:53", "512:rejected:stop_rule:53"] (GEN 512 ["128:rejected:stop_rule:28", "256:rejected:stop_rule:28", "512:accepted", "1024:verified"])
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12183401) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:403:9:
+assertion `left == right` failed: ASSEMBLY-SAT
+  left: ("128", ["128:accepted", "256:verified"])
+ right: ("512", ["128:rejected:stop_rule:21", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.55s
+
+error: test failed, to rerun pass `--lib`

@@ -1,0 +1,24 @@
+   Compiling open_pipe_stress_report_generator v0.1.0 (<wt>/k4-b/cand/projects/chirality-piping/core/reporting/report_generator)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running unittests src/lib.rs (<wt>/k4-b-target/debug/deps/open_pipe_stress_report_generator-e80e135477da7a5a)
+
+running 10 tests
+test tests::blocks_incomplete_incoming_diagnostics ... ok
+test tests::blocks_duplicate_template_ordering_indexes ... ok
+test tests::blocks_missing_template_sections ... ok
+test tests::blocks_professional_boundary_violations ... ok
+test tests::blocks_when_governed_section_kind_is_not_declared ... ok
+test tests::blocks_when_human_review_status_is_missing ... ok
+test tests::orders_sections_by_template_slot_index ... ok
+test tests::validates_complete_report_without_blocking_diagnostics ... ok
+test tests::warns_when_referenced_envelopes_carry_boundary_gaps ... ok
+test tests::warns_when_rule_pack_review_state_is_incomplete ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests open_pipe_stress_report_generator
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

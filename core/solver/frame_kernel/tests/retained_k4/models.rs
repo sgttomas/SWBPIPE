@@ -2,7 +2,9 @@
 //! parsed into K4 sources, and the comparison of published rows with exact
 //! expectations under the unchanged predicate |obs − exp| ≤ 1e-9·max(|exp|,
 //! scale), the scale being the coupled body scale of the expected values.
-use super::super::super::adaptive::{body_extent, coupled_scales, PublishedRow, RowClass};
+use super::super::super::adaptive::{
+    body_extent, coupled_scales, Publication, PublishedRow, RowClass,
+};
 use super::super::super::recover::{End, Kind, QuantityId};
 use super::super::super::source::{
     Component, Constraint, DirectionalSpring, Dof, NodalLoad, PrimitiveSource, SourceParts, Spring,
@@ -319,58 +321,103 @@ pub(crate) fn compare(
     rows: &[PublishedRow],
     expect: &BTreeMap<String, f64>,
 ) -> (f64, String, usize) {
-    compare_with(source, rows, expect, &BTreeMap::new())
+    compare_with(source, rows, expect)
 }
 
-/// `compare`, where a row that the publication withholds as
-/// `absolute_verified` with bound b may instead meet its own claim,
-/// |obs − exp| ≤ b·(1 + 2^-21) (the published value's rounding is below
-/// 2^-23·b; D1 revision 5a.3 selects states whose tiny rows are intervals).
-/// Derived quantities take their operands' bounds: N and T their end row's,
-/// a bending magnitude the sum of its two components' (both absolute).
+/// The claim each selected row publishes (D1 revision 5a.3, R7 §5.2; ROOT's
+/// ruling at checkpoint C), checked against the exact expectation, which is
+/// itself the exact value rounded once to binary64 (its rounding, 2^-53 of it,
+/// is allowed):
+/// - `absolute_verified` with bound b: |q_pub − q\*| ≤ b·(1 + 2^-22), or
+///   b·(1 + 2^-21) when selected at 512 (R7 §5.2's "Scope of b": the
+///   publication rounding, and the charge's 2^-22 at 512, included);
+/// - `relative_verified`: the stop rule's bound 2^-64·max(|q|, S\*), with S\*
+///   the published body scale (within a relative 2^-64 + 2^-52 of the stop
+///   rule's own, so a factor 1 + 2^-21 covers it and the charge's 2^-22 at
+///   512), plus the publication rounding 2^-53·|q_pub|;
+/// - `input_derived`: the exact prescription rounded once, 2^-53·|q|;
+/// - an unpublishable row carries no claim.
+///
+/// Derived quantities take their operands' claims: N and T their end row's; a
+/// bending magnitude, formed here in binary64 from two published components,
+/// the sum of the two claims plus 2^-50 of itself for its own roundings. Each
+/// rounding term adds 2^-1074 for the subnormal range. Returns the worst
+/// |obs − exp|/allowed (at most 1 passes), its key, and the rows compared.
 pub(crate) fn compare_honest(
-    source: &PrimitiveSource,
-    rows: &[PublishedRow],
+    publication: &Publication,
+    selected: u32,
     expect: &BTreeMap<String, f64>,
 ) -> (f64, String, usize) {
-    let mut bounds: BTreeMap<String, f64> = BTreeMap::new();
-    for r in rows {
-        if let RowClass::AbsoluteVerified { bound_bits } = r.class {
-            bounds.insert(key(&r.id), f64::from_bits(bound_bits));
-        }
+    let tiny = f64::from_bits(1);
+    let half_ulp = |x: f64| x.abs() * 2f64.powi(-53) + tiny;
+    let scale = |body: u32, kind: Kind| -> f64 {
+        publication
+            .body_scales
+            .iter()
+            .find(|s| s.0 == body && s.1 == kind)
+            .map_or(0.0, |s| f64::from_bits(s.2))
+    };
+    let b_factor = if selected == 512 {
+        1.0 + 2f64.powi(-21)
+    } else {
+        1.0 + 2f64.powi(-22)
+    };
+    let mut allowed: BTreeMap<String, f64> = BTreeMap::new();
+    for r in &publication.rows {
+        let Some(q) = r.value.value() else {
+            continue;
+        };
+        let a = match r.class {
+            RowClass::AbsoluteVerified { bound_bits } => f64::from_bits(bound_bits) * b_factor,
+            RowClass::RelativeVerified => {
+                2f64.powi(-64) * q.abs().max(scale(r.body, r.kind)) * (1.0 + 2f64.powi(-21))
+                    + half_ulp(q)
+            }
+            RowClass::InputDerived => half_ulp(q),
+            RowClass::Unpublishable => continue,
+        };
+        allowed.insert(key(&r.id), a);
     }
+    let obs = published(&publication.rows);
     let mut derived = Vec::new();
-    for k in bounds.keys() {
+    for (k, value) in &obs {
         let parts: Vec<&str> = k.split('.').collect();
-        match (parts[0], parts.len()) {
-            ("end", 4) if parts[2] == "j" && parts[3] == "0" => {
-                derived.push((format!("N.{}", parts[1]), bounds[k]));
-            }
-            ("end", 4) if parts[2] == "j" && parts[3] == "3" => {
-                derived.push((format!("T.{}", parts[1]), bounds[k]));
-            }
-            ("end", 4) if parts[3] == "4" => {
-                if let Some(z) = bounds.get(&format!("end.{}.{}.5", parts[1], parts[2])) {
-                    derived.push((format!("Mb.{}.{}", parts[1], parts[2]), bounds[k] + z));
-                }
-            }
-            ("st", 3) if parts[2] == "4" => {
-                if let Some(z) = bounds.get(&format!("st.{}.5", parts[1])) {
-                    derived.push((format!("Mbs.{}", parts[1]), bounds[k] + z));
-                }
-            }
-            _ => {}
+        let claim = |key: String| allowed.get(&key).copied();
+        let own = value.0.abs() * 2f64.powi(-50);
+        let a = match parts[0] {
+            "N" => claim(format!("end.{}.j.0", parts[1])),
+            "T" => claim(format!("end.{}.j.3", parts[1])),
+            "Mb" => claim(format!("end.{}.{}.4", parts[1], parts[2])).and_then(|y| {
+                claim(format!("end.{}.{}.5", parts[1], parts[2])).map(|z| y + z + own)
+            }),
+            "Mbs" => claim(format!("st.{}.4", parts[1]))
+                .and_then(|y| claim(format!("st.{}.5", parts[1])).map(|z| y + z + own)),
+            _ => None,
+        };
+        if let Some(a) = a {
+            derived.push((k.clone(), a));
         }
     }
-    bounds.extend(derived);
-    compare_with(source, rows, expect, &bounds)
+    allowed.extend(derived);
+    let mut worst = (0.0f64, String::new());
+    let mut compared = 0;
+    for (k, &e) in expect {
+        let (Some(&(o, ..)), Some(&a)) = (obs.get(k), allowed.get(k)) else {
+            continue;
+        };
+        compared += 1;
+        let ratio = (o - e).abs() / (a + half_ulp(e));
+        if ratio > worst.0 {
+            worst = (ratio, k.clone());
+        }
+    }
+    (worst.0, worst.1, compared)
 }
 
 fn compare_with(
     source: &PrimitiveSource,
     rows: &[PublishedRow],
     expect: &BTreeMap<String, f64>,
-    bounds: &BTreeMap<String, f64>,
 ) -> (f64, String, usize) {
     let obs = published(rows);
     let mut s = vec![[0.0f64; 4]; source.body_count() as usize];
@@ -401,7 +448,7 @@ fn compare_with(
         };
         compared += 1;
         let scale = e.abs().max(scales[body as usize][kind.index()]);
-        let mut ratio = if scale == 0.0 {
+        let ratio = if scale == 0.0 {
             if o == e {
                 0.0
             } else {
@@ -410,16 +457,6 @@ fn compare_with(
         } else {
             (o - e).abs() / scale
         };
-        if let Some(&b) = bounds.get(k) {
-            // In compare's units (1e-9 of the scale is 1).
-            let claim = b * (1.0 + 2f64.powi(-21));
-            let r = if (o - e).abs() <= claim {
-                0.0
-            } else {
-                f64::INFINITY
-            };
-            ratio = ratio.min(r);
-        }
         if ratio > worst.0 {
             worst = (ratio, k.clone());
         }

@@ -1,0 +1,27 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M17/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.12s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M17/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_golden_work_counts.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::golden_work_counts ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::tests::golden_work_counts stdout ----
+
+thread 'structural::retained::adaptive::tests::golden_work_counts' (12149782) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:503:17:
+assertion `left == right` failed: N05 128: work outside the new stages
+  left: 57116
+ right: 40222
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::tests::golden_work_counts
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+

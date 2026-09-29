@@ -1,0 +1,19 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (<wt>/k4-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 6 tests
+test structural::retained::recover::tests::a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term ... ok
+test structural::retained::recover::tests::an_exact_zero_is_published_as_plus_zero ... ok
+42 models; compared by kind: {"Mb": 112, "Mbs": 5, "N": 56, "R": 234, "T": 55, "dspr": 12, "end": 670, "mag": 100, "sf": 3, "sm": 3, "spr": 77, "st": 30, "u": 600}
+test structural::retained::recover::tests::every_recovered_kind_matches_its_exact_reference ... ok
+test structural::retained::recover::tests::n06s_torque_and_spring_action_are_nonzero_and_correct ... ok
+test structural::retained::recover::tests::subnormal_underflow_and_overflow_are_published_with_their_outcome ... ok
+bounded gates: ["DIRECTIONAL-WELL 128 1/4", "DIRECTIONAL-WELL 256 1/4", "GS-ROT-y345-LOADED 128 3/4", "GS-ROT-y345-LOADED 256 2/4", "GS-TRANS-y345 128 1/2", "GS-TRANS-y345 256 1/2", "GS-TRANS-y345 512 1/2", "LOADONLY-y345 128 3/4", "LOADONLY-y345 256 3/4", "M10-ANISO 128 1/2", "PROBE-y345-m1-axial 128 1/4", "PROBE-y345-m1-axial 256 3/4", "PROBE-y345-m1-inplane 128 1/2", "PROBE-y345-m1-inplane 256 1/4", "PROBE-y345-m1-outofplane 128 1/4", "PROBE-y345-m1-outofplane 256 1/4", "PROBE-y345-m1-torque 128 3/4", "PROBE-y345-m1-torque 256 3/4", "PROBE-y345-m3-axial 128 1/4", "PROBE-y345-m3-axial 256 2/4", "PROBE-y345-m3-inplane 128 1/4", "PROBE-y345-m3-inplane 256 1/2", "PROBE-y345-m3-outofplane 128 1/4", "PROBE-y345-m3-outofplane 256 1/4", "PROBE-y345-m3-torque 128 2/4", "PROBE-y345-m3-torque 256 1/4"]
+claims: 99 controls, 5490 rows; worst |obs − exp|/allowed 2.8002942908412554e-1 (SKEW-K1E-12 end.1.i.1)
+DEMOTION2: relative rows 7 -> 4, b 4.720447033220132e-6
+EXACT-RIGID: b 1.0692277272248616e-150
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 317 filtered out; finished in 9.79s
+
+cargo test --offline --locked -j 4 --lib --   --nocapture  12.82s user 0.10s system 130% cpu 9.882 total

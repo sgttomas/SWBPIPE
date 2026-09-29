@@ -1,0 +1,35 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M38/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.97s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M38/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_e_charge_and_e_estimate_equal_the_emulation_at_every_verific.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 34.46s
+
+
+===== test_e_unit_g_the_bounded_operator_and_e_equal_the_generators_emu.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision stdout ----
+
+thread 'structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision' (12122831) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:173:17:
+assertion `left == right` failed: N01 128 body 0
+  left: ["4112d6cd33637a1c", "40c9640000000000", "4112d6cd33637a1c", "4122d6cd33637a1c", "25b2d6cd33637a1c", "25c2d6cd33637a1c"]
+ right: ["4112d6cd33637a1c", "40c9640000000001", "4112d6cd33637a1c", "4122d6cd33637a1c", "25b2d6cd33637a1c", "25c2d6cd33637a1c"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.05s
+
+

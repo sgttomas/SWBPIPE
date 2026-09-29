@@ -676,6 +676,7 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
 
     // Honesty against the exact solutions, and G5a, on every selected control.
     let mut honest = 0;
+    let (mut rows_compared, mut tightest) = (0, (0.0f64, String::new()));
     let mut expectations: BTreeMap<String, BTreeMap<String, f64>> = all_models()
         .into_iter()
         .map(|m| (m.name, m.expect))
@@ -697,14 +698,22 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
             continue;
         }
         let (worst, at, compared) =
-            models::compare_honest(solve.source(), &solve.publish().rows, expect);
+            models::compare_honest(solve.publish(), solve.selected_precision(), expect);
         assert!(
             compared > 0 && worst <= 1.0,
             "{name}: {worst} at {at} ({compared})"
         );
         honest += 1;
+        rows_compared += compared;
+        if worst > tightest.0 {
+            tightest = (worst, format!("{name} {at}"));
+        }
     }
     println!("bounded gates: {gates:?}");
+    println!(
+        "claims: {honest} controls, {rows_compared} rows; worst |obs − exp|/allowed {:e} ({})",
+        tightest.0, tightest.1
+    );
     assert!(honest >= 90, "{honest}");
 
     // Item 6a on the controls: DEMOTION2's relative rows and EXACT-RIGID's b.

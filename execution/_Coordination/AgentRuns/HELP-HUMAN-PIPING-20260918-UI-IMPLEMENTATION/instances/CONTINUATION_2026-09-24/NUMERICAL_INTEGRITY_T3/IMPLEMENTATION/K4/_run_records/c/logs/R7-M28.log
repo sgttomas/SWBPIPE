@@ -1,0 +1,75 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/R7-M28/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.68s
+  Executable unittests src/lib.rs (<wt>/k4-mut/R7-M28/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_e_charge_on_rf_large_at_100_members_at_256.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::e_charge_on_rf_large_at_100_members_at_256 ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::e_charge_on_rf_large_at_100_members_at_256 stdout ----
+
+thread 'structural::retained::adaptive::method_tests::e_charge_on_rf_large_at_100_members_at_256' (12104498) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1055:5:
+assertion `left == right` failed: RF-LARGE-CHAIN-n00100-AX 256 chg
+  left: ["448", "0", "-"]
+ right: ["448", "-", "-"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::e_charge_on_rf_large_at_100_members_at_256
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.02s
+
+
+===== test_rf_large_chain_ax_at_100_members_is_selected_at_128_and_hone.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::references_tests::rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest stdout ----
+RF-LARGE: Tally { cases: 1, passes: 1312, absolute_range_passes: 0, not_covered: 0, zeros_unpublished: 0, refused: 0, outcome_controls: 0, selected_at: {512: 1} }
+non-discriminating controls: 0
+
+thread 'structural::retained::adaptive::references_tests::rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest' (12103942) panicked at src/structural/retained/../../../tests/retained_k4/references_tests.rs:425:5:
+assertion `left == right` failed
+  left: None
+ right: Some(1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::references_tests::rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 7.25s
+
+
+===== test_rf_large_tree_ax_at_100_members_is_selected_at_128_and_hones.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest stdout ----
+RF-LARGE: Tally { cases: 1, passes: 1312, absolute_range_passes: 0, not_covered: 0, zeros_unpublished: 0, refused: 0, outcome_controls: 0, selected_at: {256: 1} }
+non-discriminating controls: 0
+
+thread 'structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest' (12104424) panicked at src/structural/retained/../../../tests/retained_k4/references_tests.rs:425:5:
+assertion `left == right` failed
+  left: None
+ right: Some(1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 4.20s
+
+

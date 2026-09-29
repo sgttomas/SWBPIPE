@@ -1,0 +1,26 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/ev-R7-M22/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.93s
+     Running unittests src/lib.rs (<wt>/k4-mut/ev-R7-M22/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... EVIDENCE DEMOTION2: 512 ["128:rejected:stop_rule:21", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"] (GEN 512 ["128:rejected:stop_rule:13", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"])
+EVIDENCE N02: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE N03-RZ: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE N04: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE SEEDED-SOFT: 128 ["128:accepted", "256:verified"] (GEN - ["128:rejected:stop_rule:12", "256:rejected:stop_rule:12", "512:rejected:stop_rule:12"]) DISHONEST 9.536743164062499e2 at mag.2
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12194076) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:403:9:
+assertion `left == right` failed: DEMOTION2
+  left: ("512", ["128:rejected:stop_rule:21", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"])
+ right: ("512", ["128:rejected:stop_rule:13", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.61s
+
+error: test failed, to rerun pass `--lib`

@@ -44,9 +44,11 @@ fn every_recovered_kind_matches_its_exact_reference() {
             continue;
         };
         let rows = &solve.publish().rows;
-        // D1 revision 5a.3 selects RIGID-UNLOADED at 512 (R7): its rows near
-        // zero are withheld as `absolute_verified`, and meet their own bound.
-        let (worst, at, compared) = models::compare_honest(&source, rows, &m.expect);
+        // Each row against the claim it publishes (D1 revision 5a.3, R7 §5.2;
+        // ROOT's ruling at C): RIGID-UNLOADED, selected at 512, withholds its
+        // rows near zero as `absolute_verified` with their own bound.
+        let (worst, at, compared) =
+            models::compare_honest(solve.publish(), solve.selected_precision(), &m.expect);
         assert!(worst <= 1.0, "{}: {worst} at {at}", m.name);
         assert!(compared > 0, "{}", m.name);
         let published = models::published(rows);

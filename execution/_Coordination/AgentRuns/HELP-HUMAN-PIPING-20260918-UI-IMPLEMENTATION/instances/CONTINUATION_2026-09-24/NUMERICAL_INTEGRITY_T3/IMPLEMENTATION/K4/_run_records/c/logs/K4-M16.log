@@ -1,0 +1,72 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M16/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.41s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M16/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly stdout ----
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12148027) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:379:9:
+assertion `left == right` failed: REACTIONS-ONLY
+  left: ("128", ["128:accepted", "256:verified"])
+ right: ("256", ["128:rejected:stop_rule:46", "256:accepted", "512:verified"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 10.06s
+
+
+===== test_every_published_quantity_takes_part_in_the_stop_rule.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule stdout ----
+
+thread 'structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule' (12148017) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:303:9:
+assertion `left == right` failed: Reaction(Dof { node: 0, component: Ux })
+  left: (Ok(true), None)
+ right: (Ok(false), Some(33))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_the_reactions_only_control_is_rejected_at_128_by_a_reaction.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::the_reactions_only_control_is_rejected_at_128_by_a_reaction ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::tests::the_reactions_only_control_is_rejected_at_128_by_a_reaction stdout ----
+
+thread 'structural::retained::adaptive::tests::the_reactions_only_control_is_rejected_at_128_by_a_reaction' (12148013) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:167:5:
+assertion failed: matches!(attempts[0],
+    (128, Candidate,
+    Rejected(AttemptReason::StopRule
+    { quantity: QuantityId::Reaction(_), kind: Kind::Force, .. })))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::tests::the_reactions_only_control_is_rejected_at_128_by_a_reaction
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.04s
+
+

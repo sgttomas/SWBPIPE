@@ -1,0 +1,981 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/NONE/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.29s
+  Executable unittests src/lib.rs (<wt>/k4-mut/NONE/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_a_case_limit_is_exhausted_exactly_where_its_work_ends.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.25s
+
+
+===== test_a_ceiling_case_is_unresolved_with_its_attempts.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::a_ceiling_case_is_unresolved_with_its_attempts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_a_combination_escalates_independently_of_its_operands.log =====
+
+running 1 test
+test structural::retained::combine::tests::a_combination_escalates_independently_of_its_operands ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.29s
+
+
+===== test_a_combination_out_of_budget_is_withheld_and_its_operands_kee.log =====
+
+running 1 test
+test structural::retained::combine::tests::a_combination_out_of_budget_is_withheld_and_its_operands_keep_their_standing ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.28s
+
+
+===== test_a_combination_reuses_its_operands_cached_factor_stops_and_bu.log =====
+
+running 1 test
+test structural::retained::combine::tests::a_combination_reuses_its_operands_cached_factor_stops_and_builds ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.08s
+
+
+===== test_a_combination_runs_its_own_stop_rule.log =====
+
+running 1 test
+test structural::retained::combine::tests::a_combination_runs_its_own_stop_rule ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.35s
+
+
+===== test_a_combined_prescribed_value_is_published_from_its_exact_sum_.log =====
+
+running 1 test
+test structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.09s
+
+
+===== test_a_constructed_ill_conditioned_matrix_whose_pivots_pass_escal.log =====
+
+running 1 test
+test structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_a_constructed_indefinite_pair_is_a_negative_energy_witness_a.log =====
+
+running 1 test
+test structural::retained::factor::tests::a_constructed_indefinite_pair_is_a_negative_energy_witness_and_its_definite_neighbour_is_not ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_a_directed_result_is_never_on_the_wrong_side_and_exact_value.log =====
+
+running 1 test
+test structural::retained::directed::tests::a_directed_result_is_never_on_the_wrong_side_and_exact_values_do_not_move ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_a_directional_ground_that_does_not_span_is_not_assessed_and_.log =====
+
+running 1 test
+test structural::retained::factor::tests::a_directional_ground_that_does_not_span_is_not_assessed_and_is_never_refused_as_a_mechanism ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_a_pivot_that_fails_at_128_escalates_and_passes_at_256.log =====
+
+running 1 test
+test structural::retained::factor::tests::a_pivot_that_fails_at_128_escalates_and_passes_at_256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.04s
+
+
+===== test_a_prescribed_motion_control_matches_its_exact_reference.log =====
+
+running 1 test
+test structural::retained::assemble::tests::a_prescribed_motion_control_matches_its_exact_reference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_a_recovered_action_is_one_exact_expansion_where_a_sequential.log =====
+
+running 1 test
+test structural::retained::recover::tests::a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_a_refused_span_adds_nothing.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::a_refused_span_adds_nothing ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_a_structural_zero_kind_is_accepted_through_the_coupled_scale.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::a_structural_zero_kind_is_accepted_through_the_coupled_scale ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_a_sums_rounding_charges_the_limbs_it_rounds.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_a_valid_source_is_canonical_and_its_bodies_are_numbered_by_l.log =====
+
+running 1 test
+test structural::retained::source::tests::a_valid_source_is_canonical_and_its_bodies_are_numbered_by_lowest_node ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_an_all_zero_body_agrees_exactly.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::an_all_zero_body_agrees_exactly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.04s
+
+
+===== test_an_e_hat_that_overflows_while_e_encodes_stops_as_e_does.log =====
+
+running 1 test
+test structural::retained::verify::tests::an_e_hat_that_overflows_while_e_encodes_stops_as_e_does ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_an_exact_zero_is_published_as_plus_zero.log =====
+
+running 1 test
+test structural::retained::recover::tests::an_exact_zero_is_published_as_plus_zero ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.54s
+
+
+===== test_assembled_entries_equal_the_fraction_emulation_bit_for_bit.log =====
+
+running 1 test
+test structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.23s
+
+
+===== test_at_128_the_element_agrees_with_k_d5s_re_formation_within_64_.log =====
+
+running 1 test
+test structural::retained::assemble::tests::at_128_the_element_agrees_with_k_d5s_re_formation_within_64_ulps_of_its_largest_entry ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_at_p53_the_axis_aligned_element_agrees_with_the_products_loc.log =====
+
+running 1 test
+test structural::retained::assemble::tests::at_p53_the_axis_aligned_element_agrees_with_the_products_local_stiffness ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_b1_c_the_cancelled_1e80_terms_leave_the_1e_minus_8_load_exac.log =====
+
+running 1 test
+test structural::retained::combine::tests::b1_c_the_cancelled_1e80_terms_leave_the_1e_minus_8_load_exactly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.13s
+
+
+===== test_b1_e_is_caught_the_combination_reproduces_the_truth_that_a_s.log =====
+
+running 1 test
+test structural::retained::combine::tests::b1_e_is_caught_the_combination_reproduces_the_truth_that_a_sum_of_states_loses ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.11s
+
+
+===== test_b1_l_is_exact_with_the_ledger.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::b1_l_is_exact_with_the_ledger ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_blocks_are_the_free_free_components_and_data_follows_7a.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::blocks_are_the_free_free_components_and_data_follows_7a ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.12s
+
+
+===== test_cancelling_contributions_are_exact_per_dof.log =====
+
+running 1 test
+test structural::retained::ledger::tests::cancelling_contributions_are_exact_per_dof ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_canonical_encodings_equal_the_generators_independent_bytes.log =====
+
+running 1 test
+test structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.20s
+
+
+===== test_ceiling_operands_2_to_the_minus_1060_apart_give_the_net_case.log =====
+
+running 1 test
+test structural::retained::combine::tests::ceiling_operands_2_to_the_minus_1060_apart_give_the_net_cases_truth ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.21s
+
+
+===== test_committed_vectors_match_their_recorded_sha256.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::committed_vectors_match_their_recorded_sha256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.25s
+
+
+===== test_directed_operations_equal_the_fraction_oracle_in_both_direct.log =====
+
+running 1 test
+test structural::retained::directed::tests::directed_operations_equal_the_fraction_oracle_in_both_directions ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.06s
+
+
+===== test_directional_span_under_5a2_was_selected_at_256_and_published.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.05s
+
+
+===== test_e_charge_and_e_estimate_equal_the_emulation_at_every_verific.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 34.24s
+
+
+===== test_e_charge_on_rf_large_at_100_members_at_256.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::e_charge_on_rf_large_at_100_members_at_256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 10.11s
+
+
+===== test_e_hat_couples_force_and_moment_through_the_body_extent_in_bi.log =====
+
+running 1 test
+test structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_e_headroom_every_state_pair_is_within_2_to_the_8_of_its_reso.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::e_headroom_every_state_pair_is_within_2_to_the_8_of_its_resolution ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 15.96s
+
+
+===== test_e_uc_on_rf_large_at_100_members_at_256.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::e_uc_on_rf_large_at_100_members_at_256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 6.50s
+
+
+===== test_e_uc_uc_s_and_b_equal_the_emulation_and_never_fall_below_the.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::e_uc_uc_s_and_b_equal_the_emulation_and_never_fall_below_the_norm_per_block ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 30.89s
+
+
+===== test_e_unit_g_the_bounded_operator_and_e_equal_the_generators_emu.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 22.56s
+
+
+===== test_e_unit_on_rf_large_at_100_members_at_128_and_256.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::e_unit_on_rf_large_at_100_members_at_128_and_256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 10.10s
+
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.68s
+
+
+===== test_every_element_annihilates_the_rigid_motions_to_within_64_uni.log =====
+
+running 1 test
+test structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.24s
+
+
+===== test_every_invalid_input_is_refused_with_its_reason.log =====
+
+running 1 test
+test structural::retained::source::tests::every_invalid_input_is_refused_with_its_reason ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_every_published_quantity_takes_part_in_the_stop_rule.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_every_recovered_kind_matches_its_exact_reference.log =====
+
+running 1 test
+test structural::retained::recover::tests::every_recovered_kind_matches_its_exact_reference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.60s
+
+
+===== test_factor_reuse_is_bit_identical_to_separate_solves.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::factor_reuse_is_bit_identical_to_separate_solves ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.26s
+
+
+===== test_factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 26.56s
+
+
+===== test_failed_and_verification_attempts_are_charged.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::failed_and_verification_attempts_are_charged ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.05s
+
+
+===== test_golden_work_counts.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::golden_work_counts ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.36s
+
+
+===== test_input_derived_rows_and_s8_ws_far_node_rows_are_classified_as.log =====
+
+running 1 test
+test structural::retained::adaptive::classification_tests::input_derived_rows_and_s8_ws_far_node_rows_are_classified_as_the_design_says ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.12s
+
+
+===== test_invalid_combinations_are_withheld_with_their_reason.log =====
+
+running 1 test
+test structural::retained::combine::tests::invalid_combinations_are_withheld_with_their_reason ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.08s
+
+
+===== test_item_6a_floors_force_and_moment_by_phi_where_it_binds_and_no.log =====
+
+running 1 test
+test structural::retained::adaptive::classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_k4s_files_call_no_binary64_transcendental_or_fused_function.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::k4s_files_call_no_binary64_transcendental_or_fused_function ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_agai.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_against_512 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.06s
+
+
+===== test_k_d5s_d5c_1_controls_and_rf_skew_t_cant_off_122_r1e_04_are_w.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::k_d5s_d5c_1_controls_and_rf_skew_t_cant_off_122_r1e_04_are_within_1e_minus_9 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.20s
+
+
+===== test_n05_and_n06_agree_with_the_intended_basis_and_n05_is_not_np_.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::n05_and_n06_agree_with_the_intended_basis_and_n05_is_not_np_as_represented_answer ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.10s
+
+
+===== test_n05_and_n06_are_accepted_at_128_against_256.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::n05_and_n06_are_accepted_at_128_against_256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.06s
+
+
+===== test_n06s_torque_and_spring_action_are_nonzero_and_correct.log =====
+
+running 1 test
+test structural::retained::recover::tests::n06s_torque_and_spring_action_are_nonzero_and_correct ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_n5_stream_p128_l4.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::n5_stream_p128_l4 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 27.94s
+
+
+===== test_n5_stream_p192_l4.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::n5_stream_p192_l4 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 28.06s
+
+
+===== test_n5_stream_p320_l8.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::n5_stream_p320_l8 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 70.74s
+
+
+===== test_n5_stream_p576_l16.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::n5_stream_p576_l16 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 203.63s
+
+
+===== test_permuting_every_list_gives_bit_identical_k_rhs_and_encodings.log =====
+
+running 1 test
+test structural::retained::assemble::tests::permuting_every_list_gives_bit_identical_k_rhs_and_encodings ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.19s
+
+
+===== test_phi_is_exact_where_the_product_is_normal_and_rounded_up_belo.log =====
+
+running 1 test
+test structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_prescribed_values_combine_exactly_and_round_once.log =====
+
+running 1 test
+test structural::retained::combine::tests::prescribed_values_combine_exactly_and_round_once ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.11s
+
+
+===== test_probe_v4_s3_y_reference_with_a_chord_component.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::probe_v4_s3_y_reference_with_a_chord_component ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 3.70s
+
+
+===== test_r1s_cases_through_the_adapter_pass_are_refused_or_are_not_co.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::r1s_cases_through_the_adapter_pass_are_refused_or_are_not_covered_as_section_4_10_lists ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 6.52s
+
+
+===== test_refinement_stops_after_three_corrections_and_the_attempt_esc.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::refinement_stops_after_three_corrections_and_the_attempt_escalates ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.05s
+
+
+===== test_retained_states_equal_the_generators_emulation_of_the_method.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::retained_states_equal_the_generators_emulation_of_the_method_bit_for_bit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.13s
+
+
+===== test_rf_large_at_10_members_is_selected_at_128_and_honest.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_at_10_members_is_selected_at_128_and_honest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.49s
+
+
+===== test_rf_large_chain_ax_at_100_members_is_selected_at_128_and_hone.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.66s
+
+
+===== test_rf_large_chain_rot_at_100_members_is_selected_at_128_and_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_chain_rot_at_100_members_is_selected_at_128_and_honest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 3.22s
+
+
+===== test_rf_large_cont_ax_at_100_members_is_selected_at_128_and_hones.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_cont_ax_at_100_members_is_selected_at_128_and_honest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.35s
+
+
+===== test_rf_large_cont_rot_at_100_members_is_selected_at_128_and_hone.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_cont_rot_at_100_members_is_selected_at_128_and_honest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 2.51s
+
+
+===== test_rf_large_tree_ax_at_100_members_is_selected_at_128_and_hones.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.92s
+
+
+===== test_rf_large_tree_rot_at_100_members_is_selected_at_128_and_hone.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::rf_large_tree_rot_at_100_members_is_selected_at_128_and_honest ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 3.12s
+
+
+===== test_runs_and_list_permutations_are_deterministic.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::runs_and_list_permutations_are_deterministic ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.32s
+
+
+===== test_rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translati.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_sd_g5_lever2s_estimate_residual_is_nonzero_where_the_assembl.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_lever2s_estimate_residual_is_nonzero_where_the_assembled_one_vanishes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.05s
+
+
+===== test_sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_ab.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_above ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_st.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_sd_g5s_searched_profiles_reach_each_boundary_of_7b_to_7d.log =====
+
+running 1 test
+test structural::retained::bound::tests::sd_g5s_searched_profiles_reach_each_boundary_of_7b_to_7d ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_stress_scales_and_intensified_factors_match_bit_for_bit.log =====
+
+running 1 test
+test structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_subnormal_underflow_and_overflow_are_published_with_their_ou.log =====
+
+running 1 test
+test structural::retained::recover::tests::subnormal_underflow_and_overflow_are_published_with_their_outcome ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_sum_differential_p1024.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::sum_differential_p1024 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 19.17s
+
+
+===== test_sum_differential_p128.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::sum_differential_p128 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 4.85s
+
+
+===== test_sum_differential_p192.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::sum_differential_p192 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 5.44s
+
+
+===== test_sum_differential_p256.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::sum_differential_p256 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 6.11s
+
+
+===== test_sum_differential_p320.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::sum_differential_p320 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 8.21s
+
+
+===== test_sum_differential_p512.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::sum_differential_p512 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 10.25s
+
+
+===== test_sum_differential_p576.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::sum_differential_p576 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 14.12s
+
+
+===== test_targeted_sums_match_the_fraction_oracle.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.01s
+
+
+===== test_the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_z.log =====
+
+running 1 test
+test structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_the_ceiling_attempt_uses_its_own_k_as_the_residual_basis.log =====
+
+running 1 test
+test structural::retained::factor::tests::the_ceiling_attempt_uses_its_own_k_as_the_residual_basis ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.09s
+
+
+===== test_the_classification_matches_the_binary64_reimplementation_bit.log =====
+
+running 1 test
+test structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_the_classifications_boundaries_hold_exactly.log =====
+
+running 1 test
+test structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_degenerate_axis_decision_is_exact.log =====
+
+running 1 test
+test structural::retained::source::tests::the_degenerate_axis_decision_is_exact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_duplicate_operand_entry_is_one_exact_sum_where_a_sequent.log =====
+
+running 1 test
+test structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.01s
+
+
+===== test_the_ledger_encoding_is_canonical_and_order_independent.log =====
+
+running 1 test
+test structural::retained::ledger::tests::the_ledger_encoding_is_canonical_and_order_independent ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when.log =====
+
+running 1 test
+test structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_low_precision_stress_keeps_every_bound_above_the_exact_n.log =====
+
+running 1 test
+test structural::retained::bound::tests::the_low_precision_stress_keeps_every_bound_above_the_exact_norm_and_m27s_does_not ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 1.19s
+
+
+===== test_the_p_plus_64_residual_takes_one_correction_on_two_span_and_.log =====
+
+running 1 test
+test structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_the_pattern_from_positions_equals_the_connectivity_pattern_w.log =====
+
+running 1 test
+test structural::retained::assemble::tests::the_pattern_from_positions_equals_the_connectivity_pattern_where_both_apply ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.01s
+
+
+===== test_the_predicate_is_decided_exactly_at_its_boundary.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_product_of_two_exact_sums_is_exact.log =====
+
+running 1 test
+test structural::retained::bound::tests::the_product_of_two_exact_sums_is_exact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_projection_at_p53_gives_round_on_normal_results_and_the_.log =====
+
+running 1 test
+test structural::retained::ledger::tests::the_projection_at_p53_gives_round_on_normal_results_and_the_exact_projection_everywhere ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_the_projection_matches_the_fraction_oracle_at_every_precisio.log =====
+
+running 1 test
+test structural::retained::ledger::tests::the_projection_matches_the_fraction_oracle_at_every_precision ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.03s
+
+
+===== test_the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_di.log =====
+
+running 1 test
+test structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_reactions_only_control_is_rejected_at_128_by_a_reaction.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::the_reactions_only_control_is_rejected_at_128_by_a_reaction ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.07s
+
+
+===== test_the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds.log =====
+
+running 1 test
+test structural::retained::assemble::tests::the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.01s
+
+
+===== test_the_six_member_skew_run_is_rejected_at_128_and_its_verificat.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::the_six_member_skew_run_is_rejected_at_128_and_its_verification_is_reused ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.37s
+
+
+===== test_the_source_encodings_do_not_depend_on_list_order.log =====
+
+running 1 test
+test structural::retained::source::tests::the_source_encodings_do_not_depend_on_list_order ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_span_decision_is_exact.log =====
+
+running 1 test
+test structural::retained::factor::tests::the_span_decision_is_exact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_the_spring_carried_case_is_evaluated_its_underflowing_action.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::the_spring_carried_case_is_evaluated_its_underflowing_actions_published_explicitly ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_v4s_f2_family_bounds_equal_the_emulation_and_are_never_below.log =====
+
+running 1 test
+test structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.20s
+
+
+===== test_w1_agrees_with_the_exact_block_oracle_on_the_in_scope_cases.log =====
+
+running 1 test
+test structural::retained::adaptive::references_tests::w1_agrees_with_the_exact_block_oracle_on_the_in_scope_cases ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.21s
+
+
+===== test_witnessed_mechanisms_are_refused_before_any_attempt_and_the_.log =====
+
+running 1 test
+test structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.06s
+
+
+===== test_zero_negation_absolute_value_and_reuse.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::zero_negation_absolute_value_and_reuse ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
