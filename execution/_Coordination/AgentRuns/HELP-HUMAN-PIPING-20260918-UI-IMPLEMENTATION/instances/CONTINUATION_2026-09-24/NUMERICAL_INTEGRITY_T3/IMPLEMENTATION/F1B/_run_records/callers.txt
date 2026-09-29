@@ -1,0 +1,674 @@
+F1b callers scan of git archive 130445db2 (projects/ and tools/, *.rs *.ts *.tsx *.py; target/, node_modules/, .venv/ and projects/chirality-piping/execution/ excluded)
+
+#### Existing product functions whose signature or body F1b changed
+
+== solve_load_case
+projects/chirality-piping/core/product_physics/src/f1a_tests.rs:209: /// The inputs the product's guard reads for case 0 (as `solve_load_case`
+projects/chirality-piping/core/product_physics/src/lib.rs:2434: match solve_load_case(
+projects/chirality-piping/core/product_physics/src/lib.rs:2463: match solve_load_case(
+projects/chirality-piping/core/product_physics/src/lib.rs:2520: match solve_load_case(
+projects/chirality-piping/core/product_physics/src/lib.rs:3189: /// producer functions as `solve_load_case` (nodal loads, then T1's eigen
+projects/chirality-piping/core/product_physics/src/lib.rs:3307: fn solve_load_case(
+projects/chirality-piping/core/product_physics/src/membrane_publication_range.rs:126: // invoke solve_load_case, select a solver, or produce a solved envelope.
+projects/chirality-piping/core/product_physics/src/s11f_tests.rs:2102: /// (RV1-N5's route) through `solve_load_case`, on both entries (G = 4e15,
+projects/chirality-piping/core/product_physics/src/s11g_tests.rs:158: /// sequence and boundary (as `solve_load_case` forms them), for a pre-0.4
+projects/chirality-piping/core/product_physics/src/source_receipt/load_state_join_tests.rs:723: let mut solve = solve_load_case(
+projects/chirality-piping/core/product_physics/src/source_receipt/load_state_tests.rs:502: let solve = solve_load_case(
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:524: ("PP/lib.rs", "solve_load_case", 2, "integer: source-budget attempts and component modifier count"),
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1097: let case = body("solve_load_case");
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1496: /// site in `solve_load_case` binds `source_eligible` by one call to main's
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1514: let case = body("solve_load_case");
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1704: ("lib.rs", "fn solve_load_case", "ForceScale", 1),
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1764: /// named by its keyword and first identifier (`fn solve_load_case`,
+   (17 occurrences)
+
+== solve_preview_reduced_system
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:332: /// Main's linear attempt's evidence (PP `solve_preview_reduced_system` at
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:906: /// `solve_preview_reduced_system` forms it (the force does not enter the
+projects/chirality-piping/core/product_physics/src/lib.rs:3545: BasisStiffness::Formed(formed) => solve_preview_reduced_system(
+projects/chirality-piping/core/product_physics/src/lib.rs:5334: fn solve_preview_reduced_system(
+projects/chirality-piping/core/product_physics/src/s11f_tests.rs:1857: /// The product's own linear seam `solve_preview_reduced_system` solves a
+projects/chirality-piping/core/product_physics/src/s11f_tests.rs:1920: let solve = solve_preview_reduced_system(
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:175: ("PP/lib.rs", "solve_preview_reduced_system", "observation lane: DEC050/053 raw sparse observation of `observation_force`; never selects a solut
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1093: let linear = body("solve_preview_reduced_system");
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1113: ///   `solve_preview_reduced_system`.
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1186: // product_physics: the one product call, inside solve_preview_reduced_system.
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1207: let body = function_body(code, "fn solve_preview_reduced_system(");
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1211: "product_physics calls the formation-checked entry outside solve_preview_reduced_system"
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:198: /// (`solve_preview_reduced_system`); the nonlinear loop keeps the unchanged
+   (13 occurrences)
+
+== run_linear_static_preview_captured_once
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:197: /// front end in `run_linear_static_preview_captured_once`'s order, with each
+projects/chirality-piping/core/product_physics/src/lib.rs:2194: run_linear_static_preview_captured_once(request, solver_mode, capture, source_budget);
+projects/chirality-piping/core/product_physics/src/lib.rs:2201: let envelope = run_linear_static_preview_captured_once(
+projects/chirality-piping/core/product_physics/src/lib.rs:2214: fn run_linear_static_preview_captured_once(
+projects/chirality-piping/core/product_physics/src/source_receipt/load_state_join_tests.rs:689: /// `run_linear_static_preview_captured_once` does, returning the finalized
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:159: ("PP/lib.rs", "run_linear_static_preview_captured_once", "load_case_solves", "per-case result records, not a force vector"),
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:523: ("PP/lib.rs", "run_linear_static_preview_captured_once", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's spar
+   (7 occurrences)
+
+== append_integrity_report
+projects/chirality-piping/core/product_physics/src/f1a_tests.rs:329: /// - `append_integrity_report` takes the code from `report.quality`
+projects/chirality-piping/core/product_physics/src/f1a_tests.rs:406: append_integrity_report(
+projects/chirality-piping/core/product_physics/src/f1a_tests.rs:471: /// The composition matrix at `append_integrity_report`:
+projects/chirality-piping/core/product_physics/src/f1a_tests.rs:589: /// Main's `append_integrity_report` (`5ae22926e`, `PP:1063-1090`), copied
+projects/chirality-piping/core/product_physics/src/f1a_tests.rs:642: append_integrity_report(&mut ours, "c", &report, &model, None, finding.as_ref(), None, None);
+projects/chirality-piping/core/product_physics/src/f1a_tests.rs:652: append_integrity_report(&mut with, "c", &report, &model, None, finding.as_ref(), Some(&check), None);
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1218: /// Main's `append_integrity_report` at `e7d930d49` (after F1a), verbatim
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1254: /// A-ORACLE: with no range record, `append_integrity_report` is byte-identical
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1273: append_integrity_report(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1389: append_integrity_report(
+projects/chirality-piping/core/product_physics/src/lib.rs:1089: fn append_integrity_report(
+projects/chirality-piping/core/product_physics/src/lib.rs:3919: append_integrity_report(
+projects/chirality-piping/core/product_physics/src/lib.rs:3962: append_integrity_report(
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1700: ("lib.rs", "fn append_integrity_report", "ForceScale", 1),
+   (14 occurrences)
+
+== append_integrity_failure
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1633: /// OQ4: a non-range failure at the chosen b keeps `append_integrity_failure`'s
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1661: append_integrity_failure(&mut main_route, "c", &error, &model);
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1689: /// `append_integrity_failure`'s diagnostic for that error with no
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1714: append_integrity_failure(&mut expected, "case", &error, &model);
+projects/chirality-piping/core/product_physics/src/lib.rs:1304: fn append_integrity_failure(
+projects/chirality-piping/core/product_physics/src/lib.rs:1762: /// modelled on `append_integrity_failure`. It carries the refusal's reason, the
+projects/chirality-piping/core/product_physics/src/lib.rs:3693: append_integrity_failure(diagnostics, &load_case.id, &error, model);
+projects/chirality-piping/core/product_physics/src/lib.rs:3773: append_integrity_failure(diagnostics, &load_case.id, &error, model);
+projects/chirality-piping/core/product_physics/src/lib.rs:5062: append_integrity_failure(diagnostics, &load_case.id, &error, model);
+projects/chirality-piping/core/product_physics/src/lib.rs:5274: append_integrity_failure(diagnostics, &load_case.id, structural, model);
+projects/chirality-piping/core/product_physics/tests/f1b_w2_runtime.rs:868: /// `append_integrity_failure`'s code and the unscaled error's text, under W2's
+   (11 occurrences)
+
+== restrained_reactions
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:285: /// Main's E12 (PP `restrained_reactions` and `multiply_matrix_vector` at
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:504: bits(&restrained_reactions(&sparse, &u, force)),
+projects/chirality-piping/core/product_physics/src/lib.rs:3297: fn restrained_reactions(
+projects/chirality-piping/core/product_physics/src/lib.rs:4045: (None, Some(formed)) => restrained_reactions(formed, &displacements, &force),
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:529: ("PP/lib.rs", "restrained_reactions", 0, "E12 (F1b: `SparseStiffness::reactions`, whose formed row is K1's `multiply`)"),
+   (5 occurrences)
+
+== legacy_observation_force
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:515: let observed = legacy_observation_force(
+projects/chirality-piping/core/product_physics/src/lib.rs:3261: fn legacy_observation_force(
+projects/chirality-piping/core/product_physics/src/lib.rs:3533: legacy_observation_force(
+projects/chirality-piping/core/product_physics/src/s11f_tests.rs:1911: let observation = legacy_observation_force(
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:150: ("PP/lib.rs", "legacy_observation_force", "observation lane (S11 section 4.3 limit 2): T1's DEC050/053 observation force; it never reaches a sol
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:160: ("PP/lib.rs", "legacy_observation_force", "observation", "observation lane (limit 2): T1's DEC050/053 observation force, K_fc g_c folded on purp
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:516: ("PP/lib.rs", "legacy_observation_force", 1, "allow-listed observation lane (limit 2)"),
+   (7 occurrences)
+
+== legacy_dense_observation
+projects/chirality-piping/core/product_physics/src/lib.rs:3285: fn legacy_dense_observation(
+projects/chirality-piping/core/product_physics/src/lib.rs:3853: .and_then(|reduced| legacy_dense_observation(reduced).map_err(|_| ()))
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:174: ("PP/lib.rs", "legacy_dense_observation", "observation lane: DEC050/053 legacy unscaled LU reference on the reduced system; never selects a solu
+   (3 occurrences)
+
+== prepare_sources
+projects/chirality-piping/core/product_physics/src/lib.rs:3581: // (`source_recovery::prepare_sources`), so the empty slice changes neither
+projects/chirality-piping/core/product_physics/src/source_receipt.rs:345: // The selected minimum rejects every non-nodal producer in prepare_sources;
+projects/chirality-piping/core/product_physics/src/source_receipt/source.rs:331: // eigenstrain; prepare_sources refused any primitive ID collision.
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:27: /// The largest system (global DOFs) the method accepts; above it `prepare_sources`
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:101: /// no assembled stiffness to recover from, and `prepare_sources` would refuse
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:332: let source = prepare_sources(&input, &mut self.budget)?;
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:353: let source = prepare_sources(&input, &mut self.budget)?;
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:502: fn prepare_sources(
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:1441: let source = prepare_sources(&input, &mut budget)?;
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:1709: let sources = prepare_sources(
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:1737: prepare_sources(
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:1746: prepare_sources(
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:1755: prepare_sources(
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:1771: prepare_sources(
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:219: ("PP/source_recovery.rs", "prepare_sources", "T1 site (section 4.5): the retained nodal terms, in a ledger compared with the actual force"),
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:547: ("PP/source_recovery.rs", "prepare_sources", 1, "stiffness coverage fold (stiffness, not loads; section 2.5 :761)"),
+   (16 occurrences)
+
+#### Removed from PP lib.rs (expected: no occurrence in product_physics; other crates have their own functions of this name)
+
+== multiply_matrix_vector
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:285: /// Main's E12 (PP `restrained_reactions` and `multiply_matrix_vector` at
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:557: ("SP/lib.rs", "multiply_matrix_vector", 1, "formed elastic term K_e*u (section 2.2)"),
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs:127: ("FK/structural/sparse.rs", "multiply", 1, "exempt: formed elastic action K*u (bit-identical to the product's multiply_matrix_vector, E12's 
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs:165: ("nonlinear_integration/lib.rs", "multiply_matrix_vector", 1, "exempt: formed elastic action K*u"),
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs:169: ("SP/lib.rs", "multiply_matrix_vector", 1, "exempt: formed elastic term K_e*u (section 2.2 declared formation)"),
+projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:2061: let reactions: DenseVector = multiply_matrix_vector(stiffness, &displacements)?
+projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:2409: fn multiply_matrix_vector(
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1484: crate::multiply_matrix_vector(&k, &checked_unit.displacements)
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:1068: /// pattern, K*u (PP's `multiply_matrix_vector` form) and E12's reactions.
+projects/chirality-piping/core/solver/straight_pipe/src/lib.rs:501: let local_forces = multiply_matrix_vector(&local_stiffness, &local_displacements);
+projects/chirality-piping/core/solver/straight_pipe/src/lib.rs:1596: fn multiply_matrix_vector(matrix: &Matrix12, vector: &[f64; ELEMENT_DOF]) -> [f64; ELEMENT_DOF] {
+   (11 occurrences)
+
+#### New product items (PP lib.rs, source_recovery.rs) and the visibility change (formation_guard.rs)
+
+== BasisStiffness
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1993: stiffness: &BasisStiffness,
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1999: BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2000: BasisStiffness::Formed(formed) => pattern_attempt_result(
+projects/chirality-piping/core/product_physics/src/lib.rs:2395: BasisStiffness,
+projects/chirality-piping/core/product_physics/src/lib.rs:2845: enum BasisStiffness {
+projects/chirality-piping/core/product_physics/src/lib.rs:2861: ) -> Result<BasisStiffness, FrameKernelError> {
+projects/chirality-piping/core/product_physics/src/lib.rs:2863: Ok(stiffness) => Ok(BasisStiffness::Formed(stiffness)),
+projects/chirality-piping/core/product_physics/src/lib.rs:2865: Ok(BasisStiffness::RangeDeferred(error))
+projects/chirality-piping/core/product_physics/src/lib.rs:3311: stiffness: &BasisStiffness,
+projects/chirality-piping/core/product_physics/src/lib.rs:3450: BasisStiffness::Formed(formed) => Some(formed),
+projects/chirality-piping/core/product_physics/src/lib.rs:3451: BasisStiffness::RangeDeferred(_) => None,
+projects/chirality-piping/core/product_physics/src/lib.rs:3545: BasisStiffness::Formed(formed) => solve_preview_reduced_system(
+projects/chirality-piping/core/product_physics/src/lib.rs:3562: BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
+   (13 occurrences)
+
+== assemble_basis_stiffness
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:447: let sparse = assemble_basis_stiffness(&basis.built, &basis.springs).unwrap();
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:622: assemble_basis_stiffness(&b.built, &b.springs)
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:637: assemble_basis_stiffness(&b.built, &b.springs)
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1641: let stiffness = assemble_basis_stiffness(&basis.built, &basis.springs).unwrap();
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1696: let stiffness = assemble_basis_stiffness(&basis.built, &basis.springs).unwrap();
+projects/chirality-piping/core/product_physics/src/lib.rs:2816: fn assemble_basis_stiffness(
+projects/chirality-piping/core/product_physics/src/lib.rs:2846: /// The kernel's sparse assembly at b = 0 (`assemble_basis_stiffness`).
+projects/chirality-piping/core/product_physics/src/lib.rs:2862: match assemble_basis_stiffness(built, springs) {
+projects/chirality-piping/core/product_physics/src/lib.rs:3052: /// ordinary route uses `assemble_basis_stiffness`; this dense form remains for
+projects/chirality-piping/core/product_physics/src/s11f_tests.rs:1893: let sparse = assemble_basis_stiffness(&built, &boundary.springs).unwrap();
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:523: ("PP/lib.rs", "run_linear_static_preview_captured_once", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's spar
+   (11 occurrences)
+
+== form_basis_stiffness
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1989: /// `form_basis_stiffness` formed it (a deferred formation refusal is the
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2054: let stiffness = form_basis_stiffness(&basis.built, &basis.springs, true).unwrap();
+projects/chirality-piping/core/product_physics/src/lib.rs:1318: /// invocation only; `form_basis_stiffness`).
+projects/chirality-piping/core/product_physics/src/lib.rs:2368: let stiffness = match form_basis_stiffness(&built, &boundary.springs, linear) {
+projects/chirality-piping/core/product_physics/src/lib.rs:2419: match form_basis_stiffness(&case_built, &boundary.springs, linear) {
+projects/chirality-piping/core/product_physics/src/lib.rs:2504: match form_basis_stiffness(&basis_built, &boundary.springs, linear) {
+projects/chirality-piping/core/product_physics/src/lib.rs:2857: fn form_basis_stiffness(
+projects/chirality-piping/core/product_physics/src/lib.rs:3765: // invocation (`form_basis_stiffness`), so this is main's
+projects/chirality-piping/core/product_physics/src/source_receipt/load_state_join_tests.rs:722: let k = crate::form_basis_stiffness(&built, &boundary.springs, true).unwrap();
+projects/chirality-piping/core/product_physics/src/source_receipt/load_state_tests.rs:501: let k = crate::form_basis_stiffness(&parts.built, &parts.springs, true).unwrap();
+   (10 occurrences)
+
+== DENSE_SCRUTINY_BYTES_PER_ENTRY
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:720: assert_eq!(DENSE_SCRUTINY_BYTES_PER_ENTRY, 96);
+projects/chirality-piping/core/product_physics/src/lib.rs:2878: const DENSE_SCRUTINY_BYTES_PER_ENTRY: u128 = 96;
+projects/chirality-piping/core/product_physics/src/lib.rs:2895: DENSE_SCRUTINY_BYTES_PER_ENTRY.saturating_mul(dense_entries)
+projects/chirality-piping/core/product_physics/src/lib.rs:2941: DENSE_SCRUTINY_BYTES_PER_ENTRY,
+   (4 occurrences)
+
+== DENSE_SCRUTINY_CEILING_BYTES
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:721: assert_eq!(DENSE_SCRUTINY_CEILING_BYTES, 6_442_450_944);
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:724: DENSE_SCRUTINY_CEILING_BYTES
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:728: dense_scrutiny_guard(8_192, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:732: dense_scrutiny_guard(8_191, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:736: dense_scrutiny_guard(8_193, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:753: estimate > DENSE_SCRUTINY_CEILING_BYTES,
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:762: dense_scrutiny_guard(6_006, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:767: dense_scrutiny_guard(8_196, DENSE_SCRUTINY_CEILING_BYTES)
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:773: dense_scrutiny_guard(60_006, DENSE_SCRUTINY_CEILING_BYTES)
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:779: assert_eq!(dense_scrutiny_ceiling_bytes(), DENSE_SCRUTINY_CEILING_BYTES);
+projects/chirality-piping/core/product_physics/src/lib.rs:2882: const DENSE_SCRUTINY_CEILING_BYTES: u128 = 6 * 1024 * 1024 * 1024;
+projects/chirality-piping/core/product_physics/src/lib.rs:2930: DENSE_SCRUTINY_CEILING_BYTES
+   (12 occurrences)
+
+== DenseScrutinyRefusal
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:737: Err(DenseScrutinyRefusal {
+projects/chirality-piping/core/product_physics/src/lib.rs:2886: struct DenseScrutinyRefusal {
+projects/chirality-piping/core/product_physics/src/lib.rs:2902: fn dense_scrutiny_guard(dimension: usize, ceiling_bytes: u128) -> Result<(), DenseScrutinyRefusal> {
+projects/chirality-piping/core/product_physics/src/lib.rs:2906: Err(DenseScrutinyRefusal {
+projects/chirality-piping/core/product_physics/src/lib.rs:2933: fn dense_scrutiny_refusal_diagnostic(refusal: &DenseScrutinyRefusal) -> Diagnostic {
+   (5 occurrences)
+
+== dense_scrutiny_estimate_bytes
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:723: dense_scrutiny_estimate_bytes(1 << 26),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:751: let estimate = dense_scrutiny_estimate_bytes(entries);
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:758: assert_eq!(dense_scrutiny_estimate_bytes((1 << 26) + 1), 6_442_451_040);
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:765: assert_eq!(dense_scrutiny_estimate_bytes(6_006 * 6_006), 3_462_915_456);
+projects/chirality-piping/core/product_physics/src/lib.rs:2894: fn dense_scrutiny_estimate_bytes(dense_entries: u128) -> u128 {
+projects/chirality-piping/core/product_physics/src/lib.rs:2904: let estimated_bytes = dense_scrutiny_estimate_bytes(dense_entries);
+   (6 occurrences)
+
+== dense_scrutiny_guard
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:728: dense_scrutiny_guard(8_192, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:732: dense_scrutiny_guard(8_191, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:736: dense_scrutiny_guard(8_193, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:762: dense_scrutiny_guard(6_006, DENSE_SCRUTINY_CEILING_BYTES),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:767: dense_scrutiny_guard(8_196, DENSE_SCRUTINY_CEILING_BYTES)
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:773: dense_scrutiny_guard(60_006, DENSE_SCRUTINY_CEILING_BYTES)
+projects/chirality-piping/core/product_physics/src/lib.rs:2376: if let Err(refusal) = dense_scrutiny_guard(
+projects/chirality-piping/core/product_physics/src/lib.rs:2902: fn dense_scrutiny_guard(dimension: usize, ceiling_bytes: u128) -> Result<(), DenseScrutinyRefusal> {
+   (8 occurrences)
+
+== dense_scrutiny_ceiling_bytes
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:779: assert_eq!(dense_scrutiny_ceiling_bytes(), DENSE_SCRUTINY_CEILING_BYTES);
+projects/chirality-piping/core/product_physics/src/lib.rs:2378: dense_scrutiny_ceiling_bytes(),
+projects/chirality-piping/core/product_physics/src/lib.rs:2925: fn dense_scrutiny_ceiling_bytes() -> u128 {
+projects/chirality-piping/core/product_physics/src/lib.rs:3006: /// (`dense_scrutiny_ceiling_bytes`, which a unit test may lower).
+projects/chirality-piping/core/product_physics/src/lib.rs:5414: .and_then(|d| observation_lane_guard(d, dense_scrutiny_ceiling_bytes()).err());
+   (5 occurrences)
+
+== dense_scrutiny_refusal_diagnostic
+projects/chirality-piping/core/product_physics/src/lib.rs:2380: diagnostics.push(dense_scrutiny_refusal_diagnostic(&refusal));
+projects/chirality-piping/core/product_physics/src/lib.rs:2933: fn dense_scrutiny_refusal_diagnostic(refusal: &DenseScrutinyRefusal) -> Diagnostic {
+   (2 occurrences)
+
+== SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:976: let estimate = SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY * entries;
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:977: assert_eq!(SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY, 24);
+projects/chirality-piping/core/product_physics/src/lib.rs:2958: const SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY: u128 = 24;
+projects/chirality-piping/core/product_physics/src/lib.rs:3013: SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY.saturating_mul(profile_entries);
+projects/chirality-piping/core/product_physics/src/lib.rs:3042: SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY,
+   (5 occurrences)
+
+== observation_lane_profile
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:937: let (entries, bandwidth) = observation_lane_profile(&system);
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:975: let (entries, bandwidth) = observation_lane_profile(&system);
+projects/chirality-piping/core/product_physics/src/lib.rs:2966: fn observation_lane_profile(system: &ReducedSparseEntrySystem) -> (u128, usize) {
+projects/chirality-piping/core/product_physics/src/lib.rs:3011: let (profile_entries, max_half_bandwidth) = observation_lane_profile(system);
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:520: ("PP/lib.rs", "observation_lane_profile", 1, "integer: the observation lane's profile entry count (F1b, the lane's resource guard)"),
+   (5 occurrences)
+
+== ObservationLaneRefusal
+projects/chirality-piping/core/product_physics/src/lib.rs:2997: struct ObservationLaneRefusal {
+projects/chirality-piping/core/product_physics/src/lib.rs:3010: ) -> Result<(), ObservationLaneRefusal> {
+projects/chirality-piping/core/product_physics/src/lib.rs:3015: Err(ObservationLaneRefusal {
+projects/chirality-piping/core/product_physics/src/lib.rs:3028: refusal: &ObservationLaneRefusal,
+   (4 occurrences)
+
+== observation_lane_guard
+projects/chirality-piping/core/product_physics/src/lib.rs:3007: fn observation_lane_guard(
+projects/chirality-piping/core/product_physics/src/lib.rs:5414: .and_then(|d| observation_lane_guard(d, dense_scrutiny_ceiling_bytes()).err());
+   (2 occurrences)
+
+== observation_lane_refusal_diagnostic
+projects/chirality-piping/core/product_physics/src/lib.rs:3026: fn observation_lane_refusal_diagnostic(
+projects/chirality-piping/core/product_physics/src/lib.rs:5416: diagnostics.push(observation_lane_refusal_diagnostic(&load_case.id, refusal));
+   (2 occurrences)
+
+== OrdinaryFailure
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1997: ) -> Result<open_pipe_stress_frame_kernel::structural::StructuralSolution, OrdinaryFailure> {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1999: BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2008: .map_err(OrdinaryFailure::Structural),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2086: Err(OrdinaryFailure::Structural(error)),
+projects/chirality-piping/core/product_physics/src/lib.rs:1320: enum OrdinaryFailure {
+projects/chirality-piping/core/product_physics/src/lib.rs:1331: fn ordinary_range_trigger(failure: &OrdinaryFailure) -> Option<RangeTrigger> {
+projects/chirality-piping/core/product_physics/src/lib.rs:1333: OrdinaryFailure::Formation(error @ FrameKernelError::NumericalRange { .. }) => {
+projects/chirality-piping/core/product_physics/src/lib.rs:1336: OrdinaryFailure::Structural(error @ StructuralError::Range(_)) => {
+projects/chirality-piping/core/product_physics/src/lib.rs:3559: .map_err(OrdinaryFailure::Structural),
+projects/chirality-piping/core/product_physics/src/lib.rs:3562: BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
+projects/chirality-piping/core/product_physics/src/lib.rs:3690: Err(OrdinaryFailure::Structural(error)) if selected_source.is_some() => {
+projects/chirality-piping/core/product_physics/src/lib.rs:3701: Err(OrdinaryFailure::Structural(error))
+projects/chirality-piping/core/product_physics/src/lib.rs:3767: (None, OrdinaryFailure::Formation(error)) => return Err(error),
+projects/chirality-piping/core/product_physics/src/lib.rs:3772: (None, OrdinaryFailure::Structural(error)) => {
+   (14 occurrences)
+
+== ordinary_range_trigger
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2066: let trigger = ours.as_ref().err().and_then(ordinary_range_trigger);
+projects/chirality-piping/core/product_physics/src/lib.rs:1331: fn ordinary_range_trigger(failure: &OrdinaryFailure) -> Option<RangeTrigger> {
+projects/chirality-piping/core/product_physics/src/lib.rs:3718: let trigger = ordinary_range_trigger(&failure)
+   (3 occurrences)
+
+== ForceScaledPublication
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1204: fn plain_publication(b: i32) -> ForceScaledPublication {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1205: ForceScaledPublication {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1386: publication: Option<&ForceScaledPublication>,
+projects/chirality-piping/core/product_physics/src/lib.rs:1099: range_scaling: Option<&ForceScaledPublication>,
+projects/chirality-piping/core/product_physics/src/lib.rs:1347: struct ForceScaledPublication {
+projects/chirality-piping/core/product_physics/src/lib.rs:1363: impl ForceScaledPublication {
+projects/chirality-piping/core/product_physics/src/lib.rs:1412: ) -> Result<(PreviewLinearSolve, ForceScaledPublication), ForceScalingFailure> {
+projects/chirality-piping/core/product_physics/src/lib.rs:1590: ) -> Result<ForceScaledPublication, ForceScalingFailure> {
+projects/chirality-piping/core/product_physics/src/lib.rs:1647: Ok(ForceScaledPublication {
+projects/chirality-piping/core/product_physics/src/lib.rs:1672: publication: &ForceScaledPublication,
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1671: /// `ForceScaledPublication`.
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1705: ("lib.rs", "impl ForceScaledPublication", "ForceScale", 1),
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1706: ("lib.rs", "struct ForceScaledPublication", "ForceScale", 1),
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1765: /// `struct ForceScaledPublication`, `use open_pipe_stress_frame_kernel`); an
+   (14 occurrences)
+
+== ForceScalingFailure
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1490: ForceScalingFailure::Refused(ForceScalingRefusal {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1495: let cases: Vec<(ForceScalingFailure, &RangeTrigger, &str, String)> = vec![
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1521: ForceScalingFailure::Failed(ForceScaledError::Structural(StructuralError::InvalidInput(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1532: ForceScalingFailure::Failed(ForceScaledError::Formation(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1543: ForceScalingFailure::NotAdmitted {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1552: ForceScalingFailure::Publication {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1561: ForceScalingFailure::NotEngaged,
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1666: &ForceScalingFailure::Failed(ForceScaledError::Structural(error.clone())),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2195: ) -> Result<(), ForceScalingFailure> {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2210: fn family_of(result: Result<(), ForceScalingFailure>) -> &'static str {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2213: Err(ForceScalingFailure::NotAdmitted { family, b }) => {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2377: Err(ForceScalingFailure::Publication { quantity, b }) => {
+projects/chirality-piping/core/product_physics/src/lib.rs:1377: enum ForceScalingFailure {
+projects/chirality-piping/core/product_physics/src/lib.rs:1412: ) -> Result<(PreviewLinearSolve, ForceScaledPublication), ForceScalingFailure> {
+projects/chirality-piping/core/product_physics/src/lib.rs:1421: ForceScalingFailure::Failed(ForceScaledError::Structural(
+projects/chirality-piping/core/product_physics/src/lib.rs:1452: ForceScaledError::Refused(refusal) => ForceScalingFailure::Refused(refusal),
+projects/chirality-piping/core/product_physics/src/lib.rs:1453: error => ForceScalingFailure::Failed(error),
+projects/chirality-piping/core/product_physics/src/lib.rs:1456: return Err(ForceScalingFailure::NotEngaged);
+projects/chirality-piping/core/product_physics/src/lib.rs:1531: ) -> Result<(), ForceScalingFailure> {
+projects/chirality-piping/core/product_physics/src/lib.rs:1574: Some(family) => Err(ForceScalingFailure::NotAdmitted { family, b }),
+projects/chirality-piping/core/product_physics/src/lib.rs:1590: ) -> Result<ForceScaledPublication, ForceScalingFailure> {
+projects/chirality-piping/core/product_physics/src/lib.rs:1598: }) => ForceScalingFailure::Publication { quantity, b },
+projects/chirality-piping/core/product_physics/src/lib.rs:1599: error => ForceScalingFailure::Failed(error),
+projects/chirality-piping/core/product_physics/src/lib.rs:1638: ForceScalingFailure::Failed(ForceScaledError::Structural(
+projects/chirality-piping/core/product_physics/src/lib.rs:1769: failure: &ForceScalingFailure,
+projects/chirality-piping/core/product_physics/src/lib.rs:1775: ForceScalingFailure::Refused(refusal) => (
+projects/chirality-piping/core/product_physics/src/lib.rs:1786: ForceScalingFailure::Failed(error) => (
+projects/chirality-piping/core/product_physics/src/lib.rs:1794: ForceScalingFailure::NotAdmitted { family, b } => (
+projects/chirality-piping/core/product_physics/src/lib.rs:1799: ForceScalingFailure::Publication { quantity, b } => (
+projects/chirality-piping/core/product_physics/src/lib.rs:1807: ForceScalingFailure::NotEngaged => (
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1698: ("lib.rs", "enum ForceScalingFailure", "ForceScale", 1),
+   (31 occurrences)
+
+== force_scaling_attempt
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2012: /// The orchestrator's case, formed as `force_scaling_attempt` forms it.
+projects/chirality-piping/core/product_physics/src/lib.rs:1399: fn force_scaling_attempt(
+projects/chirality-piping/core/product_physics/src/lib.rs:3721: (Some(trigger), _) => match force_scaling_attempt(
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1675: "fn force_scaling_attempt",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1685: ("lib.rs", "fn force_scaling_attempt", "ForceScalingCase", 1),
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1702: ("lib.rs", "fn force_scaling_attempt", "ForceScale", 3),
+   (6 occurrences)
+
+== force_scaling_admission
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2196: force_scaling_admission(
+projects/chirality-piping/core/product_physics/src/lib.rs:1459: force_scaling_admission(
+projects/chirality-piping/core/product_physics/src/lib.rs:1521: fn force_scaling_admission(
+   (3 occurrences)
+
+== force_scaled_publication
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2354: let published = force_scaled_publication(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2369: match force_scaled_publication(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2407: let published = force_scaled_publication(
+projects/chirality-piping/core/product_physics/src/lib.rs:1470: let publication = force_scaled_publication(
+projects/chirality-piping/core/product_physics/src/lib.rs:1583: fn force_scaled_publication(
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1694: "fn force_scaled_publication",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1701: ("lib.rs", "fn force_scaled_publication", "ForceScale", 8),
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1715: "fn force_scaled_publication",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1721: "fn force_scaled_publication",
+   (9 occurrences)
+
+== range_scaling_evidence_line
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1314: range_scaling_evidence_line(&model, &plain_publication(-702)),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1357: range_scaling_evidence_line(&model, &publication),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1372: range_scaling_evidence_line(&model, &publication),
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1410: let line = range_scaling_evidence_line(&model, &publication);
+projects/chirality-piping/core/product_physics/src/lib.rs:1124: range_scaling_evidence_line(model, publication)
+projects/chirality-piping/core/product_physics/src/lib.rs:1670: fn range_scaling_evidence_line(
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1703: ("lib.rs", "fn range_scaling_evidence_line", "ForceScale", 1),
+   (7 occurrences)
+
+== append_force_scaling_refusal
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1569: append_force_scaling_refusal(&mut diagnostics, "c", &failure, trigger, &model);
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1663: append_force_scaling_refusal(
+projects/chirality-piping/core/product_physics/src/lib.rs:1766: fn append_force_scaling_refusal(
+projects/chirality-piping/core/product_physics/src/lib.rs:3740: append_force_scaling_refusal(
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1699: ("lib.rs", "fn append_force_scaling_refusal", "ForceScale", 4),
+   (5 occurrences)
+
+== integrity_failure_code
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1634: /// code (one shared `integrity_failure_code`), here on a real mechanism and on
+projects/chirality-piping/core/product_physics/src/lib.rs:1288: fn integrity_failure_code(error: &StructuralError) -> &'static str {
+projects/chirality-piping/core/product_physics/src/lib.rs:1310: let code = integrity_failure_code(error);
+projects/chirality-piping/core/product_physics/src/lib.rs:1788: ForceScaledError::Structural(error) => integrity_failure_code(error),
+   (4 occurrences)
+
+== DENSE_SOURCE_DOF_LIMIT
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1080: assert!(n > source_recovery::DENSE_SOURCE_DOF_LIMIT, "{n}");
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1081: assert_eq!(source_recovery::DENSE_SOURCE_DOF_LIMIT, 256);
+projects/chirality-piping/core/product_physics/src/lib.rs:3587: && formed.dimension() <= source_recovery::DENSE_SOURCE_DOF_LIMIT =>
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:30: pub(super) const DENSE_SOURCE_DOF_LIMIT: usize = 256;
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:520: if n > DENSE_SOURCE_DOF_LIMIT
+   (5 occurrences)
+
+== range_formation_decline_without_attempt
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2584: let decline = source_recovery::range_formation_decline_without_attempt();
+projects/chirality-piping/core/product_physics/src/lib.rs:3611: Err(source_recovery::range_formation_decline_without_attempt())
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:105: pub(super) fn range_formation_decline_without_attempt() -> RecoveryFailure {
+   (3 occurrences)
+
+== solve_ordinary
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2537: source_recovery::solve_ordinary(
+projects/chirality-piping/core/product_physics/src/lib.rs:3615: source_recovery::solve_ordinary(
+projects/chirality-piping/core/product_physics/src/source_recovery.rs:128: pub(super) fn solve_ordinary(
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1550: // F1b (ROOT OQ3): the attempt enters through `solve_ordinary`, with the
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1554: .find("source_recovery::solve_ordinary(")
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1556: let ordinary = call_arguments(&case, "source_recovery::solve_ordinary(");
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1731: ("source_recovery.rs", "fn solve_ordinary", "ForceScale", 1),
+   (7 occurrences)
+
+== NAMED
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1307: /// with S11-G's `NAMED` (6) named and `more=2`; the `global_dof=` label
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1312: assert_eq!(formation_guard::NAMED, 6);
+projects/chirality-piping/core/product_physics/src/formation_guard.rs:58: pub(crate) const NAMED: usize = 6;
+projects/chirality-piping/core/product_physics/src/formation_guard.rs:323: fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+projects/chirality-piping/core/product_physics/src/formation_guard.rs:324: if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
+projects/chirality-piping/core/product_physics/src/formation_guard.rs:468: fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join("; "),
+projects/chirality-piping/core/product_physics/src/formation_guard.rs:469: if fired.len() > NAMED { format!("; and {} more", fired.len() - NAMED) } else { String::new() }
+projects/chirality-piping/core/product_physics/src/lib.rs:1668: /// actions in member and local order; at most S11-G's `NAMED` are named, then
+projects/chirality-piping/core/product_physics/src/lib.rs:1746: .take(formation_guard::NAMED)
+projects/chirality-piping/core/product_physics/src/lib.rs:1749: let more = if entries.len() > formation_guard::NAMED {
+projects/chirality-piping/core/product_physics/src/lib.rs:1750: format!("; more={}", entries.len() - formation_guard::NAMED)
+projects/chirality-piping/core/product_physics/tests/f1b_w2_runtime.rs:833: /// entries and in both modes, with S11-G's `NAMED` (6) entries and `more=1`.
+   (12 occurrences)
+
+#### Kernel entries F1b newly calls from the product (the product occurrences are the new callers)
+
+== assemble_sparse_stiffness
+projects/chirality-piping/core/product_physics/src/lib.rs:43: assemble_sparse_stiffness, reduce_assembled_sparse_system, ForceScaleReason, ForceScaledError,
+projects/chirality-piping/core/product_physics/src/lib.rs:2833: assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs:13: assemble_sparse_stiffness, audit_sparse_load_fidelity, factor_sparse_structural_profile,
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:503: /// K2b: the inputs of `assemble_sparse_stiffness` formed at 2^b.
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:592: pub fn assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:605: return assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:94: assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:413: let sparse = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:444: assemble_sparse_stiffness(3, &frames, &[], &[], &[], &SparseAssemblyOptions::new())
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:459: assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs:19: use open_pipe_stress_frame_kernel::structural::{assemble_sparse_stiffness, SparseAssemblyOptions};
+projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs:84: let sparse = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:19: assemble_sparse_stiffness, solve_assembled_structural_dense, unscale_descriptive,
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:585: let base = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:594: let same = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:612: assemble_sparse_stiffness(4, &frames, &users, &blocks, &springs, &options).unwrap();
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:620: let refused = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:634: let formed = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:646: assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs:43: assemble_sparse_stiffness, factor_sparse_structural_profile, factor_structural_profile,
+projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs:787: let k = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs:125: ("FK/structural/sparse.rs", "assemble_sparse_stiffness", 1, "exempt: stiffness assembly (spring diagonal, as the product adds it)"),
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:10: self, assemble_sparse_stiffness, CurvedFormation, ForceScaleReason, ForceScaledError,
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:467: /// (`assemble_sparse_stiffness` of the same elements and springs).
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1619: let stiffness = assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:19: assemble_sparse_stiffness, FormationCheckReason, SolveQuality, SparseAssemblyOptions,
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:61: assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:254: assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/sparse_direct/src/structural/k1_tests.rs:12: assemble_sparse_stiffness, gamma, negative_pair_witness, transform_roundoff, FormationSource,
+projects/chirality-piping/core/solver/sparse_direct/src/structural/k1_tests.rs:52: assemble_sparse_stiffness(
+projects/chirality-piping/core/solver/sparse_direct/src/structural/k1_tests.rs:759: let k = assemble_sparse_stiffness(
+   (31 occurrences)
+
+== reduce_assembled_sparse_system
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:475: let pattern_reduced = reduce_assembled_sparse_system(
+projects/chirality-piping/core/product_physics/src/lib.rs:43: assemble_sparse_stiffness, reduce_assembled_sparse_system, ForceScaleReason, ForceScaledError,
+projects/chirality-piping/core/product_physics/src/lib.rs:3510: reduce_assembled_sparse_system(
+projects/chirality-piping/core/product_physics/src/lib.rs:3520: // `reduce_assembled_sparse_system` forms (F1b D6).
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:466: "reduce_assembled_sparse_system",
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:1102: assert!(case.contains("reduce_assembled_sparse_system("));
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs:16: prepare_sparse_structural_with_force_terms, reduce_assembled_sparse_system,
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:729: pub fn reduce_assembled_sparse_system(
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:916: reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &boundary, Some(&values))
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:929: reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &boundary, None).unwrap();
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:940: reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &repeated, None)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:952: reduce_assembled_sparse_system(&pair.sparse, &pair.ledger, &outside, Some(&[1.0]))
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs:133: ("FK/structural/sparse.rs", "reduce_assembled_sparse_system", 0, "KS2 over the pattern: one exact sum per free row"),
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:448: "reduce_assembled_sparse_system(",
+   (14 occurrences)
+
+== SparseAssemblyEvidence
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:374: let solved = SparseAssemblyEvidence::new(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:1596: SparseAssemblyEvidence::new(
+projects/chirality-piping/core/product_physics/src/lib.rs:65: ForceScalingOutcome, SparseAssemblyEvidence, StrictGapEvidence,
+projects/chirality-piping/core/product_physics/src/lib.rs:5364: let assembly = SparseAssemblyEvidence::new(
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:490: const ADAPTER_IMPLS: [&str; 2] = ["impl AssemblyEvidence {", "impl SparseAssemblyEvidence {"];
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:550: // `impl SparseAssemblyEvidence`'s pattern siblings of the same names only.
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:451: pub struct SparseAssemblyEvidence {
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:465: impl SparseAssemblyEvidence {
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:906: /// Deterministic storage counts of a `SparseAssemblyEvidence`.
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:915: /// pattern entry (`SparseAssemblyEvidence`). The arithmetic is the builder's,
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1534: /// `SparseAssemblyEvidence` on the pattern (K1).
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1661: EvidenceRepresentation::Pattern => SparseAssemblyEvidence::new_force_scaled(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:103: fn sparse_evidence(&self, k: &SparseStiffness) -> SparseAssemblyEvidence {
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:104: SparseAssemblyEvidence::new(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:1415: // `SparseAssemblyEvidence`, in both modes. K2a's `local_stiffness` refuses
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:313: EvidenceRepresentation::Pattern => SparseAssemblyEvidence::new(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:364: EvidenceRepresentation::Pattern => SparseAssemblyEvidence::new_force_scaled(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1256: let pattern = SparseAssemblyEvidence::new_force_scaled(
+   (18 occurrences)
+
+== SparseAssemblyOptions
+projects/chirality-piping/core/product_physics/src/lib.rs:46: SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
+projects/chirality-piping/core/product_physics/src/lib.rs:2839: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs:18: AssembledSparseStructuralSystem, FormationCheckedSparseSystem, SparseAssemblyOptions,
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:474: /// here, so callers built with `SparseAssemblyOptions::new()` need no change.
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:477: pub struct SparseAssemblyOptions {
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:482: impl SparseAssemblyOptions {
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:598: options: &SparseAssemblyOptions,
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:600: let SparseAssemblyOptions { force_scale } = options;
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:611: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:100: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:419: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:444: assemble_sparse_stiffness(3, &frames, &[], &[], &[], &SparseAssemblyOptions::new())
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs:465: &SparseAssemblyOptions::new()
+projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs:19: use open_pipe_stress_frame_kernel::structural::{assemble_sparse_stiffness, SparseAssemblyOptions};
+projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs:90: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:22: RecordRepresentability, Representability, ResidualRow, SparseAssemblyOptions, SparseStiffness,
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:591: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:600: &SparseAssemblyOptions::new().with_force_scale(ForceScale::UNSCALED),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:605: SparseAssemblyOptions::default(),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:606: SparseAssemblyOptions::new()
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:609: let options = SparseAssemblyOptions::new().with_force_scale(scale(b));
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:626: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:640: &SparseAssemblyOptions::new().with_force_scale(scale(734)),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:652: &SparseAssemblyOptions::new().with_force_scale(scale(1000)),
+projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs:45: prepare_structural, solve_structural_dense, transform_roundoff, SparseAssemblyOptions,
+projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs:797: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:11: ForceScaledSolution, ForceScalingRefusal, FormationSource, RangeTrigger, SparseAssemblyOptions,
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:335: ///   assembly with `SparseAssemblyOptions::with_force_scale`, or its dense
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1625: &SparseAssemblyOptions::new().with_force_scale(force_scale),
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:19: assemble_sparse_stiffness, FormationCheckReason, SolveQuality, SparseAssemblyOptions,
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs:67: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:260: &SparseAssemblyOptions::new().with_force_scale(s),
+projects/chirality-piping/core/solver/sparse_direct/src/structural/k1_tests.rs:13: SparseAssemblyOptions, SparseStiffness, SparseSymmetryEvidence, StiffnessBlock,
+projects/chirality-piping/core/solver/sparse_direct/src/structural/k1_tests.rs:58: &SparseAssemblyOptions::new(),
+projects/chirality-piping/core/solver/sparse_direct/src/structural/k1_tests.rs:765: &SparseAssemblyOptions::new(),
+   (35 occurrences)
+
+== solve_with_force_scaling
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2067: let theirs = solve_with_force_scaling(&orchestrator_case(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2131: solve_with_force_scaling(&orchestrator_case(basis, &inputs, force, &prescribed, mode))
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2138: match solve_with_force_scaling(&orchestrator_case(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2346: let outcome = solve_with_force_scaling(&orchestrator_case(
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2401: solve_with_force_scaling(&orchestrator_case(basis, &inputs, force, &prescribed, mode))
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2469: solve_with_force_scaling(&orchestrator_case(basis, &inputs, force, &prescribed, mode))
+projects/chirality-piping/core/product_physics/src/lib.rs:64: solve_with_force_scaling, AssemblyEvidence, EvidenceRepresentation, ForceScalingCase,
+projects/chirality-piping/core/product_physics/src/lib.rs:1451: let outcome = solve_with_force_scaling(&case).map_err(|error| match error {
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1545: "solve_with_force_scaling",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1615: assert_eq!(code.matches("fn solve_with_force_scaling(").count(), 1);
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1658: /// the scaled solve through the orchestrator `solve_with_force_scaling` only.
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1676: "solve_with_force_scaling",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1682: "solve_with_force_scaling",
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1528: /// K2b: the evidence representation `solve_with_force_scaling` uses.
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1538: /// K2b: one linear case as the facade forms it, for `solve_with_force_scaling`.
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1561: /// K2b: the result of `solve_with_force_scaling`.
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1722: pub fn solve_with_force_scaling(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:4: //! modes, the orchestrator `solve_with_force_scaling` (the b-rule's steps
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:445: let outcome = solve_with_force_scaling(&model.case(&force, mode, representation));
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:641: let outcome = solve_with_force_scaling(&model.case(&force, mode, representation))
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:765: let outcome = solve_with_force_scaling(&model.case(&force, mode, representation))
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:898: let refusal = solve_with_force_scaling(&model.case(&force, mode, representation));
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:972: match solve_with_force_scaling(&model.case(&force, mode, representation)) {
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1023: let refusal = solve_with_force_scaling(&model.case(&force, mode, representation));
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1085: let result = solve_with_force_scaling(&model.case(&force, mode, representation));
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1408: solve_with_force_scaling(&model.case(&force, mode, EvidenceRepresentation::Dense))
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1539: solve_with_force_scaling(&plain.case(&plain_force, mode, representation))
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1561: solve_with_force_scaling(&model.case(&force, mode, representation)).unwrap();
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1599: /// `solve_with_force_scaling` equals one built here from the frames, the
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1676: solve_with_force_scaling(&plain.case(&plain_force, mode, representation)).unwrap();
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1686: solve_with_force_scaling(&model.case(&force, mode, representation)).unwrap();
+   (31 occurrences)
+
+== ForceScalingCase
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2019: ) -> ForceScalingCase<'a> {
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2020: ForceScalingCase {
+projects/chirality-piping/core/product_physics/src/lib.rs:64: solve_with_force_scaling, AssemblyEvidence, EvidenceRepresentation, ForceScalingCase,
+projects/chirality-piping/core/product_physics/src/lib.rs:1438: let case = ForceScalingCase {
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1546: "ForceScalingCase",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1685: ("lib.rs", "fn force_scaling_attempt", "ForceScalingCase", 1),
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1689: "ForceScalingCase",
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1540: pub struct ForceScalingCase<'a> {
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1583: fn force_scale_census(case: &ForceScalingCase<'_>) -> Result<ForceScaleCensus, FrameKernelError> {
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1607: case: &ForceScalingCase<'_>,
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1723: case: &ForceScalingCase<'_>,
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:269: ) -> ForceScalingCase<'a> {
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:270: ForceScalingCase {
+   (13 occurrences)
+
+== force_scaled_reactions
+projects/chirality-piping/core/product_physics/src/lib.rs:1605: .force_scaled_reactions(u, force, scale, &dofs)
+projects/chirality-piping/core/product_physics/src/lib.rs:4043: // checked `force_scaled_reactions`, each unscaled once.
+projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs:478: "force_scaled_reactions",
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs:2505: ///   `SparseStiffness::force_scaled_reactions`).
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs:403: pub fn force_scaled_reactions(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:743: let react = |u: f64, b: i32| k.force_scaled_reactions(&[u], &force, scale(b), &[0]);
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:767: .force_scaled_reactions(&[1.0], &force, scale(64), &[0])
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:773: k3.force_scaled_reactions(&[1.0], &force, ForceScale::UNSCALED, &[0])
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1038: k.force_scaled_reactions(u, &force, scale(b), &[0])
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1041: /// RV11-1 (BLOCKING), fixed fail-closed: `force_scaled_reactions` checks the
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1089: .force_scaled_reactions(&u, &force, ForceScale::UNSCALED, &[0])
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs:194: ("FK/structural/sparse.rs", "force_scaled_reactions", 0, "K2b: E12 at 2^b, the formed K*u and the DOF's ledger terms at 2^b in one exact sum
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1548: "force_scaled_reactions",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1695: "force_scaled_reactions",
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1568: /// reactions, `SparseStiffness::force_scaled_reactions`).
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs:1716: ///    reactions (`SparseStiffness::force_scaled_reactions`, on the returned
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:514: ks.force_scaled_reactions(u, &force, s, &rigid).unwrap();
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:674: .force_scaled_reactions(u, &force, s, c.rigid)
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1177: .force_scaled_reactions(u, &force, s, &[0])
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1211: let reaction = large.stiffness(s).unwrap().force_scaled_reactions(
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1547: .force_scaled_reactions(u0, &plain_force, ForceScale::UNSCALED, &[1, 7, 11])
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1576: .force_scaled_reactions(u, &force, b, &[dof]),
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1583: .force_scaled_reactions(u, &force, b, &[11])
+   (23 occurrences)
+
+== force_scaled_end_actions
+projects/chirality-piping/core/product_physics/src/lib.rs:1643: .force_scaled_end_actions(u, scale)
+projects/chirality-piping/core/product_physics/src/lib.rs:4234: // checked `FrameElement::force_scaled_end_actions`, unscaled once;
+projects/chirality-piping/core/solver/frame_kernel/src/lib.rs:991: pub fn force_scaled_end_actions(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1131: /// (`FrameElement::force_scaled_end_actions`), built as the reactions are:
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1146: let actions = w.force_scaled_end_actions(&u, scale(b)).unwrap();
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1156: assert_eq!(w.force_scaled_end_actions(&u, scale(-138)), refused);
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1158: assert_eq!(w.force_scaled_end_actions(&u, scale(-138)), refused);
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1160: w.force_scaled_end_actions(&u[..6], ForceScale::UNSCALED),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1172: /// RV11D-2: `force_scaled_end_actions` checks the local-displacement stage
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1208: frame.force_scaled_end_actions(&u, scale(b)),
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1215: .force_scaled_end_actions(&u, ForceScale::UNSCALED)
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1217: let at64 = frame.force_scaled_end_actions(&u, scale(64)).unwrap();
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs:198: ("FK/lib.rs", "force_scaled_end_actions", 2, "exempt: formed elastic end actions K_local*(T*u_e) at 2^b in the straight pipe's order, no cas
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1535: /// The publication helpers `force_scaled_end_actions` and
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1551: "force_scaled_end_actions",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1716: "force_scaled_end_actions",
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:402: /// `FrameElement::force_scaled_end_actions` (RV11-1: the element formed at
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:407: frame.force_scaled_end_actions(u, s).unwrap()
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1557: .force_scaled_end_actions(u0, ForceScale::UNSCALED)
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1588: model.frames[0].force_scaled_end_actions(u, b),
+   (20 occurrences)
+
+== force_scaled_spring_action
+projects/chirality-piping/core/product_physics/src/f1b_tests.rs:2477: force_scaled_spring_action((dof, spring), u, outcome.solution.force_scale).unwrap();
+projects/chirality-piping/core/product_physics/src/lib.rs:49: assemble_global_stiffness_with_user_elements, element_dof_map, force_scaled_spring_action,
+projects/chirality-piping/core/product_physics/src/lib.rs:1625: force_scaled_spring_action((dof, spring.stiffness.value), u, scale).map_err(|error| {
+projects/chirality-piping/core/product_physics/src/lib.rs:4082: // `force_scaled_spring_action`, unscaled once.
+projects/chirality-piping/core/solver/frame_kernel/src/lib.rs:1073: pub fn force_scaled_spring_action(
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1225: /// (`force_scaled_spring_action`), built as the member actions are. The
+projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs:1232: use open_pipe_stress_frame_kernel::force_scaled_spring_action as action;
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1536: /// `force_scaled_spring_action` are named explicitly (RV11D-N1, ROOT's
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1552: "force_scaled_spring_action",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1722: "force_scaled_spring_action",
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs:1728: "force_scaled_spring_action",
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1646: /// leaves the normal range, so `force_scaled_spring_action` refuses it (the
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1651: use open_pipe_stress_frame_kernel::force_scaled_spring_action;
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1682: let published = force_scaled_spring_action(spring, u0, ForceScale::UNSCALED).unwrap();
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs:1696: assert_eq!(force_scaled_spring_action(spring, u, b), refused, "{ctx}");
+   (15 occurrences)

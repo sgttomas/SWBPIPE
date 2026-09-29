@@ -1,0 +1,40 @@
+"""I13 F1b A2: LEF-large's power-of-two relation (D8), candidate typed runs against G1's base runs
+of the RF base cases (scratch). Displacements: translations x 2^(pf-pm-pl), rotations
+x 2^(pf-pm-2pl); forces x 2^pf; moments x 2^(pf+pl). Bit for bit (Python floats are binary64)."""
+import json, sys, collections
+G, cand = sys.argv[1], sys.argv[2]
+pl, pm, pf = 200, 300, 600
+BASES = {'CHAIN': 'RF-CHAIN-T-n05-r1e-08', 'SKEW': 'RF-SKEW-T-CANT-OFF-122-r1e-08', 'CONT': 'RF-LARGE-CONT-n00010-AX'}
+def factor(kind):
+    if kind.startswith('global_nodal_displacement'): return 2.0 ** (pf - pm - pl)
+    if kind.startswith('global_nodal_rotation'): return 2.0 ** (pf - pm - 2 * pl)
+    if kind == 'support_reaction_component_v2': return None  # per component
+    if kind in ('element_local_axial_force', 'element_local_shear_force_y', 'element_local_shear_force_z'): return 2.0 ** pf
+    if kind in ('element_local_torsional_moment', 'element_local_bending_moment_y', 'element_local_bending_moment_z'): return 2.0 ** (pf + pl)
+out = {}
+for name, base in BASES.items():
+    for mode in ('sparse_interactive', 'dense_scrutiny'):
+        b = json.load(open(f'{G}/envelopes/{base}__{mode}__typed.json'))
+        c = json.load(open(f'{cand}/envelopes/RF-RANGE-{name}-LEF-large__{mode}__typed.json'))
+        brow = {r['id']: r for r in b['results']}
+        crow = {r['id']: r for r in c['results']}
+        stats = collections.Counter()
+        bad = []
+        for rid, r in brow.items():
+            k = r['kind']
+            if k not in [x['kind'] for x in [r]]: pass
+            f = factor(k)
+            if k == 'support_reaction_component_v2':
+                comp = r.get('component') or ''
+                f = 2.0 ** (pf + pl) if comp.upper().startswith('M') or 'moment' in comp.lower() or comp.upper() in ('MX','MY','MZ') else 2.0 ** pf
+            if rid not in crow:
+                stats['missing_in_candidate'] += 1; bad.append((rid, 'missing')); continue
+            cv, bv = crow[rid]['value'], r['value']
+            if cv == bv * f:
+                stats[k + ':bit_equal'] += 1
+            else:
+                stats[k + ':DIFFERENT'] += 1; bad.append((rid, bv, cv, bv * f))
+        extra = set(crow) - set(brow)
+        out[f'{name} {mode}'] = {'stats': dict(stats), 'bad': bad[:10], 'candidate_rows_not_in_base': len(extra),
+                                  'base_rows': len(brow), 'candidate_result_count': c['result_count'], 'base_result_count': b['result_count']}
+print(json.dumps(out, indent=1))

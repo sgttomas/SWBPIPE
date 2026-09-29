@@ -1,0 +1,11 @@
+import json, sys, collections
+t = json.load(open(sys.argv[1]))
+def s(x):
+    if not x.get('ok'): return f"{x['outcome']}:{(x.get('error') or '')[:60]}"
+    return f"{x['outcome'][:8]} blk={x.get('blocking')} int={x.get('integrity')} b={x.get('b')} rbp={x.get('r_b_prime')} ref={[(w['reason'][:60], (w['trigger'] or '')[:70], w['b_field']) for w in x.get('w2_refusals',[])]} oth={[o[1]+':'+o[2][:60] for o in x.get('other_blocking',[])]}"
+g = collections.OrderedDict()
+for r in t['rows']:
+    key = (r['case'], 'SAME' if r['full_identical'] else 'DIFF', s(r['base']), s(r['cand']))
+    g.setdefault(key, []).append(r['mode'][:6] + '/' + r['entry'][:4])
+for (case, same, b, c), runs in g.items():
+    print(f"{case} [{same}] {','.join(runs)}\n    B: {b}\n    C: {c}")

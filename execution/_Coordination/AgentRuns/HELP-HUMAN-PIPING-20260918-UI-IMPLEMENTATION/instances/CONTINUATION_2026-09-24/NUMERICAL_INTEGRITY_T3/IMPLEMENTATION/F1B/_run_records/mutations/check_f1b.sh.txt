@@ -1,0 +1,15 @@
+#!/bin/bash
+# Compile check (cargo check --tests, product_physics) of each F1B-* mutant in one reused tree.
+C=<wt>/scratch/i13/c
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=$C/check-target
+rm -rf $C/checktree; cp -R $C/pristine $C/checktree
+CORE=$C/checktree/projects/chirality-piping/core
+: > $C/check.log
+for m in $(/usr/bin/grep '^F1B-' $C/ids.txt); do
+  cp $C/pristine/projects/chirality-piping/core/product_physics/src/lib.rs $CORE/product_physics/src/lib.rs
+  cp $C/pristine/projects/chirality-piping/core/product_physics/src/source_recovery.rs $CORE/product_physics/src/source_recovery.rs
+  python3 -B $C/mutate_f1b.py $CORE $m > /dev/null
+  (cd $CORE/product_physics && cargo check --offline --locked --tests -j 4 > $C/check_$m.log 2>&1); rc=$?
+  echo "$m rc=$rc errors=$(/usr/bin/grep -c '^error' $C/check_$m.log)" >> $C/check.log
+done
+echo CHECK-DONE >> $C/check.log

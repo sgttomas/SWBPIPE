@@ -1,0 +1,17 @@
+#!/bin/bash
+# I13 F1b A1: T9, the committed-fixture diff (Mac-only), S11-K's harness
+# (fixdiff_main.rs, sha256 ec089c1d...), release, from git archive trees of
+# main e7d930d49 (base) and e7d930d49 with F1b's A1 files overlaid (cand).
+W=<wt>; A=$W/scratch/i13/a1
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0
+for side in base cand; do
+  ( cd $A/t9/h_$side && CARGO_TARGET_DIR=$A/t9-target-$side cargo build --release --offline --locked -j 8 > $A/t9/build_$side.log 2>&1; echo "build rc=$?" >> $A/t9/build_$side.log )
+  BIN=$A/t9-target-$side/release/calib_fixdiff_native
+  : > $A/t9/run_$side.log
+  for root in core fixtures validation; do
+    mkdir -p $A/t9/out_$side/$root
+    $BIN $A/trees/$side/projects/chirality-piping/$root $A/t9/out_$side/$root >> $A/t9/run_$side.log 2>&1; echo "$root rc=$?" >> $A/t9/run_$side.log
+  done
+  ( cd $A/t9/out_$side && find . -type f -name '*.out' | sort | xargs shasum -a 256 ) > $A/t9/sha_$side.txt
+done
+echo T9-DONE

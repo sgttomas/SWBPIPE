@@ -1,0 +1,34 @@
+import json, glob, collections, sys, os
+dirs = sys.argv[1:]
+forced, rv, nonfin = [], collections.Counter(), collections.defaultdict(set)
+rv_refused = collections.defaultdict(list)
+mism = []
+for d in dirs:
+    for f in sorted(glob.glob(os.path.join(d, 'full', '*.obs.jsonl'))):
+        key = os.path.basename(f)[:-len('.json.obs.jsonl')]
+        for line in open(f):
+            o = json.loads(line)
+            if o['probe'] == 'forced_even_b':
+                forced.append((key, o))
+            elif o['probe'] == 'rv11d_n2':
+                rv[(o['kind'], o['status'])] += 1
+                if o['status'] == 'refused':
+                    rv_refused[key].append((o['kind'], o.get('at'), (o.get('reason') or '')[:120]))
+                if o['status'] == 'MISMATCH':
+                    mism.append((key, o))
+            elif o['probe'] == 'non_finite':
+                nonfin[key].add((o['caller'], o['value']))
+print('RV11D-N2 counts:', dict(rv))
+print('runs with a refusal:', len(rv_refused))
+for k, v in sorted(rv_refused.items()):
+    print('  ', k, v[:4], '...' if len(v) > 4 else '')
+print('MISMATCHES:', len(mism))
+for k, o in mism[:10]:
+    print('  ', k, o)
+print('forced-even-b probes:', len(forced))
+for k, o in forced:
+    s = o['solved']
+    print('  ', k, 'rule_b', o['rule_b'], 'span', o['span'], 'solved', (s[:3], '...', s[-3:], len(s)) if len(s) > 8 else s, 'spread', o['max_rel_spread_over_solved_b'], 'q', sorted(set(o['qualities'])))
+print('non-finite callers:')
+for k, v in sorted(nonfin.items()):
+    print('  ', k, sorted(v))

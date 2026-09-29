@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""F1b records, addendum 2 (I13): the re-run on c4879c496 (F1b after K5's merge) into
+_run_records/k5_merge_c4879c496/, sanitized as assemble_run_records.py (machine paths to placeholders,
+nothing else changed), with the gate part 1 index generated as for the earlier gates.
+Usage: assemble_k5m.py <wt> <outer-worktree> <venv> <session-scratchpad> <records-dir> <G1-full-dir>"""
+import hashlib, json, os, sys
+wt, outer, venv, pad, rec, g1 = sys.argv[1:7]
+home = os.path.expanduser("~")
+alt = pad[len("/private"):] if pad.startswith("/private") else "/private" + pad
+PLACES = sorted([(venv, "<VENV>"), (wt, "<wt>"), (outer, "{REPO_ROOT}"), (pad, "<scratch>"), (alt, "<scratch>"),
+                 (home, "<home>")], key=lambda p: -len(p[0]))
+K = os.path.join(wt, "scratch", "i13", "k5m")
+OUT = os.path.join(rec, "_run_records", "k5_merge_c4879c496")
+trailing = []
+
+def put_text(text, rel):
+    for a, b in PLACES:
+        text = text.replace(a, b)
+    dst = os.path.join(OUT, rel)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    open(dst, "w", encoding="utf-8").write(text)
+    n = sum(1 for line in text.split("\n") if line != line.rstrip())
+    if n:
+        trailing.append((os.path.join("k5_merge_c4879c496", rel), n))
+
+def put(src, rel):
+    put_text(open(src, encoding="utf-8", errors="replace").read(), rel)
+
+def sha(p):
+    return hashlib.sha256(open(p, "rb").read()).hexdigest()
+
+# suites
+put(os.path.join(K, "run_suites.sh"), "suites/run_suites.sh.txt")
+for n in ["suites.log", "suites_vs_a2.txt", "failure_blocks_vs_a2.txt"]:
+    put(os.path.join(K, n), "suites/" + n)
+for n in sorted(os.listdir(os.path.join(K, "suites"))):
+    put(os.path.join(K, "suites", n), "suites/logs/" + n)
+# tools and T9
+put(os.path.join(K, "build_tools.sh"), "build_tools.sh.txt")
+put(os.path.join(K, "build_probe.log"), "gate_part1/build_probe.log")
+put(os.path.join(K, "probe", "Cargo.toml"), "gate_part1/probe_Cargo.toml.txt")
+put(os.path.join(K, "t9", "run_t9.sh"), "t9/run_t9.sh.txt")
+put(os.path.join(K, "t9", "h", "Cargo.toml"), "t9/harness_Cargo.toml.txt")
+for n in ["build.log", "run.log", "t9.log", "extra_sha.txt", "t9_compare.txt"]:
+    put(os.path.join(K, "t9", n), "t9/" + n)
+put(os.path.join(K, "t9", "sha.txt"), "t9/output_sha256_c4879c496.txt")
+# gate part 1
+for n in ["compare_part1.json", "compare_part1.log", "compare_vs_130445db2.txt", "gate_part1.log", "memwatch_part1.txt"]:
+    put(os.path.join(K, n), "gate_part1/" + n)
+put(os.path.join(K, "compare_gate_f1b.py"), "gate_part1/compare_gate_f1b.py.txt")
+for n in ["gate_check.log", "result_part1_candidate.json", "schedule.tsv", "host_samples.tsv"]:
+    put(os.path.join(K, "part1", n), "gate_part1/part1/" + n)
+sys.path.insert(0, os.path.join(g1, "scripts"))
+import compare as CMP  # noqa: E402
+rows = ["case\tmode\tentry\toutcome\tok\texit_code\tsummary_envelope_sha256\tfull_envelope_sha256\t"
+        "full_envelope_bytes\terror_text_sha256\tstdout_sha256"]
+d = os.path.join(K, "part1")
+for line in open(os.path.join(d, "runs.jsonl")):
+    r = json.loads(line)
+    key = "%s__%s__%s" % (r["case"], r["mode"], r["entry"])
+    outcome, _ = CMP.classify(r)
+    run = (r.get("probe") or {}).get("run", {})
+    env, full, std = [os.path.join(d, x, key + y) for x, y in (("envelopes", ".json"), ("full", ".json"), ("stdout", ".out"))]
+    rows.append("\t".join([r["case"], r["mode"], r["entry"], outcome, "ok" if run.get("ok") else "ERR",
+        str(r.get("exit_code")), sha(env) if os.path.exists(env) else "-", run.get("envelope_sha256", "-"),
+        str(os.path.getsize(full)) if os.path.exists(full) else "-",
+        hashlib.sha256(run["error"].encode()).hexdigest() if "error" in run else "-",
+        sha(std) if os.path.exists(std) else "-"]))
+put_text("\n".join(rows) + "\n", "gate_part1/part1/envelope_sha256.tsv")
+t = json.load(open(os.path.join(K, "compare_part1.json")))
+cols = ["case", "mode", "entry", "base.outcome", "base.exit", "base.blocking", "base.standing", "cand.outcome",
+        "cand.exit", "cand.blocking", "cand.standing", "cand.full16", "cand.guard", "cand.result_count",
+        "cand.peak_rss_bytes"]
+for name in ["c1_table", "c2_table"]:
+    out = ["\t".join(cols)]
+    for r in t[name]:
+        b, c = r["base"], r["cand"]
+        out.append("\t".join(str(x) for x in [r["case"], r["mode"], r["entry"], b["outcome"], b["exit"],
+            ",".join(b["blocking"]) or "-", b["standing"], c["outcome"], c["exit"], ",".join(c["blocking"]) or "-",
+            c["standing"], c["full"], c.get("guard"), c.get("result_count"), c.get("peak_rss_kib")]))
+    put_text("\n".join(out) + "\n", "gate_part1/%s.tsv" % name)
+put_text("%s  k5m/part1/runs.jsonl (kept uncommitted in <wt>/scratch/i13/; indexed by gate_part1/part1/envelope_sha256.tsv)\n"
+         % sha(os.path.join(d, "runs.jsonl")), "uncommitted_sha256.txt")
+put(os.path.join(wt, "scratch", "i13", "d", "assemble_k5m.py"), "assemble_k5m.py.txt")
+print("trailing:", trailing)

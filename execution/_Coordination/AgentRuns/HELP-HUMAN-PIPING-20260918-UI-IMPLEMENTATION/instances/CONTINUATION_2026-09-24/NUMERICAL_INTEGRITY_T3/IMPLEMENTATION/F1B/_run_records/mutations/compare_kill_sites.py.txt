@@ -1,0 +1,111 @@
+#!/usr/bin/env python3
+"""F1b checkpoint C (I13): the original pins' mutants' kill sites on F1b's tree (e215c6007) against
+K2b's checkpoint-C table (K2B/_run_records/mutations/kill_sites.txt, run at 70828d4d6 plus its
+overlay, which touched only frame_kernel/tests/k2b_force_scaling.rs). Derived from K2b's
+compare_kill_sites.py. Each K2b file:line site is mapped onto e215c6007 through
+`git diff -U0 70828d4d6 e215c6007` of its file; a line inside a changed hunk cannot be mapped and is
+reported as such. K2b ran product_physics with `--test s11f_site_test --test formation_check_runtime`
+only; F1b runs it in full, so product_physics sites outside those two binaries are reported as added,
+never as lost. Usage: compare_kill_sites.py <k2b-table> <f1b-table> <repo>"""
+import re
+import subprocess
+import sys
+
+k2b_table, f1b_table, repo = sys.argv[1], sys.argv[2], sys.argv[3]
+BASE, HEAD = "70828d4d6", "e215c6007"
+# (crate prefix used in the tables, site path) -> repo path
+FILES = {
+    "src/s11k_tests.rs": "projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs",
+    "src/structural_adapter.rs": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "structural_adapter/k1_tests.rs": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs",
+    "structural_adapter/k2b_tests.rs": "projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_tests.rs",
+    "tests/s11_site_table.rs": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+    "tests/s11f_site_test.rs": "projects/chirality-piping/core/product_physics/tests/s11f_site_test.rs",
+    "tests/formation_check_runtime.rs": "projects/chirality-piping/core/product_physics/tests/formation_check_runtime.rs",
+    "structural/s11k_tests.rs": "projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs",
+}
+CRATE_LIB = {  # a `src/lib.rs` site belongs to the crate of the table line
+    "solver/nonlinear_integration": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "solver/frame_kernel": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "product_physics": "projects/chirality-piping/core/product_physics/src/lib.rs",
+}
+ORIGINAL = ["K2B-PIN-LOOP", "K2B-PIN-PLUMBING", "K2B-PIN-THIRD", "KD5-M32a", "KD5-M32b", "KD5-E4",
+            "S11K-RV-OPT1", "S11K-RV-OPT3", "S11K-RV-OPT4", "S11K-RV-PUB", "K1-PIN-BINARY64",
+            "K1-PIN-BINARY64-B", "K1-PIN-THIRD", "K1-PIN-LOOP", "K1-PIN-LOOP-B", "K1-S11F-KERNEL",
+            "K1-SITE-SPARSE", "K1-SITE-FC"]
+K2B_PP_BINARIES = ("tests/s11f_site_test.rs", "tests/formation_check_runtime.rs")
+
+
+def parse(path):
+    d, cur, lines, i = {}, None, open(path).read().split("\n"), 0
+    while i < len(lines):
+        m = re.match(r"## (\S+)", lines[i])
+        if m:
+            cur = m.group(1)
+            d.setdefault(cur, set())
+            i += 1
+            continue
+        m = re.match(r"   (\S+): (\S+)$", lines[i])
+        if m and i + 1 < len(lines):
+            s = re.match(r"      at (\S+?):(\d+):\d+:", lines[i + 1])
+            loc = ("/".join(s.group(1).split("/")[-2:]), int(s.group(2))) if s else ("?", 0)
+            d[cur].add((m.group(1), m.group(2), loc))
+            i += 2
+            continue
+        i += 1
+    return d
+
+
+def mapping(path):
+    diff = subprocess.run(["git", "-C", repo, "diff", "-U0", BASE, HEAD, "--", path],
+                          capture_output=True, text=True).stdout
+    hunks = [tuple(int(x) if x is not None else 1 for x in m.groups())
+             for m in re.finditer(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@", diff, re.M)]
+
+    def f(line):
+        shift = 0
+        for (os_, oc, ns, nc) in hunks:
+            if oc == 0:
+                if line > os_:
+                    shift += nc
+            else:
+                if os_ <= line < os_ + oc:
+                    return None
+                if line >= os_ + oc:
+                    shift += nc - oc
+        return line + shift
+    return f
+
+
+maps = {k: mapping(v) for k, v in FILES.items()}
+lib_maps = {k: mapping(v) for k, v in CRATE_LIB.items()}
+
+
+def remap(site):
+    crate, test, (f, line) = site
+    fn = lib_maps.get(crate) if f == "src/lib.rs" else maps.get(f)
+    if fn is None:
+        return site
+    new = fn(line)
+    return (crate, test, (f, new if new is not None else -line))
+
+
+k2b, f1b = parse(k2b_table), parse(f1b_table)
+stop = False
+for mid in ORIGINAL:
+    old = {remap(s) for s in k2b.get(mid, set())}
+    new = f1b.get(mid, set())
+    lost = old - new
+    added = new - old
+    killed = len(new) > 0
+    stop |= not killed
+    unmappable = [s for s in old if s[2][1] < 0]
+    print(f"{mid}: K2b {len(old)} sites, F1b {len(new)} sites, lost {len(lost)}, added {len(added)}, "
+          f"{'KILLED' if killed else 'NOT KILLED -> STOP'}")
+    for c, t, (f, l) in sorted(lost):
+        why = " (K2b line inside an F1b hunk)" if l < 0 else ""
+        print(f"    LOST {c} {t} {f}:{abs(l)}{why}")
+    for c, t, (f, l) in sorted(added):
+        note = "" if c != "product_physics" or f in K2B_PP_BINARIES else " (a binary K2b did not run)"
+        print(f"    added {c} {t} {f}:{l}{note}")
+print("STOP" if stop else "every original pin mutant is still killed")

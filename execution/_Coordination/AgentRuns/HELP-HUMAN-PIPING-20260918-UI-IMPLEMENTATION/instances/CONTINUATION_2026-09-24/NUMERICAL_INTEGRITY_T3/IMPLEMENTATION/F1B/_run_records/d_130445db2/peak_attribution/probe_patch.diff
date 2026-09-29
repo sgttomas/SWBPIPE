@@ -1,0 +1,24 @@
+2296a2297
+>     scratch_probe("entry: request moved in, before the member build");
+2366a2368
+>     scratch_probe("built model and boundary");
+2371a2374
+>     scratch_probe("basis 0 sparse K formed");
+2397a2401
+>     scratch_probe("before the case loop");
+2541a2546
+>     scratch_probe("after the case loop (every LoadCaseSolve held)");
+2547a2553
+>     scratch_probe("after preview physics");
+2565a2572
+>     scratch_probe("before the results assembly");
+2622a2630
+>     scratch_probe("after the results loop");
+2671a2680
+>     scratch_probe("after the invocation finiteness check");
+23681a23691,23695
+> 
+> #[cfg(test)]
+> fn scratch_probe(label: &'static str) {
+>     crate::f1b_tests::scratch_attr::probe(label);
+> }

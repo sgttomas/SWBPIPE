@@ -1,0 +1,110 @@
+1313a1314,1370
+> // ---------------------------------------------------------- I13 A2 OBSERVATION (scratch, never committed)
+> fn obs_log(line: serde_json::Value) {
+>     use std::io::Write;
+>     if let Ok(path) = std::env::var("T3_FULL_ENVELOPE_PATH") {
+>         if let Ok(mut fh) = std::fs::OpenOptions::new().create(true).append(true).open(format!("{path}.obs.jsonl")) {
+>             let _ = writeln!(fh, "{line}");
+>         }
+>     }
+> }
+> fn obs_published(value: &Result<PublishedValue, ForceScaledError>, today: f64) -> &'static str {
+>     match value {
+>         Ok(p) if p.value.to_bits() == today.to_bits() => "equal",
+>         Ok(_) => "MISMATCH",
+>         Err(_) => "refused",
+>     }
+> }
+> /// Q12 forced-even-b probe: every even b in [-1100, 1100] through the public
+> /// force-scaled entries, on the orchestrator's own case.
+> fn obs_forced_b(case: &ForceScalingCase<'_>, case_id: &str) {
+>     use open_pipe_stress_frame_kernel::ForceScaleCensus;
+>     let mut census = ForceScaleCensus::new();
+>     for element in case.frames { let _ = census.frame(element); }
+>     for element in case.users { census.user(element); }
+>     for slot in case.curved { census.matrix(&slot.global_stiffness); }
+>     for &(_, k) in case.springs { census.spring(k); }
+>     for term in case.force.terms() { census.load_term(term); }
+>     let rule_b = census.force_scale().map(|s| s.exponent()).ok();
+>     let blocks: Vec<StiffnessBlock> = case.curved.iter().map(|slot| StiffnessBlock { node_i: slot.node_i, node_j: slot.node_j, stiffness: slot.global_stiffness }).collect();
+>     let mut boundary = vec![false; case.force.len()];
+>     for &(dof, _) in case.prescribed { boundary[dof] = true; }
+>     let free: Vec<usize> = (0..boundary.len()).filter(|&d| !boundary[d]).collect();
+>     let mut solved = Vec::new();
+>     let mut first: Option<Vec<f64>> = None;
+>     let mut max_rel = 0.0_f64;
+>     for b in (-1100..=1100).step_by(2) {
+>         let scale = ForceScale::new(b).unwrap();
+>         let Ok(stiffness) = assemble_sparse_stiffness(case.node_count, case.frames, case.users, &blocks, case.springs, &SparseAssemblyOptions::new().with_force_scale(scale)) else { continue };
+>         let result = SparseAssemblyEvidence::new_force_scaled(stiffness.pattern(), case.node_count, case.frames, case.users, case.curved, case.springs, scale)
+>             .map_err(ForceScaledError::Structural)
+>             .and_then(|evidence| evidence.solve_force_scaled_with_formation_check(&stiffness, case.force, &free, case.prescribed, case.mode, case.curved_sources, case.selected));
+>         if let Ok(solution) = result {
+>             let u: Vec<f64> = free.iter().map(|&d| solution.solution.displacements[d]).collect();
+>             match &first {
+>                 None => first = Some(u),
+>                 Some(reference) => {
+>                     let scale_u = reference.iter().fold(0.0_f64, |m, v| m.max(v.abs()));
+>                     for (a, r) in u.iter().zip(reference) { if scale_u > 0.0 { max_rel = max_rel.max((a - r).abs() / scale_u); } }
+>                 }
+>             }
+>             solved.push((b, format!("{:?}", solution.solution.report.quality)));
+>         }
+>     }
+>     obs_log(serde_json::json!({"probe": "forced_even_b", "case": case_id, "rule_b": rule_b, "span": census.span(),
+>         "solved": solved.iter().map(|(b, _)| *b).collect::<Vec<_>>(), "qualities": solved.iter().map(|(_, q)| q.clone()).collect::<Vec<_>>(),
+>         "first_u": first, "max_rel_spread_over_solved_b": max_rel}));
+> }
+> 
+1452c1509,1514
+<         ForceScaledError::Refused(refusal) => ForceScalingFailure::Refused(refusal),
+---
+>         ForceScaledError::Refused(refusal) => {
+>             if refusal.reason == ForceScaleReason::ScaledEvaluation {
+>                 obs_forced_b(&case, &load_case.id);
+>             }
+>             ForceScalingFailure::Refused(refusal)
+>         }
+3009a3072
+> #[track_caller]
+3012a3076
+>             obs_log(serde_json::json!({"probe": "non_finite", "caller": std::panic::Location::caller().line(), "value": format!("{value:?}")}));
+3949a4014,4026
+>     if let (None, Some(formed), None, None) = (&w2_publication, formed, &selected_source, &selected_nonlinear) {
+>         let mut restrained = restrained_dofs.to_vec();
+>         restrained.sort_unstable();
+>         match formed.force_scaled_reactions(&displacements, &force, ForceScale::UNSCALED, &restrained) {
+>             Ok(values) => {
+>                 for (dof, value) in restrained.iter().zip(values) {
+>                     let status = if value.value.to_bits() == reactions[*dof].to_bits() { "equal" } else { "MISMATCH" };
+>                     obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "reaction", "at": integrity_dof_label(model, *dof), "status": status, "today": reactions[*dof], "helper": value.value}));
+>                 }
+>             }
+>             Err(error) => obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "reaction", "status": "refused", "reason": format!("{error:?}"), "today_finite": reactions.iter().all(|v| v.is_finite())})),
+>         }
+>     }
+3986a4064,4068
+>                     if w2_publication.is_none() && selected_source.is_none() && selected_nonlinear.is_none() && formed.is_some() {
+>                         let today = -spring.stiffness.value * displacements[global];
+>                         let helper = force_scaled_spring_action((global, spring.stiffness.value), &displacements, ForceScale::UNSCALED);
+>                         obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "spring_action", "at": integrity_dof_label(model, global), "status": obs_published(&helper, today), "today": today, "reason": helper.as_ref().err().map(|e| format!("{e:?}"))}));
+>                     }
+4139c4221,4232
+<                     Ok(local) => local.local_forces,
+---
+>                     Ok(local) => {
+>                         if selected_source.is_none() && selected_nonlinear.is_none() && formed.is_some() {
+>                             match pipe.frame_element().map_err(|e| format!("{e:?}")).and_then(|frame| frame.force_scaled_end_actions(&displacements, ForceScale::UNSCALED).map_err(|e| format!("{e:?}"))) {
+>                                 Ok(values) => {
+>                                     let bad: Vec<usize> = (0..ELEMENT_DOF).filter(|&k| values[k].value.to_bits() != local.local_forces[k].to_bits()).collect();
+>                                     obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "end_actions", "at": pipe.element_id, "status": if bad.is_empty() { "equal" } else { "MISMATCH" }, "mismatch_components": bad}));
+>                                 }
+>                                 Err(reason) => obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "end_actions", "at": pipe.element_id, "status": "refused", "reason": reason})),
+>                             }
+>                         }
+>                         local.local_forces
+>                     }
+4700a4794,4796
+>     }
+>     for row in results.iter().filter(|row| !row.value.is_finite()) {
+>         obs_log(serde_json::json!({"probe": "non_finite_row", "case": load_case.id, "kind": row.kind, "entity": row.entity_ref, "id": row.id, "value": format!("{:?}", row.value)}));

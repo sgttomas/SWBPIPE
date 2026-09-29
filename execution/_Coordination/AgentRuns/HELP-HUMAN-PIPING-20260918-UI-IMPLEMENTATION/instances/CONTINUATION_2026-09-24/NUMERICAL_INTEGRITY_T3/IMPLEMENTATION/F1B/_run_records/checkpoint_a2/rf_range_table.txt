@@ -1,0 +1,156 @@
+RF-RANGE-CHAIN-E+960 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000
+RF-RANGE-CHAIN-E+960 [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CHAIN-E-1000 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[540] rbp=None ref=[] oth=[]
+RF-RANGE-CHAIN-F+960 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 210498782646240000000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 210498782646240000000000
+RF-RANGE-CHAIN-F+960 [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CHAIN-F-960 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CHAIN-L+240 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 381638965992131000000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 381638965992131000000000
+RF-RANGE-CHAIN-L+240 [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CHAIN-L-240 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-CHAIN-LEF-large [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 144029111750204860000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 144029111750204860000000
+RF-RANGE-CHAIN-LEF-large [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[-702] rbp=None ref=[] oth=[]
+RF-RANGE-CHAIN-LEF-small [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-CHAIN-SIM-a [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 301060060180163400000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 301060060180163400000000
+RF-RANGE-CHAIN-SIM-a [SAME] dense_/type,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-CHAIN-SIM-b [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 265845599156983200000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 265845599156983200000000
+RF-RANGE-CHAIN-SIM-b [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CONT-E+960 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000
+RF-RANGE-CONT-E+960 [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CONT-E-1000 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=[514] rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:computed mechanics must be finite, got inf']
+RF-RANGE-CONT-F+960 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -93555014509439990000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -93555014509439990000000
+RF-RANGE-CONT-F+960 [SAME] dense_/type,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:computed mechanics must be finite, got inf']
+    C: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:computed mechanics must be finite, got inf']
+RF-RANGE-CONT-F-960 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CONT-L+240 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 106010823886703060000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 106010823886703060000000
+RF-RANGE-CONT-L+240 [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-CONT-L-240 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-CONT-LEF-large [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -39835349461257530000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -39835349461257530000000
+RF-RANGE-CONT-LEF-large [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[-702] rbp=True ref=[] oth=[]
+RF-RANGE-CONT-LEF-small [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-CONT-SIM-a [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -17785664906851768000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -17785664906851768000000
+RF-RANGE-CONT-SIM-a [SAME] dense_/type,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-CONT-SIM-b [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 797536797470949500000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 797536797470949500000000
+RF-RANGE-CONT-SIM-b [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-SKEW-E+960 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000
+RF-RANGE-SKEW-E+960 [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("radix scaling loses normal range"))', '')] oth=[]
+RF-RANGE-SKEW-E-1000 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[542] rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:computed mechanics must be finite, got inf']
+RF-RANGE-SKEW-F+960 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 467775072547199900000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 467775072547199900000000
+RF-RANGE-SKEW-F+960 [SAME] dense_/type,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:computed mechanics must be finite, got inf']
+    C: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:computed mechanics must be finite, got inf']
+RF-RANGE-SKEW-F-960 [DIFF] dense_/capt,dense_/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("product overflow or underflow"))', '')] oth=[]
+RF-RANGE-SKEW-F-960 [DIFF] sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("arithmetic outside normal range"))', '')] oth=[]
+RF-RANGE-SKEW-L+240 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000
+RF-RANGE-SKEW-L+240 [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-SKEW-L-240 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-SKEW-LEF-large [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 320064692778233000000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 320064692778233000000000
+RF-RANGE-SKEW-LEF-large [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[-702] rbp=None ref=[] oth=[]
+RF-RANGE-SKEW-LEF-small [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-SKEW-SIM-a [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000
+RF-RANGE-SKEW-SIM-a [SAME] dense_/type,sparse/type
+    B: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+    C: refused_ blk=['PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length']
+RF-RANGE-SKEW-SIM-b [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 132922799578491600000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 132922799578491600000000
+RF-RANGE-SKEW-SIM-b [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-THIN-A [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 160693804425899030000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 160693804425899030000000
+RF-RANGE-THIN-A [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+RF-RANGE-THIN-B [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=[536] rbp=None ref=[] oth=[]

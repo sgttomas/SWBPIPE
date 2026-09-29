@@ -1,0 +1,103 @@
+   Compiling open_pipe_stress_product_physics v0.2.0 (<wt>/scratch/i13/d/attr/tree/projects/chirality-piping/core/product_physics)
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:9677:4
+     |
+9677 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+   --> src/source_recovery.rs:146:9
+    |
+145 | pub(super) struct SpringAction {
+    |                   ------------ fields in this struct
+146 |     pub support_id: String,
+    |         ^^^^^^^^^^
+147 |     pub global_dof: usize,
+    |         ^^^^^^^^^^
+148 |     pub value: f64,
+    |         ^^^^^
+149 |     pub functional_index: usize,
+    |         ^^^^^^^^^^^^^^^^
+    |
+    = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:171:9
+    |
+170 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+171 |     pub dofs: usize,
+    |         ^^^^
+172 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+173 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+174 |     pub blocks: usize,
+    |         ^^^^^^
+175 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+176 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+177 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+178 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+179 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+180 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+181 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+182 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+183 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+184 |     pub max_relative_projection_error: f64,
+185 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:198:5
+    |
+192 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+198 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:224:12
+    |
+207 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+224 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 6 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.01s
+     Running unittests src/lib.rs (<wt>/scratch/i13/d/attr/target/debug/deps/open_pipe_stress_product_physics-fada271c93a482ec)
+
+running 1 test
+test f1b_tests::scratch_attr::scratch_attr_sparse_peak ... members=250 dofs=1506 | A typed call: peak=51451701 retained_envelope=11785117 (drop frees 11934882; drop peak 0) json_bytes=9413326 result_rows=14516 diagnostics=4 | A captured call: peak=88714962 retained=11935862 | B request->bases (model, built model, ledger): peak=1203697 retained=186889 | C sparse K: peak=1133848 retained=837848 | D pattern evidence: peak=2930824 retained=2498248 | E checked solve (M03 + K-D5 + skyline): peak=3093383 retained=516251 | F lane entries: peak=250642 retained=212992 | G lane solve: peak=504296 retained=24000 | row kinds={"displacement_magnitude": 251, "element_local_axial_force": 1250, "element_local_axial_normal_stress": 1250, "element_local_bending_moment_y": 1250, "element_local_bending_moment_z": 1250, "element_local_bending_normal_stress_y": 1250, "element_local_bending_normal_stress_z": 1250, "element_local_shear_force_y": 1250, "element_local_shear_force_z": 1250, "element_local_torsional_moment": 1250, "element_local_torsional_shear_stress": 1250, "global_nodal_displacement_x": 251, "global_nodal_displacement_y": 251, "global_nodal_displacement_z": 251, "global_nodal_rotation_x": 251, "global_nodal_rotation_y": 251, "global_nodal_rotation_z": 251, "linear_solver_mode_basis": 1, "pipe_elastic_normal_stress_maximum_v2": 250, "support_reaction_component_v2": 6, "support_reaction_force_magnitude_v2": 1, "support_reaction_moment_magnitude_v2": 1}
+members=1000 dofs=6006 | A typed call: peak=205888078 retained_envelope=47152473 (drop frees 47740993; drop peak 0) json_bytes=37664939 result_rows=58016 diagnostics=4 | A captured call: peak=211206392 retained=47741973 | B request->bases (model, built model, ledger): peak=4796952 retained=737787 | C sparse K: peak=4533496 retained=3349496 | D pattern evidence: peak=11717848 retained=9989272 | E checked solve (M03 + K-D5 + skyline): peak=12364679 retained=2064203 | F lane entries: peak=1002118 retained=851968 | G lane solve: peak=2018120 retained=96000 | row kinds={"displacement_magnitude": 1001, "element_local_axial_force": 5000, "element_local_axial_normal_stress": 5000, "element_local_bending_moment_y": 5000, "element_local_bending_moment_z": 5000, "element_local_bending_normal_stress_y": 5000, "element_local_bending_normal_stress_z": 5000, "element_local_shear_force_y": 5000, "element_local_shear_force_z": 5000, "element_local_torsional_moment": 5000, "element_local_torsional_shear_stress": 5000, "global_nodal_displacement_x": 1001, "global_nodal_displacement_y": 1001, "global_nodal_displacement_z": 1001, "global_nodal_rotation_x": 1001, "global_nodal_rotation_y": 1001, "global_nodal_rotation_z": 1001, "linear_solver_mode_basis": 1, "pipe_elastic_normal_stress_maximum_v2": 1000, "support_reaction_component_v2": 6, "support_reaction_force_magnitude_v2": 1, "support_reaction_moment_magnitude_v2": 1}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 414 filtered out; finished in 10.53s
+
+rc=0

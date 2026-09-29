@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""I13 (F1b) scratch observation build, never committed and not product code: the A2 instrumentation
+re-applied to a git archive of the gate head. Usage: obs_patch.py <lib.rs> <obs_block.rs>
+- obs_block.rs: `obs_log`, `obs_published` and the Q12 forced-even-b probe (A2's, verbatim);
+- the forced-even-b probe on every ScaledEvaluation refusal (in `force_scaling_attempt`);
+- RV11D-N2: each b = 0 ordinary-route publication's reactions, spring actions and member end actions
+  re-evaluated through K2b's checked helpers at UNSCALED and compared bit for bit;
+- the non-finite derived-row attribution (`require_finite_mechanics` caller, and the rows).
+Logs go to <T3_FULL_ENVELOPE_PATH>.obs.jsonl."""
+import sys
+
+p, block = sys.argv[1], sys.argv[2]
+s = open(p).read()
+
+
+def rep(old, new):
+    global s
+    assert s.count(old) == 1, (old[:80], s.count(old))
+    s = s.replace(old, new)
+
+
+rep("// ------------------------------------------------------------ F1b: W2 (range)",
+    open(block).read() + "// ------------------------------------------------------------ F1b: W2 (range)")
+rep('''    let outcome = solve_with_force_scaling(&case).map_err(|error| match error {
+        ForceScaledError::Refused(refusal) => ForceScalingFailure::Refused(refusal),
+        error => ForceScalingFailure::Failed(error),
+    })?;''', '''    let outcome = solve_with_force_scaling(&case).map_err(|error| match error {
+        ForceScaledError::Refused(refusal) => {
+            if refusal.reason == ForceScaleReason::ScaledEvaluation {
+                obs_forced_b(&case, &load_case.id);
+            }
+            ForceScalingFailure::Refused(refusal)
+        }
+        error => ForceScalingFailure::Failed(error),
+    })?;''')
+rep('''    require_finite_mechanics(reactions.iter().copied())?;
+    // preview-physics-1 side record''', '''    if let (None, Some(formed), None, None) = (&w2_publication, formed, &selected_source, &selected_nonlinear) {
+        let mut restrained = restrained_dofs.to_vec();
+        restrained.sort_unstable();
+        match formed.force_scaled_reactions(&displacements, &force, ForceScale::UNSCALED, &restrained) {
+            Ok(values) => {
+                for (dof, value) in restrained.iter().zip(values) {
+                    let status = if value.value.to_bits() == reactions[*dof].to_bits() { "equal" } else { "MISMATCH" };
+                    obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "reaction", "at": integrity_dof_label(model, *dof), "status": status, "today": reactions[*dof], "helper": value.value}));
+                }
+            }
+            Err(error) => obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "reaction", "status": "refused", "reason": format!("{error:?}"), "today_finite": reactions.iter().all(|v| v.is_finite())})),
+        }
+    }
+    require_finite_mechanics(reactions.iter().copied())?;
+    // preview-physics-1 side record''')
+rep('''                    vector[global % DOF_PER_NODE] = match &w2_publication {
+                        Some(publication) => publication.spring_actions[spring_index].value,
+                        None => -spring.stiffness.value * displacements[global],
+                    };''', '''                    vector[global % DOF_PER_NODE] = match &w2_publication {
+                        Some(publication) => publication.spring_actions[spring_index].value,
+                        None => -spring.stiffness.value * displacements[global],
+                    };
+                    if w2_publication.is_none() && selected_source.is_none() && selected_nonlinear.is_none() && formed.is_some() {
+                        let today = -spring.stiffness.value * displacements[global];
+                        let helper = force_scaled_spring_action((global, spring.stiffness.value), &displacements, ForceScale::UNSCALED);
+                        obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "spring_action", "at": integrity_dof_label(model, global), "status": obs_published(&helper, today), "today": today, "reason": helper.as_ref().err().map(|e| format!("{e:?}"))}));
+                    }''')
+rep('''                None => match pipe.recover_local_forces_from_global_model(&displacements) {
+                    Ok(local) => local.local_forces,''', '''                None => match pipe.recover_local_forces_from_global_model(&displacements) {
+                    Ok(local) => {
+                        if selected_source.is_none() && selected_nonlinear.is_none() && formed.is_some() {
+                            match pipe.frame_element().map_err(|e| format!("{e:?}")).and_then(|frame| frame.force_scaled_end_actions(&displacements, ForceScale::UNSCALED).map_err(|e| format!("{e:?}"))) {
+                                Ok(values) => {
+                                    let bad: Vec<usize> = (0..ELEMENT_DOF).filter(|&k| values[k].value.to_bits() != local.local_forces[k].to_bits()).collect();
+                                    obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "end_actions", "at": pipe.element_id, "status": if bad.is_empty() { "equal" } else { "MISMATCH" }, "mismatch_components": bad}));
+                                }
+                                Err(reason) => obs_log(serde_json::json!({"probe": "rv11d_n2", "case": load_case.id, "kind": "end_actions", "at": pipe.element_id, "status": "refused", "reason": reason})),
+                            }
+                        }
+                        local.local_forces
+                    }''')
+rep('''fn require_finite_mechanics(values: impl IntoIterator<Item = f64>) -> Result<(), FrameKernelError> {
+    for value in values {
+        if !value.is_finite() {''', '''#[track_caller]
+fn require_finite_mechanics(values: impl IntoIterator<Item = f64>) -> Result<(), FrameKernelError> {
+    for value in values {
+        if !value.is_finite() {
+            obs_log(serde_json::json!({"probe": "non_finite", "caller": std::panic::Location::caller().line(), "value": format!("{value:?}")}));''')
+rep('''    require_finite_mechanics(results.iter().map(|row| row.value))?;
+    let pressure_assembly_evidence''', '''    for row in results.iter().filter(|row| !row.value.is_finite()) {
+        obs_log(serde_json::json!({"probe": "non_finite_row", "case": load_case.id, "kind": row.kind, "entity": row.entity_ref, "id": row.id, "value": format!("{:?}", row.value)}));
+    }
+    require_finite_mechanics(results.iter().map(|row| row.value))?;
+    let pressure_assembly_evidence''')
+open(p, 'w').write(s)
+print("patched")
