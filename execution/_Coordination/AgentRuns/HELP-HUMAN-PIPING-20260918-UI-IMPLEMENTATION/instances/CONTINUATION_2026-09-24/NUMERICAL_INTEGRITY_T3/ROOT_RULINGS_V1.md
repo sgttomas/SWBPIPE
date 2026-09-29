@@ -2424,7 +2424,7 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
 
 **Fix before merge, as with earlier slices' SHOULD-FIX findings:**
 - **RV20-1:** in the shared-cap test, assert per round that the bounded run's ctx16 work is at least the reference run's. This kills RV20-M4, a shared-cap collapse charged to a throwaway context.
-- **N1:** add RV20's order test, which kills M5 (`RuleTest` reordered). M1 and M2 are recorded as equivalent: every reachable refusal is `Span`.
+- **N1:** add RV20's order test, which kills M5 (`RuleTest` reordered). M1 and M2 are recorded as equivalent: every reachable refusal is `Span`. [Correction (RV20, C-N1): the evidence is narrower. Every refusal constructed so far is `Span`, and it is not proven that no other stop is reachable. M1 and M2 are equivalent on every input constructed. The equality proof does not depend on this.]
 - **N3:** restate the memory figures in RETURN.
   - The transient peak is G + T = 4,608 rows (19.8 MB), because `Vec` growth briefly holds both buffers; a standalone tracker peaks at 1.5T.
   - The tables' unconditional bound is at most 40 B per row kept in the window; the "one value entry" figure is practical only.
