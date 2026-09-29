@@ -2496,3 +2496,18 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
   - after (a), ROOT commits the fix and grants a slot in which all 24 W1-T4 rows run on the rebuilt binary, in a new records folder (about 10–15 minutes);
   - after KF3 merges, W1-T4 runs once more; those are the figures ROOT's W1 limits use.
 - **D waits** for the final W1-T4.
+
+## V-K: B prepared; ExactSumSpan recorded, not a stop (ROOT, 2026-09-29)
+
+- **B's code is committed** at `64470c6ba`: `VR/src/scale.rs`, `examples/vk_scale.rs` and `runner/vk_scale_runner.py`.
+  - The small-size check passes: the records `vk_scale` emits at 10 and 100 members are byte-identical to the committed ones, and VR passes 44 of 44.
+  - The admission estimate is a cited copy of K6b's E_max on KF1's trackers, because VR cannot depend on the harness. Deduplicating it once K6b merges is recorded as a follow-up.
+- **The large model files** are generated with `gen_vk_cases.py --large` and checked against `large_models.sha256`. B's binary is a release build from a `git archive` of `64470c6ba`.
+- **ExactSumSpan in B:**
+  - an `Unresolved(ExactSumSpan)` outcome at 10,000 members is the KF3 availability finding;
+  - it is recorded with its attempts and work, and its rows are reported as a separate `unresolved_availability` count, never as passes;
+  - the tier continues;
+  - it is a named, narrow runner exception, with a test;
+  - any other unresolved reason, a covered-row failure or any other stop condition still stops;
+  - V3's final figures re-run after KF3.
+- **Order of slots:** K6b's W1-T4 re-run first (short), then V-K's B.
