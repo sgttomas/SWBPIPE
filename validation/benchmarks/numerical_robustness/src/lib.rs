@@ -12,6 +12,7 @@
 //! - `rcm`: K4's RCM port against `sparse_direct`'s.
 //! - `parity`: the binary64 gate's sparse–dense parity on RF-MECH and RF-LARGE.
 //! - `invariance`: RF-INVARIANCE's recorded cross-variant observations.
+//! - `scale`: the scale runs' counts and admission estimate (checkpoint B).
 //!
 //! No CI test reads R1's files, which the CI checkout omits (it skips the
 //! project's run-evidence tree); the case files are generated from R1 and
@@ -25,4 +26,5 @@ pub mod lane;
 pub mod parity;
 pub mod rcm;
 pub mod records;
+pub mod scale;
 pub mod sha256;

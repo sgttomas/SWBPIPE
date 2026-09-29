@@ -110,6 +110,27 @@ guard.
 - **Verdict:** a mutant must build and fail at least one test. A survivor is
   a stop.
 
+## The scale runs (checkpoint B; examples, never CI)
+
+RF-LARGE runs at 100, 1,000 and 10,000 members, one model per release
+process.
+- **`examples/vk_scale.rs`** runs one model. It checks the model file's and
+  K4SRC's sha256, prints W1's O(nnz) counts and the admission estimate
+  (`src/scale.rs`), then runs the case through the CI lane's code. It prints
+  the report, including C9's floor set from the complete solution, the
+  per-case record, RCM equality and the binary64 sparse class.
+  - A counting, capped allocator records each phase's heap peaks.
+  - An estimate above half the heap cap is refused (exit 3).
+- **`runner/vk_scale_runner.py`** uses K6's runner by path for the wrapper,
+  the RSS watchdog, the quiet-host wait and the admission rule. Its commands
+  are `--counts` (no solve), `--plan` and `--run V1|V2|V3`, where V3 (10,000
+  members) runs only with `--approve-10000`.
+- **The models** at 1,000 and 10,000 members come from
+  `cases/gen_vk_cases.py --large <dir>` and are checked against
+  `cases/large_models.sha256`.
+- **`tests/scale.rs`** checks the counts against K4's `StorageCounts` in the
+  committed records.
+
 ## Running
 
 ```

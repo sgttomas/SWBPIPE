@@ -390,10 +390,27 @@ At A2 it ran VR's 40 tests. The post-KF1 re-run ran 43 and matched A2 row for ro
 ## 14. Scale runs (B) **[PENDING-B]**
 
 - **Status:** B waits for KF1's merge. It then runs in one slot ROOT grants, after the post-KF1 kill-matrix re-run (§12.4).
-- **To be built at B (plan §13):**
-  - the `vk_scale` example: one model per release process; it checks the model and K4SRC sha256, runs W1 once, then the report, RCM equality and the binary64 sparse lane, and writes the per-case record with wall time and load;
-  - `VR/runner/vk_scale_runner.py`, which imports K6's runner by path (`launch()` and `admission()`), with the heap cap at C − 512 MiB, C = 8 GiB, and the memory guard checked after each tier;
-  - V-K's estimate, E_W1 from K6b's derivation on KF1's code, which replaces the plan's provisional table.
+- **Written during K6b's slot K6B-S3, then built and checked at small sizes after it** (`_run_records/b_prep/`):
+  - `VR/src/scale.rs` holds W1's O(nnz) counts (K4's pattern and skyline rules) and the admission estimate. The estimate is K6b's E_max (`performance_harness/src/k6/w1/counts.rs` at `082990c8d`, recomputed on KF1's trackers), ported term for term; only the model term is V-K's. It replaces the plan's provisional table.
+  - `VR/tests/scale.rs` requires the counts to equal K4's `StorageCounts` in the committed records on all 193 factored CI cases.
+  - `VR/examples/vk_scale.rs` runs one model per release process. It checks the model's and K4SRC's sha256, prints the counts and the estimate, and refuses (exit 3) above half the heap cap. It then runs `lane::run_case_with` with unlimited budgets and prints the report (with C9's S_full set), the record, RCM equality and the binary64 sparse class. Its counting, capped allocator records each phase's heap peaks.
+  - `VR/runner/vk_scale_runner.py` uses K6's runner by path: `launch()`, `wait_for_quiet_host()`, `metadata()` and `admission()`. Rows the binary's backstop would refuse are deferred by name, and the memory guard's KILLED lines are counted per tier. It has `--counts`, `--plan` and `--run V1|V2|V3`, and V3 runs only with `--approve-10000`.
+- **The small-size check** (release; no 1,000- or 10,000-member run):
+  - the build has no warnings, and the three new files are rustfmt-clean;
+  - `tests/scale.rs` passes: on all 193 factored CI cases, V-K's pattern and profile counts equal K4's `StorageCounts`;
+  - VR's suite passes 44 of 44;
+  - `vk_scale` on RF-LARGE-CHAIN-n00010-AX and CONT-n00100-ROT:
+    - both are selected at 128 and every row passes;
+    - the counts match storage, RCM is equal, and the binary64 class is Passed;
+    - each emitted per-case record is byte-identical to the committed one;
+  - the no-op, `--counts-only`, backstop (exit 3), heap-cap (the marker), unknown-case (exit 4) and usage (exit 2) paths all behave as specified;
+  - the runner's `--counts --tiers V1`, `--plan` and `--run V1`, into a scratch records directory:
+    - all six 100-member models are ok and selected at 128, with no stop and no memory-guard kill;
+    - ρ on the footprint basis is 0.35–0.45 of the estimate.
+  - This was a check run, not B. B's V1 re-runs in its slot.
+- **Expected at 10,000 members:** ROOT reports that K6b's W1 run on RF-LARGE-CHAIN-n10000-AX ended deterministically `Unresolved(ExactSumSpan)`. The 128 candidate was rejected, then the 256 verification's shared build stopped with `Span` in `gamma_m` or `uc_bounds` (`verify.rs:471-485`).
+  - V-K's 10,000-member runs will likely meet the same outcome. The runner would record it as "not selected", a stop.
+  - How B records it is ROOT's ruling: an availability finding, not a V-K failure.
 - **Schedule:** 100 → 1,000, then 10,000 only as ROOT approves. There are 12 models: CHAIN, TREE and CONT, AX and ROT, at 1,000 and 10,000 members.
 - **Results:** *(to be filled)*
   - per model: the outcome, the selected precision, the attempts, the work by stage, and the report's counts;
@@ -565,5 +582,9 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
   - the kill matrix, its run log, its rebuild log and the 17 per-fault logs;
   - the VK-R28 release check (the build, NONE, and VK-R28);
   - the toolchain.
+- **`_run_records/b_prep/`:** B's code built and checked at small sizes:
+  - the build logs, formatting, the counts test and VR's suite;
+  - the direct `vk_scale` checks;
+  - the runner's V1 check, with its counts, plan and records.
 - **`_run_records/b/`: [PENDING-B]**
 - **`SHA256SUMS`** covers every file under `IMPLEMENTATION/VK/` except itself. It is regenerated whenever a file changes, and last at D's close.
