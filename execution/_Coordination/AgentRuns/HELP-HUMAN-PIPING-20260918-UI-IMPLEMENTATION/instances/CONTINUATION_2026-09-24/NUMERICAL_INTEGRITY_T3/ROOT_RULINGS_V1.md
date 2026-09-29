@@ -2275,3 +2275,20 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
   - §5.3's parity: K is bitwise equal between the sparse and dense paths, and the outcome class is the same, on RF-LARGE at up to 100 members and on RF-MECH.
   - Q7's invariance observations: offsets are bit-identical, and relabelled variants differ only by the roundings that follow RCM's order.
 - **I17 resumes** its debug suite and returns A1 when K6b's slot K6B-S3 ends.
+
+## K6b: W1-T4 stopped by the binary's backstop; deferred until KF1 (ROOT, 2026-09-29)
+
+- **What happened.** Row 247 (CHAIN-n10000-AX, `w1a`, pass 1) was admitted by the runner, on E_max × measured ρ ≈ 1.7 GB. The binary then refused it, `estimate_exceeds_half_cap`: K6's backstop (`main.rs:658`) compares the raw E_max, 9.23 GB, with half the heap cap, 3.75 GiB.
+  - There was no solve: the heap peak was 3.9 MB. Nothing else in W1-T4 ran, and the memory guard logged no kill.
+  - "The binary refused a run the runner admitted" is a runner stop, and I16 stopped correctly.
+  - **The backstop worked as designed.** The miss, I16's own, was that A2 tested the runner's admission but not the backstop, for a mode whose ρ is far below 1.
+- **Ruling: option (c). W1-T4 stays deferred until KF1 merges.**
+  - The binary's backstop stays independent of the runner. Option (a), passing the runner's figure to the binary, would make the backstop trust the runner, which defeats it.
+  - Option (b), dropping the tracker term for `w1a` only, is superseded by KF1: once KF1 bounds the tracker, E_max falls to about 2.6 GiB and passes the backstop unchanged.
+  - The unbounded tracker's size at 10,000 members is no longer needed. W1-T3 measured it at 1,000 members (at most 5.5% of the worst case, with the kept fraction not growing with size), which is enough to motivate KF1. W1-T4 should measure the bounded code, which is what will ship and what the limits need.
+- **Then:**
+  - K6b's branch merges main after KF1.
+  - K6b re-runs W1-T3 (about 3 minutes; KF1 changes the stop rule's work) and runs W1-T4, on a binary rebuilt from that commit, in slots ROOT grants.
+  - Row 247's refused record is voided (renamed, with the reason), as K6 did.
+- **K6b proceeds now to C (mutants),** one cargo job. D waits for W1-T4.
+- **A new mutant for C:** the runner's admission is checked against the binary's backstop. A test asserts that, for every admitted row, the binary's own check admits it too, or the row is deferred by name. This closes I16's miss.
