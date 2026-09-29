@@ -1,0 +1,16 @@
+pressure_zero_b0 sparse_interactive typed base MECHANICS_SOLVED 84 18ef3dae3958bae3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_b0 sparse_interactive typed cand MECHANICS_SOLVED 84 18ef3dae3958bae3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_b0 sparse_interactive captured base MECHANICS_SOLVED 84 18ef3dae3958bae3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_b0 sparse_interactive captured cand MECHANICS_SOLVED 84 18ef3dae3958bae3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_b0 dense_scrutiny typed base MECHANICS_SOLVED 85 7261827912b71bd3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_b0 dense_scrutiny typed cand MECHANICS_SOLVED 85 7261827912b71bd3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_b0 dense_scrutiny captured base MECHANICS_SOLVED 85 7261827912b71bd3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_b0 dense_scrutiny captured cand MECHANICS_SOLVED 85 7261827912b71bd3 NUMERICAL_INTEGRITY_CHECKS_PASSED epresented original-equation structural evidence for load case case:f: Stru
+pressure_zero_range sparse_interactive typed base MODEL_INCOMPLETE 0 81cedb7f0cd3e004 NUMERICAL_INTEGRITY_UNRESOLVED structural integrity: Range("arithmetic outside normal range"); global_dof_
+pressure_zero_range sparse_interactive typed cand MODEL_INCOMPLETE 0 04fc83be364d466e NUMERICAL_INTEGRITY_UNRESOLVED range: family not admitted under force scaling: pressure_thrust_load; range
+pressure_zero_range sparse_interactive captured base MODEL_INCOMPLETE 0 db2ecb7466dcb6dc NUMERICAL_INTEGRITY_UNRESOLVED structural integrity: Range("arithmetic outside normal range"); global_dof_
+pressure_zero_range sparse_interactive captured cand MODEL_INCOMPLETE 0 556ad92c06c24eec NUMERICAL_INTEGRITY_UNRESOLVED range: family not admitted under force scaling: pressure_thrust_load; range
+pressure_zero_range dense_scrutiny typed base MODEL_INCOMPLETE 0 81cedb7f0cd3e004 NUMERICAL_INTEGRITY_UNRESOLVED structural integrity: Range("arithmetic outside normal range"); global_dof_
+pressure_zero_range dense_scrutiny typed cand MODEL_INCOMPLETE 0 04fc83be364d466e NUMERICAL_INTEGRITY_UNRESOLVED range: family not admitted under force scaling: pressure_thrust_load; range
+pressure_zero_range dense_scrutiny captured base MODEL_INCOMPLETE 0 db2ecb7466dcb6dc NUMERICAL_INTEGRITY_UNRESOLVED structural integrity: Range("arithmetic outside normal range"); global_dof_
+pressure_zero_range dense_scrutiny captured cand MODEL_INCOMPLETE 0 556ad92c06c24eec NUMERICAL_INTEGRITY_UNRESOLVED range: family not admitted under force scaling: pressure_thrust_load; range

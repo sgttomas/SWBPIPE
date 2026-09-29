@@ -1,0 +1,835 @@
+#!/usr/bin/env python3
+"""V4's independent emulator and exact oracle for D1 revision 5a.3 (option iii).
+
+Written by V4 from K4's Rust at 3668ee8a4 (retained/assemble.rs form_member,
+assemble, reduced_rhs; factor.rs factor and solve_scaled loops; adaptive.rs
+residual_rows, solve_case_at, run_schedule, stop_rule, scales_at, classify_rows;
+recover.rs recover). It does not import or copy DS1's emulator.
+
+Simplifications (stated; none affects the cases V4 runs, which are small and
+exactly representable where it matters):
+- free DOFs factored in ascending order (K4: RCM); radix equilibration is
+  omitted in the factor (power-of-two scaling commutes with rounding) and used
+  only for the condition number;
+- the condition screen uses the exact 1-norm condition number of the
+  equilibrated K (a perfect estimator; K4's Hager-Higham estimate is a lower
+  bound on ||K^-1||, so K4's screen is never stricter than this one);
+- no geometry-first step, no negative-energy pair check, no directional
+  springs, no support groups, no budgets.
+
+Truth: the same formation, solve and recovery in exact rational arithmetic
+(only for geometries whose frames are rational: axis-aligned and 3-4-5 runs).
+"""
+from fractions import Fraction as Fr
+from math import isqrt
+import math
+
+EPS = Fr(1, 2 ** 64)
+
+
+def flog2(a):
+    """floor(log2(a)) for a Fraction a > 0."""
+    n, d = a.numerator, a.denominator
+    e = n.bit_length() - d.bit_length()
+    if e >= 0:
+        if n < (d << e):
+            e -= 1
+    else:
+        if (n << -e) < d:
+            e -= 1
+    return e
+
+
+def rnd(x, p):
+    """Round a Fraction to p significant bits, nearest, ties to even."""
+    x = Fr(x)
+    if x == 0:
+        return Fr(0)
+    s = -1 if x < 0 else 1
+    a = abs(x)
+    e = flog2(a)
+    sh = p - 1 - e  # a * 2^sh in [2^(p-1), 2^p)
+    n, d = a.numerator, a.denominator
+    if sh >= 0:
+        num, den = n << sh, d
+    else:
+        num, den = n, d << (-sh)
+    q, r = divmod(num, den)
+    if 2 * r > den or (2 * r == den and (q & 1)):
+        q += 1
+    v = Fr(q, 1 << sh) if sh >= 0 else Fr(q << (-sh))
+    return s * v
+
+
+def rsqrt(x, p):
+    """Correctly rounded sqrt at p bits (nearest, ties to even)."""
+    x = Fr(x)
+    assert x >= 0
+    if x == 0:
+        return Fr(0)
+    e = flog2(x)
+    # choose k with x*4^k in [4^(p-1), 4^p): sqrt in [2^(p-1), 2^p)
+    k = (2 * (p - 1) - e + 1) // 2
+    N = x * Fr(4) ** k if k >= 0 else x / Fr(4) ** (-k)
+    while N < Fr(4) ** (p - 1):
+        N *= 4
+        k += 1
+    while N >= Fr(4) ** p:
+        N /= 4
+        k -= 1
+    fN = N.numerator // N.denominator
+    q = isqrt(fN)
+    # compare N with (q + 1/2)^2 = q^2 + q + 1/4
+    half = Fr(q * q + q) + Fr(1, 4)
+    if N > half or (N == half and (q & 1)):
+        q += 1
+    return Fr(q) / (Fr(2) ** k) if k >= 0 else Fr(q) * Fr(2) ** (-k)
+
+
+def esqrt(x):
+    """Exact sqrt of a Fraction that is a perfect square (else error)."""
+    x = Fr(x)
+    n, d = x.numerator, x.denominator
+    rn, rd = isqrt(n), isqrt(d)
+    if rn * rn != n or rd * rd != d:
+        raise ValueError("irrational sqrt in exact mode: %s" % x)
+    return Fr(rn, rd)
+
+
+class Ar:
+    """Arithmetic at precision P (None: exact)."""
+
+    def __init__(self, P):
+        self.P = P
+
+    def r(self, x):
+        return Fr(x) if self.P is None else rnd(x, self.P)
+
+    def sqrt(self, x):
+        if self.P is not None:
+            return rsqrt(x, self.P)
+        try:
+            return esqrt(x)
+        except ValueError:
+            # only node magnitudes reach here in V4's cases (geometry is rational)
+            return rsqrt(x, 4096)
+
+
+def f64(x):
+    """Correctly rounded binary64 value of a Fraction, as a Fraction (+0 for 0)."""
+    x = Fr(x)
+    if x == 0:
+        return Fr(0)
+    v = float(x)  # CPython Fraction.__float__ is correctly rounded
+    return Fr(v)
+
+
+def up64(x):
+    """Round a nonnegative Fraction upward to binary64."""
+    x = Fr(x)
+    if x == 0:
+        return 0.0
+    v = float(x)
+    if Fr(v) < x:
+        v = math.nextafter(v, math.inf)
+    return v
+
+
+# ---------------------------------------------------------------- the model
+
+def model(name, nodes):
+    return dict(name=name, nodes=[tuple(float(c) for c in n) for n in nodes], members=[],
+                springs=[], cons={}, loads={}, stations=[])
+
+
+def member(m, i, j, E=1.0, G=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0, y=(0.0, 0.0, 1.0)):
+    m["members"].append(dict(i=i, j=j, E=E, G=G, A=A, Iy=Iy, Iz=Iz, J=J, y=tuple(float(c) for c in y)))
+
+
+def fix(m, node, comps, value=0.0):
+    """Prescribe DOFs; value is a float or a list of exact (c, v) terms."""
+    for c in comps:
+        terms = value if isinstance(value, list) else [(1.0, value)]
+        m["cons"][6 * node + c] = terms
+
+
+def load(m, node, comp, v):
+    m["loads"].setdefault(6 * node + comp, []).append(float(v))
+
+
+def spring(m, node, comp, k):
+    m["springs"].append((6 * node + comp, float(k)))
+
+
+def station(m, mem, t):
+    m["stations"].append((mem, float(t)))
+
+
+# ---------------------------------------------------------------- formation
+
+def form_member(ar, nodes, mb):
+    r = ar.r
+    xi, xj = nodes[mb["i"]], nodes[mb["j"]]
+    d = [r(Fr(xj[k]) - Fr(xi[k])) for k in range(3)]
+
+    def normalize(v):
+        sq = r(sum(c * c for c in v))
+        nrm = ar.sqrt(sq)
+        return [r(c / nrm) for c in v], nrm
+
+    ex, L = normalize(d)
+    yr = [Fr(c) for c in mb["y"]]
+    proj = r(sum(yr[k] * ex[k] for k in range(3)))
+    yc = [r(yr[k] - proj * ex[k]) for k in range(3)]
+    ey, ycn = normalize(yc)
+    zc = [None] * 3
+    for k, (p_, q_) in enumerate([(1, 2), (2, 0), (0, 1)]):
+        zc[k] = r(ex[p_] * ey[q_] - ex[q_] * ey[p_])
+    ez, _ = normalize(zc)
+    inv = r(Fr(1) / L)
+
+    def over(a, b):
+        return r(r(Fr(a) * Fr(b)) / L)
+
+    axial = over(mb["E"], mb["A"])
+    torsion = over(mb["G"], mb["J"])
+    bz = over(mb["E"], mb["Iz"])
+    by = over(mb["E"], mb["Iy"])
+    b = [[Fr(0)] * 12 for _ in range(6)]
+    for k in range(3):
+        iy = r(inv * ey[k])
+        iz = r(inv * ez[k])
+        b[0][k] = -ex[k]
+        b[0][6 + k] = ex[k]
+        b[1][3 + k] = -ex[k]
+        b[1][9 + k] = ex[k]
+        for row, rot in ((2, 3), (3, 9)):
+            b[row][k] = iy
+            b[row][6 + k] = -iy
+            b[row][rot + k] = ez[k]
+        for row, rot in ((4, 3), (5, 9)):
+            b[row][k] = -iz
+            b[row][6 + k] = iz
+            b[row][rot + k] = ey[k]
+    D = [[(0, axial)], [(1, torsion)], [(2, 4 * bz), (3, 2 * bz)], [(2, 2 * bz), (3, 4 * bz)],
+         [(4, 4 * by), (5, 2 * by)], [(4, 2 * by), (5, 4 * by)]]
+    db = [[r(sum(c * b[s][col] for s, c in D[row])) for col in range(12)] for row in range(6)]
+    ke = [[None] * 12 for _ in range(12)]
+    for a in range(12):
+        for bb in range(a, 12):
+            v = r(sum(b[rr][a] * db[rr][bb] for rr in range(6)))
+            ke[a][bb] = v
+            ke[bb][a] = v
+    # |y_ref| / |y_perp| for g (computed exactly from the exact geometry by the caller)
+    return dict(i=mb["i"], j=mb["j"], axes=[ex, ey, ez], inv=inv, L=L, axial=axial, torsion=torsion,
+                bz=bz, by=by, b=b, ke=ke, D=D)
+
+
+def dofs_of(op):
+    return [6 * op["i"] + k for k in range(6)] + [6 * op["j"] + k for k in range(6)]
+
+
+def assemble(ar, m, ops):
+    n = 6 * len(m["nodes"])
+    contrib = {}
+    for op in ops:
+        dd = dofs_of(op)
+        for a in range(12):
+            for bb in range(12):
+                if dd[a] <= dd[bb]:
+                    contrib.setdefault((dd[a], dd[bb]), []).append(op["ke"][a][bb])
+    for dof, k in m["springs"]:
+        contrib.setdefault((dof, dof), []).append(Fr(k))
+    K = {}
+    for (i, j), terms in contrib.items():
+        v = ar.r(sum(terms))
+        K[(i, j)] = v
+        K[(j, i)] = v
+    return K, n
+
+
+def row(K, n, i):
+    return [(j, K[(i, j)]) for j in range(n) if (i, j) in K]
+
+
+def ledger(m, g):
+    return sum((Fr(v) for v in m["loads"].get(g, [])), Fr(0))
+
+
+def prescribed(ar, m):
+    return {g: ar.r(sum(Fr(c) * Fr(v) for c, v in terms)) for g, terms in m["cons"].items()}
+
+
+# ---------------------------------------------------------------- factor, solve
+
+class Stop(Exception):
+    pass
+
+
+def factor(ar, K, free):
+    """K4's profile LDL^T loops (dense profile, natural order), with the pivot screen."""
+    p = ar.P
+    n = len(free)
+    Lr = [[Fr(0)] * n for _ in range(n)]
+    Dg = [Fr(0)] * n
+    for i in range(n):
+        if (free[i], free[i]) not in K or K[(free[i], free[i])] <= 0:
+            raise Stop("ZeroDiagonal/NegativeEnergy")
+    first = [min(j for j in range(i + 1) if (free[i], free[j]) in K) for i in range(n)]
+    for i in range(n):
+        work = [Fr(0)] * n
+        for j in range(first[i], i):
+            s = K.get((free[i], free[j]), Fr(0))
+            for kk in range(max(first[i], first[j]), j):
+                s = ar.r(s - ar.r(work[kk] * Lr[j][kk]))
+            work[j] = s
+            Lr[i][j] = ar.r(s / Dg[j])
+        piv = K[(free[i], free[i])]
+        canc = abs(piv)
+        for kk in range(first[i], i):
+            t = ar.r(work[kk] * Lr[i][kk])
+            piv = ar.r(piv - t)
+            canc = ar.r(canc + abs(t))
+        mops = 2 * (i - first[i]) + 2
+        if p is not None:
+            if not (piv * (Fr(2) ** p - mops) - 64 * mops * canc > 0):
+                raise Stop("Pivot")
+        Dg[i] = piv
+    return Lr, Dg
+
+
+def solve(ar, Lr, Dg, rhs):
+    n = len(rhs)
+    x = list(rhs)
+    for i in range(n):
+        for j in range(i):
+            if Lr[i][j] != 0:
+                x[i] = ar.r(x[i] - ar.r(Lr[i][j] * x[j]))
+    for i in range(n):
+        x[i] = ar.r(x[i] / Dg[i])
+    for i in reversed(range(n)):
+        v = x[i]
+        for j in range(i):
+            if Lr[i][j] != 0:
+                x[j] = ar.r(x[j] - ar.r(Lr[i][j] * v))
+    return x
+
+
+def exact_inverse(Mx):
+    n = len(Mx)
+    A = [list(r_) + [Fr(int(i == j)) for j in range(n)] for i, r_ in enumerate(Mx)]
+    for c in range(n):
+        piv = next(r_ for r_ in range(c, n) if A[r_][c] != 0)
+        A[c], A[piv] = A[piv], A[c]
+        pv = A[c][c]
+        A[c] = [v / pv for v in A[c]]
+        for r_ in range(n):
+            if r_ != c and A[r_][c] != 0:
+                f = A[r_][c]
+                A[r_] = [a - f * b for a, b in zip(A[r_], A[c])]
+    return [r_[n:] for r_ in A]
+
+
+def rcond_exact(K, free):
+    n = len(free)
+    if n == 0:
+        return Fr(1)
+    s = [Fr(2) ** (-(flog2(K[(g, g)]) // 2)) for g in free]
+    Kt = [[s[a] * K.get((free[a], free[b]), Fr(0)) * s[b] for b in range(n)] for a in range(n)]
+    Ki = exact_inverse(Kt)
+    n1 = max(sum(abs(Kt[i][j]) for i in range(n)) for j in range(n))
+    n2 = max(sum(abs(Ki[i][j]) for i in range(n)) for j in range(n))
+    return 1 / (n1 * n2)
+
+
+# ---------------------------------------------------------------- recovery
+
+def layout(m):
+    out = []
+    n = 6 * len(m["nodes"])
+    for g in range(n):
+        out.append((("u", g), "tr" if g % 6 < 3 else "ro", g in m["cons"]))
+    for nd in range(len(m["nodes"])):
+        out.append((("umag", nd), "tr", False))
+    for e, _ in enumerate(m["members"]):
+        for end in ("i", "j"):
+            for c in range(6):
+                out.append((("end", e, end, c), "fo" if c < 3 else "mo", False))
+    for s, _ in enumerate(m["stations"]):
+        for c in range(6):
+            out.append((("sta", s, c), "fo" if c < 3 else "mo", False))
+    for s, (dof, _) in enumerate(m["springs"]):
+        out.append((("spr", s), "fo" if dof % 6 < 3 else "mo", False))
+    for g in sorted(m["cons"]):
+        out.append((("rea", g), "fo" if g % 6 < 3 else "mo", False))
+    return out
+
+
+def recover(ar, m, ops, K, n, u):
+    r = ar.r
+    vals = list(u)
+    for nd in range(len(m["nodes"])):
+        vals.append(ar.sqrt(r(sum(u[6 * nd + k] ** 2 for k in range(3)))))
+    Qs, acts = [], []
+    for op in ops:
+        dd = dofs_of(op)
+        d = [None] * 12
+        for blk in range(4):
+            for rr in range(3):
+                d[3 * blk + rr] = r(sum(op["axes"][rr][c] * u[dd[3 * blk + c]] for c in range(3)))
+        inv = op["inv"]
+        e = [None] * 6
+        e[0] = r(d[6] - d[0])
+        e[1] = r(d[9] - d[3])
+        e[2] = r(d[5] + inv * d[1] - inv * d[7])
+        e[3] = r(d[11] + inv * d[1] - inv * d[7])
+        e[4] = r(d[4] - inv * d[2] + inv * d[8])
+        e[5] = r(d[10] - inv * d[2] + inv * d[8])
+        bz, by = op["bz"], op["by"]
+        q = [r(op["axial"] * e[0]), r(op["torsion"] * e[1]), r(4 * bz * e[2] + 2 * bz * e[3]),
+             r(2 * bz * e[2] + 4 * bz * e[3]), r(4 * by * e[4] + 2 * by * e[5]), r(2 * by * e[4] + 4 * by * e[5])]
+        vy = r(inv * q[2] + inv * q[3])
+        vz = r(-inv * q[4] - inv * q[5])
+        a = [-q[0], vy, vz, -q[1], q[4], q[2], q[0], -vy, -vz, q[1], q[5], q[3]]
+        Qs.append(q)
+        acts.append(a)
+    for a in acts:
+        vals.extend(a)
+    for (e_, t) in m["stations"]:
+        q, a = Qs[e_], acts[e_]
+        t = Fr(t)
+        my = r(t * q[5] + t * q[4] - q[4])
+        mz = r(t * q[3] + t * q[2] - q[2])
+        vals.extend([a[6], a[7], a[8], a[9], my, mz])
+    for dof, k in m["springs"]:
+        vals.append(r(-Fr(k) * u[dof]))
+    for g in sorted(m["cons"]):
+        vals.append(r(sum(v * u[j] for j, v in row(K, n, g)) - ledger(m, g)))
+    return vals, Qs
+
+
+# ---------------------------------------------------------------- one precision
+
+def solve_at(m, P, gate="k4", keep=False):
+    """K4's solve at P: formation, assembly, rhs, factor, condition screen, solve,
+    residual gate at P+64 (P at 1024) with at most three corrections, recovery.
+    Returns dict(u, vals, ops, K) or raises Stop."""
+    ar = Ar(P)
+    ops = [form_member(ar, m["nodes"], mb) for mb in m["members"]]
+    K, n = assemble(ar, m, ops)
+    u = [Fr(0)] * n
+    for g, v in prescribed(ar, m).items():
+        u[g] = v
+    free = [g for g in range(n) if g not in m["cons"]]
+    rhs = []
+    for i in free:
+        s = ledger(m, i)
+        for j, kij in row(K, n, i):
+            if j in m["cons"] and u[j] != 0:
+                s -= kij * u[j]
+        rhs.append(ar.r(s))
+    info = dict(corrections=0)
+    if free:
+        Lr, Dg = factor(ar, K, free)
+        if P is not None and rcond_exact(K, free) <= Fr(1, 2 ** (P - 1)):
+            raise Stop("Condition")
+        uf = solve(ar, Lr, Dg, rhs)
+        if P is not None:
+            q = P + 64 if P < 1024 else P
+            arq = Ar(q)
+            opsq = [form_member(arq, m["nodes"], mb) for mb in m["members"]]
+            Kq, _ = assemble(arq, m, opsq)
+            Abar = bounded_operator(m, opsq, Kq) if gate == "abs" else None
+            prior = None
+            while True:
+                for a, g in enumerate(free):
+                    u[g] = uf[a]
+                rows = []
+                for i in free:
+                    rr = ledger(m, i)
+                    dd = abs(ledger(m, i))
+                    cnt = 0
+                    for j, kij in row(Kq, n, i):
+                        if kij == 0 or u[j] == 0:
+                            continue
+                        cnt += 1
+                        rr -= kij * u[j]
+                        dd += abs(kij * u[j]) if gate == "k4" else 0
+                    if gate == "abs":
+                        dd += sum(Abar.get((i, j), 0) * abs(u[j]) for j in range(n))
+                    mm = 2 * cnt + 2
+                    passes = abs(rr) * (Fr(2) ** P - mm) <= 64 * mm * dd
+                    ratio = float(abs(rr) * (Fr(2) ** P - mm) / (64 * mm * dd)) if dd else (0.0 if rr == 0 else math.inf)
+                    rows.append((passes, ratio, ar.r(rr)))
+                worst = max(x[1] for x in rows)
+                if all(x[0] for x in rows):
+                    break
+                if info["corrections"] == 3 or (prior is not None and worst >= prior):
+                    raise Stop("ResidualGate(worst ratio %.3g)" % worst)
+                prior = worst
+                delta = solve(ar, Lr, Dg, [x[2] for x in rows])
+                uf = [ar.r(a + b) for a, b in zip(uf, delta)]
+                info["corrections"] += 1
+            info["residual_worst"] = worst
+        for a, g in enumerate(free):
+            u[g] = uf[a]
+    vals, Qs = recover(ar, m, ops, K, n, u)
+    return dict(P=P, u=u, vals=vals, ops=ops, K=K, n=n, info=info)
+
+
+def exact_state(m):
+    """Exact truth: exact formation, exact solve, exact recovery."""
+    ar = Ar(None)
+    ops = [form_member(ar, m["nodes"], mb) for mb in m["members"]]
+    K, n = assemble(ar, m, ops)
+    u = [Fr(0)] * n
+    for g, v in prescribed(ar, m).items():
+        u[g] = v
+    free = [g for g in range(n) if g not in m["cons"]]
+    if free:
+        Kff = [[K.get((i, j), Fr(0)) for j in free] for i in free]
+        rhs = []
+        for i in free:
+            s = ledger(m, i)
+            for j, kij in row(K, n, i):
+                if j in m["cons"]:
+                    s -= kij * u[j]
+            rhs.append(s)
+        Ki = exact_inverse(Kff)
+        uf = [sum(Ki[a][b] * rhs[b] for b in range(len(free))) for a in range(len(free))]
+        for a, g in enumerate(free):
+            u[g] = uf[a]
+    vals, _ = recover(ar, m, ops, K, n, u)
+    return dict(u=u, vals=vals)
+
+
+# ---------------------------------------------------------------- bodies, E
+
+def bodies(m):
+    nn = len(m["nodes"])
+    parent = list(range(nn))
+
+    def f(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+    for mb in m["members"]:
+        parent[f(mb["i"])] = f(mb["j"])
+    roots = sorted({f(a) for a in range(nn)}, key=lambda x: min(k for k in range(nn) if f(k) == x))
+    idx = {rt: b for b, rt in enumerate(roots)}
+    return [idx[f(a)] for a in range(nn)]
+
+
+def row_body(m, key, nb):
+    t = key[0]
+    if t in ("u", "rea"):
+        return nb[key[1] // 6]
+    if t == "umag":
+        return nb[key[1]]
+    if t == "end":
+        return nb[m["members"][key[1]]["i"]]
+    if t == "sta":
+        return nb[m["members"][m["stations"][key[1]][0]]["i"]]
+    if t == "spr":
+        return nb[m["springs"][key[1]][0] // 6]
+
+
+def extents(m):
+    nb = bodies(m)
+    out = []
+    for b in range(max(nb) + 1):
+        pts = [m["nodes"][a] for a in range(len(nb)) if nb[a] == b]
+        if len(pts) <= 1:
+            out.append(0.0)
+            continue
+        d = [max(p[k] for p in pts) - min(p[k] for p in pts) for k in range(3)]
+        out.append(math.sqrt((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]))
+    return out
+
+
+def gfactor(mb, nodes):
+    """g = 2^ceil(log2(|y_ref| / |y_perp|)), from the exact geometry (floats are exact inputs)."""
+    xi, xj = nodes[mb["i"]], nodes[mb["j"]]
+    d = [Fr(xj[k]) - Fr(xi[k]) for k in range(3)]
+    y = [Fr(c) for c in mb["y"]]
+    dd = sum(c * c for c in d)
+    yy = sum(c * c for c in y)
+    yd = sum(a * b for a, b in zip(y, d))
+    perp2 = yy - yd * yd / dd   # |y_perp|^2
+    ratio2 = yy / perp2
+    k = 0
+    while Fr(4) ** k < ratio2:
+        k += 1
+    return Fr(2) ** k
+
+
+def bounded_operator(m, ops, K):
+    """A-bar = sum_e g_e * Bbar^T |D| Bbar, plus |k| of springs (a dict over (i, j))."""
+    A = {}
+    for op, mb in zip(ops, m["members"]):
+        g = gfactor(mb, m["nodes"])
+        inv = abs(op["inv"])
+        Bb = [[Fr(0)] * 12 for _ in range(6)]
+        for k in range(3):
+            Bb[0][k] = Bb[0][6 + k] = Fr(1)
+            Bb[1][3 + k] = Bb[1][9 + k] = Fr(1)
+            for rw, rot in ((2, 3), (3, 9), (4, 3), (5, 9)):
+                Bb[rw][k] = Bb[rw][6 + k] = inv
+                Bb[rw][rot + k] = Fr(1)
+        Dabs = [[Fr(0)] * 6 for _ in range(6)]
+        Dabs[0][0] = abs(op["axial"])
+        Dabs[1][1] = abs(op["torsion"])
+        for base, c in ((2, abs(op["bz"])), (4, abs(op["by"]))):
+            Dabs[base][base] = Dabs[base + 1][base + 1] = 4 * c
+            Dabs[base][base + 1] = Dabs[base + 1][base] = 2 * c
+        dd = dofs_of(op)
+        for a in range(12):
+            for b_ in range(12):
+                v = sum(Bb[r1][a] * Dabs[r1][r2] * Bb[r2][b_] for r1 in range(6) for r2 in range(6))
+                if v:
+                    A[(dd[a], dd[b_])] = A.get((dd[a], dd[b_]), 0) + g * v
+    for dof, k in m["springs"]:
+        A[(dof, dof)] = A.get((dof, dof), 0) + abs(Fr(k))
+    return A
+
+
+def formation_scale(m, st):
+    """DS1's E per row (revision 5a.3 section 3.1 / 4.1.6.2), from the state st
+    (the verification state), exactly; returns {(body, kind): E} uncoupled and the per-row E."""
+    u = st["u"]
+    ops = st["ops"]
+    nb = bodies(m)
+    lay = layout(m)
+    Erow = {}
+    Q_E = []
+    act_E = []
+    for op, mb in zip(ops, m["members"]):
+        g = gfactor(mb, m["nodes"])
+        i, j = op["i"], op["j"]
+        Nt = [sum(abs(u[6 * a + k]) for k in range(3)) for a in (i, j)]
+        Nr = [sum(abs(u[6 * a + 3 + k]) for k in range(3)) for a in (i, j)]
+        inv = abs(op["inv"])
+        tr = inv * (Nt[0] + Nt[1])
+        Ee = [Nt[0] + Nt[1], Nr[0] + Nr[1], Nr[0] + tr, Nr[1] + tr, Nr[0] + tr, Nr[1] + tr]
+        bz, by = abs(op["bz"]), abs(op["by"])
+        EQ = [abs(op["axial"]) * Ee[0], abs(op["torsion"]) * Ee[1], 4 * bz * Ee[2] + 2 * bz * Ee[3],
+              2 * bz * Ee[2] + 4 * bz * Ee[3], 4 * by * Ee[4] + 2 * by * Ee[5], 2 * by * Ee[4] + 4 * by * Ee[5]]
+        EQ = [g * x for x in EQ]
+        EVy = inv * (EQ[2] + EQ[3])
+        EVz = inv * (EQ[4] + EQ[5])
+        Q_E.append(EQ)
+        act_E.append([EQ[0], EVy, EVz, EQ[1], EQ[4], EQ[2], EQ[0], EVy, EVz, EQ[1], EQ[5], EQ[3]])
+    Abar = bounded_operator(m, ops, st["K"])
+    n = st["n"]
+    for idx, (key, kind, inp) in enumerate(lay):
+        if kind not in ("fo", "mo") or inp:
+            continue
+        t = key[0]
+        if t == "end":
+            e_, end, c = key[1], key[2], key[3]
+            Erow[idx] = act_E[e_][(0 if end == "i" else 6) + c]
+        elif t == "sta":
+            s, c = key[1], key[2]
+            e_, tt = m["stations"][s]
+            tt = abs(Fr(tt))
+            EQ = Q_E[e_]
+            if c < 4:
+                Erow[idx] = act_E[e_][6 + c]
+            elif c == 4:
+                Erow[idx] = tt * EQ[5] + tt * EQ[4] + EQ[4]
+            else:
+                Erow[idx] = tt * EQ[3] + tt * EQ[2] + EQ[2]
+        elif t == "spr":
+            dof, k = m["springs"][key[1]]
+            Erow[idx] = abs(Fr(k)) * abs(u[dof])
+        elif t == "rea":
+            gg = key[1]
+            Erow[idx] = abs(ledger(m, gg)) + sum(Abar.get((gg, j), 0) * abs(u[j]) for j in range(n))
+    E = {}
+    for idx, v in Erow.items():
+        key, kind, _ = lay[idx]
+        b = row_body(m, key, nb)
+        E[(b, kind)] = max(E.get((b, kind), Fr(0)), v)
+    return E, Erow
+
+
+# ---------------------------------------------------------------- stop rule, publication
+
+def coupled(s, Lb, fl=None):
+    """Item 6 coupling on a dict kind->value; fl: rounding (None exact)."""
+    r = (lambda x: x) if fl is None else fl
+    if Lb == 0:
+        return dict(s)
+    Lb = Fr(Lb)
+    return dict(tr=max(s["tr"], r(Lb * s["ro"])), ro=max(s["ro"], r(s["tr"] / Lb)),
+                fo=max(s["fo"], r(s["mo"] / Lb)), mo=max(s["mo"], r(Lb * s["fo"])))
+
+
+def e_hat(E, b, Lb):
+    """Item 6a's binary64 coupling of the published E (rounded upward): returns (e_fo, e_mo) as Fractions."""
+    Efo = Fr(up64(E.get((b, "fo"), 0)))
+    Emo = Fr(up64(E.get((b, "mo"), 0)))
+    if Lb == 0:
+        return Efo, Emo
+    efo = max(Efo, f64(Emo / Fr(Lb)))
+    emo = max(Emo, f64(Fr(Lb) * Efo))
+    return efo, emo
+
+
+def stop_rule(m, cand, ver, rule, E=None):
+    """Returns (accepted, first failing row, S* used). rule in current, ii, iii."""
+    lay = layout(m)
+    nb = bodies(m)
+    ext = extents(m)
+    P2 = ver["P"]
+    p = cand["P"]
+    ar2 = Ar(P2)
+    nbodies = len(ext)
+    S = [dict(tr=Fr(0), ro=Fr(0), fo=Fr(0), mo=Fr(0)) for _ in range(nbodies)]
+    for idx, (key, kind, inp) in enumerate(lay):
+        if inp:
+            continue
+        b = row_body(m, key, nb)
+        S[b][kind] = max(S[b][kind], abs(ver["vals"][idx]))
+    Ss = [coupled(S[b], ext[b], ar2.r) for b in range(nbodies)]
+    V = [dict(fo=Fr(0), mo=Fr(0)) for _ in range(nbodies)]
+    if rule in ("ii", "iii"):
+        for b in range(nbodies):
+            efo, emo = e_hat(E, b, ext[b])
+            V[b] = dict(fo=Fr(2) ** (8 - 2 * p) * efo, mo=Fr(2) ** (8 - 2 * p) * emo)
+            if rule == "iii" and p == 512:
+                Ss[b]["fo"] = max(Ss[b]["fo"], Fr(up64(Fr(2) ** -438 * efo)))
+                Ss[b]["mo"] = max(Ss[b]["mo"], Fr(up64(Fr(2) ** -438 * emo)))
+    for idx, (key, kind, inp) in enumerate(lay):
+        b = row_body(m, key, nb)
+        q2 = ver["vals"][idx]
+        M = max(abs(q2), Ss[b][kind])
+        v = V[b].get(kind, Fr(0))
+        if abs(cand["vals"][idx] - q2) + v > EPS * M:
+            return False, (key, kind), Ss
+    return True, None, Ss
+
+
+def schedule(m, rule, gate="k4", cache=None):
+    """K4's run_schedule with the chosen stop rule. Returns a result dict."""
+    cache = {} if cache is None else cache
+
+    def get(P):
+        if P not in cache:
+            try:
+                cache[P] = solve_at(m, P, gate)
+            except Stop as s:
+                cache[P] = s
+        return cache[P]
+    attempts = []
+    c = 0
+    pending = None
+    precs = [128, 256, 512, 1024]
+    while c < 3:
+        p = precs[c]
+        cand = pending if pending is not None else get(p)
+        pending = None
+        if isinstance(cand, Stop):
+            attempts.append((p, "failed:%s" % cand))
+            c += 1
+            continue
+        ver = get(precs[c + 1])
+        if isinstance(ver, Stop):
+            attempts.append((p, "verification failed:%s" % ver))
+            c += 2
+            continue
+        E = formation_scale(m, ver)[0] if rule in ("ii", "iii") else None
+        ok, first, Ss = stop_rule(m, cand, ver, rule, E)
+        if ok:
+            attempts.append((p, "accepted"))
+            return dict(selected=p, cand=cand, ver=ver, E=E, attempts=attempts)
+        attempts.append((p, "rejected:%s" % (first,)))
+        if c + 1 < 3:
+            pending = ver
+        c += 1
+    return dict(selected=None, attempts=attempts)
+
+
+def publish(m, res, rule):
+    """Published rows, S* on published rows (items 4-6, + item 6a at 512 under iii), classes, bounds."""
+    lay = layout(m)
+    nb = bodies(m)
+    ext = extents(m)
+    pub = [f64(v) for v in res["cand"]["vals"]]
+    nbodies = len(ext)
+    S = [dict(tr=Fr(0), ro=Fr(0), fo=Fr(0), mo=Fr(0)) for _ in range(nbodies)]
+    for idx, (key, kind, inp) in enumerate(lay):
+        if inp:
+            continue
+        b = row_body(m, key, nb)
+        S[b][kind] = max(S[b][kind], abs(pub[idx]))
+    Sp = [coupled(S[b], ext[b], f64) for b in range(nbodies)]
+    if rule == "iii" and res["selected"] == 512:
+        for b in range(nbodies):
+            efo, emo = e_hat(res["E"], b, ext[b])
+            Sp[b]["fo"] = max(Sp[b]["fo"], Fr(up64(Fr(2) ** -438 * efo)))
+            Sp[b]["mo"] = max(Sp[b]["mo"], Fr(up64(Fr(2) ** -438 * emo)))
+    rows = []
+    for idx, (key, kind, inp) in enumerate(lay):
+        if inp:
+            rows.append((key, kind, pub[idx], "input_derived", None))
+            continue
+        b = row_body(m, key, nb)
+        s = Sp[b][kind]
+        t = f64(Fr(2) ** -34 * s)
+        if s < Fr(2) ** -988 or abs(pub[idx]) < t:
+            rows.append((key, kind, pub[idx], "absolute", Fr(up64(s / Fr(2) ** 64))))
+        else:
+            rows.append((key, kind, pub[idx], "relative", None))
+    return rows, Sp
+
+
+def honesty(m, rows, truth):
+    """Worst claim ratio |q_pub - q*| / claim over rows (claim b or 1e-9|q*|)."""
+    worst = (Fr(0), None)
+    for (key, kind, qp, cls, b), qt in zip(rows, truth["vals"]):
+        err = abs(qp - qt)
+        if cls == "input_derived":
+            continue
+        if cls == "absolute":
+            if err == 0:
+                ratio = Fr(0)
+            elif b == 0:
+                ratio = None  # infinite
+            else:
+                ratio = err / b
+        else:
+            if err == 0:
+                ratio = Fr(0)
+            elif qt == 0:
+                ratio = None
+            else:
+                ratio = err / (Fr(1, 10 ** 9) * abs(qt))
+        if ratio is None:
+            return ("inf", key, cls)
+        if ratio > worst[0]:
+            worst = (ratio, key, cls)
+    return (float(worst[0]),) + tuple(worst[1:])
+
+
+def run(m, rules=("current", "iii"), gate="k4", truth=True, verbose=True):
+    cache = {}
+    out = {}
+    tr = exact_state(m) if truth else None
+    for rule in rules:
+        res = schedule(m, rule, gate, cache)
+        rec = dict(selected=res["selected"], attempts=res["attempts"])
+        if res["selected"] is not None:
+            rows, Sp = publish(m, res, rule)
+            rec["classes"] = {c: sum(1 for r_ in rows if r_[3] == c) for c in ("relative", "absolute", "input_derived")}
+            if tr is not None:
+                rec["honesty"] = honesty(m, rows, tr)
+            rec["S_pub"] = [{k: float(v) for k, v in s.items()} for s in Sp]
+            if res.get("E"):
+                rec["E"] = {"%d/%s" % k: float(v) for k, v in res["E"].items()}
+            rec["_rows"] = rows
+        out[rule] = rec
+        if verbose:
+            print(m["name"], rule, {k: v for k, v in rec.items() if k != "_rows"})
+    return out, tr

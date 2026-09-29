@@ -1,0 +1,79 @@
+"""V4: an element-level adversary for R3's unmeasured term e_q (no assembly-level loss).
+TILT-LEVER: LEVER2's exact dyadic lever (tip C, link node B, pivot A, link ground G, branch D; the tip
+eliminated first), with NO tip spring. Instead the lever arm A-C is tilted by t/L = 2^-290 (C at
+(2^k, -2^(k-290))), so its (uy,uy) entry is 12EI/L^3 + (EA/L)(t/L)^2 and the axial part is a tail below
+half an ulp at 576 bits: lost identically at 256, 512 and in W's q-formed contributions (q = 576).
+The whole structure is prescribed a rigid rotation omega about the link node B (every prescribed value is
+an exact binary64: A (0, omega), G (omega, 0), D (0, omega)), so the truth is rigid (zero forces but the
+branch's P), while the formed arm (tail lost) is not rotation-invariant and leaks a force at C that the
+lever amplifies by L/b = 2^k into the link. B's rigid displacement is 0, so the link's error is
+representable at every precision."""
+import os, sys, json, time, math
+HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
+sys.path.insert(0, ROOT); sys.path.insert(0, os.path.join(ROOT, "delta_r2"))
+from fractions import Fraction as Fr
+from v4emu import model, member, fix, load, exact_state, layout, flog2, Ar, form_member, assemble, Stop
+import v4emu_r2 as R2
+from r2_lever2 import ldlt_dyadic
+R2.W_K = "contributions"; R2.GATE_STATE = "best"
+
+def tilt_lever(k, s, w_exp=-10, Pb=None):
+    L = 2.0 ** k
+    t = 2.0 ** (k - 290)
+    om = 2.0 ** w_exp
+    m = model("TILT-LEVER-k%d-s%d" % (k, s), [(L, -t, 0), (-1, 0, 0), (0, 0, 0), (-1, -1, 0), (0, 0, 1)])
+    C, B, A, G, D = 0, 1, 2, 3, 4
+    member(m, B, A, E=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0, G=1.0)
+    Eac = 2.0 ** (s + 3 * k)                        # E*I/L^3 = 2^s (I = 1)
+    Aac = 2.0 ** (6 - 2 * k)                        # EA/L = 2^(s+6): (EA/L)(t/L)^2 = 2^(s-574) < 1/2 ulp_576(12*2^s)
+    member(m, A, C, E=Eac, A=Aac, Iy=1.0, Iz=1.0, J=1.0, G=1.0)
+    member(m, G, B, E=4.0, A=1.0, Iy=1.0/64, Iz=1.0/64, J=1.0, G=1.0, y=(1, 0, 0))
+    pb = Pb if Pb else 1.0
+    member(m, A, D, E=pb, A=1.0, Iy=1.0 / pb, Iz=1.0 / pb, J=pb, G=1.0, y=(1, 0, 0))
+    for nd in range(4): fix(m, nd, (2, 3, 4))
+    fix(m, D, (3, 4))
+    # rigid rotation omega about z through B = (-1, 0): u = omega * (-(y - 0), x + 1)
+    fix(m, A, (0,), 0.0); fix(m, A, (1,), om)                  # A rz free (the pivot)
+    fix(m, G, (0,), om); fix(m, G, (1,), 0.0); fix(m, G, (5,), om)
+    fix(m, B, (0,), 0.0)                                       # B: uy, rz free (rigid values 0, omega)
+    fix(m, D, (0,), 0.0); fix(m, D, (1,), om); fix(m, D, (5,), om)
+    # C: ux, uy, rz free
+    return m
+
+out = {}
+for (k, s) in [(90, 40), (100, 40), (110, 20)]:
+    m = tilt_lever(k, s)
+    ok, K = ldlt_dyadic(m)
+    rec = dict(k=k, s=s, ldlt_dyadic=ok if isinstance(ok, bool) else False)
+    if ok is not True:
+        rec["ldlt_detail"] = str(K)
+    st = R2.solve_r2(m, 512, "hybrid"); E, _ = R2.E_r2(m, st)
+    efo = float(R2.ehat(E, 0, R2.extents(m)[0])[0])
+    P = 2.0 ** (math.floor(math.log2(efo)) - 438)
+    m = tilt_lever(k, s, Pb=P); load(m, 4, 2, P)
+    t0 = time.time()
+    res = R2.schedule_r2(m, "hybrid", True)
+    rec.update(efo=efo, P=P, selected=res["selected"], attempts=[str(a) for a in res["attempts"]])
+    tr = exact_state(m)
+    if res["selected"] is not None:
+        rows, Sp, Sc = R2.publish_r2(m, res)
+        h = R2.honesty_rows(rows, tr)
+        rec["honesty"] = [h[0], str(h[1]), h[2]]
+        rec["worst_rows"] = sorted([(float(abs(qp - qt) / b) if (cls == "absolute" and b) else 0.0, str(key), float(qp), float(qt), cls, None if b is None else float(b))
+                                    for (key, kind, qp, cls, b), qt in zip(rows, tr["vals"]) if kind in ("fo", "mo")], reverse=True)[:4]
+        rec["g5a"] = [str(x) for x in R2.g5a(m, res, rows, Sc)]
+    lay = layout(m)
+    dbg = {}
+    for P1, P2 in ((256, 512), (512, 1024)):
+        try:
+            s1, s2 = R2.solve_r2(m, P1, "hybrid"), R2.solve_r2(m, P2, "hybrid")
+            diffs = sorted(((abs(a - b), str(key)) for (key, kind, inp), a, b in zip(lay, s1["vals"], s2["vals"]) if a != b), reverse=True)[:3]
+            dbg["%d-%d" % (P1, P2)] = [(float(d), kk) for d, kk in diffs]
+        except Stop as e:
+            dbg["%d-%d" % (P1, P2)] = "stop:%s" % e
+    rec["top_differences"] = dbg
+    link = [i for i, x in enumerate(lay) if x[0] == ("end", 2, "i", 0)][0]
+    rec["truth_link_force"] = float(tr["vals"][link])
+    out[m["name"]] = rec
+    print(json.dumps(rec, indent=1, default=str), "(%.1fs)" % (time.time() - t0), flush=True)
+json.dump(out, open(os.path.join(HERE, "r3_tilt.json"), "w"), indent=1, default=str)

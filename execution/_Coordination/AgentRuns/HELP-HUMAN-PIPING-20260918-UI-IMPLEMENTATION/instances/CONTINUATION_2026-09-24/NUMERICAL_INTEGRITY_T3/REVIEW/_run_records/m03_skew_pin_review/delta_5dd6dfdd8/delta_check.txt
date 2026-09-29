@@ -1,0 +1,48 @@
+RV10 delta check at 5dd6dfdd8 (git reads only, in <wt>/numerics after git fetch).
+
+$ git rev-parse origin/codex/piping-m03-skew-pin-20260928
+5dd6dfdd8fe1e49ca271190439b27f61e2d130f5
+
+$ git log --format='%H %P %s' 1d105d6337..5dd6dfdd8
+5dd6dfdd8fe1e49ca271190439b27f61e2d130f5 1d105d63376fc949a0133eaacac201a46515f208 T3: the skew M03 pin records, RV10's SHOULD-FIX S1 and S2 (records only)
+
+$ git diff --numstat 1d105d6337 5dd6dfdd8
+6	1	T3/IMPLEMENTATION/M03_SKEW_PIN/RETURN.md
+3	3	T3/IMPLEMENTATION/M03_SKEW_PIN/SHA256SUMS
+4	2	T3/IMPLEMENTATION/M03_SKEW_PIN/_run_records/t9/t9_summary.txt
+5	3	T3/IMPLEMENTATION/M03_SKEW_PIN/_run_records/trees.txt
+
+paths outside T3/IMPLEMENTATION/M03_SKEW_PIN/: 0
+under tools/, .github/, projects/chirality-piping/{core,fixtures,validation,tools,.github,schemas}: 0
+tree of projects/chirality-piping minus execution/ identical at both heads: core-same
+  projects/chirality-piping/core tree: 22591d89e66e20c7ba5ea6fc961c3bdf79870e52 -> 22591d89e66e20c7ba5ea6fc961c3bdf79870e52 same
+  projects/chirality-piping/fixtures tree: 4186e2dca73aff8a44b393e2fd8059e2e29b1dd1 -> 4186e2dca73aff8a44b393e2fd8059e2e29b1dd1 same
+  projects/chirality-piping/validation tree: 335ca1ecce97b8fdbfc8a33ef1b57208d062fe52 -> 335ca1ecce97b8fdbfc8a33ef1b57208d062fe52 same
+  projects/chirality-piping/tools tree: 88f2c51dd30a16114a866e03b1d589aea0f71e10 -> 88f2c51dd30a16114a866e03b1d589aea0f71e10 same
+  projects/chirality-piping/.github tree: e38329e6f7f2e17701a18ebfe165981877eb07fe -> e38329e6f7f2e17701a18ebfe165981877eb07fe same
+  projects/chirality-piping/schemas tree: 0b7c5480037624d85298023c0d2511f9df3bb373 -> 0b7c5480037624d85298023c0d2511f9df3bb373 same
+  projects/chirality-piping/apps tree: 3a492e71c698a41fd1c506354a5f9704e7188862 -> 3a492e71c698a41fd1c506354a5f9704e7188862 same
+  root tools tree: same
+  root .github tree: same
+
+SHA256SUMS at 5dd6dfdd8 (full git archive in <wt>/scratch/rv10/full5dd):
+  entries 60, files other than SHA256SUMS 60
+    60 OK
+  listed vs present (comm -3; empty = identical sets):
+
+Test-file bytes at 5dd6dfdd8 against the corrected records:
+  824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b  frame_kernel/tests/m03_skew_scope.rs
+  be78e9788fde45c3ffe054225e625af3c3228590c23e8c41a2c7fd7ca62d6f20  nonlinear_integration/src/structural_adapter/k1_tests.rs
+  occurrences of 824fc637… / be78e978…: trees.txt 1 / 1; t9/t9_summary.txt 1 / 1
+  stale hashes 39276069…/4f34c248… anywhere in the folder: 0 files; '+149' anywhere: 2 files (only inside the two correction notes, which quote the old text); '+150 lines appended' in trees.txt: 1
+
+Machine paths in the four changed files (/usr/bin/grep -E, the RV10 pattern) and the harness's MACHINE_ABS_PATH_RE:
+  RETURN.md: 0
+  SHA256SUMS: 0
+  _run_records/t9/t9_summary.txt: 0
+  _run_records/trees.txt: 0
+
+GEN-8 at 5dd6dfdd8 (the full archive; outside a Git work tree the self-check walks every file):
+$ cd <wt>/scratch/rv10/full5dd && PYTHONDONTWRITEBYTECODE=1 <VENV>/bin/python -m pytest tools/practitioner_harness/test_live_baseline.py -k gen8 -p no:cacheprovider -q
+1 passed, 10 deselected in 22.04s
+The harness's MACHINE_ABS_PATH_RE applied directly to every file of M03_SKEW_PIN/ at 5dd6dfdd8 (including .txt and .log): 61 files, 0 hits

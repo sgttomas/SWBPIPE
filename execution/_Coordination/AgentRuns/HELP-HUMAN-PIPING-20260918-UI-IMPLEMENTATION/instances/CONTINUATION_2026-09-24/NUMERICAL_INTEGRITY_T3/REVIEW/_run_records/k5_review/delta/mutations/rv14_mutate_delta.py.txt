@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""RV14 (independent reviewer of K5): mutation patches, written independently of
+I14's mutate_k5.py (the re-killed mutants implement the RETURN §6 table's
+descriptions; RV14-M* are the reviewer's own). Each patch is an exact text
+replacement asserted to match exactly once in a clean archive of b379e5b27 (RV14-M5: of 28517eaaa).
+Usage: rv14_mutate.py <core-dir> <id>"""
+import sys
+
+core, mid = sys.argv[1], sys.argv[2]
+RB = core + "/solver/frame_kernel/src/rigid_body.rs"
+SA = core + "/solver/nonlinear_integration/src/structural_adapter.rs"
+
+OFFSET = (
+    "                offset[axis]\n"
+    "                    .add(coordinates[near][axis])\n"
+    "                    .map_err(|_| RANGE)?;\n"
+    "                offset[axis]\n"
+    "                    .add(-coordinates[far][axis])\n"
+    "                    .map_err(|_| RANGE)?;\n"
+)
+TIE_CHECK = (
+    "        for &[a, b] in &self.body.ties {\n"
+    "            let d = difference3(&translations[a], &translations[b])?;\n"
+    "            if !d.iter().all(Expansion::is_zero) {\n"
+    "                return Ok(None);\n"
+    "            }\n"
+    "        }\n"
+)
+TIE_HEAD = (
+    "        for &[a, b] in &self.body.ties {\n"
+    "            let d = difference3(&translations[a], &translations[b])?;\n"
+)
+DIRECTIONAL = (
+    "                (GroundKind::Translation, None) => {\n"
+    "                    let mut action = Expansion::default();\n"
+    "                    for axis in 0..3 {\n"
+    "                        for &term in &u[axis].terms {\n"
+    "                            action.add_product(ground.direction[axis], term, 0)?;\n"
+    "                        }\n"
+    "                    }\n"
+    "                    action.is_zero()\n"
+    "                }\n"
+)
+
+MUTANTS = {
+    # Re-kills (RETURN §6's descriptions, re-implemented)
+    "K5-12": [(RB, OFFSET, "                let _ = (near, far, &mut offset[axis]);\n")],
+    "K5-M1": [
+        (RB, "    for &offset in &cycle_rounded {\n", "    for &offset in cycle_rounded.iter().take(0) {\n"),
+        (RB, TIE_HEAD,
+         "        for (&[a, b], _) in self.body.ties.iter().zip(&self.body.tree).filter(|(_, t)| **t) {\n"
+         "            let d = difference3(&translations[a], &translations[b])?;\n"),
+    ],
+    "K5-M6": [(RB, TIE_HEAD, "        return Ok(Some(translations));\n" + TIE_HEAD)],
+    "K5-M9": [(SA, "            if !qualified {\n                if let Some(w4) = &self.w4 {\n",
+               "            if true {\n                if let Some(w4) = &self.w4 {\n")],
+    "K5-M13": [(SA, "                    if force_scale.is_unscaled() {\n                        Some(g)\n",
+                "                    if true || force_scale.is_unscaled() {\n                        Some(g)\n")],
+    "K5-M17": [(RB, DIRECTIONAL,
+                "                (GroundKind::Translation, None) => {\n"
+                "                    let mut dot = 0.0_f64;\n"
+                "                    for axis in 0..3 {\n"
+                "                        dot += ground.direction[axis] * u[axis].round().unwrap_or(f64::NAN);\n"
+                "                    }\n"
+                "                    dot == 0.0\n"
+                "                }\n")],
+    "K1-PIN-BINARY64": [(SA,
+                         "        solve_prepared(structural::prepare_structural_binary64(&system)?, mode)\n    }\n",
+                         "        solve_prepared(structural::prepare_structural(&system)?, mode)\n    }\n")],
+    # The reviewer's own
+    # RV14-M1: the exact tie check dropped from the witness verification (grounds kept).
+    "RV14-M1": [(RB, TIE_CHECK, "")],
+    # RV14-M2: curved-vs-curved coordinate agreement at a curved-only node dropped.
+    "RV14-M2": [(SA, "let recorded = evidence.coordinates[global].or(curved_points[l]);",
+                 "let recorded = evidence.coordinates[global];")],
+    # RV14-M3: W4 ignores positive-spring grounds.
+    "RV14-M3": [(SA, "            .chain(evidence.spring_ground.iter().copied())\n",
+                 "            .chain(evidence.spring_ground.iter().copied().take(0))\n")],
+    # RV14-M4: W4's unresolved rank proceeds to the matrix gate (K5-C2 silently dropped).
+    "RV14-M4": [(SA, "            _ => Err(StructuralError::NumericallyUnresolved {\n"
+                     "                reason: \"constrained-body rank unresolved\",\n",
+                 "            _ => Ok(()),\n"
+                 "            #[allow(unreachable_patterns)]\n"
+                 "            _ => Err(StructuralError::NumericallyUnresolved {\n"
+                 "                reason: \"constrained-body rank unresolved\",\n")],
+    # RV14 re-run of I14's declared-equivalent mutant: the prefilter's row loop removed.
+    "K5-PREFILTER": [(RB, (
+        "        for row in self.rows {\n"
+        "            let mut dot = 0.0_f64;\n"
+        "            for i in 0..6 {\n"
+        "                dot += row[i] * scaled[i];\n"
+        "            }\n"
+        "            if !(dot.abs() <= PREFILTER * size) {\n"
+        "                return None;\n"
+        "            }\n"
+        "        }\n"), "        let _ = (self.rows, PREFILTER);\n")],
+    # RV14-M5 (delta check at 28517eaaa): RV14-4's exactness clause dropped (finiteness only).
+    "RV14-M5": [(RB, "        if (0..3).any(|i| !(t[i].is_finite() && t[i] * self.length == r[i])) {\n",
+                 "        if (0..3).any(|i| !t[i].is_finite()) {\n")],
+
+}
+
+if mid != "NONE":
+    for path, old, new in MUTANTS[mid]:
+        text = open(path).read()
+        n = text.count(old)
+        assert n == 1, (mid, path, n)
+        open(path, "w").write(text.replace(old, new))
+print("applied", mid)

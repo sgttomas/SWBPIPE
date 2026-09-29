@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""K5 (I14, checkpoint C) mutation patches. Usage: python3 mutate_k5.py <core-dir> <id>
+Applies one mutant to a clean scratch copy of projects/chirality-piping/core. Every patch is an
+exact text replacement that must match exactly once (asserted). The original pins' mutants are
+applied with K1's `mutate_k1.py` (unchanged), not here; KD5-SELECT is added here."""
+import sys
+
+core, mid = sys.argv[1], sys.argv[2]
+RB = core + "/solver/frame_kernel/src/rigid_body.rs"
+SA = core + "/solver/nonlinear_integration/src/structural_adapter.rs"
+
+OFFSET = """                offset[axis]
+                    .add(coordinates[near][axis])
+                    .map_err(|_| RANGE)?;
+                offset[axis]
+                    .add(-coordinates[far][axis])
+                    .map_err(|_| RANGE)?;"""
+TIES = """        for &[a, b] in &self.body.ties {
+            let d = difference3(&translations[a], &translations[b])?;"""
+DIRECTIONAL = """                (GroundKind::Translation, None) => {
+                    let mut action = Expansion::default();
+                    for axis in 0..3 {
+                        for &term in &u[axis].terms {
+                            action.add_product(ground.direction[axis], term, 0)?;
+                        }
+                    }
+                    action.is_zero()
+                }"""
+SKIP = """            if !qualified {
+                if let Some(w4) = &self.w4 {"""
+
+MUTANTS = {
+    # D1 §7.3 item 12: a user-element tie treated as a rigid link (no virtual shift).
+    "K5-12": [(RB, OFFSET, "                let _ = (near, far, &mut offset[axis]);")],
+    # D1 §7.3 item 7, W4 analogue: W4 disabled (mixed bodies skipped as today).
+    "K5-7": [(SA, SKIP, "            if false && !qualified {\n                if let Some(w4) = &self.w4 {")],
+    # K5-M1: non-tree ties (cycles) ignored: no cycle rows, and the verification skips them.
+    "K5-M1": [(RB, "    for &offset in &cycle_rounded {", "    for &offset in cycle_rounded.iter().take(0) {"),
+              (RB, TIES, """        for (&[a, b], _) in self.body.ties.iter().zip(&self.body.tree).filter(|(_, tree)| **tree) {
+            let d = difference3(&translations[a], &translations[b])?;""")],
+    # K5-M2: the virtual shift's sign flipped (x_b - x_a).
+    "K5-M2": [(RB, OFFSET, OFFSET.replace("coordinates[near]", "coordinates[@]").replace(
+        "coordinates[far]", "coordinates[near]").replace("coordinates[@]", "coordinates[far]"))],
+    # K5-M3: a zero, negative or NaN stiffness accepted as a tie.
+    "K5-M3": [(RB, "        if !(value.is_finite() && value > 0.0) {", "        if false && !(value.is_finite() && value > 0.0) {")],
+    # K5-M4a: an explicit curved slot qualified.
+    "K5-M4a": [(SA, "                if slot.explicit {\n                    return W4Body::Unqualified(W4Unqualified::CurvedExplicit { element_id });",
+                "                if false && slot.explicit {\n                    return W4Body::Unqualified(W4Unqualified::CurvedExplicit { element_id });")],
+    # K5-M4b: an unmatched curved slot qualified (as a link, with the recorded coordinates).
+    "K5-M4b": [(SA, "                else {\n                    return W4Body::Unqualified(W4Unqualified::CurvedUnmatched { element_id });\n                };",
+                "                else {\n                    links.push([la, lb]);\n                    continue;\n                };")],
+    # K5-M6: a witness published from the rounded candidate without the exact check.
+    "K5-M6": [(RB, TIES, "        return Ok(Some(translations));\n" + TIES)],
+    # K5-M7: the τ_B band dropped: Restrained whenever no exact witness exists.
+    "K5-M7": [(RB, "    Ok(result)\n}\n\n/// Validation, canonical order and the exact tie reduction.",
+               "    result.status = RigidBodyStatus::Restrained;\n    Ok(result)\n}\n\n/// Validation, canonical order and the exact tie reduction.")],
+    # K5-M8a: W4 reached from `solve_binary64` (the loop's solve), sources empty.
+    "K5-M8a": "binary64",
+    # K5-M8b: W4 reached before the `if !selected` return (unselected dense branch).
+    "K5-M8b": [(SA, """        if !selected {
+            return self.solve_assembled(k, f, free, prescribed, mode);
+        }
+        unscaled_evidence(self.force_scale)?;
+        self.constrained_geometry(prescribed, curved_sources)?;""",
+                """        self.constrained_geometry(prescribed, curved_sources)?;
+        if !selected {
+            return self.solve_assembled(k, f, free, prescribed, mode);
+        }
+        unscaled_evidence(self.force_scale)?;""")],
+    # K5-M9: frame-only bodies routed through W4 in the selected branches.
+    "K5-M9": [(SA, SKIP, "            if true {\n                if let Some(w4) = &self.w4 {")],
+    # K5-M9b: the order changed: every mixed body screened after all frame-only bodies.
+    "K5-M9b": [(SA, "        let mut seen = vec![false; n];\n        for seed in 0..n {",
+                "        let mut seen = vec![false; n];\n        let mut deferred = Vec::new();\n        for seed in 0..n {"),
+               (SA, "            if !qualified {\n                if let Some(w4) = &self.w4 {\n                    w4.screen(self, &body, prescribed)?;\n                }\n            }",
+                "            if !qualified && self.w4.is_some() {\n                deferred.push(body.clone());\n            }"),
+               (SA, "                        reason: \"rigid-restraint rank unresolved\",\n                        global_dof: None,\n                    })\n                }\n            }\n        }\n        Ok(())\n    }\n}",
+                "                        reason: \"rigid-restraint rank unresolved\",\n                        global_dof: None,\n                    })\n                }\n            }\n        }\n        if let Some(w4) = &self.w4 {\n            for body in &deferred {\n                w4.screen(self, body, prescribed)?;\n            }\n        }\n        Ok(())\n    }\n}")],
+    # K5-M10: the edges' objective flag set for curved slots.
+    "K5-M10": [(SA, "                &element.global_stiffness,\n                bounds,\n                operations,\n                false,",
+                "                &element.global_stiffness,\n                bounds,\n                operations,\n                true,")],
+    # K5-M11: `hypot` in the new screen.
+    "K5-M11": [(RB, "zeta.signum() / (zeta.abs() + root_one_plus_square(zeta))", "zeta.signum() / (zeta.abs() + zeta.hypot(1.0))")],
+    # K5-M12: curved node coordinates taken from a frame when the macro source disagrees.
+    "K5-M12": [(SA, "                    if recorded.is_some_and(|old| old != point) {", "                    if false && recorded.is_some_and(|old| old != point) {")],
+    # K5-M13: the force-scaled branch matches curved slots on b = 0 bits.
+    "K5-M13": [(SA, "                    if force_scale.is_unscaled() {\n                        Some(g)", "                    if true || force_scale.is_unscaled() {\n                        Some(g)")],
+    # K5-M14a: input order leaks (the grounds are not put in canonical order).
+    "K5-M14a": [(RB, "    rows.sort_unstable_by_key(GroundRow::key);\n", "")],
+    # K5-M14b: input order leaks (the ties are not put in canonical order).
+    "K5-M14b": [(RB, "    ties.sort_unstable();\n", "")],
+    # K5-M15 (own): L not a power of two (L = M).
+    "K5-M15": [(RB, "        pow2(exponent_of(magnitude))", "        magnitude")],
+    # K5-M16 (own): exactly zero rows not dropped.
+    "K5-M16": [(RB, "    if !(m > 0.0) {\n        return;\n    }\n", "")],
+    # K5-M17 (own): a directional translation row verified in binary64.
+    "K5-M17": [(RB, DIRECTIONAL, """                (GroundKind::Translation, None) => {
+                    (0..3)
+                        .map(|axis| ground.direction[axis] * u[axis].round().unwrap_or(f64::NAN))
+                        .fold(0.0, |a, x| a + x)
+                        == 0.0
+                }""")],
+    # K5-M18 (own): the canonical scaling and sign dropped (the verified candidate as is).
+    "K5-M18": [(RB, "            Ok(Some(_)) => self.canonical(p),",
+                "            Ok(Some(_)) => self.exact_motions(p).ok().flatten().map(|motions| Witness { parameters: p, motions }),")],
+    # K5-M19 (own): the rationalized null-basis candidates removed.
+    "K5-M19": [(RB, "    for w in basis {", "    for w in basis.into_iter().take(0) {")],
+    # K5-PREFILTER (checkpoint D; declared equivalent in plan §16, derived in RETURN §2.8):
+    # the prefilter's row loop removed (the finiteness guard before it is kept).
+    "K5-PREFILTER": [(RB, """        for row in self.rows {
+            let mut dot = 0.0_f64;
+            for i in 0..6 {
+                dot += row[i] * scaled[i];
+            }
+            if !(dot.abs() <= PREFILTER * size) {
+                return None;
+            }
+        }
+""", "        let _ = (self.rows, PREFILTER);\n")],
+    # K5-M20 (own, RV14-4's fix): the parameters' exactness check removed
+    # (a witness at a tiny L publishes t/L = +inf again).
+    "K5-M20": [(RB, "        if (0..3).any(|i| !(t[i].is_finite() && t[i] * self.length == r[i])) {",
+                "        if false && (0..3).any(|i| !(t[i].is_finite() && t[i] * self.length == r[i])) {")],
+    # RV14-M5 (RV14's delta check; its text, as RV14-M5.patch): RV14-4's exactness
+    # clause dropped, only the finiteness test kept.
+    "RV14-M5": [(RB, "        if (0..3).any(|i| !(t[i].is_finite() && t[i] * self.length == r[i])) {",
+                 "        if (0..3).any(|i| !t[i].is_finite()) {")],
+    # Original pin (K-D5): the dense formation-checked entry ignores `selected`.
+    "KD5-SELECT": [(SA, """        if !selected {
+            return self.solve_assembled(k, f, free, prescribed, mode);
+        }
+        unscaled_evidence(self.force_scale)?;
+        self.constrained_geometry(prescribed, curved_sources)?;""",
+                    """        unscaled_evidence(self.force_scale)?;
+        self.constrained_geometry(prescribed, curved_sources)?;""")],
+}
+
+if mid in ("NONE", "D-NONE", "D2-NONE", "D3-NONE"):
+    pass
+elif MUTANTS[mid] == "binary64":
+    text = open(SA).read()
+    at = text.index("    pub fn solve_binary64(")
+    old = "        self.geometry(prescribed)?;\n"
+    k = text.index(old, at)
+    assert text.count("    pub fn solve_binary64(") == 1
+    text = text[:k] + "        self.constrained_geometry(prescribed, &[])?;\n" + text[k + len(old):]
+    open(SA, "w").write(text)
+else:
+    for path, old, new in MUTANTS[mid]:
+        text = open(path).read()
+        assert text.count(old) == 1, (mid, path, text.count(old))
+        open(path, "w").write(text.replace(old, new))
+print("applied", mid)

@@ -1,0 +1,38 @@
+{
+ "LEVER2-k90-s40": {
+  "R3": {
+   "accepted": false,
+   "reason": "('verification_estimate', ('end', 1, 'i', 2))",
+   "w_over_v": 2681.018181811984
+  },
+  "W_Q=3p+64": {
+   "accepted": false,
+   "reason": "('verification_estimate', ('end', 1, 'i', 2))",
+   "w_over_v": 2681.018181811984
+  }
+ },
+ "LEVER2-k100-s40": {
+  "R3": {
+   "accepted": false,
+   "reason": "('verification_estimate', ('end', 1, 'i', 2))",
+   "w_over_v": 2745362.6181754717
+  },
+  "W_Q=3p+64": {
+   "accepted": false,
+   "reason": "('verification_estimate', ('end', 1, 'i', 2))",
+   "w_over_v": 2745362.6181754717
+  }
+ },
+ "LEVER2-k110-s20": {
+  "R3": {
+   "accepted": false,
+   "reason": "('verification_estimate', ('end', 1, 'i', 2))",
+   "w_over_v": 2811244506.7801533
+  },
+  "W_Q=3p+64": {
+   "accepted": false,
+   "reason": "('verification_estimate', ('end', 1, 'i', 2))",
+   "w_over_v": 2811244506.7801533
+  }
+ }
+}

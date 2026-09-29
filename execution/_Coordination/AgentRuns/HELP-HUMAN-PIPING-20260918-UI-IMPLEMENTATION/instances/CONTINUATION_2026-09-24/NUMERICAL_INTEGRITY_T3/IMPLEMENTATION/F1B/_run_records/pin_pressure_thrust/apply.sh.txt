@@ -1,0 +1,4 @@
+#!/bin/bash
+# F1b pin: dispatch the pin's mutant.
+X=$1; CORE=$2; m=$3
+python3 -B $X/mutate_pin.py $CORE $m

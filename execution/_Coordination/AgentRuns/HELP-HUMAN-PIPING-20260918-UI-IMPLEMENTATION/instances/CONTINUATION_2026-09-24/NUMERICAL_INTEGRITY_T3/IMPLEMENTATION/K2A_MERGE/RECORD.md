@@ -51,10 +51,15 @@
 
 ## Findings routed
 
-- **The skew M03 pin** goes to K1's pattern-path M03 tests (K5 fallback), with RV7's confirmed members and figures (work graph).
+- **The skew M03 pin** goes to K1's pattern-path M03 tests (K5 fallback), with RV7's confirmed members and figures (work graph). **[K1 did not take it (`K1_MERGE/RECORD.md`, "A routed item K1 did not take"). It is now a tests-only follow-up, I9 (ROOT, 2026-09-28).]**
 - **N1:** subnormal *derived* section values (A, I and J from `derive_pipe_section`) can be inexact and still pass K2a when every intermediate is normal. This is added to the input-validation finding routed out of T3 (the original K2a product-reach ruling 3).
 - **Other stiffness-forming paths** with 1/L² or 1/L³ terms (curved_bend's closed-form inverse, and K-D5's `Wide<2>` re-formation, which has an extended exponent) stay on the T3-close list (correction 2, ruling 4).
 
 ## Not run for this merge
 
 The native macOS witnesses do not apply, because K2a changes no native path.
+
+## Addendum (ROOT, 2026-09-28; RV13-D3)
+
+- Records PR #1042 added a bracketed pointer (RV13-N5) to `IMPLEMENTATION/K2A/RETURN_ADDENDUM_1.md`. That changed the file's sha256 from `b696e806…`, its hash at this merge, to `cdafd957…`.
+- Two committed records cite the prior hash: `IMPLEMENTATION/M03_SKEW_PIN/RETURN.md:24` and RV7's `delta_aad23e82d.txt:26`. They refer to the file as it was at `aad23e82d`, which `git show aad23e82d:<path>` reproduces.

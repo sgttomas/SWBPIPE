@@ -1,0 +1,97 @@
+"""I13 F1b A2: the product-run table from a2_run.py's base and candidate runs (scratch).
+
+Usage: python3 -B a2_table.py <compare.py dir> <base-run-dir> <cand-run-dir> <out.json> [<G1 dir>]
+
+Per (case, mode, entry): compare.classify's outcome on each side; the one blocking code (if any);
+the integrity code of each case; the parsed force_scale_exponent from a range_scaling line; the
+W2 refusal reason and step-1 trigger; whether the summary span and the full envelope are byte-
+identical between base and candidate; with <G1 dir>, whether the base variant's summary span is
+byte-identical to G1's recorded span (the variant leaves run.envelope unchanged).
+"""
+import hashlib
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.abspath(sys.argv[1]))
+import compare as C  # noqa: E402
+
+base_dir, cand_dir, out_path = sys.argv[2], sys.argv[3], sys.argv[4]
+g1 = sys.argv[5] if len(sys.argv) > 5 else None
+
+
+def load(d):
+    runs = {}
+    for line in open(os.path.join(d, 'runs.jsonl')):
+        rec = json.loads(line)
+        runs[(rec['case'], rec['mode'], rec['entry'])] = rec
+    return runs
+
+
+def sha(path):
+    return hashlib.sha256(open(path, 'rb').read()).hexdigest() if os.path.exists(path) else None
+
+
+def facts(rec, d):
+    key = rec['a2']['key']
+    outcome, detail = C.classify(rec)
+    run = (rec.get('probe') or {}).get('run', {})
+    out = {'outcome': outcome, 'ok': run.get('ok'), 'exit_code': rec.get('exit_code')}
+    if not run.get('ok'):
+        out['error'] = (run.get('error') or rec.get('stderr_tail', ''))[:240]
+        return out
+    env = run['envelope']
+    out['mechanics'] = env['status'].get('mechanics')
+    out['blocking'] = sorted({dg['code'] for dg in env['diagnostics'] if dg['severity'] == 'blocking'})
+    integ = [dg for dg in env['diagnostics'] if dg['id'].startswith('diagnostic:numerical-integrity:')]
+    out['integrity'] = [dg['code'] for dg in integ]
+    lines = []
+    for dg in integ:
+        m = dg['message']
+        mo = re.search(r'range_scaling: force_scale_exponent=(-?\d+); basis=exact power-of-two', m)
+        if mo:
+            lines.append(int(mo.group(1)))
+        if 'range_scaling: attempted' in m:
+            reason = m.split(': ', 1)[1].split('; range_scaling: attempted')[0]
+            trig = re.search(r'step1_trigger=(.*?)(; force_scale_exponent=[^;]*)?(; basis=exact power-of-two)?; global_dof_map=', m)
+            out.setdefault('w2_refusals', []).append({
+                'reason': reason, 'trigger': trig.group(1) if trig else None,
+                'b_field': (trig.group(2) or '').replace('; ', '') if trig else None})
+        if 'S11-G recovery guard' in m:
+            out['r_b_prime'] = True
+    if lines:
+        out['b'] = lines
+    blocked = [dg for dg in env['diagnostics'] if dg['severity'] == 'blocking' and not dg['id'].startswith('diagnostic:numerical-integrity:')]
+    if blocked:
+        out['other_blocking'] = [(dg['id'], dg['code'], dg['message'][:160]) for dg in blocked]
+    out['standing'] = env.get('standing')
+    out['result_count'] = env.get('result_count')
+    out['span_sha256'] = rec['a2']['envelope_span_sha256']
+    out['full_sha256'] = rec['a2']['full_envelope_sha256']
+    return out
+
+
+base, cand = load(base_dir), load(cand_dir)
+assert set(base) == set(cand), 'run sets differ'
+rows = []
+for k in sorted(base):
+    b, c = facts(base[k], base_dir), facts(cand[k], cand_dir)
+    row = {'case': k[0], 'mode': k[1], 'entry': k[2], 'base': b, 'cand': c}
+    row['summary_identical'] = b.get('span_sha256') == c.get('span_sha256') and b['outcome'] == c['outcome'] and b.get('error') == c.get('error')
+    row['full_identical'] = b.get('full_sha256') == c.get('full_sha256') and b['outcome'] == c['outcome'] and b.get('error') == c.get('error')
+    if g1:
+        key = '%s__%s__%s' % k
+        g1_span = sha(os.path.join(g1, 'envelopes', key + '.json'))
+        row['base_span_equals_g1'] = g1_span == b.get('span_sha256') if b.get('span_sha256') not in (None, '-') else g1_span is None
+    rows.append(row)
+summary = {
+    'runs': len(rows),
+    'full_identical': sum(r['full_identical'] for r in rows),
+    'summary_identical': sum(r['summary_identical'] for r in rows),
+    'changed': [(r['case'], r['mode'], r['entry']) for r in rows if not r['full_identical']],
+}
+if g1:
+    summary['base_span_equals_g1'] = sum(r['base_span_equals_g1'] for r in rows)
+json.dump({'summary': summary, 'rows': rows}, open(out_path, 'w'), indent=1, sort_keys=True)
+print(json.dumps(summary, indent=1)[:3000])

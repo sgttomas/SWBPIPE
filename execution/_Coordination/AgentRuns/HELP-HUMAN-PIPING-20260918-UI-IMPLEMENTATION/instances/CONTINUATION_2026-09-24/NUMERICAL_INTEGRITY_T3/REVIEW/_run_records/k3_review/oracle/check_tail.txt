@@ -1,0 +1,4 @@
+checked add L=16 750
+checked add L=4 750
+checked add L=8 750
+total 2250 mismatches 0

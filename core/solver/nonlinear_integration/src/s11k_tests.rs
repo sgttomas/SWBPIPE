@@ -1578,8 +1578,14 @@ fn k2b_blank_formation_siblings(code: &str) -> String {
 /// K2b: the force-scaled entries are defined in the structural adapter only
 /// (each sibling and constructor once in each adapter impl, the orchestrator
 /// once), and no other non-test module of this crate (the nonlinear loop
-/// included) or of product_physics names any of them. Backed by the
-/// behavioural pin `k2b_nonlinear_loop_reaches_no_force_scaled_entry`.
+/// included) names any of them. Backed by the behavioural pin
+/// `k2b_nonlinear_loop_reaches_no_force_scaled_entry`.
+///
+/// F1b (ROOT's rulings on I13's plan, OQ3 and the K2b pin): product_physics
+/// names them at exactly the declared sites `F1B_PRODUCT_SITES`, counted by
+/// module, enclosing top-level item and token, and never names the entries in
+/// `F1B_PRODUCT_NEVER`. The name is kept for K2b's records; the loop half is
+/// unchanged.
 #[test]
 fn k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product() {
     let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -1619,13 +1625,181 @@ fn k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product() {
     }
     let product = non_test_modules(&manifest.join("../../product_physics/src"));
     assert!(product.iter().any(|(n, _)| n == "lib.rs"));
+    let mut found: Vec<(String, String, &str, usize)> = Vec::new();
     for (name, code) in &product {
-        for token in FORCE_SCALED_ENTRY_POINTS {
+        for token in F1B_PRODUCT_NEVER {
             assert_eq!(
                 token_indices(code, token).len(),
                 0,
-                "product_physics {name} names the force-scaled entry {token} before F1b"
+                "product_physics {name} names the force-scaled entry {token}"
             );
         }
+        for token in FORCE_SCALED_ENTRY_POINTS {
+            let mut by_item = std::collections::BTreeMap::<String, usize>::new();
+            for at in token_indices(code, token) {
+                *by_item.entry(top_level_item(code, at)).or_default() += 1;
+            }
+            for (item, count) in by_item {
+                found.push((name.clone(), item, token, count));
+            }
+        }
+    }
+    let declared: Vec<(String, String, &str, usize)> = F1B_PRODUCT_SITES
+        .iter()
+        .map(|&(module, item, token, count)| (module.to_string(), item.to_string(), token, count))
+        .collect();
+    assert_eq!(
+        found, declared,
+        "product_physics names the force-scaled entries at exactly the declared F1b sites"
+    );
+}
+
+/// F1b: force-scaled entries product_physics never names: the product reaches
+/// the scaled solve through the orchestrator `solve_with_force_scaling` only.
+const F1B_PRODUCT_NEVER: [&str; 4] = [
+    "force_scaled(",
+    "new_force_scaled",
+    "solve_force_scaled",
+    "with_force_scale",
+];
+
+/// F1b: every product_physics site naming a `FORCE_SCALED_ENTRY_POINTS`
+/// token, as (module, enclosing top-level item, token, count), in the order
+/// the scan reports them (module, then token as listed, then item). A token
+/// matches on its leading identifier boundary only, so `ForceScale` also
+/// counts `ForceScaleReason`, `ForceScaledError` and the product's own
+/// `ForceScaledPublication`.
+const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
+    (
+        "lib.rs",
+        "fn force_scaling_attempt",
+        "solve_with_force_scaling",
+        1,
+    ),
+    (
+        "lib.rs",
+        "use open_pipe_stress_nonlinear_integration",
+        "solve_with_force_scaling",
+        1,
+    ),
+    ("lib.rs", "fn force_scaling_attempt", "ForceScalingCase", 1),
+    (
+        "lib.rs",
+        "use open_pipe_stress_nonlinear_integration",
+        "ForceScalingCase",
+        1,
+    ),
+    (
+        "lib.rs",
+        "fn force_scaled_publication",
+        "force_scaled_reactions",
+        1,
+    ),
+    ("lib.rs", "enum ForceScalingFailure", "ForceScale", 1),
+    ("lib.rs", "fn append_force_scaling_refusal", "ForceScale", 4),
+    ("lib.rs", "fn append_integrity_report", "ForceScale", 1),
+    ("lib.rs", "fn force_scaled_publication", "ForceScale", 8),
+    ("lib.rs", "fn force_scaling_attempt", "ForceScale", 3),
+    ("lib.rs", "fn range_scaling_evidence_line", "ForceScale", 1),
+    ("lib.rs", "fn solve_load_case", "ForceScale", 1),
+    ("lib.rs", "impl ForceScaledPublication", "ForceScale", 1),
+    ("lib.rs", "struct ForceScaledPublication", "ForceScale", 1),
+    (
+        "lib.rs",
+        "use open_pipe_stress_frame_kernel",
+        "ForceScale",
+        3,
+    ),
+    (
+        "lib.rs",
+        "fn force_scaled_publication",
+        "force_scaled_end_actions",
+        1,
+    ),
+    (
+        "lib.rs",
+        "fn force_scaled_publication",
+        "force_scaled_spring_action",
+        1,
+    ),
+    (
+        "lib.rs",
+        "use open_pipe_stress_frame_kernel",
+        "force_scaled_spring_action",
+        1,
+    ),
+    ("source_recovery.rs", "fn solve_ordinary", "ForceScale", 1),
+    (
+        "source_recovery.rs",
+        "use open_pipe_stress_frame_kernel",
+        "ForceScale",
+        1,
+    ),
+];
+
+/// F1b: `top_level_item` names the enclosing item across the shapes the
+/// product uses (a `use` tree, a bracketed `;` inside a const, a struct field,
+/// an impl, a `const fn` and nested blocks).
+#[test]
+fn f1b_top_level_item_names_the_enclosing_item() {
+    let code = lex(concat!(
+        "use a::{b, ForceScale};\n",
+        "const X: [u8; 2] = [0; 2];\n",
+        "struct S { f: ForceScale }\n",
+        "impl<T> Tr for S { fn g() { ForceScale::UNSCALED; } }\n",
+        "pub(crate) const fn h() -> u8 { let _ = ForceScale; 0 }\n",
+        "fn k(x: (u8, u8)) { if true { ForceScale; } }\n",
+    ));
+    let names: Vec<String> = token_indices(&code, "ForceScale")
+        .into_iter()
+        .map(|at| top_level_item(&code, at))
+        .collect();
+    assert_eq!(
+        names,
+        ["use a", "struct S", "impl<T> Tr for S", "fn h", "fn k"]
+    );
+}
+
+/// F1b: the top-level item of lexed, test-stripped `code` enclosing byte `at`,
+/// named by its keyword and first identifier (`fn solve_load_case`,
+/// `struct ForceScaledPublication`, `use open_pipe_stress_frame_kernel`); an
+/// `impl` is named by its header. Brackets of every kind nest, so a `;` or
+/// `}` ends an item only at depth zero.
+fn top_level_item(code: &str, at: usize) -> String {
+    let mut depth = 0usize;
+    let mut start = 0usize;
+    for (k, ch) in code[..at].char_indices() {
+        match ch {
+            '{' | '(' | '[' => depth += 1,
+            '}' | ')' | ']' => {
+                depth -= 1;
+                if depth == 0 && ch == '}' {
+                    start = k + 1;
+                }
+            }
+            ';' if depth == 0 => start = k + 1,
+            _ => {}
+        }
+    }
+    let item = &code[start..];
+    let words: Vec<&str> = item
+        .split(|c: char| !(c.is_alphanumeric() || c == '_'))
+        .filter(|w| !w.is_empty())
+        .collect();
+    const KEYWORDS: [&str; 10] = [
+        "fn", "struct", "enum", "const", "static", "type", "trait", "mod", "use", "impl",
+    ];
+    let k = words
+        .iter()
+        .position(|w| KEYWORDS.contains(w))
+        .expect("a top-level item keyword");
+    match words[k] {
+        "impl" => {
+            let header = &item[item.find("impl").unwrap()..];
+            let header = &header[..header.find('{').unwrap_or(header.len())];
+            header.split_whitespace().collect::<Vec<_>>().join(" ")
+        }
+        "const" if words.get(k + 1) == Some(&"fn") => format!("fn {}", words[k + 2]),
+        keyword => format!("{keyword} {}", words[k + 1]),
     }
 }

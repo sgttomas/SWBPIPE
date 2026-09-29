@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+"""RV11's second delta-check mutants (the commits f9a15fbd6..112c1729d). Usage: mutate_rv11d2.py <core-dir> <id>.
+Exact text replacements; each must match exactly once.
+- RV11D2-SPRING-B0-EXEMPT: force_scaled_spring_action's product check skipped at b = 0 (its doc says every b).
+- RV11D2-SPRING-EVASION-PP: a non-test function in product_physics (PP lib.rs) calls force_scaled_spring_action
+  with the scale written Default::default() (the product side of the pin; I10's K2B-PIN-SPRING-EVASION is the
+  loop side)."""
+import sys
+
+core, mid = sys.argv[1], sys.argv[2]
+LIB = core + "/solver/frame_kernel/src/lib.rs"
+PP = core + "/product_physics/src/lib.rs"
+
+MUTANTS = {
+    "RV11D2-SPRING-B0-EXEMPT": [(LIB, "    if scaled != 0.0 && displacement != 0.0 && !action.is_normal() {",
+                                 "    if !scale.is_unscaled() && scaled != 0.0 && displacement != 0.0 && !action.is_normal() {")],
+    "RV11D2-SPRING-EVASION-PP": [(PP, None,
+        "\n/// MUTANT RV11D2-SPRING-EVASION-PP\n#[allow(dead_code)]\nfn rv11d2_product_spring_action(u: &[f64]) -> bool {\n    open_pipe_stress_frame_kernel::force_scaled_spring_action((0, 1.0), u, Default::default()).is_ok()\n}\n")],
+}
+for path, old, new in MUTANTS[mid]:
+    text = open(path).read()
+    if old is None:
+        text = text + new
+    else:
+        assert text.count(old) == 1, (mid, path, text.count(old))
+        text = text.replace(old, new)
+    open(path, "w").write(text)
+print("applied", mid)

@@ -1,0 +1,72 @@
+{
+ "RV1": {
+  "description": "cmp_value orders two negative values as if positive",
+  "oracle_mismatches": {
+   "ops_all.txt": 0,
+   "ops3.txt": 504,
+   "ops_tail.txt": 0,
+   "ops_wide_operand.txt": 0,
+   "ops_boundary.txt": 0
+  }
+ },
+ "RV2": {
+  "description": "mul_pow2 scales by 2^(2k) instead of 2^k",
+  "oracle_mismatches": {
+   "ops_all.txt": 0,
+   "ops3.txt": 1010,
+   "ops_tail.txt": 0,
+   "ops_wide_operand.txt": 0,
+   "ops_boundary.txt": 0
+  }
+ },
+ "RV3": {
+  "description": "far subtraction without the borrow (no decrement)",
+  "oracle_mismatches": {
+   "ops_all.txt": 12544,
+   "ops3.txt": 0,
+   "ops_tail.txt": 0,
+   "ops_wide_operand.txt": 0,
+   "ops_boundary.txt": 0
+  }
+ },
+ "RV4": {
+  "description": "TwoSum checks only its first operand's precision",
+  "oracle_mismatches": {
+   "ops_all.txt": 0,
+   "ops3.txt": 0,
+   "ops_tail.txt": 0,
+   "ops_wide_operand.txt": 90,
+   "ops_boundary.txt": 0
+  }
+ },
+ "RV5": {
+  "description": "far subtraction drops the (1 - f) tail after the borrow",
+  "oracle_mismatches": {
+   "ops_all.txt": 0,
+   "ops3.txt": 0,
+   "ops_tail.txt": 150,
+   "ops_wide_operand.txt": 0,
+   "ops_boundary.txt": 0
+  }
+ },
+ "M8": {
+  "description": "conversion double-rounds",
+  "oracle_mismatches": {
+   "ops_all.txt": 7053,
+   "ops3.txt": 0,
+   "ops_tail.txt": 0,
+   "ops_wide_operand.txt": 0,
+   "ops_boundary.txt": 32
+  }
+ },
+ "M17": {
+  "description": "K3a's round_pack tie rule (ties away)",
+  "oracle_mismatches": {
+   "ops_all.txt": 0,
+   "ops3.txt": 0,
+   "ops_tail.txt": 0,
+   "ops_wide_operand.txt": 0,
+   "ops_boundary.txt": 0
+  }
+ }
+}

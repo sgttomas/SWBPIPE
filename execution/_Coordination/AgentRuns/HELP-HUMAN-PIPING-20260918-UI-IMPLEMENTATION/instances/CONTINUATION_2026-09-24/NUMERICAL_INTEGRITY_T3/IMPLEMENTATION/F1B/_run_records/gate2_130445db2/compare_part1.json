@@ -1,0 +1,1953 @@
+{
+ "verdict": {
+  "trusted_breach_triples": 0,
+  "runs_evaluated": 764,
+  "trusted_runs": 332,
+  "violations": [],
+  "c3_runs": 832,
+  "c3_differences": 0,
+  "c1_changed": 28,
+  "changed_outside_c1_c2": 0,
+  "c2_sparse_heap_cap_aborts": 0,
+  "c2_dense_not_guard": 0,
+  "RESULT": "PASS"
+ },
+ "c3_differences": [],
+ "c1_changed": [
+  [
+   "RF-RANGE-CHAIN-E-1000",
+   "dense_scrutiny",
+   "captured"
+  ],
+  [
+   "RF-RANGE-CHAIN-E-1000",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-CHAIN-E-1000",
+   "sparse_interactive",
+   "captured"
+  ],
+  [
+   "RF-RANGE-CHAIN-E-1000",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-CHAIN-LEF-large",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-CHAIN-LEF-large",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-CONT-E-1000",
+   "dense_scrutiny",
+   "captured"
+  ],
+  [
+   "RF-RANGE-CONT-E-1000",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-CONT-E-1000",
+   "sparse_interactive",
+   "captured"
+  ],
+  [
+   "RF-RANGE-CONT-E-1000",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-CONT-LEF-large",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-CONT-LEF-large",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-E+960",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-E+960",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-E-1000",
+   "dense_scrutiny",
+   "captured"
+  ],
+  [
+   "RF-RANGE-SKEW-E-1000",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-E-1000",
+   "sparse_interactive",
+   "captured"
+  ],
+  [
+   "RF-RANGE-SKEW-E-1000",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-F-960",
+   "dense_scrutiny",
+   "captured"
+  ],
+  [
+   "RF-RANGE-SKEW-F-960",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-F-960",
+   "sparse_interactive",
+   "captured"
+  ],
+  [
+   "RF-RANGE-SKEW-F-960",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-LEF-large",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-SKEW-LEF-large",
+   "sparse_interactive",
+   "typed"
+  ],
+  [
+   "RF-RANGE-THIN-B",
+   "dense_scrutiny",
+   "captured"
+  ],
+  [
+   "RF-RANGE-THIN-B",
+   "dense_scrutiny",
+   "typed"
+  ],
+  [
+   "RF-RANGE-THIN-B",
+   "sparse_interactive",
+   "captured"
+  ],
+  [
+   "RF-RANGE-THIN-B",
+   "sparse_interactive",
+   "typed"
+  ]
+ ],
+ "changed_outside": [],
+ "c2_sparse_aborts": [],
+ "c2_dense_not_guard": [],
+ "c1_table": [
+  {
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "fd78b6b6fdfda48f",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "7e3dd894239b1012",
+    "detail": "",
+    "guard": false,
+    "result_count": 314,
+    "wall": 0.033,
+    "peak_rss_kib": 10043392,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "5796b3aebfc311a0",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "02d21b5cde3739c5",
+    "detail": "",
+    "guard": false,
+    "result_count": 314,
+    "wall": 0.0392,
+    "peak_rss_kib": 8978432,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "fd78b6b6fdfda48f",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "9fde99000559b0ff",
+    "detail": "",
+    "guard": false,
+    "result_count": 314,
+    "wall": 0.0406,
+    "peak_rss_kib": 10043392,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "5796b3aebfc311a0",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "06499d3a7fc117c7",
+    "detail": "",
+    "guard": false,
+    "result_count": 314,
+    "wall": 0.035,
+    "peak_rss_kib": 9027584,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CHAIN-LEF-large",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "193513b0a50b96ff",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "8e09322dcc9868ce",
+    "detail": "",
+    "guard": false,
+    "result_count": 314,
+    "wall": 0.0355,
+    "peak_rss_kib": 9027584,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CHAIN-LEF-large",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "193513b0a50b96ff",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "e51da9a0ff456085",
+    "detail": "",
+    "guard": false,
+    "result_count": 314,
+    "wall": 0.0384,
+    "peak_rss_kib": 9158656,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CONT-E-1000",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "4a4f4c4f0886c8c1",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "73651eec06bf3f3a",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0322,
+    "peak_rss_kib": 7520256,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CONT-E-1000",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "d639bcf70f87bb94",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "0dd1ac7dc0912fcd",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.041,
+    "peak_rss_kib": 7061504,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CONT-E-1000",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "4a4f4c4f0886c8c1",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "84389adea58ff58c",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0374,
+    "peak_rss_kib": 7438336,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CONT-E-1000",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "d639bcf70f87bb94",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "32ab82e78f5e024a",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0355,
+    "peak_rss_kib": 6946816,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CONT-LEF-large",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "69464bce83455a84",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "732dc596367ae62e",
+    "detail": "",
+    "guard": false,
+    "result_count": 636,
+    "wall": 0.0369,
+    "peak_rss_kib": 11993088,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-CONT-LEF-large",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "69464bce83455a84",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "fb7709b73b118d32",
+    "detail": "",
+    "guard": false,
+    "result_count": 636,
+    "wall": 0.0346,
+    "peak_rss_kib": 11698176,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-E+960",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "5b95d9c48a7beb6b",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "328bfa90e10b1834",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0115,
+    "peak_rss_kib": 5275648,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-E+960",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "5b95d9c48a7beb6b",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "328bfa90e10b1834",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0124,
+    "peak_rss_kib": 5390336,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-E-1000",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "48a9aa3c611e3be7",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "b2365fe620878d07",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.037,
+    "peak_rss_kib": 6144000,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-E-1000",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "39707e7eb90de6ed",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "747266d547f308b4",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0134,
+    "peak_rss_kib": 5767168,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-E-1000",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "48a9aa3c611e3be7",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "4a45262a4097434c",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0196,
+    "peak_rss_kib": 6160384,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-E-1000",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "39707e7eb90de6ed",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "385cbc7606033145",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0162,
+    "peak_rss_kib": 5783552,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-F-960",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "59c0baa776291a2f",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "f9452894ae99579e",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0142,
+    "peak_rss_kib": 5734400,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-F-960",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "e015a982d6ed0443",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "d2244cbd9fa475d1",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0161,
+    "peak_rss_kib": 5308416,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-F-960",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "94f6286773d4dad4",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "cd8c2331432ca2b8",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0329,
+    "peak_rss_kib": 5701632,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-F-960",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "92a5066282c4d736",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "84bcd0ec0880af00",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.0128,
+    "peak_rss_kib": 5390336,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-LEF-large",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "b9e0b5b097d904ae",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "bde720da3c4d0110",
+    "detail": "",
+    "guard": false,
+    "result_count": 98,
+    "wall": 0.013,
+    "peak_rss_kib": 6782976,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-SKEW-LEF-large",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "b9e0b5b097d904ae",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "d7592f6ea17392d8",
+    "detail": "",
+    "guard": false,
+    "result_count": 98,
+    "wall": 0.0114,
+    "peak_rss_kib": 7045120,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-THIN-B",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "5a075d3eda305c97",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "numerically_eligible",
+    "full": "247ca7e0535f5786",
+    "detail": "",
+    "guard": false,
+    "result_count": 74,
+    "wall": 0.0139,
+    "peak_rss_kib": 6914048,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-THIN-B",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "bae466be2a3ea933",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "numerically_eligible",
+    "full": "4fe2c0203252f16c",
+    "detail": "",
+    "guard": false,
+    "result_count": 74,
+    "wall": 0.0264,
+    "peak_rss_kib": 6504448,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-THIN-B",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "5a075d3eda305c97",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "numerically_eligible",
+    "full": "9c59a335ff235f47",
+    "detail": "",
+    "guard": false,
+    "result_count": 74,
+    "wall": 0.0114,
+    "peak_rss_kib": 7061504,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  },
+  {
+   "case": "RF-RANGE-THIN-B",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "bae466be2a3ea933",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "numerically_eligible",
+    "full": "e203217a4c16ea59",
+    "detail": "",
+    "guard": false,
+    "result_count": 74,
+    "wall": 0.0188,
+    "peak_rss_kib": 6701056,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": false,
+    "nq_status": "checks_passed",
+    "solve_quality": [
+     "checks_passed"
+    ]
+   }
+  }
+ ],
+ "c2_table": [
+  {
+   "case": "RF-LARGE-CHAIN-n10000-AX",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "639875f325a11da2",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.3233,
+    "peak_rss_kib": 337215488,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n10000-AX",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "639875f325a11da2",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.1227,
+    "peak_rss_kib": 182075392,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n10000-AX",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "1012d45f2073be7d",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 1.4222,
+    "peak_rss_kib": 564576256,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n10000-AX",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "7d38b764dc7e4c66",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 1.2038,
+    "peak_rss_kib": 407846912,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n10000-ROT",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "d2eab39af2eeb178",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.3148,
+    "peak_rss_kib": 337395712,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n10000-ROT",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "d2eab39af2eeb178",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.1193,
+    "peak_rss_kib": 182124544,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n10000-ROT",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "4b305c5d0a712b4d",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.934,
+    "peak_rss_kib": 613384192,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n10000-ROT",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "e33127846e5bd5b3",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.7348,
+    "peak_rss_kib": 456949760,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-AX",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "aec07d05fe9dcd34",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.6228,
+    "peak_rss_kib": 461078528,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-AX",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "aec07d05fe9dcd34",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.16,
+    "peak_rss_kib": 238305280,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-AX",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "a4f3e80fc68c63cb",
+    "detail": "",
+    "guard": false,
+    "result_count": 620016,
+    "wall": 10.6031,
+    "peak_rss_kib": 5464997888,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": true,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-AX",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "59b138456a76426f",
+    "detail": "",
+    "guard": false,
+    "result_count": 620016,
+    "wall": 9.1475,
+    "peak_rss_kib": 5233885184,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": true,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-ROT",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "f2cbb2eb43a85623",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.5538,
+    "peak_rss_kib": 524173312,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-ROT",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "f2cbb2eb43a85623",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.1806,
+    "peak_rss_kib": 265207808,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-ROT",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "c2b1611d475effc7",
+    "detail": "",
+    "guard": false,
+    "result_count": 620016,
+    "wall": 10.6109,
+    "peak_rss_kib": 5553553408,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": true,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-CONT-n10000-ROT",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "solved",
+    "exit": "0",
+    "blocking": [],
+    "standing": "needs_recompute",
+    "full": "890d14e289c123f4",
+    "detail": "",
+    "guard": false,
+    "result_count": 620016,
+    "wall": 9.5591,
+    "peak_rss_kib": 5178327040,
+    "stderr": "",
+    "mechanics": "MECHANICS_SOLVED",
+    "lane_not_run": true,
+    "nq_status": "sensitive",
+    "solve_quality": [
+     "sensitive"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-AX",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "f350c5ccac021b98",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.3735,
+    "peak_rss_kib": 388644864,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-AX",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "f350c5ccac021b98",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.1446,
+    "peak_rss_kib": 202653696,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-AX",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "2bbe4ec12891066f",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.942,
+    "peak_rss_kib": 699252736,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-AX",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "0d50112698655e16",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.7011,
+    "peak_rss_kib": 459669504,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-ROT",
+   "mode": "dense_scrutiny",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "7b00bf1e7ccc517e",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.5223,
+    "peak_rss_kib": 498253824,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-ROT",
+   "mode": "dense_scrutiny",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "standing": null,
+    "full": "7b00bf1e7ccc517e",
+    "detail": "MODEL_INCOMPLETE; blocking=['SOLVER_SYSTEM_BLOCKED']",
+    "guard": true,
+    "result_count": 0,
+    "wall": 0.1737,
+    "peak_rss_kib": 249135104,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "not_assessed",
+    "solve_quality": [
+     "not_assessed"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-ROT",
+   "mode": "sparse_interactive",
+   "entry": "captured",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "b00fdc81e73ed1df",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 1.2094,
+    "peak_rss_kib": 799850496,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  },
+  {
+   "case": "RF-LARGE-TREE-n10000-ROT",
+   "mode": "sparse_interactive",
+   "entry": "typed",
+   "base": {
+    "outcome": "memory_refused",
+    "exit": "-6",
+    "blocking": [],
+    "standing": null,
+    "full": "-",
+    "detail": "process aborted under RLIMIT_AS (note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace)"
+   },
+   "cand": {
+    "outcome": "refused_blocked",
+    "exit": "0",
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "standing": null,
+    "full": "83961d9f8392a513",
+    "detail": "MODEL_INCOMPLETE; blocking=['NUMERICAL_INTEGRITY_UNRESOLVED']",
+    "guard": false,
+    "result_count": 0,
+    "wall": 0.8712,
+    "peak_rss_kib": 564641792,
+    "stderr": "",
+    "mechanics": "MODEL_INCOMPLETE",
+    "lane_not_run": false,
+    "nq_status": "unresolved",
+    "solve_quality": [
+     "unresolved"
+    ]
+   }
+  }
+ ]
+}

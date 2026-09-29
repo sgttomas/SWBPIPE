@@ -1,0 +1,62 @@
+{
+ "RF-CHAIN": {
+  "cases": 30,
+  "max_log2_ehat_over_S": 51.092481667212546,
+  "at": "RF-CHAIN-T-n10-r1e-12",
+  "errors": 0
+ },
+ "RF-SKEW": {
+  "cases": 36,
+  "max_log2_ehat_over_S": 51.57245250076637,
+  "at": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+  "errors": 0
+ },
+ "RF-WEAK": {
+  "cases": 9,
+  "max_log2_ehat_over_S": 49.97345756406547,
+  "at": "RF-WEAK-W-L-r1e-12",
+  "errors": 0
+ },
+ "RF-LARGE": {
+  "cases": 12,
+  "max_log2_ehat_over_S": 32.201560693908675,
+  "at": "RF-LARGE-CHAIN-n00100-ROT",
+  "errors": 0
+ },
+ "RF-INVARIANCE": {
+  "cases": 25,
+  "max_log2_ehat_over_S": 32.55127437702687,
+  "at": "RF-INVARIANCE-PINTOR-ROT-Q3",
+  "errors": 0
+ },
+ "RF-RANGE": {
+  "cases": 30,
+  "max_log2_ehat_over_S": 37.71589287429518,
+  "at": "RF-RANGE-SKEW-L+240",
+  "errors": 2
+ },
+ "RF-ZERO": {
+  "cases": 4,
+  "max_log2_ehat_over_S": 10.848326098195283,
+  "at": "RF-ZERO-PLANAR",
+  "errors": 0
+ },
+ "RF-FINITE": {
+  "cases": 6,
+  "max_log2_ehat_over_S": 13.567010746108842,
+  "at": "RF-FINITE-THIRDS-O0",
+  "errors": 0
+ },
+ "RF-MECH": {
+  "cases": 8,
+  "max_log2_ehat_over_S": 4.598524013738233,
+  "at": "RF-MECH-LINE345-RX-COMPANION",
+  "errors": 0
+ },
+ "RF-CANCEL": {
+  "cases": 38,
+  "max_log2_ehat_over_S": 10.118424892497048,
+  "at": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+  "errors": 0
+ }
+}

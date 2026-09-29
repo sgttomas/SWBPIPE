@@ -1,0 +1,8 @@
+Gate part 1, candidate 6bf64f5a9 (git archive), full-envelope probe variant (main.rs cd1052f7..., I13 A2), G1 full driver gate_run_base_full.py (8cf952ae...), 4 workers (phase A: 24 runs at 10,000 members, 2 workers, alone).
+probe binary sha256 6da92cf934a197de5563f54431b759f863e27f91db458ea32b648a2fe63cee40
+requests: G1 full gen_out, 223 OK against PLATFORM_CALIBRATION_MAC/gate/gen_out_sha256.txt
+run gate start 2026-09-28T16:18:15Z gate exit=0 end 2026-09-28T16:24:11Z 
+runs.jsonl sha256 00ffbf7784942beb7351c32f84c4b6ca1c1c0071bcf39af2326e4d6b6b2fa33d (884 records); full envelopes 794, each equal to run.envelope_sha256 (driver full_check)
+host: load1 mean 13.31, peak 20.17 (other implementers active); no timing compared
+baseline: G1 full re-run of e7d930d49, runs.jsonl 9139140c..., SHA256SUMS verified
+result: 884/884 runs identical in outcome, ok, exit code, summary sha256, run.envelope_sha256, error text; 24 heap-cap stderr tails identical; 764 gate_check rows identical in outcome, quality, standing, trusted, breaches; gate_check PASS (764 evaluated, 328 trusted, 0 breach triples)

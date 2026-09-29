@@ -1,0 +1,17 @@
+{
+ "id": "P1",
+ "description": "a [profile.test] with overflow-checks = false",
+ "filters": null,
+ "file": "Cargo.toml",
+ "line": 11,
+ "old": "[dependencies]\n",
+ "new": "[dependencies]\n\n[profile.test]\noverflow-checks = false\n",
+ "wall_s": 3.8,
+ "rc": 101,
+ "compiled": false,
+ "passed": 0,
+ "failed": 0,
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

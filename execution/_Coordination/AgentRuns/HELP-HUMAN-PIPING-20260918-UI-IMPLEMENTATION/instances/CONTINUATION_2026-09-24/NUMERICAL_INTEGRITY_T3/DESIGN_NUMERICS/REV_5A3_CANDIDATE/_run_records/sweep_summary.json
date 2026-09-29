@@ -1,0 +1,259 @@
+{
+ "models": 1966,
+ "summary": {
+  "current": {
+   "models": 1966,
+   "selected": 1767,
+   "unresolved": 199,
+   "selected_at": {
+    "256": 719,
+    "128": 872,
+    "None": 199,
+    "512": 176
+   },
+   "dishonest": 1,
+   "dishonest_examples": [
+    [
+     "R982",
+     Infinity,
+     "('end', 1, 'i', 4)"
+    ]
+   ],
+   "total_solves": 5395,
+   "work_units_p_squared": 50950
+  },
+  "ii": {
+   "models": 1966,
+   "selected": 1757,
+   "unresolved": 209,
+   "selected_at": {
+    "256": 715,
+    "128": 866,
+    "None": 209,
+    "512": 176
+   },
+   "dishonest": 0,
+   "dishonest_examples": [],
+   "total_solves": 5411,
+   "work_units_p_squared": 51686
+  },
+  "iii": {
+   "models": 1966,
+   "selected": 1960,
+   "unresolved": 6,
+   "selected_at": {
+    "256": 715,
+    "128": 866,
+    "512": 379,
+    "None": 6
+   },
+   "dishonest": 0,
+   "dishonest_examples": [],
+   "total_solves": 5411,
+   "work_units_p_squared": 51686
+  },
+  "ib": {
+   "models": 1966,
+   "selected": 1961,
+   "unresolved": 5,
+   "selected_at": {
+    "256": 495,
+    "128": 1403,
+    "512": 63,
+    "None": 5
+   },
+   "dishonest": 0,
+   "dishonest_examples": [],
+   "total_solves": 4558,
+   "work_units_p_squared": 22870
+  },
+  "iiig": {
+   "models": 1966,
+   "selected": 1961,
+   "unresolved": 5,
+   "selected_at": {
+    "256": 761,
+    "128": 1082,
+    "512": 118,
+    "None": 5
+   },
+   "dishonest": 0,
+   "dishonest_examples": [],
+   "total_solves": 4934,
+   "work_units_p_squared": 31526
+  },
+  "ig": {
+   "models": 1966,
+   "selected": 1961,
+   "unresolved": 5,
+   "selected_at": {
+    "256": 640,
+    "128": 1219,
+    "512": 102,
+    "None": 5
+   },
+   "dishonest": 0,
+   "dishonest_examples": [],
+   "total_solves": 4781,
+   "work_units_p_squared": 28310
+  }
+ },
+ "versus_current": {
+  "ii": {
+   "selected_p_changed": 12,
+   "transitions": {
+    "128->None": 4,
+    "256->None": 5,
+    "128->256": 1,
+    "512->None": 1,
+    "128->512 (current dishonest)": 1
+   },
+   "same_p_classes_changed": 0,
+   "class_examples": []
+  },
+  "iii": {
+   "selected_p_changed": 204,
+   "transitions": {
+    "None->512": 193,
+    "128->512": 4,
+    "256->512": 5,
+    "128->256": 1,
+    "128->512 (current dishonest)": 1
+   },
+   "same_p_classes_changed": 0,
+   "class_examples": []
+  },
+  "ib": {
+   "selected_p_changed": 650,
+   "transitions": {
+    "256->128": 333,
+    "None->128": 130,
+    "None->256": 54,
+    "None->512": 10,
+    "512->256": 55,
+    "512->128": 68
+   },
+   "same_p_classes_changed": 10,
+   "class_examples": [
+    [
+     "R64",
+     {
+      "absolute": 11,
+      "relative": 55,
+      "input_derived": 9
+     },
+     {
+      "absolute": 21,
+      "relative": 45,
+      "input_derived": 9
+     }
+    ],
+    [
+     "R72",
+     {
+      "absolute": 17,
+      "relative": 29,
+      "input_derived": 9
+     },
+     {
+      "absolute": 21,
+      "relative": 25,
+      "input_derived": 9
+     }
+    ],
+    [
+     "R224",
+     {
+      "absolute": 20,
+      "relative": 57,
+      "input_derived": 7
+     },
+     {
+      "absolute": 22,
+      "relative": 55,
+      "input_derived": 7
+     }
+    ],
+    [
+     "R584",
+     {
+      "absolute": 31,
+      "relative": 48,
+      "input_derived": 6
+     },
+     {
+      "absolute": 33,
+      "relative": 46,
+      "input_derived": 6
+     }
+    ]
+   ]
+  },
+  "iiig": {
+   "selected_p_changed": 274,
+   "transitions": {
+    "None->128": 130,
+    "None->256": 54,
+    "None->512": 10,
+    "512->128": 68,
+    "256->128": 12
+   },
+   "same_p_classes_changed": 1,
+   "class_examples": [
+    [
+     "R953",
+     {
+      "absolute": 19,
+      "relative": 7,
+      "input_derived": 6
+     },
+     {
+      "absolute": 22,
+      "relative": 4,
+      "input_derived": 6
+     }
+    ]
+   ]
+  },
+  "ig": {
+   "selected_p_changed": 427,
+   "transitions": {
+    "None->128": 130,
+    "None->256": 54,
+    "None->512": 10,
+    "512->256": 16,
+    "256->128": 149,
+    "512->128": 68
+   },
+   "same_p_classes_changed": 2,
+   "class_examples": [
+    [
+     "R953",
+     {
+      "absolute": 19,
+      "relative": 7,
+      "input_derived": 6
+     },
+     {
+      "absolute": 22,
+      "relative": 4,
+      "input_derived": 6
+     }
+    ],
+    [
+     "R999",
+     {
+      "absolute": 23,
+      "relative": 4,
+      "input_derived": 6
+     },
+     {
+      "absolute": 24,
+      "relative": 3,
+      "input_derived": 6
+     }
+    ]
+   ]
+  }
+ }
+}

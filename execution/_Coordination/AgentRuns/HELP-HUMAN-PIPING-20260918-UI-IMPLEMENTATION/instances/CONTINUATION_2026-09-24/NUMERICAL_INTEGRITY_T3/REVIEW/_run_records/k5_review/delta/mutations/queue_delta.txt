@@ -1,0 +1,6 @@
+NONE fk,ni,pp,dprobe
+RV14-M1 fk
+RV14-M5 fk,dprobe
+RV14-M2 ni
+RV14-M3 ni
+RV14-M4 ni,pp

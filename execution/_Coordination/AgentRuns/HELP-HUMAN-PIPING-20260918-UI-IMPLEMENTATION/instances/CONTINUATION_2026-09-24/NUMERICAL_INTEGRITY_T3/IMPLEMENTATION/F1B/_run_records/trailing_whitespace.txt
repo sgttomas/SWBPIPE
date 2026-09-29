@@ -1,0 +1,25 @@
+Copied files with lines that end in whitespace (raw tool output, kept verbatim): 24 files
+     1  callers.txt
+    90  checkpoint0/exp/rf_range_base.out
+     1  checkpoint_a1/b1_b3_corpus/b1_b3_run_final.log
+    14  checkpoint_a1/lib_fmt_cand.diff
+     1  checkpoint_a2/observation_build/a2_obs_instrumentation.diff
+    41  checkpoint_a2/rustfmt/base.diff
+    41  checkpoint_a2/rustfmt/cand.diff
+    41  checkpoint_a2/rustfmt/cand_lane.diff
+     2  d_130445db2/lane_mutant/MUTANTS.txt
+     1  d_130445db2/peak_attribution/probe_patch.diff
+     1  gate1_948e0bb99/rv11d_n2_large/obs_instrumentation.diff
+     1  gate2_130445db2/rv11d_n2_cont/obs_instrumentation.diff
+     2  lane_guard/mutant/MUTANTS.txt
+    51  mutations/MUTANTS.txt
+     1  mutations/kill_sites.txt
+    21  mutations/kill_sites_f1b.txt
+     1  mutations/logs/K1-S11F-KERNEL.log
+     1  mutations/logs/K1-SITE-FC.log
+     1  mutations/logs/K1-SITE-SPARSE.log
+     1  mutations/logs/S11K-RV-PUB.log
+     3  mutations/rerun/MUTANTS.txt
+     2  mutations/table.txt
+     2  pin_pressure_thrust/MUTANTS.txt
+     4  review_fixes_rv17/MUTANTS.txt

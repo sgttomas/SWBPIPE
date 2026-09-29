@@ -1,0 +1,96 @@
+"""Per-run comparison of this gate part 1 (e7d930d49) with the Mac calibration's part 1 (649162522).
+
+Usage: python3 -B compare_with_calibration.py <gen_out> <runs.jsonl> <gate_result.json>
+                                              <calib runs_part1_mac.jsonl> <calib result_part1_mac.json> <out.json>
+
+Per (case, mode, entry), over all part-1 runs:
+- ok/ERR: probe.run.ok (a run with no probe line counts as ERR), and the exit code;
+- classification: compare.py's classify() outcome (P1's comparator, imported unchanged);
+- for the runs gate_check.py evaluates: quality, standing, trusted and breach count from each gate result;
+- informational: whether the parsed probe line's envelope (or error text) is value-equal.
+Every difference is listed, with the case's family.
+"""
+import json
+import os
+import sys
+from collections import Counter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import compare as C  # noqa: E402
+
+gen, runs_b, res_b, runs_c, res_c, out_path = sys.argv[1:7]
+fam = {c['id']: c.get('family', '?') for c in json.load(open(os.path.join(gen, 'cases.json')))}
+
+
+def load_runs(p):
+    d = {}
+    for line in open(p):
+        r = json.loads(line)
+        k = (r['case'], r['mode'], r['entry'])
+        assert k not in d, k
+        run = r.get('probe', {}).get('run', {})
+        outcome, why = C.classify(r)
+        d[k] = {'ok': bool(run.get('ok')), 'exit': r.get('exit_code'), 'outcome': outcome, 'why': why[:160],
+                'timed_out': r.get('timed_out'), 'envelope': run.get('envelope'), 'error': run.get('error')}
+    return d
+
+
+def load_rows(p):
+    return {(r['case'], r['mode'], r['entry']): r for r in json.load(open(p))['runs']}
+
+
+B, Cc = load_runs(runs_b), load_runs(runs_c)
+GB, GC = load_rows(res_b), load_rows(res_c)
+keys = sorted(set(B) | set(Cc))
+only_b = sorted(set(B) - set(Cc))
+only_c = sorted(set(Cc) - set(B))
+diffs = []
+counts = Counter()
+env_diff_by_family = Counter()
+for k in keys:
+    if k not in B or k not in Cc:
+        continue
+    b, c = B[k], Cc[k]
+    d = {}
+    if b['ok'] != c['ok']:
+        d['ok'] = ['ok' if c['ok'] else 'ERR', 'ok' if b['ok'] else 'ERR']
+        counts['ok_err'] += 1
+    if b['exit'] != c['exit']:
+        d['exit_code'] = [c['exit'], b['exit']]
+        counts['exit_code'] += 1
+    if b['outcome'] != c['outcome']:
+        d['outcome'] = [c['outcome'], b['outcome']]
+        counts['outcome'] += 1
+    gb, gc = GB.get(k), GC.get(k)
+    if (gb is None) != (gc is None):
+        d['gate_row_presence'] = [gc is not None, gb is not None]
+        counts['gate_row_presence'] += 1
+    elif gb is not None:
+        for f in ('outcome', 'quality', 'standing', 'trusted', 'breaches'):
+            if gb.get(f) != gc.get(f):
+                d['gate_' + f] = [gc.get(f), gb.get(f)]
+                counts['gate_' + f] += 1
+    same_payload = (b['envelope'] == c['envelope']) and (b['error'] == c['error'])
+    if not same_payload:
+        counts['payload_value_differs'] += 1
+        env_diff_by_family[fam[k[0]]] += 1
+    if d:
+        d.update(case=k[0], mode=k[1], entry=k[2], family=fam[k[0]],
+                 calib_why=c['why'], base_why=b['why'], payload_value_equal=same_payload)
+        diffs.append(d)
+by_family = Counter(d['family'] for d in diffs)
+out = {
+    'orientation': 'each difference is [calibration 649162522, base e7d930d49]',
+    'runs_base': len(B), 'runs_calibration': len(Cc), 'only_in_base': only_b, 'only_in_calibration': only_c,
+    'gate_rows_base': len(GB), 'gate_rows_calibration': len(GC),
+    'ok_base': sum(v['ok'] for v in B.values()), 'ok_calibration': sum(v['ok'] for v in Cc.values()),
+    'outcomes_base': dict(Counter(v['outcome'] for v in B.values())),
+    'outcomes_calibration': dict(Counter(v['outcome'] for v in Cc.values())),
+    'difference_counts': dict(counts),
+    'runs_with_any_classification_or_ok_difference': len(diffs),
+    'differences_by_family': dict(by_family),
+    'payload_value_differs_by_family (informational)': dict(env_diff_by_family),
+    'differences': diffs,
+}
+json.dump(out, open(out_path, 'w'), indent=1)
+print(json.dumps({k: v for k, v in out.items() if k != 'differences'}, indent=1))

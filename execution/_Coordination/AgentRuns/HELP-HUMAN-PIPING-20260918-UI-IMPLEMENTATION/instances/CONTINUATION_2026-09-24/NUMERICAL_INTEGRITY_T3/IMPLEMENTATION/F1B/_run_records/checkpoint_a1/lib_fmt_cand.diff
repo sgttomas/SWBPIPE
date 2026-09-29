@@ -1,0 +1,1444 @@
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:19:
+     LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID,
+     LOAD_STATE_SOURCE_PROFILE_ID,
+ };
+-mod pressure_sum;
+-pub mod self_weight;
+-mod source_recovery;
+-mod source_receipt;
+ #[cfg(test)]
+ mod f1a_tests;
+ #[cfg(test)]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:29:
+ mod f1b_tests;
++mod pressure_sum;
+ #[cfg(test)]
+ mod s11f_tests;
+ #[cfg(test)]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:33:
+ mod s11g_tests;
++pub mod self_weight;
+ #[cfg(test)]
+ mod source_budget_tests;
++mod source_receipt;
++mod source_recovery;
+ 
+ use open_pipe_stress_curved_bend::CurvedBendMacroElement;
+ use open_pipe_stress_frame_kernel::exact_sum::{exact_rounded_sum, ExactAccumulator};
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:41:
+ };
+ use open_pipe_stress_frame_kernel::structural::{
+     assemble_sparse_stiffness, reduce_assembled_sparse_system, FormationCheck,
+-    FormationCheckReason, LoadFidelityReport, SolveQuality, SparseAssemblyOptions,
+-    SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
++    FormationCheckReason, LoadFidelityReport, SolveQuality, SparseAssemblyOptions, SparseStiffness,
++    StiffnessBlock, StructuralError, StructuralReport,
+ };
+ use open_pipe_stress_frame_kernel::{
+     assemble_global_stiffness_with_user_elements, element_dof_map, reduce_assembled_system,
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:843:
+     load_state_join_failure: Option<String>,
+ }
+ impl Default for SourceRecoveryBudget {
+-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
++    fn default() -> Self {
++        Self {
++            per_case_limit: SOURCE_BLOCKS_WORK_LIMIT,
++            invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT,
++            charged: 0,
++            failed_charged: 0,
++            publication_charged: 0,
++            rejected: 0,
++            attempts: 0,
++            load_state_join_withheld: None,
++            load_state_join_failure: None,
++        }
++    }
+ }
+ impl SourceRecoveryBudget {
+     /// The republication continues this same ledger (CP4 review N-2, ROOT's
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:866:
+     fn record_load_state_join_failure(&mut self, cause: String) {
+         self.load_state_join_failure.get_or_insert(cause);
+     }
+-    fn case_limit(&self) -> usize { self.per_case_limit.min(self.invocation_limit.saturating_sub(self.charged)) }
+-    fn reserve_publication(&mut self, amount: usize) -> Result<(), open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport> {
++    fn case_limit(&self) -> usize {
++        self.per_case_limit
++            .min(self.invocation_limit.saturating_sub(self.charged))
++    }
++    fn reserve_publication(
++        &mut self,
++        amount: usize,
++    ) -> Result<(), open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport> {
+         if amount > self.invocation_limit.saturating_sub(self.charged) {
+             self.rejected = self.rejected.saturating_add(amount);
+-            return Err(open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport { charged: self.charged, rejected: amount, limit: self.invocation_limit });
++            return Err(
++                open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport {
++                    charged: self.charged,
++                    rejected: amount,
++                    limit: self.invocation_limit,
++                },
++            );
+         }
+         self.charged += amount;
+         self.publication_charged += amount;
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:881:
+         // failure never resets or refunds executed reservations.
+         assert!(charged <= self.invocation_limit.saturating_sub(self.charged));
+         self.charged += charged;
+-        if failed { self.failed_charged += charged; }
++        if failed {
++            self.failed_charged += charged;
++        }
+     }
+ }
+ 
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:1610:
+     solver_mode: PreviewSolverMode,
+ ) -> MechanicsEnvelope {
+     // This historical typed entry has no original request-Value custody.
+-    run_linear_static_preview_captured(request, solver_mode, None, &mut SourceRecoveryBudget::default())
++    run_linear_static_preview_captured(
++        request,
++        solver_mode,
++        None,
++        &mut SourceRecoveryBudget::default(),
++    )
+ }
+ 
+ /// Capture the exact actual request before parsing. This is the source-block
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:1631:
+     if pressure_runtime::is_exact(&request.model) {
+         budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
+     }
+-    let result = run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut budget);
+-    if matches!(result.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID)
+-        && result.source_block_recovery.is_none()
++    let result =
++        run_linear_static_preview_captured(request, solver_mode, Some(&capture), &mut budget);
++    if matches!(
++        result.producer.semantic_contract_id.as_str(),
++        SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID
++            | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID
++            | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID
++    ) && result.source_block_recovery.is_none()
+     {
+         return Err("SOURCE_BLOCKS_FINALIZATION_FAILED".into());
+     }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:1880:
+                 }
+                 let case_built = case_built
+                     .expect("build_model returns Some when no blocking diagnostics were added");
+-                let case_stiffness = match assemble_basis_stiffness(&case_built, &boundary.springs) {
++                let case_stiffness = match assemble_basis_stiffness(&case_built, &boundary.springs)
++                {
+                     Ok(stiffness) => stiffness,
+                     Err(error) => return solver_blocked(model, diagnostics, error),
+                 };
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2005:
+     }
+     let built = &basis_solve_states[0].2;
+     let source_selected = load_case_solves.iter().any(|solve| solve.source_selected);
+-    let source_cases: Vec<_> = load_case_solves.iter_mut().filter_map(|solve| solve.source_case.take()).collect();
++    let source_cases: Vec<_> = load_case_solves
++        .iter_mut()
++        .filter_map(|solve| solve.source_case.take())
++        .collect();
+     let preview = (!pressure_runtime::is_exact(&model) && !source_selected).then(|| {
+-        preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
++        preview_physics::render(
++            &model,
++            built,
++            &boundary.restrained_dofs,
++            &mut load_case_solves,
++            &mut diagnostics,
++        )
+     });
+-    let max_displacement = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
+-        maximum_across_cases(&load_case_solves, false)
+-    } else {
+-        load_case_solves.first().and_then(|solve| solve.max_displacement.clone())
+-    };
++    let max_displacement =
++        if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
++            maximum_across_cases(&load_case_solves, false)
++        } else {
++            load_case_solves
++                .first()
++                .and_then(|solve| solve.max_displacement.clone())
++        };
+     let max_stress = if pressure_runtime::is_exact(&model) || source_selected || preview.is_some() {
+         maximum_across_cases(&load_case_solves, true)
+     } else {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2020:
+-        load_case_solves.first().and_then(|solve| solve.max_stress.clone())
++        load_case_solves
++            .first()
++            .and_then(|solve| solve.max_stress.clone())
+     };
+     let component_stress_modifier_count = load_case_solves
+         .iter()
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2042:
+                     "retained_source_blocks_exact_v1"
+                 } else if solver_mode == PreviewSolverMode::DenseScrutiny {
+                     "ordinary_dense_structural_v1"
+-                } else { "ordinary_sparse_structural_v1" });
++                } else {
++                    "ordinary_sparse_structural_v1"
++                });
+             }
+             exact_cases.push(evidence);
+         }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2055:
+             .map(|row| {
+                 (
+                     row.id.clone(),
+-                    if is_default || ((pressure_runtime::is_exact(&model) || preview.is_some()) && row.kind.ends_with("_v2")) {
++                    if is_default
++                        || ((pressure_runtime::is_exact(&model) || preview.is_some())
++                            && row.kind.ends_with("_v2"))
++                    {
+                         row.id.clone()
+                     } else {
+                         qualified_load_case_result_id(&load_case_id, &row.id)
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2069:
+                 ref_type: "load_case".to_string(),
+                 ref_id: load_case_id.clone(),
+             });
+-            if !is_default && !((pressure_runtime::is_exact(&model) || preview.is_some()) && result.kind.ends_with("_v2")) {
++            if !is_default
++                && !((pressure_runtime::is_exact(&model) || preview.is_some())
++                    && result.kind.ends_with("_v2"))
++            {
+                 result.id = qualified_load_case_result_id(&load_case_id, &base_id);
+             }
+             for source_ref in &mut result.source_result_refs {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2085:
+         }
+     }
+     let preview_gates = match &preview {
+-        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),
++        Some(rendered) => preview_physics::append_combination_results(
++            &model,
++            rendered,
++            &rows_by_base_id,
++            &mut results,
++            &mut diagnostics,
++        ),
+         None => {
+             append_combination_results(
+                 &model,
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2183:
+             // The joined envelope has its own semantics and exclusive profile.
+             envelope.formulation_basis = joined_load_state_formulation_basis();
+             LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID
+-        } else if composite { PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
++        } else if composite {
++            PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID
++        } else {
++            SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID
++        }
++        .into();
+         if let Some(capture) = capture {
+             let finalized = if composite {
+-                source_receipt::FinalizedSourceBlockReceipt::finalize_composite(capture, &envelope, source_cases, source_budget)
++                source_receipt::FinalizedSourceBlockReceipt::finalize_composite(
++                    capture,
++                    &envelope,
++                    source_cases,
++                    source_budget,
++                )
+             } else {
+-                source_receipt::FinalizedSourceBlockReceipt::finalize(capture, &envelope, source_cases, source_budget)
++                source_receipt::FinalizedSourceBlockReceipt::finalize(
++                    capture,
++                    &envelope,
++                    source_cases,
++                    source_budget,
++                )
+             };
+             match finalized {
+                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2199:
+                             error.0
+                         ));
+                     }
+-                    envelope.diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![]))
++                    envelope.diagnostics.push(diag(
++                        "diagnostic:source-recovery:publication",
++                        "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED",
++                        "blocking",
++                        format!("{}; actual_finalization_work={:?}", error.0, error.1),
++                        vec![],
++                    ))
+                 }
+             }
+         }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2221:
+         .iter()
+         .filter(|member| member.strain.total_eigenstrain != 0.0)
+         .map(|member| {
+-            let section = built.sections.get(&member.pipe_id).ok_or_else(|| member.pipe_id.clone())?;
++            let section = built
++                .sections
++                .get(&member.pipe_id)
++                .ok_or_else(|| member.pipe_id.clone())?;
+             Ok(ThermalElementLoad {
+                 element_index: member.pipe_index,
+                 source: source_recovery::eigen_source_id(&member.pipe_id),
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:2905:
+         Vec::new()
+     };
+     let recovery_input = || source_recovery::Input {
+-        model, built, stiffness: &recovery_stiffness, force: &force, free: &reduced.free_dofs,
+-        prescribed: &prescribed, spring_entries, load_case, load_application: &load_application,
+-        thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
++        model,
++        built,
++        stiffness: &recovery_stiffness,
++        force: &force,
++        free: &reduced.free_dofs,
++        prescribed: &prescribed,
++        spring_entries,
++        load_case,
++        load_application: &load_application,
++        thermal_loads: &thermal_loads,
++        pressure_thrust_loads: &pressure_thrust_loads,
+         load_state,
+     };
+     if source_eligible && needs_source_recovery {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3047:
+             displacements[dof] = value;
+         }
+         if selected_source.is_none() {
+-            append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, linear_solve);
++            append_linear_solver_mode_evidence(
++                &mut results,
++                &load_case.id,
++                solver_mode,
++                linear_solve,
++            );
+         }
+         if solver_mode == PreviewSolverMode::DenseScrutiny {
+             // Protected DEC050/053 comparison retains the legacy unscaled LU
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3118:
+                     vec![load_case.id.clone()],
+                 ));
+                 return Ok(LoadCaseSolve {
+-            load_state_evidence: None,
++                    load_state_evidence: None,
+                     exact_case_evidence: None,
+                     pressure_evidence: Vec::new(),
+-            source_case: None,
+-            source_selected: false,
++                    source_case: None,
++                    source_selected: false,
+                     load_case_id: load_case.id.clone(),
+                     results: Vec::new(),
+                     max_displacement: None,
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3200:
+     let mut max_displacement = None;
+     for node in &model.nodes {
+         let node_index = node_index(&model, &node.id).unwrap();
+-        let magnitude_mm = selected_source.as_ref().map(|recovery| {
+-            let values = &recovery.published_nodal_components()[node_index * DOF_PER_NODE..];
+-            source_receipt::scaled_norm([values[0], values[1], values[2]])
+-        }).unwrap_or_else(|| displacement_magnitude(&displacements, node_index) * 1000.0);
++        let magnitude_mm = selected_source
++            .as_ref()
++            .map(|recovery| {
++                let values = &recovery.published_nodal_components()[node_index * DOF_PER_NODE..];
++                source_receipt::scaled_norm([values[0], values[1], values[2]])
++            })
++            .unwrap_or_else(|| displacement_magnitude(&displacements, node_index) * 1000.0);
+         let result_id = format!("result:disp:{}", stable_suffix(&node.id));
+         if max_displacement
+             .as_ref()
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3244:
+         );
+         if let Some(recovery) = &selected_source {
+             for (component, row) in results[first..].iter_mut().enumerate() {
+-                row.value = recovery.published_nodal_components()[node_index * DOF_PER_NODE + component];
++                row.value =
++                    recovery.published_nodal_components()[node_index * DOF_PER_NODE + component];
+             }
+         }
+     }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3266:
+     for support in &model.supports {
+         if let Some(index) = node_index(model, &support.node) {
+             let mut vector = [0.0; 6];
+-            let source_action = selected_source.as_ref().and_then(|recovery| recovery.support_actions().iter().find(|action| action.support_id == support.id));
++            let source_action = selected_source.as_ref().and_then(|recovery| {
++                recovery
++                    .support_actions()
++                    .iter()
++                    .find(|action| action.support_id == support.id)
++            });
+             if let Some(action) = source_action {
+                 vector = action.values;
+             } else {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3273:
+-            if let Some(linear) = built
+-                .supports
+-                .iter()
+-                .find(|item| item.support_id == support.id)
+-            {
+-                for dof in &linear.restrained_dofs {
+-                    let slot = dof_index(*dof);
++                if let Some(linear) = built
++                    .supports
++                    .iter()
++                    .find(|item| item.support_id == support.id)
++                {
++                    for dof in &linear.restrained_dofs {
++                        let slot = dof_index(*dof);
++                        if slot < 6 {
++                            vector[slot] = reactions[index * DOF_PER_NODE + slot];
++                        }
++                    }
++                }
++                for spring in spring_entries
++                    .iter()
++                    .filter(|item| item.support_id == support.id)
++                {
++                    let global = spring.node_dof.global_index();
++                    if global % DOF_PER_NODE < 6 {
++                        vector[global % DOF_PER_NODE] =
++                            -spring.stiffness.value * displacements[global];
++                    }
++                }
++                if let Some(nonlinear) = built
++                    .nonlinear_supports
++                    .iter()
++                    .find(|item| item.support_id == support.id)
++                {
++                    let slot = dof_index(nonlinear.dof);
+                     if slot < 6 {
+                         vector[slot] = reactions[index * DOF_PER_NODE + slot];
+                     }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3283:
+                 }
+             }
+-            for spring in spring_entries
+-                .iter()
+-                .filter(|item| item.support_id == support.id)
+-            {
+-                let global = spring.node_dof.global_index();
+-                if global % DOF_PER_NODE < 6 {
+-                    vector[global % DOF_PER_NODE] = -spring.stiffness.value * displacements[global];
+-                }
+-            }
+-            if let Some(nonlinear) = built
+-                .nonlinear_supports
+-                .iter()
+-                .find(|item| item.support_id == support.id)
+-            {
+-                let slot = dof_index(nonlinear.dof);
+-                if slot < 6 {
+-                    vector[slot] = reactions[index * DOF_PER_NODE + slot];
+-                }
+-            }
+-            }
+             if let Some(action) = source_action.filter(|_| !pressure_runtime::is_exact(model)) {
+                 for (component, name) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
+                     results.push(ResultItem {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3326:
+             let magnitude = if selected_source.is_some() {
+                 source_receipt::scaled_norm(force_vector)
+             } else {
+-                force_vector[0].hypot(force_vector[1]).hypot(force_vector[2])
++                force_vector[0]
++                    .hypot(force_vector[1])
++                    .hypot(force_vector[2])
+             };
+             support_force_vectors.insert(support.id.clone(), [vector[0], vector[1], vector[2]]);
+             if pressure_runtime::is_exact(model) {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3333:
+                 if let Some(selected) = selected_source.as_mut() {
+-                    match source_receipt::composite_support_norms(&recovery_input(), selected, &support.id) {
++                    match source_receipt::composite_support_norms(
++                        &recovery_input(),
++                        selected,
++                        &support.id,
++                    ) {
+                         Ok(norms) => {
+                             append_signed_support_results(&mut results, load_case, support, vector);
+                             let end = results.len();
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3339:
+                             results[end - 1].value = norms[1];
+                         }
+                         Err(error) => diagnostics.push(diag(
+-                            &format!("diagnostic:source-recovery:{}:{}:support-norm", load_case.id, support.id),
+-                            "SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE", "blocking", error.0,
++                            &format!(
++                                "diagnostic:source-recovery:{}:{}:support-norm",
++                                load_case.id, support.id
++                            ),
++                            "SOURCE_BLOCK_RECOVERY_DERIVED_UNAVAILABLE",
++                            "blocking",
++                            error.0,
+                             vec![load_case.id.clone(), support.id.clone()],
+                         )),
+                     }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3347:
+-                } else { append_signed_support_results(&mut results, load_case, support, vector); }
++                } else {
++                    append_signed_support_results(&mut results, load_case, support, vector);
++                }
+             }
+             if !pressure_runtime::is_exact(model) {
+                 results.push(ResultItem {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3405:
+             Vec::new()
+         };
+         let mut exact_mechanical_local_forces = None;
+-        let recovered_member = selected_source.as_ref().and_then(|recovery| recovery.members().get(pipe_index));
++        let recovered_member = selected_source
++            .as_ref()
++            .and_then(|recovery| recovery.members().get(pipe_index));
+         let corrected_local_forces = if let Some(member) = recovered_member {
+             member.end_forces.to_vec()
+         } else if let Some(bend) = macro_bend {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3530:
+         // Raw end rows remain node-on-element actions. Stress recovery and
+         // station rows consume the common j-side section-cut convention.
+         let station_resultants = if let Some(member) = recovered_member {
+-            [("quarter_1", 1usize), ("midspan", 2), ("quarter_3", 3)].into_iter()
+-                .map(|(location, index)| StationResultants { location, resultants: member.sections[index] }).collect::<Vec<_>>()
++            [("quarter_1", 1usize), ("midspan", 2), ("quarter_3", 3)]
++                .into_iter()
++                .map(|(location, index)| StationResultants {
++                    location,
++                    resultants: member.sections[index],
++                })
++                .collect::<Vec<_>>()
+         } else if let Some(bend) = macro_bend {
+             match curved_bend_station_resultants(
+                 bend,
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3595:
+                 [member.sections[0], member.sections[4]]
+             } else {
+                 // Retained source-blocks-1 keeps its original publication basis.
+-                [std::array::from_fn(|i| -member.end_forces[i]), std::array::from_fn(|i| member.end_forces[6 + i])]
++                [
++                    std::array::from_fn(|i| -member.end_forces[i]),
++                    std::array::from_fn(|i| member.end_forces[6 + i]),
++                ]
+             }
+         } else if let Some(bend) = macro_bend {
+             let evaluate = |fraction| {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3689:
+                 pipe_id: pipe.element_id.clone(),
+                 arc: macro_bend.is_some(),
+                 maximum: macro_bend.is_none().then(|| {
+-                    exact_straight_summary_extrema(pipe, &corrected_local_forces, &straight_loads, section, None)
++                    exact_straight_summary_extrema(
++                        pipe,
++                        &corrected_local_forces,
++                        &straight_loads,
++                        section,
++                        None,
++                    )
+                 }),
+                 end_resultants: endpoint_resultants,
+                 section_modulus: section.section_modulus,
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3824:
+                 summary_values.push(value);
+             }
+         }
+-        if macro_bend.is_none() && !pressure_runtime::is_exact(model) && recovered_member.is_none() {
++        if macro_bend.is_none() && !pressure_runtime::is_exact(model) && recovered_member.is_none()
++        {
+             match straight_summary_extrema(
+                 pipe,
+                 &corrected_local_forces,
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3845:
+         }
+         let summary_value = if pressure_runtime::is_exact(model) && selected_source.is_some() {
+             let maximum = source_receipt::composite_member_maximum(
+-                &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
++                &recovery_input(),
++                selected_source.as_mut().expect("selected source"),
++                &pipe.element_id,
+             );
+             match maximum {
+                 Ok(maximum) => {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3852:
+                     let value = maximum.value_pa();
+-                    let result_id = format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id);
++                    let result_id = format!(
++                        "result:elastic-maximum:{}:{}:{}:{}",
++                        load_case.id.len(),
++                        load_case.id,
++                        pipe.element_id.len(),
++                        pipe.element_id
++                    );
+                     results.push(ResultItem { id: result_id.clone(), kind: "pipe_elastic_normal_stress_maximum_v2".into(), value, unit: "Pa".into(), entity_ref: pipe.element_id.clone(), basis_ref: None, source_result_refs: Vec::new(), metadata: Some(ResultMetadata {
+                         component: "maximum_absolute_normal_stress".into(), coordinate_system: "pipe_section".into(), location: "governing_station".into(), basis: "retained_source_endpoint_normal_max_v1".into(),
+                         sign_convention: "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate".into(),
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3857:
+                     }) });
+-                    if max_stress.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
+-                        max_stress = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });
++                    if max_stress.as_ref().is_none_or(|q: &LocatedQuantity| {
++                        value > q.value || (value == q.value && pipe.element_id < q.location_ref)
++                    }) {
++                        max_stress = Some(LocatedQuantity {
++                            value,
++                            unit: "Pa".into(),
++                            location_ref: pipe.element_id.clone(),
++                            result_ref: result_id.clone(),
++                        });
+                     }
+                     pipe_stress_extrema.push(maximum.evidence(&result_id));
+                 }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:3863:
+                 Err(error) => {
+                     unavailable_stress_maximum_members.push(pipe.element_id.clone());
+-                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum",load_case.id,pipe.element_id), "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE", "warning", error.0, vec![load_case.id.clone(),pipe.element_id.clone()]));
++                    diagnostics.push(diag(
++                        &format!(
++                            "diagnostic:source-recovery:{}:{}:maximum",
++                            load_case.id, pipe.element_id
++                        ),
++                        "SOURCE_ENDPOINT_MAXIMUM_UNAVAILABLE",
++                        "warning",
++                        error.0,
++                        vec![load_case.id.clone(), pipe.element_id.clone()],
++                    ));
+                 }
+             }
+             None
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:4065:
+             match source_row_bindings(&selected, &qualified) {
+                 Ok(bindings) => {
+                     if pressure_runtime::is_exact(model) {
+-                        let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
+-                        physical["recovery_method"] = serde_json::json!("retained_source_blocks_exact_v1");
+-                        source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical, load_state_evidence.as_ref())
++                        let mut physical = exact_case_evidence
++                            .clone()
++                            .expect("exact physical evidence");
++                        physical["recovery_method"] =
++                            serde_json::json!("retained_source_blocks_exact_v1");
++                        source_receipt::FinalizedSourceBlockCase::composite_exact(
++                            capture,
++                            recovery_input(),
++                            selected,
++                            ordinary_attempt,
++                            &qualified,
++                            &bindings,
++                            &physical,
++                            load_state_evidence.as_ref(),
++                        )
+                     } else {
+-                        source_receipt::FinalizedSourceBlockCase::exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings)
++                        source_receipt::FinalizedSourceBlockCase::exact(
++                            capture,
++                            recovery_input(),
++                            selected,
++                            ordinary_attempt,
++                            &qualified,
++                            &bindings,
++                        )
+                     }
+-                },
+-                Err(message) => Err(source_receipt::ReceiptError(message, Some(selected.summary().work))),
++                }
++                Err(message) => Err(source_receipt::ReceiptError(
++                    message,
++                    Some(selected.summary().work),
++                )),
+             }
+         } else if let Some(failure) = &source_failure {
+-            source_receipt::FinalizedSourceBlockCase::failed(capture, &load_case.id, ordinary_attempt, failure, &format!("diagnostic:source-recovery:{}", load_case.id), &qualified)
++            source_receipt::FinalizedSourceBlockCase::failed(
++                capture,
++                &load_case.id,
++                ordinary_attempt,
++                failure,
++                &format!("diagnostic:source-recovery:{}", load_case.id),
++                &qualified,
++            )
+         } else if pressure_runtime::is_exact(model) {
+-            let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
+-            physical["recovery_method"] = serde_json::json!(if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" });
+-            source_receipt::FinalizedSourceBlockCase::ordinary_physics(capture, &load_case.id, ordinary_attempt, &qualified, &physical, &pressure_evidence, load_state_evidence.as_ref())
++            let mut physical = exact_case_evidence
++                .clone()
++                .expect("exact physical evidence");
++            physical["recovery_method"] =
++                serde_json::json!(if solver_mode == PreviewSolverMode::DenseScrutiny {
++                    "ordinary_dense_structural_v1"
++                } else {
++                    "ordinary_sparse_structural_v1"
++                });
++            source_receipt::FinalizedSourceBlockCase::ordinary_physics(
++                capture,
++                &load_case.id,
++                ordinary_attempt,
++                &qualified,
++                &physical,
++                &pressure_evidence,
++                load_state_evidence.as_ref(),
++            )
+         } else {
+-            source_receipt::FinalizedSourceBlockCase::ordinary(capture, &load_case.id, ordinary_attempt, &qualified)
++            source_receipt::FinalizedSourceBlockCase::ordinary(
++                capture,
++                &load_case.id,
++                ordinary_attempt,
++                &qualified,
++            )
+         };
+         match finalized {
+             Ok(case) => {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:4088:
+-                if source_selected { source_budget.debit(case.charged_work(), false); }
++                if source_selected {
++                    source_budget.debit(case.charged_work(), false);
++                }
+                 if source_selected && !case.is_qualified() {
+                     diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:derived-unqualified", load_case.id), "SOURCE_RECOVERY_DERIVED_UNQUALIFIED", "warning", "Primary source projections are retained, but an unsupported derived row withholds whole-envelope numerical use", vec![load_case.id.clone()]));
+                 }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:4099:
+                             load_case.id, error.0
+                         ));
+                     }
+-                    if let Some(work) = error.1 { source_budget.debit(work.charged, true); }
+-                    diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:finalization", load_case.id), "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", format!("{}; actual_finalization_work={:?}", error.0, error.1), vec![load_case.id.clone()]));
++                    if let Some(work) = error.1 {
++                        source_budget.debit(work.charged, true);
++                    }
++                    diagnostics.push(diag(
++                        &format!("diagnostic:source-recovery:{}:finalization", load_case.id),
++                        "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED",
++                        "blocking",
++                        format!("{}; actual_finalization_work={:?}", error.0, error.1),
++                        vec![load_case.id.clone()],
++                    ));
+                 }
+                 None
+             }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:4107:
+         }
+-    } else { None };
++    } else {
++        None
++    };
+     Ok(LoadCaseSolve {
+         load_state_evidence,
+         exact_case_evidence,
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:4123:
+     })
+ }
+ 
+-fn qualify_source_case_rows(model: &PreviewModel, case_id: &str, rows: &[ResultItem]) -> Vec<ResultItem> {
+-    let is_default = model.load_cases.first().is_some_and(|case| case.id == case_id);
+-    let ids: HashMap<_, _> = rows.iter().map(|row| (row.id.clone(), if is_default || (pressure_runtime::is_exact(model) && row.kind.ends_with("_v2")) { row.id.clone() } else { qualified_load_case_result_id(case_id, &row.id) })).collect();
+-    rows.iter().cloned().map(|mut row| {
+-        row.id = ids[&row.id].clone();
+-        row.basis_ref = Some(ResultBasisRef { ref_type: "load_case".into(), ref_id: case_id.into() });
+-        for reference in &mut row.source_result_refs {
+-            if let Some(qualified) = ids.get(reference) { *reference = qualified.clone(); }
+-        }
+-        row
+-    }).collect()
++fn qualify_source_case_rows(
++    model: &PreviewModel,
++    case_id: &str,
++    rows: &[ResultItem],
++) -> Vec<ResultItem> {
++    let is_default = model
++        .load_cases
++        .first()
++        .is_some_and(|case| case.id == case_id);
++    let ids: HashMap<_, _> = rows
++        .iter()
++        .map(|row| {
++            (
++                row.id.clone(),
++                if is_default || (pressure_runtime::is_exact(model) && row.kind.ends_with("_v2")) {
++                    row.id.clone()
++                } else {
++                    qualified_load_case_result_id(case_id, &row.id)
++                },
++            )
++        })
++        .collect();
++    rows.iter()
++        .cloned()
++        .map(|mut row| {
++            row.id = ids[&row.id].clone();
++            row.basis_ref = Some(ResultBasisRef {
++                ref_type: "load_case".into(),
++                ref_id: case_id.into(),
++            });
++            for reference in &mut row.source_result_refs {
++                if let Some(qualified) = ids.get(reference) {
++                    *reference = qualified.clone();
++                }
++            }
++            row
++        })
++        .collect()
+ }
+ 
+ fn source_row_bindings(
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:4140:
+     selected: &source_recovery::SelectedSourceRecovery,
+     rows: &[ResultItem],
+ ) -> Result<Vec<source_receipt::FunctionalRowBinding>, String> {
+-    use open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::{FunctionalQuantity, MemberEnd};
+-    let force_kinds = ["element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z"];
+-    let node_kinds = ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z", "global_nodal_rotation_x", "global_nodal_rotation_y", "global_nodal_rotation_z"];
++    use open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::{
++        FunctionalQuantity, MemberEnd,
++    };
++    let force_kinds = [
++        "element_local_axial_force",
++        "element_local_shear_force_y",
++        "element_local_shear_force_z",
++        "element_local_torsional_moment",
++        "element_local_bending_moment_y",
++        "element_local_bending_moment_z",
++    ];
++    let node_kinds = [
++        "global_nodal_displacement_x",
++        "global_nodal_displacement_y",
++        "global_nodal_displacement_z",
++        "global_nodal_rotation_x",
++        "global_nodal_rotation_y",
++        "global_nodal_rotation_z",
++    ];
+     let mut bindings = Vec::new();
+     for (index, descriptor) in selected.retained().descriptors().iter().enumerate() {
+         let (entity, kind, location, component) = match &descriptor.key.quantity {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:4149:
+-            FunctionalQuantity::NodeDisplacement { node, dof } => (node.as_str(), node_kinds[dof % 6], "node", None),
+-            FunctionalQuantity::MemberEnd { member, end, row } => (member.as_str(), force_kinds[*row as usize], if *end == MemberEnd::I { "end_i" } else { "end_j" }, None),
+-            FunctionalQuantity::MemberSection { member, station_bits, component } => {
++            FunctionalQuantity::NodeDisplacement { node, dof } => {
++                (node.as_str(), node_kinds[dof % 6], "node", None)
++            }
++            FunctionalQuantity::MemberEnd { member, end, row } => (
++                member.as_str(),
++                force_kinds[*row as usize],
++                if *end == MemberEnd::I {
++                    "end_i"
++                } else {
++                    "end_j"
++                },
++                None,
++            ),
++            FunctionalQuantity::MemberSection {
++                member,
++                station_bits,
++                component,
++            } => {
+                 let station = f64::from_bits(*station_bits);
+-                let location = if station == 0.25 { "quarter_1" } else if station == 0.5 { "midspan" } else if station == 0.75 { "quarter_3" } else { continue };
+-                (member.as_str(), force_kinds[*component as usize], location, None)
++                let location = if station == 0.25 {
++                    "quarter_1"
++                } else if station == 0.5 {
++                    "midspan"
++                } else if station == 0.75 {
++                    "quarter_3"
++                } else {
++                    continue;
++                };
++                (
++                    member.as_str(),
++                    force_kinds[*component as usize],
++                    location,
++                    None,
++                )
+             }
+-            FunctionalQuantity::SupportAction { support, component, .. } => (support.as_str(), "support_reaction_component_v2", "node", Some(["Fx", "Fy", "Fz", "Mx", "My", "Mz"][*component as usize])),
++            FunctionalQuantity::SupportAction {
++                support, component, ..
++            } => (
++                support.as_str(),
++                "support_reaction_component_v2",
++                "node",
++                Some(["Fx", "Fy", "Fz", "Mx", "My", "Mz"][*component as usize]),
++            ),
+             _ => continue,
+         };
+-        let matched: Vec<_> = rows.iter().filter(|row| row.entity_ref == entity && row.kind == kind && row.metadata.as_ref().is_some_and(|metadata| metadata.location == location && component.map_or(true, |name| metadata.component == name))).collect();
+-        if matched.len() != 1 { return Err(format!("source functional row binding is not unique: {entity}/{kind}/{location}")); }
+-        bindings.push(source_receipt::FunctionalRowBinding { functional_index: index, result_id: matched[0].id.clone() });
++        let matched: Vec<_> = rows
++            .iter()
++            .filter(|row| {
++                row.entity_ref == entity
++                    && row.kind == kind
++                    && row.metadata.as_ref().is_some_and(|metadata| {
++                        metadata.location == location
++                            && component.map_or(true, |name| metadata.component == name)
++                    })
++            })
++            .collect();
++        if matched.len() != 1 {
++            return Err(format!(
++                "source functional row binding is not unique: {entity}/{kind}/{location}"
++            ));
++        }
++        bindings.push(source_receipt::FunctionalRowBinding {
++            functional_index: index,
++            result_id: matched[0].id.clone(),
++        });
+     }
+     Ok(bindings)
+ }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:13233:
+         );
+         // T0R (M07 containment): omit the demo's realized joint C-150, which
+         // the ordinary route refuses (JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED).
+-        input.model.components.retain(|component| component.id != "component:C-150");
+         input
++            .model
++            .components
++            .retain(|component| component.id != "component:C-150");
++        input
+     }
+ 
+     fn mechanical_stress_fixture_for_test(
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:13425:
+                         if released { 0.0 } else { 1.0 }
+                     );
+                     if released {
+-                        analytic_close!(value("support-NL-140:uy-displacement"), reverse_all_stop_mm);
++                        analytic_close!(
++                            value("support-NL-140:uy-displacement"),
++                            reverse_all_stop_mm
++                        );
+                     } else {
+                         assert_eq!(value("support-NL-140:uy-displacement"), 0.0);
+                     }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:13436:
+                         // at the same 1e-9 criterion, with no display-quantum allowance.
+                         assert!(value("support-NL-140:uy-reaction").abs() <= 1e-9 * applied_y_n);
+                     } else {
+-                        analytic_close!(value("support-NL-140:uy-reaction"), sign * normal_n - applied_y_n);
++                        analytic_close!(
++                            value("support-NL-140:uy-reaction"),
++                            sign * normal_n - applied_y_n
++                        );
+                     }
+                     assert_eq!(value("support-NL-130-FRIC:state-code"), 3.0);
+                     let slip = value("support-NL-130-FRIC:uz-displacement");
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:13696:
+                 .unwrap();
+             assert_eq!(metadata.coordinate_system, "element_local");
+             // T0R (N-2): arc stress components carry the nominal-basis discriminator.
+-            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
+             assert_eq!(
++                metadata.basis,
++                "nominal_straight_beam_formula_on_arc_resultants"
++            );
++            assert_eq!(
+                 metadata.sign_convention,
+                 CURVED_BEND_SECTION_SIGN_CONVENTION
+             );
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:13754:
+                 .unwrap();
+             assert_eq!(stress_metadata.coordinate_system, "element_local");
+             // T0R (N-2): arc station stress rows carry the nominal-basis discriminator.
+-            assert_eq!(stress_metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
+             assert_eq!(
++                stress_metadata.basis,
++                "nominal_straight_beam_formula_on_arc_resultants"
++            );
++            assert_eq!(
+                 stress_metadata.sign_convention,
+                 CURVED_BEND_SECTION_SIGN_CONVENTION
+             );
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:14413:
+             // lateral springs act over a length without the moment coupling.
+             // This shared test basis omits the demo's joint C-150; the refusal and
+             // the joint-specific assertions use `request_with_refused_joint()`.
+-            model.components.retain(|component| component.id != "component:C-150");
++            model
++                .components
++                .retain(|component| component.id != "component:C-150");
+             LinearStaticPreviewRequest {
+                 model,
+                 materials: invented_materials(),
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:14678:
+     /// the same force norm computed from the signed components: the first case
+     /// for `result:reaction:…`, else the case or combination named in the prefix.
+     fn support_force_norm(envelope: &MechanicsEnvelope, legacy_id: &str) -> f64 {
+-        let (prefix, support) = legacy_id.rsplit_once("reaction:").expect("legacy reaction id");
++        let (prefix, support) = legacy_id
++            .rsplit_once("reaction:")
++            .expect("legacy reaction id");
+         let scope = prefix
+             .strip_prefix("result:loadcase:")
+             .or_else(|| prefix.strip_prefix("result:combination:"))
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:14689:
+             .find(|row| {
+                 row.kind == "support_reaction_force_magnitude_v2"
+                     && stable_suffix(&row.entity_ref) == support
+-                    && scope.is_none_or(|scope| row.basis_ref.as_ref().is_some_and(|b| stable_suffix(&b.ref_id) == scope))
++                    && scope.is_none_or(|scope| {
++                        row.basis_ref
++                            .as_ref()
++                            .is_some_and(|b| stable_suffix(&b.ref_id) == scope)
++                    })
+             })
+             .unwrap_or_else(|| panic!("missing signed support force magnitude for {legacy_id}"))
+             .value
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:14701:
+         envelope
+             .results
+             .iter()
+-            .find(|row| row.kind == "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref == pipe_id)
++            .find(|row| {
++                row.kind == "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref == pipe_id
++            })
+             .unwrap_or_else(|| panic!("missing maximum for {pipe_id}"))
+             .value
+             / 1e6
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:14708:
+     }
+ 
+     fn has_member_maximum(envelope: &MechanicsEnvelope, pipe_id: &str) -> bool {
+-        envelope
+-            .results
+-            .iter()
+-            .any(|row| row.kind == "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref == pipe_id)
++        envelope.results.iter().any(|row| {
++            row.kind == "pipe_elastic_normal_stress_maximum_v2" && row.entity_ref == pipe_id
++        })
+     }
+ 
+     fn legacy_value(envelope: &MechanicsEnvelope, id: &str) -> f64 {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:15030:
+                 "result:loadcase:load-L-200:nonlinear-support:support-NL-140:uy-reaction"
+             ));
+             // T0R (B-1): superposed nonlinear states are withheld; the case rows stay.
+-            assert!(!result_ids.iter().any(|id| id.starts_with("result:combination:combination-C-OPER-ALT:")));
+-            assert!(result.diagnostics.iter().any(|d| d.code == "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
+-                && d.affected_refs == vec!["combination:C-OPER-ALT".to_string()]));
++            assert!(!result_ids
++                .iter()
++                .any(|id| id.starts_with("result:combination:combination-C-OPER-ALT:")));
++            assert!(result
++                .diagnostics
++                .iter()
++                .any(|d| d.code == "NONLINEAR_COMBINATION_REQUIRES_SOLVE"
++                    && d.affected_refs == vec!["combination:C-OPER-ALT".to_string()]));
+             // DEC-067: the sliding-seeded friction support defers convergence one
+             // iteration so the bounded sliding force is applied before the loop
+             // converges.
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16497:
+     fn valid_invented_model_exposes_global_displacement_components() {
+         // T0R (B-1): the fixture's nonlinear supports gate every mechanics
+         // combination; its linear companion keeps the combination algebra tested.
+-        let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_global_displacement_components");
+-        input.model.supports.retain(|support| support.nonlinear.is_none());
++        let mut input = mechanical_fixture_for_test(
++            request(),
++            "tests::valid_invented_model_exposes_global_displacement_components",
++        );
++        input
++            .model
++            .supports
++            .retain(|support| support.nonlinear.is_none());
+         let result = run_linear_static_preview(input);
+         let result_ids = result
+             .results
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16596:
+         };
+         assert!(index_of("result:disp:node-N-140") < index_of("result:disp:node-N-100:ux"));
+         // T0R: the signed support rows take the retired reaction rows' place.
+-        assert!(index_of("result:disp:node-N-140:rz") < index_of("result:support-action:10:load:L-100:13:support:S-100:Fx"));
++        assert!(
++            index_of("result:disp:node-N-140:rz")
++                < index_of("result:support-action:10:load:L-100:13:support:S-100:Fx")
++        );
+     }
+ 
+     #[test]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16804:
+             request(),
+             "tests::bend_component_user_multipliers_emit_stress_review_rows",
+         ));
+-        assert!(!result.results.iter().any(|item| item.kind == "component_user_stress_multiplier_review"));
++        assert!(!result
++            .results
++            .iter()
++            .any(|item| item.kind == "component_user_stress_multiplier_review"));
+         let default_row = result
+             .results
+             .iter()
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16811:
+             .find(|item| item.id == "result:intensified-bending:component-C-110:pipe-P-100:end-j")
+             .expect("bend equal-factor row should be emitted for the adjacent pipe endpoint");
+-        assert_eq!(default_row.kind, "component_equal_factor_intensified_bending_stress_v1");
++        assert_eq!(
++            default_row.kind,
++            "component_equal_factor_intensified_bending_stress_v1"
++        );
+         assert_eq!(default_row.entity_ref, "component:C-110");
+         assert_eq!(default_row.unit, "Pa");
+         assert!(default_row.value > 0.0);
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16817:
+         let refs = &default_row.source_result_refs;
+-        assert_eq!(refs, &vec!["result:stress:pipe-P-100:end-j:bending-normal-y".to_string(), "result:stress:pipe-P-100:end-j:bending-normal-z".to_string()]);
++        assert_eq!(
++            refs,
++            &vec![
++                "result:stress:pipe-P-100:end-j:bending-normal-y".to_string(),
++                "result:stress:pipe-P-100:end-j:bending-normal-z".to_string()
++            ]
++        );
+         // The measure equals i * hypot(sigma_by, sigma_bz) of the same end (MPa rows).
+         let hypot = result_value(&result, &refs[0]).hypot(result_value(&result, &refs[1])) * 1e6;
+         assert!((default_row.value - 1.15 * hypot).abs() <= 1e-9 * default_row.value);
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16822:
+         let metadata = default_row.metadata.as_ref().expect("metadata");
+-        assert_eq!(metadata.component, "equal_factor_intensified_bending_stress");
++        assert_eq!(
++            metadata.component,
++            "equal_factor_intensified_bending_stress"
++        );
+         assert_eq!(metadata.coordinate_system, "pipe_section");
+         assert_eq!(metadata.location, "end_j");
+-        assert_eq!(metadata.basis, "user_sif_times_member_section_bending_stress_v1");
+-        assert!(metadata.sign_convention.contains("i=1.15 user-entered bend SIF"));
+-        assert!(metadata.sign_convention.contains("source: invented_user_entered_preview_no_code_table"));
++        assert_eq!(
++            metadata.basis,
++            "user_sif_times_member_section_bending_stress_v1"
++        );
++        assert!(metadata
++            .sign_convention
++            .contains("i=1.15 user-entered bend SIF"));
++        assert!(metadata
++            .sign_convention
++            .contains("source: invented_user_entered_preview_no_code_table"));
+         assert!(metadata.sign_convention.contains("no flexibility factor"));
+         // Never combined (the fixture's combination is gated by nonlinear supports anyway).
+-        assert!(!result.results.iter().any(|item| item.kind == "component_equal_factor_intensified_bending_stress_v1"
+-            && item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")));
++        assert!(!result.results.iter().any(|item| item.kind
++            == "component_equal_factor_intensified_bending_stress_v1"
++            && item
++                .basis_ref
++                .as_ref()
++                .is_some_and(|b| b.ref_type == "combination")));
+         assert_eq!(
+             result.summary.component_stress_modifier_count,
+-            result.results.iter().filter(|item| item.kind == "component_equal_factor_intensified_bending_stress_v1").count()
++            result
++                .results
++                .iter()
++                .filter(|item| item.kind == "component_equal_factor_intensified_bending_stress_v1")
++                .count()
+         );
+         assert_eq!(
+-            result.diagnostics.iter().filter(|d| d.code == "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED").count(),
++            result
++                .diagnostics
++                .iter()
++                .filter(|d| d.code == "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED")
++                .count(),
+             result.summary.component_stress_modifier_count
+         );
+-        assert!(!result.diagnostics.iter().any(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED"));
++        assert!(!result
++            .diagnostics
++            .iter()
++            .any(|d| d.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED"));
+     }
+ 
+     #[test]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16848:
+             request(),
+             "tests::branch_component_user_multipliers_emit_side_specific_stress_review_rows",
+         ));
+-        let row = |id: &str| result.results.iter().find(|item| item.id == id).unwrap_or_else(|| panic!("missing {id}"));
++        let row = |id: &str| {
++            result
++                .results
++                .iter()
++                .find(|item| item.id == id)
++                .unwrap_or_else(|| panic!("missing {id}"))
++        };
+         let branch_row = row("result:intensified-bending:component-C-120:pipe-P-110:end-j");
+         let header_row = row("result:intensified-bending:component-C-120:pipe-P-120:end-i");
+         for item in [branch_row, header_row] {
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16855:
+-            assert_eq!(item.kind, "component_equal_factor_intensified_bending_stress_v1");
++            assert_eq!(
++                item.kind,
++                "component_equal_factor_intensified_bending_stress_v1"
++            );
+             assert_eq!(item.entity_ref, "component:C-120");
+             assert!(item.value > 0.0);
+         }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16859:
+         let branch_metadata = branch_row.metadata.as_ref().unwrap();
+         assert_eq!(branch_metadata.location, "end_j");
+-        assert!(branch_metadata.sign_convention.contains("i=1.31 user-entered branch branch SIF"));
+-        assert!(branch_metadata.sign_convention.contains("source: invented_user_entered_branch_modifiers_no_code_table"));
++        assert!(branch_metadata
++            .sign_convention
++            .contains("i=1.31 user-entered branch branch SIF"));
++        assert!(branch_metadata
++            .sign_convention
++            .contains("source: invented_user_entered_branch_modifiers_no_code_table"));
+         let header_metadata = header_row.metadata.as_ref().unwrap();
+         assert_eq!(header_metadata.location, "end_i");
+-        assert!(header_metadata.sign_convention.contains("i=1.22 user-entered branch header SIF"));
+-        assert!(!result.results.iter().any(|item| item.kind == "component_equal_factor_intensified_bending_stress_v1"
+-            && item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")));
++        assert!(header_metadata
++            .sign_convention
++            .contains("i=1.22 user-entered branch header SIF"));
++        assert!(!result.results.iter().any(|item| item.kind
++            == "component_equal_factor_intensified_bending_stress_v1"
++            && item
++                .basis_ref
++                .as_ref()
++                .is_some_and(|b| b.ref_type == "combination")));
+     }
+ 
+     #[test]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16873:
+         let mut refused_input = request_with_refused_joint();
+         for case in &mut refused_input.model.load_cases {
+             // The demo's legacy nonzero pressure is refused first; remove it here.
+-            case.primitive_loads.retain(|load| load.category != "pressure");
++            case.primitive_loads
++                .retain(|load| load.category != "pressure");
+         }
+         let refused = run_linear_static_preview(refused_input);
+         assert_eq!(refused.status.mechanics, "MODEL_INCOMPLETE");
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16880:
+         assert!(refused.results.is_empty());
+-        assert!(refused.diagnostics.iter().any(|d| d.code == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"
++        assert!(refused.diagnostics.iter().any(|d| d.code
++            == "JOINT_ELEMENT_EQUILIBRIUM_UNQUALIFIED"
+             && d.affected_refs == vec!["component:C-150".to_string(), "pipe:P-130".to_string()]));
+         // The retained review-row premise runs only in the private historical scope.
+         let mut input = mechanical_fixture_for_test(
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:16886:
+             "tests::expansion_joint_user_stiffness_emits_macro_element_review_rows",
+         );
+         input.model.components = request_with_refused_joint().model.components;
+-        let result = crate::historical_pressure_reference::with_scope(|| run_linear_static_preview(input));
++        let result =
++            crate::historical_pressure_reference::with_scope(|| run_linear_static_preview(input));
+         let axial = result
+             .results
+             .iter()
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:17630:
+     fn valid_invented_model_exposes_explicit_load_combination_results() {
+         // T0R (B-1): the fixture's nonlinear supports gate every mechanics
+         // combination; its linear companion keeps the combination algebra tested.
+-        let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_explicit_load_combination_results");
+-        input.model.supports.retain(|support| support.nonlinear.is_none());
++        let mut input = mechanical_fixture_for_test(
++            request(),
++            "tests::valid_invented_model_exposes_explicit_load_combination_results",
++        );
++        input
++            .model
++            .supports
++            .retain(|support| support.nonlinear.is_none());
+         let result = run_linear_static_preview(input);
+         let combination_id = "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial";
+         let alternate_load_case_id = "result:loadcase:load-L-200:force:pipe-P-120:axial";
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:17719:
+             request(),
+             "tests::combination_stress_summary_rows_are_skipped_with_diagnostics",
+         );
+-        input.model.supports.retain(|support| support.nonlinear.is_none());
++        input
++            .model
++            .supports
++            .retain(|support| support.nonlinear.is_none());
+         let result = run_linear_static_preview(input);
+-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+-        assert!(result
+-            .results
+-            .iter()
+-            .any(|item| item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")));
++        assert_eq!(
++            result.status.mechanics, "MECHANICS_SOLVED",
++            "{:?}",
++            result.diagnostics
++        );
++        assert!(result.results.iter().any(|item| item
++            .basis_ref
++            .as_ref()
++            .is_some_and(|b| b.ref_type == "combination")));
+         assert!(!result.results.iter().any(|item| {
+-            item.basis_ref.as_ref().is_some_and(|b| b.ref_type == "combination")
+-                && matches!(item.kind.as_str(), "pipe_elastic_normal_stress_maximum_v2" | "open_formula_stress_summary")
++            item.basis_ref
++                .as_ref()
++                .is_some_and(|b| b.ref_type == "combination")
++                && matches!(
++                    item.kind.as_str(),
++                    "pipe_elastic_normal_stress_maximum_v2" | "open_formula_stress_summary"
++                )
+         }));
+-        assert!(result.diagnostics.iter().any(|item| item.code
+-            == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE"
+-            && item.affected_refs == vec!["combination:C-OPER-ALT".to_string()]));
+-        assert!(!result.diagnostics.iter().any(|item| item.code == "COMBINATION_STRESS_SUMMARY_SKIPPED"));
++        assert!(result
++            .diagnostics
++            .iter()
++            .any(|item| item.code == "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE"
++                && item.affected_refs == vec!["combination:C-OPER-ALT".to_string()]));
++        assert!(!result
++            .diagnostics
++            .iter()
++            .any(|item| item.code == "COMBINATION_STRESS_SUMMARY_SKIPPED"));
+     }
+ 
+     #[test]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:19993:
+                                 <= 1e-6
+                         );
+                     }
+-                    assert!(support_force_norm(&result, "result:reaction:support-S-100").abs() <= 1e-6);
++                    assert!(
++                        support_force_norm(&result, "result:reaction:support-S-100").abs() <= 1e-6
++                    );
+                 }
+             }
+         }
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:20115:
+             assert_eq!(result_value(&result, "result:disp:node-N-110:uy"), 0.0);
+             // Tip load is applied at the guided DOF: its ground reaction is 1 kN.
+             assert!(
+-                (support_force_norm(&result, "result:reaction:support-NL-GAP-110") - 1000.0).abs() < 1e-6
++                (support_force_norm(&result, "result:reaction:support-NL-GAP-110") - 1000.0).abs()
++                    < 1e-6
+             );
+             let mut split = input.clone();
+             let mut guide = split.model.supports[1].clone();
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:21004:
+                     "{:?}",
+                     result.diagnostics
+                 );
+-                p5_close(support_force_norm(&result, "result:reaction:support-S-100"), 75.0);
+-                p5_close(support_force_norm(&result, "result:reaction:support-tip"), 25.0);
++                p5_close(
++                    support_force_norm(&result, "result:reaction:support-S-100"),
++                    75.0,
++                );
++                p5_close(
++                    support_force_norm(&result, "result:reaction:support-tip"),
++                    25.0,
++                );
+                 // Peak x=.75 (fraction .375) is not a public station sample.
+                 p5_close(
+                     member_maximum_mpa(&result, "pipe:P-100"),
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:21231:
+                     continue;
+                 };
+                 for source in &row.source_result_refs {
+-                    let source = by_id.get(source.as_str()).unwrap_or_else(|| panic!("unresolved case edge {source}"));
++                    let source = by_id
++                        .get(source.as_str())
++                        .unwrap_or_else(|| panic!("unresolved case edge {source}"));
+                     assert_eq!(source.basis_ref.as_ref().unwrap().ref_id, basis.ref_id);
+                     checked += 1;
+                     qualified_case_edges += usize::from(source.id.starts_with("result:loadcase:"));
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:21461:
+                  support contributions: {contribution}"
+             )
+         );
+-        assert!(!diagnostic.message.contains("missing global rigid-body DOF classes"));
++        assert!(!diagnostic
++            .message
++            .contains("missing global rigid-body DOF classes"));
+     }
+ 
+     #[test]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:21774:
+         // multiplier or intensified row anywhere; its SIF is recorded as not
+         // applied until T4, and k enters stiffness only.
+         let result = run_linear_static_preview(curved_bend_span_request());
+-        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+-        assert!(!result.results.iter().any(|item| matches!(item.kind.as_str(),
+-            "component_user_stress_multiplier_review" | "component_equal_factor_intensified_bending_stress_v1")));
++        assert_eq!(
++            result.status.mechanics, "MECHANICS_SOLVED",
++            "{:?}",
++            result.diagnostics
++        );
++        assert!(!result.results.iter().any(|item| matches!(
++            item.kind.as_str(),
++            "component_user_stress_multiplier_review"
++                | "component_equal_factor_intensified_bending_stress_v1"
++        )));
+         let diagnostic = result
+             .diagnostics
+             .iter()
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:21783:
+             .find(|item| item.code == "COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED")
+             .expect("not-applied diagnostic is present");
+-        assert_eq!(diagnostic.affected_refs, vec!["component:C-110".to_string()]);
++        assert_eq!(
++            diagnostic.affected_refs,
++            vec!["component:C-110".to_string()]
++        );
+         assert_eq!(result.summary.component_stress_modifier_count, 0);
+-        assert!(!result.diagnostics.iter().any(|item| item.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED"));
++        assert!(!result
++            .diagnostics
++            .iter()
++            .any(|item| item.code == "COMPONENT_STRESS_MULTIPLIER_APPLIED"));
+     }
+ 
+     #[test]
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:22414:
+                 .unwrap();
+             assert_eq!(metadata.coordinate_system, "element_local");
+             // T0R (N-2): arc stress components carry the nominal-basis discriminator.
+-            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
+             assert_eq!(
++                metadata.basis,
++                "nominal_straight_beam_formula_on_arc_resultants"
++            );
++            assert_eq!(
+                 metadata.sign_convention,
+                 CURVED_BEND_SECTION_SIGN_CONVENTION
+             );
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:22472:
+                 .unwrap();
+             assert_eq!(stress_metadata.coordinate_system, "element_local");
+             // T0R (N-2): arc station stress rows carry the nominal-basis discriminator.
+-            assert_eq!(stress_metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
+             assert_eq!(
++                stress_metadata.basis,
++                "nominal_straight_beam_formula_on_arc_resultants"
++            );
++            assert_eq!(
+                 stress_metadata.sign_convention,
+                 CURVED_BEND_SECTION_SIGN_CONVENTION
+             );
+Diff in <wt>/f1b/projects/chirality-piping/core/product_physics/src/lib.rs:22686:
+                 .unwrap();
+             assert_eq!(metadata.coordinate_system, "element_local");
+             // T0R (N-2): arc stress components carry the nominal-basis discriminator.
+-            assert_eq!(metadata.basis, "nominal_straight_beam_formula_on_arc_resultants");
++            assert_eq!(
++                metadata.basis,
++                "nominal_straight_beam_formula_on_arc_resultants"
++            );
+             assert_eq!(
+                 metadata.sign_convention,
+                 CURVED_BEND_SECTION_SIGN_CONVENTION

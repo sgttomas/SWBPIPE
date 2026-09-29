@@ -1,0 +1,206 @@
+{
+ "LEVER2-k90-s40": {
+  "selected": null,
+  "attempts": [
+   [
+    "128",
+    "failed:Pivot"
+   ],
+   [
+    "256",
+    "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 10724.072727247936)"
+   ],
+   [
+    "512",
+    "rejected:('stop_rule', ('end', 0, 'i', 2), 'fo')"
+   ]
+  ]
+ },
+ "LEVER2-k110-s20": {
+  "selected": null,
+  "attempts": [
+   [
+    "128",
+    "failed:Pivot"
+   ],
+   [
+    "256",
+    "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 11244978027.120613)"
+   ],
+   [
+    "512",
+    "rejected:('stop_rule', ('end', 0, 'i', 2), 'fo')"
+   ]
+  ]
+ },
+ "controls": {
+  "F-2": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 4.257474626813616e-09)"
+   ]
+  },
+  "PTAIL": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "PTAIL-FREE": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.00040193320578516223)"
+   ]
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.001692791374362245)"
+   ]
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.000682431175595238)"
+   ]
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "last": [
+    "512",
+    "accepted",
+    "('W/V', 0.0)"
+   ]
+  },
+  "LOADONLY-y345-N": {
+   "selected": 128,
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.0007840607943917754)"
+   ]
+  },
+  "GS-ROT-y345-LOADED-N": {
+   "selected": 128,
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.00014652758258417163)"
+   ]
+  },
+  "LOADONLY-y001-N": {
+   "selected": 128,
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.002518338941620796)"
+   ]
+  },
+  "N05": {
+   "selected": 128,
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 4.825341262724394e-05)"
+   ]
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 2.4970255959385343e-05)"
+   ]
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 2.3538416082208808e-06)"
+   ]
+  },
+  "PIVOT": {
+   "selected": 256,
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 0.00010860416064592028)"
+   ]
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "last": [
+    "256",
+    "accepted",
+    "('W/V', 1.100960281564317e-08)"
+   ]
+  },
+  "ZERO-TORSION-345": {
+   "selected": 128,
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 0.00036797990579929684)"
+   ]
+  },
+  "ALL-ZERO-BODY": {
+   "selected": 128,
+   "last": [
+    "128",
+    "accepted",
+    "('W/V', 5.053758888319644e-06)"
+   ]
+  }
+ }
+}

@@ -1,0 +1,49 @@
+RV14 delta check: records at 28517eaaa, 2026-09-28T22:25:29Z
+== IMPLEMENTATION/K5/SHA256SUMS (git archive of 28517eaaa): failures, counts, set difference
+listed=225 files_on_disk=225
+== FK tests/k5_constrained/SHA256SUMS
+b1_sample.txt: OK
+b1_summary.txt: OK
+cases.txt: OK
+subnormal.txt: OK
+subnormal_summary.txt: OK
+gen_k5_vectors.py: OK
+== gen_k5_vectors.py --check (head archive): check: OK
+== subnormal.txt against RV14's cases_tiny.txt (n, subs, ties, grounds, coords compared field by field):
+  first record rv14_h_tiny_free_x (P); the next 300 records equal RV14's first 300 tiny cases: 300 of 300
+== RETURN §16.6's file table against the head archive (lines, sha256 prefix):
+  solver/frame_kernel/src/rigid_body.rs                                 1407 3e5b9be1
+  solver/frame_kernel/tests/k5_constrained_bodies.rs                    1109 f56d77d0
+  solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py             910 2e4a850c
+  solver/frame_kernel/tests/k5_constrained/cases.txt                      29 75657e93
+  solver/frame_kernel/tests/k5_constrained/SHA256SUMS                      6 4b00b516
+  solver/frame_kernel/tests/k5_constrained/subnormal.txt                 301 7e41bf9c
+  solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt          15 63ad0f61
+  solver/nonlinear_integration/src/structural_adapter/k5_tests.rs       1333 bacf221b
+  product_physics/tests/k5_curved_mechanism_runtime.rs                   267 6450e9db
+== reused RV14 scripts (sha256 prefix): I14's records name 9ef6da73 (rv14_mutate.py), 9a2c7878 (rv14_fk_probe.rs), 03586d4b (rv14_oracle.py); RV14's committed copies:
+  mutations/rv14_mutate.py.txt 9ef6da73
+  probes/rv14_fk_probe.rs.txt 9a2c7878
+  oracle/rv14_oracle.py.txt 03586d4b
+  REVIEW/K5_REVIEW.md as committed at numerics 3a17799e4: f468696e350c076d (RV14's returned sha256 f468696e350c076d)
+== I14's probe result hash against RV14's own run at the head: I14 681116899a22..., RV14 681116899a22b2cf
+== interface anchors at 28517eaaa (RETURN §9.1)
+  265:pub enum GroundKind {
+  274:pub enum ConstrainedGround {
+  290:pub const CONSTRAINED_RANK_UNRESOLVED: &str = "constrained-body rank unresolved";
+  294:pub const CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE: &str =
+  301:pub struct ConstrainedAssessment {
+  329:pub enum TieRefusal {
+  344:pub fn user_element_tie(element: &UserStiffnessElement) -> Result<[usize; 2], TieRefusal> {
+  365:pub fn objective_sub_bodies(
+  478:pub fn assess_constrained_bodies(
+== RETURN N1 fixes
+  220:   - `permits_contact_seed_trial` admits any `Mechanism` (`SA:1900` on the base `24dea2dae`; `SA:2142` at the head). A W4 `Mechanism` ex
+  947:  - §2.5 now cites `SA:1900` on the base and `SA:2142` at the head.
+== git diff --check b379e5b27 95c7501a7 (per file):
+     1 K5/_run_records/rv14/tests/fk.txt: new blank line at EOF.
+     1 K5/_run_records/rv14/tests/fk_site.txt: new blank line at EOF.
+     1 K5/_run_records/rv14/tests/ni.txt: new blank line at EOF.
+     1 K5/_run_records/rv14/tests/pp.txt: new blank line at EOF.
+== scans of the addendum's 50 files: GEN-8 path regex hits, model-identifier hits, user-name hits
+  files 50; path hits 0; model-scan hits ['RETURN.md:12'] (the delegation line naming the host, RV14-N4); user-name hits 0

@@ -1,0 +1,564 @@
+//! RV11 reviewer probes (scratch only; not part of the candidate).
+use super::*;
+
+fn frame(i: usize, xi: f64, j: usize, xj: f64, e: f64, g: f64, a: f64) -> FrameElement {
+    let section = FrameSection::new(e, g, a, 1.0, 1.0, 1.0).unwrap();
+    FrameElement::new(
+        FrameNode::new(i, [xi, 0.0, 0.0]).unwrap(),
+        FrameNode::new(j, [xj, 0.0, 0.0]).unwrap(),
+        section,
+        [0.0, 1.0, 0.0],
+    )
+    .unwrap()
+}
+
+/// N0 -S- N1 -W- N2 on x, unit lengths; only N1 UX (dof 6) free; the given
+/// terms at dof 6.
+fn two_bar(s: (f64, f64, f64), w: (f64, f64), terms: Vec<(usize, ForceTermKind)>) -> Model {
+    Model {
+        node_count: 3,
+        frames: vec![
+            frame(0, 0.0, 1, 1.0, s.0, s.1, s.2),
+            frame(1, 1.0, 2, 2.0, w.0, w.1, 1.0),
+        ],
+        macros: Vec::new(),
+        slots: Vec::new(),
+        springs: Vec::new(),
+        prescribed: (0..18).filter(|&d| d != 6).map(|d| (d, 0.0)).collect(),
+        terms,
+    }
+}
+
+fn report_case(name: &str, model: &Model, reaction_dofs: &[usize], reference: &dyn Fn(f64) -> Vec<f64>) {
+    report_case_at(name, model, 6, reaction_dofs, reference)
+}
+
+fn report_case_at(name: &str, model: &Model, free_dof: usize, reaction_dofs: &[usize], reference: &dyn Fn(f64) -> Vec<f64>) {
+    let force = model.ledger();
+    let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+    let census = force_scale_census(&probe).unwrap();
+    println!("RV11 {name}: census span {:?}, rule b {:?}", census.span(), census.force_scale().map(|s| s.exponent()));
+    for mode in MODES {
+        for representation in REPRESENTATIONS {
+            let ctx = format!("{name} {mode:?} {representation:?}");
+            let today = match model.stiffness(ForceScale::UNSCALED) {
+                Ok(_) => format!("{:?}", model.existing(&force, mode, representation, true).map(|s| s.report.quality)),
+                Err(e) => format!("formation {e:?}"),
+            };
+            println!("RV11 {ctx}: b=0 today: {today}");
+            match solve_with_force_scaling(&model.case(&force, mode, representation)) {
+                Ok(outcome) => {
+                    let b = outcome.solution.force_scale;
+                    let u = outcome.solution.solution.displacements.clone();
+                    // Delta check: one call per DOF, so one refusal does not hide the others.
+                    let reactions: Vec<_> = reaction_dofs
+                        .iter()
+                        .map(|&d| outcome.stiffness.force_scaled_reactions(&u, &force, b, &[d]))
+                        .collect();
+                    let expected = reference(u[free_dof]);
+                    println!(
+                        "RV11 {ctx}: b={} quality={:?} records={} u[{free_dof}]={:e} ({:#x})",
+                        b.exponent(),
+                        outcome.solution.solution.report.quality,
+                        outcome.solution.records.len(),
+                        u[free_dof],
+                        u[free_dof].to_bits()
+                    );
+                    for ((dof, result), exp) in reaction_dofs.iter().zip(&reactions).zip(&expected) {
+                        match result {
+                            Ok(values) => {
+                                let published = values[0];
+                                let rel = if *exp != 0.0 { ((published.value - exp) / exp).abs() } else { published.value.abs() };
+                                println!(
+                                    "RV11 {ctx}: R{dof} published {:e} ({:?}) reference {:e} rel.err {:e}",
+                                    published.value, published.representability, exp, rel
+                                );
+                            }
+                            Err(e) => println!("RV11 {ctx}: R{dof} refused {e:?} (reference {exp:e})"),
+                        }
+                    }
+                }
+                Err(e) => println!("RV11 {ctx}: orchestrator error {e:?}"),
+            }
+        }
+    }
+}
+
+/// F-A: a restrained end reached only through a weak member. The reaction at
+/// N2 UX is -EA_w/L * u6 (normal at b = 0 in unbounded arithmetic), but at the
+/// rule's b the formed K'*u product leaves the normal range.
+#[test]
+fn rv11_reaction_through_weak_member_at_the_rules_b() {
+    let es = pow2(1000);
+    let as_ = pow2(30);
+    let ew = pow2(227);
+    // (a) the product K'_w * u underflows to zero at b = -600.
+    let fa = 1.2345 * pow2(227);
+    let model = two_bar((es, es, as_), (ew, ew), vec![(6, ForceTermKind::Term(fa))]);
+    report_case("F-A(a) underflow", &model, &[0, 12], &|u6| vec![-(es * as_) * u6, -ew * u6]);
+    // (b) the product is subnormal at b = -600 (about 14 bits kept).
+    let fb = 1.2345 * pow2(343);
+    let model = two_bar((es, es, as_), (ew, ew), vec![(6, ForceTermKind::Term(fb))]);
+    report_case("F-A(b) subnormal", &model, &[0, 12], &|u6| vec![-(es * as_) * u6, -ew * u6]);
+    // (c) control: the same (b) model with a normal-range stiff member
+    // (b = 0 solves), for today's E12 at N2.
+    let model = two_bar((pow2(600), pow2(600), 1.0), (pow2(227), pow2(227)), vec![(6, ForceTermKind::Term(1.2345 * pow2(-57)))]);
+    report_case("F-A(c) control at b=0", &model, &[0, 12], &|u6| vec![-(pow2(600)) * u6, -pow2(227) * u6]);
+}
+
+/// F-B: `exact_normal_scaling` accepts a result that rounds up from the
+/// subnormal range to 2^-1022 (normal but inexact).
+#[test]
+fn rv11_exact_normal_scaling_boundary() {
+    let x = f64::from_bits(0x002F_FFFF_FFFF_FFFF); // (2 - 2^-52) * 2^-1021
+    let r = force_scaled_value("x", x, scale(-2));
+    println!("RV11 F-B force_scaled_value(0x1.fffffffffffffp-1021, b=-2) = {r:?} (2^-1022 = {:e})", pow2(-1022));
+    // Through the ledger, at the rule's b: a product term whose first factor
+    // lands at the boundary. Census e_min 437 (W), e_max 1030 (S's E*A).
+    let xp = f64::from_bits(((-317_i64 + 1023) as u64) << 52 | 0x000F_FFFF_FFFF_FFFF);
+    let yp = pow2(760);
+    let model = two_bar(
+        (pow2(1000), pow2(1000), pow2(30)),
+        (pow2(437), pow2(437)),
+        vec![(6, ForceTermKind::Product(xp, yp))],
+    );
+    let force = model.ledger();
+    let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+    let census = force_scale_census(&probe).unwrap();
+    let b = census.force_scale().unwrap();
+    println!("RV11 F-B census {:?} rule b {}", census.span(), b.exponent());
+    let scaled = force.force_scaled(b).unwrap();
+    let exact = force.get(6).unwrap() * pow2(b.exponent());
+    println!(
+        "RV11 F-B scaled net {:#x}, 2^b * net {:#x} (equal: {}), terms {:?}",
+        scaled.get(6).unwrap().to_bits(),
+        exact.to_bits(),
+        scaled.get(6).unwrap().to_bits() == exact.to_bits(),
+        scaled.terms().iter().map(|t| t.kind).collect::<Vec<_>>()
+    );
+    for representation in REPRESENTATIONS {
+        let outcome = solve_with_force_scaling(&model.case(&force, LinearSolveMode::DenseScrutiny, representation));
+        match outcome {
+            Ok(o) => {
+                let at_rule = o.solution.solution.displacements[6];
+                let other = model
+                    .forced(&force, scale(b.exponent() + 2), LinearSolveMode::DenseScrutiny, representation, true)
+                    .map(|s| s.solution.displacements[6]);
+                println!(
+                    "RV11 F-B {representation:?}: rule b u6 {:#x} quality {:?}; b+2 u6 {:?}",
+                    at_rule.to_bits(),
+                    o.solution.solution.report.quality,
+                    other.map(|v| format!("{:#x}", v.to_bits()))
+                );
+            }
+            Err(e) => println!("RV11 F-B {representation:?}: {e:?}"),
+        }
+    }
+}
+
+/// F-C: forced even b over a wide grid on K-D5's models: any Ok at b whose u
+/// bits or unscaled Debug differ from b = 0's Ok.
+#[test]
+fn rv11_forced_b_grid_invariance() {
+    let mut same = 0;
+    let mut differ = Vec::new();
+    let mut errors = 0;
+    let mut mismatch_kind = Vec::new();
+    for m in KD5 {
+        let model = Model::from_kd5(m);
+        let force = model.ledger();
+        let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+        let census = force_scale_census(&probe).unwrap();
+        let (lo, hi) = census.span().unwrap();
+        let (b_lo, b_hi) = (-1022 + 64 - lo, 1023 - 8 - hi);
+        let mut grid: Vec<i32> = (b_lo..=b_hi).filter(|b| b % 2 == 0 && b % 34 == 0).collect();
+        for extra in [b_lo, b_hi, b_lo + 1, b_hi - 1, -1100 - lo, 1030 - hi] {
+            if extra % 2 == 0 {
+                grid.push(extra);
+            }
+        }
+        for mode in MODES {
+            for representation in REPRESENTATIONS {
+                let today = model.existing(&force, mode, representation, true);
+                for &b in &grid {
+                    let scaled = model.forced(&force, scale(b), mode, representation, true);
+                    match (&today, &scaled) {
+                        (Ok(t), Ok(s)) => {
+                            if bits(&s.solution.displacements) == bits(&t.displacements)
+                                && format!("{:?}", s.solution) == format!("{t:?}")
+                            {
+                                same += 1;
+                            } else {
+                                differ.push(format!(
+                                    "{} b={b} {mode:?} {representation:?} ubits_equal={} records={}",
+                                    m.name,
+                                    bits(&s.solution.displacements) == bits(&t.displacements),
+                                    s.records.len()
+                                ));
+                            }
+                        }
+                        (Ok(_), Err(_)) => errors += 1,
+                        (Err(te), Ok(_)) => mismatch_kind.push(format!("{} b={b}: today {te:?}, scaled Ok", m.name)),
+                        (Err(_), Err(_)) => {}
+                    }
+                }
+            }
+        }
+    }
+    println!("RV11 F-C same={same} errors_at_b={errors} differ={}", differ.len());
+    for d in differ.iter().take(40) {
+        println!("RV11 F-C differ {d}");
+    }
+    for d in mismatch_kind.iter().take(20) {
+        println!("RV11 F-C today-err-scaled-ok {d}");
+    }
+}
+
+fn node(i: usize, c: [f64; 3]) -> FrameNode {
+    FrameNode::new(i, c).unwrap()
+}
+
+/// F-A2: a long member W (N1 -> N2, L = 2^300 m, E = G = 2^200, A = I = J = 1)
+/// with only N1 RZ free and a moment M = 1.2345 * 2^(-697 + delta) there; N2
+/// fully fixed. A separate stiff member S (N3 -> N4, both fully fixed; E = G
+/// = 2^1000, A = 2^30) makes b = 0 fail at formation (E*A overflows). The
+/// census span is [-697, 1030] and the rule's b is -138. The reactions at
+/// N1 UY and N2 UY are -/+6EI/L^2 * theta = about 1.5 M / L, normal at b = 0
+/// in unbounded arithmetic, but formed below the normal range at 2^b.
+fn long_member(delta: i32, with_s: bool) -> Model {
+    let w = FrameSection::new(pow2(200), pow2(200), 1.0, 1.0, 1.0, 1.0).unwrap();
+    let mut frames = vec![FrameElement::new(node(0, [0.0, 0.0, 0.0]), node(1, [pow2(300), 0.0, 0.0]), w, [0.0, 1.0, 0.0]).unwrap()];
+    let mut node_count = 2;
+    if with_s {
+        let s = FrameSection::new(pow2(1000), pow2(1000), pow2(30), 1.0, 1.0, 1.0).unwrap();
+        frames.push(FrameElement::new(node(2, [0.0, 1.0, 0.0]), node(3, [0.0, 2.0, 0.0]), s, [1.0, 0.0, 0.0]).unwrap());
+        node_count = 4;
+    }
+    Model {
+        node_count,
+        frames,
+        macros: Vec::new(),
+        slots: Vec::new(),
+        springs: Vec::new(),
+        prescribed: (0..6 * node_count).filter(|&d| d != 5).map(|d| (d, 0.0)).collect(),
+        terms: vec![(5, ForceTermKind::Term(1.2345 * pow2(-697 + delta)))],
+    }
+}
+
+#[test]
+fn rv11_long_member_reactions_and_actions_at_the_rules_b() {
+    for (delta, with_s) in [(0, true), (80, true), (0, false)] {
+        let model = long_member(delta, with_s);
+        // reference: theta from the solve; R(N1 UY) = 6EI/L^2 theta, R(N2 UY) = -6EI/L^2 theta
+        let k6 = 6.0 * pow2(200) / pow2(600);
+        let name = format!("F-A2 delta={delta} with_s={with_s}");
+        report_case_at(&name, &model, 5, &[1, 7, 11], &|theta| vec![k6 * theta, -k6 * theta, 2.0 * pow2(-100) * theta]);
+        if !with_s {
+            let force = model.ledger();
+            let k0 = model.stiffness(ForceScale::UNSCALED).unwrap();
+            let today = model.existing(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense, true).unwrap();
+            let r = k0.reactions(&today.displacements, &force).unwrap();
+            println!("RV11 {name}: today's E12 at b=0: R1 {:e} R7 {:e} R11 {:e}; theta {:e}", r[1], r[7], r[11], today.displacements[5]);
+        }
+        // member end actions of W at the rule's b (the RETURN's F1b recipe, step 4)
+        let force = model.ledger();
+        if let Ok(o) = solve_with_force_scaling(&model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense)) {
+            let b = o.solution.force_scale;
+            let u = &o.solution.solution.displacements;
+            let theta = u[5];
+            match model.frames[0].force_scaled_end_actions(u, b) {
+                Ok(acts) => println!("RV11 {name}: W end actions at b={} (local Vy_i, Mz_i, Vy_j, Mz_j) = {:e} {:?}, {:e}, {:e} {:?}, {:e}; reference Vy = +/-{:e}",
+                    b.exponent(), acts[1].value, acts[1].representability, acts[5].value, acts[7].value, acts[7].representability, acts[11].value, k6 * theta),
+                Err(e) => println!("RV11 {name}: W end actions at b={} refused: {e:?}; reference Vy = +/-{:e}", b.exponent(), k6 * theta),
+            }
+        }
+    }
+}
+
+/// F-D (delta check): forced even b over each model's census window. Where the
+/// solve at b is Ok and bit-identical to b = 0, every published reaction
+/// (`force_scaled_reactions`) and member end action
+/// (`force_scaled_end_actions`) must either be refused or carry today's b = 0
+/// bits. A published value with other bits is a wrong value.
+#[test]
+fn rv11_forced_b_grid_reactions_and_actions() {
+    let mut models: Vec<(String, Model)> = KD5.iter().map(|m| (m.name.to_string(), Model::from_kd5(m))).collect();
+    for delta in [0, 40, 80, 160, 240] {
+        models.push((format!("long_member(no S, delta {delta})"), long_member(delta, false)));
+    }
+    let (mut total_wrong, mut total_refused, mut total_ok) = (0usize, 0usize, 0usize);
+    for (name, model) in &models {
+        let force = model.ledger();
+        let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+        let census = force_scale_census(&probe).unwrap();
+        let (lo, hi) = census.span().unwrap();
+        let (b_lo, b_hi) = (-1022 + 64 - lo, 1023 - 8 - hi);
+        let k0 = model.stiffness(ForceScale::UNSCALED).unwrap();
+        let rigid = model.rigid();
+        let today = match model.existing(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Pattern, true) {
+            Ok(t) => t,
+            Err(_) => continue,
+        };
+        let r0 = k0.reactions(&today.displacements, &force).unwrap();
+        let a0: Vec<Option<[PublishedValue; 12]>> = model
+            .frames
+            .iter()
+            .map(|f| f.force_scaled_end_actions(&today.displacements, ForceScale::UNSCALED).ok())
+            .collect();
+        let (mut solved, mut wrong, mut refused_r, mut refused_a, mut ok_values) = (0, Vec::new(), 0, 0, 0);
+        for b in (b_lo..=b_hi).filter(|b| b % 2 == 0 && b % 10 == 0) {
+            let s = scale(b);
+            let Ok(scaled) = model.forced(&force, s, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Pattern, true) else { continue };
+            if bits(&scaled.solution.displacements) != bits(&today.displacements) {
+                continue;
+            }
+            solved += 1;
+            let u = &scaled.solution.displacements;
+            let ks = model.stiffness(s).unwrap();
+            for &dof in &rigid {
+                match ks.force_scaled_reactions(u, &force, s, &[dof]) {
+                    Ok(p) => {
+                        ok_values += 1;
+                        if p[0].value.to_bits() != r0[dof].to_bits() && !(p[0].value == 0.0 && r0[dof] == 0.0) {
+                            wrong.push(format!("b={b} R{dof}: published {:e} {:?} vs b=0 {:e}", p[0].value, p[0].representability, r0[dof]));
+                        }
+                    }
+                    Err(_) => refused_r += 1,
+                }
+            }
+            for (frame, base) in model.frames.iter().zip(&a0) {
+                match (frame.force_scaled_end_actions(u, s), base) {
+                    (Ok(a), Some(base)) => {
+                        ok_values += 12;
+                        if values(&a) != values(base) {
+                            wrong.push(format!("b={b}: actions differ from b=0"));
+                        }
+                    }
+                    (Ok(_), None) => wrong.push(format!("b={b}: actions published where b=0 refuses them")),
+                    (Err(_), _) => refused_a += 1,
+                }
+            }
+        }
+        println!("RV11 F-D {name}: window [{b_lo}, {b_hi}], solved-identical {solved}, published values {ok_values}, reactions refused {refused_r}, element-action sets refused {refused_a}, WRONG {}", wrong.len());
+        for w in wrong.iter().take(4) {
+            println!("RV11 F-D {name}:   {w}");
+        }
+        total_wrong += wrong.len();
+        total_refused += refused_r + refused_a;
+        total_ok += ok_values;
+    }
+    println!("RV11 F-D total: published {total_ok}, refused {total_refused}, WRONG {total_wrong}");
+}
+
+/// F-E (delta check): K2b's own formation-range cases (reach, PHYS-R4,
+/// LEF-large), solved at the rule's b. Their reactions and actions there, and
+/// across every tenth even b in the window where the solve is bit-identical
+/// to the rule's b: every published value must have the rule's-b bits (the
+/// fixed functions publish round(unbounded row + terms), independent of b).
+/// Reports refusals at the rule's b (availability for F1b).
+#[test]
+fn rv11_k2b_cases_reactions_and_actions_across_the_window() {
+    let mut models: Vec<(String, Model)> = Vec::new();
+    for r in REACH.iter().filter(|r| r.id != "spring-carried") {
+        models.push((r.id.to_string(), Model::from_reach(r)));
+    }
+    for c in LEF_LARGE {
+        models.push((c.id.to_string(), Model::from_lef(c)));
+    }
+    for (name, model) in &models {
+        let force = model.ledger();
+        let rigid = model.rigid();
+        for mode in MODES {
+            let Ok(outcome) = solve_with_force_scaling(&model.case(&force, mode, EvidenceRepresentation::Pattern)) else {
+                println!("RV11 F-E {name} {mode:?}: not solved");
+                continue;
+            };
+            let b = outcome.solution.force_scale;
+            let u = outcome.solution.solution.displacements.clone();
+            let react = |k: &SparseStiffness, s: ForceScale, u: &[f64]| -> Vec<Option<u64>> {
+                rigid.iter().map(|&d| k.force_scaled_reactions(u, &force, s, &[d]).ok().map(|p| p[0].value.to_bits())).collect()
+            };
+            let act = |s: ForceScale, u: &[f64]| -> Vec<Option<Vec<u64>>> {
+                model.frames.iter().map(|f| f.force_scaled_end_actions(u, s).ok().map(|a| values(&a))).collect()
+            };
+            let r_rule = react(&outcome.stiffness, b, &u);
+            let a_rule = act(b, &u);
+            let census = force_scale_census(&model.case(&force, mode, EvidenceRepresentation::Pattern)).unwrap();
+            let (lo, hi) = census.span().unwrap();
+            let (b_lo, b_hi) = (-1022 + 64 - lo, 1023 - 8 - hi);
+            let (mut solved, mut wrong, mut refused, mut published) = (0, 0, 0, 0);
+            for bb in (b_lo..=b_hi).filter(|x| x % 2 == 0 && x % 10 == 0) {
+                let s = scale(bb);
+                let Ok(scaled) = model.forced(&force, s, mode, EvidenceRepresentation::Pattern, true) else { continue };
+                if bits(&scaled.solution.displacements) != bits(&u) {
+                    continue;
+                }
+                solved += 1;
+                let ks = model.stiffness(s).unwrap();
+                for (x, y) in react(&ks, s, &u).iter().zip(&r_rule) {
+                    match (x, y) {
+                        (Some(x), Some(y)) => { published += 1; if x != y { wrong += 1; } }
+                        (Some(_), None) => { published += 1; }
+                        (None, _) => refused += 1,
+                    }
+                }
+                for (x, y) in act(s, &u).iter().zip(&a_rule) {
+                    match (x, y) {
+                        (Some(x), Some(y)) => { published += 12; if x != y { wrong += 1; } }
+                        (Some(_), None) => { published += 12; }
+                        (None, _) => refused += 1,
+                    }
+                }
+            }
+            println!(
+                "RV11 F-E {name} {mode:?}: rule b={} quality={:?}; at the rule's b reactions refused {}/{} and element-action sets refused {}/{}; window [{b_lo}, {b_hi}] solved-identical {solved}, published {published}, refused {refused}, WRONG {wrong}",
+                b.exponent(),
+                outcome.solution.solution.report.quality,
+                r_rule.iter().filter(|x| x.is_none()).count(),
+                r_rule.len(),
+                a_rule.iter().filter(|x| x.is_none()).count(),
+                a_rule.len()
+            );
+        }
+    }
+}
+
+/// F-S (delta check): RETURN §15 step 5's spring-action recipe, -(k*2^b)*u
+/// through `unscale_for_publication`, which addendum 1 left unchanged. The
+/// long member W with N0 UY and N0 RZ free, a moment at N0 RZ and a spring of
+/// 2^-600 N/m to ground on N0 UY. With S (b = 0 fails; the rule's b is -138),
+/// the solve is Passed. The spring action is about -6EI/L^2 * theta, about
+/// 1.4e-300 N at b = 0 in unbounded arithmetic; at 2^b its product leaves the
+/// normal range.
+#[test]
+fn rv11_spring_action_recipe_at_the_rules_b() {
+    let k_spring = pow2(-600);
+    let build = |with_s: bool| -> Model {
+        let mut model = long_member(0, with_s);
+        model.prescribed.retain(|&(d, _)| d != 1);
+        model.springs.push((1, k_spring));
+        model
+    };
+    let plain = build(false);
+    let plain_force = plain.ledger();
+    let model = build(true);
+    let force = model.ledger();
+    let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+    let census = force_scale_census(&probe).unwrap();
+    println!("RV11 F-S census {:?} rule b {:?}", census.span(), census.force_scale().map(|s| s.exponent()));
+    for mode in MODES {
+        for representation in REPRESENTATIONS {
+            let ctx = format!("{mode:?} {representation:?}");
+            let today = plain.existing(&plain_force, mode, representation, true);
+            let Ok(today) = today else {
+                println!("RV11 F-S {ctx}: today's plain model: {today:?}");
+                continue;
+            };
+            let truth = -(k_spring * today.displacements[1]);
+            match solve_with_force_scaling(&model.case(&force, mode, representation)) {
+                Ok(o) => {
+                    let b = o.solution.force_scale;
+                    let u = &o.solution.solution.displacements;
+                    let product = -(force_scaled_value("spring", k_spring, b).unwrap() * u[1]);
+                    let recipe = unscale_for_publication(product, b, Some(1));
+                    println!(
+                        "RV11 F-S {ctx}: b={} quality={:?} u_y bits equal today: {}; product at 2^b {:e}; recipe publishes {:?}; today's -(k*u) {:e}",
+                        b.exponent(),
+                        o.solution.solution.report.quality,
+                        u[1].to_bits() == today.displacements[1].to_bits(),
+                        product,
+                        recipe,
+                        truth
+                    );
+                }
+                Err(e) => println!("RV11 F-S {ctx}: {e:?}"),
+            }
+        }
+    }
+}
+
+/// F-S2 (second delta check): F-S through the kernel helper
+/// `force_scaled_spring_action`, beside the withdrawn recipe, and a sweep of
+/// forced even b over the census window of the model without S (b = 0 solves):
+/// every published spring action must equal today's -(k*u) bits, or be refused.
+#[test]
+fn rv11_spring_action_helper_at_the_rules_b_and_across_the_window() {
+    use open_pipe_stress_frame_kernel::force_scaled_spring_action;
+    let k_spring = pow2(-600);
+    let build = |with_s: bool| -> Model {
+        let mut model = long_member(0, with_s);
+        model.prescribed.retain(|&(d, _)| d != 1);
+        model.springs.push((1, k_spring));
+        model
+    };
+    let plain = build(false);
+    let plain_force = plain.ledger();
+    let model = build(true);
+    let force = model.ledger();
+    for mode in MODES {
+        for representation in REPRESENTATIONS {
+            let ctx = format!("{mode:?} {representation:?}");
+            let today = plain.existing(&plain_force, mode, representation, true).unwrap();
+            let truth = -(k_spring * today.displacements[1]);
+            let at0 = force_scaled_spring_action((1, k_spring), &today.displacements, ForceScale::UNSCALED);
+            let o = solve_with_force_scaling(&model.case(&force, mode, representation)).unwrap();
+            let b = o.solution.force_scale;
+            let u = &o.solution.solution.displacements;
+            let recipe = unscale_for_publication(-(force_scaled_value("spring", k_spring, b).unwrap() * u[1]), b, Some(1));
+            let helper = force_scaled_spring_action((1, k_spring), u, b);
+            println!(
+                "RV11 F-S2 {ctx}: b={} quality={:?} u_y equal today: {}; withdrawn recipe {:?}; helper {:?}; helper at b=0 without S {:?} (today's -(k*u) {:e}, bits equal: {})",
+                b.exponent(),
+                o.solution.solution.report.quality,
+                u[1].to_bits() == today.displacements[1].to_bits(),
+                recipe,
+                helper,
+                at0,
+                truth,
+                at0.as_ref().map(|p| p.value.to_bits() == truth.to_bits()).unwrap_or(false)
+            );
+        }
+    }
+    // Sweep: the model without S over its census window, pattern representation, DenseScrutiny.
+    let probe = plain.case(&plain_force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Pattern);
+    let (lo, hi) = force_scale_census(&probe).unwrap().span().unwrap();
+    let (b_lo, b_hi) = (-1022 + 64 - lo, 1023 - 8 - hi);
+    let today = plain.existing(&plain_force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Pattern, true).unwrap();
+    let truth = -(k_spring * today.displacements[1]);
+    let (mut solved, mut published, mut refused, mut wrong) = (0, 0, 0, 0);
+    for bb in (b_lo..=b_hi).filter(|x| x % 2 == 0) {
+        let s = scale(bb);
+        let Ok(scaled) = plain.forced(&plain_force, s, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Pattern, true) else { continue };
+        if bits(&scaled.solution.displacements) != bits(&today.displacements) {
+            continue;
+        }
+        solved += 1;
+        match force_scaled_spring_action((1, k_spring), &scaled.solution.displacements, s) {
+            Ok(p) => {
+                published += 1;
+                if p.value.to_bits() != truth.to_bits() {
+                    wrong += 1;
+                }
+            }
+            Err(_) => refused += 1,
+        }
+    }
+    println!("RV11 F-S2 sweep: window [{b_lo}, {b_hi}], every even b: solved-identical {solved}, published {published}, refused {refused}, WRONG {wrong}");
+}
+
+/// F-R (second delta check): a subnormal outcome at b != 0 is rounded twice (the
+/// product at 2^b, then the unscaling). k = 0x1.613ad2cbdb465p-600 and
+/// u = 0x1.735c964a2c882p-462 give an exact k*u of 8198.5 + (a tail below
+/// 2^-40) quanta of 2^-1074; single rounding gives 8199 quanta, and rounding at
+/// 2^400 then unscaling gives 8198.
+#[test]
+fn rv11_spring_action_subnormal_outcome_rounds_twice() {
+    use open_pipe_stress_frame_kernel::force_scaled_spring_action;
+    let k = f64::from_bits(0x1a7613ad2cbdb465);
+    let u = f64::from_bits(0x231735c964a2c882);
+    assert_eq!(k, f64::from_bits(0x1a7613ad2cbdb465));
+    println!("RV11 F-R k = {k:e} ({:#x}), u = {u:e} ({:#x})", k.to_bits(), u.to_bits());
+    let published = force_scaled_spring_action((0, k), &[u], scale(400));
+    println!("RV11 F-R helper at b = 400: {published:?}; value in quanta of 2^-1074: {:?}", published.as_ref().map(|p| (-p.value).to_bits()));
+    println!("RV11 F-R helper at b = 0: {:?}", force_scaled_spring_action((0, k), &[u], ForceScale::UNSCALED));
+}

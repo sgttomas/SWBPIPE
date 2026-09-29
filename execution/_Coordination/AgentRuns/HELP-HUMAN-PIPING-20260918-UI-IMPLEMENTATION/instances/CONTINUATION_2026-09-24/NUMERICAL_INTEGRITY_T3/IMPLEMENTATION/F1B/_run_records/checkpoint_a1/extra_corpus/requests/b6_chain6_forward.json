@@ -1,0 +1,293 @@
+{
+ "model": {
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "project": {
+   "id": "invented:t3-f1b:chain-6",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "temperature": "degC",
+    "stress": "Pa"
+   }
+  },
+  "nodes": [
+   {
+    "id": "N0",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": -0.0
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "N1",
+    "position": {
+     "x": 1.0,
+     "y": 0.125,
+     "z": -0.0625
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "N2",
+    "position": {
+     "x": 2.0,
+     "y": 0.25,
+     "z": -0.125
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "N3",
+    "position": {
+     "x": 3.0,
+     "y": 0.375,
+     "z": -0.1875
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "N4",
+    "position": {
+     "x": 4.0,
+     "y": 0.5,
+     "z": -0.25
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "N5",
+    "position": {
+     "x": 5.0,
+     "y": 0.625,
+     "z": -0.3125
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "N6",
+    "position": {
+     "x": 6.0,
+     "y": 0.75,
+     "z": -0.375
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "M1",
+    "from": "N0",
+    "to": "N1",
+    "material": "mat:F1B",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "M2",
+    "from": "N1",
+    "to": "N2",
+    "material": "mat:F1B",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "M3",
+    "from": "N2",
+    "to": "N3",
+    "material": "mat:F1B",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "M4",
+    "from": "N3",
+    "to": "N4",
+    "material": "mat:F1B",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "M5",
+    "from": "N4",
+    "to": "N5",
+    "material": "mat:F1B",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   },
+   {
+    "id": "M6",
+    "from": "N5",
+    "to": "N6",
+    "material": "mat:F1B",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 0.2,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 0.01,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   }
+  ],
+  "materials": [
+   {
+    "id": "mat:F1B",
+    "elastic_modulus": {
+     "value": 200000000000.0,
+     "unit": "Pa"
+    },
+    "shear_modulus": {
+     "value": 80000000000.0,
+     "unit": "Pa"
+    },
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "anchor:N0",
+    "node": "N0",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   }
+  ],
+  "load_cases": [
+   {
+    "id": "case",
+    "label": "chain-6",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:tip-y",
+      "category": "concentrated_force",
+      "target": {
+       "type": "node",
+       "node": "N6"
+      },
+      "direction": "global_y",
+      "magnitude": {
+       "value": 1250.0,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented_t3_f1b_test_input_no_library_data"
+     },
+     {
+      "id": "load:tip-rx",
+      "category": "concentrated_moment",
+      "target": {
+       "type": "node",
+       "node": "N6"
+      },
+      "direction": "RX",
+      "magnitude": {
+       "value": 40.0,
+       "unit": "N*m"
+      },
+      "dimension": "moment",
+      "provenance": "invented_t3_f1b_test_input_no_library_data"
+     }
+    ],
+    "provenance": "invented_t3_f1b_test_input_no_library_data"
+   }
+  ],
+  "combinations": []
+ },
+ "materials": []
+}

@@ -1,0 +1,6224 @@
+{
+ "rows": [
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-E+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "da3de7da442e6adf800692a2d9830ae6ae46333e4a451eb22c50ed4060bb53aa",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "649f028db28a502eb57e8e03c6e9ae48bab4c15f7f1f4080b0af4197acbe318e",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "da3de7da442e6adf800692a2d9830ae6ae46333e4a451eb22c50ed4060bb53aa",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "649f028db28a502eb57e8e03c6e9ae48bab4c15f7f1f4080b0af4197acbe318e",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-E+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-E+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "c65b642055060818467b97033cc8162d5bac05428bed94e747bb0640a9d7e9d2",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "751effe7ecb6985b9465396c4d227faef4d0aede9c01b25a2aa9cf2b6829b0d7",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "c65b642055060818467b97033cc8162d5bac05428bed94e747bb0640a9d7e9d2",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "751effe7ecb6985b9465396c4d227faef4d0aede9c01b25a2aa9cf2b6829b0d7",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-E+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "fd78b6b6fdfda48fb4e4995c926e92690925fac0a89bfbe63bd71f5809cac46f",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "2f1d7730ff4dbeec9aa402a051e1cd74bb08cc26d1c51c81b331b80cd6f85b8f",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     540
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "7e3dd894239b1012e13ecdf00c560c0437714807997242d20039678115eed7ec",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "c19b3534ba3b226f9771e783275209a6ac96ce17c5a06fa294a0ab7aa99bad75",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "5796b3aebfc311a085717442d133a6e76ff578d86b6c0b826605f15f12a8ee24",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "4adf532ff3f1845ba7b33349aed5339ae04d34face861303ceb49655a07e015f",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     540
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "02d21b5cde3739c5b41df65bd8feb03a178071a7952675581184059ad2f3be03",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "59f9bf963f9abc79c36a7a3f66fd7d1fb782cb2fe13fd09a2795852f5e589241",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "fd78b6b6fdfda48fb4e4995c926e92690925fac0a89bfbe63bd71f5809cac46f",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "2f1d7730ff4dbeec9aa402a051e1cd74bb08cc26d1c51c81b331b80cd6f85b8f",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     540
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "9fde99000559b0ff01ae9cd9ea4317554778f0831e898dfd35c29d6bcf5aee0c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "aec88dccc4bd0be79b21f53448dcb50df1c110af269b825b52da3659f645757a",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "5796b3aebfc311a085717442d133a6e76ff578d86b6c0b826605f15f12a8ee24",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "4adf532ff3f1845ba7b33349aed5339ae04d34face861303ceb49655a07e015f",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     540
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "06499d3a7fc117c7bc3bee8a46b2b9c1d6934290ef520cde0e10d76c0b69d408",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "533e7c4248087987e75551d436c4740d8d85c6c218eaf8fedae56e2fe59a7c80",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-E-1000",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 210498782646240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 210498782646240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-F+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "e708b2ded24cfe7fa918c5edd44eb5222f1ee2ac8f3f62b4c8fa6ebccc12c3ee",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "04e66b5a00ac4d4bbaa42d56b94475bb340f5e05e66f8c5e470e16d5e5afbbb3",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "e708b2ded24cfe7fa918c5edd44eb5222f1ee2ac8f3f62b4c8fa6ebccc12c3ee",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "04e66b5a00ac4d4bbaa42d56b94475bb340f5e05e66f8c5e470e16d5e5afbbb3",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-F+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 210498782646240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 210498782646240000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-F+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "6393b4a8e9225c60d8e53242db14711a6bd35ebfabf00532449faa916b080b5c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "10cd6323e03832f0f77d1d8dcea0e847f0310ca208d77d0f4d4d731b6a2f7351",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "6393b4a8e9225c60d8e53242db14711a6bd35ebfabf00532449faa916b080b5c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "10cd6323e03832f0f77d1d8dcea0e847f0310ca208d77d0f4d4d731b6a2f7351",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-F+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "f8fdd309f14a6f0702d93a34f018769600dded694df28855ff187dd647299752",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "db42ed64c2aa9e56120c656dbe5c0235c482ca9f53e4e6bb772fd31f1defec66",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "f8fdd309f14a6f0702d93a34f018769600dded694df28855ff187dd647299752",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "db42ed64c2aa9e56120c656dbe5c0235c482ca9f53e4e6bb772fd31f1defec66",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-F-960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "0108f080321351672c8a862a4e4ea72cb5e5765555e8c01f0c4bedea047ed19a",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "85345a89dac727d8d83a15adce907d1670db12d1feb61da399930f85b2909bd3",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "0108f080321351672c8a862a4e4ea72cb5e5765555e8c01f0c4bedea047ed19a",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "85345a89dac727d8d83a15adce907d1670db12d1feb61da399930f85b2909bd3",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-F-960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "8ee22cd5b452f599e0b1e19f6ba68746fcceaa8d578f3a9739aec3c7c41cf8e9",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "f226a9677d15f2065d7e852e46ef3946ac5d6583dcb798865439ca98eeb14f56",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "8ee22cd5b452f599e0b1e19f6ba68746fcceaa8d578f3a9739aec3c7c41cf8e9",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "f226a9677d15f2065d7e852e46ef3946ac5d6583dcb798865439ca98eeb14f56",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-F-960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "12829d8d7f0191f8715dda72a668d634ec867bc58d9792e62cd47f0e05704ed4",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "1790d823ce263687725512e2ff87a55c1d348ee06f0d8d57b63c7d43d2c57fc0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "12829d8d7f0191f8715dda72a668d634ec867bc58d9792e62cd47f0e05704ed4",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "1790d823ce263687725512e2ff87a55c1d348ee06f0d8d57b63c7d43d2c57fc0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-F-960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3816389659921310000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3816389659921310000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-L+240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "7a2ad24cc9903edaf71842cab30b370ac7d17f2068acef6721c314d687c8af61",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "a32fe3aaa062e6bf219e62a119a8e9d9fc21d00927e84cc2929e04fec32d538c",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "7a2ad24cc9903edaf71842cab30b370ac7d17f2068acef6721c314d687c8af61",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 315,
+    "span_sha256": "a32fe3aaa062e6bf219e62a119a8e9d9fc21d00927e84cc2929e04fec32d538c",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-L+240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3816389659921310000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3816389659921310000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-L+240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "853926bf91756bd2e8250c3008ca3bb0979b9ea09a7567b12d311fed68b7a57e",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "c8fe53086cd988d6c174b00b5f482e9e867746ee7673cd795f9f74941334d0b4",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "853926bf91756bd2e8250c3008ca3bb0979b9ea09a7567b12d311fed68b7a57e",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "c8fe53086cd988d6c174b00b5f482e9e867746ee7673cd795f9f74941334d0b4",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-L+240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-L-240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-L-240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-L-240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4d9fd30d66d928ca8a96084489072e7c19bb7afbe057b22f3a3d71d66c0e2f77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-L-240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 144029111750204860000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 144029111750204860000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-large",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "193513b0a50b96ff8a2a018177a336ab9ee2761febdfc1981f862f9fb16f5309",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "5c0fd532974b331902fd335101961f8576952a3e57c7b88924adca137429e0b4",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     -702
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "8e09322dcc9868ce8e22817b858f5c0e3a864f83aef86b90cb7d317f665958b7",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "b49316bed704ed6b3a22175e3f31399b27889fb264fff6e314a40ed70e7585bb",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-large",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 144029111750204860000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 144029111750204860000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-large",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "193513b0a50b96ff8a2a018177a336ab9ee2761febdfc1981f862f9fb16f5309",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "5c0fd532974b331902fd335101961f8576952a3e57c7b88924adca137429e0b4",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     -702
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "e51da9a0ff4560858f27f1fb38562878e2f0cc3fb2360777e18d0c37af12bd84",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "d437c0e46ef6ca0b46ba39a44abeadf9ffc70aeb7bf0dbe340efd2a11ba30da9",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-large",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-small",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-small",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-small",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d206674d86225b25155cefce628c5254dad32a612ef4f29c585aa310418de4d4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-LEF-small",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3010600601801634000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3010600601801634000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-a",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "367cd28a140cee062d73d61ed0065d7f95e64fb761f1248d32ae3339885f2837",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "367cd28a140cee062d73d61ed0065d7f95e64fb761f1248d32ae3339885f2837",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-a",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3010600601801634000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3010600601801634000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-a",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "367cd28a140cee062d73d61ed0065d7f95e64fb761f1248d32ae3339885f2837",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "367cd28a140cee062d73d61ed0065d7f95e64fb761f1248d32ae3339885f2837",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:M5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "aee7886c7ba518499065fba836cef167ef81ec80ff7b47c6d02aa0b7a6df2115",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-a",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2658455991569832000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2658455991569832000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-b",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "7479e4f4b8d8d4836a777389c529d3b403db1ef69e80c56de78e762d08edf52a",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "beaaf52dce3046a4c07c1fd257d6d28feb153993af234d46390d2a497b129543",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "7479e4f4b8d8d4836a777389c529d3b403db1ef69e80c56de78e762d08edf52a",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "beaaf52dce3046a4c07c1fd257d6d28feb153993af234d46390d2a497b129543",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-b",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2658455991569832000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2658455991569832000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-b",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "2b0b8837bfe0764b636f88ef1e5ac821e0b6a2409b74694e986caac8d1178a30",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "4b72c33177b479edde3a841fa039eaff1bf6b15d390bf75c384a23d81ec06037",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "2b0b8837bfe0764b636f88ef1e5ac821e0b6a2409b74694e986caac8d1178a30",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 314,
+    "span_sha256": "4b72c33177b479edde3a841fa039eaff1bf6b15d390bf75c384a23d81ec06037",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CHAIN-SIM-b",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-E+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "dc18893a42407f9ff5a818f006068d188fbe2aa5e73553eadb0d81f205a482b7",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "44db7cd39a460282ce45afdffa35afaba9bde5ceec582cc891ad0c3f64b613b5",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "dc18893a42407f9ff5a818f006068d188fbe2aa5e73553eadb0d81f205a482b7",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "44db7cd39a460282ce45afdffa35afaba9bde5ceec582cc891ad0c3f64b613b5",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-E+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-E+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "12a6957fe2bdfe62feefe3daf4e48d9626a4aae9e6341e8beffc8fc3a33848a0",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "22ef78ffa013052e0e32629ecd89542cd1a1d31914af73c936676a081a9b7e48",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "12a6957fe2bdfe62feefe3daf4e48d9626a4aae9e6341e8beffc8fc3a33848a0",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "22ef78ffa013052e0e32629ecd89542cd1a1d31914af73c936676a081a9b7e48",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-E+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4a4f4c4f0886c8c15a89530348aaf8f14b161d1ec32859711f878aa9da4cf7b4",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "84d8356fda2df3499e2558606931d77b50881e4838ea372462e63b0d14fc83a3",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     514
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "73651eec06bf3f3a270adadff1208c26d03b14f173d6e633e0310490bc37a46a",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "a42468302a78e83f48db9d1f77ea7e3419d2abd64aec6fb6b322504d3212aae8",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-E-1000",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d639bcf70f87bb94698e59a2cd035b8e63132a326b097f23d0ccb1f21751cd4c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "4a5ff028e4a5e7284273fc2b257a240d162928dbba0afb82e5adcf1a826f2c15",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     514
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "0dd1ac7dc0912fcd697a39a49cbe393513b618d0f0013ff650c556020443661c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "6f58a8da86d570f1ef7221ee8701be061624f9e1941f4149637b1026118e839a",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-E-1000",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4a4f4c4f0886c8c15a89530348aaf8f14b161d1ec32859711f878aa9da4cf7b4",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "84d8356fda2df3499e2558606931d77b50881e4838ea372462e63b0d14fc83a3",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     514
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "84389adea58ff58cd594327a0f178afadf99ba1a103c1e77af77afbd3f394b20",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "892ac0df9fa6e946889caa13ee3fa8426bc989e7097d241fb7667b79c1059d31",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-E-1000",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d639bcf70f87bb94698e59a2cd035b8e63132a326b097f23d0ccb1f21751cd4c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "4a5ff028e4a5e7284273fc2b257a240d162928dbba0afb82e5adcf1a826f2c15",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     514
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "32ab82e78f5e024a0af20b9af958e523cfff55770cc9cfe66e67217038313533",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "e7d5f29cd099ab6edbfa2c087ae664819f526c9912ee0e6b02f649c1eaec079b",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-E-1000",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -93555014509439990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -93555014509439990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-F+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c65ca6fa3230e2a6c9e4dace370b193308bed2b0807e6711f70f68740ca35214",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "2c7bb817239c8fb68cf7d89aa94c20f8ed6922eecfd0059dd903ace9535cf1ac",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c65ca6fa3230e2a6c9e4dace370b193308bed2b0807e6711f70f68740ca35214",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "2c7bb817239c8fb68cf7d89aa94c20f8ed6922eecfd0059dd903ace9535cf1ac",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-F+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -93555014509439990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -93555014509439990000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-F+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6b0b797c25452514740bd08ad02f8a9c69184ef47b5abee20a1641e241d8eb67",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "a5d6996afd43823e27ec69a484b2fbdb35c8e358a7f4d3d84855cb0384ac680a",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6b0b797c25452514740bd08ad02f8a9c69184ef47b5abee20a1641e241d8eb67",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "a5d6996afd43823e27ec69a484b2fbdb35c8e358a7f4d3d84855cb0384ac680a",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-F+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "c4877dbd8311779ca47b7a274abafeeb20aa6297449c11533d1057de42bd4adb",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "bd961812c321a31046c65b275fc46cc4bea7d55799c9763a7ffd53f013d6bc53",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "c4877dbd8311779ca47b7a274abafeeb20aa6297449c11533d1057de42bd4adb",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "bd961812c321a31046c65b275fc46cc4bea7d55799c9763a7ffd53f013d6bc53",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-F-960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "c4877dbd8311779ca47b7a274abafeeb20aa6297449c11533d1057de42bd4adb",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "bd961812c321a31046c65b275fc46cc4bea7d55799c9763a7ffd53f013d6bc53",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "c4877dbd8311779ca47b7a274abafeeb20aa6297449c11533d1057de42bd4adb",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "bd961812c321a31046c65b275fc46cc4bea7d55799c9763a7ffd53f013d6bc53",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-F-960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "18d3aae81e89c3ff335cf54ccec04d9755399d94535fc241c725ff2cb557682e",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "868d981949ff57b4f960cb346cb05cf604b454a91bdc7adeb9c76afd50b391ce",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "18d3aae81e89c3ff335cf54ccec04d9755399d94535fc241c725ff2cb557682e",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "868d981949ff57b4f960cb346cb05cf604b454a91bdc7adeb9c76afd50b391ce",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-F-960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "18d3aae81e89c3ff335cf54ccec04d9755399d94535fc241c725ff2cb557682e",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "868d981949ff57b4f960cb346cb05cf604b454a91bdc7adeb9c76afd50b391ce",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "18d3aae81e89c3ff335cf54ccec04d9755399d94535fc241c725ff2cb557682e",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "868d981949ff57b4f960cb346cb05cf604b454a91bdc7adeb9c76afd50b391ce",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-F-960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10601082388670306000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10601082388670306000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-L+240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "1c560641250aaca27ad23945f878ecdc47324c0d9c68a1b165ea15a3720e03ca",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "9f6fa8c309db5518bd3ec0ce8917bccdbc1971c1fa734405b534b759879fd161",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "1c560641250aaca27ad23945f878ecdc47324c0d9c68a1b165ea15a3720e03ca",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 637,
+    "span_sha256": "9f6fa8c309db5518bd3ec0ce8917bccdbc1971c1fa734405b534b759879fd161",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-L+240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10601082388670306000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10601082388670306000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-L+240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "2c787168aa7cd9052a463988546bad888950d8b0f71b189be148b560f25fcebf",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "debf3fce0251f86d4a57b89dd5c49db58ecd8ea94bae0217e0492787e400e485",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "2c787168aa7cd9052a463988546bad888950d8b0f71b189be148b560f25fcebf",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "debf3fce0251f86d4a57b89dd5c49db58ecd8ea94bae0217e0492787e400e485",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-L+240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-L-240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-L-240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-L-240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "05bdf62f01f5ffc6bc704c4eb6fdae3fc1b339997ebcec226318d2c46bf22601",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-L-240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -398353494612575300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -398353494612575300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-LEF-large",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "69464bce83455a8499a30b8c69d2b62b637bfc0cd56ed1eeda33797b673a4d77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "5c0fd532974b331902fd335101961f8576952a3e57c7b88924adca137429e0b4",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     -702
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "732dc596367ae62efe7129892ad1c52b0885b1ea9003a7c83fa22b9b0a322c19",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "r_b_prime": true,
+    "result_count": 636,
+    "span_sha256": "afc169cfdec54bcf33d912ee9e73db3d162e7db2f1573a4c72042ea60a0a727d",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-LEF-large",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -398353494612575300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -398353494612575300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-LEF-large",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "69464bce83455a8499a30b8c69d2b62b637bfc0cd56ed1eeda33797b673a4d77",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "5c0fd532974b331902fd335101961f8576952a3e57c7b88924adca137429e0b4",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     -702
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "fb7709b73b118d3252d782dd0e0045fd8113ad35bedf69ea8cf5e317b6aa832d",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "r_b_prime": true,
+    "result_count": 636,
+    "span_sha256": "777d9a9033bebd5e10dbf78ffc43d17d3ea1940770e1fe83dfe93dfe95ffe2d5",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-LEF-large",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-LEF-small",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-LEF-small",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-LEF-small",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "c679d31d15972d3f75ec5dd3fe90c83af51ef57602e891a046a22c0fd75bab86",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-LEF-small",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -177856649068517680000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -177856649068517680000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-SIM-a",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "dea20f5be0d488fd4b97192b74c2e948c0f29ab236240b9445de9275eec212d3",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "dea20f5be0d488fd4b97192b74c2e948c0f29ab236240b9445de9275eec212d3",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-SIM-a",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -177856649068517680000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -177856649068517680000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-SIM-a",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "dea20f5be0d488fd4b97192b74c2e948c0f29ab236240b9445de9275eec212d3",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "dea20f5be0d488fd4b97192b74c2e948c0f29ab236240b9445de9275eec212d3",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:A1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B2",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B3",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B4",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:A5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ],
+     [
+      "diagnostic:pipe-element:B5",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "80bc1146d4d9c76690d83a6af006ca37e42461e438c340c6803bb3c90451c8d1",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-CONT-SIM-a",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 7975367974709495000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 7975367974709495000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-SIM-b",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "0e6607999433248da34c7501a24abc21ef9a5151b57a0e4ff351b8bba045698c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "84bce46df61cc718620e2cb9c01c213db9c4b42bc2835730c18e3775e40d4c85",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "0e6607999433248da34c7501a24abc21ef9a5151b57a0e4ff351b8bba045698c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "84bce46df61cc718620e2cb9c01c213db9c4b42bc2835730c18e3775e40d4c85",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-SIM-b",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 7975367974709495000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 7975367974709495000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-CONT-SIM-b",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "18acf8030e34e4a0a62db29a97f3836fcdb3b73e4bdcdb22155bcf3dae7d5097",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "970b1c7435919f99660d02ab42b22ab9ff3437dc79187231392208d42551353a",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "18acf8030e34e4a0a62db29a97f3836fcdb3b73e4bdcdb22155bcf3dae7d5097",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 636,
+    "span_sha256": "970b1c7435919f99660d02ab42b22ab9ff3437dc79187231392208d42551353a",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-CONT-SIM-b",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-E+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "5b95d9c48a7beb6b9cf58569152c10857a6f33bb836583d72b05ff968828042c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "936d8e3b10a72833106d6548c9571db73590030a08c4f865007b72e12033e0d2",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "328bfa90e10b183443b5df80303ef989edc80da6737caf845fd686740f2c5a72",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "d8ea845c98e9d9ab71ab06e9c7366d459d05bdd9af1d7fcc8e7618d43c27dd17",
+    "standing": "needs_recompute",
+    "w2_refusals": [
+     {
+      "b_field": "",
+      "reason": "range: scaled evaluation outside normal range",
+      "trigger": "Evaluation(Range(\"radix scaling loses normal range\"))"
+     }
+    ]
+   },
+   "case": "RF-RANGE-SKEW-E+960",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 194906280227999980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-E+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "5b95d9c48a7beb6b9cf58569152c10857a6f33bb836583d72b05ff968828042c",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "936d8e3b10a72833106d6548c9571db73590030a08c4f865007b72e12033e0d2",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "328bfa90e10b183443b5df80303ef989edc80da6737caf845fd686740f2c5a72",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "d8ea845c98e9d9ab71ab06e9c7366d459d05bdd9af1d7fcc8e7618d43c27dd17",
+    "standing": "needs_recompute",
+    "w2_refusals": [
+     {
+      "b_field": "",
+      "reason": "range: scaled evaluation outside normal range",
+      "trigger": "Evaluation(Range(\"radix scaling loses normal range\"))"
+     }
+    ]
+   },
+   "case": "RF-RANGE-SKEW-E+960",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "48a9aa3c611e3be757045a8f0d456603463d7624f24a43feb7eea4dcf9dbcc4b",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "9f0bade64ac5081156bc24309b56451435e481458f007ca3397adaa47c1cce75",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     542
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "b2365fe620878d075eff32294961c084fc3eaf53276cee6eca65d7a1d631c62b",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "1f9422d41ef20379d938f92f40930cc3d1a2f311ba5c9617c9283fec86031942",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-E-1000",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "39707e7eb90de6eddbda71bf9e675d8a4ea94d0b86136bc61c507bb0493a76da",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "2bb911aa6e79b27ad76e70f1e9fd155d30f2f96d84bb04a388a47d7ccf174f0a",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     542
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "747266d547f308b46d2b3cd66ebcdc8a2befafec9c350477d08a3eff863b3308",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "f943645fd5bd91bf61a50d4b7683fb5e32312469ba13009dda22e06b2a26efb6",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-E-1000",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "48a9aa3c611e3be757045a8f0d456603463d7624f24a43feb7eea4dcf9dbcc4b",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "9f0bade64ac5081156bc24309b56451435e481458f007ca3397adaa47c1cce75",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     542
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "4a45262a4097434c3e09d842c381b834619a635098e4e668c040a751c883d2f1",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "00fcecd120c72fd54f4ff61badc109ddb5769e48912166836a8b8be3bb34c479",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-E-1000",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "39707e7eb90de6eddbda71bf9e675d8a4ea94d0b86136bc61c507bb0493a76da",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "2bb911aa6e79b27ad76e70f1e9fd155d30f2f96d84bb04a388a47d7ccf174f0a",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     542
+    ],
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "385cbc7606033145d96a276652e9b2b4f9ec59f546c12888391c54d2983f05ef",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "f2a9179a19fb50dac5028005ea973d7cb6ed8c90feefee08bb262d91cf827591",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-E-1000",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 467775072547199900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 467775072547199900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-F+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "bd74c1235fe6a089d515ccab4555f3b8f553a6186d624af11223bc8ee64804a1",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "7e88f8dbbb26169f8031a5401d0b9080819bb15e9316874636430bba1abadcfd",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "bd74c1235fe6a089d515ccab4555f3b8f553a6186d624af11223bc8ee64804a1",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "7e88f8dbbb26169f8031a5401d0b9080819bb15e9316874636430bba1abadcfd",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-F+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 467775072547199900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 467775072547199900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-F+960",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "f3be8fac9694f23ec5f5f9e2eb4b8617610232f29ae622548a3648a670711907",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "720f992d68662ea32cd6328730b0d97f37c229fe1ac83e69be0d896113901803",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "f3be8fac9694f23ec5f5f9e2eb4b8617610232f29ae622548a3648a670711907",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "computed mechanics must be finite, got inf"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "720f992d68662ea32cd6328730b0d97f37c229fe1ac83e69be0d896113901803",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-F+960",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "59c0baa776291a2ff9fb08cd6c766653f389cb85c3940f85935a4f8520e9a991",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "3dc0d6f284f5aa6be700561712ea97d0b79c622327059e707f7a58d43b6dfd1b",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "f9452894ae99579ea775b2d1ce8a4c383b757a58f9b095e2d015879d65e0da02",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "72f63950042cd5ecaae43f284af43d92d6f07b2103bd80de915e2b48a3e4fe51",
+    "standing": "needs_recompute",
+    "w2_refusals": [
+     {
+      "b_field": "",
+      "reason": "range: scaled evaluation outside normal range",
+      "trigger": "Evaluation(Range(\"product overflow or underflow\"))"
+     }
+    ]
+   },
+   "case": "RF-RANGE-SKEW-F-960",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "e015a982d6ed044311b295ab85099c60f29fad21b30d08feb5953d0bf5fce39f",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "c0e4e4f989313e99d4ddb7bfbb388deb4ece84b3d345fa890252b3b7bcd1f81f",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "d2244cbd9fa475d1987edd9a8bdbe8b829e738fda731157a7f30d6e07a5ce190",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "e92db156d7db90d5bb1f3ce802f27b08010ac4d7a18f6436c68a661704fc8ee9",
+    "standing": "needs_recompute",
+    "w2_refusals": [
+     {
+      "b_field": "",
+      "reason": "range: scaled evaluation outside normal range",
+      "trigger": "Evaluation(Range(\"product overflow or underflow\"))"
+     }
+    ]
+   },
+   "case": "RF-RANGE-SKEW-F-960",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "94f6286773d4dad42366a47db2b0c17ae87fadbbb9cbb8ed8dc78bbda03e27c8",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "d699d59414e4804c7872cc67542b32867847ed8106cb89bb6a03e266bd0f12a2",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "cd8c2331432ca2b8956c2f564446ff4b6a6046bb514eb59d5bb2b5cb03a6f026",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "f33d542d8a4c67b77be27ae9bc7bf0776ddb9393e0bb07ebaf60b63c5c4e5611",
+    "standing": "needs_recompute",
+    "w2_refusals": [
+     {
+      "b_field": "",
+      "reason": "range: scaled evaluation outside normal range",
+      "trigger": "Evaluation(Range(\"arithmetic outside normal range\"))"
+     }
+    ]
+   },
+   "case": "RF-RANGE-SKEW-F-960",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "92a5066282c4d736ee31036fb24552f8d9af1c5789ffda34c5583202a77bf993",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "2bb911aa6e79b27ad76e70f1e9fd155d30f2f96d84bb04a388a47d7ccf174f0a",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "84bcd0ec0880af00b9c1824050b197c059646f2786f7b690cc878adebf1a5710",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "301ecd7d1e0d1b256b4957fca4b8c5bd737c830fc00177d603e54ed8ceed7b65",
+    "standing": "needs_recompute",
+    "w2_refusals": [
+     {
+      "b_field": "",
+      "reason": "range: scaled evaluation outside normal range",
+      "trigger": "Evaluation(Range(\"arithmetic outside normal range\"))"
+     }
+    ]
+   },
+   "case": "RF-RANGE-SKEW-F-960",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-L+240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "3a7d375b8aeb88e606471edfb7a60cde24dcd046298084315663ac4efe2f6d24",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "3832ca4c3909684648c2bb92641be7074c48e272358c2a450e85cbf709f6c1cb",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "3a7d375b8aeb88e606471edfb7a60cde24dcd046298084315663ac4efe2f6d24",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "3832ca4c3909684648c2bb92641be7074c48e272358c2a450e85cbf709f6c1cb",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-L+240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-L+240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "66abda1d114af08e66fd86286f737636a544342086030c016b88dbacfb5cfafd",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "a1383589c9991ad22f4ce3d6cb480343464f0b06d5542307a17ea34133b4eb87",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "66abda1d114af08e66fd86286f737636a544342086030c016b88dbacfb5cfafd",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "a1383589c9991ad22f4ce3d6cb480343464f0b06d5542307a17ea34133b4eb87",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-L+240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-L-240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-L-240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-L-240",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d80f178b3674520e8d287c052e95c7af3aacd7e35ed2578e4be2408f18cacdf",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-L-240",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 320064692778233000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 320064692778233000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-LEF-large",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "b9e0b5b097d904ae39aa0942e4acb96e1f7d67041ffcf6ba9bb11ac964044ea8",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "5c0fd532974b331902fd335101961f8576952a3e57c7b88924adca137429e0b4",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     -702
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "bde720da3c4d01100e3323331504da3a42c19e0b847eb69948eb9efc21dea0ec",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "a8769cf932c9927f2bbff916fbf16a9ead5d4ec6c11eab7fd533a5b9111216d0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-LEF-large",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 320064692778233000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 320064692778233000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-LEF-large",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "b9e0b5b097d904ae39aa0942e4acb96e1f7d67041ffcf6ba9bb11ac964044ea8",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:physics:solver",
+      "SOLVER_SYSTEM_BLOCKED",
+      "range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "5c0fd532974b331902fd335101961f8576952a3e57c7b88924adca137429e0b4",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     -702
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "d7592f6ea17392d892a2b5fe4e27db1a612e7ec5d5e44c7c2e0b932ec2be152f",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "32b3fb907c26a0fc254da7aa8b90f9f640ac64502cd3ccc6964b3fa389bd3a95",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-LEF-large",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-LEF-small",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-LEF-small",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-LEF-small",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "ea9e14da5e11ebca34d15966fa857394fa1ad7acee1b29ad56e93b3969d82df4",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-LEF-small",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-SIM-a",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d07d201970f31653f78663f0b7c198b90a78d00d63c8b304108601390542e1a",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d07d201970f31653f78663f0b7c198b90a78d00d63c8b304108601390542e1a",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-SIM-a",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-SIM-a",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d07d201970f31653f78663f0b7c198b90a78d00d63c8b304108601390542e1a",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [
+     "PIPE_ELEMENT_INPUT_INVALID"
+    ],
+    "exit_code": 0,
+    "full_sha256": "6d07d201970f31653f78663f0b7c198b90a78d00d63c8b304108601390542e1a",
+    "integrity": [],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "other_blocking": [
+     [
+      "diagnostic:pipe-element:M1",
+      "PIPE_ELEMENT_INPUT_INVALID",
+      "degenerate axis definition: element length"
+     ]
+    ],
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "b561bcdcc1c1d605ac7fff5be284a56bc92c6dc55b5c053d85db4b2d869ae5c0",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-SIM-a",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1329227995784916000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1329227995784916000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-SIM-b",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "4405d49173b3dca68cb9035a888cc9cd7a2ea579d66e97f11c33304bfda775d6",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "405fd588453e2d1974ff3cbcb98ae64e78da591eed4bacd50b2121f61b2ad777",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "4405d49173b3dca68cb9035a888cc9cd7a2ea579d66e97f11c33304bfda775d6",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "405fd588453e2d1974ff3cbcb98ae64e78da591eed4bacd50b2121f61b2ad777",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-SIM-b",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1329227995784916000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1329227995784916000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-SKEW-SIM-b",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "3b49f7c1946bff5cc6052240d1b96bbe2ad1a542af491b45b125be0f43ef7690",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "b05ef6c0390c2ee40dfaf32521b9bcfbc6d3a54302040527c97573ebe8bad729",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "3b49f7c1946bff5cc6052240d1b96bbe2ad1a542af491b45b125be0f43ef7690",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_SENSITIVE"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 98,
+    "span_sha256": "b05ef6c0390c2ee40dfaf32521b9bcfbc6d3a54302040527c97573ebe8bad729",
+    "standing": "needs_recompute"
+   },
+   "case": "RF-RANGE-SKEW-SIM-b",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1606938044258990300000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1606938044258990300000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-THIN-A",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "4a9a25914fe9e7c8934aaf79e03e9ad857af0afb87217fd4c550cb973b14dda1",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "cbd1b6bec8d2d54e6dcaecb6d78f55215c2e0d9178fd478e3cae7727f3c3088f",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "4a9a25914fe9e7c8934aaf79e03e9ad857af0afb87217fd4c550cb973b14dda1",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "cbd1b6bec8d2d54e6dcaecb6d78f55215c2e0d9178fd478e3cae7727f3c3088f",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-THIN-A",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "dense_scrutiny",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1606938044258990300000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "error": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1606938044258990300000000000000000000000000000000000000000000",
+    "exit_code": 0,
+    "ok": false,
+    "outcome": "refused_capture"
+   },
+   "case": "RF-RANGE-THIN-A",
+   "entry": "captured",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "a8fedd295b12032b135dbf55f4177ec4b8e46da162b1bd94b2a6aae269b12f03",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "5868e74bb213fedcc5dbd3af22414b12a1b6c507dfa7c4e37c1589c34d0917e7",
+    "standing": "numerically_eligible"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "a8fedd295b12032b135dbf55f4177ec4b8e46da162b1bd94b2a6aae269b12f03",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "5868e74bb213fedcc5dbd3af22414b12a1b6c507dfa7c4e37c1589c34d0917e7",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-THIN-A",
+   "entry": "typed",
+   "full_identical": true,
+   "mode": "sparse_interactive",
+   "summary_identical": true
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "5a075d3eda305c97914c99e57cd5f7e2adc0e6d95961e72abd0d873bc7d436e6",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "1b60cf684ba46a79fc493217f3ce10bb015512fb844d5aa10a6879adf8318d76",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     536
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "247ca7e0535f578652a0f0f9c833ae8f7de80cd5acbcb4338126b82d3729f9d8",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "0ebe6527343ced04f0dc1223ac59cb5328dcc731933b4350a9ba36a6dd19a54f",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-THIN-B",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "bae466be2a3ea933ce30bcdde8a6db7a41b26bdf8c77d2cf04dcc939e2e7d9d6",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "e98e8eaf38d1634df23c9b804dda1d6197def93b8fce5373b623c7ac5822fbc3",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     536
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "4fe2c0203252f16c0c4c66df5c5278deef6390ebc0d0edae5b9a258efa6c1036",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "2829b8b6f9f7bcd737b35603d46d6f19e9c1664b2c11779461ed555bb871b599",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-THIN-B",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "dense_scrutiny",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "5a075d3eda305c97914c99e57cd5f7e2adc0e6d95961e72abd0d873bc7d436e6",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "1b60cf684ba46a79fc493217f3ce10bb015512fb844d5aa10a6879adf8318d76",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     536
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "9c59a335ff235f47ca08620adf730de95a0088965282dd699e9521bbba06f937",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "59feeebef89294472caadfaceed5ca2a2716265faca7f543fd577be8481b3bf6",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-THIN-B",
+   "entry": "captured",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  },
+  {
+   "base": {
+    "blocking": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "exit_code": 0,
+    "full_sha256": "bae466be2a3ea933ce30bcdde8a6db7a41b26bdf8c77d2cf04dcc939e2e7d9d6",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_UNRESOLVED"
+    ],
+    "mechanics": "MODEL_INCOMPLETE",
+    "ok": true,
+    "outcome": "refused_blocked",
+    "result_count": 0,
+    "span_sha256": "e98e8eaf38d1634df23c9b804dda1d6197def93b8fce5373b623c7ac5822fbc3",
+    "standing": "needs_recompute"
+   },
+   "base_span_equals_g1": true,
+   "cand": {
+    "b": [
+     536
+    ],
+    "blocking": [],
+    "exit_code": 0,
+    "full_sha256": "e203217a4c16ea594838a58f09d2bc7b32d93868dd1838362917875d08b4a16e",
+    "integrity": [
+     "NUMERICAL_INTEGRITY_CHECKS_PASSED"
+    ],
+    "mechanics": "MECHANICS_SOLVED",
+    "ok": true,
+    "outcome": "solved",
+    "result_count": 74,
+    "span_sha256": "188b0640bca710f8105ecee292721d9103f850b5c9076ac2d87112c146a76e1f",
+    "standing": "numerically_eligible"
+   },
+   "case": "RF-RANGE-THIN-B",
+   "entry": "typed",
+   "full_identical": false,
+   "mode": "sparse_interactive",
+   "summary_identical": false
+  }
+ ],
+ "summary": {
+  "base_span_equals_g1": 128,
+  "changed": [
+   [
+    "RF-RANGE-CHAIN-E-1000",
+    "dense_scrutiny",
+    "captured"
+   ],
+   [
+    "RF-RANGE-CHAIN-E-1000",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-CHAIN-E-1000",
+    "sparse_interactive",
+    "captured"
+   ],
+   [
+    "RF-RANGE-CHAIN-E-1000",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-CHAIN-LEF-large",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-CHAIN-LEF-large",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-CONT-E-1000",
+    "dense_scrutiny",
+    "captured"
+   ],
+   [
+    "RF-RANGE-CONT-E-1000",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-CONT-E-1000",
+    "sparse_interactive",
+    "captured"
+   ],
+   [
+    "RF-RANGE-CONT-E-1000",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-CONT-LEF-large",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-CONT-LEF-large",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-E+960",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-E+960",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-E-1000",
+    "dense_scrutiny",
+    "captured"
+   ],
+   [
+    "RF-RANGE-SKEW-E-1000",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-E-1000",
+    "sparse_interactive",
+    "captured"
+   ],
+   [
+    "RF-RANGE-SKEW-E-1000",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-F-960",
+    "dense_scrutiny",
+    "captured"
+   ],
+   [
+    "RF-RANGE-SKEW-F-960",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-F-960",
+    "sparse_interactive",
+    "captured"
+   ],
+   [
+    "RF-RANGE-SKEW-F-960",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-LEF-large",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-SKEW-LEF-large",
+    "sparse_interactive",
+    "typed"
+   ],
+   [
+    "RF-RANGE-THIN-B",
+    "dense_scrutiny",
+    "captured"
+   ],
+   [
+    "RF-RANGE-THIN-B",
+    "dense_scrutiny",
+    "typed"
+   ],
+   [
+    "RF-RANGE-THIN-B",
+    "sparse_interactive",
+    "captured"
+   ],
+   [
+    "RF-RANGE-THIN-B",
+    "sparse_interactive",
+    "typed"
+   ]
+  ],
+  "full_identical": 100,
+  "runs": 128,
+  "summary_identical": 100
+ }
+}

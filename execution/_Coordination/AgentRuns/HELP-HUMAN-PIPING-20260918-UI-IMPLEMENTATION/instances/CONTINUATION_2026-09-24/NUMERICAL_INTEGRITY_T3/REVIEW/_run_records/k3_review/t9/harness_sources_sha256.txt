@@ -1,0 +1,2 @@
+main.rs ec089c1d4a2a46dda689aad3ac55948cf858537ed5c986726c7accdd63cade53 (S11-K's fixdiff_main.rs, copied from ROOT's calibration harness)
+Cargo.lock 1c69935d85770777eb55ce77c03acfa023c444b86e46df1c49c9e459e9e0235f (ROOT's harness lock)

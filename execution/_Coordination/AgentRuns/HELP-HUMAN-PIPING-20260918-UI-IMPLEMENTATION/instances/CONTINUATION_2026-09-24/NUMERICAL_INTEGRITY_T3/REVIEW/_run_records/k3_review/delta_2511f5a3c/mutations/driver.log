@@ -1,0 +1,6 @@
+NONE_D rc=0 passed=8 failed=0
+RV1 KILLED compiled=True passed=1 failed=1 kills=1 other=0 wall=3.3
+RV2 KILLED compiled=True passed=1 failed=1 kills=1 other=0 wall=3.8
+RV4 KILLED compiled=True passed=2 failed=1 kills=1 other=0 wall=5.3
+RV5 KILLED compiled=True passed=0 failed=3 kills=3 other=0 wall=3.7
+DONE

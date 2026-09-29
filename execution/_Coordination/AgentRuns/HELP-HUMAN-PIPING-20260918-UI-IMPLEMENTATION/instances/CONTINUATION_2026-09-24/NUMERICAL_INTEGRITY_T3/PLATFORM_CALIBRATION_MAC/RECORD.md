@@ -92,3 +92,9 @@ See `suites/SUMMARY.md`.
   - a host memory guard. The guard SIGKILLs T3 processes if available memory falls below 35%. It never fired.
 - **Available memory** stayed at 96% throughout.
 - `TASK_BRIEFS/I8R_K1_RESUME.md` carries the resulting host rules.
+
+## Addendum 1 (ROOT, 2026-09-28): RV9's notes N4 and N5 (records PR #1035)
+
+- **N4(a).** §2's "all 884 runs … agree on ok/ERR" rests on `runs_part1_mac.jsonl`, which is not committed. Its sha256 is in `gate/uncommitted_sha256.txt`, and RV9 matched it and re-derived 0 mismatches. ROOT keeps the file in `<scratch>/calib/gate/` for as long as this record cites it.
+- **N4(b).** §4's "available memory stayed at 96% throughout" should read **95–96%**. The per-run `memorystatus_level_end` values in that file are 95 and 96.
+- **N5.** §1's summary of the `coefficient_definition` differences is incomplete. The sparse output also differs in one M03 residual-row diagnostic message: the denominator `2090073.3883936002` against `2090073.3883936`. `t9/platform_differences.txt` lists every leaf and is the complete statement. This addendum does not change the §1 counts (12 outputs, 40 leaves).

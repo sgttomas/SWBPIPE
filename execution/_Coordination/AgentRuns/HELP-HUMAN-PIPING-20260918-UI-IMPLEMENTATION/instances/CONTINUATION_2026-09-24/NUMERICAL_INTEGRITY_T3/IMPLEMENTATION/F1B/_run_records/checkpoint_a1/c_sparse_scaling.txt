@@ -1,0 +1,17 @@
+I13 F1b A1 scratch measurement (counting allocator in the C-SPARSE test binary, debug build,
+axis-aligned chain, sparse_interactive; peak heap increment over the product call, bytes).
+Deterministic allocation counts, not a memory-growth claim.
+members  entry     peak_increment_bytes  per_member
+125      typed     25713447              205708
+250      typed     51451701              205807
+500      typed     102930139             205860
+1000     typed     205888078             205888
+1000     captured  206477066             206477
+2000     typed     412201265             206101
+2000     captured  413379253             206690
+3000     typed     633832808             211278
+3000     captured  636496596             212166
+4000     typed     824827959             206207
+4000     captured  827680747             206920
+C-CEILING (1,365 members, dense_scrutiny, refused by the guard): typed 6513395, captured 20562628.
+Debug wall time: C-SPARSE (4,000 members, both entries) 23.3 s; C-CEILING 0.5 s.

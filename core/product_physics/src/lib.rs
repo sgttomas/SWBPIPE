@@ -26,6 +26,8 @@ mod source_receipt;
 #[cfg(test)]
 mod f1a_tests;
 #[cfg(test)]
+mod f1b_tests;
+#[cfg(test)]
 mod s11f_tests;
 #[cfg(test)]
 mod s11g_tests;
@@ -38,14 +40,16 @@ use open_pipe_stress_frame_kernel::load_ledger::{
     gamma, product_upward, AssembledForce, Formation, LoadLedger,
 };
 use open_pipe_stress_frame_kernel::structural::{
-    FormationCheck, FormationCheckReason, LoadFidelityReport, SolveQuality, StructuralError,
-    StructuralReport,
+    assemble_sparse_stiffness, reduce_assembled_sparse_system, ForceScaleReason, ForceScaledError,
+    ForceScalingRefusal, FormationCheck, FormationCheckReason, LoadFidelityReport, PublishedValue,
+    RangeTrigger, RecordOutcome, RecordRepresentability, Representability, SolveQuality,
+    SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
 };
 use open_pipe_stress_frame_kernel::{
-    assemble_global_stiffness_with_user_elements, element_dof_map, reduce_assembled_system,
-    reduce_assembled_system_with_prescribed_displacements, solve_dense, FrameElement,
-    FrameKernelError, FrameNode, Matrix12, UserStiffnessElement, DOF_PER_NODE, ELEMENT_DOF, RX, RY,
-    RZ, UX, UY, UZ,
+    assemble_global_stiffness_with_user_elements, element_dof_map, force_scaled_spring_action,
+    reduce_assembled_system, reduce_assembled_system_with_prescribed_displacements, solve_dense,
+    ForceScale, FrameElement, FrameKernelError, FrameNode, Matrix12, UserStiffnessElement,
+    DOF_PER_NODE, ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
 };
 use open_pipe_stress_linear_supports::{
     prepare_boundary, FrameDof, LinearSupport, QuantityDimension, SpringEntry, SupportFamily,
@@ -57,7 +61,8 @@ use open_pipe_stress_load_case_algebra::{
     CombinationTerm, FindingCode, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::structural_adapter::{
-    AssemblyEvidence, StrictGapEvidence,
+    solve_with_force_scaling, AssemblyEvidence, EvidenceRepresentation, ForceScalingCase,
+    ForceScalingOutcome, SparseAssemblyEvidence, StrictGapEvidence,
 };
 use open_pipe_stress_nonlinear_integration::{
     eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs_assembled,
@@ -1074,6 +1079,12 @@ fn integrity_diagnostic_id(case_id: &str) -> String {
 /// When present it is rendered as one evidence line after the S11-G step
 /// (whose no-op rule leaves a K-D5-Sensitive record without a guard
 /// sentence); when absent the record is byte-identical to today's.
+///
+/// F1b (T3 D1 §4.7; ROOT Q7): `range_scaling` is W2's publication, present
+/// only when the case was published at b != 0. Its `range_scaling:` line is
+/// method evidence, appended after F1a's line (or the S11-G sentence, or the
+/// base message), separated by one space, whatever the code. When absent the
+/// record is byte-identical to today's.
 #[allow(clippy::too_many_arguments)]
 fn append_integrity_report(
     diagnostics: &mut Vec<Diagnostic>,
@@ -1085,6 +1096,7 @@ fn append_integrity_report(
     >,
     formation: Option<&formation_guard::FormationFinding>,
     formation_check: Option<&FormationCheck>,
+    range_scaling: Option<&ForceScaledPublication>,
 ) {
     let code = if report.quality == SolveQuality::Sensitive {
         "NUMERICAL_INTEGRITY_SENSITIVE"
@@ -1105,6 +1117,13 @@ fn append_integrity_report(
             formation_check_evidence_line(model, check)
         );
     }
+    if let (Some(publication), Some(record)) = (range_scaling, diagnostics.last_mut()) {
+        record.message = format!(
+            "{} {}",
+            record.message,
+            range_scaling_evidence_line(model, publication)
+        );
+    }
 }
 
 /// F1a: K-D5's `FormationCheck` record as one evidence line of the integrity
@@ -1113,6 +1132,8 @@ fn formation_check_evidence_line(model: &PreviewModel, check: &FormationCheck) -
     match &check.reason {
         FormationCheckReason::Estimate => format!(
             "formation_check: reason=estimate; row={}; doubled_correction={:?}; scale={:?}; trigger_ratio={:?}",
+            // `none` is unreachable (F1a N1): K-D5 sets `global_dof` on every
+            // `Estimate` record; the fallback keeps the formatter total.
             check
                 .global_dof
                 .map_or_else(|| "none".to_string(), |dof| integrity_dof_label(model, dof)),
@@ -1262,13 +1283,10 @@ fn append_load_contribution_absorbed(
     ));
 }
 
-fn append_integrity_failure(
-    diagnostics: &mut Vec<Diagnostic>,
-    case_id: &str,
-    error: &StructuralError,
-    model: &PreviewModel,
-) {
-    let code = match error {
+/// The integrity code of a structural refusal (shared by the ordinary route
+/// and, per ROOT's F1b OQ4, by a non-range failure at W2's chosen b).
+fn integrity_failure_code(error: &StructuralError) -> &'static str {
+    match error {
         StructuralError::Mechanism { .. } => "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM",
         StructuralError::NegativeEnergy { .. } => "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY",
         StructuralError::Asymmetric { .. } | StructuralError::InvalidInput(_) => {
@@ -1280,8 +1298,528 @@ fn append_integrity_failure(
             "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED"
         }
         _ => "NUMERICAL_INTEGRITY_UNRESOLVED",
-    };
+    }
+}
+
+fn append_integrity_failure(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    error: &StructuralError,
+    model: &PreviewModel,
+) {
+    let code = integrity_failure_code(error);
     diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
+}
+
+// ------------------------------------------------------------ F1b: W2 (range)
+
+/// F1b: the ordinary attempt's failure: the M03 evaluation's error, or K2a's
+/// formation `NumericalRange` deferred from the case's basis (a linear
+/// invocation only; `form_basis_stiffness`).
+#[derive(Debug)]
+enum OrdinaryFailure {
+    Structural(StructuralError),
+    Formation(FrameKernelError),
+}
+
+/// F1b (T3 D1 §4.7 step 1; ROOT Q2): the ordinary attempt's range trigger, as
+/// K2b's orchestrator classifies its own evaluation at b = 0 (SA
+/// `evaluate_force_scaled`): K2a's `NumericalRange` at formation, or
+/// `StructuralError::Range` from the evidence or the solve. Every other
+/// failure is not a range trigger. (SA's third arm, a force-scaled load-term
+/// refusal, cannot occur at b = 0: nothing is scaled there.)
+fn ordinary_range_trigger(failure: &OrdinaryFailure) -> Option<RangeTrigger> {
+    match failure {
+        OrdinaryFailure::Formation(error @ FrameKernelError::NumericalRange { .. }) => {
+            Some(RangeTrigger::Formation(error.clone()))
+        }
+        OrdinaryFailure::Structural(error @ StructuralError::Range(_)) => {
+            Some(RangeTrigger::Evaluation(error.clone()))
+        }
+        _ => None,
+    }
+}
+
+/// F1b: a case published at b != 0 (T3 D1 §4.7 step 5): every force-unit
+/// value the case publishes directly, through K2b's checked helpers, each
+/// unscaled once (RV11-1, RV11D-1), and the report's non-normal records.
+#[derive(Debug, Clone)]
+struct ForceScaledPublication {
+    /// b, never 0.
+    force_scale_exponent: i32,
+    /// (global DOF, value) of each restrained reaction, DOFs ascending.
+    reactions: Vec<(usize, PublishedValue)>,
+    /// One per `spring_entries` entry, in order.
+    spring_actions: Vec<PublishedValue>,
+    /// One per `BuiltModel::pipes` entry (no curved span is admitted at b != 0).
+    end_actions: Vec<[PublishedValue; ELEMENT_DOF]>,
+    /// The element id of each `end_actions` entry.
+    members: Vec<String>,
+    spring_dofs: Vec<usize>,
+    /// `ForceScaledSolution::records`, as the kernel lists them.
+    records: Vec<RecordOutcome>,
+}
+
+impl ForceScaledPublication {
+    /// A full-length reaction vector: the published value at each restrained
+    /// DOF (the only DOFs the product reads), +0.0 elsewhere.
+    fn reaction_values(&self, dimension: usize) -> Vec<f64> {
+        let mut values = vec![0.0; dimension];
+        for &(dof, published) in &self.reactions {
+            values[dof] = published.value;
+        }
+        values
+    }
+}
+
+/// F1b: why W2 did not publish a case.
+#[derive(Debug, Clone)]
+enum ForceScalingFailure {
+    /// The orchestrator's named refusal (§4.7 steps 2-4), with its trigger.
+    Refused(ForceScalingRefusal),
+    /// A non-range failure at the chosen b, or of the census (RV11-N2). The
+    /// orchestrator carries neither b nor the trigger (ROOT OQ1: c2).
+    Failed(ForceScaledError),
+    /// ROOT Q3: a family not admitted at b != 0.
+    NotAdmitted { family: &'static str, b: i32 },
+    /// §4.7 step 5: a published value that would underflow or overflow.
+    Publication { quantity: String, b: i32 },
+    /// Defensive: the orchestrator's step 1 did not reproduce the trigger.
+    NotEngaged,
+}
+
+/// F1b (T3 D1 §4.7 steps 2-5; ROOT Q2, Q3, Q4): the W2 attempt of a linear
+/// case whose ordinary attempt range-triggered and that exact-block did not
+/// recover, through K2b's orchestrator (the only W2 entry). The case is formed
+/// exactly as the ordinary route formed it, at b = 0, with its unscaled ledger
+/// force (RV11-N4: the product never forms a scaled ledger). The orchestrator's
+/// refusals take precedence; then admission (Q3); then step-5 publication,
+/// before any row is built.
+#[allow(clippy::too_many_arguments)]
+fn force_scaling_attempt(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    spring_entries: &[SpringEntry],
+    restrained_dofs: &[usize],
+    load_case: &PreviewLoadCase,
+    load_application: &LoadApplication,
+    thermal_loads: &[ThermalElementLoad],
+    pressure_thrust_loads: &[PressureThrustLoad],
+    exact_pressure: Option<&pressure_runtime::ExactPressureCase>,
+    force: &AssembledForce,
+    prescribed: &[(usize, f64)],
+    solver_mode: PreviewSolverMode,
+) -> Result<(PreviewLinearSolve, ForceScaledPublication), ForceScalingFailure> {
+    let curved = built
+        .curved_bend_elements
+        .iter()
+        .map(|e| {
+            CurvedBendStiffnessElement::from_macro_element(e.component_id.clone(), &e.macro_element)
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| {
+            ForceScalingFailure::Failed(ForceScaledError::Structural(
+                StructuralError::InvalidInput("curved formation evidence"),
+            ))
+        })?;
+    let curved_sources = built
+        .curved_bend_elements
+        .iter()
+        .map(|e| e.macro_element)
+        .collect::<Vec<_>>();
+    let springs = spring_entries
+        .iter()
+        .map(|e| (e.node_dof.global_index(), e.stiffness.value))
+        .collect::<Vec<_>>();
+    let mode = match solver_mode {
+        PreviewSolverMode::DenseScrutiny => LinearSolveMode::DenseScrutiny,
+        PreviewSolverMode::SparseInteractive => LinearSolveMode::SparseInteractive,
+    };
+    let case = ForceScalingCase {
+        node_count: built.nodes.len(),
+        frames: &built.frame_elements,
+        users: &built.user_stiffness_elements,
+        curved: &curved,
+        curved_sources: &curved_sources,
+        springs: &springs,
+        force,
+        prescribed,
+        mode,
+        selected: true,
+        representation: EvidenceRepresentation::Pattern,
+    };
+    let outcome = solve_with_force_scaling(&case).map_err(|error| match error {
+        ForceScaledError::Refused(refusal) => ForceScalingFailure::Refused(refusal),
+        error => ForceScalingFailure::Failed(error),
+    })?;
+    if outcome.solution.force_scale.is_unscaled() {
+        return Err(ForceScalingFailure::NotEngaged);
+    }
+    let b = outcome.solution.force_scale.exponent();
+    force_scaling_admission(
+        model,
+        built,
+        load_case,
+        load_application,
+        thermal_loads,
+        pressure_thrust_loads,
+        exact_pressure,
+        force,
+        b,
+    )?;
+    let publication = force_scaled_publication(
+        model,
+        built,
+        spring_entries,
+        restrained_dofs,
+        &outcome,
+        force,
+    )?;
+    let solution = &outcome.solution.solution;
+    let free = (0..force.len())
+        .filter(|dof| !prescribed.iter().any(|&(boundary, _)| boundary == *dof))
+        .collect::<Vec<_>>();
+    let solve = PreviewLinearSolve {
+        structural_report: solution.report.clone(),
+        load_fidelity: solution.load_fidelity.clone(),
+        formation_check: solution.formation_check.clone(),
+        solution: free
+            .iter()
+            .map(|&dof| solution.displacements[dof])
+            .collect(),
+        solution_basis: match solver_mode {
+            PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
+            PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",
+        },
+        // ROOT OQ5: the DEC-050/053 observation lanes do not run at b != 0.
+        sparse_entry_count: None,
+        original_profile_entry_count: None,
+        ordered_profile_entry_count: None,
+        original_max_half_bandwidth: None,
+        ordered_max_half_bandwidth: None,
+        nonpositive_pivot_count: None,
+        pivot_condition_ratio_estimate: None,
+        sparse_residual: None,
+        dense_fallback_message: None,
+    };
+    Ok((solve, publication))
+}
+
+/// F1b (ROOT Q3, OQ7, OQ13 narrowed): at b != 0 W2 admits only straight
+/// frames, ground springs, rigid restraints, prescribed support motion and
+/// authored nodal loads. The first failing check names the family. Every
+/// element-targeted primitive (distributed, weight, thermal, pressure) is an
+/// `element_uniform_loads` entry, so the thermal, pressure-thrust and
+/// exact-pressure checks precede that one, which names what remains (A2: a
+/// thermal load was named `uniform_element_load` in the plan's order). The
+/// authored value of a nodal load is not available here (units are normalized
+/// in place; a 0.4.0 case's magnitudes are factored), so every exactly-zero
+/// nodal term is refused: it cannot be told from one that underflowed at
+/// formation (disclosed). Subnormal formed terms are already refused by the
+/// census.
+#[allow(clippy::too_many_arguments)]
+fn force_scaling_admission(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    load_case: &PreviewLoadCase,
+    load_application: &LoadApplication,
+    thermal_loads: &[ThermalElementLoad],
+    pressure_thrust_loads: &[PressureThrustLoad],
+    exact_pressure: Option<&pressure_runtime::ExactPressureCase>,
+    force: &AssembledForce,
+    b: i32,
+) -> Result<(), ForceScalingFailure> {
+    let authored_nodal: HashSet<&str> = load_case
+        .primitive_loads
+        .iter()
+        .filter(|load| matches!(load.target, LoadTargetInput::Node { .. }))
+        .map(|load| load.id.as_str())
+        .collect();
+    let term_is_authored_nodal = |term: &open_pipe_stress_frame_kernel::load_ledger::ForceTerm| {
+        matches!(
+            term.kind,
+            open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(_)
+        ) && authored_nodal.contains(term.source.as_str())
+    };
+    let family = if !built.user_stiffness_elements.is_empty() {
+        Some("user_stiffness_element")
+    } else if !built.curved_bend_elements.is_empty() {
+        Some("curved_bend_macro_element")
+    } else if !thermal_loads.is_empty() {
+        Some("thermal_or_eigen_load")
+    } else if !pressure_thrust_loads.is_empty() {
+        Some("pressure_thrust_load")
+    } else if exact_pressure.is_some_and(|exact| !exact.assembled_operands.is_empty()) {
+        Some("exact_pressure_operand")
+    } else if !load_application.element_uniform_loads.is_empty() {
+        Some("uniform_element_load")
+    } else if constant_effort_solve_dispositions(model)
+        .iter()
+        .any(|(_, disposition)| disposition.is_ok())
+    {
+        Some("constant_effort_support")
+    } else if !force.terms().iter().all(term_is_authored_nodal) {
+        Some("non_nodal_load_term")
+    } else if force.terms().iter().any(|term| {
+        matches!(
+            term.kind,
+            open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(value) if value == 0.0
+        )
+    }) {
+        Some("zero_nodal_load_term")
+    } else {
+        None
+    };
+    match family {
+        Some(family) => Err(ForceScalingFailure::NotAdmitted { family, b }),
+        None => Ok(()),
+    }
+}
+
+/// F1b (T3 D1 §4.7 step 5; RV11-1, RV11D-1): every force-unit value the case
+/// publishes directly, at b != 0, through K2b's checked helpers only. A value
+/// that would underflow or overflow refuses the case (never flushed, never a
+/// wrong `Normal`); a subnormal one carries its precision.
+fn force_scaled_publication(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    spring_entries: &[SpringEntry],
+    restrained_dofs: &[usize],
+    outcome: &ForceScalingOutcome,
+    force: &AssembledForce,
+) -> Result<ForceScaledPublication, ForceScalingFailure> {
+    let scale = outcome.solution.force_scale;
+    let b = scale.exponent();
+    let u = &outcome.solution.solution.displacements;
+    let refused = |error: ForceScaledError, quantity: String| match error {
+        ForceScaledError::Refused(ForceScalingRefusal {
+            reason: ForceScaleReason::PublicationOutsideBinary64 { .. },
+            ..
+        }) => ForceScalingFailure::Publication { quantity, b },
+        error => ForceScalingFailure::Failed(error),
+    };
+    let mut dofs = restrained_dofs.to_vec();
+    dofs.sort_unstable();
+    let reactions = outcome
+        .stiffness
+        .force_scaled_reactions(u, force, scale, &dofs)
+        .map_err(|error| {
+            let dof = match &error {
+                ForceScaledError::Refused(ForceScalingRefusal {
+                    reason: ForceScaleReason::PublicationOutsideBinary64 { global_dof },
+                    ..
+                }) => *global_dof,
+                _ => None,
+            };
+            let quantity = dof.map_or_else(
+                || "reaction".to_string(),
+                |dof| format!("reaction@{}", integrity_dof_label(model, dof)),
+            );
+            refused(error, quantity)
+        })?;
+    let reactions = dofs.into_iter().zip(reactions).collect::<Vec<_>>();
+    let spring_actions = spring_entries
+        .iter()
+        .map(|spring| {
+            let dof = spring.node_dof.global_index();
+            force_scaled_spring_action((dof, spring.stiffness.value), u, scale).map_err(|error| {
+                refused(
+                    error,
+                    format!("spring_action@{}", integrity_dof_label(model, dof)),
+                )
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let end_actions = built
+        .pipes
+        .iter()
+        .map(|pipe| {
+            let frame = pipe.frame_element().map_err(|_| {
+                ForceScalingFailure::Failed(ForceScaledError::Structural(
+                    StructuralError::InvalidInput("straight member frame element"),
+                ))
+            })?;
+            frame
+                .force_scaled_end_actions(u, scale)
+                .map_err(|error| refused(error, format!("end_actions@{}", pipe.element_id)))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(ForceScaledPublication {
+        force_scale_exponent: b,
+        reactions,
+        spring_actions,
+        end_actions,
+        members: built
+            .pipes
+            .iter()
+            .map(|pipe| pipe.element_id.clone())
+            .collect(),
+        spring_dofs: spring_entries
+            .iter()
+            .map(|spring| spring.node_dof.global_index())
+            .collect(),
+        records: outcome.solution.records.clone(),
+    })
+}
+
+/// F1b (ROOT Q7, fixed at checkpoint 0): the `range_scaling:` evidence line of
+/// a case published at b != 0. The non-normal outcomes follow in DOF order
+/// (records, then reactions, then spring actions at each DOF), then member end
+/// actions in member and local order; at most S11-G's `NAMED` are named, then
+/// `more=<count>`.
+fn range_scaling_evidence_line(
+    model: &PreviewModel,
+    publication: &ForceScaledPublication,
+) -> String {
+    let precision = |published: &PublishedValue| match published.representability {
+        Representability::Subnormal { relative_precision } => Some(relative_precision),
+        Representability::Normal => None,
+    };
+    // (global DOF, kind rank, order within kind, entry)
+    let mut located: Vec<(usize, u8, usize, String)> = Vec::new();
+    for (index, record) in publication.records.iter().enumerate() {
+        let outcome = match record.representability {
+            RecordRepresentability::Subnormal { relative_precision } => {
+                format!("subnormal(relative_precision={relative_precision:?})")
+            }
+            RecordRepresentability::Underflow => "underflow".to_string(),
+            RecordRepresentability::Overflow => "overflow".to_string(),
+        };
+        located.push((
+            record.global_dof,
+            0,
+            index,
+            format!(
+                "record={}@{}:{outcome}",
+                record.record,
+                integrity_dof_label(model, record.global_dof)
+            ),
+        ));
+    }
+    for (dof, published) in &publication.reactions {
+        if let Some(p) = precision(published) {
+            located.push((
+                *dof,
+                1,
+                0,
+                format!(
+                    "subnormal=reaction@{}:relative_precision={p:?}",
+                    integrity_dof_label(model, *dof)
+                ),
+            ));
+        }
+    }
+    for (index, (dof, published)) in publication
+        .spring_dofs
+        .iter()
+        .zip(&publication.spring_actions)
+        .enumerate()
+    {
+        if let Some(p) = precision(published) {
+            located.push((
+                *dof,
+                2,
+                index,
+                format!(
+                    "subnormal=spring_action@{}:relative_precision={p:?}",
+                    integrity_dof_label(model, *dof)
+                ),
+            ));
+        }
+    }
+    located.sort_by_key(|(dof, rank, order, _)| (*dof, *rank, *order));
+    let mut entries: Vec<String> = located.into_iter().map(|(_, _, _, entry)| entry).collect();
+    const COMPONENTS: [&str; DOF_PER_NODE] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
+    for (member, actions) in publication.members.iter().zip(&publication.end_actions) {
+        for (index, published) in actions.iter().enumerate() {
+            if let Some(p) = precision(published) {
+                let end = if index < DOF_PER_NODE { "i" } else { "j" };
+                entries.push(format!(
+                    "subnormal=end_action@{member}.{end}:{}:relative_precision={p:?}",
+                    COMPONENTS[index % DOF_PER_NODE]
+                ));
+            }
+        }
+    }
+    let named = entries
+        .iter()
+        .take(formation_guard::NAMED)
+        .map(|entry| format!("; {entry}"))
+        .collect::<String>();
+    let more = if entries.len() > formation_guard::NAMED {
+        format!("; more={}", entries.len() - formation_guard::NAMED)
+    } else {
+        String::new()
+    };
+    format!(
+        "range_scaling: force_scale_exponent={}; basis=exact power-of-two{named}{more}",
+        publication.force_scale_exponent
+    )
+}
+
+/// F1b (ROOT Q6 and OQ1 c2, OQ4; the template fixed at checkpoint 0): a W2
+/// refusal, published per case as the case's integrity diagnostic (blocking),
+/// modelled on `append_integrity_failure`. It carries the refusal's reason, the
+/// ordinary attempt's step-1 trigger (so K2a's names survive) and b where the
+/// outcome carries it: `none` where no b exists (steps 2-3), omitted where the
+/// orchestrator does not return it (step 4, a non-range failure).
+fn append_force_scaling_refusal(
+    diagnostics: &mut Vec<Diagnostic>,
+    case_id: &str,
+    failure: &ForceScalingFailure,
+    trigger: &RangeTrigger,
+    model: &PreviewModel,
+) {
+    let exponent = |b: i32| format!("; force_scale_exponent={b}; basis=exact power-of-two");
+    let (code, reason, b) = match failure {
+        ForceScalingFailure::Refused(refusal) => (
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            refusal.to_string(),
+            match refusal.reason {
+                ForceScaleReason::SubnormalAtFormation
+                | ForceScaleReason::InfeasibleWindow { .. } => {
+                    "; force_scale_exponent=none".to_string()
+                }
+                _ => String::new(),
+            },
+        ),
+        ForceScalingFailure::Failed(error) => (
+            match error {
+                ForceScaledError::Structural(error) => integrity_failure_code(error),
+                _ => "NUMERICAL_INTEGRITY_UNRESOLVED",
+            },
+            error.to_string(),
+            String::new(),
+        ),
+        ForceScalingFailure::NotAdmitted { family, b } => (
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            format!("range: family not admitted under force scaling: {family}"),
+            exponent(*b),
+        ),
+        ForceScalingFailure::Publication { quantity, b } => (
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            format!(
+                "{}; at={quantity}",
+                ForceScaleReason::PublicationOutsideBinary64 { global_dof: None }
+            ),
+            exponent(*b),
+        ),
+        ForceScalingFailure::NotEngaged => (
+            "NUMERICAL_INTEGRITY_UNRESOLVED",
+            "range: force scaling did not engage after a range trigger".to_string(),
+            String::new(),
+        ),
+    };
+    diagnostics.push(diag(
+        &integrity_diagnostic_id(case_id),
+        code,
+        "blocking",
+        format!(
+            "Load case {case_id}: {reason}; range_scaling: attempted; step1_trigger={trigger:?}{b}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization",
+            integrity_dof_map(model)
+        ),
+        vec![case_id.to_string()],
+    ));
 }
 
 fn assessed_numerical_quality(
@@ -1823,18 +2361,25 @@ fn run_linear_static_preview_captured_once(
         return blocked_envelope(model, diagnostics);
     }
 
-    let mut stiffness = match assemble_global_stiffness_with_user_elements(
-        built.nodes.len(),
-        &built.frame_elements,
-        &built.user_stiffness_elements,
-    ) {
+    // F1b (T3 D1 §4.8, W3): the kernel's sparse assembly per basis; no dense
+    // matrix is held across cases or bases. F1b (§4.7, ROOT Q2): on a linear
+    // invocation K2a's range refusal is deferred to the basis's cases.
+    let linear = built.nonlinear_supports.is_empty();
+    let stiffness = match form_basis_stiffness(&built, &boundary.springs, linear) {
         Ok(stiffness) => stiffness,
         Err(error) => return solver_blocked(model, diagnostics, error),
     };
-    add_curved_bend_stiffness_contributions(&mut stiffness, &built.curved_bend_elements);
-    for spring in &boundary.springs {
-        stiffness[spring.node_dof.global_index()][spring.node_dof.global_index()] +=
-            spring.stiffness.value;
+    // F1b (§4.8 resource guard; ROOT Q8): dense scrutiny refuses, once per
+    // invocation and before any n^2 allocation, a model whose dense-path
+    // estimate exceeds the provisional ceiling.
+    if solver_mode == PreviewSolverMode::DenseScrutiny {
+        if let Err(refusal) = dense_scrutiny_guard(
+            built.nodes.len() * DOF_PER_NODE,
+            dense_scrutiny_ceiling_bytes(),
+        ) {
+            diagnostics.push(dense_scrutiny_refusal_diagnostic(&refusal));
+            return blocked_envelope(model, diagnostics);
+        }
     }
 
     // DEC-068 item 1 + DEC-077: a load case may name an exact user-entered
@@ -1847,7 +2392,7 @@ fn run_linear_static_preview_captured_once(
         Option<String>,
         Vec<MaterialInput>,
         BuiltModel,
-        Vec<Vec<f64>>,
+        BasisStiffness,
         Option<String>,
     )> = vec![(None, materials.clone(), built, stiffness, None)];
     let mut load_case_solves = Vec::new();
@@ -1870,10 +2415,11 @@ fn run_linear_static_preview_captured_once(
                 }
                 let case_built = case_built
                     .expect("build_model returns Some when no blocking diagnostics were added");
-                let case_stiffness = match assemble_case_stiffness(&case_built, &boundary.springs) {
-                    Ok(stiffness) => stiffness,
-                    Err(error) => return solver_blocked(model, diagnostics, error),
-                };
+                let case_stiffness =
+                    match form_basis_stiffness(&case_built, &boundary.springs, linear) {
+                        Ok(stiffness) => stiffness,
+                        Err(error) => return solver_blocked(model, diagnostics, error),
+                    };
                 basis_solve_states.push((
                     Some(format!("load_state:{}", load_case.id)),
                     materials.clone(),
@@ -1954,22 +2500,11 @@ fn run_linear_static_preview_captured_once(
                 }
                 let basis_built = basis_built
                     .expect("build_model returns Some when no blocking diagnostics were added");
-                let mut basis_stiffness = match assemble_global_stiffness_with_user_elements(
-                    basis_built.nodes.len(),
-                    &basis_built.frame_elements,
-                    &basis_built.user_stiffness_elements,
-                ) {
-                    Ok(stiffness) => stiffness,
-                    Err(error) => return solver_blocked(model, diagnostics, error),
-                };
-                add_curved_bend_stiffness_contributions(
-                    &mut basis_stiffness,
-                    &basis_built.curved_bend_elements,
-                );
-                for spring in &boundary.springs {
-                    basis_stiffness[spring.node_dof.global_index()]
-                        [spring.node_dof.global_index()] += spring.stiffness.value;
-                }
+                let basis_stiffness =
+                    match form_basis_stiffness(&basis_built, &boundary.springs, linear) {
+                        Ok(stiffness) => stiffness,
+                        Err(error) => return solver_blocked(model, diagnostics, error),
+                    };
                 basis_solve_states.push((
                     Some(basis_key.clone()),
                     basis_materials,
@@ -2271,8 +2806,251 @@ fn load_state_case_record(
     evidence
 }
 
+/// F1b (T3 D1 §4.8, W3; K1): one basis's global stiffness on the kernel's
+/// sparse pattern, for the ordinary route. The contributions accumulate in the
+/// dense assembly's order (frames and users, then the realized curved bends as
+/// blocks, then the springs), so every stored value is bit-identical to
+/// `assemble_case_stiffness`'s dense entry and every absent entry is its +0.0.
+/// Each element is formed by the same call in the same order, so a formation
+/// error is the same error for the same first element.
+fn assemble_basis_stiffness(
+    built: &BuiltModel,
+    springs: &[SpringEntry],
+) -> Result<SparseStiffness, FrameKernelError> {
+    let blocks = built
+        .curved_bend_elements
+        .iter()
+        .map(|element| StiffnessBlock {
+            node_i: element.node_i,
+            node_j: element.node_j,
+            stiffness: element.global_stiffness,
+        })
+        .collect::<Vec<_>>();
+    let springs = springs
+        .iter()
+        .map(|spring| (spring.node_dof.global_index(), spring.stiffness.value))
+        .collect::<Vec<_>>();
+    assemble_sparse_stiffness(
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.user_stiffness_elements,
+        &blocks,
+        &springs,
+        &SparseAssemblyOptions::new(),
+    )
+}
+
+/// F1b: one basis's global stiffness (one modulus basis, or one 0.4.0
+/// resolved case).
+enum BasisStiffness {
+    /// The kernel's sparse assembly at b = 0 (`assemble_basis_stiffness`).
+    Formed(SparseStiffness),
+    /// K2a's `NumericalRange` at this basis's assembly, on a linear
+    /// invocation: deferred to each of the basis's cases as its step-1 range
+    /// trigger (T3 D1 §4.7 step 1; ROOT Q2). Main blocks the invocation here.
+    RangeDeferred(FrameKernelError),
+}
+
+/// F1b (ROOT Q2): the basis assembly with K2a's range refusal deferred on a
+/// linear invocation. Every other formation error, and a range refusal on an
+/// invocation with a nonlinear support, blocks the invocation as today.
+fn form_basis_stiffness(
+    built: &BuiltModel,
+    springs: &[SpringEntry],
+    linear: bool,
+) -> Result<BasisStiffness, FrameKernelError> {
+    match assemble_basis_stiffness(built, springs) {
+        Ok(stiffness) => Ok(BasisStiffness::Formed(stiffness)),
+        Err(error @ FrameKernelError::NumericalRange { .. }) if linear => {
+            Ok(BasisStiffness::RangeDeferred(error))
+        }
+        Err(error) => Err(error),
+    }
+}
+
+/// F1b (T3 D1 §4.8 "Resource guard"; ROOT Q8(a), provisional): the dense
+/// scrutiny path's estimated peak per n^2 entry. At the peak (inside FK's
+/// `prepare_bound` via `audit_contributions`, called from SA's DenseScrutiny
+/// branch) six n^2 buffers are alive together: the dense K view (8), the two
+/// dense symmetry views (8 + 8), the prepared matrix (8) and the contribution
+/// sums and differences (`Expansion`, 32 + 32). A stated formula over the
+/// dense entry count, not a measurement.
+const DENSE_SCRUTINY_BYTES_PER_ENTRY: u128 = 96;
+/// Provisional (ROOT Q8(a), 2026-09-28): the gate's 6 GiB heap cap on the
+/// owner's Mac, revisited from K6's and V-P's measurements. It admits at most
+/// 8,192 global DOFs (1,365 nodes).
+const DENSE_SCRUTINY_CEILING_BYTES: u128 = 6 * 1024 * 1024 * 1024;
+
+/// The dense-scrutiny guard's refusal: the formula's inputs and its value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DenseScrutinyRefusal {
+    dimension: usize,
+    dense_entries: u128,
+    estimated_bytes: u128,
+    ceiling_bytes: u128,
+}
+
+/// The dense path's estimated bytes for `dense_entries` n^2 entries.
+fn dense_scrutiny_estimate_bytes(dense_entries: u128) -> u128 {
+    DENSE_SCRUTINY_BYTES_PER_ENTRY.saturating_mul(dense_entries)
+}
+
+/// The guard's decision for a model of `dimension` global DOFs. Its dense
+/// entry count is `dimension^2`, which is `SparseStorageCounts::dense_entries`
+/// of the model's assembly. It refuses only when the estimate exceeds the
+/// ceiling.
+fn dense_scrutiny_guard(dimension: usize, ceiling_bytes: u128) -> Result<(), DenseScrutinyRefusal> {
+    let dense_entries = (dimension as u128) * (dimension as u128);
+    let estimated_bytes = dense_scrutiny_estimate_bytes(dense_entries);
+    if estimated_bytes > ceiling_bytes {
+        Err(DenseScrutinyRefusal {
+            dimension,
+            dense_entries,
+            estimated_bytes,
+            ceiling_bytes,
+        })
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    /// F1b tests only: a lowered ceiling for the unit-level product test.
+    static DENSE_SCRUTINY_CEILING_OVERRIDE: std::cell::Cell<Option<u128>> =
+        const { std::cell::Cell::new(None) };
+}
+
+/// The ceiling the product applies (the constant; a unit test may lower it).
+fn dense_scrutiny_ceiling_bytes() -> u128 {
+    #[cfg(test)]
+    if let Some(ceiling) = DENSE_SCRUTINY_CEILING_OVERRIDE.with(|cell| cell.get()) {
+        return ceiling;
+    }
+    DENSE_SCRUTINY_CEILING_BYTES
+}
+
+fn dense_scrutiny_refusal_diagnostic(refusal: &DenseScrutinyRefusal) -> Diagnostic {
+    diag(
+        "diagnostic:physics:dense-scrutiny-resource-guard",
+        "SOLVER_SYSTEM_BLOCKED",
+        "blocking",
+        format!(
+            "dense scrutiny resource guard: estimated dense-path peak {} bytes ({} bytes x {} dense entries, {} global DOFs squared) exceeds the provisional ceiling {} bytes; the model is refused before any n^2 allocation. The estimate is a stated formula, not a measurement; sparse_interactive does not use it, and no automatic dense fallback exists",
+            refusal.estimated_bytes,
+            DENSE_SCRUTINY_BYTES_PER_ENTRY,
+            refusal.dense_entries,
+            refusal.dimension,
+            refusal.ceiling_bytes,
+        ),
+        vec!["model".to_string()],
+    )
+}
+
+/// F1b (ROOT's ruling on the gate's heap-cap finding, 2026-09-28): the legacy
+/// DEC-050/053 observation lane (`solve_symmetric_system_from_entries`) builds
+/// the reduced system's identity-order profile (`SymmetricProfileMatrix::
+/// from_entries`) only to count it. Its `values` vector of f64 grows by
+/// `resize`, so during its last amortized growth the old and the new capacity
+/// are alive together: at most 3 times the final length, 24 bytes per profile
+/// entry. The RCM-ordered profile, its factor and the lane's O(n) and O(nnz)
+/// vectors are not counted. A stated formula, not a measurement.
+const SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY: u128 = 24;
+
+/// The lane's identity-order profile as `SymmetricProfileMatrix::from_entries`
+/// forms it from the same entries: each row's first stored column is the
+/// smallest column of a nonzero entry in its lower triangle (a zero entry is
+/// skipped, as the lane skips it). Returns (profile entries, maximum
+/// half-bandwidth). O(nnz), with one first-column index per reduced DOF and
+/// no profile storage.
+fn observation_lane_profile(system: &ReducedSparseEntrySystem) -> (u128, usize) {
+    let mut first_columns: Vec<usize> = (0..system.dimension).collect();
+    for entry in &system.entries {
+        if entry.value == 0.0 || entry.row >= system.dimension || entry.col >= system.dimension {
+            continue;
+        }
+        let (hi, lo) = if entry.row >= entry.col {
+            (entry.row, entry.col)
+        } else {
+            (entry.col, entry.row)
+        };
+        if lo < first_columns[hi] {
+            first_columns[hi] = lo;
+        }
+    }
+    let entries = first_columns
+        .iter()
+        .enumerate()
+        .map(|(row, &first)| (row - first + 1) as u128)
+        .sum();
+    let bandwidth = first_columns
+        .iter()
+        .enumerate()
+        .map(|(row, &first)| row - first)
+        .max()
+        .unwrap_or(0);
+    (entries, bandwidth)
+}
+
+/// The observation lane guard's refusal: the estimate's inputs and value.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ObservationLaneRefusal {
+    profile_entries: u128,
+    max_half_bandwidth: usize,
+    estimated_bytes: u128,
+    ceiling_bytes: u128,
+}
+
+/// F1b (ROOT, 2026-09-28): the lane runs only when its estimated bytes are
+/// within the provisional ceiling, the dense-scrutiny guard's named constant
+/// (`dense_scrutiny_ceiling_bytes`, which a unit test may lower).
+fn observation_lane_guard(
+    system: &ReducedSparseEntrySystem,
+    ceiling_bytes: u128,
+) -> Result<(), ObservationLaneRefusal> {
+    let (profile_entries, max_half_bandwidth) = observation_lane_profile(system);
+    let estimated_bytes =
+        SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY.saturating_mul(profile_entries);
+    if estimated_bytes > ceiling_bytes {
+        Err(ObservationLaneRefusal {
+            profile_entries,
+            max_half_bandwidth,
+            estimated_bytes,
+            ceiling_bytes,
+        })
+    } else {
+        Ok(())
+    }
+}
+
+fn observation_lane_refusal_diagnostic(
+    load_case_id: &str,
+    refusal: &ObservationLaneRefusal,
+) -> Diagnostic {
+    diag(
+        &format!(
+            "diagnostic:sparse-observation:{}:resource-guard",
+            stable_suffix(load_case_id)
+        ),
+        "SPARSE_OBSERVATION_LANE_NOT_RUN",
+        "info",
+        format!(
+            "legacy DEC-050/053 observation lane not run for load case {load_case_id}: its identity-order profile of {} entries (maximum half-bandwidth {}) needs an estimated {} bytes ({} bytes x {} profile entries), above the provisional ceiling {} bytes; the mode row's profile, pivot and residual observation fields are published as not_observed. The estimate is a stated formula, not a measurement; the lane never selects a solution, and the structural solve and its publication are unchanged",
+            refusal.profile_entries,
+            refusal.max_half_bandwidth,
+            refusal.estimated_bytes,
+            SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY,
+            refusal.profile_entries,
+            refusal.ceiling_bytes,
+        ),
+        vec![load_case_id.to_string(), "DEC-053".to_string()],
+    )
+}
+
 /// Assemble one resolved case's global stiffness, with the same element,
-/// curved and spring contributions as the default basis assembly.
+/// curved and spring contributions as the default basis assembly. F1b: the
+/// ordinary route uses `assemble_basis_stiffness`; this dense form remains for
+/// the n <= 256 captured replay (`source_receipt`) and tests.
 fn assemble_case_stiffness(
     built: &BuiltModel,
     springs: &[SpringEntry],
@@ -2478,9 +3256,11 @@ fn finish_case_ledger(
 /// DEC050/053 observation rebuilds a reduced system from a global vector; it
 /// must observe K_ff u_f = f_f - K_fc g_c, never f_f. It reads the ledger's
 /// values and folds in binary64 on purpose; it never reaches a solve seam.
+/// F1b: `stiffness.get` is the stored value or +0.0, the dense entry bit for
+/// bit, so the observation is unchanged.
 fn legacy_observation_force(
     force: &AssembledForce,
-    stiffness: &[Vec<f64>],
+    stiffness: &SparseStiffness,
     restrained_dofs: &[usize],
     prescribed: &[(usize, f64)],
     coupled: bool,
@@ -2492,7 +3272,7 @@ fn legacy_observation_force(
                 continue;
             }
             for &(column, displacement) in prescribed {
-                *value -= stiffness[row][column] * displacement;
+                *value -= stiffness.get(row, column) * displacement;
             }
         }
     }
@@ -2509,34 +3289,26 @@ fn legacy_dense_observation(
 }
 
 /// E12 (S11 section 4.4): each restrained reaction is one exact sum of the
-/// formed `K * u` term (bit-identical to `multiply_matrix_vector`) and minus
-/// every ledger term of that DOF, rounded once.
+/// formed `K * u` term and minus every ledger term of that DOF, rounded once.
+/// F1b (§4.8): from sparse rows, `SparseStiffness::reactions`, bit-identical
+/// to the dense form (K1). A non-finite operand or an out-of-range net keeps
+/// NaN, which `require_finite_mechanics` refuses, as before; so does a length
+/// mismatch, which cannot occur (both are the model's 6 * nodes).
 fn restrained_reactions(
-    stiffness: &[Vec<f64>],
+    stiffness: &SparseStiffness,
     displacements: &[f64],
     force: &AssembledForce,
 ) -> Vec<f64> {
-    multiply_matrix_vector(stiffness, displacements)
-        .into_iter()
-        .enumerate()
-        .map(|(dof, internal)| {
-            let mut accumulator = ExactAccumulator::new();
-            let summed = accumulator
-                .add(internal)
-                .and_then(|()| force.accumulate_dof(dof, &mut accumulator, true))
-                .and_then(|()| accumulator.round());
-            // A non-finite operand or an out-of-range net keeps the non-finite
-            // value, which `require_finite_mechanics` refuses, as before.
-            summed.unwrap_or(f64::NAN)
-        })
-        .collect()
+    stiffness
+        .reactions(displacements, force)
+        .unwrap_or_else(|_| vec![f64::NAN; stiffness.dimension()])
 }
 
 fn solve_load_case(
     model: &PreviewModel,
     built: &BuiltModel,
     materials: &[MaterialInput],
-    stiffness: &[Vec<f64>],
+    stiffness: &BasisStiffness,
     restrained_dofs: &[usize],
     spring_entries: &[SpringEntry],
     load_case: &PreviewLoadCase,
@@ -2672,10 +3444,18 @@ fn solve_load_case(
         &load_case.id,
     );
 
+    // F1b: the basis's formed values (none when its range refusal was
+    // deferred, ROOT Q2).
+    let formed = match stiffness {
+        BasisStiffness::Formed(formed) => Some(formed),
+        BasisStiffness::RangeDeferred(_) => None,
+    };
+    // F1b: the stored values are row-major and every absent entry is a finite
+    // +0.0, so the first non-finite value is the dense scan's, with its bits.
     require_finite_mechanics(
-        stiffness
+        formed
+            .map_or(&[][..], SparseStiffness::values)
             .iter()
-            .flatten()
             .copied()
             .chain(force.values().iter().copied()),
     )?;
@@ -2722,58 +3502,64 @@ fn solve_load_case(
         .map(|&(_, value)| value)
         .collect::<Vec<_>>();
     // T1's 0.4.0 prescribed motion reaches the kernel's exact KS2 through the
-    // typed reduction (S11 section 8.2).
-    let reduced = if load_state.is_some() {
-        reduce_assembled_system_with_prescribed_displacements(
-            stiffness,
-            &force,
-            restrained_dofs,
-            &prescribed_values,
-        )?
-    } else {
-        reduce_assembled_system(stiffness, &force, restrained_dofs)?
+    // typed reduction (S11 section 8.2). F1b: the pattern's partition and
+    // reduced right-hand side, bit-identical to `reduce_assembled_system*`'s,
+    // with their errors in their order (K1); no reduced matrix is formed.
+    let reduced = formed
+        .map(|formed| {
+            reduce_assembled_sparse_system(
+                formed,
+                &force,
+                restrained_dofs,
+                load_state.is_some().then_some(prescribed_values.as_slice()),
+            )
+        })
+        .transpose()?;
+    // A deferred basis has no reduction: its free DOFs are the ascending
+    // complement of the restrained ones, which is the partition
+    // `reduce_assembled_sparse_system` forms (F1b D6).
+    let deferred_free_dofs: Vec<usize>;
+    let free_dofs: &[usize] = match &reduced {
+        Some(reduced) => &reduced.free_dofs,
+        None => {
+            deferred_free_dofs = (0..force.len())
+                .filter(|dof| !restrained_dofs.contains(dof))
+                .collect();
+            &deferred_free_dofs
+        }
     };
-    let observation_force = legacy_observation_force(
-        &force,
-        stiffness,
-        restrained_dofs,
-        &prescribed,
-        load_state.is_some(),
-    );
+    let observation_force = formed
+        .map(|formed| {
+            legacy_observation_force(
+                &force,
+                formed,
+                restrained_dofs,
+                &prescribed,
+                load_state.is_some(),
+            )
+        })
+        .unwrap_or_default();
     // Preliminary linear evidence belongs only to an actual successful solve.
     let mut preliminary_diagnostics = Vec::new();
-    let attempted_linear = solve_preview_reduced_system(
-        solver_mode,
-        stiffness,
-        reduced.force.values(),
-        built,
-        spring_entries,
-        &force,
-        &observation_force,
-        &prescribed,
-        load_case,
-        &mut preliminary_diagnostics,
-    );
-    // S11-G revision 2.2 G-2: the receipt's ordinary outcome follows the
-    // published verdict, which the load-row finding demotes to Sensitive.
-    let ordinary_attempt = match &attempted_linear {
-        Ok(solve) => source_receipt::OrdinaryAttempt::passed(
+    let attempted_linear = match stiffness {
+        BasisStiffness::Formed(formed) => solve_preview_reduced_system(
             solver_mode,
-            &solve.structural_report,
-            integrity_diagnostic_id(&load_case.id),
-            load_row_finding.is_some(),
-        ),
-        Err(error) => source_receipt::OrdinaryAttempt::rejected(
-            solver_mode,
-            error,
-            integrity_diagnostic_id(&load_case.id),
-        ),
-    };
-    let recovery_input = || source_recovery::Input {
-        model, built, stiffness, force: &force, free: &reduced.free_dofs,
-        prescribed: &prescribed, spring_entries, load_case, load_application: &load_application,
-        thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
-        load_state,
+            formed,
+            reduced
+                .as_ref()
+                .map_or(&[][..], |reduced| reduced.force.values()),
+            built,
+            spring_entries,
+            &force,
+            &observation_force,
+            &prescribed,
+            load_case,
+            &mut preliminary_diagnostics,
+        )
+        .map_err(OrdinaryFailure::Structural),
+        // F1b (ROOT Q2): a deferred basis's ordinary attempt is its formation
+        // range refusal; nothing was formed to attempt.
+        BasisStiffness::RangeDeferred(error) => Err(OrdinaryFailure::Formation(error.clone())),
     };
     let report_sensitive = matches!(&attempted_linear, Ok(solve) if solve.structural_report.quality == SolveQuality::Sensitive);
     let attempt_err = attempted_linear.is_err();
@@ -2789,6 +3575,27 @@ fn solve_load_case(
         !built.nonlinear_supports.is_empty(),
         !model.combinations.is_empty(),
     );
+    // F1b (ROOT Q9(a)): retained-source recovery keeps its dense `stiffness`
+    // input, built only for an attempt it can run (n <= 256). Above that its
+    // budget refusal precedes every read of `stiffness`
+    // (`source_recovery::prepare_sources`), so the empty slice changes neither
+    // the charge nor the bytes. A selected response exists only at n <= 256.
+    let recovery_stiffness = match formed {
+        Some(formed)
+            if source_eligible
+                && needs_source_recovery
+                && formed.dimension() <= source_recovery::DENSE_SOURCE_DOF_LIMIT =>
+        {
+            formed.to_dense()
+        }
+        _ => Vec::new(),
+    };
+    let recovery_input = || source_recovery::Input {
+        model, built, stiffness: &recovery_stiffness, force: &force, free: free_dofs,
+        prescribed: &prescribed, spring_entries, load_case, load_application: &load_application,
+        thermal_loads: &thermal_loads, pressure_thrust_loads: &pressure_thrust_loads,
+        load_state,
+    };
     if source_eligible && needs_source_recovery {
         // S11-G revision 2.2 with ROOT's D22-1 condition: a case the ordinary
         // route would not attempt (report Passed, no Err) is declined for its
@@ -2796,15 +3603,22 @@ fn solve_load_case(
         // ledger equals the unguarded one.
         let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
             Err(source_recovery::formation_decline_without_attempt())
+        } else if formed.is_none() {
+            // F1b (ROOT OQ2, option B): a basis whose formation left the
+            // range has no assembled stiffness, and the method would refuse
+            // it at the same frames' formation (F1b D2); it is declined
+            // without an attempt and with zero work.
+            Err(source_recovery::range_formation_decline_without_attempt())
         } else {
             source_budget.attempts += 1;
             let case_limit = source_budget.case_limit();
-            source_recovery::solve(
+            source_recovery::solve_ordinary(
                 recovery_input(),
                 open_pipe_stress_frame_kernel::structural::exact_boundary::Limits {
                     operations: case_limit,
                     ..Default::default()
                 },
+                ForceScale::UNSCALED,
             )
             // S11-G revision 2.2 G-3: a guard-fired case is never selected; the
             // selection is declined before the 0.4.0 replay reservation.
@@ -2865,12 +3679,15 @@ fn solve_load_case(
             vec![load_case.id.clone()],
         ));
     }
+    // The receipt's ordinary attempt (step below) and W2's publication.
+    let mut ordinary_error = None;
+    let mut w2_publication = None;
     let linear_solve = match attempted_linear {
         Ok(solve) => {
             diagnostics.extend(preliminary_diagnostics);
             Some(solve)
         }
-        Err(error) if selected_source.is_some() => {
+        Err(OrdinaryFailure::Structural(error)) if selected_source.is_some() => {
             // Preserve the rejected ordinary attempt as evidence. It is not the
             // selected solve and is not relabelled as a successful factorization.
             append_integrity_failure(diagnostics, &load_case.id, &error, model);
@@ -2878,9 +3695,10 @@ fn solve_load_case(
                 record.severity = "info".into();
                 record.message = format!("Rejected ordinary attempt; a separate retained-source response is selected. {}", record.message);
             }
+            ordinary_error = Some(error);
             None
         }
-        Err(error)
+        Err(OrdinaryFailure::Structural(error))
             if open_pipe_stress_nonlinear_integration::structural_adapter::permits_contact_seed_trial(&error, built.user_stiffness_elements.is_empty() && built.curved_bend_elements.is_empty()) && eligible_contact_dofs(
                 built.nodes.len(),
                 restrained_dofs,
@@ -2889,19 +3707,49 @@ fn solve_load_case(
             )
             .is_some() =>
         {
+            ordinary_error = Some(error);
             None
         }
-        // The staged solver diagnostics currently contain only the warning
-        // advertising a completed dense fallback. A failed attempt has no
-        // solution basis to advertise; propagate its actual error alone.
-        Err(error) => {
-            append_integrity_failure(diagnostics, &load_case.id, &error, model);
-            return Ok(LoadCaseSolve {
-            load_state_evidence: None,
+        Err(failure) => {
+            // F1b (T3 D1 §4.7; ROOT Q2, W2): a linear case whose ordinary
+            // attempt range-triggered and that exact-block did not recover is
+            // evaluated through K2b's orchestrator, then published or refused
+            // per case. Every other failure is main's.
+            let trigger = ordinary_range_trigger(&failure)
+                .filter(|_| built.nonlinear_supports.is_empty());
+            match (trigger, failure) {
+                (Some(trigger), _) => match force_scaling_attempt(
+                    model,
+                    built,
+                    spring_entries,
+                    restrained_dofs,
+                    load_case,
+                    &load_application,
+                    &thermal_loads,
+                    &pressure_thrust_loads,
+                    exact_pressure.as_ref(),
+                    &force,
+                    &prescribed,
+                    solver_mode,
+                ) {
+                    Ok((solve, publication)) => {
+                        w2_publication = Some(publication);
+                        Some(solve)
+                    }
+                    Err(refusal) => {
+                        append_force_scaling_refusal(
+                            diagnostics,
+                            &load_case.id,
+                            &refusal,
+                            &trigger,
+                            model,
+                        );
+                        return Ok(LoadCaseSolve {
+                load_state_evidence: None,
                 pressure_evidence: Vec::new(),
                 exact_case_evidence: None,
-            source_case: None,
-            source_selected: false,
+                source_case: None,
+                source_selected: false,
                 load_case_id: load_case.id.clone(),
                 results: Vec::new(),
                 max_displacement: None,
@@ -2911,14 +3759,62 @@ fn solve_load_case(
                 support_force_vectors: HashMap::new(),
                 preview: None,
             });
+                    }
+                },
+                // A deferred formation refusal exists only on a linear
+                // invocation (`form_basis_stiffness`), so this is main's
+                // `solver_blocked` path, unreachable by construction.
+                (None, OrdinaryFailure::Formation(error)) => return Err(error),
+                // The staged solver diagnostics currently contain only the
+                // warning advertising a completed dense fallback. A failed
+                // attempt has no solution basis to advertise; propagate its
+                // actual error alone.
+                (None, OrdinaryFailure::Structural(error)) => {
+                    append_integrity_failure(diagnostics, &load_case.id, &error, model);
+                    return Ok(LoadCaseSolve {
+                load_state_evidence: None,
+                pressure_evidence: Vec::new(),
+                exact_case_evidence: None,
+                source_case: None,
+                source_selected: false,
+                load_case_id: load_case.id.clone(),
+                results: Vec::new(),
+                max_displacement: None,
+                max_stress: None,
+                component_stress_modifier_count: 0,
+                component_pressure_thrust_load_count: 0,
+                support_force_vectors: HashMap::new(),
+                preview: None,
+            });
+                }
+            }
         }
+    };
+
+    // S11-G revision 2.2 G-2: the receipt's ordinary outcome follows the
+    // published verdict, which the load-row finding demotes to Sensitive.
+    // F1b: formed after W2, so a W2-published case records its published
+    // report; a deferred formation refusal was never attempted.
+    let ordinary_attempt = match (&linear_solve, &ordinary_error) {
+        (Some(solve), _) => source_receipt::OrdinaryAttempt::passed(
+            solver_mode,
+            &solve.structural_report,
+            integrity_diagnostic_id(&load_case.id),
+            load_row_finding.is_some(),
+        ),
+        (None, Some(error)) => source_receipt::OrdinaryAttempt::rejected(
+            solver_mode,
+            error,
+            integrity_diagnostic_id(&load_case.id),
+        ),
+        (None, None) => source_receipt::OrdinaryAttempt::not_attempted(solver_mode),
     };
 
     let mut displacements = vec![0.0; built.nodes.len() * DOF_PER_NODE];
     let mut results = Vec::new();
     append_modulus_basis_record(&mut results, load_case, modulus_basis_record);
     if let Some(linear_solve) = &linear_solve {
-        for (index, dof) in reduced.free_dofs.iter().enumerate() {
+        for (index, dof) in free_dofs.iter().enumerate() {
             displacements[*dof] = linear_solve.solution[index];
         }
         // Complete u includes the actual prescribed boundary values.
@@ -2928,10 +3824,34 @@ fn solve_load_case(
         if selected_source.is_none() {
             append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, linear_solve);
         }
-        if solver_mode == PreviewSolverMode::DenseScrutiny {
+        // F1b (ROOT OQ5): no DEC-050/053 observation runs at b != 0; both
+        // lanes observe the unscaled binary64 system that left the range.
+        if let (PreviewSolverMode::DenseScrutiny, Some(formed), None) =
+            (solver_mode, formed, &w2_publication)
+        {
             // Protected DEC050/053 comparison retains the legacy unscaled LU
             // reference. This observation never selects a published solution.
-            if let Ok(legacy_dense) = legacy_dense_observation(&reduced) {
+            // F1b: its dense reduced system is formed from the dense view of
+            // the same values only here, after the attempt, in dense scrutiny
+            // behind the resource guard. The reduction repeats the sparse
+            // one's checks on the same values, so it succeeds when that did.
+            let dense_view = formed.to_dense();
+            let dense_reduced = if load_state.is_some() {
+                reduce_assembled_system_with_prescribed_displacements(
+                    &dense_view,
+                    &force,
+                    restrained_dofs,
+                    &prescribed_values,
+                )
+            } else {
+                reduce_assembled_system(&dense_view, &force, restrained_dofs)
+            };
+            drop(dense_view);
+            if let Ok(legacy_dense) = dense_reduced
+                .as_ref()
+                .map_err(|_| ())
+                .and_then(|reduced| legacy_dense_observation(reduced).map_err(|_| ()))
+            {
                 append_sparse_live_path_evidence(
                     &mut results,
                     diagnostics,
@@ -3004,6 +3924,7 @@ fn solve_load_case(
                 None,
                 load_row_finding.as_ref(),
                 linear.formation_check.as_ref(),
+                w2_publication.as_ref(),
             );
             if let Some(report) = &linear.load_fidelity {
                 append_load_contribution_absorbed(diagnostics, &load_case.id, report);
@@ -3045,6 +3966,7 @@ fn solve_load_case(
                 model,
                 Some(&iteration.product_equilibrium),
                 load_row_finding.as_ref(),
+                None,
                 None,
             );
         }
@@ -3116,7 +4038,15 @@ fn solve_load_case(
                 .as_ref()
                 .map(|solve| solve.reactions.clone())
         })
-        .unwrap_or_else(|| restrained_reactions(stiffness, &displacements, &force));
+        .unwrap_or_else(|| match (&w2_publication, formed) {
+            // F1b (§4.7 step 5): at b != 0 the restrained reactions are K2b's
+            // checked `force_scaled_reactions`, each unscaled once.
+            (Some(publication), _) => publication.reaction_values(displacements.len()),
+            (None, Some(formed)) => restrained_reactions(formed, &displacements, &force),
+            // A deferred basis publishes only through W2 (the case returned
+            // otherwise), so this is unreachable; NaN is refused below.
+            (None, None) => vec![f64::NAN; displacements.len()],
+        });
     require_finite_mechanics(reactions.iter().copied())?;
     // preview-physics-1 side record; rendered only when no case is source-selected.
     let mut preview_record = (!pressure_runtime::is_exact(model) && selected_source.is_none())
@@ -3141,13 +4071,19 @@ fn solve_load_case(
                     }
                 }
             }
-            for spring in spring_entries
+            for (spring_index, spring) in spring_entries
                 .iter()
-                .filter(|item| item.support_id == support.id)
+                .enumerate()
+                .filter(|(_, item)| item.support_id == support.id)
             {
                 let global = spring.node_dof.global_index();
                 if global % DOF_PER_NODE < 6 {
-                    vector[global % DOF_PER_NODE] = -spring.stiffness.value * displacements[global];
+                    // F1b (§4.7 step 5): at b != 0, K2b's checked
+                    // `force_scaled_spring_action`, unscaled once.
+                    vector[global % DOF_PER_NODE] = match &w2_publication {
+                        Some(publication) => publication.spring_actions[spring_index].value,
+                        None => -spring.stiffness.value * displacements[global],
+                    };
                 }
             }
             if let Some(nonlinear) = built
@@ -3294,18 +4230,24 @@ fn solve_load_case(
                 }
             }
         } else {
-            let local = match pipe.recover_local_forces_from_global_model(&displacements) {
-                Ok(local) => local,
-                Err(error) => {
-                    diagnostics.push(diag(
-                        &format!("diagnostic:stress:{}", stable_suffix(&pipe.element_id)),
-                        "ELEMENT_FORCE_RECOVERY_FAILED",
-                        "blocking",
-                        error.to_string(),
-                        vec![pipe.element_id.clone()],
-                    ));
-                    continue;
-                }
+            // F1b (§4.7 step 5): at b != 0 the elastic end actions are K2b's
+            // checked `FrameElement::force_scaled_end_actions`, unscaled once;
+            // admission leaves no load term to add at scale (A2.5).
+            let local_forces = match &w2_publication {
+                Some(publication) => publication.end_actions[pipe_index].map(|action| action.value),
+                None => match pipe.recover_local_forces_from_global_model(&displacements) {
+                    Ok(local) => local.local_forces,
+                    Err(error) => {
+                        diagnostics.push(diag(
+                            &format!("diagnostic:stress:{}", stable_suffix(&pipe.element_id)),
+                            "ELEMENT_FORCE_RECOVERY_FAILED",
+                            "blocking",
+                            error.to_string(),
+                            vec![pipe.element_id.clone()],
+                        ));
+                        continue;
+                    }
+                },
             };
             let equivalent_terms =
                 match pipe.equivalent_nodal_load_terms_with_spans(&straight_loads, &[]) {
@@ -3322,7 +4264,7 @@ fn solve_load_case(
                     }
                 };
             let mut wall = exact_straight_end_forces(
-                &local.local_forces,
+                &local_forces,
                 &equivalent_terms,
                 pipe_index,
                 &thermal_loads,
@@ -4391,15 +5333,15 @@ struct PreviewLinearSolve {
 /// observation lane consumes `observation_force`, which already carries it.
 fn solve_preview_reduced_system(
     solver_mode: PreviewSolverMode,
-    original_stiffness: &[Vec<f64>],
+    stiffness: &SparseStiffness,
     _reduced_force: &[f64],
     built: &BuiltModel,
     spring_entries: &[SpringEntry],
     global_force: &AssembledForce,
     observation_force: &[f64],
     prescribed: &[(usize, f64)],
-    _load_case: &PreviewLoadCase,
-    _diagnostics: &mut Vec<Diagnostic>,
+    load_case: &PreviewLoadCase,
+    diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<PreviewLinearSolve, StructuralError> {
     let restrained_dofs = prescribed.iter().map(|&(dof, _)| dof).collect::<Vec<_>>();
     let restrained_dofs = restrained_dofs.as_slice();
@@ -4415,7 +5357,12 @@ fn solve_preview_reduced_system(
         .iter()
         .map(|e| (e.node_dof.global_index(), e.stiffness.value))
         .collect::<Vec<_>>();
-    let assembly = AssemblyEvidence::new(
+    // F1b (§4.8; ROOT Q8(d)): the pattern evidence in both modes. In dense
+    // scrutiny SA materializes the dense view of the same values and runs
+    // today's dense Cholesky path (K1: the `StructuralSolution` is
+    // byte-identical in `Debug` to the dense evidence's).
+    let assembly = SparseAssemblyEvidence::new(
+        stiffness.pattern(),
         built.nodes.len(),
         &built.frame_elements,
         &built.user_stiffness_elements,
@@ -4439,7 +5386,7 @@ fn solve_preview_reduced_system(
         .map(|e| e.macro_element)
         .collect::<Vec<_>>();
     let checked = assembly.solve_assembled_with_formation_check(
-        original_stiffness,
+        stiffness,
         global_force,
         &free,
         prescribed,
@@ -4459,8 +5406,18 @@ fn solve_preview_reduced_system(
         restrained_dofs,
     )
     .ok();
+    // F1b (ROOT, 2026-09-28): the lane runs only within the provisional
+    // ceiling; otherwise its fields are published as not_observed, with the
+    // named reason (the gate's CONT n10000 heap-cap finding).
+    let lane_refusal = direct
+        .as_ref()
+        .and_then(|d| observation_lane_guard(d, dense_scrutiny_ceiling_bytes()).err());
+    if let Some(refusal) = &lane_refusal {
+        diagnostics.push(observation_lane_refusal_diagnostic(&load_case.id, refusal));
+    }
     let legacy = direct
         .as_ref()
+        .filter(|_| lane_refusal.is_none())
         .and_then(|d| solve_symmetric_system_from_entries(d.dimension, &d.entries, &d.force).ok());
     let residual = direct
         .as_ref()
@@ -12193,13 +13150,6 @@ fn join_dofs(values: &[&str]) -> String {
     } else {
         values.join(",")
     }
-}
-
-fn multiply_matrix_vector(matrix: &[Vec<f64>], vector: &[f64]) -> Vec<f64> {
-    matrix
-        .iter()
-        .map(|row| row.iter().zip(vector).map(|(a, b)| a * b).sum())
-        .collect()
 }
 
 fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {
@@ -21279,13 +22229,40 @@ mod tests {
                 .diagnostics
                 .iter()
                 .any(|d| d.code == "SPARSE_INTERACTIVE_DENSE_FALLBACK"));
+            // F1b (ROOT's ruling at A2, an approved assertion change): the
+            // truncated model is linear, so the case's range refusal on main
+            // becomes W2: published at b = -494 (the integrity record carries
+            // the `range_scaling:` line), then refused by today's derived-row
+            // non-finite check (OQ6), which blocks the invocation. No solved
+            // row is published either way.
+            let integrity = output
+                .diagnostics
+                .iter()
+                .find(|d| d.id == integrity_diagnostic_id("load:L-FRICTION"))
+                .expect("the case's integrity record");
+            assert!(
+                integrity.message.contains(
+                    " range_scaling: force_scale_exponent=-494; basis=exact power-of-two; "
+                ),
+                "{mode:?}: {}",
+                integrity.message
+            );
             assert!(output
                 .diagnostics
                 .iter()
-                .any(|d| d.code == "NUMERICAL_INTEGRITY_UNRESOLVED"
-                    && d.severity == "blocking"
-                    && d.id == integrity_diagnostic_id("load:L-FRICTION")
-                    && d.affected_refs.iter().any(|r| r == "load:L-FRICTION")));
+                .any(|d| d.code == "ELEMENT_FORCE_RECOVERY_FAILED" && d.severity == "blocking"));
+            let blocked: Vec<_> = output
+                .diagnostics
+                .iter()
+                .filter(|d| d.code == "SOLVER_SYSTEM_BLOCKED")
+                .collect();
+            assert_eq!(blocked.len(), 1, "{mode:?}");
+            assert_eq!(blocked[0].id, "diagnostic:physics:solver");
+            assert_eq!(blocked[0].severity, "blocking");
+            assert_eq!(
+                blocked[0].message,
+                "computed mechanics must be finite, got inf"
+            );
         }
     }
 

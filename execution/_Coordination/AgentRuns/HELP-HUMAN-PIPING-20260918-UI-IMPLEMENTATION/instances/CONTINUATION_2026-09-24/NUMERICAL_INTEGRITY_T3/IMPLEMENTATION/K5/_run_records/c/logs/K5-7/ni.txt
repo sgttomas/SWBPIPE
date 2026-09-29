@@ -1,0 +1,178 @@
+    Blocking waiting for file lock on package cache
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k5-mut/K5-7/src/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.64s
+     Running unittests src/lib.rs (<wt>/k5-mut/K5-7/target/debug/deps/open_pipe_stress_nonlinear_integration-c7b2e2d121bfe5d3)
+
+running 126 tests
+test component_identity_tests::component_identity_accessors_are_crate_constant_derived ... ok
+test product_equilibrium::tests::successor_both_backends_original_load_and_prescribed_mutations ... ok
+test computed_finite_audit_tests::finite_solution_with_overflowing_reaction_or_work_is_rejected ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_treat_negative_zero_as_different_bits ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_refuse_a_one_ulp_difference_in_any_entry ... ok
+test s11k_tests::kd5_nonlinear_loop_reaches_no_formation_check ... ok
+test s11k_tests::k12_typed_nonlinear_siblings_delegate_on_bit_equal_force ... ok
+test s11k_tests::k7_adapter_with_force_terms_flags_the_folded_force_in_both_modes ... ok
+test s11k_tests::option_c_active_set_loop_first_closed_gap_iteration_is_binary64 ... ok
+test s11k_tests::kd5_nonlinear_loop_unit_force_solves_reach_no_formation_check ... ok
+test s11k_tests::option_c_closed_gap_loop_solves_are_bit_equal_to_the_binary64_legacy_path ... ok
+test s11k_tests::option_c_product_equilibrium_uses_the_binary64_residual ... ok
+test s11k_tests::option_c_structural_adapter_legacy_variants_reach_only_binary64_entry_points ... ok
+test s11k_tests::option_c_nonlinear_loop_is_pinned_to_the_binary64_kernel_path ... ok
+test structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes ... ok
+test s11k_tests::k2b_force_scaled_entries_are_reached_by_neither_the_loop_nor_the_product ... ok
+test structural_adapter::k1_tests::k1_c3_detect_solve_is_identical_in_both_representations ... ok
+test s11k_tests::kd5_nonlinear_sources_name_no_formation_check_entry_point ... ok
+test structural_adapter::k1_tests::k1_bend_bend_tee_adds_the_realized_bends_in_the_products_order_rv8_1 ... ok
+test structural_adapter::k1_tests::k1_nonlinear_loop_reaches_neither_formation_entry ... ok
+test structural_adapter::k1_tests::k1_n_references_have_the_same_outcome_class_and_values_in_both_modes ... ok
+test structural_adapter::k1_tests::k1_relabelled_model_gives_the_same_answers ... ok
+test structural_adapter::k1_tests::k1_sparse_evidence_is_the_dense_evidence_on_the_pattern ... ok
+test structural_adapter::k1_tests::k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representations_rv8_3 ... ok
+test structural_adapter::k1_tests::k1_t0r_reactions_from_sparse_rows_match_the_references ... ok
+test structural_adapter::k1_tests::krev01_on_sparse_geometry_witnesses_are_unchanged ... ok
+test structural_adapter::k1_tests::k1_kd5_parity_cases_demote_identically_in_both_representations ... ok
+test structural_adapter::k2b_tests::k2b_existing_entries_refuse_a_force_scaled_evidence ... ok
+test structural_adapter::k1_tests::k1_bend_support_springs_follow_the_bend_in_the_products_order_rv8_2 ... ok
+test structural_adapter::k2b_tests::k2b_lef_large_solves_bit_identically_to_its_base_case_with_the_bases_standing ... ok
+test structural_adapter::k2b_tests::k2b_lef_small_stays_a_geometry_refusal ... ok
+test structural_adapter::k2b_tests::k2b_nonlinear_loop_reaches_no_force_scaled_entry ... ok
+test structural_adapter::k2b_tests::k2b_published_reactions_take_the_step_five_outcomes ... ok
+test structural_adapter::k2b_tests::k2b_rv11_reactions_and_actions_at_scale_are_refused_never_a_wrong_normal ... ok
+test structural_adapter::k2b_tests::k2b_rv11_the_orchestrators_census_includes_the_curved_slots ... ok
+test structural_adapter::k2b_tests::k2b_rv11d_spring_action_at_scale_is_refused_never_a_wrong_normal ... ok
+test structural_adapter::k2b_tests::k2b_s11k_ledger_terms_and_audit_are_carried_under_b ... ok
+test structural_adapter::k2b_tests::k2b_spring_carried_stays_a_named_refusal_at_m03s_contribution_audit ... ok
+test structural_adapter::k2b_tests::k2b_step_four_refuses_a_scaled_evaluation_outside_the_normal_range ... ok
+test structural_adapter::k2b_tests::k2b_the_kernel_reads_no_s11g_formation_record ... ok
+test structural_adapter::k2b_tests::k2b_the_product_reach_cases_and_phys_r4_are_solved_accurately ... ok
+test structural_adapter::k2b_tests::k2b_the_rules_b_refuses_a_case_another_b_in_its_window_solves ... ok
+test structural_adapter::k2b_tests::k2b_the_window_and_subnormal_refusals_keep_the_k2a_trigger ... ok
+test structural_adapter::k1_tests::k1_pattern_entries_are_byte_identical_to_todays_entries_in_both_modes ... ok
+test structural_adapter::k5_tests::k5_curved_matching_agrees_with_the_formation_source ... ok
+test structural_adapter::k5_tests::k5_basis_text_and_family_flag_are_unchanged ... ok
+test structural_adapter::k5_tests::k5_first_failing_body_in_seed_order_decides ... FAILED
+test structural_adapter::k5_tests::k5_force_scaled_branches_give_the_same_witness ... FAILED
+test structural_adapter::k5_tests::k5_nonlinear_loop_keeps_todays_geometry ... FAILED
+test structural_adapter::k5_tests::k5_screen_ratio_is_recorded_per_element ... ok
+test structural_adapter::k5_tests::k5_user_elements_tie_only_with_positive_stiffnesses ... ok
+test structural_adapter::k5_tests::k5_w4_entry_is_named_only_in_the_four_selected_bodies ... ok
+test structural_adapter::k5_tests::k5_w4_runs_in_the_four_selected_branches_only ... FAILED
+test structural_adapter::k5_tests::k5_curved_slots_qualify_by_their_matched_source ... ok
+test structural_adapter::kd5_tests::kd5_curved_intended_element_uses_the_actual_chord ... ok
+test structural_adapter::kd5_tests::kd5_admissible_centre_mismatch_demotes_where_the_product_chord_hides_the_error ... ok
+test structural_adapter::kd5_tests::kd5_d5c1_controls_demote_exactly_where_the_actual_error_exceeds_half_the_criterion ... ok
+test structural_adapter::kd5_tests::kd5_expansion_joint_with_zero_lateral_does_not_demote_and_nonzero_lateral_fails_closed ... ok
+test structural_adapter::kd5_tests::kd5_large_coordinate_pp_route_elbow_does_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_not_selected_invocation_runs_the_unchanged_solve_assembled ... ok
+test structural_adapter::kd5_tests::kd5_curved_matching_is_order_independent ... ok
+test structural_adapter::kd5_tests::kd5_required_true_positive_skew_cantilever_122_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_realistic_elbows_e1_and_e6_do_not_demote ... ok
+test structural_adapter::kd5_tests::kd5_skew_plane_elbow_cantilever_at_kx_8_5_demotes_in_both_modes ... ok
+test structural_adapter::kd5_tests::kd5_unmatched_explicit_and_one_ulp_curved_slots_fail_closed ... ok
+test structural_adapter::retention_tests::actual_adapter_retains_adjacent_response_and_separate_ordinary_projected_states ... ok
+test structural_adapter::kd5_tests::kd5_skew_345_and_invented_m11_do_not_demote ... ok
+test structural_adapter::retention_tests::ret01_long_id_and_nested_error_are_reserved_before_summary_comparison ... ok
+test tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal ... ok
+test tests::audit_duplicate_support_ids_return_error ... ok
+test tests::audit_coupled_exact_contacts_converge_from_all_seeds ... ok
+test tests::audit_literal_zero_iteration_cap_returns_error ... ok
+test tests::base_fixture_dofs_match_six_dof_order ... ok
+test tests::both_nonzero_assumed_branches_accept_exact_zero_current_normal ... ok
+test tests::audit_gap_equilibrium_both_signs_seeds_and_modes ... ok
+test tests::contact_recovery_invalid_classes_do_not_rescue_and_springs_survive ... ok
+test tests::contact_recovery_later_changed_boundary_rejects_classifier_tolerance_one ... ok
+test tests::contact_recovery_caps_and_later_singularity_are_honest ... ok
+test tests::contact_recovery_signed_gap_one_way_lift_off_and_zero_conventions ... ok
+test tests::contact_recovery_warning_preserves_original_singular_seed_provenance ... ok
+test tests::contact_recovery_two_gap_independent_oracle_seeds_order_modes ... ok
+test tests::curved_bend_slot_matches_linear_arc_path_when_support_stays_released ... ok
+test tests::dense_scrutiny_mode_keeps_sparse_parity_evidence ... ok
+test tests::derived_normal_sign_flips_retry_before_convergence_and_fail_honestly_at_cap ... ok
+test tests::direct_reduced_profile_entries_follow_free_dof_map ... ok
+test tests::duplicate_explicit_and_derived_friction_normal_source_is_invalid ... ok
+test tests::exact_derived_normal_branch_domains_include_closed_zero_and_irrelevant_rows ... ok
+test tests::friction_support_derives_normal_from_named_support_reaction ... ok
+test tests::friction_support_slides_then_converges_through_released_frame_loop ... ok
+test tests::gap_support_prescribes_clearance_then_converges ... ok
+test tests::initial_state_is_required_for_every_nonlinear_support ... ok
+test tests::integrity_contact_seed_cannot_hide_arbitrary_zero_diagonal_negative_energy ... ok
+test tests::integrity_contact_seed_rejects_nonrank_and_unqualified_failure_causes ... ok
+test tests::iteration_cap_returns_nonconvergence_failure_diagnostic ... ok
+test tests::mixed_row_tangential_invalidity_is_aggregated_and_blocks_convergence ... ok
+test tests::current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes ... ok
+test tests::mixed_sub_and_super_limit_rows_update_together_independent_of_order ... ok
+test tests::one_way_support_deactivates_then_converges_through_frame_loop ... ok
+test tests::one_way_support_remains_active_when_reaction_matches_sense ... ok
+test tests::noncompressive_explicit_normal_is_inactive_and_force_free ... ok
+test tests::scalar_friction_final_state_is_seed_mode_and_load_sign_independent ... ok
+test tests::scalar_super_limit_slide_retains_two_iteration_result ... ok
+test tests::sliding_branch_resolution_uses_current_force_and_motion_evidence ... ok
+test tests::sliding_friction_support_applies_bounded_force_independent_of_seed ... ok
+test tests::sliding_seed_at_single_iteration_cap_emits_nonconvergence_diagnostic ... ok
+test tests::sticking_friction_converged_at_single_iteration_cap_has_no_false_positive ... ok
+test tests::scalar_friction_exact_boundary_has_no_hidden_tolerance ... ok
+test tests::strict_gap_budget_and_duplicate_dofs_remain_explicit_without_projection ... ok
+test tests::strict_gap_nonzero_prescribed_root_preserves_original_coupling ... ok
+test tests::strict_gap_small_strain_axial_companion_both_senses_seeds_modes ... ok
+test tests::strict_gap_source_springs_and_decision_mutations_remain_bound ... ok
+test tests::strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification ... ok
+test tests::sub_limit_sliding_seed_resticks_on_iteration_two_and_cap_is_honest ... ok
+test tests::successor_completion_receipt_accepts_legitimate_empty_free_partition ... ok
+test tests::successor_completion_receipt_rejects_public_report_and_source_mutations ... ok
+test tests::successor_rechecks_contact_admissibility_even_when_equations_and_count_flags_pass ... ok
+test tests::tbd_policy_emits_visible_tolerance_policy_diagnostic_without_defaults ... ok
+test tests::two_coupled_derived_normal_rows_are_order_independent ... ok
+test tests::unsupported_gap_inspection_checks_physical_conditions_separately_from_receipt ... ok
+test tests::unsupported_gap_inspection_preserves_mixed_computation_without_qualification ... ok
+test tests::unsupported_gap_inspection_rejects_source_or_receipt_mutations ... ok
+test tests::zero_coefficient_derived_normal_row_applies_no_force ... ok
+test tests::zero_limit_is_released_without_an_applied_force_record ... ok
+test structural_adapter::k2b_tests::k2b_at_b0_the_siblings_and_the_orchestrator_are_todays_entries_byte_for_byte ... ok
+test tests::strict_gap_27_independent_neighbors_all_senses_seeds_and_backends ... ok
+test structural_adapter::k2b_tests::k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly ... ok
+
+failures:
+
+---- structural_adapter::k5_tests::k5_first_failing_body_in_seed_order_decides stdout ----
+
+thread 'structural_adapter::k5_tests::k5_first_failing_body_in_seed_order_decides' (6028815) panicked at src/structural_adapter/k5_tests.rs:683:13:
+assertion `left == right` failed: DenseScrutiny
+  left: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4613937818241073152, 4616189618054758400, 0, 0, 0, 0, 4613937818241073152, 4616189618054758400, 0]
+ right: [0, 0, 0, 4607182418800017408, 4607182418800017408, 0, 0, 0, 13830554455654793216, 4607182418800017408, 4607182418800017408, 0, 0, 0, 13830554455654793216, 4607182418800017408, 4607182418800017408, 0, 0, 0, 0, 4607182418800017408, 4607182418800017408, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- structural_adapter::k5_tests::k5_force_scaled_branches_give_the_same_witness stdout ----
+
+thread 'structural_adapter::k5_tests::k5_force_scaled_branches_give_the_same_witness' (6028816) panicked at src/structural_adapter/k5_tests.rs:493:18:
+not a witnessed mechanism: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(22) })
+
+---- structural_adapter::k5_tests::k5_nonlinear_loop_keeps_todays_geometry stdout ----
+
+thread 'structural_adapter::k5_tests::k5_nonlinear_loop_keeps_todays_geometry' (6028817) panicked at src/structural_adapter/k5_tests.rs:571:9:
+assertion failed: is_mechanism(&selected(&m, mode, 0, &m.macros)[0])
+
+---- structural_adapter::k5_tests::k5_w4_runs_in_the_four_selected_branches_only stdout ----
+
+thread 'structural_adapter::k5_tests::k5_w4_runs_in_the_four_selected_branches_only' (6028858) panicked at src/structural_adapter/k5_tests.rs:493:18:
+not a witnessed mechanism: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(22) })
+
+
+failures:
+    structural_adapter::k5_tests::k5_first_failing_body_in_seed_order_decides
+    structural_adapter::k5_tests::k5_force_scaled_branches_give_the_same_witness
+    structural_adapter::k5_tests::k5_nonlinear_loop_keeps_todays_geometry
+    structural_adapter::k5_tests::k5_w4_runs_in_the_four_selected_branches_only
+
+test result: FAILED. 122 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.78s
+
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+    `--lib`
+exit=101

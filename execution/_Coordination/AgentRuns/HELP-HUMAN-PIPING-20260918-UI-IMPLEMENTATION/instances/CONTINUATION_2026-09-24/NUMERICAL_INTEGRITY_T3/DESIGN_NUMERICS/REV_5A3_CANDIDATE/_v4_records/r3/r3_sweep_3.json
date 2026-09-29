@@ -1,0 +1,14 @@
+{
+ "seed": 3,
+ "ran": 200,
+ "summary": {
+  "selected": {
+   "512": 187,
+   "256": 13
+  },
+  "false": [],
+  "estimate_fired": 0,
+  "g5a_fail": [],
+  "worst_WV": 0.0035468349791832865
+ }
+}

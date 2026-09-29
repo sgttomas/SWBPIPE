@@ -1,0 +1,45 @@
+"""Search dyadic lever parameters whose K_ff has an exactly dyadic LDL^T (natural order), so the
+unperturbed rigid solution is computed exactly at 256 and 512."""
+import os, sys, itertools, json
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from fractions import Fraction as Fr
+from v4emu import model, member, fix, load, Ar, form_member, assemble
+def lever(k, s1, s2, sl, si, aAC=-150):
+    L2 = 2.0 ** k
+    m = model("LEVER", [(0,0,0), (-1,0,0), (L2,0,0), (-1,-1,0), (0,1,0)])
+    member(m, 1, 0, E=2.0**s1, A=1.0, Iy=1.0, Iz=1.0, J=1.0, G=1.0)
+    member(m, 0, 2, E=2.0**(s2 + 3*k), A=2.0**aAC, Iy=1.0, Iz=1.0, J=1.0, G=1.0)
+    member(m, 3, 1, E=2.0**sl, A=1.0, Iy=2.0**(si - sl), Iz=2.0**(si - sl), J=1.0, G=1.0, y=(1,0,0))
+    member(m, 0, 4, E=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0, G=1.0, y=(1,0,0))
+    for nd in range(5): fix(m, nd, (2,3,4))
+    fix(m, 0, (0,), 0.0); fix(m, 0, (1,), 1.0)
+    fix(m, 3, (0,), 0.0); fix(m, 3, (1,), 1.0); fix(m, 3, (5,), 0.0)
+    fix(m, 1, (0,), 0.0); fix(m, 2, (0,), 0.0); fix(m, 4, (0,), 0.0); fix(m, 4, (5,), 0.0)
+    return m
+def dyadic(x):
+    d = x.denominator
+    return d & (d - 1) == 0
+def exact_ldlt_dyadic(m):
+    ar = Ar(None)
+    ops = [form_member(ar, m["nodes"], mb) for mb in m["members"]]
+    K, n = assemble(ar, m, ops)
+    free = [g for g in range(n) if g not in m["cons"]]
+    N = len(free)
+    A = [[K.get((free[i], free[j]), Fr(0)) for j in range(N)] for i in range(N)]
+    for c in range(N):
+        piv = A[c][c]
+        if piv <= 0 or not dyadic(piv): return False
+        for r_ in range(c+1, N):
+            l = A[r_][c] / piv
+            if not dyadic(l): return False
+            for c2 in range(c+1, N):
+                A[r_][c2] -= l * A[c][c2]
+    return True
+found = []
+for k in (70, 90):
+    for s1, s2, sl, si in itertools.product(range(-4, 5), range(-4, 5), range(-6, 6), range(-8, 6)):
+        m = lever(k, s1, s2, sl, si)
+        if exact_ldlt_dyadic(m):
+            found.append((k, s1, s2, sl, si))
+    print("k", k, "found", len([f for f in found if f[0] == k]), found[:5] if found else None, flush=True)
+json.dump(found, open("delta_r2/r2_lever_search.json", "w"))

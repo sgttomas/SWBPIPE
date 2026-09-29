@@ -1,0 +1,8 @@
+#!/bin/bash
+# I13 F1b checkpoint D: the lane estimate against the lane's own profile, corpus-wide, on 130445db2
+# (git archive without execution/, plus the scratch-only test appended to f1b_tests.rs; never committed).
+# Corpus: every JSON request in the tree (target/ and node_modules/ skipped) and the gate requests.
+X=$(cd "$(dirname "$0")" && pwd); W=$(cd "$X/../../../.." && pwd)
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4
+export F1B_CORPUS=$X/tree/projects/chirality-piping:$W/scratch/gate_base_e7d930d49_full/gen_out/requests F1B_CORPUS_OUT=$X/corpus.jsonl
+cd $X/tree/projects/chirality-piping/core/product_physics && CARGO_TARGET_DIR=$X/target cargo test --offline --locked -j 8 --lib scratch_corpus_lane_estimate -- --nocapture > $X/corpus.log 2>&1; echo "rc=$?" >> $X/corpus.log

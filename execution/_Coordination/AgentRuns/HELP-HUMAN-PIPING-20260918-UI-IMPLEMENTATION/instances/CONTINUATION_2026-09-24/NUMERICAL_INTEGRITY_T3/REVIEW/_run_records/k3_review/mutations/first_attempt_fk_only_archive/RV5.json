@@ -1,0 +1,17 @@
+{
+ "id": "RV5",
+ "description": "far subtraction drops the (1 - f) tail after the borrow",
+ "filters": null,
+ "file": "multi.rs",
+ "line": 504,
+ "old": "        round_limbs::<L>(big.negative, window.as_ref(), sticky, scale, p)\n    }\n}\n\nfn mul_rounded",
+ "new": "        round_limbs::<L>(big.negative, window.as_ref(), false, scale, p)\n    }\n}\n\nfn mul_rounded",
+ "wall_s": 3.8,
+ "rc": 101,
+ "compiled": false,
+ "passed": 0,
+ "failed": 0,
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

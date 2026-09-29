@@ -1,0 +1,39 @@
+commit e83e22356f8b3d0e8f0eb989956d8fdc0d3d5a4f
+subject: K3: withdraw FK's test profile (ROOT reversed Q7, ffc9ea275)
+
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml b/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
+index d62037295a..956eeb6d84 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
++++ b/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
+@@ -9,12 +9,3 @@ publish = false
+ path = "src/lib.rs"
+
+ [dependencies]
+-
+-# Slice K3 (T3 ROOT ruling on Q7): FK's own test builds are optimized, so the
+-# full-count `Wide` differentials (D1 §4.11, §7.4) stay in the default suite at
+-# a practical run time. Debug assertions and overflow checks are kept explicitly,
+-# so test semantics do not change. No dependency or lockfile change.
+-[profile.test]
+-opt-level = 1
+-debug-assertions = true
+-overflow-checks = true
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs
+index f86e7fa99b..9e8f9abb62 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs
+@@ -402,10 +402,10 @@ fn token_round_trip_and_debug_scheme() {
+     assert_eq!(format!("{:?}", lift::<16>(-3.0)).len(), 1 + 256 + 2);
+ }
+
+-/// FK's `[profile.test]` (T3 ROOT ruling on Q7) optimizes FK's own test
+-/// builds and keeps overflow checks and debug assertions on explicitly, so test
+-/// semantics do not change. Both are observable here (ROOT's ruling on the
+-/// checkpoint-C profile mutants P1 and P2).
++/// FK's tests rely on overflow checks and debug assertions in the test build
++/// (the default test profile; ROOT withdrew K3's optimized test profile in the
++/// Q7 reversal). Both are observable here: a profile that switches either off
++/// (the mutants P1 and P2) fails this test.
+ #[test]
+ fn test_profile_keeps_overflow_checks_and_debug_assertions_on() {
+     let overflowed = std::panic::catch_unwind(|| {

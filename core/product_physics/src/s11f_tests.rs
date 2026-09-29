@@ -1890,6 +1890,7 @@ fn n6_product_residual_rows_use_the_exact_numerator() {
     let built = build_model(&model, &materials, &mut diagnostics).unwrap();
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
     let stiffness = assemble_case_stiffness(&built, &boundary.springs).unwrap();
+    let sparse = assemble_basis_stiffness(&built, &boundary.springs).unwrap();
     let (_, force) = case_ledger(&request, 0);
     let b_rz = DOF_PER_NODE + RZ;
     let mut checked = 0;
@@ -1909,7 +1910,7 @@ fn n6_product_residual_rows_use_the_exact_numerator() {
         .unwrap();
         let observation = legacy_observation_force(
             &force,
-            &stiffness,
+            &sparse,
             &boundary.restrained_dofs,
             &prescribed,
             true,
@@ -1918,7 +1919,7 @@ fn n6_product_residual_rows_use_the_exact_numerator() {
             let mut preliminary = Vec::new();
             let solve = solve_preview_reduced_system(
                 mode,
-                &stiffness,
+                &sparse,
                 reduced.force.values(),
                 &built,
                 &boundary.springs,

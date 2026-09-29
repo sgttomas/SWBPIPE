@@ -1,0 +1,17 @@
+{
+ "id": "RV2",
+ "description": "mul_pow2 scales by 2^(2k) instead of 2^k",
+ "filters": null,
+ "file": "multi.rs",
+ "line": 902,
+ "old": "        let exponent = checked_exponent(i128::from(self.exponent) + i128::from(k))?;\n",
+ "new": "        let exponent = checked_exponent(i128::from(self.exponent) + 2 * i128::from(k))?;\n",
+ "wall_s": 4.3,
+ "rc": 101,
+ "compiled": false,
+ "passed": 0,
+ "failed": 0,
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

@@ -1,0 +1,43 @@
+RV10 check 1 and the merge (git reads only; run in <wt>/numerics after git fetch).
+
+$ git rev-parse origin/codex/piping-m03-skew-pin-20260928 origin/main
+1d105d63376fc949a0133eaacac201a46515f208
+6e18505e38520ef3e37fdc46ec434c9aa6ba4f2c
+
+$ git log --first-parent --format='%H %P %s' eb52114e91..1d105d6337
+1d105d63376fc949a0133eaacac201a46515f208 39dfd69c746a0ba01051ca0a71dc130a14ef403e 6e18505e38520ef3e37fdc46ec434c9aa6ba4f2c Merge main (5a2b9d112) into the skew M03 pin
+39dfd69c746a0ba01051ca0a71dc130a14ef403e 885f065e55d86f092e125550b94f6279ff3ed279 T3: the skew M03 pin records (CHANGE_RECORD, RETURN, run records)
+885f065e55d86f092e125550b94f6279ff3ed279 eb52114e919582aa6d3776f9808a3a8c9bc60f0a T3: the skew M03 pin (tests only)
+
+$ git diff --numstat eb52114e91 39dfd69c74 -- ':(exclude)*IMPLEMENTATION/M03_SKEW_PIN/*'
+947	0	projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs
+150	0	projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs
+
+$ git diff --name-only eb52114e91 39dfd69c74 | wc -l ; of which under T3/IMPLEMENTATION/M03_SKEW_PIN/
+      63
+61
+
+k1_tests.rs append-only: base (eb52114e9) has 1409 lines; the candidate's first 1409 lines equal it:
+  base sha256 ccd97e94bec920b78a32c3f589246fd60fdb83893c050754a33e1adebbdbb3da
+  cand head-1409 sha256 ccd97e94bec920b78a32c3f589246fd60fdb83893c050754a33e1adebbdbb3da
+  cand lines 1559
+
+Committed test files at the head (1d105d633) and at 885f065e5:
+  824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b  824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b  projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs
+  be78e9788fde45c3ffe054225e625af3c3228590c23e8c41a2c7fd7ca62d6f20  be78e9788fde45c3ffe054225e625af3c3228590c23e8c41a2c7fd7ca62d6f20  projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs
+
+The merge: the head's delta against main 6e18505e3 equals the slice diff eb52114e9..39dfd69c7 byte for byte:
+  sha256(git diff eb52114e91 39dfd69c74)  = 33875d4e3a9a6c77b9a2d376f5372a5784b49deada10a866735742ce2f294b7d
+  sha256(git diff 6e18505e38 1d105d6337)  = 33875d4e3a9a6c77b9a2d376f5372a5784b49deada10a866735742ce2f294b7d
+
+Main's changes eb52114e9..6e18505e3 (588 files), by area:
+   1 docs/governance_harness
+ 392 projects/chirality-app-v4
+ 195 projects/chirality-piping/execution (records)
+  under tools/ or .github/ (root): 0
+  under projects/chirality-piping/ outside execution/: 0
+  piping execution paths outside T3/: projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+
+Archive trees (git archive of projects/chirality-piping without execution/): diff -rq base(eb52114e9) cand(1d105d633):
+Only in <rv10>/trees/cand/projects/chirality-piping/core/solver/frame_kernel/tests: m03_skew_scope.rs
+Files <rv10>/trees/base/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs and <rv10>/trees/cand/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k1_tests.rs differ

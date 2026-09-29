@@ -1,0 +1,67 @@
+# RV12 merge and manifest checks (read-only git on the K3 branch)
+
+remote head: b7e93650ea11f68572ddd5eaf84b55508e1aff9d	refs/heads/codex/piping-k3-20260928
+local head:  b7e93650ea11f68572ddd5eaf84b55508e1aff9d
+merge de719cbdc parents: 664ef5c5e7bbe030f03a7eb1de518ce9caf99841 98b1723b1b263cf3672db5fbb83b9e670773edc2
+merge-base(664ef5c5e, 98b1723b1): 6e18505e38520ef3e37fdc46ec434c9aa6ba4f2c
+
+sha256(git diff 98b1723b1 de719cbdc)   = 3e24fcdc51345b775b8d1bb7e6184b81c23a7b82e8d522c0ab4fe8227993b328
+sha256(git diff 6e18505e3 664ef5c5e)   = 3e24fcdc51345b775b8d1bb7e6184b81c23a7b82e8d522c0ab4fe8227993b328
+  (equal: the merge carries exactly the slice's changes onto main)
+sha256(git diff 664ef5c5e de719cbdc)   = 4db98a7b33bb957c58cddea80512bcdcff220c9934b0cf8cdedb33b36d925629
+sha256(git diff 6e18505e3 98b1723b1)   = 4db98a7b33bb957c58cddea80512bcdcff220c9934b0cf8cdedb33b36d925629
+  (equal: the merge adds exactly main's changes)
+
+main's changes in product trees (6e18505e3..98b1723b1):
+ .../solver/frame_kernel/tests/m03_skew_scope.rs    | 947 +++++++++++++++++++++
+ .../src/structural_adapter/k1_tests.rs             | 150 ++++
+ 2 files changed, 1097 insertions(+)
+
+FK/Cargo.toml blob at b7e93650e, 98b1723b1, 6e18505e3, eb52114e9:
+  b7e93650e 956eeb6d841903fd81aa1ec03d6628810262d1a9
+  98b1723b1 956eeb6d841903fd81aa1ec03d6628810262d1a9
+  6e18505e3 956eeb6d841903fd81aa1ec03d6628810262d1a9
+  eb52114e9 956eeb6d841903fd81aa1ec03d6628810262d1a9
+FK/Cargo.toml sha256 at b7e93650e: c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317
+
+product diff eb52114e9..6e18505e3 (core, validation, fixtures):        0 lines (0 = identical trees)
+
+product diff main 98b1723b1..b7e93650e:
+ .../frame_kernel/src/structural/retained/mod.rs    |    15 +-
+ .../frame_kernel/src/structural/retained/wide.rs   |    34 +-
+ .../src/structural/retained/wide/multi.rs          |  1233 +++
+ .../frame_kernel/tests/retained_wide_k3/SHA256SUMS |     7 +
+ .../tests/retained_wide_k3/conversion.txt          |   400 +
+ .../tests/retained_wide_k3/differential.txt        |    86 +
+ .../tests/retained_wide_k3/differential_sample.txt | 10000 +++++++++++++++++++
+ .../frame_kernel/tests/retained_wide_k3/eft.txt    |  1242 +++
+ .../tests/retained_wide_k3/gen_wide_k3_vectors.py  |   969 ++
+ .../tests/retained_wide_k3/k3_tests.rs             |  2352 +++++
+ .../tests/retained_wide_k3/targeted_l16.txt        |  3197 ++++++
+ .../tests/retained_wide_k3/targeted_l4.txt         |   785 ++
+ .../tests/retained_wide_k3/targeted_l8.txt         |  1589 +++
+ 13 files changed, 21893 insertions(+), 16 deletions(-)
+
+product diff 74add6078 (T9 candidate) .. b7e93650e:
+ .../solver/frame_kernel/tests/m03_skew_scope.rs    | 947 +++++++++++++++++++++
+ .../tests/retained_wide_k3/k3_tests.rs             |  21 +
+ .../src/structural_adapter/k1_tests.rs             | 150 ++++
+ 3 files changed, 1118 insertions(+)
+
+untouched since eb52114e9 (empty stat = unchanged): K3a tests/retained_wide, formation_check.rs, exact_sum.rs, structural.rs, lib.rs, Cargo.lock:
+(end)
+
+git diff --check 98b1723b1 b7e93650e:        0 lines
+
+commits of the slice:
+  b7e93650ea T3: K3 RETURN addendum 1, Q7 reversed (records)
+  e83e22356f K3: withdraw FK's test profile (ROOT reversed Q7, ffc9ea275)
+  de719cbdcf Merge main (98b1723b1, skew M03 pin merged) into K3
+  664ef5c5e7 T3: K3 records (CHANGE_RECORD, RETURN, run records)
+  9aee9854c1 K3: a guard that FK's test profile keeps overflow checks and debug assertions on (tests only)
+  8cacbfaf46 K3 checkpoint B: FK test profile (opt-level 1), per ROOT's Q7 ruling (973438aa7)
+  74add60784 K3 checkpoint A: the rest of W1's arithmetic (Wide<L> for L = 4, 8, 16; conversion to binary64; K4's arithmetic)
+  6e18505e38 Merge pull request #1037 from sgttomas/codex/app-v4-loop-entry
+  5a2b9d1124 Merge pull request #1035 from sgttomas/codex/piping-numerical-integrity-20260926
+  1ccb695c17 Merge pull request #1036 from sgttomas/codex/app-v4-30pct-acceptance
+  7535bd7e1a Merge pull request #1033 from sgttomas/codex/app-v4-dependency-definition-20260927

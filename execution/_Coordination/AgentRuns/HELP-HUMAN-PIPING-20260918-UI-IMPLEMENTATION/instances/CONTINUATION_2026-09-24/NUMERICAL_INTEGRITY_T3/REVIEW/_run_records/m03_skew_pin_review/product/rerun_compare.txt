@@ -1,0 +1,20 @@
+RV10 re-run of I9's product probe (product/i9_skew_product_probe.rs.txt at 1d105d633, unchanged) on fresh git archives
+of main 134eefc24 and eb52114e9 (projects/chirality-piping without execution/), run_probe_rv10.sh.txt; both exit 0.
+The I9PROBE/I9GEOM/I9SECTION lines of each re-run are compared with I9's committed raw logs (product/probe_*.log):
+  pe134: 432 I9PROBE lines; sha256 of the data lines: RV10 aa90378ae12b5ad9be9411b88108a5bf03d7e1c78ca80c40f5b34f32f59ad0e2, I9 committed aa90378ae12b5ad9be9411b88108a5bf03d7e1c78ca80c40f5b34f32f59ad0e2 -> identical
+  pe_eb5: 432 I9PROBE lines; sha256 of the data lines: RV10 fe9c555f1170255a1e711ac83d4d0bf959a27838d275a55f3de0e9caac89d139, I9 committed fe9c555f1170255a1e711ac83d4d0bf959a27838d275a55f3de0e9caac89d139 -> identical
+
+Statuses in RV10's re-run (all 864 runs; parsed from the I9PROBE lines):
+  pe134 (134eefc24): status {'unresolved': 380, 'sensitive': 52}; case (structural_status, solve_quality, accuracy_evidence) {('numerically_unresolved', 'unresolved', 'unresolved'): 380, ('passive_model_basis', 'sensitive', 'not_claimed'): 52}
+     runs publishing N1 values: {('sensitive', 'captured'): 26, ('sensitive', 'typed'): 26}; of those, (SOURCE_BLOCK_RECOVERY_UNAVAILABLE, entry): {(True, 'captured'): 26, (False, 'typed'): 26}
+     any 'checks_passed' anywhere in a run record: 0
+  pe_eb5 (eb52114e9): status {'not_assessed': 432}; case (structural_status, solve_quality, accuracy_evidence) {('numerically_unresolved', 'not_assessed', 'not_claimed'): 432}
+     runs publishing N1 values: {}; of those, (SOURCE_BLOCK_RECOVERY_UNAVAILABLE, entry): {}
+     any 'checks_passed' anywhere in a run record: 0
+
+The committed records (product/product_runs.jsonl at 1d105d633), independently of the re-run:
+  864 records; by tree and status: {('probe_pe134.log', 'unresolved'): 380, ('probe_pe134.log', 'sensitive'): 52, ('probe_pe_eb5.log', 'not_assessed'): 432}
+  records with 'checks_passed' anywhere: 0; with 'numerically_eligible' anywhere: 0
+  sensitive: 52; I9's criterion errors 7.278e-12 .. 1.872e-04; over 1e-9: 42
+  RV10's independent exact solve (rv10_product_exact_runs.py.txt, own Fraction solve of T^T K T on the free node):
+    per run: 52 published runs; min 7.28e-12; max 1.87e-04; > 1e-9: 42

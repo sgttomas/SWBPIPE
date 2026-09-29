@@ -1,0 +1,115 @@
+RV14 mutation table (clean `git archive b379e5b27` copy and target per mutant, targets deleted; one cargo job at a time, -j 4, RUST_TEST_THREADS=2).
+A kill counts only at a panic located in test code (tests/*.rs, *_tests.rs); product panics are listed, not counted.
+
+Summary: NONE passes. Re-killed at test assertions: K5-12, K5-M1, K5-M6, K5-M17, K5-M9, K5-M13, K1-PIN-BINARY64, K1-PIN-LOOP-B, KD5-M32a (9 of 9), at the kill sites I14 and K1 recorded (NI line numbers at the head; I14's round-1 numbers for K5-M13 differ, NOTE RV14-N1). K5-PREFILTER survives, as derived. Own mutants: RV14-M1, RV14-M2 and RV14-M4 survive (findings RV14-1, RV14-2, RV14-3); RV14-M3 is killed only by unwrap panics (RV14-N2). No compile error, abort or signal in any run.
+
+## NONE — control, no patch
+  apply: applied NONE
+  fk: ok. 8 passed; 0 failed; ok. 14 passed; 0 failed; ok. 1 passed; 0 failed [exit=0]
+  ni: ok. 127 passed; 0 failed [exit=0]
+  probe: ok. 1 passed; 0 failed [exit=0]
+  saprobe: ok. 1 passed; 0 failed [exit=0]
+  result: control passes
+
+## K5-12 — re-kill (D1 §7.3 item 12): a tree tie adds no offset (rigid link)
+  apply: applied K5-12
+  fk: ok. 8 passed; 0 failed; FAILED. 7 passed; 7 failed; FAILED. 0 passed; 1 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): tests/k5_constrained_bodies.rs:235:16, tests/k5_scale.rs:104:9
+
+## K5-M1 — re-kill: cycle rows dropped and cycle ties skipped in the exact check
+  apply: applied K5-M1
+  fk: ok. 8 passed; 0 failed; FAILED. 12 passed; 2 failed; ok. 1 passed; 0 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): tests/k5_constrained_bodies.rs:234:16
+
+## K5-M6 — re-kill: exact tie and ground checks skipped
+  apply: applied K5-M6
+  fk: ok. 8 passed; 0 failed; FAILED. 11 passed; 3 failed; ok. 1 passed; 0 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): tests/k5_constrained_bodies.rs:242:16, tests/k5_constrained_bodies.rs:249:16
+
+## K5-M17 — re-kill: directional translation ground checked in binary64
+  apply: applied K5-M17
+  fk: ok. 8 passed; 0 failed; FAILED. 13 passed; 1 failed; ok. 1 passed; 0 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): tests/k5_constrained_bodies.rs:249:16
+
+## K5-M9 — re-kill: every body (frame-only too) through W4
+  apply: applied K5-M9
+  ni: FAILED. 126 passed; 1 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): src/structural_adapter/k5_tests.rs:730:13
+
+## K5-M13 — re-kill: force-scaled branch matches curved slots on b = 0 bits
+  apply: applied K5-M13
+  ni: FAILED. 125 passed; 2 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): src/structural_adapter/k5_tests.rs:1097:17, src/structural_adapter/k5_tests.rs:493:18
+
+## K1-PIN-BINARY64 — re-kill (K1 pin): an exact entry in solve_binary64
+  apply: applied K1-PIN-BINARY64
+  ni: FAILED. 122 passed; 5 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): src/s11k_tests.rs:1478:17, src/s11k_tests.rs:577:5, src/s11k_tests.rs:807:17
+  product panics (not counted): src/lib.rs:4781:13, src/lib.rs:4827:13
+
+## K1-PIN-LOOP-B — re-kill (loop pin; K1's mutate_k1.py): the loop's solve via a pattern formation helper
+  apply: applied K1-PIN-LOOP-B
+  ni: FAILED. 112 passed; 15 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): src/s11k_tests.rs:1141:9, src/s11k_tests.rs:1283:9, src/s11k_tests.rs:1478:17, src/s11k_tests.rs:519:9, src/s11k_tests.rs:834:17, src/s11k_tests.rs:924:13, src/structural_adapter/k1_tests.rs:1000:9, src/structural_adapter/k5_tests.rs:613:17
+  product panics (not counted): src/lib.rs:3516:81, src/lib.rs:3877:18, src/lib.rs:3984:81, src/lib.rs:4121:77, src/lib.rs:4781:13, src/lib.rs:4827:13, src/lib.rs:5462:53
+
+## KD5-M32a — re-kill (loop pin; K1's mutate_k1.py): solve_binary64 routed through the formation check
+  apply: applied KD5-M32a
+  ni: FAILED. 119 passed; 8 failed [exit=101]
+  result: KILLED
+  kill sites (test assertions): src/s11k_tests.rs:1176:13, src/s11k_tests.rs:1283:9, src/s11k_tests.rs:1478:17, src/s11k_tests.rs:577:5, src/s11k_tests.rs:807:17, src/structural_adapter/k1_tests.rs:1000:9
+  product panics (not counted): src/lib.rs:4781:13, src/lib.rs:4827:13
+
+## K5-PREFILTER — I14's declared-equivalent mutant: the prefilter row loop removed
+  apply: applied K5-PREFILTER
+  fk: ok. 8 passed; 0 failed; ok. 14 passed; 0 failed; ok. 1 passed; 0 failed [exit=0]
+  probe: ok. 1 passed; 0 failed [exit=0]
+  result: SURVIVED, as I14's RETURN §2.8 derives (declared equivalent). The FK probe output on all 4,226 corpus cases is byte-identical to the clean head's (sha256 862d4614...).
+
+## RV14-M1 — own: the exact tie check removed from null_translations (grounds kept)
+  apply: applied RV14-M1
+  fk: ok. 8 passed; 0 failed; ok. 14 passed; 0 failed; ok. 1 passed; 0 failed [exit=0]
+  probe: ok. 1 passed; 0 failed [exit=0]
+  result: SURVIVED (finding RV14-1). Not equivalent: on the corpus the mutant publishes 6 witnesses the exact oracle refutes (T1_cycle_band_0..4, M0809: tie violated); the clean head gives NumericallyUnresolved (oracle_report.txt).
+
+## RV14-M2 — own: curved-vs-curved coordinate agreement dropped (.or(curved_points[l]))
+  apply: applied RV14-M2
+  ni: ok. 127 passed; 0 failed [exit=0]
+  saprobe: ok. 1 passed; 0 failed [exit=0]
+  result: SURVIVED (finding RV14-2). Not equivalent: probe P1 gives Mechanism theta = (3, 2, 0), u(1) = (0, 0, -0.25) under the mutant, the matrix gate's refusal on the clean head (saprobe_results_excerpt.txt).
+
+## RV14-M3 — own: positive-spring grounds omitted from W4
+  apply: applied RV14-M3
+  ni: FAILED. 121 passed; 6 failed [exit=101]
+  saprobe: ok. 1 passed; 0 failed [exit=0]
+  result: killed only by `Result::unwrap()` panics in K1's and K-D5's test helpers (an Err where Ok is expected), never at a K5 assertion (NOTE RV14-N2). Not equivalent: probe P2 gives a false Mechanism under the mutant; the clean head publishes as main.
+  panic sites (test code, unwrap): src/structural_adapter/k1_tests.rs:1364:41, src/structural_adapter/k1_tests.rs:349:29, src/structural_adapter/kd5_tests.rs:188:14 (x4)
+
+## RV14-M4 — own: W4's unresolved rank mapped to Ok(()) (K5-C2 dropped)
+  apply: applied RV14-M4
+  ni: ok. 127 passed; 0 failed [exit=0]
+  result: SURVIVED (finding RV14-3), with RV14-M4.pp below. Not equivalent: RV14-M4.ppprobe shows constructed_mechanism_r0.2_o0 returning Mac main's envelope on all four entry x mode runs.
+
+## RV14-M4.pp — RV14-M4 against PP k5_curved_mechanism_runtime
+  apply: applied RV14-M4
+  pp: ok. 3 passed; 0 failed [exit=0]
+  result: SURVIVED (PP's K5 test has no K5-C2 case)
+
+## RV14-M4.ppprobe — RV14-M4 through RV14's PP spot-check harness
+  apply: applied RV14-M4
+  ppprobe: ok. 1 passed; 0 failed [exit=0]
+  result: a probe run, not a test: its K5RUN lines are compared with probes/pp_runs_{base,cand}.txt (constructed_mechanism_r0.2_o0 equals base, differs from the head)
+
+## K5-M9.saprobe2 — K5-M9 through RV14's frame-only SA probe
+  apply: applied K5-M9
+  saprobe2: ok. 1 passed; 0 failed [exit=0]
+  result: a probe run, not a test: 36 lines of RV14's frame-only SA probe differ from the head (F1's free translation publishes W4's 1.0 instead of today's 5.0), so RV14's F1 model would also kill K5-M9
+

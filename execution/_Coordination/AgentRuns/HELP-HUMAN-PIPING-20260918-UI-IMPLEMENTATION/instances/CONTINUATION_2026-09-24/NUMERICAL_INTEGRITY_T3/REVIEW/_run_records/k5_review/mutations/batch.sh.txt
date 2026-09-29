@@ -1,0 +1,8 @@
+#!/bin/bash
+M=<wt>/scratch/rv14/mut
+while read id sets; do
+  echo "$(date -u +%FT%TZ) start $id $(sysctl -n kern.memorystatus_level) $(sysctl -n vm.loadavg)" >> $M/batch.log
+  bash $M/rv14_run_mutant.sh $id $sets
+  echo "$(date -u +%FT%TZ) end $id" >> $M/batch.log
+done < $M/queue.txt
+echo "$(date -u +%FT%TZ) batch done" >> $M/batch.log
