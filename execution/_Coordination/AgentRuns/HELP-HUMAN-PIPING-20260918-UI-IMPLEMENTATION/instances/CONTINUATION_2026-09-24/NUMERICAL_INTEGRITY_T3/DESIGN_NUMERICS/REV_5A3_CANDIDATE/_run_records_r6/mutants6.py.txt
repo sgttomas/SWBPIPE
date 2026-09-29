@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""R6: every mutant of R6's section 7 (M1-M18, M20-M29; M19 retired with F in R5), run on
+the controls in K4's elimination order, against the unmutated R6 (option r6: per
+data-carrying block B_c = min(Uc_c, S_c), theta and the g check per such block). A kill
+is a change of selected precision, of class counts, or of honesty (M13: of the
+correction count, at evidence level). The controls are R5's, R6's own (models6), and two
+of R1's RF-LARGE references at 100 members (CHAIN-AX and TREE-AX, via r1_adapter).
+The reference solve carries no test-only seed.
+New in R6: M27 (the shift bound without its backward-error and rounding terms), M28
+(no shift: Uc_c alone), M29 (R5's form: one global Uc, body scope).
+Usage: python3 mutants6.py <T3 path>. Output: mutants6.stdout.json."""
+import json, random, sys
+from fractions import Fraction as Fr
+import emu6, models6, models2, r1_adapter
+from emu6 import Case, schedule, classify, honesty, solve_at
+from sweep import gen
+
+T3 = sys.argv[1]
+emu6.SEED.update(models6.SEEDS)
+M = {m["name"]: m for m in models6.models()}
+rng = random.Random(3)
+for i in range(116):
+    g = gen(rng, i)
+R115 = dict(g, name="R115-SEED3")
+M["R115-SEED3"] = R115
+refs = r1_adapter.load_refs(T3)
+LARGE = ["RF-LARGE-CHAIN-n00100-AX", "RF-LARGE-TREE-n00100-AX"]
+for cid in LARGE:
+    M[cid] = r1_adapter.adapt(cid, refs[cid], refs[cid]["model"])[0]
+CONTROLS = ["F-2", "F-2-SPOS", "F-2-CEIL", "PRESCRIBED-TAIL", "RIGID-UNLOADED", "F-3-FREE", "F-3-ROT",
+            "REACTIONS-ONLY", "SKEW6-K1E-12", "N06", "B1-L", "LEDGER-AT-RESTRAINT", "DEMOTION2", "ASSEMBLY-SAT",
+            "LOADONLY-y345", "GS-TRANS-y345", "GS-ROT-y345", "SEEDED-COMMON", "M7-GS1", "M10-ANISO", "M10-G", "R115-SEED3",
+            "TWO-SPAN", "LEVER2-k90-s40", "EXACT-RIGID", "CHARGE-SLENDER", "TILT-LEVER-k90-s40",
+            "SKEW-K1E-28", "PIVOT", "SEEDED-SOFT", "THETA-ZERO-BODY", "G-FIXED-MEMBER", "THETA-STUB",
+            "G-PRESC-MEMBER", "HH-SLENDER-m40", "HH-FOOL-m40-LOADED", "HH-FOOL-m100-LOADED"]
+CONTROLS += [n for n in models6.R6_CONTROLS]
+CONTROLS += LARGE
+REFS = {}
+
+
+def run(option="r6"):
+    out = {}
+    for name in CONTROLS:
+        case = Case(M[name])
+        if name not in REFS:
+            g0 = emu6.GATE
+            emu6.GATE = "absolute"
+            seeds = dict(emu6.SEED)
+            emu6.SEED.clear()
+            REFS[name] = solve_at(case, 2048, ref=True, estimate=False)
+            emu6.SEED.update(seeds)
+            emu6.GATE = g0
+        r = schedule(case, option, {})
+        rec = dict(selected=r["selected"])
+        if r["selected"] is not None:
+            pub, cl, sc, g5 = classify(case, r, option)
+            w, c = honesty(case, pub, cl, REFS[name])
+            rec.update(honest=w[0] <= 1.0, relative=c["relative"], g5a=len(g5), corrections=r["cand"]["corrections"])
+        out[name] = rec
+    return out
+
+
+def setter(**kw):
+    def on():
+        saved = {k: getattr(emu6, k) for k in kw}
+        for k, v in kw.items():
+            setattr(emu6, k, v)
+        return saved
+    return on
+
+
+MUTANTS = [
+    ("M1 drop V", setter(USE_V=False), "r6"),
+    ("M2 uncoupled E", setter(E_COUPLED=False), "r6"),
+    ("M3 floor at every p", setter(FLOOR_AT={128, 256, 512}), "r6"),
+    ("M4 no floor", setter(FLOOR_AT=set()), "r6"),
+    ("M5 E without prescribed |u|", setter(E_PRESCRIBED=False), "r6"),
+    ("M6 E from sum |ledger terms|", setter(E_LEDGER="terms"), "r6"),
+    ("M7 entrywise E", setter(E_OPERATOR="entrywise"), "r6"),
+    ("M8 floor 2^-(2p-74)", setter(FLOOR_EXP_FN=lambda p: 2 * p - 74), "r6"),
+    ("M9 floor at 256", setter(FLOOR_AT={256}), "r6"),
+    ("M10 omit g", setter(G_MODE="one"), "r6"),
+    ("M11 skip the estimator's test", setter(W_TEST=False), "r6"),
+    ("M12 coalesced gate (K4 at A2)", setter(GATE="k4"), "r6"),
+    ("M13 bounded test drives refinement (pure form)", setter(GATE="absolute"), "r6"),
+    ("M14 W residual over K^q's assembled entries (R2's quantity)", setter(W_RES="assembled"), "r6"),
+    ("M15 W residual reused from the gate (R2's text)", setter(W_RES="reuse"), "r6"),
+    ("M16 bounded test on the last state (R2)", setter(BEST_STATE=False), "r6"),
+    ("M17 drop the charge", setter(CHARGE=False), "r6"),
+    ("M18 W formed at q = 2p + 64 (R3)", setter(W_Q="P+64"), "r6"),
+    ("M20 drop the theta check", setter(THETA=False), "r6"),
+    ("M21 prescribed values rounded in W's residual (R3)", setter(W_PRESC="rounded"), "r6"),
+    ("M22 translation and rotation rows without W+ + C (R3)", setter(TRRO="zero"), "r6"),
+    ("M23 drop the g check", setter(G_CHECK=False), "r6"),
+    ("M24 est in place of the bound", setter(BOUND="est"), "r6"),
+    ("M25 theta and the g check unscoped (R4)", setter(SCOPE="all"), "r6"),
+    ("M26 F*est in place of the bound (R4)", setter(BOUND="Fest"), "r6"),
+    ("M27 shift bound without its backward-error term", setter(SHIFT_BE=False), "r6"),
+    ("M28 no shift (Uc_c alone)", setter(BOUND="Uc_block"), "r6"),
+    ("M29 R5's form (one global Uc, body scope)", setter(BOUND="Uc", SCOPE="body"), "r6"),
+]
+base = run("r6")
+results = {"R6 (r6, hybrid gate)": base}
+for tag, on, option in MUTANTS:
+    saved = on()
+    try:
+        results[tag] = run(option)
+    finally:
+        for k, v in saved.items():
+            setattr(emu6, k, v)
+for tag, res in results.items():
+    print(tag)
+    for k, v in res.items():
+        if tag.startswith("R6") or v != base[k]:
+            print("   ", k, v)
+json.dump(results, open("mutants6.stdout.json", "w"), indent=1)

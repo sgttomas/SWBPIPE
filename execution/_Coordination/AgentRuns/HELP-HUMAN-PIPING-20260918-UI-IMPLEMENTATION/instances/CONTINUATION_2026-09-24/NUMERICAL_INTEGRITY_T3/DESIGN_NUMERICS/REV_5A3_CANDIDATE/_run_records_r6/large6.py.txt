@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+"""R6 (V4-V1; ROOT's ruling): R1's RF-LARGE reference models (CHAIN, TREE, CONT; AX and
+ROT) at 10, 100 and 1,000 members, through R1's own reference models (r1_adapter),
+in K4's elimination order (emu6, ORDER "rcm"), under today's rule (K4's gate), R4
+(F*est), R5 (one global Uc) and R6 (per block min(Uc_c, S_c)). Per run: the selected
+precision, attempts, class counts, G5a, the worst charge, theta, and the bound summary
+at every precision solved. Honesty against emu6's P = 2048 reference when requested.
+The shift bound's looseness at the P = 256 state: against the exact ||K~^-1||_1 in
+rationals (10 members), against the norm computed at 512 bits by one solve per column
+(100 members), and against est and an inverse-iteration lambda_min (1,000 members).
+Usage: python3 large6.py <T3 path> <sizes, e.g. 10,100> [honesty] [runs, e.g. R6,R5]
+Output: large6_<sizes>.json."""
+import json, math, sys, time
+from fractions import Fraction as Fr
+import emu6, r1_adapter
+from emu6 import Case, schedule, classify, honesty, solve_at, assemble, floor_log2, rp, Stop, ceil_sqrt
+from bounds6 import lg, bound_summary
+
+RUNS_ALL = [("today", "current", "k4", {}),
+            ("R4", "r4", "hybrid", dict(BOUND="Fest", SCOPE="all")),
+            ("R5", "r5", "hybrid", dict(BOUND="Uc", SCOPE="body")),
+            ("R6", "r6", "hybrid", {})]
+
+
+def scaled_rows(case, P):
+    """K~ at P in K4's order (case.free), as profile rows, and first."""
+    K = assemble(case.m, P)[0]
+    free = case.free
+    n = len(free)
+    sc = [-(floor_log2(abs(K[(g, g)])) // 2) for g in free]
+    rank = {g: a for a, g in enumerate(free)}
+    nbr = [[rank[c] for c in case.adj.get(g, []) if c in rank] for g in free]
+    first = [min([j for j in nbr[i] if j < i] + [i]) for i in range(n)]
+    rows = []
+    for i in range(n):
+        row = {}
+        for j in nbr[i]:
+            if j <= i:
+                v = K.get((free[i], free[j]), Fr(0))
+                if v:
+                    row[j] = v * Fr(2) ** (sc[i] + sc[j])
+        rows.append(row)
+    return rows, first, n
+
+
+def factor(rows, first, n, pf):
+    L = [dict() for _ in range(n)]
+    D = [Fr(0)] * n
+    work = [Fr(0)] * n
+    for i in range(n):
+        for j in range(first[i], i):
+            s = rows[i].get(j, Fr(0))
+            for kk in range(max(first[i], first[j]), j):
+                l = L[j].get(kk)
+                if l:
+                    s = rp(s - rp(work[kk] * l, pf), pf)
+            work[j] = s
+            if s:
+                L[i][j] = rp(s / D[j], pf)
+        piv = rows[i].get(i, Fr(0))
+        for kk in range(first[i], i):
+            l = L[i].get(kk)
+            if l:
+                piv = rp(piv - rp(work[kk] * l, pf), pf)
+        D[i] = piv
+    return L, D
+
+
+def solve(L, D, first, n, b, pf):
+    x = list(b)
+    for i in range(n):
+        for j, l in L[i].items():
+            if x[j]:
+                x[i] = rp(x[i] - rp(l * x[j], pf), pf)
+    for i in range(n):
+        x[i] = rp(x[i] / D[i], pf)
+    for i in reversed(range(n)):
+        v = x[i]
+        if v:
+            for j, l in L[i].items():
+                x[j] = rp(x[j] - rp(l * v, pf), pf)
+    return x
+
+
+def exact_inv_norm1(rows, n):
+    A = [[Fr(0)] * n for _ in range(n)]
+    for i in range(n):
+        for j, v in rows[i].items():
+            A[i][j] = v
+            A[j][i] = v
+    M = [A[i] + [Fr(int(i == j)) for j in range(n)] for i in range(n)]
+    for c in range(n):
+        piv = next(r for r in range(c, n) if M[r][c] != 0)
+        M[c], M[piv] = M[piv], M[c]
+        pv = M[c][c]
+        M[c] = [x / pv for x in M[c]]
+        for r in range(n):
+            if r != c and M[r][c] != 0:
+                f = M[r][c]
+                M[r] = [x - f * y for x, y in zip(M[r], M[c])]
+    return max(sum(abs(M[i][n + j]) for i in range(n)) for j in range(n))
+
+
+def looseness(case, st, size):
+    """At the P = 256 state: B, S and Uc of the (single) block against a norm reference."""
+    rows, first, n = scaled_rows(case, 256)
+    bi = [b for b in st["uc"]["blocks"] if b["n"] == n]
+    bi = bi[0] if bi else st["uc"]["blocks"][0]
+    out = dict(n=n, log2_Uc=lg(bi["Uc"]), log2_S=lg(bi["S"]), log2_B=lg(bi["B"]), log2_est=lg(st["est_hh"]),
+               tries=bi["tries"], log2_sigma=lg(bi["sigma"]), log2_sigma_prime=lg(bi.get("sigma_prime")))
+    t0 = time.time()
+    if size <= 10:
+        ex = exact_inv_norm1(rows, n)
+        out.update(reference="exact (rationals)", log2_norm=lg(ex))
+    elif size <= 100:
+        L, D = factor(rows, first, n, 512)
+        best = Fr(0)
+        for j in range(n):
+            e = [Fr(0)] * n
+            e[j] = Fr(1)
+            x = solve(L, D, first, n, e, 512)
+            best = max(best, sum(abs(v) for v in x))
+        out.update(reference="computed at 512 bits, one solve per column", log2_norm=lg(best))
+        ex = best
+    else:
+        L, D = factor(rows, first, n, 512)
+        x = [Fr(1)] * n
+        lam = None
+        for it in range(12):
+            y = solve(L, D, first, n, x, 512)
+            ny = max(abs(v) for v in y)
+            x = [rp(v / ny, 64) for v in y]
+            # Rayleigh quotient of K~^-1 at x: an upper bound on 1/lambda_min... use ||y||/||x|| growth
+            lam = 1 / ny
+        out.update(reference="inverse iteration, 12 steps at 512 bits (lambda_min estimate; no norm)",
+                   log2_lambda_hat=lg(lam), log2_sqrt_n_over_lambda_hat=math.log2(math.sqrt(n)) - lg(lam))
+        ex = None
+    if ex:
+        for k in ("Uc", "S", "B"):
+            v = bi[k]
+            out["%s_ge_norm" % k] = (v >= ex) if v is not None else None
+            out["log2_%s_over_norm" % k] = (lg(v) - lg(ex)) if v is not None else None
+    out["seconds"] = round(time.time() - t0, 1)
+    return out
+
+
+if __name__ == "__main__":
+    T3 = sys.argv[1]
+    sizes = [int(x) for x in sys.argv[2].split(",")]
+    do_hon = len(sys.argv) > 3 and sys.argv[3] == "honesty"
+    want = sys.argv[4].split(",") if len(sys.argv) > 4 else [r[0] for r in RUNS_ALL]
+    RUNS = [r for r in RUNS_ALL if r[0] in want]
+    cases = r1_adapter.load_refs(T3)
+    out = []
+    for cid, c in cases.items():
+        if c["family"] != "RF-LARGE" or "generator" in c["model"]:
+            continue
+        size = len(c["model"]["members"])
+        if size not in sizes:
+            continue
+        t0 = time.time()
+        m, index = r1_adapter.adapt(cid, c, c["model"])
+        case = Case(m)
+        rec = dict(case=cid, members=size, free=len(case.free), runs={})
+        ref = None
+        if do_hon:
+            emu6.GATE = "absolute"
+            ref = solve_at(case, 2048, ref=True, estimate=False)
+            rec["ref_seconds"] = round(time.time() - t0, 1)
+        r6_cache = None
+        for tag, opt, gate, sw in RUNS:
+            saved = {k: getattr(emu6, k) for k in sw}
+            for k, v in sw.items():
+                setattr(emu6, k, v)
+            emu6.GATE = gate
+            cache = {}
+            t1 = time.time()
+            nshift0 = emu6.STATS["shift_factorizations"]
+            try:
+                r = schedule(case, opt, cache)
+                o = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]], solved=r["solved"])
+                if r["selected"] is not None:
+                    pub, cl, scs, g5 = classify(case, r, opt)
+                    counts = {}
+                    for x in cl:
+                        counts[x[0]] = counts.get(x[0], 0) + 1
+                    o.update(counts=counts, g5a=[str(x) for x in g5], w_over_v=r["info"]["w_over_v"],
+                             charge=r["info"].get("charge_over_allowance"), theta=r["info"].get("theta"))
+                    if ref is not None:
+                        w, cc = honesty(case, pub, cl, ref)
+                        o.update(worst=w[0], honest=w[0] <= 1.0)
+                o["bounds"] = {P: (bound_summary(st) if not isinstance(st, Stop) else "stop:%s" % st.what)
+                               for P, st in sorted(cache.items())}
+                o["shift_factorizations"] = emu6.STATS["shift_factorizations"] - nshift0
+                o["seconds"] = round(time.time() - t1, 1)
+                if tag == "R6":
+                    r6_cache = cache
+            finally:
+                for k, v in saved.items():
+                    setattr(emu6, k, v)
+                emu6.GATE = "absolute"
+            rec["runs"][tag] = o
+            print(cid, tag, o["selected"], o["attempts"], "honest=%s" % o.get("honest"), "%.1fs" % o["seconds"], flush=True)
+        if r6_cache is not None and 256 in r6_cache and not isinstance(r6_cache[256], Stop):
+            rec["looseness_P256"] = looseness(case, r6_cache[256], size)
+            print(cid, "looseness", json.dumps(rec["looseness_P256"]), flush=True)
+        rec["seconds"] = round(time.time() - t0, 1)
+        out.append(rec)
+        json.dump(out, open("large6_%s.json" % "_".join(str(s) for s in sizes), "w"), indent=1, default=str)

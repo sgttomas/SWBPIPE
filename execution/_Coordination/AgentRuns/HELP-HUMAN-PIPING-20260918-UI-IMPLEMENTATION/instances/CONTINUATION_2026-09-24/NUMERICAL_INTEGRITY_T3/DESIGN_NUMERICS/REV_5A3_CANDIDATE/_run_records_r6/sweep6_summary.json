@@ -1,0 +1,106 @@
+{
+ "models": 2000,
+ "runs": {
+  "current/k4": {
+   "selected": 1775,
+   "unresolved": 225,
+   "selected_at": {
+    "256": 714,
+    "128": 882,
+    "512": 179,
+    "None": 225
+   },
+   "false_claims": 1,
+   "false_examples": [
+    "R982"
+   ],
+   "solves": 5493,
+   "work": 51888,
+   "g5a_failures": 0,
+   "max_w_over_v": 0.0,
+   "max_charge_over_allowance": 0.0,
+   "max_theta": 0.0,
+   "rejections": {
+    "stop_rule": 1351
+   },
+   "shift_factorizations": 1098,
+   "frames_with_shift": 376
+  },
+  "r5/hybrid": {
+   "selected": 2000,
+   "unresolved": 0,
+   "selected_at": {
+    "256": 720,
+    "128": 893,
+    "512": 387
+   },
+   "false_claims": 0,
+   "false_examples": [],
+   "solves": 5494,
+   "work": 52480,
+   "g5a_failures": 0,
+   "max_w_over_v": 0.008194824188701289,
+   "max_charge_over_allowance": 1.4552616567743526e-07,
+   "max_theta": 1.0168073359576853e-37,
+   "rejections": {
+    "stop_rule": 1207
+   },
+   "shift_factorizations": 0,
+   "frames_with_shift": 0,
+   "versus_current/k4": {
+    "transitions": {
+     "None->512": 199,
+     "128->512": 8,
+     "None->128": 19,
+     "None->256": 7,
+     "256->128": 2,
+     "256->512": 5,
+     "128->256": 3,
+     "512->128": 2,
+     "512->256": 3,
+     "128->512 (current false)": 1
+    },
+    "models_losing_relative_rows": 0,
+    "rows": 0
+   }
+  },
+  "r6/hybrid": {
+   "selected": 2000,
+   "unresolved": 0,
+   "selected_at": {
+    "256": 720,
+    "128": 893,
+    "512": 387
+   },
+   "false_claims": 0,
+   "false_examples": [],
+   "solves": 5494,
+   "work": 52480,
+   "g5a_failures": 0,
+   "max_w_over_v": 0.008194824188701289,
+   "max_charge_over_allowance": 1.4552616567743526e-07,
+   "max_theta": 5.726991060622986e-40,
+   "rejections": {
+    "stop_rule": 1207
+   },
+   "shift_factorizations": 1112,
+   "frames_with_shift": 380,
+   "versus_current/k4": {
+    "transitions": {
+     "None->512": 199,
+     "128->512": 8,
+     "None->128": 19,
+     "None->256": 7,
+     "256->128": 2,
+     "256->512": 5,
+     "128->256": 3,
+     "512->128": 2,
+     "512->256": 3,
+     "128->512 (current false)": 1
+    },
+    "models_losing_relative_rows": 0,
+    "rows": 0
+   }
+  }
+ }
+}

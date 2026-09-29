@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""R6: every control (models6: R5's 58 plus R6's) in K4's elimination order under
+today's rule (K4's gate), R4 (F*est, theta and the g check unscoped, option r4),
+R5 (one global Uc, body scope, option r5) and R6 (per data-carrying block
+min(Uc_c, S_c), block scope, option r6). Honesty against the P = 2048 reference
+(without any test-only seed); G5a; W/V; for R6 the worst charge/allowance, theta and
+the bound summary at every verification the case reaches.
+Output: run_controls6.stdout.json."""
+import json, sys, time
+import emu6, models6
+from emu6 import Case, schedule, classify, honesty, solve_at, charge_report, Stop
+from bounds6 import bound_summary
+
+RUNS = [("today", "current", "k4", {}),
+        ("R4", "r4", "hybrid", dict(BOUND="Fest", SCOPE="all")),
+        ("R5", "r5", "hybrid", dict(BOUND="Uc", SCOPE="body")),
+        ("R6", "r6", "hybrid", {})]
+only = set(sys.argv[1:])
+out = []
+for m in models6.models():
+    if only and m["name"] not in only:
+        continue
+    t0 = time.time()
+    case = Case(m)
+    emu6.SEED.clear()
+    emu6.GATE = "absolute"
+    ref = solve_at(case, 2048, ref=True, estimate=False)
+    emu6.SEED.update(models6.SEEDS)
+    rec = dict(model=m["name"], runs={})
+    for tag, opt, gate, sw in RUNS:
+        saved = {k: getattr(emu6, k) for k in sw}
+        for k, v in sw.items():
+            setattr(emu6, k, v)
+        emu6.GATE = gate
+        cache = {}
+        try:
+            r = schedule(case, opt, cache)
+            o = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]], solved=r["solved"])
+            if r["selected"] is not None:
+                pub, cl, sc, g5 = classify(case, r, opt)
+                w, c = honesty(case, pub, cl, ref)
+                o.update(counts=c, worst=w[0], worst_row=str(w[1]), honest=w[0] <= 1.0, g5a_fail=[str(x) for x in g5],
+                         w_over_v=r["info"]["w_over_v"])
+            if tag == "R6":
+                o["charge"] = {}
+                for p in (128, 256, 512):
+                    try:
+                        cand = cache[p] if p in cache else solve_at(case, p)
+                        ver = cache[2 * p] if 2 * p in cache else solve_at(case, 2 * p)
+                        if isinstance(cand, Stop) or isinstance(ver, Stop):
+                            o["charge"][p] = "stop"
+                            continue
+                        ch, th = charge_report(case, cand, ver, p)
+                        o["charge"][p] = dict(charge=ch, theta=th, bounds=bound_summary(ver))
+                    except Stop as e:
+                        o["charge"][p] = "stop:%s" % e.what
+            rec["runs"][tag] = o
+        finally:
+            for k, v in saved.items():
+                setattr(emu6, k, v)
+            emu6.GATE = "absolute"
+    rec["seconds"] = round(time.time() - t0, 2)
+    out.append(rec)
+    f = lambda k: "%s%s" % (rec["runs"][k]["selected"], "" if rec["runs"][k].get("honest", True) else "!FALSE")
+    print("%-24s " % m["name"] + "  ".join("%s:%s" % (k, f(k)) for k in rec["runs"]), rec["seconds"], flush=True)
+json.dump(out, open("run_controls6.stdout.json" if not only else "run_controls6.partial.json", "w"), indent=1, default=str)

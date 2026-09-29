@@ -1,0 +1,21 @@
+#!/bin/zsh
+# R6 evidence chain, on the final emu6: one Python process at a time, each under nice -n 19.
+T3=$1
+cd "$(dirname "$0")"
+export PYTHONDONTWRITEBYTECODE=1
+V4=${T3}/DESIGN_NUMERICS/REV_5A3_CANDIDATE/_v4_records/r5/r5_large.py.txt
+{ time nice -n 19 python3 reproduce6.py ; } > reproduce6.log 2>&1
+{ time nice -n 19 python3 k4order_check6.py ${T3} ${V4} ; } > k4order_check6.log 2>&1
+{ time nice -n 19 python3 run_controls6.py ; } > run_controls6.log 2>&1
+{ time nice -n 19 python3 gate_probe7.py ; } > gate_probe7.log 2>&1
+{ time nice -n 19 python3 r1_lane6.py ${T3} lane ; } > r1_lane6.log 2>&1
+{ time nice -n 19 python3 stress6.py 20000 6 ; } > stress6.log 2>&1
+{ time nice -n 19 python3 uc_check6.py ; } > uc_check6.log 2>&1
+{ time nice -n 19 python3 mutants6.py ${T3} ; } > mutants6.log 2>&1
+{ time nice -n 19 python3 large6.py ${T3} 1000 honesty ; } > large6_1000.log 2>&1
+{ time nice -n 19 python3 sweep6.py 11 1000 ; } > sweep6_11.log 2>&1
+{ time nice -n 19 python3 sweep6.py 12 1000 ; } > sweep6_12.log 2>&1
+{ time nice -n 19 python3 summarize6.py sweep6_11.json sweep6_12.json > sweep6_summary.json ; } > summarize6.log 2>&1
+{ time nice -n 19 python3 large6.py ${T3} 10 honesty ; } > large6_10.log 2>&1
+{ time nice -n 19 python3 large6.py ${T3} 100 honesty ; } > large6_100.log 2>&1
+echo alldone > chain6.done
