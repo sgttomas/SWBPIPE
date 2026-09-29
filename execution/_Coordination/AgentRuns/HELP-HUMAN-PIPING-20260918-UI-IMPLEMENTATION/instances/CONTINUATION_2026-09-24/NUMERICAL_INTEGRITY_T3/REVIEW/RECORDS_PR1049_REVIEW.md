@@ -287,3 +287,79 @@
 - **Uncommitted evidence I read,** read-only: `<wt>/scratch/{i12,i13,i14}/CHECKPOINT0_PLAN.md`; `<wt>/scratch/i13/gate{,2}/compare_part1.json`; `<wt>/scratch/gate_base_e7d930d49{,_full}/`; `<wt>/scratch/ds1/` (the listing and file sizes); `<wt>/k6`'s branch and reflog.
 - **Not re-derived:** the 5a.3 mathematics. I checked ROOT's rulings against V4's and DS1's stated results, not the results themselves.
 - **Writes:** this file only, uncommitted. My check scripts and the extracted archive lived in my session scratch, and have been deleted.
+
+## Delta check at 720924cbc
+
+**Delta verdict: PASS.** Every SHOULD-FIX finding (S1–S5) is resolved. N1–N4, N6–N8, N10 and N11 are resolved; N5 is deferred to K6's A2, and N9 is disclosed. The check adds 3 new NOTEs (D1–D3) and no BLOCKING or SHOULD-FIX finding. The review's verdict stands: PASS.
+
+**Scope.** ROOT resumed me for this check. The mechanism is unchanged: a background subagent of ROOT's session, with no delegation and no Git or GitHub writes.
+- **Head:** `720924cbcb140a34a32cbc42c01dbeae0d32e971`. It is PR #1049's `headRefOid`, and `<wt>/numerics` HEAD; base main is `56dd72334`. Everything was read by commit, and I extracted `git archive 720924cbc` into my scratch.
+- **The delta `04553ad05..720924cbc` has three commits:**
+  - `c644b751d`: DS1's R4 and 15 of its run records, plus the candidate SHA256SUMS;
+  - `adf43e1c5`: this review, committed verbatim (sha256 `1608735d…`, equal to what I returned), and ROOT's fixes (the commit ROOT first cited as "1a0…");
+  - `720924cbc`: the merge of main `56dd72334`.
+
+### Findings: resolution
+
+| ID | Status at `720924cbc` | Evidence |
+|---|---|---|
+| S1 | **resolved** | V1 :1520 gains "[correction: the K6 branch was created at main `56dd72334`, which changes only `projects/chirality-app-v4/**`; the piping tree is the same (RV16-S1)]". It agrees with the work graph (:62) and with `<wt>/k6`. |
+| S2 | **resolved** | V1 :1452 now opens "[Part 1 FAILED its own gate condition: 4 C2 sparse runs aborted at the heap cap … I13's comparison reads `RESULT: FAIL`. `gate_check`, which checks trusted breaches only, passed (RV16-S2).]". V1 :1409 gains the missing C2 clause, citing I13's PASS conditions. Both match `<wt>/scratch/i13/gate/compare_part1.json` and I13 :499. |
+| S3 | **resolved** | The new section at V1 :1539, "K5: rulings on RV14's review (ROOT, 2026-09-28; recorded late, RV16-S3)", matches K5's `RETURN.md` §16 at `95c7501a7` and RV14's delta:<br>• the verdict and counts (RETURN :836);<br>• ROOT's direction to fix all four (:838);<br>• the four fixes and their pins (:842-845);<br>• I14's choice of refusal over "ROOT's alternative of publishing the parameters in a form that is always exact", with its reason (:893);<br>• the 349 W → U, every other result byte-identical (:931-932; `K5_REVIEW.md:307`, `:372`);<br>• N1 and N2 fixed, N3 and N4 no action, N5 by the merge (:846-849; `K5_REVIEW.md:339-342`). |
+| S4 | **resolved** | Bracketed pointers now stand at all six sites: I12 :140 (and at :593, which repeats it), V1 :1202, V1 :1310, I14 :84 and :122, V1 :1429 and :1432, and V1 :1444 (2^-23·b). Each names the superseding section. |
+| S5 | **resolved** | `adf43e1c5` adds 16 files: 10 to `_run_records_r2/`, 3 to `_r3/` and 3 to `_r4/`. Each is byte-identical to its file in `<wt>/scratch/ds1/`, and each scratch mtime predates its revision's commit: R2 11:57–12:15 against `9e9e3056a` at 12:38; R3's sweeps 16:27 against `c85dc1151` at 16:36; R4's sweeps 17:44 and 17:53 against `c644b751d` at 17:58 (local time, −0600). **The raw sweeps reproduce the committed summaries byte for byte:** running each `summarize{2,3,4}.py.txt` on its two raw sweeps under `nice -n 19` gives `b82092cf…`, `375087ef…` and `3bddcba8…`, exactly the committed `sweep{2,3,4}_summary.json`. Every script's imports now resolve within the committed records, `r1_adapter` included. |
+| N1 | resolved | V1 :1499 "[4 NOTEs, T2–T5; V4's verdict line says 5 (RV16-N1)]"; V1 :1375 "[942 lines with a final newline (RV16-N1)]". |
+| N2 | resolved | V1 :1510 gains the no-admissible-control rule. Its "R4 built one: CHARGE-SLENDER" matches R4 :573 and :777: the charge alone refuses it at 128 (102 times the allowance), and M17 is killed. |
+| N3 | resolved | V1 :1473 gains "[and the directional-block entries (RV16-N3)]". |
+| N4 | resolved | I15 :88, under ROOT's rulings, where ":68 … the condition binds": no run at 10,000 members or more in any mode that materializes an n² matrix, the dense-LU lane included. By-name refusal, test G and K6-M12 cover every such mode. |
+| N5 | deferred | ROOT rules at K6's A2, as proposed. |
+| N6 | resolved | V1 :1520 names the departure from the selected kernel order. It is an unbracketed insertion, tagged "(RV16-N6)"; the original words are kept. |
+| N7 | resolved | `WORK_GRAPH.md:62`: "until D1 revision 5a.3 is VERIFIED and selected, and then implemented in K4". But see D1. |
+| N8 | resolved | `DELIVERY_RECORD.md` :9, :10 and :13 are reworded as proposed: the branch point, "merge `73519d1d2`; then `a2323bc96`, the answers' note …", the merge before RV15's delta returned, and "rests on ROOT's attestation". These are rewrites, not brackets, of a record this PR added and main does not yet carry; that is acceptable. `RELAY/SHA256SUMS` is refreshed and verifies 4/4. |
+| N9 | disclosed | The PR body's Checks section names the three trailing-whitespace files and "blank lines at EOF in some `_run_records` script copies (RV16-N9)". See D3. |
+| N10 | **resolved** | See "The merge" below. Hosted CI on `720924cbc`: 7 success and 6 skipped, including `harness` (hosted GEN-8), "Select source coverage" and "Desktop E2E (source mode)", which had failed on `04553ad05`. |
+| N11 | resolved | V1 :1556 records the erratum. K5's merge record is to disclose it. |
+
+### The merge `720924cbc`
+
+- **Parents** `adf43e1c5` and `56dd72334`; merge base `24dea2dae`.
+- **It adds exactly main's delta:** `git diff adf43e1c5 720924cbc` and `git diff 24dea2dae 56dd72334` have the same sha256 (`d6483d63…`). All 56 files are under `projects/chirality-app-v4/`.
+- **It keeps exactly the PR's delta:** `git diff 56dd72334 720924cbc` and `git diff 24dea2dae adf43e1c5` have the same sha256 (`89eaced6…`).
+- **`git show --remerge-diff 720924cbc` is empty.** No path is touched by both sides.
+- **The message** names the local branch, `codex/piping-numerical-integrity-20260926`. The commit is on both it and the PR branch `codex/piping-t3-records-20260928`; nothing relies on the name.
+
+### In-place edits (`adf43e1c5` against `04553ad05`)
+
+- **`ROOT_RULINGS_V1.md`:** 12 changed lines, and each old line is a subsequence of its new line (insert-only). At :1444, :1499 and :1520 the insert falls just before the line's final period. There is one appended section of 19 lines, dated.
+- **I12, I14 and the work graph:** insert-only. **I15:** one added line.
+- **`DELIVERY_RECORD.md`:** two rewrites (:9, :10) and one insert-only line (:13), all under N8.
+
+### R4's records
+
+- **SHA256SUMS:** the candidate `SHA256SUMS` lists 105 entries: the 73 at `04553ad05`, plus R4's 16 from `c644b751d`, plus the 16 from `adf43e1c5`. All 105 verify, and they are exactly the tracked files outside `_v4_records/`, which is unchanged. `RELAY/` is 4/4.
+- **R4 is `4a52422d…`, 905 lines,** as its commit says.
+- **Every §14 prefix matches its committed file:** `cc2df0b8`, `52113c96`, `a892a84a`, `48307994`, `ec78f507`, `1a6610a1`, `3bddcba8` and `ac336c5d`. So does §13's `ed2031c3` (`V4_VERIFICATION.md` at `c3f2cfc72`). R4's §14 statement that "ROOT committed" R2's and R3's evidence is true at this head.
+- **Nothing calls 5a.3 VERIFIED or selected.** R4 :10 reads "This file is a proposal. V4 runs a delta check; ROOT selects only after VERIFIED". Every "selected" in the delta concerns a case's selected precision. V1 has no new 5a.3 ruling, and the work graph keeps K4 blocked.
+
+### Hygiene
+
+- **Machine paths and model identifiers:** none in the 41 files `c644b751d` and `adf43e1c5` change, by GEN-8's regex and the broader scan.
+- **`git diff --check 04553ad05 adf43e1c5`** reports only a blank line at EOF in the three identical `r1_adapter.py.txt` copies (verbatim script copies, covered by the PR body's disclosure).
+- **11 raw JSON outputs** have no final newline, as before.
+
+### Delta findings
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| D1 | NOTE | `WORK_GRAPH.md:62` ("DS1 is writing R4") | **Stale at the head.** R4 was committed at `c644b751d` (17:58) "for V4's delta check", before the fix commit (18:02) that edited the same sentence group. | "R4 is committed (`c644b751d`) and awaits V4's delta check." |
+| D2 | NOTE | `REV_5A3_CANDIDATE/D1_REV_5A3_SSTAR_RESOLUTION_R4.md:3` | "NOT VERIFIED: 1 BLOCKING, 5 NOTEs" repeats V4's miscount of its R3 check, which V1 :1499 now corrects to 4. | Optional; DS1's text. V4's delta check at R4 may record it. |
+| D3 | NOTE | PR #1049's description, Checks section (outside the diff) | "blank lines at EOF in some `_run_records` script copies" also has to cover two items that are not script copies: `REVIEW/_run_records/k5_review/mutations/MUTANTS.txt` and `…/logs/K5-M9.saprobe2/saprobe2_results_excerpt.txt`. | Optional: "in some raw run records". |
+
+### What I did not do in the delta
+
+- **The 5a.3 R4 mathematics:** not re-derived. R4 is DS1's proposal, for V4's delta check.
+- **R4's §12 and §13 section hashes of `ROOT_RULINGS_V1.md`** (`69c8f23b…`, `9e53317f…`): not verified, because the section boundaries they hash are not stated.
+- **Not re-checked:** facts from the first review outside the delta.
+- **I15:** I did not verify that it received the N4 ruling.
+- **Runs:** only the three `summarize*.py.txt` scripts, standard-library Python over committed JSON, one at a time under `nice -n 19`.
+- **Writes:** only this appended section, uncommitted. My scratch extraction and scripts have been deleted.

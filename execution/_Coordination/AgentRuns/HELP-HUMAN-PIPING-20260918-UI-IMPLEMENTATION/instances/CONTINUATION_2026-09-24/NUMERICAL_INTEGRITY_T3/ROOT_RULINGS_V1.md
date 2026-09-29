@@ -1578,3 +1578,13 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
 - **N18:** approved. `memorystatus_level ≥ 80` before each run, and the memguard log is checked after each tier.
 - **N1–N3, N12–N14, N16, N17, N20:** approved as proposed. N14's 128×128 grid stays conditional, as the plan states.
 - **Next:** A1 (the Rust side) starts when ROOT releases the host, after F1b's gate part 2.
+
+## Records PR #1049 merged (ROOT, 2026-09-29)
+
+- **Merged:** [PR1049](https://github.com/sgttomas/chirality/pull/1049) at head `720924cbc`, merge `0256decc6`, 2026-09-29 00:09:20Z, with `--match-head-commit`.
+- **Review:** RV16's review at `04553ad05` PASSED: 0 BLOCKING, 5 SHOULD-FIX (all fixed in `adf43e1c5`), 11 NOTEs. Its delta check at `720924cbc` also PASSED, with 3 optional NOTEs.
+- **Hosted CI on the head:** 7 passed and 6 were skipped, as selected for a records-only change.
+- **RV16's delta NOTEs:**
+  - D1: the work graph is updated after merge.
+  - D2: R4:3 repeats V4's "5 NOTEs" miscount of its R3 check; the correct count is 4. R4 is not edited while V4 verifies it, and the erratum is recorded here.
+  - D3: the PR body's blank-line disclosure also covers two K5 review run records that are not scripts.
