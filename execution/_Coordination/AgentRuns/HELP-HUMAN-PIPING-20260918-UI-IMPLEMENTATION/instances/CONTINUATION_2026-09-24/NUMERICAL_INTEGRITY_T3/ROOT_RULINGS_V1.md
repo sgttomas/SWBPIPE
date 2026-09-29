@@ -1826,3 +1826,35 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - At product level the overhead is larger (K6 B1 and F1b's attribution).
   - The ceiling's final value is the owner's decision, with V-P's product-level measurements.
 - **Next:** C (mutants), then D (records), then review.
+
+## D1 revision 5a.3 SELECTED (ROOT, 2026-09-29)
+
+- **V4's verdict at R7: VERIFIED**, with 0 BLOCKING, 0 SHOULD-FIX and 0 NOTEs (`REV_5A3_CANDIDATE/V4_VERIFICATION.md`, "Delta check at R7").
+  - V4 reproduced DS1's claims with its own emulator, confirmed that the estimator's re-indexing matches K4's `condition`, and read all 57 hunks of the R6→R7 diff.
+- **Selected: D1 revision 5a.3**, as specified by `REV_5A3_CANDIDATE/D1_REV_5A3_SSTAR_RESOLUTION_R7.md` (sha256 `5502aef9803f05f42e93c2a05a0de495401e3f94fe92adb19fc2a0c3f80d8f42`).
+  - The governing text is R7's **§5, "The exact amended text (addendum blocks)"**, §5.1 to §5.9. It amends `DESIGN.md` revision 5a.2 at §4.1.3, §4.1.4, §4.1.6 (with the new §4.1.6.1 item 6a, §4.1.6.2 and §4.1.6.3), §4.1.9 and §5 item 1.
+  - `DESIGN.md` stays hash-pinned at 5a.2. The addendum governs where it applies, and R7's derivation sections (§2 to §4 and §6 to §10) are its warrant.
+  - The earlier candidates (the candidate and R2 to R6) and V4's intermediate verdicts are history.
+- **What the selection establishes:**
+  - W1a's honesty guarantee: every accepted precision satisfies b, derived with **no uncertified step**. The Hager–Higham estimate only screens and chooses the shift.
+  - The formation charge with the certified bound B = min(Uc, S), per block. Uc is the comparison-matrix bound (Lemma D), and S is the shifted-factorization bound (Lemma E).
+  - The Φ floor at 512, the verification estimate at W ≤ V/4, the hybrid bounded-denominator gate, and the best-state bounded test.
+  - **Owner-list update:** the earlier limitation, "the guarantee rests to a factor F on an uncertified estimate", is **withdrawn**. R4's F was replaced by the certified bounds.
+- **Open or argued, from V4's list, none of which is a step of the honesty guarantee:**
+  - **Kept for the derivation, with no kill:** M17, M21, M24, and M27 at design precision.
+  - **Availability-only kills:** M20, M23, M25, M26, M28 and M29.
+  - **Argued:** M27's no-kill claim; the θ-binding interpretation of THETA-STUB-COUPLED; LEVER2's outcome under every elimination order.
+  - **Measured, not proved:** the availability figures, and that no block is both est-fooled and Uc-loose.
+  - **Standing premises:** Lemma B's count as V4 recounted it against the Rust; Lemmas D and E tied to K4's factor loop as read; K* nonsingular per body.
+  - **Out of scope for now:** W1b until F3 meets its §6.5 obligations; the shift's cost on large models (K6b, V-K).
+- **K4's obligations, now unblocked.** K4 implements R7 §5 in Rust, within its write set (`FK/structural/retained/**`), and adds:
+  - directed wide rounding (every operation up, the one denominator down, per Lemmas D and E);
+  - the shifted-pivot variant of the factor loop;
+  - per-block bounds (Uc_c, S_c, B_c) over the free-free pattern's connected blocks;
+  - W's contributions at q_W = min(3p + 64, 1024);
+  - the charge C_q, the θ and g checks, W⁺, E, V, Φ, and the hybrid gate.
+  - **Tests:**
+    - E-UNIT, E-HEADROOM, E-ESTIMATE, E-CHARGE, E-UC and SD-G5;
+    - controls: LEVER2 at three gains, TILT-LEVER, SEEDED-COMMON, SEEDED-SOFT, CHARGE-SLENDER, HH-FOOL-m, HH-SLENDER-m40 and THETA-STUB-COUPLED, and RF-LARGE at 10 and 100 members. **HH-SLENDER-m40 must not be expected to kill M24.**
+    - mutants: those R7 §7 lists as killable, with the kept-for-derivation guards recorded as such.
+  - K4's `retained/factor.rs` is the loop Lemmas D and E were read against. Any change to its pivot or rounding logic reopens those lemmas.

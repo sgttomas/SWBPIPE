@@ -1,0 +1,7 @@
+482478cdaa1a00d2c335c1b57d1db3c56d61bd380c51ffee6f7aa73b0ce3efc5  ./dependencies.sha256
+80da7ebbc6fb44054448d69b0c162ecdb8e7af28400f814e9a8ad8b8c1ba913f  ./r7_design_diff.txt
+001559c9ea8622e91dd4f386aea72b1c7e84268fd843d37405ead1c3eb1b9ff5  ./r7_emu7_vs_v4copy.txt
+cc7ed9e0cf2406dfbe0f97d1f5587de512eafb06a8f5076009dcdff2a7b48b17  ./r7_emu_diff.txt
+41c6dfb5abdc68a941b402e2bb9cd101d4f566eb0f4d5153c06825ebc39a44ea  ./r7_spot.json
+dcf5667fe9f922f819c686a5c74a75fa9078a84644db669bb95cf72ca169fcdb  ./r7_spot.log
+cc59fb43064910856f708f247fe3259d5bcdbd1cff3e9a27c66f00ccc4faaaf9  ./r7_spot.py.txt

@@ -805,3 +805,117 @@ To rerun, from `<wt>/scratch/v4/r6/`, one at a time: `PYTHONDONTWRITEBYTECODE=1 
 **Delegation.** V4 ran as a Claude Code background subagent that ROOT launched through the Agent tool, and continued on ROOT's follow-up messages. ROOT is the only return path. V4 dispatched nothing.
 
 Uncommitted.
+
+## Delta check at R7
+
+This covers R7, `D1_REV_5A3_SSTAR_RESOLUTION_R7.md` (sha256 `5502aef9…`, 1,219 lines, numerics `69737e699`), against:
+- ROOT's rulings on the R6 delta (`ROOT_RULINGS_V1.md`, section "D1 revision 5a.3: rulings on V4's delta check at R6");
+- R7's §0 (the emulator correction), §16 (changes from R6), §17 (the evidence in `_run_records_r7/`), and DS1's `emu7.py` (sha256 `cbf9780e…`, identical to `_run_records_r7/emu7.py.txt`).
+
+**Method.**
+- `emu7.py` is diffed against `emu6.py` and against V4's own re-indexed copy (`_v4_records/r6/emu6_k4hh.py.txt`), and read against K4's `condition` and `solve_scaled` (`retained/factor.rs`, `81f81f24…`).
+- R6 is diffed against R7.
+- DS1's claims are spot-reproduced with V4's own copy, not with emu7.
+- Python only, one process at a time, under `nice -n 19`. No cargo.
+- The records are in `_v4_records/r7/`, with their own `SHA256SUMS`; `_v4_records/SHA256SUMS` is regenerated.
+
+### Verdict at R7
+
+**VERIFIED. 0 BLOCKING, 0 SHOULD-FIX, 0 NOTE.**
+- V4-W1 is resolved exactly as ruled, and V4-W2 and W3 are worded as asked.
+- R7 changes evidence and wording only; the design is R6's, which V4 confirmed at R6.
+- Every DS1 claim V4 spot-reproduced holds.
+- No finding is open.
+
+### The checks ROOT asked for
+
+1. **The re-indexing matches K4's `condition` exactly.**
+   - **In K4** (`factor.rs`), `condition` holds its vectors in free-position order (ascending global DOF): the start vector, the sign vector, the argmax over \|z\| (j starts at 0, and `>=` gives the last index on ties) and the alternating vector (n−1+i)/(n−1) with sign (−1)^i. Only `solve_scaled` maps them into the elimination order and back.
+   - **emu7 changes exactly two things:** the argmax scan runs over free positions, starting at the first and taking the last on ties, and the alternating vector is built by free position (`r7/r7_emu_diff.txt`). This is logically identical to V4's `emu6_k4hh`; the differences are comments, the docstring and the `EST_INDEX` switch (`r7/r7_emu7_vs_v4copy.txt`).
+   - **Nothing else in the estimator depends on the indexing** (derived):
+     - the start vector e/n is uniform;
+     - the sign vector is elementwise, with zero to +1 in both;
+     - the dot product z·x and the 1-norm of y are exact sums, rounded once;
+     - `j == previous` compares DOF identities;
+     - the per-block ratios are per-block sums;
+     - the column-sum norm is order-free.
+2. **DS1's claims spot-reproduced with V4's own copy** (`r7/r7_spot.*`; V4's `emu6_k4hh`, not emu7):
+   - **The 59 controls** under today's rule, R4, R5 and R6: every selection and every attempt list equals `run_controls7` (0 of 236 differ).
+   - **The mutants:** R6 and M17, M20, M22, M23, M24, M26, M28 and M29 on ten controls (HH-SLENDER-m40, both HH-FOOL LOADED frames, CHARGE-SLENDER, THETA-STUB-COUPLED, SEEDED-SOFT, G-PRESC-MEMBER, SKEW6-K1E-12, and RF-LARGE-CHAIN-n00100-AX and TREE-n00100-AX), with honesty against P = 2048.
+     - Selected precision, honesty, relative count, G5a and corrections all equal `mutants7` (0 of 90 differ).
+     - M24 changes nothing on any of the ten, so its kill list is empty, as R7 says.
+   - **HH-FOOL's estimate** at P = 256: H's est_c is 2^-2.08 against norms of 2^35.75, 2^75.75, 2^95.75 and 2^195.75 at m = 40, 80, 100 and 200.
+     - Those are misses of 2^37.83, 2^77.83, 2^97.83 and 2^197.83.
+     - The global est is 2^6.22, a miss of 2^29.5 to 2^189.5.
+     - These equal R7's figures.
+   - **Earlier V4 checks that still apply:** RF-LARGE's estimates at 10 and 100 members are identical under both indexings (V4's `r6_rflarge_k4hh`), and the R6 selections of the 59 controls are identical (`r6_controls_k4hh`).
+3. **V4-W2 and V4-W3 are worded as asked.**
+   - **W2:** §7's M27 row and §9 label "no kill at the design's precisions" as argued. They give the reason: the condition screen bounds est·‖K̃‖₁, and the estimate's miss is unbounded, 2^97.8 on HH-FOOL-m100. The low-precision kill stands, citing V4's 566 factors.
+   - **W3(a):** §5.5's "Looseness", item 8 and §9 state three things:
+     - S is polynomially loose only when the estimate is within about 8× of the norm, since one of σ, σ/2 and σ/4 must fall below λ_min;
+     - otherwise availability rests on Uc_c;
+     - a block both fooled and Uc-loose is rejected with `uc`, costing availability only.
+   - **W3(b):** items 7 and 15, §6.7 and §9 state that the up to three shifted factorizations count against the verification's work budget (D1 §4.1.7), and that their cost on large models is for K6b and V-K to measure.
+4. **Nothing else changed** (`r7/r7_design_diff.txt`, all 57 hunks read).
+   - **The hunks are:**
+     - the header, and §0's correction note and inputs;
+     - §1's evidence rows;
+     - the mutants7 citation in §3.4;
+     - in §5.5: the work-budget sentences in items 7 and 15, the fallback in item 8, the HH-FOOL figures, the 8× condition under "Looseness", and "Measured";
+     - §5.9's HH-FOOL figure;
+     - §6.1's rerun notes and V4's 1,000-member norms;
+     - §6.7's work budget and the 381 frames;
+     - §7's HH-FOOL, HH-SLENDER-m40, M17, M24 and M27 rows;
+     - §9 and §10;
+     - a history note in §15;
+     - the new §16 and §17.
+   - **No specification sentence changes, except the work-budget statement ROOT ruled.** It makes explicit that R6's "charged to the verification attempt" means D1 §4.1.7's budget. Lemmas A to E, the Theorem, the Corollary and every test and threshold are R6's text.
+5. **Open items. None blocks verification.** They are recorded plainly, for ROOT's selection record.
+   - **Kept for the derivation, with no kill:**
+     - M17 (the charge);
+     - M21 (exact prescriptions; vacuous for published W1a cases);
+     - M24 (est in place of the certified bound);
+     - M27 at the design's precisions (killed only at low precision).
+   - **Killed on availability only:** M20, M23, M25, M26, M28 and M29. No honesty kill exists for them.
+   - **Argued, not derived** (none is a step of the honesty guarantee):
+     - that M27 has no kill at the design's precisions;
+     - that θ binds before the charge only where the rows with a large ‖SĀS‖ carry no state (THETA-STUB-COUPLED);
+     - LEVER2's Unresolved outcome under every elimination order.
+   - **Measured, not proved:**
+     - that no emulated block is both est-fooled and Uc-loose;
+     - the availability figures (sweep, controls, RF-LARGE, R1 lane);
+     - the 1,000-member norm (V4's binary64, a 2^7 margin).
+   - **Emulation only:** everything is checked against DS1's and V4's emulators, not K4's Rust. K4 still has to build these, with its E-UNIT, E-CHARGE, E-UC and SD-G5 controls:
+     - directed wide rounding, for Uc, S, θ and the norms;
+     - a shifted-pivot variant of its factor loop (d′ > 0);
+     - the per-block bounds.
+   - **Standing premises:**
+     - Lemma B's count as V4 recounted it against K4's Rust;
+     - Lemmas D and E tied to K4's factor loop as read at `81f81f24`; a change to its operation order needs γ_m re-derived;
+     - K\* nonsingular per body;
+     - K4 conforming to the specification.
+   - **Out of scope until later work:**
+     - W1b, until F3 meets §6.5's three obligations;
+     - the shift's time and work on large models (K6b, V-K).
+   - **Carried from earlier revisions:**
+     - G5a item 4's unit conversion is not exercised;
+     - the R1 families §6.1 lists as not measured;
+     - T1's fixtures are not surveyed;
+     - M14 and M16 are not behavioural;
+     - the 1,000-member lane was rerun under R6's rule only. RF-LARGE's estimates are identical under both indexings, so today's rule, R4 and R5 would not change there.
+
+**Records** (`_v4_records/r7/`):
+
+| File | What it is |
+|---|---|
+| `r7_spot.py.txt`, `.json`, `.log` | The spot reproduction |
+| `r7_design_diff.txt` | R6 → R7 |
+| `r7_emu_diff.txt` | emu6 → emu7 |
+| `r7_emu7_vs_v4copy.txt` | emu7 against V4's `emu6_k4hh` |
+| `dependencies.sha256` | The dependency hashes |
+
+To rerun, from `<wt>/scratch/v4/r7/`: `PYTHONDONTWRITEBYTECODE=1 nice -n 19 python3 r7_spot.py`. It imports V4's `r6/emu6_k4hh.py`, regenerated by `r6/r6_k4hh.py` from DS1's `emu6.py`.
+
+**Delegation.** V4 ran as a Claude Code background subagent that ROOT launched through the Agent tool, and continued on ROOT's follow-up messages. ROOT is the only return path. V4 dispatched nothing.
+
+Uncommitted.

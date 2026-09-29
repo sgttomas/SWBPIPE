@@ -1,0 +1,374 @@
+1c1
+< # D1 revision 5a.3 (proposed, revision 6): the stop rule's resolution term, verification estimate, formation charge and ceiling floor
+---
+> # D1 revision 5a.3 (proposed, revision 7): the stop rule's resolution term, verification estimate, formation charge and ceiling floor
+3c3
+< Design addendum by DS1, a Type 2 TASK (numerical design drafter), for ROOT (HELP_HUMAN), 2026-09-29. **This is revision 6 of the candidate.** It resolves V4's delta check at R5 (NOT VERIFIED: 1 BLOCKING on availability, 1 SHOULD-FIX, 5 NOTEs) and applies ROOT's rulings on it.
+---
+> Design addendum by DS1, a Type 2 TASK (numerical design drafter), for ROOT (HELP_HUMAN), 2026-09-29. **This is revision 7 of the candidate.** It resolves V4's delta check at R6 (NOT VERIFIED on V4-W1 only: 0 BLOCKING, 1 SHOULD-FIX, 2 NOTEs) and applies ROOT's rulings on it. **R7 corrects evidence and wording. It changes nothing in the design.**
+5c5
+< - **The candidate and R2 to R5 stay unchanged:**
+---
+> - **The candidate and R2 to R6 stay unchanged:**
+10c10,11
+<   - R5 (`ef68ab38…`, numerics `ff5dc2b05`).
+---
+>   - R5 (`ef68ab38…`, numerics `ff5dc2b05`);
+>   - R6 (`7cdb91c9…`, numerics `e47f853ba`).
+12,25c13,23
+< - `DESIGN_NUMERICS/DESIGN.md` (revision 5a.2, sha256 `fb62ef4a…`) stays hash-pinned. The amended text is in §5, as addendum blocks.
+< - **§15 maps every finding of V4's delta check at R5 to its resolution** ("Changes from R5"). §11 to §14 keep the earlier maps.
+< - **What R6 changes:**
+<   - **A second certified bound, from one shifted factorization (V4-V1).** Factor K̃_P − σI with the same loop. If every pivot is positive, λ_min(K̃_P) > σ′ = σ − δ − γ_m·N′_L, so ‖K̃_P⁻¹‖₁ ≤ ⌈√n⌉/σ′ =: S (Lemma E, derived). **The certified bound used is B = min(Uc, S).** σ comes from the estimate (an availability use). A failed shift halves σ, at most three factorizations in all, then Uc stands alone. The shift runs only where Uc is missing or looser than the shift can be.
+<   - **Per block (V4-V2, V4-V5).** Uc, S and B are formed per connected block of the free-free pattern, from the same passes. θ, the bound's existence and the g check are tested only for blocks that carry data. A body's charge uses the largest B over its data-carrying blocks.
+<   - **R1's RF-LARGE frames at 10, 100 and 1,000 members, in K4's elimination order, are all selected at 128 under R6, honest,** as under today's rule and R4. R5 moved five of the six at 100 members to 256 or 512, and left five of the six at 1,000 members Unresolved (§6.1).
+<   - **The emulator now factors in K4's order** (a port of `factor.rs`'s reverse Cuthill–McKee), so its bound figures transfer to K4.
+<   - **Mutants:**
+<     - M17 loses its only kill and is kept for the derivation;
+<     - M20 is killed by a new control, THETA-STUB-COUPLED;
+<     - M27 (the shift bound without its backward-error term) is killed at low precision;
+<     - M28 (no shift) and M29 (R5's form) are killed by RF-LARGE.
+<   - NOTEs V3 to V7 are fixed; V4's R3 count erratum is recorded.
+<   - **No uncertified step remains in the honesty guarantee** (§9).
+---
+> - `DESIGN_NUMERICS/DESIGN.md` (revision 5a.2, sha256 `fb62ef4a…`) stays hash-pinned. The amended text is in §5, as addendum blocks; its specification is R6's.
+> - **§16 maps every finding of V4's delta check at R6 to its resolution** ("Changes from R6"). §11 to §15 keep the earlier maps.
+> - **What R7 changes:**
+>   - **The emulator's estimate is indexed as K4 indexes it (V4-W1).** emu6 indexed the Hager–Higham argmax and alternating vector by elimination rank; K4's `condition` indexes them by free position. emu7 corrects that, and every estimate-dependent result is rerun: controls, probes, the R1 lane, the mutants, the bound check, RF-LARGE and the sweep. **No selection changes anywhere.** Every control, probe, R1 case, RF-LARGE frame and sweep frame keeps R6's precision, classes, reasons and honesty under all the rules run. The only kill list that changes is M24's, which becomes empty.
+>   - **HH-FOOL, corrected:** in K4's indexing the estimate misses the hidden block's norm by 2^37.8 at m = 40 and 2^97.8 at m = 100. R6's "about 2^5.6" was an artifact of the wrong indexing.
+>   - **M24 is kept for the derivation.** Its R6 kill on HH-SLENDER-m40 was the same artifact, and no other control kills it. K4's control list must not expect HH-SLENDER-m40 to kill it.
+>   - **Wording (V4-W2, V4-W3):**
+>     - M27's "no selection kill at design precisions" is labelled argued;
+>     - S is polynomially loose only when the estimate is within about 8× of the norm, and otherwise availability falls back on Uc;
+>     - the up to three shifted factorizations are charged to the verification's work budget, and their cost on large models is for K6b and V-K to measure.
+>   - **No uncertified step remains in the honesty guarantee** (§9). V4 confirmed Lemma E, the per-block decomposition and RF-LARGE's availability, and computed the norm at 1,000 members: S/norm is 2^7.09 to 2^7.29 on the five frames where the shift runs, and B is at least the norm on all six.
+29c27
+< - **measured:** it was observed in DS1's standard-library emulation (§16). A measurement is evidence, not proof;
+---
+> - **measured:** it was observed in DS1's standard-library emulation (§17). A measurement is evidence, not proof;
+41,43c39,42
+< | V4's delta check at R5: `V4_VERIFICATION.md`, section "Delta check at R5", at numerics `6ca7a4338` | `fd381e3b` (file) |
+< | V4's R5 records `_v4_records/r5/` (read: `r5_large`, `r5_large_sched_rcm`, `r5_shift`, `r5_stress`, `r5_m17`; its `SHA256SUMS`) | `6bc70bd1` (`SHA256SUMS`) |
+< | `ROOT_RULINGS_V1.md`, section "D1 revision 5a.3: rulings on V4's delta check at R5", at `6ca7a4338` (heading to end of file) | `6ef6c730` (section) |
+---
+> | V4's delta check at R6: `V4_VERIFICATION.md`, section "Delta check at R6", at numerics `a36680399` | `76cb0989` (file) |
+> | V4's R6 records `_v4_records/r6/` (read: `emu6_k4hh.py.txt`, `r6_k4hh`, `r6_controls_k4hh`, `r6_rflarge_k4hh`, `r6_exact1000`, `r6_lemmaE`; its `SHA256SUMS`) | `691588b8` (`SHA256SUMS`) |
+> | `ROOT_RULINGS_V1.md`, section "D1 revision 5a.3: rulings on V4's delta check at R6", at `a36680399` (heading to end of file) | `1653f4d8` (section) |
+> | V4's delta check at R5 (`6ca7a4338`) and ROOT's rulings on it | `fd381e3b` (file), `6ef6c730` (section) |
+50,51c49,50
+< | D1 r5a.2 §4.1.3 (the condition screen), §2 (W1a's scope) and §4.2 (kernel support motion) | `fb62ef4a` |
+< | K4's `retained/factor.rs` at `cef218a10`: the factor loop (Lemmas D and E) and the ordering (`reverse_cuthill_mckee`, `order_free`), ported for R6 | `81f81f24` (file) |
+---
+> | D1 r5a.2 §4.1.3 (the condition screen), §4.1.7 (the work budget), §2 (W1a's scope) and §4.2 (kernel support motion) | `fb62ef4a` |
+> | K4's `retained/factor.rs` at `cef218a10`: the factor loop (Lemmas D and E), the ordering, and `condition` and `solve_scaled`, read again for R7's indexing | `81f81f24` (file) |
+62c61
+< Their bodies are byte-identical to A1's (the candidate's §0). The factor, its condition estimate and its ordering mirror `factor.rs` (V4 checked the factor line by line; DS1 ported the ordering for R6).
+---
+> Their bodies are byte-identical to A1's (the candidate's §0). The factor, its condition estimate and its ordering mirror `factor.rs`: V4 checked the factor line by line, DS1 ported the ordering for R6, and R7 indexes the estimate as `condition` does.
+64,78c63,69
+< **Done.** Standard-library Python only, under `<wt>/scratch/ds1/`, one process at a time under `nice -n 19`, as the host rule requires.
+< - `emu6.py` is R5's `emu5.py` with R6's changes, each behind a switch whose default is R6 (option `r6`):
+<   - K4's elimination order (`ORDER`; `k4order.py` ports `factor.rs`'s reverse Cuthill–McKee, and `k4order_check6` compares it with V4's port);
+<   - per block, Uc_c and the shifted-factorization bound S_c, B_c = min(Uc_c, S_c) (`BOUND`, `SHIFT_BE`, `SHIFT_TRIES`);
+<   - θ, the bound's existence and the g check per data-carrying block (`SCOPE`);
+<   - every row loop sparse over the structural pattern. **Regression:** with emu5's order and R5's or R4's switches, emu6 reproduces `run_controls5` exactly on all 58 controls (`reproduce6`).
+< - R6 ran, under emu6 in K4's order:
+<   - every control: 59 (R5's 58 and THETA-STUB-COUPLED), under today's rule, R4, R5 and R6;
+<   - every mutant: M1–M18 and M20–M29;
+<   - K4's probe cases, rebuilt;
+<   - Uc_c, S_c and B_c against the exact per-block norm on the 234 model states (`uc_check6`: R5's 231 and THETA-STUB-COUPLED's three), and Lemma E at low precision and on V4's F2 family (`stress6`);
+<   - R1's RF-LARGE references at 10, 100 and 1,000 members (`large6`);
+<   - the 2,000-frame sweep;
+<   - K4's R1 lane (120 cases).
+< - The files are listed in §16.
+---
+> **The emulator correction (R7; V4-W1).**
+> - **K4's `condition` holds its vectors in free-position order** (ascending global DOF): the start vector, the sign vector, the argmax over \|z\| (the last index on ties) and the alternating vector. `solve_scaled` maps them into the elimination order and back.
+> - **emu6 set the free list to the elimination order**, so its argmax scan and alternating vector ran by elimination rank.
+> - **emu7 scans the argmax and builds the alternating vector by free position** (switch `EST_INDEX`, default `"position"`; `"rank"` is emu6). The start vector, sign vector, dot product and per-block ratios do not depend on the indexing. V4's re-indexed copy (`_v4_records/r6/emu6_k4hh.py.txt`) makes the same two changes.
+> - **Regression (`reproduce7`):**
+>   - with `EST_INDEX = "rank"` and R6's switches, emu7 reproduces `run_controls6` exactly;
+>   - in emu5's natural order, where rank and position coincide, it reproduces `run_controls5` exactly.
+79a71,85
+>   **Measured:** 0 of 117 runs differ (the 58 R5 controls in natural order, and the 59 R6 controls in K4's order with emu6's indexing).
+> - The estimate enters no step of the honesty guarantee, so the correction changes evidence and availability figures only.
+> 
+> **Done.** Standard-library Python only, under `<wt>/scratch/ds1/`, one process at a time under `nice -n 19`, as the host rule requires; other sessions' processes, including K6's timed observations, ran on the host meanwhile.
+> - `emu7.py` is `emu6.py` with the correction above.
+> - R7 reran, under emu7, everything that depends on the estimate:
+>   - the 59 controls, under today's rule, R4, R5 and R6 (`run_controls7`);
+>   - K4's probe cases (`gate_probe8`) and R1 lane (`r1_lane7`);
+>   - every mutant (`mutants7`);
+>   - the per-block bound check (`uc_check7`);
+>   - RF-LARGE at 10 and 100 members under all four rules, and at 1,000 members under R6 (`large7`);
+>   - the 2,000-frame sweep (`sweep7`).
+> - Unchanged from R6, because they do not use the estimate: `stress6` (its own σ), `k4order_check6` and `reproduce6`.
+> - The files are listed in §17.
+> 
+84c90
+< - The exact ‖K̃⁻¹‖₁ at RF-LARGE's 1,000 members (6,000 DOFs): not computed. The 1,000-member lane itself ran in full (§6.1).
+---
+> - The 1,000-member lane was rerun under R6's rule only: today's rule, R4 and R5 are R6's records (`large6_1000.json`). The exact norm at 1,000 members is V4's (`r6_exact1000`, binary64); DS1 did not recompute it.
+114c120
+< **Evidence** (measured in emulation, in K4's elimination order; the full tables are in §6.1, §7 and §16):
+---
+> **Evidence** (measured in emulation, in K4's elimination order; the full tables are in §6.1, §7 and §17):
+116c122
+< | Set | Result under R6 | R5 (and today) |
+---
+> | Set | Result under R6's rule, rerun in R7 with K4's estimate indexing (identical to R6's records unless stated) | R5 (and today) |
+119,120c125,126
+< | **R1's RF-LARGE, 1,000 members** (6 frames, 4,500 to 6,000 free DOFs; full schedule, emulated) | **All 6 at 128, honest,** with today's classes and 0 G5a failures. S ≤ 2^7.3 times the norm (measured against est; the exact norm was not computed) | R5: five of six Unresolved (`uc` at every precision). Today and R4: all at 128 |
+< | **2,000 random frames** | **0 false claims; 0 unresolved;** 893 at 128, 720 at 256, 387 at 512. **Identical to R5 in the same order, frame by frame:** precision, classes, rejection reasons and G5a. Worst charge 1.5e-7 of its allowance; θ ≤ 5.7e-40; W/V ≤ 0.0082; 0 G5a failures; no `uc` rejection. The shift ran on 380 frames | R5 in emu5's natural order: 889/726/385; K4's order moves 24 frames' precision and 34 frames' classes or reasons, all honest. Today: 1 false claim (R982), 225 unresolved |
+---
+> | **R1's RF-LARGE, 1,000 members** (6 frames, 4,500 to 6,000 free DOFs; full schedule, emulated) | **All 6 at 128, honest,** with today's classes and 0 G5a failures. S/norm is 2^7.09 to 2^7.29, against V4's binary64 norm | R5: five of six Unresolved (`uc` at every precision). Today and R4: all at 128 |
+> | **2,000 random frames** | **0 false claims; 0 unresolved;** 893 at 128, 720 at 256, 387 at 512. **Identical to R5 in the same order, frame by frame:** precision, classes, rejection reasons and G5a. Worst charge 1.5e-7 of its allowance; θ ≤ 5.7e-40; W/V ≤ 0.0082; 0 G5a failures; no `uc` rejection. The shift ran on 381 frames (R6's indexing: 380) | R5 in emu5's natural order: 889/726/385; K4's order moves 24 frames' precision and 34 frames' classes or reasons, all honest. Today: 1 false claim (R982), 225 unresolved |
+122a129,130
+> | **The estimate on HH-FOOL** (R7, K4's indexing) | est_c misses the hidden block's norm by 2^37.8 at m = 40 and 2^97.8 at m = 100; the global est by 2^29.5 and 2^89.5. Every shift on that block fails, and B = Uc, which is exact | R6, indexed by elimination rank: about 2^5.6, withdrawn |
+> | **The mutants** (R7) | Every kill list equals R6's except M24's, which is now empty: M24 is kept for the derivation, like M17 and M21 | R6: M24 killed by HH-SLENDER-m40, an indexing artifact |
+278c286
+< - **W⁺ is load-bearing (V4-U3).** Mutant M22, which drops it, publishes a false claim on SEEDED-SOFT (§7). No unseeded control changes precision or class under M22 (`mutants5`, `mutants6`); the sweep was not run under the mutants.
+---
+> - **W⁺ is load-bearing (V4-U3).** Mutant M22, which drops it, publishes a false claim on SEEDED-SOFT (§7). No unseeded control changes precision or class under M22 (`mutants5`, `mutants6`, `mutants7`); the sweep was not run under the mutants.
+426c434
+< >    All are charged to the verification attempt. **Measured:** on the controls the shift runs on 3 of 59 (SKEW6-K1E-12, and the two HH-FOOL LOADED frames where it fails), and on RF-LARGE at every verification except CONT-AX, where Uc is tight.
+---
+> >    All are charged to the verification attempt, and the shifted factorizations count against the verification's work budget (D1 §4.1.7; R7, V4-W3). Their cost on large models is for K6b and V-K to measure; the emulator measures selections, not time. **Measured:** on the controls the shift runs on 3 of 59 (SKEW6-K1E-12, and the two HH-FOOL LOADED frames where it fails), and on RF-LARGE at every verification except CONT-AX, where Uc is tight.
+428c436
+< >    - **In R6 it also chooses σ_c** (7c), through est_c from the screen's own solves. That is availability too: a poor σ_c costs the shift bound, never honesty. **No step of the guarantee uses est** (§5.9).
+---
+> >    - **In R6 it also chooses σ_c** (7c), through est_c from the screen's own solves. That is availability too: a poor σ_c costs the shift bound, and availability then rests on Uc_c (R7, V4-W3); it never costs honesty. **No step of the guarantee uses est** (§5.9).
+433c441
+< >      In K4's order the HH-FOOL frames fool the estimate less (it misses by about 2^5.6; `uc_check6`), which changes nothing: the bound does not use it.
+---
+> >      In K4's order and K4's indexing (R7, V4-W1), the estimate misses HH-FOOL's hidden block by 2^37.8 at m = 40 and 2^97.8 at m = 100 (est_c against the exact norm; the global est by 2^29.5 and 2^89.5). R6's "about 2^5.6" came from emu6's indexing by elimination rank and is withdrawn. Either way nothing changes: the bound does not use the estimate.
+474c482
+< >     - Up to three shifted factorizations, only when 7c's condition holds (R6).
+---
+> >     - Up to three shifted factorizations, only when 7c's condition holds (R6). They count against the verification's work budget (D1 §4.1.7); their cost on large models is for K6b and V-K to measure (R7, V4-W3).
+537c545,548
+< > - So S_c is polynomially loose, at most about 2√n_c times the exact norm (8√n_c after two halvings), where Uc_c can be exponentially loose.
+---
+> > - So S_c is polynomially loose, at most about 2√n_c times the exact norm (8√n_c after two halvings), where Uc_c can be exponentially loose. **That holds only when the estimate is within about 8× of the norm (R7, V4-W3).**
+> >   - One of the three shifts succeeds only if σ_c/4 = 1/(8·est_c) lies below λ_min(K̃_c) by more than the backward error, that is, only if 8·est_c exceeds ‖K̃_c⁻¹‖₂ by that margin.
+> >   - Where the estimate is fooled by more than that, as on HH-FOOL's hidden block (a miss of 2^37.8 or more), every shift fails and **availability rests on Uc_c alone**. On HH-FOOL, Uc_c is exact.
+> >   - A block that is both fooled and Uc-loose has no bound and is rejected with `uc`: an availability loss, never an honesty one. No emulated case is both.
+577,578c588,589
+< > **Measured** (emu6, in K4's order; `uc_check6`, `stress6`, `large6`, `run_controls6`, `gate_probe7`, `sweep6`, `r1_lane6`; §16):
+< > - **Per-block bounds against the exact norm: Uc_c, S_c and B_c ≥ exact on all 267 blocks** of the 234 model states (R5's 231 and THETA-STUB-COUPLED's three) (`uc_check6`, with the shift forced on every block).
+---
+> > **Measured** (emu7, in K4's order and with the estimate indexed as K4 indexes it; `uc_check7`, `stress6`, `large7`, `run_controls7`, `gate_probe8`, `sweep7`, `r1_lane7`; V4's `r6_exact1000`; §17):
+> > - **Per-block bounds against the exact norm: Uc_c, S_c and B_c ≥ exact on all 267 blocks** of the 234 model states (R5's 231 and THETA-STUB-COUPLED's three) (`uc_check7`, with the shift forced on every block). The figures are R6's: re-indexing the estimate moved only ALL-ZERO-BODY's forced S between its two blocks, and changed no B.
+581,582c592,597
+< > - **Lemma E at low precision** (`stress6`, 19,979 random factors, P = 10 to 32): S ≥ exact on all 1,457 factors where S exists, Uc ≥ exact on all 14,198 where Uc exists, and B ≥ exact on all. On V4's F2 family at P = 256 and 512 (56 shifts, σ on both sides of λ_min), none is below exact.
+< > - **RF-LARGE** (§6.1). At 10 members, S/exact is 2^3.3 to 2^4.0, and Uc/exact up to 2^47. At 100 members, S is 2^5.5 to 2^5.6 above the norm computed at 512 bits, where Uc is up to 2^191 above it or does not exist. At 1,000 members S is at most 2^7.3 times the norm (against est; the exact norm was not computed), and Uc does not exist at any precision on five of the six.
+---
+> > - **HH-FOOL's estimate, in K4's indexing (R7):**
+> >   - H's est_c is 2^-2.1 at every m, against a norm of 2^35.7, 2^75.7, 2^95.7 and 2^195.7 at m = 40, 80, 100 and 200: misses of 2^37.8, 2^77.8, 2^97.8 and 2^197.8.
+> >   - The global est is 2^6.2, V's norm: misses of 2^29.5 to 2^189.5.
+> >   - R6's "about 2^5.6" is withdrawn (V4-W1).
+> > - **Lemma E at low precision** (`stress6`, 19,979 random factors, P = 10 to 32; it uses its own σ, not the estimate): S ≥ exact on all 1,457 factors where S exists, Uc ≥ exact on all 14,198 where Uc exists, and B ≥ exact on all. On V4's F2 family at P = 256 and 512 (56 shifts, σ on both sides of λ_min), none is below exact. V4's own stress (95,142 shifted factorizations) agrees.
+> > - **RF-LARGE** (§6.1). At 10 members, S/exact is 2^3.3 to 2^4.0, and Uc/exact up to 2^47. At 100 members, S is 2^5.5 to 2^5.6 above the norm computed at 512 bits, where Uc is up to 2^191 above it or does not exist. At 1,000 members S/norm is 2^7.09 to 2^7.29 against the norm V4 computed in binary64, with S ≥ the norm on all six; Uc does not exist at any precision on five of the six. K4's indexing leaves the estimate on these frames unchanged, at every size (`large7`; V4's `r6_rflarge_k4hh` at 10 and 100).
+586c601
+< > - **At every selected pair of the controls** (`run_controls6`):
+---
+> > - **At every selected pair of the controls** (`run_controls7`, identical to `run_controls6` in every selection, attempt, class and charge):
+652c667
+< **Effect on every control** (measured in emulation: R3's `run_controls3`, `gate_probe4`, `r1_lane3` and `sweep3`; unchanged under R4 by `run_controls4`, `gate_probe5`, `r1_lane4` and `sweep4`, under R5 by `run_controls5`, `gate_probe6`, `r1_lane5` and `sweep5`, and under R6, in K4's order, by `run_controls6`, `gate_probe7`, `r1_lane6` and `sweep6`). Every probe result below is **emulation only** (V4-R3): K4's Rust probe runs only the coalesced gate, and K4's Rust control for the hybrid gate is not yet built.
+---
+> **Effect on every control** (measured in emulation: R3's `run_controls3`, `gate_probe4`, `r1_lane3` and `sweep3`; unchanged under R4 by `run_controls4`, `gate_probe5`, `r1_lane4` and `sweep4`, under R5 by `run_controls5`, `gate_probe6`, `r1_lane5` and `sweep5`, under R6, in K4's order, by `run_controls6`, `gate_probe7`, `r1_lane6` and `sweep6`, and in R7, with K4's estimate indexing, by `run_controls7`, `gate_probe8`, `r1_lane7` and `sweep7`). Every probe result below is **emulation only** (V4-R3): K4's Rust probe runs only the coalesced gate, and K4's Rust control for the hybrid gate is not yet built.
+690c705
+< > - **Its miss is unbounded within the screens.** On a 12-DOF frame whose soft mode is orthogonal to every vector the estimator applies K̃⁻¹ to, including the alternating-sign vector, est misses ‖K̃⁻¹‖₁ by 8.9e26 while both screens pass. On a 16-DOF matrix the miss is 3.3e66 at p = 256 (V4's measurements; DS1 reproduced the frame's in emu5's natural order; in K4's order the same frame misses by about 2^5.6).
+---
+> > - **Its miss is unbounded within the screens.** On a 12-DOF frame whose soft mode is orthogonal to every vector the estimator applies K̃⁻¹ to, including the alternating-sign vector, est misses ‖K̃⁻¹‖₁ by 8.9e26 while both screens pass. On a 16-DOF matrix the miss is 3.3e66 at p = 256 (V4's measurements; DS1 reproduced the frame's in emu5's natural order. In K4's order and indexing the hidden block's estimate misses by 2^37.8 at m = 40, V4-W1; R6's "about 2^5.6" is withdrawn).
+698c713
+< Measured with R6's rule, in K4's elimination order: bounded-gate acceptance on the best state, the contribution-level estimate at q_W, and the charge with B_c = min(Uc_c, S_c), θ and the g check per block with data. It is compared against K4's rule and gate, against R4 and against R5, all four in K4's order (`run_controls6`). emu6 run with emu5's order and R5's or R4's switches reproduces `run_controls5` exactly on all 58 of R5's controls (`reproduce6`).
+---
+> Measured with R6's rule, in K4's elimination order: bounded-gate acceptance on the best state, the contribution-level estimate at q_W, and the charge with B_c = min(Uc_c, S_c), θ and the g check per block with data. It is compared against K4's rule and gate, against R4 and against R5, all four in K4's order (`run_controls6`; R7 reran all four with the estimate indexed as K4 indexes it, `run_controls7`, and every selection, attempt, class, charge and θ is unchanged). emu6 run with emu5's order and R5's or R4's switches reproduces `run_controls5` exactly on all 58 of R5's controls (`reproduce6`).
+718c733
+< | HH-SLENDER-m40 (R5; DS1) | M24, M26, M29 (each at 256); M3, M7, M18 | **128 (R6; 256 in R5)**: HH-FOOL-m40's unloaded frame plus CHARGE-SLENDER's loaded cantilever as a third body. With per-block bounds the cantilever's charge uses its own B (1.6e-3 of the allowance). R5's global Uc carried the hidden mode into it (M29). Honest either way. M17 no longer changes it |
+---
+> | HH-SLENDER-m40 (R5; DS1) | M26, M29 (each at 256); M3, M7, M18 | **128 (R6, R7; 256 in R5)**: HH-FOOL-m40's unloaded frame plus CHARGE-SLENDER's loaded cantilever as a third body. With per-block bounds the cantilever's charge uses its own B (1.6e-3 of the allowance). R5's global Uc carried the hidden mode into it (M29). Honest either way. M17 no longer changes it, and (R7) neither does M24 |
+725c740
+< | HH-FOOL-m40, m100 and their LOADED forms (V4-U1) | M2 and M7 (both LOADED forms); M18 (m100-LOADED) | m40 and m40-LOADED at 128; m100 at 128; m100-LOADED at 256 (the stop rule rejects 128), in R4, R5 and R6 alike. In K4's order est_c misses the H block's norm by 2^4.4 to 2^5.6 (natural order: 7.7e8 and 8.9e26). Uc_c is exact there (U/exact = 1), and the shift, triggered on the LOADED forms, fails three times. The charge at the selected pair is at most 6.3e-46 of its allowance |
+---
+> | HH-FOOL-m40, m100 and their LOADED forms (V4-U1) | M2 and M7 (both LOADED forms); M18 (m100-LOADED) | m40 and m40-LOADED at 128; m100 at 128; m100-LOADED at 256 (the stop rule rejects 128), in R4, R5, R6 and R7 alike. **In K4's indexing (R7)** est_c misses the H block's norm by 2^37.8 at m = 40 and 2^97.8 at m = 100 (est_c = 2^-2.1 against 2^35.7 and 2^95.7), and the global est misses it by 2^29.5 and 2^89.5 (natural order: 7.7e8 and 8.9e26). R6's "2^4.4 to 2^5.6" came from emu6's indexing and is withdrawn. Uc_c is exact there (U/exact = 1), and the shift, triggered on the LOADED forms, fails three times. The charge at the selected pair is at most 6.3e-46 of its allowance |
+729c744
+< **R1's RF-LARGE lane (R6; V4-V1, ROOT's ruling;** `large6_10.json`, `large6_100.json`, `large6_1000.json`**).** R1's own RF-LARGE reference models, through `r1_adapter`, in K4's elimination order, under today's rule, R4 (F·est), R5 (one global Uc) and R6. Each is one block. Honesty is checked against emu6's P = 2048 reference. "Uc/norm" and "S/norm" are log₂ ratios at the P = 256 state:
+---
+> **R1's RF-LARGE lane (R6; V4-V1, ROOT's ruling;** `large6_10.json`, `large6_100.json`, `large6_1000.json`; rerun in R7 as `large7`**).** R1's own RF-LARGE reference models, through `r1_adapter`, in K4's elimination order, under today's rule, R4 (F·est), R5 (one global Uc) and R6. Each is one block. Honesty is checked against emu6's P = 2048 reference. "Uc/norm" and "S/norm" are log₂ ratios at the P = 256 state:
+731c746,747
+< - at 100 members, against the norm computed at 512 bits, one solve per column. That reference is not exact, but its error is far below the margins shown.
+---
+> - at 100 members, against the norm computed at 512 bits, one solve per column. That reference is not exact, but its error is far below the margins shown;
+> - at 1,000 members (R7), against V4's binary64 norm (`r6_exact1000`).
+747,750c763,766
+< | CHAIN 1000-AX | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | ≤ 7.3 (against est) |
+< | CHAIN 1000-ROT | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | ≤ 7.3 (against est) |
+< | TREE 1000-AX | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | ≤ 7.3 (against est) |
+< | TREE 1000-ROT | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | ≤ 7.3 (against est) |
+---
+> | CHAIN 1000-AX | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | 7.29 (V4's norm) |
+> | CHAIN 1000-ROT | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | 7.29 (V4's norm) |
+> | TREE 1000-AX | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | 7.29 (V4's norm) |
+> | TREE 1000-ROT | 6000 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | 7.10 (V4's norm) |
+752c768
+< | CONT 1000-ROT | 4500 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | ≤ 7.1 (against est) |
+---
+> | CONT 1000-ROT | 4500 | 128 | 128 | Unresolved (`uc` at 128, 256, 512) | 128 | none (t ≥ 1) | 7.09 (V4's norm) |
+763,765c779,781
+<   - **What was not computed:** the exact ‖K̃⁻¹‖₁ at 6,000 DOFs, which would need 6,000 rational or high-precision column solves.
+<     - The looseness is therefore reported against est, a lower bound on the norm up to rounding: S/est = 2·⌈√n⌉, that is 2^7.3 at 6,000 DOFs and 2^7.1 at 4,500. So S/norm ≤ 2^7.3.
+<     - As a check that σ′ < λ_min, which Lemma E certifies: λ_min estimated by 12 steps of inverse iteration at 512 bits exceeds σ′ by 2^1.5 to 2^2.1 in every case. That estimate is not a certified bound.
+---
+>   - **The norm at 6,000 DOFs:** DS1 did not compute it, which would need 6,000 high-precision column solves. **V4 computed it** (`_v4_records/r6/r6_exact1000`, binary64, one solve per column): S/norm is 2^7.09 to 2^7.29, S ≥ the norm on all five shifted frames, and est is within 2^0.19 of the norm. Binary64 is ample against a 2^7 margin.
+>     - S/est = 2·⌈√n⌉ (2^7.3 at 6,000 DOFs, 2^7.1 at 4,500), as at 10 and 100 members.
+>     - DS1's own inverse-iteration check (not a certified bound): λ_min estimated at 512 bits exceeds σ′ by 2^1.5 to 2^2.1 in every case, consistent with Lemma E.
+924c940
+< - **The shift (R6)** is up to three factorizations of the shifted matrix, each with one pass over its profile, only for a verification where some block with data has Uc_c missing or above 2⌈√n_c⌉·est_c. A factorization is the costliest step of an attempt, so the shift at most quadruples the verification's factorization work where it runs. It never runs where Uc is tight. **Measured:** it ran on 380 of the 2,000 sweep frames, on 3 of the 59 controls, and on the loose RF-LARGE frames (§6.1).
+---
+> - **The shift (R6)** is up to three factorizations of the shifted matrix, each with one pass over its profile, only for a verification where some block with data has Uc_c missing or above 2⌈√n_c⌉·est_c. A factorization is the costliest step of an attempt, so the shift at most quadruples the verification's factorization work where it runs. It never runs where Uc is tight. **The shifted factorizations count against the verification's work budget (D1 §4.1.7); their cost on large models is for K6b and V-K to measure** (R7, V4-W3). **Measured:** it ran on 381 of the 2,000 sweep frames (R7; 380 in R6's indexing), on 3 of the 59 controls, and on the loose RF-LARGE frames (§6.1).
+930c946
+< - The proxy is +1.1 % against today over 2,000 frames (52,480 against 51,888), identical to R5's in the same order: R6 changes no frame's solves. The shift's factorizations are outside the proxy: under R6 they ran on 380 of the 2,000 frames, 1,112 shifted factorizations against 5,494 solves. The emulator bounds every solved state, where K4 needs the bound only at the verification, so this overstates K4's count.
+---
+> - The proxy is +1.1 % against today over 2,000 frames (52,480 against 51,888), identical to R5's in the same order: R6 changes no frame's solves. The shift's factorizations are outside the proxy: under R6's rule they ran on 381 of the 2,000 frames (R7's indexing; 380 in R6's), 1,112 shifted factorizations against 5,494 solves. The emulator bounds every solved state, where K4 needs the bound only at the verification, so this overstates K4's count.
+934c950
+< **Controls** (invented inputs; `models.py`, `models2.py`, `models3.py`, `lever3.py`, `models4.py`, `models5.py`, `models6.py`; the expectations are R6's, in K4's elimination order; `run_controls6.stdout.json`). Every R5 control keeps R5's expectation under R6, precision and classes alike, with two exceptions: THETA-STUB (256 → 128), whose stub block carries no data, and HH-SLENDER-m40 (256 → 128), whose cantilever now has its own bound. K4's order changes no control's precision under today's rule, R4 or R5. It moves one GS-ROT-y345 row between absolute and unpublishable, an emulation-specific GS outcome (V4-N8).
+---
+> **Controls** (invented inputs; `models.py`, `models2.py`, `models3.py`, `lever3.py`, `models4.py`, `models5.py`, `models6.py`; the expectations are R6's, in K4's elimination order, unchanged in R7 with K4's estimate indexing; `run_controls6.stdout.json`, `run_controls7.stdout.json`). Every R5 control keeps R5's expectation under R6, precision and classes alike, with two exceptions: THETA-STUB (256 → 128), whose stub block carries no data, and HH-SLENDER-m40 (256 → 128), whose cantilever now has its own bound. K4's order changes no control's precision under today's rule, R4 or R5. It moves one GS-ROT-y345 row between absolute and unpublishable, an emulation-specific GS outcome (V4-N8).
+952,953c968,969
+< | **HH-FOOL-m40**, **-m100**, **-m40-LOADED**, **-m100-LOADED** (R5; V4-U1; `models5.py`) | V4's frame, 12 free DOFs in two bodies. Body H: four collinear nodes on t·(1,−1,0), free in ux, uy, uy, ux, with axial members that restrain every motion except w = (1,−1,−1,1), which only bending with I = 2^-m holds. w is orthogonal to e and to the alternating vector. Body V: a grounded axial chain. LOADED adds a unit x-load on each body | m40, m40-LOADED and m100 at 128; m100-LOADED at 256 (the stop rule rejects 128); honest. In emu5's natural order est misses ‖K̃⁻¹‖₁ by 7.7e8 and 8.9e26; in K4's order est_c misses H's block by 2^4.4. Uc_c equals the norm (U/exact = 1). On the LOADED forms the shift is triggered for H's block and fails three times (σ_c is too large), so B_c = Uc_c. The charge at the selected pair is ≤ 6.3e-46 of its allowance |
+< | **HH-SLENDER-m40** (R5; DS1; `models5.py`) | HH-FOOL-m40 unloaded, plus CHARGE-SLENDER's loaded cantilever as a third body (member 50) | **128 (R6; 256 in R5):** with per-block bounds, the cantilever's B is its own (V4-V2), so the charge is 1.6e-3 of its allowance, as on CHARGE-SLENDER. Honest. Kills M24 (the global estimate carries H's mode into the cantilever's charge), M26 and M29 (each at 256), and M3, M7 and M18. It no longer kills M17 |
+---
+> | **HH-FOOL-m40**, **-m100**, **-m40-LOADED**, **-m100-LOADED** (R5; V4-U1; `models5.py`) | V4's frame, 12 free DOFs in two bodies. Body H: four collinear nodes on t·(1,−1,0), free in ux, uy, uy, ux, with axial members that restrain every motion except w = (1,−1,−1,1), which only bending with I = 2^-m holds. w is orthogonal to e and to the alternating vector. Body V: a grounded axial chain. LOADED adds a unit x-load on each body | m40, m40-LOADED and m100 at 128; m100-LOADED at 256 (the stop rule rejects 128); honest. In emu5's natural order est misses ‖K̃⁻¹‖₁ by 7.7e8 and 8.9e26. **In K4's order and indexing (R7), est_c misses H's block by 2^37.8 and 2^97.8** (R6's 2^4.4 was an indexing artifact, V4-W1). Uc_c equals the norm (U/exact = 1). On the LOADED forms the shift is triggered for H's block and fails three times (σ_c is too large), so B_c = Uc_c. The charge at the selected pair is ≤ 6.3e-46 of its allowance. K4's control uses these frames to show the estimate's miss, and that B still bounds the norm |
+> | **HH-SLENDER-m40** (R5; DS1; `models5.py`) | HH-FOOL-m40 unloaded, plus CHARGE-SLENDER's loaded cantilever as a third body (member 50) | **128 (R6, R7; 256 in R5):** with per-block bounds, the cantilever's B is its own (V4-V2), so the charge is 1.6e-3 of its allowance, as on CHARGE-SLENDER. Honest. Kills M26 and M29 (each at 256), and M3, M7 and M18. It kills neither M17 nor, in K4's indexing, M24 (R6's M24 kill was an indexing artifact, V4-W1): **K4's control list must not expect it to kill M24** |
+969c985
+< **Mutants.** A kill is a change of selected precision, of class counts or of honesty, against R6 in K4's order (`mutants6.stdout.json`; M13's is a change of correction count, at evidence level). The control list is R5's, plus THETA-STUB-COUPLED and two of R1's RF-LARGE frames at 100 members (CHAIN-AX, TREE-AX). Every kill list below equals R5's on R5's controls, except where a row says otherwise.
+---
+> **Mutants.** A kill is a change of selected precision, of class counts or of honesty, against R6 in K4's order (`mutants6.stdout.json`; rerun in R7 with K4's estimate indexing, `mutants7.stdout.json`, where every kill list equals R6's except M24's, now empty; M13's is a change of correction count, at evidence level). The control list is R5's, plus THETA-STUB-COUPLED and two of R1's RF-LARGE frames at 100 members (CHAIN-AX, TREE-AX). Every kill list below equals R5's on R5's controls, except where a row says otherwise.
+989c1005
+< | **M17** (R4) | Drop the charge (d) | **Not killed in R6; kept for the derivation** (V4-V2, ROOT's ruling), as M21 is. The charge is the Theorem's t₁ to t₃, and B is its norm. HH-SLENDER-m40 no longer kills it: with per-block bounds, the hidden mode's block no longer reaches the cantilever's charge, and the case is selected at 128 with or without the charge. **No single-block kill was built.** V4 found none in CHARGE-SLENDER's family (`r5_m17`: from Iy = 2^-186 the stop rule rejects first). A charge-alone refusal needs a soft mode inside the loaded block that the load does not excite. In K4's order the HH construction no longer hides its mode from the estimate (it misses by 2^4.4 to 2^5.6), and a numerically decoupled soft part of the block would show the structural block's conservatism (§9), not the charge's necessity |
+---
+> | **M17** (R4) | Drop the charge (d) | **Not killed since R6; kept for the derivation** (V4-V2, ROOT's ruling), as M21 is. The charge is the Theorem's t₁ to t₃, and B is its norm. HH-SLENDER-m40 no longer kills it: with per-block bounds, the hidden mode's block no longer reaches the cantilever's charge, and the case is selected at 128 with or without the charge. **No single-block kill was built.** V4 found none in CHARGE-SLENDER's family (`r5_m17`: from Iy = 2^-186 the stop rule rejects first). A charge-alone refusal needs a soft mode inside the loaded block that the load does not excite. HH-FOOL's construction hides its mode from the estimate (2^37.8 in K4's indexing; R6's "2^4.4 to 2^5.6" is withdrawn), but the mode sits in its own block. A numerically decoupled soft part of a loaded block would show the structural block's conservatism (§9), not the charge's necessity |
+996c1012
+< | **M24** (R5) | est in place of the bound | **Killed by HH-SLENDER-m40** (R6: 256 against 128), on availability, in the opposite direction from R5. est is one global estimate. In K4's order it carries HH-FOOL's hidden-mode norm (it misses that norm by only 2^5.6), which lies far above the cantilever's own block bound, so the cantilever's charge refuses 128. It is not a single-block kill, and it depends on the estimate's globality. **As in R5, no honesty kill was built.** Lemmas D and E, not a kill, are why the certified bound is required |
+---
+> | **M24** (R5) | est in place of the bound | **Not killed in R7; kept for the derivation** (V4-W1, ROOT's ruling), as M17 and M21 are. R6's kill by HH-SLENDER-m40 was an artifact of emu6's indexing: with the estimate indexed by elimination rank, the global est carried HH-FOOL's hidden-mode norm into the cantilever's charge. Indexed as K4 indexes it, the estimate misses that mode by 2^29.5 (global) and the case stays at 128 under M24 (`mutants7`). **No other control kills it**, and K4's control list must not expect HH-SLENDER-m40 to. As in R5, no honesty kill was built. Lemmas D and E, not a kill, are why the certified bound is required |
+999c1015
+< | **M27** (R6) | The shift bound without its backward-error and rounding terms (σ′ = σ) | **Killed in the low-precision stress** (`stress6`): with σ above λ_min, the shifted pivots can pass by rounding, and then ⌈√n⌉/σ falls below the exact norm in 27 of 20,000 random factors (P = 10 to 32; smallest ratio 0.20), while the specified S_c never does. **Not killed on any control or RF-LARGE case (derived):** at the design's precisions the dropped term is below σ_c by a factor of about 2m·2^-P·κ ≤ m·2^-p (the condition screen bounds κ at the candidate). A selection or honesty kill would need σ_c inside that window just above λ_min, which the halving schedule does not aim for |
+---
+> | **M27** (R6) | The shift bound without its backward-error and rounding terms (σ′ = σ) | **Killed in the low-precision stress** (`stress6`): with σ above λ_min, the shifted pivots can pass by rounding, and then ⌈√n⌉/σ falls below the exact norm in 27 of 20,000 random factors (P = 10 to 32; smallest ratio 0.20), while the specified S_c never does. **Not killed on any control or RF-LARGE case.** Why none exists at the design's precisions is **argued, not derived** (R7, V4-W2): the dropped term is below σ_c by a factor of about 2m·2^-P·κ ≤ m·2^-p if the condition screen bounds κ at the candidate, but the screen bounds est·‖K̃‖₁, and the estimate's miss is unbounded within the screens (2^97.8 on HH-FOOL-m100). A selection or honesty kill would need σ_c inside a window just above λ_min, which the halving schedule does not aim for. V4's own stress confirms the term is load-bearing at low precision (⌈√n⌉/σ below the exact norm in 566 of its factors) |
+1040c1056,1058
+<   - **At 1,000 members** the full schedule ran for all four rules. R6 selects all six at 128, honest, with today's classes; R5 leaves five of the six Unresolved with `uc` at every precision. The exact norm was not computed at 6,000 DOFs: S is 2^7.1 to 2^7.3 above est, a lower bound on the norm, and σ′ lies 2^1.5 to 2^2.1 below an inverse-iteration estimate of λ_min, which is consistent with Lemma E but certifies nothing.
+---
+>   - **At 1,000 members** the full schedule ran for all four rules. R6 selects all six at 128, honest, with today's classes; R5 leaves five of the six Unresolved with `uc` at every precision. DS1 did not compute the norm at 6,000 DOFs; V4 did, in binary64: S/norm is 2^7.09 to 2^7.29, with S ≥ the norm on every shifted frame.
+> - **Where availability rests on Uc alone (R7, V4-W3).** S is polynomially loose only when the estimate is within about 8× of the norm, so that one of σ, σ/2 and σ/4 falls below λ_min. Where the estimate is fooled by more, as on HH-FOOL's hidden block, availability rests on Uc; a block both fooled and Uc-loose would be rejected with `uc`. No emulated case is both, and nothing here touches honesty.
+> - **The shift's cost.** Up to three shifted factorizations are charged to the verification's work budget (D1 §4.1.7). Their cost on large models is for K6b and V-K to measure; DS1's emulation measures selections, not time.
+1043c1061
+<   - **M24 is still killed, but only on availability and only through the estimate's globality.** HH-SLENDER-m40 goes to 256 under M24, because the global est carries H's mode into the cantilever's charge: the opposite direction from R5's kill (§7). No honesty kill was built; Lemmas D and E, not a kill, are why the certified bound is required.
+---
+>   - **M24 is no longer killed** (R7, V4-W1). R6's kill by HH-SLENDER-m40 was an artifact of emu6's estimate indexing, and no other control kills it. **It is kept for the derivation**, like M17 and M21. No honesty kill was built; Lemmas D and E, not a kill, are why the certified bound is required.
+1046c1064
+<   - **M27 is killed only at low precision** (`stress6`). At the design's precisions the backward-error term is far below σ_c, so no selection or honesty kill exists there (derived, §7).
+---
+>   - **M27 is killed only at low precision** (`stress6`; V4's own stress agrees). That no selection or honesty kill exists at the design's precisions is **argued, not derived** (R7, V4-W2): the argument rests on the condition screen's bound on κ, which uses the estimate, and the estimate's miss is unbounded within the screens (§7).
+1058c1076
+< None, in any of the five checks. V4's NOTEs at R5 (V4-V3 to V7) are each resolved (§15). V4's NOTEs at R4 (V4-U5 to U9) were resolved in R5 (§14). V4-R8 needs nothing in the design. V4-T3 to T5 are recorded as V4 states them (§13). R2's N7 is K4's fix (`5ad1b6174`, K4-M33), cited, not specified here.
+---
+> None, in any of the six checks. V4's NOTEs at R6 (V4-W2, W3) are resolved in R7 (§16). V4's NOTEs at R5 (V4-V3 to V7) were resolved in R6 (§15). V4's NOTEs at R4 (V4-U5 to U9) were resolved in R5 (§14). V4-R8 needs nothing in the design. V4-T3 to T5 are recorded as V4 states them (§13). R2's N7 is K4's fix (`5ad1b6174`, K4-M33), cited, not specified here.
+1140c1158
+< V4's delta check at R5 (`V4_VERIFICATION.md` "Delta check at R5", file sha256 `fd381e3b…`, numerics `6ca7a4338`; NOT VERIFIED: 1 BLOCKING on availability, 1 SHOULD-FIX, 5 NOTEs) and ROOT's rulings on it (`ROOT_RULINGS_V1.md`, section sha256 `6ef6c730…`).
+---
+> V4's delta check at R5 (`V4_VERIFICATION.md` "Delta check at R5", file sha256 `fd381e3b…`, numerics `6ca7a4338`; NOT VERIFIED: 1 BLOCKING on availability, 1 SHOULD-FIX, 5 NOTEs) and ROOT's rulings on it (`ROOT_RULINGS_V1.md`, section sha256 `6ef6c730…`). These are R6's resolutions, kept as history. **R7 withdraws two of their statements** (the HH-FOOL estimate's miss of "about 2^5.6" and M24's kill by HH-SLENDER-m40), both artifacts of emu6's estimate indexing: see §16.
+1154c1172
+< ## 16. Evidence (scratch, standard-library Python 3.13)
+---
+> ## 16. Changes from R6: V4's delta check at R6 and its resolutions
+1156c1174
+< The evidence of R2 to R5 is unchanged. ROOT committed it at `_run_records_r2/` to `_run_records_r5/`. R6's is new. Every Python experiment of DS1's ran one process at a time under `nice -n 19`, in K4's elimination order unless stated; other sessions' processes ran on the host meanwhile.
+---
+> V4's delta check at R6 (`V4_VERIFICATION.md` "Delta check at R6", file sha256 `76cb0989…`, numerics `a36680399`; NOT VERIFIED on V4-W1 only: 0 BLOCKING, 1 SHOULD-FIX, 2 NOTEs) and ROOT's rulings on it (`ROOT_RULINGS_V1.md`, section sha256 `1653f4d8…`). **No design change.**
+1158c1176,1180
+< **One defect found and fixed during R6.** The first R1 lane run stopped with an error: inside `solve_at`, the directional-block loop reused the name of the block map, so the shift failed on a model with directional springs. The loop variable was renamed. Every output below was then regenerated on the final `emu6.py` by `chain6.sh`. The runs made before the fix (controls, probe, stress, mutants, RF-LARGE at 10 and 100 members) reproduce exactly, apart from timings; the bound check was rerun with THETA-STUB-COUPLED added. None of their models has a directional spring on which the shift ran, so the defect could only stop a run, never change a result.
+---
+> V4 confirmed:
+> - Lemma E, step by step (95,142 shifted factorizations in its own stress, no S below the exact norm);
+> - that no uncertified step remains;
+> - the per-block decomposition;
+> - RF-LARGE's availability, with the norm at 1,000 members computed (S/norm = 2^7.09 to 2^7.29 on the five frames where the shift runs; B ≥ the norm on all six).
+1160,1176c1182,1187
+< | File | What it is | sha256 (first 16): script, output |
+< |---|---|---|
+< | `emu6.py` | R6's emulator: emu5 plus K4's order, the blocks and their data flags, per-block Uc_c, est_c, the shifted-factorization bound S_c and B_c, the block scope of θ and the g check, and sparse row loops (switches `ORDER`, `BOUND`, `SCOPE`, `SHIFT_BE`, `SHIFT_TRIES`, `SHIFT_ALWAYS`; option `r6`) | `767c9381822dd61b` |
+< | `k4order.py` | DS1's port of `factor.rs`'s `reverse_cuthill_mckee` and `order_free`, and the structural pattern | `e80ea80987841640` |
+< | `bounds6.py` | JSON summaries of the bounds (log₂ values) | `afd5f9fd3f42f706` |
+< | `models6.py` | models5's controls plus THETA-STUB-COUPLED | `ed77a19bae9f457c` |
+< | `reproduce6.py` → `reproduce6.stdout.json` | emu6 in emu5's order with R5's and R4's switches against `run_controls5`: 0 of 58 differ | `2265c10120637b4f`, `879ac630fd37cb38` |
+< | `k4order_check6.py` → `k4order_check6.stdout.json` | DS1's ordering port against V4's: identical on 97 models | `b10dc75e779328af`, `d19aafc68e07988a` |
+< | `run_controls6.py` → `run_controls6.stdout.json` | 59 controls × {today, R4, R5, R6}, with R6's charge, θ and bound summary at every verification | `7c4170342fc40029`, `1489ce00094efdcd` |
+< | `uc_check6.py` → `uc_check6.stdout.json` | Uc_c, S_c and B_c against the exact per-block norm: 234 model states, 267 blocks | `78667ef945729b65`, `8bd60514dcc66fcf` |
+< | `stress6.py` → `stress6.stdout.json` | Lemma E and M27 at low precision (19,979 factors), and F2 at 256 and 512 | `a30973e8c585772a`, `a80a1244f64b5487` |
+< | `mutants6.py` → `mutants6.stdout.json` | M1–M18, M20–M29 on 40 controls | `26df4f70b3b6054c`, `79bfc3e5d0ff21c8` |
+< | `gate_probe7.py` → `gate_probe7.stdout.json` | K4's probe set under R6 | `2131f7ad8bb676df`, `ef410238f4de06cd` |
+< | `sweep6.py`, `summarize6.py` → `sweep6_{11,12}.json`, `sweep6_summary.json` | 2,000 frames × {today, R5, R6} | `fb4106acc52e4333`, `8cd640a53950e3a7`; `941f444c7169eeae`, `9d79d9c31eb61b3f`, `a028df523f5348a3` |
+< | `r1_lane6.py` → `r1_lane6.stdout.json` | K4's R1 lane (120 cases) × {today, R5, R6} | `a69d21592cc9072b`, `ebd27429a829a06a` |
+< | `large6.py` → `large6_10.json`, `large6_100.json`, `large6_1000.json` | R1's RF-LARGE at 10, 100 and 1,000 members × {today, R4, R5, R6}, with the looseness | `02020c0aa874976b`; `a3594d066c6442b3`, `8901005534a9eadf`, `2d0cff3eefe5be25` |
+< | `chain6.sh` | The sequence that produced the outputs above | `9c51975a35caf00d` |
+---
+> | Finding | Resolution | Where |
+> |---|---|---|
+> | **V4-W1** (SHOULD-FIX) emu6 indexed the estimate's argmax and alternating vector by elimination rank; K4 indexes them by free position | **emu7 indexes them by free position**, as K4's `condition` does (DS1 read `factor.rs` again: the vectors are free-position vectors, mapped into the elimination order only inside `solve_scaled`). The same two changes as V4's `emu6_k4hh`.<br>• **Regression:** with emu6's indexing, emu7 reproduces `run_controls6` exactly; in natural order it reproduces `run_controls5` (`reproduce7`, 0 of 117 differ).<br>• **Reruns under K4's indexing, each identical to R6's in every selection, attempt, class, reason and honesty:** 59 controls under all four rules (charges and θ too); 20 probes; 120 R1 cases; RF-LARGE at 10 and 100 members under all four rules (bounds and looseness too), and at 1,000 under R6 (selection, classes, honesty, charge, est and S all equal to R6's); the 2,000-frame sweep under today's rule, R5 and R6 (the shift ran on 381 frames instead of 380); the mutants (every kill list but M24's); and the bound check (267 blocks, no failure; only ALL-ZERO-BODY's forced S moved between its blocks).<br>• **HH-FOOL corrected:** the hidden block's est_c misses its norm by 2^37.8 at m = 40 and 2^97.8 at m = 100; the global est by 2^29.5 and 2^89.5. R6's "about 2^5.6" and "2^4.4" are withdrawn.<br>• **M24:** its R6 kill on HH-SLENDER-m40 disappears; no other control kills it. It is kept for the derivation, and K4's control list must not expect HH-SLENDER-m40 to kill it | §0, §1, §5.5 item 8, §5.9, §6.1, §7, §9, §17 |
+> | **V4-W2** (NOTE) M27's "no kill at design precisions" rests on the estimate-based condition screen | Labelled **argued**. The low-precision kill stands, and V4's stress confirms it (566 factors) | §7 M27, §9 |
+> | **V4-W3** (NOTE) (a) S's looseness depends on the estimate; (b) the work budget | (a) S is polynomially loose only when the estimate is within about 8× of the norm (one of σ, σ/2, σ/4 must fall below λ_min). Otherwise availability rests on Uc; a block both fooled and Uc-loose is rejected with `uc` (availability only).<br>(b) The up to three shifted factorizations count against the verification's work budget (D1 §4.1.7); their cost on large models is for K6b and V-K to measure | §5.5 item 7 and "Looseness", §6.7, §9 |
+> | DS1's own check in R7 | DS1 read `factor.rs`'s `condition` and `solve_scaled` again and confirms V4's reading. The start vector e/n, the sign vector (zero maps to +1 in both), the dot product z·x, the per-block ratios and the column-sum norm do not depend on the indexing. Only the argmax scan and the alternating vector do, and emu7 changes exactly those two. The estimate is used by the condition screen, the shift's trigger and σ_c, none of which is a step of the guarantee | §0 |
+1178,1180c1189
+< The scripts import, read-only and unchanged:
+< - the earlier emulators `emu.py` to `emu5.py` (the model builders take their helpers from emu2 and emu4);
+< - `models.py` to `models5.py`, `sweep.py`, `gate_probe3_cases.py`, `lever3.py` and `r1_adapter.py`.
+---
+> ## 17. Evidence (scratch, standard-library Python 3.13)
+1182c1191
+< All of them are in `_run_records/` to `_run_records_r5/`. `k4order_check6` also reads V4's `_v4_records/r5/r5_large.py.txt` and executes its `rcm` function, unchanged.
+---
+> The evidence of R2 to R6 is unchanged; ROOT committed it at `_run_records_r2/` to `_run_records_r6/`. R6's own evidence (§16 of R6) stands except where R7 reran it below. R7's is new. Every Python experiment of DS1's ran one process at a time under `nice -n 19`, in K4's elimination order and, in R7, with the estimate indexed as K4 indexes it; other sessions' processes ran on the host meanwhile.
+1184,1194c1193,1204
+< **To rerun** (from `<wt>/scratch/ds1/`, one at a time, each under `nice -n 19`, with `PYTHONDONTWRITEBYTECODE=1`):
+< - `python3 reproduce6.py`;
+< - `python3 k4order_check6.py <T3 path> <T3 path>/DESIGN_NUMERICS/REV_5A3_CANDIDATE/_v4_records/r5/r5_large.py.txt`;
+< - `python3 run_controls6.py`;
+< - `python3 uc_check6.py`;
+< - `python3 stress6.py 20000 6`;
+< - `python3 mutants6.py <T3 path>`;
+< - `python3 gate_probe7.py`;
+< - `python3 sweep6.py 11 1000`, then `python3 sweep6.py 12 1000`, then `python3 summarize6.py sweep6_11.json sweep6_12.json > sweep6_summary.json`;
+< - `python3 r1_lane6.py <T3 path> lane`;
+< - `python3 large6.py <T3 path> 10 honesty`, likewise with 100 and with 1000.
+---
+> | File | What it is | sha256 (first 16): script, output |
+> |---|---|---|
+> | `emu7.py` | R7's emulator: emu6 with the estimate's argmax and alternating vector indexed by free position, as K4's `condition` (switch `EST_INDEX`) | `cbf9780e26bc0736` |
+> | `reproduce7.py` → `reproduce7.stdout.json` | emu7 with emu6's indexing against `run_controls6`, and in natural order against `run_controls5`: 0 of 117 differ | `aaf6fe60282bf370`, `73937c6ed82c9df4` |
+> | `run_controls7.py` → `run_controls7.stdout.json` | 59 controls × {today, R4, R5, R6}, K4's indexing | `7904b873293d82ed`, `ae8f7db95f910cf2` |
+> | `gate_probe8.py` → `gate_probe8.stdout.json` | K4's probe set, K4's indexing | `ca26e056ba2ccfdd`, `ef410238f4de06cd` |
+> | `r1_lane7.py` → `r1_lane7.stdout.json` | K4's R1 lane (120 cases) × {today, R5, R6}, K4's indexing | `44519343904e8442`, `ebd27429a829a06a` |
+> | `mutants7.py` → `mutants7.stdout.json` | M1–M18, M20–M29 on 40 controls, K4's indexing | `8b0569bf2a4fc45e`, `f157a4c75084515f` |
+> | `uc_check7.py` → `uc_check7.stdout.json` | Uc_c, S_c and B_c against the exact per-block norm, with est_c: 234 model states, 267 blocks | `c946c8f16b585d06`, `f67796f19fd77e8e` |
+> | `large7.py` → `large7_10_100.json`, `large7_1000.json` | RF-LARGE at 10 and 100 members × {today, R4, R5, R6}, and at 1,000 × R6, K4's indexing | `33774182996d7812`; `eae049ba41bc1696`, `99fe172fded3b4e4` |
+> | `sweep7.py`, `summarize7.py` → `sweep7_{11,12}.json`, `sweep7_summary.json` | 2,000 frames × {today, R5, R6}, K4's indexing | `cf34221bc6297105`, `4edd2b3380fd8045`; `116bcc4374ba5088`, `74c7c90fc3dd5831`, `7260d3578d4ed699` |
+> | `chain7.sh` | The sequence that produced the outputs above | `7e89d9e42301ffa3` |
+1196c1206
+< `chain6.sh <T3 path>` runs all of them in sequence, on the final `emu6.py` (the sweep and `large6` at 10 and 100 members after the 1,000-member lane).
+---
+> The scripts import, read-only and unchanged, R6's `k4order.py`, `bounds6.py` and `models6.py`, and the earlier emulators and model builders, all in `_run_records/` to `_run_records_r6/`.
+1197a1208,1218
+> **To rerun** (from `<wt>/scratch/ds1/`, one at a time, each under `nice -n 19`, with `PYTHONDONTWRITEBYTECODE=1`), use `chain7.sh <T3 path>`, which runs, in order:
+> - `reproduce7.py`;
+> - `run_controls7.py`;
+> - `gate_probe8.py`;
+> - `r1_lane7.py <T3 path> lane`;
+> - `mutants7.py <T3 path>`;
+> - `uc_check7.py`;
+> - `large7.py <T3 path> 10,100 honesty`;
+> - `sweep7.py 11 1000`, `sweep7.py 12 1000` and `summarize7.py sweep7_11.json sweep7_12.json > sweep7_summary.json`;
+> - `large7.py <T3 path> 1000 honesty R6`.
+> 
