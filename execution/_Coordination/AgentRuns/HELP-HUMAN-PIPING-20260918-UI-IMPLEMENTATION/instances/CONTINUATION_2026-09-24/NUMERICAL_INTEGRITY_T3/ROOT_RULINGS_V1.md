@@ -2388,3 +2388,22 @@ The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `
 - **After merge:**
   - K6b merges main and recomputes E_max from KF1's code, then re-runs W1-T3 and runs W1-T4.
   - V-K merges main, re-runs its kill matrix, and runs B.
+
+## V-K: C's harness mutants; three tests added (ROOT, 2026-09-29)
+
+- **C ran 18 harness mutants and 2 controls** (NONE, and NONE-GEN, whose regeneration is byte-identical). 15 are killed and 3 survive:
+  - **VK-H6:** max(|obs|, scale) in place of max(|exp|, scale);
+  - **VK-H9:** an absolute-range pass counted as a pass;
+  - **VK-H11:** a passing discriminating control dropped.
+- **None of the three is a harness defect.** R1's committed CI data never reaches those paths.
+  - Two tests that plan §14.1 promised were not delivered at A1: the absolute-range path on R1's five rows, and the controls test.
+  - A1's unit test for H6 does not discriminate what its comment claims.
+- **Ruling: option (a).** Add `VR/tests/engine.rs` with I17's three constructed-input tests, as drafted in `_run_records/c/proposed_tests_engine.rs.txt`:
+  - obs = 1 with exp on either side of it;
+  - R1's five sub-range rows judged as `PassAbsoluteRange`;
+  - a passing discriminating control listed as undiscriminated.
+  - Re-run only NONE, VK-H6, VK-H9 and VK-H11 from clean copies with the tests added. Adding tests cannot un-kill the other 15, so their results stand, recorded as from the first run.
+  - Commit the matrix as `VR/observations/harness/harness_matrix.jsonl`.
+- **The "data-equivalent" harness paths** (for example a failing comparison recorded as a pass) are evidenced by A2's kill matrix, whose faults show every comparison kind is live. That argument is recorded, not run as mutants.
+- **Delete `<wt>/vk-mut/c`** (2.4 GB). The records keep every hash.
+- **B still waits for KF1's merge.**
