@@ -10,7 +10,7 @@
 - **Branch:** `codex/piping-f1b-20260928`, from main `e7d930d49`, in `<wt>/f1b`.
 - **Commits (made by ROOT):** `94e543a24` (A1), `e215c6007` (A2), `948e0bb99` (C, tests only), `130445db2` (the lane guard), `9ecf2bdca` (these records), `9aeed9c22` (main `b37331092` merged in; the product tree is unchanged). **PR #1052.**
 - **Where these records live:** `T3/IMPLEMENTATION/F1B/` on the F1b branch, committed by ROOT at `9ecf2bdca`. They were first written, untracked, in the numerics worktree; ROOT moved them here and removed that copy.
-- **Uncommitted now:** addendum 1's pin test, and this revision of the records.
+- **Later commits:** `07bed2638` (addendum 1's pin), `c4879c496` (main `1cdeae2c1` merged in: K5; addendum 2). **Uncommitted now:** this revision of the records.
 - **Platform:** Mac, arm64 (macOS 26.6.2), aarch64-apple-darwin, rustc 1.97.1. **T9 and the gate are Mac-only comparisons against Mac main.** Nothing was run on Linux or on hosted CI.
 - **Placeholders:**
   - `<wt>`: the T3 worktrees root; scratch is `<wt>/scratch/i13`;
@@ -1162,3 +1162,56 @@ Both runs are from a clean `git archive 9aeed9c22` with the pin's test file over
   - `f1b_tests::f1b_admission_names_each_family`, at `src/f1b_tests.rs:2285` (the unit pin of the nine checks).
 - **Host:** at most 2 of my cargo jobs (one at a time here), `-j 4`, `RUST_TEST_THREADS=4`; `memguard.log` has no new entry.
 - **Totals now:** 38 tests added by F1b (§11 plus this one); 51 counted mutants, all killed (§13 plus this one).
+
+---
+
+## RETURN addendum 2: re-run after K5's merge (`c4879c496`; ROOT, merge-second rule)
+
+**Why.** K5 merged into main (`1cdeae2c1`, PR #1044). Under the merge-second rule (K5 RETURN §10), ROOT merged main into F1b as `c4879c496`, with no conflicts; the pin is `07bed2638`, before that merge.
+- K5 changes FK `rigid_body.rs`, SA `structural_adapter.rs` and its tests, FK's K5 tests and vectors, and one PP test, `tests/k5_curved_mechanism_runtime.rs`, which now runs against F1b's PP.
+- `git diff 07bed2638 c4879c496 -- P/core` shows exactly K5's 13 files: 6,420 lines added, 5 removed. No F1b file changed.
+- Every run below is from a clean `git archive c4879c496` (`<wt>/scratch/i13/k5m/tree`), and the records are in `_run_records/k5_merge_c4879c496/`.
+
+### A2.1 Suites: 39 manifests, `--no-fail-fast` (`suites/`)
+
+- The discovered manifest list equals A2's (39).
+- The run used one lane (one cargo job), `-j 8`, `RUST_TEST_THREADS=4` (`run_suites.sh.txt`).
+- Against F1b's A2 suites (`suites_vs_a2.txt`), 36 manifests are identical and 3 changed. Each change is exactly the tests added since A2, by F1b or by K5:
+
+| Manifest | A2 (`e215c6007`) | `c4879c496` | Accounted for |
+|---|---|---|---|
+| PP | 556 passed, 1 failed, 1 ignored | **566** passed, 1 failed, 1 ignored | +1 (the A2 test run separately), +2 (C), +2 (the lane guard), +1 (the pin), +4 (K5's `k5_curved_mechanism_runtime.rs`) |
+| FK | 249 | **267** | +18 (K5) |
+| NI | 121 | **134** | +13 (K5) |
+
+- **The only failures are the three known Mac platform tests:** PP `t13`, and headless `cli_load_reference_one_both_modes_…` and `load_reference_route_tests::load_reference_one_actual_solve_…`. Their failure blocks are identical to A2's, after normalizing thread ids and tree paths (`failure_blocks_vs_a2.txt`).
+- **K5's PP test against F1b's code passes:** `k5_curved_mechanism_is_refused_as_a_physical_mechanism_with_its_witness`, `…_with_a_nonlinear_support_keeps_todays_refusal`, `…_companion_is_solved`, and `…_without_a_representable_witness_is_unresolved`.
+- F1b's pin, `f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust`, also passes.
+
+### A2.2 T9 (Mac-only; `t9/`)
+
+- The harness was S11-K's (`ec089c1d…`), release build, from the archive.
+- **112 of 112 outputs are byte-identical** to A1's base outputs of `e7d930d49`, to the `PLATFORM_CALIBRATION_MAC` hashes, and to the `130445db2` run.
+- The extra corpus is 16 of 16 identical (`t9_compare.txt`).
+
+### A2.3 Gate part 1 (884 runs; `gate_part1/`)
+
+**Method:** exactly as the `130445db2` gate:
+- the full-envelope probe (`main.rs` `cd1052f7…`, `Cargo.lock` `d7bdd546…`), built `--release --offline` from the archive;
+- binary `df0622f5a3d3707f9a5d2318f2cf3760621a4fc041d77d03f339fc2dde43a7d5`. It differs from `130445db2`'s because K5's kernel code is linked in;
+- G1's `gate_run_base_full.py` unchanged, with phase A at 2 workers alone and phase B at 4 workers, 03:40:48Z–03:46:47Z (359 s);
+- `gate_check.py` and the comparison script (`compare_gate_f1b.py`, changed only in its docstring) against G1's full base of `e7d930d49`.
+
+**Results:**
+- **`gate_check`: PASS.** 764 runs evaluated, 332 trusted, 0 trusted breach triples, 0 violations.
+- **C3:** 832 runs, **0 differences.**
+- **C1:** exactly the ruled 28. **Nothing changed outside C1 and C2.**
+- **C2:** 0 sparse heap-cap aborts, and 0 dense runs that are not the guard's refusal.
+- **Against the `130445db2` gate: 884 of 884 runs identical** in exit code, ok, full-envelope sha256, summary-envelope sha256, error text and timeout. The C1 and C2 tables are identical in every stable field (`compare_vs_130445db2.txt`).
+- So K5's merge changes no gate run, as expected: K5's W4 runs in no gate case.
+- **`runs.jsonl`** sha256 `61b5405d58c6c4a1889e85743632ae1bd4e8c4177b5bb1d311e73f2573e79553` (606 MB, kept uncommitted). It is indexed by `part1/envelope_sha256.tsv`, with the C1 and C2 tables beside it.
+- **Memory:** `memguard.log` has no new entry; the lowest `kern.memorystatus_level` was 93.
+
+**Part 2 was not re-run** (ROOT's direction). All 8 dense 1,000-member runs time out at 1,800 s on both sides (§9.3), and K5 cannot shorten a dense run, so part 2's verdict (no base/candidate mismatch) carries over.
+
+**Host:** at most 2 of my cargo jobs (the suites lane, and the probe and T9 builds, one after the other); the gate ran with 4 workers after the suites finished.

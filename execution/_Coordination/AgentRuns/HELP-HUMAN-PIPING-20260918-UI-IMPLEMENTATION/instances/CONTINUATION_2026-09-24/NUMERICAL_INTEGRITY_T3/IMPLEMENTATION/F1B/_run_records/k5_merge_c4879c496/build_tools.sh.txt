@@ -1,0 +1,10 @@
+#!/bin/bash
+# I13 F1b after K5's merge: the gate's full-envelope probe (main.rs cd1052f7..., Cargo.lock d7bdd546...) and
+# T9's harness (S11-K's fixdiff_main.rs, ec089c1d...), release, --offline, -j 8, each in its own target,
+# built from the git archive of c4879c496 (one cargo job at a time).
+K=$(cd "$(dirname "$0")" && pwd)
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0
+( cd $K/probe && CARGO_TARGET_DIR=$K/probe-target cargo build --release --offline -j 8 > $K/build_probe.log 2>&1; echo "rc=$?" >> $K/build_probe.log )
+cp $K/probe-target/release/t3_p1_probe $K/build/t3_p1_probe
+( cd $K/t9/h && CARGO_TARGET_DIR=$K/t9-target cargo build --release --offline --locked -j 8 > $K/t9/build.log 2>&1; echo "build rc=$?" >> $K/t9/build.log )
+echo BUILD-TOOLS-DONE

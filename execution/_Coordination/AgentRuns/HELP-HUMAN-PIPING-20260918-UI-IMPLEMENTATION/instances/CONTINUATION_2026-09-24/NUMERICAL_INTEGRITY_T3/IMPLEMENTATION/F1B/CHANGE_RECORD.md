@@ -10,8 +10,10 @@ This is the draft PR record for facade slice F1b of T3 (numerical integrity), fo
   - `130445db2`: the DEC-050/053 observation-lane guard (ROOT's ruling on the gate's heap-cap finding);
   - `9ecf2bdca`: these records (checkpoint D), in `T3/IMPLEMENTATION/F1B/` on this branch;
   - `9aeed9c22`: main `b37331092` merged in. The product tree is unchanged: `git diff 130445db2 9aeed9c22 -- P/core P/fixtures P/validation` is empty.
-- **PR:** #1052. **Product candidate:** `130445db2`'s product tree, at the branch head `9aeed9c22`. **Size:** 14 files, +5,531 −188 against `e7d930d49` (`RETURN.md` §2).
-- **Uncommitted, for ROOT to commit:** the `pressure_thrust_load` product pin (tests only: `P/core/product_physics/tests/f1b_w2_runtime.rs`, +59 −2; `RETURN.md` addendum 1), and this revision of the records.
+  - `07bed2638`: the `pressure_thrust_load` product pin (tests only) and records addendum 1;
+  - `c4879c496`: main `1cdeae2c1` merged in (K5, PR #1044): K5's 13 files only, no F1b file. Re-run on it (`RETURN.md` addendum 2): the 39 manifests (PP 566, FK 267, NI 134; only the three known Mac failures, identical blocks), T9 112/112, and gate part 1 PASS, 884 of 884 runs identical to the `130445db2` gate. Part 2 was not re-run: every dense run times out on both sides, and K5 cannot shorten one.
+- **PR:** #1052. **Product candidate:** the branch head `c4879c496`: F1b's product tree of `130445db2` plus K5's merged files. **Size:** 14 files, +5,531 −188 against `e7d930d49` (`RETURN.md` §2).
+- **Uncommitted, for ROOT to commit:** this revision of the records (addendum 2).
 - **Basis:**
   - the I13 brief (`TASK_BRIEFS/I13_F1B_IMPLEMENTATION.md`, `57cce4f6…`) with ROOT's rulings Q1–Q14 in it;
   - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`; hash-pinned, not edited): §1, §2.1, §4.7, §4.8, §5 items 5a–8, §6's F1 row;
