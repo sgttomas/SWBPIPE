@@ -2450,3 +2450,18 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
   - **K6b (I16):** merge main, recompute E_max from KF1's code, then re-run W1-T3 and run W1-T4 in slot K6B-S3. I17 holds cargo during the slot.
   - **V-K (I17):** merge main, re-run the A2 kill matrix, then B in its own slot after K6b's.
   - **Then** ROOT's W1 limits from K6, K6b, V-K and K4's work counts, and F2a.
+
+## K6b: main merged; E_max from KF1; slot K6B-S3 approved (ROOT, 2026-09-29)
+
+- **ROOT merged main `0f5d8c7b4`** (KF1) into the K6b branch as `b86081221`, and into the V-K branch as `485320e95`. There were no conflicts.
+  - [Correction: ROOT's first message asked both implementers to prepare the merge themselves. That was withdrawn before any merge ran, because a merge writes the index, which TASKs may not do. I16 disclosed a `git fetch`, which updates only remote-tracking refs.]
+- **E_max now follows KF1's bounds at every site.** ROOT committed it as `082990c8d`.
+  - It includes the pivot-margin, residual-gate and fallback sites, which were missing before KF1.
+  - At 10,000 members E_max is 2.78–2.86 GB, down from 9.2–9.5, and the binary's backstop admits all six W1-T4 models.
+  - H passes 70 of 70, the runner 45 of 45, and the wrapper with the pins 47 of 47.
+- **Slot K6B-S3 is approved,** with a fresh records folder:
+  - W1-T1 to W1-T3 re-run (about 2.5 min), which gives ρ against the new E and the ascent;
+  - then W1-T4 (about 15–17 min).
+  - The binary is a release build from a `git archive` of `082990c8d`.
+  - B's pre-KF1 records stay as they are, as the before-KF1 comparison.
+- **The slot starts when I17 finishes V-K's post-merge checks.** I16 may build the release binary now. A heap-cap abort or any other stop condition stops the tier.
