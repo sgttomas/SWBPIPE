@@ -44,3 +44,30 @@ fn e_hat_couples_force_and_moment_through_the_body_extent_in_binary64() {
     let [fo, _] = e_hat([0.0, 1.0], 3.0);
     assert_eq!(fo, 1.0 / 3.0);
 }
+
+#[test]
+fn an_e_hat_that_overflows_while_e_encodes_stops_as_e_does() {
+    // ROOT's A3b ruling: fl(L_b·E_fo) or fl(E_mo/L_b) beyond binary64, with E
+    // finite, is `ResolutionScale` for that body and kind (F2a:
+    // `receipt_encoding`), checked body by body, force before moment.
+    let big = f64::MAX / 2.0;
+    assert_eq!(
+        resolution_hats(&[[1.0, 8.0], [big, 1.0]], &[2.0, 4.0]),
+        Err(AttemptStop::ResolutionScale {
+            body: 1,
+            kind: Kind::Moment
+        })
+    );
+    assert_eq!(
+        resolution_hats(&[[1.0, big]], &[0.25]),
+        Err(AttemptStop::ResolutionScale {
+            body: 0,
+            kind: Kind::Force
+        })
+    );
+    // At the edge of the range ê is finite; a body of zero extent keeps E.
+    assert_eq!(
+        resolution_hats(&[[big, 1.0], [f64::MAX, f64::MAX]], &[2.0, 0.0]),
+        Ok(vec![[big, f64::MAX], [f64::MAX, f64::MAX]])
+    );
+}

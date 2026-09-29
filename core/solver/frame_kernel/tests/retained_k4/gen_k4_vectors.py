@@ -55,6 +55,10 @@ Checkpoint A3b (the method):
 - `estimate.txt` (E-ESTIMATE): |R*(u_P) − q*| per force and moment row above
   2^-(P+20)·ê, u* the exact solution and R* a recovery at 4,096 bits;
 - `r1_large.txt`: R1's RF-LARGE frames at 10 and 100 members as lane cases.
+- after ROOT's A3b rulings: an ê that overflows while E encodes stops the
+  verification as E's overflow does (EHAT-OVERFLOW), and
+  `directional_span_exact.txt` gives DIRECTIONAL-SPAN's exact published
+  quantities (5a.2's publication checked against them).
 
 Usage:  python3 gen_k4_vectors.py [--check]
 
@@ -3654,6 +3658,11 @@ def models5a3_b():
     load(m, 1, 3, 1.0)
     load(m, 1, 1, 10.0)
     out.append(m)
+    # E finite at the verification while ê_mo = fl(L_b·E_fo) overflows
+    # (ROOT's A3b ruling: the same terminal case as E's own overflow).
+    m = pin_case("EHAT-OVERFLOW", (3.0, 4.0, 0.0), 1e-4, (0.0, 0.0, 0.0))
+    load(m, 1, 3, 2.0 ** 980)
+    out.append(m)
     # F-1's ceiling control at P = 2^900 (A3b): CEIL-A and CEIL-B's E does not
     # encode under 5a.3 (a 2^1013-rad rigid rotation), so the control keeps its
     # ratio ε/P = 2^-1060 with ε = 2^-160.
@@ -3832,6 +3841,14 @@ def verify_em(em):
     resolution = [[fl_up(t[0]), fl_up(t[1])] for t in top]
     for b, rr in enumerate(resolution):
         for kind, v in (("fo", rr[0]), ("mo", rr[1])):
+            if v == math.inf:
+                return dict(stop="ResolutionScale", body=b, kind=kind)
+    # ê overflowing binary64 while E encodes is the same terminal case (ROOT's
+    # A3b ruling; verify.rs `resolution_hats`): E first for every body, then ê.
+    for b in range(nb):
+        coords = [model["nodes"][nd] for nd in range(len(model["nodes"])) if body_of[nd] == b]
+        h = e_hat_em(resolution[b], body_extent_em(coords))
+        for kind, v in (("fo", h[0]), ("mo", h[1])):
             if v == math.inf:
                 return dict(stop="ResolutionScale", body=b, kind=kind)
     scale = em["scale"]
@@ -4279,6 +4296,20 @@ def estimate_lines():
     return lines
 
 
+def directional_span_lines():
+    """DIRECTIONAL-SPAN's exact published quantities (ROOT's A3b ruling: was
+    5a.2's publication within its claim?): q* = R*(u*), u* the exact solution
+    and R* the recovery at 4,096 bits with the exact ledger, per layout row,
+    rounded to 512 bits."""
+    m = next(x for x in models() if x["name"] == "DIRECTIONAL-SPAN")
+    mdl = canonical(m)
+    ex = solve_exact(m)
+    ustar = [ex["u.%d.%d" % (g // 6, g % 6)] for g in range(6 * len(mdl["nodes"]))]
+    ledger = emulate(m, 256)["ledger"]
+    qs = recover_em(hp_em(m), ustar, ledger)
+    return ["qstar DIRECTIONAL-SPAN %d %s" % (i, W_of(rp(q, 512), 8).token()) for i, q in enumerate(qs)]
+
+
 def build(parts=None):
     files = {}
     summary = {}
@@ -4331,6 +4362,8 @@ def build(parts=None):
         files["charge.txt"] = "\n".join(charge_lines()) + "\n"
     if want("estimate"):
         files["estimate.txt"] = "\n".join(estimate_lines()) + "\n"
+    if want("ds52"):
+        files["directional_span_exact.txt"] = "\n".join(directional_span_lines()) + "\n"
     if want("scale"):
         files["scale.txt"] = "\n".join(scale_lines()) + "\n"
     if want("bounds"):

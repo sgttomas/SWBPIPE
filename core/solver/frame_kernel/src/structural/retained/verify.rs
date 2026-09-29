@@ -326,6 +326,35 @@ pub(crate) fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
     [fo.max(mo / extent), mo.max(extent * fo)]
 }
 
+/// ê per body from finite E (item 6a). An ê that overflows binary64 while E
+/// encodes (fl(L_b·E_fo) or fl(E_mo/L_b) beyond the range) is the same
+/// terminal case as E's own overflow (ROOT's A3b ruling): V, the estimate's
+/// threshold and the charge's allowance would be infinite, and no precision
+/// can pass, so the verification stops with `ResolutionScale` (F2a:
+/// `receipt_encoding`).
+pub(crate) fn resolution_hats(
+    resolution: &[[f64; 2]],
+    extents: &[f64],
+) -> Result<Vec<[f64; 2]>, AttemptStop> {
+    resolution
+        .iter()
+        .zip(extents)
+        .enumerate()
+        .map(|(b, (e, &extent))| {
+            let hat = e_hat(*e, extent);
+            for (kind, v) in [(Kind::Force, hat[0]), (Kind::Moment, hat[1])] {
+                if !v.is_finite() {
+                    return Err(AttemptStop::ResolutionScale {
+                        body: b as u32,
+                        kind,
+                    });
+                }
+            }
+            Ok(hat)
+        })
+        .collect()
+}
+
 /// Φ = fl↑(2^-438·ê): the nearest, then the next up when it is below the exact
 /// product (decided exactly, as `absolute_bound` decides b).
 pub(crate) fn phi_512(e_hat: f64) -> f64 {
@@ -726,6 +755,8 @@ where
                 }
             }
         }
+        // E encodes for every body; then ê (ROOT's A3b ruling).
+        resolution_hats(&resolution, &prep.extents)?;
         let t1 = spent(&ctx, &ctx_w, &sum);
         // ---- The exact prescribed values (item 1): each term c·v at q_W and
         // at P (both exact: at most 106 bits), and whether the sum is nonzero.

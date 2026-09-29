@@ -618,6 +618,29 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
             "512:rejected:verification_estimate",
         ],
     );
+    // ROOT's A3b ruling: E finite at the 256 verification while
+    // ê_mo = fl(L_b·E_fo) overflows is the same terminal case as E's overflow.
+    expect(
+        "EHAT-OVERFLOW",
+        None,
+        &[
+            "128:rejected:verification_failed",
+            "256:failed:ResolutionScale",
+        ],
+    );
+    assert_eq!(
+        runs["EHAT-OVERFLOW"].unresolved.as_deref(),
+        Some(
+            format!(
+                "{:?}",
+                UnresolvedReason::ResolutionScaleUnencodable {
+                    body: 0,
+                    kind: Kind::Moment
+                }
+            )
+            .as_str()
+        )
+    );
     for name in ["CEIL-A", "CEIL-B"] {
         expect(
             name,
@@ -719,6 +742,141 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
     let (_, _, b) = classes("EXACT-RIGID");
     println!("EXACT-RIGID: b {b:e}");
     assert!(b > 0.0 && b < 1.2e-150, "{b:e}");
+}
+
+// ---------------------------------------------------------------- DIRECTIONAL-SPAN under 5a.2
+
+const DIRECTIONAL_SPAN_EXACT: &str = include_str!("directional_span_exact.txt");
+
+fn span_state(p: u32, prep: &CasePrep, group: &GroupPrep) -> PrecisionState {
+    let guard = StageGuard::unlimited();
+    match p {
+        128 => {
+            let sh = build_shared::<4, 4>(128, 192, &prep.source, group, guard)
+                .result
+                .unwrap();
+            PrecisionState::P128(Arc::new(
+                solve_case_at::<4, 4>(&sh, prep, group, guard)
+                    .result
+                    .unwrap(),
+            ))
+        }
+        256 => {
+            let sh = build_shared::<4, 8>(256, 320, &prep.source, group, guard)
+                .result
+                .unwrap();
+            PrecisionState::P256(Arc::new(
+                solve_case_at::<4, 8>(&sh, prep, group, guard)
+                    .result
+                    .unwrap(),
+            ))
+        }
+        _ => {
+            let sh = build_shared::<8, 16>(512, 576, &prep.source, group, guard)
+                .result
+                .unwrap();
+            PrecisionState::P512(Arc::new(
+                solve_case_at::<8, 16>(&sh, prep, group, guard)
+                    .result
+                    .unwrap(),
+            ))
+        }
+    }
+}
+
+/// ROOT's A3b ruling: was 5a.2's publication of DIRECTIONAL-SPAN within its
+/// claim? 5a.2's rule is `stop_rule` (no V and no (b)–(d)) on the same states
+/// (every gate coalesced); q* is GEN's exact published quantity per layout
+/// row, rounded to 512 bits (`directional_span_exact.txt`).
+#[test]
+fn directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim() {
+    let m = models::model("DIRECTIONAL-SPAN");
+    let prep = CasePrep::new(m.source()).unwrap();
+    let group = prepare_group(&prep.source).unwrap();
+    let guard = StageGuard::unlimited();
+    let (PrecisionState::P128(s128), PrecisionState::P256(s256), PrecisionState::P512(s512)) = (
+        span_state(128, &prep, &group),
+        span_state(256, &prep, &group),
+        span_state(512, &prep, &group),
+    ) else {
+        unreachable!()
+    };
+    for gate in [s128.gate, s256.gate, s512.gate] {
+        assert_eq!(gate, GateTest::Coalesced);
+    }
+    // 5a.2's schedule: 128 rejected at u(0, Rx) (layout index 3), 256 accepted.
+    let layout = &prep.layout;
+    let extents = &prep.extents;
+    let d = stop_rule(
+        layout,
+        extents,
+        &s128.recovered.values,
+        &s256.recovered.values,
+        256,
+        guard,
+    );
+    assert_eq!((d.result.unwrap(), d.first_failure), (false, Some(3)));
+    let d = stop_rule(
+        layout,
+        extents,
+        &s256.recovered.values,
+        &s512.recovered.values,
+        512,
+        guard,
+    );
+    assert!(d.result.unwrap());
+    // Its claim at 256, per row: |q_256 − q*| ≤ 2^-64·M_q with M_q =
+    // max(|q_512|, S*) as its stop rule formed it; and each published row it
+    // withheld as absolute_verified: |q_pub − q*| ≤ b·(1 + 2^-22).
+    let qstar: Vec<Wide<8>> = DIRECTIONAL_SPAN_EXACT
+        .lines()
+        .map(|l| support::parse::<8>(l.split_whitespace().nth(3).unwrap()))
+        .collect();
+    assert_eq!(qstar.len(), layout.len());
+    let mut ctx = WideContext::<8>::new(512).unwrap();
+    let scales = scales_at(&mut ctx, layout, &s512.recovered.values, extents).unwrap();
+    let mut values = PrecisionState::P256(s256.clone()).published();
+    prep.publish_prescribed(&mut values);
+    let publication = classify_rows(layout, &values, extents);
+    let mut ctx16 = WideContext::<16>::new(1024).unwrap();
+    let (mut worst, mut worst_at, mut absolute) = (0.0f64, 0usize, 0);
+    for (index, meta) in layout.iter().enumerate() {
+        let q2 = &s512.recovered.values[index];
+        let s_star = &scales[meta.body as usize][meta.kind.index()];
+        let magnitude = if q2.abs().cmp_value(s_star) == CmpOrdering::Greater {
+            q2.abs()
+        } else {
+            *s_star
+        };
+        let mut err = ExactWideSum::new();
+        err.add_wide(&s256.recovered.values[index], false).unwrap();
+        err.add_wide(&qstar[index], true).unwrap();
+        err.make_absolute();
+        let err = err.round(&mut ctx16).unwrap();
+        let r = ratio(&err, &magnitude.widen::<16>().mul_pow2(-64).unwrap());
+        if r > worst {
+            (worst, worst_at) = (r, index);
+        }
+        if let RowClass::AbsoluteVerified { bound_bits } = publication.rows[index].class {
+            let b = f64::from_bits(bound_bits) * (1.0 + 2f64.powi(-22));
+            let mut e = ExactWideSum::new();
+            e.add_binary64(values[index].value().unwrap(), false)
+                .unwrap();
+            e.add_wide(&qstar[index], true).unwrap();
+            e.make_absolute();
+            e.add_binary64(b, true).unwrap();
+            assert!(e.signum() <= 0, "{:?}: beyond b", meta.id);
+            absolute += 1;
+        }
+    }
+    println!(
+        "DIRECTIONAL-SPAN, 5a.2 at 256: worst |q_256 − q*|/(2^-64·M) {worst:e} at {:?}; \
+         {absolute} absolute rows within b",
+        layout[worst_at].id
+    );
+    // Within its claim by far: 5a.3 withholds a correct publication (an
+    // availability loss, not a false claim).
+    assert!(worst < 2f64.powi(-70), "{worst:e}");
 }
 
 // ---------------------------------------------------------------- E-CHARGE and E-ESTIMATE

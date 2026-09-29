@@ -530,3 +530,20 @@ So E_group meets, for the group's published magnitude, every requirement R7's le
 - X ≈ K̃⁻¹ is formed in fixed point (integers scaled by 2^1024, truncating divisions), K̃'s dyadic entries scaled exactly to integers by 2^s.
 - **‖X‖₁ is formed exactly as a rational** (the largest column sum of |X|, an integer over 2^1024), and **‖R‖₁ = ‖I − K̃X‖₁ exactly as a rational** (each column of 2^(s+1024)·I − (2^s·K̃)·(2^1024·X) in exact integers, over 2^(s+1024)). No rounding enters either.
 - **‖R‖₁ < 1 is asserted explicitly** (and ‖R‖₁ < 2^-100, so that X is accurate), and the bound emitted is the exact rational ‖X‖₁/(1 − ‖R‖₁) ≥ ‖K̃⁻¹‖₁ (K̃⁻¹ = X(I − R)⁻¹, ‖(I − R)⁻¹‖₁ ≤ 1/(1 − ‖R‖₁)). E-UC asserts Uc_c, S_c and B_c ≥ that bound exactly, which is at least as strong as against the exact norm.
+
+### 22.3 DIRECTIONAL-SPAN: 5a.2's publication was within its claim (ROOT's A3b ruling)
+
+- **A correction to I12's A3b status.** 5a.2 selected DIRECTIONAL-SPAN at **256**, not 128. Its 128 candidate was rejected by 5a.2's own stop rule at u(0, Rx) (layout index 3; |q_128 − q_256| ≈ 5.6e14 × 2^-64·M: at κ ≈ 2^104 the 128 state's soft rotation is off by a relative 3.4e-5, and the 256 state's by far less than 2^-64). It was accepted at 256 against 512. Under 5a.3 the 256 and 512 candidates are rejected by the verification estimate, and the case is Unresolved(Ceiling).
+- **The check** (`method_tests.rs`, `directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim`). It rebuilds 5a.2's decision with `stop_rule` (5a.2's rule, with no V and no (b)–(d)) on K4's states, whose gates are all coalesced, so they are 5a.2's states. q\* is GEN's exact published quantity for every layout row (`directional_span_exact.txt`): u\* from the exact rational solve of the intended model, recovered at 4,096 bits with the exact ledger, and rounded to 512 bits.
+- **Result.**
+  - Every row satisfies |q_256 − q\*| ≤ 2^-64·M_q, with M_q = max(|q_512|, S\*) as 5a.2's stop rule formed it. The worst ratio is 1.5e-24, at node 1's displacement magnitude.
+  - The 17 rows published as `absolute_verified` satisfy |q_pub − q\*| ≤ b·(1 + 2^-22).
+  - **5a.2's publication was within b. It was not a false claim.** 5a.3 withholds a correct publication, which is the availability loss ROOT accepted: the 512 verification state's solve error (κ ≈ 2^104, so about 2^-408 relative) exceeds V/4 = 2^(6−512)·ê.
+
+### 22.4 E finite while ê overflows (ROOT's A3b ruling)
+
+- **The case.** E encodes, but ê_mo = fl(L_b·E_fo) or ê_fo = fl(E_mo/L_b) overflows binary64. V, the estimate's threshold and the charge's allowance would then be infinite, and no precision could pass.
+- **The mapping.** `verify.rs` `resolution_hats` checks ê for every body after E has encoded for every body, force before moment. An overflow is `AttemptStop::ResolutionScale { body, kind }`, so the case ends `Unresolved(ResolutionScaleUnencodable)` (F2a: `receipt_encoding`), as for E's own overflow, and is not escalated. Before the ruling it ended `Arithmetic(NonFinite)` in `decide`.
+- **The tests.**
+  - `an_e_hat_that_overflows_while_e_encodes_stops_as_e_does` (`verify_tests.rs`): the moment case at L_b = 4, the force case at L_b = 1/4, and the finite edge (fl(2·f64::MAX/2) = f64::MAX, and L_b = 0).
+  - The control **EHAT-OVERFLOW**: the skew pin with a 2^980 moment. At the 256 verification E_fo ≈ 9.9e307 and E_mo ≈ 1.2e306 encode, and L_b·E_fo overflows. The case ends `128:rejected:verification_failed`, `256:failed:ResolutionScale`, Unresolved(ResolutionScaleUnencodable { body: 0, kind: moment }). GEN emulates the same check (`verify_em`); every other record is unchanged, and GEN's diffs are purely additive.
