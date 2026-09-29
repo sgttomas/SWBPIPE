@@ -1,0 +1,92 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "DEC053:invented-grid-frame-5x6",
+  "--mode",
+  "w1a",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "540",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "../observations/k6b/counts.jsonl"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  4.37890625,
+  4.3154296875,
+  4.42431640625
+ ],
+ "load_before": [
+  4.37890625,
+  4.3154296875,
+  4.42431640625
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 9879552,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 4163025,
+ "repeats_heap_peak_move": 4214377,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 9616,
+  "ps_samples": 2,
+  "time_max_rss_bytes": 9879552,
+  "time_peak_footprint_bytes": 7913808,
+  "wait4_maxrss_bytes": 9879552
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "197_DEC053_invented-grid-frame-5x6_w1a",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 46,
+ "stdout_sha256": "ee432ef5cd6269300e630af446631b32a84455fd8acf1423d814592109e95f51",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 209017541,
+  "heap_peak": 4163025,
+  "heap_peak_move": 4214377,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "prefix_phase_heap_peak": null,
+  "prefix_phase_heap_peak_move": null,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 4163025,
+  "repeats_heap_peak_move": 4214377,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 0.2344,
+ "watchdog_last_kib": 9616,
+ "watchdog_polls": 2,
+ "watchdog_samples": [
+  [
+   0.023,
+   6976
+  ],
+  [
+   0.129,
+   9616
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

@@ -1,0 +1,15 @@
+#!/bin/bash
+# K6b slot b3: W1-T1, W1-T2, W1-T3 (re-run on 4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b, the parity fix), then all 24 W1-T4 rows; fresh records; stop on a stop (a Span-unresolved outcome is recorded, not a stop).
+cd <scratch>/i16/b3/src/projects/chirality-piping/core/solver/performance_harness/runner
+export PYTHONDONTWRITEBYTECODE=1
+for tier in W1-T1 W1-T2 W1-T3; do
+  echo "=== $tier $(date '+%H:%M:%S') load=$(sysctl -n vm.loadavg)"
+  python3 k6_runner.py --run --tier $tier --binary <wt>/k6b-target/b3/release/k6_observe --counts ../observations/k6b/counts.jsonl --records <scratch>/i16/b3/records --source-commit 4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b --source-tree b2c955d56fb4e0d8f963cfa6a44ff9983527434c > <scratch>/i16/b3/tier_$tier.log 2>&1
+  rc=$?; tail -1 <scratch>/i16/b3/tier_$tier.log; echo "=== $tier rc=$rc $(date '+%H:%M:%S')"
+  if [ $rc -ne 0 ]; then echo STOPPED; exit $rc; fi
+done
+echo "=== W1-T4 $(date '+%H:%M:%S') load=$(sysctl -n vm.loadavg)"
+python3 <scratch>/i16/b3/run_w1t4.py <scratch>/i16/b3/src/projects/chirality-piping/core/solver/performance_harness/runner <wt>/k6b-target/b3/release/k6_observe ../observations/k6b/counts.jsonl <scratch>/i16/b3/records 4eeb206c09b67b9c5f83ca89f5e66d188ad5a02b b2c955d56fb4e0d8f963cfa6a44ff9983527434c > <scratch>/i16/b3/tier_W1-T4.log 2>&1
+rc=$?; tail -1 <scratch>/i16/b3/tier_W1-T4.log; echo "=== W1-T4 rc=$rc $(date '+%H:%M:%S')"
+if [ $rc -ne 0 ]; then echo STOPPED; exit $rc; fi
+echo ALL_DONE

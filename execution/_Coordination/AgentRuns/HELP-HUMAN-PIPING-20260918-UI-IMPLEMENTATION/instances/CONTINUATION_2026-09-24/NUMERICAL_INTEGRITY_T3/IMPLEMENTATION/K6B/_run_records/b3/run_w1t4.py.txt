@@ -1,0 +1,16 @@
+"""K6b slot b3 (ROOT's ruling on the K6B-S3 stop, (c)): W1-T4's 24 rows after the W1-T1..T3 re-run,
+in the same fresh records folder, on the binary rebuilt from the parity fix. The archived runner is
+used unchanged, with one recorded override: W1-T4's by-name deferral is lifted, as ROOT approved.
+A w1a case that ends Unresolved(ExactSumSpan) is expected and recorded, not a stop: the runner stops
+only on parity failures, watchdog or heap-cap kills on admitted runs, errors and binary refusals,
+never on the outcome class. Every other stop condition still stops the tier."""
+import json, sys
+sys.dont_write_bytecode = True
+runner, binary, counts, records, commit, tree = sys.argv[1:7]
+sys.path.insert(0, runner)
+import k6_runner as r  # noqa: E402
+r.CONDITIONAL_TIERS = {}
+print('override: CONDITIONAL_TIERS emptied for W1-T4 (ROOT approval)', flush=True)
+out = r.run_tier('W1-T4', binary, counts, records, commit, tree, log=lambda *a: print(*a, flush=True))
+print(json.dumps(out), flush=True)
+sys.exit(1 if out['stop'] else 0)

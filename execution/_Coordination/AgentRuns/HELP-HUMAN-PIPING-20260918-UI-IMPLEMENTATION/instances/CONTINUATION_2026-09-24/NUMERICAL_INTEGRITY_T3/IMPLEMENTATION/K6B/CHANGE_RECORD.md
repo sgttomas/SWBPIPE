@@ -1,0 +1,88 @@
+# K6b change record: W1 observations on the K6 harness, and FK's `retained_api` export
+
+This is the draft PR record for slice K6b of T3 (numerical integrity), following `.agents/skills/chirality-change/SKILL.md`. It was implemented by I16 (TASK). The details are in `RETURN.md`.
+
+> **W1-T4 (10,000 members) is pre-KF3.** After KF3 merges, K6b merges main and re-runs W1-T4 as RETURN addendum 1, a records addendum that may follow K6b's merge. ROOT's W1 limits use the post-KF3 figures.
+
+- **Branch:** `codex/piping-k6b-20260929`, from main `ab02ee3a6` (K4 merged, PR #1054).
+- **Commits (made by ROOT):**
+  - `c0436769f`: the checkpoint-0 plan;
+  - `bb89e4f8f`: A0, FK's `retained_api` export (visibility only). It was cherry-picked onto the V-K branch as `3018343c2`, with the same patch-id;
+  - `fdbf132d4`: A0, H's test that the export suffices from outside FK;
+  - `73031b134`: A1, the `w1a` mode, the adapter, W1 counts, attempt and prefix records, and the W1 estimate;
+  - `f4d40dd17`: A2, the runner's W1 tiers with K6's four modes frozen, `k6b_analysis.py`, and counts for the 33 sealed models;
+  - `8bbcdfc8b` and `1f5c1a6d0`: C, the runner's backstop check (M14) and the prefix-limit assertion (M10);
+  - `b86081221`: main `0f5d8c7b4` (KF1, PR #1056) merged in;
+  - `082990c8d`: E_max follows KF1's bounded trackers at every site; counts regenerated;
+  - `4eeb206c0`: the stage-identity check on stopped builds (ROOT's ruling (a) at the K6B-S3 stop).
+- **Proposed next commit (D):**
+  - `H/runner/k6b_analysis.py`: `--packet` (the plan's §4 packet), and `H/runner/test_k6_runner.py`: `test_k6b_packet` (47 of 47);
+  - `H/observations/k6b/k6b_packet.json` (b3's packet, W1-T4 pre-KF3) and `H/observations/k6b/SHA256SUMS`;
+  - `H/README.md`: the stage-total rule and the packet;
+  - `T3/IMPLEMENTATION/K6B/`: `RETURN.md`, this record, `_run_records/` and `SHA256SUMS`.
+- **Size (the product tree, against main `0f5d8c7b4`, D included):**
+  - FK: 11 files, +269 −260, all A0 (visibility and the facade);
+  - H: 22 files in the committed head plus D's two new files; Rust +2,729 lines (tests 1,028), Python +737, data 26,587 (counts, K4SRC digests, the packet), README +10.
+  - `H/src/lib.rs`, `P/tests`, PP, SA, NI, SD, the fixtures and `.github` are untouched. No dependency or lockfile change.
+- **Basis:**
+  - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`): §4.8 ("for W1, limbs per entry") and the K6 and V-K rows of §6; K4 `RETURN.md` §12–§16 and its addenda; K6 `RETURN.md` §13;
+  - the I16 brief (`TASK_BRIEFS/I16_K6B_IMPLEMENTATION.md`) and the I15 brief it builds on;
+  - the checkpoint-0 plan (`7d6b7af3…`), with ROOT's rulings C-1, C-2 and Q1–Q7, and V-K's Q8 for the export;
+  - `ROOT_RULINGS_V1.md`'s K6b and KF1 sections, from the spawn to "K6b: slot K6B-S4 (b3) accepted; D now, with W1-T4 pre-KF3".
+- **Platform:** Mac (`aarch64-apple-darwin`, Apple M5 Max, 128 GiB), rustc 1.97.1. **Every observation is Mac-only.**
+
+## What changes
+
+- **FK: the export (A0).** `pub mod retained_api` in `FK/structural.rs` re-exports K4 `RETURN.md` §16's list, extended by V-K's Q8: 72 items, 38 methods and 130 fields, by 240 `pub(crate)` → `pub` edits, with 20 dead-code markers removed. `PrecisionState` and `RetainedSolve::state` stay crate-private (C-2). No behaviour change. Only H names `retained_api`.
+- **New in H: `src/k6/w1/`.**
+  - The adapter `K6Model` → `SourceParts`: R1's node order, member ids 1..m, every restraint a constraint at 0, one load per nonzero DOF (`k6:<DOF>`), one station per member at 0.5.
+  - W1's counts (K4's structural profile by the exported RCM, the rows, limbs and storage by precision) and the W1 estimate E_max and E_sel128, derived from the struct definitions, with KF1's tracker bounds.
+  - The staged sequence over `solve_case`, the work accounting (own and shared stages, charged totals, the unstaged remainder of a stopped build), the budget-truncated prefixes, and R1's row keys and quantities.
+- **H: `k6_observe`'s `w1a` mode.** The outcome, one `attempt` line per attempt, W1's parity items, `prefix` lines, the rows dump (`k6b-rows v1`) and `--emit-source` (K4SRC). The binary's half-cap backstop applies to w1a.
+- **H: the runner.** `MODES` gains `w1a` while K6's tiers keep a frozen four-mode tuple (K6's 138 rows unchanged); W1-T1 to W1-T4 add 132 interleaved rows (ABAB/BABA); W1-T4 is deferred by name unless ROOT approves; `admission()` defers any row the binary's backstop would refuse. The outcome class is never a stop.
+- **H: `runner/k6b_analysis.py` and `runner/k6b_sources.py`** (standard library): the W1 figures, `--smoke`, `--project` and `--packet`; the independent K4SRC writer and `observations/k6b/sources.txt`.
+- **Tests:** `tests/k6b_{export,adapter,w1,bin}.rs` (determinism; equality with K4's `solve_case` and `solve_cases`; R1's unchanged predicate at 10 and 100 members from `K4T/r1_large.txt`, its sha256 asserted; counts; the work closure; the stopped-build path; the prefixes; the estimate against a hand derivation) and `runner/test_k6_runner.py` (44 → 47). No test asserts a time or memory bound.
+
+## What differs from the design's letter (ROOT's rulings)
+
+- **C-1:** a facade module instead of a flat `pub use`; **C-2:** `PrecisionState` stays crate-private.
+- **Q1:** memory per precision from budget-truncated prefix calls through the public API; the 512 and 1024 terms stay derived.
+- **Q2:** new JSONL kinds `attempt` and `prefix`; K6's kinds keep their schema.
+- **The A1 finding:** E_max keeps the worst-case tracker term; W1-T4 waited for W1-T3 and then for KF1.
+- **The backstop stop:** W1-T4 deferred until KF1 (option (c)); the backstop stays independent; the runner checks it.
+- **The K6B-S3 stop:** the stage identity is checked on completed builds only; a stopped build's stage sum is at most its charged total, and the remainder is reported. `Span` outcomes are recorded, not stops.
+
+## Results (b3, slot K6B-S4, `4eeb206c0`; W1-T4 pre-KF3)
+
+- **132 processes, all ok, 0 parity failures, none deferred.** No watchdog kill, heap-cap abort or budget outcome; the memory guard logged no kill.
+- **Outcomes:** every w1a process at 10 to 1,000 members and on the DEC-053 nine selects 128 and verifies at 256. **At 10,000 members only CONT-AX selects;** CHAIN-AX and -ROT, TREE-AX and -ROT and CONT-ROT end `Unresolved(ExactSumSpan)` in the 256 verification's `uc` stage, as V-K's B found. Routed to KF3.
+- **R1's predicate:** 10,293 comparisons on the published rows, 0 failures, worst 1.75e-6 of the allowance (CONT-AX at 10,000 included).
+- **The claims (observations, not thresholds):**
+  - W1's heap grows with a log-log slope of 0.92–0.98 per family from 10 to 10,000 members (K6's sparse 1.00);
+  - W1's measured heap is 4–31% of E_max and ρ_fp is at most 0.43; E_max at 10,000 members is 2.59–2.66 GiB.
+- **CONT-AX at 10,000 members:** 8.23 G LME charged, heap 814 MiB, median call 6.09 s (7.6 × the binary64 sparse entry); the stop rule is 2.60 G LME, 31.5% of the call, and adds no heap after KF1.
+- **Findings:** K4's stop-rule tracker memory (routed to KF1, merged); the runner's admission missed the binary's backstop (fixed at C); the Span at 10,000 members and K4's stage breakdown on that error path (routed to KF3); K6's sparse footprint ρ up to 1.75 at 10,000 members (a K6 observation, not a stop).
+- **Mutations:** 24 mutants, 23 killed and 1 equivalent (M3e, derived); M10 was killed by the approved assertion; the six parity-fix mutants are killed.
+- **H's debug suite:** 65.3 s → 80.6 s (+15 s), warning-free.
+
+## Limits
+
+- **Mac only;** no Linux, no product-level run (V-P).
+- **W1-T4 is pre-KF3;** the post-KF3 re-run is RETURN addendum 1.
+- **Not measured:** 512 and 1024 memory and work (no RF-LARGE or DEC-053 model escalates); any limit or ceiling (ROOT's, from K6, K6b, V-K and K4's work counts).
+- **Timings carry their recorded load** and are observations only; no build comparison is made.
+- The pytest wrapper was not re-run after `082990c8d` (it builds with cargo); the runner suite passes 47 of 47 at D.
+
+## Gates (ROOT runs the PR)
+
+- An independent complete-diff review on the exact head: it re-derives the W1 estimate, re-checks the adapter against `references.py`, re-runs the mutants and traces the numbers to the raw JSONL (the brief's Gates).
+- FK's full suite, K4's suite, and H's debug suite with its time; the runner suite and the pytest wrapper.
+- Hosted CI, with the full-SHA dispatch of `piping-desktop-e2e.yml`; DEC-025 under the owner's Mac decision; GEN-8 before the records commit.
+- The scan of Scope 1 (`_run_records/d/scan_d.txt`). T9 and the both-entry gate are not run: no product crate names an exported item, so no published byte can change.
+
+## Downstream notices
+
+- **ROOT's W1 limits (D-8) and F2a:** RETURN §13.5 gives the per-family and per-size figures, what they cover, and what is still needed (the post-KF3 W1-T4 first).
+- **V-K:** A0 is on both branches; whichever PR merges first carries the export to main, and the other merges main cleanly. K6b's 10,000-member outcomes agree with V-K's B.
+- **KF3:** the Span at 10,000 members (five models, in the 256 verification's `uc` stage) and the unrecorded partial `uc` work, with the charged remainders in RETURN §7.3.
+- **K6:** the sparse footprint observation at 10,000 members (RETURN §7.5) and N-4's constant 141 B (§6.5).

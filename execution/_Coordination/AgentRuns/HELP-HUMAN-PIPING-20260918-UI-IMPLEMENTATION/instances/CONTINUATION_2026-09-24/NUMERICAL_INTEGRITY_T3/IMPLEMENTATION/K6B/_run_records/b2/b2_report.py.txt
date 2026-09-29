@@ -1,0 +1,127 @@
+"""K6b B: the report of W1-T1 to W1-T3 from the runner's records (standard library).
+
+Usage: python3 b_report.py <runner dir> <records dir> <projection.json> > b_report.txt
+"""
+import json
+import os
+import sys
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, sys.argv[1])
+import k6_runner as r  # noqa: E402
+import k6b_analysis as a  # noqa: E402
+
+records_dir, projection_path = sys.argv[2], sys.argv[3]
+records = r.read_records(records_dir)
+runs = [x for x in r.run_entries(records) if x['tier'].startswith('W1-') and x.get('classification') != 'not_run']
+not_run = [x for x in r.run_entries(records) if x['tier'].startswith('W1-') and x.get('classification') == 'not_run']
+with open(projection_path) as fh:
+    projection = {(x['order']): x for x in json.load(fh)['rows']}
+
+
+def objects(run_id):
+    with open(os.path.join(records_dir, run_id + '.jsonl')) as fh:
+        return r.jsonl(fh)
+
+
+def mib(x):
+    return None if x is None else round(x / 2 ** 20, 2)
+
+
+print('# K6b slot K6B-S3 report: W1-T1 to W1-T4 on 082990c8d (post-KF1) (observations only; times carry their load)')
+print('runs %d, not run %d, classifications %s' % (len(runs), len(not_run),
+      sorted({x['classification'] for x in runs})))
+print('parity failures: %s' % sum(len(x.get('parity_failures') or []) for x in runs))
+print()
+print('## per run')
+print('order tier model mode pass class p heap_MiB heap_move_MiB rss_MiB footprint_MiB median_ms min_ms '
+      's_per_LME_ns charged load_before load_after')
+figures = {}
+pair_time = {}
+for x in runs:
+    obj = objects(x['run_id'])
+    rss = x.get('rss') or {}
+    lb = (x.get('load_before') or [None])[0]
+    la = (x.get('load_after') or [None])[0]
+    if x['mode'] == 'w1a':
+        f = a.w1_figures(obj)
+        figures[x['order']] = (x, f, obj)
+        print(x['order'], x['tier'], x['model'], 'w1a', x['pass'], f['class'], f['selected_precision'],
+              mib(x.get('repeats_heap_peak')), mib(x.get('repeats_heap_peak_move')), mib(x.get('peak_rss_bytes')),
+              mib(rss.get('time_peak_footprint_bytes')), round(f['solve_median_ns'] / 1e6, 1),
+              round(f['solve_min_ns'] / 1e6, 1), round(f['s_per_lme_median'] * 1e9, 3), f['meter_charged'], lb, la)
+        pair_time.setdefault((x['model'], x['pass']), {})['w1a'] = f['solve_median_ns']
+    else:
+        sp = a.sparse_figures(obj)
+        print(x['order'], x['tier'], x['model'], 'sparse', x['pass'], r.observed_class(obj), '-',
+              mib(x.get('repeats_heap_peak')), mib(x.get('repeats_heap_peak_move')), mib(x.get('peak_rss_bytes')),
+              mib(rss.get('time_peak_footprint_bytes')), round(sp['staged_median_ns'] / 1e6, 2),
+              round((sp['entry_checked_median_ns'] or 0) / 1e6, 2), '-', '-', lb, la)
+        pair_time.setdefault((x['model'], x['pass']), {})['sparse_entry'] = sp['entry_checked_median_ns']
+        pair_time[(x['model'], x['pass'])]['sparse_staged'] = sp['staged_median_ns']
+
+print()
+print('## W1/binary64 time multiple per pair (median w1_solve / median entry_checked; / staged total)')
+for (model_id, p), t in sorted(pair_time.items()):
+    if 'w1a' in t and t.get('sparse_entry'):
+        print(model_id, 'pass', p, round(t['w1a'] / t['sparse_entry'], 1), round(t['w1a'] / t['sparse_staged'], 1))
+
+print()
+print('## work by stage and precision (repeat 0 attempts; own stages and shared stages, LME)')
+for order, (x, f, obj) in sorted(figures.items()):
+    if x['pass'] != 1:
+        continue
+    attempts = [o for o in obj if o.get('kind') == 'attempt' and o['repeat'] == 0]
+    for att in attempts:
+        own = {k[4:]: v for k, v in att.items() if k.startswith('own_') and k != 'own_total' and v}
+        shared = {k[7:]: v for k, v in att.items() if k.startswith('shared_') and isinstance(v, int)
+                  and not isinstance(v, bool) and k not in ('shared_work',) and v}
+        print(x['model'], 'p%d' % att['precision'], att['role'], att['outcome'], 'own', own, 'shared', shared,
+              'shift_factorizations', att.get('verification_shift_factorizations'))
+
+print()
+print('## W1-T3 and W1-T4 prefixes and the stop rule, against the A2 projection (pre-KF1 estimate)')
+for order, (x, f, obj) in sorted(figures.items()):
+    if x['tier'] not in ('W1-T3', 'W1-T4') or x['pass'] != 1:
+        continue
+    pr = projection.get(order, {})
+    print(x['model'], 'call heap %.2f MiB' % mib(f['call_heap_peak']),
+          'prefixes', [(p['through_segment'], mib(p['heap_peak']), mib(p['increment']),
+                        round(p['elapsed_ns'] / 1e9, 3)) for p in f['prefixes']],
+          'stop-rule increment %.2f MiB' % mib(f['decide_increment']),
+          'kept equivalent %d' % f['tracker_entries_equivalent'],
+          'projected kept %s' % pr.get('tracker_entries_expected'),
+          'worst %s MiB' % mib(pr.get('tracker_worst_bytes')),
+          'projected call %ss measured %.2fs' % (pr.get('projected_call_s'), f['solve_median_ns'] / 1e9))
+
+print()
+print('## kept equivalents by size (pass 1)')
+for order, (x, f, obj) in sorted(figures.items()):
+    if x['pass'] == 1 and x['model'].startswith('RF-LARGE'):
+        print(x['model'], x['members'], 'rows', f['rows'], 'kept_equiv %.0f' % f['tracker_entries_equivalent'],
+              'kept/rows %s' % ('%.3f' % (f['tracker_entries_equivalent'] / f['rows']) if f['rows'] else 'n/a (not Selected)'))
+
+print()
+print('## growth fits 10 -> 10,000 members (log-log, pass 1)')
+base = [x for x in records if x.get('run_id', '').startswith('baseline')]
+series = {}
+for x in runs:
+    if x['pass'] != 1 or not x['model'].startswith('RF-LARGE'):
+        continue
+    key = (x['family'], x['mode'])
+    s = series.setdefault(key, {'heap_move': [], 'rss_net': []})
+    s['heap_move'].append((x['members'], x['repeats_heap_peak_move']))
+    if x.get('peak_rss_bytes') and x.get('baseline_rss_bytes'):
+        s['rss_net'].append((x['members'], max(1, x['peak_rss_bytes'] - x['baseline_rss_bytes'])))
+for key, s in sorted(series.items()):
+    print(key, 'heap_move', r.fit_loglog(s['heap_move']), 'rss_net', r.fit_loglog(s['rss_net']))
+
+print()
+print('## measured rho (footprint net of the baseline, or heap move, over E_adm)')
+for x in runs:
+    if x['pass'] != 1:
+        continue
+    rho = r.measured_footprint_ratio(x, x.get('baseline_footprint_bytes'))
+    rho_rss = r.measured_ratio(x, x.get('baseline_rss_bytes'))
+    print(x['model'], x['mode'], 'rho_fp %.4f rho_rss %.4f' % (rho, rho_rss),
+          'heap/E %.4f' % (x['repeats_heap_peak_move'] / x['estimate_adm_bytes']))

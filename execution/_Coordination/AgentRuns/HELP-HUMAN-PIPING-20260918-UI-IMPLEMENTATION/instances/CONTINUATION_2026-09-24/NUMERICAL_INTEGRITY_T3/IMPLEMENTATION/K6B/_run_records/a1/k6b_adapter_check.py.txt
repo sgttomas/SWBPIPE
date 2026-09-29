@@ -1,0 +1,146 @@
+"""K6b (plan Q6(a)): the adapter's K4SRC against R1's own models, built independently.
+
+Usage: python3 k6b_adapter_check.py <references.py> <k6_observe binary>
+
+For each of the 24 RF-LARGE cases, R1's ``model_json(defn, full=True)`` (what
+``references.py --model <id>`` prints; imported as K6's crosscheck imports it) is turned
+into K4SRC bytes here, independently of the Rust generator and of K4's test adapter:
+R1's node and member order, every exact input rounded once (``float(Fraction)``), K6's
+stated section formula on OD and ID (explicit products and pi), P1's y_reference rule on
+R1's exact coordinate differences (least-aligned axis; Y, then Z, then X on ties), every
+rigid DOF a constraint at 0.0, one load per nonzero component with source id
+``k6:<global DOF>``, one station per member at 0.5, and K4's documented encoding
+(K4 RETURN section 13). Those bytes are compared with ``k6_observe --emit-source``.
+A difference is a stop. Standard library only; no bytecode is written.
+"""
+import hashlib
+import importlib.util
+import math
+import struct
+import subprocess
+import sys
+from fractions import Fraction as Fr
+
+sys.dont_write_bytecode = True
+DOFS = ('UX', 'UY', 'UZ', 'RX', 'RY', 'RZ')
+
+
+def load_refs(path):
+    spec = importlib.util.spec_from_file_location('references', path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules['references'] = module
+    spec.loader.exec_module(module)
+    module.build_large()
+    return module
+
+
+def f64(x):
+    return float(Fr(x))
+
+
+def section_bits(od, id_):
+    od2, id2 = od * od, id_ * id_
+    a = math.pi * (od2 - id2) / 4.0
+    i = math.pi * (od2 * od2 - id2 * id2) / 64.0
+    return [a, i, i, 2.0 * i]
+
+
+def y_reference(pi, pj):
+    mags = [abs(Fr(pj[k]) - Fr(pi[k])) for k in range(3)]
+    best = min((1, 2, 0), key=lambda k: mags[k])
+    return [1.0 if k == best else 0.0 for k in range(3)]
+
+
+def k4src(ref):
+    out = bytearray(b'K4SRC\x01')
+
+    def u32(v):
+        out.extend(struct.pack('<I', v))
+
+    def d(v):
+        out.extend(struct.pack('<d', v))
+
+    def dof(g):
+        u32(g // 6)
+        out.append(g % 6)
+
+    labels = list(ref['nodes_m'].keys())
+    index = {l: i for i, l in enumerate(labels)}
+    u32(len(labels))
+    for label in labels:
+        for c in ref['nodes_m'][label]:
+            d(f64(c))
+    (sec,) = ref['sections'].values()
+    props = [f64(sec['E']), f64(sec['G'])] + section_bits(f64(sec['OD']), f64(sec['ID']))
+    u32(len(ref['members']))
+    for k, (_mid, a, b, _sec) in enumerate(ref['members']):
+        u32(k + 1)
+        u32(index[a])
+        u32(index[b])
+        for v in props:
+            d(v)
+        for c in y_reference(ref['nodes_m'][a], ref['nodes_m'][b]):
+            d(c)
+    u32(0)
+    u32(0)
+    constraints = []
+    for node, s in ref['supports'].items():
+        assert not s.get('springs'), node
+        for name in s['rigid']:
+            constraints.append(index[node] * 6 + DOFS.index(name))
+    constraints.sort()
+    u32(len(constraints))
+    for g in constraints:
+        dof(g)
+        d(0.0)
+    loads = {}
+    for node, ld in ref['loads'].items():
+        for kind, offset in (('F', 0), ('M', 3)):
+            for axis, c in enumerate(ld.get(kind, ('0', '0', '0'))):
+                if Fr(c) != 0:
+                    loads[index[node] * 6 + offset + axis] = f64(c)
+    u32(len(loads))
+    for g in sorted(loads):
+        dof(g)
+        sid = ('k6:%d' % g).encode('ascii')
+        u32(len(sid))
+        out.extend(sid)
+        d(loads[g])
+    u32(len(ref['members']))
+    for k in range(len(ref['members'])):
+        u32(k + 1)
+        u32(k + 1)
+        d(0.5)
+    u32(0)
+    return bytes(out)
+
+
+def first_difference(a, b):
+    for k, (x, y) in enumerate(zip(a, b)):
+        if x != y:
+            return k
+    return min(len(a), len(b))
+
+
+def main():
+    refs_path, binary = sys.argv[1], sys.argv[2]
+    refs = load_refs(refs_path)
+    ids = ['RF-LARGE-%s-n%05d-%s' % (f, n, o) for f in ('CHAIN', 'TREE', 'CONT')
+           for n in (10, 100, 1000, 10000) for o in ('AX', 'ROT')]
+    failures = 0
+    for case_id in ids:
+        case = next(c for c in refs.CASES if c['id'] == case_id)
+        ours = k4src(refs.model_json(case['defn'], full=True))
+        emitted = bytes.fromhex(subprocess.run([binary, '--emit-source', '--model', case_id],
+                                               check=True, capture_output=True, text=True).stdout.strip())
+        equal = ours == emitted
+        failures += not equal
+        print('%s %s len=%d sha256=%s%s' % (
+            'EQUAL' if equal else 'DIFFERS', case_id, len(ours), hashlib.sha256(ours).hexdigest(),
+            '' if equal else ' first difference at byte %d' % first_difference(ours, emitted)))
+    print('summary: %d of %d equal' % (len(ids) - failures, len(ids)))
+    return 1 if failures else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

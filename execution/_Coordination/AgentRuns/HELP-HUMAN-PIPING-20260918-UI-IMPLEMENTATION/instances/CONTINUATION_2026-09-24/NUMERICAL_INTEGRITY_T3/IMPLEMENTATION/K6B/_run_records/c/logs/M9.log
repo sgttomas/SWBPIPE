@@ -1,0 +1,17 @@
+$ <home>/.local/share/mise/installs/python/3.13/bin/python3 -m unittest test_k6_runner
+...................................F.........
+======================================================================
+FAIL: test_w1_tiers (test_k6_runner.PlanAdmission.test_w1_tiers)
+K6b (plan section 4): four W1 tiers of ABAB/BABA pairs, 132 rows after K6's 138.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/k6b-mut/M9/src/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 573, in test_w1_tiers
+    self.assertIn(modes, (['w1a', 'sparse', 'w1a', 'sparse'], ['sparse', 'w1a', 'sparse', 'w1a']))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['w1a', 'w1a', 'sparse', 'sparse'] not found in (['w1a', 'sparse', 'w1a', 'sparse'], ['sparse', 'w1a', 'sparse', 'w1a'])
+
+----------------------------------------------------------------------
+Ran 45 tests in 7.900s
+
+FAILED (failures=1)
+

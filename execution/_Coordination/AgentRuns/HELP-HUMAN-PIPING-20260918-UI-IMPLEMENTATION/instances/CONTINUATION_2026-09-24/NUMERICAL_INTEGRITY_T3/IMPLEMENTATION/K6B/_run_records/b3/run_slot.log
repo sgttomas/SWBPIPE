@@ -1,0 +1,13 @@
+=== W1-T1 16:30:21 load={ 4.01 4.25 4.40 }
+{"stop": [], "stop_after_tier": []}
+=== W1-T1 rc=0 16:30:36
+=== W1-T2 16:30:36 load={ 4.38 4.32 4.42 }
+{"stop": [], "stop_after_tier": []}
+=== W1-T2 rc=0 16:30:49
+=== W1-T3 16:30:49 load={ 4.17 4.27 4.41 }
+{"stop": [], "stop_after_tier": []}
+=== W1-T3 rc=0 16:32:28
+=== W1-T4 16:32:28 load={ 5.46 4.73 4.57 }
+{"stop": [], "stop_after_tier": []}
+=== W1-T4 rc=0 16:42:50
+ALL_DONE

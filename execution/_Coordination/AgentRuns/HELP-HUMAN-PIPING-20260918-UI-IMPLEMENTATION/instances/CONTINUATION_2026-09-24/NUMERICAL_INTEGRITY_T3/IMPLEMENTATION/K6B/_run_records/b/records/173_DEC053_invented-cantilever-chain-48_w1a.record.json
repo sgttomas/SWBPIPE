@@ -1,0 +1,92 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "DEC053:invented-cantilever-chain-48",
+  "--mode",
+  "w1a",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "540",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "../observations/k6b/counts.jsonl"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  5.9384765625,
+  5.6640625,
+  5.12646484375
+ ],
+ "load_before": [
+  5.9384765625,
+  5.6640625,
+  5.12646484375
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 11993088,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 6243683,
+ "repeats_heap_peak_move": 6794595,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 11712,
+  "ps_samples": 2,
+  "time_max_rss_bytes": 11993088,
+  "time_peak_footprint_bytes": 10076496,
+  "wait4_maxrss_bytes": 11993088
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "173_DEC053_invented-cantilever-chain-48_w1a",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 46,
+ "stdout_sha256": "464e16ec6110cc59c987b153fbec6f2207dc1792da832f4db812cc7cc8bf613a",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 156566708,
+  "heap_peak": 6243683,
+  "heap_peak_move": 6794595,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "prefix_phase_heap_peak": null,
+  "prefix_phase_heap_peak_move": null,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 6243683,
+  "repeats_heap_peak_move": 6794595,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 0.2481,
+ "watchdog_last_kib": 11712,
+ "watchdog_polls": 2,
+ "watchdog_samples": [
+  [
+   0.024,
+   7968
+  ],
+  [
+   0.134,
+   11712
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

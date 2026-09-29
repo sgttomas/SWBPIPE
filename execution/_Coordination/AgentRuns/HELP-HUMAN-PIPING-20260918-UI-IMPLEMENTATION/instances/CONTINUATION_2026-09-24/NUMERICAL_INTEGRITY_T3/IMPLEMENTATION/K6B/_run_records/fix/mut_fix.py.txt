@@ -1,0 +1,118 @@
+"""K6b: the mutants of the parity fix (ROOT's ruling on the K6B-S3 stop; NONE first). Standard library only.
+
+Usage: python3 mut.py <worktree k6b> <mutants root> <results.jsonl> [ids...]
+
+Each mutant: a clean `git archive <base>` of the core tree, with the candidate's changed files
+copied over it (the candidate is the base plus the working tree's uncommitted changes), then
+the mutant's exact edits (each old string must occur exactly the stated number of times). Rust
+mutants run the K6b test binaries in debug with the mutant's own target, deleted afterwards;
+Python mutants run the runner's unittest suite. One cargo job at -j 4, RUST_TEST_THREADS=2.
+"""
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+
+sys.dont_write_bytecode = True
+BASE = '082990c8d'
+SOLVER = 'projects/chirality-piping/core/solver'
+H = SOLVER + '/performance_harness'
+RUST_TESTS = ['--test', 'k6b_adapter', '--test', 'k6b_w1', '--test', 'k6b_bin', '--test', 'k6b_export']
+
+MUTANTS = [
+    ('NONE', 'the candidate', 'both', []),
+    ('M15', 'the fix reverted: a stopped build is held to the equality', 'rust', [(
+        H + '/src/k6/w1/staged.rs', '            own <= own_total(a) && shared <= shared_total(a)\n',
+        '            own == own_total(a) && shared == shared_total(a)\n', 1)]),
+    ('M16', 'every build is checked by the inequality (completed builds too)', 'rust', [(
+        H + '/src/k6/w1/staged.rs', '            own == own_total(a) && shared == shared_total(a)\n        } else {\n',
+        '            own <= own_total(a) && shared <= shared_total(a)\n        } else {\n', 1)]),
+    ('M17', 'a stopped build passes unchecked', 'rust', [(
+        H + '/src/k6/w1/staged.rs', '            own <= own_total(a) && shared <= shared_total(a)\n',
+        '            true\n', 1)]),
+    ('M18', "the per-precision shared total is the stage sum, not the charged total", 'rust', [(
+        H + '/src/k6/w1/staged.rs',
+        '        entry.shared_total = entry.shared_total.saturating_add(shared_total(a));\n',
+        '        entry.shared_total = entry.shared_total.saturating_add(stage_sum(&a.shared_stages));\n', 1)]),
+    ('M20', 'the unstaged remainder swaps own and shared', 'rust', [(
+        H + '/src/k6/w1/staged.rs',
+        '    (\n        own_total(a).saturating_sub(stage_sum(&a.stages)),\n'
+        '        shared_total(a).saturating_sub(stage_sum(&a.shared_stages)),\n    )\n',
+        '    (\n        shared_total(a).saturating_sub(stage_sum(&a.shared_stages)),\n'
+        '        own_total(a).saturating_sub(stage_sum(&a.stages)),\n    )\n', 1)]),
+    ('M19', "the analysis reports a stop-rule increment for an unresolved case", 'python', [(
+        H + '/runner/k6b_analysis.py', "        selected = first.get('class') == 'Selected'\n",
+        "        selected = True\n", 1)]),
+]
+
+
+def run(cmd, cwd, env, log):
+    t0 = time.time()
+    p = subprocess.run(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    log.write('$ %s\n%s\n' % (' '.join(cmd), p.stdout))
+    return p.returncode, time.time() - t0, p.stdout
+
+
+def main():
+    wt, root, results_path = sys.argv[1], sys.argv[2], sys.argv[3]
+    only = set(sys.argv[4:])
+    changed = subprocess.run(['git', 'diff', '--name-only', BASE, '--', 'projects/chirality-piping/core'],
+                             cwd=wt, stdout=subprocess.PIPE, text=True, check=True).stdout.split()
+    changed += subprocess.run(['git', 'ls-files', '--others', '--exclude-standard', '--',
+                               'projects/chirality-piping/core'],
+                              cwd=wt, stdout=subprocess.PIPE, text=True, check=True).stdout.split()
+    os.makedirs(root, exist_ok=True)
+    for mid, what, kind, edits in MUTANTS:
+        if only and mid not in only:
+            continue
+        mdir = os.path.join(root, mid)
+        shutil.rmtree(mdir, ignore_errors=True)
+        src = os.path.join(mdir, 'src')
+        os.makedirs(src)
+        archive = subprocess.run(['git', 'archive', BASE, 'projects/chirality-piping/core'], cwd=wt,
+                                 stdout=subprocess.PIPE, check=True).stdout
+        subprocess.run(['tar', '-x', '-C', src], input=archive, check=True)
+        for rel in changed:
+            dest = os.path.join(src, rel)
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            shutil.copy2(os.path.join(wt, rel), dest)
+        for rel, old, new, count in edits:
+            path = os.path.join(src, rel)
+            with open(path) as fh:
+                text = fh.read()
+            found = text.count(old)
+            assert found == count, (mid, rel, found, count)
+            with open(path, 'w') as fh:
+                fh.write(text.replace(old, new))
+        log_path = os.path.join(root, mid + '.log')
+        env = dict(os.environ, RUSTUP_TOOLCHAIN='1.97.1', RUSTUP_AUTO_INSTALL='0', CARGO_INCREMENTAL='0',
+                   CARGO_TARGET_DIR=os.path.join(mdir, 'target'), RUST_TEST_THREADS='2',
+                   PYTHONDONTWRITEBYTECODE='1')
+        record = {'mutant': mid, 'what': what, 'kind': kind, 'edits': len(edits)}
+        with open(log_path, 'w') as log:
+            if kind in ('rust', 'both'):
+                rc, secs, out = run(['cargo', 'test', '--offline', '--locked', '-j', '4'] + RUST_TESTS,
+                                    os.path.join(src, H), env, log)
+                record.update(rust_rc=rc, rust_s=round(secs, 1),
+                              rust_failed=[l.split()[1] for l in out.splitlines()
+                                           if l.startswith('test ') and l.endswith('FAILED')],
+                              rust_compile_error='error[' in out or 'could not compile' in out)
+            if kind in ('python', 'both'):
+                rc, secs, out = run([sys.executable, '-m', 'unittest', 'test_k6_runner'],
+                                    os.path.join(src, H, 'runner'), env, log)
+                record.update(py_rc=rc, py_s=round(secs, 1),
+                              py_failed=[l.split()[1] for l in out.splitlines()
+                                         if l.startswith(('FAIL:', 'ERROR:'))])
+        failed = record.get('rust_rc', 0) != 0 or record.get('py_rc', 0) != 0
+        record['result'] = ('passes (control)' if not failed else 'CONTROL FAILED') if mid == 'NONE' else \
+            ('killed' if failed else 'SURVIVED')
+        shutil.rmtree(mdir, ignore_errors=True)  # the clean copy and its target
+        with open(results_path, 'a') as fh:
+            fh.write(json.dumps(record, sort_keys=True) + '\n')
+        print(json.dumps(record, sort_keys=True), flush=True)
+
+
+if __name__ == '__main__':
+    main()

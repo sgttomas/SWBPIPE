@@ -1,0 +1,143 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (<wt>/k6b-target/debug/deps/open_pipe_stress_solver_performance_harness-00162947ea13f399)
+
+running 25 tests
+test tests::audit_condition_chain_matches_frozen_independent_reference ... ok
+test tests::audit_condition_resolves_tiny_coupled_blocks ... ok
+test tests::audit_nonfinite_diagnostics_are_not_zero ... ok
+test tests::audit_nonfinite_observations_fail_before_record_publication ... ok
+test tests::condition_thresholds_add_diagnostic_without_release_claim ... ok
+test tests::conditioning_observation_is_recorded_without_threshold_policy ... ok
+test tests::default_invented_suite_uses_declared_fixture_sizes ... ok
+test tests::fixture_force_length_must_match_node_dofs ... ok
+test tests::grid_fixture_rejects_degenerate_dimensions ... ok
+test tests::grid_fixture_supports_sparse_measurement_alongside_dense ... ok
+test tests::invented_fixture_produces_deterministic_repeat_record ... ok
+test tests::invented_suite_preserves_fixture_records_and_summary_counts ... ok
+test tests::audit_condition_matches_analytic_spectra_and_scaling ... ok
+test tests::rejects_invalid_repeat_count ... ok
+test tests::rejects_protected_or_unknown_fixture_provenance ... ok
+test tests::singular_fixture_records_located_sparse_singular_diagnostic ... ok
+test tests::singular_repeat_attempt_records_solver_diagnostic ... ok
+test tests::larger_generated_banded_grid_parity_stays_within_dec026_seed ... ok
+test tests::sparse_path_parity_is_observed_for_invented_chain_fixture ... ok
+test tests::sparse_suitability_observations_emit_accepted_threshold_policy ... ok
+test tests::suite_rejects_empty_fixture_size_list ... ok
+test tests::suite_rejects_zero_element_fixture_size ... ok
+test tests::suite_summary_aggregates_sparse_observations ... ok
+test tests::zero_element_fixture_is_rejected ... ok
+test tests::sparse_default_promotion_observations_cover_nine_practical_records ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.63s
+
+     Running tests/k6_alloc.rs (<wt>/k6b-target/debug/deps/k6_alloc-e484e4d1844396c4)
+k6_observe: heap cap refused 1 bytes (current 1612, cap 1612)
+k6_observe: heap cap refused 1 bytes (current 1612, cap 1612)
+k6_observe: heap cap refused 1 bytes (current 1612, cap 1612)
+k6_alloc: F1 accounting and F2 cap boundary passed
+     Running tests/k6_bin.rs (<wt>/k6b-target/debug/deps/k6_bin-5a792d9cf7d28d7c)
+
+running 11 tests
+test allow_over_estimate_needs_a_small_cap ... ok
+test cont_n10000_identity_lane_refused ... ok
+test counts_file_replaces_the_counts_phase ... ok
+test estimate_over_half_cap_refused ... ok
+test heap_cap_abort_is_marked ... ok
+test n2_modes_at_10000_refused_before_n2 ... ok
+test noop_prints_start_and_summary_only ... ok
+test peak_requested_bytes_are_deterministic ... ok
+test renamed_cont_n10000_lane_id_refused ... ok
+test summary_peak_is_the_largest_stage_peak_and_stage_peaks_restart ... ok
+test first_repeat_and_time_budget_stops ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.72s
+
+     Running tests/k6_counts.rs (<wt>/k6b-target/debug/deps/k6_counts-59bf6b92374d3fd0)
+
+running 4 tests
+test k1_table_cross_check ... ok
+test closed_forms ... ok
+test oracle_constants ... ok
+test rcm_count_equals_ordering ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s
+
+     Running tests/k6_models.rs (<wt>/k6b-target/debug/deps/k6_models-8cb691e5bb5df6bf)
+
+running 7 tests
+test canonical_bytes_equal_committed_models ... ok
+test loads_match_r1_at_ten_members ... ok
+test model_set_is_the_sealed_33_and_the_extras ... ok
+test model_shapes_follow_r1 ... ok
+test p1_y_reference_rule ... ok
+test section_bits_are_pinned ... ok
+test canonical_round_trip ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/k6_parity.rs (<wt>/k6b-target/debug/deps/k6_parity-42aeb3616416d83b)
+
+running 4 tests
+test bitwise_k_detects_differences ... ok
+test bitwise_k_equals_dense_assembly ... ok
+test outcome_parity_and_dec053_basis_small_models ... ok
+test outcome_parity_and_dec053_basis_100_member_models ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.08s
+
+     Running tests/k6_staged.rs (<wt>/k6b-target/debug/deps/k6_staged-ef514829d3eccf26)
+
+running 3 tests
+test staged_equals_sa_entries_100_member_models_sparse ... ok
+test staged_equals_sa_entries_small_models_both_modes ... ok
+test staged_equals_sa_entries_100_member_models_dense ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 43.48s
+
+     Running tests/k6b_adapter.rs (<wt>/k6b-target/debug/deps/k6b_adapter-877bc55d8ab91aa9)
+
+running 2 tests
+test the_encoding_is_deterministic_and_independent_of_list_order ... ok
+test the_adapters_bytes_equal_the_independent_python_bytes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/k6b_bin.rs (<wt>/k6b-target/debug/deps/k6b_bin-1bb57da95c12b13a)
+
+running 3 tests
+test emit_source_prints_the_adapters_encoding ... ok
+test w1a_admission_and_counts_file ... ok
+test w1a_prints_its_lines_and_every_parity_holds ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.96s
+
+     Running tests/k6b_export.rs (<wt>/k6b-target/debug/deps/k6b_export-8298f1eb6c851790)
+
+running 1 test
+test a_source_built_outside_fk_is_solved_and_read_through_the_public_path ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/k6b_w1.rs (<wt>/k6b-target/debug/deps/k6b_w1-dd8dac1ab4a39495)
+
+running 10 tests
+test prefixes_stop_on_the_case_budget_after_each_segment ... ok
+test r1_large_txt_is_the_pinned_file ... ok
+test outcomes_publications_evidence_and_work_are_deterministic ... ok
+test r1_predicate_and_counts_at_100_members_chain ... ok
+test r1_predicate_and_counts_at_100_members_cont ... ok
+test r1_predicate_and_counts_at_10_members ... ok
+test the_estimate_equals_a_hand_derivation ... ok
+test the_staged_solve_equals_k4s_own_entries ... ok
+test work_by_precision_files_each_attempt_under_its_own_precision ... ok
+test r1_predicate_and_counts_at_100_members_tree ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.53s
+
+   Doc-tests open_pipe_stress_solver_performance_harness
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+cargo test --offline --locked -j 4  109.08s user 0.26s system 136% cpu 1:19.93 total
