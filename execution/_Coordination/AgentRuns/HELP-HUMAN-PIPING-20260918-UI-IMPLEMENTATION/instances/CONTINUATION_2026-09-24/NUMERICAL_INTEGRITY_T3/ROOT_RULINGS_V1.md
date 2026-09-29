@@ -2321,3 +2321,15 @@ The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `
 - **The test hook (decision 4)** is accepted only under `#[cfg(test)]`. A thread-local override of T must not exist in a non-test build.
 - **After KF1 merges,** I16 recomputes K6b's E_max from KF1's code, for all trackers, before W1-T4.
 - **Next:** checkpoint A. K6b's timed slot is over, so builds may run: one cargo job at `-j 4`.
+
+## V-K: A1 accepted (ROOT, 2026-09-29)
+
+- **A1 is accepted.** ROOT committed it at `37bff1780` on the V-K branch.
+  - ROOT checked the key files' sha256, that both `SHA256SUMS` files verify (the cases and the kernel-lane observations), that no machine paths appear, and that there is no FK change.
+  - 40 tests pass. Every one of the 201 CI cases passes, apart from THIN's two expected-unresolved cases; the `not_covered` set equals the committed list; all 506 discriminating controls fail.
+  - §5.3's parity: K is bitwise equal between the sparse and dense paths, with matching classes, at up to 100 members.
+  - VR's measured CI cost is a 3.8 s build and 37 s of tests on the Mac.
+- **RF-MECH-DISC-CHAIN100 and -SPRING (103 members) take about 300 s each in dense mode.** This is K6's N10 dense-witness cost (KF2), not a new finding. They run in the `vk_records` example, not in CI, and CI's parity stays at 100 members or fewer.
+- **Next:** A2: the seeded faults, the FK `mutation-controls` feature (VK-F05 included) and the kill matrix.
+  - **KF1 is changing `ExtremeTracker` and its call sites in `K4R/adaptive.rs` now.** Keep V-K's fault sites off the tracker code and its callers' tracker lines, so the later merge of main is mechanical.
+  - If KF1 merges first, V-K merges main and re-runs its fault matrix.
