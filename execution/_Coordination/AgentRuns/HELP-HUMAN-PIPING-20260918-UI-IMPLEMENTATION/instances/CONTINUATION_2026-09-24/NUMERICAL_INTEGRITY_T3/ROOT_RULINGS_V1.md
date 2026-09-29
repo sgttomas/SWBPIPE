@@ -1967,3 +1967,21 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - DIRECTIONAL-SPAN's 5a.2 publication is shown within b, with a test;
   - the ê-overflow edge case maps to `ResolutionScaleUnencodable`, with a unit test and a new control, EHAT-OVERFLOW.
 - **Next:** C (mutants), then D (records), then review.
+
+## K4: C accepted; the honesty predicate tightened at D (ROOT, 2026-09-29)
+
+- **C accepted.**
+  - Every killable mutant is killed: R7 §7's list, K4-M34 to M40, and K4's earlier mutants and D-series.
+  - K4-M24's CEIL5A3 kill is confirmed.
+  - The four derivation guards (R7-M17, M21, M24, and M27 at design precision) move no control. As R7 expects, each is caught at evidence or unit level.
+  - The NONE controls pass.
+- **I12's note 4: tighten the honesty predicate at D.**
+  - The controls' `compare_honest` accepts 1e-9 relative, or the absolute bound for absolute-verified rows. That is far looser than the published claim, so some mutants' false claims show only as selection changes.
+  - At D, `compare_honest` checks each selected row against the claim it publishes: its exact bound, with the binary64 publication rounding stated, where the row carries one; otherwise the stop rule's relative bound, plus the publication rounding.
+  - Then re-run the controls test, and the evidence pass for R7-M1, K4-M24 and K4-M37. Record which of their false claims are now caught as dishonest.
+  - If a selected unmutated control fails the tightened check, that is a **stop**: an honesty finding.
+- **Notes 1–3 are recorded:**
+  - REACTIONS-ONLY stays at 256 under R7-M3 in K4;
+  - K4-M12 and D13 are killed at bit level only, since the corrections repair the fold;
+  - K4-M30 now describes the design, and its inverse, K4-M30i, is killed.
+- **Next:** D.
