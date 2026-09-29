@@ -1,0 +1,19 @@
+"""Apply GEN-8's MACHINE_ABS_PATH_RE to every file K6 adds or changes (committed diff vs main + working tree)."""
+import subprocess, sys, os
+sys.path.insert(0, 'tools/practitioner_harness')
+from surface_roles import MACHINE_ABS_PATH_RE
+files = set(subprocess.run(['git', 'diff', '--name-only', '59cb200730eef01a805a5b9f4b840a845ff4204b'], capture_output=True, text=True).stdout.split())
+files |= set(subprocess.run(['git', 'ls-files', '--others', '--exclude-standard'], capture_output=True, text=True).stdout.split())
+hits = 0
+for f in sorted(files):
+    if not os.path.isfile(f):
+        continue
+    try:
+        text = open(f, encoding='utf-8').read()
+    except UnicodeDecodeError:
+        continue
+    for i, line in enumerate(text.split('\n'), 1):
+        if MACHINE_ABS_PATH_RE.search(line):
+            hits += 1
+            print('%s:%d' % (f.replace('projects/chirality-piping/', 'P/'), i))
+print('files scanned', len(files), 'hits', hits)

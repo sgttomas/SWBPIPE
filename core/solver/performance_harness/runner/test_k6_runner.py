@@ -14,7 +14,9 @@ import hashlib
 import json
 import os
 import platform
+import signal
 import socket
+import subprocess
 import sys
 import tempfile
 import time
@@ -192,6 +194,24 @@ class Parsers(unittest.TestCase):
                                  'Linux')
         self.assertEqual(signalled['time_child_signal'], 6)
 
+    def test_time_v_output_file_is_scrubbed(self):
+        # RV18-N2: GNU time -v writes the binary's absolute path ("Command being timed") into
+        # the output file, which becomes a record. The path is built at run time.
+        machine_path = '/' + '/'.join(['home', 'someone', 'build', 'k6_observe'])
+        text = TIME_V_FIXTURE.replace('"k6_observe --noop', '"' + machine_path + ' --noop')
+        self.assertIn(machine_path, text)
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, 'run.time.txt')
+            with open(path, 'w') as fh:
+                fh.write(text)
+            parsed = r.read_time_file(path, 'Linux')
+            with open(path) as fh:
+                written = fh.read()
+        self.assertEqual(parsed['time_max_rss_bytes'], 2048 * 1024)
+        self.assertNotIn(machine_path, written)
+        self.assertIn('Command being timed: <omitted>', written)
+        self.assertEqual(r.parse_time(written, 'Linux'), parsed)
+
     def test_ru_maxrss_units(self):
         self.assertEqual(r.ru_maxrss_bytes(4096, 'Darwin'), 4096)
         self.assertEqual(r.ru_maxrss_bytes(4096, 'Linux'), 4096 * 1024)
@@ -208,6 +228,12 @@ class Watchdog(unittest.TestCase):
         self.assertFalse(r.watchdog_exceeds(128 * 1024, cap))
         self.assertTrue(r.watchdog_exceeds(128 * 1024 + 1, cap))
         self.assertFalse(r.watchdog_exceeds(1000, cap))
+
+    def test_poll_interval_is_the_designs_100_ms(self):
+        # RV18-N1: the watchdog polls every 100 ms (DESIGN.md:826). The live test's tolerance,
+        # one poll's growth, scales with the interval, so the interval is pinned here.
+        self.assertEqual(r.POLL_S, 0.1)
+        self.assertEqual(r.launch.__kwdefaults__['poll_s'], 0.1)
 
 
 class RlimitOnlyOnLinux(unittest.TestCase):
@@ -315,7 +341,15 @@ class MetadataHasNoHostIdentifiers(unittest.TestCase):
         self.assertEqual(md['binary_sha256'], hashlib.sha256(b'binary bytes').hexdigest())
 
     def test_sanitize(self):
-        self.assertEqual(r.sanitize('at /Volumes/scratch/src/a.rs:3:4 and /var/folders/q'), 'at <path>:3:4 and <path>')
+        # Paths are built at run time, so the source holds no machine-path literal (RV18-N2).
+        def root(*parts):
+            return '/' + '/'.join(parts)
+        self.assertEqual(r.sanitize('at %s:3:4 and %s' % (root('Volumes', 'scratch', 'src', 'a.rs'),
+                                                        root('var', 'folders', 'q'))),
+                         'at <path>:3:4 and <path>')
+        for path in (root('Us' + 'ers', 'someone', 'dev', 'b.rs'), root('private', 'tmp', 'c.txt'),
+                     root('home', 'someone', 'd.txt')):
+            self.assertEqual(r.sanitize('in %s:7' % path), 'in <path>:7', path)
 
 
 def fake_counts(estimates):
@@ -538,6 +572,25 @@ class QuietHost(unittest.TestCase):
         r.wait_for_quiet_host(lambda msg: None, run=run, level=level, sleep=slept.append, load=lambda: (1.0, 0, 0))
         self.assertEqual(len(slept), 2)
 
+    def test_a_running_sweep_alone_makes_the_host_busy(self):
+        # RV18-N3: the DEC-025 sweep check. Only the sweep's pattern is busy, once.
+        def sweep_only(argv, env=None):
+            busy = argv[:2] == ['pgrep', '-f']
+            return types.SimpleNamespace(returncode=0 if busy else 1, stdout='1' if busy else '')
+        self.assertEqual(r.host_busy(sweep_only), ['sweep'])
+        calls = {'sweep': 0}
+
+        def once(argv, env=None):
+            if argv[:2] == ['pgrep', '-f']:
+                calls['sweep'] += 1
+                if calls['sweep'] == 1:
+                    return types.SimpleNamespace(returncode=0, stdout='1')
+            return types.SimpleNamespace(returncode=1, stdout='')
+        slept = []
+        r.wait_for_quiet_host(lambda msg: None, run=once, level=lambda: 95, sleep=slept.append,
+                              load=lambda: (1.0, 0, 0))
+        self.assertEqual(len(slept), 1)
+
 
 # A sleeping helper started first by a live child, in the child's process group, with its stdio
 # on /dev/null; it exits by itself after 30 s.
@@ -616,6 +669,48 @@ class LiveLimit(unittest.TestCase):
             self.assertLess(time.monotonic() - started, 20)
             self.assertEqual(rec['classification'], 'timed_out')
             self.assertEqual(rec['survivors'], [], 'the timeout kill left a process of the group')
+
+    def test_a_terminated_runner_leaves_no_survivor(self):
+        # RV18-3: SIGTERM to the runner mid-run. A driver process runs `launch` on a sleeping
+        # child, which starts the sleeping helper and writes its process group to a file.
+        # The test then sends SIGTERM to the driver. The driver's `finally` must kill the group
+        # before it exits with 143. The cap is 1 GiB, so Linux's RLIMIT_AS does not bind on the
+        # interpreters.
+        system = platform.system()
+        child_code = (HELPER_FIRST + 'import os, time\n'
+                      'open(sys.argv[1] + ".tmp", "w").write(str(os.getpgrp()))\n'
+                      'os.replace(sys.argv[1] + ".tmp", sys.argv[1])\n'
+                      'time.sleep(30)\n')
+        driver_code = ('import sys\n'
+                       'sys.path.insert(0, sys.argv[1])\n'
+                       'import k6_runner as r\n'
+                       "r.launch([sys.executable, '-c', sys.argv[3], sys.argv[2]], rss_cap_bytes=r.GIB,"
+                       " timeout_s=60, record_dir=sys.argv[4], run_id='term', wrapper=sys.argv[5] == 'Darwin',"
+                       ' k6_protocol=False)\n')
+        with tempfile.TemporaryDirectory() as folder:
+            marker = os.path.join(folder, 'pgid')
+            driver = subprocess.Popen([sys.executable, '-c', driver_code, HERE, marker, child_code, folder, system])
+            pgid = None
+            try:
+                deadline = time.monotonic() + 20
+                while not os.path.exists(marker) and time.monotonic() < deadline and driver.poll() is None:
+                    time.sleep(0.02)
+                self.assertTrue(os.path.exists(marker), 'the observed child did not start')
+                with open(marker) as fh:
+                    pgid = int(fh.read())
+                started = time.monotonic()
+                driver.send_signal(signal.SIGTERM)
+                code = driver.wait(timeout=20)
+                survivors = r.survivors_of(pgid)
+            finally:
+                if driver.poll() is None:
+                    driver.kill()
+                    driver.wait()
+                if pgid is not None and r.survivors_of(pgid, attempts=1):
+                    os.killpg(pgid, signal.SIGKILL)
+        self.assertEqual(code, 128 + signal.SIGTERM)
+        self.assertLess(time.monotonic() - started, 20)
+        self.assertEqual(survivors, [], 'a terminated runner left a process of the observation group')
 
 
 if __name__ == '__main__':

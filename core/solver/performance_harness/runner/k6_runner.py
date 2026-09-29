@@ -852,45 +852,10 @@ def survivors_of(pgid, attempts=20):
     return [int(x) for x in done.stdout.split()]
 
 
-def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, system=None,
-           resource_module=None, poll_s=POLL_S, k6_protocol=True):
-    """One observation process: wrapper, watchdog, limits, record. Returns the record."""
-    system = system or platform.system()
-    os.makedirs(record_dir, exist_ok=True)
-    base = os.path.join(record_dir, run_id)
-    time_path = base + '.time.txt'
-    cmd = list(argv)
-    if wrapper:
-        cmd = [TIME_WRAPPER, '-l' if system == 'Darwin' else '-v', '-o', time_path] + cmd
-    preexec = rlimit_preexec(system, rss_cap_bytes, resource_module)
-    record = {'schema': 'k6-runner-record-v1', 'run_id': run_id, 'system': system,
-              'argv': [os.path.basename(argv[0])] + [a if not os.path.isabs(a) else os.path.basename(a)
-                                                    for a in argv[1:]],
-              'wrapper': ('%s %s' % (TIME_WRAPPER, '-l' if system == 'Darwin' else '-v')) if wrapper else None,
-              'rss_cap_bytes': rss_cap_bytes, 'timeout_s': timeout_s, 'poll_s': poll_s,
-              'rlimit_as_applied': preexec is not None,
-              'load_before': list(os.getloadavg()), 'memorystatus_before': memorystatus_level(system)}
-    out_path = base + '.jsonl'
-    stdout_lines, stderr_chunks = [], []
-    t0 = time.monotonic()
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            start_new_session=True, preexec_fn=preexec)
-    pgid = proc.pid
-
-    def pump_out():
-        with open(out_path, 'wb') as fh:
-            for line in iter(proc.stdout.readline, b''):
-                fh.write(line)
-                fh.flush()
-                stdout_lines.append(line.decode('utf-8', 'replace'))
-
-    def pump_err():
-        for chunk in iter(lambda: proc.stderr.read(1 << 16), b''):
-            stderr_chunks.append(chunk)
-    threads = [threading.Thread(target=pump_out, daemon=True), threading.Thread(target=pump_err, daemon=True)]
-    for t in threads:
-        t.start()
-    child = find_child(proc.pid) if wrapper else proc.pid
+def _watch(proc, pgid, child, *, t0, wrapper, system, rss_cap_bytes, timeout_s, poll_s):
+    """The poll loop: on macOS, the RSS watchdog on the binary's PID; on every platform, the
+    timeout. Each kills with SIGKILL to the process group and reaps the wrapper. It returns once
+    the wrapper is reaped. If it is interrupted, `launch` kills the group (RV18-3)."""
     samples, killed, timed_out, kill_at, polls = [], False, False, None, 0
     while True:
         pid, status, usage = os.wait4(proc.pid, os.WNOHANG)
@@ -915,6 +880,107 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
             pid, status, usage = os.wait4(proc.pid, 0)
             break
         time.sleep(poll_s)
+    return pid, status, usage, child, samples, killed, timed_out, kill_at, polls
+
+
+def stop_group(pgid, pid):
+    """RV18-3: SIGKILL the observation's process group and reap its leader, when the poll loop
+    was interrupted."""
+    try:
+        os.killpg(pgid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    try:
+        os.wait4(pid, 0)
+    except ChildProcessError:
+        pass
+
+
+def sigterm_raises_exit():
+    """RV18-3: while an observation process runs, SIGTERM raises SystemExit(128 + 15) in the
+    runner, so `launch`'s `finally` kills the process group before the runner exits. SIGINT
+    already raises KeyboardInterrupt. Only the main thread can set a handler; elsewhere, or
+    where a handler other than the default is installed, nothing changes. Returns the function
+    that restores the previous handler."""
+    if threading.current_thread() is not threading.main_thread():
+        return lambda: None
+    previous = signal.getsignal(signal.SIGTERM)
+    if previous != signal.SIG_DFL:
+        return lambda: None
+
+    def handler(signum, frame):
+        raise SystemExit(128 + signum)
+    signal.signal(signal.SIGTERM, handler)
+    return lambda: signal.signal(signal.SIGTERM, previous)
+
+
+def read_time_file(path, system):
+    """The wrapper's output file, parsed. GNU `time -v` writes "Command being timed" with the
+    binary's absolute path, so that line is dropped and the rest sanitized, in place, before the
+    file becomes a record (RV18-N2). macOS `time -l` names no path."""
+    if not os.path.exists(path):
+        return {}
+    with open(path) as fh:
+        text = fh.read()
+    clean = sanitize('\n'.join('\tCommand being timed: <omitted>' if line.strip().startswith('Command being timed:')
+                                else line for line in text.split('\n')))
+    if clean != text:
+        with open(path, 'w') as fh:
+            fh.write(clean)
+    return parse_time(text, system)
+
+
+def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, system=None,
+           resource_module=None, poll_s=POLL_S, k6_protocol=True):
+    """One observation process: wrapper, watchdog, limits, record. Returns the record."""
+    system = system or platform.system()
+    os.makedirs(record_dir, exist_ok=True)
+    base = os.path.join(record_dir, run_id)
+    time_path = base + '.time.txt'
+    cmd = list(argv)
+    if wrapper:
+        cmd = [TIME_WRAPPER, '-l' if system == 'Darwin' else '-v', '-o', time_path] + cmd
+    preexec = rlimit_preexec(system, rss_cap_bytes, resource_module)
+    record = {'schema': 'k6-runner-record-v1', 'run_id': run_id, 'system': system,
+              'argv': [os.path.basename(argv[0])] + [a if not os.path.isabs(a) else os.path.basename(a)
+                                                    for a in argv[1:]],
+              'wrapper': ('%s %s' % (TIME_WRAPPER, '-l' if system == 'Darwin' else '-v')) if wrapper else None,
+              'rss_cap_bytes': rss_cap_bytes, 'timeout_s': timeout_s, 'poll_s': poll_s,
+              'rlimit_as_applied': preexec is not None,
+              'load_before': list(os.getloadavg()), 'memorystatus_before': memorystatus_level(system)}
+    out_path = base + '.jsonl'
+    stdout_lines, stderr_chunks = [], []
+    t0 = time.monotonic()
+    proc, watched, threads = None, None, []
+    restore_sigterm = sigterm_raises_exit()
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                start_new_session=True, preexec_fn=preexec)
+
+        def pump_out():
+            with open(out_path, 'wb') as fh:
+                for line in iter(proc.stdout.readline, b''):
+                    fh.write(line)
+                    fh.flush()
+                    stdout_lines.append(line.decode('utf-8', 'replace'))
+
+        def pump_err():
+            for chunk in iter(lambda: proc.stderr.read(1 << 16), b''):
+                stderr_chunks.append(chunk)
+        threads = [threading.Thread(target=pump_out, daemon=True), threading.Thread(target=pump_err, daemon=True)]
+        for t in threads:
+            t.start()
+        child = find_child(proc.pid) if wrapper else proc.pid
+        watched = _watch(proc, proc.pid, child, t0=t0, wrapper=wrapper, system=system,
+                         rss_cap_bytes=rss_cap_bytes, timeout_s=timeout_s, poll_s=poll_s)
+    finally:
+        # RV18-3: a poll loop that did not end by itself (SIGTERM, SIGINT or an error in the
+        # runner) leaves the observation running with no watchdog and no timeout. Kill it.
+        if proc is not None and watched is None:
+            stop_group(proc.pid, proc.pid)
+        restore_sigterm()
+    pgid = proc.pid
+    pid, status, usage, child, samples, killed, timed_out, kill_at, polls = watched
     wall = time.monotonic() - t0
     for t in threads:
         t.join(timeout=5)
@@ -925,10 +991,7 @@ def launch(argv, *, rss_cap_bytes, timeout_s, record_dir, run_id, wrapper=True, 
     stderr_text = b''.join(stderr_chunks).decode('utf-8', 'replace')
     with open(base + '.stderr.txt', 'w') as fh:
         fh.write(sanitize(stderr_text))
-    time_info = {}
-    if os.path.exists(time_path):
-        with open(time_path) as fh:
-            time_info = parse_time(fh.read(), system)
+    time_info = read_time_file(time_path, system)
     objects = jsonl(stdout_lines)
     external = -exit_code if exit_code < 0 and not (killed or timed_out) else None
     classification, detail = classify(killed_by_rss_watchdog=killed, timed_out=timed_out, exit_code=exit_code,

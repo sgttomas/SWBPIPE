@@ -1,0 +1,80 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "DEC053:invented-cantilever-chain-24",
+  "--mode",
+  "dense",
+  "--heap-cap-bytes",
+  "536870912",
+  "--repeats",
+  "2",
+  "--counts-file",
+  "counts.jsonl"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  7.26025390625,
+  7.6064453125,
+  6.6484375
+ ],
+ "load_before": [
+  7.26025390625,
+  7.6064453125,
+  6.6484375
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 6242304,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 2533906,
+ "repeats_heap_peak_move": 2533906,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 6096,
+  "ps_samples": 1,
+  "time_max_rss_bytes": 6242304,
+  "time_peak_footprint_bytes": 5144912,
+  "wait4_maxrss_bytes": 6242304
+ },
+ "rss_cap_bytes": 1073741824,
+ "run_id": "smoke_DEC053_invented-cantilever-chain-24_dense",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 59,
+ "stdout_sha256": "add14186a8f6f52301c198c4da148fa7490ea6c61cad0fb5e44b0c8dfc0c9ae4",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 24828500,
+  "heap_peak": 2533906,
+  "heap_peak_move": 2533906,
+  "kind": "summary",
+  "parity_phase_heap_peak": 261506,
+  "parity_phase_heap_peak_move": 261634,
+  "repeats_completed": 2,
+  "repeats_heap_peak": 2533906,
+  "repeats_heap_peak_move": 2533906,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 0.1365,
+ "watchdog_last_kib": 6096,
+ "watchdog_polls": 1,
+ "watchdog_samples": [
+  [
+   0.023,
+   6096
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

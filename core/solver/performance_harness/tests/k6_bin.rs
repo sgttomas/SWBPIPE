@@ -1,6 +1,8 @@
-//! K6 tests F3, F4 and G: the observation binary, run as a subprocess
-//! (`CARGO_BIN_EXE_k6_observe`, the debug build). Every run is small: at most
-//! 100 members, or a 10,000-member model refused before any n² allocation.
+//! K6 tests F3, F4 and G, and RV18's tests of the time stops, the summary's
+//! peak and the content-keyed lane refusal: the observation binary, run as a
+//! subprocess (`CARGO_BIN_EXE_k6_observe`, the debug build). Every run is
+//! small: at most 100 members, or a 10,000-member model refused before any
+//! n² allocation.
 
 use std::process::{Command, Output};
 
@@ -37,6 +39,35 @@ fn refusal_reason(text: &str) -> Option<String> {
     let line = text.lines().find(|l| l.contains("\"kind\":\"refusal\""))?;
     let start = line.find("\"reason\":\"")? + "\"reason\":\"".len();
     Some(line[start..].split('"').next()?.to_string())
+}
+
+/// Every line of `kind`, in order.
+fn lines_of<'a>(text: &'a str, kind: &str) -> Vec<&'a str> {
+    let tag = format!("\"kind\":\"{kind}\"");
+    text.lines().filter(|l| l.contains(&tag)).collect()
+}
+
+/// The integer value of `"key":<digits>` in one line.
+fn number(line: &str, key: &str) -> Option<u128> {
+    let pattern = format!("\"{key}\":");
+    let start = line.find(&pattern)? + pattern.len();
+    line[start..]
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect::<String>()
+        .parse()
+        .ok()
+}
+
+/// The value of `"key":` in one line: a string's contents, or `null`.
+fn text_value(line: &str, key: &str) -> Option<String> {
+    let pattern = format!("\"{key}\":");
+    let rest = &line[line.find(&pattern)? + pattern.len()..];
+    match rest.strip_prefix('"') {
+        Some(inner) => Some(inner.split('"').next()?.to_string()),
+        None if rest.starts_with("null") => Some("null".to_string()),
+        None => None,
+    }
 }
 
 /// F3: two runs of one model and mode give equal peak requested bytes (both
@@ -277,4 +308,148 @@ fn noop_prints_start_and_summary_only() {
     assert!(text.contains("\"kind\":\"start\"") && text.contains("\"noop\":true"));
     assert!(text.contains("\"kind\":\"summary\""));
     assert!(!text.contains("\"kind\":\"counts\"") && !text.contains("\"kind\":\"stage\""));
+}
+
+/// RV18-1: the binary's two time stops (Q7) on a 10-member sparse model.
+/// - With three repeats, a first-repeat limit of 0 s and a time budget of 0 s each stop
+///   after repeat 0 and give their reason, and a budget of 3,600 s lets all three run.
+/// - A budget in whole seconds is exceeded only by a run of at least 1 s, so a fourth run
+///   makes one: 1,000 repeats under a 1 s budget stop by time, long before the last (about
+///   50 repeats in debug on the owner's Mac). A budget that never binds (RV18-M2) runs all
+///   1,000.
+#[test]
+fn first_repeat_and_time_budget_stops() {
+    let summary = |extra: &[&str]| -> (u128, String) {
+        let mut args = vec![
+            "--model",
+            "RF-LARGE-CHAIN-n00010-AX",
+            "--mode",
+            "sparse",
+            "--heap-cap-bytes",
+            CAP_512_MIB,
+        ];
+        args.extend_from_slice(extra);
+        let output = run(&args);
+        let text = stdout(&output);
+        assert!(output.status.success(), "{extra:?}: {text}");
+        let line = *lines_of(&text, "summary").last().expect("summary");
+        (
+            number(line, "repeats_completed").expect("repeats_completed"),
+            text_value(line, "stop_reason").expect("stop_reason"),
+        )
+    };
+    assert_eq!(
+        summary(&["--repeats", "3", "--first-repeat-limit-s", "0"]),
+        (1, "first_repeat_over_limit".to_string())
+    );
+    assert_eq!(
+        summary(&["--repeats", "3", "--time-budget-s", "0"]),
+        (1, "time_budget".to_string())
+    );
+    assert_eq!(
+        summary(&["--repeats", "3", "--time-budget-s", "3600"]),
+        (3, "null".to_string())
+    );
+    let (completed, reason) = summary(&[
+        "--repeats",
+        "1000",
+        "--entry-repeats",
+        "1",
+        "--time-budget-s",
+        "1",
+    ]);
+    assert_eq!(reason, "time_budget");
+    assert!(completed < 1000, "{completed} repeats under a 1 s budget");
+}
+
+/// RV18-2: the summary's repeats peak is the largest stage peak, in both peak models; the
+/// process peak is at least that; and each stage's peak restarts at the stage. This is dense
+/// CHAIN-n00010-AX with `--repeats 2 --entry-repeats 1`, the configuration of the dense
+/// 1,000-member and ceiling runs: repeat 1's `assembly` peaks below repeat 0's `prepare`.
+#[test]
+fn summary_peak_is_the_largest_stage_peak_and_stage_peaks_restart() {
+    let output = run(&[
+        "--model",
+        "RF-LARGE-CHAIN-n00010-AX",
+        "--mode",
+        "dense",
+        "--heap-cap-bytes",
+        CAP_512_MIB,
+        "--repeats",
+        "2",
+        "--entry-repeats",
+        "1",
+    ]);
+    let text = stdout(&output);
+    assert!(output.status.success(), "{text}");
+    let stages = lines_of(&text, "stage");
+    let summary = *lines_of(&text, "summary").last().expect("summary");
+    for (key, stage_key) in [
+        ("repeats_heap_peak", "heap_peak"),
+        ("repeats_heap_peak_move", "heap_peak_move"),
+    ] {
+        let largest = stages
+            .iter()
+            .map(|l| number(l, stage_key).expect(stage_key))
+            .max()
+            .expect("stage lines");
+        assert_eq!(number(summary, key), Some(largest), "{key}");
+    }
+    assert!(number(summary, "heap_peak") >= number(summary, "repeats_heap_peak"));
+    let peak = |repeat: u128, stage: &str| {
+        stages
+            .iter()
+            .find(|l| {
+                number(l, "repeat") == Some(repeat)
+                    && text_value(l, "stage").as_deref() == Some(stage)
+            })
+            .and_then(|l| number(l, "heap_peak"))
+            .expect(stage)
+    };
+    assert!(
+        peak(1, "assembly") < peak(0, "prepare"),
+        "repeat 1 assembly {} against repeat 0 prepare {}",
+        peak(1, "assembly"),
+        peak(0, "prepare")
+    );
+}
+
+/// RV18-N6: CONT n10000's identity-order lane is refused from the model's content, not its
+/// id. R1's CONT-n10000-AX, emitted and renamed, is still refused by name through
+/// `--model-file`, before any count.
+#[test]
+fn renamed_cont_n10000_lane_id_refused() {
+    let emitted = run(&["--emit-model", "--model", "RF-LARGE-CONT-n10000-AX"]);
+    assert!(emitted.status.success());
+    let text = String::from_utf8(emitted.stdout).expect("canonical bytes are UTF-8");
+    let renamed = text.replacen(
+        "id RF-LARGE-CONT-n10000-AX\n",
+        "id renamed-continuous-beam\n",
+        1,
+    );
+    assert_ne!(renamed, text, "the id line is renamed");
+    let path = std::env::temp_dir().join(format!(
+        "k6_bin_renamed_cont_{}.k6model",
+        std::process::id()
+    ));
+    std::fs::write(&path, renamed).expect("write the renamed model");
+    let output = run(&[
+        "--model-file",
+        path.to_str().expect("path"),
+        "--mode",
+        "lane-id",
+        "--heap-cap-bytes",
+        CAP_512_MIB,
+    ]);
+    let _ = std::fs::remove_file(&path);
+    let out = stdout(&output);
+    assert_eq!(output.status.code(), Some(3), "{out}");
+    assert_eq!(
+        refusal_reason(&out).as_deref(),
+        Some("cont_n10000_identity_lane")
+    );
+    assert!(
+        !out.contains("\"kind\":\"counts\""),
+        "counted before refusing"
+    );
 }

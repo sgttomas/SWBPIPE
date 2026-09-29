@@ -30,8 +30,8 @@ core/solver/performance_harness/runner/k6_runner.py:876: in launch
     self._execute_child(args, executable, preexec_fn, close_fds,
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <Popen: returncode: 255 args: ['/usr/bin/time', '-l', '-o', '/var/folders/96...>
-args = ['/usr/bin/time', '-l', '-o', '/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/tmpbcruwuna/watchdog.time.txt', '/User...an/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python', '-c', ...]
+self = <Popen: returncode: 255 args: ['/usr/bin/time', '-l', '-o', '<tmp>...>
+args = ['/usr/bin/time', '-l', '-o', '<tmp>/tmpbcruwuna/watchdog.time.txt', '<VENV>/bin/python', '-c', ...]
 executable = b'/usr/bin/time'
 preexec_fn = <function rlimit_preexec.<locals>.limit at 0x1071c3920>
 close_fds = True, pass_fds = (), cwd = None, env = None, startupinfo = None
@@ -230,8 +230,8 @@ core/solver/performance_harness/runner/k6_runner.py:876: in launch
     self._execute_child(args, executable, preexec_fn, close_fds,
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <Popen: returncode: 255 args: ['/usr/bin/time', '-l', '-o', '/var/folders/96...>
-args = ['/usr/bin/time', '-l', '-o', '/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/tmpg2lchnme/control.time.txt', '<VENV>/bin/python', '-c', ...]
+self = <Popen: returncode: 255 args: ['/usr/bin/time', '-l', '-o', '<tmp>...>
+args = ['/usr/bin/time', '-l', '-o', '<tmp>/tmpg2lchnme/control.time.txt', '<VENV>/bin/python', '-c', ...]
 executable = b'/usr/bin/time'
 preexec_fn = <function rlimit_preexec.<locals>.limit at 0x107199c60>
 close_fds = True, pass_fds = (), cwd = None, env = None, startupinfo = None

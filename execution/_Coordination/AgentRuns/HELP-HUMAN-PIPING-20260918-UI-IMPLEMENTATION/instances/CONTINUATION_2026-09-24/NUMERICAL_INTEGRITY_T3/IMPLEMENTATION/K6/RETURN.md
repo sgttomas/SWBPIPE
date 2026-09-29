@@ -985,3 +985,101 @@ pub const F1B_DENSE_BYTES_PER_ENTRY: u128 = 96; pub const F1B_LANE_BYTES_PER_PRO
   - Every number in §5–§8 comes from `_run_records/d/tables/`, which `d_tables.py.txt` computes from the committed B records, combined as `_run_records/d/packet_reproduction.txt` describes.
   - The combined `records.jsonl` (166 lines, sha256 `fcc89445…`) equals the runner's working records. The packet's sha256 (`b5419aee…`) is the same from either.
   - Each raw JSONL's sha256 is in its runner record (`stdout_sha256`).
+
+## RETURN addendum 1 (RV18's review; fixes on `ae3320b5a`)
+
+- **Verdict:** RV18's independent review PASSED at `ae3320b5a`, with 0 BLOCKING, 4 SHOULD-FIX and 8 NOTEs (`REVIEW/K6_REVIEW.md` on the numerics branch).
+- **Rulings:** `ROOT_RULINGS_V1.md`, "K6: rulings on RV18's review" (numerics `21776d312`):
+  - fix all four SHOULD-FIX findings before merge;
+  - fix NOTEs N1–N3, N6 and N7 where cheap;
+  - record N4, N5 and N8.
+- The fixes are uncommitted in `<wt>/k6`, for ROOT's commit. The records are in `_run_records/rv18/`.
+
+### A1.1 Files
+
+| File | Lines | Change against `ae3320b5a` |
+|---|---|---|
+| `H/runner/k6_runner.py` | 1,412 | +106 −43: the poll loop is moved verbatim into `_watch`, with the same indentation, so every earlier mutant's text still applies; `stop_group`, `sigterm_raises_exit` and `read_time_file` are added, and `launch` calls `_watch` in `try`/`finally` (RV18-3, N2) |
+| `H/runner/test_k6_runner.py` | 717 | +96 −1: four tests, and `test_sanitize` extended (RV18-3, N1–N3); still in existing classes, so the wrapper is unchanged |
+| `H/src/k6/models.rs` | 566 | +22 −3: `is_cont_n10000` decided from the model's content (N6) |
+| `H/tests/k6_bin.rs` | 455 | +178 −3: three tests and three small line helpers (RV18-1, RV18-2, N6) |
+| `T3/IMPLEMENTATION/K6/_run_records/c/logs/py-K6-M5.log` | — | RV18-4: the four machine-path lines scrubbed |
+| `CHANGE_RECORD.md`, this addendum, `_run_records/rv18/`, `SHA256SUMS` | — | records |
+
+The fixes touch only H's runner, one generator predicate and two test files, plus K6's records, so **Scope 8 is unchanged** (§9.3). `H/observations/k6/` is unchanged, and its `SHA256SUMS` still verifies.
+
+### A1.2 The four SHOULD-FIX findings
+
+- **RV18-1, the time stops.** New `k6_bin::first_repeat_and_time_budget_stops`, on RF-LARGE-CHAIN-n00010-AX sparse.
+  - **The three runs RV18 probed,** with `--repeats 3`:
+    - a first-repeat limit of 0 s gives 1 repeat and `first_repeat_over_limit`;
+    - a budget of 0 s gives 1 repeat and `time_budget`;
+    - a budget of 3,600 s gives 3 repeats and a null reason.
+  - **A fourth run, which the ruling did not list.** RV18-M2 multiplies the budget by 10^6, and 0 × 10^6 = 0, so at a zero budget M2 behaves exactly like the unmutated binary.
+    - A budget in whole seconds is exceeded only by a run of at least 1 s. The fourth run makes one: 1,000 repeats under a 1 s budget stop by time. That was about 50 repeats in debug here, and the stop would still come long before the last repeat on a machine 20× faster.
+    - The test takes about 1.1 s (`k6_bin`'s total is 1.7 s), not the "under 1 s" of the ruling.
+  - **Result:** RV18-M1 fails at the first run (3 repeats, null). **RV18-M2 passes the first three runs and fails only at the fourth** (all 1,000 repeats ran, with a null reason), which shows the fourth run is needed.
+- **RV18-2, the headline peak.** New `k6_bin::summary_peak_is_the_largest_stage_peak_and_stage_peaks_restart`, on dense CHAIN-n00010-AX with `--repeats 2 --entry-repeats 1`.
+  - It asserts:
+    - `repeats_heap_peak` equals the largest stage `heap_peak` (579,691 B), and the move model likewise;
+    - the process `heap_peak` is at least that;
+    - repeat 1's `assembly` peak is below repeat 0's `prepare` peak (562,391 B).
+  - **Result:** RV18-M3 is killed (the summary reports 145,351 B, the last stage's peak), and RV18-M4 is killed (repeat 1's `assembly` reports 579,691 B).
+- **RV18-3, an interrupted runner.**
+  - **The change in `launch`:**
+    - `sigterm_raises_exit()` installs a SIGTERM handler that raises `SystemExit(143)`, for the life of the observation process, in the main thread only, where no other handler is installed. The previous handler is restored afterwards.
+    - `launch` starts the process and runs `_watch` inside `try`. Its `finally` SIGKILLs the process group and reaps the wrapper if the loop did not end by itself (SIGTERM, SIGINT or an error).
+  - **Why in `launch`, not `main()`:** installing the mapping there also covers drivers that call `run_tier` directly, as B2's and B3's did. RV18's B2-pause case was exactly such a driver.
+  - **Test:** `LiveLimit.test_a_terminated_runner_leaves_no_survivor`.
+    - A driver process runs `launch` on a sleeping child, which starts the sleeping helper and records its process group.
+    - SIGTERM goes to the driver. The driver must exit with 143 and leave no process of the group.
+    - The cap is 1 GiB, so Linux's `RLIMIT_AS` does not bind on the interpreters.
+  - **Result:** own mutants K6-M27 (the `finally` kill removed) and K6-M28 (SIGTERM not mapped) are both killed.
+- **RV18-4.** The four lines of `_run_records/c/logs/py-K6-M5.log` now read `<tmp>` for the per-user temporary directory and `<VENV>` for the shortened home path.
+  - GEN-8's own `MACHINE_ABS_PATH_RE` (`tools/practitioner_harness/surface_roles.py:22`), applied to every file this PR adds or changes (1,145 files with this addendum's records), finds 0 hits (`_run_records/rv18/scan_gen8.py.txt`).
+  - That includes RV18-N2's synthetic test string, now built at run time.
+
+### A1.3 The NOTEs
+
+- **N1:** `Watchdog.test_poll_interval_is_the_designs_100_ms` pins `POLL_S = 0.1` and `launch`'s default (DESIGN.md:826). It kills RV18-M6.
+- **N2:**
+  - `test_sanitize` now also covers a home-directory (`Users`) path, a `private/tmp` path and a `home` path, all built at run time. It kills RV18-M7.
+  - `read_time_file` replaces GNU `time -v`'s "Command being timed" line with `<omitted>` and sanitizes the rest of the output file in place before the file becomes a record. macOS `time -l` names no path.
+  - `Parsers.test_time_v_output_file_is_scrubbed` checks this, and kills own mutant K6-M30.
+- **N3:** `QuietHost.test_a_running_sweep_alone_makes_the_host_busy`: `host_busy` reports `['sweep']`, and the wait sleeps once. It kills RV18-M8.
+- **N6:** `K6Model::is_cont_n10000` is now true when there are at least 10,000 members and either the family is CONT or the model carries CONT's restraint signature. The signature is m + 1 nodes, the first fully fixed, the next m/2 pinned in UX, UY and UZ, and nothing else restrained.
+  - `k6_bin::renamed_cont_n10000_lane_id_refused` emits R1's CONT-n10000-AX, renames its id and passes it through `--model-file`. It is refused by name, before any count.
+  - It kills own mutant K6-M29 (the id-prefix test restored), under which the renamed model is refused only by the estimate (`estimate_exceeds_half_cap`).
+  - **No record changes.** On all 39 committed models the new predicate gives the old value:
+    - CONT n10000 AX and ROT are CONT with 10,000 members, so both predicates are true;
+    - every other model has fewer than 10,000 members, or lacks the signature: CHAIN and TREE at 10,000 members have one restrained node, and the grids have no m + 1 nodes;
+    - B's binary (`1bbdfb2a…`) predates the change, and no admitted run reached the refusal, since the runner refused both CONT n10000 lane-id rows by name first.
+- **N7:**
+  - **(a) The provenance lock copy** (`P/provenance/build-artifacts/core__solver__performance_harness__Cargo.lock`) already differed from `H/Cargo.lock` at main `59cb20073`: it lacks `sparse_direct`.
+    - §9.3's "now differs from `H/Cargo.lock` (K6 added three path packages)" overstates K6's part. The copy was already stale on main, and K6's three packages widen the difference.
+    - It is still read by nothing.
+  - **(b)** CHANGE_RECORD's base is corrected to `56dd72334`, the first K6 commit's parent. The brief cited `d1cc97ce4`, whose piping tree is the same.
+  - **(c) Run 137 (grid 128×128)** carries `slot: B1`, its planned slot, in its raw record and in the packet, though it ran in B2. Its `runner_commit` is B2's, and §5 counts it in B2. Raw records are not edited, so the field stays as written.
+- **Recorded, not changed (as ruled):**
+  - **N4:** the runner trusts the binary's `equal` flags. The records carry both digests, and RV18 re-derived all 300 + 300 + 116 parity lines from them. Test E itself compares the full `Debug` strings.
+  - **N5:** the B2-stop rule as implemented takes the RSS-to-footprint ratio over smaller measured runs of the family and mode, with 1.45 as the dense floor and default. The P1 branch projects from max(P1, E_adm). Neither changes an admission on the records.
+  - **N8:** the Linux live path has never run. The first Linux sweep that collects the wrapper will be its first live run, and `run_tier` on Linux needs GNU `/usr/bin/time`.
+
+### A1.4 Runs (`_run_records/rv18/`)
+
+- **H's full suite** (`cargo test --offline --locked -j 4`, `RUST_TEST_THREADS=2`) passes: lib 25, `k6_alloc` F1 and F2, `k6_bin` 11 (was 8), `k6_counts` 4, `k6_models` 7, `k6_parity` 4, `k6_staged` 3. That took 69 s, warm.
+- **The non-test build** has no warnings, and rustfmt was applied to the two Rust files.
+- **The N15 pytest invocation** passes 41 of 41: the wrapper's 39 (was 35) and the two DEC-050/053 pins.
+- **Mutation re-run** (`mutation_table_rv18.txt`): each run is a fresh `git archive ae3320b5a` copy with the four changed files overlaid, and the mutants applied with RV18's own script, verbatim, or with I15's.
+  - Both NONE controls pass: Rust (a fresh target, 76 s) and runner (39 passed).
+  - RV18-M1, M2, M3, M4, M6, M7 and M8 are killed, each by its intended new test.
+  - K6-M4 and RV18-M9 are re-run after the loop moved into `_watch`. Both are still killed by `test_kills_take_the_whole_group`.
+  - Own mutants K6-M27, M28, M29 and M30 are killed.
+  - **Result: 13 of 13 killed.**
+- **`--smoke` rerun**, with the amended runner and a release binary built from the archive with the overlay (sha256 `8164db33…`, `smoke_binary.txt`):
+  - 42 of 42 model runs ok, with 0 parity failures;
+  - `staged_vs_entry_checked` equal on 84 of 84 lines (as at A2);
+  - the watchdog killed its child at 136,432 KiB against the 128 MiB cap, after 16 polls at 0.1 s, with no survivor;
+  - the heap-cap abort was classified `heap_cap_abort`;
+  - 9 s in all.
+- **Unchanged:** B's observation binary and every B record, the packet and D's tables.

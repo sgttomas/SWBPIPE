@@ -2,7 +2,7 @@
 
 This is the draft PR record for slice K6 of T3 (numerical integrity), following `.agents/skills/chirality-change/SKILL.md`. It was implemented by I15 (TASK). The details are in `RETURN.md`.
 
-- **Branch:** `codex/piping-k6-20260928`, from main `d1cc97ce4`, whose piping tree equals `24dea2dae`'s.
+- **Branch:** `codex/piping-k6-20260928`, from main `56dd72334` (the first K6 commit's parent; the brief cited `d1cc97ce4`, whose piping tree is the same; RV18-N7(b)).
 - **Commits (made by ROOT):**
   - `9ababe4f2`: A1 and A2, the Rust side, the runner and the dry run;
   - `1f354c20b`: main `1cdeae2c1` (K5) merged in, with E and H's suite re-run;
@@ -10,10 +10,15 @@ This is the draft PR record for slice K6 of T3 (numerical integrity), following 
   - `3799e3764`: B2, dense and lane-lu at 1,000 members and grid 128×128, and the B2-stop rule in the runner;
   - `ada18de70`: B3, the Q4 ceiling run;
   - `014b2ae04`: C, the mutation table, with two runner tests added at the C stop;
-  - `3e90176c6`: main `59cb20073` (F1b, #1052) merged in. It overlaps no K6 file.
-- **Proposed next commit:**
-  - checkpoint D: this record, `RETURN.md`, `_run_records/d/` and `SHA256SUMS`;
-  - in H, `observations/k6/k6_packet.json`, `observations/k6/SHA256SUMS` and one README line.
+  - `3e90176c6`: main `59cb20073` (F1b, #1052) merged in. It overlaps no K6 file;
+  - `ae3320b5a`: D, with RETURN, this record, `_run_records/d/`, the packet and SHA256SUMS. RV18 reviewed it: PASS, 0 BLOCKING, 4 SHOULD-FIX and 8 NOTEs.
+- **Proposed next commit, the fixes for RV18's review (RETURN addendum 1):**
+  - `H/runner/k6_runner.py`: an interrupted runner kills the observation group, and GNU `time -v`'s output file is scrubbed;
+  - `H/runner/test_k6_runner.py`: four tests;
+  - `H/src/k6/models.rs`: the CONT n10000 lane refusal decided from the model's content;
+  - `H/tests/k6_bin.rs`: three tests;
+  - the scrubbed `_run_records/c/logs/py-K6-M5.log`;
+  - this record, RETURN addendum 1, `_run_records/rv18/` and `SHA256SUMS`.
 - **Size (the product tree, against main `59cb20073`):**
   - at `3e90176c6`, 45 files, all under H except the one pytest wrapper;
   - +6,414 lines of code (Rust 4,365, Python 2,004, Cargo 45), plus 2,856 lines of models, counts, hashes and README;
@@ -42,7 +47,7 @@ This is the draft PR record for slice K6 of T3 (numerical integrity), following 
   - It has `--plan`, `--smoke`, `--run`, `--packet` and `--project`, and an independent Python generator that reproduces all 33 model hashes.
 - **New in H: `observations/k6/`.** The 21 small models, `models_sha256.txt`, `counts.jsonl`, and, at D, the packet and `SHA256SUMS`.
 - **Tests:**
-  - H: `tests/k6_{alloc,bin,counts,models,parity,staged}.rs` (B–G) and `runner/test_k6_runner.py` (H, 35 tests);
+  - H: `tests/k6_{alloc,bin,counts,models,parity,staged}.rs` (B–G) and `runner/test_k6_runner.py` (H; 35 tests, 39 since addendum 1);
   - `P/tests/test_performance_harness_runner.py` (Q9(b)), which puts the runner's tests on the DEC-025 pytest surface.
 - **Unchanged:** FK, SD, NI, PP, the headless runner, the legacy harness (functions, constants, tests and example), `P/validation/benchmarks/**`, `P/provenance/**`, `.github/**`, `tools/**` and `P/tools/**`.
 
@@ -83,6 +88,19 @@ This is the draft PR record for slice K6 of T3 (numerical integrity), following 
   - the Scope 8 scans show that no crate outside H depends on the harness and that no published byte changes.
   - H's cold debug suite went from 11 s to 59–68 s.
 
+- **RV18's review (addendum 1):**
+  - all four SHOULD-FIX findings are fixed:
+    - the binary's time-budget and first-repeat stops are tested;
+    - the summary's heap peak and the per-stage restarts are tested;
+    - SIGTERM or SIGINT to the runner kills the observation group;
+    - one committed log is scrubbed;
+  - so are NOTEs N1–N3, N6 and N7.
+  - The re-run from clean archives gives 13 of 13 mutants killed (RV18-M1–M4 and M6–M8, K6-M4, RV18-M9, and 4 own), with both NONE controls passing.
+  - `--smoke` passes. H's suite passes, and so does the pytest wrapper (41 of 41).
+  - GEN-8's machine-path regex finds 0 hits in the PR's 1,145 files.
+  - B's binary and records are unchanged.
+  - **One deviation:** the stop test uses a fourth run, about 1 s under a 1 s budget, because RV18-M2 cannot be told apart at a zero budget.
+
 ## Limits
 
 - **Mac only:** no Linux or Windows observation. The Linux `RLIMIT_AS` path is unit-tested, and it runs live only on a Linux sweep.
@@ -92,7 +110,7 @@ This is the draft PR record for slice K6 of T3 (numerical integrity), following 
   - W1 (K6b);
   - whether a ceiling should bound time.
 - **Timings carry their recorded load and are context only.** No comparison of builds is made.
-- **The binary's time-budget and first-repeat stops** were reached by no run, and have no dedicated test.
+- **The binary's time-budget and first-repeat stops** were reached by no observation run. Since addendum 1 they have a `k6_bin` test (RV18-1).
 
 ## Gates (ROOT runs the PR)
 

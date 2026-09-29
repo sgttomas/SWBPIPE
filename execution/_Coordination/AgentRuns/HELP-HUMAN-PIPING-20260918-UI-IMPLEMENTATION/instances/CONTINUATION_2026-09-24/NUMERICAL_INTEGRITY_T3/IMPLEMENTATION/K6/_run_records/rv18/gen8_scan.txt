@@ -1,0 +1,2 @@
+GEN-8's MACHINE_ABS_PATH_RE (tools/practitioner_harness/surface_roles.py:22) over every file K6 adds or changes against main 59cb20073, the working tree included (scan_gen8.py.txt):
+files scanned 1145 hits 0

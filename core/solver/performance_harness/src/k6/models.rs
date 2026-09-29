@@ -28,6 +28,8 @@ pub const RF_LARGE_SIZES: [usize; 4] = [10, 100, 1000, 10000];
 pub const CEILING_CHAIN_MEMBERS: usize = 1364;
 /// The Q5 grid sides (ROOT's K6 ruling N14; 128 is conditional).
 pub const Q5_GRID_SIDES: [usize; 5] = [16, 32, 64, 96, 128];
+/// The CONT size whose identity-order lane is never run (Q12).
+pub const CONT_LANE_REFUSAL_MEMBERS: usize = 10_000;
 
 /// The model family, for the runner's admission ratios.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -112,10 +114,27 @@ impl K6Model {
         }
         force
     }
-    /// R1's CONT case at 10,000 members, whose identity-order lane is never
-    /// run (ROOT's K6 ruling Q12, restated with RV16-N4).
+    /// R1's CONT case at 10,000 members or more, whose identity-order lane is
+    /// never run (ROOT's K6 ruling Q12, restated with RV16-N4).
+    ///
+    /// Decided from the model's content, not its id (RV18-N6), since a model
+    /// file carries its own id: the family is CONT (as generated, or as R1's
+    /// id names it), or the model carries CONT's restraint signature. That
+    /// signature is m + 1 nodes, the first fully fixed and the next m/2 pinned
+    /// in UX, UY and UZ, and nothing else restrained. The size is the member
+    /// count.
     pub fn is_cont_n10000(&self) -> bool {
-        self.id.starts_with("RF-LARGE-CONT-n10000-")
+        self.member_count() >= CONT_LANE_REFUSAL_MEMBERS
+            && (self.family == Family::Cont || self.has_cont_restraints())
+    }
+
+    fn has_cont_restraints(&self) -> bool {
+        let supports = self.member_count() / 2;
+        self.node_count() == self.member_count() + 1
+            && self.restraints.len() == supports + 1
+            && self.restraints.iter().enumerate().all(|(k, (node, mask))| {
+                *node == k && *mask == if k == 0 { ALL_SIX } else { PIN_THREE }
+            })
     }
 }
 
