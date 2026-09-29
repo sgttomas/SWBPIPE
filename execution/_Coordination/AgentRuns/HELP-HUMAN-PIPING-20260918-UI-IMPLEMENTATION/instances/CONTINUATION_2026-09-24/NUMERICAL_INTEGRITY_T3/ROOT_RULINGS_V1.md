@@ -2345,9 +2345,34 @@ The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `
   - **The bound:** about 2.3 MB of unevaluated rows per call in the stop rule, 275 KB for the pivot margin, 275 KB per residual-gate evaluation, and 1.1 MB for the fallback, against about 3.2 GB today at 10,000 members.
 - **The site table: authorized.** Add one declared, additive row to `FK/tests/s11_site_table.rs`, for `adaptive.rs` `offer`: 2 integer accumulations, the row count and the held capacity. It is in KF1's write set by this ruling, as K4's rows were (Q8). No existing row changes.
 - **The work findings are accepted:**
-  - At T = 64 only the six 100-member frames move, and only in the stop rule: +2.2 to +13.4 M LME, at most about +15% of the stop rule's work (about 2% of the call).
+  - At T = 64 only the six 100-member frames move, and only in the stop rule: +2.2 to +13.4 M LME, at most about +15% of the stop rule's work (about 2% of the call). [Correction (I18 at D): ROOT misread I18's figure. The measured change is +21% to +159% of the stop rule's own work, and +2.5% to +16.2% of the case's total work (KF1 `RETURN.md` §5). The choice of T is reopened below.]
   - The remaining extra work comes from collapsed rows that a later best drops. It is bounded by one exact evaluation per row, whatever T is.
   - Cutting it further would need the approximation lemma in the correctness basis. That is declined: the accuracy-free argument stands.
   - T = 64 is kept.
 - **For K6b's E_max:** the fallback's per-state row list (about n_f × 4.3 KB) is not a tracker. It is proportional to the model, not the data, and I16 includes it.
 - **Next:** add the row, re-run the site-table tests and FK's full suite, then D: RETURN, CHANGE_RECORD, `_run_records/` and SHA256SUMS.
+
+## KF1: D received; T reopened and set to 512 (ROOT, 2026-09-29)
+
+- **D is received and committed,** on the KF1 branch: A at `68db15d41` and D at `d267a755b`. FK's full suite passes at 401; the site table gains the one declared row.
+- **T is reopened on the corrected figures** (see the bracketed correction in "KF1: checkpoint A accepted"). At T = 64 the six 100-member frames gain +2.5% to +16.2% of their case work. I18's probe shows 0 extra at T = 512.
+  - T never affects correctness: the invariant holds for any collapse schedule.
+  - T = 512 with G = 8T = 4096 bounds a call's unevaluated rows at about 17.6 MB, plus the fallback's 4 × 2.2 MB and the tables. That is still data-independent and small next to W1's measured heap (about 100 MB at 1,000 members).
+  - Memory is only used when the data keeps that many rows; the bound only caps it.
+- **Ruling: T = 512 and G = 8T.**
+  - The model-level differential runs at T = ∞, 1 and 512.
+  - The T = 64 collapse pin is kept through the test hook, so collapse work stays exercised at model level.
+  - Re-run the golden pins, NONE and the T-sensitive mutants (M7 no collapse, M8 shared cap ignored).
+  - Record it in RETURN and CHANGE_RECORD as addendum 1, with the work table at T = 512.
+- **The approximation lemma stays out of the correctness basis.**
+
+## V-K: A2 accepted (ROOT, 2026-09-29)
+
+- **A2 is accepted.** ROOT committed it at `c1fea8574` on the V-K branch.
+  - **The FK diff is insertions only** (186 lines). Every fault site sits behind `#[cfg(any(test, feature = "mutation-controls"))]`, and the feature is declared in FK's `Cargo.toml` with no dependency change.
+  - **The kill matrix** (`VR/observations/seeded/`, `SHA256SUMS` verifying): NONE passes 40 of 40, and all 15 faults are killed.
+    - VK-F05 and VK-F06 are killed on THIN's attempts and outcome; VK-F07 and VK-R28 on evidence, as ruled.
+    - VK-R28 raises CHAIN-n00100-AX to 512 and TREE-n00100-AX to 256, as R7 §7 predicts.
+  - The §7.3 items R1 cannot discriminate are cited to K4's killing mutants: 3 (D3), the relabelling half of 10 (D10), and 16 (D16a and D16b).
+  - FK's suite with the variable unset passes 394; the feature guard passes; K4's source scan and the S11 site table pass.
+- **Next for V-K:** C, the harness mutants. B (the scale runs at 1,000 and 10,000 members) waits for KF1's merge: V-K merges main, re-runs the kill matrix, then runs B in one slot ROOT grants.
