@@ -1722,3 +1722,23 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - N3 (96 B per n² is the n² coefficient, not a total-heap bound; the largest admitted model is 3.1 MB under the ceiling): recorded. K6's B3 ceiling run measures it.
   - N4 and N5: recorded.
 - **Next:** I13 makes the fixes (tests and records), with mutants from clean archives. Then RV17 runs a delta check, followed by hosted CI with the full-SHA dispatch, DEC-025 in a quiet slot (after K6's B1) and GEN-8.
+
+## K6: B1 accepted; B2 granted (ROOT, 2026-09-29)
+
+- **B1 accepted.** Records are committed on the K6 branch at `962dd4e3b`, with the runner fixes made during the slot, each tested and disclosed.
+  - 110 of 125 rows ran, all ok. 14 were refused by name, and grid 128×128 was deferred.
+  - All 21 cross-mode pairs agree on class, and staged equals SA's entry on every run.
+  - N6 held: test E passes after K5's merge.
+- **Findings, observations only:**
+  - **Kernel sparse memory is linear in members:** the heap slope is 0.999–1.002 for CHAIN, TREE and CONT from 10 to 10,000 members. This confirms §4.8's single claim at kernel level.
+  - **F1b's dense estimate is sound in its coefficient:** heap is 1.004–1.057 × 96·n² at 100 members. B2 adds 1,000 members.
+  - **F1b's lane estimate:**
+    - for CONT, heap-move / 24·P_id is 0.66–1.33, and RSS is 1.77× at 1,000 members;
+    - for CHAIN and TREE, other buffers dominate (4.5–9.0×).
+    - This bears on RV17-N2 (the lane's peak is about 16P + 24P′) and on the lane ceiling.
+  - **The product-level gap:** CONT n10000 sparse is about 250 MiB heap in the kernel, against 4.8–5.2 GiB RSS at product level (F1b's gate). F1b's peak attribution puts most of the product's memory in result-row publication, not the solver.
+    - **The dense-scrutiny and lane ceilings therefore cannot be set from kernel figures alone.** V-P's product-level measurements are needed. Recorded for the ceiling ruling.
+- **B2 is granted (T3b):** dense and lane-lu at 1,000 members, with a projection of 1.53 h. **Grid 128×128 is admitted into B2's remainder** (E_adm × the measured ρ ≈ 1.54 GiB, within C/2; projected 3–4 min).
+  - The two known dense timeouts (N10) run once each, and their stage timings are the record N10 needs.
+  - The load-wait rule applies.
+- **B3** (the ceiling run) is decided after B2 sets ρ from CHAIN dense at 1,000 members.
