@@ -1812,3 +1812,17 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - It is admitted under the ruled rule: a 7.78 GiB footprint estimate, within 8 GiB, and a projected RSS of 11.29 GiB, within 12.8 GiB.
   - It runs once, alone on the host apart from DS1's single `nice -n 19` emulator process, with the memory guard running.
   - If the dense factor refuses and the witness runs to the timeout, the memory figures at the refusal point are still the record B3 needs.
+
+## K6: B3 accepted (ROOT, 2026-09-29)
+
+- **B3 (the Q4 ceiling run), K6-CEIL-CHAIN-n01364-AX dense, 8,190 DOFs:** ok, 5 repeats, Sensitive, with no factor refusal and no watchdog or heap-cap event. It is committed on the K6 branch.
+  - **Heap peak:** 6,459,755,398 B, which is 1.0032 × F1b's 96·n² (6,439,305,600 B) and 1.0027 × F1b's 6 GiB provisional ceiling (6,442,450,944 B).
+  - **Footprint:** 1.0078 × 96·n².
+  - **RSS:** 1.1010 × 96·n², which is 0.585 of the admission projection.
+  - **The macOS RSS excess over footprint is not a function of size.** It was 1.402 at CHAIN n1000 under load and 1.093 at the ceiling.
+- **Host context accepted.** A process outside this work (a Codex app-server job in another project folder) ran at nice 0 during B3. B3's recorded quantities are per-process and memory is deterministic, so it is accepted as disclosed. Timing is context only. ROOT did not touch the process.
+- **Recorded for the ceiling ruling (owner-facing):**
+  - At the kernel level, F1b's dense estimate is accurate to about 0.3% in heap at the ceiling. Actual resident memory on macOS runs 1.1–1.45× above it.
+  - At product level the overhead is larger (K6 B1 and F1b's attribution).
+  - The ceiling's final value is the owner's decision, with V-P's product-level measurements.
+- **Next:** C (mutants), then D (records), then review.
