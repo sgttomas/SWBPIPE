@@ -1,0 +1,78 @@
+//! RV22 probe (review only; never committed): sizes for the estimate
+//! re-derivation, and what `w1_stages_equal_totals` accepts on attempts that
+//! K4 marks `Failed(Stop(_))`.
+use open_pipe_stress_frame_kernel::structural::retained_api::{AttemptOutcome, CaseLimit, InvocationMeter, solve_case};
+use open_pipe_stress_solver_performance_harness::k6::models::model;
+use open_pipe_stress_solver_performance_harness::k6::w1::adapter;
+use open_pipe_stress_solver_performance_harness::k6::w1::counts::W1SizeFacts;
+use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
+    attempts_of, builds_completed, own_total, segments, shared_total, stage_sum, stages_equal_totals, unstaged,
+    W1Limits, w1_solve,
+};
+use open_pipe_stress_solver_performance_harness::k6::staged::{Stage, StageObserver};
+
+struct Quiet;
+impl StageObserver for Quiet {
+    fn begin(&mut self, _: Stage) {}
+    fn end(&mut self, _: Stage, _: bool, _: Option<String>) {}
+}
+
+#[test]
+fn rv22_sizes() {
+    println!("RV22 sizes {:?}", W1SizeFacts::of_this_build());
+}
+
+fn run(id: &str, case: u64) -> Vec<open_pipe_stress_frame_kernel::structural::retained_api::AttemptRecord> {
+    let m = model(id).unwrap();
+    let s = adapter::source(&m).unwrap();
+    let r = w1_solve(s, W1Limits { case, invocation: u64::MAX }, Stage::W1Solve, &mut Quiet);
+    attempts_of(&r.outcome).to_vec()
+}
+
+#[test]
+fn rv22_stopped_attempts_and_the_relaxed_check() {
+    let _ = (CaseLimit::new(1), InvocationMeter::new(1), solve_case);
+    let id = "RF-LARGE-CHAIN-n00010-AX";
+    let full = run(id, u64::MAX);
+    let segs = segments(&full);
+    let v = &full[1];
+    let into_uc = segs[1].end + v.shared_stages.bounded_formation + v.shared_stages.wide_formation + v.shared_stages.uc / 2;
+    let mut limits: Vec<(String, u64)> = segs.iter().take(3).map(|s| (s.label.clone(), s.end)).collect();
+    limits.push(("into_uc".into(), into_uc));
+    // A limit inside the candidate's own solve (after its shared build).
+    limits.push(("into_solve_128".into(), full[0].shared_work + 10));
+    // A limit inside the stop rule (decide_128).
+    limits.push(("into_decide_128".into(), segs[2].end + full[0].stop_rule_work / 2));
+    for (label, limit) in limits {
+        let atts = run(id, limit);
+        for (i, a) in atts.iter().enumerate() {
+            let (o, s) = unstaged(a);
+            println!(
+                "RV22 {label} limit={limit} attempt {i} p={} outcome={:?} builds_completed={} own={}/{} shared={}/{} unstaged=({o},{s})",
+                a.precision, a.outcome, builds_completed(a), stage_sum(&a.stages), own_total(a), stage_sum(&a.shared_stages), shared_total(a)
+            );
+        }
+        assert!(stages_equal_totals(&atts));
+        // A simulated under-recorded stage on every attempt K4 marked Failed(Stop(_)):
+        // the relaxed check still passes whenever the attempt's own work is nonzero.
+        for (i, a) in atts.iter().enumerate() {
+            if matches!(a.outcome, AttemptOutcome::Failed(_)) && a.stages.rhs > 0 {
+                let mut short = atts.clone();
+                short[i].stages.rhs -= 1;
+                println!("RV22 {label} attempt {i}: own stage short by 1 -> stages_equal_totals = {}", stages_equal_totals(&short));
+            }
+            if matches!(a.outcome, AttemptOutcome::Failed(_)) && a.shared_stages.formation > 0 {
+                let mut short = atts.clone();
+                short[i].shared_stages.formation -= 1;
+                println!("RV22 {label} attempt {i}: completed shared build short by 1 -> stages_equal_totals = {}", stages_equal_totals(&short));
+            }
+        }
+        // The tightening RV22 proposes: at most one side short, and never on an
+        // attempt whose stop was not inside a build (checked here only as data).
+        let one_side = atts.iter().all(|a| {
+            let (o, s) = unstaged(a);
+            o == 0 || s == 0
+        });
+        println!("RV22 {label}: at most one side short on every attempt = {one_side}");
+    }
+}

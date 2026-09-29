@@ -1,0 +1,111 @@
+"""RV22: re-derivation of K6b's W1 estimate E_max (H/src/k6/w1/counts.rs `estimate`).
+
+Part 1 re-implements I16's formula in Python from the W1 counts in observations/k6b/counts.jsonl and
+checks it equals each line's estimate_adm_bytes_w1a (so the figures below are the code's).
+Part 2 adds, per phase, what RV22's reading of K4's code (after KF1) finds alive that the formula does
+not count, and reports where the maximum moves:
+  solve phase, the gate's fallback (adaptive.rs solve_case_at / bounded_fallback / assemble_bounded):
+    rhs (n_f w_L) and u_free (n_f w_L), alive for the whole solve; `evaluated`, up to 4 states of n_f w_L;
+    abar_q (nnz w_R) and, while assemble_bounded runs, its per-member blocks (144 m w_R);
+    the per-state copy of u (n w_L); the fallback row list at its real capacity next_pow2(n_f)
+    (the formula's 2 n_f is kept as given; the difference is reported);
+  verification pass, shifted_factor (bound.rs): a second copy of the scaled profile's rows (P w_LP + 24 n_f).
+Sizes of FK's exported types are this build's (RV22 probe). Usage: rv22_estimate.py <counts.jsonl>
+"""
+import json, sys
+SZ = dict(straight_member=88, constraint=16, nodal_load=40, station=16, quantity_meta=20,
+          published_row=64, attempt_record=800, frame_element=136)
+w = lambda l: 8 * l + 16
+ATT = [(128, 4, 4), (256, 4, 8), (512, 8, 16), (1024, 16, 16)]
+VER = [(256, 4, 8), (512, 8, 16), (1024, 16, 16)]
+ROW, TAB = 2 * 2144 + 16, 40
+
+def pow2(x):
+    p = 1
+    while p < x:
+        p *= 2
+    return p
+
+def estimate(c, augmented=False):
+    m, n, nf, nnz = c['w1_members'], c['w1_dofs'], c['w1_free_dofs'], c['w1_pattern_entries']
+    P, B, rows = c['w1_profile_entries'], max(c['w1_blocks'], 1), c['w1_rows']
+    nodes, r, loads, st, bodies, enc = c['w1_nodes'], c['w1_constraints'], c['w1_loads'], c['w1_stations'], c['w1_bodies'], c['w1_source_encoding_len']
+    harness = nodes * 64 + m * 80 + loads * 16 + m * SZ['frame_element']
+    source = 24 * nodes + m * SZ['straight_member'] + r * SZ['constraint'] + loads * (SZ['nodal_load'] + 16) + st * SZ['station'] + 16 * n + 4 * nodes
+    case = loads * 64 + r * 48 + enc + rows * SZ['quantity_meta'] + 8 * bodies
+    group = 8 * (n + 1) + 16 * nnz + 8 * (nnz + 1) + m * 78 * 8 + 32 * nf + 8 * n + 12 * nf + 24 * B
+    group_build = m * 78 * 32
+    fixed = harness + 2 * source + case + group
+    shared = [m * (164 * w(l) + 16) + nnz * (w(l) + w(rr)) + m * (5 * w(rr) + 8) + P * w(l) + nf * (2 * w(l) + 56) + B * w(l) for _, l, rr in ATT]
+    shared_build = [0 if p == 1024 else m * (164 * w(rr) + 16) for p, _, rr in ATT]
+    state = [(n + 6 * m + rows) * w(l) for _, l, _ in ATT]
+    trackers = 2816 * ROW + 2 * 5 * nf * TAB + 2 * nf * ROW
+    solve = [4 * n * w(rr) + nf * (16 + w(l)) + trackers for _, l, rr in ATT]
+    extra_solve = [0] * 4
+    if augmented:
+        for k, (_, l, rr) in enumerate(ATT):
+            common = 2 * nf * w(l) + 4 * nf * w(l) + 4 * 24          # rhs, u_free; evaluated (4 states)
+            at_assemble = common + m * 144 * w(rr) + nnz * w(rr)     # blocks + abar_q, before any state
+            # at the 4th state: abar_q, u copy, row list at its real capacity (formula counts 2 n_f)
+            at_state = common + nnz * w(rr) + n * w(l) + (pow2(nf) - 2 * nf) * ROW
+            # at the assemble point the fallback's row list and state trackers are not yet alive
+            at_assemble -= (2 * nf * ROW + (2816 - 512) * ROW)
+            extra_solve[k] = max(at_assemble, at_state, 0)
+            # what the formula counts but is not alive during the solve: recovered (6m + rows) w_L
+            extra_solve[k] -= min(extra_solve[k], (6 * m + rows) * w(l))
+    verify = [nnz * w(l) + m * 144 * w(ww) + B * (4 * w(l) + 8) for _, l, ww in VER]
+    verify_build = [m * (5 * w(l) + 8) + m * 144 * w(l) + (0 if p == 1024 else m * (164 * w(ww) + 16)) for p, l, ww in VER]
+    report = [5 * rows * (w(l) + 8) + 2 * nf * w(l) for _, l, _ in VER]
+    # RV22 (verify.rs verify_state:731-925, alive in the pass; bound.rs:474-548 at the shift):
+    #   w_abs, delta_full, w_s (3 n w); u_free, r_hat, sr_row, delta, sr2_row, sas_inf_row, sas_one_col,
+    #   sau_row (8 n_f w); recover()'s output for delta ((rows + 6m) w); terms_w/terms_p headers (48 n);
+    #   the formula's report counts 5 row vectors and 2 n_f w, and its pass counts one profile (P w).
+    #   At the shift (only when a shift is needed): + shifted_factor's clone of the rows (P w + 24 n_f),
+    #   its shifted and work vectors (n_f (2w + 8)), the profile's first/block_of_row and the clone's first
+    #   (44 n_f); charge and w_plus (2 rows (w + 8)) are not yet allocated.
+    #   After the shift: the profile and its clone are dropped; charge and w_plus exist.
+    def pass_extra(l):
+        W = w(l)
+        at_shift = (3 * n + 8 * nf) * W - 2 * nf * W + (rows + 6 * m) * W + 48 * n + P * W + 24 * nf \
+            + nf * (2 * W + 8) + 44 * nf - 2 * rows * (W + 8)
+        after = (3 * n + 8 * nf) * W - 2 * nf * W + (rows + 6 * m) * W + 48 * n - P * W
+        return max(at_shift, after, 0)
+    pas = [P * w(l) + (pass_extra(l) if augmented else 0) for _, l, _ in VER]
+    decide = 4608 * ROW + 3 * 2 * rows * TAB
+    pivot = 768 * ROW + 2 * nf * TAB
+    end = rows * (SZ['published_row'] + 40) + enc + (n + 6 * m) * (9 + 128) + 8 * SZ['attempt_record']
+    kept = fixed; peak = fixed + group_build; where = 'group_build'; sel = 0
+    def up(v, label):
+        nonlocal peak, where
+        if v > peak:
+            peak, where = v, label
+    for k, (p, _, _) in enumerate(ATT):
+        up(kept + shared[k] + shared_build[k] + pivot, 'build_%d' % p)
+        kept += shared[k]
+        up(kept + state[k] + solve[k] + extra_solve[k], 'solve_%d' % p)
+        kept += state[k]
+        v = [i for i, x in enumerate(VER) if x[0] == p]
+        if v:
+            v = v[0]
+            up(kept + verify[v] + verify_build[v], 'vbuild_%d' % p)
+            kept += verify[v]
+            up(kept + report[v] + pas[v], 'pass_%d' % p)
+            up(kept + report[v] + decide, 'decide_%d' % p)
+            if p == 256:
+                sel = max(peak, kept + report[v] + end)
+    up(kept + report[2] + end, 'end')
+    return peak, sel, where
+
+bad = 0; worst = (0, None)
+for line in open(sys.argv[1]):
+    c = json.loads(line)
+    e, sel, where = estimate(c)
+    if e != c['estimate_adm_bytes_w1a'] or sel != c['estimate_w1_sel128_bytes']:
+        bad += 1; print('FORMULA DIFFERS', c['model'], e, c['estimate_adm_bytes_w1a'], sel, c['estimate_w1_sel128_bytes'])
+    ea, _, where_a = estimate(c, augmented=True)
+    ratio = ea / e
+    worst = max(worst, (ratio, c['model']))
+    print('%-40s E_max %6.1f MiB (max at %-10s)  augmented %6.1f MiB (max at %-10s)  ratio %.4f' % (
+        c['model'], e / 1048576, where, ea / 1048576, where_a, ratio))
+print('formula reproduces the committed E_max and E_sel128 on every line: %s' % (bad == 0))
+print('largest augmented/E_max: %.4f (%s)' % worst)

@@ -1,0 +1,8 @@
+RF-LARGE-CHAIN-n00010-AX: IDENTICAL deterministic lines; rows dump identical=True; parity 11 lines, false=0; prefixes=[('solve_128', 2367491, 'Budget(Case)'), ('solve_256', 5447988, 'Budget(Case)'), ('verify_256', 8002626, 'Budget(Case)')]
+RF-LARGE-CHAIN-n00100-AX: IDENTICAL deterministic lines; rows dump identical=True; parity 11 lines, false=0; prefixes=[('solve_128', 24047534, 'Budget(Case)'), ('solve_256', 55185637, 'Budget(Case)'), ('verify_256', 81279182, 'Budget(Case)')]
+RF-LARGE-CONT-n00100-AX: IDENTICAL deterministic lines; rows dump identical=True; parity 11 lines, false=0; prefixes=[('solve_128', 16172940, 'Budget(Case)'), ('solve_256', 39237948, 'Budget(Case)'), ('verify_256', 56201980, 'Budget(Case)')]
+RF-LARGE-TREE-n00100-ROT: IDENTICAL deterministic lines; rows dump identical=True; parity 11 lines, false=0; prefixes=[('solve_128', 26587261, 'Budget(Case)'), ('solve_256', 63632051, 'Budget(Case)'), ('verify_256', 100131481, 'Budget(Case)')]
+e0639e669883e2032d53207e4322fd4f11b914a9ac07f687a4355dd64aa56004  RF-LARGE-CHAIN-n00010-AX.rows
+8987e8cd8b2725a4bbded097613f899d3c50c5acfa146df303ce82aeea087720  RF-LARGE-CHAIN-n00100-AX.rows
+dc3ca5a314fbcc9a9c53d9d65a89a85fd7c50253d0e716b2c4896681c287ea2e  RF-LARGE-CONT-n00100-AX.rows
+1c0c202c87b88393143a04cb5b5c8da193cbecb148ab669b681c6c463614d9a5  RF-LARGE-TREE-n00100-ROT.rows

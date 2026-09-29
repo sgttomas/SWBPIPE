@@ -1,0 +1,36 @@
+"""RV22: the work closure, the stage identities and the per-precision charged totals, recomputed from
+b3's raw attempt lines (every w1a process, every repeat), without H's code."""
+import json, os, sys
+R = sys.argv[1]
+ST = ['formation','assembly','residual_formation','factor','condition','rhs','solve','refinement','recovery','stop_rule',
+      'bounded_gate','scale','estimate','charge','bound','shift','bounded_formation','wide_formation','uc']
+recs = [json.loads(l) for l in open(os.path.join(R, 'records.jsonl'))]
+n_out = n_att = bad = 0; stopped = []
+for r in recs:
+    if r.get('mode') != 'w1a': continue
+    L = [json.loads(l) for l in open(os.path.join(R, r['run_id'] + '.jsonl'))]
+    for o in [d for d in L if d['kind'] == 'outcome']:
+        n_out += 1
+        A = [d for d in L if d['kind'] == 'attempt' and d['repeat'] == o['repeat']]
+        charged = sum(a['own_total'] + (a['shared_work'] if a['shared_built_here'] else 0)
+                      + (a['verification_shared_work'] if a['verification_shared_built_here'] else 0) for a in A)
+        if charged != o['meter_charged']: bad += 1; print('CLOSURE', r['run_id'], o['repeat'])
+        byp = {}
+        for a in A:
+            n_att += 1
+            own = sum(a['own_' + s] for s in ST); sh = sum(a['shared_' + s] for s in ST)
+            tot_sh = a['shared_work'] + a['verification_shared_work']
+            failed_stop = a['outcome'].startswith('Failed(Stop(')
+            if not failed_stop and (own != a['own_total'] or sh != tot_sh):
+                bad += 1; print('IDENTITY', r['run_id'], a['precision'])
+            if failed_stop:
+                stopped.append((r['model'], o['repeat'], a['precision'], a['outcome'], a['own_total'] - own, tot_sh - sh))
+                if own > a['own_total'] or sh > tot_sh: bad += 1
+            if (a['own_unstaged'], a['shared_unstaged']) != (max(a['own_total'] - own, 0), max(tot_sh - sh, 0)): bad += 1; print('UNSTAGED', r['run_id'])
+            p = byp.setdefault(a['precision'], [0, 0, 0]); p[0] += 1; p[1] += a['own_total']; p[2] += tot_sh
+        for pr, (na, ow, sh) in byp.items():
+            if (o.get('work_%d_attempts' % pr), o.get('work_%d_own' % pr), o.get('work_%d_shared' % pr)) != (na, ow, sh):
+                bad += 1; print('BYPREC', r['run_id'], pr)
+print('outcomes %d, attempts %d, discrepancies %d' % (n_out, n_att, bad))
+print('attempts marked Failed(Stop(_)) (model, repeat, p, outcome, own unstaged, shared unstaged):')
+for s in sorted(set(stopped)): print('  ', s)

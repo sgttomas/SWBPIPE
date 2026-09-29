@@ -2615,3 +2615,22 @@ RV21 (`REVIEW/VK_REVIEW.md`, sha256 `eab89fb5…`; records `REVIEW/_run_records/
   - N3's set check catches a planted duplicate.
   - The records match the head, and every `SHA256SUMS` verifies.
   - GEN-8 passes on `5f0d39426`.
+
+## K6b: rulings on RV22's review (ROOT, 2026-09-29)
+
+RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewed head `1123d19b9`: **PASS**, with 0 BLOCKING, 3 SHOULD-FIX and 7 NOTEs.
+- **No product byte changes.** A0's patch-id equals both A0 commits.
+- **The W1 mode:** RV22's K4SRC decode matches R1's models; its release `w1a` runs reproduce b3 byte for byte; the work closure has 0 discrepancies over 330 outcomes.
+- **The records:** 934 RETURN values trace to the raw JSONL with 0 mismatches; the packet regenerates; the merge `b86081221` is clean.
+
+**Fix all three SHOULD-FIX findings before merge.** ROOT's W1 limits will rest on E_max and on the stage evidence.
+- **RV22-1:** tighten `stages_equal_totals` on stopped builds to at most one side short (`own == own_total || shared == shared_total`), each short side at most its total. Report `stages_complete` as unstaged == (0, 0). Add a test with RV22's probe, the 1-LME under-record on a stop-rule stop, and kill it.
+- **RV22-2:** E_max must be an upper bound on every phase.
+  - Add the 1024 verification's live vectors (about 3n + 8n_f wide values, and `recover`'s output) and the shift's profile clone (`bound.rs:560`) to the verification phase.
+  - Add the solve-phase fallback items (`abar_q`, `evaluated`, `rhs`, `u_free`, the per-state u) under the move model.
+  - Regenerate `counts.jsonl`, and state the change in RETURN: +5.4% on CHAIN and TREE and +2.1% on CONT at 10,000 members, and 0 at 1,000 or fewer. b3's admissions are unaffected.
+- **RV22-3:** add a test that recomputes every committed `counts.jsonl` line's E_max and E_sel128 from the code, and one that exercises the solve-phase terms at a size where they bind. Kill RV22-M6.
+
+**The NOTEs are recorded:** RETURN's load range, the move-model heap/E column, the adapter through K6's section formula, and the two further unstaged paths, which go to KF3. RV22-M5 (the binary's prefix parity always true) and RV22-M7 (the backstop against the RSS cap) are killed if cheap, and otherwise recorded; RV22-M2 is equivalent on single-case models.
+
+**Then:** CI and the dispatch on the new head, DEC-025, GEN-8, RV22's confirmation, and the merge.

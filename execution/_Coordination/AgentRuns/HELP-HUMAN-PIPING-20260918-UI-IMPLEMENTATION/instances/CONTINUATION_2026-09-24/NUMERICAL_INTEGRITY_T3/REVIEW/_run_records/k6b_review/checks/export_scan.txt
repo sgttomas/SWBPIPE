@@ -1,0 +1,38 @@
+# RV22: the export and the product scans at head 1123d19b9ab0a39b7ad5bdb33fc707846ae58a9c
+## FK diff against main 0f5d8c7b4, and the A0 commits (git patch-id --stable)
+PR FK diff:        b43efeb4fdd2b15f0f5f45248ef97f1fb5303edb
+K6b A0 bb89e4f8f:  b43efeb4fdd2b15f0f5f45248ef97f1fb5303edb
+V-K A0 3018343c2:  b43efeb4fdd2b15f0f5f45248ef97f1fb5303edb
+## Files outside H and the K6B records changed by the PR (against main 0f5d8c7b4)
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
+## Lockfile or manifest changes in the PR
+(none)
+## Files naming retained_api at head (outside execution/)
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+projects/chirality-piping/core/solver/performance_harness/README.md
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/rows.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_adapter.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs
+## Cargo.toml files naming the harness package (open_pipe_stress_solver_performance_harness) or its path
+projects/chirality-piping/core/solver/performance_harness/Cargo.toml
+## FK removed lines (all must be pub(crate) or a dead_code marker) and added lines (pub or the facade)
+removed lines: 260 (pub(crate): 240; other: 20, all "#[allow(dead_code)]" markers: True)
+added lines: 269; each pub(crate)->pub edit matched: True; added lines not an edit: 29 (the facade block and its 4 doc lines)

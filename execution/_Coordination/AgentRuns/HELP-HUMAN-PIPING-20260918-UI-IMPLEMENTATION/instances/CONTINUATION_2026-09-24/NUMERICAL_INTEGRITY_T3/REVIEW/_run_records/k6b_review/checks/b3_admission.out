@@ -1,0 +1,6 @@
+records 132 Counter({'ok': 132}) Counter({'admitted': 132})
+parity failures 0 killed_by_watchdog 0 timed_out 0
+max estimate / (heap cap/2) over admitted w1a rows: 0.7101
+stop reasons Counter({None: 132})
+W1-T4 rows 24 conditional Counter({False: 24})
+load_before (1-min) range 3.55-6.48

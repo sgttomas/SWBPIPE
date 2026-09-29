@@ -1,0 +1,38 @@
+"""RV22: my w1a runs (release, head 1123d19b9) against b3's pass-1 records: every deterministic line."""
+import json, os, sys
+mine_dir, rec_dir = sys.argv[1], sys.argv[2]
+recs = [json.loads(l) for l in open(os.path.join(rec_dir, 'records.jsonl'))]
+VOLATILE = {'pid', 'elapsed_ns', 'counts_source'}
+def load(p):
+    return [json.loads(l) for l in open(p)]
+for f in sorted(os.listdir(mine_dir)):
+    if not f.endswith('.jsonl'):
+        continue
+    model = f[:-6]
+    r = [x for x in recs if x['model'] == model and x['mode'] == 'w1a' and x['pass'] == 1][0]
+    theirs = load(os.path.join(rec_dir, r['run_id'] + '.jsonl'))
+    mine = load(os.path.join(mine_dir, f))
+    kinds = ('counts', 'outcome', 'attempt', 'parity', 'prefix')
+    diffs = []
+    for k in kinds:
+        a = [{kk: vv for kk, vv in d.items() if kk not in VOLATILE} for d in mine if d['kind'] == k]
+        b = [{kk: vv for kk, vv in d.items() if kk not in VOLATILE} for d in theirs if d['kind'] == k]
+        if a != b:
+            diffs.append('%s (%d vs %d lines)' % (k, len(a), len(b)))
+            for x, y in zip(a, b):
+                if x != y:
+                    print('  first difference in', k, {kk: (x.get(kk), y.get(kk)) for kk in set(x) | set(y) if x.get(kk) != y.get(kk)})
+                    break
+    # stage heap peaks (deterministic allocations) for w1_solve and the prefixes
+    hs = lambda L: [(d['stage'], d['repeat'], d['heap_peak'] - d['heap_current_begin'], d['heap_peak_move'] - d['heap_current_begin'])
+                    for d in L if d['kind'] == 'stage' and d['stage'] != 'w1_source']
+    if hs(mine) != hs(theirs):
+        diffs.append('stage heap peaks')
+    rows_mine = open(os.path.join(mine_dir, model + '.rows'), 'rb').read()
+    rp = os.path.join(rec_dir, r['run_id'] + '.rows')
+    rows_same = open(rp, 'rb').read() == rows_mine if os.path.exists(rp) else 'n/a'
+    par = [d for d in mine if d['kind'] == 'parity']
+    print('%s: %s; rows dump identical=%s; parity %d lines, false=%d; prefixes=%s' % (
+        model, 'IDENTICAL deterministic lines' if not diffs else 'DIFFERS: ' + ', '.join(diffs), rows_same,
+        len(par), sum(not d['equal'] for d in par),
+        [(d['through_segment'], d['case_limit'], d['reason']) for d in mine if d['kind'] == 'prefix']))
