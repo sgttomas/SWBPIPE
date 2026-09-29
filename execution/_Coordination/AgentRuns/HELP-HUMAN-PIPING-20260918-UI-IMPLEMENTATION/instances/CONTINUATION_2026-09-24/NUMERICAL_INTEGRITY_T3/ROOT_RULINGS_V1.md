@@ -2292,3 +2292,13 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
   - Row 247's refused record is voided (renamed, with the reason), as K6 did.
 - **K6b proceeds now to C (mutants),** one cargo job. D waits for W1-T4.
 - **A new mutant for C:** the runner's admission is checked against the binary's backstop. A test asserts that, for every admitted row, the binary's own check admits it too, or the row is deferred by name. This closes I16's miss.
+
+## K6b: C's mutation table; M10's test approved (ROOT, 2026-09-29)
+
+- **C's runner change is accepted.** ROOT committed it on the K6b branch. `admission()` defers by name any row the binary's backstop would refuse, and defers a row whose counts line has no estimate for its mode.
+  - K6's 138 rows and K6b's 270-row plan are unchanged. The runner suite passes 45 of 45.
+- **The mutation table:** NONE passes, and 17 of 19 mutants are killed, M14 among them (the backstop omitted).
+  - **M3e (Iy and Iz swapped)** is equivalent, and the equivalence is derived: Iy = Iz in every section used.
+  - **M10 (the prefix limit b_j − 1)** survives. K4's budget tests fall before each segment's final work on these models, so the prefixes stop at the same place.
+- **I16's assertion is approved:** each prefix limit equals its segment's exact end. Add it to `tests/k6b_w1.rs`, and re-run NONE and M10 from clean copies; M10 must be killed.
+- **Next:** K6b waits for KF1. Then it merges main, re-runs W1-T3, runs W1-T4, and moves to D.
