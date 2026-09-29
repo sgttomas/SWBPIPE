@@ -1,0 +1,9 @@
+baseline: 6fa422979 (F1b final head; its piping source = main 59cb20073's)
+candidate: cd325c1fe (K6)
+
+CHANGED 007_core_model_operations_operation_applier_Cargo.toml.log: base (194, 0, 0) -> cand (0, 0, 0); base fails []; cand fails []
+CHANGED 030_core_solver_performance_harness_Cargo.toml.log: base (25, 0, 0) -> cand (54, 0, 0); base fails []; cand fails []
+
+candidate failing: [('008_core_product_physics_Cargo.toml.log', ['s11g_tests::t13_committed_fallback_uz_is_byte_identical']), ('022_core_runner_headless_Cargo.toml.log', ['cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route', 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes'])]
+baseline failing: [('008_core_product_physics_Cargo.toml.log', ['s11g_tests::t13_committed_fallback_uz_is_byte_identical']), ('022_core_runner_headless_Cargo.toml.log', ['cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route', 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes'])]
+manifests: 39 39

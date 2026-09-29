@@ -1918,3 +1918,18 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - N7: correct CHANGE_RECORD's base (`56dd72334`). Note in RETURN that run 137's `slot` reads B1 though it ran in B2, since raw records are not edited, and that the provenance lock copy was already stale on main.
   - N4, N5 and N8: recorded.
 - **Next:** I15 fixes, then RV18 runs a delta check, followed by hosted CI with the dispatch, DEC-025 and GEN-8.
+
+## K6 merged (ROOT, 2026-09-29)
+
+- **Merged:** [PR1053](https://github.com/sgttomas/chirality/pull/1053) at head `cd325c1fe`, merge `7ac7b1c37`, 2026-09-29 09:52:09Z. The merge record is `IMPLEMENTATION/K6_MERGE/RECORD.md`.
+- **The gates:**
+  - RV18 PASSED, with its delta check PASSED;
+  - hosted CI was green, and the dispatch (36548351414) succeeded;
+  - GEN-8 passed;
+  - DEC-025: K6's own tests are the only suite change, and pytest, vitest and the builds are clean.
+- **operation_applier's 0-test result in the sweep** was a build failure in the shared sweep target: two `serde_json` versions, the mechanism not proven. It re-ran alone on the head with a fresh target and passed 194 of 194. ROOT removed the shared target.
+  - **Procedure note for DEC-025:** start each sweep with a fresh target.
+- **Next on the kernel path:**
+  - K4 (A3b in progress);
+  - then K6b (W1 observations) and V-K;
+  - then ROOT's budget limits, F2a, and the owner's ceiling decision with V-P.
