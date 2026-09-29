@@ -1,0 +1,14 @@
+baseline (no-op) peak RSS 1867776 bytes, footprint 1163576 bytes; memory-guard kills so far 0
+13_RF-LARGE-CHAIN-n10000-AX_w1a: kf3_availability_exact_sum_span (103 rows counted as unresolved_availability, never as passes)
+13_RF-LARGE-CHAIN-n10000-AX_w1a: ok 6.1s rss=998227968 outcome=Unresolved ExactSumSpan [Restrained]
+14_RF-LARGE-CHAIN-n10000-ROT_w1a: kf3_availability_exact_sum_span (103 rows counted as unresolved_availability, never as passes)
+14_RF-LARGE-CHAIN-n10000-ROT_w1a: ok 11.2s rss=998703104 outcome=Unresolved ExactSumSpan [Restrained]
+15_RF-LARGE-TREE-n10000-AX_w1a: kf3_availability_exact_sum_span (194 rows counted as unresolved_availability, never as passes)
+15_RF-LARGE-TREE-n10000-AX_w1a: ok 6.7s rss=972488704 outcome=Unresolved ExactSumSpan [Restrained]
+16_RF-LARGE-TREE-n10000-ROT_w1a: kf3_availability_exact_sum_span (194 rows counted as unresolved_availability, never as passes)
+16_RF-LARGE-TREE-n10000-ROT_w1a: ok 10.7s rss=990642176 outcome=Unresolved ExactSumSpan [Restrained]
+17_RF-LARGE-CONT-n10000-AX_w1a: ok 7.4s rss=1092730880 outcome=Selected at 128
+18_RF-LARGE-CONT-n10000-ROT_w1a: kf3_availability_exact_sum_span (215 rows counted as unresolved_availability, never as passes)
+18_RF-LARGE-CONT-n10000-ROT_w1a: ok 9.6s rss=1084915712 outcome=Unresolved ExactSumSpan [Restrained]
+rc=0
+slot end 2026-09-29 16:27:28
