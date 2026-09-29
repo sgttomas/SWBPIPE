@@ -1611,3 +1611,22 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - U9: the reliance wording, which changes with U1.
 - **Also for R5:** RV16-D2's miscount (R4:3 says "5 NOTEs" for V4's R3 check; there were 4).
 - **Next:** DS1 writes R5, V4 runs a delta check, and ROOT selects only after VERIFIED. K4 stays blocked until then.
+
+## F1b: gate re-run on 130445db2 accepted; the Mac is released (ROOT, 2026-09-29)
+
+- **Result: PASS** (I13; records in `<wt>/scratch/i13/gate2/`, SHA256SUMS over 3,456 files, verified by ROOT).
+- **Part 1:** 884 runs against G1's full base (`runs.jsonl` `9139140c…`); candidate `runs.jsonl` `30d99bf0…`.
+  - `gate_check` PASS: 0 trusted breach triples.
+  - C3: 832 runs, 0 differences.
+  - C1: exactly the ruled 28, with rows identical to the `948e0bb99` gate.
+  - Nothing changed outside C1 and C2.
+  - **C2: 0 sparse heap-cap aborts,** so the condition part 1 failed on `948e0bb99` now holds.
+    - The 4 CONT n10000 sparse runs now publish `MECHANICS_SOLVED`, `sensitive` and `needs_recompute`, with `SPARSE_OBSERVATION_LANE_NOT_RUN` and the lane's fields `not_observed`. Peak RSS is 4.82–5.17 GiB.
+    - The 12 dense runs get the guard's refusal. The 8 other sparse n10000 runs get named M03 refusals.
+  - Against the `948e0bb99` gate, 880 of 884 runs are identical. Only those 4 CONT runs differ.
+- **Part 2:** all 8 dense 1,000-member runs time out at 1,800 s on both sides, with no base/candidate mismatch. Each run's load is recorded, and there was one load wait. This matches K6's predicted dense-path timeouts (K6 plan, N10); K6's stage timings will show where the time goes.
+- **RV11D-N2 on CONT n10000:** reactions and end actions are equal bit for bit (AX and ROT). 8 of the 13 cases are now observed, all equal.
+- **Next for F1b:** D (CHANGE_RECORD, RETURN, records), then the PR, an independent reviewer, hosted CI with the full-SHA dispatch, DEC-025 and GEN-8.
+- **Host released** at about 02:10Z. The order of use:
+  - K5 stage 2 (I14; FK K5 tests and RV14-M5) and K6 A1 (I15) may build concurrently, each within its own 2-cargo-job limit.
+  - Quiet-host slots follow, one at a time: DEC-025 for K5, then DEC-025 for F1b, then K6's B1, B2 and B3.
