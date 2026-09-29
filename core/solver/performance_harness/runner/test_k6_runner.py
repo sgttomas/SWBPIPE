@@ -352,6 +352,66 @@ class Aggregation(unittest.TestCase):
         self.assertIsNone(g['tracker_entries_equivalent'])
         self.assertIsNone(g['rows'])
 
+    def test_k6b_packet(self):
+        """K6b's packet (plan section 4): K6's packet of the records, plus, per w1a process, the W1
+        figures, the outcome's work by precision, repeat 0's attempts with their unstaged
+        remainders, the ratios to W1's estimate, and the per-pair W1/binary64 multiple."""
+        import k6b_analysis as a
+        base = {'schema': 'k6-runner-record-v1', 'classification': 'ok', 'family': 'CHAIN', 'members': 10,
+                'model': 'M', 'pass': 1, 'tier': 'W1-T1', 'baseline_footprint_bytes': 100,
+                'baseline_rss_bytes': 100, 'peak_rss_bytes': 1100, 'rss': {'time_peak_footprint_bytes': 600}}
+        w1_record = dict(base, order=1, run_id='1_M_w1a', mode='w1a', repeats_heap_peak=400,
+                         repeats_heap_peak_move=400, estimate_adm_bytes=1000)
+        sparse_record = dict(base, order=2, run_id='2_M_sparse', mode='sparse', repeats_heap_peak=50,
+                             repeats_heap_peak_move=50, estimate_adm_bytes=100)
+        attempt = {'kind': 'attempt', 'repeat': 0, 'index': 0, 'precision': 256, 'role': 'Verification',
+                   'outcome': 'Failed(Stop(Span))', 'stages_complete': False, 'own_total': 7, 'own_unstaged': 0,
+                   'own_rhs': 7, 'own_uc': 0, 'shared_work': 20, 'verification_shared_work': 10,
+                   'shared_unstaged': 3, 'shared_built_here': True, 'shared_formation': 20,
+                   'shared_bounded_formation': 7, 'charged_by': 37, 'stop_rule_work': 0, 'verification_work': 0,
+                   'storage_pattern_entries': 5, 'storage_profile_entries': 4, 'storage_limbs_per_entry': 4}
+        w1_lines = [
+            {'kind': 'counts', 'model': 'M', 'estimate_adm_bytes_w1a': 1000},
+            {'kind': 'stage', 'stage': 'w1_solve', 'repeat': 0, 'elapsed_ns': 4000, 'heap_current_begin': 0,
+             'heap_peak': 400, 'heap_peak_move': 400, 'ok': True},
+            {'kind': 'outcome', 'repeat': 0, 'class': 'Unresolved', 'reason': 'ExactSumSpan', 'attempts': 1,
+             'meter_charged': 37, 'work_256_attempts': 1, 'work_256_own': 7, 'work_256_shared': 30},
+            attempt, dict(attempt, repeat=1, own_total=99)]
+        entry = ('{"kind":"stage","repeat":0,"stage":"entry_checked","ok":true,"elapsed_ns":100,'
+                 '"heap_current_begin":1,"heap_current_end":1,"heap_peak":9,"heap_peak_move":9}')
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, 'records.jsonl'), 'w') as fh:
+                for x in (w1_record, sparse_record):
+                    fh.write(json.dumps(x) + '\n')
+            with open(os.path.join(d, '1_M_w1a.jsonl'), 'w') as fh:
+                fh.write(''.join(json.dumps(o) + '\n' for o in w1_lines))
+            with open(os.path.join(d, '2_M_sparse.jsonl'), 'w') as fh:
+                fh.write('\n'.join(JSONL_FIXTURE + [entry]) + '\n')
+            p = a.packet(d, ['pre-KF3'])
+        self.assertEqual(p['schema'], 'k6b-packet-v1')
+        self.assertTrue(p['observation_only'])
+        self.assertEqual(p['notes'], ['pre-KF3'])
+        self.assertEqual([x['run_id'] for x in p['runs']], ['1_M_w1a', '2_M_sparse'])
+        self.assertEqual(sorted(p['fits']), ['CHAIN/sparse', 'CHAIN/w1a'])
+        (w,) = p['w1']
+        self.assertEqual((w['model'], w['pass'], w['reason']), ('M', 1, 'ExactSumSpan'))
+        self.assertEqual(w['work_by_precision'], {'work_256_attempts': 1, 'work_256_own': 7, 'work_256_shared': 30})
+        self.assertEqual(w['figures']['s_per_lme_median'], 4000 / 1e9 / 37)
+        (att,) = w['attempts']
+        self.assertEqual(att['own_total'], 7)
+        self.assertEqual((att['stages_complete'], att['own_unstaged'], att['shared_unstaged']), (False, 0, 3))
+        self.assertEqual(att['own_stages'], {'rhs': 7})
+        self.assertEqual(att['shared_stages'], {'formation': 20, 'bounded_formation': 7})
+        self.assertEqual(att['storage'], {'pattern_entries': 5, 'profile_entries': 4, 'limbs_per_entry': 4})
+        self.assertEqual(w['heap_move_over_estimate'], 0.4)
+        self.assertEqual(w['rho_fp'], 0.5)
+        self.assertEqual(w['rho_rss'], 1.0)
+        (pair,) = p['w1_pairs']
+        self.assertEqual(pair['sparse_entry_checked_median_ns'], 100)
+        self.assertEqual(pair['sparse_staged_median_ns'], 360)
+        self.assertEqual(pair['multiple_entry_checked'], 40.0)
+        self.assertEqual(pair['multiple_staged'], 4000 / 360)
+
     def test_a_span_unresolved_w1a_outcome_is_recorded_not_a_stop(self):
         """ROOT's ruling on the K6B-S3 stop: in b3 a w1a case that ends Unresolved(ExactSumSpan)
         with every parity item true is recorded, and the tier goes on; a false item still stops."""

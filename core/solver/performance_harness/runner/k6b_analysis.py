@@ -14,7 +14,12 @@ records and the parsers, and adds only what W1 needs:
 - ``smoke``: the ``w1a`` and ``sparse`` runs at 10 and 100 members and the DEC-053 nine,
   under a 512 MiB heap cap (checkpoint A2);
 - ``project``: W1-T3's and W1-T4's rows from the 100-member runs: the projected call time and
-  process time, the projected work, ρ and the admission it gives, and the tracker term.
+  process time, the projected work, ρ and the admission it gives, and the tracker term;
+- ``packet``: K6b's packet (plan section 4): K6's packet of the records (the runs, the growth
+  fits of heap and RSS against members per family and mode, and the metadata), plus, per
+  ``w1a`` process, the W1 figures, the outcome's work by precision and repeat 0's attempts
+  (work by stage, the unstaged remainders, storage), the measured ratios to W1's estimate,
+  and, per pair, the W1/binary64 time multiple.
 
 Observation only: nothing here asserts a time or memory bound. Every projection is labelled
 as one; it is not a claim.
@@ -90,6 +95,80 @@ def w1_figures(objects):
         out['heap_over_e_max'] = call_peak / out['estimate_adm_bytes_w1a']
     if call_peak and out['estimate_w1_sel128_bytes']:
         out['heap_over_e_sel128'] = call_peak / out['estimate_w1_sel128_bytes']
+    return out
+
+
+def w1_attempts(objects, repeat=0):
+    """One repeat's attempt lines, compacted: the attempt, its totals and unstaged remainders, its
+    non-zero own and shared stages (LME), and its storage counts."""
+    out = []
+    for o in objects:
+        if o.get('kind') != 'attempt' or o.get('repeat') != repeat:
+            continue
+        own = {k[4:]: v for k, v in o.items() if k.startswith('own_') and k not in ('own_total', 'own_unstaged')
+               and not isinstance(v, bool) and v}
+        shared = {k[7:]: v for k, v in o.items() if k.startswith('shared_')
+                  and k not in ('shared_work', 'shared_built_here', 'shared_unstaged')
+                  and not isinstance(v, bool) and v}
+        out.append({
+            'index': o.get('index'), 'precision': o.get('precision'), 'role': o.get('role'),
+            'outcome': o.get('outcome'), 'stages_complete': o.get('stages_complete'),
+            'own_total': o.get('own_total'), 'own_unstaged': o.get('own_unstaged'),
+            'shared_work': o.get('shared_work'), 'verification_shared_work': o.get('verification_shared_work'),
+            'shared_unstaged': o.get('shared_unstaged'), 'charged_by': o.get('charged_by'),
+            'stop_rule_work': o.get('stop_rule_work'), 'verification_work': o.get('verification_work'),
+            'verification_shift_factorizations': o.get('verification_shift_factorizations'),
+            'own_stages': own, 'shared_stages': shared,
+            'storage': {k: o.get('storage_' + k) for k in ('pattern_entries', 'profile_entries', 'limbs_per_entry')},
+        })
+    return out
+
+
+def packet(record_dir, notes=()):
+    """K6b's packet of one records folder (module documentation). Observation only."""
+    out = r.packet(record_dir)
+    out['schema'] = 'k6b-packet-v1'
+    out['claims'] = ['observed log-log growth fits of peak requested heap and of peak RSS against members, '
+                     'per family and mode',
+                     "ratios of the measured heap (and footprint) to W1's admission estimate at the measured sizes"]
+    out['notes'] = list(notes)
+    w1, pairs = [], {}
+    runs = [x for x in r.run_entries(r.read_records(record_dir)) if x.get('classification') not in (None, 'not_run')]
+    for x in sorted(runs, key=lambda x: x['order']):
+        if x['mode'] not in ('w1a', 'sparse'):
+            continue
+        obj = objects_of(record_dir, x['run_id'])
+        pair = pairs.setdefault((x['model'], x.get('pass')), {'model': x['model'], 'pass': x.get('pass')})
+        if x['mode'] == 'sparse':
+            sp = sparse_figures(obj)
+            pair.update(sparse_staged_median_ns=sp['staged_median_ns'],
+                        sparse_entry_checked_median_ns=sp['entry_checked_median_ns'])
+            continue
+        f = w1_figures(obj)
+        if f is None:
+            continue
+        first = r.first_of(obj, 'outcome') or {}
+        estimate = x.get('estimate_adm_bytes')
+        w1.append({
+            'order': x['order'], 'run_id': x['run_id'], 'tier': x.get('tier'), 'model': x['model'],
+            'family': x.get('family'), 'members': x.get('members'), 'pass': x.get('pass'),
+            'classification': x.get('classification'), 'reason': first.get('reason'),
+            'figures': f, 'work_by_precision': {k: v for k, v in first.items() if k.startswith('work_')},
+            'attempts': w1_attempts(obj),
+            'rho_fp': r.measured_footprint_ratio(x, x.get('baseline_footprint_bytes')),
+            'rho_rss': r.measured_ratio(x, x.get('baseline_rss_bytes')),
+            'heap_move_over_estimate': (x['repeats_heap_peak_move'] / estimate)
+            if (estimate and x.get('repeats_heap_peak_move')) else None,
+            'load_before': x.get('load_before'), 'load_after': x.get('load_after'),
+        })
+        pair['w1a_solve_median_ns'] = f['solve_median_ns']
+    for pair in pairs.values():
+        w, e, st = (pair.get('w1a_solve_median_ns'), pair.get('sparse_entry_checked_median_ns'),
+                    pair.get('sparse_staged_median_ns'))
+        pair['multiple_entry_checked'] = (w / e) if (w and e) else None
+        pair['multiple_staged'] = (w / st) if (w and st) else None
+    out['w1'] = w1
+    out['w1_pairs'] = [pairs[k] for k in sorted(pairs, key=lambda k: (k[0], k[1] or 0))]
     return out
 
 
@@ -231,6 +310,8 @@ def main(argv=None):
     ap.add_argument('--binary')
     ap.add_argument('--records')
     ap.add_argument('--counts')
+    ap.add_argument('--packet', action='store_true', help="print K6b's packet of --records")
+    ap.add_argument('--note', action='append', default=[], help='a note recorded in the packet (repeatable)')
     args = ap.parse_args(argv)
     if args.figures:
         with open(args.figures) as fh:
@@ -241,6 +322,9 @@ def main(argv=None):
         return 0
     if args.project:
         print(json.dumps(project(args.records, args.counts), indent=1))
+        return 0
+    if args.packet:
+        print(json.dumps(packet(args.records, args.note), indent=1, sort_keys=True))
         return 0
     ap.print_help()
     return 2
