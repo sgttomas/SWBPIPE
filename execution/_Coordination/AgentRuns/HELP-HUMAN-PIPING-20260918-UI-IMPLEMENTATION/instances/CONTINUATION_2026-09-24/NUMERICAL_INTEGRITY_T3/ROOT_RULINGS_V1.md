@@ -1742,3 +1742,22 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - The two known dense timeouts (N10) run once each, and their stage timings are the record N10 needs.
   - The load-wait rule applies.
 - **B3** (the ceiling run) is decided after B2 sets ρ from CHAIN dense at 1,000 members.
+
+## K6: rulings at I15's B2 stop (Q3's premise measure) (ROOT, 2026-09-29)
+
+- **The stop was correct.** The first dense 1,000-member run (CHAIN-n01000-AX, 5 of 5 repeats, 622 s, Sensitive in both modes) confirmed Q3's premise on requested heap (3,319 MiB) and on the macOS physical footprint (3,411 MiB), both below P1's Linux 3,605 MiB. It refuted the premise on RSS (4,782 MiB, above C/2).
+  - I15's hypothesis, not tested: macOS keeps freed large blocks resident, so RSS accumulates across the stages' rising and falling heap peaks. Linux glibc unmaps large blocks, so P1's Linux `ru_maxrss` compares with the footprint, not with macOS RSS.
+- **Ruling: option (a), with a safety condition.**
+  - **Q3's premise and ρ are read on the macOS physical footprint** (`time -l` peak memory footprint; the measure macOS uses for memory pressure). It is the one comparable with P1's Linux RSS. RSS stays recorded beside it on every run.
+  - **The watchdog stays on RSS,** at C, as the conservative host guard. It is unchanged.
+  - **Added condition:** a run admitted by the footprint rule must also have a projected RSS of at most 0.8·C, where projected RSS = the footprint estimate × the largest RSS-to-footprint ratio measured in the same family and mode. Otherwise it is deferred by name.
+    - For B2's remaining dense 1,000-member runs, that is about 4.8 GiB ≤ 6.4 GiB, so admitted.
+    - For B3 at C = 16 GiB, about 8.7 GiB ≤ 12.8 GiB, so admitted, subject to B3's own grant.
+  - **Why:** the rule exists to keep runs clear of the watchdog and the host safe. The footprint is the macOS measure of memory pressure; the heap cap still bounds live heap deterministically; the RSS watchdog still bounds resident memory; and the added condition keeps expected RSS below the watchdog with margin.
+- **Recorded for the ceiling ruling.** At 1,000 members, F1b's dense estimate is exact in heap (1.005 × 96·n²) and close in footprint (1.033), but macOS RSS reaches 1.448 × 96·n².
+  - So a product run just under the provisional 6 GiB dense ceiling could show about 8.7 GiB resident on macOS.
+  - The ceiling bounds estimated heap, not resident memory. This goes to the owner's ceiling decision, with the product-level gap from B1.
+- **Other figures:**
+  - dense heap slope 1.975 over 100–1,000 members;
+  - the dense `factor` stage takes 78.7 s at 1,000 members for the Cholesky (not an N10 case).
+- **B2 resumes** under this ruling: runs 098–108, then grid 128×128. **B3** stays a separate grant.
