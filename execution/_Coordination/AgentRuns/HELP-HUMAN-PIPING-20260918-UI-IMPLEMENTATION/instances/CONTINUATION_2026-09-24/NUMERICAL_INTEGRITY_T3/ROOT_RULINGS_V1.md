@@ -1858,3 +1858,35 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
     - controls: LEVER2 at three gains, TILT-LEVER, SEEDED-COMMON, SEEDED-SOFT, CHARGE-SLENDER, HH-FOOL-m, HH-SLENDER-m40 and THETA-STUB-COUPLED, and RF-LARGE at 10 and 100 members. **HH-SLENDER-m40 must not be expected to kill M24.**
     - mutants: those R7 §7 lists as killable, with the kept-for-derivation guards recorded as such.
   - K4's `retained/factor.rs` is the loop Lemmas D and E were read against. Any change to its pivot or rounding logic reopens those lemmas.
+
+## K4: rulings on I12's A3-0 plan for revision 5a.3 (ROOT, 2026-09-29)
+
+I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines, committed on the K4 branch) is **approved**, with the rulings below.
+- **The principle for every question:** where a choice bears on honesty, R7's text governs. Where it affects availability only, K4's practical form is accepted, and any difference from emu7 must be explained in RETURN.
+- `factor.rs`'s `factor()`, `pivot_passes`, `negative_pair`, `solve_scaled` and `solve` stay byte-identical, which keeps Lemmas D and E tied to the loop as read.
+
+**The questions:**
+1. **Q1:** GEN is the bit oracle, and emu7 is the selection-level cross-check. Explain every difference.
+2. **Q2:** ‖ā_q S‖₁'s stages are rounded upward, per R7 item 6. This bears on honesty, so R7 governs.
+3. **Q3:** K4's est_c rounding (block sums rounded once, then a division) is accepted. It is availability only, and RETURN states that.
+4. **Q4:** the read-only est_c observer in `condition` and the L and D read accessors are accepted as outside "pivot or rounding logic". A test pins `factor()`'s L and D bits unchanged.
+5. **Q5:** the shifted loop is a separate operation-for-operation copy, bound by the loop-parity test and K4-M35.
+6. **Q6:** best-state comparison is exact, with `ExactWideSum::add_product_of`, as recommended. A span overflow stops with `Span`, and that is recorded as an availability outcome.
+7. **Q7:** use emu7's rejection order: (a), (b), `uc`, θ, g, then (d).
+8. **Q8:** E rounding to +∞ gives a terminal `Unresolved(ResolutionScaleUnencodable)`, which F2a maps to `receipt_encoding`.
+9. **Q9:** a body with no data block has no B_b entry and θ = 0. F2a and D2 confirm this at their slices; routed.
+10. **Q10:** E-ESTIMATE's reference is GEN's exact rational solution.
+11. **Q11:** E-HEADROOM uses the P state's own ê. At a verification it is the stop rule's E.
+12. **Q12:** accepted, on one condition.
+    - A support group's E is one exact sum over all contributors of its components, rounded once, in the direction R7 §3.1 prescribes for E.
+    - RETURN must derive that this form meets every requirement R7's lemmas place on E for the group's published magnitude. It is not measured by emu7.
+    - The reviewer checks the derivation. It is honesty-relevant, because ê sets both V and the allowances.
+13. **Q13:** measure RF-LARGE-100's debug runtime at A3b. Any model over 60 s moves to an `--ignored` lane, with CHAIN-AX and TREE-AX kept in the default suite.
+14. **Q14:** pin CEIL5A3 for K4-M24 only after GEN confirms that both operands are selected and the combination is Unresolved.
+15. **Q15:** yes. Include the low-precision stress that kills M27.
+16. **Q16:** `not_covered` stays empty in K4, since F2a owns the not-covered classes. Remove the pending marker at D.
+17. **Q17:** d^b is formed lazily, only when the gate falls back. Work stays charged where it is incurred.
+18. **Q18:** confirmed. The verification pass runs only on states used as verifications, the 2p state.
+
+**Checkpoints:** A3a (the bounds and E, with no behaviour change), then A3b (the method and every control), then B, C and D.
+- **Host:** as the plan states — one cargo job, `-j 4`, `RUST_TEST_THREADS=2`, and memguard checks.
