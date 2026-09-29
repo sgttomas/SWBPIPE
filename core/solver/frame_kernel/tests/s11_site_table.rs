@@ -283,6 +283,8 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/retained/bound.rs", "u_pass", 0, "K4 (5a.3): comparison-matrix pass, each operation rounded upward (bounds, not load sums)"),
     ("FK/structural/retained/bound.rs", "nl_pass", 0, "K4 (5a.3): |L|D|L^T|e pass, each operation rounded upward (bounds, not load sums)"),
     ("FK/structural/retained/verify.rs", "formation_scale", 0, "K4 (5a.3): E's stages, each one exact expansion rounded once (the ledger's net enters exactly)"),
+    // ---- KF1 (declared, additive; no row above changes).
+    ("FK/structural/retained/adaptive.rs", "offer", 2, "integer: a bounded tracker's row count (a refusal's place in the stream) and a tracker set's held capacity (KF1)"),
 ];
 
 // ------------------------------------------------------------- scanner
