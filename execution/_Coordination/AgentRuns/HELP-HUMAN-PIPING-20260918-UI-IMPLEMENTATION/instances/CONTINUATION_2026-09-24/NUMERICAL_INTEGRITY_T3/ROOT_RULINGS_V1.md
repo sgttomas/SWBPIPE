@@ -2200,3 +2200,25 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
   - the expected-unresolved list and its test;
   - A1's remaining items: §5.3's parity at up to 100 members, and Q7's recorded observations;
   - then return A1.
+
+## K6b: A1 accepted; K4's stop-rule memory finding (ROOT, 2026-09-29)
+
+- **A1 is accepted.** ROOT committed it at `73031b134` on the K6b branch, with 18 files in H.
+  - ROOT checked the new files' sha256 against I16's return, that FK has no change beyond A0, and that no machine paths appear.
+  - The results:
+    - the `w1a` mode, with `attempt` and `prefix` records; the new kind `prefix` is allowed;
+    - the adapter's K4SRC bytes equal an independent Python writer's on 24 of 24 RF-LARGE models;
+    - the six frames at 10 and 100 members are selected at 128, and R1's predicate passes on every row;
+    - H's debug suite grows 65.3 s → 78.8 s.
+- **The finding (confirmed by ROOT at `K4R/adaptive.rs:533-590`):**
+  - K4's `ExtremeTracker` keeps every row whose 64-bit ratio approximation lies within `WINDOW_ULPS` (2^13) of the running extreme, each as two `ExactWideSum` values, about 4.3 KB, and keeps them until `decide` returns.
+  - So the stop rule's memory depends on the data: nearly every row when many ratios tie.
+  - At 100 members it adds 0.3–4.9 MB. The worst case at 10,000 members is about 3.2 GB (6.4 GB with `Vec` slack).
+  - **It affects no published value.** It matters for W1's per-case memory limit and for admission.
+- **Rulings:**
+  - **E_max keeps the worst-case tracker term.** Admission uses the upper bound derived from the code, with ρ measured.
+  - W1-T4 (10,000 members) runs only as ROOT approves, after W1-T3's prefixes at 1,000 members show how the kept count grows. The plan's W1-T4 row is superseded.
+  - **Routed: a kernel follow-up (KF1) bounds the tracker without changing any result.** For example, collapse the kept entries to their exact extreme when their count passes a threshold. It needs its own review; K4's golden work counts would change.
+    - It is paired with K6's N10 (bounding the dense witness) as the kernel follow-up slice.
+    - **ROOT's W1 memory limit is not set until KF1 lands, or until the limit accounts for the worst case explicitly.**
+- **Next:** A2: the runner's W1 tiers, `--plan`, `--smoke`, the approved counts-only runs at 1,000 and 10,000 members (no solve, 512 MiB cap) and the release projection. No W1 solve above 100 members before ROOT approves the schedule.
