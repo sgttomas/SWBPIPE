@@ -2376,3 +2376,15 @@ The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `
   - The §7.3 items R1 cannot discriminate are cited to K4's killing mutants: 3 (D3), the relabelling half of 10 (D10), and 16 (D16a and D16b).
   - FK's suite with the variable unset passes 394; the feature guard passes; K4's source scan and the S11 site table pass.
 - **Next for V-K:** C, the harness mutants. B (the scale runs at 1,000 and 10,000 members) waits for KF1's merge: V-K merges main, re-runs the kill matrix, then runs B in one slot ROOT grants.
+
+## KF1: to review (ROOT, 2026-09-29)
+
+- **Addendum 1 (T = 512) is accepted,** committed at `1854911d1`.
+  - No control or 100-member frame gains any work.
+  - The stream differential is extended to 882 runs.
+  - FK's full suite passes 401. NONE passes, and KF1-M7 and KF1-M8 are killed.
+- **The PR:** [#1056](https://github.com/sgttomas/chirality/pull/1056). The full-SHA dispatch is 36621651732 (target_base `8cca91701`). GEN-8 passes on `1854911d1`.
+- **The independent reviewer is RV20,** directed first to result equality at every site and collapse schedule, then to the memory bound, the work and the tests.
+- **After merge:**
+  - K6b merges main and recomputes E_max from KF1's code, then re-runs W1-T3 and runs W1-T4.
+  - V-K merges main, re-runs its kill matrix, and runs B.
