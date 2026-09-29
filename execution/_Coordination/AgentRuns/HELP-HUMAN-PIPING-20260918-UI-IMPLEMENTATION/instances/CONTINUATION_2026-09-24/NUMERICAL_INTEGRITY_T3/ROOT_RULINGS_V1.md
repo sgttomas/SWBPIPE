@@ -2608,3 +2608,10 @@ RV21 (`REVIEW/VK_REVIEW.md`, sha256 `eab89fb5…`; records `REVIEW/_run_records/
 - **N4 and N5.**
 
 **Then:** CI and the dispatch on the new head, DEC-025 (which gains VR's manifest), GEN-8, RV21's confirmation, and the merge.
+- **RV21 confirms V-K's final head `5f0d39426`: PASS, with no new finding.**
+  - The change touches no `src/` file in FK or VR.
+  - RV21-1 is as drafted.
+  - RV21-H4 and RV21-H6 are each killed by exactly their own test, and NONE passes 47 of 47.
+  - N3's set check catches a planted duplicate.
+  - The records match the head, and every `SHA256SUMS` verifies.
+  - GEN-8 passes on `5f0d39426`.

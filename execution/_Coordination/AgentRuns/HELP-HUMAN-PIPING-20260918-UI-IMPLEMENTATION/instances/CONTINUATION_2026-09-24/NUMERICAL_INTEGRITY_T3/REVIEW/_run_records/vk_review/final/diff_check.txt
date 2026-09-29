@@ -1,0 +1,38 @@
+RV21 confirmation: git diff 3fd1baff3 5f0d39426 (read in <wt>/vk)
+ .../instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/CHANGE_RECORD.md      |  24 ++++--
+ .../instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/RETURN.md             |  72 +++++++++++++++--
+ .../instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/SHA256SUMS            |  13 +++-
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_logs/NONE.diff                |   0
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_logs/NONE.log                 | 201 ++++++++++++++++++++++++++++++++++++++++++++++++
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_logs/RV21-H4.diff             |  11 +++
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_logs/RV21-H4.log              | 213 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_logs/RV21-H6.diff             |  11 +++
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_logs/RV21-H6.log              | 213 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_matrix.jsonl                  |  22 ++++++
+ .../NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/harness_run.log                       |   4 +
+ .../CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/rv21/vr_suite.log  | 115 +++++++++++++++++++++++++++
+ projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/harness/SHA256SUMS |   2 +-
+ .../validation/benchmarks/numerical_robustness/observations/harness/harness_matrix.jsonl             |   4 +-
+ projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_harness_mutants.py   |   9 +++
+ projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/engine.rs                 |  65 +++++++++++++++-
+ projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/feature_guard.rs          |  27 ++++++-
+ projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/files.rs                  |  22 +++++-
+ 18 files changed, 1004 insertions(+), 24 deletions(-)
+
+files under frame_kernel: 0
+files under a src/ directory (FK or VR): 0
+
+RV21-1: the head's names_it line against RV21's drafted line
+  head:    50:        let names_it = line.contains(FEATURE) || line.contains("seeded-faults");
+  drafted: let names_it = line.contains(FEATURE) || line.contains("seeded-faults");
+  self-test strings (head):
+    146:    let dep = "[dependencies]\npiping_numerical_robustness = { path = \"../x\", features = [\"seeded-faults\"] }\n";
+    152:    let fwd = "[features]\nx = [\"piping_numerical_robustness/seeded-faults\"]\n";
+
+RV21-2: the head's engine.rs tests against RV21's draft (function bodies)
+  a_wrong_value_on_a_sub_range_row_fails: identical
+  an_overflowed_published_row_fails: differs only as below
+    9c9
+    <     let piping_numerical_robustness::cases::Target::Displacement(d) = target else {
+    ---
+    >     let Target::Displacement(d) = target else {

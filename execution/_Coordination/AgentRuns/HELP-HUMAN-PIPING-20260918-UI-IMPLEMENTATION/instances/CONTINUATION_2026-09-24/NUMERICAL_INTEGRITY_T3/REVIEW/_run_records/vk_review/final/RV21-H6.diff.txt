@@ -1,0 +1,5 @@
+diff -r NONE/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs RV21-H6/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs
+65c65
+<         Some(true) if exact::outside_binary64(exp) => Verdict::PassAbsoluteRange,
+---
+>         Some(_) if exact::outside_binary64(exp) => Verdict::PassAbsoluteRange,

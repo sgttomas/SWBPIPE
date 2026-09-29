@@ -293,3 +293,49 @@ The proposed tests of RV21-2 kill H4 and H6 exactly (`RR/probes/proposed_tests_f
   - No one-off K4 adapter comparison, no DEC-025, T9 or GEN-8.
   - No timing claim: the times above are observations.
 - **Cleanup.** My copies (`<wt>/rv21/`) and targets are deleted after the records are written. The 26 MB vector file is not kept; its generator and sha256 are.
+
+## Confirmation at 5f0d39426
+
+- **Head:** `5f0d394262516e4053322730506cb88dfb36a2f0`, one commit on `3fd1baff3` ("V-K: RV21's review closed …"), confirmed as PR #1057's head. Date 2026-09-29. Records: `RR/final/`.
+- **Verdict: PASS.** All six of ROOT's checks hold. There is no new finding, only one wording point in addendum 1 (item 5), which needs no action.
+
+1. **No source change.**
+   - `git diff 3fd1baff3 5f0d39426` touches 18 files: VR's `tests/engine.rs`, `tests/feature_guard.rs` and `tests/files.rs`; `runner/run_harness_mutants.py`; `observations/harness/`; and the VK records.
+   - No file under FK, and no `src/` file in FK or VR, is touched (`RR/final/diff_check.txt`).
+2. **RV21-1 is as drafted.**
+   - `names_it` (`tests/feature_guard.rs:50`) is my line verbatim.
+   - My self-test is `a_manifest_enabling_vrs_seeded_faults_is_flagged`, with the same two manifest strings. It is a separate test rather than two lines in `the_guard_flags_what_it_must`, which is equivalent.
+   - The guard's five tests pass, including the stricter scan of every manifest under `P/`.
+3. **RV21-2: both tests are present, and H4 and H6 are killed.**
+   - `a_wrong_value_on_a_sub_range_row_fails` is my draft byte for byte. `an_overflowed_published_row_fails` differs only in importing `Target`.
+   - I ran three fresh copies of the head without `execution/` (as CI), each with its own target, one cargo job at a time. Two had one mutation each.
+
+   | Run | Result |
+   |---|---|
+   | NONE | 47 of 47 pass, no warnings |
+   | RV21-H4 (`Overflow` → `Ok(0.0)`) | 46 pass; only `an_overflowed_published_row_fails` fails |
+   | RV21-H6 (`Some(true)` → `Some(_)` in the absolute-range verdict) | 46 pass; only `a_wrong_value_on_a_sub_range_row_fails` fails |
+
+4. **N3's set check is sound.**
+   - `tests/files.rs:210-229` builds the (case, key) set from `not_covered.json`, asserts that its size equals the entry count (so there is no duplicate), and asserts equality with the union of every case's committed list, large cases included.
+   - Together with the existing checks (family per entry, per-family counts), the two lists now agree exactly.
+   - **Probe:** I replaced the file's last entry by a duplicate of its first, keeping 51 entries, each present in a case list. That passes every earlier check, and the new assertion fails it: "a duplicate in not_covered.json" (`RR/final/n3_probe.log`).
+   - The self-referential `SHA256SUMS` pin (N3's other half, optional) is left as it was, and addendum 1 records that.
+5. **The records match the head.**
+   - RETURN §1 gives the full commit list to `3fd1baff3`, then "RV21's fixes (addendum 1), committed by ROOT".
+   - §2 gives the head's size against main: 83 files, +42,980 and −260. I reproduced it, and VR's Rust (5,107), Python (1,965) and data (35,043, observations 32,053) lines also match.
+   - §2's table is labelled as at C.
+   - §13 adds RV21-H4 and RV21-H6. The harness matrix has 22 rows, 20 of them killed, and NONE is re-run as `rv21`.
+   - §15 gives 47 tests in 9 files (engine 5, feature_guard 5, scale 1), which matches my run. CHANGE_RECORD matches.
+   - Addendum 1 records RV21-1, RV21-2, N1 (done), N2 (recorded), N3 (in part), N4 and N5.
+   - **One wording point in N5, no action needed.** Its last line says the lane test's list equality "would show any such row". But a below-floor structural-zero row would be in both the lane's set and the generated committed list, so the equality would still hold. What would reveal it is the list's length differing from the tally's not-covered count, which no test compares, and a reviewer reading the list.
+6. **`SHA256SUMS` verifies, with no machine paths** (`RR/final/records_checks.txt`).
+   - `T3/IMPLEMENTATION/VK/`: 409 of 409, set-equal.
+   - `VR/cases/`: 15 of 15, unchanged, set-equal apart from the generator.
+   - `observations/kernel_lane`, `seeded` and `harness`: 12, 2 and 1 of theirs, set-equal.
+   - No machine path appears in the added lines of `3fd1baff3..5f0d39426`, or anywhere in the head's VK records and VR.
+
+- **Hosted CI on `5f0d39426`** was pending when I checked; that gate is ROOT's.
+- **Git:** reads only (`rev-parse`, `log`, `diff`, `show`, `archive`), plus `gh pr view` and `gh pr checks`. No writes.
+- **Cleanup:** the copies and targets (`<wt>/rv21c`, `<wt>/rv21c-target-*`) are deleted.
+- **`RR/SHA256SUMS`** is regenerated over the folder, `final/` included (58 entries).
