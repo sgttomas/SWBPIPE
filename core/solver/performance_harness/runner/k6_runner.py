@@ -290,6 +290,7 @@ BUDGET_MARGIN = 60           # --time-budget-s = timeout - 60
 FIRST_REPEAT_LIMIT = 600
 POLL_S = 0.1                 # the watchdog's 100 ms (DESIGN.md:826)
 MEMORYSTATUS_FLOOR = 80      # ROOT's K6 ruling N18
+LOAD_HIGH, LOAD_RESUME = 8.0, 6.0   # ROOT's B1 grant: above 8, wait until below 6 (the gate's rule)
 MODES = ('sparse', 'dense', 'lane-id', 'lane-lu')
 N2_MODES = ('dense', 'lane-lu')
 N2_REFUSAL_MEMBERS = 10000
@@ -451,6 +452,7 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True)
     estimate, ρ and the C/2 bound.
     """
     model_id, mode, members = run['model'], run['mode'], run['members']
+    measured = [r for r in run_entries(measured) if 'family' in r]
     half = run['rss_cap_bytes'] // 2
     out = {'decision': None, 'reason': None, 'estimate_adm_bytes': None, 'rho': None,
            'half_cap_bytes': half}
@@ -693,16 +695,25 @@ def host_busy(run=run_quiet):
     return busy
 
 
-def wait_for_quiet_host(log, max_wait_s=1800, run=run_quiet, level=memorystatus_level, sleep=time.sleep):
+def wait_for_quiet_host(log, max_wait_s=3600, run=run_quiet, level=memorystatus_level, sleep=time.sleep,
+                        load=os.getloadavg):
+    """Before each timed run: no cargo job and no sweep, memorystatus_level at least 80, and the
+    1-minute load at most 8; once above 8, wait until it is below 6 (ROOT's B1 grant)."""
     waited = 0
+    load_waiting = False
     while True:
         busy = host_busy(run)
         mem = level()
-        if not busy and (mem is None or mem >= MEMORYSTATUS_FLOOR):
-            return {'waited_s': waited, 'memorystatus_level': mem}
+        load1 = load()[0]
+        if load1 > LOAD_HIGH:
+            load_waiting = True
+        elif load_waiting and load1 < LOAD_RESUME:
+            load_waiting = False
+        if not busy and (mem is None or mem >= MEMORYSTATUS_FLOOR) and not load_waiting:
+            return {'waited_s': waited, 'memorystatus_level': mem, 'load1_at_start': load1}
         if waited >= max_wait_s:
-            raise RuntimeError('host not quiet after %d s: %s, memorystatus %s' % (waited, busy, mem))
-        log('host busy (%s; memorystatus %s); waiting 30 s' % (busy, mem))
+            raise RuntimeError('host not quiet after %d s: %s, memorystatus %s, load %.2f' % (waited, busy, mem, load1))
+        log('host busy (%s; memorystatus %s; load %.2f); waiting 30 s' % (busy, mem, load1))
         sleep(30)
         waited += 30
 
@@ -750,13 +761,24 @@ def rlimit_preexec(system, cap_bytes, resource_module=None):
     return limit
 
 
+def exited(pid):
+    """Whether the child `pid` has exited, without reaping it (so wait4 keeps its rusage)."""
+    try:
+        return os.waitid(os.P_PID, pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+    except ChildProcessError:
+        return True
+
+
 def find_child(parent_pid, deadline_s=2.0, run=run_quiet):
-    """The binary's PID under the /usr/bin/time wrapper (pgrep -P)."""
+    """The binary's PID under the /usr/bin/time wrapper (pgrep -P); None once the wrapper has
+    exited or the deadline has passed."""
     end = time.monotonic() + deadline_s
     while time.monotonic() < end:
         done = run(['pgrep', '-P', str(parent_pid)])
         if done is not None and done.returncode == 0 and done.stdout.strip():
             return int(done.stdout.split()[0])
+        if exited(parent_pid):
+            return None
         time.sleep(0.01)
     return None
 
@@ -916,6 +938,11 @@ def read_counts(path):
     return counts
 
 
+def run_entries(records):
+    """The rows of records.jsonl that describe one scheduled run (not cross-mode rows)."""
+    return [r for r in records if 'order' in r and 'mode' in r and 'model' in r]
+
+
 def read_records(record_dir):
     path = os.path.join(record_dir, 'records.jsonl')
     if not os.path.exists(path):
@@ -951,8 +978,8 @@ def observed_class(objects):
 
 def cross_mode(run, records, record_dir):
     """Outcome-class parity and the DEC-053 basis for a model whose sparse and dense runs exist."""
-    by_mode = {r['mode']: r for r in records if r['model'] == run['model'] and r['mode'] in ('sparse', 'dense')
-               and r.get('classification') in ('ok', 'timed_out')}
+    by_mode = {r['mode']: r for r in run_entries(records) if r['model'] == run['model']
+               and r['mode'] in ('sparse', 'dense') and r.get('classification') in ('ok', 'timed_out')}
     if set(by_mode) != {'sparse', 'dense'}:
         return None
     classes = {}
@@ -997,8 +1024,13 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
     stop, stop_after_tier = [], []
     for run in [r for r in schedule() if r['tier'] == tier]:
         records = read_records(record_dir)
+        if any(x.get('run_id') == run['run_id'] and x.get('classification') != 'not_run'
+               for x in run_entries(records)):
+            log('%s %s %s: already recorded; not repeated' % (run['run_id'], run['model'], run['mode']))
+            continue
         decision = admission(run, counts, records, baseline_rss)
-        entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss)
+        entry = dict(run, admission=decision, baseline_rss_bytes=baseline_rss, source_commit=source_commit,
+                     source_tree=source_tree)
         if decision['decision'] != 'admitted' or run['conditional']:
             if run['conditional'] and decision['decision'] == 'admitted':
                 decision = dict(decision, decision='deferred',
@@ -1022,7 +1054,7 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
         entry['parity_failures'] = parity_failures(objects)
         append_record(record_dir, entry)
         reasons = stop_reasons(record, True) + ['parity: %s' % p.get('item') for p in entry['parity_failures']]
-        cm = cross_mode(run, read_records(record_dir), record_dir)
+        cm = cross_mode(run, read_records(record_dir), record_dir) if run['mode'] in ('sparse', 'dense') else None
         if cm:
             append_record(record_dir, dict(cm, kind='cross_mode', run_id='cross_' + run['run_id']))
             if cm['class_equal'] is False:
@@ -1189,7 +1221,7 @@ def project(record_dir, counts_path):
     rows, total = [], 0.0
     for run in [x for x in schedule() if x['tier'] == 'T3b']:
         small = run['model'].replace('-n01000-', '-n00100-')
-        done = [x for x in records if x.get('model') == small and x.get('mode') == run['mode']
+        done = [x for x in run_entries(records) if x.get('model') == small and x.get('mode') == run['mode']
                 and x.get('classification') == 'ok']
         if run['mode'] == 'dense' and run['model'] in KNOWN_DENSE_TIMEOUTS:
             seconds, basis = float(run['timeout_s']), 'known timeout (N10)'

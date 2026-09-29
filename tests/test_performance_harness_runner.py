@@ -25,6 +25,7 @@ from test_k6_runner import (  # noqa: E402,F401  (collected by pytest)
     ModelHashes,
     Parsers,
     PlanAdmission,
+    QuietHost,
     RlimitOnlyOnLinux,
     Schema,
     SectionBits,

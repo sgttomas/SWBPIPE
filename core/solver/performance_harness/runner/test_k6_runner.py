@@ -387,7 +387,7 @@ class PlanAdmission(unittest.TestCase):
         counts = fake_counts({run['model']: {'sparse': 1 * r.GIB}})
 
         def rec(model_id, members, rss, heap, estimate):
-            return {'model': model_id, 'mode': 'sparse', 'family': 'CHAIN', 'members': members,
+            return {'order': 1, 'model': model_id, 'mode': 'sparse', 'family': 'CHAIN', 'members': members,
                     'classification': 'ok', 'peak_rss_bytes': rss, 'repeats_heap_peak_move': heap,
                     'estimate_adm_bytes': estimate}
         measured = [rec('RF-LARGE-CHAIN-n00010-AX', 10, 50 * r.MIB, 1, 1 * r.MIB),       # small: excluded at >= 1000
@@ -401,6 +401,23 @@ class PlanAdmission(unittest.TestCase):
         decision = r.admission(run, counts, measured, 1 * r.MIB)
         self.assertEqual(decision['decision'], 'deferred')
 
+    def test_admission_ignores_non_run_rows(self):
+        run = run_of('RF-LARGE-CHAIN-n00100-AX', 'sparse')
+        counts = fake_counts({run['model']: {'sparse': r.MIB}})
+        measured = [{'kind': 'cross_mode', 'model': 'RF-LARGE-CHAIN-n00010-AX', 'class_equal': True},
+                    {'order': 1, 'model': 'RF-LARGE-CHAIN-n00010-AX', 'mode': 'sparse', 'family': 'CHAIN',
+                     'members': 10, 'classification': 'ok', 'peak_rss_bytes': 3 * r.MIB,
+                     'repeats_heap_peak_move': r.MIB // 4, 'estimate_adm_bytes': r.MIB // 2}]
+        decision = r.admission(run, counts, measured, 2 * r.MIB)
+        self.assertEqual(decision['decision'], 'admitted')
+
+    def test_record_consumers_ignore_cross_mode_rows(self):
+        rows = [{'kind': 'cross_mode', 'model': 'RF-LARGE-CHAIN-n00010-AX', 'class_equal': True},
+                {'order': 1, 'model': 'RF-LARGE-CHAIN-n00010-AX', 'mode': 'sparse'}]
+        self.assertEqual(r.run_entries(rows), rows[1:])
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertIsNone(r.cross_mode(run_of('RF-LARGE-CHAIN-n00010-AX', 'dense'), rows, folder))
+
     def test_ascent_waits_for_the_previous_size(self):
         run = run_of('RF-LARGE-CHAIN-n10000-AX', 'sparse')
         counts = fake_counts({run['model']: {'sparse': r.MIB}})
@@ -411,7 +428,8 @@ class PlanAdmission(unittest.TestCase):
     def test_ceiling_uses_its_own_cap(self):
         run = run_of('K6-CEIL-CHAIN-n01364-AX', 'dense')
         counts = fake_counts({run['model']: {'dense': 6154 * r.MIB}})
-        measured = [{'model': 'RF-LARGE-CHAIN-n01000-AX', 'mode': 'dense', 'family': 'CHAIN', 'members': 1000,
+        measured = [{'order': 1, 'model': 'RF-LARGE-CHAIN-n01000-AX', 'mode': 'dense', 'family': 'CHAIN',
+                     'members': 1000,
                      'classification': 'ok', 'peak_rss_bytes': 3400 * r.MIB, 'repeats_heap_peak_move': 3350 * r.MIB,
                      'estimate_adm_bytes': 3312 * r.MIB}]
         decision = r.admission(run, counts, measured, 2 * r.MIB)
@@ -427,6 +445,37 @@ class PlanAdmission(unittest.TestCase):
             r.subprocess.Popen = original
         self.assertEqual(len(rows), 138)
         self.assertIn('never:n2_mode_at_or_above_10000_members', r.format_plan(rows))
+
+
+class QuietHost(unittest.TestCase):
+    """ROOT's B1 grant: wait while the 1-minute load is above 8, until it is below 6; no cargo or
+    sweep; memorystatus at least 80."""
+
+    def test_load_wait_hysteresis(self):
+        loads = iter([9.0, 7.0, 7.5, 5.9])
+        slept = []
+        idle = lambda argv, env=None: types.SimpleNamespace(returncode=1, stdout='')
+        result = r.wait_for_quiet_host(lambda msg: None, run=idle, level=lambda: 95, sleep=slept.append,
+                                       load=lambda: (next(loads), 0, 0))
+        self.assertEqual(len(slept), 3)        # 9.0 starts the wait; 7.0 and 7.5 keep it; 5.9 ends it
+        self.assertEqual(result['load1_at_start'], 5.9)
+
+    def test_busy_cargo_and_memory_wait(self):
+        # Per check: (cargo running, memorystatus_level). Busy, then low memory, then quiet.
+        states = [(True, 95), (False, 70), (False, 95)]
+        calls = {'level': 0}
+
+        def run(argv, env=None):
+            busy = argv[:2] == ['pgrep', '-x'] and states[calls['level']][0]
+            return types.SimpleNamespace(returncode=0 if busy else 1, stdout='1' if busy else '')
+
+        def level():
+            mem = states[calls['level']][1]
+            calls['level'] += 1
+            return mem
+        slept = []
+        r.wait_for_quiet_host(lambda msg: None, run=run, level=level, sleep=slept.append, load=lambda: (1.0, 0, 0))
+        self.assertEqual(len(slept), 2)
 
 
 class LiveLimit(unittest.TestCase):
