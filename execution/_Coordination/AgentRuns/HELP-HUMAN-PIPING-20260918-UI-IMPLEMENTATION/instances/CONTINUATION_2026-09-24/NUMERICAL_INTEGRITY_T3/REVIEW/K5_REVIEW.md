@@ -422,3 +422,72 @@ I did not re-run I14's K5-M20. Its removal of the whole check is subsumed by RV1
 - I did not re-run T9, gate part 1, the 39-manifest suites or the full PP suite.
 - I did not run I14's `K5_SUBNORMAL_VECTORS` full-set test. My own probe and oracle covered the same 1,500 cases.
 - I did not wait for the three hosted checks still in progress.
+
+## Delta check at babcf5e65
+
+**Delta verdict: PASS.** There are no BLOCKING, SHOULD-FIX or new NOTE findings.
+- **RV14-D1 is closed.** The new `P` record kills RV14-M5 at `check()`'s `P` assertion, and its control is exact.
+- **RV14-D2 is recorded** in RETURN §9.1, §10 and §16.7, as ROOT ruled.
+- **The merge adds exactly main's delta:** no piping source, and an empty remerge diff.
+- **Nothing else changed.**
+
+**Basis and host.**
+- **The revisions.** PR #1044's head is `babcf5e65`, verified after a `git fetch`. It is `a4378835c` on `28517eaaa`, plus a merge of main `b37331092`.
+- **Hosted checks at my check:** 6 SUCCESS, 4 SKIPPED, 5 in progress. I did not wait for them.
+- **Build.** Each run had its own clean `git archive babcf5e65` copy and target, both deleted afterwards. ROOT had released the host, so two cargo jobs ran at once, at `-j 8` with `RUST_TEST_THREADS=4`. The memory guard was unchanged (2 lines, `79e2ce8e…`).
+- **Records:** `_run_records/k5_review/delta2/`, with `k5_review/SHA256SUMS` rewritten over all 184 files. Every earlier entry is unchanged.
+
+**The fix for D1** (`a4378835c`: 51 lines inserted inside `k5_b5_parameters_are_exact_or_refused`, and no deletion).
+
+**The `P` record is my construction, built from the bits:**
+- nodes (0,0,0) and (2^1023, 0, 0);
+- grounds d2 to d5;
+- a directional translation row n = (2^-60, −1, 0) at node 0.
+
+**What the test asserts.**
+- `check()` returns `U` through the `P` arm (`k5_constrained_bodies.rs:269`: `NumericallyUnresolved` with `CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`).
+- The test also asserts L = 2^1023. So the refusal comes from the exactness clause at a huge L (2^-60/L underflows to 0), not from an overflow. That is what D1 needed.
+
+**The control** is my exact case at 2^-40.
+- It must publish (`W`) with the canonical motion (1, 2^-40, 0, 0, 0, 0) at both nodes.
+- `verify_witness` asserts `parameters[k]·L == u₀[k]` for every k.
+- The test pins `rigid_parameters[1]` to 2^-1063 = 2^11·2^-1074, bit for bit.
+- It is exact: 2^-40/2^1023 is a representable subnormal. My probe gives the same bits on the head.
+
+**My re-runs** (`delta2/mutations/MUTANTS_DELTA2.txt`):
+- **NONE passes** at `babcf5e65`: FK 8 + 15 + 1, NI 129, PP 4.
+  - My FK probe on the 4,226-case corpus is byte-identical to `28517eaaa`'s (sha256 `681116899a22…`).
+  - My delta cases are identical too.
+- **RV14-M5** (my unchanged patch, the finiteness test only) is **killed** at `k5_constrained_bodies.rs:269:16` on `rv14_d1_huge_underflow_L2e1023_r2e-60`: `(MechanismWitnessed, None)` against `(NumericallyUnresolved, Some("constrained-body witness parameters not representable"))`.
+  - FK: 14 passed, 1 failed.
+  - I14's recorded site and patch agree: `RV14-M5.patch.txt` makes the same one-line change.
+
+**D2 is recorded as ruled.**
+- ROOT's ruling (`ROOT_RULINGS_V1.md`, "K5: rulings on RV14's delta check at 28517eaaa", numerics `9b13481fa`) accepts D2 as a conservative limitation, with no change in K5. It is to be recorded in RETURN as a known limitation and to join the T3-close list.
+- RETURN records it that way:
+  - §9.1: "The first verified witness decides", with the behaviour stated;
+  - §10's T3-close list: a candidate refinement;
+  - §16.7: the construction, the ruling and its reasons.
+- CHANGE_RECORD's new section says the same.
+- `rigid_body.rs` is unchanged since `28517eaaa`.
+
+**The merge `babcf5e65`** (`delta2/records_checks_delta2.txt`).
+- Its parents are `a4378835c` and `b37331092`, with merge base `65e2d6c2a`.
+- `git diff a4378835c babcf5e65` equals main's delta `git diff 65e2d6c2a b37331092`: sha256 `95f5311e…` for both.
+- `git diff b37331092 babcf5e65` equals the slice `git diff 65e2d6c2a a4378835c`: `ea4ac606…` for both.
+- Main's delta is 453 files:
+  - 45 under `projects/chirality-app-v4/`;
+  - 408 under `projects/chirality-piping/execution/`: PR #1049's T3 records, the App v4 relay records and the work graph;
+  - 0 anywhere else.
+- No piping file outside `execution/` changes, no file is touched by both sides, and `git show --remerge-diff` is empty.
+
+**Nothing else changed.**
+- Between `28517eaaa` and `babcf5e65`, the only change to `projects/chirality-piping` outside `execution/` is the test file. It is 1,160 lines, sha256 `ca7ffd1e…`, matching RETURN §16.7.
+- `a4378835c`'s other 18 files are all under `IMPLEMENTATION/K5/`.
+
+**Records.**
+- K5's `SHA256SUMS` lists 240 files: all OK and set-equal with the folder.
+- The scans of `a4378835c`'s 19 files find 0 machine paths (GEN-8's regex) and 0 user-name hits. The only model-scan hit is RETURN.md:12's host name (N4).
+- `git diff --check` finds only the disclosed blank line at the end of `rv14/delta/fk_worktree.txt`.
+
+**Not done.** I did not re-run T9, gate part 1, the suites, or I14's full-subnormal test. Only a test file changed in code, and my probe, NONE and mutant runs cover it.

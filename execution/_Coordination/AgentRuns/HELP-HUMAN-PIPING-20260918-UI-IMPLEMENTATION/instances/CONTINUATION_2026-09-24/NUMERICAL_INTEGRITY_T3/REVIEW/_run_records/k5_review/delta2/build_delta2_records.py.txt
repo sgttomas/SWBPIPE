@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""RV14: add delta check 2's records to REVIEW/_run_records/k5_review/delta2/ (machine paths replaced
+by placeholders, as build_records.py does), then rewrite k5_review/SHA256SUMS over the whole folder."""
+import hashlib, os, re, shutil, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import build_records as b  # noqa: E402
+
+S, OUT = b.S, b.OUT
+D = os.path.join(S, "delta2")
+M = os.path.join(S, "mut")
+DOUT = os.path.join(OUT, "delta2")
+
+
+def put_text(text, rel):
+    dst = os.path.join(DOUT, rel)
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    open(dst, "w", encoding="utf-8").write(b.clean(text))
+
+
+def put(src, rel):
+    put_text(open(src, encoding="utf-8").read(), rel)
+
+
+def main():
+    if os.path.isdir(DOUT):
+        shutil.rmtree(DOUT)
+    put(os.path.join(D, "README_delta2.txt"), "README.txt")
+    put(os.path.join(D, "records_checks_delta2.txt"), "records_checks_delta2.txt")
+    put(os.path.join(D, "memguard_delta2.txt"), "memguard_delta2.txt")
+    put(os.path.join(M, "rv14_run_mutant_delta2.sh"), "mutations/rv14_run_mutant_delta2.sh.txt")
+    for f in ["batch_delta2.log", "MUTANTS_DELTA2.txt"]:
+        put(os.path.join(M, f), f"mutations/{f}")
+    for d in sorted(os.listdir(os.path.join(M, "delta2_logs"))):
+        for f in sorted(os.listdir(os.path.join(M, "delta2_logs", d))):
+            src = os.path.join(M, "delta2_logs", d, f)
+            if f == "probe_results.txt":
+                data = open(src, encoding="utf-8").read()
+                h = hashlib.sha256(data.encode()).hexdigest()
+                put_text(f"probe_results.txt: {data.count(chr(10))} lines, sha256 {h} (equal to 28517eaaa's; not kept)\n",
+                         f"mutations/logs/{d}/probe_results_digest.txt")
+            else:
+                put(src, f"mutations/logs/{d}/{f}")
+    put(os.path.abspath(__file__), "build_delta2_records.py.txt")
+    entries = []
+    for root, _, files in os.walk(OUT):
+        for f in files:
+            if f == "SHA256SUMS":
+                continue
+            p = os.path.join(root, f)
+            entries.append(("./" + os.path.relpath(p, OUT), hashlib.sha256(open(p, "rb").read()).hexdigest()))
+    entries.sort()
+    with open(os.path.join(OUT, "SHA256SUMS"), "w") as out:
+        for rel, h in entries:
+            out.write(f"{h}  {rel}\n")
+    bad = re.compile(r"(?<![A-Za-z0-9_.{-])(?:/(?:Users|private|home|tmp|var/folders)/[^\s)\"'`<>]+"
+                     r"|[A-Za-z]:\\Users\\[A-Za-z0-9._-]+[^\s`'\"<>)\]]*)")
+    hits = [(rel, m.group(0)) for rel, _ in entries
+            for m in bad.finditer(open(os.path.join(OUT, rel), encoding="utf-8").read())]
+    print(f"files={len(entries)} delta2_files={sum(r.startswith('./delta2/') for r, _ in entries)} "
+          f"machine-path hits={len(hits)}")
+    return 1 if hits else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

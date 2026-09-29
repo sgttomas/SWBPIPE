@@ -1,0 +1,10 @@
+RV14 delta check 2 at babcf5e65: each run in its own clean `git archive babcf5e65` copy and target (deleted afterwards);
+two cargo jobs at once (NONE and RV14-M5), -j 8, RUST_TEST_THREADS=4 (ROOT's host release). RV14-M5 is the patch in
+rv14_mutate_delta.py (committed at k5_review/delta/mutations/rv14_mutate_delta.py.txt), unchanged; it applied once.
+
+| Run | Sets | Result |
+|---|---|---|
+| NONE | fk, ni, pp, probe, dprobe | FK 8 + 15 + 1, NI 129, PP 4 pass. RV14's FK probe on the 4,226-case corpus is byte-identical to 28517eaaa's (sha256 681116899a22...), and the delta-case probe is identical too |
+| RV14-M5 (RV14-4's exactness clause dropped) | fk, dprobe | KILLED at tests/k5_constrained_bodies.rs:269:16 (check()'s P assertion) on rv14_d1_huge_underflow_L2e1023_r2e-60: (MechanismWitnessed, None) against (NumericallyUnresolved, Some("constrained-body witness parameters not representable")). FK: 14 passed, 1 failed (k5_b5_parameters_are_exact_or_refused). The delta-case probe shows the mutant publishing both huge-L underflow cases, as before |
+
+No compile error, abort or signal.

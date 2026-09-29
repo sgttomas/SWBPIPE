@@ -1,0 +1,63 @@
+RV14 delta check 2: records and revisions at babcf5e65, 2026-09-29T02:17:55Z
+$ git fetch; heads: babcf5e6587081bfb3697013d27a53cf960b6e02 (PR #1044), main b37331092a778a8087df57cb55630ee735425ece
+PR #1044: babcf5e6587081bfb3697013d27a53cf960b6e02 OPEN MERGEABLE
+hosted checks at this time: IN_PROGRESS=5 SKIPPED=4 SUCCESS=6
+== commits 28517eaaa..babcf5e65 (first parent)
+babcf5e658 a4378835cf b37331092a Merge remote-tracking branch 'origin/main' into codex/piping-k5-20260928
+a4378835cf 28517eaaa3 K5: close RV14-D1 (the t_i*L == r_i half of publish's exactness check is now tested); record RV14-D2 as an accepted limitation
+== a4378835c (parent 28517eaaa): files
+51	0	projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs
+16	0	T3/IMPLEMENTATION/K5/CHANGE_RECORD.md
+55	2	T3/IMPLEMENTATION/K5/RETURN.md
+17	2	T3/IMPLEMENTATION/K5/SHA256SUMS
+5	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/MUTANTS_DELTA.txt
+11	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/RV14-M5.patch.txt
+3	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/batch_delta.log
+51	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/fk_worktree.txt
+2	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/logs/D3-NONE/apply.txt
+1	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/logs/D3-NONE/done.txt
+45	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/logs/D3-NONE/fk.txt
+2	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/logs/RV14-M5/apply.txt
+1	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/logs/RV14-M5/done.txt
+62	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/logs/RV14-M5/fk.txt
+1	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/memguard.txt
+153	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/mutate_k5.py.txt
+1	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/overlay_d3.txt
+109	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/parse_results.py.txt
+26	0	T3/IMPLEMENTATION/K5/_run_records/rv14/delta/run_mutant_d3.sh.txt
+files outside IMPLEMENTATION/K5/ and FK/tests/k5_constrained_bodies.rs: 0
+deleted lines in the test file: 0
+== the merge babcf5e65
+parents a4378835cfa5fa5f3268d87d16c273626a877690 b37331092a778a8087df57cb55630ee735425ece; merge-base 65e2d6c2acd8db17f4d348616bb00d3512132c1f
+sha256(git diff a4378835c babcf5e65) = 95f5311e841a8c8886bdf57243ccc7f1bc1c7e430dc9b5d449bf010c5e80d71f
+sha256(git diff 65e2d6c2acd8db17f4d348616bb00d3512132c1f b37331092) = 95f5311e841a8c8886bdf57243ccc7f1bc1c7e430dc9b5d449bf010c5e80d71f
+sha256(git diff b37331092 babcf5e65) = ea4ac606b3bc2c9ce65ef92992f965411a76e223178100ef65604bb82b10cec1
+sha256(git diff 65e2d6c2acd8db17f4d348616bb00d3512132c1f a4378835c) = ea4ac606b3bc2c9ce65ef92992f965411a76e223178100ef65604bb82b10cec1
+main's delta: 453 files; under projects/chirality-app-v4/: 45; under projects/chirality-piping/execution/: 408; anywhere else: 0
+piping files outside execution/ changed by the merge: 0
+files touched by both sides: 0; git show --remerge-diff lines: 0
+code tree (projects/chirality-piping minus execution/) babcf5e65 vs 28517eaaa+test: projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs 
+== IMPLEMENTATION/K5/SHA256SUMS at babcf5e65
+listed=240 on_disk=240
+== the new test file at babcf5e65: 1160 lines, sha256 ca7ffd1e (RETURN 16.7: 1,160, ca7ffd1e)
+== check() line 269 at babcf5e65:
+          ),
+          'P' => assert_eq!(
+              (result.status.clone(), result.unresolved),
+              (
+                  NumericallyUnresolved,
+                  Some(CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE)
+              ),
+              "{}",
+              record.name
+== RETURN's D2 record (9.1, 10, 16.7) at babcf5e65:
+  651:  - **The first verified witness decides** (RV14-D2, accepted as a conservative limitation; §16.7). If its [t/L, θ] is not exact, the result is `NumericallyUnresolved` with the parameters reason
+  759:- RV14-D2 (§16.7): a refused witness ends the candidate search. ROOT accepts this as a conservative limitation and lists it as a candidate refinement.
+  1013:- ROOT's rulings are in `ROOT_RULINGS_V1.md`, "K5: rulings on RV14's delta check at 28517eaaa" (`9b13481fa`): fix RV14-D1 before merge; accept RV14-D2 as a conservative limitation.
+  1040:**RV14-D2 (NOTE): accepted as a known, conservative limitation. The search is not changed.**
+  1048:  - So it is recorded here and in §9.1 ("the first verified witness decides"), and it joins the T3-close list (§10) as a candidate refinement.
+== ROOT's ruling (numerics 9b13481fa, ROOT_RULINGS_V1.md, 'K5: rulings on RV14's delta check at 28517eaaa'): D1 fix before merge; D2 accepted as a conservative limitation, recorded in RETURN as a known limitation and on the T3-close list.
+== I14's RV14-M5 patch against RV14's text: identical change (the finiteness test only); RV14-M5.patch.txt sha256 4ebe0aec
+== git diff --check 28517eaaa a4378835c:
+     1 K5/_run_records/rv14/delta/fk_worktree.txt: new blank line at EOF.
+== scans of a4378835c's 19 files: path hits 0; model-scan hits ['RETURN.md:12'] (RETURN.md:12, the host name, N4); user-name hits 0
