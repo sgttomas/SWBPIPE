@@ -1,0 +1,8 @@
+== python_pytest: <VENV>/bin/python -m pytest -q tests (16:02:55Z)
+   exit 0 (16:22:20Z)
+== desktop_vitest_build_wasm: npm run build:wasm:desktop (16:22:20Z)
+   exit 0 (16:22:21Z)
+== desktop_vitest: npm run test:desktop (16:22:21Z)
+   exit 0 (16:24:30Z)
+== desktop_production_build: npm run build:desktop (16:24:30Z)
+   exit 0 (16:24:39Z)

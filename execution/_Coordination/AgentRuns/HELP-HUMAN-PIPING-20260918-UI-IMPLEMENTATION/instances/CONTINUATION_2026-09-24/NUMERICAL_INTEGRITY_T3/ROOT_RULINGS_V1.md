@@ -2059,3 +2059,17 @@ RV19 (`REVIEW/K4_REVIEW.md`, sha256 `d906539e…`; records `REVIEW/_run_records/
 - **RV19-D4 (SHOULD-FIX): fix it before merge.** It is a test gap, but on the fix of a BLOCKING honesty finding. Add an SD-G5-style vector on `decide` in which the candidate overflows and the verification does not, and the underflow pair. Assert that such a row sets no S\*. Show RV19's mutant RV19-D4 killed.
 - **DN2:** RETURN's "every selected … combination" must match what is tested. Either give PRECISION-RULE expectations and run it, or correct the wording.
 - **DN1, DN3 and DN4 are recorded.** They affect no check.
+
+## K4 merged (ROOT, 2026-09-29)
+
+- **Merged:** [PR1054](https://github.com/sgttomas/chirality/pull/1054) at head `5a46a6278`, merge `ab02ee3a6`, 2026-09-29 16:25:25Z. The merge record is `IMPLEMENTATION/K4_MERGE/RECORD.md`.
+- **The gates:**
+  - RV19 FAILED the first head on RV19-1, a false publication. It PASSED the fixes on its delta check and confirmed the final head with no findings;
+  - hosted CI was green, and the dispatch (36593106169) succeeded. The numerical job took 18.3 to 20.1 min;
+  - GEN-8 passed;
+  - DEC-025, with a fresh sweep target: K4's own tests are the only suite change, and pytest, vitest and the builds are clean.
+- **D1 revision 5a.3 now includes amendment A1** (the per-row b where 0 < S\* < 2^-988), by ROOT's ruling on RV19-6. `DESIGN.md` stays hash-pinned.
+- **Procedure note for DEC-025:** remove the canonical sweep summary from the sweep worktree after copying it. A leftover summary makes the next sweep see a dirty tree.
+- **Next on the kernel path:**
+  - K6b (I16) and V-K (I17), from main `ab02ee3a6`. K6b's A0 adds the `retained` export, and V-K reuses that commit;
+  - then ROOT's W1 limits, F2a, and the owner's ceiling decision with V-P.
