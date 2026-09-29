@@ -1,0 +1,19 @@
+# RV19 revisions (read-only Git and gh reads; 2026-09-29)
+PR #1054: OPEN 7d8fa9c0e397569e048e14af6036106d53f46ae6 main MERGEABLE
+hosted checks: SKIPPED 4, SUCCESS 12
+remote head codex/piping-k4-20260928: 7d8fa9c0e397569e048e14af6036106d53f46ae6
+remote main: 7ac7b1c377b614e2276d0b828205ac288ced5829
+numerics head (rulings): 306e225fe2313d115533bf34ada2e99c04ca2aaa
+K4 commits since main 7ac7b1c37:
+7d8fa9c0e3 K4 checkpoint D: the honesty predicate tightened to each row's published claim; RETURN, CHANGE_RECORD and run records
+8f8023a205 Merge remote-tracking branch 'origin/main' into codex/piping-k4-20260928
+8a59458a17 K4 checkpoint B: e-hat overflow mapped to ResolutionScaleUnencodable; DIRECTIONAL-SPAN's 5a.2 publication shown within b; suites
+bb7757ac57 K4 checkpoint A3b: revision 5a.3 wired into the method (gate fallback, verification pass, charge, decision), with every control
+8dfade92e7 K4 checkpoint A3a: certified bounds and the formation scale for revision 5a.3 (no behaviour change yet)
+03e7250b2a K4 checkpoint A3-0: plan for D1 revision 5a.3 (R7 section 5) on K4's code
+ba88db495c Merge remote-tracking branch 'origin/main' into codex/piping-k4-20260928
+5ad1b6174e K4: a combination's prescribed rows published from their exact sum, rounded once (V4 note; control and mutant K4-M33); V4-S3 probe confirms the residual gate refuses a skew-y_ref cantilever with M03's coalesced denominator (no assertion; gate unchanged pending 5a.3)
+3668ee8a4b K4: Q10 encoding pins through the generator's independent bytes; records drafts (CHANGE_RECORD, RETURN; pending D1 5a.3 marked)
+3ed6c0e263 K4 checkpoint A2: combinations as their own solve (ROOT's F-1 ruling); tests G-L; R1 references lane; O8 emulation
+cef218a102 K4 checkpoint A1: the W1a kernel method (retained precision), tests B-F
+diff stat 7ac7b1c37..7d8fa9c0e:  273 files changed, 133778 insertions(+)

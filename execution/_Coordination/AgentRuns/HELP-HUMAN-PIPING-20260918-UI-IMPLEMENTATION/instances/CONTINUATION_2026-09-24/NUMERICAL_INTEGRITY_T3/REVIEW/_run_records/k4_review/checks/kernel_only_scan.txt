@@ -1,0 +1,54 @@
+# Kernel-only scan at 7d8fa9c0e (git show / git grep, read-only)
+## mod retained and re-exports in FK/src/structural.rs and FK/src/lib.rs
+3:pub mod exact_boundary;
+5:mod retained;
+8:pub use formation_check::{
+12:pub use sparse::{
+8:pub mod structural;
+## items in K4's files declared pub without (crate) (expected: none)
+## uses of retained:: in FK/src outside retained/ (K3a's formation_check import is pre-existing)
+7d8fa9c0e:projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs:32:use super::retained::wide::{Wide2, WideArith, WideError};
+## names of K4 items outside FK (code only; expected: none)
+## net_parts callers
+7d8fa9c0e:projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs:268:    pub(crate) fn net_parts(&self) -> (bool, Magnitude, i64) {
+7d8fa9c0e:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs:8://! (`ExactAccumulator::net_parts`, ROOT's K4 ruling Q3). The projection to p is
+7d8fa9c0e:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs:33:        let (negative, magnitude, exponent) = accumulator.net_parts();
+7d8fa9c0e:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs:106:        let (negative, magnitude, exponent) = acc.net_parts();
+7d8fa9c0e:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs:133:        let (negative, magnitude, exponent) = accumulate(&row.values).net_parts();
+7d8fa9c0e:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs:151:        let (negative, magnitude, exponent) = acc.net_parts();
+## manifests and lockfiles changed 7ac7b1c37..7d8fa9c0e (expected: none)
+## files changed outside retained/, retained_k4/ and the K4 records
+projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs
+projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+## exact_sum.rs diff
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs b/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs
+index 65d6fed59f..ce69f78590 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs
+@@ -261,6 +261,25 @@ impl ExactAccumulator {
+         }
+     }
+
++    /// K4 (T3 D1 §4.1.2 item 5; ROOT's K4 ruling Q3): the exact value, netted
++    /// once with `compare` and `subtract`, as (negative, magnitude, exponent of
++    /// the magnitude's unit bit). The exponent is always -2148 (the quantum);
++    /// an exact zero is (false, 0, -2148).
++    pub(crate) fn net_parts(&self) -> (bool, Magnitude, i64) {
++        match compare(&self.positive, &self.negative) {
++            std::cmp::Ordering::Less => (
++                true,
++                subtract(&self.negative, &self.positive),
++                QUANTUM_EXPONENT,
++            ),
++            _ => (
++                false,
++                subtract(&self.positive, &self.negative),
++                QUANTUM_EXPONENT,
++            ),
++        }
++    }
++
+     /// The exact value, rounded once to binary64 (nearest, ties to even).
+     pub fn round(&self) -> Result<f64, SumError> {
+         self.round_scaled(0)
+## K3a/K3 files (wide.rs, wide/, retained_wide*/) changed: 0

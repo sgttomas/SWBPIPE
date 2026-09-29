@@ -1,0 +1,128 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv19/probe/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.80s
+     Running unittests src/lib.rs (<wt>/rv19-probe-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 1 test
+DUMP OVF-ROT-928 128
+ROW OVF-ROT-928 u.0.0 Translation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-928 u.0.1 Translation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-928 u.0.2 Translation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-928 u.0.3 Rotation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-928 u.0.4 Rotation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-928 u.0.5 Rotation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-928 u.1.0 Translation 0 O 0000000000000000 unp 0000000000000000
+ROW OVF-ROT-928 u.1.1 Translation 0 O 0000000000000000 unp 0000000000000000
+ROW OVF-ROT-928 u.1.2 Translation 0 N 0000000000000000 abs 7451e3779b97f4a8
+ROW OVF-ROT-928 u.1.3 Rotation 0 N 0000000000000000 abs 7440000000000000
+ROW OVF-ROT-928 u.1.4 Rotation 0 N 0000000000000000 abs 7440000000000000
+ROW OVF-ROT-928 u.1.5 Rotation 0 N f840000000000000 rel 0000000000000000
+ROW OVF-ROT-928 mag.0 Translation 0 N 0000000000000000 abs 7451e3779b97f4a8
+ROW OVF-ROT-928 mag.1 Translation 0 O 0000000000000000 unp 0000000000000000
+ROW OVF-ROT-928 end.1.i.0 Force 0 N fa01e3779b97f4a8 rel 0000000000000000
+ROW OVF-ROT-928 end.1.i.1 Force 0 N 0000000000000000 abs 7601e3779b97f4a8
+ROW OVF-ROT-928 end.1.i.2 Force 0 N f1f70a3d70a3d70a abs 7601e3779b97f4a8
+ROW OVF-ROT-928 end.1.i.3 Moment 0 N 0000000000000000 abs 7614000000000001
+ROW OVF-ROT-928 end.1.i.4 Moment 0 N 72040900d7398ce5 abs 7614000000000001
+ROW OVF-ROT-928 end.1.i.5 Moment 0 N 0000000000000000 abs 7614000000000001
+ROW OVF-ROT-928 end.1.j.0 Force 0 N 7a01e3779b97f4a8 rel 0000000000000000
+ROW OVF-ROT-928 end.1.j.1 Force 0 N 0000000000000000 abs 7601e3779b97f4a8
+ROW OVF-ROT-928 end.1.j.2 Force 0 N 71f70a3d70a3d70a abs 7601e3779b97f4a8
+ROW OVF-ROT-928 end.1.j.3 Moment 0 N 0000000000000000 abs 7614000000000001
+ROW OVF-ROT-928 end.1.j.4 Moment 0 N 71e6e5b7d16657e1 abs 7614000000000001
+ROW OVF-ROT-928 end.1.j.5 Moment 0 N 0000000000000000 abs 7614000000000001
+ROW OVF-ROT-928 R.0.0 Force 0 N f9f0000000000000 rel 0000000000000000
+ROW OVF-ROT-928 R.0.1 Force 0 N fa00000000000000 rel 0000000000000000
+ROW OVF-ROT-928 R.0.2 Force 0 N 0000000000000000 abs 7601e3779b97f4a8
+ROW OVF-ROT-928 R.0.3 Moment 0 N 0000000000000000 abs 7614000000000001
+ROW OVF-ROT-928 R.0.4 Moment 0 N 0000000000000000 abs 7614000000000001
+ROW OVF-ROT-928 R.0.5 Moment 0 N 72040900d7398ce5 abs 7614000000000001
+SCALE OVF-ROT-928 0 Translation 7851e3779b97f4a8
+SCALE OVF-ROT-928 0 Rotation 7840000000000000
+SCALE OVF-ROT-928 0 Force 7a01e3779b97f4a8
+SCALE OVF-ROT-928 0 Moment 7a14000000000001
+RV19 OVF-ROT-928: selected at 128
+RV19 OVF-ROT-928:   attempt 128 Accepted gate Some(Coalesced)
+RV19 OVF-ROT-928:   attempt 256 Verified gate Some(Coalesced)
+RV19 OVF-ROT-928:   Displacement(Dof { node: 0, component: Ux }) Translation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-928:   Displacement(Dof { node: 0, component: Uy }) Translation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-928:   Displacement(Dof { node: 0, component: Uz }) Translation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-928:   Displacement(Dof { node: 0, component: Rx }) Rotation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-928:   Displacement(Dof { node: 0, component: Ry }) Rotation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-928:   Displacement(Dof { node: 0, component: Rz }) Rotation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-928:   Displacement(Dof { node: 1, component: Ux }) Translation value Overflow { negative: false } class Unpublishable
+RV19 OVF-ROT-928:   Displacement(Dof { node: 1, component: Uy }) Translation value Overflow { negative: false } class Unpublishable
+RV19 OVF-ROT-928:   Displacement(Dof { node: 1, component: Uz }) Translation value Normal(0.0) class AbsoluteVerified { bound_bits: 8381730484364244136 }
+RV19 OVF-ROT-928:   Displacement(Dof { node: 1, component: Rx }) Rotation value Normal(0.0) class AbsoluteVerified { bound_bits: 8376695306909122560 }
+RV19 OVF-ROT-928:   Displacement(Dof { node: 1, component: Ry }) Rotation value Normal(0.0) class AbsoluteVerified { bound_bits: 8376695306909122560 }
+RV19 OVF-ROT-928:   Displacement(Dof { node: 1, component: Rz }) Rotation value Normal(-1.6905424996341288e271) class RelativeVerified
+RV19 OVF-ROT-928:   DisplacementMagnitude(0) Translation value Normal(0.0) class AbsoluteVerified { bound_bits: 8381730484364244136 }
+RV19 OVF-ROT-928:   DisplacementMagnitude(1) Translation value Overflow { negative: false } class Unpublishable
+RV19 OVF-ROT-928:   S*_pub body 0 Translation = 3.7801679480343255e271
+RV19 OVF-ROT-928:   S*_pub body 0 Rotation = 1.6905424996341288e271
+RV19 OVF-ROT-928:   S*_pub body 0 Force = 5.073655534435892e279
+RV19 OVF-ROT-928:   S*_pub body 0 Moment = 1.1345038669416682e280
+RV19 OVF-ROT-928:   state 128: u(1,rz) = Normal(-1.6905424996341288e271)
+RV19 OVF-ROT-928:   state 256: u(1,rz) = Normal(0.0)
+DUMP OVF-ROT-900 128
+ROW OVF-ROT-900 u.0.0 Translation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-900 u.0.1 Translation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-900 u.0.2 Translation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-900 u.0.3 Rotation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-900 u.0.4 Rotation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-900 u.0.5 Rotation 0 N 0000000000000000 inp 0000000000000000
+ROW OVF-ROT-900 u.1.0 Translation 0 N 7e81e3779b97f4a8 rel 0000000000000000
+ROW OVF-ROT-900 u.1.1 Translation 0 N 7e91e3779b97f4a8 rel 0000000000000000
+ROW OVF-ROT-900 u.1.2 Translation 0 N 0000000000000000 abs 7a94000000000000
+ROW OVF-ROT-900 u.1.3 Rotation 0 N 0000000000000000 abs 7a81e3779b97f4a8
+ROW OVF-ROT-900 u.1.4 Rotation 0 N 0000000000000000 abs 7a81e3779b97f4a8
+ROW OVF-ROT-900 u.1.5 Rotation 0 N f680000000000000 abs 7a81e3779b97f4a8
+ROW OVF-ROT-900 mag.0 Translation 0 N 0000000000000000 abs 7a94000000000000
+ROW OVF-ROT-900 mag.1 Translation 0 N 7e94000000000000 rel 0000000000000000
+ROW OVF-ROT-900 end.1.i.0 Force 0 N f841e3779b97f4a8 rel 0000000000000000
+ROW OVF-ROT-900 end.1.i.1 Force 0 N 0000000000000000 abs 7441e3779b97f4a8
+ROW OVF-ROT-900 end.1.i.2 Force 0 N f0370a3d70a3d70a abs 7441e3779b97f4a8
+ROW OVF-ROT-900 end.1.i.3 Moment 0 N 0000000000000000 abs 7454000000000001
+ROW OVF-ROT-900 end.1.i.4 Moment 0 N 70440900d7398ce5 abs 7454000000000001
+ROW OVF-ROT-900 end.1.i.5 Moment 0 N 0000000000000000 abs 7454000000000001
+ROW OVF-ROT-900 end.1.j.0 Force 0 N 7841e3779b97f4a8 rel 0000000000000000
+ROW OVF-ROT-900 end.1.j.1 Force 0 N 0000000000000000 abs 7441e3779b97f4a8
+ROW OVF-ROT-900 end.1.j.2 Force 0 N 70370a3d70a3d70a abs 7441e3779b97f4a8
+ROW OVF-ROT-900 end.1.j.3 Moment 0 N 0000000000000000 abs 7454000000000001
+ROW OVF-ROT-900 end.1.j.4 Moment 0 N 7026e5b7d16657e1 abs 7454000000000001
+ROW OVF-ROT-900 end.1.j.5 Moment 0 N 0000000000000000 abs 7454000000000001
+ROW OVF-ROT-900 R.0.0 Force 0 N f830000000000000 rel 0000000000000000
+ROW OVF-ROT-900 R.0.1 Force 0 N f840000000000000 rel 0000000000000000
+ROW OVF-ROT-900 R.0.2 Force 0 N 0000000000000000 abs 7441e3779b97f4a8
+ROW OVF-ROT-900 R.0.3 Moment 0 N 0000000000000000 abs 7454000000000001
+ROW OVF-ROT-900 R.0.4 Moment 0 N 0000000000000000 abs 7454000000000001
+ROW OVF-ROT-900 R.0.5 Moment 0 N 70440900d7398ce5 abs 7454000000000001
+SCALE OVF-ROT-900 0 Translation 7e94000000000000
+SCALE OVF-ROT-900 0 Rotation 7e81e3779b97f4a8
+SCALE OVF-ROT-900 0 Force 7841e3779b97f4a8
+SCALE OVF-ROT-900 0 Moment 7854000000000001
+RV19 OVF-ROT-900: selected at 128
+RV19 OVF-ROT-900:   attempt 128 Accepted gate Some(Coalesced)
+RV19 OVF-ROT-900:   attempt 256 Verified gate Some(Coalesced)
+RV19 OVF-ROT-900:   Displacement(Dof { node: 0, component: Ux }) Translation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-900:   Displacement(Dof { node: 0, component: Uy }) Translation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-900:   Displacement(Dof { node: 0, component: Uz }) Translation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-900:   Displacement(Dof { node: 0, component: Rx }) Rotation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-900:   Displacement(Dof { node: 0, component: Ry }) Rotation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-900:   Displacement(Dof { node: 0, component: Rz }) Rotation value Normal(0.0) class InputDerived
+RV19 OVF-ROT-900:   Displacement(Dof { node: 1, component: Ux }) Translation value Normal(2.3959660841446135e301) class RelativeVerified
+RV19 OVF-ROT-900:   Displacement(Dof { node: 1, component: Uy }) Translation value Normal(4.791932168289227e301) class RelativeVerified
+RV19 OVF-ROT-900:   Displacement(Dof { node: 1, component: Uz }) Translation value Normal(0.0) class AbsoluteVerified { bound_bits: 8832684769180385280 }
+RV19 OVF-ROT-900:   Displacement(Dof { node: 1, component: Rx }) Rotation value Normal(0.0) class AbsoluteVerified { bound_bits: 8827586847473923240 }
+RV19 OVF-ROT-900:   Displacement(Dof { node: 1, component: Ry }) Rotation value Normal(0.0) class AbsoluteVerified { bound_bits: 8827586847473923240 }
+RV19 OVF-ROT-900:   Displacement(Dof { node: 1, component: Rz }) Rotation value Normal(-6.297761573024574e262) class AbsoluteVerified { bound_bits: 8827586847473923240 }
+RV19 OVF-ROT-900:   DisplacementMagnitude(0) Translation value Normal(0.0) class AbsoluteVerified { bound_bits: 8832684769180385280 }
+RV19 OVF-ROT-900:   DisplacementMagnitude(1) Translation value Normal(5.357543035931337e301) class RelativeVerified
+RV19 OVF-ROT-900:   S*_pub body 0 Translation = 5.357543035931337e301
+RV19 OVF-ROT-900:   S*_pub body 0 Rotation = 2.3959660841446135e301
+RV19 OVF-ROT-900:   S*_pub body 0 Force = 1.8900839740171628e271
+RV19 OVF-ROT-900:   S*_pub body 0 Moment = 4.226356249085323e271
+RV19 OVF-ROT-900:   state 128: u(1,rz) = Normal(-6.297761573024574e262)
+RV19 OVF-ROT-900:   state 256: u(1,rz) = Normal(0.0)
+test structural::retained::adaptive::rv19_probe::rv19_overflow_row_scale_mismatch ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 325 filtered out; finished in 0.04s

@@ -1,0 +1,21 @@
+1500a1501
+>     skip: &[bool],
+1507,1508c1508,1509
+<     for (meta, v) in layout.iter().zip(values) {
+<         if meta.input_derived {
+---
+>     for ((meta, v), &skipped) in layout.iter().zip(values).zip(skip) {
+>         if meta.input_derived || skipped {
+1631c1632,1637
+<         let mut scales = scales_at(&mut ctx, layout, verification, extents)?;
+---
+>         // RV19 fix probe: rows the candidate cannot publish do not set S*.
+>         let skip: Vec<bool> = candidate
+>             .iter()
+>             .map(|q| !q.is_zero() && q.to_binary64().value().is_none())
+>             .collect();
+>         let mut scales = scales_at(&mut ctx, layout, verification, extents, &skip)?;
+3118a3125,3127
+> #[cfg(test)]
+> #[path = "../../../tests/retained_k4/rv19_probe.rs"]
+> mod rv19_probe;

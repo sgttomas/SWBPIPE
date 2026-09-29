@@ -1,0 +1,8 @@
+279c279
+<     let scales = scales_at(&mut c, layout, &b.recovered.values, extents).unwrap();
+---
+>     let scales = scales_at(&mut c, layout, &b.recovered.values, extents, &vec![false; layout.len()]).unwrap();
+846c846
+<     let scales = scales_at(&mut ctx, layout, &s512.recovered.values, extents).unwrap();
+---
+>     let scales = scales_at(&mut ctx, layout, &s512.recovered.values, extents, &vec![false; layout.len()]).unwrap();

@@ -2003,3 +2003,43 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - the PR, with hosted CI and the full-SHA dispatch;
   - an independent reviewer (RV19), directed to RETURN §22.1, §22.2, §9 steps 10 to 12, §6 item 4 and §22.9;
   - then DEC-025 with a fresh target, GEN-8, the merge and the merge record.
+
+## K4: rulings on RV19's review (ROOT, 2026-09-29)
+
+RV19 (`REVIEW/K4_REVIEW.md`, sha256 `d906539e…`; records `REVIEW/_run_records/k4_review/`, 47 files and `SHA256SUMS` `8b8e2beb…`) reviewed head `7d8fa9c0e`: **FAIL**, with 1 BLOCKING, 5 SHOULD-FIX and 7 NOTEs. ROOT checked RV19's records (`SHA256SUMS` passes; no machine paths) and read RV19-1's code at `adaptive.rs:1496-1544` and `:2159-2176`.
+
+- **RV19-1 (BLOCKING) is confirmed. Fix it before merge.**
+  - `scales_at`, the stop rule's S\*, skips only input-derived rows, so a row the candidate cannot publish (binary64 overflow or underflow) still enters S\*_2p. `classify_rows_floored` excludes such rows from S\*_pub, as O9 requires. The two scales can then differ by any factor, and R7 §5.2's premise, that S\*_pub is within a relative 2^-64 + 2^-52 of S\*_2p, fails. OVF-ROT-928 publishes Rz = −2^901 as `relative_verified` against an exact 0.
+  - **The fix:** apply O9 to the stop rule. `scales_at` skips every row whose candidate value has no binary64 value, so both scales are formed from the same rows. This only removes rows from S\*, which makes the stop rule stricter. It changes availability, never honesty. I12 checks every other user of `scales_at` and states the argument in RETURN.
+  - **Add OVF-ROT-928 as a control**, in GEN and `outcomes.txt`. Add the reverted fix as a mutant killed by it. OVF-ROT-900 stays honest and unchanged.
+  - RV19's probe of this fix moved no control. I12 confirms that on the full suite, the N5 streams included.
+- **RV19-6 is ruled as a design defect that K4 fixes now: D1 revision 5a.3, amendment A1.** A selected row outside its claim is BLOCKING by K4's brief, whatever its cause.
+  - **The defect.** D1 §4.1.6's revision-4 rule classes every row `absolute_verified` once S\* < 2^-988, with b = fl↑(2^-64·S\*). R7 §5.2's published-value bound, |q_pub − q\*| ≤ b·(1 + 2^-22), assumes |q| < 2^-34·S\*, which that rule does not give. The binary64 rounding of a row near S\* is then up to 2^11·b. TINY-S-995 misses its claim on seven rows, by 222 to 819 times.
+  - **The amendment.** Where 0 < S\* < 2^-988, each `absolute_verified` row carries its own bound, which includes its publication rounding:
+    - b_row = fl↑(fl↑(2^-64·S\*) + fl↑(2^-53·|q_pub|) + 2^-1074).
+    - **Derivation:** |q_pub − q\*| ≤ |q_pub − q_p| + |q_p − q\*|. Rounding to nearest gives |q_pub − q_p| ≤ 2^-53·|q_pub| + 2^-1075. The accepted candidate gives |q_p − q\*| ≤ 2^-64·S\* within the factor R7 §5.2 already carries. So |q_pub − q\*| ≤ b_row·(1 + 2^-22), or 2^-21 at 512.
+    - **Why only there.** Where S\* ≥ 2^-988, an absolute row has |q| < 2^-34·S\*, and its rounding is below 2^-23·b, as R7 §5.2 argues. So b is unchanged there, and b = 0 is unchanged at S\* = 0.
+    - **Relative rows** cannot occur where S\* < 2^-988, and where S\* ≥ 2^-988 they are normal numbers. So their claim is unchanged.
+  - **K4 implements the amendment.** GEN follows it. TINY-S-995 becomes a control, with an expectation precise enough that the unamended code fails it: a mutant reverting the amendment must be killed. Any control whose bound bits change is listed.
+  - **Routed:** D2's G5 checks b_row (D2's input list). RV19 checks the derivation and the implementation at its delta check. ROOT adopts the amendment into the design text as a ruling, because `DESIGN.md` stays hash-pinned.
+- **RV19-2 (SHOULD-FIX): fix it in K4.**
+  - `compare_honest` fails, instead of skipping, when a published row with a value has no expectation.
+  - An `Underflow` or `Overflow` row is checked against its exact value's range. **The expectation files carry a range marker** for exact values outside binary64's range: underflow (with the sign) or overflow. This is the marker ROOT routed at D, now done in K4. It is removed from the T3-close list. With it, R7-M1's false b = 0 on PRESCRIBED-TAIL and PRESCRIBED-TAIL-FREE should be caught directly; record whether it is.
+  - **The 13 selected controls without expectations** get GEN's exact expectations where GEN can compute them (HH-FOOL, HH-SLENDER-m40, N03-RX, R115-SEED3 and RF-LARGE at 10 members). Any that cannot are named, with the reason.
+  - **RF-LARGE at 100 members:** run G5a on the six frames, and `compare_honest` where exact expectations are practical. Otherwise correct RETURN §12.6, §22.8 and CHANGE_RECORD to say exactly what is checked.
+  - Every statement of the form "every selected control" must match what the tests check.
+- **RV19-3 (SHOULD-FIX): fix it in K4.** `RetainedCombination::solve` refuses operands whose stations or support groups differ, with a `CombinationReason`, and a test (RV19's t = 0.25 against 0.75 case).
+- **RV19-4 (SHOULD-FIX): fix it in K4.** Add a control with a support group carrying a directional spring, so that RV19-M6 is killed.
+- **RV19-5 (SHOULD-FIX): fix it in K4.** Add a unit test that pins ‖SĀS‖ as the larger of the 1-norm and the ∞-norm, killing RV19-M2.
+- **§6 item 4: confirmed by RV19.** ROOT adopts it as a ruling. θ_c ≤ 1/2 with the certified B_c makes a data-carrying block's K\*_c nonsingular, by Lemma C's Neumann step, under Lemma B's standing premise. A block with no data stays under R7's premise, "K\* nonsingular per body".
+- **The NOTEs:**
+  - N1 and N2 are corrected in RETURN.
+  - N6: the tests' `powi` is replaced by exact constants.
+  - N4 (the release-mode `break` in `wide_sum`): make it a returned error, if that is small; otherwise record it.
+  - N3, N5 and N7 are recorded; strengthening them is optional.
+- **After the fixes:**
+  - re-run FK's full suite and K4's suite, with the controls token-equal to GEN (with the new controls);
+  - `gen_k4_vectors.py --check`;
+  - the mutants the fixes touch, and the new ones: the reverted RV19-1 fix, the reverted amendment, RV19-M2 and RV19-M6;
+  - the evidence pass for R7-M1, K4-M24 and K4-M37 under the new checks;
+  - then RETURN addendum 1 and the records. RV19 checks the delta.

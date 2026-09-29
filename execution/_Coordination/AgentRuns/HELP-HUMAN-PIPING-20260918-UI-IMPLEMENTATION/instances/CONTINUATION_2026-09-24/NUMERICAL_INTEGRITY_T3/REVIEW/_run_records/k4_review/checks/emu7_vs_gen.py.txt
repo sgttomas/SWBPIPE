@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""RV19: GEN's schedule (outcomes.txt) against R7's emulation (run_controls7,
+the R6 column, which R7 records as identical in every selection, attempt,
+class and charge). Standard library only; paths relative to the repository."""
+import json, sys
+emu = json.load(open(sys.argv[1]))
+gen = {}
+for line in open(sys.argv[2]):
+    f = line.split()
+    if f and f[0] == "outcome":
+        gen[f[1]] = (f[2], f[3:])
+same = diff = 0
+for e in emu:
+    m = e["model"]
+    r = e["runs"]["R6"]
+    sel = str(r["selected"]) if r["selected"] else "-"
+    g_sel, g_toks = gen[m]
+    kinds_e = [a[1].split(":")[0] + (":" + a[1].split(":")[1] if ":" in a[1] else "") for a in r["attempts"]]
+    kinds_g = [":".join(t.split(":")[1:3]) for t in g_toks][:len(kinds_e)]
+    ok = sel == g_sel and kinds_e == kinds_g
+    same += ok
+    diff += not ok
+    print("%-28s emu7 %-4s GEN %-4s %s  emu7 %s | GEN %s" % (m, sel, g_sel, "same" if ok else "DIFF", kinds_e, kinds_g))
+print("controls %d: same selection and attempt outcomes %d, different %d" % (same + diff, same, diff))

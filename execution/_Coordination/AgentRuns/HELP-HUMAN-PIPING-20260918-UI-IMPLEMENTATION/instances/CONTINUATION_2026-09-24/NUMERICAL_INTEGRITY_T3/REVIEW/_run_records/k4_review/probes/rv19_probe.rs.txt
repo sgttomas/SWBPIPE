@@ -1,0 +1,341 @@
+//! RV19 probes (review only; never committed).
+use super::super::recover::{Kind, QuantityId};
+use super::super::source::{
+    Component, Constraint, Dof, NodalLoad, PrimitiveSource, SourceParts, StraightMember,
+};
+use super::*;
+use std::collections::BTreeMap;
+
+#[allow(dead_code)]
+#[path = "models.rs"]
+mod models;
+
+fn pow2(e: i32) -> f64 {
+    // exact powers of two by repeated scaling (no powi)
+    let mut x = 1.0f64;
+    if e >= 0 {
+        for _ in 0..e {
+            x *= 2.0;
+        }
+    } else {
+        for _ in 0..(-e) {
+            x *= 0.5;
+        }
+    }
+    x
+}
+
+fn ovf_rot(load_exp: i32, dir: [f64; 3]) -> PrimitiveSource {
+    let tiny = pow2(-100);
+    let mut parts = SourceParts::default();
+    parts.nodes = vec![[0.0, 0.0, 0.0], dir];
+    parts.members = vec![StraightMember {
+        id: 1,
+        node_i: 0,
+        node_j: 1,
+        elastic_modulus: 1.0,
+        shear_modulus: 1.0,
+        area: tiny,
+        second_moment_y: tiny,
+        second_moment_z: tiny,
+        torsion_constant: tiny,
+        y_reference: [0.0, 0.0, 1.0],
+    }];
+    for c in 0..6 {
+        parts.constraints.push(Constraint {
+            dof: Dof {
+                node: 0,
+                component: Component::from_index(c),
+            },
+            value: 0.0,
+        });
+    }
+    let f = pow2(load_exp);
+    for (c, &d) in dir.iter().enumerate() {
+        if d != 0.0 {
+            parts.loads.push(NodalLoad {
+                dof: Dof {
+                    node: 1,
+                    component: Component::from_index(c),
+                },
+                value: f * d,
+                source_id: format!("l{c}"),
+            });
+        }
+    }
+    PrimitiveSource::new(parts).unwrap()
+}
+
+fn report(name: &str, source: PrimitiveSource) {
+    let mut meter = InvocationMeter::new(u64::MAX);
+    match solve_case(source, CaseLimit::new(u64::MAX), &mut meter) {
+        CaseOutcome::Selected(s) => {
+            dump(name, &s);
+            println!("RV19 {name}: selected at {}", s.selected_precision());
+            for a in &s.evidence().attempts {
+                println!("RV19 {name}:   attempt {} {:?} gate {:?}", a.precision, a.outcome, a.gate);
+            }
+            for r in &s.publish().rows {
+                if matches!(r.id, QuantityId::Displacement(_) | QuantityId::DisplacementMagnitude(_)) {
+                    println!(
+                        "RV19 {name}:   {:?} {:?} value {:?} class {:?}",
+                        r.id, r.kind, r.value, r.class
+                    );
+                }
+            }
+            for s2 in &s.publish().body_scales {
+                println!("RV19 {name}:   S*_pub body {} {:?} = {:e}", s2.0, s2.1, f64::from_bits(s2.2));
+            }
+            for p in [128u32, 256, 512] {
+                if let Some(st) = s.state(p) {
+                    let vals = st.published();
+                    // theta_z of node 1 is global dof 11
+                    println!("RV19 {name}:   state {p}: u(1,rz) = {:?}", vals[11]);
+                }
+            }
+        }
+        other => println!("RV19 {name}: {other:?}"),
+    }
+}
+
+#[test]
+fn rv19_overflow_row_scale_mismatch() {
+    // Member along (1,2,0), axial load along the member: the exact solution has
+    // theta_z = 0 exactly; u_x and u_y overflow binary64 at 2^928.
+    report("OVF-ROT-928", ovf_rot(928, [1.0, 2.0, 0.0]));
+    // Control: the same with no overflow.
+    report("OVF-ROT-900", ovf_rot(900, [1.0, 2.0, 0.0]));
+}
+
+#[test]
+fn rv19_expectation_coverage() {
+    let mut all = models::models();
+    all.extend(models::parse_models(include_str!("models5a3.txt")));
+    let mut missing_expect_total = 0usize;
+    let mut missing_obs_total = 0usize;
+    let mut selected_no_expect = Vec::new();
+    for m in all.iter().filter(|m| !m.name.contains("n00100")) {
+        let Ok(source) = PrimitiveSource::new(m.parts.clone()) else {
+            continue;
+        };
+        let mut meter = InvocationMeter::new(u64::MAX);
+        seed::set(m.seeds.clone());
+        let out = solve_case(source, CaseLimit::new(u64::MAX), &mut meter);
+        seed::set(Vec::new());
+        let CaseOutcome::Selected(s) = out else {
+            continue;
+        };
+        if m.expect.is_empty() {
+            selected_no_expect.push(m.name.clone());
+            continue;
+        }
+        let obs = models::published(&s.publish().rows);
+        let mut classes: BTreeMap<String, String> = BTreeMap::new();
+        for r in &s.publish().rows {
+            classes.insert(models::key(&r.id), format!("{:?}", r.class));
+        }
+        let no_expect: Vec<&String> = obs.keys().filter(|k| !m.expect.contains_key(*k)).collect();
+        let no_obs: Vec<&String> = m.expect.keys().filter(|k| !obs.contains_key(*k)).collect();
+        let unpub: Vec<String> = s
+            .publish()
+            .rows
+            .iter()
+            .filter(|r| r.value.value().is_none())
+            .map(|r| format!("{}={:?}", models::key(&r.id), r.value))
+            .collect();
+        if !no_expect.is_empty() || !no_obs.is_empty() || !unpub.is_empty() {
+            println!(
+                "RV19 COV {} sel {}: published-without-expectation {:?}; expected-not-published {:?}; unpublishable {:?}",
+                m.name,
+                s.selected_precision(),
+                no_expect,
+                no_obs.iter().map(|k| format!("{k}={:e}", m.expect[*k])).collect::<Vec<_>>(),
+                unpub
+            );
+        }
+        missing_expect_total += no_expect.len();
+        missing_obs_total += no_obs.len();
+        let _ = Kind::Force;
+    }
+    println!(
+        "RV19 COV totals: published-without-expectation {missing_expect_total}, expected-not-published {missing_obs_total}; selected with no expectation {:?}",
+        selected_no_expect
+    );
+}
+
+fn dump(name: &str, s: &RetainedSolve) {
+    println!("DUMP {name} {}", s.selected_precision());
+    for r in &s.publish().rows {
+        let (vk, bits) = match r.value {
+            Binary64Outcome::Normal(v) => ("N", v.to_bits()),
+            Binary64Outcome::Subnormal { value, .. } => ("S", value.to_bits()),
+            Binary64Outcome::Underflow { negative } => ("U", u64::from(negative)),
+            Binary64Outcome::Overflow { negative } => ("O", u64::from(negative)),
+        };
+        let (class, b) = match r.class {
+            RowClass::RelativeVerified => ("rel", 0u64),
+            RowClass::AbsoluteVerified { bound_bits } => ("abs", bound_bits),
+            RowClass::InputDerived => ("inp", 0),
+            RowClass::Unpublishable => ("unp", 0),
+        };
+        println!(
+            "ROW {name} {} {:?} {} {vk} {bits:016x} {class} {b:016x}",
+            models::key(&r.id),
+            r.kind,
+            r.body
+        );
+    }
+    for sc in &s.publish().body_scales {
+        println!("SCALE {name} {} {:?} {:016x}", sc.0, sc.1, sc.2);
+    }
+}
+
+#[test]
+fn rv19_dump_selected() {
+    let mut all = models::models();
+    all.extend(models::parse_models(include_str!("models5a3.txt")));
+    let mut solved: BTreeMap<String, Box<RetainedSolve>> = BTreeMap::new();
+    for m in all.iter().filter(|m| !m.name.contains("n00100")) {
+        let Ok(source) = PrimitiveSource::new(m.parts.clone()) else {
+            continue;
+        };
+        let mut meter = InvocationMeter::new(u64::MAX);
+        seed::set(m.seeds.clone());
+        let out = solve_case(source, CaseLimit::new(u64::MAX), &mut meter);
+        seed::set(Vec::new());
+        if let CaseOutcome::Selected(s) = out {
+            dump(&m.name, &s);
+            solved.insert(m.name.clone(), s);
+        }
+    }
+    for text in [include_str!("models.txt"), include_str!("models5a3.txt")] {
+        for c in models::parse_combos(text) {
+            let Some(refs) = c
+                .operands
+                .iter()
+                .map(|(f, n)| solved.get(n).map(|s| (*f, s.as_ref())))
+                .collect::<Option<Vec<(f64, &RetainedSolve)>>>()
+            else {
+                println!("COMBO-SKIP {}", c.name);
+                continue;
+            };
+            let mut meter = InvocationMeter::new(u64::MAX);
+            match super::super::combine::RetainedCombination::solve(
+                &refs,
+                CaseLimit::new(u64::MAX),
+                &mut meter,
+            ) {
+                super::super::combine::CombinationOutcome::Selected(s) => {
+                    println!(
+                        "COMBO {} {}",
+                        c.name,
+                        c.operands
+                            .iter()
+                            .map(|(f, n)| format!("{:016x}:{n}", f.to_bits()))
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                    );
+                    dump(&c.name, &s);
+                }
+                other => println!("COMBO-UNSEL {} {:?}", c.name, matches!(other, super::super::combine::CombinationOutcome::Unresolved { .. })),
+            }
+        }
+    }
+}
+
+fn cantilever_with_station(t: f64) -> PrimitiveSource {
+    let mut parts = SourceParts::default();
+    parts.nodes = vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]];
+    parts.members = vec![StraightMember {
+        id: 1,
+        node_i: 0,
+        node_j: 1,
+        elastic_modulus: 1.0,
+        shear_modulus: 1.0,
+        area: 1.0,
+        second_moment_y: 1.0,
+        second_moment_z: 1.0,
+        torsion_constant: 1.0,
+        y_reference: [0.0, 0.0, 1.0],
+    }];
+    for c in 0..6 {
+        parts.constraints.push(Constraint {
+            dof: Dof {
+                node: 0,
+                component: Component::from_index(c),
+            },
+            value: 0.0,
+        });
+    }
+    parts.loads.push(NodalLoad {
+        dof: Dof {
+            node: 1,
+            component: Component::from_index(1),
+        },
+        value: 1.0,
+        source_id: "l".to_string(),
+    });
+    parts.stations.push(super::super::source::Station {
+        id: 1,
+        member: 1,
+        fraction: t,
+    });
+    PrimitiveSource::new(parts).unwrap()
+}
+
+#[test]
+fn rv19_combination_with_different_station_fractions() {
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let a = match solve_case(cantilever_with_station(0.25), CaseLimit::new(u64::MAX), &mut meter) {
+        CaseOutcome::Selected(s) => s,
+        o => panic!("{o:?}"),
+    };
+    let b = match solve_case(cantilever_with_station(0.75), CaseLimit::new(u64::MAX), &mut meter) {
+        CaseOutcome::Selected(s) => s,
+        o => panic!("{o:?}"),
+    };
+    let st = |s: &RetainedSolve| -> Vec<(String, Binary64Outcome)> {
+        s.publish()
+            .rows
+            .iter()
+            .filter(|r| matches!(r.id, QuantityId::StationAction { .. }))
+            .map(|r| (models::key(&r.id), r.value))
+            .collect()
+    };
+    println!("RV19 STATION A (t=0.25): {:?}", st(&a));
+    println!("RV19 STATION B (t=0.75): {:?}", st(&b));
+    let refs = [(1.0, a.as_ref()), (1.0, b.as_ref())];
+    match super::super::combine::RetainedCombination::solve(&refs, CaseLimit::new(u64::MAX), &mut meter) {
+        super::super::combine::CombinationOutcome::Selected(c) => {
+            println!("RV19 STATION A+B combination selected at {}: {:?}", c.selected_precision(), st(&c));
+            for r in c.publish().rows.iter().filter(|r| matches!(r.id, QuantityId::StationAction { .. })) {
+                println!("RV19 STATION A+B {} class {:?}", models::key(&r.id), r.class);
+            }
+        }
+        super::super::combine::CombinationOutcome::Unresolved { reason, .. } => {
+            println!("RV19 STATION A+B withheld: {reason:?}")
+        }
+    }
+}
+
+#[test]
+fn rv19_support_groups_with_directional_springs() {
+    for m in models::parse_models(include_str!("rv19_group_models.txt")) {
+        let mut meter = InvocationMeter::new(u64::MAX);
+        match solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter) {
+            CaseOutcome::Selected(s) => dump(&m.name, &s),
+            other => println!("RV19 {}: {other:?}", m.name),
+        }
+    }
+}
+
+#[test]
+fn rv19_tiny_scale_absolute_rows() {
+    for m in models::parse_models(include_str!("rv19_tiny_models.txt")) {
+        let mut meter = InvocationMeter::new(u64::MAX);
+        match solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter) {
+            CaseOutcome::Selected(s) => dump(&m.name, &s),
+            other => println!("RV19 {}: {other:?}", m.name),
+        }
+    }
+}

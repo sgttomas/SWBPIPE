@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""RV19 mutants: one clean `git archive 7d8fa9c0e` copy of FK and one fresh
+target per mutant; K4's tests run with cargo's default harness (the N5 streams
+and the sum differentials, which exercise wide_sum's arithmetic only, are
+skipped for mutants outside wide_sum). Standard library only."""
+import json, os, re, shutil, subprocess, sys, time
+sys.dont_write_bytecode = True
+HERE = os.path.dirname(os.path.abspath(__file__))
+WT = os.path.dirname(os.path.dirname(HERE))
+REPO = os.path.join(WT, "k4")
+COMMIT = "7d8fa9c0e"
+FK = "projects/chirality-piping/core/solver/frame_kernel"
+R = "src/structural/retained/"
+ENV = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", RUSTUP_AUTO_INSTALL="0", CARGO_INCREMENTAL="0",
+           RUST_TEST_THREADS="2")
+
+MUTANTS = {
+    "NONE": [],
+    # directed.rs: round_toward(Up) keeps a nearest value below the exact one.
+    "RV19-M1": [(R + "directed.rs", "        Toward::Up => side > 0,", "        Toward::Up => side < 0,", 1)],
+    # verify.rs: ||SAS|| is the infinity norm only (Lemma C uses the 1-norm).
+    "RV19-M2": [(R + "verify.rs", "            n.sas = wmax(&n.sas_one, &n.sas_inf);",
+                 "            n.sas = n.sas_inf;", 1)],
+    # adaptive.rs: a displacement magnitude's own 2^(1-2p)|q_2p| term dropped.
+    "RV19-M3": [(R + "adaptive.rs",
+                 "                        if matches!(meta.id, QuantityId::DisplacementMagnitude(_)) {\n"
+                 "                            difference.add_wide_scaled(&q2.abs(), false, 1, 1 - big_p)?;\n"
+                 "                        }\n", "", 1)],
+    # bound.rs: Lemma D's denominator 1 - t_c rounded up (Uc_c rounded low).
+    "RV19-M4": [(R + "bound.rs", "let den = sub_toward(ctx, sum, &one, &t, Toward::Down)?;",
+                 "let den = sub_toward(ctx, sum, &one, &t, Toward::Up)?;", 1)],
+    # bound.rs: Lemma E's rounding term delta_c halved (2^-P max|d|).
+    "RV19-M5": [(R + "bound.rs", "let delta = top.mul_pow2(1 - i64::from(ctx.precision()))?;",
+                 "let delta = top.mul_pow2(-i64::from(ctx.precision()))?;", 1)],
+    # verify.rs: a support group's E omits its directional contributors (Q12).
+    "RV19-M6": [(R + "verify.rs",
+                 "                    if (offset..offset + 3).contains(&c) {\n"
+                 "                        sum.add_wide(&directional_e[k][c - offset], false)?;\n"
+                 "                    }\n", "                    let _ = (offset, k);\n", 1)],
+    # verify.rs: W+ adds t1 and t3 without the scaling s_i.
+    "RV19-M7": [(R + "verify.rs", "sum.add_wide_scaled(&body.t1, false, 1, scale[a])?;",
+                 "sum.add_wide_scaled(&body.t1, false, 1, 0)?;", 2),
+                (R + "verify.rs", "sum.add_wide_scaled(&body.t3, false, 1, scale[a])?;",
+                 "sum.add_wide_scaled(&body.t3, false, 1, 0)?;", 2)],
+    # verify.rs: theta formed with 2^(6-P) (half of Lemma C's 2^(7-P)).
+    "RV19-M8": [(R + "verify.rs", "theta[b] = Some(t.mul_pow2(7 - i64::from(p))?);",
+                 "theta[b] = Some(t.mul_pow2(6 - i64::from(p))?);", 1)],
+}
+
+
+def main(name):
+    edits = MUTANTS[name]
+    d = os.path.join(HERE, name)
+    shutil.rmtree(d, ignore_errors=True)
+    os.makedirs(d)
+    arch = subprocess.run(["git", "-C", REPO, "archive", COMMIT, FK], stdout=subprocess.PIPE, check=True).stdout
+    subprocess.run(["tar", "-x", "-C", d], input=arch, check=True)
+    root = os.path.join(d, FK)
+    for (path, old, new, count) in edits:
+        p = os.path.join(root, path)
+        s = open(p).read()
+        n = s.count(old)
+        assert n == count, "%s: %s: expected %d, found %d" % (name, path, count, n)
+        open(p, "w").write(s.replace(old, new))
+    target = os.path.join(WT, "rv19-mut-target", name)
+    shutil.rmtree(target, ignore_errors=True)
+    env = dict(ENV, CARGO_TARGET_DIR=target)
+    log = os.path.join(HERE, "%s.log" % name)
+    cmd = ["cargo", "test", "--offline", "--locked", "-j", "4", "--lib", "structural::retained::",
+           "--", "--skip", "n5_stream", "--skip", "sum_differential", "--skip", "wide::"]
+    t0 = time.time()
+    with open(log, "w") as f:
+        rc = subprocess.run(cmd, cwd=root, env=env, stdout=f, stderr=subprocess.STDOUT).returncode
+    txt = open(log, errors="replace").read()
+    failed = re.findall(r"^test (\S+) \.\.\. FAILED", txt, re.M)
+    passed = len(re.findall(r"^test \S+ \.\.\. ok", txt, re.M))
+    summary = re.findall(r"^test result: .*$", txt, re.M)
+    rec = dict(name=name, rc=rc, seconds=round(time.time() - t0), passed=passed, failed=failed,
+               result=summary[-1] if summary else "no result")
+    with open(os.path.join(HERE, "results.jsonl"), "a") as f:
+        f.write(json.dumps(rec) + "\n")
+    print(json.dumps(rec))
+    shutil.rmtree(target, ignore_errors=True)
+    shutil.rmtree(d, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    for n in sys.argv[1:]:
+        main(n)
