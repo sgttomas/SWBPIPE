@@ -2237,3 +2237,10 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
   - A watchdog kill, a heap-cap abort, a budget outcome or a parity failure on an admitted run is a stop.
 - **The slot:** ROOT grants K6B-S1 and K6B-S2 now. I17 holds cargo and heavy Python until I16 reports B's runs done.
   - An unrelated long-running external process (one core, outside this repository) keeps the load near 5. It is recorded, not waited out. Timings are observations with their load.
+
+## KF1: spawn (ROOT, 2026-09-29)
+
+- **KF1 (the stop-rule tracker bound) is spawned as I18** (`TASK_BRIEFS/I18_KF1_IMPLEMENTATION.md`), on branch `codex/piping-kf1-20260929` in `<wt>/kf1`, from main `ab02ee3a6`.
+- **Checkpoint 0 is a plan only.** Builds wait until K6b's timed slot ends.
+- **K6's N10** (bounding the dense witness, and examining the dense screen's operation count) is split out as **KF2**. It is product-reaching, so its gate is heavier, and it is briefed separately. It does not block W1's limits.
+- **Order for W1's memory limit:** KF1 merges. Then K6b merges main and measures W1-T4 (10,000 members) on the bounded tracker, subject to ROOT's W1-T4 ruling.
