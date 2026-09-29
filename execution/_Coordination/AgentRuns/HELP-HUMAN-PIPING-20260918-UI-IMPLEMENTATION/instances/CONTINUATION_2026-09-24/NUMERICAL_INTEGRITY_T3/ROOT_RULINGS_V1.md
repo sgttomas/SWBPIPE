@@ -1942,7 +1942,7 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - E-CHARGE is bit-equal to GEN on 360 states.
   - `factor.rs` is unchanged since A3a.
 - **Outcomes that moved from 5a.2 are accepted,** as the selected design's intended behaviour:
-  1. **DIRECTIONAL-SPAN: 128 → Unresolved(Ceiling).**
+  1. **DIRECTIONAL-SPAN: 128 → Unresolved(Ceiling).** [Correction (I12 at B): 5a.2 selected it at **256**, not 128, so the change is 256 → Unresolved(Ceiling). 5a.2's publication was within b, checked against GEN's exact solution (worst ratio 1.5e-24; RETURN §22.3). It was not a false claim: 5a.3 withholds a correct publication, which is the availability loss accepted below.]
      - Its springs span R³ only through 2^-52 (κ ≈ 2^104). The solve's error stays above V/4 at every precision, so 5a.3 withholds it.
      - This is an availability loss, and it is honest.
      - **RETURN must state whether 5a.2's 128-bit publication was within b,** checked against GEN's exact solution. If it was not, it is a false claim that 5a.3 now withholds, and it is recorded as such.
@@ -1956,3 +1956,14 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - **B:** FK, SD and NI suites; the 39-manifest suites on the Mac; K4 is kernel only, so T9 and the gate are not run (K4's brief).
   - **C:** mutants, including R7 §7's killable list and K4-M34 to M40.
   - **D:** records.
+
+## K4: B accepted (ROOT, 2026-09-29)
+
+- **B accepted.** It is committed on the K4 branch at `8a59458a1`, with main `7ac7b1c37` (K6) merged in at `8f8023a20` and no FK overlap.
+  - The 39 manifests were run on main's piping source with K4's FK overlaid. Only frame_kernel changes: 267 → 389, K4's 122 tests. The only failures are the three known Mac ones.
+  - FK 389, SD 30 and NI 134 pass.
+  - The path and dependency scan shows no product path reaches K4's code: everything is `pub(crate)` inside a private `mod retained`. So T9 and the gate are not run.
+- **Both A3b additions are done:**
+  - DIRECTIONAL-SPAN's 5a.2 publication is shown within b, with a test;
+  - the ê-overflow edge case maps to `ResolutionScaleUnencodable`, with a unit test and a new control, EHAT-OVERFLOW.
+- **Next:** C (mutants), then D (records), then review.
