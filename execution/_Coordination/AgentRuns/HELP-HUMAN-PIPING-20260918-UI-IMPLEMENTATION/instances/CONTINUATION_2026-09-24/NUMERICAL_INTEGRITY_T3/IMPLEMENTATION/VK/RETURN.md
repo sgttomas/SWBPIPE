@@ -1,11 +1,11 @@
 # I17 return: slice V-K (the VP-ROBUST kernel lane, `numerical_robustness`)
 
-> **Draft at D, before B.** KF1 (PR #1056) has merged, and V-K is on the new
-> main: ROOT's merge `485320e95`. The post-KF1 re-run is done (§12.4).
-> Sections marked **[PENDING-B]** are placeholders. B runs in a slot ROOT
-> grants after K6b's timed slot. Those sections are then filled and this
-> banner is removed. Everything else stands unless a later step changes it,
-> and any such change will be noted where it is made.
+> **D, with B done.** KF1 (PR #1056) has merged, and V-K is on the new main
+> (ROOT's merge `485320e95`), with the post-KF1 re-run done (§12.4). B ran in
+> ROOT's slot, 16:26:11–16:27:28 (§14).
+> **V3's figures (10,000 members) are marked pre-KF3.** Five of the six
+> 10,000-member models end `Unresolved(ExactSumSpan)`, the KF3 availability
+> finding. V3 re-runs after KF3 merges, and those figures are replaced then.
 
 - **Brief:** `T3/TASK_BRIEFS/I17_VK_IMPLEMENTATION.md`. As dispatched it had sha256 `06b16b82…`, committed at `306e225fe`, read at the numerics head.
 - **Branch:** `codex/piping-vk-20260929`, from main `ab02ee3a6` (K4 merged). The checked head is `485320e95`: ROOT's merge of main `0f5d8c7b4` (KF1) into the D draft `24449b5c8`. The runner and README edits of §12.4 are not yet committed.
@@ -124,7 +124,7 @@
    - **`pass_absolute_range`:**
      - CI's pinned count is 0 (C11), because the five sub-range rows belong to RF-LARGE-CONT-n10000.
      - The path is CI-tested on R1's five rows by `tests/engine.rs` (C's ruling).
-     - CONT-n10000 itself is **[PENDING-B]**.
+     - At B (pre-KF3), RF-LARGE-CONT-n10000-AX gives 4 `pass_absolute_range`: `u.C2500.UZ`, `u.C4999.UZ`, `R.S1250.UZ` and `Mb.A3750.i`. The fifth sub-range row, CONT-n10000-ROT's `Mb.A3750.i`, is in a case that ends `Unresolved(ExactSumSpan)`, so it counts as `unresolved_availability` (§14).
 7. **The discrimination check.**
    - All 506 discriminating controls of the CI cases fail the predicate: 481 value controls and 25 outcome controls.
    - The 171 non-discriminating controls are reported, and none fails unexpectedly.
@@ -140,8 +140,8 @@
 11. **Per-case records.**
     - `VR/observations/kernel_lane/<family>.json` (`vk-case-record-v1`, with `SHA256SUMS`) holds the outcome, the selected and verification precisions, every attempt with its role, outcome, gate, corrections, own, shared and verification work, its stage work, and its storage counts.
     - The lane tests compare the records with the run. They never write them.
-    - **Time:** the CI-scale release run's per-case times are in `_run_records/a1/vk_records_release_2_per_case.err`, without the load (disclosure 5). With the load: **[PENDING-B]**.
-12. **Scale runs:** **[PENDING-B]** (§14).
+    - **Time:** the CI-scale release run's per-case times are in `_run_records/a1/vk_records_release_2_per_case.err`, without the load (disclosure 5). With the load: B's records give each scale run's time with the 1-, 5- and 15-minute load before and after (§14).
+12. **Scale runs:** done in B (§14). V3's figures are pre-KF3.
 
 ## 4. Checkpoint-0 positions and conflicts, as ruled
 
@@ -154,7 +154,7 @@
 - **Q4:** the seeded faults are as approved, plus VK-F05 by the THIN ruling, 15 in all.
   - F06, F07 and R28 may be killed on evidence (O5's condition). F17's extra check holds: a not-covered row must be `absolute_verified`, except the three input-derived rows.
   - The selector and its `mod` line count as fault sites. An unknown id panics.
-- **Q5:** the scale runs use V-K's own models, one release process each, under K6's runner, with the heap cap at C − 512 MiB and the ascent 100 → 1,000 → 10,000. Slot per tier, and 10,000 only as ROOT approves. **[PENDING-B]**
+- **Q5:** the scale runs use V-K's own models, one release process each, under K6's runner, with the heap cap at C − 512 MiB and the ascent 100 → 1,000 → 10,000. Slot per tier, and 10,000 only as ROOT approves. As run: V1, V2 and V3 in one slot, with 10,000 members approved (§14).
 - **Q6 and Q7:**
   - The one-off bit comparison with K4's adapter output is recorded (§10).
   - Bit identity is asserted for list permutations only (§9).
@@ -170,7 +170,9 @@
 - **C5:** V-K's scale runs use R1's own rounding and are separate from K6b's.
 - **C7:** no site is in the five byte-identical `factor.rs` functions or in `bound.rs`'s shift loop. K4's source scan and the S11 site table ran before any site was written, after, and after rustfmt. None was flagged.
 - **C8:** `hypot` is decided exactly.
-- **C9:** "compute it both ways and report" applies to the n ≥ 1,000 floor sets: S from R1's sampled rows and from all rows. **[PENDING-B]**
+- **C9:** "compute it both ways and report" applies to the n ≥ 1,000 floor sets: S from R1's sampled rows and from all rows.
+  - At B both sets are empty on all 12 models at 1,000 and 10,000 members.
+  - The sampled set equals the committed (empty) list, and the S_full set is `[]` (§14).
 - **C10:** RF-MECH-K0's k = 0 spring is omitted by V-K's adapter, and the case is refused by geometry. The literal model is refused by the source as `NonPositiveSpring { id: 1 }`, which names the spring (`tests/adapter.rs`).
 - **C11 and C12:** recorded.
   - C12: the ordinary route's `AXIS_TOLERANCE` refuses nine RF-RANGE cases. That is for V-P (§16.4).
@@ -258,7 +260,7 @@
   - y_reference, 120 cases: V-K's rule is the smallest chord component, ties to the lowest index;
   - spring representation at mixed nodes, 6: V-K uses 1 global-axis spring where K4 uses 0;
   - the k = 0 spring, 1: omitted by V-K, kept by K4 (C10).
-- **The 12 large models** (1,000 and 10,000 members) are generated on demand. Their model and K4SRC sha256 are committed in `cases/large_models.sha256` and checked at B. **[PENDING-B]**
+- **The 12 large models** (1,000 and 10,000 members) are generated on demand. Their model and K4SRC sha256 are committed in `cases/large_models.sha256`. At B's setup all 12 model files and all 12 K4SRC digests match (§14).
 
 ## 11. RCM equality (K4's brief Q7; `tests/rcm.rs`)
 
@@ -387,9 +389,12 @@ At A2 it ran VR's 40 tests. The post-KF1 re-run ran 43 and matched A2 row for ro
   - By ROOT's option (a), `tests/engine.rs` adds three constructed-input tests. Each kills exactly its own mutant.
 - **Data-equivalent paths,** for example a failing comparison recorded as a pass, are evidenced by A2's kill matrix, whose faults show every comparison kind is live. That argument is recorded; those paths were not run as mutants.
 
-## 14. Scale runs (B) **[PENDING-B]**
+## 14. Scale runs (B; `_run_records/b/`)
 
-- **Status:** B waits for KF1's merge. It then runs in one slot ROOT grants, after the post-KF1 kill-matrix re-run (§12.4).
+- **Status:** done in ROOT's slot, 16:26:11–16:27:28, after the post-KF1 re-run (§12.4).
+  - It ran V1, V2 and V3 in order, with 10,000 members approved.
+  - All 18 runs classify ok, with no stop, no watchdog kill, no heap-cap abort and no memory-guard KILLED line.
+  - **V3's figures are pre-KF3**, re-run after KF3 merges.
 - **Written during K6b's slot K6B-S3, then built and checked at small sizes after it** (`_run_records/b_prep/`):
   - `VR/src/scale.rs` holds W1's O(nnz) counts (K4's pattern and skyline rules) and the admission estimate. The estimate is K6b's E_max (`performance_harness/src/k6/w1/counts.rs` at `082990c8d`, recomputed on KF1's trackers), ported term for term; only the model term is V-K's. It replaces the plan's provisional table.
   - `VR/tests/scale.rs` requires the counts to equal K4's `StorageCounts` in the committed records on all 193 factored CI cases.
@@ -423,15 +428,65 @@ At A2 it ran VR's 40 tests. The post-KF1 re-run ran 43 and matched A2 row for ro
   - The 12 large models were generated by `gen_vk_cases.py --large` in the same archive (241 s). All 12 match `cases/large_models.sha256`, and the archive's regenerated case files are byte-identical to the committed ones.
   - The counts-only runs of all 18 scale models (no solve, 512 MiB cap) are ok, and each large model's K4SRC equals the committed one.
   - E_max is 46 MiB at 100 members, 285–292 MiB at 1,000 and 2,676–2,752 MiB at 10,000, under half the heap cap (3,840 MiB).
-- **Schedule:** 100 → 1,000, then 10,000 only as ROOT approves. There are 12 models: CHAIN, TREE and CONT, AX and ROT, at 1,000 and 10,000 members.
-- **Results:** *(to be filled)*
-  - per model: the outcome, the selected precision, the attempts, the work by stage, and the report's counts;
-  - `pass_absolute_range` on RF-LARGE-CONT-n10000's five rows;
-  - C9, the floor sets computed both ways;
-  - time and heap with the load;
-  - any admission or deferral.
-- **Records:** `_run_records/b/` *(to be filled)*.
+- **As run:**
+  - the binary is `8f5d6316…`, from a `git archive` of `64470c6ba`; the runner is at `a4b8c1957`;
+  - the models are in `<wt>/scratch/i17/b_models` (uncommitted, their sha256 committed), and the counts are the setup's;
+  - the host is an Apple M5 Max (18 cores, 128 GiB, macOS 26.6.2);
+  - one release process per model, one run each, C = 8 GiB, a heap cap of C − 512 MiB, and the quiet-host wait before each run;
+  - the no-op baseline: 1.87 MB RSS and 1.16 MB footprint.
+  - `_run_records/b/summary.txt` is `summary.py`'s table of every run.
 
+### 14.1 Outcomes and the report
+
+| Model | Outcome | Rows | Pass | Absolute-range | Not covered (sampled; C9 from S_full) | unresolved_availability | Binary64 sparse class |
+|---|---|---:|---:|---:|---|---:|---|
+| CHAIN-n00100-AX, -ROT | Selected at 128 | 1,312 each | all | 0 | 0; (no `s_full` below 1,000) | 0 | Sensitive |
+| TREE-n00100-AX, -ROT | Selected at 128 | 1,312 each | all | 0 | 0; – | 0 | Sensitive |
+| CONT-n00100-AX, -ROT | Selected at 128 | 1,462 each | all | 0 | 0; – | 0 | Passed |
+| CHAIN-n01000-AX, -ROT | Selected at 128 | 103 each | all | 0 | 0; `[]` | 0 | Sensitive |
+| TREE-n01000-AX, -ROT | Selected at 128 | 194 each | all | 0 | 0; `[]` | 0 | Sensitive |
+| CONT-n01000-AX, -ROT | Selected at 128 | 215 each | all | 0 | 0; `[]` | 0 | Passed |
+| CHAIN-n10000-AX *(pre-KF3)* | Unresolved ExactSumSpan | 103 | 0 | 0 | 0; `[]` | 103 | NumericallyUnresolved (scaled condition estimate at working-precision boundary) |
+| CHAIN-n10000-ROT *(pre-KF3)* | Unresolved ExactSumSpan | 103 | 0 | 0 | 0; `[]` | 103 | the same |
+| TREE-n10000-AX *(pre-KF3)* | Unresolved ExactSumSpan | 194 | 0 | 0 | 0; `[]` | 194 | the same |
+| TREE-n10000-ROT *(pre-KF3)* | Unresolved ExactSumSpan | 194 | 0 | 0 | 0; `[]` | 194 | the same |
+| CONT-n10000-AX *(pre-KF3)* | **Selected at 128** | 215 | 211 | **4** | 0; `[]` | 0 | Sensitive |
+| CONT-n10000-ROT *(pre-KF3)* | Unresolved ExactSumSpan | 215 | 0 | 0 | 0; `[]` | 215 | Sensitive |
+
+- **On every run:**
+  - the report accounts for every row;
+  - the not-covered set equals the committed (empty) list;
+  - there are no class mismatches, undiscriminated controls or unexpectedly failing controls;
+  - RCM is equal;
+  - V-K's counts equal K4's storage counts.
+- **Every selected case** is verified at 256, and no row fails.
+- **CONT-n10000-AX publishes 265,013 rows,** of which 101,289 are `absolute_verified` and 0 are unpublishable. Its four absolute-range passes are `u.C2500.UZ`, `u.C4999.UZ`, `R.S1250.UZ` and `Mb.A3750.i`.
+- **The five ExactSumSpan cases** take the KF3 exception exactly as committed. Each publishes nothing, has only the "not selected" failure, and every other check passes.
+
+### 14.2 Where the ExactSumSpan cases stop (pre-KF3)
+
+All five take the same two attempts:
+1. **The 128 candidate** is `Rejected(VerificationFailed)`.
+   - Its own stages are solve, refinement, recovery and rhs, with no stop-rule work.
+   - It built the 128 shared state: formation, assembly, residual formation, the factor (724.4 M; 376.2 M on CONT) and condition estimation.
+2. **The 256 verification** is `Failed(Stop(Span))` in the verification's shared build.
+   - It records bounded formation (320.9 M) and wide formation (926.5 M on AX, about 1,304 M on ROT), with verification-shared work of 1,261–1,699 M.
+   - **It records no `uc` work,** where the selected CONT-n10000-AX records 106.4 M of `uc` at the same point.
+   - So the Span arises after the bounded and wide formation, before the Uc bounds complete. That is consistent with ROOT's locus in `gamma_m` or `uc_bounds` (`verify.rs:471-485`), which the records alone cannot name.
+- The CONT-n10000-AX verification needed no shifted factorization.
+
+### 14.3 Work, heap, RSS and time (load 4.1–5.1 throughout, including the known external process)
+
+| Size | Charged work (M LME) | W1 phase | W1 heap (in-place = move) | Peak RSS | Peak footprint | Estimate E_max | ρ (footprint, net of the baseline) | Process wall |
+|---|---|---|---|---|---|---|---|---|
+| 100 | 69.3–111.0 | 0.06–0.16 s | 9.1–11.2 MiB (move 9.3–12.3) | 19.1–22.8 MiB | 17.2–20.8 MiB | 46 MiB | 0.35–0.43 | 0.1–0.3 s |
+| 1,000 | 799.3–1,228.3 | 0.62–1.54 s | 81.4–86.2 MiB | 118.9–127.3 MiB | 117.0–125.5 MiB | 285–292 MiB | 0.40–0.44 | 0.8–1.7 s |
+| 10,000 *(pre-KF3)* | 6,638.7–8,298.7 | 5.05–10.10 s | 816.5–835.0 MiB | 927.4–1,042.1 MiB | 881.0–991.6 MiB | 2,676–2,752 MiB | 0.32–0.37 | 6.1–11.2 s |
+
+- **At 10,000 members,** CONT-n10000-AX, the one selected case, charges 8,135.1 M, of which the stop rule at 128 is 2,596.8 M. The ExactSumSpan cases charge 6,638.7–8,298.7 M up to their stop.
+- **The ROT frames** take 1.6–2.0 times the AX frames' time at each size.
+- **W1's heap** grows 7.5–9.0× from 100 to 1,000 members and 9.7–10.0× from 1,000 to 10,000. The last factor is pre-KF3, and five of its six runs stop in the 256 verification.
+- **These are observations with their load, not a timing claim.** Timing is K6b's.
 ## 15. Suites, CI time, toolchain and host
 
 - **VR's suite, 43 tests, all passing on `e24e911e6` plus `tests/engine.rs`.** They are:
@@ -476,7 +531,11 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
 - **The largest stages.**
   - At 128 the stop rule is the largest stage in every family. The maximum is 14.7 M, on RF-LARGE-CONT-n00100-ROT. Condition estimation and the factor come next.
   - At 256 the largest are residual formation and wide formation, then the shift and condition estimation. The per-(p, stage) maxima and the cases at them are in `work_summary.txt`.
-- **The CI maximum is 111.0 M LME per case,** on RF-LARGE-CHAIN-n00100-ROT. RF-LARGE at 1,000 and 10,000 members: **[PENDING-B]**.
+- **The CI maximum is 111.0 M LME per case,** on RF-LARGE-CHAIN-n00100-ROT.
+- **RF-LARGE at scale (B, §14.3):**
+  - 1,000 members: all six selected at 128, charging 799.3–1,228.3 M; the maximum is CHAIN-n01000-ROT.
+  - 10,000 members *(pre-KF3)*: CONT-n10000-AX is selected at 128 and charges 8,135.1 M. The other five end `Unresolved(ExactSumSpan)` after 6,638.7–8,298.7 M; the maximum is CHAIN-n10000-ROT.
+  - W1's heap is 81–86 MiB at 1,000 members and 817–835 MiB at 10,000, and ρ against E_max is 0.32–0.44.
 - **Refused cases charge 0.** The eight RF-MECH mechanisms are refused by geometry before any factor.
 - **After KF1:** no figure moves. On the merged tree VR's lane tests match every committed record byte for byte, work included (§12.4).
 
@@ -540,7 +599,7 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
 
 ## 17. What was not done
 
-- **B**, the scale runs at 1,000 and 10,000 members. They run in ROOT's slot after K6b's timed slot. **[PENDING-B]**
+- **V3's final figures:** V3 re-runs after KF3 merges. Until then its figures are pre-KF3, and five of its six models end in the KF3 availability finding.
 - **The product lane** (V-P, after F2a), and every product-level run.
 - **Linux or Windows runs.** Every observation is Mac-only.
 - **Any limit or threshold.** ROOT sets W1's limits from K6, K6b and V-K's records.
@@ -554,7 +613,7 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
 2. **A1's unit test for H6 did not discriminate what its comment claims.** It asserts that `max(|exp|, scale)` uses |exp| and never |obs|, but none of its cases distinguishes the two. VK-H6 survived run c1 as a result. `tests/engine.rs` closes it.
 3. **Two tests promised by plan §14.1 were not delivered at A1:** the absolute-range path on R1's five rows, and the controls test. VK-H9 and VK-H11 survived c1 as a result. `tests/engine.rs` closes both.
 4. **Kill kinds are a heuristic.** The kill matrix's `kinds` are read from the test output, and they were refined after the live run by `--from-logs` over the unchanged logs. The failing-test lists are exact.
-5. **Scope 11's time:** the CI-scale per-case times (release) were recorded without the load, and no time claim is made. B records time with its load **[PENDING-B]**.
+5. **Scope 11's time:** the CI-scale per-case times (release) were recorded without the load, and no time claim is made. B recorded each scale run's time with its load (§14.3).
 6. **A2's ordering:** stable rustfmt changed whitespace only at VK-F13's site in `ledger.rs` after the kill matrix, FK's suite and the R28 release check had run. The scans, `check_fault_sites`, the compile checks and VR's suite ran after it.
 7. **A1's first debug parity run** hung on the RF-MECH-DISC dense witness, which takes about 300 s in release. It was stopped, and ROOT ruled CI parity at up to 100 members (C4).
 8. **VK-H10b's committed log is trimmed** to the first 20 FAILURE lines per family. The full log's sha256, `e5ede5a8…3627` over 2.85 MB, is in its header.
@@ -598,5 +657,8 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
   - the build logs, formatting, the counts test and VR's suite;
   - the direct `vk_scale` checks;
   - the runner's V1 check, with its counts, plan and records.
-- **`_run_records/b/`: [PENDING-B]**
+- **`_run_records/b/`:**
+  - `setup/`: the binary's build and sha256, the large models' generation and check, the counts-only runs (`counts.jsonl`), and the runner test's log;
+  - `runs/`: the runner's `records.jsonl`, each run's JSONL, record, stderr and time file, the baselines, `metadata.json` and the three tier logs;
+  - `summary.py` and `summary.txt`.
 - **`SHA256SUMS`** covers every file under `IMPLEMENTATION/VK/` except itself. It is regenerated whenever a file changes, and last at D's close.

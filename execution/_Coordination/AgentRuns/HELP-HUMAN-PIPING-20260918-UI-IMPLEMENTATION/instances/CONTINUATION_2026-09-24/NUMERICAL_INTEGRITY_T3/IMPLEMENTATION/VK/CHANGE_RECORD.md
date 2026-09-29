@@ -2,9 +2,9 @@
 
 This is the draft PR record for slice V-K of T3 (numerical integrity). It follows `.agents/skills/chirality-change/SKILL.md`. I17 (TASK) implemented the slice, and ROOT made every commit. The details are in `RETURN.md`.
 
-> **Draft at D, before B.** KF1 (PR #1056) has merged, and V-K is on the new
-> main (`485320e95`), with the kill matrix re-run. The parts marked
-> **[PENDING-B]** are filled after B.
+> **D, with B done.** KF1 (PR #1056) has merged, and V-K is on the new main
+> (`485320e95`), with the kill matrix re-run. B has run. **V3's figures
+> (10,000 members) are pre-KF3**, re-run after KF3 merges.
 
 - **Branch:** `codex/piping-vk-20260929`, from main `ab02ee3a6` (K4 merged).
 - **Commits (made by ROOT):**
@@ -15,12 +15,23 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
   - `e24e911e6`: C, the harness mutants, with `tests/engine.rs` closing three paths R1's data cannot discriminate;
   - `24449b5c8`: D, the draft;
   - `485320e95`: main `0f5d8c7b4` (KF1, #1056) merged in, with no conflict. The kill matrix was re-run on it (RETURN §12.4);
-  - **proposed next:** the post-KF1 records, plus `check_fault_sites.py`'s `--allow-commit` option and its README line;
-  - **[PENDING-B]:** B, the scale runs;
+  - `f94342a3d`: the post-KF1 records, plus `check_fault_sites.py`'s `--allow-commit` option;
+  - `64470c6ba`: B's code (`src/scale.rs`, `tests/scale.rs`, `examples/vk_scale.rs`, `runner/vk_scale_runner.py`) and its small-size check;
+  - `a4b8c1957`: B's setup and the KF3 ExactSumSpan exception in the runner, with its tests;
+  - `f5379a5d4`: B, the scale runs' records (`_run_records/b/runs/`, `summary.*`);
   - **D:** this record, RETURN, `_run_records/` and SHA256SUMS.
-- **Size** (the product tree, against the export base `3018343c2`; `e24e911e6`):
-  - 73 files and +41,086 lines, all insertions.
-  - **FK:** +186 lines in 11 existing files (`Cargo.toml` and 10 sources), plus the new 126-line `retained/seeded.rs`. Every code line is cfg-gated.
+- **Size** (the product tree against main `0f5d8c7b4`, at `a4b8c1957`):
+  - 83 files, +42,867 and −260.
+  - **FK:** 17 files, +581 and −260:
+    - K6b's A0 export, which is shared with K6b: 11 files, +269 and −260;
+    - V-K's own change: +186 lines in 11 existing files (`Cargo.toml` and 10 sources) and the new 126-line `retained/seeded.rs`. Every code line is cfg-gated.
+  - **VR (new):** 66 files, all insertions:
+    - Rust, 5,005 lines;
+    - Python, 1,956 lines (the generator and the runners);
+    - the manifest and lock, 137 lines;
+    - the README, 147 lines;
+    - generated data, 35,041 lines (the cases 2,990 and the observations 32,051).
+  - The breakdown below is at C (`e24e911e6`), against the export base `3018343c2`: 73 files, +41,086.
   - **VR (new):**
     - Rust, 4,028 lines: `src` 2,820, `tests` 1,067 and `examples` 141;
     - Python, 1,451 lines: the generator 714 and the runners 737;
@@ -93,11 +104,17 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
     - VK-R28's release selections are unchanged.
 - **The harness mutants (C):** all 18 are killed. NONE (43 of 43) and NONE-GEN, whose regeneration is byte-identical, pass.
 - **The CI cost:** VR's fresh build takes 3.8 s, and its tests take 37.9 s in debug on the Mac.
-- **The scale runs at 1,000 and 10,000 members:** **[PENDING-B]**.
+- **The scale runs (B):** all 18 runs are ok, with no stop.
+  - 100 and 1,000 members: all 12 are selected at 128, and every row passes. At 1,000 members C9's two floor sets are empty.
+  - 10,000 members *(pre-KF3)*:
+    - CONT-n10000-AX is selected at 128, with 211 passes and 4 absolute-range passes.
+    - The other five end `Unresolved(ExactSumSpan)` in the 256 verification's shared build, and their rows are recorded as `unresolved_availability` under the KF3 exception.
+  - W1's heap is 81–86 MiB at 1,000 members and 817–835 MiB at 10,000. The time is 0.6–1.5 s and 5–10 s, with the load recorded.
 
 ## Limits
 
 - **Mac only.** No Linux or Windows observation was made.
+- **V3 is pre-KF3.** Its figures are replaced when V3 re-runs after KF3 merges.
 - **No limit or threshold is set.** Work and outcomes are recorded for ROOT's W1 limits, and time is an observation with its load (B).
 - **The kernel lane only.** The product lane is V-P's, after F2a.
 - **R1-undiscriminated paths** are covered by K4's mutants (§7.3 items 3, 10 relabelling and 16) or by constructed tests (`tests/engine.rs`).
@@ -120,7 +137,8 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
 
 ## Downstream notices
 
-- **ROOT's W1 limits:** RETURN §16.1 gives per-family outcomes and work, and B's figures follow **[PENDING-B]**.
+- **ROOT's W1 limits:** RETURN §16.1 gives per-family outcomes and work. RETURN §14 gives B's figures: work, heap, RSS and time with load at 100, 1,000 and 10,000 members, the last pre-KF3.
+- **KF3:** five of the six 10,000-member models end `Unresolved(ExactSumSpan)`, at the point RETURN §14.2 locates. V3 re-runs after KF3 merges.
 - **F2a:** the evidence that the kill-on-evidence faults rely on (O5), and what F2a publishes for a W1-unresolved case (THIN) (RETURN §16.3).
 - **V-P:** how VR extends to the product lane, the nine RF-RANGE `AXIS_TOLERANCE` refusals on the ordinary route (C12), and THIN's ordinary-route standing (RETURN §16.4).
 - **The owner's PHYS-R4 decision:** THIN's W1 limit, routed by ROOT.
