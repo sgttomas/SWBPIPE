@@ -1,0 +1,5 @@
+projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS
+projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt
+projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py
+projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs
+projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k5_tests.rs

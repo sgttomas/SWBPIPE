@@ -1,0 +1,5 @@
+T9 (Mac-only; S11-K fixdiff_main.rs ec089c1d..., release, --offline, lock copied from core/product_physics).
+base  = git archive of 24dea2dae (product tree equal to e7d930d49); candidate = git archive of 6bf64f5a9.
+outputs: 112 each (core 10, fixtures 72, validation 30).
+base vs candidate: 112/112 byte-identical (diff empty).
+base vs PLATFORM_CALIBRATION_MAC/t9/output_sha256_main_mac_native.txt (sorted): identical.

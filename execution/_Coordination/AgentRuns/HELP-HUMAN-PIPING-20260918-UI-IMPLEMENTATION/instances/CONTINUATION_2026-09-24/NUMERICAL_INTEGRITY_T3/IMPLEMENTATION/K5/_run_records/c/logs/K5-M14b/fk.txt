@@ -1,0 +1,73 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k5-mut/K5-M14b/src/projects/chirality-piping/core/solver/frame_kernel)
+warning: variable does not need to be mutable
+   --> src/rigid_body.rs:709:9
+    |
+709 |     let mut ties = ties
+    |         ----^^^^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel` to apply 1 suggestion)
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.99s
+     Running unittests src/lib.rs (<wt>/k5-mut/K5-M14b/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 8 tests
+test rigid_body::k5_unit_tests::k5_root_one_plus_square_is_exact_where_the_root_is_exact_and_never_overflows ... ok
+test rigid_body::k5_unit_tests::k5_powers_of_two_come_from_the_bits ... ok
+test rigid_body::tests::full_ground_rank_does_not_assert_internal_stiffness_rank ... ok
+test rigid_body::tests::empty_ground_has_explicit_null_and_origin_shift_does_not_change_rank ... ok
+test rigid_body::tests::overflowing_geometry_length_is_range_uncertainty ... ok
+test rigid_body::tests::oblique_geometry_and_actual_rotation_restraint ... ok
+test rigid_body::tests::krev01_original_geometry_refutes_coarsened_null_witnesses ... ok
+test rigid_body::tests::krev01_valid_oblique_witness_survives_origin_and_radix_units ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 193 filtered out; finished in 0.00s
+
+     Running tests/k5_constrained_bodies.rs (<wt>/k5-mut/K5-M14b/target/debug/deps/k5_constrained_bodies-13451d88c1f17f79)
+
+running 14 tests
+test k5_b2_np_c_like_internal_mechanism_and_its_companion ... ok
+test k5_b3_tie_is_not_a_rigid_link_both_ways ... ok
+test k5_b2_near_collinear_virtual_pins ... ok
+test k5_b4_cycles ... ok
+test k5_b10_libm_free_source_scan ... ok
+test k5_b5_exactness ... ok
+test k5_b8_validation ... ok
+test k5_b9_directional_grounds ... ok
+test k5_c_user_tie_rule ... ok
+test k5_objective_sub_bodies_are_the_link_components ... ok
+test k5_t4_tripwire_user_tie_space_is_the_represented_null_space ... ok
+test k5_b6_order_independence ... FAILED
+test k5_b1_reduction_agrees_with_the_unreduced_stacked_map ... ok
+test k5_b7_power_of_two_invariance ... ok
+
+failures:
+
+---- k5_b6_order_independence stdout ----
+
+thread 'k5_b6_order_independence' (6047972) panicked at tests/k5_constrained_bodies.rs:511:13:
+assertion `left == right` failed: b1_0000
+  left: "ConstrainedAssessment { status: MechanismWitnessed, singular_values: [0.4733349318724582, 0.0, 0.8420350923515603, 2.911804196872168, 2.6111317782516172, 1.9417306973934296], rank_screen: 4.137922640086593e-13, rows: 20, cycles: 6, characteristic_length: 2.0, origin: [-0.25, 0.0, 1.0], rigid_parameters: Some([0.5, 0.5, 0.0, 0.0, 0.0, 0.0]), node_motion: Some([[1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0]]), iterations: 5 }"
+ right: "ConstrainedAssessment { status: MechanismWitnessed, singular_values: [0.599134560218176, 0.0, 1.162757291972716, 2.98040082506116, 2.5866681743512236, 1.6478446336016372], rank_screen: 4.2354043118012427e-13, rows: 20, cycles: 6, characteristic_length: 2.0, origin: [-0.25, 0.0, 1.0], rigid_parameters: Some([0.5, 0.5, 0.0, 0.0, 0.0, 0.0]), node_motion: Some([[1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0], [1.0, 1.0, 0.0, 0.0, 0.0, 0.0]]), iterations: 5 }"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    k5_b6_order_independence
+
+test result: FAILED. 13 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.79s
+
+error: test failed, to rerun pass `--test k5_constrained_bodies`
+     Running tests/k5_scale.rs (<wt>/k5-mut/K5-M14b/target/debug/deps/k5_scale-c8a9272bef8d01ab)
+
+running 1 test
+test k5_g_ten_thousand_sub_body_tie_chain_stays_linear_in_memory ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+
+error: 1 target failed:
+    `--test k5_constrained_bodies`
+exit=101
