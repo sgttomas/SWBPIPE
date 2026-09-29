@@ -2,6 +2,8 @@
 
 This is the draft PR record for slice KF1 of T3 (numerical integrity), following `.agents/skills/chirality-change/SKILL.md`. It was implemented by I18, a TASK. The details are in `RETURN.md`.
 
+> **Shipped values: T = 512 and G = 4,096** (addendum 1). The sections before addendum 1 record checkpoints A and D at T = 64 and G = 512. RV20's review (PASS) and its fixes are addendum 2.
+
 - **Branch:** `codex/piping-kf1-20260929`, from main `8cca91701` (PR #1055).
   - Its piping tree equals `ab02ee3a6`'s, with K4 merged; the piping diff between them is empty.
 - **Commits (made by ROOT):**
@@ -113,3 +115,22 @@ This is the draft PR record for slice KF1 of T3 (numerical integrity), following
   - FK's full suite: 401 passed, 0 failed, with no warnings;
   - NONE passes, and KF1-M7 and KF1-M8 are killed, from clean copies of `d267a755b` plus the change.
 - **Records:** RETURN addendum 1, `_run_records/t512/` and SHA256SUMS, refreshed.
+
+## Addendum 2: RV20's review (PASS) and its fixes
+
+- **Review:** RV20 (`T3/REVIEW/KF1_REVIEW.md`) reviewed head `1854911d1`: PASS, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs. ROOT's "KF1: rulings on RV20's review" asks for four fixes before merge.
+- **Change:** `FK/tests/retained_k4/kf1_tracker_tests.rs` +48. No production code changes.
+  - **RV20-1:** the shared-cap test asserts, per round, that the set's 16-limb work is at least K4's. This kills RV20-M4, the set's collapse charged to a throwaway context.
+  - **N1:** RV20's order test is added as `kf1_the_stop_rules_trackers_finish_in_k4s_map_order`. It kills RV20-M5 (`RuleTest` reordered). RV20-M1 and M2 are recorded as equivalent: every reachable refusal is `Span`.
+- **Records:**
+  - **N3:** RETURN addendum 2 restates the memory figures.
+    - The transient peak is G + T = 4,608 rows (19.8 MB) in the stop rule, because `Vec` growth briefly holds both buffers.
+    - A standalone tracker peaks at 1.5T = 768 rows (3.3 MB), and a solve attempt at 2,816 rows (12.1 MB).
+    - The tables are unconditionally at most one 40 B entry per row kept in a window. The one-value-entry figure is practical only.
+  - **N5:** RETURN §0 and this record's head point to addendum 1: T = 512, G = 4,096.
+  - N2 and N4 are recorded as ruled.
+- **Re-runs:**
+  - KF1's tests pass 8 of 8, with 0 warnings and rustfmt clean;
+  - FK's full suite was not re-run, since only the KF1 test file changed; addendum 1's run passed 401;
+  - NONE passes, and RV20-M4 and RV20-M5 are killed, from clean copies of `1854911d1` plus the test change.
+- **Records:** `_run_records/rv20/`, and SHA256SUMS is refreshed.

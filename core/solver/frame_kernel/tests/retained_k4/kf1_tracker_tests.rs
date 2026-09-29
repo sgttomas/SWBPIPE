@@ -623,9 +623,57 @@ fn kf1_the_shared_cap_bounds_a_calls_trackers_together() {
             );
         }
         assert!(references.is_empty());
+        // RV20-1: the set's collapses are charged to the call's context. Every
+        // row K4's finish evaluates (up to its first refusal) is evaluated once
+        // by the bounded trackers, at a collapse or at finish, at the same cost.
+        assert!(
+            lme(&c16s) >= lme(&c16r),
+            "round {round}: the set's work {} < K4's {}",
+            lme(&c16s),
+            lme(&c16r)
+        );
     }
     println!("KF1 shared cap: {collapses_all} collapses of every tracker");
     assert!(collapses_all >= 20, "{collapses_all}");
+}
+
+#[test]
+fn kf1_the_stop_rules_trackers_finish_in_k4s_map_order() {
+    // RV20-N1 (RV20's order test): the set's key order, (test, body, kind),
+    // equals K4's three maps (a), (b), (d), each by (body, kind), concatenated.
+    // The first `Err` among the finishes and each summary's order follow it.
+    assert!(RuleTest::Disagreement < RuleTest::Estimate);
+    assert!(RuleTest::Estimate < RuleTest::Charge);
+    let mut set: TrackerSet<(RuleTest, u32, Kind)> = TrackerSet::with_limit(usize::MAX);
+    let (mut c64, mut c16) = (ctx64(), ctx16());
+    for test in [RuleTest::Charge, RuleTest::Disagreement, RuleTest::Estimate] {
+        for body in [3u32, 0, 1] {
+            for kind in [Kind::Moment, Kind::Force] {
+                let (num, den) = exact_ratio(1.5, 3.0);
+                set.offer(
+                    (test, body, kind),
+                    Direction::Up,
+                    &mut c64,
+                    &mut c16,
+                    num,
+                    den,
+                )
+                .unwrap();
+            }
+        }
+    }
+    let order: Vec<(RuleTest, u32, Kind)> = set.into_trackers().map(|(k, _)| k).collect();
+    let mut expected = Vec::new();
+    for test in [RuleTest::Disagreement, RuleTest::Estimate, RuleTest::Charge] {
+        let mut map: BTreeMap<(u32, Kind), ()> = BTreeMap::new();
+        for body in [3u32, 0, 1] {
+            for kind in [Kind::Moment, Kind::Force] {
+                map.insert((body, kind), ());
+            }
+        }
+        expected.extend(map.keys().map(|&(body, kind)| (test, body, kind)));
+    }
+    assert_eq!(order, expected);
 }
 
 // ---------------------------------------------------------------- the model-level differential

@@ -2,6 +2,8 @@
 
 ## 0. At a glance
 
+> **Shipped values: T = 512 and G = 4,096** (addendum 1, ROOT's ruling "KF1: D received; T reopened and set to 512"). The body below records checkpoints A and D at T = 64 and G = 512. The memory figures are restated in addendum 2 (RV20-N3), and the review's fixes are in addendum 2.
+
 **What changed:**
 - K4's `ExtremeTracker` is replaced by `BoundedExtremeTracker` at all seven sites.
   - A tracker holds at most T = 64 rows unevaluated.
@@ -197,6 +199,8 @@ The two results are the same bits:
 §5's model-level differential confirms all of this on every control.
 
 ## 4. The memory bound, per site and per call
+
+> [At T = 64. For the shipped T = 512, see addendum 1. For the growth transient and the tables' unconditional bound, see addendum 2 (RV20-N3).]
 
 **Sizes, measured by `kf1_the_bound_in_bytes`:**
 - `ExactWideSum` 2,144 B;
@@ -462,7 +466,7 @@ The sha256 of each file is in the checkpoint's status message, and ROOT's commit
 - **The golden pins** (`golden_work_counts`, `A3B_WORK`) do not move.
 - **The worst case is unchanged:** +17,506 LME per offered row with a nonzero numerator, for any T. At 10,000 members, rows that tie in the window and are later dropped can still reach it once a tracker holds more than 512 of them.
 
-**The new bound.** A row is 4,304 B and a table entry 40 B:
+**The new bound.** A row is 4,304 B and a table entry 40 B. [Restated in addendum 2 (RV20-N3). The peak during one offer is G + T = 4,608 rows (19.8 MB), not 4,352, because `Vec` growth briefly holds both buffers. The tables are bounded unconditionally by the rows kept in the window.]
 
 | Site | Unevaluated rows (allocated) |
 |---|---|
@@ -494,3 +498,62 @@ The sha256 of each file is in the checkpoint's status message, and ROOT's commit
   - Files: `t512/mutants.jsonl`, `t512/mutants.py` and `t512/mutant_logs/`.
   - The other eight mutants concern how a collapse evaluates, prunes and records rows, not the value of T. They were killed at A, and the differential now exercises that logic at T = 1, 2, 3, 5, 64 and 512.
 - **rustfmt:** the changed files are clean.
+
+## Addendum 2: RV20's review (PASS) and its four fixes
+
+**Basis.**
+- RV20 (`T3/REVIEW/KF1_REVIEW.md`, records `T3/REVIEW/_run_records/kf1_review/`) reviewed head `1854911d1` and passed it: 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs.
+- ROOT's "KF1: rulings on RV20's review" asks for RV20-1, N1, N3 and N5 before merge, and records N2 and N4.
+- The fixes are made on `1854911d1`.
+- **No production code changes in this addendum.** The only code edit is to `K4T/kf1_tracker_tests.rs` (+48).
+
+**RV20-1 (SHOULD-FIX): the shared cap's collapse work is now tested.**
+- `kf1_the_shared_cap_bounds_a_calls_trackers_together` now asserts, after each round's finishes, that `lme(&c16s) >= lme(&c16r)`: the set's 16-limb work is at least K4's.
+- **Why the assertion holds:** every row that K4's `finish` evaluates, up to its first refusal, is evaluated exactly once by the bounded trackers, either at a collapse (the set's included) or at `finish`, and at the same cost (§5).
+  - If a table refusal ends a bounded `finish` early, every row K4 evaluates before that refusal was offered before it, so it was evaluated at or before the refusal's collapse.
+- **RV20-M4** (RV20's edit: the set's collapse runs on a throwaway context) is now killed by this test. The message is "round 0: the set's work 1032854 < K4's 3413670", the same figures as RV20's fix check.
+
+**RV20-N1: RV20's order test is added, and two of its mutants are recorded as equivalent.**
+- **The new test,** `kf1_the_stop_rules_trackers_finish_in_k4s_map_order`, asserts two things:
+  - `RuleTest`'s derived order is (a) < (b) < (d);
+  - the set's `into_trackers` order equals K4's three `BTreeMap`s concatenated, (a), (b), (d), each by (body, kind).
+- It kills **RV20-M5** (`RuleTest` reordered to (d), (a), (b)) with "assertion failed: RuleTest::Estimate < RuleTest::Charge".
+- **RV20-M1** (the latest table refusal is returned) and **RV20-M2** (unevaluated rows are evaluated before a table refusal) are recorded as **equivalent**, as ruled.
+  - Every refusal the tests and RV20 can construct is `AttemptStop::Span`, from `product_reaches`.
+  - A tracker's row reaches `directed_ratio` only after `approximate_ratio` has already rounded and divided the same operands. So which `Span` is returned is unobservable, apart from the work spent before it.
+  - §3's proof covers the refusal order by its place in the stream, whatever the stop.
+
+**RV20-N3: the memory figures, restated** (at the shipped T = 512 and G = 4,096; a row is 4,304 B)
+
+| Site | Allocated unevaluated rows between offers | Peak during one offer (a `Vec` growth holds both buffers) |
+|---|---|---|
+| Stop rule (one call, one `TrackerSet`) | ≤ G = 4,096 (17,629,184 B, 17.6 MB) | ≤ G + T = 4,608 (19,832,832 B, **19.8 MB**) |
+| A standalone tracker (pivot margin; residual gate, per evaluation) | ≤ T = 512 (2,203,648 B, 2.2 MB) | ≤ 1.5T = 768 (3,305,472 B, **3.3 MB**) |
+| Fallback (up to 4 states) | ≤ 4T = 2,048 (8,814,592 B, 8.8 MB) | ≤ 2,304 (9,916,416 B, 9.9 MB) |
+| A solve attempt at its peak (residual gate and fallback) | ≤ 2,560 (11,018,240 B, 11.0 MB) | ≤ 2,816 (12,120,064 B, **12.1 MB**) |
+
+- **The transient.** When one tracker grows from 256 to 512 slots, its old and new buffers are both live while the `Vec` reallocates. Only one tracker grows in an offer, and the stop rule's check against G follows the offer. This assumes the allocator does not grow in place.
+- **The tables, unconditionally.** Each tracker keeps |Λ| + |Σ| ≤ |K_i|, where K_i is K4's kept set, the rows in the window. The differential asserts this after every row.
+  - So a call's tables hold **at most one 40 B entry per row kept in a window**, which is at most 40 B × the rows offered to the call: about 0.93% of K4's 4,304 B per kept row. They are proportional to the model, not to ties.
+  - Within a collapse, `Vec` growth can briefly double a table's allocation, and the prune shrinks it to fit.
+  - W + 1 = 8,193 entries per tracker is a looser bound when there are many trackers.
+- **Practical only, and not in the proof:** one value entry per tracker, plus any refusal records. This rests on the approximation lemma, which ROOT keeps out of the basis.
+
+**RV20-N5: the records now point to the shipped values.** RETURN §0 and the head of CHANGE_RECORD point to addendum 1 (T = 512, G = 4,096). §4 and addendum 1's bound table point to this addendum's restated figures.
+- **A count clarified:** RETURN's "seven sites" counted `residual_rows`'s parameter and the solve loop separately. Production has six tracker construction sites: the pivot margin, the residual gate, the fallback, and the stop rule's set with its three tests (a), (b), (d).
+
+**Recorded, as ruled.**
+- **N2:** RV20-M12 (the fallback's collapse work uncharged) is the disclosed limit (§5, §11). No control's fallback tracker holds two rows within the window. By reading, `bounded_fallback` charges `solve_case_at`'s `ctx16`, which becomes `stages.bounded_gate`.
+- **N4:** "No control gains work at T = 512" is printed, not asserted: 0 "moved" lines at T = 512 and 129 at T = 1. At W1's sizes the extra work returns once a tracker holds more than 512 rows in its window. It is at most +17,506 LME per row, and K6b re-measures after the merge.
+
+**Re-runs** (one cargo job, `-j 4`, `RUST_TEST_THREADS=2`, target `<wt>/kf1-target`; a DEC-025 sweep ran alongside)
+- **KF1's tests:** 8 of 8 in 65 s (`_run_records/rv20/kf1_tests.log`).
+  - The coverage, sizes and shared-cap lines equal addendum 1's.
+  - 0 "moved" lines at T = 512 and 129 at T = 1.
+  - The non-test build has 0 warnings, and rustfmt is clean.
+- **FK's full suite** was not re-run, as ROOT's instruction allows: the tests changed nothing outside `kf1_tracker_tests.rs`. Addendum 1's run (401 passed) covers the unchanged code.
+- **Mutants,** from clean `git archive` copies of `1854911d1` with `kf1_tracker_tests.rs` overlaid, each with its own target (deleted afterwards), using RV20's exact edits:
+  - NONE passes;
+  - RV20-M4 is killed by the shared-cap test;
+  - RV20-M5 is killed by the order test.
+  - Files: `_run_records/rv20/mutants.jsonl`, `mutants.py` and `mutant_logs/`.
