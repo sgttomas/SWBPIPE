@@ -1,0 +1,1 @@
+nice -n 19 python3  $N/REFERENCES/references.py rust_models > crosscheck.out   49.54s user 0.26s system 99% cpu 50.154 total

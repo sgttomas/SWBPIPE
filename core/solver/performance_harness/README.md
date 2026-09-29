@@ -56,3 +56,60 @@ Sparse-vs-dense parity assertions in the tests cite the `DEC-026` analytic-class
 ## Verification
 
 The unit tests cover deterministic repeat-run records, per-repeat observation rows, invented suite-runner records, suite summary counts (including sparse and value-storage aggregates), provenance rejection, invalid settings, nonzero-count metrics, conditioning observations, conditioning diagnostics, dense and sparse solve-failure diagnostic recording (including located sparse singular pivots), sparse-vs-dense parity on chain and grid fixtures (small and larger generated banded models), sparse repeat determinism, grid fixture validation, and residual calculation.
+
+## K6: kernel memory and runtime observations (T3 D1 revision 5a.2 §4.8)
+
+K6 adds kernel-level observations of the product's linear entry beside the
+legacy DEC-023/050/053 harness, which is unchanged.
+
+**Scope.**
+- The sealed kernel models are R1's RF-LARGE families and the DEC-053 nine. There are 24 RF-LARGE cases: CHAIN, TREE and CONT, at 10, 100, 1,000 and 10,000 members, axis-aligned and rotated by Q3.
+- They are generated in `src/k6/models.rs`, keeping R1's node and member order.
+- Each model's canonical bytes (`k6-model v1`) are hashed in `observations/k6/models_sha256.txt`, and an independent Python generator in `runner/k6_runner.py` reproduces every hash.
+- The section is formed from explicit products and `PI` only.
+
+**The observation binary.** `k6_observe` runs one model in one mode per process, in one of four modes:
+- `sparse`: `SparseAssemblyEvidence` in `SparseInteractive`;
+- `dense`: `DenseScrutiny`;
+- `lane-id`: the identity-order DEC-050/053 lane;
+- `lane-lu`: the dense LU DEC-050/053 lane.
+
+It runs the staged kernel sequence at public-API boundaries, in the adapter's order: assembly, evidence, ledger, reduce, geometry, [densify], prepare, factor, [witness], finish and recovery. It then runs the adapter's two entries end to end. The tests pin the staged result, bit for bit, to those entries.
+
+It prints JSONL (`k6-observe-v1`), one object per line:
+- `start`;
+- `counts`;
+- `stage_begin` and `stage`, for each stage of each repeat;
+- `outcome`;
+- `parity`;
+- `summary`.
+
+The `refusal` kind replaces the repeats when the binary refuses.
+
+**The allocator.** A counting, capped global allocator lives only in the binary. It records the peak requested bytes per stage, in two models:
+- in place, which carries the cap;
+- move, where a growing `realloc` holds the old and the new block together.
+
+A refused allocation writes a marker and aborts.
+
+**Refusals by name.** The binary refuses these before any n² allocation, and exits 3:
+- every n² mode (`dense`, `lane-lu`) on a model of 10,000 members or more;
+- `lane-id` on CONT at 10,000 members;
+- any run whose admission estimate exceeds half the heap cap.
+
+**The runner.** `runner/k6_runner.py`, standard library only:
+- runs the binary under `/usr/bin/time`, with `-l` on macOS and `-v` on Linux;
+- on macOS, polls the binary's (not the wrapper's) RSS every 100 ms with `ps -o rss=` and kills the process group above the cap (`killed_by_rss_watchdog`);
+- on Linux, sets `RLIMIT_AS` before exec;
+- classifies each process, aggregates the median and minimum per stage over the repeats, and writes the records and the packet;
+- has `--plan`, which lists the schedule and each run's admission without starting any process.
+
+**Boundary.** These are observations only. No time or memory threshold is asserted in any test or record.
+- The only claims are the observed log-log growth fits of peak memory against members, and the actual-to-estimate ratios for F1b's two estimates.
+- The DEC-053 parity basis (1e-9 relative) is asserted in the tests where both modes publish Passed. Where a mode is Sensitive, the delta is recorded and not asserted.
+
+**Running it.**
+- `cargo build --release --bin k6_observe`, then `k6_observe --model <id> --mode <mode> --heap-cap-bytes <n>`.
+- `k6_observe --list-models`, `--emit-model` and `--counts-only` inspect the models.
+- `python3 runner/k6_runner.py --plan --counts observations/k6/counts.jsonl` shows the schedule. `--run --tier <T>` runs a tier, one process at a time, on a quiet host.
+- The runner's tests run with `python3 -m unittest test_k6_runner` from `runner/`, and on the DEC-025 pytest surface through `tests/test_performance_harness_runner.py`.

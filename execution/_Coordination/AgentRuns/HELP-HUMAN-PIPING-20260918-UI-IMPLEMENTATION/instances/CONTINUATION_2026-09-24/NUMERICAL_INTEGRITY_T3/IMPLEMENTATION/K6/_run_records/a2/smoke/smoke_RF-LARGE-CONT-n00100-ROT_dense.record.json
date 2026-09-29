@@ -1,0 +1,88 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "RF-LARGE-CONT-n00100-ROT",
+  "--mode",
+  "dense",
+  "--heap-cap-bytes",
+  "536870912",
+  "--repeats",
+  "2",
+  "--counts-file",
+  "counts.jsonl"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  11.6796875,
+  12.87841796875,
+  10.7958984375
+ ],
+ "load_before": [
+  11.6796875,
+  12.87841796875,
+  10.7958984375
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 45481984,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 35644523,
+ "repeats_heap_peak_move": 35644523,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 44400,
+  "ps_samples": 3,
+  "time_max_rss_bytes": 45481984,
+  "time_peak_footprint_bytes": 44450152,
+  "wait4_maxrss_bytes": 45481984
+ },
+ "rss_cap_bytes": 1073741824,
+ "run_id": "smoke_RF-LARGE-CONT-n00100-ROT_dense",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 59,
+ "stdout_sha256": "3d99f145685150125dd0cd466af671b6600021c722205144fe81bb497df67430",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 337812458,
+  "heap_peak": 35644523,
+  "heap_peak_move": 35644523,
+  "kind": "summary",
+  "parity_phase_heap_peak": 3265173,
+  "parity_phase_heap_peak_move": 3265300,
+  "repeats_completed": 2,
+  "repeats_heap_peak": 35644523,
+  "repeats_heap_peak_move": 35644523,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 0.3489,
+ "watchdog_last_kib": 44400,
+ "watchdog_polls": 3,
+ "watchdog_samples": [
+  [
+   0.022,
+   43376
+  ],
+  [
+   0.131,
+   44320
+  ],
+  [
+   0.24,
+   44400
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}
