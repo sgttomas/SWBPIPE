@@ -85,6 +85,7 @@ ROOT reviewed this brief (drafted by a TASK, sha256 `664bf204…` as drafted) an
 - **Q10: (a).** Use a Rust generator that keeps R1's node order, with the section formed from explicit products and π. Record a one-off check of all 24 models against `references.py --model`. A difference is a stop; never edit a reference.
 - **Q11: as recommended.** Commit kernel-model sha256s for all 33 models, and cite P1's product request hashes for V-P.
 - **Q12: (a).** Observe the dense LU lane and the identity-order lane where the admission rule admits them, against F1b's 24-byte estimate. CONT at 10,000 members is never run.
+- **Added (RV16-N4, 2026-09-28): no run at 10,000 members or more in any mode that materializes an n² matrix,** the dense-LU lane mode included. The binary's refusal by name, test G and K6-M12 cover every such mode.
 - **Q13:** one slice, with checkpoints 0, A1, A2, B, C and D.
   - Until ROOT releases the host, work is read and design only (checkpoint 0).
   - No run above 100 members before ROOT approves the `--plan` schedule.

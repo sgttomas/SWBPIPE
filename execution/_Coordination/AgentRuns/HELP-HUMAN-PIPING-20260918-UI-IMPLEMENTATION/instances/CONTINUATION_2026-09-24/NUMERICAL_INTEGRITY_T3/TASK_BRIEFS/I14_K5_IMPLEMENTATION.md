@@ -81,7 +81,7 @@ A TASK drafted this brief. ROOT reviewed it and rules on its open questions as f
    - a T4 tripwire test is added;
    - RETURN carries a notice to T4.
 6. **Q6: (a).** K5's function accepts directional ground rows, tested at FK level. Wiring K4's `geometry_first` to it is a follow-up after both merge; K5 does not write K4's files. This resolves the route of K4's O1 amendment.
-7. **Q7: (b).** A new basis text for mixed families on the four selected branches only. The exact string is proposed at checkpoint 0 and fixed by ROOT.
+7. **Q7: (b).** [Reversed to (a): see `ROOT_RULINGS_V1.md`, "K5: rulings on I14's checkpoint-0 plan" (RV16-S4).] A new basis text for mixed families on the four selected branches only. The exact string is proposed at checkpoint 0 and fixed by ROOT.
 8. **Q8: (b), gate part 1 only, as a regression net.** On this Mac, part 1 takes about 5 minutes per tree (G1, `GATE_BASELINE_MAC_E7D930D49/`).
    - It is compared per run against G1's baseline, if K5's base has the same product tree as `e7d930d49`; verify that. Otherwise, against a fresh base run.
    - PASS requires every run byte-identical in P1's envelope, outcome and standing.
@@ -119,7 +119,7 @@ A TASK drafted this brief. ROOT reviewed it and rules on its open questions as f
 - **The pre-registered change classes on the product** (under Q1(b)). These are the only published changes allowed, each checked by product runs on Mac main and the candidate:
   - **K5-C1 (curved mechanism).** A linear invocation, with no nonlinear support, whose body containing a qualified curved element is a geometric mechanism. Main leaves it to the matrix gate, which refuses it (typically `NUMERICAL_INTEGRITY_UNRESOLVED` or `NUMERICAL_INTEGRITY_NEGATIVE_ENERGY`) or publishes a value along the mechanism, held only by the element's formation error (Sensitive through K-D5, or Passed). The candidate refuses it as `NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM` with the witness direction (`PP:1272`; the message renders the direction through `{self:?}`, `FK/structural.rs:244-248`).
   - **K5-C2 (ambiguous curved geometry).** The same invocations, where the body's geometric rank is in the τ_B band and no exact witness exists: `NumericallyUnresolved` ("rigid-restraint rank unresolved", or the reason ruled at checkpoint 0), where main's matrix gate may publish. Report every occurrence in the corpus.
-  - **K5-C3 (basis text; only if Q7(b) is ruled).** The `symmetry_basis` text of mixed families, on the four selected branches only.
+  - **K5-C3 (basis text; only if Q7(b) is ruled).** [Retired with Q7's reversal (RV16-S4).] The `symmetry_basis` text of mixed families, on the four selected branches only.
   - **K5-C4.** Nothing else. In particular, every frame-only case and every invocation with a nonlinear support keep identical envelope bytes.
 - **User elements** reach none of these classes in the product. In PP's `#[cfg(test)]` historical scope they can reach C1 to C3, so those in-crate tests are part of the corpus.
 - **The both-entry gate (Q8).** The gate's 222 requests realize no curved bend and no user element (work graph, T3 row, the coverage finding from RV5's K-D5 review). Under Q1(b) every gate run is therefore byte-identical by construction, and the gate cannot show K5's change. **Recommended: not run**, with the scan and the derivation as evidence, and the curved product-run table (Required tests F) in its place.

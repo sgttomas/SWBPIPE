@@ -6,11 +6,11 @@
 
 | Step | Revision | By | When (UTC) |
 |---|---|---|---|
-| PR #1047 opened | head `e27794262`, base `65e2d6c2a` | ROOT | 2026-09-28 |
-| main merged into the branch (CI refused the stale base after #1046) | `73519d1d2`, then `a2323bc96` | ROOT | 2026-09-28 |
+| PR #1047 opened | head `e27794262`, branched from `65e2d6c2a`; main was already `d1cc97ce4` when it opened (22:25:11) | ROOT | 2026-09-28 |
+| main merged into the branch (CI refused the stale base after #1046) | merge `73519d1d2`; then `a2323bc96`, the answers' note on the questions' in-place change | ROOT | 2026-09-28 |
 | RV15 review | at `a2323bc96`: MERGEABLE; 4 SHOULD-FIX, 10 NOTEs | RV15 | 2026-09-28 |
 | Fixes | `c322826ea` | ROOT | 2026-09-28 |
-| **PR #1047 merged** | head `c322826ea`, merge `41aeb2a02` | the `sgttomas` account, not ROOT | 22:49:33 |
+| **PR #1047 merged** | head `c322826ea`, merge `41aeb2a02`; merged before RV15's delta check of that head had returned | the `sgttomas` account. GitHub shows the same account for every merge, #1048 included; that ROOT did not merge #1047 rests on ROOT's attestation | 22:49:33 |
 | RV15 delta at `c322826ea` | MERGEABLE; D-1 SHOULD-FIX, D-2 and D-3 NOTEs | RV15 | 2026-09-28 |
 | D-1 to D-3 applied | `a999f4ba1`, pushed after #1047 had merged | ROOT | 22:51:59 |
 | RV15 final delta at `a999f4ba1` | MERGEABLE, nothing new | RV15 | 2026-09-28 |
