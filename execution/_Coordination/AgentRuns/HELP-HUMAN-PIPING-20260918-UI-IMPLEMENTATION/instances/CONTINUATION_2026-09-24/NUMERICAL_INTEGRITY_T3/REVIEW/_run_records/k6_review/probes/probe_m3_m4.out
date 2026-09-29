@@ -1,0 +1,4 @@
+probe: k6_observe --model RF-LARGE-CHAIN-n00010-AX --mode dense --heap-cap-bytes 536870912 --repeats 2 --entry-repeats 1
+unmutated (debug, rv18-target)   summary.repeats_heap_peak=579691 max(stage.heap_peak)=579691 repeat1: assembly=48120 prepare=562391 recovery=145351
+RV18-M3                          summary.repeats_heap_peak=145351 max(stage.heap_peak)=579691 repeat1: assembly=48120 prepare=562391 recovery=145351
+RV18-M4                          summary.repeats_heap_peak=579691 max(stage.heap_peak)=579691 repeat1: assembly=579691 prepare=579691 recovery=579691

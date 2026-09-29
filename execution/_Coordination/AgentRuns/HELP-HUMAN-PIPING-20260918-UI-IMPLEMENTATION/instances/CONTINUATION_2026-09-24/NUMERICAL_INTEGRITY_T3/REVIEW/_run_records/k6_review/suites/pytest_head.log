@@ -1,0 +1,8 @@
+ 2:05  up 1 day,  6:52, 1 user, load averages: 5.65 4.67 4.58
+.....................................                                    [100%]
+37 passed in 6.63s
+real 6.76
+user 1.37
+sys 0.23
+exit 0
+ 2:05  up 1 day,  6:53, 1 user, load averages: 5.56 4.68 4.58

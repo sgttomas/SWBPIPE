@@ -1901,3 +1901,20 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - **Disclosed:** the provenance lock copy no longer matches `H/Cargo.lock`. Nothing reads it, and it is outside K6's write set.
   - **A limit:** the binary's time-budget and first-repeat stops were reached by no observation and have no dedicated test. The reviewer judges whether a test is needed before merge.
 - **Next:** PR, an independent reviewer (RV18), hosted CI with the full-SHA dispatch, DEC-025 and GEN-8.
+
+## K6: rulings on RV18's review (ROOT, 2026-09-29)
+
+- **Verdict accepted:** PASS at `ae3320b5a`, with 0 BLOCKING, 4 SHOULD-FIX and 8 NOTEs (`REVIEW/K6_REVIEW.md`).
+  - RV18 verified independently that no product byte changes, that test E is strict, and that the allocator's accounting and the refusals are right.
+  - It found that the counts match its own port, the models match R1, and the packet and D's tables regenerate byte for byte.
+- **All four SHOULD-FIX findings are fixed before merge,** each killing RV18's mutant from a clean archive:
+  - **RV18-1:** a `k6_bin` test of the time-budget and first-repeat stops (RV18-M1, M2).
+  - **RV18-2:** a `k6_bin` test that the summary's heap peak equals the maximum of the stage peaks, and that stage peaks restart (RV18-M3, M4).
+  - **RV18-3:** the runner kills the observation process group in a `finally` and maps SIGTERM to a clean exit, with a no-survivor test for a SIGTERM to the runner mid-run.
+  - **RV18-4:** scrub the four machine-path lines in `_run_records/c/logs/py-K6-M5.log`, and regenerate the K6 SHA256SUMS.
+- **NOTEs fixed where cheap:**
+  - N1–N3: tests for the poll interval (M6), home-path scrubbing (M7) and the DEC-025-sweep check (M8). Also scrub `time -v`'s output file on Linux.
+  - N6: key CONT n10000's lane-id refusal on the canonical model's family and size, not its id, with a test.
+  - N7: correct CHANGE_RECORD's base (`56dd72334`). Note in RETURN that run 137's `slot` reads B1 though it ran in B2, since raw records are not edited, and that the provenance lock copy was already stale on main.
+  - N4, N5 and N8: recorded.
+- **Next:** I15 fixes, then RV18 runs a delta check, followed by hosted CI with the dispatch, DEC-025 and GEN-8.

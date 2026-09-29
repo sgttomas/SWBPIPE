@@ -1,0 +1,6 @@
+RV18: CONT's identity-order lane profile at n = 10,000 (never run; context only), re-derived from the runtime-verified sizes.
+The lane-id runs at 10, 100 and 1,000 members record SD's own original_profile_entry_count, equal to counts.jsonl
+(checks/records_check.out, "product count mismatches: []"). An exact quadratic in s = n/2 through s = 5, 50, 500 is:
+  AX:  (45 s^2 + 51 s - 30) / 2  -> at s = 5,000: 562,627,485  (counts.jsonl: 562,627,485)
+  ROT: 27 s^2 + 35 s - 18        -> at s = 5,000: 675,174,982  (counts.jsonl: 675,174,982)
+F1b's full-block form 27 s^2 + 36 s - 18 gives 675,179,982 at s = 5,000 (the ROT value plus s).

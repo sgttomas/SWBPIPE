@@ -1,0 +1,88 @@
+RV18 revisions and scans (read-only git; no fetch, no index operation), 2026-09-29T08:28:21Z
+== PR #1053 (gh pr view, read-only)
+head ae3320b5a93aa0e65a71483b4db6f40eeb9d8f1c branch codex/piping-k6-20260928 state OPEN mergeable MERGEABLE
+SKIPPED 4, SUCCESS 12
+hosted run on the head: Piping Desktop E2E 36539442186 success; Numerical cargo suite job: performance_harness cargo test 08:05:38Z-08:06:54Z (Linux), job SUCCESS
+== local refs
+HEAD ae3320b5a93aa0e65a71483b4db6f40eeb9d8f1c  tree 1e9871859178ab5d76c3923e0e97b8ab275e175b
+origin/main (not fetched) 59cb200730eef01a805a5b9f4b840a845ff4204b
+== first-parent history
+ae3320b5a9 3e90176c66 K6 checkpoint D: RETURN, CHANGE_RECORD, records and the observation packet
+3e90176c66 014b2ae04e 59cb200730 Merge remote-tracking branch 'origin/main' into codex/piping-k6-20260928
+014b2ae04e ada18de702 K6 checkpoint C: mutation table (26 of 26 killed after two tests added for the survivors)
+ada18de702 3799e3764c K6 checkpoint B3: the Q4 ceiling run (CHAIN n=1364 dense, 8,190 DOFs, C = 16 GiB): ok, 5 repeats, heap 1.0032 x 96 n^2, footprint 1.0078,
+3799e3764c 962dd4e3b0 K6 checkpoint B2: dense and lane-lu at 1,000 members, grid 128x128; the B2-stop rule in the runner
+962dd4e3b0 1f354c20bc K6 checkpoint B1: observation records (T1-T5) and runner fixes made during the slot
+1f354c20bc 9ababe4f24 1cdeae2c1d Merge remote-tracking branch 'origin/main' into codex/piping-k6-20260928
+9ababe4f24 56dd72334b K6 checkpoints A1 and A2: kernel sparse/dense observation binary, generator, counts, allocator, runner and dry run (performance_harness on
+== branch base: parent of 9ababe4f2 = 56dd72334b; git diff d1cc97ce4 56dd72334 -- projects/chirality-piping: 0 files
+== merge 1f354c20bc: parents 9ababe4f24 1cdeae2c1d, merge base 56dd72334b
+  remerge-diff lines: 0
+  git diff mb..p2 == git diff p1..merge: identical (702 files)
+  p2..merge files outside K6's write set: 0
+== merge 3e90176c66: parents 014b2ae04e 59cb200730, merge base 1cdeae2c1d
+  remerge-diff lines: 0
+  git diff mb..p2 == git diff p1..merge: identical (485 files)
+  p2..merge files outside K6's write set: 0
+== D commit ae3320b5a (vs 3e90176c6): 24 files; outside T3/IMPLEMENTATION/K6:
+projects/chirality-piping/core/solver/performance_harness/README.md
+projects/chirality-piping/core/solver/performance_harness/observations/k6/SHA256SUMS
+projects/chirality-piping/core/solver/performance_harness/observations/k6/k6_packet.json
+== Scope 8 path scan: git diff --name-status 59cb20073 ae3320b5a (merge base = main 59cb20073)
+ 935 A
+   4 M
+files outside H/ and T3/IMPLEMENTATION/K6/:
+A	projects/chirality-piping/tests/test_performance_harness_runner.py
+modified (M) files:
+M	projects/chirality-piping/core/solver/performance_harness/Cargo.lock
+M	projects/chirality-piping/core/solver/performance_harness/Cargo.toml
+M	projects/chirality-piping/core/solver/performance_harness/README.md
+M	projects/chirality-piping/core/solver/performance_harness/src/lib.rs
+files under FK, SD, NI, PP, headless, validation, provenance, .github, tools, P/tools, legacy example: 0
+== H/src/lib.rs diff
+diff --git a/projects/chirality-piping/core/solver/performance_harness/src/lib.rs b/projects/chirality-piping/core/solver/performance_harness/src/lib.rs
+index 605e0f89d4..7b10a9bc2d 100644
+--- a/projects/chirality-piping/core/solver/performance_harness/src/lib.rs
++++ b/projects/chirality-piping/core/solver/performance_harness/src/lib.rs
+@@ -17,6 +17,7 @@ use open_pipe_stress_sparse_direct::{solve_symmetric_system, SparseDirectError};
+ use std::error::Error;
+ use std::fmt;
+ use std::time::Instant;
++pub mod k6;
+
+ /// Identifier of the deterministic ordering algorithm used by the sparse
+ /// path (see `core/solver/sparse_direct` README for its determinism
+== H/Cargo.lock at head: source/checksum lines: 0
++name = "open_pipe_stress_curved_bend"
++name = "open_pipe_stress_nonlinear_integration"
++name = "open_pipe_stress_nonlinear_supports"
+== dependency closure: Cargo.toml files outside H naming the harness: 0
+files outside H and execution records that name the harness:
+docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml
+plans/chirality_piping_solver_maturity_survey_2026-07-31.html
+projects/chirality-piping/apps/desktop/SMOKE.md
+projects/chirality-piping/docs/SPEC.md
+projects/chirality-piping/docs/developer_guide/index.md
+projects/chirality-piping/docs/user_guide/index.md
+projects/chirality-piping/plans/PLAN_COMPLETION_LOG.md
+projects/chirality-piping/provenance/build-artifacts/core__solver__performance_harness__Cargo.lock
+projects/chirality-piping/tests/test_performance_harness_runner.py
+projects/chirality-piping/tests/test_sparse_default_promotion_observation.py
+projects/chirality-piping/tests/test_sparse_suitability_observation.py
+projects/chirality-piping/validation/benchmarks/sparse_suitability_observation.dec050.json
+code readers of provenance/build-artifacts (py, rs, toml, yml, js, sh; outside execution records): 0
+provenance copy vs H/Cargo.lock at main 59cb20073 (already stale before K6):
+30a31
+>  "open_pipe_stress_sparse_direct",
+38a40,47
+>  "open_pipe_stress_sparse_direct",
+> ]
+>
+> [[package]]
+> name = "open_pipe_stress_sparse_direct"
+> version = "0.1.0"
+> dependencies = [
+>  "open_pipe_stress_frame_kernel",
+== Rust source changed in core/solver since B's binary commit 1f354c20b:
+projects/chirality-piping/core/solver/nonlinear_integration/src/s11k_tests.rs
+runner k6_runner.py sha256 (16) at 962dd4e3b 9dc0feb6ac35753c, 3799e3764 737eff78b4a337e9, ae3320b5a 737eff78b4a337e9

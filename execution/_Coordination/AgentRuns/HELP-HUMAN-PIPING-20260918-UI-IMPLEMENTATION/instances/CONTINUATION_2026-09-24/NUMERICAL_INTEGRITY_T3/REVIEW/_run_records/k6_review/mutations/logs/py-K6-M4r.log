@@ -1,0 +1,22 @@
+....F..............................
+======================================================================
+FAIL: test_kills_take_the_whole_group (test_k6_runner.LiveLimit.test_kills_take_the_whole_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/rv18/pymut/K6-M4r/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 610, in test_kills_take_the_whole_group
+    self.assertEqual(rec['survivors'], [], 'the watchdog kill left a process of the group')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [16849] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+16849
+
+- [16849]
++ [] : the watchdog kill left a process of the group
+
+----------------------------------------------------------------------
+Ran 35 tests in 7.247s
+
+FAILED (failures=1)
+=== K6-M4r exit 1 elapsed 7 s

@@ -1,0 +1,5 @@
+runner exit -15
+tagged processes before SIGTERM: 3 after: 2
+9974     1  9974 /usr/bin/time -l -o <wt>
+9976     1  9974 <home>/.local/share/mise/installs/python/3.13/bin/python3 -c import time; RV18_PROBE_TAG=1; time.s
+cleanup: killed 2

@@ -1,0 +1,173 @@
+"""RV18: checks over K6's committed B records (standard library only; written by RV18).
+
+Usage: python3 rv18_records_check.py <combined records dir> <counts.jsonl>
+
+- every raw JSONL's sha256 equals its record's stdout_sha256;
+- parity lines by item, all equal; the product's ordering and lane profile counts equal counts.jsonl;
+- ascent order and admission arithmetic of every measured row, from the recorded admission;
+- F1b ratios, fits (own least squares), the N10 stage tables, the RSS/footprint ratios, the ceiling.
+"""
+import hashlib
+import json
+import math
+import os
+import sys
+from collections import Counter, defaultdict
+from fractions import Fraction as Fr
+
+MIB, GIB = 2 ** 20, 2 ** 30
+
+
+def load(d):
+    recs = [json.loads(l) for l in open(os.path.join(d, 'records.jsonl')) if l.strip()]
+    return recs
+
+
+def raw(d, run_id):
+    return [json.loads(l) for l in open(os.path.join(d, run_id + '.jsonl')) if l.startswith('{')]
+
+
+def slope(points):
+    xs = [math.log(x) for x, _ in points]
+    ys = [math.log(y) for _, y in points]
+    mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+    return sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / sum((x - mx) ** 2 for x in xs)
+
+
+def main():
+    d, counts_path = sys.argv[1:3]
+    counts = {}
+    for line in open(counts_path):
+        o = json.loads(line)
+        counts[o['model']] = o
+    recs = load(d)
+    runs = [r for r in recs if 'order' in r and 'mode' in r]
+    measured = [r for r in runs if r['classification'] not in ('not_run',)]
+    print('records', len(recs), 'run rows', len(runs), 'measured', len(measured),
+          Counter(r['classification'] for r in runs))
+    # 1. sha256 of raw JSONL
+    bad = [r['run_id'] for r in measured
+           if hashlib.sha256(open(os.path.join(d, r['run_id'] + '.jsonl'), 'rb').read()).hexdigest() != r['stdout_sha256']]
+    print('raw jsonl sha256 mismatches:', bad)
+    # 2. parity
+    par = Counter()
+    runs_by_item = defaultdict(set)
+    prod_mismatch = []
+    for r in measured:
+        objs = raw(d, r['run_id'])
+        c = counts[r['model']]
+        for o in objs:
+            if o.get('kind') == 'parity':
+                par[(o['item'], o['equal'])] += 1
+                runs_by_item[o['item']].add(r['run_id'])
+                if o['item'] == 'rcm_count_equals_ordering':
+                    if (o['ordering_profile_entries'], o['ordering_half_bandwidth']) != (c['rcm_profile_entries'], c['rcm_half_bandwidth']):
+                        prod_mismatch.append(r['run_id'])
+            if o.get('kind') == 'outcome' and 'original_profile_entries' in o:
+                if (o['original_profile_entries'], o['original_half_bandwidth'], o['lane_entries']) != \
+                        (c['identity_profile_entries'], c['identity_half_bandwidth'], c['lane_entries']):
+                    prod_mismatch.append(r['run_id'] + ':lane')
+    for k in sorted(par):
+        print('parity', k, par[k], 'runs', len(runs_by_item[k[0]]))
+    print('product count mismatches:', prod_mismatch)
+    # 3. ascent and admission arithmetic, in record order
+    seen = set()
+    order_problems = []
+    for r in recs:
+        if 'order' not in r or 'mode' not in r:
+            continue
+        if r['classification'] == 'not_run':
+            continue
+        a = r['admission']
+        m = r['model']
+        prev = None
+        if m.startswith('RF-LARGE-'):
+            n = int(m.split('-n')[1][:5])
+            sizes = [10, 100, 1000, 10000]
+            k = sizes.index(n)
+            prev = None if k == 0 else m.replace('-n%05d-' % n, '-n%05d-' % sizes[k - 1])
+        elif m.startswith('K6-GRID-'):
+            sides = [16, 32, 64, 96, 128]
+            s = int(m[len('K6-GRID-'):].split('x')[0])
+            k = sides.index(s)
+            prev = None if k == 0 else 'K6-GRID-%dx%d' % (sides[k - 1], sides[k - 1])
+        elif m.startswith('K6-CEIL-'):
+            prev = 'RF-LARGE-CHAIN-n01000-AX'
+        if prev and (prev, r['mode']) not in seen:
+            order_problems.append((r['run_id'], 'ascent: %s not measured before' % prev))
+        seen.add((m, r['mode']))
+        if a['decision'] != 'admitted':
+            order_problems.append((r['run_id'], 'measured but not admitted'))
+        half = r['rss_cap_bytes'] // 2
+        est = a['estimate_adm_bytes']
+        if not a['reason'].startswith('p1_linux_peak') and not (a.get('rho') is not None and est * a['rho'] <= half):
+            order_problems.append((r['run_id'], 'estimate x rho > C/2'))
+        if a.get('projected_rss_bytes') is not None and a['projected_rss_bytes'] > 0.8 * r['rss_cap_bytes']:
+            order_problems.append((r['run_id'], 'projected RSS > 0.8C'))
+        if r['heap_cap_bytes'] != r['rss_cap_bytes'] - 512 * MIB:
+            order_problems.append((r['run_id'], 'heap cap'))
+        if r['mode'] in ('dense', 'lane-lu') and r['members'] >= 10000:
+            order_problems.append((r['run_id'], 'n2 at 10000'))
+        if r['mode'] == 'lane-id' and m.startswith('RF-LARGE-CONT-n10000'):
+            order_problems.append((r['run_id'], 'CONT n10000 lane-id'))
+        if r['classification'] in ('killed_by_rss_watchdog', 'heap_cap_abort'):
+            order_problems.append((r['run_id'], r['classification']))
+    print('ascent/admission problems:', order_problems)
+    # rule change at 098
+    for r in runs:
+        if r['order'] in (97, 98, 100, 137, 138) and r['classification'] != 'not_run':
+            a = r['admission']
+            print('admission', r['order'], r['model'], r['mode'], a['decision'], 'rho=%s' % a.get('rho'),
+                  'rho_rss=%s' % (None if a.get('rho_rss') is None else round(a['rho_rss'], 4)),
+                  'rf=%s' % a.get('rss_to_footprint'), 'proj=%s' % a.get('projected_rss_bytes'), a['reason'][:90])
+    # 4. F1b ratios at 1000 and the ceiling
+    for r in sorted(measured, key=lambda x: x['order']):
+        if r['mode'] == 'dense' and r['members'] >= 1000:
+            f = counts[r['model']]['estimate_f1b_bytes_dense']
+            fp = r['rss'].get('time_peak_footprint_bytes')
+            if 'repeats_heap_peak' not in r or r['repeats_heap_peak'] is None:
+                r['repeats_heap_peak'] = max(o['heap_peak'] for o in raw(d, r['run_id']) if o.get('kind') == 'stage')
+            print('dense %-28s heap/96n2=%.4f fp=%s rss=%.4f heap/6GiB=%.4f class=%s' % (
+                r['model'], r['repeats_heap_peak'] / f, None if fp is None else round(fp / f, 4),
+                r['peak_rss_bytes'] / f, r['repeats_heap_peak'] / (6 * GIB), r['classification']))
+    # 5. fits: heap vs members per family/mode (all and >=100)
+    series = defaultdict(list)
+    for r in measured:
+        if r['classification'] != 'ok':
+            continue
+        fam = r['family']
+        series[(fam, r['mode'])].append((r['members'], r['repeats_heap_peak'], r['repeats_heap_peak_move'],
+                                         r['peak_rss_bytes'] - r['baseline_rss_bytes']))
+    for key in sorted(series):
+        pts = series[key]
+        if len({p[0] for p in pts}) < 2:
+            continue
+        s_all = slope([(p[0], p[1]) for p in pts])
+        big = [p for p in pts if p[0] >= 100]
+        s100 = slope([(p[0], p[1]) for p in big]) if len({p[0] for p in big}) >= 2 else None
+        rs100 = slope([(p[0], p[3]) for p in big]) if len({p[0] for p in big}) >= 2 else None
+        print('fit %-8s %-8s heap_all=%.3f heap_ge100=%s rssnet_ge100=%s' % (key[0], key[1], s_all,
+              None if s100 is None else round(s100, 3), None if rs100 is None else round(rs100, 3)))
+    # 6. N10
+    for rid_prefix in ('100_', '101_'):
+        r = [x for x in measured if x['run_id'].startswith(rid_prefix)][0]
+        objs = raw(d, r['run_id'])
+        st = [(o['stage'], o['elapsed_ns'] / 1e9, o['heap_peak'] / MIB, o['ok'], o.get('error')) for o in objs
+              if o.get('kind') == 'stage']
+        done = sum(x[1] for x in st)
+        begins = [o['stage'] for o in objs if o.get('kind') == 'stage_begin']
+        print('N10', r['model'], r['classification'], 'wall', r['wall_s'], 'stages done %.1f s' % done,
+              'last begin', begins[-1], 'ps max KiB', r['rss']['ps_max_kib'])
+        for s in st:
+            print('   ', s[0], '%.3f s' % s[1], '%.0f MiB' % s[2], s[3], (s[4] or '')[:110])
+    # 7. RSS/footprint (dense) and the ceiling
+    for r in sorted(measured, key=lambda x: x['order']):
+        fp = r['rss'].get('time_peak_footprint_bytes')
+        if r['mode'] == 'dense' and fp and r['members'] >= 1000:
+            print('rss/fp', r['model'], round(r['peak_rss_bytes'] / fp, 3), 'load', [round(x, 1) for x in r['load_before']],
+                  [round(x, 1) for x in r['load_after']])
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

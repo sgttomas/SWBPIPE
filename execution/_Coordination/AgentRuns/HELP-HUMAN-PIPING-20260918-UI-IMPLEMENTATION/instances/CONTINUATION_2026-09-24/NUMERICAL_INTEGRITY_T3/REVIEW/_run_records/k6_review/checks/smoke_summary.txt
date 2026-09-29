@@ -1,0 +1,6 @@
+RV18 --smoke with the release binary built from git archive ae3320b5a (sha256 df151a5a...0e2), counts from H/observations/k6/counts.jsonl
+processes 44 {'ok': 42, 'heap_cap_abort': 1, 'killed_by_rss_watchdog': 1}
+parity lines {"('staged_vs_entry_checked', True)": 84, "('entry_plain_vs_entry_checked', True)": 84, "('repeat_determinism', True)": 42, "('bitwise_k', True)": 21, "('rcm_count_equals_ordering', True)": 42}
+watchdog: classification killed_by_rss_watchdog, last 138640 KiB against a 131072 KiB cap, polls 16, survivors [], kill after 1.72 s, exit -9
+watchdog sample interval median 0.114 s, largest growth between samples 8384 KiB
+heap-cap abort: classification heap_cap_abort, exit -6

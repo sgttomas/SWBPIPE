@@ -1,0 +1,50 @@
+RV18 records checks, on git-archive copies of ae3320b5a (<wt>/rv18/recs for T3/IMPLEMENTATION/K6, <wt>/rv18/src for P/core), 2026-09-29T08:28:55Z
+== T3/IMPLEMENTATION/K6/SHA256SUMS
+listed 891, files other than SHA256SUMS 891
+shasum -c: 891 OK, 0 not OK
+set difference listed/present: 0
+== H/observations/k6/SHA256SUMS
+listed 24, files 24
+shasum -c: 24 OK, 0 not OK
+set difference: 0
+== packet regeneration (K6's _run_records/d/packet_reproduction.txt, step 1-2, by RV18)
+combined records.jsonl: 166 lines, sha256 fcc89445c0221df068aae87c029a77356971477e8df225e32da4179c166c47d7
+k6_runner.py --packet: sha256 b5419aee28d2736b84fe3f0a36d7e2850a21a1c59634a21e0580e69e632eb27f; committed H/observations/k6/k6_packet.json sha256 b5419aee28d2736b84fe3f0a36d7e2850a21a1c59634a21e0580e69e632eb27f; cmp: identical
+== D tables regeneration (step 3; d_tables, gen_return_tables, sparse_and_timing)
+identical tables/d_tables.json
+identical tables/f1b_ratios.txt
+identical tables/fits.txt
+identical tables/parity.txt
+identical tables/product_gap.txt
+identical tables/results_table.txt
+identical tables/rss_over_footprint.txt
+identical tables/schedule_as_run.txt
+identical tables/stages_table.txt
+identical return_tables.txt
+identical sparse_and_timing.txt
+== GEN-8's MACHINE_ABS_PATH_RE (tools/practitioner_harness/surface_roles.py) over the 939 files the PR adds or changes
+files scanned 939; hit lines 5
+  projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py:318  match begins in the synthetic test string of test_sanitize
+  T3/IMPLEMENTATION/K6/_run_records/c/logs/py-K6-M5.log:33  match begins in a per-user temp path (the macOS var-folders form)
+  T3/IMPLEMENTATION/K6/_run_records/c/logs/py-K6-M5.log:34  match begins in a per-user temp path (the macOS var-folders form)
+  T3/IMPLEMENTATION/K6/_run_records/c/logs/py-K6-M5.log:233  match begins in a per-user temp path (the macOS var-folders form)
+  T3/IMPLEMENTATION/K6/_run_records/c/logs/py-K6-M5.log:234  match begins in a per-user temp path (the macOS var-folders form)
+== identifier scans over the same files (case-insensitive counts of files)
+  claude-: 0
+  opus: 0
+  sonnet: 0
+  haiku: 0
+  gpt-[0-9]: 0
+  codex-mini: 0
+  hostname: 1
+  Mac[0-9]{2},[0-9]: 0
+  MacBook: 0
+  serial number: 0
+  the owner's user name: 0
+  the host name: 0
+== T3/IMPLEMENTATION/K6/_run_records/c/logs/py-K6-M5.log lines 33-34 and 233-234, with RV18's redaction of the path tails
+  33: self = <Popen: returncode: 255 args: ['/usr/bin/time', '-l', '-o', '<per-user temp path, redacted by RV18>
+  34: args = ['/usr/bin/time', '-l', '-o', '<per-user temp path, redacted by RV18>, '
+  233: self = <Popen: returncode: 255 args: ['/usr/bin/time', '-l', '-o', '<per-user temp path, redacted by RV18>
+  234: args = ['/usr/bin/time', '-l', '-o', '<per-user temp path, redacted by RV18>, '<
+== the memory guard log: 2 lines, sha256 79e2ce8eb2bd8f4a6432beb5b919cb46f37c22046c08a057b21a36183801cc41 (2 start lines; unchanged before and after every RV18 phase)

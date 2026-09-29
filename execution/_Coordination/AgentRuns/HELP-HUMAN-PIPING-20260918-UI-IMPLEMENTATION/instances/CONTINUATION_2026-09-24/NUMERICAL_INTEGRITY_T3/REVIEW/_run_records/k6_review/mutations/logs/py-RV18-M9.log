@@ -1,0 +1,15 @@
+....F..............................
+======================================================================
+FAIL: test_kills_take_the_whole_group (test_k6_runner.LiveLimit.test_kills_take_the_whole_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/rv18/pymut/RV18-M9/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 616, in test_kills_take_the_whole_group
+    self.assertLess(time.monotonic() - started, 20)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 30.0669435000018 not less than 20
+
+----------------------------------------------------------------------
+Ran 35 tests in 35.581s
+
+FAILED (failures=1)
+=== RV18-M9 exit 1 elapsed 36 s
