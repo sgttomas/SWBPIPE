@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""R4: every control (models4: R3's 44, CHARGE-SLENDER, TILT-LEVER x3) under today's
+rule (K4's gate), R3 (emu4 with R3's switches: option fin, W at q = 2p + 64,
+prescribed values rounded) and R4 (option r4, the defaults). Honesty against the
+P = 2048 reference; G5a; W/V; for R4 the worst charge/allowance and theta at every
+verification precision the case reaches (charge_report), and at the selected pair.
+Output: run_controls4.stdout.json."""
+import json, sys, time
+import emu4, models4
+from emu4 import Case, schedule, classify, honesty, solve_at, charge_report, Stop
+
+emu4.SEED.update(models4.SEEDS)
+R3SW = dict(W_Q="P+64", W_PRESC="rounded")
+RUNS = [("today", "current", "k4", {}), ("R3", "fin", "hybrid", R3SW), ("R4", "r4", "hybrid", {})]
+only = set(sys.argv[1:])
+out = []
+for m in models4.models():
+    if only and m["name"] not in only:
+        continue
+    t0 = time.time()
+    case = Case(m)
+    emu4.GATE = "absolute"
+    ref = solve_at(case, 2048, ref=True, estimate=False)
+    rec = dict(model=m["name"], runs={})
+    for tag, opt, gate, sw in RUNS:
+        saved = {k: getattr(emu4, k) for k in sw}
+        for k, v in sw.items():
+            setattr(emu4, k, v)
+        emu4.GATE = gate
+        cache = {}
+        try:
+            r = schedule(case, opt, cache)
+            o = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]], solved=r["solved"])
+            if r["selected"] is not None:
+                pub, cl, sc, g5 = classify(case, r, opt)
+                w, c = honesty(case, pub, cl, ref)
+                o.update(counts=c, worst=w[0], worst_row=str(w[1]), honest=w[0] <= 1.0, g5a_fail=[str(x) for x in g5],
+                         w_over_v=r["info"]["w_over_v"])
+            if tag == "R4":
+                o["charge"] = {}
+                for p in (128, 256, 512):
+                    try:
+                        cand = cache[p] if p in cache else solve_at(case, p)
+                        ver = cache[2 * p] if 2 * p in cache else solve_at(case, 2 * p)
+                        if isinstance(cand, Stop) or isinstance(ver, Stop):
+                            o["charge"][p] = "stop"
+                            continue
+                        o["charge"][p] = charge_report(case, cand, ver, p)
+                    except Stop as e:
+                        o["charge"][p] = "stop:%s" % e.what
+            rec["runs"][tag] = o
+        finally:
+            for k, v in saved.items():
+                setattr(emu4, k, v)
+    emu4.GATE = "absolute"
+    rec["seconds"] = round(time.time() - t0, 2)
+    out.append(rec)
+    f = lambda k: "%s%s" % (rec["runs"][k]["selected"], "" if rec["runs"][k].get("honest", True) else "!FALSE")
+    print("%-22s " % m["name"] + "  ".join("%s:%s" % (k, f(k)) for k in rec["runs"]), rec["runs"]["R4"]["charge"], rec["seconds"], flush=True)
+json.dump(out, open("run_controls4.stdout.json" if not only else "run_controls4.partial.json", "w"), indent=1, default=str)

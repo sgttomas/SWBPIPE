@@ -1,0 +1,12 @@
+NONE fk,ni,probe,saprobe
+K5-12 fk
+K5-M1 fk
+K5-M6 fk
+K5-M17 fk
+RV14-M1 fk,probe
+K5-M9 ni
+K5-M13 ni
+K1-PIN-BINARY64 ni
+RV14-M2 ni,saprobe
+RV14-M3 ni,saprobe
+RV14-M4 ni

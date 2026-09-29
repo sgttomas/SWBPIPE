@@ -1,0 +1,2 @@
+SA probes at 28517eaaa (rv14_sa_probe.rs, rv14_sa_mutprobe.rs, unchanged): byte-identical to b379e5b27's outputs (sa_probe sha256 5f367583611ade7f, sa_mutprobe 278a69341889da93).
+PP spot-check at 28517eaaa: 40 runs, byte-identical to b379e5b27's pp_runs_cand.txt (sha256 6da8721d42321a9b).

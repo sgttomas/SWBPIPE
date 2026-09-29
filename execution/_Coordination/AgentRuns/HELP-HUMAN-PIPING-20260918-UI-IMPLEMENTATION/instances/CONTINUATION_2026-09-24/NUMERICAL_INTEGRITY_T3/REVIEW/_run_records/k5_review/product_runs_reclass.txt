@@ -1,0 +1,14 @@
+RV14: independent reclassification of I14's raw product-run records (a2/product_runs_main.txt, a2/product_runs_candidate.txt at b379e5b27), without classify_runs.py.
+  product_runs_main.txt sha256 1bcaa54724b6d4443d6e1afbb98ad1559c5448a2991b35748f8f9a46d21ddca9
+  product_runs_candidate.txt sha256 23e1e0ef2511fc272c375b7fb07b97a61896f17f07737af1dd209ac3117e845e
+  product_runs_table.md sha256 6f9fb125995bcae90b232223df4878112124f2f1c81a1d30b584be1bc8da43d0
+runs: main 152, candidate 152, same keys: True, inputs: 38
+  unchanged (byte-identical record line): 128
+  K5-C1: 16
+  K5-C2: 8
+  changed runs whose main outcome was published (MECHANICS_SOLVED): 0
+  changed runs with a nonlinear (gap) support: 0
+  changed runs outside K5-C1/K5-C2: 0
+  main MODEL_INCOMPLETE/NUMERICAL_INTEGRITY_UNRESOLVED -> candidate MODEL_INCOMPLETE/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM: 16
+  main MODEL_INCOMPLETE/NUMERICAL_INTEGRITY_UNRESOLVED -> candidate MODEL_INCOMPLETE/NUMERICAL_INTEGRITY_UNRESOLVED: 8
+changed inputs: ['constructed_mechanism_r0.25_o0', 'constructed_mechanism_r0.25_o1024', 'constructed_mechanism_r0.25_o5000000', 'constructed_mechanism_r0.2_o0', 'constructed_mechanism_r0.3_o0', 'constructed_mechanism_r0.3_o1000']

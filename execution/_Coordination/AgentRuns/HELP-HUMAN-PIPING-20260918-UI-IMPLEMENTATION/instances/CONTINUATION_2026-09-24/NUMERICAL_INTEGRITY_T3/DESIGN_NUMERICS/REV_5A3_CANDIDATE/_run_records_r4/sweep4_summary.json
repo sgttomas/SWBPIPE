@@ -1,0 +1,64 @@
+{
+ "models": 2000,
+ "runs": {
+  "current/k4": {
+   "selected": 1770,
+   "unresolved": 230,
+   "selected_at": {
+    "256": 720,
+    "128": 872,
+    "None": 230,
+    "512": 178
+   },
+   "false_claims": 1,
+   "false_examples": [
+    "R982"
+   ],
+   "solves": 5501,
+   "work": 51920,
+   "g5a_failures": 0,
+   "max_w_over_v": 0.0,
+   "max_charge_over_allowance": 0.0,
+   "max_theta": 0.0,
+   "rejections": {
+    "stop_rule": 1349
+   }
+  },
+  "r4/hybrid": {
+   "selected": 2000,
+   "unresolved": 0,
+   "selected_at": {
+    "256": 726,
+    "128": 889,
+    "512": 385
+   },
+   "false_claims": 0,
+   "false_examples": [],
+   "solves": 5496,
+   "work": 52416,
+   "g5a_failures": 0,
+   "max_w_over_v": 0.004800114314583211,
+   "max_charge_over_allowance": 0.009292394784552984,
+   "max_theta": 2.9918042774179806e-33,
+   "rejections": {
+    "stop_rule": 1209
+   },
+   "versus_current/k4": {
+    "transitions": {
+     "None->512": 202,
+     "128->512": 4,
+     "None->128": 20,
+     "None->256": 8,
+     "256->512": 5,
+     "256->128": 2,
+     "512->256": 4,
+     "512->128": 1,
+     "128->256": 1,
+     "128->512 (current false)": 1
+    },
+    "models_losing_relative_rows": 0,
+    "rows": 0
+   }
+  }
+ }
+}

@@ -1,0 +1,26 @@
+PROBE-y345-1m-general | coalesced: 128 ['accepted'] | hybrid: 128 [8.537867914941484e-08, "('u', 11)", 'relative'] [] (0.1s)
+PROBE-y345-1m-inplane | coalesced: None ['failed:ResidualGate(5.07e+15)', 'failed:ResidualGate(4.34e+15)', 'failed:ResidualGate(4.34e+15)'] | hybrid: 128 [6.761596070583625e-08, "('u', 6)", 'relative'] [] (0.1s)
+PROBE-y345-1m-outofplane | coalesced: None ['failed:ResidualGate(7.24e+15)', 'failed:ResidualGate(7.24e+15)', 'failed:ResidualGate(7.24e+15)'] | hybrid: 128 [6.761596070583625e-08, "('u', 10)", 'relative'] [] (0.1s)
+PROBE-y345-1m-axial | coalesced: None ['failed:ResidualGate(7.43e+15)', 'failed:ResidualGate(7.61e+15)', 'failed:ResidualGate(4.44e+15)'] | hybrid: 128 [6.713983392621398e-08, "('u', 6)", 'relative'] [] (0.1s)
+PROBE-y345-1m-torque | coalesced: None ['failed:ResidualGate(8.66e+15)', 'failed:ResidualGate(6.12e+15)', 'failed:ResidualGate(5.74e+15)'] | hybrid: 128 [4.952056043334036e-08, "('u', 9)", 'relative'] [] (0.1s)
+PROBE-y345-3m-general | coalesced: 128 ['accepted'] | hybrid: 128 [8.330006612069235e-08, "('umag', 1)", 'relative'] [] (3.3s)
+PROBE-y345-3m-inplane | coalesced: None ['failed:ResidualGate(5.53e+15)', 'failed:ResidualGate(1.93e+16)', 'failed:ResidualGate(5.53e+15)'] | hybrid: 128 [6.761596070583625e-08, "('u', 6)", 'relative'] [] (9.3s)
+PROBE-y345-3m-outofplane | coalesced: None ['failed:ResidualGate(2.99e+15)', 'failed:ResidualGate(2.77e+15)', 'failed:ResidualGate(4.34e+15)'] | hybrid: 128 [6.761596070583625e-08, "('u', 9)", 'relative'] [] (9.4s)
+PROBE-y345-3m-axial | coalesced: None ['failed:ResidualGate(4.46e+15)', 'failed:ResidualGate(5.33e+15)', 'failed:ResidualGate(2.96e+15)'] | hybrid: 128 [6.713983392621398e-08, "('u', 6)", 'relative'] [] (9.5s)
+PROBE-y345-3m-torque | coalesced: None ['failed:ResidualGate(4.81e+15)', 'failed:ResidualGate(3.4e+15)', 'failed:ResidualGate(3.83e+15)'] | hybrid: 128 [4.952056043334036e-08, "('u', 9)", 'relative'] [] (9.3s)
+PROBE-y001-1m-general | coalesced: 128 ['accepted'] | hybrid: 128 [8.537867914941484e-08, "('u', 11)", 'relative'] [] (0.0s)
+PROBE-y001-1m-inplane | coalesced: 128 ['accepted'] | hybrid: 128 [6.761596070583625e-08, "('u', 6)", 'relative'] [] (0.0s)
+PROBE-y001-1m-outofplane | coalesced: 128 ['accepted'] | hybrid: 128 [6.761596070583625e-08, "('u', 10)", 'relative'] [] (0.0s)
+PROBE-y001-1m-axial | coalesced: 128 ['accepted'] | hybrid: 128 [6.713983392621398e-08, "('u', 6)", 'relative'] [] (0.0s)
+PROBE-y001-1m-torque | coalesced: 128 ['accepted'] | hybrid: 128 [4.952056043334036e-08, "('u', 9)", 'relative'] [] (0.0s)
+PROBE-y001-3m-general | coalesced: 128 ['accepted'] | hybrid: 128 [8.330006612069235e-08, "('umag', 1)", 'relative'] [] (0.2s)
+PROBE-y001-3m-inplane | coalesced: 128 ['accepted'] | hybrid: 128 [6.761596070583625e-08, "('u', 6)", 'relative'] [] (0.2s)
+PROBE-y001-3m-outofplane | coalesced: 128 ['accepted'] | hybrid: 128 [6.761596070583625e-08, "('u', 9)", 'relative'] [] (0.2s)
+PROBE-y001-3m-axial | coalesced: 128 ['accepted'] | hybrid: 128 [6.713983392621398e-08, "('u', 6)", 'relative'] [] (0.2s)
+PROBE-y001-3m-torque | coalesced: 128 ['accepted'] | hybrid: 128 [4.952056043334036e-08, "('u', 9)", 'relative'] [] (0.2s)
+SEEDED-COMMON W residual = reuse -> 128 [('128', 'accepted', "('W/V', 4.825341262724394e-05)")] [23.029977148131234, "('end', 0, 'i', 2)", 'absolute']
+SEEDED-COMMON W residual = recompute -> None [('128', "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 3.4844914371897797e+45)"), ('256', "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 4.034765434417431e+122)"), ('512', "rejected:('verification_estimate', ('end', 0, 'i', 2), 'fo', 5.409735998704032e+276)")] None
+SEEDED-COMMON without W -> 128 [23.029977148131234, "('end', 0, 'i', 2)", 'absolute']
+TWO-SPAN at 128, gate k4 {'corrections': 1, 'accepted_by': 'coalesced'}
+TWO-SPAN at 128, gate hybrid {'corrections': 1, 'accepted_by': 'coalesced'}
+TWO-SPAN at 128, gate pure {'corrections': 0, 'accepted_by': 'bounded'}

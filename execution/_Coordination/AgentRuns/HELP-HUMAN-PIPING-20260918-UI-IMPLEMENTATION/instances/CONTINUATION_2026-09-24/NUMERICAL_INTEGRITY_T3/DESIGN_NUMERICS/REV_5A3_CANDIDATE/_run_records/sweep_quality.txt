@@ -1,0 +1,6 @@
+models 1966
+ii unchanged 1755 newly selected 0 earlier p 0 later p 2 models with fewer relative rows 0 rows demoted 0 rows promoted 3
+iii unchanged 1756 newly selected 193 earlier p 0 later p 11 models with fewer relative rows 0 rows demoted 0 rows promoted 3
+ig unchanged 1532 newly selected 194 earlier p 233 later p 0 models with fewer relative rows 230 rows demoted 2583 rows promoted 0
+ib unchanged 1301 newly selected 194 earlier p 456 later p 0 models with fewer relative rows 390 rows demoted 4457 rows promoted 0
+iiig unchanged 1686 newly selected 194 earlier p 80 later p 0 models with fewer relative rows 76 rows demoted 653 rows promoted 0

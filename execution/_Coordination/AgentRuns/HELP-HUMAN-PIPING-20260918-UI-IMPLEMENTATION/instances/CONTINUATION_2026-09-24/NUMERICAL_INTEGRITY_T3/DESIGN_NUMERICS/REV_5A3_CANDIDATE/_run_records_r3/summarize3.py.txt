@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Summary of sweep3_<seed>.json: per run, selected / unresolved / false claims /
+solves / work proxy (sum (p/128)^2 over solves, which excludes the E pass and
+the estimate); against the current rule, the changes of selected p and of
+relative rows; W/V and G5a failures for the revision."""
+import json, sys
+from collections import Counter
+recs = [r for f in sys.argv[1:] for r in json.load(open(f)) if r.get("runs")]
+RUNS = list(recs[0]["runs"].keys())
+out = dict(models=len(recs), runs={})
+for k in RUNS:
+    sel = sum(1 for r in recs if r["runs"][k]["selected"] is not None)
+    false = [r["name"] for r in recs if r["runs"][k].get("honest") is False]
+    at = Counter(str(r["runs"][k]["selected"]) for r in recs)
+    solves = sum(len(r["runs"][k]["solved"]) for r in recs)
+    work = sum(sum((p // 128) ** 2 for p in r["runs"][k]["solved"]) for r in recs)
+    g5 = sum(len(r["runs"][k].get("g5a", [])) for r in recs)
+    wv = max((r["runs"][k].get("w_over_v") or 0.0) for r in recs)
+    reasons = Counter(x for r in recs for x in r["runs"][k]["reasons"] if x in ("stop_rule", "verification_estimate"))
+    out["runs"][k] = dict(selected=sel, unresolved=len(recs) - sel, selected_at=dict(at), false_claims=len(false),
+                          false_examples=false[:5], solves=solves, work=work, g5a_failures=g5, max_w_over_v=wv,
+                          rejections=dict(reasons))
+base = RUNS[0]
+for k in RUNS[1:]:
+    tr = Counter()
+    demoted_models = demoted_rows = 0
+    for r in recs:
+        a, b = r["runs"][base], r["runs"][k]
+        if a["selected"] != b["selected"]:
+            tr["%s->%s%s" % (a["selected"], b["selected"], " (current false)" if a.get("honest") is False else "")] += 1
+        if a["selected"] is not None and b["selected"] is not None:
+            d = a["counts"]["relative"] - b["counts"]["relative"]
+            if d > 0:
+                demoted_models += 1
+                demoted_rows += d
+    out["runs"][k]["versus_" + base] = dict(transitions=dict(tr), models_losing_relative_rows=demoted_models, rows=demoted_rows)
+print(json.dumps(out, indent=1))

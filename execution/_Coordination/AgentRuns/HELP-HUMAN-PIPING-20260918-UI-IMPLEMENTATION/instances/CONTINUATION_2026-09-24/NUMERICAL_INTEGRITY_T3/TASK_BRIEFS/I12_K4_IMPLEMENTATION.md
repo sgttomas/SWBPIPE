@@ -137,7 +137,7 @@ A TASK drafted this brief. ROOT reviewed it and rules on its open questions as f
    - **ROOT's reading of §4.1.7, recorded as a ruling:** "No implementing slice ships without them" binds the slice that wires W1 into the product. **F2a does not merge without ROOT's limits,** which are set from the K6 and V-P measurements (C4). **[Amended: from K6 and V-K, which precede F2a, with K4's deterministic counts; V-P revisits them after F2a. `ROOT_RULINGS_V1.md`, "K4: Q5 amended" (RV13-S3).]**
    - K3's N2 and N3 are handled in K4's attempt record, as recommended.
 6. **Q6: add the kernel-only `DirectionalSpring`** to W1a's source, formed at p as k·n nᵀ/(nᵀn).
-   - The geometric screen counts a node's directional springs of one kind as grounding that kind only when their directions span R³, decided exactly. Otherwise the case is refused as unsupported.
+   - The geometric screen counts a node's directional springs of one kind as grounding that kind only when their directions span R³, decided exactly. Otherwise the case is refused as unsupported. [Amended: such a case is not refused; see `ROOT_RULINGS_V1.md`, "K4: rulings on I12's checkpoint-0 plan", O1 (RV16-S4).]
    - F2a never builds one.
    - The design gap is recorded as a ruling.
 7. **Q7: (a), K4 ports a deterministic RCM into `factor.rs`,** with sparse_direct's tie-break rules and FK-local tests on sparse_direct's small graphs. The cross-crate equality test goes to V-K.
@@ -590,7 +590,7 @@ End your turn at each one with a status for ROOT: the changed files, the results
 - R1 flags 18 of RF-SKEW's 36 cases `needs_directional_spring`. They are all the AX cases, whose soft spring lies along the member axis: the core N05-class skew cases. They include the represented-basis case RF-SKEW-A-CANT-AX-122-r1e-12, and both of §4.10's RF-SKEW not-covered rows (`tw.M1` in T-CANT-AX-122-r1e-12 and -345-r1e-12).
 - **Recommendation:** add a kernel-only `DirectionalSpring { node, kind: translation | rotation, direction: [f64; 3], k > 0 }` to W1a's source.
   - It is formed at p as `k·n nᵀ/(nᵀn)` from the binary64 direction, as R1 says ("normalize in the product").
-  - For the geometric screen, a node's directional springs of one kind count as grounding that kind's three DOFs only when their directions span R³, decided exactly. Otherwise the case is refused as unsupported. R1's AX triads, such as (1,2,2), (2,1,−2) and (−2,2,−1), span R³.
+  - For the geometric screen, a node's directional springs of one kind count as grounding that kind's three DOFs only when their directions span R³, decided exactly. Otherwise the case is refused as unsupported. [Amended: not refused; see O1 in `ROOT_RULINGS_V1.md` (RV16-S4).] R1's AX triads, such as (1,2,2), (2,1,−2) and (−2,2,−1), span R³.
   - F2a never builds one, because the product authors global-axis springs only.
 - **The alternative:** run only RF-SKEW's 18 global-spring cases, and move the AX cases to V-K, which then needs the same primitive.
 

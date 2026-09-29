@@ -1,0 +1,44 @@
+"""V4: lever and spine constructions with tiny loads set just below half an ulp (at the
+verification precision Pv) of the big right-hand-side coupling at their DOF, so that they are
+saturated at Pv and Pv/2 and their loss is maximal. Scored at Pv."""
+import math, json, time, sys
+from fractions import Fraction as Fr
+from v4emu import *
+from adversary import score
+import lever as L
+
+def big_rhs(m, g, P):
+    ar = Ar(P)
+    ops = [form_member(ar, m["nodes"], mb) for mb in m["members"]]
+    K, n = assemble(ar, m, ops)
+    u = prescribed(ar, m)
+    return sum((-kij * u[j] for j, kij in row(K, n, g) if j in m["cons"]), Fr(0))
+
+def saturate(m, Pv, sign=1.0):
+    """replace every tiny load (|v| < 2^-100) by 0.99 * half-ulp_Pv of the DOF's coupling."""
+    for g, vs in list(m["loads"].items()):
+        if all(abs(v) < 2.0 ** -100 for v in vs):
+            b = big_rhs(m, g, Pv)
+            if b == 0:
+                continue
+            e = flog2(abs(b))
+            t = Fr(99, 100) * Fr(2) ** (e - Pv)   # half-ulp_Pv(b) = 2^(e - Pv)
+            m["loads"][g] = [sign * float(t) * (1 if b > 0 else -1)]
+    return m
+
+out = {}
+Pv = 256
+for args in [(1.0, 16, 1.0, 1.0), (1.0, 2**10, 1.0, 2.0**20), (2.0**10, 2**16, 1.0, 2.0**40), (1.0, 2**20, 2.0**-20, 2.0**40)]:
+    for sg in (1.0, -1.0):
+        m = saturate(L.lever(*args), Pv, sg); m["name"] += " sign%+d" % sg
+        s = score(m, precs=(128, 256))
+        out[m["name"]] = [s[0], s[1], str(s[2])]
+        print(m["name"], s, flush=True)
+for args in [(4, 1.0, 1.0), (8, 2.0**10, 1.0), (8, 1.0, 2.0**10), (16, 2.0**20, 1.0), (16, 1.0, 1.0)]:
+    for sg in (1.0, -1.0):
+        m = saturate(L.spine(*args), Pv, sg); m["name"] += " sign%+d" % sg
+        t = time.time()
+        s = score(m, precs=(128, 256))
+        out[m["name"]] = [s[0], s[1], str(s[2])]
+        print(m["name"], s, "(%.1fs)" % (time.time()-t), flush=True)
+json.dump(out, open("lever2.json", "w"), indent=1)

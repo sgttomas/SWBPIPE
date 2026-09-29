@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Section 8 probe: rigid prescribed motions of runs whose y_ref is not
+perpendicular to the chord. With K4's residual-gate denominator (|f| + sum
+|K^q u|) the gate fails at every precision; with the chain-absolute operator
+in the denominator it passes. Also re-runs the survey controls with the
+alternative denominator to show nothing else changes."""
+import json, sys
+import emu
+from emu import Case, schedule, new_model, add_member, fix, load
+from models import models
+
+def gs(name, y, rot):
+    m = new_model(name, [(0, 0, 0), (3, 4, 0), (6, 8, 0), (9, 12, 0)])
+    for s in range(3):
+        add_member(m, s + 1, s, s + 1, y=y)
+    if rot:
+        fix(m, 0, (0, 1, 2, 3, 4))
+        fix(m, 0, (5,), 1e-3)
+    else:
+        fix(m, 0, (0,), 1.0)
+        fix(m, 0, (1, 2, 3, 4, 5))
+    return m
+
+probes = [gs("GS-ROT-y345", (3.0, 4.0, 5.0), True), gs("GS-TRANS-y345", (3.0, 4.0, 5.0), False),
+          gs("GS-ROT-y001", (0.0, 0.0, 1.0), True)]
+m = gs("GS-ROT-y345-LOADED", (3.0, 4.0, 5.0), True)
+load(m, 3, 1, 1.0)
+probes.append(m)
+out = {}
+for mode in ("k4", "absolute"):
+    emu.GATE_DENOMINATOR = mode
+    for m in probes + models():
+        case = Case(m)
+        cache = {}
+        r = {opt: schedule(case, opt, cache) for opt in ("current", "iii")}
+        out.setdefault(m["name"], {})[mode] = {opt: (v["selected"], [a[1][:24] for a in v["attempts"]]) for opt, v in r.items()}
+changed = [k for k, v in out.items() if v["k4"] != v["absolute"]]
+for k in [p["name"] for p in probes]:
+    print(k, out[k])
+print("controls whose outcome changes with the absolute denominator:", [c for c in changed if not c.startswith("GS")])
+json.dump(out, open("gate_probe.stdout.json", "w"), indent=1)

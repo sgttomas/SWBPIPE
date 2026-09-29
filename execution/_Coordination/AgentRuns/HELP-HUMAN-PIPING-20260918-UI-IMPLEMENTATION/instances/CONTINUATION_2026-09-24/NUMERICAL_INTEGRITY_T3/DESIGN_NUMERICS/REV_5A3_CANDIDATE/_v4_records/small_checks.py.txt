@@ -1,0 +1,54 @@
+"""V4: (a) double rounding of a combination's prescribed row on K4's publication path;
+(b) Lemma 2's primary condition at a binade boundary; (c) the addendum's pinned constants;
+(d) a published-data lower bound on E (V4's proposal for G5a) on V4's controls."""
+import json, math, struct
+from fractions import Fraction as Fr
+from v4emu import rnd, f64, up64, run, layout, bodies, extents, row_body, e_hat
+import cases
+out = {}
+# (a) K4: prescribed_at rounds sum(c*v) once at p; recover publishes u (p-bit) via to_binary64.
+exact = Fr(1) + Fr(1, 2**53) + Fr(1, 2**150)   # terms (1,1), (1,2^-53), (2^-150,1): all binary64 operands
+for p in (128, 256, 512, 1024):
+    kp = f64(rnd(exact, p))
+    out.setdefault("a_double_rounding", {})[p] = dict(k4_path=float(kp).hex(), correctly_rounded=float(f64(exact)).hex(), differ=bool(kp != f64(exact)))
+# (b) Lemma 2: y = 1 (a p-bit number), t = -0.6 * 2^-2p; |t| < half-ulp_2p(1) = 2^-2p, yet fl_2p(y + t) != y
+for p in (128, 256):
+    y = Fr(1); t = -Fr(6, 10) * Fr(1, 2**(2*p)); x = y + t
+    out.setdefault("b_lemma2_binade", {})[p] = {"half_ulp_2p(y) in units of 2^-2p": 1, "t in units of 2^-2p": -0.6, "fl_p(x) == y": rnd(x, p) == y, "fl_2p(x) == y": rnd(x, 2*p) == y, "(fl_2p(x) - y) in units of 2^-2p": float((rnd(x, 2*p) - y) * 2**(2*p))}
+# (c) constants
+def bits(v): return "0x%016X" % struct.unpack(">Q", struct.pack(">d", v))[0]
+out["c_constants"] = {"2^-438": bits(2.0**-438), "2^-40": bits(2.0**-40), "1+2^-40": bits(1 + 2.0**-40), "2^-34": bits(2.0**-34),
+                      "Phi_exact_iff_e_ge_2^-584": (2.0**-584 * 2.0**-438) == float(Fr(2)**-1022) and (2.0**-584 * 2.0**-438) >= 2.0**-1022,
+                      "b_floored_equals_2^-502_e_at_e=1": up64(Fr(up64(Fr(2)**-438)) / 2**64) == 2.0**-502}
+# (d) lower bound from published data: LB_fo = max_m k_a,m * (Nt_i + Nt_j), LB_mo = max_m k_t,m * (Nr_i + Nr_j)
+def lb_check(m, rule="iii"):
+    o, tr = run(m, rules=(rule,), verbose=False)
+    rec = o[rule]
+    if rec["selected"] is None: return None
+    rows = rec["_rows"]
+    lay = layout(m); nb = bodies(m); ext = extents(m)
+    u = {}
+    for (key, kind, qp, cls, b) in rows:
+        if key[0] == "u": u[key[1]] = abs(qp)
+    res = {}
+    for bi in range(len(ext)):
+        lbfo = lbmo = Fr(0)
+        for mb in m["members"]:
+            if nb[mb["i"]] != bi: continue
+            xi, xj = m["nodes"][mb["i"]], m["nodes"][mb["j"]]
+            L = math.sqrt(sum((xj[k]-xi[k])**2 for k in range(3)))
+            ka = (mb["E"] * mb["A"]) / L; kt = (mb["G"] * mb["J"]) / L
+            Nt = sum(u[6*a+k] for a in (mb["i"], mb["j"]) for k in range(3))
+            Nr = sum(u[6*a+3+k] for a in (mb["i"], mb["j"]) for k in range(3))
+            lbfo = max(lbfo, Fr(ka) * Nt); lbmo = max(lbmo, Fr(kt) * Nr)
+        E = {tuple(k.split("/")): v for k, v in rec.get("E", {}).items()}
+        efo, emo = e_hat({(int(k[0]), k[1]): Fr(v) for k, v in E.items()}, bi, ext[bi])
+        res[bi] = dict(e_fo=float(efo), LB_fo=float(lbfo), ok_fo=bool(efo * (1 + Fr(1, 2**40)) >= lbfo),
+                       e_mo=float(emo), LB_mo=float(lbmo), ok_mo=bool(emo * (1 + Fr(1, 2**40)) >= lbmo),
+                       S_pub=rec["S_pub"][bi])
+    return res
+out["d_lower_bound"] = {}
+for m in (cases.f2(), cases.f2_spos(), cases.ptail(), cases.rigid_unloaded(), cases.f3_free(), cases.f3_rot(), cases.exact_rigid(), cases.demotion2()):
+    out["d_lower_bound"][m["name"]] = lb_check(m)
+print(json.dumps(out, indent=1, default=str))
+json.dump(out, open("small_checks.json", "w"), indent=1, default=str)

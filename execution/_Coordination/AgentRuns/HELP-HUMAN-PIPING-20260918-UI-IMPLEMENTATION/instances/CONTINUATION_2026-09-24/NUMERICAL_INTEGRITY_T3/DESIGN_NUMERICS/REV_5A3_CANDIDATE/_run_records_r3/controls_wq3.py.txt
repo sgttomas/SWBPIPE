@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""The evidence-only option of R3 section 5.5: W's contributions formed at
+q_W = min(3p + 64, 1024) instead of q. Every R3 control under R3 and under the
+option; selected precision, classes, honesty and W/V compared.
+Output: controls_wq3.stdout.json."""
+import json
+import emu3, models3
+from emu3 import Case, schedule, classify, honesty, solve_at
+
+emu3.SEED.update(models3.SEEDS)
+out = []
+for m in models3.models():
+    case = Case(m)
+    emu3.GATE = "absolute"
+    ref = solve_at(case, 2048, ref=True, estimate=False)
+    rec = dict(model=m["name"])
+    for tag, wq in (("R3", "P+64"), ("W_Q=3p+64", "3p+64")):
+        emu3.W_Q = wq
+        emu3.GATE = "hybrid"
+        r = schedule(case, "fin", {})
+        o = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]])
+        if r["selected"] is not None:
+            pub, cl, sc, g5 = classify(case, r, "fin")
+            w, c = honesty(case, pub, cl, ref)
+            o.update(counts=c, honest=w[0] <= 1.0, w_over_v=r["info"]["w_over_v"])
+        rec[tag] = o
+    emu3.W_Q = "P+64"
+    emu3.GATE = "absolute"
+    same = rec["R3"]["selected"] == rec["W_Q=3p+64"]["selected"] and rec["R3"].get("counts") == rec["W_Q=3p+64"].get("counts")
+    rec["same"] = same
+    out.append(rec)
+    print("%-22s" % m["name"], rec["R3"]["selected"], rec["W_Q=3p+64"]["selected"], "same" if same else "DIFFERENT",
+          rec["R3"].get("w_over_v"), rec["W_Q=3p+64"].get("w_over_v"), flush=True)
+json.dump(out, open("controls_wq3.stdout.json", "w"), indent=1, default=str)

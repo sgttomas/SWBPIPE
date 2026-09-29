@@ -1,0 +1,10 @@
+RV14 oracle report
+cases=5 results=5
+count MechanismWitnessed def ok 2
+count NumericallyUnresolved def ok 3
+findings=0
+D_huge_underflow_L2e1023_r2e-60|NumericallyUnresolved|nullity=1|ok|exact canonical witness exists but was not found (completeness)
+D_huge_subnormal_exact_L2e1023_r2e-40|MechanismWitnessed|nullity=1|ok|
+D_huge_normal_L2e1000_r2e-20|MechanismWitnessed|nullity=1|ok|
+D_huge_underflow_L2e1010_r2e-70|NumericallyUnresolved|nullity=1|ok|exact canonical witness exists but was not found (completeness)
+D_tiny_free_x|NumericallyUnresolved|nullity=1|ok|exact canonical witness exists but was not found (completeness)

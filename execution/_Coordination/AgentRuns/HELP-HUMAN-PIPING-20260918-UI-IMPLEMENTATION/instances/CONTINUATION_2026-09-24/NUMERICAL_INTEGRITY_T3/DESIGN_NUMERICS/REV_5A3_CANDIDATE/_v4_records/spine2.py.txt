@@ -1,0 +1,29 @@
+"""V4: the spine with a rigid y-translation of every prescribed node (the tiny y loads at the
+sites now share their DOF with the lateral members' big coupling), saturated at Pv = 256."""
+import json, time
+from v4emu import *
+from adversary import score
+from lever2 import saturate
+
+def spine_y(n, s_E, k_lat, s_I=1.0):
+    nodes = [(float(i), 0.0, 0.0) for i in range(n + 1)] + [(float(i), -1.0, 0.0) for i in range(1, n + 1)]
+    m = model("L2y-n=%d-s=%g-k=%g-I=%g" % (n, s_E, k_lat, s_I), nodes)
+    for i in range(n):
+        member(m, i, i + 1, E=s_E, A=1.0, Iy=s_I, Iz=s_I, J=1.0, G=s_E / 2)
+    for i in range(1, n + 1):
+        member(m, i, n + i, E=k_lat, A=1.0, Iy=2.0 ** -30, Iz=2.0 ** -30, J=1.0, G=k_lat / 2, y=(1, 0, 0))
+    fix(m, 0, (1,), 1.0); fix(m, 0, (0, 2, 3, 4, 5))
+    for i in range(1, n + 1):
+        fix(m, n + i, (1,), 1.0); fix(m, n + i, (0, 2, 3, 4, 5))
+        fix(m, i, (2, 3, 4))
+        load(m, i, 1, 2.0 ** -400)
+    return m
+
+out = {}
+for args in [(4, 1.0, 1.0), (8, 1.0, 2.0 ** -10), (8, 2.0 ** 10, 1.0), (8, 1.0, 1.0, 2.0 ** 10), (16, 1.0, 2.0 ** -20, 2.0 ** 10)]:
+    m = saturate(spine_y(*args), 256)
+    t = time.time()
+    s = score(m, precs=(128, 256))
+    out[m["name"]] = [s[0], s[1], str(s[2])]
+    print(m["name"], s, "(%.1fs)" % (time.time() - t), flush=True)
+json.dump(out, open("spine2.json", "w"), indent=1)
