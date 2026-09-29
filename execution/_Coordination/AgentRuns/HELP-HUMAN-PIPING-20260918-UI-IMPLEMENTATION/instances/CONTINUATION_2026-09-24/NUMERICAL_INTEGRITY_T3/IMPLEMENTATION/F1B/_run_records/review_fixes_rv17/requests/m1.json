@@ -1,0 +1,153 @@
+{
+ "model": {
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "analysis_status": {
+   "mechanics": "ready_for_preview_diagnostics",
+   "rule_check": "not_performed_user_rule_inputs_missing",
+   "professional_acceptance": "not_provided"
+  },
+  "project": {
+   "id": "invented:rv17-probe:m1",
+   "units": {
+    "length": "m",
+    "force": "N",
+    "angle": "rad",
+    "pressure": "Pa",
+    "temperature": "degC",
+    "stress": "Pa"
+   }
+  },
+  "nodes": [
+   {
+    "id": "N0",
+    "position": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   },
+   {
+    "id": "N1",
+    "position": {
+     "x": 9.5367431640625e-07,
+     "y": 0.0,
+     "z": 0.0
+    },
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "id": "M1",
+    "from": "N0",
+    "to": "N1",
+    "material": "mat:P",
+    "y_reference": {
+     "x": 0.0,
+     "y": 1.0,
+     "z": 0.0
+    },
+    "section": {
+     "outside_diameter": {
+      "value": 3e-08,
+      "unit": "m"
+     },
+     "wall_thickness": {
+      "value": 3e-09,
+      "unit": "m"
+     }
+    },
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   }
+  ],
+  "materials": [
+   {
+    "id": "mat:P",
+    "elastic_modulus": {
+     "value": 1.3e-292,
+     "unit": "Pa"
+    },
+    "shear_modulus": {
+     "value": 1e-200,
+     "unit": "Pa"
+    },
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   }
+  ],
+  "supports": [
+   {
+    "id": "anchor:N0",
+    "node": "N0",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UY",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   },
+   {
+    "id": "anchor:N1",
+    "node": "N1",
+    "family": "anchor",
+    "restraints": [
+     "UX",
+     "UZ",
+     "RX",
+     "RY",
+     "RZ"
+    ],
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   },
+   {
+    "id": "support:open-gap",
+    "node": "N1",
+    "family": "nonlinear",
+    "restraints": [],
+    "nonlinear": {
+     "behavior": "gap",
+     "dof": "UY",
+     "initial_state": "inactive",
+     "closes_when": "positive_displacement",
+     "gap": {
+      "value": 1000.0,
+      "unit": "mm"
+     }
+    },
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   }
+  ],
+  "load_cases": [
+   {
+    "id": "case",
+    "label": "m1",
+    "kind": "primitive_user_load",
+    "primitive_loads": [
+     {
+      "id": "load:0",
+      "category": "concentrated_force",
+      "target": {
+       "type": "node",
+       "node": "N1"
+      },
+      "direction": "global_y",
+      "magnitude": {
+       "value": 1e-307,
+       "unit": "N"
+      },
+      "dimension": "force",
+      "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+     }
+    ],
+    "provenance": "invented_rv17_f1b_review_probe_no_library_data"
+   }
+  ],
+  "combinations": []
+ },
+ "materials": []
+}

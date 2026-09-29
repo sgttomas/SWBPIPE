@@ -1,16 +1,16 @@
 # I13 return: facade slice F1b (the product's sparse wiring, the dense-scrutiny guard, and W2 at formation in the product)
 
-**Status:** implemented and verified through the gate. Candidate head `130445db2`. The both-entry gate on that head is a PASS, accepted by ROOT (`ROOT_RULINGS_V1.md`, "F1b: gate re-run on 130445db2 accepted; the Mac is released", numerics `74850700d`). These are the checkpoint-D records. After D, ROOT approved a product-level pin for `pressure_thrust_load`; it is addendum 1.
+**Status:** implemented and verified through the gate. Candidate head `130445db2`. The both-entry gate on that head is a PASS, accepted by ROOT (`ROOT_RULINGS_V1.md`, "F1b: gate re-run on 130445db2 accepted; the Mac is released", numerics `74850700d`). These are the checkpoint-D records. After D, ROOT approved a product-level pin for `pressure_thrust_load` (addendum 1); addendum 2 is the re-run after K5's merge; addendum 3 fixes RV17's review findings.
 
 **Three things for the reader first.**
 1. **The first gate FAILED.** On `948e0bb99`, 4 C2 sparse runs (RF-LARGE-CONT-n10000-AX and -ROT, both entries) aborted at the heap cap in main's unchanged DEC-050/053 observation lane. ROOT ruled a guard for that lane (`9fa4d1b59`). It was implemented as `130445db2`, and the re-run passed (§9).
 2. **A correction to A2.** A2 reported three admission checks as unreachable in the product; ROOT approved that with "the unreachability derived in RETURN". Two are (`user_stiffness_element`, `non_nodal_load_term`). **`pressure_thrust_load` is reachable:** a zero-valued pressure element load on the legacy route reaches it. The case is refused by name on both entries and in both modes, main refuses the same runs, and the b = 0 twin is byte-identical. No product change is needed. ROOT approved a product-level pin after D (addendum 1).
-3. **The coexistence derivation** (ROOT's A2 condition) is written step by step in §15, D10. Byte identity wherever exact-block selects is **proven by construction**. That no range-triggered case can be selected is proven for formation triggers and for large magnitudes, and **observed, not proven,** for small-magnitude evaluation triggers.
+3. **The coexistence derivation** (ROOT's A2 condition) is written step by step in §15, D10. Byte identity wherever exact-block selects is **proven by construction** (the arm order). *[Corrected after RV17's review (addendum 3): D10's former step 4, that exact-block never selects a small-magnitude range-triggered case, is false. RV17's CX-F and CX-G are selected and published by main. Coexistence rests on the arm order alone, and a positive test now pins it.]*
 
 - **Branch:** `codex/piping-f1b-20260928`, from main `e7d930d49`, in `<wt>/f1b`.
 - **Commits (made by ROOT):** `94e543a24` (A1), `e215c6007` (A2), `948e0bb99` (C, tests only), `130445db2` (the lane guard), `9ecf2bdca` (these records), `9aeed9c22` (main `b37331092` merged in; the product tree is unchanged). **PR #1052.**
 - **Where these records live:** `T3/IMPLEMENTATION/F1B/` on the F1b branch, committed by ROOT at `9ecf2bdca`. They were first written, untracked, in the numerics worktree; ROOT moved them here and removed that copy.
-- **Later commits:** `07bed2638` (addendum 1's pin), `c4879c496` (main `1cdeae2c1` merged in: K5; addendum 2). **Uncommitted now:** this revision of the records.
+- **Later commits:** `07bed2638` (addendum 1's pin), `c4879c496` (main `1cdeae2c1` merged in: K5; addendum 2), `f183e1fa9` (addendum 2's records). RV17's review (numerics `b5edbfa36`) is a PASS. **Uncommitted now:** addendum 3's tests (`f1b_w2_runtime.rs`, tests only) and this revision of the records.
 - **Platform:** Mac, arm64 (macOS 26.6.2), aarch64-apple-darwin, rustc 1.97.1. **T9 and the gate are Mac-only comparisons against Mac main.** Nothing was run on Linux or on hosted CI.
 - **Placeholders:**
   - `<wt>`: the T3 worktrees root; scratch is `<wt>/scratch/i13`;
@@ -236,6 +236,7 @@ The two templates, fixed at checkpoint 0:
 ### 6.2 The DEC-050/053 observation lane (ROOT, `9fa4d1b59`)
 
 - **The constant, 24 bytes per profile entry.** `SymmetricProfileMatrix::from_entries_with_order` grows its `values` vector of f64 by `resize`. At its last amortized growth, the old capacity (fewer than P entries) and the new capacity (at most 2P) are alive together. That is at most 3P · 8 = 24P bytes for P final entries. Not counted: the RCM-ordered profile, its factor, and the lane's O(n) and O(nnz) vectors.
+  - **So 24P bounds the identity-order build, not the lane's peak (RV17-N2).** SD keeps the identity profile (under 16P bytes) alive while it builds the RCM-ordered profile P′ and while `factorize_ldlt` clones it, so the lane's peak is about 16P + 24P′ + O(n + nnz), above 24P whenever P′ > P/3. The guard uses 24P > C only as its firing condition, so D12 is unaffected. K6 measures the lane against both (Q12), and the ceiling ruling will consider it.
 - **The estimate: `observation_lane_profile` (`:2966`).**
   - It works from the lane's own entry system in O(nnz).
   - It skips zero-valued entries, as the lane does.
@@ -398,7 +399,14 @@ The two templates, fixed at checkpoint 0:
   - **C2:** 0 sparse heap-cap aborts; 0 dense runs that are not the guard's refusal.
   - Memory: `memguard.log` has no new entry; the lowest `kern.memorystatus_level` was 93.
 
-**The C1 table** (`c1_table.tsv`; b and standing from A2; every row's outcome, exit, blocking codes, standing and full sha256 are identical to gate 1's):
+**The C1 table** (`c1_table.tsv`; b and standing from A2; every row's outcome, exit, blocking codes, standing and full sha256 are identical to gate 1's). **Accuracy of the 14 published runs against R1's exact references** (RV17-4; P1's predicate over every published observation, trusted or not, `REVIEW/_run_records/f1b_review/gate/c1_references.out`):
+- **8 of the 14 lie outside the references:**
+  - CHAIN-E-1000 ×4 and CHAIN-LEF-large typed ×2: 17 of 74 observations outside 1e-9 (12 keys), worst 9.7e-8 dense and 1.7e-8 sparse;
+  - SKEW-LEF-large typed ×2: 16 and 13 of 30 outside (14 and 12 keys), worst 1.3e-5 dense and 1.7e-5 sparse.
+- **All 8 are Sensitive** (`needs_recompute`), so `gate_check` does not count them, and each equals main's same-family Sensitive publication at b = 0 (CHAIN-SIM-b, CHAIN-L+240, SKEW-SIM-b): the same counts and worst ratios to four digits. W2 is no worse than main there.
+- THIN-B ×4 and CONT-LEF-large ×2 are within 8e-16 (RV17's own exact-rational THIN-B oracle agrees to within 6.7e-16).
+- **The brief's PASS text, "published within the criterion or refused by name", covers trusted publications only** (ROOT's ruling on RV17-4, `b5edbfa36`, matching the K6 ruling: Sensitive publications carry no accuracy claim at that level, and `gate_check` counts trusted publications).
+
 
 | Runs | Main | F1b | b |
 |---|---|---|---|
@@ -772,11 +780,11 @@ Each is written to be checked independently from the code. Where a step rests on
 
 - None is claimed. The two first-round survivors were shown not equivalent and killed (§13.3).
 
-### D10. Coexistence with exact-block (Q2; ROOT's condition at `52ead31ed`)
+### D10. Coexistence with exact-block (Q2; ROOT's condition at `52ead31ed`; corrected after RV17's review)
 
-**The claim.** Exact-block does not select a case whose b = 0 ordinary attempt range-triggers.
+**The claim** (proven by construction, step 4 below): wherever exact-block selects, F1b publishes main's bytes, whatever the trigger. This is the only claim coexistence rests on (ROOT's re-ruling of A2 (c), `b5edbfa36`).
 
-**The claim the gate relies on** (proven by construction, step 5): wherever exact-block selects, F1b publishes main's bytes, whatever the trigger.
+**Withdrawn:** the former claim that exact-block does not select a case whose b = 0 attempt range-triggers. Its step 4 (small-magnitude triggers, "observed, not proven") is **false**: RV17's CX-F and CX-G (a 1 m member, EA/L ≈ 2^16 N/m, a one- or two-bit tip load of 3·2^-1016 or 2^-1015 N) range-trigger with `Range("division overflow or underflow")`, and main's exact-block selects and publishes them with a receipt. M03's scaled right-hand side on a decoupled DOF is about √(f·u), while exact-block needs only exact products (short mantissas) and a projection within 1e-9; A2's searched loads had full mantissas, whose exact products lose bits at `exact_radix`.
 
 1. **When a selection is possible** (main, unchanged by F1b except Q9's view). All of these must hold:
    - the captured entry (`source_eligible`: a capture, no nonlinear support, no combinations);
@@ -791,21 +799,14 @@ Each is written to be checked independently from the code. Where a step rests on
    - So LEF-large (loads 2^600) and every +960 or +240 RF-RANGE case are refused at capture (the gate: `refused_capture`).
    - What remains on the captured entry: inputs below 2^53 in magnitude, and member lengths above 1e-12 m (`AXIS_TOLERANCE`, else `DegenerateAxis`).
    - **Bound sketch, not a proof:** K entries and loads are products of a few such inputs and unit factors, which keeps them many binades below 2^1024. The overflow side of a range trigger is out of reach there; the triggers left are on the small-magnitude side.
-4. **Small-magnitude evaluation triggers: observed, not proven.**
-   - M03's range refusals at b = 0 come from `radix_scale` ("radix scaling loses normal range"), the checked products, quotients and values ("product overflow or underflow", "arithmetic outside normal range", …), and `exact_radix` ("exact radix loses represented bits") in its own audits.
-   - Exact-block's exact solve builds expansions of the same K contributions and force terms. Its products go through `exact_boundary.rs`'s `mul` (`:116-136`) into `Expansion::add_product` (FK `structural.rs:705-727`), which splits each operand with `exact_radix` and refuses any exact part that is not representable.
-   - Every small-magnitude construction tried on Mac main failed there, with `Exact(Arithmetic(Range("exact radix loses represented bits")))` at the stage "exact source solve", or earlier at source closure:
-     - tip loads of 1e-310, 1e-305, 2.3e-308 and 2.5e-308 N;
-     - the 2.5e-308 N load with a 1e12 N/m spring;
-     - E ≈ 1.5e-290;
-     - a tiny spring with a tiny load.
-   - G1's gate base has 16 selections, and none follows a Range trigger.
-   - No step shows in general that an M03 small-magnitude range event implies an exact-solve refusal. This step is empirical, as ROOT's acceptance records.
-5. **Byte identity regardless: proven by construction.**
+*(Former step 4, "small-magnitude evaluation triggers: observed, not proven", is removed: refuted by RV17-1. Selections of range-triggered cases exist.)*
+4. **Byte identity: proven by construction.**
    - In F1b's outcome match (`:3685`), the arm `Err(OrdinaryFailure::Structural(error)) if selected_source.is_some()` (`:3689`) precedes the W2 arm (`:3714`). It is main's arm, with main's info record.
    - A formation trigger never has a selection (step 2).
-   - So if exact-block selects any range-triggered case, F1b publishes it exactly as main does, receipt included, and W2 never runs (D4).
-- **The test.** The brief's coexistence test ("a case main's exact-block recovers, published byte-identically") cannot be built by steps 2–4. The candidate side is pinned by `f1b_w2_exact_block_does_not_select_the_searched_coexistence_candidates`: every searched candidate shows the exact-block attempt's `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`, then W2's outcome. F1B-M2 (W2 before exact-block) is killed by it and by the mixed invocation.
+   - So wherever exact-block selects a range-triggered case, F1b publishes it exactly as main does, receipt included, and W2 never runs (D4). RV17 confirmed this on all 10 selected CX runs.
+- **The tests.**
+  - **The selected side (the brief's test, added after RV17's review):** `f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes` on CX-F: captured, both modes, the selection, the receipt, the info record of the rejected attempt, no `range_scaling`, and the full-envelope sha256 equal to Mac main's. F1B-M2 (W2 before exact-block) is killed there at a positive assertion (addendum 3).
+  - **The unselected side:** `f1b_w2_exact_block_does_not_select_the_searched_coexistence_candidates` (full-mantissa loads: exact-block fails as on main, then W2 refuses by name).
 
 ### D11. The admission checks that the product cannot reach, and one it can (correction)
 
@@ -1083,7 +1084,7 @@ pub(crate) const NAMED: usize = 6;
 ## 21. Records (`_run_records/`; SHA256SUMS covers every file in this folder)
 
 - **Sanitization:** every file was copied by `assemble_run_records.py.txt`, with machine paths replaced by placeholders. That is the only change to any raw log; a scan finds no machine path left.
-- **Trailing whitespace:** raw tool output keeps its bytes, trailing whitespace included. 23 files have lines ending in whitespace (22 at D, plus the pin's `MUTANTS.txt`); they are listed with their counts in `trailing_whitespace.txt` (mostly diffs, `MUTANTS.txt` lines, and `rf_range_base.out`).
+- **Trailing whitespace:** raw tool output keeps its bytes, trailing whitespace included. 24 files have lines ending in whitespace (22 at D, plus the pin's and the review fixes' `MUTANTS.txt`); they are listed with their counts in `trailing_whitespace.txt` (mostly diffs, `MUTANTS.txt` lines, and `rf_range_base.out`).
 - **Large files kept uncommitted:** `uncommitted_sha256.txt` lists the gates' `runs.jsonl` files (606 MB and 260 MB), the RV11D-N2 large runs, and the gate-2 scratch digest list (3,456 files, every full envelope included). The committed `envelope_sha256.tsv`, the C tables and the summaries index them.
 
 | Folder | Contents |
@@ -1215,3 +1216,78 @@ Both runs are from a clean `git archive 9aeed9c22` with the pin's test file over
 **Part 2 was not re-run** (ROOT's direction). All 8 dense 1,000-member runs time out at 1,800 s on both sides (§9.3), and K5 cannot shorten a dense run, so part 2's verdict (no base/candidate mismatch) carries over.
 
 **Host:** at most 2 of my cargo jobs (the suites lane, and the probe and T9 builds, one after the other); the gate ran with 4 workers after the suites finished.
+
+---
+
+## RETURN addendum 3: fixes for RV17's review (ROOT, "F1b: rulings on RV17's review", numerics `b5edbfa36`)
+
+**The review.** RV17's review (`REVIEW/F1B_REVIEW.md`, at `f183e1fa9`) is a PASS with 0 BLOCKING, 4 SHOULD-FIX and 5 NOTEs. ROOT ruled that all four SHOULD-FIX findings are fixed before merge and the NOTEs are recorded. Every product file is unchanged: the fixes are tests only, in `P/core/product_physics/tests/f1b_w2_runtime.rs` (1,431 lines, +337 −9 against `f183e1fa9`, sha256 `c350af2e30d40bdb`, rustfmt-clean), plus these records.
+
+### A3.1 RV17-1: D10 corrected, and the positive coexistence test
+
+- **D10 is corrected in place (§15).** The false step 4 ("small-magnitude triggers: observed, not proven") is removed. Coexistence rests on the arm order alone: the selected exact-block arm (`:3689`) precedes W2's arm (`:3714`), so wherever exact-block selects, F1b publishes main's bytes (ROOT's re-ruling of A2 (c)). The header's third item and the test paragraph are corrected to match.
+- **New test: `f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes`**, on RV17's CX-F: a 1 m member (OD 0.02 m, wall 0.002 m, EA/L ≈ 2^16 N/m) free only in N1's UX, with a tip load of 3·2^-1016 N. It is built field for field as RV17's request.
+  - **Captured entry, both modes:** `MECHANICS_SOLVED`; exactly one `SOURCE_BLOCK_RECOVERY_SELECTED` (`diagnostic:source-recovery:case:selected`); the receipt present; the case's integrity record is the info-severity `Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range("division overflow or underflow"); …`; no `range_scaling` text; and the **full-envelope sha256 equals Mac main's**: sparse `d953a68396df615a62a8e9192993e89dd489e1582c6533a117935ce7d3ffbc8c`, dense `10d312a1f3fc2f7f6293eb078b7e028c9979cab97b2aba212d1f8d3308ecf02d`.
+  - **Typed entry, both modes** (no capture, so exact-block is not eligible): W2 refuses the case by name, `range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range("division overflow or underflow")); …` (step 4, no b under c2). Main refuses the same runs with its ordinary Range text. **So "F1b equals main on both entries" holds on the captured entry only**, exactly as the brief's test states it ("a captured, source-eligible case"); the typed runs are the C1 kind, refused by name on both sides.
+  - **Main's bytes** were recorded as for the pressure pin: the gate's full-envelope probes (main `577b10d4…`, candidate `f4535939…`) on RV17's request files, both entries and both modes (`_run_records/review_fixes_rv17/probe_matrix.txt`). They equal RV17's own records (`d953a683…`, `10d312a1…`). The main envelopes are kept (`envelopes/`).
+  - **Platform independence** (checked on main's envelope): every magnitude row has one nonzero component (the displacement magnitude is |UX|, the reaction resultant |Fx|, the stresses axial only), so `hypot` is exact on every conforming platform (Annex F); there is no thermal load; and exact-block's own arithmetic is exact. The test's doc comment names the re-pin duty (RV17-N4), and the pressure pin's comment now names it too.
+- **The unselected side's doc comment** (`f1b_w2_exact_block_does_not_select_the_searched_coexistence_candidates`) no longer states A2's general claim. Its assertions are unchanged.
+
+### A3.2 RV17-2: the nonlinear blocked envelope pinned in full
+
+**New test: `f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope`**, on RV17's probe m1 (K2a's partial-underflow member with an open gap on N1 UY; a nonlinear invocation whose basis formation leaves the range). On both entries and in both modes:
+- `MODEL_INCOMPLETE`, no results;
+- the diagnostic list is exactly one entry: (`diagnostic:physics:solver`, `SOLVER_SYSTEM_BLOCKED`, blocking, `range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-finite from nonzero finite operands)`);
+- the full-envelope sha256 equals Mac main's, `a29e29f2c447a96cdac952c64a82cb528d974c3f78bc41c7cd2a1a4f46a7bdbb` (the same on all four runs, and RV17's record). A blocked envelope carries no computed value, so the pin is platform-independent.
+
+### A3.3 RV17-3: a two-spring W2 publication
+
+**New test: `f1b_w2_two_spring_publication_gives_each_spring_its_own_action`**, on RV17's probe m2a (K2a's exact-zero member, free in UY and UZ at N1, springs of 1e-289 and 3e-289 N/m, both DOFs loaded). On both entries and in both modes:
+- `MECHANICS_SOLVED`, published at b = 734 (the integrity record carries ` range_scaling: force_scale_exponent=734; basis=exact power-of-two`);
+- each spring's support component (`spring:N1:UY` Fy, `spring:N1:UZ` Fz) is nonzero and within 1e-9 of −k·u from the published displacement of its own DOF (mm to m);
+- the two actions differ.
+
+The components are compared within 1e-9, not by bits, because sparse and dense publish UY's action one ulp apart (−4.363400364938612e-290 and −4.3634003649386115e-290 N; `probe_matrix.txt`).
+
+### A3.4 Runs (`_run_records/review_fixes_rv17/`)
+
+`drive.sh`, one at a time: NONE first, then F1B-M2 (C's `mutate_f1b.py`, unchanged), RV17-M1 and RV17-M2 (RV17's `mutate_rv17.py` from its review records, unchanged in content). Each ran on a clean `git archive f183e1fa9` with the test file overlaid (`c350af2e…`), through the lane-guard run's `run_mutant.sh` (unchanged; `-j 4`, `RUST_TEST_THREADS=4`, `--no-fail-fast`), and each tree and target was deleted afterwards.
+
+| Run (UTC) | FK | SD | NI | PP | Failed |
+|---|---|---|---|---|---|
+| NONE (04:03:01–04:09:07) | 267 | 30 | 134 | **569 passed**, 1 failed, 1 ignored | only the known Mac `t13` (`s11g_tests.rs:1666`) |
+| F1B-M2, W2 before exact-block (04:09:09–04:10:37) | — | — | 134 | 566 passed, 4 failed | `t13` and **3 kills** |
+| RV17-M1, `let linear = true;` (04:10:38–04:12:09) | — | — | 134 | 568 passed, 2 failed | `t13` and **1 kill** |
+| RV17-M2, every spring action the first spring's (04:12:10–04:13:26) | — | — | 134 | 568 passed, 2 failed | `t13` and **1 kill** |
+
+- **NONE:** the three new tests pass, and so does the pressure pin. PP 569 = 566 + 3.
+- **F1B-M2 is KILLED:**
+  - by the new positive test at `f1b_w2_runtime.rs:1274` (`MECHANICS_SOLVED`: the case is W2-refused instead of selected);
+  - by the unselected-side test at `:1098` (no exact-block attempt, so no `SOURCE_BLOCK_RECOVERY_UNAVAILABLE`);
+  - by the mixed invocation at `:463` (the captured entry fails with `SOURCE_BLOCKS_FINALIZATION_FAILED`).
+- **RV17-M1 is KILLED** by the new blocked-envelope test at `:1350` (the diagnostic list; captured, sparse first).
+- **RV17-M2 is KILLED** by the new two-spring test at `:1422` (`spring:N1:UZ`'s action is not −k·u of its own DOF).
+- No abort in any run. `memguard.log` has no new entry. At most one cargo job of mine at a time.
+- **A stopped run, disclosed:** the first drive started before a last comment-only edit to the test file (the pressure pin's re-pin sentence), so I stopped it during NONE's FK phase, deleted its tree and target, and re-ran everything on the final bytes. Its partial log is kept in `void/`.
+- **Totals now:** 41 tests added by F1b; 53 counted mutants (F1b's 51 plus RV17-M1 and RV17-M2), all killed.
+
+### A3.5 RV17-4: the C1 accuracy disclosure
+
+Recorded in §9.3, under the C1 table:
+- 8 of the 14 published C1 runs lie outside R1's exact references: CHAIN-E-1000 ×4 and CHAIN-LEF-large ×2 (17 of 74 observations, worst 9.7e-8 dense, 1.7e-8 sparse); SKEW-LEF-large ×2 (16 and 13 of 30, worst 1.3e-5 and 1.7e-5).
+- All 8 are Sensitive and equal main's same-family Sensitive publications at b = 0 (CHAIN-SIM-b, CHAIN-L+240, SKEW-SIM-b) to four digits.
+- THIN-B and CONT-LEF-large are within 8e-16.
+- The brief's "published within the criterion" covers trusted publications only (ROOT's ruling).
+
+### A3.6 The NOTEs, as ruled
+
+- **RV17-N1 (recorded).** RV17-M4 (the finiteness scan reads only the force) survives. It changes only the refusal text on an input main also refuses: "matrix/vector entry must be finite, got inf" instead of main's "computed mechanics must be finite, got inf" (RV17's probe m4, an `f64::MAX` spring on a stiff member). No test was added, per the ruling.
+- **RV17-N2 (recorded; to K6).** The lane's estimate 24P bounds the identity-order build, not the lane's peak, which is about 16P + 24P′ + O(n + nnz) (P′ the RCM-ordered profile). §6.2 and CHANGE_RECORD now say so. D12 is unaffected. K6 measures the lane against both (Q12), and the ceiling ruling will consider it.
+- **RV17-N3 (recorded).** 96 bytes per n² entry is the n² coefficient, not a total-heap bound: the O(n) row headers and the per-nonzero `Expansion` heaps are extra. The largest admitted model (1,365 nodes, 8,190 DOFs) is estimated at 6,439,305,600 B, only 3.1 MB under the ceiling, and its O(nnz) expansion heaps exceed that margin. The nonlinear loop's dense work (Q1's remainder) is outside the estimate. K6's B3 ceiling run measures it; V-P and K6 set the margin.
+- **RV17-N4 (recorded).** The pressure pin's platform argument holds on inspection; hosted Linux CI is the arbiter. Both hash pins now name their re-pin duty in their doc comments.
+- **RV17-N5 (recorded).** Dense-mode byte identity at 1,000 members is unobserved at the gate (all 8 part-2 runs time out on both sides), and B1–B3's attempt parity reached 606 DOFs. Pre-existing (K6's timeouts).
+
+### A3.7 Records
+
+- `_run_records/review_fixes_rv17/`: the scripts (`.txt`), `overlay.txt`, `MUTANTS.txt` (its 4 trailing-whitespace lines kept verbatim and listed), `drive.log`, the four logs, the stopped run's partial log under `void/`, RV17's three requests, `probe_matrix.txt`, and main's CX-F (both modes) and m1 envelopes.
+- `CHANGE_RECORD.md` is updated (D10, the lane's peak wording, the C1 disclosure, the review status); `SHA256SUMS` is regenerated.

@@ -827,7 +827,8 @@ fn f1b_w2_admission_refuses_each_reachable_family_by_name() {
 /// every magnitude has at most one nonzero component, so its `hypot` calls are
 /// exact on every platform (C Annex F: hypot(x, +-0) = |x|), and it has no
 /// thermal load (the platform calibration found the product reaching only
-/// `hypot`, `exp` and `expm1`, the latter two through thermal strain).
+/// `hypot`, `exp` and `expm1`, the latter two through thermal strain). A re-pin
+/// is due if a later slice legitimately changes this model's envelope (RV17-N4).
 #[test]
 fn f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust() {
     use sha2::{Digest, Sha256};
@@ -1047,14 +1048,14 @@ fn f1b_w2_mixed_captured_invocation_finalizes_with_a_consistent_receipt() {
     }
 }
 
-/// Coexistence with exact-block (Q2(a)): no construction was found in which
-/// main's exact-block selects a range-triggered case (F1b A2's search; ROOT
-/// rules). Exact-block's exact solve equilibrates with the same power-of-two
-/// radix and loses represented bits where M03's evaluation leaves the range,
-/// and the captured entry (exact-block's only route) refuses every integral
-/// value above 2^53 - 1. On two of the searched candidates (a 1e-310 N and a
-/// 2.5e-308 N tip load on an axis-aligned 2 m cantilever) exact-block's
-/// failure is unchanged and W2 then refuses the case by name.
+/// Coexistence with exact-block (Q2(a)), the unselected side: on two of F1b
+/// A2's searched candidates (a 1e-310 N and a 2.5e-308 N tip load on an
+/// axis-aligned 2 m cantilever; full-mantissa loads, whose exact products lose
+/// represented bits) exact-block's failure is main's, and W2 then refuses the
+/// case by name. (A2's wider claim, that exact-block never selects a
+/// range-triggered case, is refuted by RV17's CX-F and CX-G; the selected side
+/// is pinned by
+/// `f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes`.)
 #[test]
 fn f1b_w2_exact_block_does_not_select_the_searched_coexistence_candidates() {
     let cantilever = |load: f64| {
@@ -1098,6 +1099,333 @@ fn f1b_w2_exact_block_does_not_select_the_searched_coexistence_candidates() {
             assert!(unavailable[0]
                 .message
                 .contains("error: Exact(Arithmetic(Range(\"exact radix loses represented bits\")))"));
+        }
+    }
+}
+
+// ------------------------------------------ RV17's constructions (review fixes)
+
+/// RV17's one-member model (`R/coex/make_coex.py` and `R/probes/make_probe_
+/// requests.py` in `T3/REVIEW/_run_records/f1b_review/`), field for field, so
+/// that the pinned hashes are the ones RV17 recorded for main: member M1 from
+/// N0 to N1 (x = `length`), y reference +y, one material, one case "case".
+#[allow(clippy::too_many_arguments)]
+fn rv17_member(
+    project: &str,
+    material: &str,
+    prov: &str,
+    length: f64,
+    (od, wall): (f64, f64),
+    (e, g): (f64, f64),
+    supports: Vec<Value>,
+    loads: Vec<Value>,
+) -> Value {
+    let label = project.rsplit(':').next().unwrap();
+    json!({"model": {
+        "schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+                            "rule_check": "not_performed_user_rule_inputs_missing",
+                            "professional_acceptance": "not_provided"},
+        "project": {"id": project,
+                    "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa",
+                              "temperature": "degC", "stress": "Pa"}},
+        "nodes": [{"id": "N0", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": prov},
+                  {"id": "N1", "position": {"x": length, "y": 0.0, "z": 0.0}, "provenance": prov}],
+        "pipe_segments": [{"id": "M1", "from": "N0", "to": "N1", "material": material,
+                           "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+                           "section": {"outside_diameter": {"value": od, "unit": "m"},
+                                       "wall_thickness": {"value": wall, "unit": "m"}},
+                           "provenance": prov}],
+        "materials": [{"id": material, "elastic_modulus": {"value": e, "unit": "Pa"},
+                       "shear_modulus": {"value": g, "unit": "Pa"}, "provenance": prov}],
+        "supports": supports,
+        "load_cases": [{"id": "case", "label": label, "kind": "primitive_user_load",
+                        "primitive_loads": loads, "provenance": prov}],
+        "combinations": []}, "materials": []})
+}
+
+fn rv17_anchor(node: &str, restraints: &[&str], prov: &str) -> Value {
+    json!({"id": format!("anchor:{node}"), "node": node, "family": "anchor", "restraints": restraints,
+           "provenance": prov})
+}
+
+fn rv17_force(id: &str, dof: &str, value: f64, prov: &str) -> Value {
+    json!({"id": id, "category": "concentrated_force", "target": {"type": "node", "node": "N1"},
+           "direction": format!("global_{}", dof[1..].to_lowercase()),
+           "magnitude": {"value": value, "unit": "N"}, "dimension": "force", "provenance": prov})
+}
+
+const RV17_COEX: &str = "invented_rv17_f1b_review_input_no_library_data";
+const RV17_PROBE: &str = "invented_rv17_f1b_review_probe_no_library_data";
+
+/// RV17's CX-F: a 1 m member (OD 0.02 m, wall 0.002 m, E chosen so that EA/L is
+/// about 2^16 N/m), free only in N1's UX, with a one-bit-mantissa tip load of
+/// 3 * 2^-1016 N. M03's scaled right-hand side is subnormal (the ordinary
+/// attempt range-triggers, `Range("division overflow or underflow")`), while
+/// every exact product is short and representable, so exact-block selects it.
+fn coexistence_cx_f() -> Value {
+    let free_ux: Vec<&str> = ALL.iter().copied().filter(|d| *d != "UX").collect();
+    rv17_member(
+        "invented:rv17-coex:CX-F",
+        "mat:C",
+        RV17_COEX,
+        1.0,
+        (0.02, 0.002),
+        (579465463.915025, 222871332.2750096),
+        vec![
+            rv17_anchor("N0", &ALL, RV17_COEX),
+            rv17_anchor("N1", &free_ux, RV17_COEX),
+        ],
+        vec![rv17_force("load:0", "UX", 3.0 * pow2(-1016), RV17_COEX)],
+    )
+}
+
+/// RV17's probe m1: K2a's partial-underflow member with an open gap on N1 UY,
+/// a nonlinear invocation whose basis formation leaves the range.
+fn nonlinear_formation_range_m1() -> Value {
+    let mut supports = vec![
+        rv17_anchor("N0", &ALL, RV17_PROBE),
+        rv17_anchor("N1", &["UX", "UZ", "RX", "RY", "RZ"], RV17_PROBE),
+    ];
+    supports.push(json!({"id": "support:open-gap", "node": "N1", "family": "nonlinear", "restraints": [],
+        "nonlinear": {"behavior": "gap", "dof": "UY", "initial_state": "inactive",
+                      "closes_when": "positive_displacement", "gap": {"value": 1000.0, "unit": "mm"}},
+        "provenance": RV17_PROBE}));
+    rv17_member(
+        "invented:rv17-probe:m1",
+        "mat:P",
+        RV17_PROBE,
+        9.5367431640625e-07,
+        (3.0e-8, 3.0e-9),
+        (1.3e-292, 1.0e-200),
+        supports,
+        vec![rv17_force("load:0", "UY", 1.0e-307, RV17_PROBE)],
+    )
+}
+
+/// RV17's probe m2a: K2a's exact-zero member (b = 734), free in UY and UZ at
+/// N1, each held by its own ground spring (1e-289 and 3e-289 N/m) and loaded.
+fn two_springs_m2a() -> Value {
+    let spring = |dof: &str, k: f64| {
+        json!({"id": format!("spring:N1:{dof}"), "node": "N1", "family": "spring", "restraints": [dof],
+               "stiffness": {"dof": dof, "value": {"value": k, "unit": "N/m"}}, "provenance": RV17_PROBE})
+    };
+    rv17_member(
+        "invented:rv17-probe:m2a",
+        "mat:P",
+        RV17_PROBE,
+        1.8189894035458565e-12,
+        (1.0e-11, 1.0e-12),
+        (6.4e-280, 1.0e-100),
+        vec![
+            rv17_anchor("N0", &ALL, RV17_PROBE),
+            rv17_anchor("N1", &["UX", "RX", "RY", "RZ"], RV17_PROBE),
+            spring("UY", 1.0e-289),
+            spring("UZ", 3.0e-289),
+        ],
+        vec![
+            rv17_force("load:y", "UY", 2.05e-289, RV17_PROBE),
+            rv17_force("load:z", "UZ", 4.1e-289, RV17_PROBE),
+        ],
+    )
+}
+
+/// The sha256 of the serialized `MechanicsEnvelope`: the gate's full-envelope
+/// probe's `run.envelope_sha256`.
+fn full_envelope_sha256(envelope: &MechanicsEnvelope) -> String {
+    use sha2::{Digest, Sha256};
+    format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(envelope).unwrap())
+    )
+}
+
+/// Coexistence with exact-block, the selected side (brief test D; RV17-1;
+/// ROOT's re-ruling of A2 (c)): exact-block does select range-triggered cases,
+/// and wherever it selects, F1b publishes main's bytes, because the selected
+/// arm of the outcome match precedes W2's arm.
+///
+/// - Captured entry (exact-block's route), both modes: `MECHANICS_SOLVED`, the
+///   selection's diagnostic, the receipt, the rejected ordinary attempt kept as
+///   an info record with its Range trigger, no `range_scaling` text, and the
+///   full-envelope sha256 equal to Mac main's (`e7d930d49`, recorded with the
+///   gate's full-envelope probe; RV17 recorded the same). Platform-independent:
+///   every magnitude here has one nonzero component (Annex F: hypot(x, +-0) =
+///   |x|), there is no thermal load, and exact-block's arithmetic is exact.
+/// - Typed entry (no capture, so exact-block is not eligible), both modes: W2
+///   refuses the case by name (`ScaledEvaluation`, no b under c2), where main
+///   refuses it with the ordinary Range text (the C1 kind).
+///
+/// A re-pin is due if a later slice legitimately changes this model's envelope.
+#[test]
+fn f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes() {
+    let request = coexistence_cx_f();
+    for (mode, main_sha256) in [
+        (
+            PreviewSolverMode::SparseInteractive,
+            "d953a68396df615a62a8e9192993e89dd489e1582c6533a117935ce7d3ffbc8c",
+        ),
+        (
+            PreviewSolverMode::DenseScrutiny,
+            "10d312a1f3fc2f7f6293eb078b7e028c9979cab97b2aba212d1f8d3308ecf02d",
+        ),
+    ] {
+        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        assert_eq!(
+            envelope.status.mechanics, "MECHANICS_SOLVED",
+            "{mode:?}: {:?}",
+            envelope.diagnostics
+        );
+        let selected: Vec<_> = envelope
+            .diagnostics
+            .iter()
+            .filter(|d| d.id == "diagnostic:source-recovery:case:selected")
+            .collect();
+        assert_eq!(selected.len(), 1, "{mode:?}");
+        assert_eq!(selected[0].code, "SOURCE_BLOCK_RECOVERY_SELECTED");
+        assert!(
+            envelope.source_block_recovery.is_some(),
+            "{mode:?}: the receipt"
+        );
+        let record = integrity(&envelope, "case");
+        assert_eq!(record.code, "NUMERICAL_INTEGRITY_UNRESOLVED", "{mode:?}");
+        assert_eq!(record.severity, "info", "{mode:?}");
+        assert!(
+            record.message.starts_with(
+                "Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range(\"division overflow or underflow\"); global_dof_map="
+            ),
+            "{mode:?}: {}",
+            record.message
+        );
+        assert!(envelope
+            .diagnostics
+            .iter()
+            .all(|d| !d.message.contains("range_scaling")));
+        assert_eq!(full_envelope_sha256(&envelope), main_sha256, "{mode:?}");
+    }
+    let typed_request: LinearStaticPreviewRequest = serde_json::from_value(request).unwrap();
+    for mode in MODES {
+        let envelope = run_linear_static_preview_with_mode(typed_request.clone(), mode);
+        assert!(envelope.results.is_empty(), "{mode:?}");
+        let record = integrity(&envelope, "case");
+        assert_eq!(record.severity, "blocking", "{mode:?}");
+        assert_eq!(record.code, "NUMERICAL_INTEGRITY_UNRESOLVED", "{mode:?}");
+        assert!(
+            record.message.starts_with(
+                "Load case case: range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range(\"division overflow or underflow\")); global_dof_map="
+            ),
+            "{mode:?}: {}",
+            record.message
+        );
+    }
+}
+
+/// A nonlinear invocation whose basis formation leaves the range keeps main's
+/// blocked envelope in full (Q2: "invocations with a nonlinear support never
+/// engage W2 and publish byte for byte as main"; RV17-2): exactly one
+/// diagnostic, the invocation's `SOLVER_SYSTEM_BLOCKED` with K2a's name, no
+/// result, and the full-envelope sha256 equal to Mac main's on both entries and
+/// in both modes. A deferral on this invocation would run the case loop first
+/// and add its diagnostics (RV17-M1).
+#[test]
+fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
+    let request = nonlinear_formation_range_m1();
+    for mode in MODES {
+        for (entry, envelope) in envelopes(&request, mode, Entries::Both) {
+            let ctx = format!("{entry} {mode:?}");
+            assert_eq!(envelope.status.mechanics, "MODEL_INCOMPLETE", "{ctx}");
+            assert!(envelope.results.is_empty(), "{ctx}");
+            let diagnostics: Vec<_> = envelope
+                .diagnostics
+                .iter()
+                .map(|d| {
+                    (
+                        d.id.as_str(),
+                        d.code.as_str(),
+                        d.severity.as_str(),
+                        d.message.as_str(),
+                    )
+                })
+                .collect();
+            assert_eq!(
+                diagnostics,
+                vec![(
+                    "diagnostic:physics:solver",
+                    "SOLVER_SYSTEM_BLOCKED",
+                    "blocking",
+                    "range: stiffness formation outside the binary64 normal range at 12EIy/L^3: (12*E)*Iy (zero, subnormal or non-finite from nonzero finite operands)"
+                )],
+                "{ctx}"
+            );
+            assert_eq!(
+                full_envelope_sha256(&envelope),
+                "a29e29f2c447a96cdac952c64a82cb528d974c3f78bc41c7cd2a1a4f46a7bdbb",
+                "{ctx}"
+            );
+        }
+    }
+}
+
+/// W2 publication with two springs (RV17-3): each spring's action is its own.
+/// K2a's exact-zero member, free in UY and UZ at N1 with springs of 1e-289 and
+/// 3e-289 N/m, is published at b = 734 on both entries and in both modes. Each
+/// spring's published support component is within 1e-9 of -k*u from the
+/// published displacement of its own DOF (mm to m), and the two differ.
+#[test]
+fn f1b_w2_two_spring_publication_gives_each_spring_its_own_action() {
+    let request = two_springs_m2a();
+    let component = |envelope: &MechanicsEnvelope, support: &str, name: &str| -> f64 {
+        let rows: Vec<_> = envelope
+            .results
+            .iter()
+            .filter(|r| {
+                r.kind == "support_reaction_component_v2"
+                    && r.entity_ref == support
+                    && r.metadata.as_ref().map(|m| m.component.as_str()) == Some(name)
+            })
+            .collect();
+        assert_eq!(rows.len(), 1, "{support} {name}");
+        rows[0].value
+    };
+    for mode in MODES {
+        for (entry, envelope) in envelopes(&request, mode, Entries::Both) {
+            let ctx = format!("{entry} {mode:?}");
+            assert_eq!(
+                envelope.status.mechanics, "MECHANICS_SOLVED",
+                "{ctx}: {:?}",
+                envelope.diagnostics
+            );
+            assert!(
+                integrity(&envelope, "case")
+                    .message
+                    .contains(" range_scaling: force_scale_exponent=734; basis=exact power-of-two"),
+                "{ctx}"
+            );
+            let mut actions = Vec::new();
+            for (support, name, kind, k) in [
+                (
+                    "spring:N1:UY",
+                    "Fy",
+                    "global_nodal_displacement_y",
+                    1.0e-289,
+                ),
+                (
+                    "spring:N1:UZ",
+                    "Fz",
+                    "global_nodal_displacement_z",
+                    3.0e-289,
+                ),
+            ] {
+                let action = component(&envelope, support, name);
+                let u = row(&envelope, "N1", kind) / 1000.0;
+                let expected = -k * u;
+                assert!(
+                    expected != 0.0 && within(action, expected),
+                    "{ctx}: {support} {action} against {expected}"
+                );
+                actions.push(action);
+            }
+            assert!(actions[0] != actions[1], "{ctx}: {actions:?}");
         }
     }
 }
