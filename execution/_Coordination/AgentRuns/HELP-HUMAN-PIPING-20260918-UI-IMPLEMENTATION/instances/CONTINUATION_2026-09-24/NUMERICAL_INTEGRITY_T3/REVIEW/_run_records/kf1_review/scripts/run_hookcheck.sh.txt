@@ -1,0 +1,28 @@
+#!/bin/bash
+# The #[cfg(test)] hook is absent from the non-test build: a non-test probe fn naming
+# tracker_hook must fail to compile; the same probe naming tracker_rows (non-test) compiles.
+set -u
+WT=<wt>
+OUT=$WT/rv20/records/hook_check.log
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0
+: > $OUT
+for variant in hook rows; do
+  D=$WT/rv20/hook-$variant
+  rm -rf $D; mkdir -p $D
+  git -C $WT/kf1 archive 1854911d16d73a4c66b3e158e26de60febe71dc6 projects/chirality-piping/core/solver/frame_kernel | tar -x -C $D
+  F=$D/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+  if [ $variant = hook ]; then
+    printf '\n#[cfg(not(test))]\n#[allow(dead_code)]\nfn rv20_hook_probe() -> Option<usize> {\n    tracker_hook::get()\n}\n' >> $F
+  else
+    printf '\n#[cfg(not(test))]\n#[allow(dead_code)]\nfn rv20_hook_probe() -> Option<usize> {\n    Some(tracker_rows())\n}\n' >> $F
+  fi
+  echo "== variant $variant: appended" >> $OUT
+  tail -6 $F >> $OUT
+  cd $D/projects/chirality-piping/core/solver/frame_kernel
+  CARGO_TARGET_DIR=$WT/rv20-target/hook-$variant cargo check --offline --locked -j 4 --lib > $WT/rv20/hook.tmp 2>&1
+  rc=$?
+  cd $WT
+  sed "s|$WT|<wt>|g" $WT/rv20/hook.tmp >> $OUT
+  echo "exit: $rc" >> $OUT
+  rm -rf $D $WT/rv20-target/hook-$variant
+done

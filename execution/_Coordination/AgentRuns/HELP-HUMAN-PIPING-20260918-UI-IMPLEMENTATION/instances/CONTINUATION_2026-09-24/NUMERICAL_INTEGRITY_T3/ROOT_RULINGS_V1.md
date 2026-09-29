@@ -2415,3 +2415,20 @@ The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `
   - VK-H6, H9 and H11 are each killed by exactly its own new test in `VR/tests/engine.rs`.
   - `observations/harness/SHA256SUMS` verifies. No machine paths appear, and the mutant copies are deleted.
 - **Next for V-K:** start D's records that do not depend on B. When KF1 merges: merge main, re-run the A2 kill matrix, run B in a slot ROOT grants, then finish D.
+
+## KF1: rulings on RV20's review (ROOT, 2026-09-29)
+
+RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records/kf1_review/`) reviewed head `1854911d1`: **PASS**, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs.
+- **Equality:** RV20 checked RETURN §3's proof step by step and found no difference over 36,000 streams, including probes with keys unrelated to values and arbitrary collapse schedules.
+- The shared cap holds over 400 rounds. A key-only replay reproduces the work pins independently. FK's full suite passes 401.
+
+**Fix before merge, as with earlier slices' SHOULD-FIX findings:**
+- **RV20-1:** in the shared-cap test, assert per round that the bounded run's ctx16 work is at least the reference run's. This kills RV20-M4, a shared-cap collapse charged to a throwaway context.
+- **N1:** add RV20's order test, which kills M5 (`RuleTest` reordered). M1 and M2 are recorded as equivalent: every reachable refusal is `Span`.
+- **N3:** restate the memory figures in RETURN.
+  - The transient peak is G + T = 4,608 rows (19.8 MB), because `Vec` growth briefly holds both buffers; a standalone tracker peaks at 1.5T.
+  - The tables' unconditional bound is at most 40 B per row kept in the window; the "one value entry" figure is practical only.
+- **N5:** RETURN §0 and the head of CHANGE_RECORD point to addendum 1 for the shipped values: T = 512, G = 4096.
+- **N2 and N4 are recorded.** M12 (fallback collapse work uncharged) is the disclosed limit; the code charges it correctly by reading. "No control gains work at T = 512" is printed, not asserted, and K6b re-measures at W1's sizes.
+
+**Then:** CI and the dispatch on the new head, DEC-025 on it (the run under way on `1854911d1` is kept as the earlier head's record), GEN-8, a delta confirmation by RV20, and the merge.

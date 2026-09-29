@@ -1,0 +1,166 @@
+--- head/FK/src/structural/retained/adaptive.rs	2026-09-29 13:46:24
++++ probe/FK/src/structural/retained/adaptive.rs	2026-09-29 14:03:04
+@@ -652,6 +652,8 @@
+         den: ExactWideSum,
+     ) -> Result<(), AttemptStop> {
+         let key = approximate_ratio(ctx64, &num, &den)?.to_bits();
++        #[cfg(test)]
++        let key = rv20_key::take().unwrap_or(key);
+         let seq = self.offered;
+         self.offered += 1;
+         let better = match (self.best, self.direction) {
+@@ -771,10 +773,14 @@
+     holding: std::collections::BTreeSet<K>,
+     held: usize,
+     limit: usize,
++    #[cfg(test)]
++    rv20_ids: std::collections::BTreeMap<K, usize>,
+ }
+ 
+ impl<K: Ord + Copy> TrackerSet<K> {
+     pub(crate) fn new() -> Self {
++        #[cfg(test)]
++        rv20_log::boundary();
+         Self::with_limit(tracker_set_rows())
+     }
+ 
+@@ -784,6 +790,8 @@
+             holding: std::collections::BTreeSet::new(),
+             held: 0,
+             limit,
++            #[cfg(test)]
++            rv20_ids: std::collections::BTreeMap::new(),
+         }
+     }
+ 
+@@ -796,6 +804,16 @@
+         num: ExactWideSum,
+         den: ExactWideSum,
+     ) -> Result<(), AttemptStop> {
++        #[cfg(test)]
++        let rv20_logged = if rv20_log::enabled() {
++            let k = approximate_ratio(&mut WideContext::<4>::new(64).expect("p"), &num, &den)
++                .map(f64::to_bits);
++            let n = self.rv20_ids.len();
++            let id = *self.rv20_ids.entry(key).or_insert(n);
++            Some((id, k, !num.clone().is_zero()))
++        } else {
++            None
++        };
+         let tracker = self
+             .trackers
+             .entry(key)
+@@ -809,7 +827,13 @@
+         } else if before > 0 && after == 0 {
+             self.holding.remove(&key);
+         }
++        #[cfg(test)]
++        if let Some((id, Ok(k), nonzero)) = rv20_logged {
++            rv20_log::push(id, k, nonzero);
++        }
+         if self.held > self.limit {
++            #[cfg(test)]
++            rv20_log::cap_event();
+             for k in std::mem::take(&mut self.holding) {
+                 if let Some(t) = self.trackers.get_mut(&k) {
+                     t.collapse(ctx16);
+@@ -824,6 +848,8 @@
+     pub(crate) fn into_trackers(
+         self,
+     ) -> std::collections::btree_map::IntoIter<K, BoundedExtremeTracker> {
++        #[cfg(test)]
++        rv20_log::finished();
+         self.trackers.into_iter()
+     }
+ 
+@@ -3440,8 +3466,90 @@
+ #[cfg(test)]
+ #[path = "../../../tests/retained_k4/kf1_tracker_tests.rs"]
+ mod kf1_tracker_tests;
++
++/// RV20 probe (review only): a log of the stop rule's offers (tracker id,
++/// key, nonzero numerator), per `TrackerSet` (one per `rule` call).
++#[cfg(test)]
++pub(crate) mod rv20_log {
++    use std::cell::RefCell;
++
++    #[derive(Debug, Default, Clone)]
++    pub(crate) struct Call {
++        pub(crate) rows: Vec<(usize, u64, bool)>,
++        pub(crate) finished: bool,
++        pub(crate) cap_events: u64,
++    }
++
++    thread_local! {
++        static LOG: RefCell<Option<Vec<Call>>> = const { RefCell::new(None) };
++    }
++
++    pub(crate) fn start() {
++        LOG.with(|l| *l.borrow_mut() = Some(Vec::new()));
++    }
++
++    pub(crate) fn stop() -> Vec<Call> {
++        LOG.with(|l| l.borrow_mut().take().unwrap_or_default())
++    }
++
++    pub(crate) fn enabled() -> bool {
++        LOG.with(|l| l.borrow().is_some())
++    }
+ 
++    pub(crate) fn boundary() {
++        LOG.with(|l| {
++            if let Some(v) = l.borrow_mut().as_mut() {
++                v.push(Call::default());
++            }
++        });
++    }
++
++    fn last(f: impl FnOnce(&mut Call)) {
++        LOG.with(|l| {
++            if let Some(v) = l.borrow_mut().as_mut() {
++                if let Some(c) = v.last_mut() {
++                    f(c);
++                }
++            }
++        });
++    }
++
++    pub(crate) fn push(id: usize, key: u64, nonzero: bool) {
++        last(|c| c.rows.push((id, key, nonzero)));
++    }
++
++    pub(crate) fn finished() {
++        last(|c| c.finished = true);
++    }
++
++    pub(crate) fn cap_event() {
++        last(|c| c.cap_events += 1);
++    }
++}
++
++/// RV20 probe (review only): a key override for the next offer on this thread.
+ #[cfg(test)]
++pub(crate) mod rv20_key {
++    use std::cell::Cell;
++
++    thread_local! {
++        static KEY: Cell<Option<u64>> = const { Cell::new(None) };
++    }
++
++    pub(crate) fn set(k: u64) {
++        KEY.with(|c| c.set(Some(k)));
++    }
++
++    pub(crate) fn take() -> Option<u64> {
++        KEY.with(|c| c.take())
++    }
++}
++
++#[cfg(test)]
++#[path = "../../../tests/retained_k4/rv20_probe_tests.rs"]
++mod rv20_probe_tests;
++
++#[cfg(test)]
+ #[path = "../../../tests/retained_k4/references_tests.rs"]
+ mod references_tests;
+ 

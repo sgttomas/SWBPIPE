@@ -1,0 +1,30 @@
+
+running 7 tests
+test structural::retained::adaptive::kf1_tracker_tests::kf1_bounded_tracker_equals_k4s_on_every_stream ... FAILED
+test structural::retained::adaptive::kf1_tracker_tests::kf1_golden_stop_rule_work_where_collapses_occur ... ok
+test structural::retained::adaptive::kf1_tracker_tests::kf1_one_evaluation_costs_17506 ... ok
+test structural::retained::adaptive::kf1_tracker_tests::kf1_every_control_is_unchanged_but_its_work_at_t_1_and_512 ... ok
+test structural::retained::adaptive::kf1_tracker_tests::kf1_the_bound_in_bytes ... ok
+test structural::retained::adaptive::kf1_tracker_tests::kf1_the_shared_cap_bounds_a_calls_trackers_together ... ok
+test structural::retained::adaptive::kf1_tracker_tests::kf1_rf_large_at_100_members_is_unchanged_but_its_work_at_t_1_and_512 ... ok
+
+failures:
+
+---- structural::retained::adaptive::kf1_tracker_tests::kf1_bounded_tracker_equals_k4s_on_every_stream stdout ----
+
+thread 'structural::retained::adaptive::kf1_tracker_tests::kf1_bounded_tracker_equals_k4s_on_every_stream' (14538649) panicked at src/structural/retained/../../../tests/retained_k4/kf1_tracker_tests.rs:466:9:
+assertion `left == right` failed: Up T = 1
+  left: 87530
+ right: 105036
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::kf1_tracker_tests::kf1_bounded_tracker_equals_k4s_on_every_stream
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 328 filtered out; finished in 52.27s
+
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv20/mut/RV20-M9/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.99s
+     Running unittests src/lib.rs (<wt>/rv20-target/mut-RV20-M9/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`

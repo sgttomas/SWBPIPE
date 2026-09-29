@@ -1,0 +1,29 @@
+== variant hook: appended
+
+#[cfg(not(test))]
+#[allow(dead_code)]
+fn rv20_hook_probe() -> Option<usize> {
+    tracker_hook::get()
+}
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv20/hook-hook/projects/chirality-piping/core/solver/frame_kernel)
+error[E0433]: cannot find module or crate `tracker_hook` in this scope
+    --> src/structural/retained/adaptive.rs:3461:5
+     |
+3461 |     tracker_hook::get()
+     |     ^^^^^^^^^^^^ use of unresolved module or unlinked crate `tracker_hook`
+     |
+     = help: if you wanted to use a crate named `tracker_hook`, use `cargo add tracker_hook` to add it to your `Cargo.toml`
+
+For more information about this error, try `rustc --explain E0433`.
+error: could not compile `open_pipe_stress_frame_kernel` (lib) due to 1 previous error
+exit: 101
+== variant rows: appended
+
+#[cfg(not(test))]
+#[allow(dead_code)]
+fn rv20_hook_probe() -> Option<usize> {
+    Some(tracker_rows())
+}
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv20/hook-rows/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.53s
+exit: 0

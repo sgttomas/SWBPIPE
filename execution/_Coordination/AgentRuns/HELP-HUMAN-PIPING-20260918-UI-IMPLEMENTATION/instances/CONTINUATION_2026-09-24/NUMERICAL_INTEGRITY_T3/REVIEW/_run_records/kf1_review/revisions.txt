@@ -1,0 +1,70 @@
+RV20 revisions and scope checks (read-only git in <wt>/kf1; read-only gh)
+== PR 1056 (gh pr view, read-only)
+{"baseRefName":"main","headRefName":"codex/piping-kf1-20260929","headRefOid":"1854911d16d73a4c66b3e158e26de60febe71dc6","isDraft":false,"number":1056,"state":"OPEN","title":"piping: T3 KF1 - bound K4's extreme-tracker memory, results bit-identical (kernel only)"}
+== head
+1854911d16d73a4c66b3e158e26de60febe71dc6
+1854911d16 KF1: T = 512 (ROOT's ruling on the corrected work figures); addendum 1
+d267a755b2 KF1 D: RETURN, CHANGE_RECORD and run records
+68db15d41a KF1 A: bound every stop-rule and gate extreme tracker, with every result unchanged
+d0566126ef KF1 checkpoint 0: the plan (I18)
+8cca91701d Merge pull request #1055 from sgttomas/claude/chirality-app-v4-60-percent-a41fd5
+== merge-base with the recorded base 8cca91701
+8cca91701d558553d97c321537e447cb92b57cf3
+== piping diff ab02ee3a6..8cca91701 (expected empty)
+(end)
+== files changed 8cca91701..HEAD outside T3/IMPLEMENTATION/KF1/
+M	projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+M	projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs
+A	projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs
+M	projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+== diff stat of those files
+ .../src/structural/retained/adaptive.rs            | 411 +++++++--
+ .../tests/retained_k4/adaptive_tests.rs            |   4 +-
+ .../tests/retained_k4/kf1_tracker_tests.rs         | 974 +++++++++++++++++++++
+ .../solver/frame_kernel/tests/s11_site_table.rs    |   2 +
+ 4 files changed, 1328 insertions(+), 63 deletions(-)
+== added lines naming 'pub' without (crate) in FK src (expected none)
+(end)
+== retained's visibility (FK/src/structural.rs)
+5:mod retained;
+== names of the tracker, set or retained module outside FK src/tests (expected none but T3 records)
+(end)
+== GEN and vectors unchanged (diff 8cca91701..HEAD on retained_k4 except the two .rs files)
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs
+== S11 site table diff
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+index b250f750af..87eaeb2303 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs
+@@ -283,6 +283,8 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
+     ("FK/structural/retained/bound.rs", "u_pass", 0, "K4 (5a.3): comparison-matrix pass, each operation rounded upward (bounds, not load sums)"),
+     ("FK/structural/retained/bound.rs", "nl_pass", 0, "K4 (5a.3): |L|D|L^T|e pass, each operation rounded upward (bounds, not load sums)"),
+     ("FK/structural/retained/verify.rs", "formation_scale", 0, "K4 (5a.3): E's stages, each one exact expansion rounded once (the ledger's net enters exactly)"),
++    // ---- KF1 (declared, additive; no row above changes).
++    ("FK/structural/retained/adaptive.rs", "offer", 2, "integer: a bounded tracker's row count (a refusal's place in the stream) and a tracker set's held capacity (KF1)"),
+ ];
+ 
+ // ------------------------------------------------------------- scanner
+== sha256 of the changed code files at HEAD
+deae6c391d5fa924b8777feb1b8ec774edb8709a37957e85a3ff572dc59841c9  -
+ee3352294550348b8119e7057caf2c84ec8ed6da26c4303c00144f2e515e1374  -
+7163b82577fa318c93a1348809474d5b1f6125e1646b4786601edce091ef57b6  -
+d02f2bce02accb05de5b9afae731bfa4097bffddbdba7fa56497a52a3a3e13c3  -
+== hosted checks on the head (gh pr checks, read-only)
+Accessibility barrier and selected coverage	skipping	0
+App Runtime integration	skipping	0
+App instruction bundle	skipping	0
+Select App coverage	pass	12s
+PEC workspace tests	skipping	0
+Desktop E2E (source mode)	pass	4s
+Numerical cargo suite	pass	19m3s
+Harness pre-merge	pass	6s
+Select PEC coverage	pass	10s
+Select source coverage	pass	16s
+Source remainder (1/4)	pass	10m50s
+Source remainder (2/4)	pass	8m7s
+Source remainder (3/4)	pass	6m53s
+Source remainder (4/4)	pass	9m31s
+harness	pass	1m59s
+pec	pass	4s
