@@ -366,3 +366,168 @@
 - a timing claim (none is made).
 
 **Deleted at the end:** my archive copies (`<wt>/rv19/`) and every RV19 target.
+
+## Delta check at a5fa0eaf7
+
+- **Reviewer:** RV19, on ROOT's request.
+- **Head:** `a5fa0eaf7c26837ec18e2e9b16f08498f0cc4606` on `codex/piping-k4-20260928`. Its parent is `7d8fa9c0e`, the head reviewed above.
+- **Basis:** "K4: rulings on RV19's review" in `ROOT_RULINGS_V1.md`, numerics head `e9f8ebe1d`, including D1 revision 5a.3 amendment A1. I12's account is RETURN addendum 1, CHANGE_RECORD's addendum and `_run_records/rv19/`.
+- **Date:** 2026-09-29.
+- **Verdict: PASS.** 0 BLOCKING, 1 SHOULD-FIX, 4 NOTEs.
+
+**Summary.**
+- **RV19-1 is closed.** It is closed on both the overflow and the underflow side, and the "stricter only" argument holds.
+  - `scales_at` is the stop rule's only S\* source. OVF-ROT-928 is now withheld, and OVF-ROT-900 is unchanged.
+  - The reverted fix is killed by the controls test at OVF-ROT-928.
+- **Amendment A1 holds.** I re-derived it independently, including a subnormal S\*. `row_bound` implements it:
+  - the exact sum is rounded upward once;
+  - it applies only where 0 < S\* < 2^-988;
+  - b = 0 stays at S\* = 0.
+
+  The reverted amendment is killed at TINY-S-995 (819.2 at end.1.i.2). On every publication selected at both heads, the only bounds that move are PT-B's (26 rows) and PTF-B's (45). No value, class or scale changes, and TINY-S-995 is new.
+- **RV19-2's expectations are sound and tight.**
+  - GEN's 128-bit tokens agree with my 1,600-digit oracle on all 28,735 keys of 138 models and combinations, the RF-LARGE 100-member frames included, within the slack `compare_honest` allows.
+  - That slack is at most 2^-74 of any row's allowance.
+  - `compare_honest` now fails on a missing expectation and range-checks unpublishable rows.
+  - The 13 controls and RF-LARGE-100 are covered.
+  - My oracle finds all 120 selected publications (8,272 rows) and the six 100-member frames (15,378 rows) within their claims. Its worst ratios equal K4's.
+- **RV19-3, 4 and 5 are fixed.** RV19-M6, RV19-M2 and my RV19-D3 are killed.
+- **One test gap remains (RV19-D4).** Keying the skip on the verification value instead of the candidate's survives, although K4's code is right.
+
+### D.1 Read, ran, Git
+
+- **Read:**
+  - the ruling section;
+  - RETURN addendum 1 (A1.1–A1.8) and the corrected §9, §12.6, §22.1, §22.8 and §22.9;
+  - CHANGE_RECORD;
+  - the full source diff: `adaptive.rs`, `combine.rs` and `wide_sum.rs`;
+  - the test diffs: `models.rs`, `method_tests.rs`, `recover_tests.rs`, `references_tests.rs`, `combine_tests.rs`, `classification_tests.rs`, `verify_tests.rs` and `support.rs`;
+  - GEN's diff: `solve_hp`, `x_token`, `range_marker`, `expectation_lines`, `row_bound`, `scales_at_em` and `models_rv19`;
+  - I12's `_run_records/rv19/` results and evidence.
+- **Ran**, from a clean `git archive a5fa0eaf7` under `<wt>/rv19/`, with one cargo job at `-j 4` and `RUST_TEST_THREADS=2` while ROOT's sweep ran:
+  - FK's full suite, 392 of 392 (the lib's 326 in 684 s), with K4's 125 among them;
+  - the FK library build with `-D warnings`, and rustfmt `--check` on K4's files;
+  - RV19's probe module on a copy: OVF-ROT, the station combination, the coverage probe, the dump of every selected publication, the groups, TINY-S and the RF-LARGE 100-member frames;
+  - my oracle, plus two new scripts: `rv19_xcheck.py`, GEN's tokens against my solve, and `rv19_slack.py`, the slack δ against each allowance;
+  - NONE and eight mutants, each from a clean archive with a fresh target.
+- **Git and GitHub:** `git archive`, `diff`, `show`, `grep`, `log`, `rev-parse` and `ls-remote`, and `gh pr view`. All are read-only.
+- **The PR:** OPEN and MERGEABLE at `a5fa0eaf7`; hosted checks are 12 SUCCESS and 4 SKIPPED.
+- **Records:** `REVIEW/_run_records/k4_review/delta/`. `k4_review/SHA256SUMS` is regenerated and now covers 80 files.
+
+### D.2 Findings at the delta
+
+| ID | Class | Site | Evidence | Fix |
+|---|---|---|---|---|
+| RV19-D4 | SHOULD-FIX | `FK/src/structural/retained/adaptive.rs:1678-1681` (the skip keyed on `candidate`) | **Mutant RV19-D4** keys the skip on `verification` instead, and **survives all 114 tests it runs.**<br>– The two keys differ only when a row's p and 2p values straddle binary64's overflow or underflow threshold. An accepted candidate agrees with its verification within 2^-64, so that needs a value within 2^-64 of the threshold.<br>– In that case the mutant reopens RV19-1's gap for that row: S\*_2p keeps a row that S\*_pub drops. So it is not equivalent.<br>– K4's code is right, and it matches the classification, which drops rows by their published, that is candidate, value. | Add an SD-G5-style vector on `decide`: a row whose candidate overflows while its verification does not (and the underflow pair). Assert that the row sets no S\*. Show RV19-D4 killed. |
+| RV19-DN1 | NOTE | GEN `range_marker` (`gen_k4_vectors.py:1148`); `K4T/models.rs:39, 97-99` | – GEN marks three keys of RF-LARGE-TREE-n00010-ROT (T.6, end.6.j.3, end.6.j.4) `underflow`. Their tokens (about 2^-1983) lie far below their own `err` (2^-783), and my solve gives 0 to 1,600 digits. The marker's "nonzero exact value" is noise there.<br>– `compare_honest` never reads `Exact::range`: `range_consistent` decides by \|x\| and δ, which admit an exact 0. So no check is affected. | Emit the marker only when \|x\| > 2^err, or drop the unused field. |
+| RV19-DN2 | NOTE | RETURN.md:761 ("Every selected control and combination satisfies the new checks") | `models.txt`'s combination PRECISION-RULE (SKEW-K1E-28-AXIAL + SKEW-K1E-28) is selected at 256. No K4 test names it, and it has no expectations. My oracle finds it honest (worst 0.32 of its allowance). The scoped statements (RETURN:7, CHANGE_RECORD:70, "of the controls test (117)") are accurate. | Scope RETURN:761, or check PRECISION-RULE. |
+| RV19-DN3 | NOTE | `K4T/models.rs:423-443` (`claim_ratio`) | The check is refutation-style: max(0, \|q − x\| − δ) ≤ a. A pass therefore bounds \|q − q\*\| by a + 2δ. I measured δ/a ≤ 2^-74 on all 23,589 published rows with values (`oracle/slack*.log`), and no row has a = 0 with δ > 0, so the difference is immaterial. | None. |
+| RV19-DN4 | NOTE | GEN `expectation_lines` (`err = 4·\|x₃₀₀ − x₂₄₀\|`) | `err` is an estimate, not a certified bound. My 1,600-digit solve confirms \|x − q\*\| ≤ 2^-127·\|x\| + 2^err on every key, the irrational models included (err ≤ 2^-397 of the model's largest value on RF-LARGE-TREE-n00010-ROT, and ≤ 2^-761 on the 100-member ROT frames). | None: it is stated. |
+
+### D.3 RV19-1 (check 1)
+
+- **The fix.**
+  - `rule` builds `skip` from the candidate: nonzero, and `to_binary64().value()` is none (`adaptive.rs:1678-1681`).
+  - `scales_at` (`:1537`) leaves those rows out, as `classify_rows_floored` leaves out rows with no binary64 value.
+  - For every row that is not input-derived, "candidate unpublishable" is the same set as "published value none", because `publish_value` gives +0.0 for an exact zero and otherwise `to_binary64`. So both S\* are formed from the same rows, on the overflow and the underflow side alike. R7 §5.2's premise, S\*_pub within a relative 2^-64 + 2^-52 of S\*_2p, holds again.
+  - In the subnormal range the gap is absolute (≤ 2^-1075, which A1's 2^-1074 term covers; D.4).
+- **Only source.** `scales_at` has one production caller (`:1682`); its two other callers are tests (`checks/revisions.txt`). In `rule` the scales feed:
+  - M_q of (a);
+  - the 1024 allowance 2^-86·M_q of (d);
+  - the Φ floor;
+  - the evidence ratios.
+
+  V, (b), `uc`, θ and g do not read S\*, and the classification forms its own S\*_pub.
+- **Stricter only: confirmed.**
+  - Each S\* is a maximum over a subset of the previous rows, and Φ is unchanged. So every allowance of (a) and (d) can only shrink, and the fixed rule accepts only what the old rule accepted.
+  - A skipped row still meets (a) against its own \|q_2p\|.
+  - My earlier fix probe and I12's full run agree: no control moves.
+  - My publication diff over all 115 publications selected at both heads (`checks/publication_diff.txt`) shows no value, class or scale change.
+- **The controls.**
+  - **OVF-ROT-928:** 128, 256 and 512 are rejected by the stop rule (at u.1.2, layout index 8), and it ends `Unresolved(Ceiling)`, as GEN has it.
+  - **OVF-ROT-900:** selected at 128. It publishes the spurious Rz as `absolute_verified` with b ≈ 1.3e282, and it is honest under my oracle.
+- **The reverted fix, RV19-1R,** is killed by `every_control_follows_gens_schedule…`: OVF-ROT-928 is selected at 128 against GEN's withholding.
+
+### D.4 Amendment A1 (check 2)
+
+- **Derivation, checked independently.** |q_pub − q\*| ≤ |q_pub − q_p| + |q_p − q\*|.
+  - **Rounding to nearest.** For a normal result, the half-spacing of the binade that holds fl(x) is at most 2^-53·|fl(x)|. This holds at a binade boundary too: rounding up to 2^e from below costs at most 2^(e−54). So |q_pub − q_p| ≤ 2^-53·|q_pub|. For a subnormal result the bound is 2^-1075. A nonzero q_p that rounds to zero is `Unpublishable` and carries no bound.
+  - **The candidate.** In a body and kind with S\* < 2^-988, M_q = S\*_2p. The accepted candidate gives |q_p − q\*| ≤ 2^-64·S\*_2p, within R7 §5.2's factor.
+  - **S\*_2p against S\*_pub.** With RV19-1's fix, S\*_2p exceeds S\*_pub by at most a relative 2^-64 + 2^-52 plus 2^-1075 absolute (subnormal publication and the binary64 coupling). 2^-64 of that absolute part is below the 2^-1074 − 2^-1075 that b_row's last term leaves spare.
+  - **So** |q_pub − q\*| ≤ b_row·(1 + 2^-22), or (1 + 2^-21) at 512. Where S\* ≥ 2^-988, an absolute row has |q| < 2^-34·S\*, and a subnormal row's 2^-1075 is ≤ 2^-23·b, since b ≥ 2^-1052. So the plain b holds there, and b = 0 holds at S\* = 0. Relative rows are normal numbers.
+  - The derivation holds.
+- **The code** (`row_bound`, `adaptive.rs:376`):
+  - it returns `absolute_bound` when S\* = 0 or S\* ≥ 2^-988;
+  - otherwise fl↑(2^-53·|q|) is `q / 2^53`, stepped up when the exact scaling back falls short. That is exact, including into the subnormal range, where it yields 2^-1074 for any nonzero q below 2^-1022;
+  - the three terms go into one `ExactWideSum`, rounded upward once by `directed_ratio(…, Up)` over 1. That is the least binary64 ≥ the exact sum;
+  - the unreachable fallback is +∞, never a low bound;
+  - `classify` passes it the published binary64 q and the classification's S\* (coupled, floored at 512).
+  - The unit test's five pinned values match my hand computation (`0x4008001`, `0x8001`, `0x200400001`, and the two plain cases).
+- **The mutants:**
+  - A1R (reverted) is killed by the controls test at TINY-S-995 (819.2 at end.1.i.2), the A1 unit test, classification set 19 and item 6a's test. **So TINY-S-995's 128-bit expectation is precise enough.**
+  - RV19-D1 (A1 without its 2^-1074 term) is killed by the A1 unit test, item 6a and the classification vectors.
+  - RV19-D2 (fl(2^-53·|q|) to nearest) is killed by the classification vectors (set 19).
+- **The bounds that move.** My publication diff shows 26 PT-B rows and 45 PTF-B rows, and nothing else among the 115 publications selected at both heads. TINY-S-995 is new; K4's controls test prints its 24 rows.
+- **My oracle's view.** It checks absolute rows against b·(1 + 2^-22) with no publication allowance. TINY-S-995 is now within its claims (worst 0.726). It was 819× at `7d8fa9c0e`.
+
+### D.5 RV19-2 (check 3)
+
+- **The expectations.**
+  - `x:` is the exact value rounded once to 128 bits: an exact rational solve where the geometry allows it, otherwise `solve_hp` in 300-digit decimal, with `err` from a 240-digit re-solve.
+  - The markers flag values outside binary64's range.
+  - **Soundness, checked independently** (`oracle/xcheck*.log`). For all 28,735 keys of 138 models and combinations, my 1,600-digit solve satisfies |x − q\*| ≤ 2^-127·|x| + 2^err.
+    - That covers every exact and every `solve_hp` model: HH-FOOL, HH-SLENDER-m40, N03-RX, R115-SEED3, OVF-ROT, and RF-LARGE's 10- and 100-member AX and ROT frames.
+    - Every marker agrees with the truth's binary64 range, except the three noise markers of RV19-DN1.
+  - **Independence.** GEN is K4's author's tool, but its solves are independent of K4's Rust arithmetic, and my oracle is independent of both. They share only the model files and D1's element definition.
+- **`compare_honest`** (`models.rs:489`):
+  - it walks every published value, the derived keys included: no claim or no expectation is ∞;
+  - it range-checks every unpublishable row (`range_consistent`: `Underflow` needs |x| − δ ≤ 2^-1075, and `Overflow` needs the same sign with |x| + δ reaching 2^1024 − 2^970);
+  - it fails any expectation that is neither a row nor a derived key;
+  - the absolute allowance no longer adds half an ulp of e;
+  - the controls test asserts that every selected run has expectations, that `compared` equals rows plus derived keys, and that `honest` equals the number selected (117). `honest_large` does the same with G5a for the six 100-member frames.
+- **The evidence pass** (I12's `evidence.jsonl`) catches R7-M1's PRESCRIBED-TAIL and PRESCRIBED-TAIL-FREE (∞, N.1), as ROOT asked. The earlier catches stand.
+- **"Every selected control" statements.** Scoped, they match the tests. The one unscoped sentence is RV19-DN2.
+
+### D.6 RV19-3, 4 and 5 (check 4)
+
+- **RV19-3.** `combine.rs:99-106` also compares `stations()` and `supports()`: canonical, sorted by id, and whole structures, so fractions, members and group contents all count.
+  - My station probe is now withheld (`OperandsDiffer`), and the new test covers the station and group cases.
+  - RV19-D3 (the groups dropped from the check) is killed by that test.
+- **RV19-4.** GROUP-DIR and GROUP-DIR-X join GEN, E-UNIT, E-UC, E-CHARGE and E-ESTIMATE. RV19-M6 is killed by E-UNIT and E-CHARGE. Both are honest under my oracle.
+- **RV19-5.** `the_sas_norm_is_the_larger_of_the_one_and_infinity_norms` raises each transposed entry of N05's Ā at 256 by 2^20, requires at least one block where the 1-norm is the larger, and asserts `sas` = the larger. RV19-M2 is killed by it.
+
+### D.7 The NOTEs and new issues (check 5)
+
+- **N1 and N2** are corrected in RETURN §22.1 and §9, correctly.
+- **N4.** `wide_sum.rs:255-263` now returns `SumRefusal::Span` when a bit or a carry would be lost. The sum is left partly updated, but every caller propagates the refusal and ends its attempt. It is unreachable under the span argument.
+- **N6.** No `powi` remains in the tests except the source scan's own word list and its lexer control. rustfmt is clean, and the non-test build has no warnings.
+- **N3, N5 and N7** are recorded.
+- **New issues from the diff:** none BLOCKING.
+  - The skip, `row_bound` and the combination check are correct.
+  - `row_bound`'s fallback is +∞, a safe bound.
+  - The write set holds: no file outside `retained/`, `retained_k4/` and the K4 records, no manifest or lockfile, no new `pub` item, and `structural.rs`, `lib.rs` and `exact_sum.rs` are untouched.
+
+### D.8 Records (check 6)
+
+- **Checksums.** `IMPLEMENTATION/K4/_run_records/SHA256SUMS` verifies: 237 of 237, covering every other file, and its sha256 is `8c8423b9…`. `K4T/SHA256SUMS` verifies: 22 of 22.
+- **The changed-files record.** `rv19/changed_files.txt`'s 27 sha256 match the files at `a5fa0eaf7`.
+- **Scans.** There are no home, temp or tool paths, no user or host names and no model identifiers.
+- **The figures agree with I12's records:**
+  - K4's claims line, "117 controls, 9,412 rows, worst 0.949 (B1-C-A u.0.3)";
+  - A1's list, "PT-B 26, PTF-B 45, TINY-S-995 24";
+  - RF-LARGE-100's worst ratios, which equal my oracle's to four figures (0.9034, 0.9171, 0.8850, 0.9596, 0.9608 and 0.9717).
+
+### D.9 Status of the findings at 7d8fa9c0e
+
+| ID | Status at `a5fa0eaf7` |
+|---|---|
+| RV19-1 (BLOCKING) | **Resolved** (D.3). |
+| RV19-2 | **Resolved** (D.5); RV19-DN2 scopes one sentence. |
+| RV19-3 | **Resolved** (D.6). |
+| RV19-4 | **Resolved**: RV19-M6 is killed. |
+| RV19-5 | **Resolved**: RV19-M2 is killed. |
+| RV19-6 | **Resolved** by amendment A1 (D.4). D2's G5 of b_row is routed. |
+| RV19-N1, N2, N4, N6 | Corrected or fixed. |
+| RV19-N3, N5, N7 | Recorded. N3 is partly met: the claims are now checked at 128-bit resolution. |
+
+**Deleted at the end:** my delta copies (`<wt>/rv19/`) and every RV19 target.

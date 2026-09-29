@@ -1,0 +1,2 @@
+2026-09-27 19:36:07 memguard start floor=35% pid=5266
+2026-09-27 19:36:20 memguard start floor=35% pid=5387

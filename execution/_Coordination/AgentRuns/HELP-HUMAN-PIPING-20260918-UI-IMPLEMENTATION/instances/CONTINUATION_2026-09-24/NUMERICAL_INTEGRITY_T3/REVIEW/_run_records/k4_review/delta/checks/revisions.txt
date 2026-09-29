@@ -1,0 +1,16 @@
+# RV19 delta revisions (read-only Git and gh; 2026-09-29)
+PR #1054: OPEN a5fa0eaf7c26837ec18e2e9b16f08498f0cc4606 main MERGEABLE
+hosted checks: SKIPPED 4, SUCCESS 12
+remote head: a5fa0eaf7c26837ec18e2e9b16f08498f0cc4606
+remote main: 7ac7b1c377b614e2276d0b828205ac288ced5829
+a5fa0eaf7 parent: 7d8fa9c0e397569e048e14af6036106d53f46ae6
+numerics head (rulings): e9f8ebe1d28c075d4192191dd2790e3b7f351f21
+diff 7d8fa9c0e..a5fa0eaf7:  51 files changed, 36183 insertions(+), 6697 deletions(-)
+files outside retained/, retained_k4/ and the K4 records: 0
+manifests or lockfiles changed: 0
+items pub without (crate) in K4's files: 0
+structural.rs, lib.rs, exact_sum.rs changed: 0
+scales_at call sites at a5fa0eaf7:
+a5fa0eaf7:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs:1682:        let mut scales = scales_at(&mut ctx, layout, verification, extents, &skip)?;
+a5fa0eaf7:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs:285:    let scales = scales_at(&mut c, layout, &b.recovered.values, extents, &skip).unwrap();
+a5fa0eaf7:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs:791:    let scales = scales_at(&mut ctx, layout, &s512.recovered.values, extents, &skip).unwrap();

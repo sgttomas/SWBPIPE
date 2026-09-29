@@ -2043,3 +2043,19 @@ RV19 (`REVIEW/K4_REVIEW.md`, sha256 `d906539e…`; records `REVIEW/_run_records/
   - the mutants the fixes touch, and the new ones: the reverted RV19-1 fix, the reverted amendment, RV19-M2 and RV19-M6;
   - the evidence pass for R7-M1, K4-M24 and K4-M37 under the new checks;
   - then RETURN addendum 1 and the records. RV19 checks the delta.
+
+## K4: rulings on RV19's delta check at a5fa0eaf7 (ROOT, 2026-09-29)
+
+- **RV19's delta check PASSES:** 0 BLOCKING, 1 SHOULD-FIX and 4 NOTEs (`REVIEW/K4_REVIEW.md`, "Delta check at a5fa0eaf7", sha256 `319701f6…`; records `REVIEW/_run_records/k4_review/delta/`, with `SHA256SUMS` now covering 80 files, `ab9f24d8…`).
+  - RV19-1 is closed on both the overflow and the underflow side.
+  - Amendment A1 is independently re-derived and implemented as ruled. Only PT-B's and PTF-B's bounds change, and TINY-S-995 kills the reverted amendment.
+  - RV19's oracle finds every selected publication honest: 120 publications (8,272 rows) and the six 100-member frames (15,378 rows).
+- **The gates on `a5fa0eaf7` are green:**
+  - hosted CI: runs 36584733672, 36584733559, 36584733590 and 36584733821;
+  - the full-SHA dispatch 36584771469 (target_base `7ac7b1c37`);
+  - DEC-025, clean;
+  - GEN-8.
+  - Since the head changes for RV19-D4, all of them re-run on the final head.
+- **RV19-D4 (SHOULD-FIX): fix it before merge.** It is a test gap, but on the fix of a BLOCKING honesty finding. Add an SD-G5-style vector on `decide` in which the candidate overflows and the verification does not, and the underflow pair. Assert that such a row sets no S\*. Show RV19's mutant RV19-D4 killed.
+- **DN2:** RETURN's "every selected … combination" must match what is tested. Either give PRECISION-RULE expectations and run it, or correct the wording.
+- **DN1, DN3 and DN4 are recorded.** They affect no check.

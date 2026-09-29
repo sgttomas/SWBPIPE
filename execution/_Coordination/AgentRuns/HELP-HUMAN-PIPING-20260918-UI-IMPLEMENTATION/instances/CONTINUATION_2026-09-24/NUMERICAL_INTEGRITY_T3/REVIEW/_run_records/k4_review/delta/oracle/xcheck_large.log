@@ -1,0 +1,8 @@
+XCHECK RF-LARGE-CHAIN-n00100-AX keys 3013
+XCHECK RF-LARGE-CHAIN-n00100-ROT keys 3013 err<=2^-761.7 of max
+XCHECK RF-LARGE-TREE-n00100-AX keys 3013
+XCHECK RF-LARGE-TREE-n00100-ROT keys 3013 err<=2^-764.0 of max
+XCHECK RF-LARGE-CONT-n00100-AX keys 3163
+XCHECK RF-LARGE-CONT-n00100-ROT keys 3163 err<=2^-786.2 of max
+XCHECK totals: models 6, keys 18378, disagreements 0
+python3 rv19_xcheck.py rv19_oracle.py $K4T/models5a3.txt $L  28.99s user 0.05s system 99% cpu 29.071 total
