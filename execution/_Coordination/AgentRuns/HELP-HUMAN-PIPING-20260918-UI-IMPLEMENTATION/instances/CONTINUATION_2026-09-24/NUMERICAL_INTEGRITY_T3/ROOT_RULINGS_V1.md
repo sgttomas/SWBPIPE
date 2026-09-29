@@ -2525,3 +2525,18 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
   - partial stage work recorded on every error path.
   - **Checkpoint 0 is diagnosis and plan only.** Builds wait until K6b's current slot ends.
 - **After KF3 merges:** K6b and V-K merge main and re-run their 10,000-member tiers. Those figures, with K6, K4's counts and the rest of K6b's and V-K's measurements, are the basis for ROOT's W1 limits.
+
+## K6b: slot K6B-S4 (b3) accepted; D now, with W1-T4 pre-KF3; V-K's PR to review (ROOT, 2026-09-29)
+
+- **b3 is accepted.** It ran 132 processes, all ok, with 0 parity failures and 0 deferrals, on the binary `20b67776…` built from `4eeb206c0`.
+  - **K6b's six 10,000-member rows agree with V-K's B.** CONT-AX is selected at 128; the other five end `Unresolved(ExactSumSpan)` in the 256 verification's `uc` stage, after bounded and wide formation. The fixed parity check passes on all of them.
+  - **CONT-AX at 10,000 members:**
+    - the call charges 8.23e9 LME, with a heap of 814 MiB and a median call of 6.09 s, 7.6 times the binary64 sparse entry;
+    - its stop rule is 2.60e9 LME, 31.5% of the call.
+  - W1's heap grows with a log-log slope of 0.92–0.98 from 10 to 10,000 members.
+  - ρ_fp is at most 0.43 against the new E, and E_adm at 10,000 members is 2.65–2.73 GiB.
+  - **A K6 observation, not a stop:** K6's own sparse estimate gives ρ_fp up to 1.75 at 10,000 members (CHAIN-AX). The excess is outside the heap: heap/E is 0.64–0.73.
+- **D proceeds now, as for V-K.** K6b's records mark W1-T4's 10,000-member figures pre-KF3.
+  - After KF3 merges, K6b merges main and re-runs W1-T4 as a records addendum, which may follow K6b's merge.
+  - ROOT's W1 limits use the post-KF3 figures.
+- **V-K's PR** [#1057](https://github.com/sgttomas/chirality/pull/1057) is open. The dispatch is 36640221444. The independent reviewer is RV21.
