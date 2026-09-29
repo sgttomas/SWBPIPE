@@ -2407,3 +2407,11 @@ The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `
 - **The "data-equivalent" harness paths** (for example a failing comparison recorded as a pass) are evidenced by A2's kill matrix, whose faults show every comparison kind is live. That argument is recorded, not run as mutants.
 - **Delete `<wt>/vk-mut/c`** (2.4 GB). The records keep every hash.
 - **B still waits for KF1's merge.**
+
+## V-K: C accepted (ROOT, 2026-09-29)
+
+- **C is accepted.** ROOT committed it at `e24e911e6` on the V-K branch.
+  - All 18 harness mutants are killed, and NONE (43 of 43) and NONE-GEN pass.
+  - VK-H6, H9 and H11 are each killed by exactly its own new test in `VR/tests/engine.rs`.
+  - `observations/harness/SHA256SUMS` verifies. No machine paths appear, and the mutant copies are deleted.
+- **Next for V-K:** start D's records that do not depend on B. When KF1 merges: merge main, re-run the A2 kill matrix, run B in a slot ROOT grants, then finish D.
