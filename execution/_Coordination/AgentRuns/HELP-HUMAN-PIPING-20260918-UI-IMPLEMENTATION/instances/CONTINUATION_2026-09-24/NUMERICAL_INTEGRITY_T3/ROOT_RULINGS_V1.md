@@ -2465,3 +2465,34 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
   - The binary is a release build from a `git archive` of `082990c8d`.
   - B's pre-KF1 records stay as they are, as the before-KF1 comparison.
 - **The slot starts when I17 finishes V-K's post-merge checks.** I16 may build the release binary now. A heap-cap abort or any other stop condition stops the tier.
+
+## K6b: slot K6B-S3 stopped at W1-T4's first row; W1 at 10,000 members ends in Span (ROOT, 2026-09-29)
+
+- **What ran.**
+  - **W1-T1 to W1-T3, re-run on the post-KF1 binary** (sha256 `4f55137b…`, from `082990c8d`, into fresh records): 108 processes, all ok, with every parity item true and every `w1a` row selected at 128.
+    - ρ_fp against the new E: 0.10–0.12 at 10 members, 0.26–0.38 at 100, and 0.38–0.40 at 1,000; the DEC-053 nine reach up to 0.48.
+    - The stop rule adds no measurable heap at 1,000 members. KF1's bounded tracker fits under the verification's earlier peak.
+  - **W1-T4, row 247 (CHAIN-n10000-AX, `w1a`),** is deterministic over 5 repeats:
+    - the 128 candidate is rejected by its verification;
+    - the 256 verification's shared build stops with `Span`, so the outcome is `Unresolved(ExactSumSpan)`;
+    - 6.84e9 LME are charged, the heap peak is 832 MiB, and the call takes about 5 s.
+    - K6b's parity item `w1_stages_equal_totals` then failed, and the runner stopped the tier correctly.
+- **(a) The parity item: K6b fixes its own check,** in H only, as I16 proposes:
+  - the stage identity is checked on completed builds only;
+  - on a failed build, the check is that the stage sum is at most the charged total, and the unstaged remainder goes on the attempt line;
+  - the outcome's per-precision shared work uses the charged totals;
+  - a test reaches the failed-build path at a small size, and a mutant is killed.
+  - **The FK side is routed to KF3.** The verification's shared build (`verify.rs:471-485`) records no stage for the partial `uc` work when `gamma_m` or `uc_bounds` stops. The charged total is right: `verify_precision` charges all of it. So the evidence's stage breakdown under-reports on this error path, and F2a will publish that evidence.
+- **(b) The availability finding is routed to KF3,** after the data below.
+  - **ROOT's reading of the code** (`bound.rs:405-420`): `uc_bounds` runs directed recurrences (`u_pass`, `nl_pass`) over the factor's profile. On a long chain the comparison-matrix bound grows geometrically, so its exact sums exceed `ExactWideSum`'s span, and the whole attempt stops.
+  - **But B = min(Uc, S) per block** (R7, Lemmas D and E), and S is an independent certified bound. Treating a Uc that cannot be formed as +∞ keeps every step certified: B = S. The attempt stops only if neither bound is available.
+  - **Honesty is unaffected:** no published value changes, only whether W1 can publish.
+  - **KF3 will:**
+    - treat a Uc (and likewise an S) that cannot be formed as unavailable, not as an attempt stop, with R7's text checked for any other reader of Uc;
+    - record the partial stage work on every error path.
+  - KF3 is briefed after W1-T4's re-run shows which of the six 10,000-member models stop, and where.
+- **(c) W1-T4:**
+  - row 247's record is kept as the stop's evidence, not voided;
+  - after (a), ROOT commits the fix and grants a slot in which all 24 W1-T4 rows run on the rebuilt binary, in a new records folder (about 10–15 minutes);
+  - after KF3 merges, W1-T4 runs once more; those are the figures ROOT's W1 limits use.
+- **D waits** for the final W1-T4.
