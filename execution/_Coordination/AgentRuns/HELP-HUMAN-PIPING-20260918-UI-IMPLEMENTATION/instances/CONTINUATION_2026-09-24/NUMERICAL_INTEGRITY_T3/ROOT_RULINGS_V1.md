@@ -2244,3 +2244,19 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
 - **Checkpoint 0 is a plan only.** Builds wait until K6b's timed slot ends.
 - **K6's N10** (bounding the dense witness, and examining the dense screen's operation count) is split out as **KF2**. It is product-reaching, so its gate is heavier, and it is briefed separately. It does not block W1's limits.
 - **Order for W1's memory limit:** KF1 merges. Then K6b merges main and measures W1-T4 (10,000 members) on the bounded tracker, subject to ROOT's W1-T4 ruling.
+
+## K6b: B's W1-T1 to W1-T3 accepted; W1-T4 approved before KF1 (ROOT, 2026-09-29)
+
+- **W1-T1 to W1-T3 are accepted.** I16 ran 108 processes, all ok, with no stop (records in `<wt>/scratch/i16/b/`, which move to `_run_records/` at D).
+  - All 42 W1 processes selected 128 and verified at 256, with every parity item true.
+  - R1's unchanged predicate passes on all 10,078 comparisons, decided exactly. The worst is 1.75e-6 of the allowance.
+  - At 1,000 members: 0.56–1.58 s per call, 0.80–1.41 ns per limb-multiply equivalent, and 86–117 MiB of heap. W1 takes 6.8–14.2 times the binary64 sparse entry's time.
+  - The stop rule costs 9–21% of the call. 5a.3's shift costs one shifted factorization, except on CONT-AX, which needs none.
+  - Heap grows with a log-log slope of 0.96–0.99.
+- **The tracker measured at 1,000 members** keeps 0–8,773 entries, at most 5.5% of its worst-case term. The kept fraction of rows does not grow with size (CONT 0.39, 0.43, 0.33 at 10, 100 and 1,000 members).
+- **W1-T4 (10,000 members) is approved now, in its own slot K6B-S3,** as scheduled: 5 repeats, prefixes in pass 1. This supersedes the order in "KF1: spawn".
+  - **Why before KF1:** it measures the unbounded tracker's actual size on RF-LARGE at 10,000 members, which KF1's review and ROOT's memory limit need.
+  - **Why it is safe:** the heap cap (7.5 GiB) is below E_max (8.6–8.9 GiB), so a worst-case tracker would end in a heap-cap abort, not strain the host. The admission rule, with ρ measured at 100 members or more (0.17–0.27), admits every row.
+  - A heap-cap abort here is recorded as a finding for KF1, not a stop of K6b.
+  - Any other stop condition still stops.
+- **After KF1 merges,** ROOT decides whether K6b re-measures a subset on the bounded tracker, for the stop rule's changed work, before the W1 limits are set.
