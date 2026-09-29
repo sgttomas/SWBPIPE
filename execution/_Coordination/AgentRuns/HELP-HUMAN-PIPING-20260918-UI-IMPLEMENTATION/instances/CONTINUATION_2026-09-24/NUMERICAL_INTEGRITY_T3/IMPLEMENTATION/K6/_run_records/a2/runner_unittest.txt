@@ -1,0 +1,32 @@
+test_fit (test_k6_runner.Aggregation.test_fit) ... ok
+test_median_and_minimum (test_k6_runner.Aggregation.test_median_and_minimum) ... ok
+test_classes (test_k6_runner.Classification.test_classes) ... ok
+test_counts_match_closed_forms (test_k6_runner.CountsClosedForms.test_counts_match_closed_forms) ... ok
+test_live_memory_limit (test_k6_runner.LiveLimit.test_live_memory_limit) ... ok
+test_negative_control (test_k6_runner.LiveLimit.test_negative_control) ... ok
+test_metadata (test_k6_runner.MetadataHasNoHostIdentifiers.test_metadata) ... ok
+test_sanitize (test_k6_runner.MetadataHasNoHostIdentifiers.test_sanitize) ... ok
+test_committed_models_hash_to_the_list (test_k6_runner.ModelHashes.test_committed_models_hash_to_the_list) ... ok
+test_python_generator_matches_committed_hashes (test_k6_runner.ModelHashes.test_python_generator_matches_committed_hashes) ... ok
+test_ps_is_kib (test_k6_runner.Parsers.test_ps_is_kib) ... ok
+test_ru_maxrss_units (test_k6_runner.Parsers.test_ru_maxrss_units) ... ok
+test_time_l_bytes (test_k6_runner.Parsers.test_time_l_bytes) ... ok
+test_time_v_kib (test_k6_runner.Parsers.test_time_v_kib) ... ok
+test_ascent_waits_for_the_previous_size (test_k6_runner.PlanAdmission.test_ascent_waits_for_the_previous_size) ... ok
+test_ceiling_uses_its_own_cap (test_k6_runner.PlanAdmission.test_ceiling_uses_its_own_cap) ... ok
+test_lane_id_deferred_by_name_when_the_estimate_fails (test_k6_runner.PlanAdmission.test_lane_id_deferred_by_name_when_the_estimate_fails) ... ok
+test_p1_branch_admits_dense_1000 (test_k6_runner.PlanAdmission.test_p1_branch_admits_dense_1000) ... ok
+test_plan_starts_no_child (test_k6_runner.PlanAdmission.test_plan_starts_no_child) ... ok
+test_refusals_by_name (test_k6_runner.PlanAdmission.test_refusals_by_name) ... ok
+test_rho_is_the_largest_ratio_at_smaller_sizes_net_of_baseline (test_k6_runner.PlanAdmission.test_rho_is_the_largest_ratio_at_smaller_sizes_net_of_baseline) ... ok
+test_schedule_shape (test_k6_runner.PlanAdmission.test_schedule_shape) ... ok
+test_darwin_does_not (test_k6_runner.RlimitOnlyOnLinux.test_darwin_does_not) ... ok
+test_linux_applies_rlimit_as (test_k6_runner.RlimitOnlyOnLinux.test_linux_applies_rlimit_as) ... ok
+test_required_keys (test_k6_runner.Schema.test_required_keys) ... ok
+test_section_bits (test_k6_runner.SectionBits.test_section_bits) ... ok
+test_kib_against_bytes (test_k6_runner.Watchdog.test_kib_against_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 3.320s
+
+OK

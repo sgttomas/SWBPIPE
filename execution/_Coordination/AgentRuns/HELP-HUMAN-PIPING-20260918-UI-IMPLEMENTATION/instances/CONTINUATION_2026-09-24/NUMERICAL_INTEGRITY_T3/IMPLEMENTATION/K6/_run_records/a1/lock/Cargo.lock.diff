@@ -1,0 +1,52 @@
+diff --git a/projects/chirality-piping/core/solver/performance_harness/Cargo.lock b/projects/chirality-piping/core/solver/performance_harness/Cargo.lock
+index c08035c00a..1d030023a2 100644
+--- a/projects/chirality-piping/core/solver/performance_harness/Cargo.lock
++++ b/projects/chirality-piping/core/solver/performance_harness/Cargo.lock
+@@ -2,6 +2,13 @@
+ # It is not intended for manual editing.
+ version = 4
+
++[[package]]
++name = "open_pipe_stress_curved_bend"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_frame_kernel",
++]
++
+ [[package]]
+ name = "open_pipe_stress_frame_kernel"
+ version = "0.1.0"
+@@ -13,6 +20,25 @@ dependencies = [
+  "open_pipe_stress_frame_kernel",
+ ]
+
++[[package]]
++name = "open_pipe_stress_nonlinear_integration"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_curved_bend",
++ "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_nonlinear_supports",
++ "open_pipe_stress_solver_diagnostics",
++ "open_pipe_stress_sparse_direct",
++]
++
++[[package]]
++name = "open_pipe_stress_nonlinear_supports"
++version = "0.1.0"
++dependencies = [
++ "open_pipe_stress_linear_supports",
++ "open_pipe_stress_solver_diagnostics",
++]
++
+ [[package]]
+ name = "open_pipe_stress_primitive_loads"
+ version = "0.1.0"
+@@ -36,6 +62,7 @@ name = "open_pipe_stress_solver_performance_harness"
+ version = "0.1.0"
+ dependencies = [
+  "open_pipe_stress_frame_kernel",
++ "open_pipe_stress_nonlinear_integration",
+  "open_pipe_stress_solver_diagnostics",
+  "open_pipe_stress_sparse_direct",
+ ]

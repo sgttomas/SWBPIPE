@@ -1,0 +1,131 @@
+"""K6 checkpoint C: classify each run log (killed / survived / not viable) and print the table.
+
+Usage: python3 classify.py <logs dir>   (prints markdown, writes <logs dir>/../mutation_table.json)
+"""
+import json
+import os
+import re
+import sys
+
+import mutants
+
+INTENDED = {
+    'K6-M1': 'H1 live watchdog (LiveLimit.test_live_memory_limit)',
+    'K6-M2': 'H1/H2 (Watchdog.test_kib_against_bytes; live)',
+    'K6-M3': 'H1 live watchdog',
+    'K6-M4': "H1's no-survivor assertion (plan); LiveLimit.test_kills_take_the_whole_group (added at the C stop)",
+    'K6-M5': 'H4 (RlimitOnlyOnLinux)',
+    'K6-M6': 'H5 (Parsers.test_time_l_bytes)',
+    'K6-M7': 'H6 (Aggregation.test_median_and_minimum)',
+    'K6-M8': 'C1 (k6_counts closed_forms)',
+    'K6-M9': 'C3, C4 (k6_counts)',
+    'K6-M10': 'F1 (k6_alloc accounting)',
+    'K6-M11': 'F2 (k6_alloc cap boundary)',
+    'K6-M12': 'G1 (k6_bin n2_modes_at_10000_refused_before_n2)',
+    'K6-M13': 'H7 (PlanAdmission)',
+    'K6-M14': 'B1, B3 (k6_models)',
+    'K6-M15': 'B1, B3 (k6_models); C1',
+    'K6-M16': 'E1/E2 (k6_staged)',
+    'K6-M17': 'F1 (k6_alloc accounting)',
+    'K6-M18': 'E1 (k6_staged)',
+    'K6-M19': 'H7 (test_rho_is_the_largest_footprint_ratio...)',
+    'K6-M20': 'B1, B3 (k6_models)',
+    'K6-M21': 'H7 (test_refusals_by_name)',
+    'K6-M22': 'test_projected_rss_above_0_8_c_is_deferred_by_name',
+    'K6-M23': 'test_footprint_not_rss_decides_rho',
+    'K6-M24': 'test_dense_uses_the_ruled_rss_ratio_floor',
+    'K6-M25': 'QuietHost.test_load_wait_hysteresis',
+    'K6-M26': 'PlanAdmission.test_measured_runs_are_kept_and_not_run_records_are_run (added at the C stop)',
+}
+
+NOTES = [
+    'Basis: fresh git archive copies of the K6 head ada18de70. Rust: core/solver and core/loads, H full '
+    'cargo test --offline --locked -j 8 --no-fail-fast, a fresh target per run, at most 2 cargo jobs. '
+    'Runner: performance_harness and the DEC-025 wrapper, the N15 pytest invocation plus --noconftest '
+    '(the tests conftest only builds the unrelated checked-JSON and units tools with cargo).',
+    'C stop (first pass, committed suite): K6-M4 and K6-M26 survived (logs py-*.before-tests.log). ROOT '
+    'ruled both proposed tests into runner/test_k6_runner.py (existing classes; the wrapper unchanged). '
+    'Re-run from fresh archive copies with the amended test file overlaid (sha256 in each log): NONE 35 '
+    'passed; K6-M4 and K6-M26 each killed by its new test. The other 13 runner mutants were killed by the '
+    'committed suite; the amendment only adds tests.',
+    'Plan section 12 corrected: K6-M4 was expected to be killed by H1 because "the wrapper survives". It '
+    'does not: under /usr/bin/time the killed binary is the wrapper\'s only child, so the wrapper exits by '
+    'itself and survivors_of(pgid) is empty with or without a group kill. The new test gives the child a '
+    'sleeping helper in its process group, so a kill of the child alone leaves a survivor; it also covers '
+    'the timeout kill, which had no test.',
+    'Pipe-stall observation: in the first draft of that test the helper inherited the runner\'s stdout and '
+    'stderr pipes, and the draft passed on K6-M4 in 31 s: the runner\'s pipe close waited until the helper '
+    'exited (30 s), so the survivor check ran only after it was gone. A descendant still holding the '
+    'runner\'s pipes would stall the runner. The committed group kill prevents this after a watchdog or '
+    'timeout kill, and k6_observe starts no children; recorded as an observation. The test puts the '
+    'helper\'s stdio on /dev/null and bounds the elapsed time.',
+]
+
+
+def classify_rs(text):
+    if re.search(r'^error(\[E\d+\])?: could not compile|^error\[E\d+\]', text, re.M):
+        return 'not_viable', ['compile error']
+    failed = re.findall(r'^test (\S+) \.\.\. FAILED', text, re.M)
+    targets = re.findall(r'^\s+`(--(?:test|lib|bin)[^`]*)`', text, re.M)
+    if 'k6_alloc: F1 accounting and F2 cap boundary passed' not in text and 'Running tests/k6_alloc.rs' in text:
+        failed.append('k6_alloc (harness=false: %s)' % (
+            (re.search(r"panicked at [^\n]*\n([^\n]*)", text) or [None, 'aborted'])[1].strip()[:120]))
+    elif 'Running tests/k6_alloc.rs' not in text:
+        failed.append('k6_alloc not run')
+    exit_ok = re.search(r'^=== exit 0 ', text, re.M) is not None
+    if failed or targets or not exit_ok:
+        return 'killed', failed + (['failed targets: ' + ', '.join(targets)] if targets else [])
+    return 'survived', []
+
+
+def classify_py(text):
+    failed = re.findall(r'^FAILED \S+::(\S+::\S+)', text, re.M)
+    summary = re.search(r'^(\d+ failed.*|\d+ passed.*)$', text, re.M)
+    if re.search(r'^E\s+.*Error|^ERROR ', text, re.M) and not failed:
+        return 'killed', ['collection or setup error']
+    if failed:
+        return 'killed', failed
+    return 'survived', [summary.group(1) if summary else 'no summary']
+
+
+def main(logs):
+    rows = []
+    for kind in ('py', 'rs'):
+        path = os.path.join(logs, '%s-NONE.log' % kind)
+        text = open(path).read()
+        status, detail = (classify_py if kind == 'py' else classify_rs)(text)
+        rows.append({'id': 'NONE (%s)' % kind, 'kind': kind, 'what': 'control: unmutated archive copy',
+                     'status': 'passes' if status == 'survived' else 'CONTROL FAILED', 'tests': detail,
+                     'intended': '-', 'elapsed': (re.search(r'^=== exit (\d+) elapsed (\d+) s', text, re.M)
+                                                  or [None, None, None])[2]})
+    for mid, (kind, what, rel, old, new) in mutants.MUTANTS.items():
+        path = os.path.join(logs, '%s-%s.log' % (kind, mid))
+        if not os.path.exists(path):
+            rows.append({'id': mid, 'kind': kind, 'what': what, 'status': 'not run', 'tests': [],
+                         'intended': INTENDED[mid], 'elapsed': None})
+            continue
+        text = open(path).read()
+        status, detail = (classify_py if kind == 'py' else classify_rs)(text)
+        m = re.search(r'^=== exit (\d+) elapsed (\d+) s', text, re.M)
+        rows.append({'id': mid, 'kind': kind, 'what': what, 'status': status, 'tests': detail,
+                     'intended': INTENDED[mid], 'elapsed': m.group(2) if m else None})
+    with open(os.path.join(logs, '..', 'mutation_table.json'), 'w') as fh:
+        json.dump(rows, fh, indent=1)
+        fh.write('\n')
+    print('| Mutant | Side | Mutation | Result | Killing tests | Intended kill |')
+    print('|---|---|---|---|---|---|')
+    for row in rows:
+        tests = '; '.join(row['tests'])
+        print('| %s | %s | %s | %s | %s | %s |' % (row['id'], row['kind'], row['what'], row['status'],
+                                                  tests[:400], row['intended']))
+    counts = {}
+    for row in rows:
+        counts[row['status']] = counts.get(row['status'], 0) + 1
+    print('\n%s' % json.dumps(counts, sort_keys=True))
+    print('\nNotes:')
+    for note in NOTES:
+        print('- ' + note)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])

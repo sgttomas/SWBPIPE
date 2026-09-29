@@ -1,0 +1,27 @@
+baseline (no-op) peak RSS 1818624 bytes
+109_RF-LARGE-CHAIN-n10000-AX_sparse RF-LARGE-CHAIN-n10000-AX sparse: ok 6.5s rss=746045440
+110_RF-LARGE-CHAIN-n10000-AX_dense RF-LARGE-CHAIN-n10000-AX dense: never:n2_mode_at_or_above_10000_members
+111_RF-LARGE-CHAIN-n10000-AX_lane-id RF-LARGE-CHAIN-n10000-AX lane-id: ok 0.5s rss=149635072
+112_RF-LARGE-CHAIN-n10000-AX_lane-lu RF-LARGE-CHAIN-n10000-AX lane-lu: never:n2_mode_at_or_above_10000_members
+113_RF-LARGE-CHAIN-n10000-ROT_dense RF-LARGE-CHAIN-n10000-ROT dense: never:n2_mode_at_or_above_10000_members
+114_RF-LARGE-CHAIN-n10000-ROT_lane-id RF-LARGE-CHAIN-n10000-ROT lane-id: ok 0.6s rss=276725760
+115_RF-LARGE-CHAIN-n10000-ROT_lane-lu RF-LARGE-CHAIN-n10000-ROT lane-lu: never:n2_mode_at_or_above_10000_members
+116_RF-LARGE-CHAIN-n10000-ROT_sparse RF-LARGE-CHAIN-n10000-ROT sparse: ok 7.6s rss=351617024
+117_RF-LARGE-TREE-n10000-AX_lane-id RF-LARGE-TREE-n10000-AX lane-id: ok 0.5s rss=137199616
+118_RF-LARGE-TREE-n10000-AX_lane-lu RF-LARGE-TREE-n10000-AX lane-lu: never:n2_mode_at_or_above_10000_members
+119_RF-LARGE-TREE-n10000-AX_sparse RF-LARGE-TREE-n10000-AX sparse: ok 6.6s rss=465223680
+120_RF-LARGE-TREE-n10000-AX_dense RF-LARGE-TREE-n10000-AX dense: never:n2_mode_at_or_above_10000_members
+121_RF-LARGE-TREE-n10000-ROT_lane-lu RF-LARGE-TREE-n10000-ROT lane-lu: never:n2_mode_at_or_above_10000_members
+122_RF-LARGE-TREE-n10000-ROT_sparse RF-LARGE-TREE-n10000-ROT sparse: ok 8.0s rss=705740800
+123_RF-LARGE-TREE-n10000-ROT_dense RF-LARGE-TREE-n10000-ROT dense: never:n2_mode_at_or_above_10000_members
+124_RF-LARGE-TREE-n10000-ROT_lane-id RF-LARGE-TREE-n10000-ROT lane-id: ok 0.6s rss=278069248
+125_RF-LARGE-CONT-n10000-AX_sparse RF-LARGE-CONT-n10000-AX sparse: ok 15.6s rss=388579328
+126_RF-LARGE-CONT-n10000-AX_dense RF-LARGE-CONT-n10000-AX dense: never:n2_mode_at_or_above_10000_members
+127_RF-LARGE-CONT-n10000-AX_lane-id RF-LARGE-CONT-n10000-AX lane-id: never:cont_n10000_identity_lane
+128_RF-LARGE-CONT-n10000-AX_lane-lu RF-LARGE-CONT-n10000-AX lane-lu: never:n2_mode_at_or_above_10000_members
+129_RF-LARGE-CONT-n10000-ROT_dense RF-LARGE-CONT-n10000-ROT dense: never:n2_mode_at_or_above_10000_members
+130_RF-LARGE-CONT-n10000-ROT_lane-id RF-LARGE-CONT-n10000-ROT lane-id: never:cont_n10000_identity_lane
+131_RF-LARGE-CONT-n10000-ROT_lane-lu RF-LARGE-CONT-n10000-ROT lane-lu: never:n2_mode_at_or_above_10000_members
+132_RF-LARGE-CONT-n10000-ROT_sparse RF-LARGE-CONT-n10000-ROT sparse: ok 18.9s rss=407617536
+{"stop": [], "stop_after_tier": []}
+T4 exit=0

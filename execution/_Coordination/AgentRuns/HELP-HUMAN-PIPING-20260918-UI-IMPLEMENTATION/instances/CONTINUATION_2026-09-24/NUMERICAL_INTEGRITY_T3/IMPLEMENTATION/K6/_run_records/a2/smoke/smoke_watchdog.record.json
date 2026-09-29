@@ -1,0 +1,111 @@
+{
+ "argv": [
+  "python3",
+  "-c",
+  "\nimport sys, time\nstep, limit, failsafe, delay = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4])\nchunks, total = [], 0\nwhile True:\n    if total >= failsafe:\n        sys.exit(3)\n    if limit and total >= limit:\n        sys.exit(0)\n    block = bytearray(step)\n    for i in range(0, step, 4096):\n        block[i] = 1\n    chunks.append(block)\n    total += step\n    time.sleep(delay)\n",
+  "1048576",
+  "0",
+  "536870912",
+  "0.01"
+ ],
+ "binary_pid_found": true,
+ "classification": "killed_by_rss_watchdog",
+ "classification_detail": null,
+ "exit_code": -9,
+ "kill_after_s": 1.45,
+ "killed_by_rss_watchdog": true,
+ "load_after": [
+  10.67138671875,
+  12.61962890625,
+  10.72802734375
+ ],
+ "load_before": [
+  10.67138671875,
+  12.61962890625,
+  10.72802734375
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 139755520,
+ "peak_rss_source": "ps",
+ "poll_s": 0.1,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 136480,
+  "ps_samples": 14,
+  "wait4_maxrss_bytes": 1277952
+ },
+ "rss_cap_bytes": 134217728,
+ "run_id": "smoke_watchdog",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 0,
+ "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ "summary": null,
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 60,
+ "wall_s": 1.4541,
+ "watchdog_last_kib": 136480,
+ "watchdog_polls": 14,
+ "watchdog_samples": [
+  [
+   0.031,
+   17312
+  ],
+  [
+   0.147,
+   26720
+  ],
+  [
+   0.256,
+   35072
+  ],
+  [
+   0.364,
+   44480
+  ],
+  [
+   0.473,
+   53904
+  ],
+  [
+   0.582,
+   62256
+  ],
+  [
+   0.69,
+   71664
+  ],
+  [
+   0.799,
+   81072
+  ],
+  [
+   0.908,
+   90480
+  ],
+  [
+   1.016,
+   99888
+  ],
+  [
+   1.124,
+   108256
+  ],
+  [
+   1.232,
+   117664
+  ],
+  [
+   1.341,
+   127072
+  ],
+  [
+   1.45,
+   136480
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

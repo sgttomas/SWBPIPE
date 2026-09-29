@@ -1,0 +1,61 @@
+=== Scope 8 scans on 3e90176c66d27e530332025b855dd3556e793ea7 (K6 head, main 59cb200730eef01a805a5b9f4b840a845ff4204b merged)
+
+=== 1. Path scan: every file K6 changes relative to main (git diff --name-status 59cb20073 3e90176c6), grouped
+ 912 A
+   4 M
+   1 H/Cargo.lock
+   1 H/Cargo.toml
+   1 H/README.md
+  23 H/observations
+   2 H/runner
+  10 H/src
+   6 H/tests
+   1 P/tests/test_performance_harness_runner.py
+ 871 T3/IMPLEMENTATION/K6
+
+--- files outside H/ and T3/ (must be only the Q9(b) wrapper):
+projects/chirality-piping/tests/test_performance_harness_runner.py
+
+--- files in T3/ outside IMPLEMENTATION/K6/ (ROOT's records on the K6 branch):
+(none)
+
+--- legacy harness bytes (H/src/lib.rs diff, H/examples, the DEC-050/053 JSON records):
+diff --git a/H/src/lib.rs b/H/src/lib.rs
+index 605e0f89d4..7b10a9bc2d 100644
+--- a/H/src/lib.rs
++++ b/H/src/lib.rs
+@@ -17,6 +17,7 @@ use open_pipe_stress_sparse_direct::{solve_symmetric_system, SparseDirectError};
+ use std::error::Error;
+ use std::fmt;
+ use std::time::Instant;
++pub mod k6;
+
+ /// Identifier of the deterministic ordering algorithm used by the sparse
+ /// path (see `core/solver/sparse_direct` README for its determinism
+(empty above = unchanged)
+
+=== 2. Dependency-closure scan at 3e90176c6
+--- files outside H/ naming the package open_pipe_stress_solver_performance_harness, excluding execution records and validation/evidence (recorded build logs, not build inputs):
+P/provenance/build-artifacts/core__solver__performance_harness__Cargo.lock:34:name = "open_pipe_stress_solver_performance_harness"
+--- recorded build logs naming the package (file counts; not build inputs): execution records 64, validation/evidence 4
+--- inside H/ (the package itself and its own targets), occurrences per file:
+   1 H/Cargo.lock
+   1 H/Cargo.toml
+   1 H/examples/sparse_default_promotion_observation.rs
+   5 H/src/bin/k6_observe/main.rs
+   2 H/tests/k6_counts.rs
+   2 H/tests/k6_models.rs
+   4 H/tests/k6_parity.rs
+   3 H/tests/k6_staged.rs
+--- Cargo.toml files outside H naming performance_harness:
+(none)
+--- readers of provenance/build-artifacts in P/tests, P/tools, tools/, .github/:
+(none)
+--- references to performance_harness in P/tools, tools/, .github/:
+(none)
+--- P/tests files naming performance_harness:
+P/tests/test_performance_harness_runner.py
+P/tests/test_sparse_default_promotion_observation.py
+P/tests/test_sparse_suitability_observation.py
+--- the provenance lock copy P/provenance/build-artifacts/core__solver__performance_harness__Cargo.lock:
+sha256 at 3e90176c6 47c89d6d90a043c3c49bf87809dac1fa8b0953ce8036d75c900af6547e91493b; P/provenance unchanged by K6: yes

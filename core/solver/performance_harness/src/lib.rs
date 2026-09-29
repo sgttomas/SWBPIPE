@@ -17,6 +17,7 @@ use open_pipe_stress_sparse_direct::{solve_symmetric_system, SparseDirectError};
 use std::error::Error;
 use std::fmt;
 use std::time::Instant;
+pub mod k6;
 
 /// Identifier of the deterministic ordering algorithm used by the sparse
 /// path (see `core/solver/sparse_direct` README for its determinism

@@ -1,0 +1,35 @@
+=== py K6-M30: git archive ae3320b5a93aa0e65a71483b4db6f40eeb9d8f1c (performance_harness, the wrapper) + overlay (I15's RV18 fixes)
+overlay ./projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py aaa56b5f35d80eee
+overlay ./projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py 020c547c64a1b01e
+overlay ./projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs 85715e1f29094680
+overlay ./projects/chirality-piping/core/solver/performance_harness/tests/k6_bin.rs f6e3800a0b9108e6
+applied K6-M30 - RV18-N2: time -v's output file is not scrubbed
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+................F......................                                  [100%]
+=================================== FAILURES ===================================
+_________________ Parsers.test_time_v_output_file_is_scrubbed __________________
+
+self = <test_k6_runner.Parsers testMethod=test_time_v_output_file_is_scrubbed>
+
+    def test_time_v_output_file_is_scrubbed(self):
+        # RV18-N2: GNU time -v writes the binary's absolute path ("Command being timed") into
+        # the output file, which becomes a record. The path is built at run time.
+        machine_path = '/' + '/'.join(['home', 'someone', 'build', 'k6_observe'])
+        text = TIME_V_FIXTURE.replace('"k6_observe --noop', '"' + machine_path + ' --noop')
+        self.assertIn(machine_path, text)
+        with tempfile.TemporaryDirectory() as folder:
+            path = os.path.join(folder, 'run.time.txt')
+            with open(path, 'w') as fh:
+                fh.write(text)
+            parsed = r.read_time_file(path, 'Linux')
+            with open(path) as fh:
+                written = fh.read()
+        self.assertEqual(parsed['time_max_rss_bytes'], 2048 * 1024)
+>       self.assertNotIn(machine_path, written)
+E       AssertionError: '<synthetic-home-path>/someone/build/k6_observe' unexpectedly found in '\tCommand being timed: "<synthetic-home-path>/someone/build/k6_observe --noop --heap-cap-bytes 8053063680"\n\tUser time (seconds): 0.00\n\tSystem time (seconds): 0.00\n\tPercent of CPU this job got: 0%\n\tElapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00\n\tAverage shared text size (kbytes): 0\n\tAverage unshared data size (kbytes): 0\n\tAverage stack size (kbytes): 0\n\tAverage total size (kbytes): 0\n\tMaximum resident set size (kbytes): 2048\n\tAverage resident set size (kbytes): 0\n\tMajor (requiring I/O) page faults: 0\n\tMinor (reclaiming a frame) page faults: 91\n\tVoluntary context switches: 1\n\tInvoluntary context switches: 0\n\tSwaps: 0\n\tFile system inputs: 0\n\tFile system outputs: 0\n\tSocket messages sent: 0\n\tSocket messages received: 0\n\tSignals delivered: 0\n\tPage size (bytes): 4096\n\tExit status: 0\n'
+
+core/solver/performance_harness/runner/test_k6_runner.py:211: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_performance_harness_runner.py::Parsers::test_time_v_output_file_is_scrubbed
+1 failed, 38 passed in 6.89s
+=== exit 1 elapsed 7 s

@@ -1,0 +1,372 @@
+<<COUNTS>>
+| Model | Nodes | Members | DOFs | Pattern | Free lower (nonzero) | RCM profile (hbw) | Identity profile | Contributions |
+|---|---|---|---|---|---|---|---|---|
+| CHAIN-n00010-AX | 11 | 10 | 66 | 1116 | 534 (152) | 168 (4) | 444 | 1440 |
+| CHAIN-n00010-ROT | 11 | 10 | 66 | 1116 | 534 (396) | 529 (13) | 524 | 1440 |
+| CHAIN-n00100-AX | 101 | 100 | 606 | 10836 | 5664 (1592) | 1788 (4) | 4764 | 14400 |
+| CHAIN-n00100-ROT | 101 | 100 | 606 | 10836 | 5664 (4176) | 5569 (13) | 5564 | 14400 |
+| CHAIN-n01000-AX | 1001 | 1000 | 6006 | 108036 | 56964 (15992) | 17988 (4) | 47964 | 144000 |
+| CHAIN-n01000-ROT | 1001 | 1000 | 6006 | 108036 | 56964 (41976) | 55969 (13) | 55964 | 144000 |
+| CEIL-CHAIN-n01364-AX | 1365 | 1364 | 8190 | 147348 | 77712 (21816) | 24540 (4) | 65436 | 196416 |
+| CHAIN-n10000-AX | 10001 | 10000 | 60006 | 1080036 | 569964 (159992) | 179988 (4) | 479964 | 1440000 |
+| CHAIN-n10000-ROT | 10001 | 10000 | 60006 | 1080036 | 569964 (419976) | 559969 (13) | 559964 | 1440000 |
+| CONT-n00010-AX | 11 | 10 | 66 | 1116 | 297 (90) | 98 (3) | 675 | 1440 |
+| CONT-n00010-ROT | 11 | 10 | 66 | 1116 | 297 (225) | 279 (10) | 832 | 1440 |
+| CONT-n00100-AX | 101 | 100 | 606 | 10836 | 3132 (945) | 1043 (3) | 57510 | 14400 |
+| CONT-n00100-ROT | 101 | 100 | 606 | 10836 | 3132 (2385) | 3024 (10) | 69232 | 14400 |
+| CONT-n01000-AX | 1001 | 1000 | 6006 | 108036 | 31482 (9495) | 10493 (3) | 5637735 | 144000 |
+| CONT-n01000-ROT | 1001 | 1000 | 6006 | 108036 | 31482 (23985) | 30474 (10) | 6767482 | 144000 |
+| CONT-n10000-AX | 10001 | 10000 | 60006 | 1080036 | 314982 (94995) | 104993 (3) | 562627485 | 1440000 |
+| CONT-n10000-ROT | 10001 | 10000 | 60006 | 1080036 | 314982 (239985) | 304974 (10) | 675174982 | 1440000 |
+| DEC053 cantilever-chain-8 | 9 | 8 | 54 | 900 | 420 (120) | 132 (4) | 348 | 1152 |
+| DEC053 grid-frame-4x3 | 12 | 17 | 72 | 1656 | 528 (164) | 308 (9) | 782 | 2448 |
+| DEC053 cantilever-chain-24 | 25 | 24 | 150 | 2628 | 1332 (376) | 420 (4) | 1116 | 3456 |
+| DEC053 cantilever-chain-32 | 33 | 32 | 198 | 3492 | 1788 (504) | 564 (4) | 1500 | 4608 |
+| DEC053 grid-frame-5x5 | 25 | 40 | 150 | 3780 | 1536 (456) | 1398 (18) | 3086 | 5760 |
+| DEC053 cantilever-chain-48 | 49 | 48 | 294 | 5220 | 2700 (760) | 852 (4) | 2268 | 6912 |
+| DEC053 grid-frame-5x6 | 30 | 49 | 180 | 4608 | 1965 (580) | 1938 (19) | 4046 | 7056 |
+| DEC053 grid-frame-6x8 | 48 | 82 | 288 | 7632 | 3438 (1002) | 3980 (22) | 8462 | 11808 |
+| DEC053 grid-frame-7x8 | 56 | 97 | 336 | 9000 | 4053 (1176) | 5036 (25) | 11390 | 13968 |
+| GRID-16x16 | 256 | 480 | 1536 | 43776 | 21204 (6022) | 49314 (50) | 132446 | 69120 |
+| GRID-32x32 | 1024 | 1984 | 6144 | 179712 | 89988 (25350) | 394194 (98) | 1118942 | 285696 |
+| GRID-64x64 | 4096 | 8064 | 24576 | 728064 | 370404 (103942) | 3149874 (194) | 9192926 | 1161216 |
+| GRID-96x96 | 9216 | 18240 | 55296 | 1645056 | 841284 (235782) | 10626194 (290) | 31299806 | 2626560 |
+| GRID-128x128 | 16384 | 32512 | 98304 | 2930688 | 1502628 (420870) | 25182450 (386) | 74517470 | 4681728 |
+| TREE-n00010-AX | 11 | 10 | 66 | 1116 | 534 (172) | 389 (17) | 590 | 1440 |
+| TREE-n00010-ROT | 11 | 10 | 66 | 1116 | 534 (442) | 595 (17) | 674 | 1440 |
+| TREE-n00100-AX | 101 | 100 | 606 | 10836 | 5664 (1792) | 4933 (19) | 6530 | 14400 |
+| TREE-n00100-ROT | 101 | 100 | 606 | 10836 | 5664 (4672) | 6715 (17) | 7379 | 14400 |
+| TREE-n01000-AX | 1001 | 1000 | 6006 | 108036 | 56964 (17992) | 49933 (19) | 65930 | 144000 |
+| TREE-n01000-ROT | 1001 | 1000 | 6006 | 108036 | 56964 (46972) | 67915 (17) | 74429 | 144000 |
+| TREE-n10000-AX | 10001 | 10000 | 60006 | 1080036 | 569964 (179992) | 499933 (19) | 659930 | 1440000 |
+| TREE-n10000-ROT | 10001 | 10000 | 60006 | 1080036 | 569964 (469972) | 679915 (17) | 744929 | 1440000 |
+<</COUNTS>>
+<<RESULTS_SPARSE>>
+| # | Model | Outcome | Reps | Wall s | Heap MiB | Move MiB | Footprint MiB | RSS MiB | Staged total s | factor med / min s | entry_checked s |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | CHAIN-n00010-AX | Passed | 5 | 0.1 | 0.3 | 0.3 | 2.1 | 3.2 | 0.001 | 2.85e-05 / 2.79e-05 | 0.000866 / 0.000853 |
+| 8 | CHAIN-n00010-ROT | Passed | 5 | 0.1 | 0.3 | 0.3 | 2.3 | 3.3 | 0.002 | 7.14e-05 / 5.01e-05 | 0.00136 / 0.00127 |
+| 61 | CHAIN-n00100-AX | Sensitive | 5 | 0.2 | 2.6 | 2.6 | 5.0 | 6.0 | 0.011 | 0.000317 / 0.000294 | 0.00865 / 0.00847 |
+| 68 | CHAIN-n00100-ROT | Sensitive | 5 | 0.2 | 2.8 | 2.8 | 5.5 | 6.5 | 0.013 | 0.00047 / 0.00045 | 0.011 / 0.011 |
+| 85 | CHAIN-n01000-AX | Sensitive | 5 | 1.5 | 27.0 | 27.0 | 34.4 | 35.4 | 0.098 | 0.00258 / 0.00251 | 0.0778 / 0.077 |
+| 88 | CHAIN-n01000-ROT | Sensitive | 5 | 2.1 | 29.3 | 29.3 | 40.4 | 41.4 | 0.132 | 0.00493 / 0.00455 | 0.109 / 0.109 |
+| 109 | CHAIN-n10000-AX | NumericallyUnresolved | 5 | 6.5 | 254.2 | 254.2 | 687.9 | 711.5 | 0.530 | 0.0299 / 0.0277 | 0.371 / 0.365 |
+| 116 | CHAIN-n10000-ROT | NumericallyUnresolved | 5 | 7.6 | 277.1 | 277.1 | 284.9 | 335.3 | 0.619 | 0.0505 / 0.05 | 0.444 / 0.441 |
+| 17 | CONT-n00010-AX | Passed | 5 | 0.0 | 0.2 | 0.2 | 2.1 | 3.2 | 0.001 | 2.49e-05 / 2.04e-05 | 0.000805 / 0.00079 |
+| 24 | CONT-n00010-ROT | Passed | 5 | 0.1 | 0.3 | 0.3 | 2.1 | 3.2 | 0.001 | 4.08e-05 / 3.06e-05 | 0.00118 / 0.00111 |
+| 77 | CONT-n00100-AX | Passed | 5 | 0.2 | 2.2 | 2.2 | 7.9 | 8.9 | 0.010 | 0.000189 / 0.000171 | 0.00827 / 0.00821 |
+| 84 | CONT-n00100-ROT | Passed | 5 | 0.2 | 2.5 | 2.5 | 5.2 | 6.3 | 0.014 | 0.000298 / 0.000294 | 0.0117 / 0.0116 |
+| 93 | CONT-n01000-AX | Passed | 5 | 1.5 | 25.3 | 25.3 | 35.4 | 36.5 | 0.103 | 0.00197 / 0.00187 | 0.0825 / 0.0823 |
+| 96 | CONT-n01000-ROT | Passed | 5 | 2.0 | 27.7 | 27.7 | 40.7 | 41.7 | 0.137 | 0.00273 / 0.00265 | 0.116 / 0.116 |
+| 125 | CONT-n10000-AX | Sensitive | 5 | 15.6 | 243.4 | 243.4 | 346.1 | 370.6 | 1.039 | 0.0314 / 0.031 | 0.829 / 0.815 |
+| 132 | CONT-n10000-ROT | Sensitive | 5 | 18.9 | 267.4 | 267.4 | 302.3 | 388.7 | 1.291 | 0.0302 / 0.029 | 1.08 / 1.07 |
+| 27 | DEC053 cantilever-chain-8 | Passed | 5 | 0.0 | 0.2 | 0.2 | 2.1 | 3.2 | 0.001 | 2.54e-05 / 2.47e-05 | 0.000648 / 0.000637 |
+| 40 | DEC053 grid-frame-4x3 | Passed | 5 | 0.1 | 0.4 | 0.4 | 2.3 | 3.4 | 0.002 | 3.97e-05 / 3.75e-05 | 0.00138 / 0.00132 |
+| 30 | DEC053 cantilever-chain-24 | Passed | 5 | 0.1 | 0.7 | 0.7 | 2.8 | 3.8 | 0.002 | 7.4e-05 / 6.45e-05 | 0.00198 / 0.00191 |
+| 56 | DEC053 cantilever-chain-32 | Passed | 5 | 0.1 | 0.9 | 0.9 | 2.9 | 4.0 | 0.003 | 8.98e-05 / 8.53e-05 | 0.00267 / 0.00266 |
+| 49 | DEC053 grid-frame-5x5 | Passed | 5 | 0.1 | 0.9 | 0.9 | 3.2 | 4.3 | 0.004 | 0.000144 / 9.75e-05 | 0.00335 / 0.00319 |
+| 33 | DEC053 cantilever-chain-48 | Passed | 5 | 0.1 | 1.4 | 1.4 | 3.8 | 4.9 | 0.005 | 0.000127 / 0.000125 | 0.00401 / 0.00388 |
+| 59 | DEC053 grid-frame-5x6 | Passed | 5 | 0.1 | 1.0 | 1.0 | 3.4 | 4.5 | 0.005 | 0.000173 / 0.000128 | 0.00401 / 0.00393 |
+| 43 | DEC053 grid-frame-6x8 | Passed | 5 | 0.2 | 1.7 | 1.7 | 6.7 | 7.7 | 0.008 | 0.000279 / 0.00024 | 0.00678 / 0.0062 |
+| 46 | DEC053 grid-frame-7x8 | Passed | 5 | 0.2 | 2.0 | 2.0 | 4.8 | 5.9 | 0.010 | 0.000322 / 0.000289 | 0.00802 / 0.00776 |
+| 133 | GRID-16x16 | Passed | 5 | 0.8 | 11.4 | 11.4 | 18.5 | 19.5 | 0.052 | 0.00297 / 0.00271 | 0.0422 / 0.0421 |
+| 134 | GRID-32x32 | Passed | 5 | 3.4 | 46.2 | 46.3 | 82.4 | 83.4 | 0.234 | 0.0314 / 0.0311 | 0.198 / 0.195 |
+| 135 | GRID-64x64 | Sensitive | 5 | 18.1 | 197.1 | 198.1 | 282.8 | 334.6 | 1.246 | 0.45 / 0.445 | 1.1 / 1.09 |
+| 136 | GRID-96x96 | Sensitive | 5 | 60.0 | 449.8 | 505.1 | 728.2 | 887.8 | 4.088 | 2.16 / 2.15 | 3.72 / 3.7 |
+| 137 | GRID-128x128 | Sensitive | 5 | 150.5 | 886.3 | 981.0 | 1,235.9 | 1,570.3 | 10.124 | 6.48 / 6.46 | 9.53 / 9.52 |
+| 11 | TREE-n00010-AX | Passed | 5 | 0.1 | 0.3 | 0.3 | 2.2 | 3.2 | 0.001 | 3.62e-05 / 3.17e-05 | 0.000965 / 0.000916 |
+| 14 | TREE-n00010-ROT | Passed | 5 | 0.1 | 0.3 | 0.3 | 2.4 | 3.4 | 0.002 | 6.52e-05 / 6.04e-05 | 0.00156 / 0.00152 |
+| 71 | TREE-n00100-AX | Sensitive | 5 | 0.2 | 2.6 | 2.7 | 5.3 | 6.4 | 0.010 | 0.000362 / 0.000322 | 0.00843 / 0.00831 |
+| 74 | TREE-n00100-ROT | Sensitive | 5 | 0.2 | 3.0 | 3.0 | 5.9 | 6.9 | 0.014 | 0.000557 / 0.000548 | 0.0121 / 0.0119 |
+| 89 | TREE-n01000-AX | Sensitive | 5 | 1.7 | 27.8 | 28.0 | 37.7 | 38.7 | 0.105 | 0.00304 / 0.00297 | 0.0847 / 0.0836 |
+| 92 | TREE-n01000-ROT | Sensitive | 5 | 2.3 | 31.1 | 31.4 | 48.7 | 49.7 | 0.143 | 0.00557 / 0.00546 | 0.123 / 0.119 |
+| 119 | TREE-n10000-AX | NumericallyUnresolved | 5 | 6.6 | 258.9 | 260.2 | 390.3 | 443.7 | 0.546 | 0.0348 / 0.033 | 0.377 / 0.372 |
+| 122 | TREE-n10000-ROT | NumericallyUnresolved | 5 | 8.0 | 286.2 | 288.7 | 575.8 | 673.0 | 0.647 | 0.0581 / 0.0574 | 0.47 / 0.467 |
+<</RESULTS_SPARSE>>
+<<RESULTS_DENSE>>
+| # | Model | Outcome | Reps | Wall s | Heap MiB | Move MiB | Footprint MiB | RSS MiB | Staged total s | factor med / min s | entry_checked s |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2 | CHAIN-n00010-AX | Passed | 5 | 0.1 | 0.6 | 0.6 | 2.5 | 3.6 | 0.001 | 8.94e-05 / 8.78e-05 | 0.00109 / 0.00103 |
+| 5 | CHAIN-n00010-ROT | Passed | 5 | 0.1 | 0.6 | 0.6 | 2.6 | 3.6 | 0.002 | 9.93e-05 / 9.71e-05 | 0.00164 / 0.00155 |
+| 62 | CHAIN-n00100-AX | Sensitive | 5 | 1.7 | 35.1 | 35.1 | 45.9 | 46.9 | 0.105 | 0.0758 / 0.0659 | 0.0955 / 0.0905 |
+| 65 | CHAIN-n00100-ROT | Sensitive | 5 | 1.5 | 35.3 | 35.3 | 44.8 | 45.8 | 0.096 | 0.0666 / 0.0642 | 0.0941 / 0.0917 |
+| 97 | CHAIN-n01000-AX | Sensitive | 5 | 622.2 | 3,319.2 | 3,319.2 | 3,411.5 | 4,782.7 | 87.761 | 79.6 / 69.4 | 94.5 / 94.5 |
+| 100 | CHAIN-n01000-ROT | FactorRefused (timed_out) | - | 1800.1 | 3,319.5 | 3,319.5 | - | 3,413.4 (ps) | 87.324 | 86.1 / 86.1 | - |
+| 138 | CEIL-CHAIN-n01364-AX | Sensitive | 5 | 1268.0 | 6,160.5 | 6,160.5 | 6,188.8 | 6,761.5 | 179.860 | 174 / 166 | 181 / 181 |
+| 18 | CONT-n00010-AX | Passed | 5 | 0.1 | 0.5 | 0.5 | 2.5 | 3.5 | 0.001 | 5.03e-05 / 4.77e-05 | 0.00094 / 0.000917 |
+| 21 | CONT-n00010-ROT | Passed | 5 | 0.1 | 0.6 | 0.6 | 2.6 | 3.6 | 0.002 | 4.89e-05 / 4.42e-05 | 0.00128 / 0.0012 |
+| 78 | CONT-n00100-AX | Passed | 5 | 0.9 | 33.8 | 33.8 | 42.7 | 43.8 | 0.053 | 0.0293 / 0.0289 | 0.0513 / 0.0507 |
+| 81 | CONT-n00100-ROT | Passed | 5 | 0.9 | 34.0 | 34.0 | 42.6 | 43.7 | 0.058 | 0.03 / 0.0287 | 0.0555 / 0.0542 |
+| 105 | CONT-n01000-AX | Passed | 5 | 232.9 | 3,199.1 | 3,199.1 | 3,340.3 | 3,479.0 | 33.249 | 27.8 / 27.7 | 33.4 / 33.4 |
+| 108 | CONT-n01000-ROT | Passed | 5 | 232.4 | 3,201.5 | 3,201.5 | 3,343.1 | 3,906.9 | 33.474 | 28.2 / 27.5 | 32.9 / 32.9 |
+| 28 | DEC053 cantilever-chain-8 | Passed | 5 | 0.0 | 0.4 | 0.4 | 2.3 | 3.3 | 0.001 | 4.94e-05 / 4.81e-05 | 0.000736 / 0.000734 |
+| 37 | DEC053 grid-frame-4x3 | Passed | 5 | 0.1 | 0.7 | 0.7 | 2.8 | 3.8 | 0.002 | 7.25e-05 / 5.6e-05 | 0.00149 / 0.00143 |
+| 31 | DEC053 cantilever-chain-24 | Passed | 5 | 0.1 | 2.4 | 2.4 | 5.0 | 6.1 | 0.004 | 0.00102 / 0.00101 | 0.0038 / 0.00364 |
+| 53 | DEC053 cantilever-chain-32 | Passed | 5 | 0.1 | 4.1 | 4.1 | 7.8 | 8.8 | 0.007 | 0.00245 / 0.00234 | 0.00648 / 0.0061 |
+| 50 | DEC053 grid-frame-5x5 | Passed | 5 | 0.1 | 2.5 | 2.5 | 5.1 | 6.1 | 0.005 | 0.000667 / 0.000634 | 0.00442 / 0.00431 |
+| 34 | DEC053 cantilever-chain-48 | Passed | 5 | 0.3 | 8.6 | 8.6 | 13.2 | 14.2 | 0.016 | 0.00763 / 0.00748 | 0.0154 / 0.0152 |
+| 60 | DEC053 grid-frame-5x6 | Passed | 5 | 0.1 | 3.5 | 3.5 | 6.4 | 7.4 | 0.007 | 0.00121 / 0.00119 | 0.00617 / 0.00614 |
+| 44 | DEC053 grid-frame-6x8 | Passed | 5 | 0.3 | 8.5 | 8.5 | 14.1 | 15.1 | 0.017 | 0.0053 / 0.00516 | 0.0151 / 0.015 |
+| 47 | DEC053 grid-frame-7x8 | Passed | 5 | 0.3 | 11.3 | 11.3 | 17.3 | 18.4 | 0.023 | 0.00827 / 0.00823 | 0.0206 / 0.0202 |
+| 12 | TREE-n00010-AX | Passed | 5 | 0.1 | 0.6 | 0.6 | 2.5 | 3.6 | 0.001 | 9.05e-05 / 8.96e-05 | 0.0011 / 0.00108 |
+| 15 | TREE-n00010-ROT | Passed | 5 | 0.1 | 0.6 | 0.6 | 2.6 | 3.7 | 0.002 | 8.97e-05 / 8.58e-05 | 0.00164 / 0.00148 |
+| 72 | TREE-n00100-AX | Sensitive | 5 | 1.5 | 35.1 | 35.1 | 44.9 | 45.9 | 0.095 | 0.0664 / 0.0649 | 0.0925 / 0.0905 |
+| 75 | TREE-n00100-ROT | Sensitive | 5 | 1.5 | 35.5 | 35.5 | 45.1 | 46.1 | 0.095 | 0.0651 / 0.0646 | 0.0929 / 0.0913 |
+| 101 | TREE-n01000-AX | FactorRefused (timed_out) | - | 1800.1 | 3,317.7 | 3,317.9 | - | 3,412.2 (ps) | 66.337 | 65.2 / 65.2 | - |
+| 104 | TREE-n01000-ROT | Sensitive | 5 | 507.5 | 3,323.3 | 3,323.6 | 3,418.5 | 3,714.0 | 72.429 | 64.8 / 64.6 | 72.4 / 72.4 |
+<</RESULTS_DENSE>>
+<<RESULTS_LANE_ID>>
+| # | Model | Outcome | Reps | Wall s | Heap MiB | Move MiB | Footprint MiB | RSS MiB | Staged total s | lane_solve med / min s | entry_checked s |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | CHAIN-n00010-AX | LaneSolved | 5 | 2.0 | 0.1 | 0.1 | 1.6 | 2.5 | 0.000 | 2.51e-05 / 2.28e-05 | - |
+| 6 | CHAIN-n00010-ROT | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 5.8e-05 / 5.23e-05 | - |
+| 63 | CHAIN-n00100-AX | LaneSolved | 5 | 0.0 | 0.6 | 0.6 | 2.4 | 3.3 | 0.001 | 0.000198 / 0.000197 | - |
+| 66 | CHAIN-n00100-ROT | LaneSolved | 5 | 0.0 | 1.0 | 1.0 | 2.9 | 3.9 | 0.001 | 0.000465 / 0.000461 | - |
+| 86 | CHAIN-n01000-AX | LaneSolved | 5 | 0.1 | 6.4 | 6.4 | 11.0 | 11.9 | 0.006 | 0.00194 / 0.00192 | - |
+| 87 | CHAIN-n01000-ROT | LaneSolved | 5 | 0.1 | 11.5 | 11.6 | 16.4 | 17.3 | 0.009 | 0.00504 / 0.00491 | - |
+| 111 | CHAIN-n10000-AX | LaneSolved | 5 | 0.5 | 58.6 | 58.6 | 124.8 | 142.7 | 0.065 | 0.0216 / 0.0199 | - |
+| 114 | CHAIN-n10000-ROT | LaneSolved | 5 | 0.6 | 107.1 | 107.3 | 209.3 | 263.9 | 0.092 | 0.0514 / 0.0501 | - |
+| 19 | CONT-n00010-AX | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.6 | 2.5 | 0.000 | 1.87e-05 / 1.52e-05 | - |
+| 22 | CONT-n00010-ROT | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.6 | 2.6 | 0.000 | 3.47e-05 / 3.14e-05 | - |
+| 79 | CONT-n00100-AX | LaneSolved | 5 | 0.0 | 1.0 | 1.2 | 2.9 | 3.8 | 0.001 | 0.000142 / 0.00014 | - |
+| 82 | CONT-n00100-ROT | LaneSolved | 5 | 0.0 | 1.7 | 2.1 | 3.2 | 4.1 | 0.001 | 0.000309 / 0.000301 | - |
+| 94 | CONT-n01000-AX | LaneSolved | 5 | 0.1 | 69.1 | 100.6 | 229.1 | 229.9 | 0.010 | 0.00571 / 0.00559 | - |
+| 95 | CONT-n01000-ROT | LaneSolved | 5 | 0.1 | 71.1 | 102.3 | 272.9 | 273.6 | 0.011 | 0.00707 / 0.00668 | - |
+| 25 | DEC053 cantilever-chain-8 | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.6 | 2.5 | 0.000 | 1.96e-05 / 1.78e-05 | - |
+| 38 | DEC053 grid-frame-4x3 | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 3.07e-05 / 2.57e-05 | - |
+| 32 | DEC053 cantilever-chain-24 | LaneSolved | 5 | 0.0 | 0.2 | 0.2 | 1.7 | 2.7 | 0.000 | 5e-05 / 4.78e-05 | - |
+| 54 | DEC053 cantilever-chain-32 | LaneSolved | 5 | 0.0 | 0.2 | 0.2 | 1.9 | 2.8 | 0.000 | 6.72e-05 / 6.56e-05 | - |
+| 51 | DEC053 grid-frame-5x5 | LaneSolved | 5 | 0.0 | 0.2 | 0.2 | 2.0 | 2.9 | 0.000 | 6.31e-05 / 5.95e-05 | - |
+| 35 | DEC053 cantilever-chain-48 | LaneSolved | 5 | 0.0 | 0.3 | 0.3 | 2.0 | 2.9 | 0.000 | 9.62e-05 / 9.39e-05 | - |
+| 57 | DEC053 grid-frame-5x6 | LaneSolved | 5 | 0.0 | 0.3 | 0.3 | 2.1 | 3.0 | 0.000 | 8.14e-05 / 7.39e-05 | - |
+| 41 | DEC053 grid-frame-6x8 | LaneSolved | 5 | 0.0 | 0.5 | 0.5 | 2.3 | 3.3 | 0.000 | 0.000156 / 0.000138 | - |
+| 48 | DEC053 grid-frame-7x8 | LaneSolved | 5 | 0.0 | 0.6 | 0.6 | 2.6 | 3.5 | 0.001 | 0.000175 / 0.000167 | - |
+| 9 | TREE-n00010-AX | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.6 | 2.6 | 0.000 | 2.9e-05 / 2.31e-05 | - |
+| 16 | TREE-n00010-ROT | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 5.92e-05 / 5.24e-05 | - |
+| 69 | TREE-n00100-AX | LaneSolved | 5 | 0.0 | 0.7 | 0.7 | 2.6 | 3.5 | 0.001 | 0.000207 / 0.000203 | - |
+| 76 | TREE-n00100-ROT | LaneSolved | 5 | 0.0 | 1.0 | 1.0 | 3.0 | 3.9 | 0.001 | 0.000501 / 0.000488 | - |
+| 90 | TREE-n01000-AX | LaneSolved | 5 | 0.1 | 7.5 | 7.5 | 12.6 | 13.5 | 0.006 | 0.00206 / 0.00196 | - |
+| 91 | TREE-n01000-ROT | LaneSolved | 5 | 0.1 | 11.4 | 11.5 | 16.1 | 17.0 | 0.009 | 0.00531 / 0.00502 | - |
+| 117 | TREE-n10000-AX | LaneSolved | 5 | 0.5 | 68.5 | 68.5 | 105.7 | 130.8 | 0.062 | 0.0224 / 0.022 | - |
+| 124 | TREE-n10000-ROT | LaneSolved | 5 | 0.6 | 105.8 | 106.1 | 210.1 | 265.2 | 0.096 | 0.0541 / 0.0534 | - |
+<</RESULTS_LANE_ID>>
+<<RESULTS_LANE_LU>>
+| # | Model | Outcome | Reps | Wall s | Heap MiB | Move MiB | Footprint MiB | RSS MiB | Staged total s | lane_solve med / min s | entry_checked s |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 4 | CHAIN-n00010-AX | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 8.94e-05 / 8.48e-05 | - |
+| 7 | CHAIN-n00010-ROT | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 7.57e-05 / 6.73e-05 | - |
+| 64 | CHAIN-n00100-AX | LaneSolved | 5 | 0.3 | 5.9 | 5.9 | 8.5 | 9.4 | 0.061 | 0.0602 / 0.0593 | - |
+| 67 | CHAIN-n00100-ROT | LaneSolved | 5 | 0.4 | 5.9 | 5.9 | 9.0 | 9.8 | 0.061 | 0.0602 / 0.0598 | - |
+| 98 | CHAIN-n01000-AX | LaneSolved | 1 | 66.5 | 553.9 | 553.9 | 574.8 | 575.3 | 66.483 | 66.4 / 66.4 | - |
+| 99 | CHAIN-n01000-ROT | LaneSolved | 1 | 72.0 | 553.9 | 553.9 | 574.8 | 575.4 | 71.946 | 71.9 / 71.9 | - |
+| 20 | CONT-n00010-AX | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.6 | 2.5 | 0.000 | 3.49e-05 / 3.23e-05 | - |
+| 23 | CONT-n00010-ROT | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.6 | 2.5 | 0.000 | 3.5e-05 / 3.2e-05 | - |
+| 80 | CONT-n00100-AX | LaneSolved | 5 | 0.2 | 4.7 | 4.7 | 9.1 | 10.0 | 0.027 | 0.0262 / 0.0261 | - |
+| 83 | CONT-n00100-ROT | LaneSolved | 5 | 0.2 | 4.7 | 4.7 | 9.2 | 10.1 | 0.027 | 0.0255 / 0.0254 | - |
+| 106 | CONT-n01000-AX | LaneSolved | 1 | 27.1 | 433.9 | 433.9 | 502.9 | 503.5 | 27.051 | 27 / 27 | - |
+| 107 | CONT-n01000-ROT | LaneSolved | 1 | 27.1 | 434.0 | 434.0 | 502.9 | 503.6 | 27.007 | 26.9 / 26.9 | - |
+| 26 | DEC053 cantilever-chain-8 | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.6 | 2.5 | 0.000 | 4.12e-05 / 3.8e-05 | - |
+| 39 | DEC053 grid-frame-4x3 | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 4.2e-05 / 3.8e-05 | - |
+| 29 | DEC053 cantilever-chain-24 | LaneSolved | 5 | 0.0 | 0.4 | 0.4 | 2.2 | 3.1 | 0.001 | 0.000941 / 0.000917 | - |
+| 55 | DEC053 cantilever-chain-32 | LaneSolved | 5 | 0.0 | 0.7 | 0.7 | 2.9 | 3.8 | 0.002 | 0.00206 / 0.00205 | - |
+| 52 | DEC053 grid-frame-5x5 | LaneSolved | 5 | 0.0 | 0.4 | 0.4 | 2.3 | 3.2 | 0.001 | 0.000476 / 0.000461 | - |
+| 36 | DEC053 cantilever-chain-48 | LaneSolved | 5 | 0.1 | 1.5 | 1.5 | 3.5 | 4.4 | 0.008 | 0.00715 / 0.00702 | - |
+| 58 | DEC053 grid-frame-5x6 | LaneSolved | 5 | 0.0 | 0.6 | 0.6 | 2.6 | 3.5 | 0.001 | 0.000958 / 0.000942 | - |
+| 42 | DEC053 grid-frame-6x8 | LaneSolved | 5 | 0.2 | 1.4 | 1.4 | 4.2 | 5.0 | 0.005 | 0.00459 / 0.00447 | - |
+| 45 | DEC053 grid-frame-7x8 | LaneSolved | 5 | 0.2 | 1.8 | 1.8 | 5.1 | 6.0 | 0.008 | 0.00761 / 0.00713 | - |
+| 10 | TREE-n00010-AX | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 7.21e-05 / 6.83e-05 | - |
+| 13 | TREE-n00010-ROT | LaneSolved | 5 | 0.0 | 0.1 | 0.1 | 1.7 | 2.6 | 0.000 | 8.28e-05 / 7.72e-05 | - |
+| 70 | TREE-n00100-AX | LaneSolved | 5 | 0.3 | 5.9 | 5.9 | 8.6 | 9.5 | 0.061 | 0.0604 / 0.0602 | - |
+| 73 | TREE-n00100-ROT | LaneSolved | 5 | 0.3 | 5.9 | 5.9 | 8.6 | 9.5 | 0.061 | 0.0602 / 0.0599 | - |
+| 102 | TREE-n01000-AX | LaneSolved | 1 | 63.8 | 554.0 | 554.0 | 574.7 | 575.3 | 63.721 | 63.6 / 63.6 | - |
+| 103 | TREE-n01000-ROT | LaneSolved | 1 | 63.5 | 554.2 | 554.2 | 591.9 | 592.5 | 63.445 | 63.4 / 63.4 | - |
+<</RESULTS_LANE_LU>>
+<<FITS>>
+| Family / mode | Members | Heap, all | Heap, ≥100 | Move, ≥100 | Footprint net, ≥100 | RSS net, all | RSS net, ≥100 |
+|---|---|---|---|---|---|---|---|
+| CHAIN/dense | 10, 100, 1000, 1364 | 1.889 | 1.976 | 1.976 | 1.889 | 1.689 | 1.966 |
+| CHAIN/lane-id | 10, 100, 1000, 10000 | 1.002 | 1.004 | 1.004 | 1.006 | 0.792 | 1.008 |
+| CHAIN/lane-lu | 10, 100, 1000 | 1.866 | 1.972 | 1.972 | 1.875 | 1.418 | 1.861 |
+| CHAIN/sparse | 10, 100, 1000, 10000 | 1.000 | 0.999 | 0.998 | 1.015 | 0.841 | 1.017 |
+| CONT/dense | 10, 100, 1000 | 1.881 | 1.975 | 1.975 | 1.905 | 1.651 | 1.943 |
+| CONT/lane-id | 10, 100, 1000 | 1.506 | 1.737 | 1.809 | 2.114 | 1.241 | 2.053 |
+| CONT/lane-lu | 10, 100, 1000 | 1.839 | 1.964 | 1.964 | 1.794 | 1.397 | 1.781 |
+| CONT/sparse | 10, 100, 1000, 10000 | 1.002 | 1.018 | 1.018 | 0.893 | 0.804 | 0.910 |
+| DEC053/dense | 8, 17, 24, 32, 40, 48, 49, 82, 97 | 1.374 | - | - | - | 0.979 | - |
+| DEC053/lane-id | 8, 17, 24, 32, 40, 48, 49, 82, 97 | 0.998 | - | - | - | 0.323 | - |
+| DEC053/lane-lu | 8, 17, 24, 32, 40, 48, 49, 82, 97 | 1.318 | - | - | - | 0.704 | - |
+| DEC053/sparse | 8, 17, 24, 32, 40, 48, 49, 82, 97 | 0.872 | - | - | - | 0.517 | - |
+| GRID/sparse | 480, 1984, 8064, 18240, 32512 | 1.028 | 1.028 | 1.055 | 1.006 | 1.064 | 1.064 |
+| TREE/dense | 10, 100, 1000 | 1.868 | 1.974 | 1.973 | 1.891 | 1.606 | 1.924 |
+| TREE/lane-id | 10, 100, 1000, 10000 | 1.005 | 1.006 | 1.006 | 0.970 | 0.780 | 0.983 |
+| TREE/lane-lu | 10, 100, 1000 | 1.866 | 1.971 | 1.971 | 1.890 | 1.419 | 1.875 |
+| TREE/sparse | 10, 100, 1000, 10000 | 0.998 | 0.993 | 0.991 | 1.011 | 0.853 | 1.023 |
+<</FITS>>
+<<F1B_DENSE>>
+| Model | Members | DOFs | 96·n² (B) | Heap | Move | Footprint | RSS | Heap / 6 GiB |
+|---|---|---|---|---|---|---|---|---|
+| CHAIN-n00010-AX | 10 | 66 | 418,176 | 1.3883 | 1.3883 | 6.3087 | 8.9330 | 0.0001 |
+| CHAIN-n00010-ROT | 10 | 66 | 418,176 | 1.4491 | 1.4491 | 6.4263 | 9.0505 | 0.0001 |
+| CONT-n00010-AX | 10 | 66 | 418,176 | 1.3562 | 1.3562 | 6.2304 | 8.8546 | 0.0001 |
+| CONT-n00010-ROT | 10 | 66 | 418,176 | 1.4201 | 1.4201 | 6.4263 | 9.0505 | 0.0001 |
+| TREE-n00010-AX | 10 | 66 | 418,176 | 1.4023 | 1.4056 | 6.3479 | 8.9721 | 0.0001 |
+| TREE-n00010-ROT | 10 | 66 | 418,176 | 1.4820 | 1.4881 | 6.6222 | 9.2464 | 0.0001 |
+| CHAIN-n00100-AX | 100 | 606 | 35,254,656 | 1.0429 | 1.0429 | 1.3649 | 1.3937 | 0.0057 |
+| CHAIN-n00100-ROT | 100 | 606 | 35,254,656 | 1.0497 | 1.0497 | 1.3329 | 1.3617 | 0.0057 |
+| CONT-n00100-AX | 100 | 606 | 35,254,656 | 1.0043 | 1.0043 | 1.2711 | 1.3017 | 0.0055 |
+| CONT-n00100-ROT | 100 | 606 | 35,254,656 | 1.0112 | 1.0112 | 1.2683 | 1.2985 | 0.0055 |
+| TREE-n00100-AX | 100 | 606 | 35,254,656 | 1.0449 | 1.0451 | 1.3366 | 1.3659 | 0.0057 |
+| TREE-n00100-ROT | 100 | 606 | 35,254,656 | 1.0557 | 1.0571 | 1.3417 | 1.3705 | 0.0058 |
+| CHAIN-n01000-AX | 1000 | 6006 | 3,462,915,456 | 1.0051 | 1.0051 | 1.0330 | 1.4482 | 0.5402 |
+| CHAIN-n01000-ROT (timed_out) | 1000 | 6006 | 3,462,915,456 | 1.0051 | 1.0051 | - | 1.0336 | 0.5403 |
+| CONT-n01000-AX | 1000 | 6006 | 3,462,915,456 | 0.9687 | 0.9687 | 1.0115 | 1.0534 | 0.5207 |
+| CONT-n01000-ROT | 1000 | 6006 | 3,462,915,456 | 0.9694 | 0.9694 | 1.0123 | 1.1830 | 0.5211 |
+| TREE-n01000-AX (timed_out) | 1000 | 6006 | 3,462,915,456 | 1.0046 | 1.0047 | - | 1.0332 | 0.5400 |
+| TREE-n01000-ROT | 1000 | 6006 | 3,462,915,456 | 1.0063 | 1.0064 | 1.0351 | 1.1246 | 0.5409 |
+| CEIL-CHAIN-n01364-AX | 1364 | 8190 | 6,439,305,600 | 1.0032 | 1.0032 | 1.0078 | 1.1010 | 1.0027 |
+| DEC053 cantilever-chain-8 | 8 | 54 | 279,936 | 1.5184 | 1.5184 | 8.4877 | 12.4079 | 0.0001 |
+| DEC053 grid-frame-4x3 | 17 | 72 | 497,664 | 1.4807 | 1.4807 | 5.7949 | 8.0000 | 0.0001 |
+| DEC053 cantilever-chain-24 | 24 | 150 | 2,160,000 | 1.1737 | 1.1737 | 2.4350 | 2.9431 | 0.0004 |
+| DEC053 cantilever-chain-32 | 32 | 198 | 3,763,584 | 1.1491 | 1.1491 | 2.1767 | 2.4640 | 0.0007 |
+| DEC053 grid-frame-5x5 | 40 | 150 | 2,160,000 | 1.2257 | 1.2257 | 2.4653 | 2.9734 | 0.0004 |
+| DEC053 cantilever-chain-48 | 48 | 294 | 8,297,856 | 1.0897 | 1.0897 | 1.6685 | 1.8007 | 0.0014 |
+| DEC053 grid-frame-5x6 | 49 | 180 | 3,110,400 | 1.1803 | 1.1803 | 2.1492 | 2.5021 | 0.0006 |
+| DEC053 grid-frame-6x8 | 82 | 288 | 7,962,624 | 1.1190 | 1.1190 | 1.8519 | 1.9877 | 0.0014 |
+| DEC053 grid-frame-7x8 | 97 | 336 | 10,838,016 | 1.0964 | 1.0964 | 1.6780 | 1.7778 | 0.0018 |
+<</F1B_DENSE>>
+<<F1B_LANE>>
+| Model | Members | 24·P_id (B) | Heap | Move | Footprint | RSS | 16P + 24P′ (B) | Heap / that | Move / that |
+|---|---|---|---|---|---|---|---|---|---|
+| CHAIN-n00010-AX | 10 | 10,656 | 6.0549 | 6.0549 | 153.7830 | 246.0060 | 12,912 | 4.997 | 4.997 |
+| CHAIN-n00010-ROT | 10 | 12,576 | 8.8361 | 8.8368 | 140.7271 | 220.1730 | 24,848 | 4.472 | 4.472 |
+| CONT-n00010-AX | 10 | 16,200 | 3.9344 | 3.9344 | 103.1778 | 163.8400 | 14,448 | 4.412 | 4.412 |
+| CONT-n00010-ROT | 10 | 19,968 | 4.0077 | 4.0077 | 85.3490 | 135.3846 | 23,080 | 3.467 | 3.467 |
+| TREE-n00010-AX | 10 | 14,160 | 5.0833 | 5.0833 | 121.5136 | 190.9153 | 15,248 | 4.721 | 4.721 |
+| TREE-n00010-ROT | 10 | 16,176 | 6.8090 | 6.8090 | 109.4080 | 171.1731 | 27,248 | 4.042 | 4.042 |
+| CHAIN-n00100-AX | 100 | 114,336 | 5.6108 | 5.6108 | 22.2140 | 30.6655 | 138,192 | 4.642 | 4.642 |
+| CHAIN-n00100-ROT | 100 | 133,536 | 7.7834 | 7.8123 | 23.0689 | 30.4280 | 265,328 | 3.917 | 3.932 |
+| CONT-n00100-AX | 100 | 1,380,240 | 0.7412 | 0.8923 | 2.1844 | 2.8845 | 958,368 | 1.067 | 1.285 |
+| CONT-n00100-ROT | 100 | 1,661,568 | 1.0679 | 1.3315 | 1.9920 | 2.5835 | 1,210,360 | 1.466 | 1.828 |
+| TREE-n00100-AX | 100 | 156,720 | 4.6373 | 4.6373 | 17.5654 | 23.7313 | 166,448 | 4.366 | 4.366 |
+| TREE-n00100-ROT | 100 | 177,096 | 5.8583 | 5.8794 | 17.6722 | 23.2212 | 294,368 | 3.524 | 3.537 |
+| CHAIN-n01000-AX | 1000 | 1,151,136 | 5.8024 | 5.8024 | 9.9776 | 10.8028 | 1,390,992 | 4.802 | 4.802 |
+| CHAIN-n01000-ROT | 1000 | 1,343,136 | 8.9982 | 9.0224 | 12.8329 | 13.5401 | 2,670,128 | 4.526 | 4.538 |
+| CONT-n01000-AX | 1000 | 135,305,640 | 0.5356 | 0.7799 | 1.7757 | 1.7815 | 90,587,568 | 0.800 | 1.165 |
+| CONT-n01000-ROT | 1000 | 162,419,568 | 0.4589 | 0.6606 | 1.7616 | 1.7666 | 109,311,160 | 0.682 | 0.982 |
+| TREE-n01000-AX | 1000 | 1,582,320 | 4.9490 | 4.9490 | 8.3770 | 8.9773 | 1,678,448 | 4.666 | 4.666 |
+| TREE-n01000-ROT | 1000 | 1,786,296 | 6.7188 | 6.7369 | 9.4291 | 9.9700 | 2,965,568 | 4.047 | 4.058 |
+| CHAIN-n10000-AX | 10000 | 11,519,136 | 5.3370 | 5.3370 | 11.3644 | 12.9901 | 13,918,992 | 4.417 | 4.417 |
+| CHAIN-n10000-ROT | 10000 | 13,439,136 | 8.3562 | 8.3757 | 16.3302 | 20.5910 | 26,718,128 | 4.203 | 4.213 |
+| TREE-n10000-AX | 10000 | 15,838,320 | 4.5339 | 4.5339 | 7.0002 | 8.6625 | 16,798,448 | 4.275 | 4.275 |
+| TREE-n10000-ROT | 10000 | 17,878,296 | 6.2067 | 6.2214 | 12.3222 | 15.5535 | 29,677,568 | 3.739 | 3.748 |
+| DEC053 cantilever-chain-8 | 8 | 8,352 | 6.7322 | 6.7322 | 198.1676 | 315.8314 | 10,128 | 5.552 | 5.552 |
+| DEC053 grid-frame-4x3 | 17 | 18,768 | 4.9986 | 4.9986 | 94.2980 | 146.6598 | 19,520 | 4.806 | 4.806 |
+| DEC053 cantilever-chain-24 | 24 | 26,784 | 5.9482 | 5.9482 | 67.2996 | 103.9904 | 32,400 | 4.917 | 4.917 |
+| DEC053 cantilever-chain-32 | 32 | 36,000 | 5.9934 | 5.9934 | 54.1676 | 81.0098 | 43,536 | 4.956 | 4.956 |
+| DEC053 grid-frame-5x5 | 40 | 74,064 | 3.1040 | 3.1040 | 27.8775 | 41.1458 | 69,680 | 3.299 | 3.299 |
+| DEC053 cantilever-chain-48 | 48 | 54,432 | 5.7981 | 5.7981 | 37.6311 | 55.3839 | 65,808 | 4.796 | 4.796 |
+| DEC053 grid-frame-5x6 | 49 | 97,104 | 2.8951 | 2.8951 | 22.4441 | 32.5642 | 90,656 | 3.101 | 3.101 |
+| DEC053 grid-frame-6x8 | 82 | 203,088 | 2.6399 | 2.6399 | 12.0221 | 16.8609 | 180,848 | 2.965 | 2.965 |
+| DEC053 grid-frame-7x8 | 97 | 273,360 | 2.4233 | 2.4233 | 9.8307 | 13.4256 | 236,000 | 2.807 | 2.807 |
+<</F1B_LANE>>
+<<RSS_FP>>
+| Mode | Size (members) | Runs | RSS / footprint, min–max |
+|---|---|---|---|
+| dense | 10 | 6 | 1.396–1.421 |
+| dense | 100 | 6 | 1.021–1.024 |
+| dense | 1000 | 4 | 1.041–1.402 |
+| dense | 1364 | 1 | 1.093–1.093 |
+| dense | DEC053 nine | 9 | 1.059–1.462 |
+| lane-id | 10 | 6 | 1.565–1.600 |
+| lane-id | 100 | 6 | 1.297–1.380 |
+| lane-id | 1000 | 6 | 1.003–1.083 |
+| lane-id | 10000 | 4 | 1.143–1.262 |
+| lane-id | DEC053 nine | 9 | 1.366–1.594 |
+| lane-lu | 10 | 6 | 1.542–1.557 |
+| lane-lu | 100 | 6 | 1.097–1.104 |
+| lane-lu | 1000 | 6 | 1.001–1.001 |
+| lane-lu | DEC053 nine | 9 | 1.173–1.568 |
+| sparse | 10 | 6 | 1.457–1.511 |
+| sparse | 100 | 6 | 1.135–1.208 |
+| sparse | 1000 | 6 | 1.020–1.030 |
+| sparse | 10000 | 6 | 1.034–1.286 |
+| sparse | DEC053 nine | 9 | 1.159–1.503 |
+| sparse | grid 18240 | 1 | 1.219–1.219 |
+| sparse | grid 1984 | 1 | 1.012–1.012 |
+| sparse | grid 32512 | 1 | 1.271–1.271 |
+| sparse | grid 480 | 1 | 1.057–1.057 |
+| sparse | grid 8064 | 1 | 1.183–1.183 |
+<</RSS_FP>>
+<<GAP>>
+| Mode | Members | P1 Linux RSS MiB (product) | K6 heap MiB | K6 footprint MiB | K6 RSS MiB | Heap / P1 | Footprint / P1 |
+|---|---|---|---|---|---|---|---|
+| dense | 10 | 34.4–34.4 | 0.5–0.6 | 2.5–2.6 | 3.5–3.7 | 0.016–0.017 | 0.072–0.077 |
+| dense | 100 | 49.9–52.6 | 33.8–35.5 | 42.6–45.9 | 43.7–46.9 | 0.654–0.704 | 0.825–0.920 |
+| dense | 1000 | 3373.0–3617.2 | 3199.1–3323.3 | 3340.3–3418.5 | 3412.2–4782.7 | 0.919–0.948 | 0.945–0.990 |
+| sparse | 10 | 34.4–34.6 | 0.2–0.3 | 2.1–2.4 | 3.2–3.4 | 0.007–0.008 | 0.061–0.068 |
+| sparse | 100 | 49.6–52.7 | 2.2–3.0 | 5.0–7.9 | 6.0–8.9 | 0.043–0.057 | 0.099–0.150 |
+| sparse | 1000 | 3372.8–3617.2 | 25.3–31.1 | 34.4–48.7 | 35.4–49.7 | 0.007–0.009 | 0.010–0.013 |
+<</GAP>>
+<<CROSS>>
+| Model | Sparse | Dense | Classes equal | Relative delta | DEC-053 asserted | Within 1e-9 |
+|---|---|---|---|---|---|---|
+| DEC053 cantilever-chain-24 | Passed | Passed | True | 1.009e-11 | True | True |
+| DEC053 cantilever-chain-32 | Passed | Passed | True | 3.804e-11 | True | True |
+| DEC053 cantilever-chain-48 | Passed | Passed | True | 5.857e-11 | True | True |
+| DEC053 cantilever-chain-8 | Passed | Passed | True | 1.030e-13 | True | True |
+| DEC053 grid-frame-4x3 | Passed | Passed | True | 1.006e-13 | True | True |
+| DEC053 grid-frame-5x5 | Passed | Passed | True | 8.253e-14 | True | True |
+| DEC053 grid-frame-5x6 | Passed | Passed | True | 1.794e-13 | True | True |
+| DEC053 grid-frame-6x8 | Passed | Passed | True | 4.594e-13 | True | True |
+| DEC053 grid-frame-7x8 | Passed | Passed | True | 5.515e-13 | True | True |
+| CHAIN-n00010-AX | Passed | Passed | True | 5.241e-13 | True | True |
+| CHAIN-n00010-ROT | Passed | Passed | True | 3.063e-11 | True | True |
+| CHAIN-n00100-AX | Sensitive | Sensitive | True | 4.068e-10 | False | - |
+| CHAIN-n00100-ROT | Sensitive | Sensitive | True | 7.149e-08 | False | - |
+| CHAIN-n01000-AX | Sensitive | Sensitive | True | 3.994e-05 | False | - |
+| CHAIN-n01000-ROT | Sensitive | FactorRefused | False | - | None | - |
+| CONT-n00010-AX | Passed | Passed | True | 9.508e-17 | True | True |
+| CONT-n00010-ROT | Passed | Passed | True | 2.100e-14 | True | True |
+| CONT-n00100-AX | Passed | Passed | True | 4.758e-16 | True | True |
+| CONT-n00100-ROT | Passed | Passed | True | 2.623e-14 | True | True |
+| CONT-n01000-AX | Passed | Passed | True | 4.758e-16 | True | True |
+| CONT-n01000-ROT | Passed | Passed | True | 8.764e-13 | True | True |
+| TREE-n00010-AX | Passed | Passed | True | 6.059e-12 | True | True |
+| TREE-n00010-ROT | Passed | Passed | True | 1.936e-11 | True | True |
+| TREE-n00100-AX | Sensitive | Sensitive | True | 1.447e-08 | False | - |
+| TREE-n00100-ROT | Sensitive | Sensitive | True | 4.783e-08 | False | - |
+| TREE-n01000-AX | Sensitive | FactorRefused | False | - | None | - |
+| TREE-n01000-ROT | Sensitive | Sensitive | True | 2.337e-04 | False | - |
+<</CROSS>>
+<<MUTATION>>
+| Mutant | Side | Mutation | Result | Killed by |
+|---|---|---|---|---|
+| NONE (py) | py | control: unmutated archive copy | passes | 35 passed in 6.49s |
+| NONE (rs) | rs | control: unmutated archive copy | passes |  |
+| K6-M1 | py | watchdog never kills (comparison skipped) | killed | LiveLimit::test_live_memory_limit |
+| K6-M2 | py | watchdog compares KiB with bytes | killed | LiveLimit::test_live_memory_limit; Watchdog::test_kib_against_bytes |
+| K6-M3 | py | watchdog polls the time wrapper's PID | killed | LiveLimit::test_live_memory_limit |
+| K6-M4 | py | SIGKILL to the child only, not the group (watchdog kill) | killed | LiveLimit::test_kills_take_the_whole_group |
+| K6-M5 | py | RLIMIT_AS applied on Darwin too (not only Linux) | killed | LiveLimit::test_live_memory_limit; LiveLimit::test_negative_control; RlimitOnlyOnLinux::test_darwin_does_not |
+| K6-M6 | py | time -l bytes read as KiB | killed | Parsers::test_time_l_bytes |
+| K6-M7 | py | mean for median | killed | Aggregation::test_median_and_minimum |
+| K6-M13 | py | admission admits an estimate > C/2 | killed | PlanAdmission::test_lane_id_deferred_by_name_when_the_estimate_fails; PlanAdmission::test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline |
+| K6-M19 | py | rho taken as the smallest ratio, not the largest | killed | PlanAdmission::test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline |
+| K6-M21 | py | the runner's by-name n2 refusal covers dense only | killed | PlanAdmission::test_refusals_by_name |
+| K6-M22 | py | (own, B2-stop rule) projected RSS <= 0.8C check removed | killed | PlanAdmission::test_projected_rss_above_0_8_c_is_deferred_by_name |
+| K6-M23 | py | (own, B2-stop rule) rho read on RSS, not on the footprint | killed | PlanAdmission::test_footprint_not_rss_decides_rho; PlanAdmission::test_projected_rss_above_0_8_c_is_deferred_by_name; PlanAdmission::test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline |
+| K6-M24 | py | (own, B2-stop rule) the dense RSS/footprint floor 1.45 dropped | killed | PlanAdmission::test_dense_uses_the_ruled_rss_ratio_floor |
+| K6-M25 | py | (own, B1 grant) load-wait hysteresis removed (resume at load <= 8) | killed | QuietHost::test_load_wait_hysteresis |
+| K6-M26 | py | (own, B1 fix) the resume skip counts a not_run record as measured | killed | PlanAdmission::test_measured_runs_are_kept_and_not_run_records_are_run |
+| K6-M8 | rs | pattern entries from one triangle | killed | k1_table_cross_check; closed_forms; failed targets: --test k6_counts |
+| K6-M9 | rs | identity profile reported as RCM | killed | oracle_constants; k1_table_cross_check; rcm_count_equals_ordering; failed targets: --test k6_counts |
+| K6-M10 | rs | realloc accounting wrong (a shrink releases nothing) | killed | k6_alloc (harness=false: assertion `left == right` failed: realloc down releases the difference); failed targets: --test k6_alloc |
+| K6-M11 | rs | cap off by one (>= for >) | killed | k6_alloc (harness=false: an allocation exactly at the cap succeeds); failed targets: --test k6_alloc |
+| K6-M12 | rs | the binary's >= 10,000 n2 refusal narrowed to dense only (lane-lu passes) | killed | n2_modes_at_10000_refused_before_n2; failed targets: --test k6_bin |
+| K6-M14 | rs | Q3 transposed in the generator | killed | oracle_constants; loads_match_r1_at_ten_members; canonical_bytes_equal_committed_models; failed targets: --test k6_counts, --test k6_models |
+| K6-M15 | rs | n - 1 members (CHAIN) | killed | peak_requested_bytes_are_deterministic; estimate_over_half_cap_refused; heap_cap_abort_is_marked; n2_modes_at_10000_refused_before_n2; closed_forms; k1_table_cross_check; rcm_count_equals_ordering; oracle_constants; model_shapes_follow_r1; canonical_bytes_equal_committed_models; outcome_parity_and_d |
+| K6-M16 | rs | staged sequence skips the contribution audit (contributions None, sparse) | killed | staged_equals_sa_entries_small_models_both_modes; staged_equals_sa_entries_100_member_models_sparse; failed targets: --test k6_staged |
+| K6-M17 | rs | alloc_zeroed forwarded without accounting | killed | counts_file_replaces_the_counts_phase; peak_requested_bytes_are_deterministic; estimate_over_half_cap_refused; k6_alloc (harness=false: assertion `left == right` failed: alloc_zeroed is counted); failed targets: --test k6_alloc, --test k6_bin |
+| K6-M18 | rs | the basis string's family text changed (the mixed branch) | killed | staged_equals_sa_entries_small_models_both_modes; staged_equals_sa_entries_100_member_models_sparse; staged_equals_sa_entries_100_member_models_dense; failed targets: --test k6_staged |
+| K6-M20 | rs | TREE branch directions swapped (+z at odd k) | killed | oracle_constants; canonical_bytes_equal_committed_models; outcome_parity_and_dec053_basis_100_member_models; failed targets: --test k6_counts, --test k6_models, --test k6_parity |
+<</MUTATION>>

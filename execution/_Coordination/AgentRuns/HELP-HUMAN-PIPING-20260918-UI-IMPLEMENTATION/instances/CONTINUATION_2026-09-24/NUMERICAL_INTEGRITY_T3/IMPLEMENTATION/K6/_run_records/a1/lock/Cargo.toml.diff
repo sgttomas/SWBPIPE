@@ -1,0 +1,30 @@
+diff --git a/projects/chirality-piping/core/solver/performance_harness/Cargo.toml b/projects/chirality-piping/core/solver/performance_harness/Cargo.toml
+index f559f2e61a..a2d062b461 100644
+--- a/projects/chirality-piping/core/solver/performance_harness/Cargo.toml
++++ b/projects/chirality-piping/core/solver/performance_harness/Cargo.toml
+@@ -8,7 +8,25 @@ publish = false
+ [lib]
+ path = "src/lib.rs"
+
++# K6 (T3 D1 revision 5a.2 §4.8): the kernel observation binary. Its counting,
++# capped global allocator is registered only in this binary (and in the
++# `k6_alloc` test binary), never in the library. `test = false`: no unit-test
++# harness is built around it; integration tests run it through
++# `CARGO_BIN_EXE_k6_observe`.
++[[bin]]
++name = "k6_observe"
++path = "src/bin/k6_observe/main.rs"
++test = false
++
++# K6: the allocator's accounting and cap tests, in their own binary with no
++# libtest threads, so a regression can abort only this binary.
++[[test]]
++name = "k6_alloc"
++path = "tests/k6_alloc.rs"
++harness = false
++
+ [dependencies]
+ open_pipe_stress_frame_kernel = { path = "../frame_kernel" }
++open_pipe_stress_nonlinear_integration = { path = "../nonlinear_integration" }
+ open_pipe_stress_solver_diagnostics = { path = "../diagnostics" }
+ open_pipe_stress_sparse_direct = { path = "../sparse_direct" }

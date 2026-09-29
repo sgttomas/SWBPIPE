@@ -1,0 +1,4 @@
+RV18 fixes: the --smoke rerun's binary (RV18-3 changes the runner; RV18-N6 changes the binary's lane refusal).
+k6_observe, release, built from git archive ae3320b5a93aa0e65a71483b4db6f40eeb9d8f1c (core/solver, core/loads) with I15's four changed files overlaid (identical to the working tree), with RUSTUP_TOOLCHAIN=1.97.1, CARGO_INCREMENTAL=0, --offline --locked, -j 4, and a fresh target.
+sha256 8164db337e747fd4f578b2576edac75d28ed321597091cd6b1527b11018db626
+It is used for --smoke only. B's observation binary (1bbdfb2a..., from 1f354c20b) is unchanged, and so are its records.

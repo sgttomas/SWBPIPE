@@ -1,0 +1,28 @@
+=== py K6-M21: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (performance_harness, tests/test_performance_harness_runner.py) into <wt>/k6-mut/py-K6-M21
+K6-M21 applied to projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py: the runner's by-name n2 refusal covers dense only
+--- a/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
++++ b/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
+@@ -416,3 +416,3 @@
+     """The never-run refusals, by name (host rule; ROOT's rulings Q12 and on RV16-N4)."""
+-    if mode in N2_MODES and members >= N2_REFUSAL_MEMBERS:
++    if mode == 'dense' and members >= N2_REFUSAL_MEMBERS:
+         return 'never:n2_mode_at_or_above_10000_members'
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+.......................F.........                                        [100%]
+=================================== FAILURES ===================================
+_____________________ PlanAdmission.test_refusals_by_name ______________________
+
+self = <test_k6_runner.PlanAdmission testMethod=test_refusals_by_name>
+
+    def test_refusals_by_name(self):
+        counts = fake_counts({x['model']: {m: 1 for m in r.MODES} for x in r.schedule()})
+        rows = [dict(x, admission=r.admission(x, counts, [], None, require_ascent=False)) for x in r.schedule()]
+        never = [x for x in rows if x['admission']['decision'] == 'never']
+>       self.assertEqual(len(never), 14)
+E       AssertionError: 8 != 14
+
+core/solver/performance_harness/runner/test_k6_runner.py:360: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_performance_harness_runner.py::PlanAdmission::test_refusals_by_name
+1 failed, 32 passed in 3.69s
+=== exit 1 elapsed 3 s

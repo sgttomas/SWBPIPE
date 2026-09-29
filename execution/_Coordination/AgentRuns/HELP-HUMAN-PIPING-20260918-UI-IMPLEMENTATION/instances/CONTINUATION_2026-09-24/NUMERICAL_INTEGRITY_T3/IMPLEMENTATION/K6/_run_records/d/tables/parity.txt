@@ -1,0 +1,36 @@
+# Parity lines over every measured run (the binary's own checks), by item and result.
+bitwise_k: equal=True x 25
+entry_plain_vs_entry_checked: equal=True x 300
+lane_identity_profile_equals_count: equal=True x 155
+rcm_count_equals_ordering: equal=True x 190
+repeat_determinism: equal=True x 116
+staged_vs_entry_checked: equal=True x 300
+# Cross-mode rows (sparse vs dense, same model): outcome classes and the DEC-053 basis.
+model | sparse | dense | class_equal | relative delta | DEC-053 asserted | within
+DEC053:invented-cantilever-chain-24 | Passed | Passed | True | 1.009e-11 | True | True
+DEC053:invented-cantilever-chain-32 | Passed | Passed | True | 3.804e-11 | True | True
+DEC053:invented-cantilever-chain-48 | Passed | Passed | True | 5.857e-11 | True | True
+DEC053:invented-cantilever-chain-8 | Passed | Passed | True | 1.030e-13 | True | True
+DEC053:invented-grid-frame-4x3 | Passed | Passed | True | 1.006e-13 | True | True
+DEC053:invented-grid-frame-5x5 | Passed | Passed | True | 8.253e-14 | True | True
+DEC053:invented-grid-frame-5x6 | Passed | Passed | True | 1.794e-13 | True | True
+DEC053:invented-grid-frame-6x8 | Passed | Passed | True | 4.594e-13 | True | True
+DEC053:invented-grid-frame-7x8 | Passed | Passed | True | 5.515e-13 | True | True
+RF-LARGE-CHAIN-n00010-AX | Passed | Passed | True | 5.241e-13 | True | True
+RF-LARGE-CHAIN-n00010-ROT | Passed | Passed | True | 3.063e-11 | True | True
+RF-LARGE-CHAIN-n00100-AX | Sensitive | Sensitive | True | 4.068e-10 | False | None
+RF-LARGE-CHAIN-n00100-ROT | Sensitive | Sensitive | True | 7.149e-08 | False | None
+RF-LARGE-CHAIN-n01000-AX | Sensitive | Sensitive | True | 3.994e-05 | False | None
+RF-LARGE-CHAIN-n01000-ROT | Sensitive | FactorRefused | False | - | None | None
+RF-LARGE-CONT-n00010-AX | Passed | Passed | True | 9.508e-17 | True | True
+RF-LARGE-CONT-n00010-ROT | Passed | Passed | True | 2.100e-14 | True | True
+RF-LARGE-CONT-n00100-AX | Passed | Passed | True | 4.758e-16 | True | True
+RF-LARGE-CONT-n00100-ROT | Passed | Passed | True | 2.623e-14 | True | True
+RF-LARGE-CONT-n01000-AX | Passed | Passed | True | 4.758e-16 | True | True
+RF-LARGE-CONT-n01000-ROT | Passed | Passed | True | 8.764e-13 | True | True
+RF-LARGE-TREE-n00010-AX | Passed | Passed | True | 6.059e-12 | True | True
+RF-LARGE-TREE-n00010-ROT | Passed | Passed | True | 1.936e-11 | True | True
+RF-LARGE-TREE-n00100-AX | Sensitive | Sensitive | True | 1.447e-08 | False | None
+RF-LARGE-TREE-n00100-ROT | Sensitive | Sensitive | True | 4.783e-08 | False | None
+RF-LARGE-TREE-n01000-AX | Sensitive | FactorRefused | False | - | None | None
+RF-LARGE-TREE-n01000-ROT | Sensitive | Sensitive | True | 2.337e-04 | False | None
