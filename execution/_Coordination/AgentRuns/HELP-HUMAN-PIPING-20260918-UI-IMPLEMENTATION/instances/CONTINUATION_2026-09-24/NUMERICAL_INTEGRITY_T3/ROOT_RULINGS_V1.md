@@ -2302,3 +2302,22 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
   - **M10 (the prefix limit b_j − 1)** survives. K4's budget tests fall before each segment's final work on these models, so the prefixes stop at the same place.
 - **I16's assertion is approved:** each prefix limit equals its segment's exact end. Add it to `tests/k6b_w1.rs`, and re-run NONE and M10 from clean copies; M10 must be killed.
 - **Next:** K6b waits for KF1. Then it merges main, re-runs W1-T3, runs W1-T4, and moves to D.
+
+## KF1: rulings on I18's checkpoint-0 plan (ROOT, 2026-09-29)
+
+The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `2129c337…`; committed by ROOT at `d0566126e`). **It is approved, with these rulings.**
+
+- **The design is approved:** a `BoundedExtremeTracker` with at most T = 64 lazy rows and a pruned table of evaluated entries, collapsing when full.
+  - The invariant argument is approved as the basis: bit-identical `finish` results, refusals included, for any collapse schedule.
+  - The reviewer checks it independently.
+- **Scope (I18's decision 1): KF1 bounds every `ExtremeTracker` site,** not only `rule`'s three: the pivot-margin (`adaptive.rs:999`), residual-gate (`:1236`) and fallback (`:1374`) trackers as well.
+  - **Why:** W1's memory limit must rest on a bound that does not depend on the data. Leaving about 1.5 GB of data-dependent memory at 10,000 members would defeat it.
+  - **The brief's item 3 is amended:** the work recorded in the stop rule, refinement and fallback stages may change. A tracker that today is dropped unevaluated is evaluated at a collapse, and that work is charged and budgeted where it is spent.
+  - **Nothing else may change:** every published row, class, bound, attempt role and reason, and outcome under unlimited budgets.
+  - Golden work counts are re-pinned where they move, each with its derivation.
+  - The old `ExtremeTracker` is removed if no caller remains.
+- **Many bodies (decision 2): include the shared cap across a call's trackers,** so a model with many small bodies is bounded too. State the resulting bound per call.
+- **The budget boundary (decision 3)** is accepted and recorded. No W1 limits exist yet, and ROOT sets them from the measurements after KF1.
+- **The test hook (decision 4)** is accepted only under `#[cfg(test)]`. A thread-local override of T must not exist in a non-test build.
+- **After KF1 merges,** I16 recomputes K6b's E_max from KF1's code, for all trackers, before W1-T4.
+- **Next:** checkpoint A. K6b's timed slot is over, so builds may run: one cargo job at `-j 4`.
