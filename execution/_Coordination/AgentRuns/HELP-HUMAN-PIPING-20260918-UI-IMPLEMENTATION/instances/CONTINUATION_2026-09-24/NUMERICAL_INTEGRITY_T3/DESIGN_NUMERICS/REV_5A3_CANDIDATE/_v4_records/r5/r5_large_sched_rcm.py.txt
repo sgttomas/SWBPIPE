@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""V4, delta check at R5, check 3(c): as r5_large_sched.py, but with the verification's
+factor in K4's elimination order. emu5 factors case.free in list order (its profile is
+the first pattern column per row); this script sets case.free to K4's reverse
+Cuthill-McKee order of the free-free pattern (r5_large.rcm, a line-by-line port of
+factor.rs), so emu5's own loops, U and Uc run in K4's order. Everything else in emu5
+is order-invariant, except the Hager-Higham alternating vector (availability only).
+Usage: python3 r5_large_sched_rcm.py <case id> [...]
+Output: r5_large_sched_rcm.json."""
+import json, os, sys, time
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+sys.dont_write_bytecode = True
+import r5_large
+from r5_large import r1_adapter, Case, T3, rcm, emu5
+from emu5 import schedule, assemble, Stop
+
+cases = r1_adapter.load_refs(T3)
+out = {}
+for cid in sys.argv[1:]:
+    m, index = r1_adapter.adapt(cid, cases[cid], cases[cid]["model"])
+    rec = {}
+    for tag, bound in (("R5_rcm", "Uc"), ("R5_with_Fest_rcm", "Fest")):
+        case = Case(m)
+        free = case.free
+        pos = {g: a for a, g in enumerate(free)}
+        pattern = assemble(m, 64)[2]
+        adj = [[] for _ in free]
+        for (r, c) in pattern:
+            if r != c and r in pos and c in pos:
+                adj[pos[r]].append(pos[c])
+        case.free = [free[a] for a in rcm(adj)]
+        emu5.BOUND = bound
+        emu5.GATE = "hybrid"
+        cache = {}
+        t0 = time.time()
+        r = schedule(case, "r5", cache)
+        per = {}
+        for P, st in sorted(cache.items()):
+            if isinstance(st, Stop):
+                per[P] = "stop:%s" % st.what
+                continue
+            u = st.get("uc") or {}
+            est = st.get("est_hh")
+            per[P] = dict(Uc_over_est=(float(u["Uc"] / est) if u.get("Uc") and est else None), uc_exists=u.get("Uc") is not None)
+        rec[tag] = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]], per_P=per,
+                        charge=(r.get("info") or {}).get("charge_over_allowance"), seconds=round(time.time() - t0, 1))
+        print(cid, tag, json.dumps(rec[tag]), flush=True)
+    out[cid] = rec
+json.dump(out, open(os.path.join(HERE, "r5_large_sched_rcm.json"), "w"), indent=1)

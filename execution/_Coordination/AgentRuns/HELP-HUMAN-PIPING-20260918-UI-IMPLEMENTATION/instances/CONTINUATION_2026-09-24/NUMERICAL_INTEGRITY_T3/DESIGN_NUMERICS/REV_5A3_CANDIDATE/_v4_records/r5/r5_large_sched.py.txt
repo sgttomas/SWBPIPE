@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""V4, delta check at R5, check 3(c): the availability consequence, in DS1's own
+emulator emu5 (read-only import; natural elimination order, as emu5 factors), of Uc's
+looseness on R1's RF-LARGE models with 100 members: R5's schedule (BOUND = Uc) against
+the same schedule with R4's F*est (BOUND = "Fest", which differs from R5 only in the
+bound). Selected precision, the attempts with their rejection reasons, and per
+verification Uc/est. No honesty reference (availability only).
+Usage: python3 r5_large_sched.py <case id> [<case id> ...]
+Output: r5_large_sched_<first id>.json."""
+import json, os, sys, time
+HERE = os.path.dirname(os.path.abspath(__file__))
+WT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
+DS1 = os.path.join(WT, "scratch", "ds1")
+T3 = os.path.join(WT, "numerics", "projects", "chirality-piping", "execution", "_Coordination", "AgentRuns",
+                  "HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION", "instances", "CONTINUATION_2026-09-24",
+                  "NUMERICAL_INTEGRITY_T3")
+sys.path.insert(0, DS1)
+sys.dont_write_bytecode = True
+import emu5, r1_adapter
+from emu5 import Case, schedule, Stop
+
+ids = sys.argv[1:]
+cases = r1_adapter.load_refs(T3)
+out = {}
+for cid in ids:
+    m, index = r1_adapter.adapt(cid, cases[cid], cases[cid]["model"])
+    case = Case(m)
+    rec = {}
+    for tag, bound in (("R5", "Uc"), ("R5_with_Fest", "Fest")):
+        emu5.BOUND = bound
+        emu5.GATE = "hybrid"
+        cache = {}
+        t0 = time.time()
+        r = schedule(case, "r5", cache)
+        per = {}
+        for P, st in sorted(cache.items()):
+            if isinstance(st, Stop):
+                per[P] = "stop:%s" % st.what
+                continue
+            u = st.get("uc") or {}
+            est = st.get("est_hh")
+            per[P] = dict(Uc_over_est=(float(u["Uc"] / est) if u.get("Uc") and est else None),
+                          uc_exists=u.get("Uc") is not None)
+        rec[tag] = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]], per_P=per,
+                        charge=(r.get("info") or {}).get("charge_over_allowance"), seconds=round(time.time() - t0, 1))
+        print(cid, tag, json.dumps(rec[tag]), flush=True)
+    out[cid] = rec
+json.dump(out, open(os.path.join(HERE, "r5_large_sched_%s.json" % ids[0]), "w"), indent=1)

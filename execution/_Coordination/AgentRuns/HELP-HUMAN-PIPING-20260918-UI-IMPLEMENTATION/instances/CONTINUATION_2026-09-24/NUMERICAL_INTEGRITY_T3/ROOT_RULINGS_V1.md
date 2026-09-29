@@ -1630,3 +1630,27 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
 - **Host released** at about 02:10Z. The order of use:
   - K5 stage 2 (I14; FK K5 tests and RV14-M5) and K6 A1 (I15) may build concurrently, each within its own 2-cargo-job limit.
   - Quiet-host slots follow, one at a time: DEC-025 for K5, then DEC-025 for F1b, then K6's B1, B2 and B3.
+
+## D1 revision 5a.3: rulings on V4's delta check at R5 (ROOT, 2026-09-29)
+
+- **Verdict accepted:** NOT VERIFIED, with 1 BLOCKING on availability (V4-V1), 1 SHOULD-FIX (V4-V2) and 5 NOTEs (V3 to V7).
+- **Honesty is confirmed:**
+  - Lemma D is correct against K4's `factor.rs` (`81f81f24…`).
+  - In V4's stress test, Uc never fell below the exact norm in 46,315 factors where it existed.
+  - "No uncertified step remains in the honesty guarantee" holds.
+- **V4-V1: do not accept the loss. Add V4's shifted-factorization bound and take the smaller of the two.**
+  - **Why:** Uc's comparison matrix loses every sign cancellation, and on R1's own RF-LARGE frames it grows geometrically along the elimination. At 100 members, five of six models leave 128. At 1,000 members, five of six would be Unresolved at every precision, however well conditioned they are. RF-LARGE-scale frames are what the product must solve, so this loss is not acceptable.
+  - **The bound:**
+    - Factor K̃_P − σI with the same loop. If every pivot is positive, then λ_min(K̃_P) > σ′ := σ − γ_m·N_L′ − (the shift's rounding), by Weyl and Lemma D's step 1, so ‖K̃_P⁻¹‖₁ ≤ √n/σ′. Form every step with directed rounding.
+    - σ may be chosen from est; that is an availability use only.
+    - A failed shift halves σ, a bounded number of times, then falls back to Uc alone.
+    - The certified bound used is min(Uc, the shift bound), with the work charged.
+  - **R5's R1 lane is extended to RF-LARGE** at 10, 100 and 1,000 members, in K4's elimination order, within emulation limits. R6's §1 and §9 report its selections honestly.
+- **V4-V2: adopt per-body Uc and per-body shift bounds,** from the same passes. M17 and M24 then lose their kills. They are recorded as kept for the derivation, as M21 is, unless R6 builds a single-body kill.
+- **NOTEs V3 to V7: fix in R6.**
+  - V3: M21 is vacuous only for published W1a cases (DESIGN §4.2 admits nonzero support motion). Restate the scope, and drop "no other test implies it".
+  - V4: the 1 + 2^-9.5 factor is derived, not measured.
+  - V5: THETA-STUB's over-breadth in a decoupled zero-state block. Narrow θ further, or record why not.
+  - V6: an encoding rule for a Uc of 2^1024 or more in the receipt.
+  - V7: V4's own R3 count erratum.
+- **Next:** DS1 writes R6, V4 runs a delta check, and ROOT selects only after VERIFIED. K4 stays blocked until then.
