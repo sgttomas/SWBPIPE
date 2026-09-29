@@ -2260,3 +2260,18 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
   - A heap-cap abort here is recorded as a finding for KF1, not a stop of K6b.
   - Any other stop condition still stops.
 - **After KF1 merges,** ROOT decides whether K6b re-measures a subset on the bounded tracker, for the stop rule's changed work, before the W1 limits are set.
+
+## V-K: THIN confirmed by GEN; the expected-unresolved list stands (ROOT, 2026-09-29)
+
+- **GEN confirms THIN.** K4's generator, run on THIN-A and THIN-B with its own adapter `r1_adapt` and G = E/(2(1 + ν)) stated exactly, gives K4's chain exactly:
+  - 128 rejected by the stop rule at row 7;
+  - 256 rejected by the stop rule at row 14;
+  - 512 rejected by the charge at row 14;
+  - Ceiling.
+  - The record is `IMPLEMENTATION/VK/_run_records/a1/gen_thin_confirm.*`.
+- **So THIN is W1a's design limit,** and the ruling "V-K: rulings on I17's A1 stop" takes effect. The expected-unresolved list is `VR/cases/expected_unresolved.json`: THIN-A and THIN-B, with log2 of the stiffness spread 507.67.
+- **RF-RANGE** gives 2,590 passes, 80 structural zeros, 50 expected unresolved and 0 failures.
+- **Also recorded from I17's A1 work:**
+  - §5.3's parity: K is bitwise equal between the sparse and dense paths, and the outcome class is the same, on RF-LARGE at up to 100 members and on RF-MECH.
+  - Q7's invariance observations: offsets are bit-identical, and relabelled variants differ only by the roundings that follow RCM's order.
+- **I17 resumes** its debug suite and returns A1 when K6b's slot K6B-S3 ends.
