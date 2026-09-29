@@ -246,6 +246,13 @@ where
         d[k] = sum.round(ctx)?;
     }
     let (ex, length) = normalize(ctx, sum, &d)?;
+    // V-K seeded fault VK-F04 (§7.3-4): e_x's first two components swapped.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    let ex = if super::seeded::active(super::seeded::Fault::F04) {
+        [ex[1], ex[0], ex[2]]
+    } else {
+        ex
+    };
     let yr = [
         lift::<L>(m.y_reference[0])?,
         lift::<L>(m.y_reference[1])?,
@@ -498,6 +505,13 @@ where
                 let m = sum.round(ctx)?;
                 let km = ctx.mul(&k, &m)?;
                 let v = ctx.div(&km, &norm2)?;
+                // V-K seeded fault VK-S1: k·n·nᵀ without the division by nᵀn.
+                #[cfg(any(test, feature = "mutation-controls"))]
+                let v = if super::seeded::active(super::seeded::Fault::S1) {
+                    km
+                } else {
+                    v
+                };
                 block[a][b] = v;
                 block[b][a] = v;
             }
@@ -689,6 +703,45 @@ where
             }
         }
         values[index] = sum.round(ctx)?;
+        // V-K seeded fault VK-F03 (§7.3-4): the smallest contribution to a
+        // diagonal entry dropped (R1's NC-LOST-SOFT).
+        #[cfg(any(test, feature = "mutation-controls"))]
+        if row == col && super::seeded::active(super::seeded::Fault::F03) {
+            let items = &structure.items[structure.starts[index]..structure.starts[index + 1]];
+            if items.len() > 1 {
+                let mut terms: Vec<Wide<L>> = Vec::with_capacity(items.len());
+                for item in items {
+                    terms.push(match *item {
+                        Contribution::Member { member, a, b } => {
+                            *members[member as usize].ke(a as usize, b as usize)
+                        }
+                        Contribution::Spring { spring } => {
+                            lift::<L>(source.springs()[spring as usize].stiffness)?
+                        }
+                        Contribution::Directional { spring, a, b } => {
+                            directional[spring as usize].k[a as usize][b as usize]
+                        }
+                    });
+                }
+                let smallest = (0..terms.len())
+                    .min_by(|&x, &y| terms[x].abs().cmp_value(&terms[y].abs()))
+                    .unwrap();
+                sum.clear();
+                for (t, term) in terms.iter().enumerate() {
+                    if t != smallest {
+                        sum.add_wide(term, false)?;
+                    }
+                }
+                values[index] = sum.round(ctx)?;
+            }
+        }
+        // V-K seeded fault VK-F01 (§7.3-1): the entry promoted from its
+        // binary64 rounding.
+        #[cfg(any(test, feature = "mutation-controls"))]
+        if super::seeded::active(super::seeded::Fault::F01) {
+            let rounded = values[index].to_binary64().value().unwrap_or(0.0);
+            values[index] = lift::<L>(rounded)?;
+        }
         done[index] = true;
         if row == col {
             guard.check(ctx, sum)?;

@@ -66,6 +66,30 @@ independently of K4's own tests. This crate is T3 slice V-K, the kernel lane
     That is a decision, never done by CI: the lane tests compare the records
     and never write them.
 
+## The seeded faults (the mutation run; never CI)
+
+FK carries V-K's seeded faults behind its `mutation-controls` feature.
+- **The sites:** every site is gated by
+  `#[cfg(any(test, feature = "mutation-controls"))]`. The selector is in
+  `retained/seeded.rs`.
+- **Selection:** a site is inactive unless the environment variable
+  `FK_SEEDED_FAULT` names its fault. An unknown id panics.
+- **Enabling:** this crate's `seeded-faults` feature is the only thing that
+  enables the FK feature. `tests/feature_guard.rs` checks that no other
+  manifest names it and that CI passes no features.
+- **The kill matrix:** `runner/run_seeded_faults.py --out <dir>` builds once
+  with the feature, then runs the tests with no fault first, then with each
+  fault, then with an unknown id. Each fault must fail at least one test.
+  - The matrix is committed in `observations/seeded/kill_matrix.jsonl`.
+    `--from-logs` rebuilds it from an earlier run's logs without running.
+  - `observations/seeded/evidence.json` holds the detail of the evidence-level
+    kills (VK-R28's release selections, VK-F07's RF-MECH outcomes). It also
+    lists the D1 §7.3 items that are not seeded, each with K4's killing
+    control.
+- **The products:** `runner/check_fault_sites.py <base revision>` checks that
+  removing the gated items from FK leaves only added comments. With the
+  feature off, every product build is FK's base code.
+
 ## Running
 
 ```

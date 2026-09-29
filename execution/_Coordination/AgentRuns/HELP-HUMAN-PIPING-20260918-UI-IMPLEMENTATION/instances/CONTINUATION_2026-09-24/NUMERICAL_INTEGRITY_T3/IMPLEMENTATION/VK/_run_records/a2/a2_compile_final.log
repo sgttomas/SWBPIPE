@@ -1,0 +1,29 @@
+## FK check, feature off
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.11s
+## FK check, mutation-controls
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.13s
+## FK check --tests, feature off
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.89s
+## VR check --tests --examples, seeded-faults
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Checking open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/sparse_direct)
+    Checking piping_numerical_robustness v0.1.0 (<wt>/vk/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.50s
+## VR feature_guard, no features
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.66s
+     Running tests/feature_guard.rs (<wt>/vk-target/debug/deps/feature_guard-6e796d03db7ae898)
+
+running 4 tests
+test ci_passes_no_cargo_features ... ok
+test no_vr_source_names_the_execution_tree ... ok
+test the_guard_flags_what_it_must ... ok
+test no_manifest_enables_the_mutation_controls_feature ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

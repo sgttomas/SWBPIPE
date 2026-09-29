@@ -661,6 +661,11 @@ pub(crate) fn shift_needed<const L: usize>(
 where
     Wide<L>: SupportedWidth,
 {
+    // V-K seeded fault VK-R28 (R7-M28): no shift (Uc alone).
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::R28) {
+        return Ok(false);
+    }
     if est.is_zero() {
         return Ok(false);
     }

@@ -253,6 +253,20 @@ where
     Wide<L>: SupportedWidth,
 {
     let zero = Wide::<L>::ZERO;
+    // V-K seeded fault VK-F02 (§7.3-2): u rounded to binary64 before recovery.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    let seeded_u: Vec<Wide<L>>;
+    #[cfg(any(test, feature = "mutation-controls"))]
+    let u: &[Wide<L>] = if super::seeded::active(super::seeded::Fault::F02) {
+        let mut rounded = Vec::with_capacity(u.len());
+        for w in u {
+            rounded.push(lift::<L>(w.to_binary64().value().unwrap_or(0.0))?);
+        }
+        seeded_u = rounded;
+        &seeded_u
+    } else {
+        u
+    };
     let mut values: Vec<Wide<L>> = Vec::with_capacity(layout.len());
     // Displacements, then node magnitudes.
     values.extend_from_slice(u);
@@ -411,6 +425,13 @@ where
         }
         ledger.add_to(g, sum, true)?;
         let r = sum.round(ctx)?;
+        // V-K seeded fault VK-S2: the reaction with the opposite sign.
+        #[cfg(any(test, feature = "mutation-controls"))]
+        let r = if super::seeded::active(super::seeded::Fault::S2) {
+            r.neg()
+        } else {
+            r
+        };
         reaction[g] = Some(r);
         values.push(r);
     }

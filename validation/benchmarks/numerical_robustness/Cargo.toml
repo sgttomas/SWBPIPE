@@ -12,3 +12,8 @@ path = "src/lib.rs"
 open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
 open_pipe_stress_sparse_direct = { path = "../../../core/solver/sparse_direct" }
 serde_json = { version = "1", features = ["float_roundtrip"] }
+
+[features]
+# The mutation run only (runner/run_seeded_faults.py): FK's seeded faults.
+# Never a default; CI runs no features (tests/feature_guard.rs).
+seeded-faults = ["open_pipe_stress_frame_kernel/mutation-controls"]

@@ -360,6 +360,17 @@ impl PrimitiveSource {
             mut stations,
             mut supports,
         } = parts;
+        // V-K seeded fault VK-F10 (§7.3-10, list-order form): the canonical
+        // sort skipped (the caller's order kept).
+        #[cfg(any(test, feature = "mutation-controls"))]
+        let caller_order = (
+            members.clone(),
+            springs.clone(),
+            directional_springs.clone(),
+            constraints.clone(),
+            loads.clone(),
+            stations.clone(),
+        );
         if nodes.is_empty() {
             return Err(SourceError::NoNodes);
         }
@@ -551,6 +562,20 @@ impl PrimitiveSource {
             }
             body_of_node[node] = body_of_root[r];
         }
+        #[cfg(any(test, feature = "mutation-controls"))]
+        let (members, springs, directional_springs, constraints, loads, stations) =
+            if super::seeded::active(super::seeded::Fault::F10) {
+                caller_order
+            } else {
+                (
+                    members,
+                    springs,
+                    directional_springs,
+                    constraints,
+                    loads,
+                    stations,
+                )
+            };
         Ok(Self {
             nodes,
             members,

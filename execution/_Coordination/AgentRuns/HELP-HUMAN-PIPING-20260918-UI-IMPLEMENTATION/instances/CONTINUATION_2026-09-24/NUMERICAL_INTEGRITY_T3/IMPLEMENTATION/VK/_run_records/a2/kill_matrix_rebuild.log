@@ -1,0 +1,20 @@
+# runner/run_seeded_faults.py --out <wt>/scratch/i17/kill_matrix --from-logs
+# kinds refined after the live run (kill_matrix_run.log shows the live heuristic); logs unchanged
+NONE       pass               []
+VK-F01     killed             ['floor', 'outcome']
+VK-F02     killed             ['evidence', 'value']
+VK-F03     killed             ['floor', 'outcome']
+VK-F04     killed             ['floor', 'outcome', 'value']
+VK-F05     killed             ['evidence']
+VK-F06     killed             ['outcome']
+VK-F07     killed             ['evidence', 'outcome']
+VK-F08     killed             ['parity']
+VK-F10     killed             ['bit']
+VK-F13     killed             ['value']
+VK-F17     killed             ['class', 'evidence']
+VK-R02     killed             ['evidence', 'outcome']
+VK-R28     killed             ['evidence']
+VK-S1      killed             ['value']
+VK-S2      killed             ['value']
+VK-UNKNOWN panics as required ['panic']
+rc=0

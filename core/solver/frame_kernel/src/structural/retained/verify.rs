@@ -319,6 +319,11 @@ where
 /// Item 6a's coupling in binary64: ê_fo = max(E_fo, fl(E_mo/L_b)),
 /// ê_mo = max(E_mo, fl(L_b·E_fo)); a single-node body (L_b = 0) keeps E.
 pub fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
+    // V-K seeded fault VK-R02 (R7-M2): ê uncoupled.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::R02) {
+        return e;
+    }
     if extent == 0.0 {
         return e;
     }

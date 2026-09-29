@@ -400,6 +400,11 @@ pub(crate) fn row_bound(value: f64, s_star: f64) -> f64 {
 /// |q| < fl(R·S\*), and always when S\* < 2^-988, with the bound of
 /// `row_bound` (amendment A1).
 pub fn classify(value: f64, s_star: f64) -> RowClass {
+    // V-K seeded fault VK-F17 (§7.3-17): every scaled row relative_verified.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::F17) {
+        return RowClass::RelativeVerified;
+    }
     let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
     if s_star < small || value.abs() < threshold(s_star) {
         RowClass::AbsoluteVerified {
@@ -2778,6 +2783,19 @@ pub(crate) fn run_schedule(
             &report,
             guard,
         );
+        // V-K seeded fault VK-F06 (§7.3-6): the candidate accepted whatever the
+        // verification's verdict (accepted on the pivot screen alone).
+        #[cfg(any(test, feature = "mutation-controls"))]
+        let decision = if super::seeded::active(super::seeded::Fault::F06)
+            && matches!(decision.result, Ok(false))
+        {
+            StopDecision {
+                result: Ok(true),
+                ..decision
+            }
+        } else {
+            decision
+        };
         {
             let record = &mut attempts[candidate_index];
             record.stop_rule_work += decision.total;
@@ -2815,6 +2833,16 @@ pub(crate) fn run_schedule(
                     &prep.layout,
                     &group,
                 ));
+                // V-K seeded fault VK-F05 (§7.3-5): no escalation after a
+                // rejected candidate.
+                #[cfg(any(test, feature = "mutation-controls"))]
+                if super::seeded::active(super::seeded::Fault::F05) {
+                    return CaseOutcome::Unresolved {
+                        reason: UnresolvedReason::Ceiling,
+                        attempts,
+                        geometry,
+                    };
+                }
                 if c + 1 < 3 {
                     attempts[v_index].role = AttemptRole::VerificationThenCandidate;
                     pending = Some((verification, v_index));

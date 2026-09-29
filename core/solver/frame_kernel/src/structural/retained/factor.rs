@@ -130,6 +130,14 @@ fn axis(component: usize) -> [f64; 3] {
 pub(crate) fn geometry_first(
     source: &PrimitiveSource,
 ) -> Result<Vec<BodyGeometry>, GeometryRefusal> {
+    // V-K seeded fault VK-F07 (§7.3-7): the geometric mechanism check disabled.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::F07) {
+        return Ok(vec![
+            BodyGeometry::NumericallyUnresolved;
+            source.body_count() as usize
+        ]);
+    }
     let mut out = Vec::with_capacity(source.body_count() as usize);
     for body in 0..source.body_count() {
         let nodes = source.body_nodes(body);
