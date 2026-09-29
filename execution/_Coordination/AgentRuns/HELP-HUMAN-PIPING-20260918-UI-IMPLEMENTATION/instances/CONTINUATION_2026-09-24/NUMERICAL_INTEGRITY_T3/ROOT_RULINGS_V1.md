@@ -1793,3 +1793,22 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
 - **V4-W2:** R7 labels M27's "no selection kill at design precisions" as argued, since it rests on the estimate-based condition screen. M27's low-precision kill stands.
 - **V4-W3:** R7 states that S is polynomially loose only when the estimate is within about 8× of the norm, and that otherwise availability falls back on Uc. It also states that up to three extra factorizations are charged to the work budget, and that their cost on large models is for K6b and V-K to measure.
 - **Next:** DS1 writes R7, V4 runs a delta check, and ROOT selects only after VERIFIED.
+
+## K6: B2 accepted; the dense-path finding (N10); B3 granted (ROOT, 2026-09-29)
+
+- **B2 accepted.** Records and the B2-stop rule are committed on the K6 branch at `3799e3764`.
+  - 13 runs were measured.
+  - Every RSS stayed below its projection, at 0.61–0.97 of it.
+  - Dense heap is 1.005 × 96·n² at 1,000 members, which confirms F1b's dense-estimate coefficient.
+  - Factor time scales as n³.
+- **Finding N10, confirmed, on main's dense path, not K6's code.** This is recorded as a T3 finding.
+  - On RF-LARGE-CHAIN-n01000-ROT and TREE-n01000-AX, the dense Cholesky refuses a pivot at DOF 6001 or 6002 of 6006, after 65–86 s. The O(n⁴) dense pair witness then runs until the 1,800 s kill.
+  - The time budget is not checked inside the witness.
+  - The sparse path publishes both models as Sensitive, so dense scrutiny both disagrees in class and does not end.
+  - F1b's gate part 2 shows the same timeouts at product level, on base and candidate alike. The behaviour predates F1b.
+  - **Route:** a kernel follow-up slice, on the T3-close list, to be scheduled by ROOT. The slice bounds the dense witness, with a budget check inside it and a size limit or a cheaper witness above one, and it examines why the dense pivot screen refuses where the skyline passes, since I15's 2j + 2 screen-bound hypothesis is not proven.
+  - Until then, product users running dense scrutiny on such models wait until they cancel the background job. The solve runs as a cancellable job.
+- **B3 is granted:** K6-CEIL-CHAIN-n01364-AX dense, at C = 16 GiB with the heap cap at 15.5 GiB.
+  - It is admitted under the ruled rule: a 7.78 GiB footprint estimate, within 8 GiB, and a projected RSS of 11.29 GiB, within 12.8 GiB.
+  - It runs once, alone on the host apart from DS1's single `nice -n 19` emulator process, with the memory guard running.
+  - If the dense factor refuses and the witness runs to the timeout, the memory figures at the refusal point are still the record B3 needs.
