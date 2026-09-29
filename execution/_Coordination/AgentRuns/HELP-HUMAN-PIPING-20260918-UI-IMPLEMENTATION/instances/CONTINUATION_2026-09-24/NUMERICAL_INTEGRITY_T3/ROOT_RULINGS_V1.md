@@ -2156,3 +2156,18 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
   - swapping Iy and Iz is equivalent here;
   - `solve_cases` gets an equality test only.
 - **Next:** A0 now. Report it as soon as it compiles and FK's suite passes; one cargo job at `-j 4`. I17 works on V-K's parts that do not call `retained`.
+
+## K6b A0 accepted; the export is on both branches (ROOT, 2026-09-29)
+
+- **A0 is accepted.** ROOT committed it in two commits on the K6b branch:
+  - `bb89e4f8f`: FK's `retained_api` export. It is visibility only: 240 `pub(crate)` → `pub` edits, 20 dead-code markers removed, and the facade block. It covers 72 items, 38 methods and 130 fields.
+  - `fdbf132d4`: H's test that the export suffices from outside FK.
+- **ROOT's checks:**
+  - every removed line in FK's diff is a `pub(crate)` or a dead-code marker, and every added line is `pub` or the facade;
+  - the eleven files' sha256 equal I16's return;
+  - I16 reports FK's full suite at 394 passed, 0 warnings, and rustfmt clean;
+  - `retained_api` is named only by `FK/structural.rs` and H's test.
+- **I17 confirmed the export covers V-K.** `Kind::{ALL, index}` stay crate-private.
+- **The export commit alone is cherry-picked onto the V-K branch** as `3018343c2`, with the same patch-id as `bb89e4f8f`. H's test stays on K6b.
+  - Whichever PR merges first carries the export to main. The other merges main, and the identical change merges cleanly.
+- **Next:** K6b's A1 (the W1 mode and the adapter), and V-K's A1 kernel lane. Each uses one cargo job.
