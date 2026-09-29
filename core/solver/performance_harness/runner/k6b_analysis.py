@@ -7,8 +7,10 @@ records and the parsers, and adds only what W1 needs:
 - ``w1_figures``: from one ``w1a`` process's JSONL, the outcome, the charged work, the
   ``w1_solve`` median and minimum, seconds per limb-multiply equivalent (the median
   ``w1_solve`` time divided by the meter's charged work), the heap peaks of the call and of
-  each prefix, the prefix increments, and the stop rule's increment (the call's peak minus
-  the peak through the last verification pass) with its tracker-entry equivalent;
+  each prefix, the prefix increments, and the last segment's increment (the call's peak
+  minus the largest prefix peak). For a selected case the last segment is the decision, so
+  that increment is the stop rule's, with its tracker-entry equivalent; otherwise (a case
+  that ends unresolved, ROOT's ruling on the K6B-S3 stop) no stop rule is reported;
 - ``smoke``: the ``w1a`` and ``sparse`` runs at 10 and 100 members and the DEC-053 nine,
   under a 512 MiB heap cap (checkpoint A2);
 - ``project``: W1-T3's and W1-T4's rows from the 100-member runs: the projected call time and
@@ -80,8 +82,10 @@ def w1_figures(objects):
         previous = max(previous, peak)
     if call_peak is not None and out['prefixes']:
         increment = call_peak - max(p['heap_peak'] for p in out['prefixes'])
-        out['decide_increment'] = increment
-        out['tracker_entries_equivalent'] = increment / TRACKER_ENTRY_BYTES
+        out['last_segment_increment'] = increment
+        selected = first.get('class') == 'Selected'
+        out['decide_increment'] = increment if selected else None
+        out['tracker_entries_equivalent'] = increment / TRACKER_ENTRY_BYTES if selected else None
     if call_peak and out['estimate_adm_bytes_w1a']:
         out['heap_over_e_max'] = call_peak / out['estimate_adm_bytes_w1a']
     if call_peak and out['estimate_w1_sel128_bytes']:

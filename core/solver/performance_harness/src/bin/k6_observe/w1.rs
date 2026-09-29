@@ -2,6 +2,11 @@
 //! plan, Q2): the outcome, one `attempt` line per attempt (a new kind; K6's
 //! kinds keep their schema), the parity items, the rows dump and the prefix
 //! lines.
+//!
+//! ROOT's ruling on the K6B-S3 stop: the outcome's per-precision work is the
+//! charged totals, and each attempt line carries whether its builds completed
+//! and the work it was charged that no stage records (`own_unstaged`,
+//! `shared_unstaged`; zero on completed builds).
 
 use super::Line;
 use open_pipe_stress_frame_kernel::structural::retained_api::{
@@ -12,8 +17,8 @@ use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
 };
 use open_pipe_stress_solver_performance_harness::k6::w1::rows::{class_counts, write_rows};
 use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
-    attempts_of, charged_by, outcome_class, own_total, segments, stage_fields, stages_equal_totals,
-    work_by_precision, work_closes, W1Solve,
+    attempts_of, builds_completed, charged_by, outcome_class, own_total, segments, stage_fields,
+    stages_equal_totals, unstaged, work_by_precision, work_closes, W1Solve,
 };
 use open_pipe_stress_solver_performance_harness::k6::{debug_digest, Fnv64};
 use std::io::Write;
@@ -108,12 +113,10 @@ pub fn outcome_line(repeat: usize, solve: &W1Solve) {
         .n("meter_charged", solve.charged)
         .b("budget_reached", budget_reached(solve));
     for w in work_by_precision(attempts) {
-        let own: u64 = stage_fields(&w.own).iter().map(|f| f.1).sum();
-        let shared: u64 = stage_fields(&w.shared).iter().map(|f| f.1).sum();
         line = line
             .n(&format!("work_{}_attempts", w.precision), w.attempts)
-            .n(&format!("work_{}_own", w.precision), own)
-            .n(&format!("work_{}_shared", w.precision), shared);
+            .n(&format!("work_{}_own", w.precision), w.own_total)
+            .n(&format!("work_{}_shared", w.precision), w.shared_total);
     }
     line.emit();
 }
@@ -143,7 +146,11 @@ pub fn attempt_lines(repeat: usize, attempts: &[AttemptRecord]) {
             line = line.n(&format!("shared_{name}"), value);
         }
         let v = a.verification.as_ref();
-        line.n("own_total", own_total(a))
+        let (own_unstaged, shared_unstaged) = unstaged(a);
+        line.b("stages_complete", builds_completed(a))
+            .n("own_unstaged", own_unstaged)
+            .n("shared_unstaged", shared_unstaged)
+            .n("own_total", own_total(a))
             .n("charged_by", charged_by(a))
             .n("shared_work", a.shared_work)
             .b("shared_built_here", a.shared_built_here)

@@ -337,10 +337,35 @@ class Aggregation(unittest.TestCase):
         self.assertEqual([p['heap_peak'] for p in f['prefixes']], [100, 250])
         self.assertEqual([p['increment'] for p in f['prefixes']], [100, 150])
         self.assertEqual(f['call_heap_peak'], 300)
+        self.assertEqual(f['last_segment_increment'], 50)
         self.assertEqual(f['decide_increment'], 50)
         self.assertEqual(f['tracker_entries_equivalent'], 50 / a.TRACKER_ENTRY_BYTES)
         self.assertEqual(f['heap_over_e_max'], 0.3)
         self.assertEqual(a.TRACKER_ENTRY_BYTES, 4304)
+        # ROOT's ruling on the K6B-S3 stop: a case that ends unresolved has no decision as its
+        # last segment, so no stop-rule increment is reported.
+        unresolved = [dict(o, **{'class': 'Unresolved', 'reason': 'ExactSumSpan', 'rows': None})
+                      if o['kind'] == 'outcome' else o for o in objects]
+        g = a.w1_figures(unresolved)
+        self.assertEqual(g['last_segment_increment'], 50)
+        self.assertIsNone(g['decide_increment'])
+        self.assertIsNone(g['tracker_entries_equivalent'])
+        self.assertIsNone(g['rows'])
+
+    def test_a_span_unresolved_w1a_outcome_is_recorded_not_a_stop(self):
+        """ROOT's ruling on the K6B-S3 stop: in b3 a w1a case that ends Unresolved(ExactSumSpan)
+        with every parity item true is recorded, and the tier goes on; a false item still stops."""
+        objects = [
+            {'kind': 'outcome', 'repeat': 0, 'class': 'Unresolved', 'reason': 'ExactSumSpan',
+             'budget_reached': False},
+            {'kind': 'parity', 'item': 'w1_stages_equal_totals', 'repeat': 0, 'equal': True},
+            {'kind': 'parity', 'item': 'w1_budget_not_reached', 'repeat': 0, 'equal': True},
+            {'kind': 'summary'},
+        ]
+        self.assertEqual(r.parity_failures(objects), [])
+        self.assertEqual(r.stop_reasons({'classification': 'ok'}, True), [])
+        failing = objects[:1] + [dict(objects[1], equal=False)] + objects[2:]
+        self.assertEqual([p['item'] for p in r.parity_failures(failing)], ['w1_stages_equal_totals'])
 
     def test_fit(self):
         fit = r.fit_loglog([(10, 1000.0), (100, 10000.0), (1000, 100000.0)])

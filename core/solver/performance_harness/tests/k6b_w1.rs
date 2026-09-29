@@ -8,13 +8,16 @@
 //!   twelve RF-LARGE frames (`K4T/r1_large.txt`, its sha256 asserted).
 //! - W1's counts against every attempt's storage; the work closure; the work by
 //!   precision; the prefixes; the estimate against a hand derivation.
+//! - A build that stops partway (ROOT's ruling on the K6B-S3 stop): its stages
+//!   are checked against its charged total, and the remainder is unstaged.
 
 mod k6b_support;
 
 use k6b_support::{r1_rows, sha256_hex, R1_LARGE, R1_LARGE_SHA256};
 use open_pipe_stress_frame_kernel::structural::retained_api::{
-    solve_case, solve_cases, AttemptRecord, BudgetScope, CaseLimit, CaseOutcome, InvocationMeter,
-    RetainedSolve, StageWork, UnresolvedReason,
+    solve_case, solve_cases, AttemptOutcome, AttemptReason, AttemptRecord, AttemptRole,
+    AttemptStop, BudgetScope, CaseLimit, CaseOutcome, InvocationMeter, RetainedSolve, StageWork,
+    UnresolvedReason,
 };
 use open_pipe_stress_solver_performance_harness::k6::models::model;
 use open_pipe_stress_solver_performance_harness::k6::staged::{NoObserver, Stage};
@@ -24,8 +27,8 @@ use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
 };
 use open_pipe_stress_solver_performance_harness::k6::w1::rows::{r1_passes, r1_values};
 use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
-    attempts_of, own_total, prefix_limits, segments, stage_sum, stages_equal_totals, w1_solve,
-    work_by_precision, work_closes, W1Limits, W1Solve,
+    attempts_of, builds_completed, own_total, prefix_limits, segments, shared_total, stage_sum,
+    stages_equal_totals, unstaged, w1_solve, work_by_precision, work_closes, W1Limits, W1Solve,
 };
 
 fn rf(size: usize) -> Vec<String> {
@@ -210,6 +213,14 @@ fn work_by_precision_files_each_attempt_under_its_own_precision() {
         }
         assert_eq!(stage_array(&w.own), own, "{}", w.precision);
         assert_eq!(stage_array(&w.shared), shared, "{}", w.precision);
+        // Completed builds: the charged totals equal the stage sums.
+        assert_eq!(w.own_total, own.iter().sum::<u64>(), "{}", w.precision);
+        assert_eq!(
+            w.shared_total,
+            shared.iter().sum::<u64>(),
+            "{}",
+            w.precision
+        );
     }
     // The verification pass and the stop rule are where K4 files them: the
     // 256 verification carries the pass (and the shift), the 128 candidate the
@@ -218,8 +229,93 @@ fn work_by_precision_files_each_attempt_under_its_own_precision() {
     assert!(by[0].own.stop_rule > 0 && by[1].own.stop_rule == 0);
     // Each attempt's own stages add up to its own work.
     for a in attempts {
+        assert!(builds_completed(a));
         assert_eq!(stage_sum(&a.stages), own_total(a));
+        assert_eq!(unstaged(a), (0, 0));
     }
+}
+
+/// ROOT's ruling on the K6B-S3 stop: a build that stops partway. A case limit
+/// inside the 256 verification's `uc` stage stops its shared build with
+/// `Budget(Case)` on the error path row 247 took with `Span`
+/// (`K4R/verify.rs:471-485`): the charged total holds the partial `uc` work,
+/// and no stage records it.
+#[test]
+fn a_build_that_stops_partway_is_checked_against_its_charged_total() {
+    let id = "RF-LARGE-CHAIN-n00010-AX";
+    let full = run(id, W1Limits::default());
+    let full_attempts = attempts_of(&full.outcome);
+    let v = &full_attempts[1];
+    assert_eq!((v.precision, v.role), (256, AttemptRole::Verification));
+    assert!(v.verification_shared_built_here && v.shared_stages.uc > 1);
+    // The verification's shared build starts where solve_256 ends and runs
+    // bounded_formation, wide_formation, then uc.
+    let segs = segments(full_attempts);
+    assert_eq!(segs[1].label, "solve_256");
+    let into_uc = segs[1].end
+        + v.shared_stages.bounded_formation
+        + v.shared_stages.wide_formation
+        + v.shared_stages.uc / 2;
+    let stopped = run(
+        id,
+        W1Limits {
+            case: into_uc,
+            invocation: u64::MAX,
+        },
+    );
+    assert!(
+        matches!(
+            stopped.outcome,
+            CaseOutcome::Unresolved {
+                reason: UnresolvedReason::Budget(BudgetScope::Case),
+                ..
+            }
+        ),
+        "{:?}",
+        stopped.outcome
+    );
+    let attempts = attempts_of(&stopped.outcome);
+    assert_eq!(attempts.len(), 2);
+    let (c, a) = (&attempts[0], &attempts[1]);
+    assert_eq!(
+        c.outcome,
+        AttemptOutcome::Rejected(AttemptReason::VerificationFailed)
+    );
+    assert_eq!(
+        a.outcome,
+        AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Budget(BudgetScope::Case)))
+    );
+    assert!(builds_completed(c) && !builds_completed(a));
+    assert_eq!(unstaged(c), (0, 0));
+    // The stopped build: its stages stop before uc, and the charged total
+    // holds the partial uc work.
+    assert_eq!(a.shared_stages.uc, 0);
+    assert_eq!(
+        a.shared_stages.wide_formation,
+        v.shared_stages.wide_formation
+    );
+    let (own_rest, shared_rest) = unstaged(a);
+    assert_eq!(own_rest, 0);
+    assert!(shared_rest > 0);
+    assert_eq!(stage_sum(&a.shared_stages) + shared_rest, shared_total(a));
+    // The equality does not hold on it; the check does, and the work closes.
+    assert_ne!(stage_sum(&a.shared_stages), shared_total(a));
+    assert!(stages_equal_totals(attempts));
+    assert!(work_closes(attempts, stopped.charged));
+    // The work by precision reports the charged totals.
+    let by = work_by_precision(attempts);
+    assert_eq!(by[1].precision, 256);
+    assert_eq!(by[1].shared_total, shared_total(a));
+    assert_eq!(by[1].shared_total, stage_sum(&by[1].shared) + shared_rest);
+    assert_eq!(by[1].own_total, own_total(a));
+    // A stopped build's stage sum above its charged total fails the check.
+    let mut over = attempts.to_vec();
+    over[1].shared_stages.uc = shared_rest + 1;
+    assert!(!stages_equal_totals(&over));
+    // A completed build is still held to the equality.
+    let mut short = full_attempts.to_vec();
+    short[0].stages.rhs -= 1;
+    assert!(!stages_equal_totals(&short));
 }
 
 #[test]

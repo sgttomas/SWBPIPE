@@ -20,8 +20,8 @@ use super::super::models::K6Model;
 use super::super::staged::{Stage, StageObserver};
 use super::adapter;
 use open_pipe_stress_frame_kernel::structural::retained_api::{
-    solve_case, AttemptRecord, CaseLimit, CaseOutcome, InvocationMeter, PrimitiveSource,
-    SourceError, StageWork,
+    solve_case, AttemptOutcome, AttemptReason, AttemptRecord, CaseLimit, CaseOutcome,
+    InvocationMeter, PrimitiveSource, SourceError, StageWork,
 };
 
 /// The per-case limit and the invocation meter's limit (ROOT's Q3 ruling:
@@ -167,25 +167,64 @@ pub fn work_closes(attempts: &[AttemptRecord], charged: u64) -> bool {
         == charged
 }
 
-/// Parity `w1_stages_equal_totals`: per attempt, the own stages add up to the
-/// own work, and the shared stages to the shared work (the attempt's build and
-/// the verification's shared data).
+/// The shared work charged to an attempt's case: its build and the
+/// verification's shared data, each counted in full against the case (K4
+/// RETURN §14).
+pub fn shared_total(a: &AttemptRecord) -> u64 {
+    a.shared_work.saturating_add(a.verification_shared_work)
+}
+
+/// Whether an attempt's builds all completed. K4 marks an attempt that stopped
+/// inside a build `Failed(Stop(_))` (`K4R/adaptive.rs:2979-3057`). On that
+/// error path K4 charges the stopped stage's partial work to the attempt's
+/// totals but records no stage for it (the verification's shared build,
+/// `K4R/verify.rs:471-485`; routed to KF3), so the stages can fall short of
+/// the totals (ROOT's ruling on the K6B-S3 stop).
+pub fn builds_completed(a: &AttemptRecord) -> bool {
+    !matches!(a.outcome, AttemptOutcome::Failed(AttemptReason::Stop(_)))
+}
+
+/// The work an attempt was charged that no stage records: (own, shared). Zero
+/// on completed builds; on a stopped build, the stopped stage's partial work.
+/// Saturating: a stage sum above its total shows as zero here and fails
+/// `stages_equal_totals`.
+pub fn unstaged(a: &AttemptRecord) -> (u64, u64) {
+    (
+        own_total(a).saturating_sub(stage_sum(&a.stages)),
+        shared_total(a).saturating_sub(stage_sum(&a.shared_stages)),
+    )
+}
+
+/// Parity `w1_stages_equal_totals` (ROOT's ruling on the K6B-S3 stop). On an
+/// attempt whose builds completed, the own stages add up to the own work and
+/// the shared stages to the shared work (the attempt's build and the
+/// verification's shared data). On an attempt that stopped inside a build,
+/// each stage sum is at most its charged total; the remainder is `unstaged`.
 pub fn stages_equal_totals(attempts: &[AttemptRecord]) -> bool {
     attempts.iter().all(|a| {
-        stage_sum(&a.stages) == own_total(a)
-            && stage_sum(&a.shared_stages)
-                == a.shared_work.saturating_add(a.verification_shared_work)
+        let (own, shared) = (stage_sum(&a.stages), stage_sum(&a.shared_stages));
+        if builds_completed(a) {
+            own == own_total(a) && shared == shared_total(a)
+        } else {
+            own <= own_total(a) && shared <= shared_total(a)
+        }
     })
 }
 
 /// Work by precision: each precision's attempts, their own stages and their
-/// shared stages (counted in full against the case, K4 RETURN §14).
+/// shared stages (counted in full against the case, K4 RETURN §14), and the
+/// charged totals, which equal the stage sums on completed builds and exceed
+/// them by the unstaged work on a stopped build.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrecisionWork {
     pub precision: u32,
     pub attempts: usize,
     pub own: StageWork,
     pub shared: StageWork,
+    /// The attempts' `own_total`s.
+    pub own_total: u64,
+    /// The attempts' `shared_total`s.
+    pub shared_total: u64,
 }
 
 fn add_stages(a: &mut StageWork, b: &StageWork) {
@@ -222,6 +261,8 @@ pub fn work_by_precision(attempts: &[AttemptRecord]) -> Vec<PrecisionWork> {
                     attempts: 0,
                     own: StageWork::default(),
                     shared: StageWork::default(),
+                    own_total: 0,
+                    shared_total: 0,
                 });
                 out.last_mut().expect("just pushed")
             }
@@ -229,6 +270,8 @@ pub fn work_by_precision(attempts: &[AttemptRecord]) -> Vec<PrecisionWork> {
         entry.attempts += 1;
         add_stages(&mut entry.own, &a.stages);
         add_stages(&mut entry.shared, &a.shared_stages);
+        entry.own_total = entry.own_total.saturating_add(own_total(a));
+        entry.shared_total = entry.shared_total.saturating_add(shared_total(a));
     }
     out.sort_by_key(|w| w.precision);
     out

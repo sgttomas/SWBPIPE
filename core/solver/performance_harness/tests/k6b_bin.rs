@@ -84,7 +84,15 @@ fn w1a_prints_its_lines_and_every_parity_holds() {
     assert!(outcomes
         .iter()
         .all(|l| l.contains("\"class\":\"Selected\"") && l.contains("\"selected_precision\":128")));
-    assert_eq!(lines_of(&text, "attempt").len(), 4);
+    let attempts = lines_of(&text, "attempt");
+    assert_eq!(attempts.len(), 4);
+    // Completed builds: nothing charged is unstaged (ROOT's ruling on the
+    // K6B-S3 stop).
+    assert!(attempts
+        .iter()
+        .all(|l| l.contains("\"stages_complete\":true")
+            && l.contains("\"own_unstaged\":0,")
+            && l.contains("\"shared_unstaged\":0,")));
     let parity = lines_of(&text, "parity");
     for item in [
         "w1_profile_equals_storage",
