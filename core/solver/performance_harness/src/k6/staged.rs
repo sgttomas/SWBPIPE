@@ -62,6 +62,12 @@ pub enum Stage {
     DensifyLu,
     LaneReduce,
     LaneSolve,
+    /// K6b: the adapter and `PrimitiveSource::new`.
+    W1Source,
+    /// K6b: one `solve_case` call, the whole of K4's schedule.
+    W1Solve,
+    /// K6b: the j-th budget-truncated prefix call (Q1(c)), j ≥ 1.
+    W1Prefix(u8),
 }
 
 impl Stage {
@@ -84,6 +90,22 @@ impl Stage {
             Self::DensifyLu => "densify_lu",
             Self::LaneReduce => "lane_reduce",
             Self::LaneSolve => "lane_solve",
+            Self::W1Source => "w1_source",
+            Self::W1Solve => "w1_solve",
+            Self::W1Prefix(j) => match j {
+                1 => "w1_prefix_1",
+                2 => "w1_prefix_2",
+                3 => "w1_prefix_3",
+                4 => "w1_prefix_4",
+                5 => "w1_prefix_5",
+                6 => "w1_prefix_6",
+                7 => "w1_prefix_7",
+                8 => "w1_prefix_8",
+                9 => "w1_prefix_9",
+                10 => "w1_prefix_10",
+                11 => "w1_prefix_11",
+                _ => "w1_prefix",
+            },
         }
     }
 }

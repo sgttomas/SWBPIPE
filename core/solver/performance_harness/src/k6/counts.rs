@@ -11,6 +11,7 @@
 
 use super::lanes::{identity_profile, off_diagonal_entries, reduced_entry_system};
 use super::models::K6Model;
+use super::w1::counts::{estimate as w1_estimate, W1Counts, W1SizeFacts};
 use super::Mode;
 use open_pipe_stress_frame_kernel::structural::{
     assemble_sparse_stiffness, prepare_sparse_structural, ContributionRounding, PivotEvidence,
@@ -66,6 +67,9 @@ pub struct K6Counts {
     pub lane_off_diagonal: usize,
     pub contributions: usize,
     pub dense_entries: u128,
+    /// K6b: W1's counts, where the counts phase computed them (the `w1a` mode
+    /// and `--counts-only`); `None` in K6's own modes and in K6's records.
+    pub w1: Option<W1Counts>,
 }
 
 /// The sizes the estimates use, from the types themselves.
@@ -216,6 +220,7 @@ pub fn compute(
         lane_off_diagonal,
         contributions,
         dense_entries: (dofs as u128) * (dofs as u128),
+        w1: None,
     })
 }
 
@@ -274,7 +279,7 @@ pub fn f1b_estimate_bytes(mode: Mode, c: &K6Counts) -> Option<u128> {
     match mode {
         Mode::Dense => Some(F1B_DENSE_BYTES_PER_ENTRY * c.dense_entries),
         Mode::LaneId => Some(F1B_LANE_BYTES_PER_PROFILE_ENTRY * c.identity_profile_entries),
-        Mode::Sparse | Mode::LaneLu => None,
+        Mode::Sparse | Mode::LaneLu | Mode::W1a => None,
     }
 }
 
@@ -308,6 +313,13 @@ pub fn admission_estimate_bytes(mode: Mode, c: &K6Counts, s: &SizeFacts) -> u128
     let p = c.rcm_profile_entries;
     let base = base_bytes(c, s);
     match mode {
+        // K6b: E_max of the W1 estimate (`w1::counts::estimate`); without W1
+        // counts the estimate is unknown, and the half-cap rule refuses it.
+        Mode::W1a => {
+            c.w1.as_ref()
+                .map(|w| w1_estimate(w, &W1SizeFacts::of_this_build()).max)
+                .unwrap_or(u128::MAX)
+        }
         Mode::Dense => F1B_DENSE_BYTES_PER_ENTRY * c.dense_entries + base,
         Mode::Sparse => {
             let prepared = 32 * nnz_f + 28 * nf;
@@ -403,6 +415,47 @@ pub fn parse_counts_line(line: &str) -> Option<(String, K6Counts, u64)> {
         lane_off_diagonal: u("lane_off_diagonal")?,
         contributions: u("contributions")?,
         dense_entries: json_integer(line, "dense_entries")?,
+        w1: parse_w1(line),
     };
     Some((model, counts, digest))
+}
+
+/// The boolean value of `"key":true|false` in one of K6's own JSON lines.
+fn json_bool(line: &str, key: &str) -> Option<bool> {
+    let pattern = format!("\"{key}\":");
+    let rest = &line[line.find(&pattern)? + pattern.len()..];
+    if rest.starts_with("true") {
+        Some(true)
+    } else if rest.starts_with("false") {
+        Some(false)
+    } else {
+        None
+    }
+}
+
+/// K6b's W1 counts from a counts line, when it carries them.
+fn parse_w1(line: &str) -> Option<W1Counts> {
+    let u = |key: &str| json_integer(line, key).and_then(|v| usize::try_from(v).ok());
+    Some(W1Counts {
+        source_ok: json_bool(line, "w1_source_ok")?,
+        nodes: u("w1_nodes")?,
+        members: u("w1_members")?,
+        stations: u("w1_stations")?,
+        constraints: u("w1_constraints")?,
+        loads: u("w1_loads")?,
+        dofs: u("w1_dofs")?,
+        free_dofs: u("w1_free_dofs")?,
+        bodies: u("w1_bodies")?,
+        pattern_entries: u("w1_pattern_entries")?,
+        profile_entries: u("w1_profile_entries")?,
+        half_bandwidth: u("w1_half_bandwidth")?,
+        blocks: u("w1_blocks")?,
+        rows: u("w1_rows")?,
+        source_encoding_len: u("w1_source_encoding_len")?,
+        source_encoding_fnv64: u64::from_str_radix(
+            json_string(line, "w1_source_encoding_fnv64")?,
+            16,
+        )
+        .ok()?,
+    })
 }

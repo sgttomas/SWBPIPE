@@ -18,6 +18,7 @@ pub mod lanes;
 pub mod models;
 pub mod parity;
 pub mod staged;
+pub mod w1;
 
 /// The observation modes (ROOT's K6 rulings Q2 and Q12).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -30,6 +31,9 @@ pub enum Mode {
     LaneId,
     /// The legacy dense LU DEC-050/053 lane.
     LaneLu,
+    /// K4's W1a kernel method through FK's `retained_api` (K6b; ROOT's
+    /// rulings on I16's plan, Q2): one `solve_case` per repeat.
+    W1a,
 }
 
 impl Mode {
@@ -39,6 +43,7 @@ impl Mode {
             "dense" => Some(Self::Dense),
             "lane-id" => Some(Self::LaneId),
             "lane-lu" => Some(Self::LaneLu),
+            "w1a" => Some(Self::W1a),
             _ => None,
         }
     }
@@ -48,6 +53,7 @@ impl Mode {
             Self::Dense => "dense",
             Self::LaneId => "lane-id",
             Self::LaneLu => "lane-lu",
+            Self::W1a => "w1a",
         }
     }
     /// Whether the mode materializes an n² matrix: every such mode is refused

@@ -152,6 +152,14 @@ class ModelHashes(unittest.TestCase):
             with open(os.path.join(folder, name), 'rb') as fh:
                 self.assertEqual(hashlib.sha256(fh.read()).hexdigest(), listed[model_id], name)
 
+    def test_k6b_sources_match_the_independent_python_bytes(self):
+        """K6b (plan Q6(c)): the Python K4SRC of the independent generator's models equals
+        observations/k6b/sources.txt, which the Rust adapter test checks by FNV-1a."""
+        import k6b_sources
+        path = os.path.join(os.path.dirname(OBSERVATIONS), 'k6b', 'sources.txt')
+        with open(path) as fh:
+            self.assertEqual(fh.read(), k6b_sources.table())
+
 
 class SectionBits(unittest.TestCase):
     """B4, independently of the Rust test: the stated formula's bits."""
