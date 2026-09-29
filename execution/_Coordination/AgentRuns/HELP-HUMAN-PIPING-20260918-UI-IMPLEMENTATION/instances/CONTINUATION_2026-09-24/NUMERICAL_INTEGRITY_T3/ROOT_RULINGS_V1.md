@@ -2540,3 +2540,33 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
   - After KF3 merges, K6b merges main and re-runs W1-T4 as a records addendum, which may follow K6b's merge.
   - ROOT's W1 limits use the post-KF3 figures.
 - **V-K's PR** [#1057](https://github.com/sgttomas/chirality/pull/1057) is open. The dispatch is 36640221444. The independent reviewer is RV21.
+
+## KF3: rulings on I19's diagnosis and plan; D1 revision 5a.3 amendment A2 (ROOT, 2026-09-29)
+
+The plan is `IMPLEMENTATION/KF3/PLAN_CHECKPOINT0.md` on the KF3 branch (sha256 `721fc2d6…`). **It is approved.**
+
+- **The diagnosis is accepted.** The five frames stop in `build_verify_shared`, then `uc_bounds`, then `u_pass`: an `add_toward` whose addends lie more than 8,128 bits apart.
+  - **U_c grows geometrically along the chain:** log2 U_c ≈ α·N + β, with α from 1.74 to 6.6 bits per member on the five frames. The true norm grows only polynomially.
+  - The first refusal is predicted between about 1,200 and 4,500 members.
+  - It is not an exponent overflow, and neither `gamma_m`, `nl_pass` nor `bounds_from` is involved.
+- **D1 revision 5a.3, amendment A2 (ROOT's ruling):**
+  - a Uc_c or S_c whose formation is refused, by `Span` or `Exponent`, is unavailable. It is treated as R7's existing "does not exist" (+∞);
+  - B_c is the minimum over the bounds that were formed;
+  - `u_pass` and `nl_pass` mark only the refused block and skip its remaining rows, and every other block runs as today;
+  - **honesty:** every step of the guarantee (Lemmas A to C, the Theorem and the Corollary) uses B_c only through B_c ≥ ‖K̃_c⁻¹‖₁. A2's B_c is the minimum of a nonempty set of formed bounds, each certified by Lemma D or E, and a refusal changes no formed value. So A2 affects availability only. The reviewer checks this against every reader in plan §3.
+  - `DESIGN.md` stays hash-pinned; the amendment is this ruling.
+- **The decisions in plan §11:**
+  1. **A block with data and no bound, after a refusal:** the attempt stops with that refusal, as today.
+  2. **A refusal stop takes precedence** over another block's `uc` rejection. The outcome is deterministic and conservative.
+  3. **The refusal evidence** goes on `AttemptRecord` (`bound_refusals`) only.
+  4. **The constructed slender chain** is approved as the CI model (a planar chain along (3,4,0), under about 200 members). Report its debug CI time, and ask if it exceeds about 60 s.
+  5. **The test-only hook that removes S** for the W2 test: reuse V-K's `seeded` module if V-K is on main first; otherwise add a `#[cfg(test)]` hook in KF3.
+  6. **The scale driver for B:** main's drivers if V-K and K6b have merged first. Otherwise, their `vk_scale` and `k6_observe` built from `git archive` copies of their branches, which is read-only.
+  7. **`wide_sum.rs`: one method, authorized,** added to KF3's write set: a full accumulator reset after a refusal, as a safeguard, with a unit test.
+  8. **No early exit or "sticky" directed add.** Token-level identity on RF-LARGE-100 is kept.
+  9. **est_c stays out of A2.**
+- **Partial stages:** all four builds (`build_shared`, `solve_case_at`, `build_verify_shared` and `verify_state`) add the charged work their stages do not record to the stage in progress, so the stages sum to the charged total on every path.
+- **Merge order with K6b** (whose test asserts `shared_stages.uc == 0` on a stopped build, and whose parity check tolerates unstaged work):
+  - **whichever of KF3 and K6b merges second** updates that test and tightens the parity check back to equality, in its own PR;
+  - if KF3 is second, `performance_harness/tests/k6b_w1.rs` and `src/k6/w1/staged.rs` join KF3's write set for that purpose only.
+- **Next:** checkpoint A. Builds may run, with one cargo job at `-j 4`; RV21 is reviewing V-K alongside.
