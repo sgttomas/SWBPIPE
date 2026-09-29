@@ -1,6 +1,6 @@
 # K5 RETURN (W4: the constrained-body witness and the curved rule)
 
-I14, a Type 2 TASK, for ROOT (HELP_HUMAN). This is the return at checkpoint D, with an addendum (§16) resolving RV14's review. CHANGE_RECORD.md is the PR record; SHA256SUMS covers every file of `IMPLEMENTATION/K5/` except itself.
+I14, a Type 2 TASK, for ROOT (HELP_HUMAN). This is the return at checkpoint D, with an addendum (§16) resolving RV14's review and its delta check (§16.7). CHANGE_RECORD.md is the PR record; SHA256SUMS covers every file of `IMPLEMENTATION/K5/` except itself.
 
 **Placeholders:**
 - `<wt>` is the T3 worktree root; `<scratch>` is `<wt>/scratch/i14`; `<VENV>` is the repository venv.
@@ -648,6 +648,7 @@ pub fn assess_constrained_bodies(
   - `MechanismWitnessed` carries the exact, canonical witness, and `rigid_parameters` = [t/L, θ] exactly (`rigid_parameters[i]·L` is node 0's u_i bit for bit).
   - A witness whose [t/L, θ] is not exactly representable (t/L overflows at a tiny L, or rounds at a huge one) is refused: `NumericallyUnresolved` with `unresolved = CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`, nothing published (the addendum, RV14-4).
   - `NumericallyUnresolved` with `CONSTRAINED_RANK_UNRESOLVED` means the rank is in the τ_B band, or no candidate verified. It is never a rounded direction.
+  - **The first verified witness decides** (RV14-D2, accepted as a conservative limitation; §16.7). If its [t/L, θ] is not exact, the result is `NumericallyUnresolved` with the parameters reason, and no later candidate is tried, even one that would publish exact parameters.
   - `unresolved` is `Some` exactly when the status is `NumericallyUnresolved`. SA publishes its own reason text for both ("constrained-body rank unresolved"), unchanged.
   - **`Restrained` is not a restraint proof.** A caller still runs its matrix gate, as SA does.
 - **Platform.** The function calls no function of unspecified precision (§2.6). Its output is a function of the input bits on every IEEE-754 platform.
@@ -754,7 +755,8 @@ See §10.
 - the basis text's under-claim on the selected branches (S1);
 - `assess_rigid_body`'s `hypot`, already listed;
 - K4's directional wiring, already listed, with §9.5's caveat;
-- the guard before the prefilter, which withholds unit translation candidates when L < 2^-1023 (§2.8), recorded only.
+- the guard before the prefilter, which withholds unit translation candidates when L < 2^-1023 (§2.8), recorded only;
+- RV14-D2 (§16.7): a refused witness ends the candidate search. ROOT accepts this as a conservative limitation and lists it as a candidate refinement.
 
 ## 11. Files and line counts (against `24dea2dae`)
 
@@ -1003,3 +1005,54 @@ No SA, PP, NI `lib.rs`, CB or other source changes. No dependency or lockfile ch
 - `_run_records/rv14/tests/fk.txt`, `fk_site.txt`, `ni.txt` and `pp.txt` are cargo's raw output, with machine paths replaced by placeholders. They keep cargo's blank line at the end of the file, verbatim. They are the only whitespace items the addendum adds; §14's four remain.
 - RV14's committed scripts are reused unchanged: `rv14_mutate.py` (`9ef6da73…`), `rv14_fk_probe.rs` (`9a2c7878…`) and `rv14_oracle.py` (`03586d4b…`). They were copied from `REVIEW/_run_records/k5_review/`, and the first two are kept here as `.txt`. RV14's `tiny_case`, `partition` and `rand_dir` are ported into `gen_k5_vectors.py` with attribution, and their output is byte-identical to RV14's corpus.
 - The candidate's probe results (1.7 MB) are not committed. Their sha256 is in `probe/comparison.txt`.
+
+### 16.7 RV14's delta check at `28517eaaa` (PASS; 1 SHOULD-FIX, 1 NOTE)
+
+**Basis.**
+- RV14's delta check is in `REVIEW/K5_REVIEW.md`, section "Delta check at 28517eaaa", committed at `f3e50948b` (numerics branch), with its records in `REVIEW/_run_records/k5_review/delta/`.
+- ROOT's rulings are in `ROOT_RULINGS_V1.md`, "K5: rulings on RV14's delta check at 28517eaaa" (`9b13481fa`): fix RV14-D1 before merge; accept RV14-D2 as a conservative limitation.
+- The head is `28517eaaa`: the addendum `95c7501a7` on `b379e5b27`, plus the merge of main `65e2d6c2a`.
+
+**RV14-D1 (SHOULD-FIX): the exactness half of RV14-4's check was untested.**
+- **The gap.** RV14's mutant RV14-M5 keeps only the finiteness test, `(0..3).any(|i| !t[i].is_finite())`, and survived FK's K5 tests. Every existing refusal (the minimal tiny-L case and the subnormal corpus) was an overflow, never a rounding.
+- **The fix.** `k5_b5_parameters_are_exact_or_refused` gains RV14's construction as a `P` record, built in the test from the bits: `rv14_d1_huge_underflow_L2e1023_r2e-60`.
+  - Nodes (0,0,0) and (2^1023,0,0), one sub-body.
+  - Grounds d2–d5: u_z and every θ at node 0, so θ = 0.
+  - A directional translation row n = (2^-60, −1, 0) at node 0, which forces t_y = 2^-60·t_x.
+- **Why it must be refused.**
+  - The only null motion is the translation along (1, 2^-60, 0) (nullity 1). Its canonical witness moves both nodes by exactly (1, 2^-60, 0).
+  - L = 2^1023. So t_x/L = 2^-1023 is an exact subnormal, but t_y/L = 2^-1083 underflows to 0, and fl(0·L) = 0 ≠ 2^-60.
+  - `check()`'s `P` arm asserts `NumericallyUnresolved` with `CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`. The test also asserts L = 2^1023.
+- **The control** (RV14's `D_huge_subnormal_exact_L2e1023_r2e-40`): the same body with n = (2^-40, −1, 0).
+  - t_y/L = 2^-1063 is an exact subnormal, so the witness must publish (`W`), with canonical motion (1, 2^-40, 0, 0, 0, 0) at both nodes.
+  - `verify_witness` checks the parameters exactly, and the test asserts `rigid_parameters[1]` = 2^-1063 bit for bit.
+- **The edit.**
+  - `FK/tests/k5_constrained_bodies.rs`: 51 lines inserted after line 1087, inside the test. Every earlier line number, including K5-M20's kill site `:1081`, is unchanged.
+  - No source, vector file or generator changes.
+- **The mutant.** RV14-M5, RV14's text: `<scratch>/mut/RV14-M5.patch` (sha256 `4ebe0aec…`, kept as `_run_records/rv14/delta/RV14-M5.patch.txt`), applied through `mutate_k5.py`.
+- **Stage 1** wrote the test with nothing built or run, while F1b's gate part 2 needed a quiet host. **Stage 2** ran after ROOT released the host (`_run_records/rv14/delta/`):
+  - **FK's K5 tests on the working tree:** 8 + 15 + 1 pass, the full subnormal set included (`fk_worktree.txt`). The new `P` record and its `W` control pass.
+  - **The NONE control,** from a clean `git archive 28517eaaa` plus the test file (`overlay_d3.txt`): FK 8 + 15 + 1 pass.
+  - **RV14-M5,** from its own clean archive: **killed** at `check()`'s `P` assertion (`k5_constrained_bodies.rs:269`) on `rv14_d1_huge_underflow_L2e1023_r2e-60`, with `(MechanismWitnessed, None)` against `(NumericallyUnresolved, Some("constrained-body witness parameters not representable"))`.
+  - **Host.** At `-j 8`, `RUST_TEST_THREADS=4`, one cargo job at a time, at load about 5. Each copy and target was deleted afterwards. The memory guard was running and unchanged (2 lines, `79e2ce8e…`).
+  - **Disclosure.** `fk_worktree.txt` is cargo's raw output, with machine paths replaced by placeholders. It keeps cargo's blank line at the end of the file, verbatim, as `rv14/tests/*.txt` do.
+
+**RV14-D2 (NOTE): accepted as a known, conservative limitation. The search is not changed.**
+- **The behaviour.** `publish`'s refusal returns from `assess_constrained_bodies` at once (`return Ok(context.publish(result, found))`), so no later candidate is tried.
+- **RV14's construction** `E_tiny_two_modes`: nodes (0,0,0) and (2^-1070,0,0), grounds d1, d2, d4, d5, d7, d8, exact nullity 2 (free t_x and free θ_x).
+  - It ends `NumericallyUnresolved` with the parameters reason.
+  - Yet the verified rotation witness θ = e_x, t = 0 has exact parameters [0, 0, 0, 1, 0, 0]. `E_tiny_rotation_only`, which also grounds t_x, publishes it.
+- **ROOT's ruling (`9b13481fa`).**
+  - The result is a refusal, never a wrong value. It is reachable only through the FK API: from SA-built evidence L ≥ 2^-72 (§16.4).
+  - Moving on to the next candidate would change FK's result classes and the probe hash, which would reopen the oracle and probe checks for no correctness gain.
+  - So it is recorded here and in §9.1 ("the first verified witness decides"), and it joins the T3-close list (§10) as a candidate refinement.
+
+**Files changed after `28517eaaa`** (uncommitted; ROOT commits):
+
+| File | Change | sha256 |
+|---|---|---|
+| `FK/tests/k5_constrained_bodies.rs` | +51 (1,160 lines) | `ca7ffd1e…` |
+| `IMPLEMENTATION/K5/RETURN.md` | §9.1, §10, §16.7, header | see SHA256SUMS |
+| `IMPLEMENTATION/K5/CHANGE_RECORD.md` | the delta section | see SHA256SUMS |
+| `IMPLEMENTATION/K5/_run_records/rv14/delta/` (new) | stage 2's runs: the worktree FK log, the runner, `overlay_d3.txt`, `mutate_k5.py.txt`, `parse_results.py.txt`, `RV14-M5.patch.txt`, `MUTANTS_DELTA.txt`, the D3-NONE and RV14-M5 logs, `batch_delta.log`, `memguard.txt` | see SHA256SUMS |
+| `IMPLEMENTATION/K5/SHA256SUMS` | regenerated | — |

@@ -128,3 +128,19 @@ RV14's independent review at `b379e5b27` (`REVIEW/K5_REVIEW.md`, numerics `3a177
   - `gen_k5_vectors.py --check` OK;
   - NI's non-test build has no warnings.
 - **Not re-run:** T9, gate part 1, the 39-manifest suites and the product-run table. SA and PP sources are unchanged, and W4 runs in no T9 or gate run.
+
+## RV14's delta check at `28517eaaa` (`RETURN.md` §16.7)
+
+RV14's delta check was **PASS**, with 0 BLOCKING (`REVIEW/K5_REVIEW.md`, "Delta check at 28517eaaa", `f3e50948b`). ROOT's rulings are at `9b13481fa`.
+
+- **RV14-D1 (SHOULD-FIX, fixed before merge).**
+  - RV14-4's exactness clause, fl(t_i·L) = r_i, had no test: every refusal was an overflow.
+  - `k5_b5_parameters_are_exact_or_refused` now carries RV14's `D_huge_underflow_L2e1023_r2e-60` as a `P` record, which must be refused because 2^-60/L underflows. It also carries RV14's exact control at 2^-40, which must publish with t_y/L = 2^-1063 exactly.
+  - Tests only: 51 lines inserted inside that test.
+  - Mutant RV14-M5 (the finiteness test only) is RV14's text, kept as a patch file.
+- **RV14-D2 (NOTE, accepted as-is).** A refused witness ends the candidate search with `NumericallyUnresolved`. This is conservative, reachable only through the FK API, and recorded in RETURN §9.1 and §16.7. It is on the T3-close list as a candidate refinement.
+- **Stage 2 ran** after ROOT released the host (`_run_records/rv14/delta/`):
+  - FK's K5 tests pass on the working tree: 8 + 15 + 1, the full subnormal set included.
+  - The NONE control, from a clean `git archive 28517eaaa` plus the test file, passes.
+  - **RV14-M5 is killed** at `check()`'s `P` assertion (`k5_constrained_bodies.rs:269`) on the new record.
+  - The memory guard was unchanged.

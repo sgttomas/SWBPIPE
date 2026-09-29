@@ -1085,6 +1085,57 @@ fn k5_b5_parameters_are_exact_or_refused() {
     );
     assert_eq!(result.characteristic_length, tiny);
     assert!(result.rigid_parameters.is_none() && result.node_motion.is_none());
+    // RV14-D1: the exactness half of the check (fl(t_i·L) = r_i), where t_i/L
+    // rounds instead of overflowing. RV14's `D_huge_underflow_L2e1023_r2e-60`:
+    // nodes (0,0,0) and (2^1023,0,0), one sub-body, grounds d2-d5 (u_z and θ at
+    // node 0, so θ = 0), and a directional translation row n = (2^-60, −1, 0) at
+    // node 0 (t_y = 2^-60·t_x). The only null motion is the translation along
+    // (1, 2^-60, 0) (nullity 1); its canonical witness moves both nodes by
+    // exactly (1, 2^-60, 0). L = 2^1023, so t_x/L = 2^-1023 is an exact
+    // subnormal but t_y/L = 2^-1083 underflows to 0: the parameters are not
+    // representable, and the witness is refused (`P`). Its control (RV14's
+    // `D_huge_subnormal_exact_L2e1023_r2e-40`, n = (2^-40, −1, 0)) has t_y/L =
+    // 2^-1063, an exact subnormal, and is published (`W`) with the canonical
+    // motion and exact parameters. Every value is built from the bits.
+    let huge = f64::from_bits(0x7fe0_0000_0000_0000); // 2^1023
+    let directional = |name: &str, n_x: f64, expect: char| Record {
+        name: name.to_string(),
+        expect,
+        coordinates: vec![[0.0, 0.0, 0.0], [huge, 0.0, 0.0]],
+        sub_bodies: vec![vec![0, 1]],
+        ties: Vec::new(),
+        grounds: [2, 3, 4, 5]
+            .map(ConstrainedGround::Dof)
+            .into_iter()
+            .chain([ConstrainedGround::Directional {
+                node: 0,
+                kind: GroundKind::Translation,
+                direction: [n_x, -1.0, 0.0],
+            }])
+            .collect(),
+        motion: (expect == 'W').then(|| vec![[1.0, n_x, 0.0, 0.0, 0.0, 0.0]; 2]),
+        rigid: None,
+    };
+    let underflow = directional(
+        "rv14_d1_huge_underflow_L2e1023_r2e-60",
+        f64::from_bits(0x3c30_0000_0000_0000), // 2^-60
+        'P',
+    );
+    let result = assess(&underflow);
+    assert_eq!(check(&underflow, &result), 'U');
+    assert_eq!(result.characteristic_length, huge);
+    let exact = directional(
+        "rv14_d1_huge_subnormal_exact_L2e1023_r2e-40",
+        f64::from_bits(0x3d70_0000_0000_0000), // 2^-40
+        'W',
+    );
+    let result = assess(&exact);
+    assert_eq!(check(&exact, &result), 'W');
+    // t_y/L = 2^-1063 = 2^11·2^-1074.
+    assert_eq!(
+        result.rigid_parameters.unwrap()[1].to_bits(),
+        f64::from_bits(1 << 11).to_bits()
+    );
     let run = |text: &str| {
         let mut tally = std::collections::BTreeMap::new();
         for record in records(text) {
