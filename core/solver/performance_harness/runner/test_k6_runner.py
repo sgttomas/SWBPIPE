@@ -2,7 +2,8 @@
 """K6 runner tests (K6 brief, Required tests B3, B4, C4 and H): standard library `unittest`.
 
 The pure tests need no child process. `LiveLimit` spawns only self-limiting Python
-children under a 128 MiB cap (ROOT's K6 ruling Q9(b)). No test is skipped: each
+children under a 128 MiB cap (ROOT's K6 ruling Q9(b)); its group-kill test adds a
+sleeping helper that exits by itself within 30 s. No test is skipped: each
 platform runs its own live limit path (macOS: the RSS watchdog under
 /usr/bin/time; Linux: RLIMIT_AS), and any other platform fails.
 
@@ -16,8 +17,10 @@ import platform
 import socket
 import sys
 import tempfile
+import time
 import types
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -475,6 +478,35 @@ class PlanAdmission(unittest.TestCase):
         self.assertEqual(len(rows), 138)
         self.assertIn('never:n2_mode_at_or_above_10000_members', r.format_plan(rows))
 
+    def test_measured_runs_are_kept_and_not_run_records_are_run(self):
+        # The resume skip (I15's B1 fix; C mutant K6-M26): run_tier keeps a measured run and runs
+        # a not_run record again. Launch, the baseline, the quiet-host wait and admission are stubbed.
+        tier = [x for x in r.schedule() if x['tier'] == 'T5']
+        first, last = tier[0], tier[-1]
+        launched = []
+
+        def fake_launch(argv, *, record_dir, run_id, **kw):
+            launched.append(run_id)
+            open(os.path.join(record_dir, run_id + '.jsonl'), 'w').close()
+            return {'classification': 'ok', 'wall_s': 0.0, 'peak_rss_bytes': 1, 'exit_code': 0, 'rss': {}}
+
+        admitted = {'decision': 'admitted', 'reason': 'stub', 'estimate_adm_bytes': 1}
+        with tempfile.TemporaryDirectory() as folder:
+            with open(os.path.join(folder, 'metadata.json'), 'w') as fh:
+                fh.write('{}\n')
+            r.append_record(folder, dict(first, classification='ok'))
+            r.append_record(folder, dict(last, classification='not_run',
+                                         admission={'decision': 'deferred', 'reason': 'deferred:stub'}))
+            with mock.patch.object(r, 'launch', fake_launch), \
+                    mock.patch.object(r, 'baseline_run', lambda *a, **k: {'peak_rss_bytes': 1, 'rss': {}}), \
+                    mock.patch.object(r, 'wait_for_quiet_host', lambda log: {'waited_s': 0}), \
+                    mock.patch.object(r, 'admission', lambda *a, **k: dict(admitted)), \
+                    mock.patch.object(r, 'CONDITIONAL_MODELS', ()):
+                r.run_tier('T5', 'k6_observe', None, folder, 'commit', 'tree', log=lambda m: None)
+        self.assertNotIn(first['run_id'], launched, 'a measured run was repeated')
+        self.assertIn(last['run_id'], launched, 'a not_run record was taken as measured')
+        self.assertEqual(launched, [x['run_id'] for x in tier[1:]])
+
 
 class QuietHost(unittest.TestCase):
     """ROOT's B1 grant: wait while the 1-minute load is above 8, until it is below 6; no cargo or
@@ -505,6 +537,20 @@ class QuietHost(unittest.TestCase):
         slept = []
         r.wait_for_quiet_host(lambda msg: None, run=run, level=level, sleep=slept.append, load=lambda: (1.0, 0, 0))
         self.assertEqual(len(slept), 2)
+
+
+# A sleeping helper started first by a live child, in the child's process group, with its stdio
+# on /dev/null; it exits by itself after 30 s.
+HELPER_FIRST = (
+    "import subprocess, sys\n"
+    "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'],\n"
+    "                 stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n")
+
+
+def with_helper(child_argv):
+    """The same `python -c` child, with the sleeping helper started first."""
+    assert child_argv[1] == '-c'
+    return [child_argv[0], '-c', HELPER_FIRST + child_argv[2]] + child_argv[3:]
 
 
 class LiveLimit(unittest.TestCase):
@@ -545,6 +591,31 @@ class LiveLimit(unittest.TestCase):
                            wrapper=(system == 'Darwin'), k6_protocol=False)
         self.assertFalse(rec['killed_by_rss_watchdog'])
         self.assertEqual(rec['classification'], 'ok')
+
+    def test_kills_take_the_whole_group(self):
+        # C mutant K6-M4: under /usr/bin/time the killed binary is the wrapper's only child, so the
+        # wrapper exits by itself and a kill of the child alone looks like a group kill. Here the
+        # child first starts a sleeping helper in its process group; a group kill leaves no survivor.
+        # The helper's stdio is /dev/null: a helper holding the runner's pipes would make the
+        # runner's pipe close wait for it, and the survivor check would run only after it exited.
+        system = platform.system()
+        with tempfile.TemporaryDirectory() as folder:
+            if system == 'Darwin':
+                child = with_helper(r.growing_child_argv(r.MIB, 0, 512 * r.MIB, 0.01))
+                started = time.monotonic()
+                rec = r.launch(child, rss_cap_bytes=self.CAP, timeout_s=60, record_dir=folder, run_id='group',
+                               k6_protocol=False)
+                self.assertLess(time.monotonic() - started, 20)
+                self.assertEqual(rec['classification'], 'killed_by_rss_watchdog')
+                self.assertEqual(rec['survivors'], [], 'the watchdog kill left a process of the group')
+            # The timeout path, on every platform: a child that neither grows nor exits.
+            sleeper = [sys.executable, '-c', HELPER_FIRST + 'import time; time.sleep(30)\n']
+            started = time.monotonic()
+            rec = r.launch(sleeper, rss_cap_bytes=self.CAP, timeout_s=1, record_dir=folder, run_id='timeout',
+                           wrapper=(system == 'Darwin'), k6_protocol=False)
+            self.assertLess(time.monotonic() - started, 20)
+            self.assertEqual(rec['classification'], 'timed_out')
+            self.assertEqual(rec['survivors'], [], 'the timeout kill left a process of the group')
 
 
 if __name__ == '__main__':

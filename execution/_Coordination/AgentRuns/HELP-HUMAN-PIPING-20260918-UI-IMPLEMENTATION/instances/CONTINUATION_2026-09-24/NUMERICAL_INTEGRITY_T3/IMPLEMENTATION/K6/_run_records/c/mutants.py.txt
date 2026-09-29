@@ -1,0 +1,127 @@
+"""K6 checkpoint C: the mutant table (PLAN_CHECKPOINT0.md section 12, plus own mutants for the
+runner rules added after A2). Each mutant is one exact text replacement that must match once.
+
+Usage: python3 mutants.py apply <mutant id> <copy root>   (the root of a git archive copy)
+       python3 mutants.py list
+"""
+import json
+import sys
+
+H = 'projects/chirality-piping/core/solver/performance_harness/'
+RUNNER = H + 'runner/k6_runner.py'
+ALLOC = H + 'src/bin/k6_observe/alloc.rs'
+MAIN = H + 'src/bin/k6_observe/main.rs'
+COUNTS = H + 'src/k6/counts.rs'
+MODELS = H + 'src/k6/models.rs'
+STAGED = H + 'src/k6/staged.rs'
+
+MUTANTS = {
+    # ---------------------------------------------------------------- runner (Python)
+    'K6-M1': ('py', 'watchdog never kills (comparison skipped)', RUNNER,
+              "if system == 'Darwin' and watchdog_exceeds(kib, rss_cap_bytes):",
+              "if system == 'Darwin' and False and watchdog_exceeds(kib, rss_cap_bytes):"),
+    'K6-M2': ('py', 'watchdog compares KiB with bytes', RUNNER,
+              'return rss_kib * KIB > cap_bytes',
+              'return rss_kib > cap_bytes'),
+    'K6-M3': ('py', "watchdog polls the time wrapper's PID", RUNNER,
+              'child = find_child(proc.pid) if wrapper else proc.pid',
+              'child = proc.pid'),
+    'K6-M4': ('py', 'SIGKILL to the child only, not the group (watchdog kill)', RUNNER,
+              "                    os.killpg(pgid, signal.SIGKILL)\n                    killed, kill_at = True, round(now, 3)",
+              "                    os.kill(child, signal.SIGKILL)\n                    killed, kill_at = True, round(now, 3)"),
+    'K6-M5': ('py', 'RLIMIT_AS applied on Darwin too (not only Linux)', RUNNER,
+              "    if system != 'Linux':\n        return None\n    if resource_module is None:",
+              "    if system not in ('Linux', 'Darwin'):\n        return None\n    if resource_module is None:"),
+    'K6-M6': ('py', 'time -l bytes read as KiB', RUNNER,
+              "        out['time_max_rss_bytes'] = int(m.group(1))\n    m = re.search(r'^\\s*(\\d+)\\s+peak memory footprint'",
+              "        out['time_max_rss_bytes'] = int(m.group(1)) * KIB\n    m = re.search(r'^\\s*(\\d+)\\s+peak memory footprint'"),
+    'K6-M7': ('py', 'mean for median', RUNNER,
+              '    if n % 2:\n        return ordered[n // 2]\n    return (ordered[n // 2 - 1] + ordered[n // 2]) / 2',
+              '    return sum(ordered) / n'),
+    'K6-M13': ('py', 'admission admits an estimate > C/2', RUNNER,
+               '    elif estimate * rho <= half:',
+               '    elif True:'),
+    'K6-M19': ('py', 'rho taken as the smallest ratio, not the largest', RUNNER,
+               '    rho = max(footprint_ratios) if footprint_ratios else RHO_DEFAULT',
+               '    rho = min(footprint_ratios) if footprint_ratios else RHO_DEFAULT'),
+    'K6-M21': ('py', "the runner's by-name n2 refusal covers dense only", RUNNER,
+               '    if mode in N2_MODES and members >= N2_REFUSAL_MEMBERS:',
+               "    if mode == 'dense' and members >= N2_REFUSAL_MEMBERS:"),
+    'K6-M22': ('py', '(own, B2-stop rule) projected RSS <= 0.8C check removed', RUNNER,
+               "    if projected > out['projected_rss_limit_bytes']:",
+               "    if False and projected > out['projected_rss_limit_bytes']:"),
+    'K6-M23': ('py', '(own, B2-stop rule) rho read on RSS, not on the footprint', RUNNER,
+               '    footprint_ratios = [x for x in (measured_footprint_ratio(r, baseline_footprint_bytes) for r in same)',
+               '    footprint_ratios = [x for x in (measured_ratio(r, baseline_rss_bytes) for r in same)'),
+    'K6-M24': ('py', '(own, B2-stop rule) the dense RSS/footprint floor 1.45 dropped', RUNNER,
+               "    if mode == 'dense':\n        measured_rf.append(RSS_TO_FOOTPRINT_DEFAULT)",
+               "    if False:\n        measured_rf.append(RSS_TO_FOOTPRINT_DEFAULT)"),
+    'K6-M25': ('py', "(own, B1 grant) load-wait hysteresis removed (resume at load <= 8)", RUNNER,
+               '        elif load_waiting and load1 < LOAD_RESUME:',
+               '        elif load_waiting and load1 <= LOAD_HIGH:'),
+    'K6-M26': ('py', "(own, B1 fix) the resume skip counts a not_run record as measured", RUNNER,
+               "        if any(x.get('run_id') == run['run_id'] and x.get('classification') != 'not_run'",
+               "        if any(x.get('run_id') == run['run_id']"),
+    # ---------------------------------------------------------------- Rust
+    'K6-M8': ('rs', 'pattern entries from one triangle', COUNTS,
+              '            storage.stored_entries,\n            storage.lower_entries,',
+              '            storage.lower_entries,\n            storage.lower_entries,'),
+    'K6-M9': ('rs', 'identity profile reported as RCM', COUNTS,
+              '        rcm_profile_entries,\n        rcm_half_bandwidth,\n        identity_profile_entries,',
+              '        rcm_profile_entries: identity_profile_entries,\n        rcm_half_bandwidth,\n        identity_profile_entries,'),
+    'K6-M10': ('rs', 'realloc accounting wrong (a shrink releases nothing)', ALLOC,
+               '            if !moved.is_null() {\n                release(old - new_size);',
+               '            if !moved.is_null() {'),
+    'K6-M11': ('rs', 'cap off by one (>= for >)', ALLOC,
+               '        if next > cap {',
+               '        if next >= cap {'),
+    'K6-M12': ('rs', "the binary's >= 10,000 n2 refusal narrowed to dense only (lane-lu passes)", MAIN,
+               '            if mode.materializes_n2() && model.member_count() >= N2_REFUSAL_MEMBERS {',
+               '            if mode == Mode::Dense && model.member_count() >= N2_REFUSAL_MEMBERS {'),
+    'K6-M14': ('rs', 'Q3 transposed in the generator', MODELS,
+               '        v[0] + 2 * v[1] + 2 * v[2],\n        2 * v[0] + v[1] - 2 * v[2],\n        -2 * v[0] + 2 * v[1] - v[2],',
+               '        v[0] + 2 * v[1] - 2 * v[2],\n        2 * v[0] + v[1] + 2 * v[2],\n        2 * v[0] - 2 * v[1] - v[2],'),
+    'K6-M15': ('rs', 'n - 1 members (CHAIN)', MODELS,
+               '    for i in 1..=n {\n        b.members.push((format!("M{i}"), i - 1, i));',
+               '    for i in 1..n {\n        b.members.push((format!("M{i}"), i - 1, i));'),
+    'K6-M16': ('rs', 'staged sequence skips the contribution audit (contributions None, sparse)', STAGED,
+               '        &setup.prescribed,\n        Some(setup.evidence.contributions()),\n        Some(symmetry),',
+               '        &setup.prescribed,\n        None,\n        Some(symmetry),'),
+    'K6-M17': ('rs', 'alloc_zeroed forwarded without accounting', ALLOC,
+               '        let Some(level) = reserve(size) else {\n            refuse(size);\n'
+               '            return std::ptr::null_mut();\n        };\n        let ptr = System.alloc_zeroed(layout);\n'
+               '        if ptr.is_null() {\n            release(size);\n        } else {\n            note_peak(level);\n'
+               '            CALLS.fetch_add(1, Ordering::SeqCst);\n        }\n        ptr\n',
+               '        let _ = size;\n        System.alloc_zeroed(layout)\n'),
+    'K6-M18': ('rs', "the basis string's family text changed (the mixed branch)", COUNTS,
+               'objective welded unreleased straight-frame family";',
+               'mixed frame family";'),
+    'K6-M20': ('rs', 'TREE branch directions swapped (+z at odd k)', MODELS,
+               '        let tip = if k % 2 == 1 { [x, 3, 0] } else { [x, 0, 3] };',
+               '        let tip = if k % 2 == 1 { [x, 0, 3] } else { [x, 3, 0] };'),
+}
+
+
+def apply(mid, root):
+    kind, what, rel, old, new = MUTANTS[mid]
+    path = root.rstrip('/') + '/' + rel
+    with open(path) as fh:
+        text = fh.read()
+    count = text.count(old)
+    if count != 1:
+        sys.exit('%s: the target text occurs %d times in %s' % (mid, count, rel))
+    mutated = text.replace(old, new)
+    with open(path, 'w') as fh:
+        fh.write(mutated)
+    print('%s applied to %s: %s' % (mid, rel, what))
+    import difflib
+    sys.stdout.writelines(difflib.unified_diff(text.splitlines(True), mutated.splitlines(True),
+                                               'a/' + rel, 'b/' + rel, n=1))
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'list':
+        for mid, (kind, what, rel, old, new) in MUTANTS.items():
+            print(json.dumps({'id': mid, 'kind': kind, 'what': what, 'file': rel.split('/')[-1]}))
+    elif sys.argv[1] == 'apply':
+        apply(sys.argv[2], sys.argv[3])

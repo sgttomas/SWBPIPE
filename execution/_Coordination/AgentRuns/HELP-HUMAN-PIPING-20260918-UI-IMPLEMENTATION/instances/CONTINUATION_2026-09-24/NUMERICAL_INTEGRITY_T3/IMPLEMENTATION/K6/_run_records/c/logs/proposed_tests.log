@@ -1,0 +1,33 @@
+=== I15's proposed tests for the C survivors (draft <scratch>/i15/c/proposed_tests.py; the runner from K6_RUNNER_DIR = each archive copy)
+=== 1. first draft (the helper inherited the runner's pipes); output transcribed from the session:
+== against NONE
+2 passed in 2.73s
+== against K6-M4
+2 passed in 31.24s    <- not killed: the runner's pipe close waited for the helper (30 s); the survivor check then found none
+== against K6-M26
+1 failed, 1 passed in 2.70s (ResumeSkip: 137_K6-GRID-128x128_sparse not launched)
+=== 2. corrected draft (the helper's stdio on /dev/null; elapsed bounded):
+== against NONE
+2 passed in 2.67s
+== against K6-M4
+E               AssertionError: Lists differ: [84805] != []
+proposed_tests.py:48: AssertionError
+FAILED proposed_tests.py::GroupKill::test_kills_take_the_whole_group - Assert...
+1 failed, 1 passed in 3.30s
+== against K6-M26
+E       AssertionError: '137_K6-GRID-128x128_sparse' not found in ['134_K6-GRID-32x32_sparse', '135_K6-GRID-64x64_sparse', '136_K6-GRID-96x96_sparse'] : a not_run record was taken as measured
+proposed_tests.py:85: AssertionError
+FAILED proposed_tests.py::ResumeSkip::test_measured_runs_are_kept_and_not_run_records_are_run
+1 failed, 1 passed in 2.77s
+=== 3. ruled into runner/test_k6_runner.py (LiveLimit.test_kills_take_the_whole_group, PlanAdmission.test_measured_runs_are_kept_and_not_run_records_are_run); re-run through the N15 wrapper invocation on fresh archive copies with the amended file overlaid:
+== NONE (logs/py-NONE.log)
+=== overlay: runner/test_k6_runner.py replaced by the amended file (sha256 1081f87fa7be51ab0871da3b6a7c92747413fd9bcec2c97054525d7341f16543)
+35 passed in 6.49s
+== K6-M4 (logs/py-K6-M4.log)
+=== overlay: runner/test_k6_runner.py replaced by the amended file (sha256 1081f87fa7be51ab0871da3b6a7c92747413fd9bcec2c97054525d7341f16543)
+FAILED tests/test_performance_harness_runner.py::LiveLimit::test_kills_take_the_whole_group
+1 failed, 34 passed in 6.76s
+== K6-M26 (logs/py-K6-M26.log)
+=== overlay: runner/test_k6_runner.py replaced by the amended file (sha256 1081f87fa7be51ab0871da3b6a7c92747413fd9bcec2c97054525d7341f16543)
+FAILED tests/test_performance_harness_runner.py::PlanAdmission::test_measured_runs_are_kept_and_not_run_records_are_run
+1 failed, 34 passed in 6.22s

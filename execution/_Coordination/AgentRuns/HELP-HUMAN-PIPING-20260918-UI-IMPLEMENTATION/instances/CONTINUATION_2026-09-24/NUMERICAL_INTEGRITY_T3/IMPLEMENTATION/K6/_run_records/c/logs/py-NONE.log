@@ -1,0 +1,6 @@
+=== py NONE: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (performance_harness, tests/test_performance_harness_runner.py) into <wt>/k6-mut/py-NONE
+=== overlay: runner/test_k6_runner.py replaced by the amended file (sha256 1081f87fa7be51ab0871da3b6a7c92747413fd9bcec2c97054525d7341f16543)
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+...................................                                      [100%]
+35 passed in 6.49s
+=== exit 0 elapsed 7 s

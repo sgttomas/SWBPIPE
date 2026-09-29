@@ -1,0 +1,51 @@
+=== py K6-M26: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (performance_harness, tests/test_performance_harness_runner.py) into <wt>/k6-mut/py-K6-M26
+=== overlay: runner/test_k6_runner.py replaced by the amended file (sha256 1081f87fa7be51ab0871da3b6a7c92747413fd9bcec2c97054525d7341f16543)
+K6-M26 applied to projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py: (own, B1 fix) the resume skip counts a not_run record as measured
+--- a/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
++++ b/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
+@@ -1076,3 +1076,3 @@
+         records = read_records(record_dir)
+-        if any(x.get('run_id') == run['run_id'] and x.get('classification') != 'not_run'
++        if any(x.get('run_id') == run['run_id']
+                for x in run_entries(records)):
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+....................F..............                                      [100%]
+=================================== FAILURES ===================================
+____ PlanAdmission.test_measured_runs_are_kept_and_not_run_records_are_run _____
+
+self = <test_k6_runner.PlanAdmission testMethod=test_measured_runs_are_kept_and_not_run_records_are_run>
+
+    def test_measured_runs_are_kept_and_not_run_records_are_run(self):
+        # The resume skip (I15's B1 fix; C mutant K6-M26): run_tier keeps a measured run and runs
+        # a not_run record again. Launch, the baseline, the quiet-host wait and admission are stubbed.
+        tier = [x for x in r.schedule() if x['tier'] == 'T5']
+        first, last = tier[0], tier[-1]
+        launched = []
+
+        def fake_launch(argv, *, record_dir, run_id, **kw):
+            launched.append(run_id)
+            open(os.path.join(record_dir, run_id + '.jsonl'), 'w').close()
+            return {'classification': 'ok', 'wall_s': 0.0, 'peak_rss_bytes': 1, 'exit_code': 0, 'rss': {}}
+
+        admitted = {'decision': 'admitted', 'reason': 'stub', 'estimate_adm_bytes': 1}
+        with tempfile.TemporaryDirectory() as folder:
+            with open(os.path.join(folder, 'metadata.json'), 'w') as fh:
+                fh.write('{}\n')
+            r.append_record(folder, dict(first, classification='ok'))
+            r.append_record(folder, dict(last, classification='not_run',
+                                         admission={'decision': 'deferred', 'reason': 'deferred:stub'}))
+            with mock.patch.object(r, 'launch', fake_launch), \
+                    mock.patch.object(r, 'baseline_run', lambda *a, **k: {'peak_rss_bytes': 1, 'rss': {}}), \
+                    mock.patch.object(r, 'wait_for_quiet_host', lambda log: {'waited_s': 0}), \
+                    mock.patch.object(r, 'admission', lambda *a, **k: dict(admitted)), \
+                    mock.patch.object(r, 'CONDITIONAL_MODELS', ()):
+                r.run_tier('T5', 'k6_observe', None, folder, 'commit', 'tree', log=lambda m: None)
+        self.assertNotIn(first['run_id'], launched, 'a measured run was repeated')
+>       self.assertIn(last['run_id'], launched, 'a not_run record was taken as measured')
+E       AssertionError: '137_K6-GRID-128x128_sparse' not found in ['134_K6-GRID-32x32_sparse', '135_K6-GRID-64x64_sparse', '136_K6-GRID-96x96_sparse'] : a not_run record was taken as measured
+
+core/solver/performance_harness/runner/test_k6_runner.py:507: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_performance_harness_runner.py::PlanAdmission::test_measured_runs_are_kept_and_not_run_records_are_run
+1 failed, 34 passed in 6.22s
+=== exit 1 elapsed 7 s

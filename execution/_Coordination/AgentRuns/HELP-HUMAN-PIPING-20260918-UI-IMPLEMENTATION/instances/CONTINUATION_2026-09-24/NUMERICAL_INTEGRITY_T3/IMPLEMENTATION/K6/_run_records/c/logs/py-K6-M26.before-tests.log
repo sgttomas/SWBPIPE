@@ -1,0 +1,13 @@
+=== py K6-M26: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (performance_harness, tests/test_performance_harness_runner.py) into <wt>/k6-mut/py-K6-M26
+K6-M26 applied to projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py: (own, B1 fix) the resume skip counts a not_run record as measured
+--- a/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
++++ b/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
+@@ -1076,3 +1076,3 @@
+         records = read_records(record_dir)
+-        if any(x.get('run_id') == run['run_id'] and x.get('classification') != 'not_run'
++        if any(x.get('run_id') == run['run_id']
+                for x in run_entries(records)):
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+.................................                                        [100%]
+33 passed in 3.68s
+=== exit 0 elapsed 4 s
