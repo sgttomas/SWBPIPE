@@ -531,3 +531,41 @@
 | RV19-N3, N5, N7 | Recorded. N3 is partly met: the claims are now checked at 128-bit resolution. |
 
 **Deleted at the end:** my delta copies (`<wt>/rv19/`) and every RV19 target.
+
+## Confirmation at 5a46a6278
+
+- **Reviewer:** RV19, on ROOT's request.
+- **Head:** `5a46a6278af3c857a52ecb9be6880990493190f8`. Its parent is `a5fa0eaf7`. It closes RV19-D4 and RV19-DN2, recorded as K4's RETURN and CHANGE_RECORD addendum 2.
+- **Date:** 2026-09-29.
+- **Verdict: PASS.** There are no findings.
+
+**The checks** (records: `REVIEW/_run_records/k4_review/final/`; `k4_review/SHA256SUMS` regenerated, now 93 files):
+
+1. **No source change** (`revisions.txt`).
+   - `git diff a5fa0eaf7 5a46a6278` changes 15 files, none under a `src/` directory: `K4T/{method_tests.rs, combine_tests.rs, gen_k4_vectors.py, models.txt, SHA256SUMS}` and the K4 records.
+   - `models.txt` changes by one hunk after `combo PRECISION-RULE`: 36 added `expect` lines, and nothing removed.
+2. **The new vector covers both straddles, and RV19-D4 is killed.**
+   - `sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star` runs `decide` on four pairs:
+     - candidate at the overflow threshold, verification just below;
+     - the swap;
+     - candidate at 2^-1075, which underflows, with verification at 2^-1075 + 2^-1200 (through the rotation coupling at L_b = 2^-60);
+     - the swap.
+   - For each pair I derived the verdict under the candidate key and under the verification key, and each turns over.
+   - The runs used clean `git archive 5a46a6278` copies with fresh targets and one cargo job:
+     - **NONE** passes 116 of 116;
+     - **RV19-D4** is killed by the new vector alone, at its first, overflow, verdict;
+     - **RV19-D4u** is RV19-D4 with the vector's two overflow verdicts removed from the test. It is killed by the underflow verdicts alone, so both halves are load-bearing.
+3. **PRECISION-RULE.**
+   - My cross-check finds its 36 tokens (32 rows plus N, T and the two Mb keys) equal to my 1,600-digit solve of the combination within the tokens' slack (`xcheck_precision_rule.log`).
+   - K4 selects it at 256. My oracle finds it within its claims (worst 0.32), and all 120 publications at this head as at `a5fa0eaf7` (`oracle_all.log`).
+   - `precision_rule_is_selected_at_256_and_honest` and `check_combo` (B1-C, B1-E) now run `compare_honest`, which fails on any unexpected or missing row and asserts every row checked, and G5a.
+   - RETURN's addendum-1 status line is scoped.
+4. **The records** (`records_check.txt`).
+   - `IMPLEMENTATION/K4/_run_records/SHA256SUMS` verifies: 244 of 244, covering every other file; its sha256 is `8a324713…`.
+   - `K4T/SHA256SUMS` verifies: 22 of 22.
+   - `rv19d/changed_files.txt`'s 7 sha256 match.
+   - There are no home, temp or tool paths, no user or host names and no model identifiers.
+
+**Git and GitHub:** read-only (`archive`, `diff`, `log`, `ls-remote`, and `gh pr view`: OPEN, MERGEABLE, head `5a46a6278`). The memory guard recorded no kill.
+
+**Deleted at the end:** my copies (`<wt>/rv19/`) and targets.

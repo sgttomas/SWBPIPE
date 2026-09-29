@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""RV19 final-head mutants: one clean `git archive 5a46a6278` copy of FK and
+one fresh target per mutant, exact edits with their counts asserted; K4's
+tests except the N5 streams, the sum differentials and K3's own. Standard
+library only."""
+import json, os, re, shutil, subprocess, sys, time
+sys.dont_write_bytecode = True
+HERE = os.path.dirname(os.path.abspath(__file__))
+WT = os.path.dirname(os.path.dirname(HERE))
+REPO = os.path.join(WT, "k4")
+COMMIT = "5a46a6278"
+FK = "projects/chirality-piping/core/solver/frame_kernel"
+R = "src/structural/retained/"
+ENV = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", RUSTUP_AUTO_INSTALL="0", CARGO_INCREMENTAL="0",
+           RUST_TEST_THREADS="2")
+SKIP_OLD = ("        let skip: Vec<bool> = candidate\n"
+            "            .iter()\n"
+            "            .map(|q| !q.is_zero() && q.to_binary64().value().is_none())\n"
+            "            .collect();\n")
+MUTANTS = {
+    "NONE": [],
+    # RV19-1 reverted: every row sets the stop rule's S*.
+    "RV19-1R": [(R + "adaptive.rs", SKIP_OLD,
+                 "        let skip: Vec<bool> = vec![false; candidate.len()];\n", 1)],
+    # Amendment A1 reverted: b = fl↑(2^-64·S*) below 2^-988 too.
+    "A1R": [(R + "adaptive.rs", "bound_bits: row_bound(value, s_star).to_bits(),",
+             "bound_bits: absolute_bound(s_star).to_bits(),", 1)],
+    # A1 without its 2^-1074 term.
+    "RV19-D1": [(R + "adaptive.rs", "        num.add_binary64(f64::from_bits(1), false).ok()?;\n", "", 1)],
+    # A1 with fl(2^-53·|q|) rounded to nearest (no upward step).
+    "RV19-D2": [(R + "adaptive.rs",
+                 "    let rounding = if nearest * two53 < q {\n        next_up(nearest)\n    } else {\n        nearest\n    };\n",
+                 "    let rounding = nearest;\n", 1)],
+    # RV19-3's check without the support groups.
+    "RV19-D3": [(R + "combine.rs", "\n                || o.prep.source.supports() != supports", "", 1)],
+    # RV19-1's skip keyed on the verification value instead of the candidate's.
+    "RV19-D4": [(R + "adaptive.rs", SKIP_OLD,
+                 "        let skip: Vec<bool> = verification\n"
+                 "            .iter()\n"
+                 "            .map(|q| !q.is_zero() && q.to_binary64().value().is_none())\n"
+                 "            .collect();\n", 1)],
+    # RV19-D4 with the vector's two overflow verdicts removed, so that only its
+    # underflow straddle can kill the mutant.
+    "RV19-D4u": [(R + "adaptive.rs", SKIP_OLD,
+                  "        let skip: Vec<bool> = verification\n"
+                  "            .iter()\n"
+                  "            .map(|q| !q.is_zero() && q.to_binary64().value().is_none())\n"
+                  "            .collect();\n", 1),
+                 ("tests/retained_k4/method_tests.rs",
+                  "    assert_eq!(\n        verdict2(&layout, &[t, off], &[below_t, one], &r),\n        Some(Rejection::StopRule { index: 1 })\n    );\n",
+                  "", 1),
+                 ("tests/retained_k4/method_tests.rs",
+                  "    assert_eq!(verdict2(&layout, &[below_t, off], &[t, one], &r), None);\n",
+                  "    let _ = (off, below_t, t, &layout, &r);\n", 1)],
+    # RV19-5 / RV19-M2: the infinity norm only.
+    "RV19-M2": [(R + "verify.rs", "            n.sas = wmax(&n.sas_one, &n.sas_inf);",
+                 "            n.sas = n.sas_inf;", 1)],
+    # RV19-4 / RV19-M6: a support group's E without its directional contributors.
+    "RV19-M6": [(R + "verify.rs",
+                 "                    if (offset..offset + 3).contains(&c) {\n"
+                 "                        sum.add_wide(&directional_e[k][c - offset], false)?;\n"
+                 "                    }\n", "                    let _ = (offset, k);\n", 1)],
+}
+
+
+def main(name):
+    edits = MUTANTS[name]
+    d = os.path.join(HERE, name)
+    shutil.rmtree(d, ignore_errors=True)
+    os.makedirs(d)
+    arch = subprocess.run(["git", "-C", REPO, "archive", COMMIT, FK], stdout=subprocess.PIPE, check=True).stdout
+    subprocess.run(["tar", "-x", "-C", d], input=arch, check=True)
+    root = os.path.join(d, FK)
+    for (path, old, new, count) in edits:
+        p = os.path.join(root, path)
+        s = open(p).read()
+        n = s.count(old)
+        assert n == count, "%s: %s: expected %d, found %d" % (name, path, count, n)
+        open(p, "w").write(s.replace(old, new))
+    target = os.path.join(WT, "rv19-mut-target", name)
+    shutil.rmtree(target, ignore_errors=True)
+    env = dict(ENV, CARGO_TARGET_DIR=target)
+    log = os.path.join(HERE, "%s.log" % name)
+    cmd = ["cargo", "test", "--offline", "--locked", "-j", "4", "--lib", "structural::retained::",
+           "--", "--skip", "n5_stream", "--skip", "sum_differential", "--skip", "wide::"]
+    t0 = time.time()
+    with open(log, "w") as f:
+        rc = subprocess.run(cmd, cwd=root, env=env, stdout=f, stderr=subprocess.STDOUT).returncode
+    txt = open(log, errors="replace").read()
+    failed = re.findall(r"^test (\S+) \.\.\. FAILED", txt, re.M)
+    passed = len(re.findall(r"^test \S+ \.\.\. ok", txt, re.M))
+    summary = re.findall(r"^test result: .*$", txt, re.M)
+    rec = dict(name=name, rc=rc, seconds=round(time.time() - t0), passed=passed, failed=failed,
+               result=summary[-1] if summary else "no result")
+    with open(os.path.join(HERE, "results.jsonl"), "a") as f:
+        f.write(json.dumps(rec) + "\n")
+    print(json.dumps(rec))
+    shutil.rmtree(target, ignore_errors=True)
+    shutil.rmtree(d, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    for n in sys.argv[1:]:
+        main(n)

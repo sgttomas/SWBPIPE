@@ -1,0 +1,23 @@
+# Final head 5a46a6278 (read-only Git and gh)
+PR #1054: OPEN 5a46a6278af3c857a52ecb9be6880990493190f8 MERGEABLE
+remote head: 5a46a6278af3c857a52ecb9be6880990493190f8
+parent: a5fa0eaf7c26837ec18e2e9b16f08498f0cc4606
+diff a5fa0eaf7..5a46a6278:  15 files changed, 3004 insertions(+), 7 deletions(-)
+files under a src/ directory changed: 0
+files outside retained_k4/ and the K4 records: 0
+models.txt: 36 added expect lines, 0 removed lines, one hunk after 'combo PRECISION-RULE'
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/CHANGE_RECORD.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/RETURN.md
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/SHA256SUMS
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/rv19d/changed_files.txt
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/rv19d/gen/gen_check.log
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/rv19d/mutations/logs/NONE.log
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/rv19d/mutations/logs/RV19-D4.log
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/rv19d/mutations/results.jsonl
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/rv19d/mutations/rv19_mut.py
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/_run_records/rv19d/tests/fk_full.log

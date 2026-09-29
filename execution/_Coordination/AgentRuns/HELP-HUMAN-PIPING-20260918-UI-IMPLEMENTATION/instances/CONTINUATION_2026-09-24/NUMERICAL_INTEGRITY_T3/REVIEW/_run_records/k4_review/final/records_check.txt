@@ -1,0 +1,5 @@
+# K4 records at 5a46a6278 (clean archive)
+_run_records/SHA256SUMS: 244 OK, 0 not OK; entries 244; own sha256 8a324713d8f4956f246a36272a6272f716bbe669e80faeaf12a5d676dc048cb1; files besides it 244
+retained_k4/SHA256SUMS: 22 OK, 0 not OK
+_run_records/rv19d/changed_files.txt: 7 of 7 sha256 match the files at 5a46a6278
+scan of IMPLEMENTATION/K4, retained/ and retained_k4/ for home, temp and tool paths, user and host names and model identifiers: 0 matches
