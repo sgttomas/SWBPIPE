@@ -1,0 +1,11 @@
+warning: `open_pipe_stress_product_physics` (lib) generated 10 warnings
+   Compiling calib_fixdiff_native v0.0.0 (<wt>/scratch/rv12/t9/h_head)
+    Finished `release` profile [optimized] target(s) in 24.94s
+build rc=0
+runs: 10
+core rc=0
+runs: 72
+fixtures rc=0
+runs: 30
+validation rc=0
+     112

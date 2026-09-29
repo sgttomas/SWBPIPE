@@ -1,0 +1,8 @@
+RV11: I10's b = 0 Debug probe re-run (checkpoint_b/probe/main.rs.txt, unchanged; models read from the ca20b9eca archive)
+Built twice at the default dev profile (opt-level 0; I10 built --release), from git-archive trees of main eb52114e9 and the head 087b3a088.
+outputs: base 439, head 439
+base vs head: all 439 output sha256 identical
+RV11 base list == I10's output_sha256_base.txt (439 of 439)
+RV11 head list == I10's output_sha256_cand.txt (439 of 439)
+categories (head outputs): Ok=345 Err=56 Passed=206 Sensitive=64 formation_check_Some=28 loop_runs=20
+evidence outputs (sa_*_evidence_ok) print only is_ok(), e.g. RF-CHAIN-T-n05-r1e-08.sa_dense_evidence_ok.debug = 'true': the evidence Debug (with K2b's new field) is outside the probe's coverage, as RETURN section 3 discloses.

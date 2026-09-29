@@ -1,0 +1,90 @@
+0 0.4
+50 10.9
+100 21.8
+150 33.4
+200 44.5
+250 55.2
+300 70.8
+350 83.5
+400 94.1
+450 105.4
+500 118.6
+550 133.7
+600 147.0
+650 161.3
+700 178.7
+750 192.9
+800 208.0
+850 221.7
+900 239.6
+950 257.3
+{
+ "summary": {
+  "current": {
+   "models": 983,
+   "selected": 877,
+   "unresolved": 106,
+   "dishonest": 1,
+   "dishonest_models": [
+    "R982"
+   ]
+  },
+  "ii": {
+   "models": 983,
+   "selected": 873,
+   "unresolved": 110,
+   "dishonest": 0,
+   "dishonest_models": []
+  },
+  "iii": {
+   "models": 983,
+   "selected": 980,
+   "unresolved": 3,
+   "dishonest": 0,
+   "dishonest_models": []
+  },
+  "ib": {
+   "models": 983,
+   "selected": 981,
+   "unresolved": 2,
+   "dishonest": 0,
+   "dishonest_models": []
+  },
+  "iiig": {
+   "models": 983,
+   "selected": 981,
+   "unresolved": 2,
+   "dishonest": 0,
+   "dishonest_models": []
+  },
+  "ig": {
+   "models": 983,
+   "selected": 981,
+   "unresolved": 2,
+   "dishonest": 0,
+   "dishonest_models": []
+  }
+ },
+ "versus_current": {
+  "ii": {
+   "selected_p_changed": 5,
+   "same_p_classes_changed": 0
+  },
+  "iii": {
+   "selected_p_changed": 107,
+   "same_p_classes_changed": 0
+  },
+  "ib": {
+   "selected_p_changed": 328,
+   "same_p_classes_changed": 4
+  },
+  "iiig": {
+   "selected_p_changed": 143,
+   "same_p_classes_changed": 0
+  },
+  "ig": {
+   "selected_p_changed": 215,
+   "same_p_classes_changed": 0
+  }
+ }
+}

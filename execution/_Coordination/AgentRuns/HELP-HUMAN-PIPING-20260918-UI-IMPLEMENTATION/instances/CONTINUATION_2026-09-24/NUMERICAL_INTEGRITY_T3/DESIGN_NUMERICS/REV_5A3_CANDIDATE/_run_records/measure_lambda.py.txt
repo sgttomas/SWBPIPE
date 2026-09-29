@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""Realized resolution constants. For every model and precision P with a
+state, the largest |q_P - q*| / (2^-P * E(body, kind)) over force and moment
+rows (E the coupled formation scale of the state's own body and kind; q* the
+P = 2048 reference). V = 2^6 * 2^-2p * E is valid for a verification whose
+realized ratio is <= 64. Also the uncoupled ratio (E per kind without the L_b
+coupling), to show why the coupling is needed.
+
+Usage: python3 measure_lambda.py <seed> <random count>"""
+import json, sys, random
+from fractions import Fraction as Fr
+from emu import Case, solve_at, body_E, Stop
+from models import models
+from sweep import gen
+
+
+def ratios(case, st, ref, coupled):
+    Eb = body_E(case, st["E"], coupled=coupled)
+    P = st["p"]
+    worst = (0.0, None)
+    for (rid, kind, body, inp), q, qs in zip(case.layout, st["values"], ref["values"]):
+        if inp or kind not in ("fo", "mo"):
+            continue
+        E = Eb[body][kind]
+        err = abs(q - qs)
+        if err == 0:
+            continue
+        if E == 0:
+            return (float("inf"), rid)
+        r = float(err * Fr(2) ** P / Fr(E))
+        if r > worst[0]:
+            worst = (r, rid)
+    return worst
+
+
+def run(m):
+    case = Case(m)
+    try:
+        ref = solve_at(case, 2048, ref=True)
+    except Stop:
+        return None
+    rec = {}
+    for P in (128, 256, 512, 1024):
+        try:
+            st = solve_at(case, P)
+        except Stop as s:
+            rec[P] = s.what
+            continue
+        rec[P] = dict(coupled=ratios(case, st, ref, True)[0], uncoupled=ratios(case, st, ref, False)[0])
+    return rec
+
+
+seed, count = int(sys.argv[1]), int(sys.argv[2])
+out = {}
+for m in models():
+    out[m["name"]] = run(m)
+rng = random.Random(seed)
+for i in range(count):
+    m = gen(rng, i)
+    out["S%d-%s" % (seed, m["name"])] = run(m)
+mx = dict(coupled=0.0, uncoupled=0.0)
+arg = dict(coupled=None, uncoupled=None)
+for name, rec in out.items():
+    if not rec:
+        continue
+    for P, v in rec.items():
+        if isinstance(v, dict):
+            for k in ("coupled", "uncoupled"):
+                if v[k] > mx[k]:
+                    mx[k] = v[k]
+                    arg[k] = (name, P)
+print(json.dumps(dict(max=mx, at=arg), indent=1))
+json.dump(dict(max=mx, at=arg, per_model=out), open("measure_lambda_%d.json" % seed, "w"), indent=1, default=str)

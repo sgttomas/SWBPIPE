@@ -1,0 +1,326 @@
+//! RV11 reviewer probes (scratch only; not part of the candidate).
+use super::*;
+
+fn frame(i: usize, xi: f64, j: usize, xj: f64, e: f64, g: f64, a: f64) -> FrameElement {
+    let section = FrameSection::new(e, g, a, 1.0, 1.0, 1.0).unwrap();
+    FrameElement::new(
+        FrameNode::new(i, [xi, 0.0, 0.0]).unwrap(),
+        FrameNode::new(j, [xj, 0.0, 0.0]).unwrap(),
+        section,
+        [0.0, 1.0, 0.0],
+    )
+    .unwrap()
+}
+
+/// N0 -S- N1 -W- N2 on x, unit lengths; only N1 UX (dof 6) free; the given
+/// terms at dof 6.
+fn two_bar(s: (f64, f64, f64), w: (f64, f64), terms: Vec<(usize, ForceTermKind)>) -> Model {
+    Model {
+        node_count: 3,
+        frames: vec![
+            frame(0, 0.0, 1, 1.0, s.0, s.1, s.2),
+            frame(1, 1.0, 2, 2.0, w.0, w.1, 1.0),
+        ],
+        macros: Vec::new(),
+        slots: Vec::new(),
+        springs: Vec::new(),
+        prescribed: (0..18).filter(|&d| d != 6).map(|d| (d, 0.0)).collect(),
+        terms,
+    }
+}
+
+fn report_case(name: &str, model: &Model, reaction_dofs: &[usize], reference: &dyn Fn(f64) -> Vec<f64>) {
+    report_case_at(name, model, 6, reaction_dofs, reference)
+}
+
+fn report_case_at(name: &str, model: &Model, free_dof: usize, reaction_dofs: &[usize], reference: &dyn Fn(f64) -> Vec<f64>) {
+    let force = model.ledger();
+    let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+    let census = force_scale_census(&probe).unwrap();
+    println!("RV11 {name}: census span {:?}, rule b {:?}", census.span(), census.force_scale().map(|s| s.exponent()));
+    for mode in MODES {
+        for representation in REPRESENTATIONS {
+            let ctx = format!("{name} {mode:?} {representation:?}");
+            let today = match model.stiffness(ForceScale::UNSCALED) {
+                Ok(_) => format!("{:?}", model.existing(&force, mode, representation, true).map(|s| s.report.quality)),
+                Err(e) => format!("formation {e:?}"),
+            };
+            println!("RV11 {ctx}: b=0 today: {today}");
+            match solve_with_force_scaling(&model.case(&force, mode, representation)) {
+                Ok(outcome) => {
+                    let b = outcome.solution.force_scale;
+                    let u = outcome.solution.solution.displacements.clone();
+                    let reactions = outcome
+                        .stiffness
+                        .force_scaled_reactions(&u, &force, b, reaction_dofs);
+                    let expected = reference(u[free_dof]);
+                    println!(
+                        "RV11 {ctx}: b={} quality={:?} records={} u[{free_dof}]={:e} ({:#x})",
+                        b.exponent(),
+                        outcome.solution.solution.report.quality,
+                        outcome.solution.records.len(),
+                        u[free_dof],
+                        u[free_dof].to_bits()
+                    );
+                    match reactions {
+                        Ok(values) => {
+                            for ((dof, published), exp) in reaction_dofs.iter().zip(&values).zip(&expected) {
+                                let rel = if *exp != 0.0 { ((published.value - exp) / exp).abs() } else { published.value.abs() };
+                                println!(
+                                    "RV11 {ctx}: R{dof} published {:e} ({:?}) reference {:e} rel.err {:e}",
+                                    published.value, published.representability, exp, rel
+                                );
+                            }
+                        }
+                        Err(e) => println!("RV11 {ctx}: reactions refused {e:?}"),
+                    }
+                }
+                Err(e) => println!("RV11 {ctx}: orchestrator error {e:?}"),
+            }
+        }
+    }
+}
+
+/// F-A: a restrained end reached only through a weak member. The reaction at
+/// N2 UX is -EA_w/L * u6 (normal at b = 0 in unbounded arithmetic), but at the
+/// rule's b the formed K'*u product leaves the normal range.
+#[test]
+fn rv11_reaction_through_weak_member_at_the_rules_b() {
+    let es = pow2(1000);
+    let as_ = pow2(30);
+    let ew = pow2(227);
+    // (a) the product K'_w * u underflows to zero at b = -600.
+    let fa = 1.2345 * pow2(227);
+    let model = two_bar((es, es, as_), (ew, ew), vec![(6, ForceTermKind::Term(fa))]);
+    report_case("F-A(a) underflow", &model, &[0, 12], &|u6| vec![-(es * as_) * u6, -ew * u6]);
+    // (b) the product is subnormal at b = -600 (about 14 bits kept).
+    let fb = 1.2345 * pow2(343);
+    let model = two_bar((es, es, as_), (ew, ew), vec![(6, ForceTermKind::Term(fb))]);
+    report_case("F-A(b) subnormal", &model, &[0, 12], &|u6| vec![-(es * as_) * u6, -ew * u6]);
+    // (c) control: the same (b) model with a normal-range stiff member
+    // (b = 0 solves), for today's E12 at N2.
+    let model = two_bar((pow2(600), pow2(600), 1.0), (pow2(227), pow2(227)), vec![(6, ForceTermKind::Term(1.2345 * pow2(-57)))]);
+    report_case("F-A(c) control at b=0", &model, &[0, 12], &|u6| vec![-(pow2(600)) * u6, -pow2(227) * u6]);
+}
+
+/// F-B: `exact_normal_scaling` accepts a result that rounds up from the
+/// subnormal range to 2^-1022 (normal but inexact).
+#[test]
+fn rv11_exact_normal_scaling_boundary() {
+    let x = f64::from_bits(0x002F_FFFF_FFFF_FFFF); // (2 - 2^-52) * 2^-1021
+    let r = force_scaled_value("x", x, scale(-2));
+    println!("RV11 F-B force_scaled_value(0x1.fffffffffffffp-1021, b=-2) = {r:?} (2^-1022 = {:e})", pow2(-1022));
+    // Through the ledger, at the rule's b: a product term whose first factor
+    // lands at the boundary. Census e_min 437 (W), e_max 1030 (S's E*A).
+    let xp = f64::from_bits(((-317_i64 + 1023) as u64) << 52 | 0x000F_FFFF_FFFF_FFFF);
+    let yp = pow2(760);
+    let model = two_bar(
+        (pow2(1000), pow2(1000), pow2(30)),
+        (pow2(437), pow2(437)),
+        vec![(6, ForceTermKind::Product(xp, yp))],
+    );
+    let force = model.ledger();
+    let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+    let census = force_scale_census(&probe).unwrap();
+    let b = census.force_scale().unwrap();
+    println!("RV11 F-B census {:?} rule b {}", census.span(), b.exponent());
+    let scaled = force.force_scaled(b).unwrap();
+    let exact = force.get(6).unwrap() * pow2(b.exponent());
+    println!(
+        "RV11 F-B scaled net {:#x}, 2^b * net {:#x} (equal: {}), terms {:?}",
+        scaled.get(6).unwrap().to_bits(),
+        exact.to_bits(),
+        scaled.get(6).unwrap().to_bits() == exact.to_bits(),
+        scaled.terms().iter().map(|t| t.kind).collect::<Vec<_>>()
+    );
+    for representation in REPRESENTATIONS {
+        let outcome = solve_with_force_scaling(&model.case(&force, LinearSolveMode::DenseScrutiny, representation));
+        match outcome {
+            Ok(o) => {
+                let at_rule = o.solution.solution.displacements[6];
+                let other = model
+                    .forced(&force, scale(b.exponent() + 2), LinearSolveMode::DenseScrutiny, representation, true)
+                    .map(|s| s.solution.displacements[6]);
+                println!(
+                    "RV11 F-B {representation:?}: rule b u6 {:#x} quality {:?}; b+2 u6 {:?}",
+                    at_rule.to_bits(),
+                    o.solution.solution.report.quality,
+                    other.map(|v| format!("{:#x}", v.to_bits()))
+                );
+            }
+            Err(e) => println!("RV11 F-B {representation:?}: {e:?}"),
+        }
+    }
+}
+
+/// F-C: forced even b over a wide grid on K-D5's models: any Ok at b whose u
+/// bits or unscaled Debug differ from b = 0's Ok.
+#[test]
+fn rv11_forced_b_grid_invariance() {
+    let mut same = 0;
+    let mut differ = Vec::new();
+    let mut errors = 0;
+    let mut mismatch_kind = Vec::new();
+    for m in KD5 {
+        let model = Model::from_kd5(m);
+        let force = model.ledger();
+        let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+        let census = force_scale_census(&probe).unwrap();
+        let (lo, hi) = census.span().unwrap();
+        let (b_lo, b_hi) = (-1022 + 64 - lo, 1023 - 8 - hi);
+        let mut grid: Vec<i32> = (b_lo..=b_hi).filter(|b| b % 2 == 0 && b % 34 == 0).collect();
+        for extra in [b_lo, b_hi, b_lo + 1, b_hi - 1, -1100 - lo, 1030 - hi] {
+            if extra % 2 == 0 {
+                grid.push(extra);
+            }
+        }
+        for mode in MODES {
+            for representation in REPRESENTATIONS {
+                let today = model.existing(&force, mode, representation, true);
+                for &b in &grid {
+                    let scaled = model.forced(&force, scale(b), mode, representation, true);
+                    match (&today, &scaled) {
+                        (Ok(t), Ok(s)) => {
+                            if bits(&s.solution.displacements) == bits(&t.displacements)
+                                && format!("{:?}", s.solution) == format!("{t:?}")
+                            {
+                                same += 1;
+                            } else {
+                                differ.push(format!(
+                                    "{} b={b} {mode:?} {representation:?} ubits_equal={} records={}",
+                                    m.name,
+                                    bits(&s.solution.displacements) == bits(&t.displacements),
+                                    s.records.len()
+                                ));
+                            }
+                        }
+                        (Ok(_), Err(_)) => errors += 1,
+                        (Err(te), Ok(_)) => mismatch_kind.push(format!("{} b={b}: today {te:?}, scaled Ok", m.name)),
+                        (Err(_), Err(_)) => {}
+                    }
+                }
+            }
+        }
+    }
+    println!("RV11 F-C same={same} errors_at_b={errors} differ={}", differ.len());
+    for d in differ.iter().take(40) {
+        println!("RV11 F-C differ {d}");
+    }
+    for d in mismatch_kind.iter().take(20) {
+        println!("RV11 F-C today-err-scaled-ok {d}");
+    }
+}
+
+fn node(i: usize, c: [f64; 3]) -> FrameNode {
+    FrameNode::new(i, c).unwrap()
+}
+
+/// F-A2: a long member W (N1 -> N2, L = 2^300 m, E = G = 2^200, A = I = J = 1)
+/// with only N1 RZ free and a moment M = 1.2345 * 2^(-697 + delta) there; N2
+/// fully fixed. A separate stiff member S (N3 -> N4, both fully fixed; E = G
+/// = 2^1000, A = 2^30) makes b = 0 fail at formation (E*A overflows). The
+/// census span is [-697, 1030] and the rule's b is -138. The reactions at
+/// N1 UY and N2 UY are -/+6EI/L^2 * theta = about 1.5 M / L, normal at b = 0
+/// in unbounded arithmetic, but formed below the normal range at 2^b.
+fn long_member(delta: i32, with_s: bool) -> Model {
+    let w = FrameSection::new(pow2(200), pow2(200), 1.0, 1.0, 1.0, 1.0).unwrap();
+    let mut frames = vec![FrameElement::new(node(0, [0.0, 0.0, 0.0]), node(1, [pow2(300), 0.0, 0.0]), w, [0.0, 1.0, 0.0]).unwrap()];
+    let mut node_count = 2;
+    if with_s {
+        let s = FrameSection::new(pow2(1000), pow2(1000), pow2(30), 1.0, 1.0, 1.0).unwrap();
+        frames.push(FrameElement::new(node(2, [0.0, 1.0, 0.0]), node(3, [0.0, 2.0, 0.0]), s, [1.0, 0.0, 0.0]).unwrap());
+        node_count = 4;
+    }
+    Model {
+        node_count,
+        frames,
+        macros: Vec::new(),
+        slots: Vec::new(),
+        springs: Vec::new(),
+        prescribed: (0..6 * node_count).filter(|&d| d != 5).map(|d| (d, 0.0)).collect(),
+        terms: vec![(5, ForceTermKind::Term(1.2345 * pow2(-697 + delta)))],
+    }
+}
+
+#[test]
+fn rv11_long_member_reactions_and_actions_at_the_rules_b() {
+    for (delta, with_s) in [(0, true), (80, true), (0, false)] {
+        let model = long_member(delta, with_s);
+        // reference: theta from the solve; R(N1 UY) = 6EI/L^2 theta, R(N2 UY) = -6EI/L^2 theta
+        let k6 = 6.0 * pow2(200) / pow2(600);
+        let name = format!("F-A2 delta={delta} with_s={with_s}");
+        report_case_at(&name, &model, 5, &[1, 7, 11], &|theta| vec![k6 * theta, -k6 * theta, 2.0 * pow2(-100) * theta]);
+        if !with_s {
+            let force = model.ledger();
+            let k0 = model.stiffness(ForceScale::UNSCALED).unwrap();
+            let today = model.existing(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense, true).unwrap();
+            let r = k0.reactions(&today.displacements, &force).unwrap();
+            println!("RV11 {name}: today's E12 at b=0: R1 {:e} R7 {:e} R11 {:e}; theta {:e}", r[1], r[7], r[11], today.displacements[5]);
+        }
+        // member end actions of W at the rule's b (the RETURN's F1b recipe, step 4)
+        let force = model.ledger();
+        if let Ok(o) = solve_with_force_scaling(&model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense)) {
+            let b = o.solution.force_scale;
+            let u = &o.solution.solution.displacements;
+            let acts = end_actions(&model.frames[0], u, b);
+            let theta = u[5];
+            println!("RV11 {name}: W end actions at b={} (local Vy_i, Mz_i, Vy_j, Mz_j) = {:e} {:?}, {:e}, {:e} {:?}, {:e}; reference Vy = +/-{:e}",
+                b.exponent(), acts[1].value, acts[1].representability, acts[5].value, acts[7].value, acts[7].representability, acts[11].value, k6 * theta);
+        }
+    }
+}
+
+/// F-D: forced even b over each model's census window: where the solve at b
+/// is Ok and bit-identical to b = 0, compare the published reactions
+/// (`force_scaled_reactions`) and W's end actions (the RETURN's recipe) with
+/// today's b = 0 values.
+#[test]
+fn rv11_forced_b_grid_reactions_and_actions() {
+    let mut models: Vec<(String, Model)> = KD5.iter().map(|m| (m.name.to_string(), Model::from_kd5(m))).collect();
+    models.push(("long_member(no S)".into(), long_member(0, false)));
+    for (name, model) in &models {
+        let force = model.ledger();
+        let probe = model.case(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Dense);
+        let census = force_scale_census(&probe).unwrap();
+        let (lo, hi) = census.span().unwrap();
+        let (b_lo, b_hi) = (-1022 + 64 - lo, 1023 - 8 - hi);
+        let k0 = model.stiffness(ForceScale::UNSCALED).unwrap();
+        let rigid = model.rigid();
+        let today = match model.existing(&force, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Pattern, true) {
+            Ok(t) => t,
+            Err(_) => continue,
+        };
+        let r0 = k0.reactions(&today.displacements, &force).unwrap();
+        let mut solved = 0;
+        let mut bad_r = Vec::new();
+        let mut bad_a = 0;
+        for b in (b_lo..=b_hi).filter(|b| b % 2 == 0 && b % 10 == 0) {
+            let s = scale(b);
+            let Ok(scaled) = model.forced(&force, s, LinearSolveMode::DenseScrutiny, EvidenceRepresentation::Pattern, true) else { continue };
+            if bits(&scaled.solution.displacements) != bits(&today.displacements) {
+                continue;
+            }
+            solved += 1;
+            let ks = model.stiffness(s).unwrap();
+            match ks.force_scaled_reactions(&scaled.solution.displacements, &force, s, &rigid) {
+                Ok(published) => {
+                    for (p, &dof) in published.iter().zip(&rigid) {
+                        if p.value.to_bits() != r0[dof].to_bits() && !(p.value == 0.0 && r0[dof] == 0.0) {
+                            bad_r.push(format!("b={b} R{dof}: published {:e} {:?} vs b=0 {:e}", p.value, p.representability, r0[dof]));
+                        }
+                    }
+                }
+                Err(e) => bad_r.push(format!("b={b}: refused {e:?}")),
+            }
+            for frame in &model.frames {
+                if values(&end_actions(frame, &scaled.solution.displacements, s)) != values(&end_actions(frame, &today.displacements, ForceScale::UNSCALED)) {
+                    bad_a += 1;
+                }
+            }
+        }
+        println!("RV11 F-D {name}: window [{b_lo}, {b_hi}], solved-identical {solved}, reaction mismatches {}, action mismatches {bad_a}", bad_r.len());
+        for r in bad_r.iter().take(4) {
+            println!("RV11 F-D {name}:   {r}");
+        }
+    }
+}

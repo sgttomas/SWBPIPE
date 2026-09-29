@@ -1,0 +1,25 @@
+{
+ "id": "RV4",
+ "description": "TwoSum checks only its first operand's precision",
+ "filters": [
+  "structural::retained::wide::multi::tests::two_sum"
+ ],
+ "file": "multi.rs",
+ "line": 606,
+ "old": "    if !fits(a, p) || !fits(b, p) {\n        return Err(WideError::OperandPrecision);\n    }\n    let s = add_rounded(a, b, p)?;\n",
+ "new": "    if !fits(a, p) {\n        return Err(WideError::OperandPrecision);\n    }\n    let s = add_rounded(a, b, p)?;\n",
+ "wall_s": 5.3,
+ "rc": 101,
+ "compiled": true,
+ "passed": 2,
+ "failed": 1,
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_refuse_a_wide_operand_in_either_position",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1214",
+   "source": "assert_eq!(c.two_sum(&one, &wide), refused, \"p = {p}\");"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

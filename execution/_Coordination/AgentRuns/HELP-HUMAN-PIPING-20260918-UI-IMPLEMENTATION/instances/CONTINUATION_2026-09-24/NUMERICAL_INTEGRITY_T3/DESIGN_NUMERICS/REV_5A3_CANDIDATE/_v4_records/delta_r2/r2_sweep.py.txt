@@ -1,0 +1,35 @@
+"""V4 delta check: R2 (hybrid gate, V, floor, W with the assembled K^q residual as specified) on
+adversarial models (adversary.gen, 70% saturated at 256), all rows' honesty, W firing, G5a."""
+import os, sys, json, random, time
+HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, os.path.dirname(HERE))
+from adversary import gen
+from lever2 import saturate
+import v4emu_r2 as R2
+from v4emu import Stop
+seed = int(sys.argv[1]); count = int(sys.argv[2]); budget = float(sys.argv[3])
+rng = random.Random(seed)
+t0 = time.time(); k = 0; ran = 0
+summ = dict(selected={}, false=[], estimate_fired=0, g5a_fail=[], worst_WV=0.0)
+while ran < count and time.time() - t0 < budget:
+    k += 1
+    m = gen(rng, k)
+    if m is None: continue
+    if rng.random() < 0.7:
+        m = saturate(m, 256, rng.choice((1.0, -1.0)))
+    try:
+        r = R2.run_r2(m)
+    except (Stop, ZeroDivisionError, StopIteration, ValueError):
+        continue
+    ran += 1
+    sel = str(r["selected"]); summ["selected"][sel] = summ["selected"].get(sel, 0) + 1
+    if any("verification_estimate" in a[1] for a in r["attempts"]): summ["estimate_fired"] += 1
+    for a in r["attempts"]:
+        if a[1] == "accepted" and "W/V" in a[2]:
+            summ["worst_WV"] = max(summ["worst_WV"], float(a[2].split(",")[1].strip(" )")))
+    h = r.get("honesty")
+    if h and (h[0] == float("inf") or h[0] > 1):
+        summ["false"].append((m["name"], h))
+    if r.get("g5a_failures"):
+        summ["g5a_fail"].append((m["name"], r["g5a_failures"]))
+print("ran", ran, json.dumps(summ, default=str))
+json.dump(dict(seed=seed, ran=ran, summary=summ), open(os.path.join(HERE, "r2_sweep_%d.json" % seed), "w"), indent=1, default=str)

@@ -1,0 +1,428 @@
+{
+ "NONE_T": {
+  "id": "NONE_T",
+  "description": "control for the filtered runs",
+  "filters": [
+   "structural::retained::wide::multi::tests::targeted_hard",
+   "structural::retained::wide::multi::tests::carry_and_borrow",
+   "structural::retained::wide::multi::tests::conversion",
+   "structural::retained::wide::multi::tests::exponent_extremes",
+   "structural::retained::wide::multi::tests::two_sum",
+   "structural::retained::wide::multi::tests::check_l",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted",
+   "structural::retained::wide::tests::",
+   "formation_check",
+   "structural::retained::wide::multi::tests::test_profile"
+  ],
+  "wall_s": 10.0,
+  "rc": 0,
+  "compiled": true,
+  "passed": 38,
+  "failed": 0,
+  "behavioural_kills": [],
+  "other_failures": [],
+  "killed": false
+ },
+ "M1": {
+  "id": "M1",
+  "description": "round toward zero",
+  "filters": [
+   "structural::retained::wide::multi::tests::targeted_hard",
+   "structural::retained::wide::multi::tests::carry_and_borrow"
+  ],
+  "file": "multi.rs",
+  "line": 418,
+  "old": "    let up = round && (rest || odd);\n",
+  "new": "    let up = false && round && (rest || odd);\n",
+  "wall_s": 3.9,
+  "rc": 101,
+  "compiled": true,
+  "passed": 0,
+  "failed": 4,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::carry_and_borrow_run_through_every_limb_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:931",
+    "source": "assert_eq!(c.add(&ones, &half).unwrap(), raw(false, 1, top::<L>()));"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M4": {
+  "id": "M4",
+  "description": "off-by-one shift across a middle limb",
+  "filters": [
+   "structural::retained::wide::multi::tests::targeted_hard",
+   "structural::retained::wide::multi::tests::two_sum"
+  ],
+  "file": "multi.rs",
+  "line": 199,
+  "old": "        (get(word) >> shift) | (get(word + 1) << (64 - shift))\n",
+  "new": "        if word == 2 {\n            (get(word) >> shift) | ((get(word + 1) << (64 - shift)) << 1)\n        } else {\n            (get(word) >> shift) | (get(word + 1) << (64 - shift))\n        }\n",
+  "wall_s": 4.7,
+  "rc": 101,
+  "compiled": true,
+  "passed": 0,
+  "failed": 5,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1859",
+    "source": "assert_eq!(tok(&s), fields[5], \"{line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1993",
+    "source": "assert!(half_ulp_bound(&s, &e, p));"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M8": {
+  "id": "M8",
+  "description": "conversion double-rounds",
+  "filters": [
+   "structural::retained::wide::multi::tests::conversion"
+  ],
+  "file": "multi.rs",
+  "line": 727,
+  "old": "        let index = quantum - unit_exponent(self);\n        let significand = &self.significand[..];\n",
+  "new": "        let first = if e < -1022 {\n            round_limbs::<L>(negative, &self.significand, false, unit_exponent(self), 53).unwrap()\n        } else {\n            *self\n        };\n        let index = quantum - unit_exponent(&first);\n        let significand = &first.significand[..];\n",
+  "wall_s": 5.1,
+  "rc": 101,
+  "compiled": true,
+  "passed": 2,
+  "failed": 2,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1466",
+    "source": "assert_eq!(v(false, -1075, t1).to_binary64(), min_sub);"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1372",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M11": {
+  "id": "M11",
+  "description": "nonzero underflow returned as a silent zero",
+  "filters": [
+   "structural::retained::wide::multi::tests::conversion",
+   "structural::retained::wide::multi::tests::exponent_extremes"
+  ],
+  "file": "multi.rs",
+  "line": 739,
+  "old": "        if kept == 0 {\n            return Binary64Outcome::Underflow { negative };\n",
+  "new": "        if kept == 0 {\n            return Binary64Outcome::Normal(f64::from_bits(sign));\n",
+  "wall_s": 4.2,
+  "rc": 101,
+  "compiled": true,
+  "passed": 1,
+  "failed": 4,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1457",
+    "source": "assert_eq!("
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_outcomes_follow_the_zero_convention",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1530",
+    "source": "assert_eq!("
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1372",
+    "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::exponent_extremes_are_refused_never_wrapped_at_every_width",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1001",
+    "source": "assert_eq!("
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M14": {
+  "id": "M14",
+  "description": "TwoSum returns e = 0",
+  "filters": [
+   "structural::retained::wide::multi::tests::two_sum",
+   "structural::retained::wide::multi::tests::check_l",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted"
+  ],
+  "file": "multi.rs",
+  "line": 614,
+  "old": "    let e = add_rounded(&da, &db, p)?;\n    Ok((s, e))\n",
+  "new": "    let _e = add_rounded(&da, &db, p)?;\n    Ok((s, signed_zero(false)))\n",
+  "wall_s": 3.5,
+  "rc": 101,
+  "compiled": true,
+  "passed": 0,
+  "failed": 4,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_and_two_product_are_error_free_on_random_operands",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2000",
+    "source": "assert_eq!("
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::check_l_and_duplicate_cancellation_are_exact_through_an_expansion_and_lost_when_folded",
+    "at": "tests/retained_wide_k3/k3_tests.rs:2196",
+    "source": "assert!(!components.is_empty() && components.len() <= 2);"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::two_sum_two_product_narrowing_and_the_integer_constructor_match_the_fraction_oracle",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1860",
+    "source": "assert_eq!(tok(&e), fields[6], \"{line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:537",
+    "source": "assert_eq!(format!(\"{e:?}\"), fields[6], \"{line}\");"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "M17": {
+  "id": "M17",
+  "description": "K3a's round_pack tie rule (ties away)",
+  "filters": [
+   "structural::retained::wide::tests::",
+   "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted",
+   "formation_check"
+  ],
+  "file": "wide.rs",
+  "line": 654,
+  "old": "    if round && (rest || keep & 1 == 1) {\n",
+  "new": "    if round {\n",
+  "wall_s": 4.3,
+  "rc": 101,
+  "compiled": true,
+  "passed": 18,
+  "failed": 7,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:544",
+    "source": "assert_eq!(core, k3a, \"{line}\");"
+   },
+   {
+    "test": "structural::retained::wide::tests::p53_matches_hardware_binary64_bitwise",
+    "at": "tests/retained_wide/wide_tests.rs:419",
+    "source": "assert_eq!(got, f(hw), \"{op} {x:e} {y:e}: {got:?}\");"
+   },
+   {
+    "test": "structural::retained::wide::tests::seeded_fraction_differential_at_p128",
+    "at": "tests/retained_wide/wide_tests.rs:795",
+    "source": "assert_eq!(token(result), sample[6], \"{name} record {i}\");"
+   },
+   {
+    "test": "structural::retained::wide::tests::arctangent_vectors_within_tolerance_and_bitwise_equal_to_the_emulation",
+    "at": "tests/retained_wide/wide_tests.rs:1033",
+    "source": "assert_eq!(token(result), rest[0], \"{line}\");"
+   },
+   {
+    "test": "structural::retained::wide::tests::split_feeds_exact_accumulator_add_product",
+    "at": "tests/retained_wide/wide_tests.rs:952",
+    "source": "assert_eq!(f(got), a53.mul(&k, &f(u)).unwrap(), \"{k:?} * {u:e}\");"
+   },
+   {
+    "test": "structural::retained::wide::tests::targeted_hard_class_vectors_match_the_fraction_oracle",
+    "at": "tests/retained_wide/wide_tests.rs:517",
+    "source": "assert_eq!(got, fields[5], \"{line}\");"
+   },
+   {
+    "test": "structural::retained::wide::tests::seeded_fraction_differential_at_mixed_precision",
+    "at": "tests/retained_wide/wide_tests.rs:822",
+    "source": "assert_eq!(done.hex(), spec.chunks[k], \"{name} chunk {k}\");"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "P1": {
+  "id": "P1",
+  "description": "a [profile.test] with overflow-checks = false",
+  "filters": null,
+  "file": "Cargo.toml",
+  "line": 11,
+  "old": "[dependencies]\n",
+  "new": "[dependencies]\n\n[profile.test]\noverflow-checks = false\n",
+  "wall_s": 260.4,
+  "rc": 101,
+  "compiled": true,
+  "passed": 226,
+  "failed": 1,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::test_profile_keeps_overflow_checks_and_debug_assertions_on",
+    "at": "tests/retained_wide_k3/k3_tests.rs:416",
+    "source": "assert!("
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "RV1": {
+  "id": "RV1",
+  "description": "cmp_value orders two negative values as if positive",
+  "filters": null,
+  "file": "multi.rs",
+  "line": 929,
+  "old": "                (true, true) => cmp_mag(other, self),\n",
+  "new": "                (true, true) => cmp_mag(self, other),\n",
+  "wall_s": 310.0,
+  "rc": 0,
+  "compiled": true,
+  "passed": 227,
+  "failed": 0,
+  "behavioural_kills": [],
+  "other_failures": [],
+  "killed": false
+ },
+ "RV2": {
+  "id": "RV2",
+  "description": "mul_pow2 scales by 2^(2k) instead of 2^k",
+  "filters": null,
+  "file": "multi.rs",
+  "line": 902,
+  "old": "        let exponent = checked_exponent(i128::from(self.exponent) + i128::from(k))?;\n",
+  "new": "        let exponent = checked_exponent(i128::from(self.exponent) + 2 * i128::from(k))?;\n",
+  "wall_s": 309.0,
+  "rc": 0,
+  "compiled": true,
+  "passed": 227,
+  "failed": 0,
+  "behavioural_kills": [],
+  "other_failures": [],
+  "killed": false
+ },
+ "RV3": {
+  "id": "RV3",
+  "description": "far subtraction without the borrow (no decrement)",
+  "filters": null,
+  "file": "multi.rs",
+  "line": 499,
+  "old": "        if sticky {\n            decrement(window.as_mut());\n        } else if",
+  "new": "        if sticky {\n        } else if",
+  "wall_s": 373.6,
+  "rc": 101,
+  "compiled": true,
+  "passed": 221,
+  "failed": 6,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_mixed_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:711",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_targeted_vectors",
+    "at": "tests/retained_wide_k3/k3_tests.rs:544",
+    "source": "assert_eq!(core, k3a, \"{line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::seeded_fraction_differential_at_mixed_precision_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:1318",
+    "source": "assert_eq!(done.hex(), chunks[k], \"{name} chunk {k}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l16",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l4",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   },
+   {
+    "test": "structural::retained::wide::multi::tests::targeted_hard_classes_match_the_fraction_oracle_at_l8",
+    "at": "tests/retained_wide_k3/k3_tests.rs:856",
+    "source": "assert_eq!(got, fields[5], \"L = {L}: {line}\");"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ },
+ "RV4": {
+  "id": "RV4",
+  "description": "TwoSum checks only its first operand's precision",
+  "filters": null,
+  "file": "multi.rs",
+  "line": 606,
+  "old": "    if !fits(a, p) || !fits(b, p) {\n        return Err(WideError::OperandPrecision);\n    }\n    let s = add_rounded(a, b, p)?;\n",
+  "new": "    if !fits(a, p) {\n        return Err(WideError::OperandPrecision);\n    }\n    let s = add_rounded(a, b, p)?;\n",
+  "wall_s": 372.0,
+  "rc": 0,
+  "compiled": true,
+  "passed": 227,
+  "failed": 0,
+  "behavioural_kills": [],
+  "other_failures": [],
+  "killed": false
+ },
+ "RV5": {
+  "id": "RV5",
+  "description": "far subtraction drops the (1 - f) tail after the borrow",
+  "filters": null,
+  "file": "multi.rs",
+  "line": 504,
+  "old": "        round_limbs::<L>(big.negative, window.as_ref(), sticky, scale, p)\n    }\n}\n\nfn mul_rounded",
+  "new": "        round_limbs::<L>(big.negative, window.as_ref(), false, scale, p)\n    }\n}\n\nfn mul_rounded",
+  "wall_s": 373.2,
+  "rc": 101,
+  "compiled": true,
+  "passed": 226,
+  "failed": 1,
+  "behavioural_kills": [
+   {
+    "test": "structural::retained::wide::multi::tests::l2_core_matches_k3a_on_k3a_p128_differential_and_its_digests",
+    "at": "tests/retained_wide_k3/k3_tests.rs:711",
+    "source": "assert_eq!(core, reference, \"{name} record {i}: {a:?} {b:?}\");"
+   }
+  ],
+  "other_failures": [],
+  "killed": true
+ }
+}

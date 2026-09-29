@@ -1,5 +1,7 @@
 # T3 handoff to a local session (2026-09-28)
 
+> **[Status note, added 2026-09-28 (RV13-N7).** This file is a dated snapshot of the cloud-to-Mac handoff, and its present tense is as of that handoff. For current status see the T3 row of the work graph, and `ROOT_RULINGS_V1.md` for the rulings since.]
+
 **Decision (ROOT, HELP_HUMAN, 2026-09-28).** T3 (numerical integrity, precision and scale) moves from the cloud container to a local session on the owner's Mac, which has much more CPU and disk.
 - **K2a finishes here.** It is in its gate now.
 - **K1 onward continues on the Mac,** from K1's WIP commit.
@@ -79,7 +81,7 @@ Read these in the records; they are not restated here.
 - **Gates for a slice PR:**
   - a complete-diff independent review;
   - hosted CI with the surface-4 dispatch;
-  - a clean DEC-025 sandboxed sweep;
+  - a clean DEC-025 sandboxed sweep; **[on the Mac, see `OWNER_DIRECTION.md`, "Owner decision (2026-09-28): DEC-025 on the Mac" (ROOT's pointer, from RV9's S3)]**;
   - the committed-fixture diff (T9) with its stop rule;
   - where the slice changes a product path, the both-entry no-Passed-breach gate against the **empty** `GATE/S11_EXCEPTIONS.json` and `GATE/FORMATION_EXCEPTIONS.json`, in two parts, with the known dense timeouts on a quiet host.
   - Skip no tests, raise no timeouts, and strip no loads or features.

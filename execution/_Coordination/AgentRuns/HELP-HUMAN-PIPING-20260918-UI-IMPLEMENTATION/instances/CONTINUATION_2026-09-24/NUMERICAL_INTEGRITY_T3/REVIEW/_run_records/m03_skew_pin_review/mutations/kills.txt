@@ -1,0 +1,81 @@
+RV10 mutant kill sites (from mutations/logs/<id>.log; FK = frame_kernel --test m03_skew_scope, NI = nonlinear_integration --lib i9_; each on a fresh git archive of 1d105d633 with its own target, both deleted afterwards; NONE first, alone, then three at a time at -j 4).
+
+== NONE: NONE: 0 hunk(s) applied
+   FK: test result: ok. 5 passed; 0 failed
+   NI: test result: ok. 1 passed; 0 failed
+
+== M-AXIS-BOUND: M-AXIS-BOUND: 1 hunk(s) applied
+   FK: test result: FAILED. 1 passed; 4 failed
+   NI: test result: FAILED. 0 passed; 1 failed
+   killed: m03_skew_pin_rv7_cases_outcomes_and_figures @ tests/m03_skew_scope.rs:562:40
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:869:37
+   killed: m03_skew_pin_6eil2_is_the_limiting_coefficient @ tests/m03_skew_scope.rs:637:13
+   killed: m03_skew_scope_guard_documented_limitation_not_desired_behaviour @ tests/m03_skew_scope.rs:931:5
+   killed: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes @ src/structural_adapter/k1_tests.rs:1525:18
+
+== M-FLOOR-UP: M-FLOOR-UP: 1 hunk(s) applied
+   FK: test result: FAILED. 0 passed; 5 failed
+   NI: test result: FAILED. 0 passed; 1 failed
+   killed: m03_skew_pin_preconditions_hold @ tests/m03_skew_scope.rs:444:9
+   killed: m03_skew_pin_6eil2_is_the_limiting_coefficient @ tests/m03_skew_scope.rs:637:13
+   killed: m03_skew_pin_rv7_cases_outcomes_and_figures @ tests/m03_skew_scope.rs:562:40
+   killed: m03_skew_scope_guard_documented_limitation_not_desired_behaviour @ tests/m03_skew_scope.rs:931:5
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:869:37
+   killed: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes @ src/structural_adapter/k1_tests.rs:1525:18
+
+== M-NO-COUPLING: M-NO-COUPLING: 1 hunk(s) applied
+   FK: test result: FAILED. 1 passed; 4 failed
+   NI: test result: ok. 1 passed; 0 failed
+   killed: m03_skew_pin_6eil2_is_the_limiting_coefficient @ tests/m03_skew_scope.rs:637:13
+   killed: m03_skew_pin_rv7_cases_outcomes_and_figures @ tests/m03_skew_scope.rs:551:21
+   killed: m03_skew_scope_guard_documented_limitation_not_desired_behaviour @ tests/m03_skew_scope.rs:921:21
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:869:37
+
+== M-CLOSE-GAP: M-CLOSE-GAP: 1 hunk(s) applied
+   FK: test result: FAILED. 1 passed; 4 failed
+   NI: test result: FAILED. 0 passed; 1 failed
+   killed: m03_skew_pin_rv7_cases_outcomes_and_figures @ tests/m03_skew_scope.rs:562:40
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:869:37
+   killed: m03_skew_pin_6eil2_is_the_limiting_coefficient @ tests/m03_skew_scope.rs:637:13
+   killed: m03_skew_scope_guard_documented_limitation_not_desired_behaviour @ tests/m03_skew_scope.rs:931:5
+   killed: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes @ src/structural_adapter/k1_tests.rs:1525:18
+
+== RV10-MAX-NOT-SUM: RV10-MAX-NOT-SUM: 1 hunk(s) applied
+   FK: test result: FAILED. 2 passed; 3 failed
+   NI: test result: FAILED. 0 passed; 1 failed
+   killed: m03_skew_pin_rv7_cases_outcomes_and_figures @ tests/m03_skew_scope.rs:380:5
+   killed: m03_skew_scope_guard_documented_limitation_not_desired_behaviour @ tests/m03_skew_scope.rs:931:5
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:869:37
+   killed: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes @ src/structural_adapter/k1_tests.rs:1525:18
+
+== RV10-TRANSPOSE: RV10-TRANSPOSE: 1 hunk(s) applied
+   FK: test result: FAILED. 2 passed; 3 failed
+   NI: test result: FAILED. 0 passed; 1 failed
+   killed: m03_skew_pin_rv7_cases_outcomes_and_figures @ tests/m03_skew_scope.rs:380:5
+   killed: m03_skew_scope_guard_documented_limitation_not_desired_behaviour @ tests/m03_skew_scope.rs:931:5
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:869:37
+   killed: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes @ src/structural_adapter/k1_tests.rs:1525:18
+
+== RV10-NO-TORSION-MIX: RV10-NO-TORSION-MIX: 1 hunk(s) applied
+   FK: test result: FAILED. 1 passed; 4 failed
+   NI: test result: FAILED. 0 passed; 1 failed
+   killed: m03_skew_pin_rv7_cases_outcomes_and_figures @ tests/m03_skew_scope.rs:562:40
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:869:37
+   killed: m03_skew_pin_6eil2_is_the_limiting_coefficient @ tests/m03_skew_scope.rs:637:13
+   killed: m03_skew_scope_guard_documented_limitation_not_desired_behaviour @ tests/m03_skew_scope.rs:931:5
+   killed: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes @ src/structural_adapter/k1_tests.rs:1525:18
+
+== RV10-DEEP-REFUSE-1016: RV10-DEEP-REFUSE-1016: 1 hunk(s) applied
+   FK: test result: FAILED. 4 passed; 1 failed
+   NI: test result: ok. 1 passed; 0 failed
+   killed: m03_skew_pin_6eil2_is_the_limiting_coefficient @ tests/m03_skew_scope.rs:637:13
+
+== RV10-DEEP-REFUSE-1019: RV10-DEEP-REFUSE-1019: 1 hunk(s) applied
+   FK: test result: ok. 5 passed; 0 failed
+   NI: test result: ok. 1 passed; 0 failed
+
+== RV10-K1-PATTERN-SCALE: RV10-K1-PATTERN-SCALE: 1 hunk(s) applied
+   FK: test result: FAILED. 4 passed; 1 failed
+   NI: test result: FAILED. 0 passed; 1 failed
+   killed: m03_skew_pin_dense_and_pattern_outcomes_are_identical @ tests/m03_skew_scope.rs:855:17
+   killed: structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes @ src/structural_adapter/k1_tests.rs:1549:17

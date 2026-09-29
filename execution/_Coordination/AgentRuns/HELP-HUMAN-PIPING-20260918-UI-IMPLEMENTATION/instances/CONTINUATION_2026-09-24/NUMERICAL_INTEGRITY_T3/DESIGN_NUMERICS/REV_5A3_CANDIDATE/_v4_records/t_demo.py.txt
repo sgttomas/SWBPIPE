@@ -1,0 +1,9 @@
+from v4emu import *
+import cases
+for m in (cases.assembly_sat(), cases.demotion2()):
+    out, tr = run(m, rules=("current","iii"))
+    for rule in ("current","iii"):
+        rows = out[rule].get("_rows") or []
+        for (key,kind,qp,cls,b),qt in zip(rows, tr["vals"]):
+            if key in (("rea",6),) or (key[0]=="end" and key[1]==1 and key[3]==0):
+                print("  ", rule, key, kind, float(qp), cls, None if b is None else float(b), "truth", float(qt))

@@ -1,0 +1,16 @@
+"""TwoSum with a too-wide second operand and TwoProduct with a too-wide first
+operand (both must be refused with OperandPrecision)."""
+import random, sys, rv12_oracle as o
+rng = random.Random(4)
+lines = []
+for L in (4, 8, 16):
+    W = 64 * L
+    for _ in range(30):
+        p = rng.randrange(2, W)
+        a = o.round_to_p(rng, o.rand_val(rng, L), p)
+        b = o.norm((False, (1 << p) | 1, rng.randrange(-50, 50)))  # p + 1 bits: too wide
+        if o.bl(b[1]) <= W:
+            lines.append("twosum %d %d %s %s" % (L, p, o.to_tok(a, L), o.to_tok(b, L)))
+            lines.append("twoprod %d %d %s %s" % (L, p, o.to_tok(b, L), o.to_tok(a, L)))
+open(sys.argv[1], "w").write("\n".join("%d %s" % (i + 1, l) for i, l in enumerate(lines)) + "\n")
+print(len(lines))

@@ -1,0 +1,8 @@
+#!/bin/bash
+set -u
+WT=<wt>
+S=$WT/scratch/rv10
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4 CARGO_TARGET_DIR=$WT/rv10-target/pp_$1
+cd $S/trees/$1/projects/chirality-piping/core/product_physics
+cargo test --offline --locked -j 8 --test i9_skew_product_probe -- --nocapture > $S/logs/probe_$1.log 2>&1
+echo "exit $?" > $S/logs/probe_$1.exit

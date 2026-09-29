@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""RV13 delta check: the fix commit's edits, against main and against RV13's
+reviewed head. Read-only; run from the repository root. Standard library only.
+
+  python3 delta_checks.py <reviewed> <review-commit> <fix-head> <main>
+  (RV13 ran: a8895ee84 4c82ea736 7df3acefe origin/main)
+
+1. RV13's review commit adds exactly RV13's files and its brief.
+2. For every file the fix commit modifies (except SHA256SUMS): each changed
+   region, character by character, classified as insert-only (old text kept
+   verbatim) or not; non-insert regions are printed.
+3. For every file the fix commit modifies that exists on main: main's text,
+   character by character, survives at the fix head (insert-only against main).
+4. ROOT_RULINGS_V1.md against main: hunks (pure append expected).
+"""
+import difflib
+import subprocess
+import sys
+
+REVIEWED, REVIEW, FIX, MAIN = (sys.argv[1:5] if len(sys.argv) > 4 else
+                               ("a8895ee84", "4c82ea736", "7df3acefe", "origin/main"))
+T3 = ("projects/chirality-piping/execution/_Coordination/AgentRuns/"
+      "HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/"
+      "CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/")
+WG = "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/"
+
+
+def git(*a, ok=False):
+    p = subprocess.run(["git", *a], capture_output=True)
+    if p.returncode and not ok:
+        raise SystemExit(p.stderr.decode())
+    return p.stdout.decode() if p.returncode == 0 else None
+
+
+def short(p):
+    return p.replace(T3, "T3/").replace(WG, "WG/")
+
+
+def char_ops(a, b):
+    """Character-level opcodes, computed only inside the changed line
+    regions (a whole-file character diff of the work graph is too slow)."""
+    al, bl = a.splitlines(keepends=True), b.splitlines(keepends=True)
+    out = []
+    for t, i1, i2, j1, j2 in difflib.SequenceMatcher(None, al, bl, autojunk=False).get_opcodes():
+        if t == "equal":
+            continue
+        x, y = "".join(al[i1:i2]), "".join(bl[j1:j2])
+        for u, k1, k2, m1, m2 in difflib.SequenceMatcher(None, x, y, autojunk=False).get_opcodes():
+            if u != "equal":
+                out.append((u, x, k1, k2, y, m1, m2))
+    return out
+
+
+print("== 1. review commit", REVIEW)
+print(git("diff", "--name-status", REVIEWED, REVIEW).replace(T3, "T3/"), end="")
+
+print("\n== 2. fix commit", FIX, "against", REVIEW, "(character level)")
+mods = [l.split("\t", 1)[1] for l in git("diff", "--name-status", REVIEW, FIX).splitlines()
+        if l.startswith("M\t")]
+for m in mods:
+    if m.endswith("SHA256SUMS"):
+        continue
+    a, b = git("show", f"{REVIEW}:{m}"), git("show", f"{FIX}:{m}")
+    ops = char_ops(a, b)
+    bad = [o for o in ops if o[0] in ("replace", "delete")]
+    ins = sum(m2 - m1 for u, x, k1, k2, y, m1, m2 in ops if u == "insert")
+    print(f"{short(m)}: {'insert-only' if not bad else 'NOT insert-only'}; "
+          f"{ins} characters inserted")
+    for u, x, k1, k2, y, m1, m2 in bad:
+        print(f"    {u}: {x[max(0, k1 - 40):k2 + 20]!r}\n      -> {y[max(0, m1 - 40):m2 + 20]!r}")
+
+print("\n== 3. main's text at the fix head (character level)")
+for m in mods:
+    if m.endswith("SHA256SUMS"):
+        continue
+    a = git("show", f"{MAIN}:{m}", ok=True)
+    if a is None:
+        print(f"{short(m)}: not on main (added by this PR)")
+        continue
+    b = git("show", f"{FIX}:{m}")
+    bad = [o for o in char_ops(a, b) if o[0] in ("replace", "delete")]
+    print(f"{short(m)}: {'main text verbatim (insert-only)' if not bad else f'{len(bad)} non-insert regions against main'}")
+
+print("\n== 4. ROOT_RULINGS_V1.md hunks, main -> fix head")
+for l in git("diff", "-U0", MAIN, FIX, "--", T3 + "ROOT_RULINGS_V1.md").splitlines():
+    if l.startswith("@@"):
+        print("   ", l[:60])

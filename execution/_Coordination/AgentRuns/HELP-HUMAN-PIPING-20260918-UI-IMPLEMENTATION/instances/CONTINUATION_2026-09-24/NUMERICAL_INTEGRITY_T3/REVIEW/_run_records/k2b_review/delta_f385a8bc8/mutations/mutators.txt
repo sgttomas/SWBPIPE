@@ -1,0 +1,5 @@
+RV11 delta check: the mutant generators used (copied unchanged into <wt>/scratch/rv11/mutd/):
+- mutate_k2b.py = IMPLEMENTATION/K2B/_run_records/rv11_fixes/mutations/mutate_k2b.py.txt at f385a8bc8, sha256 e2e8506c872747eaee12ee6aee4b46235811bb5db603bed581e629a4da45c171 (record: e2e8506c872747eaee12ee6aee4b46235811bb5db603bed581e629a4da45c171): I10's four new mutants.
+- mutate_rv11.py = RV11's own generator from the first review (sha256 80215595238f897c7136c999c64907bde776ff37e2b2b239743b1f53c535d144): the two census mutants that survived at 087b3a088.
+- mutate_rv11d.py: RV11's four delta-check mutants (the file's docstring states each).
+Every patch was dry-run against f385a8bc8 first; each matched once.

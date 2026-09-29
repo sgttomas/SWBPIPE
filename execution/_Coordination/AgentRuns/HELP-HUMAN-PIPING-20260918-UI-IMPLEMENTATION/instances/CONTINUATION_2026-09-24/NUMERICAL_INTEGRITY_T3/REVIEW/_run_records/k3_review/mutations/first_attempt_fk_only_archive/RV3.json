@@ -1,0 +1,17 @@
+{
+ "id": "RV3",
+ "description": "far subtraction without the borrow (no decrement)",
+ "filters": null,
+ "file": "multi.rs",
+ "line": 499,
+ "old": "        if sticky {\n            decrement(window.as_mut());\n        } else if",
+ "new": "        if sticky {\n        } else if",
+ "wall_s": 4.4,
+ "rc": 101,
+ "compiled": false,
+ "passed": 0,
+ "failed": 0,
+ "behavioural_kills": [],
+ "other_failures": [],
+ "killed": false
+}

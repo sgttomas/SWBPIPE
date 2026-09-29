@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""(Run with the chain-absolute residual-gate denominator, section 8.2, since
+K4's denominator fails the gate on these models at every p.)
+Does the Gram-Schmidt amplification g = |y_ref|/|y_perp| enter the noise?
+A three-member run along (3,4,0) whose y_ref is nearly parallel to the chord,
+root prescribed as a rigid rotation (F-3 class). For each g, the largest
+|q_P - q_2P| / (2^-P E) over force and moment rows, with E computed with and
+without the factor g."""
+import json
+from fractions import Fraction as Fr
+import emu
+from emu import Case, solve_at, body_E, new_model, add_member, fix, Stop
+
+def model(tilt):
+    m = new_model("GS-%g" % tilt, [(0, 0, 0), (3, 4, 0), (6, 8, 0), (9, 12, 0)])
+    for s in range(3):
+        add_member(m, s + 1, s, s + 1, y=(3.0, 4.0, 5.0 * tilt))
+    fix(m, 0, (0, 1, 2, 3, 4))
+    fix(m, 0, (5,), 1e-3)
+    return m
+
+emu.GATE_DENOMINATOR = "absolute"   # states exist only with this gate (section 8.2)
+out = []
+orig_form = emu.form_member
+for tilt in (1.0, 2.0 ** -6, 2.0 ** -12, 2.0 ** -20):
+    for use_g in (True, False):
+        def fm(nodes, m, p, _orig=orig_form, _use=use_g):
+            op = _orig(nodes, m, p)
+            if not _use:
+                op["g"] = 1.0
+            return op
+        emu.form_member = fm
+        case = Case(model(tilt))
+        st = {}
+        for P in (128, 256, 512, 1024):
+            try:
+                st[P] = solve_at(case, P)
+            except Stop as s:
+                st[P] = s.what
+        worst = 0.0
+        g = None
+        for p in (128, 256, 512):
+            a, b = st[p], st[2 * p]
+            if isinstance(a, str) or isinstance(b, str):
+                continue
+            Eb = body_E(case, b["E"])
+            for (rid, kind, body, inp), qa, qb in zip(case.layout, a["values"], b["values"]):
+                if inp or kind not in ("fo", "mo"):
+                    continue
+                E = Eb[body][kind]
+                if E:
+                    worst = max(worst, float(abs(qa - qb) * Fr(2) ** p / Fr(E)))
+        out.append(dict(tilt=tilt, use_g=use_g, worst=worst,
+                        g=emu.form_member(case.m["nodes"], case.m["members"][0], 128)["g"] if use_g else 1.0))
+        emu.form_member = orig_form
+for r in out:
+    print(r)
+json.dump(out, open("gs_probe.stdout.json", "w"), indent=1)

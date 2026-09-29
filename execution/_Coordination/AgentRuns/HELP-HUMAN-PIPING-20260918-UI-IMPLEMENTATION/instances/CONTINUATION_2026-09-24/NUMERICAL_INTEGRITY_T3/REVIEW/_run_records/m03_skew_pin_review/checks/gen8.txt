@@ -1,0 +1,4 @@
+RV10 GEN-8 on the head: a full git archive of 1d105d633 (all tracked files) in <wt>/scratch/rv10/full; outside a Git work tree the self-check walks every file.
+$ cd <wt>/scratch/rv10/full && PYTHONDONTWRITEBYTECODE=1 <VENV>/bin/python -m pytest tools/practitioner_harness/test_live_baseline.py -k gen8 -p no:cacheprovider -q
+1 passed, 10 deselected in 22.27s
+(GEN-8 scans .md, .yaml, .yml and .json; the .txt and .log run records were scanned with /usr/bin/grep instead: checks/records_hygiene.txt.)

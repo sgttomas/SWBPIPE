@@ -1,0 +1,27 @@
+import json, time, math
+from fractions import Fraction as Fr
+from v4emu import model, member, fix, load, run
+PI = Fr(math.pi)
+od, idd = Fr("0.2"), Fr("0.18")
+A = float(PI*(od*od-idd*idd)/4); I = float(PI*(od**4-idd**4)/64)
+S = dict(E=200e9, G=80e9, A=A, Iy=I, Iz=I, J=2*I)
+def gs(name, y, rot, loaded=False):
+    m = model(name, [(0,0,0),(3,4,0),(6,8,0),(9,12,0)])
+    for s in range(3): member(m, s, s+1, y=y, **S)
+    if rot:
+        fix(m, 0, (0,1,2,3,4)); fix(m, 0, (5,), 1e-3)
+    else:
+        fix(m, 0, (0,), 1.0); fix(m, 0, (1,2,3,4,5))
+    if loaded: load(m, 3, 1, 1.0)
+    return m
+if __name__ == "__main__":
+    probes = [gs("GS-ROT-y345-N", (3.0,4.0,5.0), True), gs("GS-TRANS-y345-N", (3.0,4.0,5.0), False),
+              gs("GS-ROT-y345-LOADED-N", (3.0,4.0,5.0), True, loaded=True), gs("GS-ROT-y001-N", (0.0,0.0,1.0), True)]
+    out = {}
+    for m in probes:
+        for gate in ("k4", "abs"):
+            t = time.time()
+            o, tr = run(m, rules=("current","iii"), gate=gate, verbose=False)
+            out.setdefault(m["name"], {})[gate] = {r: {k: v for k, v in rec.items() if k in ("selected","attempts","honesty")} for r, rec in o.items()}
+            print(m["name"], gate, {r: (v["selected"], v["attempts"], v.get("honesty")) for r, v in out[m["name"]][gate].items()}, "(%.1fs)" % (time.time()-t), flush=True)
+    json.dump(out, open("gate_probe_nsec.json","w"), indent=1, default=str)

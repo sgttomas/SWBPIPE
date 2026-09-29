@@ -1,0 +1,95 @@
+"""V4 delta check, the open lead built exactly: a dyadic lever whose tip is eliminated first
+(nodes C=0 tip, B=1 link node, A=2 pivot, G=3 link ground, D=4 branch), so every LDL^T pivot and
+multiplier is dyadic and the unperturbed rigid solution is computed exactly at every precision.
+A tiny global spring at the tip's uy is below half an ulp of the tip's assembled diagonal at 576
+bits (so K_256, K_512 and K^q at 320 and 576 all lose it); the lever's statics gain to the link is
+L = 2^k. A load P on an axial branch at the pivot sets M so that V <= eps*M at 256."""
+import os, sys, json, time, math
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from fractions import Fraction as Fr
+from v4emu import model, member, fix, load, exact_state, layout, flog2, Ar, form_member, assemble, Stop
+import v4emu_r2 as R2
+def dyadic(x):
+    d = x.denominator
+    return d & (d - 1) == 0
+
+def lever2(k, s, Pexp=None, aAC_exp=None):
+    L = 2.0 ** k
+    m = model("LEVER2-k%d-s%d" % (k, s), [(L,0,0), (-1,0,0), (0,0,0), (-1,-1,0), (0,0,1)])
+    C, B, A, G, D = 0, 1, 2, 3, 4
+    member(m, B, A, E=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0, G=1.0)                         # EI1 = 1
+    Eac = 2.0 ** (s + 3 * k)                                                           # c = EI2/L^3 = 2^s
+    member(m, A, C, E=Eac, A=2.0 ** -(s + 3 * k), Iy=1.0, Iz=1.0, J=1.0, G=1.0)          # EA/L = 2^-k (small)
+    member(m, G, B, E=4.0, A=1.0, Iy=1.0/64, Iz=1.0/64, J=1.0, G=1.0, y=(1,0,0))         # link: EA/L = 4, 4EI/L = 1/4
+    Pb = Pexp if Pexp else 1.0
+    member(m, A, D, E=Pb, A=1.0, Iy=1.0 / Pb, Iz=1.0 / Pb, J=Pb, G=1.0, y=(1,0,0))  # branch along z: EA/L = P, EI = 1, GJ = P
+    for nd in range(4): fix(m, nd, (2, 3, 4))
+    fix(m, D, (3, 4))
+    fix(m, A, (0,), 0.0); fix(m, A, (1,), 1.0)
+    fix(m, G, (0,), 0.0); fix(m, G, (1,), 1.0); fix(m, G, (5,), 0.0)
+    fix(m, B, (0,), 0.0); fix(m, C, (0,), 0.0); fix(m, D, (0,), 0.0); fix(m, D, (1,), 1.0); fix(m, D, (5,), 0.0)
+    return m
+
+def ldlt_dyadic(m):
+    ar = Ar(None)
+    ops = [form_member(ar, m["nodes"], mb) for mb in m["members"]]
+    K, n = assemble(ar, m, ops)
+    free = [g for g in range(n) if g not in m["cons"]]
+    N = len(free)
+    Am = [[K.get((free[i], free[j]), Fr(0)) for j in range(N)] for i in range(N)]
+    for c in range(N):
+        piv = Am[c][c]
+        if piv <= 0 or not dyadic(piv): return False, c
+        for r_ in range(c + 1, N):
+            l = Am[r_][c] / piv
+            if not dyadic(l): return False, (c, r_)
+            for c2 in range(c + 1, N):
+                Am[r_][c2] -= l * Am[c][c2]
+    return True, K
+
+if __name__ == "__main__":
+    out = {}
+    for (k, s) in [(90, 40), (100, 40), (110, 20)]:
+        m = lever2(k, s)
+        ok, K = ldlt_dyadic(m)
+        rec = dict(k=k, s=s, ldlt_dyadic=ok)
+        if not ok:
+            out[m["name"]] = rec; print(rec, flush=True); continue
+        Kcc = K[(1, 1)]
+        kt = 2.0 ** (flog2(Kcc) - 580)
+        m["springs"].append((1, kt))
+        # read e-hat_fo from the 512 state without the load, then set P
+        st = R2.solve_r2(m, 512, "hybrid")
+        E, _ = R2.E_r2(m, st)
+        efo = float(R2.ehat(E, 0, R2.extents(m)[0])[0])
+        e = math.floor(math.log2(efo))
+        P = 2.0 ** (e - 438)
+        m = lever2(k, s, Pexp=P)
+        m["springs"].append((1, kt))
+        load(m, 4, 2, P)
+        t = time.time()
+        res = R2.schedule_r2(m, "hybrid", True)
+        rec.update(Kcc=float(Kcc), ktiny=kt, efo=efo, P=P, selected=res["selected"], attempts=[str(a) for a in res["attempts"]])
+        tr = exact_state(m)
+        if res["selected"] is not None:
+            rows, Sp, Sc = R2.publish_r2(m, res)
+            h = R2.honesty_rows(rows, tr)
+            rec["honesty"] = [h[0], str(h[1]), h[2]]
+            rec["worst_rows"] = sorted([(float(abs(qp - qt) / b) if (cls == "absolute" and b) else 0.0, str(key), float(qp), float(qt), cls, None if b is None else float(b))
+                                        for (key, kind, qp, cls, b), qt in zip(rows, tr["vals"]) if kind in ("fo", "mo")], reverse=True)[:4]
+            rec["g5a"] = [str(x) for x in R2.g5a(m, res, rows, Sc)]
+            V = 2.0 ** (8 - 2 * res["selected"]) * efo
+            rec["V_at_selected"] = V
+        # the saturated error the design's named term covers, and its gain
+        # the first disagreeing rows at each compared pair
+        lay = layout(m)
+        dbg = {}
+        for P1, P2 in ((256, 512), (512, 1024)):
+            s1, s2 = R2.solve_r2(m, P1, "hybrid"), R2.solve_r2(m, P2, "hybrid")
+            diffs = sorted(((abs(a - b), str(key)) for (key, kind, inp), a, b in zip(lay, s1["vals"], s2["vals"]) if a != b), reverse=True)[:3]
+            dbg["%d-%d" % (P1, P2)] = [(float(d), kk) for d, kk in diffs]
+        rec["top_differences"] = dbg
+        rec["saturated_error_link"] = float(abs(tr["vals"][[i for i, x in enumerate(layout(m)) if x[0] == ("end", 2, "i", 0)][0]]))
+        out[m["name"]] = rec
+        print(json.dumps(rec, indent=1, default=str), "(%.1fs)" % (time.time() - t), flush=True)
+    json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "r2_lever2.json"), "w"), indent=1, default=str)

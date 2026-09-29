@@ -1,0 +1,30 @@
+{
+ "id": "M8",
+ "description": "conversion double-rounds",
+ "filters": [
+  "structural::retained::wide::multi::tests::conversion"
+ ],
+ "file": "multi.rs",
+ "line": 727,
+ "old": "        let index = quantum - unit_exponent(self);\n        let significand = &self.significand[..];\n",
+ "new": "        let first = if e < -1022 {\n            round_limbs::<L>(negative, &self.significand, false, unit_exponent(self), 53).unwrap()\n        } else {\n            *self\n        };\n        let index = quantum - unit_exponent(&first);\n        let significand = &first.significand[..];\n",
+ "wall_s": 5.1,
+ "rc": 101,
+ "compiled": true,
+ "passed": 2,
+ "failed": 2,
+ "behavioural_kills": [
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_outcomes_at_every_width",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1466",
+   "source": "assert_eq!(v(false, -1075, t1).to_binary64(), min_sub);"
+  },
+  {
+   "test": "structural::retained::wide::multi::tests::conversion_boundary_vectors_match_the_fraction_oracle",
+   "at": "tests/retained_wide_k3/k3_tests.rs:1372",
+   "source": "assert_eq!(outcome_token(value.to_binary64()), fields[4], \"{line}\");"
+  }
+ ],
+ "other_failures": [],
+ "killed": true
+}

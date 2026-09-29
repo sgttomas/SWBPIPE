@@ -1,0 +1,14 @@
+range 1.16e-10 .. 1.87e-04; cells > 1e-9: 11
+per run: 52 published runs; min 7.28e-12; max 1.87e-04; > 1e-9: 42
+   7.278e-12 (-1040, 'E*2^36', 'skew111') DenseScrutiny captured
+   7.278e-12 (-1040, 'E*2^36', 'skew111') DenseScrutiny typed
+   7.278e-12 (-1030, 'E*2^36', 'skew111') DenseScrutiny captured
+   7.278e-12 (-1030, 'E*2^36', 'skew111') DenseScrutiny typed
+   1.164e-10 (-1045, 'E*2^36', 'skew111') SparseInteractive captured
+   1.164e-10 (-1045, 'E*2^36', 'skew111') SparseInteractive typed
+   1.164e-10 (-1040, 'E*2^36', 'skew111') SparseInteractive captured
+   1.164e-10 (-1040, 'E*2^36', 'skew111') SparseInteractive typed
+   1.164e-10 (-1030, 'E*2^36', 'skew111') SparseInteractive captured
+   1.164e-10 (-1030, 'E*2^36', 'skew111') SparseInteractive typed
+   7.451e-09 (-1030, 'E*2^30', 'skew111') SparseInteractive captured
+   7.451e-09 (-1030, 'E*2^30', 'skew111') SparseInteractive typed

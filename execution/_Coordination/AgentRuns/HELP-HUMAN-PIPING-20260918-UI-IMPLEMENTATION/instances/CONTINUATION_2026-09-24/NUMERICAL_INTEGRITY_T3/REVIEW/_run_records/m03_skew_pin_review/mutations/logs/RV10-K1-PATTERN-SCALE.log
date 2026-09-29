@@ -1,0 +1,82 @@
+== mutant RV10-K1-PATTERN-SCALE (fresh archive of 1d105d633)
+RV10-K1-PATTERN-SCALE: 1 hunk(s) applied
+diff -ru <scratch-rv10>/trees/cand/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs
+--- <scratch-rv10>/trees/cand/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs	2026-09-28 00:40:51
++++ projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs	2026-09-28 01:02:18
+@@ -1170,7 +1170,7 @@
+         for (c, index) in entries {
+             values.push(radix_scale(
+                 stiffness.values[index],
+-                exponents[r] + exponents[c],
++                exponents[r] + exponents[r],
+             )?);
+             columns.push(c);
+             source_entries.push(index);
+== FK --test m03_skew_scope
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.26s
+     Running tests/m03_skew_scope.rs (<wt>/rv10-target/mut/RV10-K1-PATTERN-SCALE/debug/deps/m03_skew_scope-4f2c745387a5ac56)
+
+running 5 tests
+test m03_skew_pin_preconditions_hold ... ok
+test m03_skew_pin_dense_and_pattern_outcomes_are_identical ... FAILED
+test m03_skew_pin_6eil2_is_the_limiting_coefficient ... ok
+test m03_skew_pin_rv7_cases_outcomes_and_figures ... ok
+test m03_skew_scope_guard_documented_limitation_not_desired_behaviour ... ok
+
+failures:
+
+---- m03_skew_pin_dense_and_pattern_outcomes_are_identical stdout ----
+
+thread 'm03_skew_pin_dense_and_pattern_outcomes_are_identical' (2090762) panicked at tests/m03_skew_scope.rs:855:17:
+assertion `left == right` failed: (12E)I=2^-1030 skew (1,1,1), yref +z reversed=false
+  left: "Ok(Err(NumericallyUnresolved { reason: \"nonpositive or cancellation-unresolved structural pivot\", global_dof: Some(10) }))"
+ right: "Ok(Err(Asymmetric { row: 9, col: 7, relative_skew: 1.0 }))"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    m03_skew_pin_dense_and_pattern_outcomes_are_identical
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test m03_skew_scope`
+error: 1 target failed:
+    `--test m03_skew_scope`
+== FK exit 101
+== NI --lib i9_
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/scratch/rv10/mut/work/RV10-K1-PATTERN-SCALE/tree/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.64s
+     Running unittests src/lib.rs (<wt>/rv10-target/mut/RV10-K1-PATTERN-SCALE/debug/deps/open_pipe_stress_nonlinear_integration-88f5a46b64c0d65b)
+
+running 1 test
+test structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes ... FAILED
+
+failures:
+
+---- structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes stdout ----
+I9 adapter (12E)I=2^-1030 skew (1,1,1), yref +z DenseScrutiny: Err(NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(10) })
+
+thread 'structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes' (2091918) panicked at src/structural_adapter/k1_tests.rs:1549:17:
+assertion `left == right` failed: (12E)I=2^-1030 skew (1,1,1), yref +z SparseInteractive
+  left: "Err(NumericallyUnresolved { reason: \"nonpositive or cancellation-unresolved structural pivot\", global_dof: Some(11) })"
+ right: "Err(Asymmetric { row: 9, col: 7, relative_skew: 1.0 })"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural_adapter::k1_tests::i9_skew_m03_accepted_rows_are_identical_through_both_evidences_in_both_modes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 97 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+    `--lib`
+== NI exit 101

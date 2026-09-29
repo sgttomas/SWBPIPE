@@ -1,0 +1,28 @@
+#!/bin/bash
+# RV10 mutant run: a fresh git archive of the candidate head (projects/chirality-piping without execution/),
+# the patch, its own target; FK --test m03_skew_scope and NI --lib i9_, --no-fail-fast. -j 4, RUST_TEST_THREADS=4.
+# The tree and the target are deleted afterwards.
+set -u
+ID=$1
+WT=<wt>
+S=$WT/scratch/rv10
+M=$S/mut/work/$ID
+TGT=$WT/rv10-target/mut/$ID
+LOG=$S/mut/logs/$ID.log
+mkdir -p $S/mut/logs
+rm -rf $M $TGT && mkdir -p $M/tree
+(cd $WT/numerics && git archive --format=tar 1d105d63376fc949a0133eaacac201a46515f208 -- projects/chirality-piping ':(exclude)projects/chirality-piping/execution') | tar -x -C $M/tree
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4 CARGO_TARGET_DIR=$TGT
+{
+  echo "== mutant $ID (fresh archive of 1d105d633)"; python3 -B $S/mut/mutate_rv10.py $M/tree $ID
+  (cd $M/tree && diff -ru $S/trees/cand/projects/chirality-piping/core/solver/frame_kernel/src projects/chirality-piping/core/solver/frame_kernel/src | sed "s|$S|<scratch-rv10>|g")
+  C=$M/tree/projects/chirality-piping/core/solver
+  echo "== FK --test m03_skew_scope"
+  cargo test --offline --locked -j 4 --manifest-path $C/frame_kernel/Cargo.toml --no-fail-fast --test m03_skew_scope 2>&1
+  echo "== FK exit $?"
+  echo "== NI --lib i9_"
+  cargo test --offline --locked -j 4 --manifest-path $C/nonlinear_integration/Cargo.toml --no-fail-fast --lib i9_ 2>&1
+  echo "== NI exit $?"
+} > $LOG 2>&1
+rm -rf $M $TGT
+echo "$ID done"

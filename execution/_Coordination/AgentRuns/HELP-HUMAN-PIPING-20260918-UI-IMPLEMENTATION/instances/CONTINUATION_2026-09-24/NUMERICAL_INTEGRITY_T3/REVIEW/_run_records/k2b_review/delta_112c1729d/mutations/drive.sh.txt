@@ -1,0 +1,14 @@
+#!/bin/bash
+# RV11 second delta-check driver: NONE first, alone; then the mutants, at most three at once.
+W=$1; X=$W/scratch/rv11/mutd2
+: > $X/MUTANTS.txt
+echo "drive start $(date -u +%FT%TZ)" > $X/drive.log
+$X/run_mutant.sh $W NONE; echo "NONE done $(date -u +%FT%TZ)" >> $X/drive.log
+set -- RV11D-ACTIONS-LOCAL-UNCHECKED RV11D-ACTIONS-B0-EXEMPT RV11D-PIN-ACTIONS-EVASION RV11D2-SPRING-B0-EXEMPT RV11D2-SPRING-EVASION-PP
+while [ $# -gt 0 ]; do
+  batch="$1 ${2:-} ${3:-}"; shift; shift 2>/dev/null; shift 2>/dev/null
+  for m in $batch; do $X/run_mutant.sh $W $m & done
+  wait
+  echo "batch [$batch] done $(date -u +%FT%TZ)" >> $X/drive.log
+done
+echo "drive end $(date -u +%FT%TZ)" >> $X/drive.log

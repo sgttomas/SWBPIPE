@@ -1,0 +1,10 @@
+RV11 delta check: I10's b = 0 Debug probe (checkpoint_b/probe/main.rs.txt, unchanged; models from the ca20b9eca archive),
+rebuilt at opt-level 0 against git-archive trees of main eb52114e9, main 98b1723b1 and the fixed head f385a8bc8.
+  eb52114e9: 439 outputs
+  98b1723b1: 439 outputs
+  f385a8bc8: 439 outputs
+  f385a8bc8 == 98b1723b1: yes, 439 of 439
+  f385a8bc8 == eb52114e9: yes, 439 of 439
+  f385a8bc8 == 087b3a088 (the first review's head): yes, 439 of 439
+  eb52114e9 re-run == the first review's eb52114e9 list: yes (compared before this file was written)
+  I10's rv11_fixes probe lists (release build) == this f385a8bc8 list: yes, both (records_checks.txt item 7)

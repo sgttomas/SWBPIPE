@@ -44,7 +44,7 @@
 - **T9 (Mac-only):** base `f12e06876` against the candidate, 112 of 112 byte-identical (RETURN addendum 2). The base equals the Mac hashes of main `649162522`.
 - **The gate:** not run, per ROOT's ruling "K1: spawn timing and no both-entry gate". The gate runs at F1b.
 
-### The DEC-025 sandboxed sweep: the owner's decision for Mac-run slices
+### The DEC-025 sandboxed sweep: the owner's decision for Mac-run slices [The owner's words are for K1; applying them to later slices is ROOT's extension. See `OWNER_DIRECTION.md`, 2026-09-28 (RV13-N4).]
 
 - **The problem.** On the Mac, the sweep's cargo surface cannot pass, even for main. Three tests compare committed Linux bytes whose Mac outputs differ by a macOS `hypot` ulp (`PLATFORM_CALIBRATION_MAC/suites/SUMMARY.md`).
 - **The owner's decision (2026-09-28).** The gate is the Mac sandboxed sweep plus Linux CI:
@@ -90,3 +90,7 @@
 - **K1 is kernel only.** No product path calls a new entry, and no published byte changes (T9 112/112).
 - **Next in the kernel order:** K2b, the formation-time scale through `SparseAssemblyOptions`, then K5.
 - **F1b** (after K2b) wires PP onto the pattern path, adds the resource guard, and runs the both-entry gate.
+
+## Addendum 1 (ROOT, 2026-09-28): RV9's note N6 (records PR #1035)
+
+"What ran", item 1, says the tool "recorded the later surfaces, and the cargo manifests after product_physics, as not run". More exactly: the summary JSON records the three later **surfaces** as `not_run`. It has no per-manifest entries, and the cargo manifests after product_physics simply never ran in that invocation. Their evidence is item 2.

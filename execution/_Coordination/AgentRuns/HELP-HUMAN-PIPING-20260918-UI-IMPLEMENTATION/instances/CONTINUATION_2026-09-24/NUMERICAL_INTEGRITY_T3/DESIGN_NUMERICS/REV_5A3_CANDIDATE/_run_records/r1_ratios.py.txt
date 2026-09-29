@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""R1's frozen references (K4's row: RF-CHAIN, RF-SKEW, RF-WEAK, RF-FINITE and
+RF-CANCEL's nodal cases): how far each body's formation scale E lies above its
+S*, and therefore whether the addendum's terms can change any R1 outcome.
+
+For each case: the model through an adapter that follows K4's `r1_adapt`
+(`3ed6c0e26`, `gen_k4_vectors.py`: y_ref (1,0,0) for vertical members, else
+(0,0,1); axis-only springs as springs, others directional; the represented
+basis where R1 marks it); the reference displacements from R1's expected rows;
+recovery at p = 128 (`emu.recover`) from those displacements, which gives every
+published row and its E_q; then per body S* (coupled, section 4.1.6.1) and the
+coupled E (addendum section 3.2).
+
+Reported per family: max log2(E/S*) per kind; whether V could matter at
+p = 128 (it needs log2(E/M) > 186 - margin); whether option (i-b)'s floor
+2^(72-128) E would bind (log2(E/S*) > 56) and how many rows it would demote.
+"""
+import importlib.util, json, math, sys
+from fractions import Fraction as Fr
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+from emu import Case, assemble, recover, body_E, body_kind_max, coupled_wide, rp, new_model, add_member, fix, spring, load, KINDS
+
+T3 = Path(sys.argv[1])
+spec = importlib.util.spec_from_file_location("r1ref", T3 / "REFERENCES" / "references.py")
+r1 = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(r1)
+ref = json.loads((T3 / "REFERENCES" / "references.json").read_text())["cases"]
+FAM = ("RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-FINITE", "RF-CANCEL")
+AX = {"UX": 0, "UY": 1, "UZ": 2, "RX": 3, "RY": 4, "RZ": 5}
+
+
+def adapt(cid, c, model):
+    basis = c.get("basis") or "intended"
+    num = r1.parse_input
+    dec = (lambda x: num(x)) if basis == "intended" else (lambda x: r1.rep(num(x)))
+    names = list(model["nodes_m"])
+    index = {n: k for k, n in enumerate(names)}
+    m = new_model(cid, [tuple(float(num(x)) for x in model["nodes_m"][n]) for n in names])
+    secs = {}
+    for sid, sec in model["sections"].items():
+        od, idd = dec(sec["OD"]), dec(sec["ID"])
+        A = r1.PI_Q * (od * od - idd * idd) / 4
+        I = r1.PI_Q * (od ** 4 - idd ** 4) / 64
+        secs[sid] = dict(E=float(num(sec["E"])), G=float(num(sec["G"])), A=float(A), Iy=float(I), Iz=float(I), J=2.0 * float(I))
+    for k, (mid, ni, nj, sid) in enumerate(model["members"]):
+        xi, xj = m["nodes"][index[ni]], m["nodes"][index[nj]]
+        d = [xj[a] - xi[a] for a in range(3)]
+        y = (1.0, 0.0, 0.0) if d[0] == 0.0 and d[1] == 0.0 else (0.0, 0.0, 1.0)
+        add_member(m, k + 1, index[ni], index[nj], y=y, section=secs[sid])
+        m["stations"].append(dict(id=k + 1, member=k + 1, t=0.5))
+    nid = 1
+    for node, sup in model.get("supports", {}).items():
+        n = index[node]
+        for dof in sup.get("rigid", []):
+            fix(m, n, (AX[dof],))
+        sps = sup.get("springs", [])
+        for kind in ("translation", "rotation"):
+            mine = [sp for sp in sps if sp["kind"] == kind]
+            dirs = [[num(x) for x in sp["direction"]] for sp in mine]
+            axis_only = all(sum(1 for x in dv if x != 0) == 1 for dv in dirs)
+            off = 0 if kind == "translation" else 3
+            for sp, dv in zip(mine, dirs):
+                kk = float(dec(sp["k"]))
+                if axis_only:
+                    comp = next(a for a in range(3) if dv[a] != 0)
+                    m["springs"].append(dict(id=nid, node=n, c=off + comp, k=kk))
+                else:
+                    m["dsprings"].append(dict(id=nid, node=n, kind="t" if kind == "translation" else "r",
+                                              n=tuple(float(x) for x in dv), k=kk))
+                nid += 1
+    for node, ld in model.get("loads", {}).items():
+        for key, off in (("F", 0), ("M", 3)):
+            for a, x in enumerate(ld.get(key, ())):
+                v = float(dec(x))
+                if v != 0.0:
+                    load(m, index[node], off + a, v)
+    for (node, dof, x) in model.get("load_contributions_in_authored_order", []):
+        load(m, index[node], AX[dof], float(dec(x)))
+    return m, index
+
+
+out = {}
+for cid, c in ref.items():
+    if c["family"] not in FAM or "member_uniform_loads_N_per_m_global" in c["model"] or "generator" in c["model"]:
+        continue
+    m, index = adapt(cid, c, c["model"])
+    case = Case(m)
+    rows = c.get("expected_represented") if c.get("basis") == "represented" else c.get("expected")
+    u = [Fr(0)] * case.n
+    for row in rows:
+        f = row[0].split(".")
+        if f[0] in ("u", "th"):
+            u[6 * index[f[1]] + AX[f[2]]] = r1.parse_input(row[1])
+    p = 128
+    K, absK, pattern, members = assemble(m, p)
+    uP = [rp(x, p) for x in u]
+    vals, E = recover(case, p, K, absK, members, uP)
+    s = body_kind_max(case, vals)
+    Eb = body_E(case, E)
+    fam = out.setdefault(c["family"], dict(cases=0, max_log2_E_over_Sstar={"fo": -1e9, "mo": -1e9},
+                                           max_log2_E_over_M_row=-1e9, ib_binds_cases=0, ib_demoted_rows=0,
+                                           worst_case=None))
+    fam["cases"] += 1
+    bind = False
+    for b in range(case.nbody):
+        sc = coupled_wide(s[b], case.extent[b], 2 * p)
+        for k in ("fo", "mo"):
+            if Eb[b][k] == 0:
+                continue
+            if sc[k] == 0:
+                r = float("inf")
+            else:
+                r = math.log2(Eb[b][k]) - math.log2(float(sc[k])) if float(sc[k]) > 0 else float("inf")
+            if r > fam["max_log2_E_over_Sstar"][k]:
+                fam["max_log2_E_over_Sstar"][k] = r
+                fam["worst_case"] = cid
+            phi = Eb[b][k] * 2.0 ** (72 - p)
+            if phi > float(sc[k]):
+                bind = True
+                for (rid, kind, body, inp), q in zip(case.layout, vals):
+                    if body == b and kind == k and not inp:
+                        aq = abs(float(q))
+                        if 2.0 ** -34 * float(sc[k]) <= aq < 2.0 ** -34 * phi:
+                            fam["ib_demoted_rows"] += 1
+        for (rid, kind, body, inp), q, e in zip(case.layout, vals, E):
+            if inp or kind not in ("fo", "mo") or Eb[body][kind] == 0:
+                continue
+            M = max(abs(q), coupled_wide(s[body], case.extent[body], 2 * p)[kind])
+            if M == 0:
+                continue
+            r = math.log2(Eb[body][kind]) - math.log2(float(M))
+            fam["max_log2_E_over_M_row"] = max(fam["max_log2_E_over_M_row"], r)
+    if bind:
+        fam["ib_binds_cases"] += 1
+print(json.dumps(out, indent=1))
+json.dump(out, open("r1_ratios.stdout.json", "w"), indent=1)
