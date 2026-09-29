@@ -2511,3 +2511,17 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
   - any other unresolved reason, a covered-row failure or any other stop condition still stops;
   - V3's final figures re-run after KF3.
 - **Order of slots:** K6b's W1-T4 re-run first (short), then V-K's B.
+
+## V-K B accepted; KF3 spawned (ROOT, 2026-09-29)
+
+- **V-K's B is accepted.** ROOT committed its records at `f5379a5d4` on the V-K branch.
+  - **V1 (100 members) and V2 (1,000):** 12 of 12 selected at 128, every row passes, and C9's floor sets are empty.
+  - **V3 (10,000):** CONT-n10000-AX is selected at 128, with 211 passes and 4 absolute-range passes out of 215. The other five end `Unresolved(ExactSumSpan)` in the 256 verification's shared build, before `uc`, recorded under the named exception.
+  - No watchdog kill, heap-cap abort or memory-guard kill occurred.
+  - W1 at 10,000 members takes 5–10 s per call and about 0.82 GB of heap, against E_max of 2.7 GB (ρ 0.32–0.37).
+- **KF3 is spawned as I19** (`TASK_BRIEFS/I19_KF3_IMPLEMENTATION.md`), on branch `codex/piping-kf3-20260929` in `<wt>/kf3`, from main `0f5d8c7b4`. It covers:
+  - the diagnosis of the Span;
+  - D1 revision 5a.3 **amendment A2**, which ROOT records when KF3's plan confirms the reading: a certified bound (Uc or S) that cannot be formed is +∞, so B = min over the available bounds, and the attempt stops only if a block needs a bound and none is available;
+  - partial stage work recorded on every error path.
+  - **Checkpoint 0 is diagnosis and plan only.** Builds wait until K6b's current slot ends.
+- **After KF3 merges:** K6b and V-K merge main and re-run their 10,000-member tiers. Those figures, with K6, K4's counts and the rest of K6b's and V-K's measurements, are the basis for ROOT's W1 limits.
