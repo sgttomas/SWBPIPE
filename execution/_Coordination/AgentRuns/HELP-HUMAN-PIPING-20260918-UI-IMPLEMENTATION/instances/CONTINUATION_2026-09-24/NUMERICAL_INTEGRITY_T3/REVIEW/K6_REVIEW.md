@@ -249,3 +249,95 @@
 - No T9 and no both-entry gate (Scope 8 holds by construction), and no DEC-025 sweep.
 - I re-ran 3 of K6's 26 mutants, not the whole table.
 - I did not audit K6's own oracle (`k6_oracle.py`). I wrote my own instead.
+
+## Delta check at cd325c1fe
+
+- **Head:** `cd325c1fe` (`cd325c1fe8e56e536ef2a7503a3ab3f97b1ed01a`), one commit after `ae3320b5a`, with I15's fixes and RETURN addendum 1.
+- **Date:** 2026-09-29.
+- **Basis:** ROOT's rulings, "K6: rulings on RV18's review" (numerics `21776d312`).
+- **Records:** `REVIEW/_run_records/k6_review/delta/`. `k6_review/SHA256SUMS` is rewritten over all 74 files, and the base review's 43 entries are unchanged.
+- **Verdict: PASS.**
+  - No BLOCKING or SHOULD-FIX finding remains.
+  - All four SHOULD-FIX findings and NOTEs N1–N3, N6 and N7 are fixed. N4, N5 and N8 are recorded in RETURN addendum 1, as ruled.
+  - The delta adds 3 NOTEs (D-N1 to D-N3), none of which needs a change before merge.
+
+### D.1 What changed (`delta/revisions.txt`)
+
+- **The delta is 214 files:** 206 added, all under `T3/IMPLEMENTATION/K6/_run_records/rv18/`, and 8 modified.
+  - The modified code files are `H/runner/k6_runner.py`, `H/runner/test_k6_runner.py`, `H/src/k6/models.rs` and `H/tests/k6_bin.rs`.
+  - The modified records are CHANGE_RECORD, RETURN, K6's `SHA256SUMS` and `_run_records/c/logs/py-K6-M5.log`.
+- **Nothing else moves.** Nothing changes outside `H/` and `T3/IMPLEMENTATION/K6/`. `H/src/lib.rs`, `Cargo.toml`, `Cargo.lock`, `src/bin/` and `observations/` are unchanged, and so are B's records (`b1`, `b2`, `b3` and `d`). `git diff --check` is clean.
+- **Scope 8 still holds.** The delta changes only H's runner, H's tests and one predicate in H's library, and no crate depends on H.
+- **The runner's poll loop moved into `_watch` verbatim** (24 identical lines), so every earlier runner mutant applies unchanged.
+- **Hosted checks at `cd325c1fe`:** 12 SUCCESS and 4 SKIPPED. The Linux "Numerical cargo suite" passes, so the new `k6_bin` tests hold on Linux.
+
+### D.2 The re-run (`delta/mutations/`, `delta/suites/`)
+
+- **Controls.** The Rust NONE control passes, from a fresh archive and target, in 83 s cold: lib 25, `k6_alloc` F1 and F2, `k6_bin` 11, `k6_counts` 4, `k6_models` 7, `k6_parity` 4 and `k6_staged` 3. The runner NONE control passes 39 tests.
+- **13 of 13 mutants are killed, each at its intended new test.**
+  - RV18-M1 and RV18-M2: `first_repeat_and_time_budget_stops`. M1 fails at the first run. M2 fails only at the fourth run: all 1,000 repeats ran, with a null reason. That confirms I15's point that the three runs I proposed cannot tell M2 apart, since 0 × 10^6 = 0.
+  - RV18-M3 and RV18-M4: `summary_peak_is_the_largest_stage_peak_and_stage_peaks_restart`. M3 fails with 145,351 against 579,691; M4 with repeat 1's assembly at 579,691 against repeat 0's prepare at 562,391.
+  - RV18-M6: `test_poll_interval_is_the_designs_100_ms`.
+  - RV18-M7: the extended `test_sanitize`.
+  - RV18-M8: `test_a_running_sweep_alone_makes_the_host_busy`.
+  - K6-M4 and RV18-M9, re-applied inside `_watch`: `test_kills_take_the_whole_group`.
+  - I15's K6-M27 (no kill in the `finally`) and K6-M28 (SIGTERM not mapped): `test_a_terminated_runner_leaves_no_survivor`.
+  - I15's K6-M29 (the refusal keyed on the id again): `renamed_cont_n10000_lane_id_refused`.
+  - I15's K6-M30 (the `time -v` file not scrubbed): `test_time_v_output_file_is_scrubbed`.
+  - No helper process survived any run.
+- **The wrapper and the two DEC-050/053 pins** pass 41 of 41, in 6.6 s.
+- **`--smoke`** with the release binary:
+  - 44 processes: 42 ok, 1 `killed_by_rss_watchdog` (134,368 KiB against 131,072 KiB, 15 polls, a 0.113 s median interval, no survivor) and 1 `heap_cap_abort`;
+  - staged against checked 84 of 84, plain against checked 84 of 84, bitwise K 21 of 21, RCM 42 of 42.
+
+### D.3 The SIGTERM handling (`delta/probes/probe_signals.out`)
+
+- **The design.**
+  - `sigterm_raises_exit()` maps SIGTERM to `SystemExit(143)` only on the main thread, and only where the previous handler is `SIG_DFL`. It returns a function that restores the previous handler.
+  - `launch` installs the mapping before `Popen` and runs the loop in `try`. The `finally` calls `stop_group` (SIGKILL to the group, then reap the wrapper) when `_watch` did not return, and then restores the handler. SIGINT already raises `KeyboardInterrupt`, which takes the same `finally`.
+- **Probes, on the head's runner:**
+  - SIGTERM to a process running `launch()` on a tagged sleeper under `/usr/bin/time`: exit 143, with 2 tagged processes before and 0 after. At `ae3320b5a` the same probe left both running.
+  - SIGINT: exit −2, after the `KeyboardInterrupt` traceback through `_watch`, with 0 tagged processes after.
+  - On the main thread, the handler is `SIG_DFL` before, a Python handler during (read inside `_watch`), and `SIG_DFL` again after: it is restored.
+  - A caller's own SIGTERM handler, installed first, is left in place during `launch` and is still in place after it.
+  - `launch` on a worker thread completes (`ok`) and changes no handler.
+- **The handling is sound for the runner's own `--run`, `--smoke` and the B drivers,** which all call `launch` from the main thread with the default handler. Its limits are D-N1.
+
+### D.4 The N6 predicate (`delta/probes/probe_n6.out`, `probe_n6_method.txt`)
+
+- **The new predicate.** `is_cont_n10000` (`H/src/k6/models.rs:126-138`) is true when the member count is at least 10,000, and either:
+  - the family is CONT; the family comes from the id's prefix, as `canonical::family_of` reads it;
+  - or the model carries CONT's restraint signature: m + 1 nodes, node 0 fully fixed, nodes 1 to m/2 pinned in UX, UY and UZ, and nothing else.
+- **Its one call site** is the binary's refusal (`main.rs:447`).
+- **Unchanged on the 39 committed models.** CONT n10000 AX and ROT are true, as before. CHAIN and TREE n10000 have one restrained node, and grids 96×96 and 128×128 do not have m + 1 nodes, so all four stay false.
+- **Probes,** each through `--model-file`, lane-id, under a 512 MiB heap cap:
+  - A, R1's CONT-n10000-AX renamed: refused by name, before any count;
+  - B, the same content under a CHAIN id: refused by name, before any count (the signature holds);
+  - C, renamed with node 0's RZ freed, and D, renamed with the last support pinned in four DOFs: **not refused by name**. Both are refused by `estimate_exceeds_half_cap` after the O(nnz) counts phase (157.7 MB of heap), before any lane entry.
+- **So no route admits a CONT-like n10000 lane-id run.**
+  - R1's model is refused by name under any id or family label.
+  - A CONT-shaped variant outside the signature is refused by the estimate, whose 24·P_id alone is about 13.5–16.2 GB. The heap cap bounds anything beyond that.
+  - The runner's own refusal still keys on its scheduled ids, which are R1's (`k6_runner.py:415-421`).
+
+### D.5 Records (`delta/records_checks.txt`, `delta/gen8.txt`)
+
+- **Checksums.** `T3/IMPLEMENTATION/K6/SHA256SUMS` lists 1,097 files: all OK and set-equal. Against `ae3320b5a`, it adds 206 entries and re-hashes 3: CHANGE_RECORD, RETURN and the M5 log. `H/observations/k6/SHA256SUMS`: 24 of 24 OK, and the folder is unchanged.
+- **RV18-4 is fixed.** `py-K6-M5.log:33-34` and `:233-234` now carry `<tmp>` and `<VENV>`.
+- **Paths and identifiers.** GEN-8's `MACHINE_ABS_PATH_RE` finds 0 hits in the PR's 1,145 files, which confirms I15's figure; the user name is also absent. There are no model, hardware or host identifiers.
+- **GEN-8 passes** at the head in `<wt>/k6`: 1 passed, and the working tree was clean before and after.
+- **RETURN addendum 1 and CHANGE_RECORD** match what I re-ran. N7's three points are corrected or noted as ruled: the base `56dd72334`, run 137's `slot`, and the provenance copy already stale on main.
+- **The memory guard log** is unchanged: 2 start lines, sha256 `79e2ce8e…`.
+
+### D.6 New NOTEs
+
+| ID | Class | Site | Evidence | Fix |
+|---|---|---|---|---|
+| D-N1 | NOTE | `H/runner/k6_runner.py`, `sigterm_raises_exit` and `launch` | **The mapping has three narrow limits:**<br>(a) under a caller's own SIGTERM handler, protection depends on that handler raising; this is documented in the docstring, and the probe shows the handler kept;<br>(b) `launch` on a worker thread gets no mapping;<br>(c) a SIGTERM that lands inside `Popen` after the fork, before `proc` is assigned, or a SIGHUP (default action), can still orphan the group.<br>None applies to the runner's `--run`, `--smoke` or the B drivers, and (c)'s window is the exec of `/usr/bin/time`. | None needed. Optionally, map SIGHUP as SIGTERM is mapped. |
+| D-N2 | NOTE | `H/src/k6/models.rs:126-138` | **CONT-shaped variants outside CONT's restraint signature escape the by-name refusal** (probes C and D). The estimate refusal stops them after the counts phase. That refusal relies on honest counts: a hand-edited `--counts-file` for the variant would pass it, and the heap cap would then abort the lane. | None needed. The by-name refusal is belt and braces, as ruled. |
+| D-N3 | NOTE | `T3/IMPLEMENTATION/K6/RETURN.md`, addendum 1 | **Two small inaccuracies in the addendum:**<br>– it says the fixes are "uncommitted in `<wt>/k6`, for ROOT's commit"; they are committed at `cd325c1fe`;<br>– the stop test's fourth run makes it about 1.1 s, not "under 1 s" (`k6_bin` totals 1.85 s here). The addendum discloses the timing. | Update the wording when the records are next touched. |
+
+### D.7 What I did not do in the delta
+
+- No observation run above 100 members, no dense run at 1,000 members or more, and no Linux run. The Linux side of the new SIGTERM test has not run live, which extends N8.
+- No T9, no both-entry gate and no DEC-025 sweep.
+- My copies and targets under `<wt>/rv18` and `<wt>/rv18-target` are deleted. I made no Git write and no GitHub write.

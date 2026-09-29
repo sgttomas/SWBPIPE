@@ -1,0 +1,18 @@
+.........F.............................
+======================================================================
+FAIL: test_sanitize (test_k6_runner.MetadataHasNoHostIdentifiers.test_sanitize)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/rv18/pymut/RV18-M7/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 352, in test_sanitize
+    self.assertEqual(r.sanitize('in %s:7' % path), 'in <path>:7', path)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'in <synthetic-Users-path>/dev/b.rs:7' != 'in <path>:7'
+- in <synthetic-Users-path>/dev/b.rs:7
++ in <path>:7
+ : <synthetic-Users-path>/dev/b.rs
+
+----------------------------------------------------------------------
+Ran 39 tests in 6.469s
+
+FAILED (failures=1)
+=== RV18-M7 exit 1 elapsed 6 s

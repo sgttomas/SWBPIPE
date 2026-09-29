@@ -1,0 +1,87 @@
+"""RV18 delta probes of the runner's SIGTERM handling at cd325c1fe (standard library only).
+
+Usage: python3 rv18_probe_signals.py <runner dir> <scratch dir>
+
+1-2. SIGTERM and SIGINT to a process running launch() on a sleeping child (tagged) under /usr/bin/time:
+     the runner's exit status and the tagged processes left afterwards.
+3.   In process, on the main thread: SIGTERM's handler before, during (read inside _watch) and after launch().
+4.   A previously installed Python handler is neither replaced nor removed.
+5.   launch() on a worker thread: no handler change, no error.
+"""
+import os, signal, subprocess, sys, threading, time
+runner_dir, scratch = sys.argv[1:3]
+sys.path.insert(0, runner_dir)
+import k6_runner as r
+
+TAG = 'RV18_DELTA_PROBE_TAG'
+CHILD = [sys.executable, '-c', 'import time; %s=1; time.sleep(20)' % TAG]
+
+
+def tagged():
+    out = subprocess.run(['pgrep', '-f', TAG], capture_output=True, text=True).stdout.split()
+    return [p for p in out if int(p) != os.getpid()]
+
+
+def external(sig, name):
+    code = ("import sys; sys.path.insert(0, %r); import k6_runner as r; "
+            "r.launch(%r, rss_cap_bytes=128*2**20, timeout_s=60, record_dir=%r, run_id=%r, k6_protocol=False)"
+            % (runner_dir, CHILD, scratch, name))
+    runner = subprocess.Popen([sys.executable, '-c', code])
+    time.sleep(2)
+    before = [p for p in tagged() if int(p) != runner.pid]
+    os.kill(runner.pid, sig)
+    runner.wait(timeout=30)
+    time.sleep(1)
+    after = [p for p in tagged() if int(p) != runner.pid]
+    print('%s to the runner: exit %s; tagged processes before %d, after %d' % (name, runner.returncode, len(before), len(after)))
+    for p in after:
+        os.kill(int(p), signal.SIGKILL)
+
+
+external(signal.SIGTERM, 'SIGTERM')
+external(signal.SIGINT, 'SIGINT')
+
+seen = {}
+original_watch = r._watch
+
+
+def spying_watch(*a, **k):
+    seen['during'] = signal.getsignal(signal.SIGTERM)
+    return original_watch(*a, **k)
+
+
+r._watch = spying_watch
+quick = [sys.executable, '-c', 'pass']
+before = signal.getsignal(signal.SIGTERM)
+r.launch(quick, rss_cap_bytes=128 * 2 ** 20, timeout_s=60, record_dir=scratch, run_id='main_thread', k6_protocol=False)
+after = signal.getsignal(signal.SIGTERM)
+print('main thread, default before: before %s; during is a Python handler: %s; after %s; restored: %s'
+      % (before, callable(seen['during']) and seen['during'] not in (signal.SIG_DFL, signal.SIG_IGN), after, after == before))
+
+
+def mine(signum, frame):
+    pass
+
+
+signal.signal(signal.SIGTERM, mine)
+seen.clear()
+r.launch(quick, rss_cap_bytes=128 * 2 ** 20, timeout_s=60, record_dir=scratch, run_id='custom', k6_protocol=False)
+print('custom handler installed first: during is it %s; after is it %s' % (seen['during'] is mine, signal.getsignal(signal.SIGTERM) is mine))
+signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
+result = {}
+
+
+def worker():
+    try:
+        rec = r.launch(quick, rss_cap_bytes=128 * 2 ** 20, timeout_s=60, record_dir=scratch, run_id='thread', k6_protocol=False)
+        result['classification'] = rec['classification']
+    except Exception as exc:  # noqa: BLE001
+        result['error'] = repr(exc)
+
+
+t = threading.Thread(target=worker)
+t.start()
+t.join()
+print('worker thread: %s; SIGTERM handler afterwards %s' % (result, signal.getsignal(signal.SIGTERM)))
+print('tagged processes at the end: %d' % len(tagged()))

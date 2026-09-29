@@ -1,0 +1,22 @@
+....F..................................
+======================================================================
+FAIL: test_a_terminated_runner_leaves_no_survivor (test_k6_runner.LiveLimit.test_a_terminated_runner_leaves_no_survivor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/rv18/pymut/K6-M27/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 713, in test_a_terminated_runner_leaves_no_survivor
+    self.assertEqual(survivors, [], 'a terminated runner left a process of the observation group')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [48050, 48052, 48053] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+48050
+
+- [48050, 48052, 48053]
++ [] : a terminated runner left a process of the observation group
+
+----------------------------------------------------------------------
+Ran 39 tests in 7.990s
+
+FAILED (failures=1)
+=== K6-M27 exit 1 elapsed 8 s

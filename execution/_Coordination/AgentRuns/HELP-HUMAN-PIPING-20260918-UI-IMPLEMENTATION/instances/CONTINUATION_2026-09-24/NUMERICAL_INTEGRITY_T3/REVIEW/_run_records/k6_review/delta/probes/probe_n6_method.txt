@@ -1,0 +1,9 @@
+RV18 delta probe of the N6 predicate (probe_n6.out), with the debug k6_observe built from git archive cd325c1fe.
+R1's RF-LARGE-CONT-n10000-AX was emitted with --emit-model and written as four variants, each run with
+--model-file <variant> --mode lane-id --heap-cap-bytes 536870912 (512 MiB):
+  A: the id renamed to "renamed-continuous-beam" (the committed test's case);
+  B: the id renamed to RF-LARGE-CHAIN-n10000-AX (a CHAIN family label on CONT's content);
+  C: renamed, and node 0's restraint 111111 changed to 111110 (outside CONT's restraint signature);
+  D: renamed, and the last support's restraint 111000 changed to 111100 (outside the signature).
+A and B are refused by name before any count. C and D escape the by-name refusal, and are refused by the estimate
+(estimate_exceeds_half_cap) after the O(nnz) counts phase (about 158 MB of heap), before any lane entry is built.

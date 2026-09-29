@@ -1,0 +1,25 @@
+RV18 delta mutation re-run at cd325c1fe. Each mutant: a fresh `git archive cd325c1fe` copy, one textual edit (RV18's
+scripts/rv18_mutants.py.txt from the base review, unchanged, or I15's own_mutants.py.txt as committed in
+T3/IMPLEMENTATION/K6/_run_records/rv18/), then: Rust, H's full `cargo test --offline --locked -j 4 --no-fail-fast` with
+RUST_TEST_THREADS=2 and a fresh target, deleted afterwards; runner, `python3 -m unittest test_k6_runner` (the 39 tests
+of the classes the P/tests wrapper collects). Controls first.
+
+| Mutant | Side | Mutation | Result | Killed by |
+|---|---|---|---|---|
+| NONE | rs | unmutated archive | passes | lib 25, k6_alloc F1+F2, k6_bin 11, k6_counts 4, k6_models 7, k6_parity 4, k6_staged 3 (83 s) |
+| NONE-py | py | unmutated archive | passes | 39 tests (6.4 s) |
+| RV18-M1 | rs | main.rs:715 the first-repeat stop never fires | killed | k6_bin first_repeat_and_time_budget_stops (k6_bin.rs:341, the first run) |
+| RV18-M2 | rs | main.rs:721 the time-budget stop never fires (budget x 10^6) | killed | k6_bin first_repeat_and_time_budget_stops (k6_bin.rs:361, the fourth run: reason null, not time_budget) |
+| RV18-M3 | rs | main.rs:261-262 the summary takes the last stage's peak | killed | k6_bin summary_peak_is_the_largest_stage_peak_and_stage_peaks_restart (:396; 145,351 against 579,691) |
+| RV18-M4 | rs | main.rs:244 the stage peaks never restart | killed | the same test (:409; repeat 1 assembly 579,691 against repeat 0 prepare 562,391) |
+| K6-M29 | rs | (I15) the CONT n10000 lane refusal keyed on the id again | killed | k6_bin renamed_cont_n10000_lane_id_refused (:447; estimate_exceeds_half_cap, not the name) |
+| RV18-M6 | py | POLL_S = 1.0 | killed | Watchdog.test_poll_interval_is_the_designs_100_ms |
+| RV18-M7 | py | sanitize() no longer scrubs home-directory (Users) paths | killed | MetadataHasNoHostIdentifiers.test_sanitize |
+| RV18-M8 | py | the quiet-host wait ignores a running DEC-025 sweep | killed | QuietHost.test_a_running_sweep_alone_makes_the_host_busy |
+| K6-M4r | py | the watchdog kills the child only (in _watch) | killed | LiveLimit.test_kills_take_the_whole_group |
+| RV18-M9 | py | the timeout kills the wrapper only (in _watch) | killed | LiveLimit.test_kills_take_the_whole_group |
+| K6-M27 | py | (I15) launch's finally does not kill the group | killed | LiveLimit.test_a_terminated_runner_leaves_no_survivor |
+| K6-M28 | py | (I15) SIGTERM is not mapped to SystemExit | killed | LiveLimit.test_a_terminated_runner_leaves_no_survivor |
+| K6-M30 | py | (I15) time -v's output file is not scrubbed | killed | Parsers.test_time_v_output_file_is_scrubbed |
+
+Result: both controls pass; 13 of 13 mutants are killed, each at its intended new test. No helper process survived.

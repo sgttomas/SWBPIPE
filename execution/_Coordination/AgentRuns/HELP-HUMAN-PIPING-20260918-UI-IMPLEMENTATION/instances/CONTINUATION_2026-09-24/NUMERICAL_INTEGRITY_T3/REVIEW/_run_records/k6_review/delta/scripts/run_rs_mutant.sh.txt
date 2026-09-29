@@ -1,0 +1,17 @@
+#!/bin/bash
+# RV18 delta: one Rust mutant from a clean archive of cd325c1fe8e56e536ef2a7503a3ab3f97b1ed01a, its own target, H's full cargo test (the CI form).
+set -u
+W=<wt>
+M=$1; SCRIPT=${2:-rv18_mutants.py}
+ROOT=$W/rv18/mut/$M
+rm -rf $ROOT $W/rv18/mut-target/$M; mkdir -p $ROOT $W/rv18/mut-logs
+(cd $W/k6 && git archive cd325c1fe8e56e536ef2a7503a3ab3f97b1ed01a projects/chirality-piping/core) | tar -x -C $ROOT
+if [ "$M" != NONE ]; then python3 -B $W/rv18/scripts/$SCRIPT make $M $ROOT || exit 9; fi
+cd $ROOT/projects/chirality-piping/core/solver/performance_harness
+start=$(date +%s)
+RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_TARGET_DIR=$W/rv18/mut-target/$M \
+  cargo test --offline --locked -j 4 --no-fail-fast > $W/rv18/mut-logs/rs-$M.log 2>&1
+code=$?
+echo "=== $M exit $code elapsed $(( $(date +%s) - start )) s" >> $W/rv18/mut-logs/rs-$M.log
+rm -rf $W/rv18/mut-target/$M $ROOT
+echo "$M exit $code"

@@ -1,0 +1,22 @@
+..............................F........
+======================================================================
+FAIL: test_a_running_sweep_alone_makes_the_host_busy (test_k6_runner.QuietHost.test_a_running_sweep_alone_makes_the_host_busy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/rv18/pymut/RV18-M8/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 580, in test_a_running_sweep_alone_makes_the_host_busy
+    self.assertEqual(r.host_busy(sweep_only), ['sweep'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['sweep']
+
+Second list contains 1 additional elements.
+First extra element 0:
+'sweep'
+
+- []
++ ['sweep']
+
+----------------------------------------------------------------------
+Ran 39 tests in 6.638s
+
+FAILED (failures=1)
+=== RV18-M8 exit 1 elapsed 7 s

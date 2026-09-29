@@ -1,0 +1,15 @@
+......................................F
+======================================================================
+FAIL: test_poll_interval_is_the_designs_100_ms (test_k6_runner.Watchdog.test_poll_interval_is_the_designs_100_ms)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/rv18/pymut/RV18-M6/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 235, in test_poll_interval_is_the_designs_100_ms
+    self.assertEqual(r.POLL_S, 0.1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 1.0 != 0.1
+
+----------------------------------------------------------------------
+Ran 39 tests in 7.603s
+
+FAILED (failures=1)
+=== RV18-M6 exit 1 elapsed 7 s

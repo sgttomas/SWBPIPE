@@ -1,0 +1,5 @@
+RV18 delta --smoke at cd325c1fe (release binary from the archive)
+processes 44 {'ok': 42, 'heap_cap_abort': 1, 'killed_by_rss_watchdog': 1}
+parity {"('staged_vs_entry_checked', True)": 84, "('entry_plain_vs_entry_checked', True)": 84, "('repeat_determinism', True)": 42, "('bitwise_k', True)": 21, "('rcm_count_equals_ordering', True)": 42}
+watchdog: killed_by_rss_watchdog, last 134368 KiB against 131072 KiB, polls 15, survivors [], median interval 0.113 s, largest step 9408 KiB
+heap-cap abort: heap_cap_abort, exit -6
