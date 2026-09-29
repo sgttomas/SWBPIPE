@@ -1,0 +1,707 @@
+{
+ "models": [
+  {
+   "part": "natural/position",
+   "model": "N05",
+   "diffs": [],
+   "seconds": 0.14
+  },
+  {
+   "part": "natural/position",
+   "model": "N06",
+   "diffs": [],
+   "seconds": 0.14
+  },
+  {
+   "part": "natural/position",
+   "model": "SKEW-K1E-28",
+   "diffs": [],
+   "seconds": 0.19
+  },
+  {
+   "part": "natural/position",
+   "model": "SKEW6-K1E-12",
+   "diffs": [],
+   "seconds": 1.29
+  },
+  {
+   "part": "natural/position",
+   "model": "SKEW-K1E-12",
+   "diffs": [],
+   "seconds": 0.25
+  },
+  {
+   "part": "natural/position",
+   "model": "SKEW-K1E-4",
+   "diffs": [],
+   "seconds": 0.25
+  },
+  {
+   "part": "natural/position",
+   "model": "AXIS-K1E-4",
+   "diffs": [],
+   "seconds": 0.2
+  },
+  {
+   "part": "natural/position",
+   "model": "OBLIQUE-K1E-4",
+   "diffs": [],
+   "seconds": 0.56
+  },
+  {
+   "part": "natural/position",
+   "model": "B1-L",
+   "diffs": [],
+   "seconds": 0.25
+  },
+  {
+   "part": "natural/position",
+   "model": "S8-W-1e-10",
+   "diffs": [],
+   "seconds": 0.57
+  },
+  {
+   "part": "natural/position",
+   "model": "S8-W-1e-14",
+   "diffs": [],
+   "seconds": 0.64
+  },
+  {
+   "part": "natural/position",
+   "model": "DUPLICATE",
+   "diffs": [],
+   "seconds": 0.5
+  },
+  {
+   "part": "natural/position",
+   "model": "PRESCRIBED",
+   "diffs": [],
+   "seconds": 0.22
+  },
+  {
+   "part": "natural/position",
+   "model": "PIVOT",
+   "diffs": [],
+   "seconds": 0.1
+  },
+  {
+   "part": "natural/position",
+   "model": "REACTIONS-ONLY",
+   "diffs": [],
+   "seconds": 0.21
+  },
+  {
+   "part": "natural/position",
+   "model": "MIXED-2^-200",
+   "diffs": [],
+   "seconds": 0.21
+  },
+  {
+   "part": "natural/position",
+   "model": "RIGID-UNLOADED",
+   "diffs": [],
+   "seconds": 0.22
+  },
+  {
+   "part": "natural/position",
+   "model": "TWO-SPAN",
+   "diffs": [],
+   "seconds": 0.38
+  },
+  {
+   "part": "natural/position",
+   "model": "ZERO-TORSION-345",
+   "diffs": [],
+   "seconds": 0.18
+  },
+  {
+   "part": "natural/position",
+   "model": "ALL-ZERO-BODY",
+   "diffs": [],
+   "seconds": 0.23
+  },
+  {
+   "part": "natural/position",
+   "model": "SKEW-K1E-60",
+   "diffs": [],
+   "seconds": 0.2
+  },
+  {
+   "part": "natural/position",
+   "model": "F-2",
+   "diffs": [],
+   "seconds": 0.07
+  },
+  {
+   "part": "natural/position",
+   "model": "F-2-CEIL",
+   "diffs": [],
+   "seconds": 0.07
+  },
+  {
+   "part": "natural/position",
+   "model": "F-3-FREE",
+   "diffs": [],
+   "seconds": 0.6
+  },
+  {
+   "part": "natural/position",
+   "model": "F-3-ROT",
+   "diffs": [],
+   "seconds": 0.36
+  },
+  {
+   "part": "natural/position",
+   "model": "F-2-SPOS",
+   "diffs": [],
+   "seconds": 0.14
+  },
+  {
+   "part": "natural/position",
+   "model": "PRESCRIBED-TAIL",
+   "diffs": [],
+   "seconds": 0.06
+  },
+  {
+   "part": "natural/position",
+   "model": "PRESCRIBED-TAIL-FREE",
+   "diffs": [],
+   "seconds": 0.13
+  },
+  {
+   "part": "natural/position",
+   "model": "DEMOTION2",
+   "diffs": [],
+   "seconds": 0.14
+  },
+  {
+   "part": "natural/position",
+   "model": "ASSEMBLY-SAT",
+   "diffs": [],
+   "seconds": 0.13
+  },
+  {
+   "part": "natural/position",
+   "model": "LOADONLY-y345",
+   "diffs": [],
+   "seconds": 1.89
+  },
+  {
+   "part": "natural/position",
+   "model": "LOADONLY-y001",
+   "diffs": [],
+   "seconds": 0.69
+  },
+  {
+   "part": "natural/position",
+   "model": "GS-TRANS-y345",
+   "diffs": [],
+   "seconds": 1.59
+  },
+  {
+   "part": "natural/position",
+   "model": "GS-ROT-y345",
+   "diffs": [],
+   "seconds": 1.43
+  },
+  {
+   "part": "natural/position",
+   "model": "GS-ROT-y345-LOADED",
+   "diffs": [],
+   "seconds": 1.92
+  },
+  {
+   "part": "natural/position",
+   "model": "LEDGER-AT-RESTRAINT",
+   "diffs": [],
+   "seconds": 0.25
+  },
+  {
+   "part": "natural/position",
+   "model": "SEEDED-COMMON",
+   "diffs": [],
+   "seconds": 0.11
+  },
+  {
+   "part": "natural/position",
+   "model": "M7-GS1",
+   "diffs": [],
+   "seconds": 0.19
+  },
+  {
+   "part": "natural/position",
+   "model": "M10-ANISO",
+   "diffs": [],
+   "seconds": 0.91
+  },
+  {
+   "part": "natural/position",
+   "model": "M10-G",
+   "diffs": [],
+   "seconds": 0.13
+  },
+  {
+   "part": "natural/position",
+   "model": "EXACT-RIGID",
+   "diffs": [],
+   "seconds": 0.06
+  },
+  {
+   "part": "natural/position",
+   "model": "LEVER2-k90-s40",
+   "diffs": [],
+   "seconds": 0.3
+  },
+  {
+   "part": "natural/position",
+   "model": "LEVER2-k100-s40",
+   "diffs": [],
+   "seconds": 0.31
+  },
+  {
+   "part": "natural/position",
+   "model": "LEVER2-k110-s20",
+   "diffs": [],
+   "seconds": 0.37
+  },
+  {
+   "part": "natural/position",
+   "model": "CHARGE-SLENDER",
+   "diffs": [],
+   "seconds": 0.16
+  },
+  {
+   "part": "natural/position",
+   "model": "TILT-LEVER-k90-s40",
+   "diffs": [],
+   "seconds": 0.51
+  },
+  {
+   "part": "natural/position",
+   "model": "TILT-LEVER-k100-s40",
+   "diffs": [],
+   "seconds": 0.5
+  },
+  {
+   "part": "natural/position",
+   "model": "TILT-LEVER-k110-s20",
+   "diffs": [],
+   "seconds": 0.48
+  },
+  {
+   "part": "natural/position",
+   "model": "THETA-ZERO-BODY",
+   "diffs": [],
+   "seconds": 0.36
+  },
+  {
+   "part": "natural/position",
+   "model": "G-FIXED-MEMBER",
+   "diffs": [],
+   "seconds": 0.24
+  },
+  {
+   "part": "natural/position",
+   "model": "SEEDED-SOFT",
+   "diffs": [],
+   "seconds": 0.24
+  },
+  {
+   "part": "natural/position",
+   "model": "HH-FOOL-m40",
+   "diffs": [],
+   "seconds": 1.99
+  },
+  {
+   "part": "natural/position",
+   "model": "HH-FOOL-m40-LOADED",
+   "diffs": [],
+   "seconds": 1.95
+  },
+  {
+   "part": "natural/position",
+   "model": "HH-FOOL-m100",
+   "diffs": [],
+   "seconds": 1.68
+  },
+  {
+   "part": "natural/position",
+   "model": "HH-FOOL-m100-LOADED",
+   "diffs": [],
+   "seconds": 1.55
+  },
+  {
+   "part": "natural/position",
+   "model": "THETA-STUB",
+   "diffs": [],
+   "seconds": 0.17
+  },
+  {
+   "part": "natural/position",
+   "model": "G-PRESC-MEMBER",
+   "diffs": [],
+   "seconds": 0.15
+  },
+  {
+   "part": "natural/position",
+   "model": "HH-SLENDER-m40",
+   "diffs": [],
+   "seconds": 1.77
+  },
+  {
+   "part": "rcm/rank",
+   "model": "N05",
+   "diffs": [],
+   "seconds": 0.09
+  },
+  {
+   "part": "rcm/rank",
+   "model": "N06",
+   "diffs": [],
+   "seconds": 0.1
+  },
+  {
+   "part": "rcm/rank",
+   "model": "SKEW-K1E-28",
+   "diffs": [],
+   "seconds": 0.13
+  },
+  {
+   "part": "rcm/rank",
+   "model": "SKEW6-K1E-12",
+   "diffs": [],
+   "seconds": 0.84
+  },
+  {
+   "part": "rcm/rank",
+   "model": "SKEW-K1E-12",
+   "diffs": [],
+   "seconds": 0.16
+  },
+  {
+   "part": "rcm/rank",
+   "model": "SKEW-K1E-4",
+   "diffs": [],
+   "seconds": 0.17
+  },
+  {
+   "part": "rcm/rank",
+   "model": "AXIS-K1E-4",
+   "diffs": [],
+   "seconds": 0.13
+  },
+  {
+   "part": "rcm/rank",
+   "model": "OBLIQUE-K1E-4",
+   "diffs": [],
+   "seconds": 0.4
+  },
+  {
+   "part": "rcm/rank",
+   "model": "B1-L",
+   "diffs": [],
+   "seconds": 0.14
+  },
+  {
+   "part": "rcm/rank",
+   "model": "S8-W-1e-10",
+   "diffs": [],
+   "seconds": 0.37
+  },
+  {
+   "part": "rcm/rank",
+   "model": "S8-W-1e-14",
+   "diffs": [],
+   "seconds": 0.41
+  },
+  {
+   "part": "rcm/rank",
+   "model": "DUPLICATE",
+   "diffs": [],
+   "seconds": 0.28
+  },
+  {
+   "part": "rcm/rank",
+   "model": "PRESCRIBED",
+   "diffs": [],
+   "seconds": 0.13
+  },
+  {
+   "part": "rcm/rank",
+   "model": "PIVOT",
+   "diffs": [],
+   "seconds": 0.05
+  },
+  {
+   "part": "rcm/rank",
+   "model": "REACTIONS-ONLY",
+   "diffs": [],
+   "seconds": 0.12
+  },
+  {
+   "part": "rcm/rank",
+   "model": "MIXED-2^-200",
+   "diffs": [],
+   "seconds": 0.12
+  },
+  {
+   "part": "rcm/rank",
+   "model": "RIGID-UNLOADED",
+   "diffs": [],
+   "seconds": 0.12
+  },
+  {
+   "part": "rcm/rank",
+   "model": "TWO-SPAN",
+   "diffs": [],
+   "seconds": 0.21
+  },
+  {
+   "part": "rcm/rank",
+   "model": "ZERO-TORSION-345",
+   "diffs": [],
+   "seconds": 0.11
+  },
+  {
+   "part": "rcm/rank",
+   "model": "ALL-ZERO-BODY",
+   "diffs": [],
+   "seconds": 0.12
+  },
+  {
+   "part": "rcm/rank",
+   "model": "SKEW-K1E-60",
+   "diffs": [],
+   "seconds": 0.11
+  },
+  {
+   "part": "rcm/rank",
+   "model": "F-2",
+   "diffs": [],
+   "seconds": 0.04
+  },
+  {
+   "part": "rcm/rank",
+   "model": "F-2-CEIL",
+   "diffs": [],
+   "seconds": 0.04
+  },
+  {
+   "part": "rcm/rank",
+   "model": "F-3-FREE",
+   "diffs": [],
+   "seconds": 0.33
+  },
+  {
+   "part": "rcm/rank",
+   "model": "F-3-ROT",
+   "diffs": [],
+   "seconds": 0.21
+  },
+  {
+   "part": "rcm/rank",
+   "model": "F-2-SPOS",
+   "diffs": [],
+   "seconds": 0.08
+  },
+  {
+   "part": "rcm/rank",
+   "model": "PRESCRIBED-TAIL",
+   "diffs": [],
+   "seconds": 0.03
+  },
+  {
+   "part": "rcm/rank",
+   "model": "PRESCRIBED-TAIL-FREE",
+   "diffs": [],
+   "seconds": 0.07
+  },
+  {
+   "part": "rcm/rank",
+   "model": "DEMOTION2",
+   "diffs": [],
+   "seconds": 0.08
+  },
+  {
+   "part": "rcm/rank",
+   "model": "ASSEMBLY-SAT",
+   "diffs": [],
+   "seconds": 0.07
+  },
+  {
+   "part": "rcm/rank",
+   "model": "LOADONLY-y345",
+   "diffs": [],
+   "seconds": 1.12
+  },
+  {
+   "part": "rcm/rank",
+   "model": "LOADONLY-y001",
+   "diffs": [],
+   "seconds": 0.39
+  },
+  {
+   "part": "rcm/rank",
+   "model": "GS-TRANS-y345",
+   "diffs": [],
+   "seconds": 0.93
+  },
+  {
+   "part": "rcm/rank",
+   "model": "GS-ROT-y345",
+   "diffs": [],
+   "seconds": 0.87
+  },
+  {
+   "part": "rcm/rank",
+   "model": "GS-ROT-y345-LOADED",
+   "diffs": [],
+   "seconds": 1.12
+  },
+  {
+   "part": "rcm/rank",
+   "model": "LEDGER-AT-RESTRAINT",
+   "diffs": [],
+   "seconds": 0.14
+  },
+  {
+   "part": "rcm/rank",
+   "model": "SEEDED-COMMON",
+   "diffs": [],
+   "seconds": 0.06
+  },
+  {
+   "part": "rcm/rank",
+   "model": "M7-GS1",
+   "diffs": [],
+   "seconds": 0.12
+  },
+  {
+   "part": "rcm/rank",
+   "model": "M10-ANISO",
+   "diffs": [],
+   "seconds": 0.53
+  },
+  {
+   "part": "rcm/rank",
+   "model": "M10-G",
+   "diffs": [],
+   "seconds": 0.08
+  },
+  {
+   "part": "rcm/rank",
+   "model": "EXACT-RIGID",
+   "diffs": [],
+   "seconds": 0.03
+  },
+  {
+   "part": "rcm/rank",
+   "model": "LEVER2-k90-s40",
+   "diffs": [],
+   "seconds": 0.21
+  },
+  {
+   "part": "rcm/rank",
+   "model": "LEVER2-k100-s40",
+   "diffs": [],
+   "seconds": 0.23
+  },
+  {
+   "part": "rcm/rank",
+   "model": "LEVER2-k110-s20",
+   "diffs": [],
+   "seconds": 0.17
+  },
+  {
+   "part": "rcm/rank",
+   "model": "CHARGE-SLENDER",
+   "diffs": [],
+   "seconds": 0.08
+  },
+  {
+   "part": "rcm/rank",
+   "model": "TILT-LEVER-k90-s40",
+   "diffs": [],
+   "seconds": 0.36
+  },
+  {
+   "part": "rcm/rank",
+   "model": "TILT-LEVER-k100-s40",
+   "diffs": [],
+   "seconds": 0.28
+  },
+  {
+   "part": "rcm/rank",
+   "model": "TILT-LEVER-k110-s20",
+   "diffs": [],
+   "seconds": 0.33
+  },
+  {
+   "part": "rcm/rank",
+   "model": "THETA-ZERO-BODY",
+   "diffs": [],
+   "seconds": 0.17
+  },
+  {
+   "part": "rcm/rank",
+   "model": "G-FIXED-MEMBER",
+   "diffs": [],
+   "seconds": 0.13
+  },
+  {
+   "part": "rcm/rank",
+   "model": "SEEDED-SOFT",
+   "diffs": [],
+   "seconds": 0.11
+  },
+  {
+   "part": "rcm/rank",
+   "model": "HH-FOOL-m40",
+   "diffs": [],
+   "seconds": 1.23
+  },
+  {
+   "part": "rcm/rank",
+   "model": "HH-FOOL-m40-LOADED",
+   "diffs": [],
+   "seconds": 1.21
+  },
+  {
+   "part": "rcm/rank",
+   "model": "HH-FOOL-m100",
+   "diffs": [],
+   "seconds": 1.05
+  },
+  {
+   "part": "rcm/rank",
+   "model": "HH-FOOL-m100-LOADED",
+   "diffs": [],
+   "seconds": 0.96
+  },
+  {
+   "part": "rcm/rank",
+   "model": "THETA-STUB",
+   "diffs": [],
+   "seconds": 0.11
+  },
+  {
+   "part": "rcm/rank",
+   "model": "G-PRESC-MEMBER",
+   "diffs": [],
+   "seconds": 0.09
+  },
+  {
+   "part": "rcm/rank",
+   "model": "HH-SLENDER-m40",
+   "diffs": [],
+   "seconds": 1.14
+  },
+  {
+   "part": "rcm/rank",
+   "model": "THETA-STUB-COUPLED",
+   "diffs": [],
+   "seconds": 0.2
+  }
+ ],
+ "mismatched": 0
+}

@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""R7 sweep (emu7: K4's elimination order and estimator indexing): 2,000 seeded random frames (sweep.gen,
+seeds 11 and 12) under the current rule (K4's gate), R5 (one global Uc, body scope,
+option r5) and R6 (per data-carrying block min(Uc_c, S_c), block scope, option r6),
+each with its own cache. Each classification is checked against the P = 2048
+reference; G5a's published checks, W/V, the charge, theta and the number of shifted
+factorizations are recorded.
+Usage: python3 sweep7.py <seed> <count>  ->  sweep7_<seed>.json"""
+import json, random, sys, time
+import emu7
+from emu7 import Case, schedule, classify, honesty, solve_at, Stop
+from sweep import gen
+
+RUNS = [("current/k4", "current", "k4", {}),
+        ("r5/hybrid", "r5", "hybrid", dict(BOUND="Uc", SCOPE="body")),
+        ("r6/hybrid", "r6", "hybrid", {})]
+
+
+def main():
+    seed, count = int(sys.argv[1]), int(sys.argv[2])
+    rng = random.Random(seed)
+    out = []
+    t0 = time.time()
+    for idx in range(count):
+        m = gen(rng, idx)
+        case = Case(m)
+        rec = dict(name=m["name"], runs={})
+        emu7.GATE = "absolute"
+        try:
+            ref = solve_at(case, 2048, ref=True, estimate=False)
+        except Stop as s:
+            rec["ref"] = s.what
+            out.append(rec)
+            continue
+        for tag, opt, gate, sw in RUNS:
+            saved = {k: getattr(emu7, k) for k in sw}
+            for k, v in sw.items():
+                setattr(emu7, k, v)
+            emu7.GATE = gate
+            n0 = emu7.STATS["shift_factorizations"]
+            try:
+                r = schedule(case, opt, {})
+                o = dict(selected=r["selected"], solved=r["solved"],
+                         reasons=[a[1].split(":")[1] if a[1].startswith("rejected:") else a[1] for a in r["attempts"]])
+                if r["selected"] is not None:
+                    pub, cl, sc, g5 = classify(case, r, opt)
+                    w, c = honesty(case, pub, cl, ref)
+                    o.update(counts=c, worst=w[0], row=str(w[1]), honest=w[0] <= 1.0, g5a=[str(x) for x in g5],
+                             w_over_v=r["info"]["w_over_v"], charge=r["info"].get("charge_over_allowance"),
+                             theta=r["info"].get("theta"))
+                o["shift_factorizations"] = emu7.STATS["shift_factorizations"] - n0
+            finally:
+                for k, v in saved.items():
+                    setattr(emu7, k, v)
+            rec["runs"][tag] = o
+        emu7.GATE = "absolute"
+        out.append(rec)
+        if idx % 50 == 0:
+            print(idx, round(time.time() - t0, 1), flush=True)
+    json.dump(out, open("sweep7_%d.json" % seed, "w"))
+
+
+if __name__ == "__main__":
+    main()

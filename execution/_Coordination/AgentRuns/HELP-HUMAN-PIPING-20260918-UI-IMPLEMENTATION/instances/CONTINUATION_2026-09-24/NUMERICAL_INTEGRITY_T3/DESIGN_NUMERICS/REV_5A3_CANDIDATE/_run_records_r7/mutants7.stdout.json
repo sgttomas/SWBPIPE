@@ -1,0 +1,7588 @@
+{
+ "R6 (r6, hybrid gate)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M1 drop V": {
+  "F-2": {
+   "selected": 128,
+   "honest": false,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 128,
+   "honest": false,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 128,
+   "honest": false,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 128,
+   "honest": false,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 128,
+   "honest": false,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 128,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M2 uncoupled E": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": null
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": null
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": null
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 1,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": null
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": null
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": null
+  }
+ },
+ "M3 floor at every p": {
+  "F-2": {
+   "selected": 128,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 128,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 128,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 2
+  },
+  "M10-G": {
+   "selected": 128,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 256,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M4 no floor": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": null
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": null
+  },
+  "RIGID-UNLOADED": {
+   "selected": null
+  },
+  "F-3-FREE": {
+   "selected": null
+  },
+  "F-3-ROT": {
+   "selected": null
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": null
+  },
+  "GS-ROT-y345": {
+   "selected": null
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": null
+  },
+  "M10-ANISO": {
+   "selected": null
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": null
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": null
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M5 E without prescribed |u|": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 128,
+   "honest": false,
+   "relative": 2,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": null
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 128,
+   "honest": false,
+   "relative": 8,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": null
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 128,
+   "honest": true,
+   "relative": 7,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M6 E from sum |ledger terms|": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M7 entrywise E": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 2,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": null
+  },
+  "GS-TRANS-y345": {
+   "selected": null
+  },
+  "GS-ROT-y345": {
+   "selected": null
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": null
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 2,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 2,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 1,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 1,
+   "corrections": 0
+  }
+ },
+ "M8 floor 2^-(2p-74)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": null
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": null
+  },
+  "F-3-FREE": {
+   "selected": null
+  },
+  "F-3-ROT": {
+   "selected": null
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": null
+  },
+  "GS-ROT-y345": {
+   "selected": null
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": null
+  },
+  "M10-ANISO": {
+   "selected": null
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": null
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M9 floor at 256": {
+  "F-2": {
+   "selected": 256,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 256,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 256,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 2
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 256,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 256,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 256,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M10 omit g": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 128,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M11 skip the estimator's test": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": 128,
+   "honest": false,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M12 coalesced gate (K4 at A2)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": null
+  },
+  "GS-TRANS-y345": {
+   "selected": null
+  },
+  "GS-ROT-y345": {
+   "selected": null
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": null
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M13 bounded test drives refinement (pure form)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M14 W residual over K^q's assembled entries (R2's quantity)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M15 W residual reused from the gate (R2's text)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": 128,
+   "honest": false,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": 128,
+   "honest": false,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M16 bounded test on the last state (R2)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M17 drop the charge": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M18 W formed at q = 2p + 64 (R3)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 512,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M20 drop the theta check": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M21 prescribed values rounded in W's residual (R3)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M22 translation and rotation rows without W+ + C (R3)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": 128,
+   "honest": false,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M23 drop the g check": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M24 est in place of the bound": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M25 theta and the g check unscoped (R4)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M26 F*est in place of the bound (R4)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M27 shift bound without its backward-error term": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 128,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M28 no shift (Uc_c alone)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 256,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ },
+ "M29 R5's form (one global Uc, body scope)": {
+  "F-2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-SPOS": {
+   "selected": 512,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-2-CEIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 3,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PRESCRIBED-TAIL": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RIGID-UNLOADED": {
+   "selected": 512,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-FREE": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "F-3-ROT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "REACTIONS-ONLY": {
+   "selected": 256,
+   "honest": true,
+   "relative": 9,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SKEW6-K1E-12": {
+   "selected": 256,
+   "honest": true,
+   "relative": 52,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "N06": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "B1-L": {
+   "selected": 128,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LEDGER-AT-RESTRAINT": {
+   "selected": 128,
+   "honest": true,
+   "relative": 10,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "DEMOTION2": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "ASSEMBLY-SAT": {
+   "selected": 512,
+   "honest": true,
+   "relative": 4,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "LOADONLY-y345": {
+   "selected": 128,
+   "honest": true,
+   "relative": 31,
+   "g5a": 0,
+   "corrections": 3
+  },
+  "GS-TRANS-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "GS-ROT-y345": {
+   "selected": 512,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "SEEDED-COMMON": {
+   "selected": null
+  },
+  "M7-GS1": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "M10-ANISO": {
+   "selected": 512,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "M10-G": {
+   "selected": 256,
+   "honest": true,
+   "relative": 7,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "R115-SEED3": {
+   "selected": 512,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TWO-SPAN": {
+   "selected": 128,
+   "honest": true,
+   "relative": 13,
+   "g5a": 0,
+   "corrections": 1
+  },
+  "LEVER2-k90-s40": {
+   "selected": null
+  },
+  "EXACT-RIGID": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "CHARGE-SLENDER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "TILT-LEVER-k90-s40": {
+   "selected": null
+  },
+  "SKEW-K1E-28": {
+   "selected": 256,
+   "honest": true,
+   "relative": 12,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "PIVOT": {
+   "selected": 256,
+   "honest": true,
+   "relative": 5,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "SEEDED-SOFT": {
+   "selected": null
+  },
+  "THETA-ZERO-BODY": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-FIXED-MEMBER": {
+   "selected": 128,
+   "honest": true,
+   "relative": 6,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "G-PRESC-MEMBER": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-SLENDER-m40": {
+   "selected": 256,
+   "honest": true,
+   "relative": 8,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m40-LOADED": {
+   "selected": 128,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "HH-FOOL-m100-LOADED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 72,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "THETA-STUB-COUPLED": {
+   "selected": 256,
+   "honest": true,
+   "relative": 14,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-CHAIN-n00100-AX": {
+   "selected": 512,
+   "honest": true,
+   "relative": 2506,
+   "g5a": 0,
+   "corrections": 0
+  },
+  "RF-LARGE-TREE-n00100-AX": {
+   "selected": 256,
+   "honest": true,
+   "relative": 1455,
+   "g5a": 0,
+   "corrections": 0
+  }
+ }
+}

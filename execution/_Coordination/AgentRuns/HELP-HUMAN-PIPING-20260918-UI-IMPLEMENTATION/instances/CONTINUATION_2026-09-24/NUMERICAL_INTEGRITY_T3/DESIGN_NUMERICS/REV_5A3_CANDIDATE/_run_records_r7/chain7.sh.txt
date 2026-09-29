@@ -1,0 +1,18 @@
+#!/bin/zsh
+# R7 evidence chain (emu7: the estimator indexed as K4 indexes it). One Python process
+# at a time, each under nice -n 19.
+T3=$1
+cd "$(dirname "$0")"
+export PYTHONDONTWRITEBYTECODE=1
+{ time nice -n 19 python3 reproduce7.py ; } > reproduce7.log 2>&1
+{ time nice -n 19 python3 run_controls7.py ; } > run_controls7.log 2>&1
+{ time nice -n 19 python3 gate_probe8.py ; } > gate_probe8.log 2>&1
+{ time nice -n 19 python3 r1_lane7.py ${T3} lane ; } > r1_lane7.log 2>&1
+{ time nice -n 19 python3 mutants7.py ${T3} ; } > mutants7.log 2>&1
+{ time nice -n 19 python3 uc_check7.py ; } > uc_check7.log 2>&1
+{ time nice -n 19 python3 large7.py ${T3} 10,100 honesty ; } > large7_10_100.log 2>&1
+{ time nice -n 19 python3 sweep7.py 11 1000 ; } > sweep7_11.log 2>&1
+{ time nice -n 19 python3 sweep7.py 12 1000 ; } > sweep7_12.log 2>&1
+{ time nice -n 19 python3 summarize7.py sweep7_11.json sweep7_12.json > sweep7_summary.json ; } > summarize7.log 2>&1
+{ time nice -n 19 python3 large7.py ${T3} 1000 honesty R6 ; } > large7_1000.log 2>&1
+echo alldone > chain7.done
