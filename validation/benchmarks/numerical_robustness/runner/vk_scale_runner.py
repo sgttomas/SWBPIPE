@@ -37,6 +37,20 @@ one the binary also admits.
   refusing an admitted run, or an error;
 - a memory-guard kill during the tier.
 
+**One named exception** (ROOT's ruling for V-K's B, matching K6b's): the KF3
+availability finding. A 10,000-member case that ends `Unresolved(ExactSumSpan)`
+is recorded with its attempts and work, and its rows are counted as
+`unresolved_availability`, never as passes. The tier then continues. The
+exception applies only when all of these hold:
+- the model has 10,000 members;
+- the outcome is `Unresolved ExactSumSpan`;
+- nothing was published (no pass, absolute-range pass, not-covered or
+  structural-zero row, and every row counted as failed);
+- the only failure is that case's "not selected" line.
+Any other unresolved reason, a failure on a covered row, or any other stop
+condition still stops. V3's final figures are re-run after KF3 merges.
+`runner/test_vk_scale_runner.py` tests the exception's edges.
+
 Usage (from VR's directory):
   python3 runner/vk_scale_runner.py --counts --binary B --models DIR --out FILE [--tiers V1,V2,V3]
   python3 runner/vk_scale_runner.py --plan --counts-file FILE [--records DIR] [--approve-10000]
@@ -72,6 +86,10 @@ CONDITIONAL_TIER = 'V3'
 TIMEOUT_S = 1800
 COUNTS_CAP_BYTES = 512 * k6.MIB
 VK_HEAP_CAP_MARKER = 'vk_scale: heap cap refused '
+# ROOT's ruling for V-K's B (the KF3 availability finding); see the module text.
+KF3_AVAILABILITY = 'kf3_availability_exact_sum_span'
+KF3_MEMBERS = 10000
+KF3_OUTCOME_PREFIX = 'Unresolved ExactSumSpan '
 
 
 def model_id(frame, members):
@@ -197,7 +215,24 @@ def memguard_kills(path):
         return sum(1 for line in fh if ' KILLED ' in line)
 
 
-def stop_reasons(record, objects, admitted):
+def availability_exception(run, objects):
+    """The KF3 availability exception's name when it applies to this run, else None."""
+    w1, report = by_kind(objects, 'w1'), by_kind(objects, 'report')
+    if run.get('members') != KF3_MEMBERS or w1 is None or report is None:
+        return None
+    outcome = str(w1.get('outcome', ''))
+    if not outcome.startswith(KF3_OUTCOME_PREFIX):
+        return None
+    published = (report['pass'], report['pass_absolute_range'], report['not_covered'], report['structural_zero'])
+    if any(published) or report['fail'] != report['rows']:
+        return None
+    heads = report.get('failures_head') or []
+    if report['failures'] != 1 or len(heads) != 1 or (': not selected: ' + KF3_OUTCOME_PREFIX) not in heads[0]:
+        return None
+    return KF3_AVAILABILITY
+
+
+def stop_reasons(record, objects, admitted, run=None):
     reasons = k6.stop_reasons(record, admitted)
     if record['classification'] == 'timed_out' and admitted:
         reasons.append('timed out on an admitted run')
@@ -206,12 +241,14 @@ def stop_reasons(record, objects, admitted):
     w1, report, rcm = by_kind(objects, 'w1'), by_kind(objects, 'report'), by_kind(objects, 'rcm')
     if w1 is None or report is None or rcm is None:
         return reasons + ['a phase line is missing']
-    if not str(w1.get('outcome', '')).startswith('Selected'):
-        reasons.append('not selected: %s' % w1.get('outcome'))
+    exception = availability_exception(run or {}, objects)
+    if exception is None:
+        if not str(w1.get('outcome', '')).startswith('Selected'):
+            reasons.append('not selected: %s' % w1.get('outcome'))
+        if report['fail'] or report['failures']:
+            reasons.append('%d failure(s): %s' % (report['failures'], report['failures_head'][:3]))
     if not w1.get('counts_match_storage'):
         reasons.append("V-K's counts differ from K4's storage counts")
-    if report['fail'] or report['failures']:
-        reasons.append('%d failure(s): %s' % (report['failures'], report['failures_head'][:3]))
     if not report['accounted']:
         reasons.append('the report does not account for every row')
     if not report['not_covered_equal']:
@@ -276,7 +313,14 @@ def run_tier(tier, binary, models_dir, counts_path, record_dir, source_commit, s
         entry['outcome'] = w1.get('outcome')
         entry['selected_precision'] = w1.get('selected_precision')
         entry['invocation_charged'] = w1.get('invocation_charged')
-        reasons = stop_reasons(record, objects, True)
+        reasons = stop_reasons(record, objects, True, run)
+        exception = availability_exception(run, objects) if record['classification'] == 'ok' else None
+        if exception:
+            report = by_kind(objects, 'report')
+            entry['availability_exception'] = exception
+            entry['unresolved_availability'] = report['rows']
+            log('%s: %s (%d rows counted as unresolved_availability, never as passes)'
+                % (run['run_id'], exception, report['rows']))
         k6.append_record(record_dir, entry)
         log('%s: %s %.1fs rss=%s outcome=%s' % (run['run_id'], record['classification'], record['wall_s'],
                                                  record.get('peak_rss_bytes'), entry['outcome']))

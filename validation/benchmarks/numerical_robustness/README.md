@@ -125,6 +125,12 @@ process.
   the RSS watchdog, the quiet-host wait and the admission rule. Its commands
   are `--counts` (no solve), `--plan` and `--run V1|V2|V3`, where V3 (10,000
   members) runs only with `--approve-10000`.
+  - It makes one named exception (ROOT's ruling, the KF3 availability
+    finding): a 10,000-member case that ends `Unresolved(ExactSumSpan)`, with
+    nothing published and no other failure, is recorded as
+    `unresolved_availability`, and the tier continues.
+  - `runner/test_vk_scale_runner.py` tests the exception's edges.
+    Run it with `python3 -m unittest runner/test_vk_scale_runner.py`.
 - **The models** at 1,000 and 10,000 members come from
   `cases/gen_vk_cases.py --large <dir>` and are checked against
   `cases/large_models.sha256`.

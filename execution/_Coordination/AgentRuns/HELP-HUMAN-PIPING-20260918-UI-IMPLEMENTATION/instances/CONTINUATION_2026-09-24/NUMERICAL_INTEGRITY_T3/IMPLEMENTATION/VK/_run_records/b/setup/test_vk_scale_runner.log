@@ -1,0 +1,14 @@
+test_a_failure_on_a_covered_row_still_stops (runner.test_vk_scale_runner.Kf3AvailabilityException.test_a_failure_on_a_covered_row_still_stops) ... ok
+test_a_process_that_did_not_complete_still_stops (runner.test_vk_scale_runner.Kf3AvailabilityException.test_a_process_that_did_not_complete_still_stops) ... ok
+test_a_published_row_voids_the_exception (runner.test_vk_scale_runner.Kf3AvailabilityException.test_a_published_row_voids_the_exception) ... ok
+test_a_selected_case_with_no_failure_does_not_stop (runner.test_vk_scale_runner.Kf3AvailabilityException.test_a_selected_case_with_no_failure_does_not_stop) ... ok
+test_any_other_unresolved_reason_still_stops (runner.test_vk_scale_runner.Kf3AvailabilityException.test_any_other_unresolved_reason_still_stops) ... ok
+test_every_other_check_still_applies_under_the_exception (runner.test_vk_scale_runner.Kf3AvailabilityException.test_every_other_check_still_applies_under_the_exception) ... ok
+test_exact_sum_span_at_10000_members_is_recorded_and_the_tier_continues (runner.test_vk_scale_runner.Kf3AvailabilityException.test_exact_sum_span_at_10000_members_is_recorded_and_the_tier_continues) ... ok
+test_exact_sum_span_below_10000_members_still_stops (runner.test_vk_scale_runner.Kf3AvailabilityException.test_exact_sum_span_below_10000_members_still_stops) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.000s
+
+OK
+rc=0
