@@ -1,0 +1,10 @@
+=== B3 start (ROOT: B2 accepted at 3799e3764; B3 granted); runner 3799e3764 k6_runner.py sha256 737eff78b4a337e925343945bc5653019c0e3b28baea6354a157e18c93e2ee81; binary sha256 1bbdfb2a0bec003a9e216d726a78cfc322a901214252c91939ec64d70cfd72e2
+=== host context (start): pid 34278 nice 0 cpu 99.7% rss 504048 KiB [python3 - ]; pid 44555 nice 19 cpu 100.0% rss 43120 KiB [python3 sweep7.py 12];  load { 5.19 5.58 5.42 } memorystatus 94
+=== context note: pid 34278 'python3 -' is a Codex-app process working outside this repository (nice 0, one core), running before B3; the nice-19 sweep7.py is DS1's emulator
+=== tier T6
+planned: [{"order": 138, "tier": "T6", "slot": "B3", "model": "K6-CEIL-CHAIN-n01364-AX", "mode": "dense", "family": "CHAIN", "members": 1364, "conditional": false, "repeats": 5, "entry_repeats": 1, "rss_cap_bytes": 17179869184, "heap_cap_bytes": 16642998272, "timeout_s": 1800, "time_budget_s": 1740, "first_repeat_limit_s": 600, "run_id": "138_K6-CEIL-CHAIN-n01364-AX_dense"}]
+baseline (no-op) peak RSS 1818624 bytes, footprint 1147192 bytes
+138_K6-CEIL-CHAIN-n01364-AX_dense K6-CEIL-CHAIN-n01364-AX dense: ok 1268.0s rss=7089930240
+B3 done {"T6": {"stop": [], "stop_after_tier": []}}
+B3 driver exit=0
+=== host context (end): pid 34278 nice 0 cpu 100.0% rss 504048 KiB [python3 - ];  load { 6.45 6.37 6.40 } memorystatus 94

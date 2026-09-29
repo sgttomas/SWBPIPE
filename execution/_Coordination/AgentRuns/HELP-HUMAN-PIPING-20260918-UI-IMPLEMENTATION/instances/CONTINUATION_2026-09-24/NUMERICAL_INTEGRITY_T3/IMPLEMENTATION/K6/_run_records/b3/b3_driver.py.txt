@@ -1,0 +1,29 @@
+"""K6 B3 driver (ROOT's grant "K6: B2 accepted; the dense-path finding (N10); B3 granted").
+
+It runs the committed runner (k6_runner.py at the K6 branch commit given below)
+unchanged, and adds only one thing: every record it writes carries `runner_commit`.
+Tier T6 only: K6-CEIL-CHAIN-n01364-AX dense, C = 16 GiB, heap cap C - 512 MiB,
+one entry repeat (the runner's run_parameters for the ceiling run).
+
+Usage: python3 b3_driver.py <runner dir> <runner commit> <binary> <counts> <records> <source commit> <source tree>
+"""
+import json
+import sys
+
+runner_dir, runner_commit, binary, counts, records, source_commit, source_tree = sys.argv[1:8]
+sys.path.insert(0, runner_dir)
+import k6_runner as r  # noqa: E402
+
+original_append = r.append_record
+
+
+def append_with_runner_commit(record_dir, record):
+    original_append(record_dir, dict(record, runner_commit=runner_commit))
+
+
+r.append_record = append_with_runner_commit
+print('=== tier T6', flush=True)
+print('planned: %s' % json.dumps([x for x in r.schedule() if x['tier'] == 'T6']), flush=True)
+outcome = r.run_tier('T6', binary, counts, records, source_commit, source_tree,
+                     log=lambda m: print(m, flush=True))
+print('B3 done %s' % json.dumps({'T6': outcome}), flush=True)
