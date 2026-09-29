@@ -2333,3 +2333,21 @@ The plan is `IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md` on the KF1 branch (sha256 `
 - **Next:** A2: the seeded faults, the FK `mutation-controls` feature (VK-F05 included) and the kill matrix.
   - **KF1 is changing `ExtremeTracker` and its call sites in `K4R/adaptive.rs` now.** Keep V-K's fault sites off the tracker code and its callers' tracker lines, so the later merge of main is mechanical.
   - If KF1 merges first, V-K merges main and re-runs its fault matrix.
+
+## KF1: checkpoint A accepted; the S11 site-table row authorized (ROOT, 2026-09-29)
+
+- **A is accepted, pending one declared edit.**
+  - `BoundedExtremeTracker` uses T = 64, and a shared `TrackerSet` caps a call at G = 512 unevaluated rows. All seven sites are converted, and the old tracker is removed.
+  - **The differential test** against a verbatim copy of K4's tracker runs 828 streams at T = 1, 2, 3, 5 and 64, in both directions. `finish` is bit-identical, including refusals.
+  - **The model-level differential** runs 131 controls, 4 combinations and the six 100-member frames at T = ∞, 1 and 64. Everything is identical except the width-16 work.
+  - **Golden work** does not move. A new pin covers the collapsing frames.
+  - All 10 mutants are killed. `gen_k4_vectors.py --check` passes 23 of 23.
+  - **The bound:** about 2.3 MB of unevaluated rows per call in the stop rule, 275 KB for the pivot margin, 275 KB per residual-gate evaluation, and 1.1 MB for the fallback, against about 3.2 GB today at 10,000 members.
+- **The site table: authorized.** Add one declared, additive row to `FK/tests/s11_site_table.rs`, for `adaptive.rs` `offer`: 2 integer accumulations, the row count and the held capacity. It is in KF1's write set by this ruling, as K4's rows were (Q8). No existing row changes.
+- **The work findings are accepted:**
+  - At T = 64 only the six 100-member frames move, and only in the stop rule: +2.2 to +13.4 M LME, at most about +15% of the stop rule's work (about 2% of the call).
+  - The remaining extra work comes from collapsed rows that a later best drops. It is bounded by one exact evaluation per row, whatever T is.
+  - Cutting it further would need the approximation lemma in the correctness basis. That is declined: the accuracy-free argument stands.
+  - T = 64 is kept.
+- **For K6b's E_max:** the fallback's per-state row list (about n_f × 4.3 KB) is not a tracker. It is proportional to the model, not the data, and I16 includes it.
+- **Next:** add the row, re-run the site-table tests and FK's full suite, then D: RETURN, CHANGE_RECORD, `_run_records/` and SHA256SUMS.
