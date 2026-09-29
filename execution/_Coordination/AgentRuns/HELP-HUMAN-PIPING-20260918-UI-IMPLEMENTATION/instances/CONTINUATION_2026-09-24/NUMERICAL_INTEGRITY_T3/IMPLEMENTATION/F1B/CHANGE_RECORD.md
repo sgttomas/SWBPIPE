@@ -7,9 +7,11 @@ This is the draft PR record for facade slice F1b of T3 (numerical integrity), fo
   - `94e543a24`: checkpoint A1, the sparse wiring and the dense-scrutiny guard (a pure refactor at b = 0);
   - `e215c6007`: checkpoint A2, W2 at formation in the product;
   - `948e0bb99`: checkpoint C, two tests that kill the first-round survivors (tests only);
-  - `130445db2`: the DEC-050/053 observation-lane guard (ROOT's ruling on the gate's heap-cap finding).
-- **Candidate head:** `130445db2`. **Size:** 14 files, +5,531 −188 against `e7d930d49` (`RETURN.md` §2).
-- **Proposed next commit:** these records (`T3/IMPLEMENTATION/F1B/`), in the numerics worktree.
+  - `130445db2`: the DEC-050/053 observation-lane guard (ROOT's ruling on the gate's heap-cap finding);
+  - `9ecf2bdca`: these records (checkpoint D), in `T3/IMPLEMENTATION/F1B/` on this branch;
+  - `9aeed9c22`: main `b37331092` merged in. The product tree is unchanged: `git diff 130445db2 9aeed9c22 -- P/core P/fixtures P/validation` is empty.
+- **PR:** #1052. **Product candidate:** `130445db2`'s product tree, at the branch head `9aeed9c22`. **Size:** 14 files, +5,531 −188 against `e7d930d49` (`RETURN.md` §2).
+- **Uncommitted, for ROOT to commit:** the `pressure_thrust_load` product pin (tests only: `P/core/product_physics/tests/f1b_w2_runtime.rs`, +59 −2; `RETURN.md` addendum 1), and this revision of the records.
 - **Basis:**
   - the I13 brief (`TASK_BRIEFS/I13_F1B_IMPLEMENTATION.md`, `57cce4f6…`) with ROOT's rulings Q1–Q14 in it;
   - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`; hash-pinned, not edited): §1, §2.1, §4.7, §4.8, §5 items 5a–8, §6's F1 row;
@@ -71,7 +73,7 @@ This is the draft PR record for facade slice F1b of T3 (numerical integrity), fo
 - **New refusal classes (provisional):** dense scrutiny above 6 GiB estimated; and the lane's fields `not_observed` above 6 GiB (on an uncapped host, a model main could publish, like CONT n10000 at about 45 GB on main).
 - **New info code** `SPARSE_OBSERVATION_LANE_NOT_RUN` (ROOT-accepted). No consumer enumerates a closed code set that would reject it (`RETURN.md` §16).
 - **Deviation from "no allocation"** in the lane estimate: one first-column index per reduced DOF (8 bytes per DOF), accepted.
-- **Correction to A2's "three admission checks are unreachable":** two are (`user_stiffness_element`, `non_nodal_load_term`). `pressure_thrust_load` is reachable, through a zero-valued pressure element load on the legacy route: refused by name on both entries and both modes, where main refuses the same runs; its b = 0 twin is byte-identical (`RETURN.md` §15, D11). No product change; a product-level pin is offered to ROOT.
+- **Correction to A2's "three admission checks are unreachable":** two are (`user_stiffness_element`, `non_nodal_load_term`). `pressure_thrust_load` is reachable, through a zero-valued pressure element load on the legacy route: refused by name on both entries and both modes, where main refuses the same runs; its b = 0 twin is byte-identical (`RETURN.md` §15, D11). No product change. ROOT approved a product-level pin after D: `f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust` (tests only), with the mutant `F1B-M22-PRESSURE-THRUST`, killed (`RETURN.md` addendum 1). With it, PP passes 562 (1 known Mac failure), NI 121, FK 249, SD 30 (NONE, from a clean archive).
 - **C-SPARSE departure (approved):** 4,000 members, a 1 GiB bound and a 6 GiB cap, instead of 1,000 members and 64 MiB (`_run_records/checkpoint_a1/c_sparse_scaling.txt`).
 - **F1a N2:** `source_receipt.rs:914-921` reserves 12× the bytes of every envelope diagnostic. F1b's new text reaches a receipt only in a captured invocation that selects one case and publishes another at b ≠ 0 (the mixed invocation: +1 `range_scaling:` line, at most about 600 bytes). W2 refusals block, and the guard refusals are blocked envelopes, so neither reaches a receipt; the lane diagnostic cannot co-occur with a selection (n ≤ 256).
 - **Pre-existing NOTE for T3's close list:** the mode row's format string on main has a double space after `legacy_unscaled_DEC050_DEC053;` (`lib.rs:4502` on `e7d930d49`, `:5459` on `130445db2`). F1b leaves it unchanged.

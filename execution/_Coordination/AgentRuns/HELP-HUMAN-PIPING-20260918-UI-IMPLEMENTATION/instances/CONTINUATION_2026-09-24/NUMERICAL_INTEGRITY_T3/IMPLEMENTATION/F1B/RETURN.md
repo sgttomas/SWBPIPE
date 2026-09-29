@@ -1,15 +1,16 @@
 # I13 return: facade slice F1b (the product's sparse wiring, the dense-scrutiny guard, and W2 at formation in the product)
 
-**Status:** implemented and verified through the gate. Candidate head `130445db2`. The both-entry gate on that head is a PASS, accepted by ROOT (`ROOT_RULINGS_V1.md`, "F1b: gate re-run on 130445db2 accepted; the Mac is released", numerics `74850700d`). These are the checkpoint-D records.
+**Status:** implemented and verified through the gate. Candidate head `130445db2`. The both-entry gate on that head is a PASS, accepted by ROOT (`ROOT_RULINGS_V1.md`, "F1b: gate re-run on 130445db2 accepted; the Mac is released", numerics `74850700d`). These are the checkpoint-D records. After D, ROOT approved a product-level pin for `pressure_thrust_load`; it is addendum 1.
 
 **Three things for the reader first.**
 1. **The first gate FAILED.** On `948e0bb99`, 4 C2 sparse runs (RF-LARGE-CONT-n10000-AX and -ROT, both entries) aborted at the heap cap in main's unchanged DEC-050/053 observation lane. ROOT ruled a guard for that lane (`9fa4d1b59`). It was implemented as `130445db2`, and the re-run passed (§9).
-2. **A correction to A2.** A2 reported three admission checks as unreachable in the product; ROOT approved that with "the unreachability derived in RETURN". Two are (`user_stiffness_element`, `non_nodal_load_term`). **`pressure_thrust_load` is reachable:** a zero-valued pressure element load on the legacy route reaches it. The case is refused by name on both entries and in both modes, main refuses the same runs, and the b = 0 twin is byte-identical. No product change is needed. A product-level pin is offered (§15, D11).
+2. **A correction to A2.** A2 reported three admission checks as unreachable in the product; ROOT approved that with "the unreachability derived in RETURN". Two are (`user_stiffness_element`, `non_nodal_load_term`). **`pressure_thrust_load` is reachable:** a zero-valued pressure element load on the legacy route reaches it. The case is refused by name on both entries and in both modes, main refuses the same runs, and the b = 0 twin is byte-identical. No product change is needed. ROOT approved a product-level pin after D (addendum 1).
 3. **The coexistence derivation** (ROOT's A2 condition) is written step by step in §15, D10. Byte identity wherever exact-block selects is **proven by construction**. That no range-triggered case can be selected is proven for formation triggers and for large magnitudes, and **observed, not proven,** for small-magnitude evaluation triggers.
 
 - **Branch:** `codex/piping-f1b-20260928`, from main `e7d930d49`, in `<wt>/f1b`.
-- **Commits (made by ROOT):** `94e543a24` (A1), `e215c6007` (A2), `948e0bb99` (C, tests only), `130445db2` (the lane guard).
-- **Uncommitted when these records were written:** this folder only, in the numerics worktree.
+- **Commits (made by ROOT):** `94e543a24` (A1), `e215c6007` (A2), `948e0bb99` (C, tests only), `130445db2` (the lane guard), `9ecf2bdca` (these records), `9aeed9c22` (main `b37331092` merged in; the product tree is unchanged). **PR #1052.**
+- **Where these records live:** `T3/IMPLEMENTATION/F1B/` on the F1b branch, committed by ROOT at `9ecf2bdca`. They were first written, untracked, in the numerics worktree; ROOT moved them here and removed that copy.
+- **Uncommitted now:** addendum 1's pin test, and this revision of the records.
 - **Platform:** Mac, arm64 (macOS 26.6.2), aarch64-apple-darwin, rustc 1.97.1. **T9 and the gate are Mac-only comparisons against Mac main.** Nothing was run on Linux or on hosted CI.
 - **Placeholders:**
   - `<wt>`: the T3 worktrees root; scratch is `<wt>/scratch/i13`;
@@ -826,7 +827,7 @@ Each is written to be checked independently from the code. Where a step rests on
     - F1b refuses `range: family not admitted under force scaling: pressure_thrust_load; …; force_scale_exponent=516; basis=exact power-of-two`, on both entries and in both modes;
     - main refuses the same four runs, `NUMERICAL_INTEGRITY_UNRESOLVED` `Range("arithmetic outside normal range")`;
     - the b = 0 twin is byte-identical to main on both entries and in both modes (full-envelope sha256 `18ef3dae…` sparse, `7261827912b7…` dense).
-  - So it is a named refusal on a case main refuses, the C1 class in kind. Nothing wrong is published, and no product change is needed. The unit pin exists; **a product-level pin is offered to ROOT** (tests only).
+  - So it is a named refusal on a case main refuses, the C1 class in kind. Nothing wrong is published, and no product change is needed. The unit pin exists, and ROOT approved a product-level pin after D (tests only; addendum 1).
 
 ### D12. The lane guard: no case main publishes within the budget can reach it (ROOT's condition 1 at `9fa4d1b59`)
 
@@ -1075,14 +1076,14 @@ pub(crate) const NAMED: usize = 6;
 - **Not re-run on `130445db2`:** the 38 manifests other than PP (NI, FK and SD were re-run). C and the lane guard changed only PP files. PP's dependents (headless, result_export and others) were last run at A2. DEC-025's Mac sweep on the final head covers them.
 - **Not run by I13 (ROOT's PR steps):** the independent complete-diff review (with an exact-rational solve of a subset of C1, an independent derivation of D4, and a re-run of the NI pins' mutants); hosted CI with the full-SHA dispatch; DEC-025; the src-tauri suite; native witnesses.
 
-**Offered to ROOT:** a product-level test pinning `pressure_thrust_load` (tests only; D11).
+**Approved by ROOT after D:** a product-level test pinning `pressure_thrust_load` (tests only; D11), added as addendum 1.
 
 ---
 
 ## 21. Records (`_run_records/`; SHA256SUMS covers every file in this folder)
 
 - **Sanitization:** every file was copied by `assemble_run_records.py.txt`, with machine paths replaced by placeholders. That is the only change to any raw log; a scan finds no machine path left.
-- **Trailing whitespace:** raw tool output keeps its bytes, trailing whitespace included. 22 files have lines ending in whitespace; they are listed with their counts in `trailing_whitespace.txt` (mostly diffs, `MUTANTS.txt` lines, and `rf_range_base.out`).
+- **Trailing whitespace:** raw tool output keeps its bytes, trailing whitespace included. 23 files have lines ending in whitespace (22 at D, plus the pin's `MUTANTS.txt`); they are listed with their counts in `trailing_whitespace.txt` (mostly diffs, `MUTANTS.txt` lines, and `rf_range_base.out`).
 - **Large files kept uncommitted:** `uncommitted_sha256.txt` lists the gates' `runs.jsonl` files (606 MB and 260 MB), the RV11D-N2 large runs, and the gate-2 scratch digest list (3,456 files, every full envelope included). The committed `envelope_sha256.tsv`, the C tables and the summaries index them.
 
 | Folder | Contents |
@@ -1096,3 +1097,68 @@ pub(crate) const NAMED: usize = 6;
 | `gate1_948e0bb99/` | the failed gate: comparison, logs, gate_check, `envelope_sha256.tsv`, the heap-cap backtrace, `PAUSE_STATE.md`, RV11D-N2 on the large cases, the void part-2 base line, scripts |
 | `gate2_130445db2/` | the passing gate: comparison, logs, gate_check, `envelope_sha256.tsv`, the C1 and C2 tables, part 2's records, RV11D-N2 on CONT n10000, scripts, the scratch digest list |
 | top level | `callers.txt` and `scan_callers.sh.txt`, `toolchain.txt`, `uncommitted_sha256.txt`, `trailing_whitespace.txt`, `assemble_run_records.py.txt` |
+
+---
+
+## RETURN addendum 1: the `pressure_thrust_load` product pin (ROOT, after D)
+
+**The ruling.** ROOT accepted checkpoint D and approved the pin offered in D11 (tests only). It asserts:
+- the zero-valued pressure element-load case on the legacy route is refused by name at b = 516, on both entries and in both modes;
+- its b = 0 twin is byte-identical to main.
+
+It comes with a mutant that removes the admission check, which must be killed.
+
+### A1.1 Files (against the branch head `9aeed9c22`)
+
+| File | Lines | +/− | sha256 (first 16) |
+|---|---:|---|---|
+| `P/core/product_physics/tests/f1b_w2_runtime.rs` | 1,103 | +59 −2 | `68bb9a9e473bd8a2` |
+
+No product file changes. The file stays rustfmt-clean.
+
+The three edits:
+1. **`cantilever_family` gains the arm `"pressure_thrust_load"`:** T0R's C1 cantilever with a 0 Pa pressure element load (`category: pressure`, `dimension: pressure`, direction `global_x`), next to the family's 100 N tip load.
+2. **The admission test's doc comment is corrected.** It said the pressure-thrust check was unreachable. No assertion changed.
+3. **A new test: `f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust`.**
+   - **The range case (moduli × 2^-1000):** `assert_w2_refusal` on both entries and in both modes. That means no results, `MODEL_INCOMPLETE`, exactly one blocking diagnostic (the case's integrity record, `NUMERICAL_INTEGRITY_UNRESOLVED`), with the message prefix `range: family not admitted under force scaling: pressure_thrust_load; range_scaling: attempted; step1_trigger=Evaluation(Range("arithmetic outside normal range")); force_scale_exponent=516; basis=exact power-of-two`.
+   - **The b = 0 twin (moduli × 1):** on both entries and in both modes, `MECHANICS_SOLVED`, and the sha256 of `serde_json::to_vec(&envelope)` (the full-envelope probe's hash) equals Mac main's:
+     - sparse `2bcabbefdc55330cb5dcb56b91ea2f8e34e21cb9a47891cf78eb9e284358e70f`;
+     - dense `235eae7fb0de18304c224a5ae61f9866361a562092cb2d0ee6aaa0db3b86789a`.
+
+### A1.2 How main's bytes were recorded (`_run_records/pin_pressure_thrust/`)
+
+- `make_requests.py.txt` builds the two requests exactly as the Rust builders do (`t0r`, `tnode`, `tpipe`, `tforce`, `anchor`). The request files are kept.
+- Both gate probes (the full-envelope variant) ran each request, 16 runs in all (`probe_matrix.txt`): Mac main `e7d930d49` (`577b10d4…`) and the candidate `130445db2` (`f4535939…`).
+- **The twin:** main's and the candidate's full-envelope hashes are equal in all 8 runs, and equal across the two entries within each mode (sparse `2bcabbef…`, dense `235eae7f…`).
+- **The range case:** main refuses all four runs with `NUMERICAL_INTEGRITY_UNRESOLVED` (`structural integrity: Range("arithmetic outside normal range")`). The candidate refuses with the text above, in both modes.
+- Main's twin envelopes (typed; sparse and dense) and all 8 range-case envelopes are kept.
+
+**Why the pinned bytes are platform-independent** (the brief bans pins on values through the platform libm):
+- Every magnitude in the twin has at most one nonzero component: the tip displacement is UY only, the anchor reaction is Fy and Mz only, and the local moments are Mz only. `hypot` is therefore exact on every conforming platform: C Annex F, hypot(x, ±0) = |x|.
+- The twin carries no thermal load. The platform calibration found the product reaching only `hypot`, `exp` and `expm1`, the last two through thermal strain.
+- So the Mac hash is the hash everywhere. If hosted Linux CI disagrees, that is a finding against this argument, not a flaky test.
+
+### A1.3 The mutant and the run plan (host-gated)
+
+- **`F1B-M22-PRESSURE-THRUST`** (`mutate_pin.py.txt`) removes admission check 4 (`} else if !pressure_thrust_loads.is_empty() { Some("pressure_thrust_load") }`). The case then falls to a later check, or is published. Either way the new test's refusal assertion fails.
+- **The plan** (`drive.sh.txt`, the lane-guard run's `run_mutant.sh`, unchanged):
+  - NONE first and alone, then the mutant;
+  - each on a clean `git archive 9aeed9c22`, with the new test file overlaid from `<wt>/f1b`;
+  - NI and PP in full (and FK and SD for NONE), `-j 4`, `RUST_TEST_THREADS=4`, `--no-fail-fast`.
+- **Status:** written during ROOT's hold for K5's DEC-025 sweep; the only runs during the hold were the 16 sub-second prebuilt probe runs of A1.2 (accepted by ROOT). Run after ROOT released the host.
+
+### A1.4 Results (`_run_records/pin_pressure_thrust/`: `MUTANTS.txt`, `drive.log`, `logs/`)
+
+Both runs are from a clean `git archive 9aeed9c22` with the pin's test file overlaid (`68bb9a9e…`), NONE first and alone (03:17:21Z–03:23:28Z), then the mutant (03:23:29Z–03:25:08Z), each target deleted afterwards (`<wt>/f1b-mut` is empty).
+
+| Run | FK | SD | NI | PP | Failed |
+|---|---|---|---|---|---|
+| NONE | 249 passed | 30 passed | 121 passed | **562 passed**, 1 failed, 1 ignored | only the known Mac `s11g_tests::t13_committed_fallback_uz_is_byte_identical` (`s11g_tests.rs:1666`) |
+| `F1B-M22-PRESSURE-THRUST` | — | — | 121 passed | 560 passed, 3 failed, 1 ignored | `t13` (as NONE) and **two kills** |
+
+- **The pin test passes** in NONE, on both entries and in both modes: the range case is refused by name at b = 516, and the twin's full-envelope sha256 equals Mac main's (sparse `2bcabbef…`, dense `235eae7f…`). PP's count is 561 + 1.
+- **The mutant is KILLED**, at behavioural assertions, with no abort:
+  - `f1b_w2_admission_refuses_a_zero_legacy_pressure_as_pressure_thrust`, at `tests/f1b_w2_runtime.rs:510` (`assert_w2_refusal`'s message assertion). Without check 4, the case falls to check 6 and is refused as `uniform_element_load` (the pressure primitive is an `element_uniform_loads` entry), so the family name is wrong;
+  - `f1b_tests::f1b_admission_names_each_family`, at `src/f1b_tests.rs:2285` (the unit pin of the nine checks).
+- **Host:** at most 2 of my cargo jobs (one at a time here), `-j 4`, `RUST_TEST_THREADS=4`; `memguard.log` has no new entry.
+- **Totals now:** 38 tests added by F1b (§11 plus this one); 51 counted mutants, all killed (§13 plus this one).
