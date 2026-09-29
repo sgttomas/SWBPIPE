@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+"""V4, delta check at R4, check 3: the F2 family of r4_hh.py built as a frame model
+and run through DS1's emulator emu4 (read-only import; R4's defaults): K4's
+Hager-Higham estimate, as the condition screen forms it, against the exact
+||K~_P^-1||_1 of the emulator's own assembled, equilibrated K at P, on a model the
+pivot and condition screens accept.
+
+Model HH-FOOL-m (two bodies, one free translation per node, every other DOF fixed):
+  body V: a chain of axial members along x over 8 nodes (ux free), EA/L = 1 or 3,
+          grounded by springs 1/4 at both ends: a Stieltjes block.
+  body H: four collinear nodes H0..H3 at t(1,-1,0), t = 0..3, with free DOFs
+          ux, uy, uy, ux, joined by members H0-H1, H2-H3 (length sqrt 2) and
+          H0-H2, H1-H3 (length 2 sqrt 2); E = A = 1, Iy = Iz = 2^-m. Their axial
+          terms restrain every combination except w = (1,-1,-1,1); only the
+          tiny bending restrains w. H's DOFs are at free positions 0, 2, 4, 6
+          (node order H0 V0 H1 V1 H2 V2 H3 V3 ...), so w is orthogonal to e and to
+          the alternating vector.
+Variants: unloaded, and loaded (Fx = 1 at V's middle node and at H0).
+For each verification precision reached: est, exact, exact/est, exact/(F est),
+the comparison bound U of the emulator's factor (recomputed here with the same
+loops), and for the loaded variant the R4 schedule, honesty against P = 2048 and
+the charge and theta at the selected pair.
+Output: r4_hhframe.json (and stdout)."""
+import json, os, sys, time
+from fractions import Fraction as Fr
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DS1 = os.path.join(os.path.dirname(os.path.dirname(HERE)), "ds1")
+sys.path.insert(0, DS1)
+sys.path.insert(0, HERE)
+import emu4
+from emu4 import new_model, add_member, fix, spring, load, Case, solve_at, schedule, classify, honesty, assemble, floor_log2, Stop, charge_report
+from r4_hh import factor, hager_higham, exact_inverse, norm1, comparison_bound
+
+
+def hh_fool(m, loaded):
+    H = [(0, 0, 0), (1, -1, 0), (2, -2, 0), (3, -3, 0)]
+    nv = 8
+    V = [(10 + k, 5, 0) for k in range(nv)]
+    # node order: H0 V0 H1 V1 H2 V2 H3 V3 V4 ...
+    nodes = [H[0], V[0], H[1], V[1], H[2], V[2], H[3]] + V[3:]
+    hn = [0, 2, 4, 6]
+    vn = [1, 3, 5] + list(range(7, 7 + nv - 3))
+    md = new_model("HH-FOOL-m%d%s" % (m, "-LOADED" if loaded else ""), nodes)
+    sec_h = dict(E=1.0, G=1.0, A=1.0, Iy=2.0 ** -m, Iz=2.0 ** -m, J=1.0)
+    mid = 1
+    for a, b in ((0, 1), (2, 3), (0, 2), (1, 3)):
+        add_member(md, mid, hn[a], hn[b], y=(0, 0, 1), section=sec_h)
+        mid += 1
+    for k in range(nv - 1):
+        add_member(md, mid, vn[k], vn[k + 1], y=(0, 0, 1),
+                   section=dict(E=1.0, G=1.0, A=(1.0 if k % 2 == 0 else 3.0), Iy=1.0, Iz=1.0, J=1.0))
+        mid += 1
+    comp = {hn[0]: 0, hn[1]: 1, hn[2]: 1, hn[3]: 0}
+    for nd in range(len(nodes)):
+        keep = comp.get(nd, 0)
+        fix(md, nd, [c for c in range(6) if c != keep])
+    spring(md, 1, vn[0], 0, 0.25)
+    spring(md, 2, vn[-1], 0, 0.25)
+    if loaded:
+        load(md, vn[nv // 2], 0, 1.0)
+        load(md, hn[0], 0, 1.0)
+    return md
+
+
+def matrix_at(case, P):
+    K = assemble(case.m, P)[0]
+    free = case.free
+    sc = [-(floor_log2(abs(K[(g, g)])) // 2) for g in free]
+    return [[K.get((a, b), Fr(0)) * Fr(2) ** (sa + sb) for b, sb in zip(free, sc)] for a, sa in zip(free, sc)]
+
+
+def run(m, loaded):
+    md = hh_fool(m, loaded)
+    case = Case(md)
+    rec = dict(model=md["name"], free=len(case.free), per_P={})
+    for P in (128, 256, 512, 1024):
+        try:
+            st = solve_at(case, P)
+        except Stop as e:
+            rec["per_P"][P] = "stop:%s" % e.what
+            continue
+        Kt = matrix_at(case, P)
+        ex = norm1(exact_inverse(Kt))
+        L, D, ok = factor(Kt, P)
+        est2, prod, cond_ok, used = hager_higham(Kt, L, D, P)
+        U = comparison_bound(L, D)
+        rec["per_P"][P] = dict(est=float(st["est"]), exact=float(ex), exact_over_est=float(ex / st["est"]),
+                               exact_over_F_est=float(ex / (Fr(2) ** 16 * st["est"])),
+                               v4_est_same=(est2 == st["est"]), U_over_exact=float(U / ex),
+                               theta=float(st.get("theta", 0)))
+    if loaded:
+        emu4.GATE = "absolute"
+        ref = solve_at(case, 2048, ref=True, estimate=False)
+        emu4.GATE = "hybrid"
+        cache = {}
+        r = schedule(case, "r4", cache)
+        o = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]])
+        if r["selected"] is not None:
+            pub, cl, sc, g5 = classify(case, r, "r4")
+            w, c = honesty(case, pub, cl, ref)
+            o.update(honest=w[0] <= 1.0, worst=w[0], counts=c,
+                     charge_theta=charge_report(case, r["cand"], r["ver"], r["selected"]))
+        rec["r4"] = o
+    return rec
+
+
+if __name__ == "__main__":
+    out = []
+    for m in (40, 80, 100):
+        for loaded in (False, True):
+            t = time.time()
+            rec = run(m, loaded)
+            rec["seconds"] = round(time.time() - t, 1)
+            out.append(rec)
+            print(json.dumps(rec, default=str), flush=True)
+    json.dump(out, open(os.path.join(HERE, "r4_hhframe.json"), "w"), indent=1, default=str)

@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""V4, delta check at R4, check 5: kills for the surviving guards M20 (theta), M22
+(W+ on translation and rotation rows) and M23 (g check), in DS1's emulator emu4
+(read-only import; R4's defaults), against unmutated R4. A kill is a change of
+selected precision, of class counts, or of honesty (DS1's criterion).
+
+  THETA-ZERO-BODY  N05 plus a second, unloaded body: a unit cantilever along x with
+                   Iy = Iz = 2^-400 (node fixed at one end). Its state, residual and
+                   rows are exactly zero at every precision, so its charge is 0; but
+                   its ||S Abar S||_1 ~ 2^398 enters theta's maximum over bodies.
+  G-FIXED-MEMBER   N05 plus a member whose two nodes are fully fixed, along x with
+                   y_ref = (1, 2^-300, 0): g = 2^301 > 2^(256-16), exact formation,
+                   every row exactly zero.
+  SEEDED-SOFT      a stiff unit member (fixed-free, tip load 1 N along x) plus, at the
+                   free node, a soft member (EA/L = 2^-300) to a further free node
+                   carrying 2^-240 N along x, so that node moves 2^60 m (the soft member's A, I and J
+                   are all 2^-300, so its bounded operator stays small and theta passes); a test-only
+                   seed of 2^40 m is added to that node's ux in the final state at every
+                   precision (the hook of DS1's SEEDED-COMMON). The seed moves the soft
+                   member's force by 2^-260 N, inside V/4 (the body's e-hat is ~1 N), but it
+                   is 2^-20 of the displacement it corrupts: above the relative claim 1e-9
+                   that DS1's honesty measure applies to a relative row.
+For each: R4 and the mutant, selected precision, attempts, honesty against the
+P = 2048 reference (the reference carries no seed).
+Output: r4_kills.json."""
+import copy, json, os, sys, time
+from fractions import Fraction as Fr
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DS1 = os.path.join(os.path.dirname(os.path.dirname(HERE)), "ds1")
+sys.path.insert(0, DS1)
+import emu4, models4
+from emu4 import new_model, add_member, fix, load, Case, solve_at, schedule, classify, honesty, charge_report
+
+BASE = {m["name"]: m for m in models4.models()}
+
+
+def clone(m, name):
+    c = copy.deepcopy(m)
+    c["name"] = name
+    return c
+
+
+def theta_zero_body():
+    m = clone(BASE["N05"], "THETA-ZERO-BODY")
+    a = len(m["nodes"])
+    m["nodes"] += [(50.0, 0.0, 0.0), (51.0, 0.0, 0.0)]
+    I = 2.0 ** -400
+    add_member(m, 900, a, a + 1, section=dict(E=1.0, G=1.0, A=1.0, Iy=I, Iz=I, J=1.0))
+    fix(m, a, range(6))
+    return m
+
+
+def g_fixed_member():
+    m = clone(BASE["N05"], "G-FIXED-MEMBER")
+    a = len(m["nodes"])
+    m["nodes"] += [(60.0, 0.0, 0.0), (61.0, 0.0, 0.0)]
+    add_member(m, 901, a, a + 1, y=(1.0, 2.0 ** -300, 0.0), section=dict(E=1.0, G=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0))
+    fix(m, a, range(6))
+    fix(m, a + 1, range(6))
+    return m
+
+
+def seeded_soft():
+    m = new_model("SEEDED-SOFT", [(0, 0, 0), (1, 0, 0), (2, 0, 0)])
+    unit = dict(E=1.0, G=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0)
+    add_member(m, 1, 0, 1, section=unit)
+    tiny = 2.0 ** -300
+    add_member(m, 2, 1, 2, section=dict(unit, A=tiny, Iy=tiny, Iz=tiny, J=tiny))
+    fix(m, 0, range(6))
+    for nd in (1, 2):
+        fix(m, nd, (1, 2, 3, 4, 5))
+    load(m, 1, 0, 1.0)
+    load(m, 2, 0, 2.0 ** -240)
+    return m
+
+
+SEEDS = {"SEEDED-SOFT": [(6 * 2 + 0, Fr(2) ** 40)]}
+
+
+def run_case(m, option="r4"):
+    case = Case(m)
+    seed_saved = dict(emu4.SEED)
+    emu4.SEED.clear()
+    g0 = emu4.GATE
+    emu4.GATE = "absolute"
+    ref = solve_at(case, 2048, ref=True, estimate=False)
+    emu4.GATE = g0
+    emu4.SEED.update(seed_saved)
+    r = schedule(case, option, {})
+    o = dict(selected=r["selected"], attempts=[list(a) for a in r["attempts"]])
+    if r["selected"] is not None:
+        pub, cl, sc, g5 = classify(case, r, option)
+        w, c = honesty(case, pub, cl, ref)
+        o.update(honest=w[0] <= 1.0, worst=w[0], worst_row=str(w[1]), counts=c, g5a_fail=len(g5),
+                 charge_theta=charge_report(case, r["cand"], r["ver"], r["selected"]))
+    return o
+
+
+def with_switch(name, value, fn):
+    saved = getattr(emu4, name)
+    setattr(emu4, name, value)
+    try:
+        return fn()
+    finally:
+        setattr(emu4, name, saved)
+
+
+if __name__ == "__main__":
+    emu4.GATE = "hybrid"
+    emu4.SEED.update(SEEDS)
+    out = []
+    for build, switch, value in ((theta_zero_body, "THETA", False),
+                                 (g_fixed_member, "G_CHECK", False),
+                                 (seeded_soft, "TRRO", "zero")):
+        m = build()
+        t = time.time()
+        rec = dict(model=m["name"], mutant="%s=%r" % (switch, value))
+        rec["R4"] = run_case(m)
+        rec["mutant_run"] = with_switch(switch, value, lambda: run_case(m))
+        rec["seconds"] = round(time.time() - t, 1)
+        out.append(rec)
+        print(json.dumps(rec, default=str), flush=True)
+    json.dump(out, open(os.path.join(HERE, "r4_kills.json"), "w"), indent=1, default=str)

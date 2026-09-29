@@ -1,0 +1,214 @@
+{
+ "N05": {
+  "R4": {
+   "selected": 128,
+   "attempts": [
+    [
+     128,
+     "accepted"
+    ],
+    [
+     256,
+     "verified"
+    ]
+   ],
+   "honest": true,
+   "worst": 6.060436034309793e-08
+  }
+ },
+ "SEEDED-COMMON": {
+  "R4": {
+   "selected": null,
+   "attempts": [
+    [
+     128,
+     "rejected:verification_estimate:('end', 1, 'i', 2)"
+    ],
+    [
+     256,
+     "rejected:verification_estimate:('end', 1, 'i', 2)"
+    ],
+    [
+     512,
+     "rejected:verification_estimate:('end', 1, 'i', 2)"
+    ]
+   ]
+  }
+ },
+ "CHARGE-SLENDER": {
+  "R4": {
+   "selected": 256,
+   "attempts": [
+    [
+     128,
+     "rejected:charge:('end', 1, 'i', 0)"
+    ],
+    [
+     256,
+     "accepted"
+    ],
+    [
+     512,
+     "verified"
+    ]
+   ],
+   "honest": true,
+   "worst": 5.551115123125783e-08
+  },
+  "M17": {
+   "selected": 128,
+   "attempts": [
+    [
+     128,
+     "accepted"
+    ],
+    [
+     256,
+     "verified"
+    ]
+   ],
+   "honest": true,
+   "worst": 5.551115123125783e-08
+  },
+  "M19": {
+   "selected": 128,
+   "attempts": [
+    [
+     128,
+     "accepted"
+    ],
+    [
+     256,
+     "verified"
+    ]
+   ],
+   "honest": true,
+   "worst": 5.551115123125783e-08
+  }
+ },
+ "LEVER2-k90-s40": {
+  "R4": {
+   "selected": null,
+   "attempts": [
+    [
+     128,
+     "failed:Pivot"
+    ],
+    [
+     256,
+     "rejected:verification_estimate:('end', 1, 'i', 2)"
+    ],
+    [
+     512,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   ]
+  }
+ },
+ "LEVER2-k100-s40": {
+  "R4": {
+   "selected": null,
+   "attempts": [
+    [
+     128,
+     "failed:Pivot"
+    ],
+    [
+     256,
+     "rejected:verification_estimate:('end', 1, 'i', 2)"
+    ],
+    [
+     512,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   ]
+  }
+ },
+ "LEVER2-k110-s20": {
+  "R4": {
+   "selected": null,
+   "attempts": [
+    [
+     128,
+     "failed:Pivot"
+    ],
+    [
+     256,
+     "rejected:verification_estimate:('end', 1, 'i', 2)"
+    ],
+    [
+     512,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   ]
+  }
+ },
+ "TILT-LEVER-k90-s40": {
+  "R4": {
+   "selected": null,
+   "attempts": [
+    [
+     128,
+     "failed:Pivot"
+    ],
+    [
+     256,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ],
+    [
+     512,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   ]
+  }
+ },
+ "TILT-LEVER-k100-s40": {
+  "R4": {
+   "selected": null,
+   "attempts": [
+    [
+     128,
+     "failed:Pivot"
+    ],
+    [
+     256,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ],
+    [
+     512,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   ]
+  }
+ },
+ "TILT-LEVER-k110-s20": {
+  "R4": {
+   "selected": null,
+   "attempts": [
+    [
+     128,
+     "failed:Pivot"
+    ],
+    [
+     256,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ],
+    [
+     512,
+     "rejected:stop_rule:('end', 1, 'i', 2)"
+    ]
+   ]
+  }
+ },
+ "_agree_with_DS1_run_controls4": {
+  "N05": true,
+  "SEEDED-COMMON": true,
+  "CHARGE-SLENDER": true,
+  "LEVER2-k90-s40": true,
+  "LEVER2-k100-s40": true,
+  "LEVER2-k110-s20": true,
+  "TILT-LEVER-k90-s40": true,
+  "TILT-LEVER-k100-s40": true,
+  "TILT-LEVER-k110-s20": true
+ }
+}

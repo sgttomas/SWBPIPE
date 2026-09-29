@@ -1588,3 +1588,26 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - D1: the work graph is updated after merge.
   - D2: R4:3 repeats V4's "5 NOTEs" miscount of its R3 check; the correct count is 4. R4 is not edited while V4 verifies it, and the erratum is recorded here.
   - D3: the PR body's blank-line disclosure also covers two K5 review run records that are not scripts.
+
+## D1 revision 5a.3: rulings on V4's delta check at R4 (ROOT, 2026-09-29)
+
+- **Verdict accepted:** NOT VERIFIED, with 0 BLOCKING, 4 SHOULD-FIX (V4-U1 to U4) and 5 NOTEs (U5 to U9).
+  - V4-T1 is closed as ruled: the charge is implemented as specified, and the Lemmas, Theorem and Corollary hold step by step, apart from U5 and U8.
+  - Lemma B's count is checked against K4's Rust source, including every stage DS1 had not re-checked.
+  - No false claim was found.
+- **V4-U1: adopt the certified bound. F·est is removed from every step of the guarantee.**
+  - **The bound:** Uc = U/(1 − U·γ_m·‖|L|D|Lᵀ|‖₁), with U = ‖M(L)⁻ᵀD⁻¹M(L)⁻¹e‖_∞ taken from the verification's own LDLᵀ factor. Computed upward on nonnegative data, it bounds ‖K̃_P⁻¹‖₁ from above (derived).
+  - **Where it replaces F·est:** in the charge (t₁, t₃), in the θ check, and in W⁺ and W's own accuracy wherever they use F·est. The Hager–Higham estimate may remain only where it serves availability (screening or escalation). It never bears on honesty.
+  - **Why:** V4 demonstrated that, within the design's screens, the estimator's miss is unbounded (8.9e26 on a 12-DOF frame; 3.3e66 at p = 256), so no pinned F is a bound. Uc costs one substitution pair and one pass. On all 195 of DS1's states it is at least the exact norm and at most 0.0015·F·est, so it costs no availability there. Where it is loose, only availability is lost.
+  - **Consequence:** R5's §9 must state whether any uncertified step remains. The owner-list limitation ("the guarantee rests on Hager–Higham to F") is withdrawn once R5 is VERIFIED.
+- **V4-U2: adopt.** θ is tested per body, and the g check applies only to members in bodies that carry data. V4's two new controls must return to 128 under R5, and M20 and M23 must still be killed, on honesty if a case exists, otherwise on availability, stated as such.
+- **V4-U3: adopt.** SEEDED-SOFT joins §7 and K4's controls, and kills M22 with a false claim under the mutant. M21 and M14 still survive: R5 builds a killing case for each, or derives that another test implies each and records the guard as kept for the derivation.
+- **V4-U4: adopt.** F3's W1b obligation (§6.5) is corrected: the formed-load error is charged at its true size, with no 2^(q_W−6) under-charge, and the recovery side (E and the reaction-row count) is added.
+- **NOTEs U5 to U9: fix in R5's text.**
+  - U5: Lemma C's inequality at p = 512.
+  - U6: M14's slack arithmetic.
+  - U7: the M10 paragraph, whose error is first order.
+  - U8: θ's rounding direction, and the ∞-norm the Theorem needs where the charge uses the 1-norm.
+  - U9: the reliance wording, which changes with U1.
+- **Also for R5:** RV16-D2's miscount (R4:3 says "5 NOTEs" for V4's R3 check; there were 4).
+- **Next:** DS1 writes R5, V4 runs a delta check, and ROOT selects only after VERIFIED. K4 stays blocked until then.

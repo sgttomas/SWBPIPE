@@ -1,0 +1,285 @@
+#!/usr/bin/env python3
+"""V4, delta check at R4, check 3: how far K4's Hager-Higham estimate (factor.rs
+`condition`, mirrored line by line: x = e/n, at most 5 iterations, sign(0) = +1,
+the last index on ties, the test |z_j| <= z.x or j == previous, then the
+alternating vector (-1)^i (1 + i/(n-1)), estimate = max) can fall below the exact
+||K~^-1||_1 on radix-equilibrated SPD matrices that pass the design's screens
+(K4's pivot screen and condition screen at the candidate p and at P = 2p).
+
+Families (all exact dyadic inputs; the factor and every solve rounded to p bits):
+  F1  K = I - c v v^T / n, v = (1,1,-1,-1, 1,1,-1,-1, ...), c = 1 - 2^-m:
+      a single soft direction v orthogonal to e and to the alternating vector.
+  F2  a grounded spring chain V (a Stieltjes matrix) interleaved with a 4-DOF
+      block H = I - P_w + 2^-m P_w, w = (1,-1,-1,1) at free positions 0, 2, 4, 6:
+      the estimate iterates into V and never sees w.
+  F3  as F1 with the soft direction also orthogonal to a pinned pseudo-random
+      +-1 vector rho: power iteration from rho is fooled as well.
+Safeguards measured on every matrix: the estimate with 20 iterations; 3 steps of
+power iteration on K~^-1 from e, from the alternating vector and from rho; and the
+comparison-matrix bound U = ||M(L)^-T |D|^-1 M(L)^-1 e||_inf from the computed
+factor (|L^-1| <= M(L)^-1 for triangular L), which is a certified upper bound on
+||(L D L^T)^-1||_1 and costs one substitution pair.
+Standard library only. Output: JSON on stdout."""
+import json, sys, os
+from fractions import Fraction as Fr
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from v4emu import rnd, flog2
+
+
+def equilibrate(K):
+    n = len(K)
+    s = [-(flog2(K[i][i]) // 2) for i in range(n)]
+    return [[K[i][j] * Fr(2) ** (s[i] + s[j]) for j in range(n)] for i in range(n)], s
+
+
+def factor(Kt, p):
+    """K4's profile LDL^T (natural order; every operation rounded to p) with the
+    pivot screen d(2^p - m) - 64 m c > 0."""
+    n = len(Kt)
+    first = [min(j for j in range(i + 1) if Kt[i][j] != 0) for i in range(n)]
+    L = [[Fr(0)] * n for _ in range(n)]
+    D = [Fr(0)] * n
+    ok = True
+    for i in range(n):
+        work = [Fr(0)] * n
+        for j in range(first[i], i):
+            s = Kt[i][j]
+            for kk in range(max(first[i], first[j]), j):
+                s = rnd(s - rnd(work[kk] * L[j][kk], p), p)
+            work[j] = s
+            L[i][j] = rnd(s / D[j], p)
+        piv = Kt[i][i]
+        canc = abs(piv)
+        for kk in range(first[i], i):
+            t = rnd(work[kk] * L[i][kk], p)
+            piv = rnd(piv - t, p)
+            canc = rnd(canc + abs(t), p)
+        mops = 2 * (i - first[i]) + 2
+        if not (piv * (Fr(2) ** p - mops) - 64 * mops * canc > 0):
+            ok = False
+            if piv <= 0:
+                return None, None, False
+        D[i] = piv
+    return L, D, ok
+
+
+def solve(L, D, b, p):
+    n = len(b)
+    x = list(b)
+    for i in range(n):
+        for j in range(i):
+            if L[i][j]:
+                x[i] = rnd(x[i] - rnd(L[i][j] * x[j], p), p)
+    for i in range(n):
+        x[i] = rnd(x[i] / D[i], p)
+    for i in reversed(range(n)):
+        v = x[i]
+        for j in range(i):
+            if L[i][j]:
+                x[j] = rnd(x[j] - rnd(L[i][j] * v, p), p)
+    return x
+
+
+def alternating(n, p):
+    out = []
+    for i in range(n):
+        mag = Fr(1) if n == 1 else rnd(Fr(n - 1 + i, n - 1), p)
+        out.append(mag if i % 2 == 0 else -mag)
+    return out
+
+
+def hager_higham(Kt, L, D, p, iters=5):
+    """factor.rs `condition`, line by line; returns (est, product, condition_ok, iterations)."""
+    n = len(Kt)
+    norm = max(rnd(sum(abs(Kt[i][j]) for i in range(n)), p) for j in range(n))
+    x = [rnd(Fr(1, n), p)] * n
+    est = Fr(0)
+    prev = n
+    used = 0
+    for _ in range(iters):
+        used += 1
+        y = solve(L, D, x, p)
+        cur = rnd(sum(abs(v) for v in y), p)
+        if cur <= est and est != 0:
+            break
+        est = cur
+        signs = [Fr(1) if v >= 0 else Fr(-1) for v in y]
+        z = solve(L, D, signs, p)
+        j = 0
+        for i in range(1, n):
+            if abs(z[i]) >= abs(z[j]):
+                j = i
+        dot = rnd(sum(z[i] * x[i] for i in range(n)), p)
+        if abs(z[j]) <= dot or j == prev:
+            break
+        prev = j
+        x = [Fr(0)] * n
+        x[j] = Fr(1)
+    y = solve(L, D, alternating(n, p), p)
+    alt = rnd(rnd(sum(abs(v) for v in y), p) * 2 / (3 * n), p)
+    est = max(est, alt)
+    product = rnd(norm * est, p)
+    return est, product, (product != 0 and product < Fr(2) ** (p - 1)), used
+
+
+def exact_inverse(A):
+    n = len(A)
+    M = [list(r) + [Fr(int(i == j)) for j in range(n)] for i, r in enumerate(A)]
+    for c in range(n):
+        piv = next(r for r in range(c, n) if M[r][c] != 0)
+        M[c], M[piv] = M[piv], M[c]
+        pv = M[c][c]
+        M[c] = [v / pv for v in M[c]]
+        for r in range(n):
+            if r != c and M[r][c] != 0:
+                f = M[r][c]
+                M[r] = [a - f * b for a, b in zip(M[r], M[c])]
+    return [r[n:] for r in M]
+
+
+def norm1(B):
+    n = len(B)
+    return max(sum(abs(B[i][j]) for i in range(n)) for j in range(n))
+
+
+def comparison_bound(L, D):
+    """U = ||M(L)^-T D^-1 M(L)^-1 e||_inf, exact in Fractions from the computed factor."""
+    n = len(D)
+    a = [Fr(1)] * n
+    for i in range(n):
+        for j in range(i):
+            if L[i][j]:
+                a[i] += abs(L[i][j]) * a[j]
+    b = [a[i] / D[i] for i in range(n)]
+    c = list(b)
+    for i in reversed(range(n)):
+        for j in range(i):
+            if L[i][j]:
+                c[j] += abs(L[i][j]) * c[i]
+    return max(c)
+
+
+def lcg_signs(n, seed=12345):
+    x = seed
+    out = []
+    for _ in range(n):
+        x = (6364136223846793005 * x + 1442695040888963407) % (1 << 64)
+        out.append(Fr(1) if x >> 63 else Fr(-1))
+    return out
+
+
+def power(L, D, x0, p, steps=3):
+    best = Fr(0)
+    x = list(x0)
+    for _ in range(steps):
+        n1 = sum(abs(v) for v in x)
+        y = solve(L, D, x, p)
+        best = max(best, sum(abs(v) for v in y) / n1)
+        x = y
+    return best
+
+
+def examine(name, K, p):
+    Kt, s = equilibrate(K)
+    n = len(Kt)
+    rec = dict(name=name, n=n, p=p, P=2 * p, scales=sorted(set(s)))
+    Binv = exact_inverse(Kt)
+    exact = norm1(Binv)
+    rec["exact"] = float(exact)
+    for tag, prec in (("cand", p), ("ver", 2 * p)):
+        L, D, piv_ok = factor(Kt, prec)
+        if L is None:
+            rec[tag] = dict(pivot_ok=False, negative=True)
+            continue
+        est, prod, cond_ok, used = hager_higham(Kt, L, D, prec)
+        est20 = hager_higham(Kt, L, D, prec, iters=20)[0]
+        U = comparison_bound(L, D)
+        LDL = [[Fr(0)] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(n):
+                LDL[i][j] = sum((L[i][k] if k != i else Fr(1)) * D[k] * (L[j][k] if k != j else Fr(1))
+                                for k in range(min(i, j) + 1))
+        exact_fac = norm1(exact_inverse(LDL))
+        r = dict(pivot_ok=piv_ok, condition_ok=cond_ok, est=float(est), iterations=used,
+                 exact_over_est=float(exact / est), exact_over_est_20=float(exact / est20),
+                 U=float(U), U_over_exact=float(U / exact), U_ge_exact_of_factor=U >= exact_fac,
+                 power_e=float(exact / power(L, D, [Fr(1)] * n, prec)),
+                 power_alt=float(exact / power(L, D, alternating(n, prec), prec)),
+                 power_rho=float(exact / power(L, D, lcg_signs(n), prec)),
+                 F_times_est_ge_exact=bool(Fr(2) ** 16 * est >= exact))
+        rec[tag] = r
+    return rec
+
+
+def f1(n, m):
+    v = [Fr(1) if (i % 4) < 2 else Fr(-1) for i in range(n)]
+    c = 1 - Fr(1, 2 ** m)
+    return [[Fr(int(i == j)) - c * v[i] * v[j] / n for j in range(n)] for i in range(n)]
+
+
+def f2(m, nv=12):
+    """V: grounded chain over nv DOFs with springs 1, 3, 1, 3, ... (ends grounded by 1/4);
+    H: I - P_w + 2^-m P_w, w = (1,-1,-1,1); H occupies free positions 0, 2, 4, 6."""
+    n = nv + 4
+    hpos = [0, 2, 4, 6]
+    vpos = [i for i in range(n) if i not in hpos]
+    K = [[Fr(0)] * n for _ in range(n)]
+    ks = [Fr(1) if t % 2 == 0 else Fr(3) for t in range(nv - 1)]
+    for t, k in enumerate(ks):
+        a, b = vpos[t], vpos[t + 1]
+        K[a][a] += k; K[b][b] += k; K[a][b] -= k; K[b][a] -= k
+    K[vpos[0]][vpos[0]] += Fr(1, 4)
+    K[vpos[-1]][vpos[-1]] += Fr(1, 4)
+    w = [Fr(1), Fr(-1), Fr(-1), Fr(1)]
+    d = Fr(1, 2 ** m)
+    for a in range(4):
+        for b in range(4):
+            val = Fr(int(a == b)) - w[a] * w[b] / 4 + d * w[a] * w[b] / 4
+            K[hpos[a]][hpos[b]] = val
+    return K
+
+
+def orth_complement_vector(n, cons):
+    """A nonzero rational vector with no zero entry orthogonal to every vector in cons."""
+    # solve for the last len(cons) coordinates given the first n - len(cons) set to 1, 2, 1, 2, ...
+    k = len(cons)
+    free = [Fr(1 + (i % 3)) * (1 if i % 2 == 0 else -1) for i in range(n - k)]
+    # cons[r] . (free, t) = 0  ->  A t = -cons[r][:n-k] . free
+    A = [[c[n - k + j] for j in range(k)] for c in cons]
+    rhs = [-sum(c[i] * free[i] for i in range(n - k)) for c in cons]
+    inv = exact_inverse(A)
+    t = [sum(inv[i][j] * rhs[j] for j in range(k)) for i in range(k)]
+    return free + t
+
+
+def f3(n, m, p):
+    cons = [[Fr(1)] * n, alternating(n, p), lcg_signs(n)]
+    w = orth_complement_vector(n, cons)
+    assert all(sum(a * b for a, b in zip(c, w)) == 0 for c in cons)
+    nw = sum(x * x for x in w)
+    c = 1 - Fr(1, 2 ** m)
+    return [[Fr(int(i == j)) - c * w[i] * w[j] / nw for j in range(n)] for i in range(n)], w
+
+
+if __name__ == "__main__":
+    out = []
+    p = 128
+    for n in (4, 16, 32):
+        for m in (20, 60, 100, 110):
+            out.append(examine("F1-n%d-m%d" % (n, m), f1(n, m), p))
+            print(json.dumps(out[-1]), flush=True)
+    for m in (20, 60, 100, 110):
+        out.append(examine("F2-m%d" % m, f2(m), p))
+        print(json.dumps(out[-1]), flush=True)
+    for m in (20, 60, 100):
+        K, w = f3(16, m, p)
+        rec = examine("F3-n16-m%d" % m, K, p)
+        rec["w_nonzero_entries"] = sum(1 for x in w if x != 0)
+        out.append(rec)
+        print(json.dumps(out[-1]), flush=True)
+    # the same F1 family at p = 256 (verified at 512), within both screens
+    for m in (120, 200, 230):
+        out.append(examine("F1-n16-m%d-p256" % m, f1(16, m), 256))
+        print(json.dumps(out[-1]), flush=True)
+    json.dump(out, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "r4_hh.json"), "w"), indent=1)
