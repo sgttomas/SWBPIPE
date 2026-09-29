@@ -31,9 +31,8 @@ fn every_recovered_kind_matches_its_exact_reference() {
         .into_iter()
         .filter(|m| m.name == "DIRECTIONAL-WELL");
     for m in models::models().into_iter().chain(well) {
-        if m.expect.is_empty() {
-            continue;
-        }
+        // ROOT's rulings on RV19's review: every model has GEN's exact
+        // expectations (a singular one excepted, which is never selected).
         let Ok(source) = PrimitiveSource::new(m.parts.clone()) else {
             continue;
         };
@@ -44,13 +43,19 @@ fn every_recovered_kind_matches_its_exact_reference() {
             continue;
         };
         let rows = &solve.publish().rows;
+        assert!(
+            !m.exact.is_empty(),
+            "{}: selected with no expectation",
+            m.name
+        );
         // Each row against the claim it publishes (D1 revision 5a.3, R7 §5.2;
-        // ROOT's ruling at C): RIGID-UNLOADED, selected at 512, withholds its
-        // rows near zero as `absolute_verified` with their own bound.
+        // ROOT's rulings at C and on RV19's review), none skipped:
+        // RIGID-UNLOADED, selected at 512, withholds its rows near zero as
+        // `absolute_verified` with their own bound.
         let (worst, at, compared) =
-            models::compare_honest(solve.publish(), solve.selected_precision(), &m.expect);
+            models::compare_honest(solve.publish(), solve.selected_precision(), &m.exact);
         assert!(worst <= 1.0, "{}: {worst} at {at}", m.name);
-        assert!(compared > 0, "{}", m.name);
+        assert!(compared >= rows.len(), "{}", m.name);
         let published = models::published(rows);
         for key in m.expect.keys().filter(|k| published.contains_key(*k)) {
             *tally

@@ -1,0 +1,46 @@
+OK   sum_targeted.txt
+OK   sum_differential.txt
+OK   sum_differential_sample.txt
+OK   ledger.txt
+OK   streams.txt
+OK   streams_sample.txt
+OK   formation.txt
+OK   encodings.txt
+OK   o8_states.txt
+OK   classification.txt
+OK   r1_cases.txt
+OK   r1_large.txt
+OK   directed.txt
+OK   models5a3.txt
+OK   outcomes.txt
+OK   charge.txt
+OK   estimate.txt
+OK   directional_span_exact.txt
+OK   scale.txt
+OK   bounds.txt
+OK   profiles.txt
+OK   models.txt
+OK   SHA256SUMS
+{
+ "inputs": {
+  "core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py": "ca48d1bd65540eb3da7f30acbbdd4fa553fe03fed432f2b18afd960e2ba4da29",
+  "core/solver/nonlinear_integration/src/structural_adapter/k2b_models.rs": "c23eedd273ebacd4d3d324bb24e72cbe766b33d2768c8808e5f9d51674c63090",
+  "core/solver/nonlinear_integration/src/structural_adapter/kd5_models.rs": "17a4680c83ff3e940a7dcfd908ef334c8b5a53427b6ff388dafb5888477dca23",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/_run_records/floor_kinds.json": "8326561530598e1f6b69d9f174b70946e52800373b5ecab48864ae174087ae78",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.json": "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.py": "80d473a7351e92a2a903d233b9e633aac794aeff07f3ac41e40d25a0d94fc8a8",
+  "validation/benchmarks/numerical_integrity/fixtures.json": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e"
+ },
+ "stream_p128": "9924f48b5d02108ece0cd1571db1456a41b70abb05612efcadefea48265ca455",
+ "stream_p192": "eae821b9875ad84be5171e0147f4bb439f70b13ed8f4bd2fd8c81e9b03e547fd",
+ "stream_p320": "6175b2454a6972c1e745593095cad1ef168be9a9cbdbb090298b495aafa76936",
+ "stream_p576": "48ec75a7da13766a2239c56d192aba8f81f9b7cd58a9e72ddafb148454431ac9",
+ "sum_sum1024": "b8296c33712e58896d4cd73764809dee3954026a9da53799e5d0f1e28830ef68",
+ "sum_sum128": "e06891fbe26951a9fa684ee8563b4a30d3ababa8fef9726708e464abb93389db",
+ "sum_sum192": "8c30f67bc9a816e72a4b8f2e643f30d02d04077f41259adc63c0ead7c96c6dd5",
+ "sum_sum256": "d71c101240057d83caab8e9fb960403432eec12a016610413d503571b0890b30",
+ "sum_sum320": "777853d60a050af926e524af363bf1c5d2bcc030042c3b11adc303f1fac8e5ce",
+ "sum_sum512": "6c4acb2b0a1b99ea608f73fa84d4b3b4a1ba875c51a4e60430cbc26e342d4274",
+ "sum_sum576": "a27c7348fdcbe70b03796cdd2a4b5e616dc5de0fa72e02e60e90b26c91ca51cd"
+}
+python3 -B gen_k4_vectors.py --check  1005.54s user 2.66s system 99% cpu 16:56.37 total

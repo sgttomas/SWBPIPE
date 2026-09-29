@@ -253,7 +253,13 @@ impl ExactWideSum {
                 (current << bit) | (previous >> (64 - bit))
             };
             if index >= SUM_LIMBS {
-                debug_assert!(part == 0 && carry == 0, "span check bypassed");
+                // Unreachable under the span check (RETURN §5 item 3). Were it
+                // reached, a bit that does not fit is refused rather than
+                // dropped (RV19-N4); the sum is then unusable, and every
+                // caller ends its attempt on `Span`.
+                if part != 0 || carry != 0 || trimmed[k.min(limbs)..limbs].iter().any(|&w| w != 0) {
+                    return Err(SumRefusal::Span);
+                }
                 break;
             }
             let (s1, c1) = target[index].overflowing_add(part);

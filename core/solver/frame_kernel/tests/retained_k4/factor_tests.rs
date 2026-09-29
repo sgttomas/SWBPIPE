@@ -162,7 +162,7 @@ fn a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_
         .to_binary64()
         .value()
         .unwrap();
-    assert!(rcond > 0.0 && rcond < 2f64.powi(-127), "{rcond:e}");
+    assert!(rcond > 0.0 && rcond < support::pow2(-127), "{rcond:e}");
     // A well-conditioned control (n = 20) passes at 128.
     let small = path_source(20);
     let (structure, ordering, k) = constructed::<4>(&small, bidiagonal_product);

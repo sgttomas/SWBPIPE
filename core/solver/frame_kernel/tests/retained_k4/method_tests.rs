@@ -220,129 +220,11 @@ fn run_controls() -> BTreeMap<String, Outcome> {
     out
 }
 
-/// R7 §6.3's G5a, items 1–6, in binary64 as D2 pins them, on a selected
-/// case's evidence and publication (a test-only checker; D2 owns G5a). The
-/// rows are in SI units, so item 4's conversion is the identity.
-fn g5a(solve: &RetainedSolve) -> Result<(), String> {
-    let ev = solve.evidence();
-    let publication = solve.publish();
-    let source = solve.source();
-    let extents = &solve.prep.extents;
-    let c = f64::from_bits(0x3FF0_0000_0000_1000);
-    let scale = |body: u32, kind: Kind| -> f64 {
-        let bits = publication
-            .body_scales
-            .iter()
-            .find(|s| s.0 == body && s.1 == kind)
-            .unwrap()
-            .2;
-        f64::from_bits(bits)
-    };
-    for body in 0..source.body_count() {
-        let has_fm = publication
-            .rows
-            .iter()
-            .any(|r| r.body == body && matches!(r.kind, Kind::Force | Kind::Moment));
-        let entry = ev.resolution_scale.iter().find(|e| e.0 == body);
-        // 1. Shape.
-        let Some(&(_, fo_bits, mo_bits)) = entry else {
-            if has_fm {
-                return Err(format!("body {body}: no resolution_scale"));
-            }
-            continue;
-        };
-        let e = [f64::from_bits(fo_bits), f64::from_bits(mo_bits)];
-        if e.iter().any(|v| !v.is_finite() || v.is_sign_negative()) {
-            return Err(format!("body {body}: E {e:?}"));
-        }
-        let hat = e_hat(e, extents[body as usize]);
-        for (k, kind) in [(0, Kind::Force), (1, Kind::Moment)] {
-            // 2. The zero rule.
-            if e[k] == 0.0 {
-                for r in publication
-                    .rows
-                    .iter()
-                    .filter(|r| r.body == body && r.kind == kind)
-                {
-                    if r.value.value().is_some_and(|v| v.to_bits() != 0) {
-                        return Err(format!("body {body}: E = 0 with {:?} published", r.id));
-                    }
-                }
-            }
-            // 3. The sanity bound.
-            if hat[k] * c < scale(body, kind) {
-                return Err(format!("body {body} {kind:?}: ê·c below S*"));
-            }
-        }
-        // 4. The lower bound.
-        let value = |g: usize| -> f64 {
-            publication
-                .rows
-                .iter()
-                .find(|r| r.id == QuantityId::Displacement(Dof::from_global(g)))
-                .and_then(|r| r.value.value())
-                .unwrap_or(0.0)
-                .abs()
-        };
-        let norm = |node: u32, offset: usize| {
-            let g = 6 * node as usize + offset;
-            (value(g) + value(g + 1)) + value(g + 2)
-        };
-        let (s_tr, s_ro) = (scale(body, Kind::Translation), scale(body, Kind::Rotation));
-        let (mut lb_fo, mut lb_mo) = (0.0f64, 0.0f64);
-        for m in source
-            .members()
-            .iter()
-            .filter(|m| source.body_of_node(m.node_i) == body)
-        {
-            let (xi, xj) = (
-                source.nodes()[m.node_i as usize],
-                source.nodes()[m.node_j as usize],
-            );
-            let d = [xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]];
-            let length = ((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]).sqrt();
-            let ka = (m.elastic_modulus * m.area) / length;
-            let kt = (m.shear_modulus * m.torsion_constant) / length;
-            let nt = norm(m.node_i, 0) + norm(m.node_j, 0);
-            let nr = norm(m.node_i, 3) + norm(m.node_j, 3);
-            if nt > 2f64.powi(-59) * s_tr {
-                lb_fo = lb_fo.max(ka * (nt - 2f64.powi(-60) * s_tr));
-            }
-            if nr > 2f64.powi(-59) * s_ro {
-                lb_mo = lb_mo.max(kt * (nr - 2f64.powi(-60) * s_ro));
-            }
-        }
-        if hat[0] * c < lb_fo || hat[1] * c < lb_mo {
-            return Err(format!(
-                "body {body}: lower bound {lb_fo:e} {lb_mo:e} above ê·c {:e} {:e}",
-                hat[0] * c,
-                hat[1] * c
-            ));
-        }
-    }
-    // 5. and 6. The summaries.
-    for &(b, k, v) in &ev.verification_estimate {
-        if v.is_nan() || v > 0.25 {
-            return Err(format!("estimate {b} {k:?} {v:e}"));
-        }
-    }
-    for &(b, k, v) in &ev.verification_charge {
-        if v.is_nan() || v > 1.0 {
-            return Err(format!("charge {b} {k:?} {v:e}"));
-        }
-    }
-    for &(b, t) in &ev.theta {
-        if t.is_nan() || t > 0.5 {
-            return Err(format!("theta {b} {t:e}"));
-        }
-    }
-    for &(b, bits) in &ev.certified_bound {
-        let v = f64::from_bits(bits);
-        if !(v.is_finite() && v > 0.0) {
-            return Err(format!("B {b} {v:e}"));
-        }
-    }
-    Ok(())
+/// The derived keys `compare_honest` checks besides the rows (N, T and the
+/// bending magnitudes of published operands).
+fn derived_keys(solve: &RetainedSolve) -> usize {
+    let rows = &solve.publish().rows;
+    models::published(rows).len() - rows.iter().filter(|r| r.value.value().is_some()).count()
 }
 
 fn strip(token: &str) -> String {
@@ -657,6 +539,31 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
             .starts_with("ResolutionScaleUnencodable"));
     }
 
+    // ROOT's rulings on RV19's review. OVF-ROT-928 (RV19-1): once the rows its
+    // candidate cannot publish set no S*, its spurious rotation (exact value
+    // 0) is rejected at every p; OVF-ROT-900 beside it, where nothing
+    // overflows, is selected at 128. TINY-S-995 and TINY-S-900 (amendment A1),
+    // GROUP-DIR and GROUP-DIR-X (RV19-4) are selected at 128.
+    expect(
+        "OVF-ROT-928",
+        None,
+        &[
+            "128:rejected:stop_rule",
+            "256:rejected:stop_rule",
+            "512:rejected:stop_rule",
+        ],
+    );
+    assert_eq!(runs["OVF-ROT-928"].unresolved.as_deref(), Some("Ceiling"));
+    for name in [
+        "OVF-ROT-900",
+        "TINY-S-995",
+        "TINY-S-900",
+        "GROUP-DIR",
+        "GROUP-DIR-X",
+    ] {
+        expect(name, Some(128), &at_128);
+    }
+
     // No silent move from 5a.2: every models.txt case selected at 128 passed
     // the coalesced gate at 128 and 256, where 5a.2's weaker rule accepts too.
     for m in models::models() {
@@ -674,33 +581,58 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
         }
     }
 
-    // Honesty against the exact solutions, and G5a, on every selected control.
+    // Honesty against the exact solutions, and G5a, on every selected control
+    // and combination of the default lane (ROOT's rulings on RV19's review:
+    // every one has GEN's exact expectations, every published row and every
+    // unpublishable row is checked, and none is skipped).
     let mut honest = 0;
     let (mut rows_compared, mut tightest) = (0, (0.0f64, String::new()));
-    let mut expectations: BTreeMap<String, BTreeMap<String, f64>> = all_models()
+    let mut expectations: BTreeMap<String, BTreeMap<String, models::Exact>> = all_models()
         .into_iter()
-        .map(|m| (m.name, m.expect))
+        .map(|m| (m.name, m.exact))
         .collect();
     for c in models::parse_combos(MODELS_5A3) {
-        expectations.insert(c.name, c.expect);
+        expectations.insert(c.name, c.exact);
     }
     let mut gates = Vec::new();
+    let mut a1_moved = Vec::new();
     for (name, o) in &runs {
         let Some(solve) = &o.solve else { continue };
-        g5a(solve).unwrap_or_else(|e| panic!("{name}: G5a {e}"));
+        // Amendment A1 (RV19-6): the rows whose bound it changes.
+        let p = solve.publish();
+        let moved = p
+            .rows
+            .iter()
+            .filter(|r| match r.class {
+                RowClass::AbsoluteVerified { bound_bits } => {
+                    let s = p
+                        .body_scales
+                        .iter()
+                        .find(|s| s.0 == r.body && s.1 == r.kind)
+                        .map_or(0.0, |s| f64::from_bits(s.2));
+                    bound_bits != absolute_bound(s).to_bits()
+                }
+                _ => false,
+            })
+            .count();
+        if moved > 0 {
+            a1_moved.push(format!("{name} {moved}"));
+        }
+        models::g5a(solve).unwrap_or_else(|e| panic!("{name}: G5a {e}"));
         for a in &o.attempts {
             if let Some(GateTest::Bounded { state, evaluated }) = a.gate {
                 gates.push(format!("{name} {} {state}/{evaluated}", a.precision));
             }
         }
         let expect = &expectations[name];
-        if expect.is_empty() {
-            continue;
-        }
+        assert!(
+            !expect.is_empty(),
+            "{name}: selected with no exact expectation"
+        );
         let (worst, at, compared) =
             models::compare_honest(solve.publish(), solve.selected_precision(), expect);
         assert!(
-            compared > 0 && worst <= 1.0,
+            compared == solve.publish().rows.len() + derived_keys(solve) && worst <= 1.0,
             "{name}: {worst} at {at} ({compared})"
         );
         honest += 1;
@@ -709,12 +641,16 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
             tightest = (worst, format!("{name} {at}"));
         }
     }
+    let selected = runs.values().filter(|o| o.solve.is_some()).count();
+    assert_eq!(honest, selected);
+    println!("amendment A1 changes the bounds of: {a1_moved:?}");
+    assert!(a1_moved.iter().any(|m| m.starts_with("TINY-S-995 ")));
     println!("bounded gates: {gates:?}");
     println!(
         "claims: {honest} controls, {rows_compared} rows; worst |obs − exp|/allowed {:e} ({})",
         tightest.0, tightest.1
     );
-    assert!(honest >= 90, "{honest}");
+    assert!(honest >= 110, "{honest}");
 
     // Item 6a on the controls: DEMOTION2's relative rows and EXACT-RIGID's b.
     let classes = |name: &str| {
@@ -843,7 +779,16 @@ fn directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim
         .collect();
     assert_eq!(qstar.len(), layout.len());
     let mut ctx = WideContext::<8>::new(512).unwrap();
-    let scales = scales_at(&mut ctx, layout, &s512.recovered.values, extents).unwrap();
+    // No row of the 256 candidate lacks a binary64 value, so O9 on the stop
+    // rule (RV19-1) leaves every row in S* here.
+    let skip: Vec<bool> = s256
+        .recovered
+        .values
+        .iter()
+        .map(|q| !q.is_zero() && q.to_binary64().value().is_none())
+        .collect();
+    assert!(skip.iter().all(|s| !s));
+    let scales = scales_at(&mut ctx, layout, &s512.recovered.values, extents, &skip).unwrap();
     let mut values = PrecisionState::P256(s256.clone()).published();
     prep.publish_prescribed(&mut values);
     let publication = classify_rows(layout, &values, extents);
@@ -867,7 +812,7 @@ fn directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim
             (worst, worst_at) = (r, index);
         }
         if let RowClass::AbsoluteVerified { bound_bits } = publication.rows[index].class {
-            let b = f64::from_bits(bound_bits) * (1.0 + 2f64.powi(-22));
+            let b = f64::from_bits(bound_bits) * (1.0 + support::pow2(-22));
             let mut e = ExactWideSum::new();
             e.add_binary64(values[index].value().unwrap(), false)
                 .unwrap();
@@ -885,7 +830,7 @@ fn directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim
     );
     // Within its claim by far: 5a.3 withholds a correct publication (an
     // availability loss, not a false claim).
-    assert!(worst < 2f64.powi(-70), "{worst:e}");
+    assert!(worst < support::pow2(-70), "{worst:e}");
 }
 
 // ---------------------------------------------------------------- E-CHARGE and E-ESTIMATE
@@ -1537,7 +1482,7 @@ fn sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order() {
     let one = Wide::<4>::ONE;
     let zero = Wide::<4>::ZERO;
     let half = one.mul_pow2(-1).unwrap();
-    let e = 2f64.powi(-4);
+    let e = support::pow2(-4);
     let big_p = 256i64;
     let mut ctx = WideContext::<4>::new(256).unwrap();
     // (a), force kind: |Δ| = ε·M − V with M = 1 and V = ê·2^(8−P) = 2^-252.
@@ -1627,7 +1572,7 @@ fn sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row() {
     // (d) for the candidate p = 256 (P = 512: 60·ê·2^-P) and p = 512
     // (P = 1024: 2^-86·M_q, M_q = 1 here, the floor Φ below it).
     let layout = force_row();
-    let e = 2f64.powi(-4);
+    let e = support::pow2(-4);
     let one8 = Wide::<8>::ONE;
     let zero8 = Wide::<8>::ZERO;
     let c512 = Wide::<8>::from_f64(60.0 * e)
@@ -1702,7 +1647,7 @@ fn sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state() {
     // The row test |r|·(2^p − m) ≤ 64·m·d^b at p = 128, m = 4: with
     // d^b = 2^128 − 4, r = 256 is on the boundary (passes), 257 fails.
     let mut sum = ExactWideSum::new();
-    let d = ratio_sum(0.0, &[2f64.powi(128), -4.0]).1;
+    let d = ratio_sum(0.0, &[support::pow2(128), -4.0]).1;
     for (r, passes) in [(256.0, true), (-256.0, true), (257.0, false)] {
         let mut rs = ExactWideSum::new();
         rs.add_binary64(r, false).unwrap();
@@ -1722,8 +1667,8 @@ fn sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state() {
     assert_eq!(best_gate_state(&worst).unwrap(), Some(2));
     // Ratios that differ below binary64 resolution are still ordered exactly.
     let worst = vec![
-        Some(Some(ratio_sum(1.0, &[1.0, 2f64.powi(-200)]))),
-        Some(Some(ratio_sum(1.0, &[1.0, 2f64.powi(-201)]))),
+        Some(Some(ratio_sum(1.0, &[1.0, support::pow2(-200)]))),
+        Some(Some(ratio_sum(1.0, &[1.0, support::pow2(-201)]))),
     ];
     assert_eq!(best_gate_state(&worst).unwrap(), Some(0));
     // A state whose residual vanishes is best; no eligible state gives None.
@@ -1747,7 +1692,7 @@ fn leaning_cantilever(j: i32) -> PrimitiveSource {
         second_moment_y: 1.0e-5,
         second_moment_z: 2.0e-5,
         torsion_constant: 3.0e-5,
-        y_reference: [1.0, 2f64.powi(-j), 0.0],
+        y_reference: [1.0, support::pow2(-j), 0.0],
     });
     for c in 0..6 {
         parts.constraints.push(Constraint {
@@ -1822,4 +1767,54 @@ fn sd_g5_lever2s_estimate_residual_is_nonzero_where_the_assembled_one_vanishes()
         .unwrap();
     assert!(r.r_hat.iter().any(|v| !v.is_zero()));
     assert!(r.w.iter().flatten().any(|v| !v.is_zero()));
+}
+
+#[test]
+fn the_sas_norm_is_the_larger_of_the_one_and_infinity_norms() {
+    // RV19-5 (ROOT's ruling): R7 item 6 takes ‖SĀS‖ as the larger of the
+    // 1-norm and the ∞-norm, since Lemma C uses the 1-norm and the Theorem's
+    // step 5 the ∞-norm. On the controls Ā's triangles differ only by the
+    // rounding of |D|B̄ and the ∞-norm is never the smaller, so here one
+    // transposed entry of N05's Ā at 256 is raised by 2^20: a column sum then
+    // exceeds every row sum, and the block's norm must be the 1-norm.
+    let prep = CasePrep::new(models::model("N05").source()).unwrap();
+    let group = prepare_group(&prep.source).unwrap();
+    let guard = StageGuard::unlimited();
+    let shared = build_shared::<4, 8>(256, 320, &prep.source, &group, guard)
+        .result
+        .unwrap();
+    let state = solve_case_at::<4, 8>(&shared, &prep, &group, guard)
+        .result
+        .unwrap();
+    let mut vs = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, guard)
+        .result
+        .unwrap();
+    let pattern = &group.structure.pattern;
+    let position = &group.ordering.position;
+    let mut found = 0;
+    for &g in &group.ordering.free {
+        for index in pattern.row_range(g) {
+            let j = pattern.column(index);
+            if j == g || position[j] == usize::MAX {
+                continue;
+            }
+            let t = pattern.transpose(index);
+            let original = vs.abar[t];
+            if original.is_zero() {
+                continue;
+            }
+            vs.abar[t] = original.mul_pow2(20).unwrap();
+            let r = verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, guard)
+                .result
+                .unwrap();
+            vs.abar[t] = original;
+            for n in &r.norms {
+                let one_larger = n.sas_one.cmp_value(&n.sas_inf) == std::cmp::Ordering::Greater;
+                let larger = if one_larger { &n.sas_one } else { &n.sas_inf };
+                assert_eq!(n.sas.cmp_value(larger), std::cmp::Ordering::Equal);
+                found += usize::from(one_larger);
+            }
+        }
+    }
+    assert!(found > 0, "no entry makes the 1-norm the larger");
 }

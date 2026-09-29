@@ -1,15 +1,21 @@
 //! Test-only: the generator's model blocks (`models.txt`, `formation.txt`),
-//! parsed into K4 sources, and the comparison of published rows with exact
+//! parsed into K4 sources; the comparison of published rows with exact
 //! expectations under the unchanged predicate |obs − exp| ≤ 1e-9·max(|exp|,
-//! scale), the scale being the coupled body scale of the expected values.
+//! scale), the scale being the coupled body scale of the expected values; and
+//! the honesty check of each row against the claim it publishes, with GEN's
+//! 128-bit exact expectations (ROOT's rulings on RV19's review).
 use super::super::super::adaptive::{
-    body_extent, coupled_scales, Publication, PublishedRow, RowClass,
+    body_extent, coupled_scales, directed_ratio, Direction, Publication, PublishedRow,
+    RetainedSolve, RowClass,
 };
 use super::super::super::recover::{End, Kind, QuantityId};
 use super::super::super::source::{
     Component, Constraint, DirectionalSpring, Dof, NodalLoad, PrimitiveSource, SourceParts, Spring,
     SpringKind, Station, StraightMember, SupportGroup,
 };
+use super::super::super::verify::e_hat;
+use super::super::super::wide::multi::{Binary64Outcome, WideContext};
+use super::super::super::wide_sum::ExactWideSum;
 use std::collections::BTreeMap;
 
 pub(crate) const MODELS: &str = include_str!("models.txt");
@@ -19,11 +25,90 @@ fn hf(hex: &str) -> f64 {
     f64::from_bits(u64::from_str_radix(hex, 16).unwrap())
 }
 
+/// GEN's exact expectation of a quantity (its `x:` token): ±m·2^e, the exact
+/// value rounded once to 128 bits (2^127 ≤ m < 2^128; m = 0 for an exact 0).
+/// `err`: |x − q\*| ≤ 2^err for a high-precision solve (GEN's `solve_hp`),
+/// none for an exact rational one. `range`: the exact value underflows
+/// binary64 (nonzero, rounding to zero) or overflows it (ROOT's range marker).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) struct Exact {
+    pub(crate) negative: bool,
+    pub(crate) mantissa: u128,
+    pub(crate) exponent: i64,
+    pub(crate) err: Option<i64>,
+    pub(crate) range: Option<OutOfRange>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum OutOfRange {
+    Underflow,
+    Overflow,
+}
+
+impl Exact {
+    /// Adds ±x exactly.
+    fn add_to(&self, sum: &mut ExactWideSum, negate: bool) {
+        if self.mantissa != 0 {
+            let limbs = [self.mantissa as u64, (self.mantissa >> 64) as u64];
+            sum.add_integer(self.negative != negate, &limbs, self.exponent)
+                .unwrap();
+        }
+    }
+
+    /// Adds ±δ exactly, δ = 2^-127·|x| (twice the token's rounding) + 2^err.
+    fn add_slack(&self, sum: &mut ExactWideSum, negate: bool) {
+        if self.mantissa != 0 {
+            let limbs = [self.mantissa as u64, (self.mantissa >> 64) as u64];
+            sum.add_integer(negate, &limbs, self.exponent - 127)
+                .unwrap();
+        }
+        if let Some(e) = self.err {
+            sum.add_integer(negate, &[1], e).unwrap();
+        }
+    }
+}
+
+/// The `x:`, `err:` and range tokens of an `expect` line (after its binary64).
+fn parse_exact(tokens: &[&str]) -> Option<Exact> {
+    let mut out: Option<Exact> = None;
+    for t in tokens {
+        if let Some(x) = t.strip_prefix("x:") {
+            out = Some(if x == "0" {
+                Exact {
+                    negative: false,
+                    mantissa: 0,
+                    exponent: 0,
+                    err: None,
+                    range: None,
+                }
+            } else {
+                let (m, e) = x[1..].split_once('p').unwrap();
+                Exact {
+                    negative: x.starts_with('-'),
+                    mantissa: u128::from_str_radix(m, 16).unwrap(),
+                    exponent: e.parse().unwrap(),
+                    err: None,
+                    range: None,
+                }
+            });
+        } else if let Some(e) = t.strip_prefix("err:") {
+            out.as_mut().unwrap().err = Some(e.parse().unwrap());
+        } else if *t == "underflow" {
+            out.as_mut().unwrap().range = Some(OutOfRange::Underflow);
+        } else if *t == "overflow" {
+            out.as_mut().unwrap().range = Some(OutOfRange::Overflow);
+        }
+    }
+    out
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct Model {
     pub(crate) name: String,
     pub(crate) parts: SourceParts,
     pub(crate) expect: BTreeMap<String, f64>,
+    /// GEN's 128-bit exact expectations, by key.
+    pub(crate) exact: BTreeMap<String, Exact>,
     /// R7 §7's SEED hook: (global DOF, value) added to the final state.
     pub(crate) seeds: Vec<(usize, f64)>,
 }
@@ -39,6 +124,7 @@ pub(crate) struct Combo {
     pub(crate) name: String,
     pub(crate) operands: Vec<(f64, String)>,
     pub(crate) expect: BTreeMap<String, f64>,
+    pub(crate) exact: BTreeMap<String, Exact>,
 }
 
 fn dof(node: &str, c: &str) -> Dof {
@@ -63,6 +149,7 @@ pub(crate) fn parse_models(text: &str) -> Vec<Model> {
                     name: f[1].to_string(),
                     parts: SourceParts::default(),
                     expect: BTreeMap::new(),
+                    exact: BTreeMap::new(),
                     seeds: Vec::new(),
                 })
             }
@@ -140,6 +227,9 @@ pub(crate) fn parse_models(text: &str) -> Vec<Model> {
                     }
                     "expect" => {
                         m.expect.insert(f[1].to_string(), hf(f[2]));
+                        if let Some(x) = parse_exact(&f[3..]) {
+                            m.exact.insert(f[1].to_string(), x);
+                        }
                     }
                     "seed" => m.seeds.push((f[1].parse().unwrap(), hf(f[2]))),
                     _ => {}
@@ -183,11 +273,15 @@ pub(crate) fn parse_combos(text: &str) -> Vec<Combo> {
                         })
                         .collect(),
                     expect: BTreeMap::new(),
+                    exact: BTreeMap::new(),
                 })
             }
             Some("expect") => {
                 if let Some(c) = current.as_mut() {
                     c.expect.insert(f[1].to_string(), self::hf(f[2]));
+                    if let Some(x) = parse_exact(&f[3..]) {
+                        c.exact.insert(f[1].to_string(), x);
+                    }
                 }
             }
             Some("end") => {
@@ -324,32 +418,86 @@ pub(crate) fn compare(
     compare_with(source, rows, expect)
 }
 
-/// The claim each selected row publishes (D1 revision 5a.3, R7 §5.2; ROOT's
-/// ruling at checkpoint C), checked against the exact expectation, which is
-/// itself the exact value rounded once to binary64 (its rounding, 2^-53 of it,
-/// is allowed):
-/// - `absolute_verified` with bound b: |q_pub − q\*| ≤ b·(1 + 2^-22), or
-///   b·(1 + 2^-21) when selected at 512 (R7 §5.2's "Scope of b": the
-///   publication rounding, and the charge's 2^-22 at 512, included);
+/// max(0, |q − x| − δ)/a, rounded upward, decided exactly: 0 when the
+/// difference lies within δ, ∞ when a = 0 and it does not.
+fn claim_ratio(q: f64, x: &Exact, a: f64) -> f64 {
+    let mut num = ExactWideSum::new();
+    num.add_binary64(q, false).unwrap();
+    x.add_to(&mut num, true);
+    num.make_absolute();
+    x.add_slack(&mut num, true);
+    if num.signum() <= 0 {
+        return 0.0;
+    }
+    if a == 0.0 {
+        return f64::INFINITY;
+    }
+    let mut den = ExactWideSum::new();
+    den.add_binary64(a, false).unwrap();
+    let mut ctx = WideContext::<16>::new(1024).unwrap();
+    directed_ratio(&mut ctx, &num, &den, Direction::Up).unwrap()
+}
+
+/// An unpublishable row against its exact value's range: an `Underflow` row
+/// needs a truth that may lie within 2^-1075 of zero (|x| − δ ≤ 2^-1075, an
+/// exact zero included), an `Overflow` row a truth of its sign that may reach
+/// binary64's overflow threshold 2^1024 − 2^970 (|x| + δ ≥ it).
+fn range_consistent(outcome: &Binary64Outcome, x: &Exact) -> bool {
+    let mut s = ExactWideSum::new();
+    x.add_to(&mut s, false);
+    s.make_absolute();
+    match outcome {
+        Binary64Outcome::Underflow { .. } => {
+            x.add_slack(&mut s, true);
+            s.add_integer(true, &[1], -1075).unwrap();
+            s.signum() <= 0
+        }
+        Binary64Outcome::Overflow { negative } => {
+            if x.mantissa == 0 || x.negative != *negative {
+                return false;
+            }
+            x.add_slack(&mut s, false);
+            s.add_integer(true, &[(1u64 << 54) - 1], 970).unwrap();
+            s.signum() >= 0
+        }
+        _ => true,
+    }
+}
+
+/// The honesty check (D1 revision 5a.3, R7 §5.2; ROOT's rulings at C and on
+/// RV19's review): every published row against the claim it publishes, with
+/// GEN's exact expectation x (128 bits; δ its slack, `Exact::add_slack`):
+/// max(0, |q_pub − x| − δ) ≤ a, with a
+/// - `absolute_verified` with bound b: b·(1 + 2^-22), or b·(1 + 2^-21) when
+///   selected at 512 (R7 §5.2's "Scope of b"; b carries amendment A1's
+///   publication rounding where 0 < S\* < 2^-988);
 /// - `relative_verified`: the stop rule's bound 2^-64·max(|q|, S\*), with S\*
-///   the published body scale (within a relative 2^-64 + 2^-52 of the stop
-///   rule's own, so a factor 1 + 2^-21 covers it and the charge's 2^-22 at
-///   512), plus the publication rounding 2^-53·|q_pub|;
-/// - `input_derived`: the exact prescription rounded once, 2^-53·|q|;
-/// - an unpublishable row carries no claim.
+///   the published body scale (a factor 1 + 2^-21 covers S\*_pub against
+///   S\*_2p and the charge's 2^-22 at 512), plus the publication rounding
+///   2^-53·|q| + 2^-1074;
+/// - `input_derived`: the exact prescription rounded once, 2^-53·|q| + 2^-1074.
 ///
 /// Derived quantities take their operands' claims: N and T their end row's; a
 /// bending magnitude, formed here in binary64 from two published components,
-/// the sum of the two claims plus 2^-50 of itself for its own roundings. Each
-/// rounding term adds 2^-1074 for the subnormal range. Returns the worst
-/// |obs − exp|/allowed (at most 1 passes), its key, and the rows compared.
+/// the sum of the two claims plus 2^-50 of itself for its own roundings.
+///
+/// Nothing is skipped: a published value with no expectation fails; an
+/// unpublishable row passes only when its exact value's range agrees
+/// (`range_consistent`); an expectation that is neither a published row nor
+/// a derived key fails. Returns the worst ratio (at most 1 passes, ∞ for a
+/// failure of coverage or range), its key, and the rows checked.
 pub(crate) fn compare_honest(
     publication: &Publication,
     selected: u32,
-    expect: &BTreeMap<String, f64>,
+    exact: &BTreeMap<String, Exact>,
 ) -> (f64, String, usize) {
     let tiny = f64::from_bits(1);
-    let half_ulp = |x: f64| x.abs() * 2f64.powi(-53) + tiny;
+    let two_m53 = f64::from_bits(0x3CA0_0000_0000_0000);
+    let two_m64 = f64::from_bits(0x3BF0_0000_0000_0000);
+    let two_m50 = f64::from_bits(0x3CD0_0000_0000_0000);
+    let one_plus_21 = f64::from_bits(0x3FF0_0000_8000_0000); // 1 + 2^-21
+    let one_plus_22 = f64::from_bits(0x3FF0_0000_4000_0000); // 1 + 2^-22
+    let half_ulp = |x: f64| x.abs() * two_m53 + tiny;
     let scale = |body: u32, kind: Kind| -> f64 {
         publication
             .body_scales
@@ -358,9 +506,9 @@ pub(crate) fn compare_honest(
             .map_or(0.0, |s| f64::from_bits(s.2))
     };
     let b_factor = if selected == 512 {
-        1.0 + 2f64.powi(-21)
+        one_plus_21
     } else {
-        1.0 + 2f64.powi(-22)
+        one_plus_22
     };
     let mut allowed: BTreeMap<String, f64> = BTreeMap::new();
     for r in &publication.rows {
@@ -370,8 +518,7 @@ pub(crate) fn compare_honest(
         let a = match r.class {
             RowClass::AbsoluteVerified { bound_bits } => f64::from_bits(bound_bits) * b_factor,
             RowClass::RelativeVerified => {
-                2f64.powi(-64) * q.abs().max(scale(r.body, r.kind)) * (1.0 + 2f64.powi(-21))
-                    + half_ulp(q)
+                two_m64 * q.abs().max(scale(r.body, r.kind)) * one_plus_21 + half_ulp(q)
             }
             RowClass::InputDerived => half_ulp(q),
             RowClass::Unpublishable => continue,
@@ -383,7 +530,7 @@ pub(crate) fn compare_honest(
     for (k, value) in &obs {
         let parts: Vec<&str> = k.split('.').collect();
         let claim = |key: String| allowed.get(&key).copied();
-        let own = value.0.abs() * 2f64.powi(-50);
+        let own = value.0.abs() * two_m50;
         let a = match parts[0] {
             "N" => claim(format!("end.{}.j.0", parts[1])),
             "T" => claim(format!("end.{}.j.3", parts[1])),
@@ -400,18 +547,179 @@ pub(crate) fn compare_honest(
     }
     allowed.extend(derived);
     let mut worst = (0.0f64, String::new());
+    let mut note = |ratio: f64, at: String| {
+        if ratio > worst.0 || (ratio.is_nan() && !worst.0.is_nan()) {
+            worst = (ratio, at);
+        }
+    };
     let mut compared = 0;
-    for (k, &e) in expect {
-        let (Some(&(o, ..)), Some(&a)) = (obs.get(k), allowed.get(k)) else {
+    // Every published value, rows and derived keys alike.
+    for (k, &(q, ..)) in &obs {
+        let Some(&a) = allowed.get(k) else {
+            note(f64::INFINITY, format!("{k}: no claim"));
+            continue;
+        };
+        let Some(x) = exact.get(k) else {
+            note(f64::INFINITY, format!("{k}: no expectation"));
             continue;
         };
         compared += 1;
-        let ratio = (o - e).abs() / (a + half_ulp(e));
-        if ratio > worst.0 {
-            worst = (ratio, k.clone());
+        note(claim_ratio(q, x, a), k.clone());
+    }
+    // Every unpublishable row, against its exact value's range.
+    let mut rows = std::collections::BTreeSet::new();
+    for r in &publication.rows {
+        let k = key(&r.id);
+        rows.insert(k.clone());
+        if r.value.value().is_some() {
+            continue;
+        }
+        compared += 1;
+        match exact.get(&k) {
+            Some(x) if range_consistent(&r.value, x) => {}
+            Some(_) => note(
+                f64::INFINITY,
+                format!("{k}: {:?} outside the range", r.value),
+            ),
+            None => note(f64::INFINITY, format!("{k}: no expectation")),
+        }
+    }
+    // Every expectation is a published row or a derived key (one whose
+    // operand is unpublishable is covered by that operand's range check).
+    for k in exact.keys() {
+        let derived_key = ["N.", "T.", "Mb.", "Mbs."].iter().any(|p| k.starts_with(p));
+        if !rows.contains(k) && !derived_key {
+            note(f64::INFINITY, format!("{k}: expected but not published"));
         }
     }
     (worst.0, worst.1, compared)
+}
+
+/// R7 §6.3's G5a, items 1–6, in binary64 as D2 pins them, on a selected
+/// case's evidence and publication (a test-only checker; D2 owns G5a). The
+/// rows are in SI units, so item 4's conversion is the identity.
+pub(crate) fn g5a(solve: &RetainedSolve) -> Result<(), String> {
+    let ev = solve.evidence();
+    let publication = solve.publish();
+    let source = solve.source();
+    let extents = &solve.prep.extents;
+    let c = f64::from_bits(0x3FF0_0000_0000_1000);
+    let two_m59 = f64::from_bits(0x3C40_0000_0000_0000);
+    let two_m60 = f64::from_bits(0x3C30_0000_0000_0000);
+    let scale = |body: u32, kind: Kind| -> f64 {
+        let bits = publication
+            .body_scales
+            .iter()
+            .find(|s| s.0 == body && s.1 == kind)
+            .unwrap()
+            .2;
+        f64::from_bits(bits)
+    };
+    for body in 0..source.body_count() {
+        let has_fm = publication
+            .rows
+            .iter()
+            .any(|r| r.body == body && matches!(r.kind, Kind::Force | Kind::Moment));
+        let entry = ev.resolution_scale.iter().find(|e| e.0 == body);
+        // 1. Shape.
+        let Some(&(_, fo_bits, mo_bits)) = entry else {
+            if has_fm {
+                return Err(format!("body {body}: no resolution_scale"));
+            }
+            continue;
+        };
+        let e = [f64::from_bits(fo_bits), f64::from_bits(mo_bits)];
+        if e.iter().any(|v| !v.is_finite() || v.is_sign_negative()) {
+            return Err(format!("body {body}: E {e:?}"));
+        }
+        let hat = e_hat(e, extents[body as usize]);
+        for (k, kind) in [(0, Kind::Force), (1, Kind::Moment)] {
+            // 2. The zero rule.
+            if e[k] == 0.0 {
+                for r in publication
+                    .rows
+                    .iter()
+                    .filter(|r| r.body == body && r.kind == kind)
+                {
+                    if r.value.value().is_some_and(|v| v.to_bits() != 0) {
+                        return Err(format!("body {body}: E = 0 with {:?} published", r.id));
+                    }
+                }
+            }
+            // 3. The sanity bound.
+            if hat[k] * c < scale(body, kind) {
+                return Err(format!("body {body} {kind:?}: ê·c below S*"));
+            }
+        }
+        // 4. The lower bound.
+        let value = |g: usize| -> f64 {
+            publication
+                .rows
+                .iter()
+                .find(|r| r.id == QuantityId::Displacement(Dof::from_global(g)))
+                .and_then(|r| r.value.value())
+                .unwrap_or(0.0)
+                .abs()
+        };
+        let norm = |node: u32, offset: usize| {
+            let g = 6 * node as usize + offset;
+            (value(g) + value(g + 1)) + value(g + 2)
+        };
+        let (s_tr, s_ro) = (scale(body, Kind::Translation), scale(body, Kind::Rotation));
+        let (mut lb_fo, mut lb_mo) = (0.0f64, 0.0f64);
+        for m in source
+            .members()
+            .iter()
+            .filter(|m| source.body_of_node(m.node_i) == body)
+        {
+            let (xi, xj) = (
+                source.nodes()[m.node_i as usize],
+                source.nodes()[m.node_j as usize],
+            );
+            let d = [xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]];
+            let length = ((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2]).sqrt();
+            let ka = (m.elastic_modulus * m.area) / length;
+            let kt = (m.shear_modulus * m.torsion_constant) / length;
+            let nt = norm(m.node_i, 0) + norm(m.node_j, 0);
+            let nr = norm(m.node_i, 3) + norm(m.node_j, 3);
+            if nt > two_m59 * s_tr {
+                lb_fo = lb_fo.max(ka * (nt - two_m60 * s_tr));
+            }
+            if nr > two_m59 * s_ro {
+                lb_mo = lb_mo.max(kt * (nr - two_m60 * s_ro));
+            }
+        }
+        if hat[0] * c < lb_fo || hat[1] * c < lb_mo {
+            return Err(format!(
+                "body {body}: lower bound {lb_fo:e} {lb_mo:e} above ê·c {:e} {:e}",
+                hat[0] * c,
+                hat[1] * c
+            ));
+        }
+    }
+    // 5. and 6. The summaries.
+    for &(b, k, v) in &ev.verification_estimate {
+        if v.is_nan() || v > 0.25 {
+            return Err(format!("estimate {b} {k:?} {v:e}"));
+        }
+    }
+    for &(b, k, v) in &ev.verification_charge {
+        if v.is_nan() || v > 1.0 {
+            return Err(format!("charge {b} {k:?} {v:e}"));
+        }
+    }
+    for &(b, t) in &ev.theta {
+        if t.is_nan() || t > 0.5 {
+            return Err(format!("theta {b} {t:e}"));
+        }
+    }
+    for &(b, bits) in &ev.certified_bound {
+        let v = f64::from_bits(bits);
+        if !(v.is_finite() && v > 0.0) {
+            return Err(format!("B {b} {v:e}"));
+        }
+    }
+    Ok(())
 }
 
 fn compare_with(

@@ -25,7 +25,9 @@
 //!
 //! Rules: the operands are case solves (not combinations) sharing one
 //! stiffness identity (nodes, members, springs, directional springs and the
-//! constrained DOF set) and one published layout. The combination's shared
+//! constrained DOF set), one published layout, and the same stations and
+//! support groups (ROOT's ruling on RV19-3: a station's fraction and a group's
+//! members are not in the layout, which holds only their ids). The combination's shared
 //! stages at p come from the operands' caches when any of them built (or
 //! failed) them, and are counted in full against the combination's case limit
 //! and against the invocation only when built here, as for any case of a
@@ -47,7 +49,8 @@ pub(crate) enum CombinationReason {
     NoOperands,
     /// An operand is itself a combination.
     NestedCombination,
-    /// The operands differ in stiffness identity or published layout.
+    /// The operands differ in stiffness identity, published layout, stations
+    /// or support groups.
     OperandsDiffer,
     LedgerUnavailable(LedgerRefusal),
     /// Another terminal reason of the schedule (budget, span, exponent).
@@ -93,8 +96,12 @@ impl RetainedCombination {
         }
         let first = operands[0].1;
         let identity = first.prep.source.stiffness_encoding();
+        let (stations, supports) = (first.prep.source.stations(), first.prep.source.supports());
         if operands.iter().any(|(_, o)| {
-            o.prep.source.stiffness_encoding() != identity || o.prep.layout != first.prep.layout
+            o.prep.source.stiffness_encoding() != identity
+                || o.prep.layout != first.prep.layout
+                || o.prep.source.stations() != stations
+                || o.prep.source.supports() != supports
         }) {
             return withheld(CombinationReason::OperandsDiffer);
         }

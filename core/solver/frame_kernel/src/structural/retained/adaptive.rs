@@ -366,13 +366,51 @@ pub(crate) enum RowClass {
     Unpublishable,
 }
 
+/// An `absolute_verified` row's bound. D1 revision 5a.3's amendment A1
+/// (ROOT's ruling on RV19-6): where 0 < S\* < 2^-988 a row can reach |q| ≈ S\*,
+/// so its bound carries its own publication rounding,
+/// b_row = fl↑(fl↑(2^-64·S\*) + fl↑(2^-53·|q|) + 2^-1074), the sum rounded
+/// upward once, decided exactly. Elsewhere b = fl↑(2^-64·S\*) is unchanged:
+/// an absolute row there has |q| < 2^-34·S\*, whose rounding is below 2^-23·b
+/// (R7 §5.2); and b = 0 at S\* = 0.
+pub(crate) fn row_bound(value: f64, s_star: f64) -> f64 {
+    let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
+    let b = absolute_bound(s_star);
+    if s_star == 0.0 || s_star >= small {
+        return b;
+    }
+    // fl↑(2^-53·|q|): the scaling back is exact, so the comparison decides.
+    let two53 = 9_007_199_254_740_992.0_f64;
+    let q = value.abs();
+    let nearest = q / two53;
+    let rounding = if nearest * two53 < q {
+        next_up(nearest)
+    } else {
+        nearest
+    };
+    // The three terms span at most 2,100 bits: the sum and its upward
+    // rounding are exact (no refusal is reachable).
+    (|| -> Option<f64> {
+        let mut num = ExactWideSum::new();
+        num.add_binary64(b, false).ok()?;
+        num.add_binary64(rounding, false).ok()?;
+        num.add_binary64(f64::from_bits(1), false).ok()?;
+        let mut den = ExactWideSum::new();
+        den.add_binary64(1.0, false).ok()?;
+        let mut ctx = WideContext::<16>::new(1024).ok()?;
+        directed_ratio(&mut ctx, &num, &den, Direction::Up).ok()
+    })()
+    .unwrap_or(f64::INFINITY)
+}
+
 /// D1 §4.1.6 item 1 on the published value: `absolute_verified` iff
-/// |q| < fl(R·S\*), and always when S\* < 2^-988.
+/// |q| < fl(R·S\*), and always when S\* < 2^-988, with the bound of
+/// `row_bound` (amendment A1).
 pub(crate) fn classify(value: f64, s_star: f64) -> RowClass {
     let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
     if s_star < small || value.abs() < threshold(s_star) {
         RowClass::AbsoluteVerified {
-            bound_bits: absolute_bound(s_star).to_bits(),
+            bound_bits: row_bound(value, s_star).to_bits(),
         }
     } else {
         RowClass::RelativeVerified
@@ -1492,20 +1530,24 @@ pub(crate) enum Rejection {
 }
 
 /// S\* per body and kind at the verification precision (item 6's coupling,
-/// rounded once at 2p), from the rows that are not input-derived.
+/// rounded once at 2p), from the rows that are not input-derived and that the
+/// candidate can publish: a row whose candidate value has no binary64 value
+/// (`skip`) is left out, as the classification leaves it out of S\*_pub (O9;
+/// ROOT's ruling on RV19-1). So both scales are formed from the same rows.
 fn scales_at<const M: usize>(
     ctx: &mut WideContext<M>,
     layout: &[QuantityMeta],
     values: &[Wide<M>],
     extents: &[f64],
+    skip: &[bool],
 ) -> Result<Vec<[Wide<M>; 4]>, AttemptStop>
 where
     Wide<M>: SupportedWidth,
 {
     let zero = Wide::<M>::ZERO;
     let mut s = vec![[zero; 4]; extents.len()];
-    for (meta, v) in layout.iter().zip(values) {
-        if meta.input_derived {
+    for ((meta, v), &skipped) in layout.iter().zip(values).zip(skip) {
+        if meta.input_derived || skipped {
             continue;
         }
         let slot = &mut s[meta.body as usize][meta.kind.index()];
@@ -1628,7 +1670,16 @@ where
                      sum: &ExactWideSum| {
             lme(ctx) + lme(ctx16) + lme(ctx64) + sum.work().limb_multiply_equivalents()
         };
-        let mut scales = scales_at(&mut ctx, layout, verification, extents)?;
+        // O9 on the stop rule (ROOT's ruling on RV19-1): a row the candidate
+        // cannot publish (a nonzero value that underflows binary64, or one
+        // that overflows) sets no S\*. Leaving rows out only lowers S\*, so
+        // every allowance of (a) and (d) can only shrink: availability, never
+        // honesty. The skipped rows themselves still meet (a).
+        let skip: Vec<bool> = candidate
+            .iter()
+            .map(|q| !q.is_zero() && q.to_binary64().value().is_none())
+            .collect();
+        let mut scales = scales_at(&mut ctx, layout, verification, extents, &skip)?;
         // ê per body (item 6a), and the floor at p = 512 only.
         let hats: Vec<[f64; 2]> = match report {
             Some(r) => r

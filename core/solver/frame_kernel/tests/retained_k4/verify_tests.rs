@@ -4,29 +4,33 @@
 //! rounded up). E itself is tested on the models in `scale_tests.rs` (E-UNIT).
 use super::*;
 
+#[allow(dead_code)]
+#[path = "support.rs"]
+mod support;
+
 #[test]
 fn phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584() {
-    assert_eq!(f64::from_bits(PHI_SCALE_BITS), 2f64.powi(-438));
+    assert_eq!(f64::from_bits(PHI_SCALE_BITS), support::pow2(-438));
     // ê ≥ 2^-584: Φ = 2^-438·ê exactly.
     for e in [
         1.0f64,
         3.0,
-        2f64.powi(-584),
-        1.5 * 2f64.powi(-584),
+        support::pow2(-584),
+        1.5 * support::pow2(-584),
         f64::MAX,
     ] {
         let phi = phi_512(e);
-        assert_eq!(phi, e * 2f64.powi(-438), "{e:e}");
+        assert_eq!(phi, e * support::pow2(-438), "{e:e}");
     }
     // Below: the product is subnormal; Φ is the least binary64 not below it.
     for e in [
-        2f64.powi(-584) * 1.25,
-        2f64.powi(-600) * 1.75,
+        support::pow2(-584) * 1.25,
+        support::pow2(-600) * 1.75,
         f64::from_bits(1) * 3.0,
     ] {
         let phi = phi_512(e);
         // Exact check with integers: Φ·2^438 ≥ ê, and the next binary64 down fails.
-        let scale = 2f64.powi(438);
+        let scale = support::pow2(438);
         assert!(phi * scale >= e, "{e:e}");
         let below = f64::from_bits(phi.to_bits() - 1);
         assert!(below * scale < e || phi.to_bits() == 1, "{e:e}");

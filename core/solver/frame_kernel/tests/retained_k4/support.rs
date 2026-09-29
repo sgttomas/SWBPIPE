@@ -576,3 +576,14 @@ pub(crate) fn manifest_stream(
         .collect();
     (seed, count, chunk, sha, chunks)
 }
+
+/// 2^e exactly, built from its bits (normal or subnormal): the tests' powers
+/// of two, with no `powi` (RV19-N6).
+pub(crate) fn pow2(e: i32) -> f64 {
+    assert!((-1074..=1023).contains(&e), "2^{e}");
+    if e >= -1022 {
+        f64::from_bits(((e + 1023) as u64) << 52)
+    } else {
+        f64::from_bits(1u64 << (e + 1074))
+    }
+}

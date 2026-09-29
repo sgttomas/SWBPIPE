@@ -276,7 +276,13 @@ fn every_published_quantity_takes_part_in_the_stop_rule() {
     );
     assert_eq!(base.result, Ok(true));
     let mut c = WideContext::<4>::new(256).unwrap();
-    let scales = scales_at(&mut c, layout, &b.recovered.values, extents).unwrap();
+    let skip: Vec<bool> = a
+        .recovered
+        .values
+        .iter()
+        .map(|q| !q.is_zero() && q.to_binary64().value().is_none())
+        .collect();
+    let scales = scales_at(&mut c, layout, &b.recovered.values, extents, &skip).unwrap();
     let mut types = std::collections::HashSet::new();
     let mut kinds = std::collections::BTreeSet::new();
     for (index, meta) in layout.iter().enumerate() {

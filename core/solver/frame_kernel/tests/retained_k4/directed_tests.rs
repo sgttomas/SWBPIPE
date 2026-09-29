@@ -103,7 +103,7 @@ fn a_directed_result_is_never_on_the_wrong_side_and_exact_values_do_not_move() {
         );
     }
     // Below a power of two the downward step is half an ulp above it.
-    let tiny = Wide::<4>::from_f64(2f64.powi(-20)).unwrap();
+    let tiny = Wide::<4>::from_f64(support::pow2(-20)).unwrap();
     let below = sub_toward(&mut ctx, &mut sum, &one, &tiny, Toward::Down).unwrap();
     assert_eq!(tok(&below), "+ffcp-1");
 }

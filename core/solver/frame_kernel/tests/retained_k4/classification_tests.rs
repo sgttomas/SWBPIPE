@@ -9,6 +9,10 @@ use super::super::source::Dof;
 use super::*;
 
 #[allow(dead_code)]
+#[path = "support.rs"]
+mod support;
+
+#[allow(dead_code)]
 #[path = "models.rs"]
 mod models;
 
@@ -104,7 +108,8 @@ fn the_classification_matches_the_binary64_reimplementation_bit_for_bit() {
             _ => {}
         }
     }
-    assert_eq!(sets, 405);
+    // 405 sets, and A1's four (ROOT's ruling on RV19-6).
+    assert_eq!(sets, 409);
     assert!(counts.iter().all(|&c| c > 50), "{counts:?}");
 }
 
@@ -131,12 +136,51 @@ fn the_classifications_boundaries_hold_exactly() {
     ));
     // b = fl↑(2^-64·S*): exact when representable, at least 2^-1074 for any
     // S* > 0 (including S* < 2^-1011), and 0 only at S* = 0.
-    assert_eq!(absolute_bound(1.0), 2f64.powi(-64));
+    assert_eq!(absolute_bound(1.0), support::pow2(-64));
     assert_eq!(absolute_bound(f64::from_bits(1)), f64::from_bits(1));
-    let s = 2f64.powi(-1015);
+    let s = support::pow2(-1015);
     assert_eq!(absolute_bound(s), f64::from_bits(1));
-    assert!(absolute_bound(3.0 * 2f64.powi(-1000)) >= 3.0 * 2f64.powi(-1064));
+    assert!(absolute_bound(3.0 * support::pow2(-1000)) >= 3.0 * support::pow2(-1064));
     assert_eq!(absolute_bound(0.0), 0.0);
+}
+
+#[test]
+fn amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988() {
+    // D1 revision 5a.3 amendment A1 (ROOT's ruling on RV19-6): where
+    // 0 < S* < 2^-988, b_row = fl↑(fl↑(2^-64·S*) + fl↑(2^-53·|q|) + 2^-1074).
+    let s = support::pow2(-995);
+    // q = S* (TINY-S-995's scale): 2^-1059 + 2^-1048 + 2^-1074, exact.
+    assert_eq!(row_bound(s, s).to_bits(), 0x0000_0000_0400_8001);
+    assert_eq!(
+        classify(s, s),
+        RowClass::AbsoluteVerified {
+            bound_bits: 0x0000_0000_0400_8001
+        }
+    );
+    // A zero row: 2^-1059 + 2^-1074.
+    assert_eq!(row_bound(0.0, s).to_bits(), 0x8001);
+    // It covers the row's own rounding (at most 2^-53·|q| + 2^-1075) beside b.
+    for q in [
+        s,
+        -0.75 * s,
+        f64::from_bits(s.to_bits() - 1),
+        3.0 * support::pow2(-1060),
+    ] {
+        let b = row_bound(q, s);
+        assert!(
+            b > absolute_bound(s) + q.abs() * support::pow2(-53),
+            "{q:e}"
+        );
+    }
+    // Just below 2^-988, where 2^-53·|q| is normal: the sum rounded upward
+    // once (GEN's value).
+    let below = f64::from_bits(0x022F_FFFF_FFFF_FFFF);
+    assert_eq!(row_bound(below, below).to_bits(), 0x0000_0002_0040_0001);
+    // At 2^-988 and above, and at S* = 0, the plain rule.
+    let at = support::pow2(-988);
+    assert_eq!(row_bound(0.5 * at, at), absolute_bound(at));
+    assert_eq!(row_bound(1.0, 1.0), absolute_bound(1.0));
+    assert_eq!(row_bound(0.0, 0.0), 0.0);
 }
 
 #[test]
@@ -266,8 +310,9 @@ fn item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else() {
     let floored = classify_rows_floored(&layout, &v, &extents, Some(&[[2.0, 3.0]]));
     assert_eq!(plain, floored);
     // ê below 2^-584: Φ is rounded up to a subnormal, and a zero row's bound is
-    // the least subnormal instead of 0.
-    let e = 1.75 * 2f64.powi(-600);
+    // no longer 0: the least subnormal, plus amendment A1's 2^-1074 (the
+    // floored S* = Φ lies below 2^-988).
+    let e = 1.75 * support::pow2(-600);
     let phi = phi_512(e);
     assert!(phi > 0.0 && phi < f64::MIN_POSITIVE);
     let v = values(0.0, 0.0);
@@ -280,9 +325,9 @@ fn item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else() {
     assert_eq!(
         floored.rows[0].class,
         RowClass::AbsoluteVerified {
-            bound_bits: f64::from_bits(1).to_bits()
+            bound_bits: f64::from_bits(2).to_bits()
         }
     );
     // The fl↑ boundary: at ê = 2^-584, Φ = 2^-1022 exactly (verify_tests).
-    assert_eq!(phi_512(2f64.powi(-584)), 2f64.powi(-1022));
+    assert_eq!(phi_512(support::pow2(-584)), support::pow2(-1022));
 }

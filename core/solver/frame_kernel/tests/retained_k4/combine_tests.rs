@@ -11,7 +11,10 @@ use super::super::adaptive::{
     UnresolvedReason,
 };
 use super::super::recover::publish_value;
-use super::super::source::{PrimitiveSource, SourceParts};
+use super::super::source::{
+    Component, Constraint, Dof, NodalLoad, PrimitiveSource, SourceParts, Spring, Station,
+    StraightMember, SupportGroup,
+};
 use super::super::wide::multi::Binary64Outcome;
 use super::super::wide_sum::ExactWideSum;
 use super::*;
@@ -233,7 +236,7 @@ fn ceiling_operands_2_to_the_minus_1060_apart_give_the_net_cases_truth() {
         .iter()
         .find(|r| models::key(&r.id) == "spr.3.3")
         .unwrap();
-    assert_eq!(spring.value.value(), Some(-(2f64.powi(-160))));
+    assert_eq!(spring.value.value(), Some(-(support::pow2(-160))));
     assert!(rows.iter().filter(|r| r.value.value() != Some(0.0)).count() > 10);
     // The withdrawn formation publishes zeros.
     let refs = [(1.0, operands[0].as_ref()), (-1.0, operands[1].as_ref())];
@@ -411,8 +414,8 @@ fn a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once() {
     };
     let (a, b, c) = (
         operand(1.0, true),
-        operand(2f64.powi(-53), false),
-        operand(2f64.powi(-150), false),
+        operand(support::pow2(-53), false),
+        operand(support::pow2(-150), false),
     );
     let combination = combined(&[(1.0, a.as_ref()), (1.0, b.as_ref()), (1.0, c.as_ref())]);
     assert_eq!(combination.selected_precision(), 128);
@@ -436,4 +439,97 @@ fn a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once() {
         .find(|r| models::key(&r.id) == "u.2.1")
         .unwrap();
     assert_eq!(single.value, Binary64Outcome::Normal(1.0));
+}
+
+/// A unit cantilever along x, root fixed, a unit tip load in y, a tip spring
+/// in uz, a station at `t` and a support group at the tip (RV19-3's case).
+fn cantilever(t: f64, group_springs: &[u32]) -> PrimitiveSource {
+    let mut parts = SourceParts::default();
+    parts.nodes = vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]];
+    parts.members = vec![StraightMember {
+        id: 1,
+        node_i: 0,
+        node_j: 1,
+        elastic_modulus: 1.0,
+        shear_modulus: 1.0,
+        area: 1.0,
+        second_moment_y: 1.0,
+        second_moment_z: 1.0,
+        torsion_constant: 1.0,
+        y_reference: [0.0, 0.0, 1.0],
+    }];
+    for c in 0..6 {
+        parts.constraints.push(Constraint {
+            dof: Dof {
+                node: 0,
+                component: Component::from_index(c),
+            },
+            value: 0.0,
+        });
+    }
+    parts.springs.push(Spring {
+        id: 1,
+        dof: Dof {
+            node: 1,
+            component: Component::Uz,
+        },
+        stiffness: 1.0,
+    });
+    parts.loads.push(NodalLoad {
+        dof: Dof {
+            node: 1,
+            component: Component::Uy,
+        },
+        value: 1.0,
+        source_id: "l".to_string(),
+    });
+    parts.stations.push(Station {
+        id: 1,
+        member: 1,
+        fraction: t,
+    });
+    parts.supports.push(SupportGroup {
+        id: 1,
+        node: 1,
+        restrained: [false; 6],
+        springs: group_springs.to_vec(),
+        directional_springs: Vec::new(),
+    });
+    PrimitiveSource::new(parts).unwrap()
+}
+
+#[test]
+fn operands_whose_stations_or_support_groups_differ_are_withheld() {
+    // ROOT's ruling on RV19-3: the stiffness identity and the layout hold
+    // only a station's and a group's ids. Station 1 at t = 0.25 (st.1.4 = 0.75)
+    // and at t = 0.75 (st.1.4 = 0.25) would combine to A's station doubled
+    // (1.5), where Σcᵢ·(case i) is 1.0.
+    let a = selected_source(cantilever(0.25, &[1]));
+    let b = selected_source(cantilever(0.75, &[1]));
+    let c = selected_source(cantilever(0.25, &[]));
+    let reason = |o: CombinationOutcome| match o {
+        CombinationOutcome::Unresolved { reason, attempts } => {
+            assert!(attempts.is_empty());
+            reason
+        }
+        other => panic!("{other:?}"),
+    };
+    assert_eq!(
+        reason(combine(&[(1.0, a.as_ref()), (1.0, b.as_ref())])),
+        CombinationReason::OperandsDiffer
+    );
+    // Group 1 reused under the same id with a different spring set.
+    assert_eq!(
+        reason(combine(&[(1.0, a.as_ref()), (1.0, c.as_ref())])),
+        CombinationReason::OperandsDiffer
+    );
+    // Equal stations and groups combine: st.1.4 = 2·0.75.
+    let twice = combined(&[(1.0, a.as_ref()), (1.0, a.as_ref())]);
+    let st = twice
+        .publish()
+        .rows
+        .iter()
+        .find(|r| models::key(&r.id) == "st.1.4")
+        .unwrap();
+    assert_eq!(st.value.value(), Some(1.5));
 }

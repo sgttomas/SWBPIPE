@@ -1,12 +1,12 @@
 # I12 return: slice K4 (the W1a kernel method)
 
-**Status (checkpoint D): complete; no stop.**
+**Status (checkpoint D, with addendum 1 after RV19's review): complete; no stop.** Addendum 1 (at the end) records the fixes of RV19's findings, ROOT's amendment A1 and what they change; the statements below are corrected to match.
 - W1a's kernel method is implemented under `FK/src/structural/retained/`, with no product caller (Q1). A combination is its own solve (ROOT's F-1 ruling).
 - **D1 revision 5a.3 (R7) is implemented:** the stop rule's resolution term V, the verification estimate, the formation charge with its certified per-block bound B_c = min(Uc_c, S_c), θ and the g check, the ceiling floor Φ (item 6a), the hybrid residual gate and the evidence fields (§22).
-- **Tests:** 122 K4 tests pass (`K4T/`), with the S11 site table's 3; FK's full suite, the SD and NI suites and CI's 39-manifest profile match the Mac baseline of main (§17). K3a's, K3's, K-D5's and `exact_sum`'s tests are unchanged and pass.
-- **Controls:** every control and combination equals the generator's schedule (GEN, the bit oracle) and R7's expectations; every selected control satisfies the claim it publishes, row by row, under the predicate tightened at D (§22.9), and passes a test-only G5a checker.
+- **Tests:** 125 K4 tests pass (`K4T/`; 122 at D, three added at addendum 1), with the S11 site table's 3; FK's full suite, the SD and NI suites and CI's 39-manifest profile match the Mac baseline of main (§17). K3a's, K3's, K-D5's and `exact_sum`'s tests are unchanged and pass.
+- **Controls:** every control and combination equals the generator's schedule (GEN, the bit oracle) and R7's expectations. Every selected control and combination of the controls test (117; RF-LARGE at 100 members runs in the references lane) and RF-LARGE's six 100-member frames satisfy the claim each row publishes, checked against GEN's 128-bit exact expectations with no row skipped (addendum 1; at D, 13 selected controls without expectations and the unpublishable rows were skipped, RV19-2), and pass a test-only G5a checker.
 - **References:** R1's 128 K4 cases pass R1's predicate (6,475 passes, 0 failures), and the not-covered set equals §4.10's list; the RF-LARGE frames at 10 and 100 members are selected at 128 and honest.
-- **Mutations:** every killable mutant is killed; the four derivation guards move no control (§17).
+- **Mutations:** every killable mutant is killed; the four derivation guards move no control (§17). At addendum 1, the reverted RV19-1 fix, the reverted amendment A1, RV19-M2 and RV19-M6 are killed too.
 - **Moved outcomes** against revision 5a.2, all accepted by ROOT (§22.5): DIRECTIONAL-SPAN 256 → Unresolved(Ceiling) (5a.2's publication was within its claim); CEIL-A and CEIL-B → Unresolved(ResolutionScaleUnencodable); RIGID-UNLOADED Unresolved → 512.
 - **The tightened predicate (§22.9):** no selected unmutated control fails it. Under it, the false claims of R7-M1, K4-M24 and K4-M37 are caught as dishonest (F-2-SPOS and CEIL5A3 newly). The exceptions are PRESCRIBED-TAIL and PRESCRIBED-TAIL-FREE, whose true rows lie below binary64's range.
 
@@ -208,8 +208,8 @@ At 1024 (verification-only) the residual is formed against K_1024 itself (no p +
     - the formation error of individual 1024-formed entries (Q4: no re-formation above 1024) and the second-order remainder are charged, C_q ≤ 2^-22·2^-64·M_q under θ ≤ 1/2;
     - **honesty:** b = fl↑(2^-64·Φ) bounds the accepted 512 value with the factor 1 + 2^-22, derived with every step certified (R7 §4.1.6.3 Corollary). K4 implements each of these checks (§3 items 9 and 13), and the controls that exercise them are selected at 512 and honest under the tightened predicate (§22.9);
     - **availability:** the factor 4 between λ·2^-512·ê and 2^-64·Φ is the room for the 512 candidate's own resolution noise.
-11. **Routes 1 and 2 after 5a.3.** Neither route is now a step of the honesty guarantee at the ceiling; they explain the 1024 state's accuracy, which is availability. **Step 6's uncertified step is gone** from route 2 (R7 §6.6): the inverse norm is bounded per block by B_c = min(Uc_c, S_c) (Lemmas D and E), and the estimate remains only in the condition screen and the choice of σ_c.
-12. **Route 1's constant under the bounded majorant (R7 §6.6 and §8 item 5; V4-R8).** When the hybrid gate decides by its bounded test, step 3's backward error is relative to |f_i| + Σ_j Ā_ij·|u_j| instead of |f_i| + Σ_j |K_ij||u_j|. Ā ≥ |K|_contrib ≥ |K| entrywise, up to a relative 2^-(q−8) (R7 §5.6 point 1), so steps 4 and 5 hold with ε's matrix majorant Ā, and κ is replaced by ρ·κ with ρ = ‖Ā‖/‖K‖ in step 5's norm. **The constant, in the unscaled 1-norm (derived per element; the equilibrated norm is argued):** B̄ puts 1 (or 1/L) at each of a 3-component group's entries, where |B| has the components of a unit vector, whose 1-norm is ≥ 1. So each column of Ā_e = g·B̄ᵀ|D|B̄ is at most 9·g times the mean, over the same 3-component group, of |K_e|_contrib's columns; summing over elements and adding the springs (equal in both), ‖Ā‖₁ ≤ 9·g_max·‖|K|_contrib‖₁. In the equilibrated norm the spread of s_i within a group enters as well, which is where step 8's mixed-unit argument already sits. Step 7 becomes ≲ ρ·F·(64m + c_f + 1)·2^-513, and the 2^50 margin holds for every ρ·F < 2^372. Where the coalesced test decides, ρ = 1 and step 7 stands as written. On the controls, no 1024 verification falls back to the bounded test: the attempts that record a bounded gate are at 128, 256 and 512 only, on 13 controls (the 8 single-mode probe cases, LOADONLY-y345, GS-TRANS-y345, GS-ROT-y345-LOADED, M10-ANISO and DIRECTIONAL-WELL; `_run_records/d/k4_retained.log`).
+11. **Routes 1 and 2 after 5a.3.** Neither route is now a step of the honesty guarantee at the ceiling; they explain the 1024 state's accuracy, which is availability. **The uncertified steps of both routes are no longer needed** (R7 §6.6): route 1's in step 6 and route 2's in step 9, each resting on the Hager–Higham estimate. The inverse norm is bounded per block by B_c = min(Uc_c, S_c) (Lemmas D and E), and the estimate remains only in the condition screen and the choice of σ_c. [Corrected at addendum 1 (RV19-N2): D said "step 6's uncertified step is gone from route 2"; step 6 is route 1's.]
+12. **Route 1's constant under the bounded majorant (R7 §6.6 and §8 item 5; V4-R8).** When the hybrid gate decides by its bounded test, step 3's backward error is relative to |f_i| + Σ_j Ā_ij·|u_j| instead of |f_i| + Σ_j |K_ij||u_j|. Ā ≥ |K|_contrib ≥ |K| entrywise, up to a relative 2^-(q−8) (R7 §5.6 point 1), so steps 4 and 5 hold with ε's matrix majorant Ā, and κ is replaced by ρ·κ with ρ = ‖Ā‖/‖|K|_contrib‖ in step 5's norm, step 5's κ being the componentwise condition over |K|_contrib that steps 2 and 4 use. [Corrected at addendum 1 (RV19-N2): D wrote ‖Ā‖/‖K‖; the bound below bounds ‖Ā‖/‖|K|_contrib‖, and ‖|K|_contrib‖/‖K‖ is not bounded by it.] **The constant, in the unscaled 1-norm (derived per element; the equilibrated norm is argued):** B̄ puts 1 (or 1/L) at each of a 3-component group's entries, where |B| has the components of a unit vector, whose 1-norm is ≥ 1. So each column of Ā_e = g·B̄ᵀ|D|B̄ is at most 9·g times the mean, over the same 3-component group, of |K_e|_contrib's columns; summing over elements and adding the springs (equal in both), ‖Ā‖₁ ≤ 9·g_max·‖|K|_contrib‖₁. In the equilibrated norm the spread of s_i within a group enters as well, which is where step 8's mixed-unit argument already sits. Step 7 becomes ≲ ρ·F·(64m + c_f + 1)·2^-513, and the 2^50 margin holds for every ρ·F < 2^372. Where the coalesced test decides, ρ = 1 and step 7 stands as written. On the controls, no 1024 verification falls back to the bounded test: the attempts that record a bounded gate are at 128, 256 and 512 only, on 13 controls (the 8 single-mode probe cases, LOADONLY-y345, GS-TRANS-y345, GS-ROT-y345-LOADED, M10-ANISO and DIRECTIONAL-WELL; `_run_records/d/k4_retained.log`).
 
 ### 9.1 c_f: the formation's roundings, counted from `assemble.rs` (at `3ed6c0e26`)
 
@@ -271,7 +271,7 @@ For a reference perpendicular to the chord (sin θ = 1: the N series, and R1's m
 **Revision 5a.3: bound (4, `bound_tests.rs`):** V4's F2 family, bit-equal to the emulation and never below the exact norm; the low-precision stress (P = 10 to 32) keeps every bound above the exact norm and M27's form does not (A3-0 Q15); SD-G5's searched profiles reaching each boundary of 7b to 7d (t just below 1 and at 1, the shift not triggered, succeeding first, at σ/2, failing three times, and σ′ ≤ 0); the exact product of two sums.
 **Revision 5a.3: verification (3, `verify_tests.rs`):** Φ exact where the product is normal and rounded up below 2^-584; ê's coupling through the body extent in binary64; an ê that overflows while E encodes stops as E does (§22.4).
 **Revision 5a.3: the method (10, `method_tests.rs`):**
-- **the controls:** every control's schedule equals GEN's (`outcomes.txt`: 131 cases and 4 combinations) and R7's expectations; every selected control honest against its exact solution under the tightened predicate (99 controls, 5,490 rows, worst 0.28 of the allowance, at SKEW-K1E-12 end.1.i.1) and passing the test-only G5a checker; the named figures (DEMOTION2's relative rows 7 → 4, EXACT-RIGID's b > 0, the probe set's bounded gates);
+- **the controls:** every control's schedule equals GEN's (`outcomes.txt`: 131 cases and 4 combinations at D; 137 cases and 4 combinations at addendum 1) and R7's expectations; at D, 99 selected controls honest against their exact solutions under the tightened predicate (5,490 rows, worst 0.28 of the allowance, at SKEW-K1E-12 end.1.i.1; 13 selected controls had no expectation and were skipped, RV19-2); at addendum 1, every selected control and combination of the lane (117), every row, against GEN's 128-bit expectations (9,412 checks, worst 0.949 at B1-C-A u.0.3); each passing the test-only G5a checker; the named figures (DEMOTION2's relative rows 7 → 4, EXACT-RIGID's b > 0, the probe set's bounded gates);
 - **DIRECTIONAL-SPAN under 5a.2** (§22.3);
 - **E-CHARGE and E-ESTIMATE** at every verification: C_q, θ_c, W⁺, every factor and the estimate bit-equal to GEN (`charge.txt`: 360 verification states, and 21 that stop before the charge; `estimate.txt`: 1,828 rows against GEN's exact rational solution, A3-0 Q10), and on RF-LARGE at 100 members at 256;
 - **E-HEADROOM:** 322 state pairs, |q_P − q_2P| ≤ 2^8·2^-P·ê on each, with the P state's own ê (A3-0 Q11); the worst is 1.55·2^-P·ê (F-3-FREE at 512);
@@ -336,7 +336,7 @@ The represented binary64 system is built from FK's element formation (`FrameElem
 - **Result:** K4's N05 root rotation is 9.999999999999999e-5 and its tip rotation 1.0000000000462794e-4; NP-A's represented values are 1.0000016987352618e-4 and 1.0000016987815412e-4, a relative 1.7e-7 away, far outside 1e-9. N06's stored status is singular; K4 solves N06 on the intended basis at 128.
 
 ### 12.6 RF-LARGE (revision 5a.3's lane; A3-0 Q13)
-- R1's RF-LARGE frames through the adapter (`r1_large.txt`, `models5a3.txt`): at 10 members, the six cases (CHAIN, TREE and CONT, each AX and ROT) are selected at 128 with 882 passes; at 100 members each of the six frames (600 free DOFs) is selected at 128, with 1,312 or 1,462 passes. All are honest under the tightened predicate and pass G5a, as R7 §6.1 states.
+- R1's RF-LARGE frames through the adapter (`r1_large.txt`, `models5a3.txt`): at 10 members, the six cases (CHAIN, TREE and CONT, each AX and ROT) are selected at 128 with 882 passes; at 100 members each of the six frames (600 free DOFs) is selected at 128, with 1,312 or 1,462 passes. [Corrected at addendum 1 (RV19-2): at D only the 10-member frames were in the controls test, and without expectations, so neither size was checked against the tightened predicate, and G5a did not run on the 100-member frames.] At addendum 1 the 10-member frames are checked in the controls test and the 100-member frames in their references tests: every row against GEN's high-precision expectations (`solve_hp`), and G5a. All twelve are honest (the 100-member frames' worst is 0.97 of an allowance, CONT-ROT's R.1.1).
 - The shift runs at every 10-member verification except CONT-AX's, where Uc is tight (E-CHARGE's figures); on the six 100-member frames the forced shift succeeds at its first σ against GEN's certified upper bounds (E-UC, §22.2).
 - Each 100-member frame takes 1 to 4 s in the debug suite, so all stay in the default suite; no `--ignored` lane was needed.
 
@@ -616,6 +616,7 @@ Machine paths are replaced by placeholders (`<wt>` the T3 worktree root, `<scrat
 | `b/` | the 39-manifest run (`suites.log`, `suites/` per manifest, `manifests.txt`), its runner and the comparison with the baseline (`suites_vs_baseline.txt`, `compare_b.py`); the generator's `--check` at B (23 of 23); the kernel-only scan, re-run at D |
 | `c/` | the mutation harness (`mut.py`, `mutants.py`, `evidence.py` as run at D, `render2.py`), the raw results (`results.jsonl`, `evidence.jsonl`, `evidence_tight.jsonl`), the table (`mutation_table.md`), the campaign logs, each mutant's test logs concatenated (`logs/`), and each evidence run's controls log (`evidence_logs/`; NONE, R7-M1, K4-M24 and K4-M37 are D's tightened runs) |
 | `d/` | FK's full suite at D (`fk_full.log`), the controls and recovery tests with output (`honesty.log`), and K4's 122 tests with output (`k4_retained.log`: 382.6 s at 2 threads) |
+| `rv19/` | addendum 1 (RV19's review): GEN's regenerations and its `--check`, K4's suite, FK's full suite and the S11 site table on the fixed tree, the mutation harness, results and logs (`mutations/`), the evidence pass, and the changed files with their sha256 |
 | `source_sha256.txt` | the sha256 of K4's source, test and vector files at D |
 | `toolchain.txt` | the toolchain, host and host rules |
 | `SHA256SUMS` | the folder's own checksums |
@@ -648,11 +649,11 @@ ROOT reversed its O12 ruling (`085638e58`), and revision 5a.3 made the gate hybr
 
 **What R7's lemmas require of E_q for a published row q** (R7 §3.1, §3.3, Lemma B, §6.3), and why E_group meets each for q = ‖v‖₂, v = (v_c) with v_c = Σ (contributors of component c):
 
-1. **The resolution bound** (§3.3: |q_P − R\*(u_P)| ≤ λ_q·2^-P·E_q with λ_q ≤ 68g, the count's row "Support-group components and magnitudes ≤ 20g + 48"). Each contributor a of v_c is formed with |a_P − a\*| ≤ λ_a·2^-P·E_a (its own row's count: reactions ≤ 20g + 45.5, springs 2, directional ≤ 6), so |v_c,P − v_c\*| ≤ Σ_a λ_a·2^-P·E_a + 2^-P·|v_c,P| (the component's own sum, rounded once), with |v_c| ≤ Σ_a E_a·(1 + O(2^-P)) because each |a| ≤ E_a to first order (E_a is the same chain with every operand in absolute value). The magnitude's own roundings (squares, their sum, the square root) add ≤ 2.5·2^-P·‖v‖₂. By the reverse triangle inequality, |‖v_P‖₂ − ‖v\*‖₂| ≤ ‖v_P − v\*‖₂ ≤ Σ_c |v_c,P − v_c\*|. With ‖v‖₂ ≤ Σ_c |v_c| ≤ Σ_c Σ_a E_a = E_group,exact, the total is ≤ (max_a λ_a + 1 + 2.5)·2^-P·E_group,exact ≤ (20g + 49)·2^-P·E_group,exact to first order; R7's row counts 20g + 48 with the component sum's rounding folded in, and either fits λ = 2^8 (≤ 68g), with Lemma B's factor 1 + 2^-8.8 for the higher-order terms, as for every other row.
+1. **The resolution bound** (§3.3: |q_P − R\*(u_P)| ≤ λ_q·2^-P·E_q with λ_q ≤ 68g, the count's row "Support-group components and magnitudes ≤ 20g + 48"). Each contributor a of v_c is formed with |a_P − a\*| ≤ λ_a·2^-P·E_a (its own row's count: reactions ≤ 20g + 45.5, springs 2, directional ≤ 6), so |v_c,P − v_c\*| ≤ Σ_a λ_a·2^-P·E_a + 2^-P·|v_c,P| (the component's own sum, rounded once), with |v_c| ≤ Σ_a E_a·(1 + O(2^-P)) because each |a| ≤ E_a to first order (E_a is the same chain with every operand in absolute value). The magnitude's own roundings (squares, their sum, the square root) add ≤ 2.5·2^-P·‖v‖₂. By the reverse triangle inequality, |‖v_P‖₂ − ‖v\*‖₂| ≤ ‖v_P − v\*‖₂ ≤ Σ_c |v_c,P − v_c\*|. With ‖v‖₂ ≤ Σ_c |v_c| ≤ Σ_c Σ_a E_a = E_group,exact, the total is ≤ (max_a λ_a/g + 1 + 1.5)·2^-P·E_group,exact. Counted against E, which carries the member factor g (Ā = g·B̄ᵀ|D|B̄), a reaction's 20g + 45.5 is at most 65.5 relative to its E; the component's own sum adds 1; the magnitude adds 1.5 (the rounded sum of squares, halved by the square root, and the square root's own rounding). So the count is ≤ 68·2^-P·E_group,exact (69 with the coarser 2.5), within λ = 2^8 and the Corollary's slack of 62·2^-2p·ê either way, with Lemma B's factor 1 + 2^-8.8 for the higher-order terms, as for every other row. [Corrected at addendum 1 (RV19-N1): D's "(20g + 49) … fits λ = 2^8 (≤ 68g)" is false at g = 1.]
 2. **The rounding direction.** E_group,P is E_group,exact rounded once to nearest at P: |E_group,P − E_group,exact| ≤ 2^-P·E_group,exact, the same relative stage error every other E_q carries and Lemma B absorbs. E(body, kind) is then the maximum over the body's force (moment) rows including this one, rounded **upward** once to binary64 (`resolution_scale`), R7 §3.1's direction; so V_q = 2^(8−P)·ê, the (b) threshold and the (d) allowance are formed from a value not below the group's own E_q.
 3. **The zero rule** (G5a item 2). E_group = 0 forces every contributor's E_a = 0, hence each contributor's value 0 (a reaction's E_c = 0 forces f_c = 0 and every Ā_cj·|u_j| = 0, so every product K_cj·u_j = 0; a spring's or directional spring's E = 0 forces its action to 0), hence v = 0 and the published magnitude is +0.0.
 4. **The sanity and lower bounds** (G5a items 3 and 4). |q| ≤ E_group·(1 + O(2^-P)) by the bound in 1, so the item-6 coupled S\* of the group's kind stays ≤ ê·(1 + 2^-40) wherever the other rows' do; item 4 bounds ê below by the members' rows, which the group's inclusion can only raise.
-5. **The estimate and the charge** (§4.1.6.3). Ŵ for the magnitude is ‖v(δ̂)‖₂ recovered at P, which bounds |‖v(u\*)‖₂ − ‖v(u_P)‖₂| to first order by the reverse triangle inequality, so the (b) test on it is the test R7 states; ‖ā_q S‖₁ for the magnitude is formed from the same contributor sum (the `formation_scale` call with w = s and upward stages), so C_q bounds the magnitude's formation charge as it does each component's.
+5. **The estimate and the charge** (§4.1.6.3). Ŵ for the magnitude is ‖v(δ̂)‖₂ recovered at P, which bounds |‖v(u\*)‖₂ − ‖v(u_P)‖₂| exactly by the reverse triangle inequality (|‖a‖ − ‖b‖| ≤ ‖a − b‖; "to first order" at D, corrected at addendum 1, RV19-N1), so the (b) test on it is the test R7 states; ‖ā_q S‖₁ for the magnitude is formed from the same contributor sum (the `formation_scale` call with w = s and upward stages), so C_q bounds the magnitude's formation charge as it does each component's.
 
 So E_group meets, for the group's published magnitude, every requirement R7's lemmas place on E, and it is rounded in R7 §3.1's direction (nearest per stage, upward to binary64 for E(body, kind)). emu7 has no support-group rows; GEN emulates K4's form, and E-UNIT, E-CHARGE and the controls pin it.
 
@@ -723,9 +724,11 @@ GEN is the bit oracle, written to R7's text in K4's operation order; emu7 is the
 - **E-CHARGE:** 360 verification states bit-equal to GEN (21 more stop before the charge); **E-ESTIMATE:** 1,828 rows against GEN's exact solution.
 - **Named figures** (asserted at R7's two figures, ROOT's A3b ruling): LEVER2's W/V at 512 of 2,681, 2.7e6 and 2.8e9, with the charge above its allowance; TILT-LEVER's charge ≥ 1.0e30 and θ ≥ 6.0e10; CHARGE-SLENDER's and HH-SLENDER-m40's C/allowance 1.6e-3 at 256; THETA-STUB-COUPLED's θ = 28 and C/allowance 5.6e-12 at 256; the HH-FOOL LOADED forms with B = Uc after three failed shifts; the shift on RF-LARGE at 10 members at every verification except CONT-AX; the probe set's worst C/allowance 7.4e-49.
 - **DEMOTION2:** relative rows 7 → 4, b = 4.7e-6 (R7: b ≤ 4.7e-6); **EXACT-RIGID:** b = 1.07e-150 > 0 at 512 (R7: about 1.1e-150).
-- **RF-LARGE:** at 10 and 100 members every frame is selected at 128 and honest, as R7 states; RF-LARGE-100's six frames take 1 to 4 s each in the debug suite, so no `--ignored` lane was needed (A3-0 Q13).
+- **RF-LARGE:** at 10 and 100 members every frame is selected at 128 (as R7 states), and honest row by row against GEN's high-precision expectations, with G5a, from addendum 1 (at D the lane's 1e-9 predicate only, RV19-2); RF-LARGE-100's six frames take 1 to 4 s each in the debug suite, so no `--ignored` lane was needed (A3-0 Q13).
 
 ### 22.9 The honesty predicate tightened at D (ROOT's ruling at C)
+
+*Superseded in part by addendum 1 (RV19-2): the check now uses GEN's 128-bit exact expectations and skips nothing; the text below is D's.*
 
 **The predicate** (`models.rs` `compare_honest`, used by the controls test and the recovery test). Each selected row must satisfy the claim it publishes, against GEN's exact solution rounded once to binary64 (e), with the binary64 publication rounding stated:
 - an `absolute_verified` row with bound b: |q_pub − e| ≤ b·(1 + 2^-22) at p = 128 and 256, and b·(1 + 2^-21) at p = 512 (R7 §5.2);
@@ -737,7 +740,7 @@ GEN is the bit oracle, written to R7's text in K4's operation order; emu7 is the
 
 It replaces "1e-9 relative, or b for an absolute row", which no longer passes: a relative row off by 1e-9 now fails by a factor of about 2^22 (its allowance is dominated by the two half-ulps, about 2^-52 relative).
 
-**Unmutated: no stop.** Every selected control satisfies it: 99 controls, 5,490 rows, the worst at 0.28 of its allowance (SKEW-K1E-12's end.1.i.1, a relative row); the recovery test's 43 models pass. FK's full suite passes at D (§17).
+**Unmutated: no stop.** Every selected control with an expectation satisfies it (at D, 13 selected controls had none and were skipped, as were unpublishable rows: RV19-2): 99 controls, 5,490 rows, the worst at 0.28 of its allowance (SKEW-K1E-12's end.1.i.1, a relative row); the recovery test's 43 models pass. FK's full suite passes at D (§17).
 
 **The evidence pass re-run for R7-M1, K4-M24 and K4-M37** (from clean archives of `8f8023a20` with D's three test files overlaid; `_run_records/c/evidence_tight.jsonl`). Ratios are |q_pub − e| over the allowance:
 
@@ -749,3 +752,219 @@ It replaces "1e-9 relative, or b for an absolute row", which no longer passes: a
 
 - **Not caught, and why.** R7 counts PRESCRIBED-TAIL false under M1, and it is: at 128 its force rows are published as +0.0 with b = 0, while their truth is 2^-1091 N (PRESCRIBED-TAIL-FREE likewise). That truth is below binary64's smallest subnormal, so the expectation file holds 0.0, and a comparison of binary64 values (|0 − 0| ≤ 0) cannot see the claim fail. Unmutated, the case is selected at 512, where the floored b (about 2^-502·ê) covers the truth. Catching the false b = 0 needs the expectation to record that the exact value is nonzero (an underflow marker), which `models5a3.txt`'s binary64 encoding does not carry. The mutant is killed regardless (the controls test fails on its selection changes). PT-A and PTF-A (the operands, whose forces are exactly zero), EXACT-RIGID and M10-G move precision but stay honest, as R7 lists them (selection changes, not false claims).
 - NONE's evidence lists N02, N03-RZ and N04 (models GEN leaves unresolved with pivot failures) in every run, the unmutated one included; they are not moves.
+
+## Addendum 1: RV19's review, the fixes
+
+**Basis.** RV19's review of head `7d8fa9c0e` (`REVIEW/K4_REVIEW.md`, `d906539e…`): FAIL, with 1 BLOCKING, 5 SHOULD-FIX and 7 NOTEs. ROOT's binding rulings, "K4: rulings on RV19's review" (numerics `e9f8ebe1d`), which include D1 revision 5a.3 amendment A1. RV19's probes, oracle and probed fix (`REVIEW/_run_records/k4_review/`) were read, and its OVF-ROT, TINY-S and GROUP-DIR models were reused as controls.
+
+**Status: no stop.**
+- Every selected control and combination satisfies the new checks.
+- No control's outcome moved. GEN's `outcomes.txt` gains only the six new controls; every earlier line is byte-identical.
+- Every edit is inside K4's write set: `FK/src/structural/retained/{adaptive,combine,wide_sum}.rs`, `K4T/`, and `T3/IMPLEMENTATION/K4/`.
+- I made no Git writes.
+
+### A1.1 RV19-1 (BLOCKING): O9 on the stop rule
+
+**The fix** (`adaptive.rs`, `rule` and `scales_at`; RV19's probed fix):
+- `rule` marks every row whose candidate value is nonzero and has no binary64 value (`to_binary64()` gives `Underflow` or `Overflow`).
+- `scales_at` leaves those rows out of S\*_2p, as `classify_rows_floored` leaves them out of S\*_pub. So both scales are formed from the same rows, and R7 §5.2's premise holds again: S\*_pub lies within a relative 2^-64 + 2^-52 of S\*_2p.
+- GEN's `scales_at_em` does the same.
+
+**Users of `scales_at`, and why the fix only makes the rule stricter.**
+- `scales_at` has one caller, `rule`, reached through `decide` (revision 5a.3's acceptance) and `stop_rule` (5a.2's rule, a test entry). Two test sites call it directly and pass the same skip: the every-quantity control, and DIRECTIONAL-SPAN's 5a.2 check, where no row is skipped.
+- In `rule` the scales feed four things:
+  - M_q = max(|q_2p|, S\*) of (a);
+  - the allowance 2^-86·M_q of (d) at p = 512;
+  - the floor, S\* := max(S\*, Φ), at 512;
+  - the summary ratios.
+- Leaving rows out can only lower each S\*, because it is a maximum over fewer rows, and Φ's floor is unchanged. So every allowance of (a) and (d) is at most what it was. V, (b), `uc`, θ and g do not read S\*. A skipped row still meets (a), against its own |q_2p| and the reduced S\*.
+- **So a candidate the fixed rule accepts, the old rule accepted too.** The fix can only withhold. That is availability, never honesty.
+- The classification is unchanged. Rows that underflow or overflow were already out of S\*_pub.
+
+**Evidence.**
+- **OVF-ROT-928** (RV19's model; GEN and `outcomes.txt`). A (1,2,0) member of section 2^-100 with an axial load 2^928·(1,2,0): its displacements overflow binary64, while its rotation is exactly 0.
+  - It is now rejected by the stop rule at 128, 256 and 512, and ends `Unresolved(Ceiling)`. GEN agrees.
+  - Before the fix, K4 selected it at 128 and published Rz = −2^901 as `relative_verified` (RV19).
+- **OVF-ROT-900** beside it, where nothing overflows, is selected at 128 and is honest.
+- **No other control moved.** GEN's regenerated `outcomes.txt` equals D's line for line, plus the six new controls. The controls test is token-equal to GEN.
+- **The underflow side** (RV19 §1.4, the PRESCRIBED-TAIL pattern) is closed by the same skip, as RV19's probe of the fix found: a nonzero candidate value that underflows no longer sets S\*.
+- **The reverted fix, RV19-1R, is killed** by the controls test at OVF-ROT-928 (§A1.8).
+
+### A1.2 RV19-6: D1 revision 5a.3 amendment A1
+
+**The rule.** Where 0 < S\* < 2^-988, each `absolute_verified` row's bound is
+
+  b_row = fl↑(fl↑(2^-64·S\*) + fl↑(2^-53·|q_pub|) + 2^-1074).
+
+It is unchanged where S\* ≥ 2^-988, and b = 0 is unchanged at S\* = 0.
+
+**The derivation** (ROOT's ruling, restated):
+- |q_pub − q\*| ≤ |q_pub − q_p| + |q_p − q\*|.
+- Rounding to nearest gives |q_pub − q_p| ≤ 2^-53·|q_pub| + 2^-1075:
+  - ≤ 2^-53·|q_pub| for a normal result, since half an ulp of the result is at most 2^-53 of it;
+  - ≤ 2^-1075 for a subnormal one;
+  - a nonzero q_p that rounds to zero is `Unpublishable` and carries no bound.
+- The accepted candidate gives |q_p − q\*| ≤ 2^-64·S\*, within the factor R7 §5.2 already carries (1 + 2^-22, or 1 + 2^-21 at 512). That factor covers S\*_pub against S\*_2p, which RV19-1's fix makes true again, and the charge's 2^-22 at 512.
+- fl↑(2^-64·S\*) ≥ 2^-64·S\*, fl↑(2^-53·|q|) ≥ 2^-53·|q|, and 2^-1074 > 2^-1075. So |q_pub − q\*| ≤ b_row·(1 + 2^-22), or (1 + 2^-21) at 512, with the upward rounding of the sum only adding to b_row.
+- Where S\* ≥ 2^-988, an absolute row has |q| < 2^-34·S\*, whose rounding is below 2^-23·b (R7 §5.2), so the plain b holds. Relative rows cannot occur below 2^-988, and above it they are normal numbers.
+
+**Checked against the code** (`adaptive.rs` `row_bound`, called by `classify`):
+- `absolute_bound(S*)` is fl↑(2^-64·S\*), decided exactly as before.
+- fl↑(2^-53·|q|) is `q / 2^53`, then one step up when the scaling back by 2^53 falls short of |q|. That scaling back is exact (only the division can round, into the subnormal range), so the comparison decides.
+- The three terms are summed in one `ExactWideSum` and rounded upward once to binary64 by `directed_ratio(…, Up)` with denominator 1. That is the single fl↑ of the exact sum. Its span is at most about 2,100 bits, so no refusal is reachable, and the unreachable fallback is +∞, never a low bound.
+- `classify` receives the classification's S\* (coupled, and floored by Φ at 512) and the published binary64 q.
+- GEN's `row_bound` computes the same with Fractions and `fl_up`. `classification.txt` gains four targeted sets, and Rust matches every set bit for bit:
+  - TINY-S-995's scale, with a subnormal and a zero row;
+  - S\* just below 2^-988, where 2^-53·|q| is normal;
+  - S\* at 2^-988 exactly, where the plain rule applies;
+  - a coupled case.
+- The unit test `amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988` pins five values:
+  - q = S\* = 2^-995 gives `0x4008001`;
+  - a zero row gives `0x8001`;
+  - just below 2^-988 gives `0x200400001`;
+  - at 2^-988 and at S\* = 0 the plain rule applies.
+
+**Bound bits that change** (every selected control of the controls test compared with fl↑(2^-64·S\*)):
+- PT-B, 26 rows: an operand prescribing 2^-1000;
+- PTF-B, 45 rows: likewise;
+- TINY-S-995, 24 rows.
+
+No other control's bound moves. In `classification.txt`, five rows of the seeded sets change (each in a body and kind whose S\* lies below 2^-988), and so do the four targeted rows below 2^-988 (sets 402 and 403). `item_6a_floors_force_and_moment_by_phi…`'s zero row under a subnormal Φ now carries 2·2^-1074 instead of 2^-1074.
+
+**TINY-S-995** (RV19's model, GEN and `outcomes.txt`) is selected at 128:
+- Every row of its body is `absolute_verified` below S\* = 2^-988.
+- Under A1 every row is within its claim against GEN's exact solution.
+- Under the reverted amendment, **A1R**, the controls test fails on TINY-S-995: its worst row, end.1.i.2, is 819.2 times the allowance. RV19 measured 222 to 819 on seven rows (§A1.8).
+
+TINY-S-900 beside it is selected at 128, with the plain rule.
+
+**Routed:**
+- D2's G5 checks b_row (D2's input list);
+- RV19 checks the derivation and the code at its delta check;
+- ROOT adopts the amendment into the design text.
+
+### A1.3 RV19-2: the honesty check sees every row
+
+**Exact expectations** (GEN). Every `expect` line of `models.txt` and `models5a3.txt` now carries, after the binary64 of the exact value (unchanged on every earlier line):
+- `x:±<m>p<e>`: the exact value rounded once to 128 bits;
+- `underflow` or `overflow`: ROOT's range marker, for an exact value outside binary64's range. The sign is the token's;
+- `err:<e>`: for a model with irrational lengths or axes, which has no exact rational solution, a bound |x − q\*| ≤ 2^e.
+
+**`solve_hp`.** It solves the intended model in decimal at 300 significant digits:
+- every binary64 input is lifted exactly;
+- each member is T^T k T with the Gram–Schmidt axes;
+- symmetric elimination runs in RCM order, and recovery is as `solve_exact`'s.
+
+It solves again at 240 digits, and err = 4·|x₃₀₀ − x₂₄₀|. Across the ROT frames, the other irrational models and OVF-ROT, err lies at least 398 bits below the model's largest value (RF-LARGE-TREE-n00010-ROT), and 600 to 800 bits elsewhere.
+
+**Which models use it.** The 13 selected controls without expectations at D:
+- N03-RX, the four HH-FOOL forms, HH-SLENDER-m40 and R115-SEED3;
+- RF-LARGE's six 10-member frames (the three AX frames solve exactly);
+- also RF-LARGE's three 100-member ROT frames and OVF-ROT.
+
+None of the 13 is left without expectations. The models with none are:
+- the mechanisms N02, N03-RZ and N04;
+- `models.txt`'s combination PRECISION-RULE, which has no net case;
+- the three TILT-LEVER controls, which are withheld (a pivot of the decimal solve falls below its singular test).
+
+None of them is ever selected.
+
+**`compare_honest`** (`models.rs`) checks each published value q against its claim a with the exact x:
+- max(0, |q − x| − δ) ≤ a, decided exactly, with δ = 2^-127·|x| + 2^err;
+- an `absolute_verified` row's a is b·(1 + 2^-22 or 2^-21), with no ½ ulp of an expectation.
+
+**Nothing is skipped:**
+- a published value with no expectation fails;
+- an unpublishable row passes only if its exact value's range agrees:
+  - `Underflow`: |x| − δ ≤ 2^-1075, an exact zero included;
+  - `Overflow`: a truth of its sign that may reach 2^1024 − 2^970;
+- an expectation that is neither a published row nor a derived key fails.
+
+The controls test asserts that every selected control and combination has expectations and that the number checked equals its rows plus its derived keys. The recovery test asserts that every selected model has expectations.
+
+**Results:**
+- **The controls test:** 117 selected controls and combinations (RF-LARGE at 100 members excepted), 9,412 checks. The worst is 0.949 of an allowance, at B1-C-A u.0.3, the row and figure RV19's independent oracle reported.
+- **RF-LARGE at 100 members** (their references tests, `honest_large`): G5a passes, and all six are honest, 3,013 to 3,163 checks each. The worst is 0.97, CONT-ROT's R.1.1.
+- **The recovery test:** every models.txt model it selects, N03-RX now among them.
+- **The 33 `Underflow` rows** RV19 counted (SPRING-CARRIED, GS-ROT-y345, M10-ANISO) pass their range checks.
+
+**Statements corrected.** RETURN's status lines, §11's controls item, §12.6, §22.8 and §22.9, and CHANGE_RECORD, now say what the tests check, with D's narrower coverage stated where it was D's.
+
+**The evidence pass under the new checks** (`_run_records/rv19/mutations/rv19_evidence.py`, `evidence.jsonl`). Each run takes K4's C-campaign edits on a clean copy of the fixed tree, and adds a print-only insertion to the controls test. That insertion lists every control whose outcome differs from GEN's, and every selected control that `compare_honest` rejects.
+
+| Mutant | Caught as dishonest now | At D (binary64 expectations, skips) |
+|---|---|---|
+| R7-M1 (drop V) | ASSEMBLY-SAT (9.0e15, R.1.0), F-2 (∞, N.1), F-2-CEIL (∞, N.1), F-2-SPOS (16.0, N.1), **PRESCRIBED-TAIL (∞, N.1) and PRESCRIBED-TAIL-FREE (∞, N.1), now caught** | the first four (F-2 and F-2-CEIL at 9.0e15); both PRESCRIBED-TAIL forms missed |
+| K4-M24 | CEIL5A3 (670, N.3) | the same |
+| K4-M37 (Φ in the stop rule, not the classification) | D's eight (F-2-CEIL now ∞ at N.1; F-3-FREE, F-3-ROT, GS-ROT-y345, GS-TRANS-y345, M10-ANISO, M7-GS1 and RIGID-UNLOADED 9.0e15 at a reaction), **and PRESCRIBED-TAIL and PRESCRIBED-TAIL-FREE (∞, N.1) and R115-SEED3 (9.0e15, N.3), newly caught**: the tails through their exact values, R115-SEED3 because it had no expectation at D | eight (9.0e15) |
+| RV19-1R (the reverted fix) | OVF-ROT-928, selected at 128 against GEN's withholding, with u(1, Rz) outside its `relative_verified` claim (9.0e15, u.1.5): RV19's false publication | — |
+
+- **PRESCRIBED-TAIL and PRESCRIBED-TAIL-FREE** are the answer to ROOT's question at D. Their force rows publish +0.0 with b = 0 at 128. GEN's expectation now carries the exact value, 2^-1091 N, with its `underflow` marker, so the check sees 0 ≠ q\* with no allowance (ratio ∞).
+- F-2 and F-2-CEIL now report ∞ where D's check gave 9.0e15. They publish N = 0 with b = 0 against a nonzero truth, and the allowance no longer includes half an ulp of a binary64 expectation.
+- As at D, R7-M1 moves EXACT-RIGID, M10-G, PT-A and PTF-A without a false claim (selection changes), and DEMOTION2, GS-TRANS-y345, M7-GS1, MIXED-2^-200 and RIGID-UNLOADED keep 512 with other rejections. NONE lists only N02, N03-RZ and N04 (K4's geometry refusals, which GEN does not model).
+
+### A1.4 RV19-3: combination operands with different stations or groups
+
+`RetainedCombination::solve` now also requires every operand's stations and support groups to equal the first operand's (`combine.rs`); otherwise it returns `OperandsDiffer`. K4STF and the layout hold only a station's and a group's ids.
+
+The test `operands_whose_stations_or_support_groups_differ_are_withheld` covers three cases:
+- RV19's cantilever pair, station 1 at t = 0.25 and at t = 0.75: withheld;
+- group 1 reused with a different spring set: withheld;
+- equal operands combine: st.1.4 = 1.5, twice 0.75.
+
+### A1.5 RV19-4: a support group holding directional springs
+
+GROUP-DIR and GROUP-DIR-X (RV19's models) join GEN, `outcomes.txt`, E-UNIT (`scale.txt`), E-UC (`bounds.txt`), E-CHARGE (`charge.txt`) and E-ESTIMATE (`estimate.txt`):
+- DIRECTIONAL-WELL with group 1 at the root, restraining its translations and holding the three rotational directional springs;
+- group 2 at the tip, holding the translational one;
+- X adds loads at the root's rotations.
+
+Both are selected at 128 and honest. RV19-M6 (a group's E without its directional contributors) is killed (§A1.8).
+
+### A1.6 RV19-5: ‖SĀS‖ as the larger of the two norms
+
+`the_sas_norm_is_the_larger_of_the_one_and_infinity_norms` raises, one at a time, each off-diagonal free–free entry of N05's Ā at 256 by 2^20 in its transposed position. A column sum then exceeds every row sum on some entries. For every block it asserts that ‖SĀS‖ is the larger of the two norms, and it requires at least one case where the 1-norm is the larger. RV19-M2 (the ∞-norm only) is killed by it (§A1.8).
+
+### A1.7 The NOTEs
+
+- **N1** (§22.1 item 1): the count is ≤ 68·2^-P·E_group (69 with the coarser 2.5), not 20g + 49. Item 5's "to first order" is exact. Corrected in place.
+- **N2** (§9 steps 11 and 12): route 2's uncertified step is step 9, not step 6; ρ is ‖Ā‖/‖|K|_contrib‖. Corrected in place.
+- **N4** (`wide_sum.rs`): the release-mode `break` past the buffer now returns `SumRefusal::Span` whenever a bit or a carry remains. It is unreachable under the span check, and every caller ends its attempt on `Span`.
+- **N6:** every `2f64.powi(n)` in K4's tests is gone:
+  - `models.rs` uses `f64::from_bits` constants;
+  - the rest use `support::pow2`, which builds 2^e from its bits.
+
+  The two remaining `powi` strings in `adaptive_tests.rs` are the source scan's own list and its lexer control.
+- **N3:** partly met. The claims are now checked at the expectations' 128-bit resolution, not binary64's. K4-M33 stays bit-exact.
+- **N5** (a magnitude-row SD-G5 vector) and **N7** are recorded and not added.
+
+### A1.8 Re-runs, mutants and records
+
+Host rules as before: rustc 1.97.1, `--offline --locked`, `-j 4`, `RUST_TEST_THREADS=2`, at most two cargo jobs, and the memory guard (no kill).
+
+- **K4's suite:** 125 of 125, the N5 streams included (443 s at 2 threads). The controls are token-equal to GEN, the six new controls among them.
+- **FK's full suite** on the final tree: 392 passed, 0 failed: D's 389 plus the three new K4 tests, with the lib's 326 in 695.4 s at 2 threads. The run used `--nocapture`, so the controls test's claims line and RF-LARGE-100's lines are in the log. It repeats K4's suite on the final bytes.
+- **The S11 site table:** 3 of 3.
+- **rustfmt:** K4's files are clean.
+- **`gen_k4_vectors.py --check`:** 23 of 23 OK (the 22 vector files and SHA256SUMS), 16 min 56 s, with FK's suite running beside it. The pinned inputs' sha256 hold.
+
+**Mutants** (`rv19_mut.py`). Each runs from a clean copy of the candidate: `git archive 7d8fa9c0e` of FK with the 25 changed files copied over it, a fresh target, and exact edits with their counts. Every `structural::retained` K4 test runs except the N5 streams and the sum differentials, 114 tests.
+
+| Mutant | Edit | Result | Killed by |
+|---|---|---|---|
+| NONE | the candidate | passes 114 of 114 | — |
+| RV19-1R | the RV19-1 fix reverted (every row sets the stop rule's S\*) | killed | the controls test: OVF-ROT-928 selected against GEN (in the evidence pass, its Rz is 9.0e15 times outside its claim) |
+| A1R | amendment A1 reverted (b = fl↑(2^-64·S\*) below 2^-988 too) | killed | the controls test: TINY-S-995, 819.2 times the allowance at end.1.i.2; the A1 unit test; the classification vectors (set 19); item 6a's test |
+| RV19-M2 | ‖SĀS‖ = the ∞-norm only | killed | `the_sas_norm_is_the_larger_of_the_one_and_infinity_norms` |
+| RV19-M6 | a support group's E without its directional contributors | killed | E-UNIT and E-CHARGE, on GROUP-DIR's group rows (the selections do not move) |
+
+**The evidence pass** re-ran R7-M1, K4-M24 and K4-M37 (and RV19-1R, and NONE) under the new checks (§A1.3).
+
+**Records** (`_run_records/rv19/`), with `_run_records/SHA256SUMS` regenerated over the whole folder:
+- `gen/`: the four partial regenerations and the full `--check`;
+- `tests/`:
+  - K4's suite (run before `rustfmt` reformatted some test files, whitespace only; the first mutant copies predate it too);
+  - FK's full suite on the final tree;
+  - the S11 site table;
+- `mutations/`: the harness, the evidence script, `results.jsonl`, `evidence.jsonl`, each run's logs, and each evidence run's controls log;
+- `changed_files.txt`: every file changed against `7d8fa9c0e`, with its sha256.

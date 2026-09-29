@@ -60,6 +60,29 @@ Checkpoint A3b (the method):
   `directional_span_exact.txt` gives DIRECTIONAL-SPAN's exact published
   quantities (5a.2's publication checked against them).
 
+After ROOT's rulings on RV19's review:
+- `outcomes.txt`: the stop rule's S* leaves out the rows whose candidate value
+  has no binary64 value, as the classification does (O9 on the stop rule,
+  RV19-1); no control moves, and RV19's controls join (OVF-ROT-928, withheld
+  at every p; OVF-ROT-900; TINY-S-995 and TINY-S-900; GROUP-DIR and
+  GROUP-DIR-X, support groups holding directional springs, RV19-4), with
+  their `scale`, `bounds`, `charge` and `estimate` records;
+- `classification.txt`: D1 revision 5a.3's amendment A1 (RV19-6): where
+  0 < S* < 2^-988 each absolute row's bound is
+  fl↑(fl↑(2^-64·S*) + fl↑(2^-53·|q|) + 2^-1074), with four targeted sets;
+- `models.txt` and `models5a3.txt`: every `expect` line carries, after the
+  binary64 of the exact value, its 128-bit token `x:±<m>p<e>` (the exact
+  value rounded once to 128 bits), a range marker (`underflow`, `overflow`)
+  for an exact value outside binary64's range, and, for a model with
+  irrational lengths or axes (no exact rational solution: N03-RX, HH-FOOL,
+  HH-SLENDER-m40, R115-SEED3, RF-LARGE's ROT frames at 10 and 100 members,
+  OVF-ROT), the bound `err:<e>` (|x − q*| ≤ 2^e) of a decimal solve at 300
+  digits checked against one at 240 (`solve_hp`). Every model and combination K4 selects now
+  carries expectations; none do the mechanisms N02, N03-RZ and N04, the
+  combination PRECISION-RULE (no net case) and the three TILT-LEVER controls
+  (withheld; a pivot of the decimal solve falls below its singular test). The
+  binary64 fields of the existing lines are unchanged.
+
 Usage:  python3 gen_k4_vectors.py [--check]
 
 With --check nothing is written; the files are regenerated in memory and
@@ -882,6 +905,315 @@ def to_f64_bits(v):
     return b64(float(v))
 
 
+# ---- high-precision solves and the expectation tokens (ROOT's rulings on
+# RV19's review: RV19-2, RV19-6)
+#
+# A model whose member lengths or axes are irrational has no exact rational
+# solution. Its intended model is solved in decimal arithmetic at HP_DIGITS[0]
+# and again at HP_DIGITS[1] significant digits: every binary64 input is lifted
+# exactly, each member is formed as T^T k T with the Gram-Schmidt axes, the
+# free system is eliminated symmetrically in RCM order, and every published
+# quantity is recovered as `solve_exact` recovers it. The expectation is the
+# first solve; its error is bounded by 4|x1 - x2| (the second solve's error is
+# about 10^60 times the first's), written with it as `err:<e>`
+# (|x - q*| <= 2^e). A pivot below 10^-(digits/3) of the largest diagonal is
+# a singular model: no expectations.
+import decimal as _decimal
+
+HP_DIGITS = (300, 240)
+TOKEN_BITS = 128
+
+
+def _dnum(x):
+    if isinstance(x, Fr):
+        return _decimal.Decimal(x.numerator) / _decimal.Decimal(x.denominator)
+    return _decimal.Decimal(x)
+
+
+def hp_member(nodes, m):
+    """(ke global 12x12, e, L, axes) of a member, in the current decimal context."""
+    D = _dnum
+    xi = [D(c) for c in nodes[m["i"]]]
+    xj = [D(c) for c in nodes[m["j"]]]
+    d = [b - a for a, b in zip(xi, xj)]
+    L = sum(c * c for c in d).sqrt()
+    e = [c / L for c in d]
+    yr = [D(c) for c in m["y"]]
+    proj = sum(a * b for a, b in zip(yr, e))
+    yc = [yr[k] - proj * e[k] for k in range(3)]
+    ny = sum(c * c for c in yc).sqrt()
+    ey = [c / ny for c in yc]
+    ez = [e[1] * ey[2] - e[2] * ey[1], e[2] * ey[0] - e[0] * ey[2], e[0] * ey[1] - e[1] * ey[0]]
+    R = [e, ey, ez]
+    E = D(m["E"])
+    EA, GJ = E * D(m["A"]) / L, D(m["G"]) * D(m["J"]) / L
+    kl = [[D(0)] * 12 for _ in range(12)]
+
+    def sym(a, b, v):
+        kl[a][b] = v
+        kl[b][a] = v
+    kl[0][0] = kl[6][6] = EA
+    sym(0, 6, -EA)
+    kl[3][3] = kl[9][9] = GJ
+    sym(3, 9, -GJ)
+    for idx, I, sgn in (((1, 5, 7, 11), D(m["Iz"]), 1), ((2, 4, 8, 10), D(m["Iy"]), -1)):
+        c = E * I / L ** 3
+        pat = [[12, 6 * L * sgn, -12, 6 * L * sgn], [6 * L * sgn, 4 * L * L, -6 * L * sgn, 2 * L * L],
+               [-12, -6 * L * sgn, 12, -6 * L * sgn], [6 * L * sgn, 2 * L * L, -6 * L * sgn, 4 * L * L]]
+        for a in range(4):
+            for b in range(4):
+                kl[idx[a]][idx[b]] = c * pat[a][b]
+    ke = [[D(0)] * 12 for _ in range(12)]
+    for bi in range(4):
+        for bj in range(4):
+            blk = [[kl[3 * bi + r][3 * bj + c] for c in range(3)] for r in range(3)]
+            tmp = [[sum(blk[r][k] * R[k][c] for k in range(3)) for c in range(3)] for r in range(3)]
+            for r in range(3):
+                for c in range(3):
+                    ke[3 * bi + r][3 * bj + c] = sum(R[k][r] * tmp[k][c] for k in range(3))
+    return ke, e, L, R
+
+
+def solve_hp(model, digits):
+    """The published quantities of a model's intended system, at `digits`
+    significant decimal digits (keys as in `solve_exact`; magnitudes as their
+    square roots)."""
+    with _decimal.localcontext() as ctx:
+        ctx.prec = digits
+        D = _dnum
+        nodes = model["nodes"]
+        nn = len(nodes)
+        n = 6 * nn
+        K = {}
+        mem = []
+        for m in model["members"]:
+            ke, e, L, axes = hp_member(nodes, m)
+            dofs = [6 * m["i"] + k for k in range(6)] + [6 * m["j"] + k for k in range(6)]
+            for a in range(12):
+                for b in range(12):
+                    if ke[a][b] != 0:
+                        K[(dofs[a], dofs[b])] = K.get((dofs[a], dofs[b]), D(0)) + ke[a][b]
+            mem.append((m, ke, e, L, axes, dofs))
+        for s in model["springs"]:
+            d = 6 * s["node"] + s["c"]
+            K[(d, d)] = K.get((d, d), D(0)) + D(s["k"])
+        for s in model["dsprings"]:
+            nv = [D(c) for c in s["n"]]
+            n2 = sum(c * c for c in nv)
+            base = 6 * s["node"] + kind_offset(s["kind"])
+            for a in range(3):
+                for b in range(3):
+                    v = D(s["k"]) * nv[a] * nv[b] / n2
+                    if v != 0:
+                        K[(base + a, base + b)] = K.get((base + a, base + b), D(0)) + v
+        f = [D(0)] * n
+        for l in model["loads"]:
+            f[6 * l["node"] + l["c"]] += D(l["v"])
+        fixed = {}
+        for c in model["constraints"]:
+            fixed[6 * c["node"] + c["c"]] = D(c["v"])
+        free = [g for g in range(n) if g not in fixed]
+        pos = {g: a for a, g in enumerate(free)}
+        nf = len(free)
+        A = [dict() for _ in range(nf)]
+        rhs = [f[g] for g in free]
+        for (r, c), v in K.items():
+            if r in pos and c in pos:
+                A[pos[r]][pos[c]] = A[pos[r]].get(pos[c], D(0)) + v
+            elif r in pos and c in fixed:
+                rhs[pos[r]] -= v * fixed[c]
+        if nf:
+            top = max(abs(A[i].get(i, D(0))) for i in range(nf))
+            tol = top * D(10) ** (-(digits // 3))
+            order = rcm_em([sorted(row) for row in A])
+            done = [False] * nf
+            for k in order:
+                piv = A[k].get(k, D(0))
+                if abs(piv) <= tol:
+                    raise ZeroDivisionError("singular")
+                row = [(j, v) for j, v in A[k].items() if j != k and not done[j]]
+                for i, aki in row:
+                    lik = aki / piv
+                    Ai = A[i]
+                    for j, v in row:
+                        Ai[j] = Ai.get(j, D(0)) - lik * v
+                    rhs[i] -= lik * rhs[k]
+                done[k] = True
+            rank = {v: t for t, v in enumerate(order)}
+            x = [None] * nf
+            for k in reversed(order):
+                acc = rhs[k]
+                for j, v in A[k].items():
+                    if rank[j] > rank[k]:
+                        acc -= v * x[j]
+                x[k] = acc / A[k][k]
+        u = [D(0)] * n
+        for g, v in fixed.items():
+            u[g] = v
+        for a, g in enumerate(free):
+            u[g] = x[a]
+        out = {}
+        for g in range(n):
+            out["u.%d.%d" % (g // 6, g % 6)] = u[g]
+        for node in range(nn):
+            out["mag.%d" % node] = sum(u[6 * node + k] ** 2 for k in range(3)).sqrt()
+        dot3 = lambda a, b: sum(p * q for p, q in zip(a, b))
+        for (m, ke, e, L, axes, dofs) in mem:
+            ue = [u[d] for d in dofs]
+            Fe = [sum(ke[a][b] * ue[b] for b in range(12)) for a in range(12)]
+            Fi, Mi, Fj, Mj = Fe[0:3], Fe[3:6], Fe[6:9], Fe[9:12]
+            perp2 = lambda v: max(dot3(v, v) - dot3(v, e) ** 2, D(0))
+            mid = m["id"]
+            out["N.%d" % mid] = dot3(Fj, e)
+            out["T.%d" % mid] = dot3(Mj, e)
+            out["Mb.%d.i" % mid] = perp2(Mi).sqrt()
+            out["Mb.%d.j" % mid] = perp2(Mj).sqrt()
+            for end, (Fv, Mv) in (("i", (Fi, Mi)), ("j", (Fj, Mj))):
+                for c in range(3):
+                    out["end.%d.%s.%d" % (mid, end, c)] = dot3(axes[c], Fv)
+                    out["end.%d.%s.%d" % (mid, end, 3 + c)] = dot3(axes[c], Mv)
+            for st in model["stations"]:
+                if st["member"] != mid:
+                    continue
+                t = D(st["t"])
+                xi = [D(c) for c in nodes[m["i"]]]
+                xj = [D(c) for c in nodes[m["j"]]]
+                arm = [t * (b - a) for a, b in zip(xi, xj)]
+                cross = [arm[1] * Fi[2] - arm[2] * Fi[1], arm[2] * Fi[0] - arm[0] * Fi[2],
+                         arm[0] * Fi[1] - arm[1] * Fi[0]]
+                Mx = [-Mi[k] + cross[k] for k in range(3)]
+                Fx = [-c for c in Fi]
+                out["Mbs.%d" % st["id"]] = perp2(Mx).sqrt()
+                for c in range(3):
+                    out["st.%d.%d" % (st["id"], c)] = dot3(axes[c], Fx)
+                    out["st.%d.%d" % (st["id"], 3 + c)] = dot3(axes[c], Mx)
+        spring_action = {}
+        for s in model["springs"]:
+            v = -D(s["k"]) * u[6 * s["node"] + s["c"]]
+            spring_action[s["id"]] = {s["c"]: v}
+            out["spr.%d.%d" % (s["id"], s["c"])] = v
+        for s in model["dsprings"]:
+            nv = [D(c) for c in s["n"]]
+            n2 = sum(c * c for c in nv)
+            base = 6 * s["node"] + kind_offset(s["kind"])
+            proj = sum(nv[b] * u[base + b] for b in range(3))
+            acts = {}
+            for a in range(3):
+                v = -D(s["k"]) * proj * nv[a] / n2
+                acts[kind_offset(s["kind"]) + a] = v
+                out["dspr.%d.%d" % (s["id"], kind_offset(s["kind"]) + a)] = v
+            spring_action[s["id"]] = acts
+        reaction = {}
+        rows_of = {}
+        for (rr, c), v in K.items():
+            rows_of.setdefault(rr, []).append((c, v))
+        for g in sorted(fixed):
+            r = sum((v * u[c] for c, v in rows_of.get(g, [])), D(0)) - f[g]
+            reaction[g] = r
+            out["R.%d.%d" % (g // 6, g % 6)] = r
+        for grp in model["supports"]:
+            comp = [D(0)] * 6
+            for c in range(6):
+                g = 6 * grp["node"] + c
+                if grp["r"][c]:
+                    comp[c] += reaction[g]
+                for sid in grp["springs"] + grp["dsprings"]:
+                    comp[c] += spring_action[sid].get(c, D(0))
+            out["sf.%d" % grp["id"]] = sum(x * x for x in comp[:3]).sqrt()
+            out["sm.%d" % grp["id"]] = sum(x * x for x in comp[3:]).sqrt()
+        return {k: Fr(v) for k, v in out.items()}
+
+
+def ceil_log2(x):
+    """The least e with 2^e >= x, for a Fraction x > 0."""
+    e = k3.floor_log2(x)
+    return e if Fr(2) ** e == x else e + 1
+
+
+def x_token(v):
+    """A value rounded once to TOKEN_BITS bits (nearest, ties to even), as
+    x:<sign><32 hex digits>p<exponent> (the significand m has 2^127 <= m <
+    2^128), or x:0."""
+    if v == 0:
+        return "x:0"
+    r = rp(v, TOKEN_BITS)
+    neg = r < 0
+    a = -r if neg else r
+    e = k3.floor_log2(a) - (TOKEN_BITS - 1)
+    mant = a / Fr(2) ** e
+    assert mant.denominator == 1 and (1 << (TOKEN_BITS - 1)) <= mant.numerator < (1 << TOKEN_BITS)
+    return "x:%s%032xp%d" % ("-" if neg else "+", mant.numerator, e)
+
+
+def range_marker(v):
+    """`underflow` for a nonzero value that rounds to zero in binary64,
+    `overflow` for one beyond its range (the sign is x's)."""
+    if v == 0:
+        return None
+    try:
+        y = float(v)
+    except OverflowError:
+        return "overflow"
+    return "underflow" if y == 0.0 else None
+
+
+def f64_hex_of(v):
+    """The binary64 of a value (correctly rounded; +-inf beyond the range)."""
+    try:
+        return "%016x" % b64(float(v))
+    except OverflowError:
+        return "fff0000000000000" if v < 0 else "7ff0000000000000"
+
+
+def full_axes(model, ex):
+    return all("end.%d.j.0" % m["id"] in ex for m in model["members"])
+
+
+def expectation_lines(model):
+    """`expect` lines for a model: the binary64 of the exact value (as before),
+    its 128-bit token, `err:<e>` for a high-precision solve, and a range
+    marker. Exact rational solves wherever the geometry allows them;
+    otherwise the two high-precision solves; none for a singular model."""
+    exact = None
+    try:
+        exact = solve_exact(model)
+        if not full_axes(model, exact):
+            exact = None
+    except (AssertionError, StopIteration, ZeroDivisionError):
+        exact = None
+    lines = []
+    if exact is not None:
+        for key in sorted(exact):
+            v = exact[key]
+            if isinstance(v, tuple):
+                hexv = "%016x" % to_f64_bits(v)
+                v = sqrt_p(v[1], 4 * TOKEN_BITS) if v[1] != 0 else Fr(0)
+            else:
+                hexv = "%016x" % to_f64_bits(v) if range_marker(v) != "overflow" else f64_hex_of(v)
+            toks = ["expect", key, hexv, x_token(v)]
+            mk = range_marker(v)
+            if mk:
+                toks.append(mk)
+            lines.append(" ".join(toks))
+        return lines
+    try:
+        first = solve_hp(model, HP_DIGITS[0])
+        second = solve_hp(model, HP_DIGITS[1])
+    except (ZeroDivisionError, _decimal.DivisionByZero, _decimal.InvalidOperation):
+        return lines
+    for key in sorted(first):
+        v = first[key]
+        toks = ["expect", key, f64_hex_of(v), x_token(v)]
+        err = 4 * abs(v - second[key])
+        if err != 0:
+            toks.append("err:%d" % ceil_log2(err))
+        mk = range_marker(v)
+        if mk:
+            toks.append(mk)
+        lines.append(" ".join(toks))
+    return lines
+
+
 # ---- model definitions (invented inputs; D1's probe models and K4's own controls)
 
 def n_section():
@@ -1222,13 +1554,7 @@ def model_lines(m, expectations=True):
                                                 ",".join(map(str, g["springs"])) or "-",
                                                 ",".join(map(str, g["dsprings"])) or "-"))
     if expectations:
-        try:
-            ex = solve_exact(m)
-        except (AssertionError, StopIteration):
-            ex = None  # an irrational length, or a singular (mechanism) model
-        if ex is not None:
-            for key in sorted(ex):
-                lines.append("expect %s %016x" % (key, to_f64_bits(ex[key])))
+        lines += expectation_lines(m)
     lines.append("end")
     return lines
 
@@ -1625,6 +1951,20 @@ def bound_up(s):
     return next_up_f(nearest) if nearest * TWO64 < s else nearest
 
 
+TWO_M53 = Fr(1, 2 ** 53)
+TINY_F = Fr(1, 2 ** 1074)
+
+
+def row_bound(q, s):
+    """b for an `absolute_verified` row: fl↑(2^-64·S*), and where
+    0 < S* < 2^-988 (D1 revision 5a.3 amendment A1, ROOT's ruling on RV19-6)
+    b_row = fl↑(fl↑(2^-64·S*) + fl↑(2^-53·|q|) + 2^-1074)."""
+    b = bound_up(s)
+    if s == 0.0 or s >= SMALL_S:
+        return b
+    return fl_up(Fr(b) + Fr(fl_up(Fr(abs(q)) * TWO_M53)) + TINY_F)
+
+
 def coupled(s, extent):
     if extent == 0.0:
         return list(s)
@@ -1645,7 +1985,7 @@ def classify_set(bodies, extents, rows):
         elif out[0] in "NS":
             s = scales[body][kind]
             if s < SMALL_S or abs(out[1]) < R_FLOOR * s:
-                classes.append("A:%s" % hexf(bound_up(s)))
+                classes.append("A:%s" % hexf(row_bound(out[1], s)))
             else:
                 classes.append("R")
         else:
@@ -1698,6 +2038,18 @@ def classification_lines():
     sets.append((1, [0.0], [(2, 0, False, ("N", tiny)), (2, 0, False, ("N", tiny / 3.0))]))
     sets.append((1, [0.0], [(3, 0, False, ("S", math.ldexp(1.0, -1015))), (3, 0, False, ("N", 0.0))]))
     sets.append((1, [0.0], [(0, 0, False, ("N", 0.0)), (1, 0, False, ("N", 0.0)), (0, 0, True, ("N", 5.0))]))
+    # Amendment A1 (RV19-6): 0 < S* < 2^-988 gives each row its own bound
+    # (TINY-S-995's scale; a subnormal and a zero row; S* just below 2^-988,
+    # where 2^-53·|q| is normal, and at 2^-988, where the plain rule holds).
+    s995 = math.ldexp(1.0, -995)
+    sets.append((1, [0.0], [(2, 0, False, ("N", s995)), (2, 0, False, ("N", -s995 * 0.75)),
+                            (2, 0, False, ("N", math.nextafter(s995, 0.0))),
+                            (2, 0, False, ("S", math.ldexp(3.0, -1070))), (2, 0, False, ("N", 0.0))]))
+    below = math.nextafter(SMALL_S, 0.0)
+    sets.append((1, [0.0], [(3, 0, False, ("N", below)), (3, 0, False, ("N", below * 0.5)),
+                            (3, 0, False, ("N", math.ldexp(1.0, -1030)))]))
+    sets.append((1, [0.0], [(0, 0, False, ("N", SMALL_S)), (0, 0, False, ("N", SMALL_S * 0.5))]))
+    sets.append((1, [5.0], [(1, 0, False, ("N", math.ldexp(1.0, -1000))), (0, 0, False, ("S", math.ldexp(1.0, -1060)))]))
     lines = []
     for k, (bodies, extents, rows) in enumerate(sets):
         scales, classes = classify_set(bodies, extents, rows)
@@ -3982,10 +4334,21 @@ def verify_em(em):
                 g_max=g_max, g_violation=g_violation, uc_missing=uc_missing, meta=meta)
 
 
-def scales_at_em(model, meta, values, P):
+def unpublishable_em(v):
+    """A nonzero value with no binary64 value (it underflows to zero or
+    overflows)."""
+    return range_marker(v) is not None
+
+
+def scales_at_em(model, meta, values, P, candidate=None):
+    """adaptive.rs `scales_at`: S* per body and kind at 2p from the rows that
+    are not input-derived, leaving out (ROOT's ruling on RV19-1, O9 on the
+    stop rule) every row whose candidate value has no binary64 value."""
     body_of, nb = bodies_em(model)
     s = [[Fr(0)] * 4 for _ in range(nb)]
-    for (k, b, inp, _t), v in zip(meta, values):
+    for idx, ((k, b, inp, _t), v) in enumerate(zip(meta, values)):
+        if candidate is not None and unpublishable_em(candidate[idx]):
+            continue
         if not inp:
             s[b][k] = max(s[b][k], abs(v))
     out = []
@@ -4007,7 +4370,7 @@ def decide_em(model, cand, ver, rep):
     P = rep["p"]
     meta = rep["meta"]
     body_of, nb = bodies_em(model)
-    scales = scales_at_em(model, meta, ver, P)
+    scales = scales_at_em(model, meta, ver, P, candidate=cand)
     hats = []
     for b in range(nb):
         coords = [model["nodes"][nd] for nd in range(len(model["nodes"])) if body_of[nd] == b]
@@ -4104,28 +4467,66 @@ def schedule_em(model, seeds=()):
     return None, attempts
 
 
+def models_rv19():
+    """The controls of ROOT's rulings on RV19's review:
+    - OVF-ROT-928 (RV19-1): an axial load along a (1,2,0) member of section
+      2^-100, whose displacements overflow binary64 while its rotation is 0;
+      OVF-ROT-900 beside it, where nothing overflows;
+    - TINY-S-995 (RV19-6, amendment A1): a unit (3,4,0) member with a tip load
+      2^-995, so every row of the body is `absolute_verified` below
+      S* = 2^-988; TINY-S-900 beside it;
+    - GROUP-DIR and GROUP-DIR-X (RV19-4): DIRECTIONAL-WELL with support groups
+      holding its directional springs and restraints (X adds loads at the
+      restrained node's rotations)."""
+    out = []
+    for name, e in (("OVF-ROT-928", 928), ("OVF-ROT-900", 900)):
+        m = new_model(name, [(0, 0, 0), (1, 2, 0)])
+        tiny = 2.0 ** -100
+        add_member(m, 1, 0, 1, section=unit_section(1.0, A=tiny, Iy=tiny, Iz=tiny, J=tiny))
+        fix(m, 0, range(6))
+        load(m, 1, 0, 2.0 ** e, src="l0")
+        load(m, 1, 1, 2.0 ** (e + 1), src="l1")
+        out.append(m)
+    for name, e in (("TINY-S-995", -995), ("TINY-S-900", -900)):
+        m = new_model(name, [(0, 0, 0), (3, 4, 0)])
+        add_member(m, 1, 0, 1, section=unit_section(1.0))
+        fix(m, 0, range(6))
+        load(m, 1, 0, 2.0 ** e, src="l0")
+        out.append(m)
+    for name, extra in (("GROUP-DIR", ()), ("GROUP-DIR-X", ((0, 3, 2.0), (0, 4, -3.0)))):
+        m = new_model(name, [(0, 0, 0), (0, 0, 3)])
+        add_member(m, 1, 0, 1, y=(1.0, 0.0, 0.0))
+        fix(m, 0, (0, 1, 2))
+        for sid, n in ((1, (1.0, 1.0, 1.0)), (2, (1.0, -1.0, 0.0)), (3, (1.0, 1.0, -2.0))):
+            m["dsprings"].append(dict(id=sid, node=0, kind="r", n=n, k=1e6))
+        m["dsprings"].append(dict(id=4, node=1, kind="t", n=(0.0, 1.0, 1.0), k=1e3))
+        load(m, 1, 3, 1.0, src="l0")
+        load(m, 1, 1, 10.0, src="l1")
+        for k, (nd, c, v) in enumerate(extra):
+            load(m, nd, c, v, src="l%d" % (k + 2))
+        m["supports"].append(dict(id=1, node=0, r=[1, 1, 1, 0, 0, 0], springs=[], dsprings=[1, 2, 3]))
+        m["supports"].append(dict(id=2, node=1, r=[0, 0, 0, 0, 0, 0], springs=[], dsprings=[4]))
+        out.append(m)
+    return out
+
+
 def all5a3_models():
     """Every model of models5a3.txt, in order."""
-    return models5a3() + models5a3_b() + probe_models() + large_models(LARGE_A3A) + large_models(LARGE_A3B)
+    return (models5a3() + models5a3_b() + probe_models() + large_models(LARGE_A3A) + large_models(LARGE_A3B)
+            + models_rv19())
 
 
 def models5a3_lines():
     lines = []
-    large = set(LARGE_A3A) | set(LARGE_A3B)
     for m in all5a3_models():
-        body = model_lines(m, expectations=m["name"] not in large)
+        body = model_lines(m)
         for g, v in SEEDS5A3.get(m["name"], ()):
             body.insert(-1, "seed %d %s" % (g, hexf(v)))
         lines += body
     by_name = {m["name"]: m for m in all5a3_models()}
     for name, operands in COMBOS5A3:
         lines.append("combo %s %s" % (name, " ".join("%s:%s" % (hexf(c), n_) for c, n_ in operands)))
-        try:
-            ex = solve_exact(combined_model(name, operands, by_name))
-        except (AssertionError, StopIteration):
-            ex = None
-        for key in sorted(ex or {}):
-            lines.append("expect %s %016x" % (key, to_f64_bits(ex[key])))
+        lines += expectation_lines(combined_model(name, operands, by_name))
         lines.append("end")
     return lines
 
@@ -4379,9 +4780,7 @@ def build(parts=None):
         for name, operands, net in COMBOS:
             lines.append("combo %s %s" % (name, " ".join("%s:%s" % (hexf(c), mname) for c, mname in operands)))
             if net is not None:
-                ex = solve_exact(by_name[net])
-                for key in sorted(ex):
-                    lines.append("expect %s %016x" % (key, to_f64_bits(ex[key])))
+                lines += expectation_lines(by_name[net])
             lines.append("end")
         # NP-A's represented (stored binary64) answers, which W1 must not give.
         fixtures = json.loads(NI_FIXTURES.read_text())

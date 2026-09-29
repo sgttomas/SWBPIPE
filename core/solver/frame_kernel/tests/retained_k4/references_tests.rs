@@ -425,6 +425,34 @@ fn lane_large(names: &[&str]) {
     assert_eq!(t.selected_at.get(&128).copied(), Some(names.len()));
     assert_eq!(t.not_covered, 0);
     assert!(t.passes >= 20 * names.len(), "{t:?}");
+    // The 10-member frames are checked in the controls test; the 100-member
+    // frames here (ROOT's rulings on RV19's review, RV19-2).
+    for name in names.iter().filter(|n| n.contains("n00100")) {
+        honest_large(name);
+    }
+}
+
+/// A 100-member frame's selected publication against GEN's high-precision
+/// expectations (`solve_hp`), every row checked (`compare_honest`), and G5a.
+fn honest_large(name: &str) {
+    let m = models::parse_models(include_str!("models5a3.txt"))
+        .into_iter()
+        .find(|m| m.name == name)
+        .unwrap();
+    assert!(!m.exact.is_empty(), "{name}: no exact expectation");
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let CaseOutcome::Selected(solve) = solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter)
+    else {
+        panic!("{name}: not selected")
+    };
+    models::g5a(&solve).unwrap_or_else(|e| panic!("{name}: G5a {e}"));
+    let (worst, at, compared) =
+        models::compare_honest(solve.publish(), solve.selected_precision(), &m.exact);
+    println!("{name}: claims {compared} rows, worst {worst:e} at {at}");
+    assert!(
+        worst <= 1.0 && compared >= solve.publish().rows.len(),
+        "{name}: {worst} at {at} ({compared})"
+    );
 }
 
 #[test]

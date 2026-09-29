@@ -261,17 +261,17 @@ fn the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides
     for c in 0..6 {
         parts.constraints.push(Constraint {
             dof: dof(1, c),
-            value: if c == 0 { 2f64.powi(-20) } else { 0.0 },
+            value: if c == 0 { support::pow2(-20) } else { 0.0 },
         });
     }
     parts.loads.push(NodalLoad {
         dof: dof(0, 0),
-        value: 2f64.powi(-128),
+        value: support::pow2(-128),
         source_id: "a".into(),
     });
     parts.loads.push(NodalLoad {
         dof: dof(0, 0),
-        value: 2f64.powi(-400),
+        value: support::pow2(-400),
         source_id: "b".into(),
     });
     let source = PrimitiveSource::new(parts).unwrap();
@@ -283,7 +283,7 @@ fn the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides
     let members = form_members(&mut c, &mut sum, &guard, &source).unwrap();
     let k = assemble(&mut c, &mut sum, &guard, &source, &structure, &members, &[]).unwrap();
     let kij = k[structure.pattern.find(0, 6).unwrap()];
-    assert_eq!(tok(&kij), tok(&lift::<4>(-(2f64.powi(20)))));
+    assert_eq!(tok(&kij), tok(&lift::<4>(-(support::pow2(20)))));
     let u: Vec<Wide<4>> = (0..source.dof_count())
         .map(|g| lift::<4>(source.constraint(g).unwrap_or(0.0)))
         .collect();
@@ -293,7 +293,7 @@ fn the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides
     // The ledger's projection alone loses the tail (so a pre-rounded ledger
     // would give the tie's even neighbour, 1).
     let projected = ledger.project(0, &mut c).unwrap();
-    assert_eq!(tok(&projected), tok(&lift::<4>(2f64.powi(-128))));
+    assert_eq!(tok(&projected), tok(&lift::<4>(support::pow2(-128))));
 }
 
 #[test]
