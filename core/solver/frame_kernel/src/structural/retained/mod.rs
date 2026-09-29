@@ -31,9 +31,14 @@ pub(crate) mod wide;
 // naming its consumer (F2a API or V-K API); the helpers they reach are live.
 pub(crate) mod adaptive;
 pub(crate) mod assemble;
+// D1 revision 5a.3 (R7 §4.1.6.1 item 6a, §4.1.6.2, §4.1.6.3): directed wide
+// rounding, the certified inverse-norm bounds and the verification.
+pub(crate) mod bound;
 pub(crate) mod combine;
+pub(crate) mod directed;
 pub(crate) mod factor;
 pub(crate) mod ledger;
 pub(crate) mod recover;
 pub(crate) mod source;
+pub(crate) mod verify;
 pub(crate) mod wide_sum;

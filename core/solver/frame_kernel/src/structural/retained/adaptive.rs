@@ -30,6 +30,7 @@ use super::assemble::{
     assemble, form_directional, form_members, reduced_rhs, DirectionalBlock, MemberOperators,
     Structure,
 };
+use super::bound::{free_blocks, BlockRatios, FreeBlocks};
 use super::factor::{
     geometry_first, order_free, BodyGeometry, GeometryRefusal, Ordering, RetainedFactor,
 };
@@ -721,6 +722,8 @@ pub(crate) struct GroupPrep {
     pub(crate) structure: Structure,
     pub(crate) ordering: Ordering,
     pub(crate) geometry: Vec<BodyGeometry>,
+    /// The free–free blocks (D1 revision 5a.3, R7 §4.1.6.3 item 7a).
+    pub(crate) blocks: FreeBlocks,
 }
 
 /// Work of the shared stages at one precision.
@@ -754,6 +757,10 @@ where
     pub(crate) k: Vec<Wide<L>>,
     pub(crate) k_q: Vec<Wide<R>>,
     pub(crate) factor: RetainedFactor<L>,
+    /// est_c per block from the condition screen's solves (R7 §4.1.6.3 item
+    /// 7c; formed at p ≥ 256, where the state can serve as a verification).
+    #[allow(dead_code)] // A3b: the verification pass (tested at A3a)
+    pub(crate) est_blocks: Vec<Wide<L>>,
     pub(crate) rcond: f64,
     pub(crate) pivot_margin_min: f64,
     pub(crate) work: AttemptWork,
@@ -852,7 +859,23 @@ where
         )?;
         let t4 = lme(&ctx) + lme(&ctx_q) + sum.work().limb_multiply_equivalents();
         stages.factor = t4 - t3;
-        let rcond = factor.condition(&mut ctx, &mut sum, &group.structure, &k, &group.ordering)?;
+        // At p ≥ 256 the screen's solves also give est_c per block (read only).
+        let (rcond, est_blocks) = if p >= 256 {
+            let mut ratios = BlockRatios::new(&group.blocks);
+            let rcond = factor.condition_observed(
+                &mut ctx,
+                &mut sum,
+                &group.structure,
+                &k,
+                &group.ordering,
+                Some(&mut ratios),
+            )?;
+            (rcond, ratios.estimates())
+        } else {
+            let rcond =
+                factor.condition(&mut ctx, &mut sum, &group.structure, &k, &group.ordering)?;
+            (rcond, Vec::new())
+        };
         gp.check(&ctx, &sum)?;
         let rcond_value = publish_value(&rcond).value().unwrap_or(0.0);
         // The pivot margin minimum, rounded downward.
@@ -883,6 +906,7 @@ where
             k,
             k_q,
             factor,
+            est_blocks,
             rcond: rcond_value,
             pivot_margin_min: margin,
             work: AttemptWork::default(),
@@ -2031,10 +2055,12 @@ fn prepare_group(source: &PrimitiveSource) -> Result<GroupPrep, (Refusal, Vec<Bo
     };
     let structure = Structure::new(source).map_err(|_| (Refusal::Structure, geometry.clone()))?;
     let ordering = order_free(source, &structure);
+    let blocks = free_blocks(source, &structure, &ordering);
     Ok(GroupPrep {
         structure,
         ordering,
         geometry,
+        blocks,
     })
 }
 
@@ -2147,3 +2173,6 @@ mod references_tests;
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/classification_tests.rs"]
 mod classification_tests;
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/scale_tests.rs"]
+mod scale_tests;

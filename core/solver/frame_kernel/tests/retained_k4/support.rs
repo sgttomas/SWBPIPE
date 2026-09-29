@@ -179,6 +179,66 @@ pub(crate) fn shr(a: &[u64], n: usize) -> Vec<u64> {
     out
 }
 
+/// a·b, schoolbook (little-endian limbs).
+pub(crate) fn big_mul(a: &[u64], b: &[u64]) -> Vec<u64> {
+    let mut out = vec![0u64; a.len() + b.len() + 1];
+    for (i, &x) in a.iter().enumerate() {
+        let mut carry = 0u128;
+        for (j, &y) in b.iter().enumerate() {
+            let t = u128::from(out[i + j]) + u128::from(x) * u128::from(y) + carry;
+            out[i + j] = t as u64;
+            carry = t >> 64;
+        }
+        let mut k = i + b.len();
+        while carry != 0 {
+            let t = u128::from(out[k]) + carry;
+            out[k] = t as u64;
+            carry = t >> 64;
+            k += 1;
+        }
+    }
+    out
+}
+
+/// Numerical order of two little-endian magnitudes.
+pub(crate) fn big_cmp(a: &[u64], b: &[u64]) -> std::cmp::Ordering {
+    let n = a.len().max(b.len());
+    for i in (0..n).rev() {
+        let (x, y) = (
+            a.get(i).copied().unwrap_or(0),
+            b.get(i).copied().unwrap_or(0),
+        );
+        if x != y {
+            return x.cmp(&y);
+        }
+    }
+    std::cmp::Ordering::Equal
+}
+
+/// A nonnegative value ≥ num/den (big-endian hex integers, den > 0), decided
+/// exactly: sig·den·2^k ≥ num with value = sig·2^k.
+pub(crate) fn wide_at_least<const L: usize>(value: &Wide<L>, num_hex: &str, den_hex: &str) -> bool
+where
+    Wide<L>: SupportedWidth,
+{
+    assert!(!value.is_sign_negative() || value.is_zero());
+    let (num, den) = (hex_limbs(num_hex), hex_limbs(den_hex));
+    if value.is_zero() {
+        return bit_length(&num) == 0;
+    }
+    let (_, exponent, sig) = value.parts();
+    let k = exponent - (64 * L as i64 - 1);
+    let lhs = big_mul(&sig, &den);
+    let (lhs, rhs) = if k >= 0 {
+        let n = k as usize;
+        (shl(&lhs, n, lhs.len() + n / 64 + 1), num)
+    } else {
+        let n = (-k) as usize;
+        (lhs, shl(&num, n, num.len() + n / 64 + 1))
+    };
+    big_cmp(&lhs, &rhs) != std::cmp::Ordering::Less
+}
+
 pub(crate) fn set_bit(a: &mut [u64], i: usize) {
     a[i / 64] |= 1 << (i % 64);
 }

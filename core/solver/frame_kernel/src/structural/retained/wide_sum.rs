@@ -459,6 +459,33 @@ impl ExactWideSum {
         }
     }
 
+    /// Adds ±a·b exactly, the product of two accumulators' exact values (D1
+    /// revision 5a.3's exact comparisons of ratios; ROOT's A3-0 ruling Q6): b
+    /// is netted once, and each of its limbs scales a (`add_scaled`). The
+    /// product is formed exactly or refused (`Span`, `Exponent`), never
+    /// truncated; integers only, no allocation.
+    #[allow(dead_code)] // A3b: the gate's best state (tests use it at A3a)
+    pub(crate) fn add_product_of(
+        &mut self,
+        a: &Self,
+        b: &mut Self,
+        negate: bool,
+    ) -> Result<(), SumRefusal> {
+        if a.empty || b.empty {
+            return Ok(());
+        }
+        let (negative, magnitude, used) = b.net();
+        for (k, &limb) in magnitude[..used].iter().enumerate() {
+            if limb == 0 {
+                continue;
+            }
+            let pow2 =
+                i64::try_from(b.anchor + 64 * k as i128).map_err(|_| SumRefusal::Exponent)?;
+            self.add_scaled(a, negate != negative, limb, pow2)?;
+        }
+        Ok(())
+    }
+
     /// The netted exact value: (negative, magnitude, used limbs, anchor).
     fn net(&mut self) -> (bool, Magnitude, usize) {
         let used = self.used;

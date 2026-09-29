@@ -20,6 +20,26 @@ Oracles:
 - the §4.1.6.1 formulas are reimplemented with Python floats (IEEE-exact
   + - * / sqrt and max).
 
+D1 revision 5a.3 (R7 §5; ROOT's A3-0 rulings; this generator is the bit
+oracle, DS1's emu7 the selection-level cross-check), checkpoint A3a:
+- `directed.txt`: R7 7b's directed roundings (nearest, then one step when on
+  the wrong side of the exact Fraction) and the least binary64 not below x;
+- `models5a3.txt`: DS1's models4-6 controls used at A3a, K4's BLOCK-PRESC and
+  R1's RF-LARGE frames at 10 members (through the adapter of section K);
+- `scale.txt` (E-UNIT): K4 at each precision emulated in K4's own order
+  (`emulate`: formation with g, assembly, RCM, the factor and its screens, the
+  condition screen with est_c per block, the solve and the residual gate with
+  its early stop on the 64-bit approximate ratio); g, the bounded operator Ā,
+  E_q, E(body, kind), ê and Φ;
+- `bounds.txt` (E-UC): at 256, 512 and 1024, factor()'s L and D digest, the
+  blocks and their data flags, est_c, U_c, N_L,c, t_c, Uc_c, the forced shift
+  (every block with est_c > 0) and ‖K̃_c⁻¹‖₁: exact (rational, blocks of at
+  most 40 DOFs) or a certified upper bound (RF-LARGE: ‖X‖₁/(1 − ‖R‖₁) with X
+  an approximate inverse at 3,072 bits and R = I − K̃X formed exactly);
+- `profiles.txt`: V4's F2 family, DS1's low-precision stress (20,000 draws,
+  every R7-M27 killer kept) and SD-G5's searched boundary profiles, with
+  exact norms.
+
 Usage:  python3 gen_k4_vectors.py [--check]
 
 With --check nothing is written; the files are regenerated in memory and
@@ -1826,6 +1846,1292 @@ def r1_lines():
     return lines
 
 
+# ----------------------------------------------------------------------------
+# D1 revision 5a.3 (R7 §5), checkpoint A3a: directed rounding, g, the bounded
+# operator Ā, the formation scale E, the free-free blocks, est_c, Uc, the
+# shifted factorization and exact block norms. Every rounding mirrors K4's
+# order (ROOT's A3-0 ruling Q1: this generator is the bit oracle; DS1's emu7
+# is the selection-level cross-check).
+# ----------------------------------------------------------------------------
+def next_p(r, p, up):
+    """The adjacent p-bit value of a nonzero p-bit Fraction r."""
+    e = k3.floor_log2(abs(r))
+    away = Fr(2) ** (e - p + 1)
+    toward = Fr(2) ** (e - p) if abs(r) == Fr(2) ** e else away
+    if r > 0:
+        return r + away if up else r - toward
+    return r + toward if up else r - away
+
+
+def ru(x, p):
+    """x rounded upward at p bits: nearest, then one step when below x."""
+    r = rp(x, p)
+    return next_p(r, p, True) if r < x else r
+
+
+def rd(x, p):
+    """x rounded downward at p bits: nearest, then one step when above x."""
+    r = rp(x, p)
+    return next_p(r, p, False) if r > x else r
+
+
+def fl_up(x):
+    """The least binary64 not below a Fraction x >= 0 (+inf beyond range)."""
+    try:
+        y = float(x)
+    except OverflowError:
+        return math.inf
+    if y != math.inf and Fr(y) < x:
+        y = math.nextafter(y, math.inf)
+    return y
+
+
+def rand_pbits(rng, p, lo, hi, signed=True):
+    m = rng.getrandbits(p) | (1 << (p - 1))
+    e = rng.randint(lo, hi)
+    v = Fr(m) * Fr(2) ** (e - p + 1)
+    return -v if signed and rng.random() < 0.5 else v
+
+
+DIRECTED_P = (3, 10, 53, 128, 256, 512, 1024)
+
+
+def directed_lines():
+    """R7 7b's directed roundings: add, sub, mul, div (b > 0) and binary64_up."""
+    rng = __import__("random").Random(seed_of("K4DIR5A3"))
+    lines = []
+
+    def emit(op, p, a, b, x):
+        L = width_of(p)
+        for name, f in (("up", ru), ("down", rd)):
+            lines.append("dir %s %d %d %s %s %s %s" % (op, p, L, name, W_of(a, L).token(), W_of(b, L).token(),
+                                                        W_of(f(x, p), L).token()))
+
+    for p in DIRECTED_P:
+        for _ in range(24):
+            a = rand_pbits(rng, p, -40, 40)
+            b = rand_pbits(rng, p, -40, 40)
+            emit("add", p, a, b, a + b)
+            emit("sub", p, a, b, a - b)
+            emit("mul", p, a, b, a * b)
+            b = abs(b)
+            emit("div", p, a, b, a / b)
+        # Targeted: exact results, and values one bit either side of a power of two.
+        for k in (-3, 0, 5):
+            two = Fr(2) ** k
+            tiny = Fr(2) ** (k - p - 3)
+            emit("add", p, two, tiny, two + tiny)
+            emit("sub", p, two, tiny, two - tiny)
+            emit("sub", p, tiny, two, tiny - two)
+            emit("add", p, two, two, 2 * two)
+            emit("mul", p, two, Fr(3) if p >= 2 else two, two * (3 if p >= 2 else 1))
+            emit("div", p, two, Fr(2) ** 3, two / 8)
+            if p >= 2:
+                emit("div", p, Fr(1), Fr(3), Fr(1, 3))
+                emit("div", p, -Fr(1), Fr(3), -Fr(1, 3))
+    # binary64_up of nonnegative wide values.
+    for _ in range(60):
+        p = rng.choice((128, 256, 512, 1024))
+        x = abs(rand_pbits(rng, p, -1100, 1100))
+        L = width_of(p)
+        y = fl_up(x)
+        lines.append("up64 %d %d %s %016x" % (p, L, W_of(x, L).token(), b64(y)))
+    for x, p in ((Fr(0), 128), (Fr(2) ** -1074, 128), (Fr(2) ** -1075, 128), (Fr(3) * Fr(2) ** -1076, 256),
+                 (Fr(2) ** 1024, 256), (Fr(2) ** 1023 * (2 - Fr(2) ** -52), 128),
+                 (Fr(2) ** 1023 * (2 - Fr(2) ** -60), 128), (Fr(1) + Fr(2) ** -60, 128)):
+        L = width_of(p)
+        lines.append("up64 %d %d %s %016x" % (p, L, W_of(x, L).token(), b64(fl_up(x))))
+    return lines
+
+
+# ---- the 5a.3 models (DS1's models4-6 and K4's own), in models.txt's format
+
+UNIT_SECTION = dict(E=1.0, G=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0)
+
+
+def hh_fool(mexp, loaded, name=None):
+    """V4's HH-FOOL frame (DS1's models5.py, ported)."""
+    H = [(0, 0, 0), (1, -1, 0), (2, -2, 0), (3, -3, 0)]
+    nv = 8
+    V = [(10 + k, 5, 0) for k in range(nv)]
+    nodes = [H[0], V[0], H[1], V[1], H[2], V[2], H[3]] + V[3:]
+    hn = [0, 2, 4, 6]
+    vn = [1, 3, 5] + list(range(7, 7 + nv - 3))
+    md = new_model(name or ("HH-FOOL-m%d%s" % (mexp, "-LOADED" if loaded else "")), nodes)
+    sec_h = dict(UNIT_SECTION, Iy=2.0 ** -mexp, Iz=2.0 ** -mexp)
+    mid = 1
+    for a, b in ((0, 1), (2, 3), (0, 2), (1, 3)):
+        add_member(md, mid, hn[a], hn[b], y=(0, 0, 1), section=sec_h)
+        mid += 1
+    for k in range(nv - 1):
+        add_member(md, mid, vn[k], vn[k + 1], y=(0, 0, 1), section=dict(UNIT_SECTION, A=(1.0 if k % 2 == 0 else 3.0)))
+        mid += 1
+    comp = {hn[0]: 0, hn[1]: 1, hn[2]: 1, hn[3]: 0}
+    for nd in range(len(nodes)):
+        keep = comp.get(nd, 0)
+        fix(md, nd, [c for c in range(6) if c != keep])
+    spring(md, 1, vn[0], 0, 0.25)
+    spring(md, 2, vn[-1], 0, 0.25)
+    if loaded:
+        load(md, vn[nv // 2], 0, 1.0)
+        load(md, hn[0], 0, 1.0)
+    return md
+
+
+def models5a3():
+    """The 5a.3 models of checkpoint A3a (DS1's models4/5/6 ported, and K4's
+    BLOCK-PRESC); A3b adds the rest of R7 §7's controls."""
+    out = []
+    base = {m["name"]: m for m in models()}
+    m = new_model("CHARGE-SLENDER", [(0, 0, 0), (1, 0, 0)])
+    I = 2.0 ** -180
+    add_member(m, 1, 0, 1, section=dict(UNIT_SECTION, Iy=I, Iz=I))
+    fix(m, 0, range(6))
+    load(m, 1, 1, 1.0)
+    out.append(m)
+    for mexp, loaded in ((40, False), (40, True), (100, False), (100, True)):
+        out.append(hh_fool(mexp, loaded))
+    # HH-SLENDER-m40: HH-FOOL-m40 unloaded plus CHARGE-SLENDER as a third body.
+    m = hh_fool(40, False, name="HH-SLENDER-m40")
+    a = len(m["nodes"])
+    m["nodes"] += [(100.0, 0.0, 0.0), (101.0, 0.0, 0.0)]
+    add_member(m, 50, a, a + 1, section=dict(UNIT_SECTION, Iy=2.0 ** -180, Iz=2.0 ** -180))
+    fix(m, a, range(6))
+    load(m, a + 1, 1, 1.0)
+    out.append(m)
+    # THETA-ZERO-BODY and G-FIXED-MEMBER: N05 plus an extra body (V4-U2).
+    for name in ("THETA-ZERO-BODY", "G-FIXED-MEMBER"):
+        m = json.loads(json.dumps(base["N05"]))
+        m["name"] = name
+        m["nodes"] = [tuple(p) for p in m["nodes"]]
+        for mm in m["members"]:
+            mm["y"] = tuple(mm["y"])
+        a = len(m["nodes"])
+        if name == "THETA-ZERO-BODY":
+            m["nodes"] += [(50.0, 0.0, 0.0), (51.0, 0.0, 0.0)]
+            add_member(m, 900, a, a + 1, section=dict(UNIT_SECTION, Iy=2.0 ** -400, Iz=2.0 ** -400))
+            fix(m, a, range(6))
+        else:
+            m["nodes"] += [(60.0, 0.0, 0.0), (61.0, 0.0, 0.0)]
+            add_member(m, 901, a, a + 1, y=(1.0, 2.0 ** -300, 0.0), section=UNIT_SECTION)
+            fix(m, a, range(6))
+            fix(m, a + 1, range(6))
+        out.append(m)
+    # THETA-STUB (DS1, R5) and THETA-STUB-COUPLED (DS1, R6).
+    m = new_model("THETA-STUB", [(0, 0, 0), (1, 0, 0), (0, 1, 0)])
+    add_member(m, 1, 0, 1, section=UNIT_SECTION)
+    add_member(m, 2, 0, 2, y=(0.0, 0.0, 1.0), section=dict(UNIT_SECTION, A=2.0 ** 50, Iy=2.0 ** -204, Iz=2.0 ** -204))
+    fix(m, 0, range(6))
+    fix(m, 2, (0, 1, 3, 4, 5))
+    load(m, 1, 1, 1.0)
+    out.append(m)
+    m = new_model("THETA-STUB-COUPLED", [(0, 0, 0), (1, 0, 0), (2, 1, 0), (2, 0, 0)])
+    add_member(m, 1, 0, 1, section=UNIT_SECTION)
+    add_member(m, 3, 1, 3, section=UNIT_SECTION)
+    add_member(m, 2, 3, 2, y=(0.0, 0.0, 1.0), section=dict(UNIT_SECTION, A=2.0 ** 50, Iy=2.0 ** -204, Iz=2.0 ** -204))
+    fix(m, 0, range(6))
+    fix(m, 3, (0, 1, 2))
+    fix(m, 2, (0, 1, 3, 4, 5))
+    load(m, 1, 1, 1.0)
+    out.append(m)
+    # G-PRESC-MEMBER (DS1, R5): g = 2^245 on a member with a nonzero prescription.
+    m = new_model("G-PRESC-MEMBER", [(0, 0, 0), (1, 0, 0), (0, 0, 1)])
+    add_member(m, 1, 0, 1, section=UNIT_SECTION)
+    add_member(m, 2, 0, 2, y=(2.0 ** -244, 0.0, 1.0), section=UNIT_SECTION)
+    fix(m, 0, range(6))
+    fix(m, 2, (1, 2, 3, 4, 5))
+    fix(m, 2, (0,), 2.0 ** -300)
+    load(m, 1, 1, 1.0)
+    out.append(m)
+    # BLOCK-PRESC (K4, SD-G5): a loaded unit cantilever, and a second body whose
+    # only free DOF uy(3) is coupled by the pattern (not numerically: the member
+    # is along x) to the prescribed ux(2) = 1e-3, so its state is exactly zero
+    # and its block carries data only through 7a's prescribed-coupling rule.
+    m = new_model("BLOCK-PRESC", [(0, 0, 0), (1, 0, 0), (0, 5, 0), (1, 5, 0)])
+    add_member(m, 1, 0, 1, section=UNIT_SECTION)
+    add_member(m, 2, 2, 3, section=UNIT_SECTION)
+    fix(m, 0, range(6))
+    load(m, 1, 1, 1.0)
+    fix(m, 2, (0,), 1e-3)
+    fix(m, 2, (1, 2, 3, 4, 5))
+    fix(m, 3, (0, 2, 3, 4, 5))
+    out.append(m)
+    return out
+
+
+LARGE_A3A = ("RF-LARGE-CHAIN-n00010-AX", "RF-LARGE-CHAIN-n00010-ROT", "RF-LARGE-TREE-n00010-AX",
+             "RF-LARGE-TREE-n00010-ROT", "RF-LARGE-CONT-n00010-AX", "RF-LARGE-CONT-n00010-ROT")
+
+
+def large_models(ids):
+    """R1's RF-LARGE frames through K4's adapter (plan §12.1)."""
+    ref = json.loads(R1_JSON.read_text())["cases"]
+    out = []
+    for cid in ids:
+        c = ref[cid]
+        m, _, _ = r1_adapt(cid, c, c["model"])
+        out.append(m)
+    return out
+
+
+# ---- the emulation of K4 at one precision (shared stages, condition, solve)
+
+def canonical(model):
+    """K4's canonical lists (source.rs): by id, constraints by DOF."""
+    m = dict(model)
+    m["members"] = sorted(model["members"], key=lambda x: x["id"])
+    m["springs"] = sorted(model["springs"], key=lambda x: x["id"])
+    m["dsprings"] = sorted(model["dsprings"], key=lambda x: x["id"])
+    m["stations"] = sorted(model["stations"], key=lambda x: x["id"])
+    m["supports"] = sorted(model["supports"], key=lambda x: x["id"])
+    m["constraints"] = sorted(model["constraints"], key=lambda c: 6 * c["node"] + c["c"])
+    return m
+
+
+def g_exp_em(yr, yc):
+    yy = sum((c * c for c in yr), Fr(0))
+    cc = sum((c * c for c in yc), Fr(0))
+    k = 0
+    while Fr(4) ** k * cc < yy:
+        k += 1
+    return k
+
+
+def form_member_g(nodes, m, p):
+    """form_member_em plus g (R7 §4.1.6.2 item 2), from the same yc."""
+    op = form_member_em(nodes, m, p)
+    F = Fr
+    xi, xj = nodes[m["i"]], nodes[m["j"]]
+
+    def dot(a, b):
+        return rp(sum((x * y for x, y in zip(a, b)), Fr(0)), p)
+    d = [rp(F(xj[k]) - F(xi[k]), p) for k in range(3)]
+    n = sqrt_p(dot(d, d), p)
+    ex = [rp(c / n, p) for c in d]
+    yr = [F(c) for c in m["y"]]
+    proj = dot(yr, ex)
+    yc = [rp(yr[k] - proj * ex[k], p) for k in range(3)]
+    assert ex == op["axes"][0]
+    op["g"] = g_exp_em(yr, yc)
+    return op
+
+
+def bounded_block_em(op, p):
+    """assemble.rs `bounded_block` (emu7's `element_bounded`)."""
+    inv = abs(op["inv"])
+    Bb = [[Fr(0)] * 12 for _ in range(6)]
+    for k in range(3):
+        Bb[0][k] = Bb[0][6 + k] = Fr(1)
+        Bb[1][3 + k] = Bb[1][9 + k] = Fr(1)
+        for row, rot in ((2, 3), (3, 9), (4, 3), (5, 9)):
+            Bb[row][k] = Bb[row][6 + k] = inv
+            Bb[row][rot + k] = Fr(1)
+    z, y = abs(op["bz"]), abs(op["by"])
+    drows = [[(0, abs(op["axial"]))], [(1, abs(op["torsion"]))], [(2, 4 * z), (3, 2 * z)], [(2, 2 * z), (3, 4 * z)],
+             [(4, 4 * y), (5, 2 * y)], [(4, 2 * y), (5, 4 * y)]]
+    DB = [[rp(sum((c * Bb[s][col] for s, c in drows[r]), Fr(0)), p) for col in range(12)] for r in range(6)]
+    g = Fr(2) ** op["g"]
+    return [[rp(sum((Bb[r][a] * DB[r][b] for r in range(6)), Fr(0)), p) * g for b in range(12)] for a in range(12)]
+
+
+def member_dofs_em(m):
+    return [6 * m["i"] + k for k in range(6)] + [6 * m["j"] + k for k in range(6)]
+
+
+def emulate(model, p, state=True):
+    """K4 at p: formation (with g), assembly, the ordering, the factor and its
+    screens, the condition screen with est_c per block, and (state=True) the
+    solve with the residual gate. Returns a dict; `stop` names a failed stage."""
+    model = canonical(model)
+    q = 1024 if p == 1024 else p + 64
+    rnd = lambda x: rp(x, p)
+    nodes = model["nodes"]
+    members = [form_member_g(nodes, m, p) for m in model["members"]]
+    contrib = {}
+    for m, op in zip(model["members"], members):
+        dofs = member_dofs_em(m)
+        for a in range(12):
+            for b in range(12):
+                if dofs[a] <= dofs[b]:
+                    contrib.setdefault((dofs[a], dofs[b]), []).append(op["ke"][(min(a, b), max(a, b))])
+    for s in model["springs"]:
+        d = 6 * s["node"] + s["c"]
+        contrib.setdefault((d, d), []).append(Fr(s["k"]))
+    dblocks = []
+    for s in model["dsprings"]:
+        blk = directional_em(s, p)
+        base = 6 * s["node"] + kind_offset(s["kind"])
+        dblocks.append((base, blk))
+        for a in range(3):
+            for b in range(a, 3):
+                contrib.setdefault((base + a, base + b), []).append(blk[a][b])
+    K = {rc: rnd(sum(vs, Fr(0))) for rc, vs in contrib.items()}
+    n = 6 * len(nodes)
+    prescribed = {6 * c["node"] + c["c"]: Fr(c["v"]) for c in model["constraints"]}
+    free = [g for g in range(n) if g not in prescribed]
+    position = {g: a for a, g in enumerate(free)}
+    pattern = {g: set() for g in range(n)}
+    for (r, c) in K:
+        pattern[r].add(c)
+        pattern[c].add(r)
+    get_k = lambda M, r, c: M.get((min(r, c), max(r, c)))
+    out = dict(model=model, K=K, members=members, dblocks=dblocks, free=free, position=position, pattern=pattern,
+               prescribed=prescribed, n=n, p=p)
+    nf = len(free)
+    adjacency = [[position[c] for c in sorted(pattern[g]) if c in position and c != g] for g in free]
+    # Blocks (7a): components of the free-free pattern, numbered by least position.
+    blk = [-1] * nf
+    blocks = []
+    for s0 in range(nf):
+        if blk[s0] >= 0:
+            continue
+        bid = len(blocks)
+        blk[s0] = bid
+        stack, comp = [s0], []
+        while stack:
+            v = stack.pop()
+            comp.append(v)
+            for w in adjacency[v]:
+                if blk[w] < 0:
+                    blk[w] = bid
+                    stack.append(w)
+        blocks.append(sorted(comp))
+    out.update(blocks=blocks, blk=blk)
+    for g in free:
+        d = get_k(K, g, g)
+        if d is None or d == 0:
+            out["stop"] = "ZeroDiagonal"
+            return out
+        if d < 0:
+            out["stop"] = "NegativeEnergy"
+            return out
+    order = rcm_em(adjacency)
+    rank = [0] * nf
+    for kk, a in enumerate(order):
+        rank[a] = kk
+    first = [min([rank[b] for b in adjacency[a]] + [i]) for i, a in enumerate(order)]
+    scale = [-(k3.floor_log2(get_k(K, g, g)) // 2) for g in free]
+    rows = []
+    for i in range(nf):
+        a = order[i]
+        row = {}
+        for j in range(first[i], i + 1):
+            b = order[j]
+            v = get_k(K, free[a], free[b])
+            row[j] = (v if v is not None else Fr(0)) * Fr(2) ** (scale[a] + scale[b])
+        rows.append(row)
+    scaled = [dict(r) for r in rows]
+    get = lambda i, j: rows[i][j] if j >= first[i] else Fr(0)
+    work = [Fr(0)] * nf
+    for i in range(nf):
+        for j in range(first[i], i):
+            s_ = get(i, j)
+            for kk in range(max(first[i], first[j]), j):
+                s_ = rnd(s_ - rnd(work[kk] * get(j, kk)))
+            work[j] = s_
+            rows[i][j] = rnd(s_ / get(j, j))
+        pivot = get(i, i)
+        canc = abs(pivot)
+        for kk in range(first[i], i):
+            term = rnd(work[kk] * get(i, kk))
+            pivot = rnd(pivot - term)
+            canc = rnd(canc + abs(term))
+        mm = 2 * (i - first[i]) + 2
+        if not (pivot * (2 ** p - mm) - 64 * mm * canc > 0):
+            out["stop"] = "Pivot"
+            return out
+        rows[i][i] = pivot
+    out.update(order=order, rank=rank, first=first, scale=scale, rows=rows, scaled=scaled, get=get)
+
+    def solve_scaled(b):
+        x = [b[order[i]] for i in range(nf)]
+        for i in range(nf):
+            for j in range(first[i], i):
+                x[i] = rnd(x[i] - rnd(get(i, j) * x[j]))
+        for i in range(nf):
+            x[i] = rnd(x[i] / get(i, i))
+        for i in reversed(range(nf)):
+            v = x[i]
+            for j in range(first[i], i):
+                x[j] = rnd(x[j] - rnd(get(i, j) * v))
+        res = [Fr(0)] * nf
+        for i in range(nf):
+            res[order[i]] = x[i]
+        return res
+
+    def solve(bv):
+        y = solve_scaled([bv[a] * Fr(2) ** scale[a] for a in range(nf)])
+        return [y[a] * Fr(2) ** scale[a] for a in range(nf)]
+    out["solve"] = solve
+    # The condition screen, with est_c per block observed at p >= 256.
+    est_blk = [Fr(0)] * len(blocks)
+
+    def observe(xv, yv):
+        for b, pl in enumerate(blocks):
+            xs = rnd(sum((abs(xv[a]) for a in pl), Fr(0)))
+            if xs == 0:
+                continue
+            ys = rnd(sum((abs(yv[a]) for a in pl), Fr(0)))
+            est_blk[b] = max(est_blk[b], rnd(ys / xs))
+    if nf > 0:
+        norm = Fr(0)
+        for a, g in enumerate(free):
+            col = rnd(sum((abs(get_k(K, g, c)) * Fr(2) ** (scale[a] + scale[position[c]])
+                           for c in pattern[g] if c in position), Fr(0)))
+            norm = max(norm, col)
+        one = Fr(1)
+        x = [rnd(Fr(1, nf))] * nf
+        est = Fr(0)
+        prev = nf
+        for _ in range(5):
+            y = solve_scaled(x)
+            observe(x, y)
+            cur = rnd(sum((abs(v) for v in y), Fr(0)))
+            if cur <= est and est != 0:
+                break
+            est = cur
+            signs = [one if v >= 0 else -one for v in y]
+            z = solve_scaled(signs)
+            observe(signs, z)
+            j = 0
+            for i in range(1, nf):
+                if abs(z[i]) >= abs(z[j]):
+                    j = i
+            dot = rnd(sum((z[i] * x[i] for i in range(nf)), Fr(0)))
+            if abs(z[j]) <= dot or j == prev:
+                break
+            prev = j
+            x = [Fr(0)] * nf
+            x[j] = one
+        alt = []
+        for i in range(nf):
+            mag = one if nf == 1 else rnd(Fr(nf - 1 + i, nf - 1))
+            alt.append(mag if i % 2 == 0 else -mag)
+        y = solve_scaled(alt)
+        observe(alt, y)
+        total = rnd(sum((abs(v) for v in y), Fr(0))) * 2
+        alternative = rnd(total / (3 * nf))
+        est = max(est, alternative)
+        product = rnd(norm * est)
+        if product == 0 or product >= Fr(2) ** (p - 1):
+            out["stop"] = "Condition"
+            return out
+    out["est_blk"] = est_blk
+    if not state:
+        return out
+    # The solve and the residual gate (the coalesced test, the early stop on
+    # K4's 64-bit approximate worst ratio).
+    # The residual system re-formed at q from the primitives (K at the ceiling).
+    Kq = K if q == p else assemble_em(model, q)[0]
+    ledger = {}
+    nonzero = set()
+    for l in model["loads"]:
+        g = 6 * l["node"] + l["c"]
+        ledger[g] = ledger.get(g, Fr(0)) + Fr(l["v"])
+        if l["v"] != 0:
+            nonzero.add(g)
+    out.update(ledger=ledger, nonzero_terms=nonzero)
+    rhs = []
+    for g in free:
+        v = ledger.get(g, Fr(0))
+        for c in pattern[g]:
+            if c in prescribed:
+                v -= get_k(K, g, c) * prescribed[c]
+        rhs.append(rnd(v))
+    u_free = solve(rhs) if nf else []
+    u = [prescribed.get(g, Fr(0)) for g in range(n)]
+    corrections = 0
+    prior = math.inf
+    while True:
+        for a, g in enumerate(free):
+            u[g] = u_free[a]
+        passes, residuals, worst = True, [], 0.0
+        for g in free:
+            r = ledger.get(g, Fr(0))
+            d = abs(r)
+            count = 0
+            for c in sorted(pattern[g]):
+                kv = get_k(Kq, g, c)
+                if kv == 0 or u[c] == 0:
+                    continue
+                count += 1
+                r -= kv * u[c]
+                d += abs(kv * u[c])
+            mm = 2 * count + 2
+            num = abs(r) * (2 ** p - mm)
+            den = 64 * mm * d
+            passes = passes and num <= den
+            nv = rp(num, 64)
+            if nv == 0:
+                ratio = 0.0
+            else:
+                dv = rp(den, 64)
+                ratio = math.inf if dv == 0 else float(rp(nv / dv, 64))
+            worst = max(worst, ratio)
+            residuals.append(rnd(r))
+        if passes:
+            break
+        if corrections == 3 or worst >= prior:
+            out["stop"] = "ResidualGate"
+            return out
+        prior = worst
+        delta = solve(residuals)
+        u_free = [rnd(xv + dv) for xv, dv in zip(u_free, delta)]
+        corrections += 1
+    out.update(u=list(u), corrections=corrections)
+    return out
+
+
+def bodies_em(model):
+    """K4's body numbering (source.rs): components of the member graph,
+    numbered by their least node."""
+    nn = len(model["nodes"])
+    parent = list(range(nn))
+
+    def root(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    for m in model["members"]:
+        a, b = root(m["i"]), root(m["j"])
+        if a != b:
+            lo, hi = min(a, b), max(a, b)
+            parent[hi] = lo
+    body_of_root, out, count = {}, [], 0
+    for node in range(nn):
+        r = root(node)
+        if r not in body_of_root:
+            body_of_root[r] = count
+            count += 1
+        out.append(body_of_root[r])
+    return out, count
+
+
+def body_extent_em(coords):
+    if not coords:
+        return 0.0
+    d = []
+    for a in range(3):
+        vals = [c[a] for c in coords]
+        d.append(max(vals) - min(vals))
+    return math.sqrt((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2])
+
+
+def abar_em(em):
+    """Ā at p: {(r, c): value}, both triangles, one exact sum per entry."""
+    p, model = em["p"], em["model"]
+    blocks = [bounded_block_em(op, p) for op in em["members"]]
+    contrib = {}
+    for m, A in zip(model["members"], blocks):
+        dofs = member_dofs_em(m)
+        for a in range(12):
+            for b in range(12):
+                contrib.setdefault((dofs[a], dofs[b]), []).append(A[a][b])
+    for s in model["springs"]:
+        d = 6 * s["node"] + s["c"]
+        contrib.setdefault((d, d), []).append(abs(Fr(s["k"])))
+    for base, blk in em["dblocks"]:
+        for a in range(3):
+            for b in range(3):
+                contrib.setdefault((base + a, base + b), []).append(abs(blk[a][b]))
+    return {rc: rp(sum(vs, Fr(0)), p) for rc, vs in contrib.items()}
+
+
+def formation_scale_em(em, abar, w, ledger, stage):
+    """verify.rs `formation_scale`: E_q per layout row (None for the others),
+    each stage one exact sum rounded by `stage`."""
+    model = em["model"]
+    nn = len(model["nodes"])
+    out = [None] * (6 * nn + nn)
+    qs, acts_all = [], []
+    for m, op in zip(model["members"], em["members"]):
+        dofs = member_dofs_em(m)
+        blockv = [stage(sum((w[dofs[3 * b + c]] for c in range(3)), Fr(0))) for b in range(4)]
+        dd = lambda idx: blockv[idx // 3]
+        inv = abs(op["inv"])
+        e = [stage(dd(6) + dd(0)), stage(dd(9) + dd(3))]
+        for rot, tr in ((5, 1), (11, 1), (4, 2), (10, 2)):
+            e.append(stage(dd(rot) + inv * dd(tr) + inv * dd(tr + 6)))
+        z, y = abs(op["bz"]), abs(op["by"])
+        coeffs = [[(abs(op["axial"]), 0)], [(abs(op["torsion"]), 1)], [(4 * z, 2), (2 * z, 3)], [(2 * z, 2), (4 * z, 3)],
+                  [(4 * y, 4), (2 * y, 5)], [(2 * y, 4), (4 * y, 5)]]
+        Q = [stage(sum((c * e[at] for c, at in t), Fr(0))) for t in coeffs]
+        vy = stage(inv * Q[2] + inv * Q[3])
+        vz = stage(inv * Q[4] + inv * Q[5])
+        g = Fr(2) ** op["g"]
+        acts = [x * g for x in (Q[0], vy, vz, Q[1], Q[4], Q[2], Q[0], vy, vz, Q[1], Q[5], Q[3])]
+        qs.append(Q)
+        acts_all.append(acts)
+    for acts in acts_all:
+        out.extend(acts)
+    ids = [mm["id"] for mm in model["members"]]
+    for st in model["stations"]:
+        k = ids.index(st["member"])
+        Q, acts = qs[k], acts_all[k]
+        g = Fr(2) ** em["members"][k]["g"]
+        t = abs(Fr(st["t"]))
+        out.extend([acts[6], acts[7], acts[8], acts[9], stage(t * Q[5] + t * Q[4] + Q[4]) * g,
+                    stage(t * Q[3] + t * Q[2] + Q[2]) * g])
+    spring_e = {}
+    for s in model["springs"]:
+        v = stage(abs(Fr(s["k"])) * w[6 * s["node"] + s["c"]])
+        spring_e[s["id"]] = (s["c"], v)
+        out.append(v)
+    dir_e = {}
+    for s, (base, blk) in zip(model["dsprings"], em["dblocks"]):
+        comps = [stage(sum((abs(blk[a][b]) * w[base + b] for b in range(3)), Fr(0))) for a in range(3)]
+        dir_e[s["id"]] = (kind_offset(s["kind"]), comps)
+        out.extend(comps)
+    reaction_e = {}
+    for c in model["constraints"]:
+        g = 6 * c["node"] + c["c"]
+        f = abs(ledger.get(g, Fr(0))) if ledger is not None else Fr(0)
+        v = stage(f + sum((abar.get((g, j), Fr(0)) * w[j] for j in em["pattern"][g]), Fr(0)))
+        reaction_e[g] = v
+        out.append(v)
+    for grp in model["supports"]:
+        for rng_ in (range(0, 3), range(3, 6)):
+            acc = Fr(0)
+            for c in rng_:
+                g = 6 * grp["node"] + c
+                if grp["r"][c]:
+                    acc += reaction_e.get(g, Fr(0))
+                for sid in grp["springs"]:
+                    comp, v = spring_e[sid]
+                    if comp == c:
+                        acc += v
+                for sid in grp["dsprings"]:
+                    off, comps = dir_e[sid]
+                    if off <= c < off + 3:
+                        acc += comps[c - off]
+            out.append(stage(acc))
+    return out
+
+
+def layout_kinds(model):
+    """K4's layout (recover.rs), as (kind, body, input_derived) per row;
+    kind 0..3 = tr, ro, fo, mo."""
+    body_of, _ = bodies_em(model)
+    nn = len(model["nodes"])
+    fixed = {6 * c["node"] + c["c"] for c in model["constraints"]}
+    out = []
+    for g in range(6 * nn):
+        out.append((0 if g % 6 < 3 else 1, body_of[g // 6], g in fixed))
+    for node in range(nn):
+        out.append((0, body_of[node], False))
+    for m in model["members"]:
+        for _end in range(2):
+            for c in range(6):
+                out.append((2 if c < 3 else 3, body_of[m["i"]], False))
+    for st in model["stations"]:
+        mm = next(x for x in model["members"] if x["id"] == st["member"])
+        for c in range(6):
+            out.append((2 if c < 3 else 3, body_of[mm["i"]], False))
+    for s in model["springs"]:
+        out.append((2 if s["c"] < 3 else 3, body_of[s["node"]], False))
+    for s in model["dsprings"]:
+        for k in range(3):
+            c = kind_offset(s["kind"]) + k
+            out.append((2 if c < 3 else 3, body_of[s["node"]], False))
+    for c in model["constraints"]:
+        out.append((2 if c["c"] < 3 else 3, body_of[c["node"]], False))
+    for grp in model["supports"]:
+        out.append((2, body_of[grp["node"]], False))
+        out.append((3, body_of[grp["node"]], False))
+    return out
+
+
+def e_hat_em(e, extent):
+    if extent == 0.0:
+        return list(e)
+    fo, mo = e
+    return [max(fo, mo / extent), max(mo, extent * fo)]
+
+
+def phi_em(eh):
+    nearest = eh * f64_of(0x2490000000000000)
+    return math.nextafter(nearest, math.inf) if nearest * f64_of(0x5B50000000000000) < eh else nearest
+
+
+def digest(lines):
+    return hashlib.sha256(("\n".join(lines) + "\n").encode()).hexdigest()
+
+
+def scale_record(name, model, p):
+    """E-UNIT's record of a model at p: g, Ā, E_q, E(body, kind), ê and Φ."""
+    em = emulate(model, p)
+    if "stop" in em:
+        return ["scale %s %d stop %s" % (name, p, em["stop"])]
+    L = width_of(p)
+    mdl = em["model"]
+    abar = abar_em(em)
+    w = [abs(v) for v in em["u"]]
+    E = formation_scale_em(em, abar, w, em["ledger"], lambda x: rp(x, p))
+    kinds = layout_kinds(mdl)
+    assert len(E) == len(kinds)
+    lines = ["scale %s %d state %d" % (name, p, em["corrections"])]
+    lines.append("g %s %d %s" % (name, p, ",".join(str(op["g"]) for op in em["members"]) or "-"))
+    lines.append("abar %s %d %s" % (name, p, digest(["%d %d %s" % (r, c, W_of(abar[(r, c)], L).token())
+                                                     for (r, c) in sorted(abar)])))
+    erows = ["%d %s" % (i, W_of(v, L).token()) for i, (v, (k, _b, _i)) in enumerate(zip(E, kinds))
+             if k >= 2 and v is not None]
+    lines.append("erows %s %d %s" % (name, p, digest(erows)))
+    body_of, nb = bodies_em(mdl)
+    top = [[Fr(0), Fr(0)] for _ in range(nb)]
+    for v, (k, b, _i) in zip(E, kinds):
+        if k >= 2 and v is not None:
+            top[b][k - 2] = max(top[b][k - 2], v)
+    for b in range(nb):
+        e = [fl_up(top[b][0]), fl_up(top[b][1])]
+        coords = [mdl["nodes"][nd] for nd in range(len(mdl["nodes"])) if body_of[nd] == b]
+        eh = e_hat_em(e, body_extent_em(coords))
+        ph = [phi_em(x) for x in eh]
+        lines.append("ebody %s %d %d %s" % (name, p, b, " ".join("%016x" % b64(x) for x in e + eh + ph)))
+    if name in ("N05", "TWO-SPAN", "CHARGE-SLENDER", "DIRECTIONAL-SPAN", "PRESCRIBED"):
+        lines += ["erow %s %d %s" % (name, p, r) for r in erows]
+    return lines
+
+
+SCALE_PRECISIONS = (128, 256, 512, 1024)
+
+
+def scale_lines():
+    lines = []
+    for m in models() + routed_models() + models5a3() + large_models(LARGE_A3A):
+        for p in SCALE_PRECISIONS:
+            lines += scale_record(m["name"], m, p)
+    return lines
+
+
+# ---- the bounds (R7 7b-7d), at the verification precisions
+
+def u_pass_em(get, first, nf, p):
+    a_ = [Fr(1)] * nf
+    for i in range(nf):
+        acc = Fr(1)
+        for j in range(first[i], i):
+            l = abs(get(i, j))
+            if l:
+                acc = ru(acc + ru(l * a_[j], p), p)
+        a_[i] = acc
+    c_ = [ru(a_[i] / get(i, i), p) for i in range(nf)]
+    for i in reversed(range(nf)):
+        for j in range(first[i], i):
+            l = abs(get(i, j))
+            if l:
+                c_[j] = ru(c_[j] + ru(l * c_[i], p), p)
+    return c_
+
+
+def nl_pass_em(get, first, nf, p):
+    at = [Fr(1)] * nf
+    for i in range(nf):
+        for j in range(first[i], i):
+            l = abs(get(i, j))
+            if l:
+                at[j] = ru(at[j] + l, p)
+    bt = [ru(get(i, i) * at[i], p) for i in range(nf)]
+    ct = list(bt)
+    for i in range(nf):
+        for j in range(first[i], i):
+            l = abs(get(i, j))
+            if l:
+                ct[i] = ru(ct[i] + ru(l * bt[j], p), p)
+    return ct
+
+
+def gamma_em(nf, p):
+    m = 2 * nf + 2
+    return ru(Fr(m) / (Fr(2) ** p - m), p)
+
+
+def uc_from_em(U, NL, gam, p):
+    t = ru(ru(U * gam, p) * NL, p)
+    uc = ru(U / rd(1 - t, p), p) if t < 1 else None
+    return t, uc
+
+
+def shifted_factor_em(scaled, first, block_of_row, sigma, p):
+    """bound.rs `shifted_factor`: (get, failed blocks, shifted diagonal)."""
+    nf = len(first)
+    rnd = lambda x: rp(x, p)
+    sr = [dict(r) for r in scaled]
+    dsh = [None] * nf
+    for i in range(nf):
+        s = sigma.get(block_of_row[i])
+        if s is not None:
+            dsh[i] = rnd(sr[i][i] - s)
+            sr[i][i] = dsh[i]
+    get = lambda i, j: sr[i].get(j, Fr(0)) if j >= first[i] else Fr(0)
+    failed = set()
+    wk = [Fr(0)] * nf
+    for i in range(nf):
+        for j in range(first[i], i):
+            s_ = get(i, j)
+            for kk in range(max(first[i], first[j]), j):
+                s_ = rnd(s_ - rnd(wk[kk] * get(j, kk)))
+            wk[j] = s_
+            sr[i][j] = rnd(s_ / get(j, j))
+        piv = get(i, i)
+        for kk in range(first[i], i):
+            piv = rnd(piv - rnd(wk[kk] * get(i, kk)))
+        if piv <= 0:
+            failed.add(block_of_row[i])
+            piv = Fr(1)
+        sr[i][i] = piv
+    return get, failed, dsh
+
+
+def ceil_sqrt_em(k):
+    r = isqrt(k)
+    return r if r * r == k else r + 1
+
+
+def shift_schedule_em(scaled, first, block_of_row, gam, start, p):
+    """bound.rs `shift_schedule`: start = [(block, sigma, n_c)]."""
+    nf = len(first)
+    res = {b: dict(sigma=s, tries=0, nl=None, delta=None, sp=None, S=None) for b, s, _ in start}
+    cur = list(start)
+    count = 0
+    while cur and count < 3:
+        sig = {b: s for b, s, _ in cur}
+        get, failed, dsh = shifted_factor_em(scaled, first, block_of_row, sig, p)
+        count += 1
+        ct = nl_pass_em(get, first, nf, p)
+        nxt = []
+        for b, s, n_c in cur:
+            r = res[b]
+            r["tries"] += 1
+            r["sigma"] = s
+            if b in failed:
+                nxt.append((b, s / 2, n_c))
+                continue
+            rows_b = [i for i in range(nf) if block_of_row[i] == b]
+            NLp = max(ct[i] for i in rows_b)
+            delta = Fr(2) ** (1 - p) * max(abs(dsh[i]) for i in rows_b)
+            e = ru(ru(gam * NLp, p) + delta, p)
+            sp = rd(s - e, p)
+            r.update(nl=NLp, delta=delta, sp=sp)
+            if sp > 0:
+                r["S"] = ru(Fr(ceil_sqrt_em(n_c)) / sp, p)
+        cur = nxt
+    return res, count
+
+
+def inv_norm1_exact(A):
+    """‖A⁻¹‖₁ of a symmetric positive definite Fraction matrix (dense list),
+    by exact LDLᵀ on its profile (no pivoting) and one solve per column."""
+    n = len(A)
+    first = [min(j for j in range(i + 1) if A[i][j] != 0 or j == i) for i in range(n)]
+    Lm = [dict() for _ in range(n)]
+    D = [Fr(0)] * n
+    for i in range(n):
+        for j in range(first[i], i + 1):
+            s = A[i][j]
+            for k in range(max(first[i], first[j]), j):
+                lik, ljk = Lm[i].get(k), Lm[j].get(k)
+                if lik and ljk:
+                    s -= lik * ljk * D[k]
+            if j == i:
+                D[i] = s
+            elif s != 0:
+                Lm[i][j] = s / D[j]
+        assert D[i] != 0, "singular"
+    best = Fr(0)
+    for col in range(n):
+        x = [Fr(int(i == col)) for i in range(n)]
+        for i in range(n):
+            for j, l in Lm[i].items():
+                x[i] -= l * x[j]
+        for i in range(n):
+            x[i] /= D[i]
+        for i in reversed(range(n)):
+            for j, l in Lm[i].items():
+                x[j] -= l * x[i]
+        best = max(best, sum((abs(v) for v in x), Fr(0)))
+    return best
+
+
+def inv_norm1_upper(A, bits=3072):
+    """A certified upper bound on ‖A⁻¹‖₁ for a large symmetric positive
+    definite dyadic matrix (RF-LARGE; the exact rational inverse is too slow
+    for Python at 60 DOFs and 256+ bits): X ≈ A⁻¹ by LDLᵀ and column solves
+    rounded at `bits`, the residual R = I − A·X formed exactly, and
+    ‖A⁻¹‖₁ ≤ ‖X‖₁/(1 − ‖R‖₁) (A⁻¹ = X(I − R)⁻¹), valid when ‖R‖₁ < 1."""
+    n = len(A)
+    rnd = lambda x: rp(x, bits)
+    first = [min(j for j in range(i + 1) if A[i][j] != 0 or j == i) for i in range(n)]
+    Lm = [dict() for _ in range(n)]
+    D = [Fr(0)] * n
+    for i in range(n):
+        for j in range(first[i], i + 1):
+            s_ = A[i][j]
+            for k in range(max(first[i], first[j]), j):
+                lik, ljk = Lm[i].get(k), Lm[j].get(k)
+                if lik and ljk:
+                    s_ = rnd(s_ - rnd(rnd(lik * ljk) * D[k]))
+            if j == i:
+                D[i] = s_
+            elif s_ != 0:
+                Lm[i][j] = rnd(s_ / D[j])
+        assert D[i] > 0
+    cols = []
+    for col in range(n):
+        x = [Fr(int(i == col)) for i in range(n)]
+        for i in range(n):
+            for j, l in Lm[i].items():
+                x[i] = rnd(x[i] - rnd(l * x[j]))
+        for i in range(n):
+            x[i] = rnd(x[i] / D[i])
+        for i in reversed(range(n)):
+            for j, l in Lm[i].items():
+                x[j] = rnd(x[j] - rnd(l * x[i]))
+        cols.append(x)
+    nx = max(sum((abs(v) for v in x), Fr(0)) for x in cols)
+    nz = [[(j, A[i][j]) for j in range(n) if A[i][j] != 0] for i in range(n)]
+    nr = Fr(0)
+    for col, x in enumerate(cols):
+        r = Fr(0)
+        for i in range(n):
+            ax = sum((a * x[j] for j, a in nz[i]), Fr(0))
+            r += abs(Fr(int(i == col)) - ax)
+        nr = max(nr, r)
+    assert nr < Fr(1, 2 ** 100), "the approximate inverse is not accurate"
+    return nx / (1 - nr)
+
+
+def frac_hex(x):
+    return "%x %x" % (x.numerator, x.denominator)
+
+
+def factor_digest(em, L):
+    nf = len(em["free"])
+    get = em["get"]
+    return digest(["%d %d %s" % (i, j, W_of(get(i, j), L).token()) for i in range(nf)
+                   for j in range(em["first"][i], i + 1)])
+
+
+def bounds_record(name, model, p, exact=True):
+    """E-UC's record at a verification precision p: the factor's digest (Q4's
+    pin), per block est_c, U, N_L, t, Uc, the data flag at the state, the
+    forced shift (every block with est_c > 0) and the exact ‖K̃_c⁻¹‖₁."""
+    em = emulate(model, p)
+    if "order" not in em or "est_blk" not in em:
+        return ["bnd %s %d stop %s" % (name, p, em.get("stop"))]
+    L = width_of(p)
+    nf = len(em["free"])
+    get, first, order, blk = em["get"], em["first"], em["order"], em["blk"]
+    block_of_row = [blk[order[i]] for i in range(nf)]
+    gam = gamma_em(nf, p)
+    lines = ["bnd %s %d %d %d %s %s" % (name, p, nf, len(em["blocks"]), W_of(gam, L).token(), factor_digest(em, L))]
+    c_ = u_pass_em(get, first, nf, p)
+    ct = nl_pass_em(get, first, nf, p)
+    # Data flags at the state (7a), when the state exists.
+    data = None
+    if "u" in em:
+        data = []
+        prescribed_nonzero = {g for g, v in em["prescribed"].items() if v != 0}
+        for b, pl in enumerate(em["blocks"]):
+            flag = False
+            for a in pl:
+                g = em["free"][a]
+                if g in em["nonzero_terms"] or em["u"][g] != 0:
+                    flag = True
+                if any(c in prescribed_nonzero for c in em["pattern"][g]):
+                    flag = True
+            data.append(flag)
+    start = []
+    for b, pl in enumerate(em["blocks"]):
+        rows_b = [i for i in range(nf) if block_of_row[i] == b]
+        U = max(c_[i] for i in rows_b)
+        NL = max(ct[i] for i in rows_b)
+        t, uc = uc_from_em(U, NL, gam, p)
+        est = em["est_blk"][b]
+        tok = lambda v: W_of(v, L).token() if v is not None else "-"
+        norm = "- - -"
+        if exact:
+            sub = [[em["scaled"][max(i, j)].get(min(i, j), Fr(0)) for j in rows_b] for i in rows_b]
+            if len(rows_b) <= 40:
+                norm = "exact " + frac_hex(inv_norm1_exact(sub))
+            else:
+                norm = "upper " + frac_hex(inv_norm1_upper(sub))
+        need = None
+        if est > 0:
+            need = uc is None or uc > 2 * ceil_sqrt_em(len(pl)) * est
+            start.append((b, rd(Fr(1) / (2 * est), p), len(pl)))
+        lines.append("blk %s %d %d %d %s %s %s %s %s %s %s %s" % (
+            name, p, b, len(pl), "-" if data is None else int(data[b]), tok(est), tok(U), tok(NL), tok(t), tok(uc),
+            "-" if need is None else int(need), norm))
+    res, count = shift_schedule_em(em["scaled"], first, block_of_row, gam, start, p)
+    for b in sorted(res):
+        r = res[b]
+        tok = lambda v: W_of(v, L).token() if v is not None else "-"
+        lines.append("shf %s %d %d %s %d %s %s %s %s" % (name, p, b, tok(r["sigma"]), r["tries"], tok(r["nl"]),
+                                                        tok(r["delta"]), tok(r["sp"]), tok(r["S"])))
+    lines.append("shiftcount %s %d %d" % (name, p, count))
+    return lines
+
+
+BOUND_PRECISIONS = (256, 512, 1024)
+
+
+def bounds_lines():
+    lines = []
+    for m in models() + routed_models() + models5a3() + large_models(LARGE_A3A):
+        for p in BOUND_PRECISIONS:
+            lines += bounds_record(m["name"], m, p)
+    return lines
+
+
+# ---- raw profiles: V4's F2 family, the low-precision stress, SD-G5's searches
+
+def f2_matrix(m, nv=12):
+    """V4's F2 family (DS1's stress6.py `f2`, from V4's r4_hh)."""
+    n = nv + 4
+    hpos = [0, 2, 4, 6]
+    vpos = [i for i in range(n) if i not in hpos]
+    K = [[Fr(0)] * n for _ in range(n)]
+    ks = [Fr(1) if t % 2 == 0 else Fr(3) for t in range(nv - 1)]
+    for t, k in enumerate(ks):
+        a, b = vpos[t], vpos[t + 1]
+        K[a][a] += k
+        K[b][b] += k
+        K[a][b] -= k
+        K[b][a] -= k
+    K[vpos[0]][vpos[0]] += Fr(1, 4)
+    K[vpos[-1]][vpos[-1]] += Fr(1, 4)
+    w = [Fr(1), Fr(-1), Fr(-1), Fr(1)]
+    d = Fr(1, 2 ** m)
+    for a in range(4):
+        for b in range(4):
+            K[hpos[a]][hpos[b]] = Fr(int(a == b)) - w[a] * w[b] / 4 + d * w[a] * w[b] / 4
+    return K
+
+
+def stress_matrix(rng, kind, n):
+    """DS1's stress6.py `gen`."""
+    if kind == "gram":
+        B = [[Fr(rng.randint(-8, 8), 8) for _ in range(n)] for _ in range(n)]
+        A = [[sum(B[k][i] * B[k][j] for k in range(n)) for j in range(n)] for i in range(n)]
+        for i in range(n):
+            A[i][i] += Fr(1, 2 ** rng.randint(2, 12))
+    elif kind == "laplacian":
+        A = [[Fr(0)] * n for _ in range(n)]
+        for i in range(n):
+            for j in range(i + 1, n):
+                if rng.random() < 0.6:
+                    w = Fr(rng.randint(1, 16), 4)
+                    A[i][i] += w
+                    A[j][j] += w
+                    A[i][j] -= w
+                    A[j][i] -= w
+        for i in range(n):
+            A[i][i] += Fr(1, 2 ** rng.randint(0, 14))
+    elif kind == "lever":
+        A = [[Fr(0)] * n for _ in range(n)]
+        for i in range(n - 1):
+            k = Fr(2) ** rng.randint(-6, 6)
+            s = rng.choice((1, -1))
+            A[i][i] += k
+            A[i + 1][i + 1] += k
+            A[i][i + 1] += s * k
+            A[i + 1][i] += s * k
+            A[i][i] += k * Fr(rng.randint(1, 4), 64)
+        A[n - 1][n - 1] += Fr(1, 2 ** rng.randint(0, 10))
+    else:
+        B = [[Fr(rng.randint(-8, 8), 8) for _ in range(n)] for _ in range(n - 1)]
+        row = [sum(B[k][j] * rng.randint(-2, 2) for k in range(n - 1)) for j in range(n)]
+        eps = Fr(1, 2 ** rng.randint(4, 20))
+        B.append([x + eps * rng.randint(-4, 4) for x in row])
+        A = [[sum(B[k][i] * B[k][j] for k in range(n)) for j in range(n)] for i in range(n)]
+        for i in range(n):
+            A[i][i] += Fr(1, 2 ** rng.randint(10, 30))
+    return A
+
+
+def equilibrate_round(A, P):
+    """Entries rounded to P bits, then K4's radix scaling (symmetric)."""
+    n = len(A)
+    s = [-(k3.floor_log2(A[i][i]) // 2) for i in range(n)]
+    K = [[rp(A[i][j], P) * Fr(2) ** (s[i] + s[j]) for j in range(n)] for i in range(n)]
+    for i in range(n):
+        for j in range(i):
+            K[i][j] = K[j][i]
+    return K
+
+
+def profile_record(tag, K, P, sigma_list):
+    """A raw profile (natural order, one block): its rows, the unshifted
+    factor's Uc (when every pivot passes), and the shift schedule from each
+    given σ. Emits `prof`, `puc` and `pshf` lines."""
+    n = len(K)
+    L = width_of(P)
+    first = [min(j for j in range(i + 1) if K[i][j] != 0 or j == i) for i in range(n)]
+    scaled = [{j: K[i][j] for j in range(first[i], i + 1)} for i in range(n)]
+    tok = lambda v: W_of(v, L).token() if v is not None else "-"
+    ex = inv_norm1_exact(K)
+    lines = ["prof %s %d %d %s %s" % (tag, P, n, " ".join(str(f) for f in first), frac_hex(ex))]
+    for i in range(n):
+        lines.append("prow %s %s" % (tag, " ".join(tok(scaled[i][j]) for j in range(first[i], i + 1))))
+    block_of_row = [0] * n
+    gam = gamma_em(n, P)
+    get, failed, _ = shifted_factor_em(scaled, first, block_of_row, {}, P)
+    if failed:
+        lines.append("puc %s fail" % tag)
+    else:
+        U = max(u_pass_em(get, first, n, P))
+        NL = max(nl_pass_em(get, first, n, P))
+        t, uc = uc_from_em(U, NL, gam, P)
+        lines.append("puc %s ok %s %s %s %s %d" % (tag, tok(U), tok(NL), tok(t), tok(uc), int(U < ex)))
+    for sig in sigma_list:
+        res, count = shift_schedule_em(scaled, first, block_of_row, gam, [(0, sig, n)], P)
+        r = res[0]
+        m27 = None
+        if r["sp"] is not None:
+            m27 = ru(Fr(ceil_sqrt_em(n)) / r["sigma"], P) < ex
+        lines.append("pshf %s %s %d %d %s %s %s %s %s" % (tag, tok(sig), count, r["tries"], tok(r["nl"]), tok(r["delta"]),
+                                                        tok(r["sp"]), tok(r["S"]), "-" if m27 is None else int(m27)))
+    return lines, ex
+
+
+def profile_lines():
+    lines = []
+    # V4's F2 family at 128, 256 and 512.
+    for P in (128, 256, 512):
+        for mexp in (20, 60, 100, 110, 120, 200, 230):
+            K = equilibrate_round(f2_matrix(mexp), P)
+            try:
+                ex = inv_norm1_exact(K)
+            except AssertionError:
+                continue  # the hidden mode is lost at P: K̃ is singular
+            sigmas = [rp(f / ex, P) for f in (Fr(1, 2), Fr(9, 10), Fr(11, 10), Fr(2))]
+            ls, _ = profile_record("F2-m%d-p%d" % (mexp, P), K, P, sigmas)
+            lines += ls
+    # The low-precision stress (Lemma E; R7-M27's kill at low precision).
+    rng = __import__("random").Random(seed_of("K4STR5A3"))
+    kept_killers, kept_other = 0, 0
+    for k in range(STRESS_COUNT):
+        kind = ("gram", "laplacian", "lever", "near")[k % 4]
+        n = rng.randint(3, 10)
+        P = rng.choice((10, 12, 16, 20, 24, 32))
+        A = stress_matrix(rng, kind, n)
+        if any(A[i][i] <= 0 for i in range(n)):
+            continue
+        K = equilibrate_round(A, P)
+        try:
+            ex = inv_norm1_exact(K)
+        except AssertionError:
+            continue
+        f = Fr(rng.randint(30, 1000), 100)
+        sig = rp(f / ex, P)
+        if sig <= 0:
+            continue
+        ls, _ = profile_record("ST%05d" % k, K, P, [sig])
+        killer = ls[-1].split()[-1] == "1"
+        if killer or kept_other < STRESS_KEEP:
+            lines += ls
+            kept_killers += killer
+            kept_other += not killer
+    lines.append("stresscount %d %d %d" % (STRESS_COUNT, kept_killers, kept_other))
+    return lines + sdg5_profile_lines()
+
+
+STRESS_COUNT = 20000
+STRESS_KEEP = 400
+
+
+def uc_of(K, P):
+    """(t, Uc) of a raw profile's unshifted factor, or None when a pivot fails."""
+    n = len(K)
+    first = [min(j for j in range(i + 1) if K[i][j] != 0 or j == i) for i in range(n)]
+    scaled = [{j: K[i][j] for j in range(first[i], i + 1)} for i in range(n)]
+    get, failed, _ = shifted_factor_em(scaled, first, [0] * n, {}, P)
+    if failed:
+        return None
+    U = max(u_pass_em(get, first, n, P))
+    NL = max(nl_pass_em(get, first, n, P))
+    return uc_from_em(U, NL, gamma_em(n, P), P)
+
+
+def schedule_of(K, P, sig):
+    n = len(K)
+    first = [min(j for j in range(i + 1) if K[i][j] != 0 or j == i) for i in range(n)]
+    scaled = [{j: K[i][j] for j in range(first[i], i + 1)} for i in range(n)]
+    res, count = shift_schedule_em(scaled, first, [0] * n, gamma_em(n, P), [(0, sig, n)], P)
+    return res[0], count
+
+
+def sdg5_profile_lines():
+    """SD-G5's searched profiles (R7 §6.2): t just below 1 and at 1; a shift
+    that fails once and succeeds at σ/2; three failures with Uc (B = Uc) and
+    without (`uc`); passed pivots with σ′ ≤ 0. Deterministic searches."""
+    lines = []
+    found = {}
+    # t at 1 and just below: 2x2 profiles [[a, b], [b, c]] at small P.
+    for P in range(3, 9):
+        vals = sorted({rp(Fr(k, 2 ** (P - 1)), P) for k in range(2 ** (P - 1), 2 ** (P + 1))})
+        offs = sorted({rp(Fr(k, 2 ** (P - 1)), P) for k in range(-(2 ** P) + 1, 2 ** P) if k != 0})
+        for a in vals:
+            for c in vals:
+                for b in offs:
+                    if b * b >= a * c:
+                        continue
+                    K = [[a, b], [b, c]]
+                    r = uc_of(K, P)
+                    if r is None:
+                        continue
+                    t, uc = r
+                    if t == 1 and "SD-T1" not in found:
+                        found["SD-T1"] = (K, P, [])
+                    if t == 1 - Fr(2) ** -P and "SD-TBELOW" not in found:
+                        found["SD-TBELOW"] = (K, P, [])
+            if "SD-T1" in found and "SD-TBELOW" in found:
+                break
+        if "SD-T1" in found and "SD-TBELOW" in found:
+            break
+    rng = __import__("random").Random(seed_of("K4SDG5A3"))
+    for k in range(20000):
+        if all(t in found for t in ("SD-HALF", "SD-FAIL3-UC", "SD-FAIL3-NONE", "SD-SPNEG")):
+            break
+        kind = ("gram", "laplacian", "lever", "near")[k % 4]
+        n = rng.randint(2, 6)
+        P = rng.choice((10, 12, 16))
+        A = stress_matrix(rng, kind, n)
+        if any(A[i][i] <= 0 for i in range(n)):
+            continue
+        K = equilibrate_round(A, P)
+        try:
+            ex = inv_norm1_exact(K)
+        except AssertionError:
+            continue
+        r = uc_of(K, P)
+        if r is None:
+            continue
+        _t, uc = r
+        for f in (Fr(1), Fr(3, 2), Fr(40), Fr(3, 10)):
+            sig = rp(f / ex, P)
+            if sig <= 0:
+                continue
+            res, count = schedule_of(K, P, sig)
+            if "SD-HALF" not in found and res["tries"] == 2 and res["S"] is not None:
+                found["SD-HALF"] = (K, P, [sig])
+            if res["tries"] == 3 and res["sp"] is None:
+                tag = "SD-FAIL3-UC" if uc is not None else "SD-FAIL3-NONE"
+                if tag not in found:
+                    found[tag] = (K, P, [sig])
+            if "SD-SPNEG" not in found and res["sp"] is not None and res["sp"] <= 0:
+                found["SD-SPNEG"] = (K, P, [sig])
+    for tag in ("SD-T1", "SD-TBELOW", "SD-HALF", "SD-FAIL3-UC", "SD-FAIL3-NONE", "SD-SPNEG"):
+        if tag in found:
+            K, P, sigmas = found[tag]
+            ls, _ = profile_record(tag, K, P, sigmas)
+            lines += ls
+        else:
+            lines.append("notfound %s" % tag)
+    return lines
+
+
 def build(parts=None):
     files = {}
     summary = {}
@@ -1866,6 +3172,21 @@ def build(parts=None):
         files["classification.txt"] = "\n".join(classification_lines()) + "\n"
     if want("r1"):
         files["r1_cases.txt"] = "\n".join(r1_lines()) + "\n"
+    if want("directed"):
+        files["directed.txt"] = "\n".join(directed_lines()) + "\n"
+    if want("models5a3"):
+        lines = []
+        for m in models5a3():
+            lines += model_lines(m)
+        for m in large_models(LARGE_A3A):
+            lines += model_lines(m, expectations=False)
+        files["models5a3.txt"] = "\n".join(lines) + "\n"
+    if want("scale"):
+        files["scale.txt"] = "\n".join(scale_lines()) + "\n"
+    if want("bounds"):
+        files["bounds.txt"] = "\n".join(bounds_lines()) + "\n"
+    if want("profiles"):
+        files["profiles.txt"] = "\n".join(profile_lines()) + "\n"
     if want("models"):
         lines = []
         by_name = {}

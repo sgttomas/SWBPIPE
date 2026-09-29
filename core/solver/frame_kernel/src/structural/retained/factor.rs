@@ -27,8 +27,22 @@
 //!   (`structural.rs:1537`) on K̃ with the p-factor. "rcond ≤ 2^-(p-1) counts as
 //!   unresolved at p and escalates." It is model information: "sensitivity to
 //!   matrix-entry perturbation, not to authored parameters".
+//!
+//!   **The estimate's role (D1 revision 5a.3, R7 §5.9).** The estimate est
+//!   serves availability only. It screens ill-conditioned candidates early
+//!   (rcond ≤ 2^-(p−1), unchanged), and its solves choose the shift σ_c of
+//!   §4.1.6.3 item 7c (`bound.rs`: an optional read-only observer collects the
+//!   per-block ratios est_c; ROOT's A3-0 ruling Q4). It carries no part of the
+//!   honesty argument.
+//!
+//! **Lemmas D and E (R7 §4.1.6.3)** take `factor()`'s loop as read at
+//! `cef218a10`. `factor()`, `pivot_passes`, `negative_pair`, `solve_scaled` and
+//! `solve` are unchanged since then; the certified bounds read L and D through
+//! the read-only accessors below, and the shifted factorization is a separate
+//! operation-for-operation copy of the loop in `bound.rs`.
 use super::adaptive::{AttemptStop, StageGuard};
 use super::assemble::Structure;
+use super::bound::BlockRatios;
 use super::source::{PrimitiveSource, SpringKind};
 use super::wide::multi::{SupportedWidth, WideContext};
 use super::wide::Wide;
@@ -584,12 +598,24 @@ impl<const L: usize> RetainedFactor<L>
 where
     Wide<L>: SupportedWidth,
 {
-    fn get(&self, i: usize, j: usize) -> Wide<L> {
+    /// L's (i, j) entry for j < i, D's for j = i, in elimination order (read
+    /// by the certified bounds, R7 §4.1.6.3 item 7b).
+    pub(crate) fn get(&self, i: usize, j: usize) -> Wide<L> {
         if j < self.first[i] {
             Wide::<L>::ZERO
         } else {
             self.rows[i][j - self.first[i]]
         }
+    }
+
+    /// First stored column of each ordered row.
+    pub(crate) fn first(&self) -> &[usize] {
+        &self.first
+    }
+
+    /// The radix scale exponent of each free position (s_a = 2^scale[a]).
+    pub(crate) fn scale(&self) -> &[i64] {
+        &self.scale
     }
 
     /// K̃ x = b, both in free-position order (ProfileFactor::solve's loops).
@@ -652,6 +678,21 @@ where
         k: &[Wide<L>],
         ordering: &Ordering,
     ) -> Result<Wide<L>, AttemptStop> {
+        self.condition_observed(ctx, sum, structure, k, ordering, None)
+    }
+
+    /// `condition`, with an optional read-only observer that sees each of the
+    /// screen's solves y = K̃⁻¹x (R7 §4.1.6.3 item 7c's est_c). The observer
+    /// changes nothing the screen computes.
+    pub(crate) fn condition_observed(
+        &self,
+        ctx: &mut WideContext<L>,
+        sum: &mut ExactWideSum,
+        structure: &Structure,
+        k: &[Wide<L>],
+        ordering: &Ordering,
+        mut observer: Option<&mut BlockRatios<L>>,
+    ) -> Result<Wide<L>, AttemptStop> {
         let p = ctx.precision();
         let n = ordering.free.len();
         let one = Wide::<L>::ONE;
@@ -691,6 +732,9 @@ where
         let mut previous = n;
         for _ in 0..5 {
             let y = self.solve_scaled(ctx, &x)?;
+            if let Some(o) = observer.as_deref_mut() {
+                o.offer(ctx, sum, &x, &y)?;
+            }
             let current = abs_sum(ctx, sum, &y)?;
             if current.cmp_value(&estimate) != CmpOrdering::Greater && !estimate.is_zero() {
                 break;
@@ -707,6 +751,9 @@ where
                 })
                 .collect();
             let z = self.solve_scaled(ctx, &signs)?;
+            if let Some(o) = observer.as_deref_mut() {
+                o.offer(ctx, sum, &signs, &z)?;
+            }
             let mut j = 0;
             for i in 1..n {
                 if z[i].abs().cmp_value(&z[j].abs()) != CmpOrdering::Less {
@@ -739,6 +786,9 @@ where
             });
         }
         let y = self.solve_scaled(ctx, &alternating)?;
+        if let Some(o) = observer.as_deref_mut() {
+            o.offer(ctx, sum, &alternating, &y)?;
+        }
         let total = abs_sum(ctx, sum, &y)?.mul_pow2(1)?;
         let alternative = ctx.div(&total, &lift_count(3 * n)?)?;
         if alternative.cmp_value(&estimate) == CmpOrdering::Greater {

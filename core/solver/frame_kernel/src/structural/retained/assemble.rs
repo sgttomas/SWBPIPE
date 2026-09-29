@@ -24,6 +24,17 @@
 //! 6. **Reduction (exact)**: "Each rhs_i is one exact expansion: the ledger
 //!    terms plus the exact products −K_ic·u_c … rounded once to p. Neither K nor
 //!    rhs is ever rounded back to binary64."
+//!
+//! **D1 revision 5a.3 (R7 §4.1.6.2 items 1–3).** Each formation also forms
+//! g_m = 2^k, the least k ≥ 0 with 4^k·(y_c·y_c) ≥ y_ref·y_ref, both dot
+//! products exact and the comparison exact (y_c is the Gram–Schmidt residual
+//! above, before normalization). The bounded operator of a member is g·B̄ᵀ(|D|B̄),
+//! with B̄ = 1 at every axis-component position and |1/L| at the bending rows'
+//! translation entries, stage-rounded (|D|B̄ one exact sum per entry, rounded
+//! once; then B̄ᵀ(|D|B̄) likewise; then the exact scaling by g). Ā is its
+//! assembly: one exact sum per pattern entry, rounded once, of the element
+//! blocks, |k| of global-axis springs and the directional blocks' formed entries
+//! in absolute value, with both triangles formed separately.
 use super::adaptive::{AttemptStop, StageGuard};
 use super::ledger::RetainedLedger;
 use super::source::{PrimitiveSource, SpringKind, StraightMember};
@@ -69,6 +80,22 @@ where
     #[allow(dead_code)] // read by the rigid-mode tests (E) and kept as evidence
     pub(crate) b: [[Wide<L>; 12]; 6],
     ke: [Wide<L>; 78],
+    /// g_m = 2^g_exp (D1 revision 5a.3, R7 §4.1.6.2 item 2).
+    pub(crate) g_exp: u32,
+}
+
+/// The coefficients a member's bounded operator needs (R7 §4.1.6.2 items 1–2).
+#[derive(Debug, Clone)]
+pub(crate) struct BoundedCoefficients<const L: usize>
+where
+    Wide<L>: SupportedWidth,
+{
+    pub(crate) inv_length: Wide<L>,
+    pub(crate) axial: Wide<L>,
+    pub(crate) torsion: Wide<L>,
+    pub(crate) bend_z: Wide<L>,
+    pub(crate) bend_y: Wide<L>,
+    pub(crate) g_exp: u32,
 }
 
 impl<const L: usize> MemberOperators<L>
@@ -78,6 +105,19 @@ where
     /// K_e[a][b] (symmetric).
     pub(crate) fn ke(&self, a: usize, b: usize) -> &Wide<L> {
         &self.ke[upper_index(a, b)]
+    }
+
+    /// The member's bounded-operator coefficients.
+    #[allow(dead_code)] // A3b: Ā at the verification and the gate's fallback (tested at A3a)
+    pub(crate) fn bounded(&self) -> BoundedCoefficients<L> {
+        BoundedCoefficients {
+            inv_length: self.inv_length,
+            axial: self.axial,
+            torsion: self.torsion,
+            bend_z: self.bend_z,
+            bend_y: self.bend_y,
+            g_exp: self.g_exp,
+        }
     }
 
     /// The element's global DOFs (node i's six, then node j's).
@@ -184,6 +224,7 @@ where
         yc[k] = sum.round(ctx)?;
     }
     let (ey, _) = normalize(ctx, sum, &yc)?;
+    let g_exp = gram_exponent(ctx, sum, &yc, &yr)?;
     let mut zc = [zero; 3];
     for (k, (p, q)) in [(1usize, 2usize), (2, 0), (0, 1)].into_iter().enumerate() {
         sum.clear();
@@ -275,7 +316,105 @@ where
         bend_y,
         b,
         ke,
+        g_exp,
     })
+}
+
+/// The least k ≥ 0 with 4^k·(y_c·y_c) − y_ref·y_ref ≥ 0, decided exactly (R7
+/// §4.1.6.2 item 2). y_c ≠ 0 here (it was normalized). The search starts below
+/// the exponent estimate and each test is one exact expansion in `sum`, so the
+/// formation's work counts it.
+fn gram_exponent<const L: usize>(
+    ctx: &mut WideContext<L>,
+    sum: &mut ExactWideSum,
+    yc: &[Wide<L>; 3],
+    yr: &[Wide<L>; 3],
+) -> Result<u32, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let top = |v: &[Wide<L>; 3]| {
+        v.iter()
+            .filter(|x| !x.is_zero())
+            .map(|x| x.exponent())
+            .max()
+            .unwrap_or(0)
+    };
+    // 4^(top_r − top_c − 2) < (y_ref·y_ref)/(y_c·y_c) < 4^(top_r − top_c + 2),
+    // so no k below the start passes, and at most five tests run.
+    let mut k = (top(yr) - top(yc) - 2).max(0);
+    loop {
+        sum.clear();
+        for c in 0..3 {
+            let scaled = yc[c].mul_pow2(k)?;
+            sum.add_product(ctx, &scaled, &scaled, false)?;
+        }
+        for c in 0..3 {
+            sum.add_product(ctx, &yr[c], &yr[c], true)?;
+        }
+        if sum.signum() >= 0 {
+            return u32::try_from(k).map_err(|_| AttemptStop::Exponent);
+        }
+        k += 1;
+    }
+}
+
+/// A member's bounded operator g·B̄ᵀ(|D|B̄), all 144 entries, stage-rounded at
+/// the context's precision (module documentation; emu7's `element_bounded`).
+pub(crate) fn bounded_block<const L: usize>(
+    ctx: &mut WideContext<L>,
+    sum: &mut ExactWideSum,
+    m: &BoundedCoefficients<L>,
+) -> Result<[[Wide<L>; 12]; 12], AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let zero = Wide::<L>::ZERO;
+    let one = Wide::<L>::ONE;
+    let inv = m.inv_length.abs();
+    let mut bb = [[zero; 12]; 6];
+    for k in 0..3 {
+        bb[0][k] = one;
+        bb[0][6 + k] = one;
+        bb[1][3 + k] = one;
+        bb[1][9 + k] = one;
+        for (row, rotation) in [(2usize, 3usize), (3, 9), (4, 3), (5, 9)] {
+            bb[row][k] = inv;
+            bb[row][6 + k] = inv;
+            bb[row][rotation + k] = one;
+        }
+    }
+    let (z, y) = (m.bend_z.abs(), m.bend_y.abs());
+    let d_rows: [[(usize, Wide<L>); 2]; 6] = [
+        [(0, m.axial.abs()), (0, zero)],
+        [(1, m.torsion.abs()), (1, zero)],
+        [(2, z.mul_pow2(2)?), (3, z.mul_pow2(1)?)],
+        [(2, z.mul_pow2(1)?), (3, z.mul_pow2(2)?)],
+        [(4, y.mul_pow2(2)?), (5, y.mul_pow2(1)?)],
+        [(4, y.mul_pow2(1)?), (5, y.mul_pow2(2)?)],
+    ];
+    let mut db = [[zero; 12]; 6];
+    for r in 0..6 {
+        for c in 0..12 {
+            sum.clear();
+            for (s, coefficient) in &d_rows[r] {
+                sum.add_product(ctx, coefficient, &bb[*s][c], false)?;
+            }
+            db[r][c] = sum.round(ctx)?;
+        }
+    }
+    let g = i64::from(m.g_exp);
+    let mut out = [[zero; 12]; 12];
+    for a in 0..12 {
+        for b in 0..12 {
+            sum.clear();
+            for r in 0..6 {
+                sum.add_product(ctx, &bb[r][a], &db[r][b], false)?;
+            }
+            out[a][b] = sum.round(ctx)?.mul_pow2(g)?;
+        }
+    }
+    Ok(out)
 }
 
 /// Every member's operators at the context's precision.
@@ -517,6 +656,61 @@ where
             let mirror = structure.pattern.transpose(index);
             debug_assert!(done[mirror]);
             values[index] = values[mirror];
+        }
+    }
+    Ok(values)
+}
+
+/// Ā at the context's precision (module documentation): one value per pattern
+/// entry, both triangles formed separately (the lower triangle reads the
+/// element blocks' (b, a) entries), each one exact sum rounded once.
+#[allow(dead_code)] // A3b: the verification's E and norms, and the gate's fallback
+pub(crate) fn assemble_bounded<const L: usize>(
+    ctx: &mut WideContext<L>,
+    sum: &mut ExactWideSum,
+    guard: &StageGuard,
+    source: &PrimitiveSource,
+    structure: &Structure,
+    members: &[BoundedCoefficients<L>],
+    directional: &[DirectionalBlock<L>],
+) -> Result<Vec<Wide<L>>, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let mut blocks = Vec::with_capacity(members.len());
+    for m in members {
+        blocks.push(bounded_block(ctx, sum, m)?);
+        guard.check(ctx, sum)?;
+    }
+    let mut values = vec![Wide::<L>::ZERO; structure.entry_count()];
+    for (row, col, index) in structure.entries() {
+        let (upper, mirrored) = if row <= col {
+            (index, false)
+        } else {
+            (structure.pattern.transpose(index), true)
+        };
+        sum.clear();
+        for item in &structure.items[structure.starts[upper]..structure.starts[upper + 1]] {
+            match *item {
+                Contribution::Member { member, a, b } => {
+                    let (a, b) = if mirrored { (b, a) } else { (a, b) };
+                    sum.add_wide(&blocks[member as usize][a as usize][b as usize], false)?
+                }
+                Contribution::Spring { spring } => {
+                    sum.add_binary64(source.springs()[spring as usize].stiffness.abs(), false)?
+                }
+                Contribution::Directional { spring, a, b } => {
+                    let (a, b) = if mirrored { (b, a) } else { (a, b) };
+                    sum.add_wide(
+                        &directional[spring as usize].k[a as usize][b as usize].abs(),
+                        false,
+                    )?
+                }
+            }
+        }
+        values[index] = sum.round(ctx)?;
+        if row == col {
+            guard.check(ctx, sum)?;
         }
     }
     Ok(values)

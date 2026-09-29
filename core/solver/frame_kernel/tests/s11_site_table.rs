@@ -120,6 +120,20 @@ const SOURCES: &[Source] = &[
         name: "FK/structural/retained/combine.rs",
         text: include_str!("../src/structural/retained/combine.rs"),
     },
+    // K4, D1 revision 5a.3 (ROOT's A3-0 rulings): directed rounding, the
+    // certified bounds and the verification.
+    Source {
+        name: "FK/structural/retained/directed.rs",
+        text: include_str!("../src/structural/retained/directed.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/bound.rs",
+        text: include_str!("../src/structural/retained/bound.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/verify.rs",
+        text: include_str!("../src/structural/retained/verify.rs"),
+    },
 ];
 
 /// (file, function, exact match count, disposition of each match).
@@ -257,6 +271,16 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/retained/adaptive.rs", "stop_rule", 0, "K4: exact differences and scales decided exactly"),
     ("FK/structural/retained/adaptive.rs", "combination", 0, "K4 (ROOT's F-1 ruling): a combination's exact ledger (products c_i*v in one accumulator per DOF) and prescribed terms"),
     ("FK/structural/retained/adaptive.rs", "prescribed_at", 0, "K4: each prescribed value one exact expansion of its terms c*v, rounded once"),
+    // ---- K4, D1 revision 5a.3 (declared, additive; no row above changes).
+    ("FK/structural/retained/assemble.rs", "gram_exponent", 1, "integer: g's exponent search (each test one exact expansion)"),
+    ("FK/structural/retained/assemble.rs", "bounded_block", 0, "K4 (5a.3): |D|B-bar and B-bar^T(|D|B-bar), each entry one exact expansion rounded once"),
+    ("FK/structural/retained/assemble.rs", "assemble_bounded", 0, "K4 (5a.3): each A-bar entry one exact expansion of its contributions, rounded once"),
+    ("FK/structural/retained/directed.rs", "round_toward", 0, "K4 (5a.3): an exact value rounded once, then one exact step when on the wrong side"),
+    ("FK/structural/retained/bound.rs", "ceil_sqrt", 2, "integer: the square-root search"),
+    ("FK/structural/retained/bound.rs", "shift_schedule", 2, "integer: shift tries and factorization count"),
+    ("FK/structural/retained/bound.rs", "u_pass", 0, "K4 (5a.3): comparison-matrix pass, each operation rounded upward (bounds, not load sums)"),
+    ("FK/structural/retained/bound.rs", "nl_pass", 0, "K4 (5a.3): |L|D|L^T|e pass, each operation rounded upward (bounds, not load sums)"),
+    ("FK/structural/retained/verify.rs", "formation_scale", 0, "K4 (5a.3): E's stages, each one exact expansion rounded once (the ledger's net enters exactly)"),
 ];
 
 // ------------------------------------------------------------- scanner

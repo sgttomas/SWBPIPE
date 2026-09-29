@@ -78,18 +78,21 @@ pub(crate) enum LedgerRefusal {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RetainedLedger {
     entries: Vec<(usize, LedgerNet)>,
+    /// Per entry: whether any of its terms is nonzero (D1 revision 5a.3,
+    /// R7 §4.1.6.3 item 7a: "a nonzero ledger term", even when the net is 0).
+    nonzero: Vec<bool>,
 }
 
 impl RetainedLedger {
     /// One `ExactAccumulator` per loaded DOF, one `add` per nodal load.
     pub(crate) fn from_source(source: &PrimitiveSource) -> Result<Self, LedgerRefusal> {
-        let mut entries: Vec<(usize, ExactAccumulator)> = Vec::new();
+        let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
         for load in source.loads() {
             let dof = load.dof.global();
             let index = match entries.binary_search_by_key(&dof, |e| e.0) {
                 Ok(k) => k,
                 Err(k) => {
-                    entries.insert(k, (dof, ExactAccumulator::new()));
+                    entries.insert(k, (dof, ExactAccumulator::new(), false));
                     k
                 }
             };
@@ -97,26 +100,51 @@ impl RetainedLedger {
                 .1
                 .add(load.value)
                 .map_err(LedgerRefusal::Accumulator)?;
+            entries[index].2 |= load.value != 0.0;
         }
-        Ok(Self {
+        Ok(Self::netted(&entries))
+    }
+
+    fn netted(entries: &[(usize, ExactAccumulator, bool)]) -> Self {
+        Self {
             entries: entries
                 .iter()
-                .map(|(dof, acc)| (*dof, LedgerNet::from_accumulator(acc)))
+                .map(|(dof, acc, _)| (*dof, LedgerNet::from_accumulator(acc)))
                 .collect(),
-        })
+            nonzero: entries.iter().map(|e| e.2).collect(),
+        }
+    }
+
+    /// A ledger with no terms: the recovery of a correction δ̂ "with the ledger
+    /// omitted" (D1 revision 5a.3, R7 §4.1.6.3 item 3).
+    #[allow(dead_code)] // A3b: the verification estimate's recovery
+    pub(crate) fn empty() -> Self {
+        Self {
+            entries: Vec::new(),
+            nonzero: Vec::new(),
+        }
+    }
+
+    /// Whether a nonzero ledger term acts at the DOF (R7 §4.1.6.3 item 7a's
+    /// data flag), whatever its net.
+    #[allow(dead_code)] // A3b: the verification's data flags (tested at A3a)
+    pub(crate) fn has_nonzero_term(&self, dof: usize) -> bool {
+        self.entries
+            .binary_search_by_key(&dof, |e| e.0)
+            .is_ok_and(|k| self.nonzero[k])
     }
 
     /// The ledger of a combination Σ cᵢ·(case i): per DOF, the exact products
     /// cᵢ·v of every load term of every operand (`add_product`, exact).
     pub(crate) fn combined(operands: &[(f64, &PrimitiveSource)]) -> Result<Self, LedgerRefusal> {
-        let mut entries: Vec<(usize, ExactAccumulator)> = Vec::new();
+        let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
         for &(factor, source) in operands {
             for load in source.loads() {
                 let dof = load.dof.global();
                 let index = match entries.binary_search_by_key(&dof, |e| e.0) {
                     Ok(k) => k,
                     Err(k) => {
-                        entries.insert(k, (dof, ExactAccumulator::new()));
+                        entries.insert(k, (dof, ExactAccumulator::new(), false));
                         k
                     }
                 };
@@ -124,14 +152,10 @@ impl RetainedLedger {
                     .1
                     .add_product(factor, load.value)
                     .map_err(LedgerRefusal::Accumulator)?;
+                entries[index].2 |= factor != 0.0 && load.value != 0.0;
             }
         }
-        Ok(Self {
-            entries: entries
-                .iter()
-                .map(|(dof, acc)| (*dof, LedgerNet::from_accumulator(acc)))
-                .collect(),
-        })
+        Ok(Self::netted(&entries))
     }
 
     /// The exact net of a DOF (None for a DOF with no term).

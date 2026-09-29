@@ -442,54 +442,78 @@ fn golden_work_counts() {
     // evidenced by its correction and its refinement and residual-formation
     // work). Per attempt: (p, own context work, K4 sum work, shared work,
     // stop-rule work, refinement, residual formation), in limb-multiply
-    // equivalents.
+    // equivalents. Re-pinned at A3a for D1 revision 5a.3 (R7 §6.2 SD-L1):
+    // every formation now forms g exactly (R7 §4.1.6.2 item 2), and at
+    // p ≥ 256 the condition screen's solves also give est_c per block (R7
+    // 7c); own, K4-sum, stop-rule and refinement work are unchanged.
     let golden: [(&str, &[(u32, u64, u64, u64, u64, u64, u64)]); 4] = [
         (
             "N05",
             &[
-                (128, 119406, 823, 175768, 80007, 23252, 28227),
-                (256, 40472, 371, 240395, 0, 23841, 92691),
+                (128, 119406, 823, 175908, 80007, 23252, 28297),
+                (256, 40472, 371, 247670, 0, 23841, 92889),
             ],
         ),
         (
             "N06",
             &[
-                (128, 136912, 828, 175761, 80009, 40772, 28227),
-                (256, 57978, 394, 240385, 0, 41365, 92691),
+                (128, 136912, 828, 175901, 80009, 40772, 28297),
+                (256, 57978, 394, 247650, 0, 41365, 92889),
             ],
         ),
         (
             "TWO-SPAN",
             &[
-                (128, 179484, 2081, 214495, 128670, 37577, 57274),
-                (256, 52934, 1549, 345578, 0, 38808, 187120),
+                (128, 179484, 2081, 214775, 128670, 37577, 57414),
+                (256, 52934, 1549, 353024, 0, 38808, 187516),
             ],
         ),
         (
             "SKEW6-K1E-12",
             &[
-                (128, 163112, 4892, 1258935, 2712, 81078, 200498),
-                (256, 465728, 13456, 1685244, 293232, 100032, 619826),
-                (512, 439660, 13237, 5669481, 0, 164905, 2164328),
+                (128, 163112, 4892, 1259775, 2712, 81078, 200918),
+                (256, 465728, 13456, 1695028, 293232, 100032, 621014),
+                (512, 439660, 13237, 5700623, 0, 164905, 2168204),
             ],
         ),
     ];
-    for (name, rows) in golden {
-        let got: Vec<(u32, u64, u64, u64, u64, u64, u64)> = work_table(name)
-            .into_iter()
+    // The shared stages that 5a.3 touches: (p, formation, condition).
+    let stages_golden: [(&str, &[(u32, u64, u64)]); 4] = [
+        ("N05", &[(128, 27348, 90465), (256, 27348, 97593)]),
+        ("N06", &[(128, 27348, 90458), (256, 27348, 97573)]),
+        ("TWO-SPAN", &[(128, 55166, 79947), (256, 55982, 86930)]),
+        (
+            "SKEW6-K1E-12",
+            &[
+                (128, 192014, 449248),
+                (256, 197402, 458157),
+                (512, 622004, 1435788),
+            ],
+        ),
+    ];
+    for ((name, rows), (name2, stage_rows)) in golden.into_iter().zip(stages_golden) {
+        assert_eq!(name, name2);
+        let table = work_table(name);
+        let got: Vec<(u32, u64, u64, u64, u64, u64, u64)> = table
+            .iter()
             .map(|(p, own, k4, shared, stop, stages, shared_stages)| {
                 (
-                    p,
-                    own,
-                    k4,
-                    shared,
-                    stop,
+                    *p,
+                    *own,
+                    *k4,
+                    *shared,
+                    *stop,
                     stages.refinement,
                     shared_stages.residual_formation,
                 )
             })
             .collect();
         assert_eq!(got, rows, "{name}");
+        let stages: Vec<(u32, u64, u64)> = table
+            .iter()
+            .map(|(p, .., shared_stages)| (*p, shared_stages.formation, shared_stages.condition))
+            .collect();
+        assert_eq!(stages, stage_rows, "{name} stages");
     }
 }
 
@@ -693,6 +717,10 @@ fn k4s_files_call_no_binary64_transcendental_or_fused_function() {
         include_str!("../../src/structural/retained/recover.rs"),
         include_str!("../../src/structural/retained/adaptive.rs"),
         include_str!("../../src/structural/retained/combine.rs"),
+        // D1 revision 5a.3 (A3a).
+        include_str!("../../src/structural/retained/directed.rs"),
+        include_str!("../../src/structural/retained/bound.rs"),
+        include_str!("../../src/structural/retained/verify.rs"),
     ];
     for (k, text) in files.iter().enumerate() {
         let code = code_only(text);
