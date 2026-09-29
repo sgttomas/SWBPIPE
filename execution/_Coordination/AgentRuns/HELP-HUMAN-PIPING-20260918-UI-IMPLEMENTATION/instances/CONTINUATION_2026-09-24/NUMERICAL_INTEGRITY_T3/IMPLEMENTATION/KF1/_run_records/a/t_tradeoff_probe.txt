@@ -1,0 +1,15 @@
+KF1 temporary probe (not committed): extra stop-rule evaluations against T = inf, by T (G = 8T), unlimited budgets, debug build.
+PROBE HH-FOOL-m100 base stop rule 5224 (0 evals-equiv) total 3919227: T=16:+0 T=32:+0 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE HH-FOOL-m100-LOADED base stop rule 2760099 (157 evals-equiv) total 17773175: T=16:+0 T=32:+0 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CHAIN-n00010-AX base stop rule 1126384 (64 evals-equiv) total 9049820: T=16:+16 T=32:+0 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CHAIN-n00010-ROT base stop rule 1109124 (63 evals-equiv) total 11107110: T=16:+16 T=32:+0 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-TREE-n00010-AX base stop rule 1305917 (74 evals-equiv) total 9153514: T=16:+0 T=32:+0 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-TREE-n00010-ROT base stop rule 1075016 (61 evals-equiv) total 10824180: T=16:+0 T=32:+0 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CONT-n00010-AX base stop rule 1490684 (85 evals-equiv) total 7040249: T=16:+48 T=32:+32 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CONT-n00010-ROT base stop rule 1563705 (89 evals-equiv) total 9419631: T=16:+48 T=32:+32 T=64:+0 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CHAIN-n00100-AX base stop rule 8625285 (492 evals-equiv) total 89040372: T=16:+768 T=32:+768 T=64:+768 T=128:+640 T=256:+256 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CHAIN-n00100-ROT base stop rule 8450524 (482 evals-equiv) total 110522408: T=16:+768 T=32:+768 T=64:+768 T=128:+640 T=256:+256 T=512:+0 T=1024:+0
+PROBE RF-LARGE-TREE-n00100-AX base stop rule 10723845 (612 evals-equiv) total 91059023: T=16:+192 T=32:+192 T=64:+128 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-TREE-n00100-ROT base stop rule 8424526 (481 evals-equiv) total 107353917: T=16:+288 T=32:+288 T=64:+192 T=128:+0 T=256:+0 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CONT-n00100-AX base stop rule 13830960 (790 evals-equiv) total 69294406: T=16:+672 T=32:+672 T=64:+640 T=128:+640 T=256:+512 T=512:+0 T=1024:+0
+PROBE RF-LARGE-CONT-n00100-ROT base stop rule 14727834 (841 evals-equiv) total 92115467: T=16:+672 T=32:+672 T=64:+640 T=128:+640 T=256:+512 T=512:+0 T=1024:+0
