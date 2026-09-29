@@ -25,7 +25,12 @@ fn every_recovered_kind_matches_its_exact_reference() {
     // published kinds compared are tallied by key prefix.
     let mut tally: BTreeMap<String, usize> = BTreeMap::new();
     let mut models_compared = 0;
-    for m in models::models() {
+    // D1 revision 5a.3 withholds DIRECTIONAL-SPAN (its springs span R³ only
+    // through 2^-52); DIRECTIONAL-WELL keeps directional springs compared.
+    let well = models::parse_models(include_str!("models5a3.txt"))
+        .into_iter()
+        .filter(|m| m.name == "DIRECTIONAL-WELL");
+    for m in models::models().into_iter().chain(well) {
         if m.expect.is_empty() {
             continue;
         }
@@ -39,7 +44,9 @@ fn every_recovered_kind_matches_its_exact_reference() {
             continue;
         };
         let rows = &solve.publish().rows;
-        let (worst, at, compared) = models::compare(&source, rows, &m.expect);
+        // D1 revision 5a.3 selects RIGID-UNLOADED at 512 (R7): its rows near
+        // zero are withheld as `absolute_verified`, and meet their own bound.
+        let (worst, at, compared) = models::compare_honest(&source, rows, &m.expect);
         assert!(worst <= 1.0, "{}: {worst} at {at}", m.name);
         assert!(compared > 0, "{}", m.name);
         let published = models::published(rows);

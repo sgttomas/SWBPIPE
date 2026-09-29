@@ -47,7 +47,11 @@ fn f64_hex(h: &str) -> f64 {
 }
 
 fn r1_cases() -> Vec<R1Case> {
-    let mut out: Vec<R1Case> = models::parse_models(R1)
+    r1_cases_from(R1)
+}
+
+fn r1_cases_from(text: &str) -> Vec<R1Case> {
+    let mut out: Vec<R1Case> = models::parse_models(text)
         .into_iter()
         .map(|model| R1Case {
             model,
@@ -63,7 +67,7 @@ fn r1_cases() -> Vec<R1Case> {
         })
         .collect();
     let mut k = 0;
-    for line in R1.lines() {
+    for line in text.lines() {
         let f: Vec<&str> = line.split_whitespace().collect();
         if f.first() == Some(&"end") {
             k += 1;
@@ -186,11 +190,50 @@ struct Tally {
 fn r1s_cases_through_the_adapter_pass_are_refused_or_are_not_covered_as_section_4_10_lists() {
     let cases = r1_cases();
     assert_eq!(cases.len(), 128);
+    let Lane {
+        tally,
+        failures,
+        floor_differences,
+        undiscriminating,
+    } = run_lane(&cases);
+    report_lane(&tally, &failures, &floor_differences, &undiscriminating);
+    assert!(failures.is_empty(), "{} reference failures", failures.len());
+    // SD-K1.
+    assert!(
+        floor_differences.is_empty(),
+        "{} floor differences",
+        floor_differences.len()
+    );
+    // D1 revision 5a.3 (plan §6, R7's R1 lane): all 120 solved cases are
+    // selected at 128, as under 5a.2.
+    let selected: usize = tally
+        .values()
+        .map(|t| t.selected_at.values().sum::<usize>())
+        .sum();
+    let at_128: usize = tally
+        .values()
+        .map(|t| t.selected_at.get(&128).copied().unwrap_or(0))
+        .sum();
+    assert_eq!([selected, at_128], [120, 120]);
+    lane_counts(&cases, &tally);
+}
+
+struct Lane {
+    tally: BTreeMap<String, Tally>,
+    failures: Vec<String>,
+    floor_differences: Vec<String>,
+    undiscriminating: Vec<String>,
+}
+
+/// Every case of a lane: refused as expected, or selected with every reference
+/// row within the predicate (or not covered, §4.10), and its controls
+/// discriminated.
+fn run_lane(cases: &[R1Case]) -> Lane {
     let mut tally: BTreeMap<String, Tally> = BTreeMap::new();
     let mut failures = Vec::new();
     let mut floor_differences = Vec::new();
     let mut undiscriminating = Vec::new();
-    for case in &cases {
+    for case in cases {
         let t = tally.entry(case.family.clone()).or_default();
         t.cases += 1;
         let name = &case.model.name;
@@ -298,23 +341,33 @@ fn r1s_cases_through_the_adapter_pass_are_refused_or_are_not_covered_as_section_
             }
         }
     }
-    for (family, t) in &tally {
+    Lane {
+        tally,
+        failures,
+        floor_differences,
+        undiscriminating,
+    }
+}
+
+fn report_lane(
+    tally: &BTreeMap<String, Tally>,
+    failures: &[String],
+    floor_differences: &[String],
+    undiscriminating: &[String],
+) {
+    for (family, t) in tally {
         println!("{family}: {t:?}");
     }
     println!("non-discriminating controls: {}", undiscriminating.len());
-    for f in &failures {
+    for f in failures {
         println!("FAILURE {f}");
     }
-    for d in &floor_differences {
+    for d in floor_differences {
         println!("FLOOR {d}");
     }
-    assert!(failures.is_empty(), "{} reference failures", failures.len());
-    // SD-K1.
-    assert!(
-        floor_differences.is_empty(),
-        "{} floor differences",
-        floor_differences.len()
-    );
+}
+
+fn lane_counts(cases: &[R1Case], tally: &BTreeMap<String, Tally>) {
     let count = |f: &str| tally.get(f).map_or(0, |t| t.cases);
     assert_eq!(
         [
@@ -346,6 +399,74 @@ fn r1s_cases_through_the_adapter_pass_are_refused_or_are_not_covered_as_section_
     );
     // Both represented-basis cases are compared on their represented values.
     assert_eq!(cases.iter().filter(|c| c.basis == "represented").count(), 2);
+}
+
+const R1_LARGE: &str = include_str!("r1_large.txt");
+
+/// R1's RF-LARGE frames through the lane (plan §6; D1 revision 5a.3): each is
+/// selected at 128, honest against R1's references under the 1e-9 predicate,
+/// with nothing not covered, and R1's discriminating controls fail it.
+fn lane_large(names: &[&str]) {
+    let cases: Vec<R1Case> = r1_cases_from(R1_LARGE)
+        .into_iter()
+        .filter(|c| names.contains(&c.model.name.as_str()))
+        .collect();
+    assert_eq!(cases.len(), names.len());
+    let Lane {
+        tally,
+        failures,
+        floor_differences,
+        undiscriminating,
+    } = run_lane(&cases);
+    report_lane(&tally, &failures, &floor_differences, &undiscriminating);
+    assert!(failures.is_empty(), "{} reference failures", failures.len());
+    assert!(floor_differences.is_empty());
+    let t = &tally["RF-LARGE"];
+    assert_eq!(t.selected_at.get(&128).copied(), Some(names.len()));
+    assert_eq!(t.not_covered, 0);
+    assert!(t.passes >= 20 * names.len(), "{t:?}");
+}
+
+#[test]
+fn rf_large_at_10_members_is_selected_at_128_and_honest() {
+    lane_large(&[
+        "RF-LARGE-CHAIN-n00010-AX",
+        "RF-LARGE-CHAIN-n00010-ROT",
+        "RF-LARGE-TREE-n00010-AX",
+        "RF-LARGE-TREE-n00010-ROT",
+        "RF-LARGE-CONT-n00010-AX",
+        "RF-LARGE-CONT-n00010-ROT",
+    ]);
+}
+
+#[test]
+fn rf_large_chain_ax_at_100_members_is_selected_at_128_and_honest() {
+    lane_large(&["RF-LARGE-CHAIN-n00100-AX"]);
+}
+
+#[test]
+fn rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest() {
+    lane_large(&["RF-LARGE-TREE-n00100-AX"]);
+}
+
+#[test]
+fn rf_large_chain_rot_at_100_members_is_selected_at_128_and_honest() {
+    lane_large(&["RF-LARGE-CHAIN-n00100-ROT"]);
+}
+
+#[test]
+fn rf_large_tree_rot_at_100_members_is_selected_at_128_and_honest() {
+    lane_large(&["RF-LARGE-TREE-n00100-ROT"]);
+}
+
+#[test]
+fn rf_large_cont_ax_at_100_members_is_selected_at_128_and_honest() {
+    lane_large(&["RF-LARGE-CONT-n00100-AX"]);
+}
+
+#[test]
+fn rf_large_cont_rot_at_100_members_is_selected_at_128_and_honest() {
+    lane_large(&["RF-LARGE-CONT-n00100-ROT"]);
 }
 
 // ---------------------------------------------------------------- the N series, NP-A and the routed cases

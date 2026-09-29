@@ -464,7 +464,6 @@ impl ExactWideSum {
     /// is netted once, and each of its limbs scales a (`add_scaled`). The
     /// product is formed exactly or refused (`Span`, `Exponent`), never
     /// truncated; integers only, no allocation.
-    #[allow(dead_code)] // A3b: the gate's best state (tests use it at A3a)
     pub(crate) fn add_product_of(
         &mut self,
         a: &Self,

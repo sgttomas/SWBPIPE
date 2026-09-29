@@ -2,7 +2,7 @@
 //! parsed into K4 sources, and the comparison of published rows with exact
 //! expectations under the unchanged predicate |obs − exp| ≤ 1e-9·max(|exp|,
 //! scale), the scale being the coupled body scale of the expected values.
-use super::super::super::adaptive::{body_extent, coupled_scales, PublishedRow};
+use super::super::super::adaptive::{body_extent, coupled_scales, PublishedRow, RowClass};
 use super::super::super::recover::{End, Kind, QuantityId};
 use super::super::super::source::{
     Component, Constraint, DirectionalSpring, Dof, NodalLoad, PrimitiveSource, SourceParts, Spring,
@@ -22,6 +22,8 @@ pub(crate) struct Model {
     pub(crate) name: String,
     pub(crate) parts: SourceParts,
     pub(crate) expect: BTreeMap<String, f64>,
+    /// R7 §7's SEED hook: (global DOF, value) added to the final state.
+    pub(crate) seeds: Vec<(usize, f64)>,
 }
 
 impl Model {
@@ -59,6 +61,7 @@ pub(crate) fn parse_models(text: &str) -> Vec<Model> {
                     name: f[1].to_string(),
                     parts: SourceParts::default(),
                     expect: BTreeMap::new(),
+                    seeds: Vec::new(),
                 })
             }
             "end" => {
@@ -136,6 +139,7 @@ pub(crate) fn parse_models(text: &str) -> Vec<Model> {
                     "expect" => {
                         m.expect.insert(f[1].to_string(), hf(f[2]));
                     }
+                    "seed" => m.seeds.push((f[1].parse().unwrap(), hf(f[2]))),
                     _ => {}
                 }
             }
@@ -156,9 +160,14 @@ pub(crate) fn model(name: &str) -> Model {
 }
 
 pub(crate) fn combos() -> Vec<Combo> {
+    parse_combos(MODELS)
+}
+
+/// Parses every `combo … end` block of a text.
+pub(crate) fn parse_combos(text: &str) -> Vec<Combo> {
     let mut out = Vec::new();
     let mut current: Option<Combo> = None;
-    for line in MODELS.lines() {
+    for line in text.lines() {
         let f: Vec<&str> = line.split_whitespace().collect();
         match f.first().copied() {
             Some("combo") => {
@@ -310,6 +319,59 @@ pub(crate) fn compare(
     rows: &[PublishedRow],
     expect: &BTreeMap<String, f64>,
 ) -> (f64, String, usize) {
+    compare_with(source, rows, expect, &BTreeMap::new())
+}
+
+/// `compare`, where a row that the publication withholds as
+/// `absolute_verified` with bound b may instead meet its own claim,
+/// |obs − exp| ≤ b·(1 + 2^-21) (the published value's rounding is below
+/// 2^-23·b; D1 revision 5a.3 selects states whose tiny rows are intervals).
+/// Derived quantities take their operands' bounds: N and T their end row's,
+/// a bending magnitude the sum of its two components' (both absolute).
+pub(crate) fn compare_honest(
+    source: &PrimitiveSource,
+    rows: &[PublishedRow],
+    expect: &BTreeMap<String, f64>,
+) -> (f64, String, usize) {
+    let mut bounds: BTreeMap<String, f64> = BTreeMap::new();
+    for r in rows {
+        if let RowClass::AbsoluteVerified { bound_bits } = r.class {
+            bounds.insert(key(&r.id), f64::from_bits(bound_bits));
+        }
+    }
+    let mut derived = Vec::new();
+    for k in bounds.keys() {
+        let parts: Vec<&str> = k.split('.').collect();
+        match (parts[0], parts.len()) {
+            ("end", 4) if parts[2] == "j" && parts[3] == "0" => {
+                derived.push((format!("N.{}", parts[1]), bounds[k]));
+            }
+            ("end", 4) if parts[2] == "j" && parts[3] == "3" => {
+                derived.push((format!("T.{}", parts[1]), bounds[k]));
+            }
+            ("end", 4) if parts[3] == "4" => {
+                if let Some(z) = bounds.get(&format!("end.{}.{}.5", parts[1], parts[2])) {
+                    derived.push((format!("Mb.{}.{}", parts[1], parts[2]), bounds[k] + z));
+                }
+            }
+            ("st", 3) if parts[2] == "4" => {
+                if let Some(z) = bounds.get(&format!("st.{}.5", parts[1])) {
+                    derived.push((format!("Mbs.{}", parts[1]), bounds[k] + z));
+                }
+            }
+            _ => {}
+        }
+    }
+    bounds.extend(derived);
+    compare_with(source, rows, expect, &bounds)
+}
+
+fn compare_with(
+    source: &PrimitiveSource,
+    rows: &[PublishedRow],
+    expect: &BTreeMap<String, f64>,
+    bounds: &BTreeMap<String, f64>,
+) -> (f64, String, usize) {
     let obs = published(rows);
     let mut s = vec![[0.0f64; 4]; source.body_count() as usize];
     for (k, &e) in expect {
@@ -339,7 +401,7 @@ pub(crate) fn compare(
         };
         compared += 1;
         let scale = e.abs().max(scales[body as usize][kind.index()]);
-        let ratio = if scale == 0.0 {
+        let mut ratio = if scale == 0.0 {
             if o == e {
                 0.0
             } else {
@@ -348,6 +410,16 @@ pub(crate) fn compare(
         } else {
             (o - e).abs() / scale
         };
+        if let Some(&b) = bounds.get(k) {
+            // In compare's units (1e-9 of the scale is 1).
+            let claim = b * (1.0 + 2f64.powi(-21));
+            let r = if (o - e).abs() <= claim {
+                0.0
+            } else {
+                f64::INFINITY
+            };
+            ratio = ratio.min(r);
+        }
         if ratio > worst.0 {
             worst = (ratio, k.clone());
         }

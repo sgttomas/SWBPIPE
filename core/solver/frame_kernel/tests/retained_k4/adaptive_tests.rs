@@ -324,6 +324,7 @@ fn charge(solve_attempts: &[AttemptRecord]) -> u64 {
             a.work.limb_multiply_equivalents()
                 + a.k4_work.limb_multiply_equivalents()
                 + a.shared_work
+                + a.verification_shared_work
         })
         .sum()
 }
@@ -416,26 +417,6 @@ fn a_sums_rounding_charges_the_limbs_it_rounds() {
     assert!((17..=20).contains(&wide), "{wide}");
 }
 
-/// (precision, own work, K4 sum work, shared work, stop-rule work, stages).
-fn work_table(name: &str) -> Vec<(u32, u64, u64, u64, u64, StageWork, StageWork)> {
-    selected(name)
-        .evidence()
-        .attempts
-        .iter()
-        .map(|a| {
-            (
-                a.precision,
-                a.work.limb_multiply_equivalents(),
-                a.k4_work.limb_multiply_equivalents(),
-                a.shared_work,
-                a.stop_rule_work,
-                a.stages.clone(),
-                a.shared_stages.clone(),
-            )
-        })
-        .collect()
-}
-
 #[test]
 fn golden_work_counts() {
     // SD-L1 (K4-M17/M18/M19; ROOT's O5: TWO-SPAN's p + 64 residual is
@@ -491,31 +472,164 @@ fn golden_work_counts() {
             ],
         ),
     ];
-    for ((name, rows), (name2, stage_rows)) in golden.into_iter().zip(stages_golden) {
-        assert_eq!(name, name2);
-        let table = work_table(name);
-        let got: Vec<(u32, u64, u64, u64, u64, u64, u64)> = table
+    // Re-pinned at A3b (D1 revision 5a.3's method; plan §5.2 SD-L1). The table
+    // above stays A3a's: the gate passes on all four (no fallback), so
+    // shared work, refinement and residual formation do not move, and each
+    // attempt's own and K4-sum work outside the stop rule and the verification
+    // pass equals A3a's; the stop rule (now `decide`, with V, the estimate,
+    // θ, g and the charge) and the verification pass are new columns:
+    // (p, own, K4 sum, stop rule, verification pass, verification shared,
+    // [bounded_gate, scale, estimate, charge, bound, shift]).
+    #[allow(clippy::type_complexity)]
+    let a3b: [(&str, &[(u32, u64, u64, u64, u64, u64, [u64; 6])]); 4] = A3B_WORK;
+    let mut pinned = Vec::new();
+    for (((name, rows), (name2, stage_rows)), (name3, new_rows)) in
+        golden.into_iter().zip(stages_golden).zip(a3b)
+    {
+        assert_eq!((name, name), (name2, name3));
+        let solve = selected(name);
+        let attempts = &solve.evidence().attempts;
+        let got: Vec<(u32, u64, u64, u64, u64, u64, u64)> = attempts
             .iter()
-            .map(|(p, own, k4, shared, stop, stages, shared_stages)| {
+            .zip(rows)
+            .map(|(a, old)| {
+                let own = a.work.limb_multiply_equivalents()
+                    + a.k4_work.limb_multiply_equivalents()
+                    - a.stop_rule_work
+                    - a.verification_work;
+                // A3a's own + K4-sum work outside its stop rule, kept in its
+                // own and K4 columns so the comparison is on the whole row.
+                let old_outside = old.1 + old.2 - old.4;
+                assert_eq!(
+                    own, old_outside,
+                    "{name} {}: work outside the new stages",
+                    a.precision
+                );
                 (
-                    *p,
-                    *own,
-                    *k4,
-                    *shared,
-                    *stop,
-                    stages.refinement,
-                    shared_stages.residual_formation,
+                    a.precision,
+                    old.1,
+                    old.2,
+                    a.shared_work,
+                    old.4,
+                    a.stages.refinement,
+                    a.shared_stages.residual_formation,
                 )
             })
             .collect();
         assert_eq!(got, rows, "{name}");
-        let stages: Vec<(u32, u64, u64)> = table
+        let stages: Vec<(u32, u64, u64)> = attempts
             .iter()
-            .map(|(p, .., shared_stages)| (*p, shared_stages.formation, shared_stages.condition))
+            .map(|a| {
+                (
+                    a.precision,
+                    a.shared_stages.formation,
+                    a.shared_stages.condition,
+                )
+            })
             .collect();
         assert_eq!(stages, stage_rows, "{name} stages");
+        let new: Vec<(u32, u64, u64, u64, u64, u64, [u64; 6])> = attempts
+            .iter()
+            .map(|a| {
+                let s = &a.stages;
+                (
+                    a.precision,
+                    a.work.limb_multiply_equivalents(),
+                    a.k4_work.limb_multiply_equivalents(),
+                    a.stop_rule_work,
+                    a.verification_work,
+                    a.verification_shared_work,
+                    [
+                        s.bounded_gate,
+                        s.scale,
+                        s.estimate,
+                        s.charge,
+                        s.bound,
+                        s.shift,
+                    ],
+                )
+            })
+            .collect();
+        println!("A3B {name} {new:?}");
+        pinned.push((name, new, new_rows));
+    }
+    for (name, new, want) in pinned {
+        assert_eq!(new, want, "{name} (A3b)");
     }
 }
+
+#[allow(clippy::type_complexity)]
+const A3B_WORK: [(&str, &[(u32, u64, u64, u64, u64, u64, [u64; 6])]); 4] = [
+    (
+        "N05",
+        &[
+            (128, 530316, 2789, 492883, 0, 0, [0, 0, 0, 0, 0, 0]),
+            (
+                256,
+                65838,
+                6875,
+                0,
+                31870,
+                133696,
+                [0, 2016, 17519, 11413, 922, 0],
+            ),
+        ],
+    ),
+    (
+        "N06",
+        &[
+            (128, 547822, 2693, 492784, 0, 0, [0, 0, 0, 0, 0, 0]),
+            (
+                256,
+                83416,
+                7057,
+                0,
+                32101,
+                133602,
+                [0, 2021, 17519, 11619, 942, 0],
+            ),
+        ],
+    ),
+    (
+        "TWO-SPAN",
+        &[
+            (128, 576310, 4443, 527858, 0, 0, [0, 0, 0, 0, 0, 0]),
+            (
+                256,
+                81006,
+                13330,
+                0,
+                39853,
+                263172,
+                [0, 4527, 16378, 18005, 943, 0],
+            ),
+        ],
+    ),
+    (
+        "SKEW6-K1E-12",
+        &[
+            (128, 163112, 4918, 2738, 0, 0, [0, 0, 0, 0, 0, 0]),
+            (
+                256,
+                1412296,
+                88114,
+                654194,
+                660264,
+                960241,
+                [0, 11649, 106500, 86890, 2380, 452845],
+            ),
+            (
+                512,
+                2504272,
+                126220,
+                0,
+                2177595,
+                3006277,
+                [0, 25733, 355447, 243205, 6827, 1546383],
+            ),
+        ],
+    ),
+];
 
 // ---------------------------------------------------------------- L: determinism and factor reuse
 
@@ -549,11 +663,8 @@ fn fingerprint(
 
 #[test]
 fn runs_and_list_permutations_are_deterministic() {
-    for name in ["N09-B", "SKEW6-K1E-12", "DIRECTIONAL-SPAN", "PRESCRIBED"] {
-        let m = models::model(name);
-        let a = fingerprint(&selected(name));
-        assert!(a == fingerprint(&selected(name)), "{name}: run to run");
-        let mut parts = m.parts.clone();
+    let permuted = |name: &str| {
+        let mut parts = models::model(name).parts.clone();
         parts.members.reverse();
         parts.springs.reverse();
         parts.directional_springs.reverse();
@@ -561,11 +672,42 @@ fn runs_and_list_permutations_are_deterministic() {
         parts.loads.reverse();
         parts.stations.reverse();
         let (limit, mut meter) = unlimited();
-        let CaseOutcome::Selected(b) = solve_case(
+        solve_case(
             super::super::source::PrimitiveSource::new(parts).unwrap(),
             limit,
             &mut meter,
-        ) else {
+        )
+    };
+    // DIRECTIONAL-SPAN (the only control with directional springs) is withheld
+    // under D1 revision 5a.3 (A3b): its attempts are deterministic.
+    let attempts = |out: CaseOutcome| match out {
+        CaseOutcome::Unresolved {
+            reason, attempts, ..
+        } => (
+            reason,
+            attempts
+                .iter()
+                .map(|a| {
+                    (
+                        a.precision,
+                        a.outcome.clone(),
+                        a.work.limb_multiply_equivalents(),
+                    )
+                })
+                .collect::<Vec<_>>(),
+        ),
+        other => panic!("{other:?}"),
+    };
+    let a = attempts(outcome("DIRECTIONAL-SPAN"));
+    assert!(a == attempts(outcome("DIRECTIONAL-SPAN")), "run to run");
+    assert!(
+        a == attempts(permuted("DIRECTIONAL-SPAN")),
+        "permuted lists"
+    );
+    for name in ["N09-B", "SKEW6-K1E-12", "PRESCRIBED"] {
+        let a = fingerprint(&selected(name));
+        assert!(a == fingerprint(&selected(name)), "{name}: run to run");
+        let CaseOutcome::Selected(b) = permuted(name) else {
             panic!()
         };
         assert!(a == fingerprint(&b), "{name}: permuted lists");

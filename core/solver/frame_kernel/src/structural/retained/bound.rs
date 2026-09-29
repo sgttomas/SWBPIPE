@@ -113,7 +113,6 @@ pub(crate) fn free_blocks(
 /// 7a's data flag of every block, at a state u (all DOFs).
 /// `prescribed_nonzero[g]`: whether constrained DOF g's exact prescribed value
 /// is nonzero.
-#[allow(dead_code)] // A3b: the verification pass (tested at A3a)
 pub(crate) fn data_blocks<const L: usize>(
     blocks: &FreeBlocks,
     ordering: &Ordering,
@@ -320,7 +319,6 @@ where
 }
 
 /// γ_m = m/(2^P − m), m = 2n + 2 (n all free DOFs), rounded upward.
-#[allow(dead_code)] // A3b: the verification pass (tested at A3a)
 pub(crate) fn gamma_m<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
@@ -404,7 +402,6 @@ where
 }
 
 /// 7b per block, from a factor whose rows' blocks are `block_of_row`.
-#[allow(dead_code)] // A3b: the verification pass (tested at A3a)
 pub(crate) fn uc_bounds<const L: usize, F: ProfileLdl<L>>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
@@ -798,7 +795,7 @@ where
 /// 7b to 7d for every block: the shift runs only for the blocks with data that
 /// need it (`shift_needed`), and B_c is formed for the blocks with data.
 /// Returns the certificates and the number of shifted factorizations.
-#[allow(dead_code)] // A3b: the verification pass (tested at A3a)
+#[allow(dead_code)] // test entry: 7b–7d composed as `verify_state` does
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn certify<const L: usize>(
     ctx: &mut WideContext<L>,

@@ -217,3 +217,72 @@ fn input_derived_rows_and_s8_ws_far_node_rows_are_classified_as_the_design_says(
         assert!(absolute > 0 && relative > 0, "{name}");
     }
 }
+
+/// SD-J1's item-6a vectors (D1 revision 5a.3, R7 §5.3): at a selected 512
+/// only, S\* of force and moment is max(item 6's coupled S\*, Φ) with
+/// Φ = fl↑(2^-438·ê), applied before the threshold and the bound.
+#[test]
+fn item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else() {
+    use super::super::recover::{End, Kind, QuantityMeta};
+    use super::super::source::Component;
+    use super::super::verify::phi_512;
+    let row = |kind: Kind, component: Component| QuantityMeta {
+        id: QuantityId::EndAction {
+            member: 1,
+            end: End::I,
+            component,
+        },
+        kind,
+        body: 0,
+        input_derived: false,
+    };
+    let layout = vec![
+        row(Kind::Force, Component::Ux),
+        row(Kind::Moment, Component::Rx),
+    ];
+    let values = |f: f64, m: f64| vec![Binary64Outcome::Normal(f), Binary64Outcome::Normal(m)];
+    let extents = [0.0];
+    // Φ binds on force (S* = 1e-200 < Φ_fo = 1e-150): the row becomes
+    // absolute_verified with b = fl↑(2^-64·Φ); moment is not floored (Φ_mo = 0).
+    let v = values(1e-200, 3.0);
+    let plain = classify_rows(&layout, &v, &extents);
+    let floored = classify_rows_floored(&layout, &v, &extents, Some(&[[1e-150, 0.0]]));
+    assert_eq!(plain.rows[0].class, RowClass::RelativeVerified);
+    assert_eq!(
+        floored.rows[0].class,
+        RowClass::AbsoluteVerified {
+            bound_bits: absolute_bound(1e-150).to_bits()
+        }
+    );
+    assert_eq!(floored.rows[1].class, plain.rows[1].class);
+    let scale = |p: &Publication, k: Kind| {
+        f64::from_bits(p.body_scales.iter().find(|s| s.1 == k).unwrap().2)
+    };
+    assert_eq!(scale(&floored, Kind::Force), 1e-150);
+    assert_eq!(scale(&floored, Kind::Moment), 3.0);
+    // Φ does not bind (Φ ≤ S*): nothing moves.
+    let v = values(2.0, 3.0);
+    let plain = classify_rows(&layout, &v, &extents);
+    let floored = classify_rows_floored(&layout, &v, &extents, Some(&[[2.0, 3.0]]));
+    assert_eq!(plain, floored);
+    // ê below 2^-584: Φ is rounded up to a subnormal, and a zero row's bound is
+    // the least subnormal instead of 0.
+    let e = 1.75 * 2f64.powi(-600);
+    let phi = phi_512(e);
+    assert!(phi > 0.0 && phi < f64::MIN_POSITIVE);
+    let v = values(0.0, 0.0);
+    let plain = classify_rows(&layout, &v, &extents);
+    let floored = classify_rows_floored(&layout, &v, &extents, Some(&[[phi, phi]]));
+    assert_eq!(
+        plain.rows[0].class,
+        RowClass::AbsoluteVerified { bound_bits: 0 }
+    );
+    assert_eq!(
+        floored.rows[0].class,
+        RowClass::AbsoluteVerified {
+            bound_bits: f64::from_bits(1).to_bits()
+        }
+    );
+    // The fl↑ boundary: at ê = 2^-584, Φ = 2^-1022 exactly (verify_tests).
+    assert_eq!(phi_512(2f64.powi(-584)), 2f64.powi(-1022));
+}

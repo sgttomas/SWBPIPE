@@ -27,10 +27,11 @@
 //!   formation, assembly, ordering and the p-factor per precision. Each case's
 //!   limit counts the full shared work; the invocation meter counts it once.
 use super::assemble::{
-    assemble, form_directional, form_members, reduced_rhs, DirectionalBlock, MemberOperators,
-    Structure,
+    assemble, assemble_bounded, form_directional, form_members, reduced_rhs, BoundedCoefficients,
+    DirectionalBlock, MemberOperators, Structure,
 };
 use super::bound::{free_blocks, BlockRatios, FreeBlocks};
+use super::directed::binary64_up;
 use super::factor::{
     geometry_first, order_free, BodyGeometry, GeometryRefusal, Ordering, RetainedFactor,
 };
@@ -39,6 +40,9 @@ use super::recover::{
     layout, publish_value, recover, state_encoding, Kind, QuantityId, QuantityMeta, Recovered,
 };
 use super::source::{put_u32, put_u64, Dof, PrimitiveSource};
+use super::verify::{
+    build_verify_shared, e_hat, phi_512, verify_state, VerificationReport, VerifyShared,
+};
 use super::wide::multi::{AttemptWork, Binary64Outcome, SupportedWidth, WideContext};
 use super::wide::{Wide, WideError};
 use super::wide_sum::{ExactWideSum, SumRefusal, SumWork};
@@ -148,6 +152,12 @@ pub(crate) enum AttemptStop {
     ResidualGate {
         global_dof: usize,
     },
+    /// A body's formation scale E rounds to +∞ in binary64 (D1 revision
+    /// 5a.3, R7 §4.1.6.2 item 4; ROOT's A3-0 ruling Q8): terminal.
+    ResolutionScale {
+        body: u32,
+        kind: Kind,
+    },
 }
 
 impl From<SumRefusal> for AttemptStop {
@@ -180,7 +190,7 @@ impl AttemptStop {
     }
 }
 
-fn lme<const L: usize>(ctx: &WideContext<L>) -> u64
+pub(crate) fn lme<const L: usize>(ctx: &WideContext<L>) -> u64
 where
     Wide<L>: SupportedWidth,
 {
@@ -208,11 +218,11 @@ impl StageGuard {
         }
     }
 
-    fn with_base(self, base: u64) -> Self {
+    pub(crate) fn with_base(self, base: u64) -> Self {
         Self { base, ..self }
     }
 
-    fn test(&self, used: u64) -> Result<(), AttemptStop> {
+    pub(crate) fn test(&self, used: u64) -> Result<(), AttemptStop> {
         if used > self.case_room {
             Err(AttemptStop::Budget(BudgetScope::Case))
         } else if used > self.invocation_room {
@@ -739,6 +749,45 @@ pub(crate) struct StageWork {
     pub(crate) refinement: u64,
     pub(crate) recovery: u64,
     pub(crate) stop_rule: u64,
+    /// D1 revision 5a.3: the gate's fallback (Ā^q and the bounded rows).
+    pub(crate) bounded_gate: u64,
+    /// The verification pass: E; the estimate (r, δ̂, Ŵ); the charge (r₂,
+    /// the norms, ‖ā_q S‖₁, t, C and W⁺); the bounds (data flags, B_c, θ, g);
+    /// the shifted factorizations.
+    pub(crate) scale: u64,
+    pub(crate) estimate: u64,
+    pub(crate) charge: u64,
+    pub(crate) bound: u64,
+    pub(crate) shift: u64,
+    /// The verification's shared stages: Ā at P, K_e at q_W, the Uc passes.
+    pub(crate) bounded_formation: u64,
+    pub(crate) wide_formation: u64,
+    pub(crate) uc: u64,
+}
+
+impl StageWork {
+    /// Adds another record's stages.
+    pub(crate) fn add(&mut self, o: &StageWork) {
+        self.formation += o.formation;
+        self.assembly += o.assembly;
+        self.residual_formation += o.residual_formation;
+        self.factor += o.factor;
+        self.condition += o.condition;
+        self.rhs += o.rhs;
+        self.solve += o.solve;
+        self.refinement += o.refinement;
+        self.recovery += o.recovery;
+        self.stop_rule += o.stop_rule;
+        self.bounded_gate += o.bounded_gate;
+        self.scale += o.scale;
+        self.estimate += o.estimate;
+        self.charge += o.charge;
+        self.bound += o.bound;
+        self.shift += o.shift;
+        self.bounded_formation += o.bounded_formation;
+        self.wide_formation += o.wide_formation;
+        self.uc += o.uc;
+    }
 }
 
 /// Formation, assembly, the p-factor and its screens at one precision, shared
@@ -756,10 +805,13 @@ where
     pub(crate) directional: Vec<DirectionalBlock<L>>,
     pub(crate) k: Vec<Wide<L>>,
     pub(crate) k_q: Vec<Wide<R>>,
+    /// The bounded-operator coefficients and the directional blocks at q,
+    /// kept for the gate's fallback (R7 §4.1.4 step 3: Ā^q).
+    pub(crate) bounded_q: Vec<BoundedCoefficients<R>>,
+    pub(crate) directional_q: Vec<DirectionalBlock<R>>,
     pub(crate) factor: RetainedFactor<L>,
     /// est_c per block from the condition screen's solves (R7 §4.1.6.3 item
     /// 7c; formed at p ≥ 256, where the state can serve as a verification).
-    #[allow(dead_code)] // A3b: the verification pass (tested at A3a)
     pub(crate) est_blocks: Vec<Wide<L>>,
     pub(crate) rcond: f64,
     pub(crate) pivot_margin_min: f64,
@@ -781,6 +833,18 @@ where
     pub(crate) recovered: Recovered<L>,
     pub(crate) corrections: u8,
     pub(crate) residual_worst: f64,
+    /// Which test passed the gate (R7 §4.1.4 step 3).
+    pub(crate) gate: GateTest,
+}
+
+/// The test that passed the residual gate (D1 revision 5a.3, R7 §4.1.4 step 3).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum GateTest {
+    /// Every row passed with the coalesced denominator d^c.
+    Coalesced,
+    /// Refinement ended without the coalesced pass; the best evaluated state
+    /// (`state`, 0 = the first solve, of `evaluated`) passed with d^b.
+    Bounded { state: u8, evaluated: u8 },
 }
 
 /// A failed build or solve, with the work it spent.
@@ -829,14 +893,24 @@ where
         let t2 = lme(&ctx) + sum.work().limb_multiply_equivalents();
         stages.assembly = t2 - t1;
         g.check(&ctx, &sum)?;
-        // The residual system re-formed at q (the ceiling: K itself, widened).
-        let k_q: Vec<Wide<R>> = if q == p {
-            k.iter().map(|w| w.widen::<R>()).collect()
+        // The residual system re-formed at q (the ceiling: K itself, widened),
+        // with the coefficients the gate's fallback forms Ā^q from.
+        type AtQ<const R: usize> = (
+            Vec<Wide<R>>,
+            Vec<BoundedCoefficients<R>>,
+            Vec<DirectionalBlock<R>>,
+        );
+        let (k_q, bounded_q, directional_q): AtQ<R> = if q == p {
+            (
+                k.iter().map(|w| w.widen::<R>()).collect(),
+                members.iter().map(|m| m.bounded().widen::<R>()).collect(),
+                directional.iter().map(|d| d.widen::<R>()).collect(),
+            )
         } else {
             let gq = guard.with_base(lme(&ctx));
             let members_q = form_members(&mut ctx_q, &mut sum, &gq, source)?;
             let directional_q = form_directional(&mut ctx_q, &mut sum, source)?;
-            assemble(
+            let k_q = assemble(
                 &mut ctx_q,
                 &mut sum,
                 &gq,
@@ -844,7 +918,12 @@ where
                 &group.structure,
                 &members_q,
                 &directional_q,
-            )?
+            )?;
+            (
+                k_q,
+                members_q.iter().map(|m| m.bounded()).collect(),
+                directional_q,
+            )
         };
         let t3 = lme(&ctx) + lme(&ctx_q) + sum.work().limb_multiply_equivalents();
         stages.residual_formation = t3 - t2;
@@ -905,6 +984,8 @@ where
             directional,
             k,
             k_q,
+            bounded_q,
+            directional_q,
             factor,
             est_blocks,
             rcond: rcond_value,
@@ -1005,6 +1086,193 @@ where
     Ok(rows)
 }
 
+/// num/den against another exact ratio (dens positive), decided exactly.
+fn cmp_ratio(
+    a: &(ExactWideSum, ExactWideSum),
+    b: &(ExactWideSum, ExactWideSum),
+) -> Result<CmpOrdering, AttemptStop> {
+    let mut t = ExactWideSum::new();
+    let mut db = b.1.clone();
+    t.add_product_of(&a.0, &mut db, false)?;
+    let mut da = a.1.clone();
+    t.add_product_of(&b.0, &mut da, true)?;
+    Ok(t.signum().cmp(&0))
+}
+
+/// An exact ratio num/den (den > 0).
+pub(crate) type GateRatio = (ExactWideSum, ExactWideSum);
+
+/// The gate's bounded row test (R7 §4.1.4 step 3), exactly: with
+/// num = |r|·(2^p − m) and den = 64·m·d^b, whether num ≤ den, and the pair.
+pub(crate) fn bounded_row(
+    r: ExactWideSum,
+    d: &ExactWideSum,
+    m: u64,
+    p: u32,
+    sum: &mut ExactWideSum,
+) -> Result<(bool, GateRatio), AttemptStop> {
+    let mut absolute = r;
+    absolute.make_absolute();
+    let mut num = ExactWideSum::new();
+    num.add_scaled(&absolute, false, 1, i64::from(p))?;
+    num.add_scaled(&absolute, true, m, 0)?;
+    let mut den = ExactWideSum::new();
+    den.add_scaled(d, false, 64 * m, 0)?;
+    sum.clear();
+    sum.add_scaled(&den, false, 1, 0)?;
+    sum.add_scaled(&num, true, 1, 0)?;
+    Ok((sum.signum() >= 0, (num, den)))
+}
+
+/// The best evaluated state (ROOT's A3-0 ruling Q6): per state, None when it
+/// is not eligible, Some(None) when every row's residual is zero, or
+/// Some(Some(worst bounded ratio)). The smallest worst ratio wins, compared
+/// exactly, and the earliest state on a tie.
+pub(crate) fn best_gate_state(
+    worst: &[Option<Option<GateRatio>>],
+) -> Result<Option<usize>, AttemptStop> {
+    let mut best: Option<(usize, &Option<GateRatio>)> = None;
+    for (k, state) in worst.iter().enumerate() {
+        let Some(w) = state else { continue };
+        let replace = match &best {
+            None => true,
+            Some((_, b)) => match (w, b) {
+                (None, None) | (Some(_), None) => false,
+                (None, Some(_)) => true,
+                (Some(w), Some(b)) => cmp_ratio(w, b)? == CmpOrdering::Less,
+            },
+        };
+        if replace {
+            best = Some((k, w));
+        }
+    }
+    Ok(best.map(|b| b.0))
+}
+
+/// The gate's fallback (D1 revision 5a.3, R7 §4.1.4 step 3; ROOT's A3-0
+/// rulings Q6 and Q17): Ā^q formed once at q from the coefficients kept at q;
+/// per evaluated state, the exact rows with the bounded denominator
+/// d_i^b = |f_i| + Σ_j Ā^q_ij·|u_j| and m_i as the coalesced test's. A state
+/// with a nonzero residual on a row with d^b = 0 is not eligible. The best
+/// state (`best_gate_state`) passes when every row passes
+/// |r_i|(2^p − m_i) ≤ 64·m_i·d_i^b (`bounded_row`).
+/// Returns (its index, fl↑ of its worst bounded ratio), or None.
+#[allow(clippy::too_many_arguments)]
+fn bounded_fallback<const L: usize, const R: usize>(
+    ctx_q: &mut WideContext<R>,
+    ctx64: &mut WideContext<4>,
+    ctx16: &mut WideContext<16>,
+    sum: &mut ExactWideSum,
+    p: u32,
+    shared: &Shared<L, R>,
+    prep: &CasePrep,
+    group: &GroupPrep,
+    u_base: &[Wide<L>],
+    evaluated: &[Vec<Wide<L>>],
+    guard: &StageGuard,
+) -> Result<Option<(usize, f64)>, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+{
+    let structure = &group.structure;
+    let free = &group.ordering.free;
+    let abar_q = assemble_bounded(
+        ctx_q,
+        sum,
+        guard,
+        &prep.source,
+        structure,
+        &shared.bounded_q,
+        &shared.directional_q,
+    )?;
+    let mut worsts: Vec<Option<Option<GateRatio>>> = Vec::with_capacity(evaluated.len());
+    let mut states: Vec<Option<(bool, ExtremeTracker)>> = Vec::with_capacity(evaluated.len());
+    for u_free in evaluated {
+        let mut u = u_base.to_vec();
+        for (a, &g) in free.iter().enumerate() {
+            u[g] = u_free[a];
+        }
+        let mut eligible = true;
+        let mut all_pass = true;
+        let mut tracker = ExtremeTracker::new(Direction::Up);
+        let mut rows: Vec<(ExactWideSum, ExactWideSum, f64)> = Vec::new();
+        for &i in free {
+            let mut r = ExactWideSum::new();
+            let mut d = ExactWideSum::new();
+            prep.ledger.add_to(i, &mut r, false)?;
+            if let Some(net) = prep.ledger.net(i) {
+                if !net.is_zero() {
+                    d.add_integer(false, &net.magnitude, net.exponent)?;
+                }
+            }
+            let mut count = 0u64;
+            for index in structure.pattern.row_range(i) {
+                let j = structure.pattern.column(index);
+                let uj = u[j].widen::<R>();
+                if uj.is_zero() {
+                    continue;
+                }
+                let kij = &shared.k_q[index];
+                if !kij.is_zero() {
+                    count += 1;
+                    r.add_product(ctx_q, kij, &uj, true)?;
+                }
+                let aij = &abar_q[index];
+                if !aij.is_zero() {
+                    d.add_product(ctx_q, aij, &uj.abs(), false)?;
+                }
+            }
+            let m = 2 * count + 2;
+            let (passes, (mut num, mut den)) = bounded_row(r, &d, m, p, sum)?;
+            all_pass &= passes;
+            if num.is_zero() {
+                continue;
+            }
+            if den.is_zero() {
+                eligible = false;
+                break;
+            }
+            let approx = approximate_ratio(ctx64, &num, &den)?;
+            tracker.offer(ctx64, num.clone(), den.clone())?;
+            rows.push((num, den, approx));
+        }
+        if !eligible {
+            worsts.push(None);
+            states.push(None);
+            continue;
+        }
+        // The exact worst row, among those whose 64-bit approximation lies
+        // within a relative 2^-40 of the largest (the approximations are within
+        // a few 2^-64 of the exact ratios).
+        let top = rows.iter().map(|r| r.2).fold(0.0f64, f64::max);
+        let floor = top - top * f64::from_bits(0x3D70_0000_0000_0000); // 2^-40
+        let mut worst: Option<GateRatio> = None;
+        for (num, den, approx) in rows {
+            if approx < floor {
+                continue;
+            }
+            let candidate = (num, den);
+            let greater = match &worst {
+                None => true,
+                Some(w) => cmp_ratio(&candidate, w)? == CmpOrdering::Greater,
+            };
+            if greater {
+                worst = Some(candidate);
+            }
+        }
+        worsts.push(Some(worst));
+        states.push(Some((all_pass, tracker)));
+    }
+    let Some(k) = best_gate_state(&worsts)? else {
+        return Ok(None);
+    };
+    match states.swap_remove(k) {
+        Some((true, tracker)) => Ok(Some((k, tracker.finish(ctx16)?.unwrap_or(0.0)))),
+        _ => Ok(None),
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn solve_case_at<const L: usize, const R: usize>(
     shared: &Shared<L, R>,
@@ -1057,10 +1325,14 @@ where
         let mut corrections = 0u8;
         let mut prior = f64::INFINITY;
         let residual_worst;
+        let mut gate = GateTest::Coalesced;
+        let mut evaluated: Vec<Vec<Wide<L>>> = Vec::new();
+        let mut fallback_work = 0u64;
         loop {
             for (a, &g) in free.iter().enumerate() {
                 u[g] = u_free[a];
             }
+            evaluated.push(u_free.clone());
             let mut tracker = ExtremeTracker::new(Direction::Up);
             let rows = residual_rows(
                 &mut ctx,
@@ -1089,9 +1361,34 @@ where
                 break;
             }
             if corrections == 3 || worst >= prior {
-                return Err(AttemptStop::ResidualGate {
-                    global_dof: free[worst_row],
-                });
+                // D1 revision 5a.3 (R7 §4.1.4 step 3): the bounded test on the
+                // best evaluated state (ROOT's A3-0 rulings Q6, Q17).
+                let tf = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
+                let chosen = bounded_fallback(
+                    &mut ctx_q, &mut ctx64, &mut ctx16, &mut sum, p, shared, prep, group, &u,
+                    &evaluated, &guard,
+                )?;
+                guard.test(total(&ctx, &ctx_q, &ctx16, &ctx64, &sum))?;
+                fallback_work = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum) - tf;
+                match chosen {
+                    Some((k, ratio)) => {
+                        u_free = evaluated[k].clone();
+                        for (a, &g) in free.iter().enumerate() {
+                            u[g] = u_free[a];
+                        }
+                        residual_worst = ratio;
+                        gate = GateTest::Bounded {
+                            state: k as u8,
+                            evaluated: evaluated.len() as u8,
+                        };
+                        break;
+                    }
+                    None => {
+                        return Err(AttemptStop::ResidualGate {
+                            global_dof: free[worst_row],
+                        })
+                    }
+                }
             }
             prior = worst;
             let correction: Vec<Wide<L>> = rows.iter().map(|row| row.2).collect();
@@ -1102,7 +1399,12 @@ where
             corrections += 1;
         }
         let t3 = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
-        stages.refinement = t3 - t2;
+        stages.refinement = t3 - t2 - fallback_work;
+        stages.bounded_gate = fallback_work;
+        // A test-only seed of the final state (R7 §7's SEEDED controls), after
+        // the gate and before recovery.
+        #[cfg(test)]
+        seed::apply(&mut ctx, &mut u)?;
         let base = t3 - lme(&ctx) - sum.work().limb_multiply_equivalents();
         let recovered = recover(
             &mut ctx,
@@ -1125,6 +1427,7 @@ where
             recovered,
             corrections,
             residual_worst,
+            gate,
         })
     };
     let result = run();
@@ -1152,13 +1455,40 @@ pub(crate) struct StopDecision {
     /// Ok(accepted) or the stop that ended the comparison (budget, span).
     pub(crate) result: Result<bool, AttemptStop>,
     /// The first quantity (layout index) that disagrees, if any.
+    #[allow(dead_code)] // read by the stop rule's tests (`rejection` carries it)
     pub(crate) first_failure: Option<usize>,
-    /// Per (body, kind): the worst normalized disagreement, rounded upward
-    /// (computed for an accepted comparison only).
+    /// D1 revision 5a.3: the test that rejected p (R7's order, ROOT's Q7).
+    pub(crate) rejection: Option<Rejection>,
+    /// Per (body, kind): the worst normalized disagreement (|Δ| + V)/M,
+    /// rounded upward (computed for an accepted comparison only).
     pub(crate) summary: Vec<(u32, Kind, f64)>,
+    /// Per (body, kind) of force and moment: the worst Ŵ/V and C/allowance,
+    /// rounded upward (5a.3; accepted comparisons only).
+    pub(crate) estimate_summary: Vec<(u32, Kind, f64)>,
+    pub(crate) charge_summary: Vec<(u32, Kind, f64)>,
+    /// Φ = fl↑(2^-438·ê) per body [fo, mo] at p = 512 (item 6a).
+    pub(crate) floor: Option<Vec<[f64; 2]>>,
     pub(crate) work: AttemptWork,
     pub(crate) sum_work: SumWork,
     pub(crate) total: u64,
+}
+
+/// The test that rejected a candidate (D1 revision 5a.3, R7 §5.1 (a)–(d),
+/// §4.1.6.3 item 13).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Rejection {
+    /// (a): the layout index of the first failing quantity.
+    StopRule { index: usize },
+    /// (b): Ŵ_q > 2^(6−2p)·ê.
+    VerificationEstimate { index: usize },
+    /// (c): a block with data without a certified bound.
+    Uc { block: usize },
+    /// (c): θ_c > 1/2.
+    Theta { block: usize },
+    /// (c): a member in scope with g > 2^(P−16) (its id).
+    GValidity { member: u32 },
+    /// (d): C_q above its allowance.
+    Charge { index: usize },
 }
 
 /// S\* per body and kind at the verification precision (item 6's coupling,
@@ -1210,7 +1540,9 @@ where
 
 /// "|q_p − q_2p| ≤ 2^-64 · max(|q_2p|, S*)" on every published quantity,
 /// decided exactly (the summary ratios rounded upward when accepted). Charged
-/// to the candidate attempt, with budget checks.
+/// to the candidate attempt, with budget checks. Revision 5a.2's rule, with no
+/// resolution term: `decide` is revision 5a.3's.
+#[allow(dead_code)] // test entry: the rule (a) predicate's tests (SD-G5, O6)
 pub(crate) fn stop_rule<const L: usize, const M: usize>(
     layout: &[QuantityMeta],
     extents: &[f64],
@@ -1223,12 +1555,72 @@ where
     Wide<L>: SupportedWidth,
     Wide<M>: SupportedWidth,
 {
+    rule(
+        layout,
+        extents,
+        candidate,
+        verification,
+        verification_precision,
+        None,
+        guard,
+    )
+}
+
+/// D1 revision 5a.3's acceptance (R7 §5.1): (a) with V_q — ê·2^(8−2p) for
+/// force and moment rows, W⁺_q for the other rows that are not input-derived
+/// (plus 2^(1−2p)·|q_2p| for a magnitude) — and, at p = 512, S\* floored by
+/// Φ = fl↑(2^-438·ê) for force and moment; then (b) the verification estimate
+/// Ŵ_q ≤ 2^(6−2p)·ê; (c) `uc`, θ_c ≤ 1/2 and the g check; (d) the charge,
+/// C_q ≤ 60·2^-2p·ê at p = 128 and 256 and C_q ≤ 2^-86·M_q at p = 512. The
+/// first failure in that order (emu7's; ROOT's A3-0 ruling Q7) rejects p.
+pub(crate) fn decide<const L: usize, const M: usize>(
+    layout: &[QuantityMeta],
+    extents: &[f64],
+    candidate: &[Wide<L>],
+    verification: &[Wide<M>],
+    report: &VerificationReport<M>,
+    guard: StageGuard,
+) -> StopDecision
+where
+    Wide<L>: SupportedWidth,
+    Wide<M>: SupportedWidth,
+{
+    rule(
+        layout,
+        extents,
+        candidate,
+        verification,
+        report.precision,
+        Some(report),
+        guard,
+    )
+}
+
+#[allow(clippy::too_many_lines)]
+fn rule<const L: usize, const M: usize>(
+    layout: &[QuantityMeta],
+    extents: &[f64],
+    candidate: &[Wide<L>],
+    verification: &[Wide<M>],
+    verification_precision: u32,
+    report: Option<&VerificationReport<M>>,
+    guard: StageGuard,
+) -> StopDecision
+where
+    Wide<L>: SupportedWidth,
+    Wide<M>: SupportedWidth,
+{
     let mut ctx = WideContext::<M>::new(verification_precision).expect("supported precision");
     let mut ctx16 = WideContext::<16>::new(1024).expect("supported precision");
     let mut ctx64 = WideContext::<4>::new(64).expect("supported precision");
     let mut sum = ExactWideSum::new();
     let mut first_failure = None;
+    let mut rejection = None;
     let mut summary = Vec::new();
+    let mut estimate_summary = Vec::new();
+    let mut charge_summary = Vec::new();
+    let mut floor = None;
+    let big_p = i64::from(verification_precision);
     let mut run = || -> Result<bool, AttemptStop> {
         let spent = |ctx: &WideContext<M>,
                      ctx16: &WideContext<16>,
@@ -1236,26 +1628,81 @@ where
                      sum: &ExactWideSum| {
             lme(ctx) + lme(ctx16) + lme(ctx64) + sum.work().limb_multiply_equivalents()
         };
-        let scales = scales_at(&mut ctx, layout, verification, extents)?;
+        let mut scales = scales_at(&mut ctx, layout, verification, extents)?;
+        // ê per body (item 6a), and the floor at p = 512 only.
+        let hats: Vec<[f64; 2]> = match report {
+            Some(r) => r
+                .resolution
+                .iter()
+                .zip(extents)
+                .map(|(e, &x)| e_hat(*e, x))
+                .collect(),
+            None => Vec::new(),
+        };
+        if report.is_some() && verification_precision == 1024 {
+            let mut phis = Vec::with_capacity(hats.len());
+            for (b, h) in hats.iter().enumerate() {
+                let phi = [phi_512(h[0]), phi_512(h[1])];
+                for (slot, value) in [(Kind::Force, phi[0]), (Kind::Moment, phi[1])] {
+                    let v = Wide::<M>::from_f64(value)?;
+                    let s = &mut scales[b][slot.index()];
+                    if v.cmp_value(s) == CmpOrdering::Greater {
+                        *s = v;
+                    }
+                }
+                phis.push(phi);
+            }
+            floor = Some(phis);
+        }
+        let hat = |body: u32, kind: Kind| -> f64 {
+            match kind {
+                Kind::Force => hats[body as usize][0],
+                _ => hats[body as usize][1],
+            }
+        };
+        let magnitude_of = |index: usize, meta: &QuantityMeta| -> Wide<M> {
+            let q2 = &verification[index];
+            let s_star = &scales[meta.body as usize][meta.kind.index()];
+            if q2.abs().cmp_value(s_star) == CmpOrdering::Greater {
+                q2.abs()
+            } else {
+                *s_star
+            }
+        };
+        // (a)
         let mut trackers: std::collections::BTreeMap<(u32, Kind), ExtremeTracker> =
             std::collections::BTreeMap::new();
         for (index, meta) in layout.iter().enumerate() {
             let q2 = &verification[index];
-            let s_star = &scales[meta.body as usize][meta.kind.index()];
-            let magnitude = if q2.abs().cmp_value(s_star) == CmpOrdering::Greater {
-                q2.abs()
-            } else {
-                *s_star
-            };
+            let magnitude = magnitude_of(index, meta);
             let mut difference = ExactWideSum::new();
             difference.add_wide(&candidate[index], false)?;
             difference.add_wide(q2, true)?;
             difference.make_absolute();
+            // |Δ| + V_q.
+            if let Some(r) = report {
+                match meta.kind {
+                    Kind::Force | Kind::Moment => {
+                        let e = Wide::<M>::from_f64(hat(meta.body, meta.kind))?;
+                        difference.add_wide_scaled(&e, false, 1, 8 - big_p)?;
+                    }
+                    _ if !meta.input_derived => {
+                        if let Some(wp) = &r.w_plus[index] {
+                            difference.add_wide(wp, false)?;
+                        }
+                        if matches!(meta.id, QuantityId::DisplacementMagnitude(_)) {
+                            difference.add_wide_scaled(&q2.abs(), false, 1, 1 - big_p)?;
+                        }
+                    }
+                    _ => {}
+                }
+            }
             sum.clear();
             sum.add_wide_scaled(&magnitude, false, 1, -64)?;
             sum.add_scaled(&difference, true, 1, 0)?;
             if sum.signum() < 0 {
                 first_failure = Some(index);
+                rejection = Some(Rejection::StopRule { index });
                 return Ok(false);
             }
             if !magnitude.is_zero() {
@@ -1270,9 +1717,96 @@ where
                 guard.test(spent(&ctx, &ctx16, &ctx64, &sum))?;
             }
         }
+        let Some(r) = report else {
+            for ((body, kind), tracker) in trackers {
+                let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
+                summary.push((body, kind, worst));
+            }
+            guard.test(spent(&ctx, &ctx16, &ctx64, &sum))?;
+            return Ok(true);
+        };
+        // (b): Ŵ_q ≤ 2^(6−2p)·ê, with the summary Ŵ/V.
+        let mut estimate: std::collections::BTreeMap<(u32, Kind), ExtremeTracker> =
+            std::collections::BTreeMap::new();
+        for (index, meta) in layout.iter().enumerate() {
+            let Some(w) = &r.w[index] else { continue };
+            let e = Wide::<M>::from_f64(hat(meta.body, meta.kind))?;
+            sum.clear();
+            sum.add_wide_scaled(&e, false, 1, 6 - big_p)?;
+            sum.add_wide(w, true)?;
+            if sum.signum() < 0 {
+                rejection = Some(Rejection::VerificationEstimate { index });
+                return Ok(false);
+            }
+            if !e.is_zero() {
+                let mut num = ExactWideSum::new();
+                num.add_wide(w, false)?;
+                let mut den = ExactWideSum::new();
+                den.add_wide_scaled(&e, false, 1, 8 - big_p)?;
+                estimate
+                    .entry((meta.body, meta.kind))
+                    .or_insert_with(|| ExtremeTracker::new(Direction::Up))
+                    .offer(&mut ctx64, num, den)?;
+            }
+        }
+        // (c): `uc`, θ, g.
+        if let Some(block) = r.uc_missing {
+            rejection = Some(Rejection::Uc { block });
+            return Ok(false);
+        }
+        let half = Wide::<M>::ONE.mul_pow2(-1)?;
+        for (block, theta) in r.theta.iter().enumerate() {
+            if theta.is_some_and(|t| t.cmp_value(&half) == CmpOrdering::Greater) {
+                rejection = Some(Rejection::Theta { block });
+                return Ok(false);
+            }
+        }
+        if let Some(member) = r.g_violation {
+            rejection = Some(Rejection::GValidity { member });
+            return Ok(false);
+        }
+        // (d): the charge.
+        let mut charge: std::collections::BTreeMap<(u32, Kind), ExtremeTracker> =
+            std::collections::BTreeMap::new();
+        for (index, meta) in layout.iter().enumerate() {
+            let Some(c) = &r.charge[index] else { continue };
+            let mut allowance = ExactWideSum::new();
+            if verification_precision < 1024 {
+                let e = Wide::<M>::from_f64(hat(meta.body, meta.kind))?;
+                allowance.add_wide_scaled(&e, false, 60, -big_p)?;
+            } else {
+                allowance.add_wide_scaled(&magnitude_of(index, meta), false, 1, -86)?;
+            }
+            sum.clear();
+            sum.add_scaled(&allowance, false, 1, 0)?;
+            sum.add_wide(c, true)?;
+            if sum.signum() < 0 {
+                rejection = Some(Rejection::Charge { index });
+                return Ok(false);
+            }
+            if !allowance.is_zero() {
+                let mut num = ExactWideSum::new();
+                num.add_wide(c, false)?;
+                charge
+                    .entry((meta.body, meta.kind))
+                    .or_insert_with(|| ExtremeTracker::new(Direction::Up))
+                    .offer(&mut ctx64, num, allowance)?;
+            }
+            if index % 64 == 63 {
+                guard.test(spent(&ctx, &ctx16, &ctx64, &sum))?;
+            }
+        }
         for ((body, kind), tracker) in trackers {
             let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
             summary.push((body, kind, worst));
+        }
+        for ((body, kind), tracker) in estimate {
+            let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
+            estimate_summary.push((body, kind, worst));
+        }
+        for ((body, kind), tracker) in charge {
+            let worst = tracker.finish(&mut ctx16)?.unwrap_or(0.0);
+            charge_summary.push((body, kind, worst));
         }
         guard.test(spent(&ctx, &ctx16, &ctx64, &sum))?;
         Ok(true)
@@ -1287,7 +1821,11 @@ where
     StopDecision {
         result,
         first_failure,
+        rejection,
         summary,
+        estimate_summary,
+        charge_summary,
+        floor,
         work,
         sum_work,
         total,
@@ -1342,37 +1880,97 @@ impl PrecisionState {
     }
 }
 
-/// The stop rule between a candidate and its verification (2p).
+/// A verification state's report (D1 revision 5a.3), per width.
+#[derive(Debug, Clone)]
+pub(crate) enum VerificationState {
+    V256(Arc<VerificationReport<4>>),
+    V512(Arc<VerificationReport<8>>),
+    V1024(Arc<VerificationReport<16>>),
+}
+
+/// A verification's report in binary64 (the attempt's evidence).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct VerificationSummary {
+    /// [E_fo, E_mo] per body (uncoupled, rounded upward).
+    pub(crate) resolution: Vec<[f64; 2]>,
+    /// Per body: the largest θ_c over its blocks with data, rounded upward (0
+    /// without), and B_b rounded upward (None without a block with data).
+    pub(crate) theta: Vec<f64>,
+    pub(crate) bound: Vec<Option<f64>>,
+    pub(crate) data_blocks: usize,
+    pub(crate) shift_factorizations: u8,
+    pub(crate) uc_missing: Option<usize>,
+    pub(crate) g_max: u32,
+    pub(crate) g_violation: Option<u32>,
+}
+
+fn summarize<const L: usize>(r: &VerificationReport<L>) -> Result<VerificationSummary, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let mut theta = Vec::with_capacity(r.bodies.len());
+    let mut bound = Vec::with_capacity(r.bodies.len());
+    for body in &r.bodies {
+        theta.push(binary64_up(&body.theta)?);
+        bound.push(match &body.b {
+            Some(b) => Some(binary64_up(b)?),
+            None => None,
+        });
+    }
+    Ok(VerificationSummary {
+        resolution: r.resolution.clone(),
+        theta,
+        bound,
+        data_blocks: r.blocks.iter().filter(|b| b.data).count(),
+        shift_factorizations: r.shift_factorizations,
+        uc_missing: r.uc_missing,
+        g_max: r.g_max,
+        g_violation: r.g_violation,
+    })
+}
+
+impl VerificationState {
+    pub(crate) fn summary(&self) -> Result<VerificationSummary, AttemptStop> {
+        match self {
+            Self::V256(r) => summarize(r),
+            Self::V512(r) => summarize(r),
+            Self::V1024(r) => summarize(r),
+        }
+    }
+}
+
+/// D1 revision 5a.3's decision between a candidate and its verification (2p).
 fn compare_states(
     layout: &[QuantityMeta],
     extents: &[f64],
     candidate: &PrecisionState,
     verification: &PrecisionState,
+    report: &VerificationState,
     guard: StageGuard,
 ) -> StopDecision {
-    match (candidate, verification) {
-        (PrecisionState::P128(a), PrecisionState::P256(b)) => stop_rule(
+    match (candidate, verification, report) {
+        (PrecisionState::P128(a), PrecisionState::P256(b), VerificationState::V256(r)) => decide(
             layout,
             extents,
             &a.recovered.values,
             &b.recovered.values,
-            256,
+            r,
             guard,
         ),
-        (PrecisionState::P256(a), PrecisionState::P512(b)) => stop_rule(
+        (PrecisionState::P256(a), PrecisionState::P512(b), VerificationState::V512(r)) => decide(
             layout,
             extents,
             &a.recovered.values,
             &b.recovered.values,
-            512,
+            r,
             guard,
         ),
-        (PrecisionState::P512(a), PrecisionState::P1024(b)) => stop_rule(
+        (PrecisionState::P512(a), PrecisionState::P1024(b), VerificationState::V1024(r)) => decide(
             layout,
             extents,
             &a.recovered.values,
             &b.recovered.values,
-            1024,
+            r,
             guard,
         ),
         _ => unreachable!("the schedule compares p with 2p"),
@@ -1397,6 +1995,30 @@ pub(crate) enum AttemptReason {
         kind: Kind,
     },
     VerificationFailed,
+    /// D1 revision 5a.3 (R7 §4.1.6.3 item 13): `verification_estimate`.
+    VerificationEstimate {
+        quantity: QuantityId,
+        body: u32,
+        kind: Kind,
+    },
+    /// `uc`: a block with data of this body has neither Uc_c nor S_c.
+    Uc {
+        body: u32,
+    },
+    /// `theta`: θ_c > 1/2 on a block with data of this body.
+    Theta {
+        body: u32,
+    },
+    /// `g_validity`: a member in scope with g > 2^(P−16).
+    GValidity {
+        member: u32,
+    },
+    /// `charge`: C_q above its allowance.
+    Charge {
+        quantity: QuantityId,
+        body: u32,
+        kind: Kind,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -1448,6 +2070,17 @@ pub(crate) struct AttemptRecord {
     /// `work` and `k4_work`, which hold every context and sum it charged).
     pub(crate) stop_rule_work: u64,
     pub(crate) storage: StorageCounts,
+    /// D1 revision 5a.3: the test that passed the gate.
+    pub(crate) gate: Option<GateTest>,
+    /// The verification pass on this state (a part of `work`, `k4_work` and
+    /// `stages`), and its report.
+    pub(crate) verification_work: u64,
+    pub(crate) verification: Option<VerificationSummary>,
+    /// The verification's shared stages (Ā at P, K_e at q_W, the Uc passes),
+    /// counted in full against the case, and against the invocation when
+    /// built here.
+    pub(crate) verification_shared_work: u64,
+    pub(crate) verification_shared_built_here: bool,
 }
 
 /// A refusal: no rows, no escalation.
@@ -1480,6 +2113,17 @@ pub(crate) enum UnresolvedReason {
         global_dof: usize,
     },
     Arithmetic(WideError),
+    /// D1 revision 5a.3 (ROOT's A3-0 ruling Q8): a body's E rounds to +∞;
+    /// F2a maps it to `receipt_encoding`.
+    ResolutionScaleUnencodable {
+        body: u32,
+        kind: Kind,
+    },
+    /// A selected pair's B_b not below 2^1024 (R7 §4.1.6.3 item 14: derived
+    /// impossible at a selected p; kept as a guard).
+    CertifiedBoundUnencodable {
+        body: u32,
+    },
 }
 
 /// A published row and its class.
@@ -1500,10 +2144,23 @@ pub(crate) struct Publication {
 }
 
 /// The classification of published rows (items 1, 2a, 4–6; O9).
+#[allow(dead_code)] // F2a API and the classification tests (the schedule floors)
 pub(crate) fn classify_rows(
     layout: &[QuantityMeta],
     values: &[Binary64Outcome],
     extents: &[f64],
+) -> Publication {
+    classify_rows_floored(layout, values, extents, None)
+}
+
+/// `classify_rows` with item 6a (D1 revision 5a.3): when the selected
+/// precision is 512, `floor` holds Φ_fo and Φ_mo per body, applied after item
+/// 6's coupling and before items 7 and 8.
+pub(crate) fn classify_rows_floored(
+    layout: &[QuantityMeta],
+    values: &[Binary64Outcome],
+    extents: &[f64],
+    floor: Option<&[[f64; 2]]>,
 ) -> Publication {
     let mut s = vec![[0.0f64; 4]; extents.len()];
     for (meta, v) in layout.iter().zip(values) {
@@ -1518,7 +2175,15 @@ pub(crate) fn classify_rows(
     let scales: Vec<[f64; 4]> = s
         .iter()
         .zip(extents)
-        .map(|(&s, &e)| coupled_scales(s, e))
+        .enumerate()
+        .map(|(b, (&s, &e))| {
+            let mut c = coupled_scales(s, e);
+            if let Some(phi) = floor {
+                c[Kind::Force.index()] = c[Kind::Force.index()].max(phi[b][0]);
+                c[Kind::Moment.index()] = c[Kind::Moment.index()].max(phi[b][1]);
+            }
+            c
+        })
         .collect();
     let rows = layout
         .iter()
@@ -1576,6 +2241,20 @@ pub(crate) struct RetainedEvidence {
     pub(crate) source_encoding: Vec<u8>,
     pub(crate) ledger_encoding: Vec<u8>,
     pub(crate) retained_state_encoding: Vec<u8>,
+    /// D1 revision 5a.3 (R7 §5.8): per body, E_fo and E_mo bits (uncoupled,
+    /// rounded upward, finite).
+    pub(crate) resolution_scale: Vec<(u32, u64, u64)>,
+    /// Per body and kind of force and moment: the worst Ŵ_q/V_q and C_q over
+    /// its allowance, rounded upward.
+    pub(crate) verification_estimate: Vec<(u32, Kind, f64)>,
+    pub(crate) verification_charge: Vec<(u32, Kind, f64)>,
+    /// Per body: the largest θ_c over its blocks with data (0 without).
+    pub(crate) theta: Vec<(u32, f64)>,
+    /// Per body with a block with data: B_b's bits, rounded upward (ROOT's
+    /// A3-0 ruling Q9: no entry otherwise).
+    pub(crate) certified_bound: Vec<(u32, u64)>,
+    /// Φ_fo and Φ_mo bits per body when the selected precision is 512.
+    pub(crate) floor: Option<Vec<(u32, u64, u64)>>,
 }
 
 /// A selected case: bound to its source and precision (D1 §4.1.1).
@@ -1646,6 +2325,11 @@ pub(crate) struct GroupCache {
     s256: Slot<Shared<4, 8>>,
     s512: Slot<Shared<8, 16>>,
     s1024: Slot<Shared<16, 16>>,
+    // D1 revision 5a.3: the verification's shared data per precision (q_W =
+    // 448, 832 and 1024).
+    v256: Slot<VerifyShared<4, 8>>,
+    v512: Slot<VerifyShared<8, 16>>,
+    v1024: Slot<VerifyShared<16, 16>>,
 }
 
 /// The work already counted against a case.
@@ -1740,6 +2424,11 @@ fn solve_precision(
         shared_built_here: false,
         stop_rule_work: 0,
         storage,
+        gate: None,
+        verification_work: 0,
+        verification: None,
+        verification_shared_work: 0,
+        verification_shared_built_here: false,
     };
     macro_rules! run {
         ($slot:expr, $L:literal, $R:literal, $q:expr, $variant:ident) => {{
@@ -1776,6 +2465,7 @@ fn solve_precision(
                         Ok(solved) => {
                             record.corrections = solved.corrections;
                             record.residual_worst = Some(solved.residual_worst);
+                            record.gate = Some(solved.gate);
                             (Ok(PrecisionState::$variant(Arc::new(solved))), record)
                         }
                         Err(stop) => (Err(stop), record),
@@ -1792,6 +2482,144 @@ fn solve_precision(
     }
 }
 
+/// An attempt's reason for a rejection by `decide`.
+fn rejection_reason(
+    rejection: Option<Rejection>,
+    layout: &[QuantityMeta],
+    group: &GroupPrep,
+) -> AttemptReason {
+    let row = |index: usize| layout[index];
+    match rejection {
+        Some(Rejection::StopRule { index }) => AttemptReason::StopRule {
+            quantity: row(index).id,
+            body: row(index).body,
+            kind: row(index).kind,
+        },
+        Some(Rejection::VerificationEstimate { index }) => AttemptReason::VerificationEstimate {
+            quantity: row(index).id,
+            body: row(index).body,
+            kind: row(index).kind,
+        },
+        Some(Rejection::Uc { block }) => AttemptReason::Uc {
+            body: group.blocks.body[block],
+        },
+        Some(Rejection::Theta { block }) => AttemptReason::Theta {
+            body: group.blocks.body[block],
+        },
+        Some(Rejection::GValidity { member }) => AttemptReason::GValidity { member },
+        Some(Rejection::Charge { index }) => AttemptReason::Charge {
+            quantity: row(index).id,
+            body: row(index).body,
+            kind: row(index).kind,
+        },
+        None => AttemptReason::VerificationFailed,
+    }
+}
+
+/// The verification's shared data at a precision: reused from the cache, or
+/// built (and cached) here; as `obtain`.
+fn obtain_verify<const L: usize, const R: usize, const W: usize>(
+    slot: &mut Slot<VerifyShared<L, W>>,
+    shared: &Shared<L, R>,
+    source: &PrimitiveSource,
+    group: &GroupPrep,
+    guard: StageGuard,
+) -> (
+    Result<Arc<VerifyShared<L, W>>, AttemptStop>,
+    u64,
+    bool,
+    StageWork,
+)
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
+    if let Some(cached) = slot {
+        return match cached {
+            Ok(v) => (Ok(v.clone()), v.total, false, v.stages.clone()),
+            Err((stop, total, stages)) => (Err(stop.clone()), *total, false, stages.clone()),
+        };
+    }
+    let spent = build_verify_shared::<L, R, W>(shared, source, group, guard);
+    match spent.result {
+        Ok(v) => {
+            let v = Arc::new(v);
+            *slot = Some(Ok(v.clone()));
+            (Ok(v), spent.total, true, spent.stages)
+        }
+        Err(stop) => {
+            if !matches!(stop, AttemptStop::Budget(_)) {
+                *slot = Some(Err((stop.clone(), spent.total, spent.stages.clone())));
+            }
+            (Err(stop), spent.total, true, spent.stages)
+        }
+    }
+}
+
+/// D1 revision 5a.3's verification pass on a solved verification state: the
+/// shared verification data (built or reused) and the case's own pass, both
+/// charged to the verification attempt, the case budget and the meter (the
+/// shared data once against the invocation).
+fn verify_precision(
+    state: &PrecisionState,
+    prep: &Arc<CasePrep>,
+    group: &Arc<GroupPrep>,
+    cache: &mut GroupCache,
+    budget: &mut CaseBudget,
+    meter: &mut InvocationMeter,
+    record: &mut AttemptRecord,
+) -> Result<VerificationState, AttemptStop> {
+    let case_room = budget.limit.saturating_sub(budget.used);
+    let invocation_room = meter.room();
+    let guard = StageGuard {
+        base: 0,
+        case_room,
+        invocation_room,
+    };
+    macro_rules! run {
+        ($slot:expr, $vslot:expr, $L:literal, $R:literal, $W:literal, $solved:expr, $variant:ident) => {{
+            let shared = match $slot {
+                Some(Ok(shared)) => shared.clone(),
+                _ => unreachable!("a solved state's shared stages are cached"),
+            };
+            let (vs, vs_total, built, vs_stages) =
+                obtain_verify::<$L, $R, $W>($vslot, &shared, &prep.source, group, guard);
+            record.verification_shared_work = vs_total;
+            record.verification_shared_built_here = built;
+            record.shared_stages.add(&vs_stages);
+            let invocation_spent = if built { vs_total } else { 0 };
+            budget.used = budget.used.saturating_add(vs_total);
+            meter.charge(invocation_spent);
+            let vs = vs?;
+            if vs_total > case_room {
+                return Err(AttemptStop::Budget(BudgetScope::Case));
+            }
+            let own_guard = StageGuard {
+                base: 0,
+                case_room: case_room - vs_total,
+                invocation_room: invocation_room.saturating_sub(invocation_spent),
+            };
+            let spent = verify_state::<$L, $R, $W>(&shared, &vs, prep, group, $solved, own_guard);
+            record.work.merge(&spent.work);
+            record.k4_work.merge(&spent.sum_work);
+            record.stages.add(&spent.stages);
+            record.verification_work = spent.total;
+            budget.used = budget.used.saturating_add(spent.total);
+            meter.charge(spent.total);
+            let state = VerificationState::$variant(Arc::new(spent.result?));
+            record.verification = Some(state.summary()?);
+            Ok(state)
+        }};
+    }
+    match state {
+        PrecisionState::P256(s) => run!(&cache.s256, &mut cache.v256, 4, 8, 8, s, V256),
+        PrecisionState::P512(s) => run!(&cache.s512, &mut cache.v512, 8, 16, 16, s, V512),
+        PrecisionState::P1024(s) => run!(&cache.s1024, &mut cache.v1024, 16, 16, 16, s, V1024),
+        PrecisionState::P128(_) => unreachable!("128 is never a verification"),
+    }
+}
+
 fn terminal(stop: &AttemptStop) -> Result<UnresolvedReason, Refusal> {
     match stop {
         AttemptStop::Budget(scope) => Ok(UnresolvedReason::Budget(*scope)),
@@ -1801,6 +2629,12 @@ fn terminal(stop: &AttemptStop) -> Result<UnresolvedReason, Refusal> {
             global_dof: *global_dof,
         }),
         AttemptStop::Arithmetic(e) => Ok(UnresolvedReason::Arithmetic(*e)),
+        AttemptStop::ResolutionScale { body, kind } => {
+            Ok(UnresolvedReason::ResolutionScaleUnencodable {
+                body: *body,
+                kind: *kind,
+            })
+        }
         AttemptStop::NegativeEnergy { i, j } => Err(Refusal::NegativeEnergy { i: *i, j: *j }),
         AttemptStop::Structure => Err(Refusal::Structure),
         other => unreachable!("escalating stop {other:?} is not terminal"),
@@ -1874,6 +2708,25 @@ pub(crate) fn run_schedule(
                 return finish_terminal(&stop, attempts, geometry);
             }
         };
+        // D1 revision 5a.3: the verification pass (charged to the verification).
+        let report = match verify_precision(
+            &verification,
+            &prep,
+            &group,
+            cache,
+            &mut budget,
+            meter,
+            &mut attempts[v_index],
+        ) {
+            Ok(report) => report,
+            Err(stop) => {
+                attempts[candidate_index].outcome =
+                    AttemptOutcome::Rejected(AttemptReason::VerificationFailed);
+                attempts[v_index].outcome =
+                    AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));
+                return finish_terminal(&stop, attempts, geometry);
+            }
+        };
         let guard = StageGuard {
             base: 0,
             case_room: budget.limit.saturating_sub(budget.used),
@@ -1884,6 +2737,7 @@ pub(crate) fn run_schedule(
             &prep.extents,
             &candidate,
             &verification,
+            &report,
             guard,
         );
         {
@@ -1912,23 +2766,17 @@ pub(crate) fn run_schedule(
                     &candidate,
                     verification_p,
                     attempts,
-                    decision.summary,
+                    &decision,
+                    &report,
                     geometry,
                 );
             }
             Ok(false) => {
-                let meta = decision
-                    .first_failure
-                    .and_then(|i| prep.layout.get(i))
-                    .copied();
-                attempts[candidate_index].outcome = AttemptOutcome::Rejected(match meta {
-                    Some(meta) => AttemptReason::StopRule {
-                        quantity: meta.id,
-                        body: meta.body,
-                        kind: meta.kind,
-                    },
-                    None => AttemptReason::VerificationFailed,
-                });
+                attempts[candidate_index].outcome = AttemptOutcome::Rejected(rejection_reason(
+                    decision.rejection,
+                    &prep.layout,
+                    &group,
+                ));
                 if c + 1 < 3 {
                     attempts[v_index].role = AttemptRole::VerificationThenCandidate;
                     pending = Some((verification, v_index));
@@ -1968,12 +2816,32 @@ fn finish_selected(
     selected: &PrecisionState,
     verification_precision: u32,
     attempts: Vec<AttemptRecord>,
-    summary: Vec<(u32, Kind, f64)>,
+    decision: &StopDecision,
+    report: &VerificationState,
     geometry: Vec<BodyGeometry>,
 ) -> CaseOutcome {
     let mut values = selected.published();
     prep.publish_prescribed(&mut values);
-    let publication = classify_rows(&prep.layout, &values, &prep.extents);
+    // Item 6a: Φ at a selected 512, the stop rule's bits.
+    let publication = classify_rows_floored(
+        &prep.layout,
+        &values,
+        &prep.extents,
+        decision.floor.as_deref(),
+    );
+    let verification = match report.summary() {
+        Ok(v) => v,
+        Err(stop) => return finish_terminal(&stop, attempts, geometry),
+    };
+    for (body, bound) in verification.bound.iter().enumerate() {
+        if bound.is_some_and(|b| !b.is_finite()) {
+            return CaseOutcome::Unresolved {
+                reason: UnresolvedReason::CertifiedBoundUnencodable { body: body as u32 },
+                attempts,
+                geometry,
+            };
+        }
+    }
     let selected_record = attempts
         .iter()
         .find(|a| a.precision == selected.precision() && a.outcome == AttemptOutcome::Accepted)
@@ -1983,7 +2851,7 @@ fn finish_selected(
         policy: POLICY,
         selected_precision: selected.precision(),
         verification_precision,
-        stop_rule: summary,
+        stop_rule: decision.summary.clone(),
         floor_ratio_bits: FLOOR_RATIO_BITS,
         body_scales: publication.body_scales.clone(),
         input_derived_dofs: prep.source.constraints().iter().map(|c| c.dof).collect(),
@@ -2021,6 +2889,32 @@ fn finish_selected(
         ledger_encoding: prep.ledger.encoding(),
         retained_state_encoding: selected.encoding(),
         attempts,
+        resolution_scale: verification
+            .resolution
+            .iter()
+            .enumerate()
+            .map(|(b, e)| (b as u32, e[0].to_bits(), e[1].to_bits()))
+            .collect(),
+        verification_estimate: decision.estimate_summary.clone(),
+        verification_charge: decision.charge_summary.clone(),
+        theta: verification
+            .theta
+            .iter()
+            .enumerate()
+            .map(|(b, t)| (b as u32, *t))
+            .collect(),
+        certified_bound: verification
+            .bound
+            .iter()
+            .enumerate()
+            .filter_map(|(b, v)| v.map(|v| (b as u32, v.to_bits())))
+            .collect(),
+        floor: decision.floor.as_ref().map(|f| {
+            f.iter()
+                .enumerate()
+                .map(|(b, x)| (b as u32, x[0].to_bits(), x[1].to_bits()))
+                .collect()
+        }),
     };
     CaseOutcome::Selected(Box::new(RetainedSolve {
         prep,
@@ -2157,8 +3051,51 @@ impl GroupCache {
             if out.s1024.is_none() {
                 out.s1024 = cache.s1024.clone();
             }
+            if out.v256.is_none() {
+                out.v256 = cache.v256.clone();
+            }
+            if out.v512.is_none() {
+                out.v512 = cache.v512.clone();
+            }
+            if out.v1024.is_none() {
+                out.v1024 = cache.v1024.clone();
+            }
         }
         out
+    }
+}
+
+/// A test-only seed of the final state (R7 §7's SEEDED-COMMON and
+/// SEEDED-SOFT): added after the gate and before recovery, at every precision.
+#[cfg(test)]
+pub(crate) mod seed {
+    use super::super::wide::multi::{SupportedWidth, WideContext};
+    use super::super::wide::Wide;
+    use super::AttemptStop;
+    use std::cell::RefCell;
+
+    thread_local! {
+        static SEED: RefCell<Vec<(usize, f64)>> = const { RefCell::new(Vec::new()) };
+    }
+
+    /// Sets this thread's seeds (global DOF, value); empty clears them.
+    pub(crate) fn set(values: Vec<(usize, f64)>) {
+        SEED.with(|s| *s.borrow_mut() = values);
+    }
+
+    pub(crate) fn apply<const L: usize>(
+        ctx: &mut WideContext<L>,
+        u: &mut [Wide<L>],
+    ) -> Result<(), AttemptStop>
+    where
+        Wide<L>: SupportedWidth,
+    {
+        SEED.with(|s| {
+            for &(g, v) in s.borrow().iter() {
+                u[g] = ctx.add(&u[g], &Wide::<L>::from_f64(v)?)?;
+            }
+            Ok(())
+        })
     }
 }
 
@@ -2173,6 +3110,9 @@ mod references_tests;
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/classification_tests.rs"]
 mod classification_tests;
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/method_tests.rs"]
+mod method_tests;
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/scale_tests.rs"]
 mod scale_tests;

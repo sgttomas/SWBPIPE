@@ -177,16 +177,63 @@ fn b1_e_is_caught_the_combination_reproduces_the_truth_that_a_sum_of_states_lose
     assert!(worst > 1e-9, "{worst}");
 }
 
+const MODELS_5A3: &str = include_str!("models5a3.txt");
+
 #[test]
 fn ceiling_operands_2_to_the_minus_1060_apart_give_the_net_cases_truth() {
-    // F-1's control: CEIL-A − CEIL-B, whose loads differ by 2^-60 on 2^1000.
-    let (combination, operands) = check_combo("CEILING", "CEIL-NET");
+    // F-1's control. Under D1 revision 5a.3 (A3b) CEIL-A and CEIL-B (2^1000
+    // and 2^1000 + 2^-60 on the skew pin) are unresolved: their E, with a
+    // 2^1013-rad rigid rotation, does not encode (ROOT's A3-0 ruling Q8).
+    for name in ["CEIL-A", "CEIL-B"] {
+        let mut meter = InvocationMeter::new(u64::MAX);
+        match solve_case(models::model(name).source(), unlimited(), &mut meter) {
+            CaseOutcome::Unresolved {
+                reason: UnresolvedReason::ResolutionScaleUnencodable { body: 0, .. },
+                ..
+            } => {}
+            other => panic!("{name}: {other:?}"),
+        }
+    }
+    // The control keeps its ratio ε/P = 2^-1060 at P = 2^900 (CEIL-S-A −
+    // CEIL-S-B, loads 2^900 + 2^-160 and 2^900).
+    let from_5a3 = |name: &str| {
+        models::parse_models(MODELS_5A3)
+            .into_iter()
+            .find(|m| m.name == name)
+            .unwrap()
+    };
+    let c = models::parse_combos(MODELS_5A3)
+        .into_iter()
+        .find(|c| c.name == "CEILING-S")
+        .unwrap();
+    let operands: Vec<Box<RetainedSolve>> = c
+        .operands
+        .iter()
+        .map(|(_, n)| selected_source(from_5a3(n).source()))
+        .collect();
+    let refs: Vec<(f64, &RetainedSolve)> = c
+        .operands
+        .iter()
+        .map(|o| o.0)
+        .zip(operands.iter().map(|s| s.as_ref()))
+        .collect();
+    let combination = combined(&refs);
+    assert_equals_net(
+        &combination,
+        &selected_source(from_5a3("CEIL-S-NET").source()),
+    );
+    let (worst, at, compared) =
+        models::compare(operands[0].source(), &combination.publish().rows, &c.expect);
+    assert!(
+        compared >= 30 && worst <= 1.0,
+        "{worst} at {at} ({compared})"
+    );
     let rows = &combination.publish().rows;
     let spring = rows
         .iter()
         .find(|r| models::key(&r.id) == "spr.3.3")
         .unwrap();
-    assert_eq!(spring.value.value(), Some(-(2f64.powi(-60))));
+    assert_eq!(spring.value.value(), Some(-(2f64.powi(-160))));
     assert!(rows.iter().filter(|r| r.value.value() != Some(0.0)).count() > 10);
     // The withdrawn formation publishes zeros.
     let refs = [(1.0, operands[0].as_ref()), (-1.0, operands[1].as_ref())];

@@ -35,10 +35,26 @@ oracle, DS1's emu7 the selection-level cross-check), checkpoint A3a:
   blocks and their data flags, est_c, U_c, N_L,c, t_c, Uc_c, the forced shift
   (every block with est_c > 0) and ‖K̃_c⁻¹‖₁: exact (rational, blocks of at
   most 40 DOFs) or a certified upper bound (RF-LARGE: ‖X‖₁/(1 − ‖R‖₁) with X
-  an approximate inverse at 3,072 bits and R = I − K̃X formed exactly);
+  an approximate inverse in fixed point at 2^-1024, and ‖X‖₁ and
+  ‖R‖₁ = ‖I − K̃X‖₁ formed exactly as rationals, ‖R‖₁ < 1 asserted);
 - `profiles.txt`: V4's F2 family, DS1's low-precision stress (20,000 draws,
   every R7-M27 killer kept) and SD-G5's searched boundary profiles, with
   exact norms.
+
+Checkpoint A3b (the method):
+- `models5a3.txt` gains DS1's remaining controls (LEVER2, TILT-LEVER, the
+  SEEDED pair with `seed` lines, the probe set, F-2 to F-3, DEMOTION2 and the
+  rest of plan §6), CEIL5A3 and F-1's ceiling control at 2^900 (CEIL-S), RF-LARGE
+  at 100 members, and the 5a.3 combinations with their exact net expectations;
+- `outcomes.txt`: the schedule (`schedule_em`: the hybrid gate, the
+  verification pass and `decide` in R7's rejection order) of every model and
+  combination: the selected precision and each attempt's outcome;
+- `charge.txt` (E-CHARGE): at 256, 512 and 1024, R7 §4.1.6.3 items 1-12 in
+  K4's order with R7's directed roundings: r̂, δ̂, Ŵ, ‖ā_q S‖₁, C and W⁺ (as
+  digests), and per block and body B, θ, the norms, N_u and t₁ to t₃;
+- `estimate.txt` (E-ESTIMATE): |R*(u_P) − q*| per force and moment row above
+  2^-(P+20)·ê, u* the exact solution and R* a recovery at 4,096 bits;
+- `r1_large.txt`: R1's RF-LARGE frames at 10 and 100 members as lane cases.
 
 Usage:  python3 gen_k4_vectors.py [--check]
 
@@ -1810,39 +1826,56 @@ def r1_lines():
     floors = json.loads(FLOOR_JSON.read_text())["cases"]
     lines = []
     for cid, c, model in r1_cases():
-        m, kmem, key_of = r1_adapt(cid, c, model)
-        lines += model_lines(m, expectations=False)[:-1]
-        outcome = "refuse" if c["family"] == "RF-MECH" and "expected" not in c else "solve"
-        lines.append("case %s %s %s" % (c["family"], c.get("basis") or "-", outcome))
-        for mid, kt, ka in kmem:
-            lines.append("kmem %d %s %s" % (mid, hexf(kt), hexf(ka)))
-        rows = c.get("expected_represented") if c.get("basis") == "represented" else c.get("expected")
-        scales = c.get("scales", {})
-        for row in rows or []:
-            rk, e, cls = row[0], r1.parse_input(row[1]), row[2]
-            scale = r1.parse_input(row[3]) if c["family"] == "RF-CANCEL" else r1.parse_input(scales[cls]["value"])
+        lines += r1_case_lines(cid, c, model, floors)
+    return lines
+
+
+def r1_large_lines():
+    """R1's RF-LARGE frames at 10 and 100 members as R1 lane cases (plan §6:
+    honest against R1's references), in `r1_cases.txt`'s format."""
+    floors = json.loads(FLOOR_JSON.read_text())["cases"]
+    ref = json.loads(R1_JSON.read_text())["cases"]
+    lines = []
+    for cid in LARGE_A3A + LARGE_A3B:
+        lines += r1_case_lines(cid, ref[cid], ref[cid]["model"], floors)
+    return lines
+
+
+def r1_case_lines(cid, c, model, floors):
+    lines = []
+    m, kmem, key_of = r1_adapt(cid, c, model)
+    lines += model_lines(m, expectations=False)[:-1]
+    outcome = "refuse" if c["family"] == "RF-MECH" and "expected" not in c else "solve"
+    lines.append("case %s %s %s" % (c["family"], c.get("basis") or "-", outcome))
+    for mid, kt, ka in kmem:
+        lines.append("kmem %d %s %s" % (mid, hexf(kt), hexf(ka)))
+    rows = c.get("expected_represented") if c.get("basis") == "represented" else c.get("expected")
+    scales = c.get("scales", {})
+    for row in rows or []:
+        rk, e, cls = row[0], r1.parse_input(row[1]), row[2]
+        scale = r1.parse_input(row[3]) if c["family"] == "RF-CANCEL" else r1.parse_input(scales[cls]["value"])
+        ours = key_of(rk)
+        if ours is None:
+            assert e == 0, (cid, rk)
+            lines.append("zero %s" % rk)
+            continue
+        lines.append("ref %s %s %s %s %s" % (ours, hexf(float(e)), hexf(float(scale)), cls.split("@")[0], rk))
+    for nc in c.get("negative_controls", []):
+        if "defective_outcome" in nc:
+            # An outcome control: the defect is an outcome, not values.
+            lines.append("nco %s %d %s" % (nc["id"], int(bool(nc.get("discriminates"))),
+                                           nc["defective_outcome"].replace(" ", "_")))
+            continue
+        vals = []
+        for rk, v in sorted((nc.get("values") or {}).items()):
             ours = key_of(rk)
-            if ours is None:
-                assert e == 0, (cid, rk)
-                lines.append("zero %s" % rk)
-                continue
-            lines.append("ref %s %s %s %s %s" % (ours, hexf(float(e)), hexf(float(scale)), cls.split("@")[0], rk))
-        for nc in c.get("negative_controls", []):
-            if "defective_outcome" in nc:
-                # An outcome control: the defect is an outcome, not values.
-                lines.append("nco %s %d %s" % (nc["id"], int(bool(nc.get("discriminates"))),
-                                               nc["defective_outcome"].replace(" ", "_")))
-                continue
-            vals = []
-            for rk, v in sorted((nc.get("values") or {}).items()):
-                ours = key_of(rk)
-                if ours is not None:
-                    vals.append("%s=%s" % (ours, hexf(float(r1.parse_input(v)))))
-            lines.append("nc %s %d %s" % (nc["id"], int(bool(nc.get("discriminates"))), " ".join(vals) or "-"))
-        fl = floors.get(cid, {})
-        for rk, _cls, _ratio in fl.get("F_rec_scale_below" if c["family"] == "RF-CANCEL" else "F_scale_below", []):
-            lines.append("floor %s" % key_of(rk))
-        lines.append("end")
+            if ours is not None:
+                vals.append("%s=%s" % (ours, hexf(float(r1.parse_input(v)))))
+        lines.append("nc %s %d %s" % (nc["id"], int(bool(nc.get("discriminates"))), " ".join(vals) or "-"))
+    fl = floors.get(cid, {})
+    for rk, _cls, _ratio in fl.get("F_rec_scale_below" if c["family"] == "RF-CANCEL" else "F_scale_below", []):
+        lines.append("floor %s" % key_of(rk))
+    lines.append("end")
     return lines
 
 
@@ -2138,7 +2171,7 @@ def member_dofs_em(m):
     return [6 * m["i"] + k for k in range(6)] + [6 * m["j"] + k for k in range(6)]
 
 
-def emulate(model, p, state=True):
+def emulate(model, p, state=True, seeds=()):
     """K4 at p: formation (with g), assembly, the ordering, the factor and its
     screens, the condition screen with est_c per block, and (state=True) the
     solve with the residual gate. Returns a dict; `stop` names a failed stage."""
@@ -2331,20 +2364,26 @@ def emulate(model, p, state=True):
         if l["v"] != 0:
             nonzero.add(g)
     out.update(ledger=ledger, nonzero_terms=nonzero)
+    # The prescribed values at p: each exact value rounded once (a case's
+    # binary64 values exactly; a combination's exact Σ c·v rounded once).
+    pres_p = {g: rnd(v) for g, v in prescribed.items()}
     rhs = []
     for g in free:
         v = ledger.get(g, Fr(0))
         for c in pattern[g]:
             if c in prescribed:
-                v -= get_k(K, g, c) * prescribed[c]
+                v -= get_k(K, g, c) * pres_p[c]
         rhs.append(rnd(v))
     u_free = solve(rhs) if nf else []
-    u = [prescribed.get(g, Fr(0)) for g in range(n)]
+    u = [pres_p.get(g, Fr(0)) for g in range(n)]
     corrections = 0
     prior = math.inf
+    evaluated = []
+    gate = ("coalesced",)
     while True:
         for a, g in enumerate(free):
             u[g] = u_free[a]
+        evaluated.append(list(u_free))
         passes, residuals, worst = True, [], 0.0
         for g in free:
             r = ledger.get(g, Fr(0))
@@ -2372,14 +2411,92 @@ def emulate(model, p, state=True):
         if passes:
             break
         if corrections == 3 or worst >= prior:
-            out["stop"] = "ResidualGate"
-            return out
+            # The bounded test on the best evaluated state (R7 §4.1.4 step 3).
+            pick = bounded_fallback_em(model, p, q, Kq, pattern, ledger, free, u, evaluated)
+            if pick is None:
+                out["stop"] = "ResidualGate"
+                return out
+            u_free = evaluated[pick]
+            for a, g in enumerate(free):
+                u[g] = u_free[a]
+            gate = ("bounded", pick, len(evaluated))
+            break
         prior = worst
         delta = solve(residuals)
         u_free = [rnd(xv + dv) for xv, dv in zip(u_free, delta)]
         corrections += 1
-    out.update(u=list(u), corrections=corrections)
+    # A test-only seed of the final state (R7 §7), after the gate.
+    for g, v in seeds:
+        u[g] = rnd(u[g] + Fr(v))
+    out.update(u=list(u), corrections=corrections, gate=gate)
     return out
+
+
+def abar_at(model, q):
+    """Ā at precision q (both triangles), from members formed at q with g."""
+    nodes = model["nodes"]
+    contrib = {}
+    for m in model["members"]:
+        op = form_member_g(nodes, m, q)
+        A = bounded_block_em(op, q)
+        dofs = member_dofs_em(m)
+        for a in range(12):
+            for b in range(12):
+                contrib.setdefault((dofs[a], dofs[b]), []).append(A[a][b])
+    for s_ in model["springs"]:
+        d = 6 * s_["node"] + s_["c"]
+        contrib.setdefault((d, d), []).append(abs(Fr(s_["k"])))
+    for s_ in model["dsprings"]:
+        blk = directional_em(s_, q)
+        base = 6 * s_["node"] + kind_offset(s_["kind"])
+        for a in range(3):
+            for b in range(3):
+                contrib.setdefault((base + a, base + b), []).append(abs(blk[a][b]))
+    return {rc: rp(sum(vs, Fr(0)), q) for rc, vs in contrib.items()}
+
+
+def bounded_fallback_em(model, p, q, Kq, pattern, ledger, free, u_base, evaluated):
+    """adaptive.rs `bounded_fallback`: the best evaluated state under the
+    bounded denominator, if every row of it passes."""
+    abq = abar_at(model, q)
+    get_k = lambda r, c: Kq.get((min(r, c), max(r, c)))
+    best = None
+    for k, uf in enumerate(evaluated):
+        u = list(u_base)
+        for a, g in enumerate(free):
+            u[g] = uf[a]
+        eligible, all_pass, worst = True, True, Fr(0)
+        for g in free:
+            r = ledger.get(g, Fr(0))
+            d = abs(r)
+            count = 0
+            for c in sorted(pattern[g]):
+                if u[c] == 0:
+                    continue
+                kv = get_k(g, c)
+                if kv:
+                    count += 1
+                    r -= kv * u[c]
+                av = abq.get((g, c), Fr(0))
+                if av:
+                    d += av * abs(u[c])
+            mm = 2 * count + 2
+            num = abs(r) * (2 ** p - mm)
+            den = 64 * mm * d
+            all_pass = all_pass and num <= den
+            if num == 0:
+                continue
+            if den == 0:
+                eligible = False
+                break
+            worst = max(worst, num / den)
+        if not eligible:
+            continue
+        if best is None or worst < best[1]:
+            best = (k, worst, all_pass)
+    if best is not None and best[2]:
+        return best[0]
+    return None
 
 
 def bodies_em(model):
@@ -2598,7 +2715,7 @@ SCALE_PRECISIONS = (128, 256, 512, 1024)
 
 def scale_lines():
     lines = []
-    for m in models() + routed_models() + models5a3() + large_models(LARGE_A3A):
+    for m in models() + routed_models() + all5a3_models():
         for p in SCALE_PRECISIONS:
             lines += scale_record(m["name"], m, p)
     return lines
@@ -2753,52 +2870,67 @@ def inv_norm1_exact(A):
     return best
 
 
-def inv_norm1_upper(A, bits=3072):
-    """A certified upper bound on ‖A⁻¹‖₁ for a large symmetric positive
-    definite dyadic matrix (RF-LARGE; the exact rational inverse is too slow
-    for Python at 60 DOFs and 256+ bits): X ≈ A⁻¹ by LDLᵀ and column solves
-    rounded at `bits`, the residual R = I − A·X formed exactly, and
-    ‖A⁻¹‖₁ ≤ ‖X‖₁/(1 − ‖R‖₁) (A⁻¹ = X(I − R)⁻¹), valid when ‖R‖₁ < 1."""
+def inv_norm1_upper(A, F=1024):
+    """A certified upper bound on ‖A⁻¹‖₁ for a symmetric positive definite
+    dyadic matrix too large for the exact rational inverse (RF-LARGE; ROOT's
+    ruling on A3a): X ≈ A⁻¹ by LDLᵀ and one solve per column in fixed point
+    (integers scaled by 2^F, truncating divisions), then, exactly in integers,
+    ‖X‖₁ and the residual R = I − A·X, and ‖A⁻¹‖₁ ≤ ‖X‖₁/(1 − ‖R‖₁)
+    (A⁻¹ = X(I − R)⁻¹), which needs ‖R‖₁ < 1: asserted explicitly (and far
+    below it)."""
     n = len(A)
-    rnd = lambda x: rp(x, bits)
-    first = [min(j for j in range(i + 1) if A[i][j] != 0 or j == i) for i in range(n)]
+    s = 0
+    for row in A:
+        for v in row:
+            if v != 0:
+                d = v.denominator
+                assert d & (d - 1) == 0, "dyadic entries"
+                s = max(s, d.bit_length() - 1)
+    M = [{j: int(v * (1 << s)) for j, v in enumerate(row) if v != 0} for row in A]
+    one = 1 << F
+    Ai = [{j: (v << F) >> s if s <= F else v // (1 << (s - F)) for j, v in r.items()} for r in M]
+    first = [min(M[i]) for i in range(n)]
     Lm = [dict() for _ in range(n)]
-    D = [Fr(0)] * n
+    D = [0] * n
     for i in range(n):
         for j in range(first[i], i + 1):
-            s_ = A[i][j]
+            acc = Ai[i].get(j, 0) * one
             for k in range(max(first[i], first[j]), j):
                 lik, ljk = Lm[i].get(k), Lm[j].get(k)
                 if lik and ljk:
-                    s_ = rnd(s_ - rnd(rnd(lik * ljk) * D[k]))
+                    acc -= (lik * ljk >> F) * D[k]
+            acc >>= F
             if j == i:
-                D[i] = s_
-            elif s_ != 0:
-                Lm[i][j] = rnd(s_ / D[j])
+                D[i] = acc
+            elif acc != 0:
+                Lm[i][j] = (acc << F) // D[j]
         assert D[i] > 0
-    cols = []
+    xs = []
     for col in range(n):
-        x = [Fr(int(i == col)) for i in range(n)]
+        x = [one if i == col else 0 for i in range(n)]
         for i in range(n):
             for j, l in Lm[i].items():
-                x[i] = rnd(x[i] - rnd(l * x[j]))
+                x[i] -= (l * x[j]) >> F
         for i in range(n):
-            x[i] = rnd(x[i] / D[i])
+            x[i] = (x[i] << F) // D[i]
         for i in reversed(range(n)):
             for j, l in Lm[i].items():
-                x[j] = rnd(x[j] - rnd(l * x[i]))
-        cols.append(x)
-    nx = max(sum((abs(v) for v in x), Fr(0)) for x in cols)
-    nz = [[(j, A[i][j]) for j in range(n) if A[i][j] != 0] for i in range(n)]
-    nr = Fr(0)
-    for col, x in enumerate(cols):
-        r = Fr(0)
+                x[j] -= (l * x[i]) >> F
+        xs.append(x)
+    nx = max(sum(abs(v) for v in x) for x in xs)
+    # R = I − A·X exactly: (2^(s+F)·δ − M·X)/2^(s+F), column by column.
+    scale = 1 << (s + F)
+    nr = 0
+    for col, x in enumerate(xs):
+        total = 0
         for i in range(n):
-            ax = sum((a * x[j] for j, a in nz[i]), Fr(0))
-            r += abs(Fr(int(i == col)) - ax)
-        nr = max(nr, r)
-    assert nr < Fr(1, 2 ** 100), "the approximate inverse is not accurate"
-    return nx / (1 - nr)
+            ax = sum(v * x[j] for j, v in M[i].items())
+            total += abs((scale if i == col else 0) - ax)
+        nr = max(nr, total)
+    norm_r = Fr(nr, scale)
+    assert norm_r < 1, "‖R‖₁ < 1 is required"
+    assert norm_r < Fr(1, 2 ** 100), "the approximate inverse is not accurate"
+    return Fr(nx, one) / (1 - norm_r)
 
 
 def frac_hex(x):
@@ -2878,8 +3010,9 @@ BOUND_PRECISIONS = (256, 512, 1024)
 
 def bounds_lines():
     lines = []
-    for m in models() + routed_models() + models5a3() + large_models(LARGE_A3A):
-        for p in BOUND_PRECISIONS:
+    for m in models() + routed_models() + all5a3_models():
+        precisions = (256,) if "n00100" in m["name"] else BOUND_PRECISIONS
+        for p in precisions:
             lines += bounds_record(m["name"], m, p)
     return lines
 
@@ -3132,6 +3265,1020 @@ def sdg5_profile_lines():
     return lines
 
 
+# ----------------------------------------------------------------------------
+# D1 revision 5a.3, checkpoint A3b: R7 §7's remaining controls, and K4's
+# verification pass (R7 §4.1.6.3 items 1-12), its decision (§5.1 (a)-(d), in
+# emu7's order: ROOT's A3-0 ruling Q7) and its schedule, emulated in K4's
+# order with R7's directed roundings.
+# ----------------------------------------------------------------------------
+def unit_section(E=1.0, **over):
+    s = dict(E=E, G=1.0, A=1.0, Iy=1.0, Iz=1.0, J=1.0)
+    s.update(over)
+    return s
+
+
+def f2_model(name="F-2", E=1024.0, load_value=2.0 ** -300):
+    m = new_model(name, [(0, 0, 0), (2, 0, 0)])
+    add_member(m, 1, 0, 1, y=(0.0, 1.0, 0.0), section=unit_section(E))
+    fix(m, 0, (0,), 1.0)
+    fix(m, 0, (1, 2, 3, 4, 5))
+    fix(m, 1, (1, 2, 3, 4, 5))
+    load(m, 1, 0, load_value)
+    return m
+
+
+def demotion(name, E_big=2.0 ** 480, I_soft=1.0, y1=(0.0, 1.0, 0.0)):
+    m = new_model(name, [(0, 0, 0), (2, 0, 0), (2, 2, 0)])
+    add_member(m, 1, 0, 1, y=y1, section=unit_section(E_big))
+    add_member(m, 2, 1, 2, y=(1.0, 0.0, 0.0), section=unit_section(1.0, Iy=I_soft, Iz=I_soft))
+    fix(m, 0, (0,), 1.0)
+    fix(m, 0, (1, 2, 3, 4, 5))
+    fix(m, 1, (0,), 1.0)
+    fix(m, 1, (1, 2, 3, 4, 5))
+    fix(m, 2, (0,), 1.0)
+    fix(m, 2, (2, 3, 4, 5))
+    load(m, 2, 1, 1.0)
+    return m
+
+
+def run345(name, y, rigid=None, tip=None, section=None, members=3):
+    m = new_model(name, [(3.0 * s, 4.0 * s, 0.0) for s in range(members + 1)])
+    for s in range(members):
+        add_member(m, s + 1, s, s + 1, y=y, section=section)
+    if rigid is None:
+        fix(m, 0, range(6))
+    elif rigid == "t":
+        fix(m, 0, (0,), 1.0)
+        fix(m, 0, (1, 2, 3, 4, 5))
+    else:
+        fix(m, 0, (0, 1, 2, 3, 4))
+        fix(m, 0, (5,), 1e-3)
+    if tip:
+        load(m, members, 1, tip)
+    return m
+
+
+def lever2(k, s, P=None, kt=None):
+    """V4's LEVER2 (DS1's lever3.py `lever2`)."""
+    L = 2.0 ** k
+    m = new_model("LEVER2-k%d-s%d" % (k, s), [(L, 0, 0), (-1, 0, 0), (0, 0, 0), (-1, -1, 0), (0, 0, 1)])
+    C, B, A, G, D = 0, 1, 2, 3, 4
+    add_member(m, 1, B, A, section=UNIT_SECTION)
+    add_member(m, 2, A, C, section=dict(UNIT_SECTION, E=2.0 ** (s + 3 * k), A=2.0 ** -(s + 3 * k)))
+    add_member(m, 3, G, B, y=(1, 0, 0), section=dict(UNIT_SECTION, E=4.0, Iy=1.0 / 64, Iz=1.0 / 64))
+    Pb = P if P else 1.0
+    add_member(m, 4, A, D, y=(1, 0, 0), section=dict(UNIT_SECTION, E=Pb, Iy=1.0 / Pb, Iz=1.0 / Pb, J=Pb))
+    for nd in range(4):
+        fix(m, nd, (2, 3, 4))
+    fix(m, D, (3, 4))
+    fix(m, A, (0,), 0.0)
+    fix(m, A, (1,), 1.0)
+    fix(m, G, (0,), 0.0)
+    fix(m, G, (1,), 1.0)
+    fix(m, G, (5,), 0.0)
+    fix(m, B, (0,), 0.0)
+    fix(m, C, (0,), 0.0)
+    fix(m, D, (0,), 0.0)
+    fix(m, D, (1,), 1.0)
+    fix(m, D, (5,), 0.0)
+    if kt is not None:
+        spring(m, 1, C, 1, kt)
+    if P is not None:
+        load(m, D, 2, P)
+    return m
+
+
+# DS1's LEVER2 parameters (lever3.stdout.json, built in emu3; GEN reproduces
+# kt from the exact 4096-bit tip diagonal and P from ê at 512).
+LEVER2_PARAMS = {(90, 40): (2.2227587494850775e-162, 4.9569176510071274e-119),
+                 (100, 40): (2.2227587494850775e-162, 4.9569176510071274e-119),
+                 (110, 20): (2.1197879309511924e-168, 4.727285052306297e-125)}
+
+
+def tilt_lever(k, s, P=None, w_exp=-10):
+    """V4's TILT-LEVER (DS1's models4.py `tilt_lever`)."""
+    L = 2.0 ** k
+    t = 2.0 ** (k - 290)
+    om = 2.0 ** w_exp
+    m = new_model("TILT-LEVER-k%d-s%d" % (k, s), [(L, -t, 0), (-1, 0, 0), (0, 0, 0), (-1, -1, 0), (0, 0, 1)])
+    C, B, A, G, D = 0, 1, 2, 3, 4
+    add_member(m, 1, B, A, section=UNIT_SECTION)
+    add_member(m, 2, A, C, section=dict(UNIT_SECTION, E=2.0 ** (s + 3 * k), A=2.0 ** (6 - 2 * k)))
+    add_member(m, 3, G, B, y=(1, 0, 0), section=dict(UNIT_SECTION, E=4.0, Iy=1.0 / 64, Iz=1.0 / 64))
+    pb = P if P else 1.0
+    add_member(m, 4, A, D, y=(1, 0, 0), section=dict(UNIT_SECTION, E=pb, Iy=1.0 / pb, Iz=1.0 / pb, J=pb))
+    for nd in range(4):
+        fix(m, nd, (2, 3, 4))
+    fix(m, D, (3, 4))
+    fix(m, A, (0,), 0.0)
+    fix(m, A, (1,), om)
+    fix(m, G, (0,), om)
+    fix(m, G, (1,), 0.0)
+    fix(m, G, (5,), om)
+    fix(m, B, (0,), 0.0)
+    fix(m, D, (0,), 0.0)
+    fix(m, D, (1,), om)
+    fix(m, D, (5,), om)
+    if P is not None:
+        load(m, D, 2, P)
+    return m
+
+
+def e_hat_fo_at(model, p):
+    """ê_fo of body 0 at p (K4's E and item 6a), for the lever builders."""
+    em = emulate(model, p)
+    abar = abar_em(em)
+    E = formation_scale_em(em, abar, [abs(v) for v in em["u"]], em["ledger"], lambda x: rp(x, p))
+    kinds = layout_kinds(em["model"])
+    body_of, nb = bodies_em(em["model"])
+    top = [Fr(0), Fr(0)]
+    for v, (kk, b, _i) in zip(E, kinds):
+        if kk >= 2 and v is not None and b == 0:
+            top[kk - 2] = max(top[kk - 2], v)
+    e = [fl_up(top[0]), fl_up(top[1])]
+    coords = [em["model"]["nodes"][nd] for nd in range(len(em["model"]["nodes"])) if body_of[nd] == 0]
+    return e_hat_em(e, body_extent_em(coords))[0]
+
+
+def lever2_built(k, s):
+    m0 = lever2(k, s)
+    K, _ = assemble_em(m0, 4096)
+    kt = 2.0 ** (k3.floor_log2(K[(1, 1)]) - 580)
+    efo = e_hat_fo_at(lever2(k, s, kt=kt), 512)
+    P = 2.0 ** (math.floor(math.log2(efo)) - 438)
+    assert (kt, P) == LEVER2_PARAMS[(k, s)], ("LEVER2 parameters differ from DS1's", k, s, kt, P)
+    return lever2(k, s, P=P, kt=kt)
+
+
+def tilt_built(k, s):
+    efo = e_hat_fo_at(tilt_lever(k, s), 512)
+    P = 2.0 ** (math.floor(math.log2(efo)) - 438)
+    return tilt_lever(k, s, P=P)
+
+
+def sweep_frame(seed, index):
+    """DS1's candidate sweep generator (`sweep.py` `gen`), frame `index` of `seed`."""
+    rng = __import__("random").Random(seed)
+
+    def rigid(t, th, x):
+        return (t[0] + th[1] * x[2] - th[2] * x[1], t[1] + th[2] * x[0] - th[0] * x[2],
+                t[2] + th[0] * x[1] - th[1] * x[0], th[0], th[1], th[2])
+    for idx in range(index + 1):
+        nn = rng.choice((2, 3, 3, 4))
+        pts = []
+        while len(pts) < nn:
+            if not pts:
+                p = (0.0, 0.0, 0.0)
+            else:
+                base = pts[rng.randrange(len(pts))]
+                d = rng.choice([(3, 4, 0), (4, 0, 3), (0, 3, 4), (2, 3, 6), (2, 0, 0), (0, 0, 5), (1, 2, 2), (6, 2, 3)])
+                sgn = [rng.choice((1, -1)) for _ in range(3)]
+                p = tuple(float(base[k] + sgn[k] * d[k]) for k in range(3))
+            if p not in pts:
+                pts.append(p)
+        m = new_model("R115-SEED3" if idx == index else "R%d" % idx, pts)
+        sec = n_section()
+        edges = [(k, k + 1) for k in range(nn - 1)]
+        if nn >= 3 and rng.random() < 0.3:
+            edges.append((0, nn - 1))
+        for mid, (i, j) in enumerate(edges, start=1):
+            d = [pts[j][k] - pts[i][k] for k in range(3)]
+            if d[0] == 0 and d[1] == 0:
+                y = (1.0, 0.0, 0.0)
+            else:
+                y = rng.choice([(0.0, 0.0, 1.0), (0.0, 0.0, 1.0), (1.0, 1.0, 1.0), (0.0, 1.0, 0.0)])
+                cr = (d[1] * y[2] - d[2] * y[1], d[2] * y[0] - d[0] * y[2], d[0] * y[1] - d[1] * y[0])
+                if cr == (0.0, 0.0, 0.0):
+                    y = (0.0, 0.0, 1.0) if d[2] == 0 else (1.0, 0.0, 0.0)
+            f = rng.choice([1.0, 1.0, 2.0 ** 40, 2.0 ** -40, 2.0 ** 100, 2.0 ** -100])
+            add_member(m, mid, i, j, y=y, E=sec["E"] * f, G=sec["G"] * f)
+        mode = rng.choice(("zero", "rigid", "rigid", "settle"))
+        t = [rng.choice((0.0, 1.0, -1e-3, 1e3)) for _ in range(3)]
+        th = [rng.choice((0.0, 0.0, 1e-3, -2e-3)) for _ in range(3)]
+        if rng.random() < 0.7:
+            v = rigid(t, th, pts[0]) if mode != "zero" else (0.0,) * 6
+            for c in range(6):
+                fix(m, 0, (c,), v[c])
+        else:
+            v = rigid(t, th, pts[0]) if mode != "zero" else (0.0,) * 6
+            for c in range(3):
+                fix(m, 0, (c,), v[c])
+            for c in range(3, 6):
+                spring(m, c, 0, c, rng.choice((1e-4, 1e-12, 1e-20, 1e3)))
+        sid = 10
+        for n in range(1, nn):
+            r = rng.random()
+            if r < 0.25:
+                v = rigid(t, th, pts[n]) if mode == "rigid" else ((0.0,) * 6 if mode == "zero" else
+                                                                 rigid([x * 1.5 for x in t], th, pts[n]))
+                comps = rng.sample(range(6), rng.choice((1, 3, 6)))
+                for c in comps:
+                    fix(m, n, (c,), v[c])
+            elif r < 0.45:
+                c = rng.randrange(6)
+                spring(m, sid, n, c, rng.choice((1e-8, 1e2, 1e12)))
+                sid += 1
+        for _ in range(rng.choice((0, 1, 1, 2))):
+            n = rng.randrange(nn)
+            c = rng.randrange(6)
+            load(m, n, c, rng.choice((1.0, 2.0 ** -60, 2.0 ** -200, 1e-30, 1e10, -3.0)))
+    return m
+
+
+PROBE_LOADS = (("general", (1000.0, -500.0, 2000.0, 100.0, 200.0, 300.0)),
+               ("inplane", (-400.0, 300.0, 0.0, 0.0, 0.0, 0.0)),
+               ("outofplane", (0.0, 0.0, 1000.0, 0.0, 0.0, 0.0)),
+               ("axial", (600.0, 800.0, 0.0, 0.0, 0.0, 0.0)),
+               ("torque", (0.0, 0.0, 0.0, 60.0, 80.0, 0.0)))
+
+
+def probe_models():
+    """K4's V4-S3 probe set (adaptive_tests.rs `run_345`): a (3,4,0) run of 1 or
+    3 N-section members, root fixed, five tip loads, y_ref (3,4,5) or (0,0,1)."""
+    out = []
+    for label, y in (("y345", (3.0, 4.0, 5.0)), ("y001", (0.0, 0.0, 1.0))):
+        for members in (1, 3):
+            for load_label, tip in PROBE_LOADS:
+                m = new_model("PROBE-%s-m%d-%s" % (label, members, load_label),
+                              [(3.0 * s, 4.0 * s, 0.0) for s in range(members + 1)])
+                for s in range(members):
+                    add_member(m, s + 1, s, s + 1, y=y)
+                fix(m, 0, range(6))
+                for c, v in enumerate(tip):
+                    if v != 0.0:
+                        load(m, members, c, v, src="tip%d" % c)
+                out.append(m)
+    return out
+
+
+SEEDS5A3 = {"SEEDED-COMMON": [(6 * 1 + 1, 2.0 ** -110)], "SEEDED-SOFT": [(6 * 2 + 0, 2.0 ** 40)]}
+
+
+def models5a3_b():
+    """A3b's controls (R7 §7), in addition to `models5a3`."""
+    out = []
+    base = {m["name"]: m for m in models()}
+    out.append(f2_model())
+    out.append(f2_model("F-2-CEIL", E=2.0 ** 41, load_value=2.0 ** -1000))
+    m = new_model("F-3-FREE", [(0, 0, 0), (3, 4, 0), (6, 8, 0), (9, 12, 0)])
+    for s_ in range(3):
+        add_member(m, s_ + 1, s_, s_ + 1)
+    fix(m, 0, (0,), 1.0)
+    fix(m, 0, (1, 2, 3, 4, 5))
+    out.append(m)
+    m = new_model("F-3-ROT", [(0, 0, 0), (3, 4, 0), (6, 8, 0)])
+    for s_ in range(2):
+        add_member(m, s_ + 1, s_, s_ + 1)
+    fix(m, 0, (0, 1, 2, 3, 4))
+    fix(m, 0, (5,), 1e-3)
+    out.append(m)
+    m = new_model("F-2-SPOS", [(0, 0, 0), (2, 0, 0), (2, 2, 0)])
+    add_member(m, 1, 0, 1, y=(0.0, 1.0, 0.0), section=unit_section(2.0 ** 200))
+    add_member(m, 2, 1, 2, y=(1.0, 0.0, 0.0), section=unit_section(1.0))
+    fix(m, 0, (0,), 1.0)
+    fix(m, 0, (1, 2, 3, 4, 5))
+    fix(m, 1, (1, 2, 3, 4, 5))
+    fix(m, 2, (2, 3, 4))
+    load(m, 1, 0, 2.0 ** -60)
+    load(m, 2, 1, 1.0)
+    out.append(m)
+    # PRESCRIBED-TAIL in combination form (R7 §7): 1·A + 2^-100·B, A prescribing
+    # ux = 1 at both nodes, B ux(1) = 2^-1000; the net prescription at node 1 is
+    # 1 + 2^-1100. PRESCRIBED-TAIL-FREE likewise at node 0 of a two-member run.
+    for name, vals in (("PT-A", ((0, 1.0), (1, 1.0))), ("PT-B", ((0, 0.0), (1, 2.0 ** -1000)))):
+        m = new_model(name, [(0, 0, 0), (2, 0, 0)])
+        add_member(m, 1, 0, 1, y=(0.0, 1.0, 0.0), section=unit_section(1024.0))
+        for node, v in vals:
+            fix(m, node, (0,), v)
+            fix(m, node, (1, 2, 3, 4, 5))
+        out.append(m)
+    for name, vals in (("PTF-A", ((0, 1.0), (2, 1.0))), ("PTF-B", ((0, 2.0 ** -1000), (2, 0.0)))):
+        m = new_model(name, [(0, 0, 0), (2, 0, 0), (4, 0, 0)])
+        add_member(m, 1, 0, 1, y=(0.0, 1.0, 0.0), section=unit_section(1024.0))
+        add_member(m, 2, 1, 2, y=(0.0, 1.0, 0.0), section=unit_section(1024.0))
+        for node, v in vals:
+            fix(m, node, (0,), v)
+            fix(m, node, (1, 2, 3, 4, 5))
+        fix(m, 1, (1, 2, 3, 4, 5))
+        out.append(m)
+    for name, tip in (("MIXED-2^-200", 2.0 ** -200),):
+        m = new_model(name, [(0, 0, 0), (3, 4, 0), (3, 4, 2)])
+        add_member(m, 1, 0, 1)
+        fix(m, 0, (0,), 1.0)
+        fix(m, 1, (0,), 1.0)
+        fix(m, 0, (1, 2, 3, 4, 5))
+        fix(m, 1, (1, 2, 3, 4, 5))
+        add_member(m, 2, 1, 2, y=(1.0, 0.0, 0.0), Iy=2.0 ** -26, Iz=2.0 ** -26)
+        load(m, 2, 0, tip)
+        out.append(m)
+    out.append(demotion("DEMOTION2", I_soft=2.0 ** 400))
+    out.append(demotion("ASSEMBLY-SAT", I_soft=1.0))
+    out.append(run345("LOADONLY-y345", (3.0, 4.0, 5.0), tip=1.0))
+    out.append(run345("LOADONLY-y001", (0.0, 0.0, 1.0), tip=1.0))
+    out.append(run345("GS-TRANS-y345", (3.0, 4.0, 5.0), rigid="t"))
+    out.append(run345("GS-ROT-y345", (3.0, 4.0, 5.0), rigid="r"))
+    out.append(run345("GS-ROT-y345-LOADED", (3.0, 4.0, 5.0), rigid="r", tip=1.0))
+    m = pin_case("LEDGER-AT-RESTRAINT", (3.0, 4.0, 0.0), 1e-4, (0.0, 0.0, 0.0))
+    for v in (1e80, 1e-8, -1e80):
+        load(m, 0, 0, v)
+    load(m, 1, 4, 2e-8)
+    out.append(m)
+    m = json.loads(json.dumps(base["N05"]))
+    m["name"] = "SEEDED-COMMON"
+    m["nodes"] = [tuple(p) for p in m["nodes"]]
+    for mm in m["members"]:
+        mm["y"] = tuple(mm["y"])
+    m["supports"] = []
+    out.append(m)
+    m = new_model("M7-GS1", [(0, 0, 0), (3, 4, 0)])
+    add_member(m, 1, 0, 1, y=(3.0, 4.0, 5.0))
+    fix(m, 0, (0,), 1.0)
+    fix(m, 0, (1, 2, 3, 4, 5))
+    fix(m, 1, (0,), 1.0)
+    fix(m, 1, (1, 2, 3, 4, 5))
+    out.append(m)
+    sec = n_section()
+    sec["Iy"] = sec["Iz"] * 1024.0
+    m = new_model("M10-ANISO", [(0, 0, 0), (3, 4, 0), (6, 8, 0)])
+    for s_ in range(2):
+        add_member(m, s_ + 1, s_, s_ + 1, y=(3.0, 4.0, 5.0 * 2.0 ** -12), section=sec)
+    fix(m, 0, (0, 1, 2, 3, 4))
+    fix(m, 0, (5,), 1e-3)
+    out.append(m)
+    m = demotion("M10-G", E_big=2.0 ** 173, I_soft=2.0 ** 100, y1=(1.0, 2.0 ** -12, 0.0))
+    out.append(m)
+    m = new_model("EXACT-RIGID", [(0, 0, 0), (2, 0, 0)])
+    add_member(m, 1, 0, 1, y=(0.0, 1.0, 0.0), section=unit_section(1.0))
+    fix(m, 0, (0,), 1.0)
+    fix(m, 0, (1, 2, 3, 4, 5))
+    fix(m, 1, (0,), 1.0)
+    fix(m, 1, (1, 2, 3, 4, 5))
+    out.append(m)
+    m = new_model("SEEDED-SOFT", [(0, 0, 0), (1, 0, 0), (2, 0, 0)])
+    add_member(m, 1, 0, 1, section=UNIT_SECTION)
+    tiny = 2.0 ** -300
+    add_member(m, 2, 1, 2, section=dict(UNIT_SECTION, A=tiny, Iy=tiny, Iz=tiny, J=tiny))
+    fix(m, 0, range(6))
+    for nd in (1, 2):
+        fix(m, nd, (1, 2, 3, 4, 5))
+    load(m, 1, 0, 1.0)
+    load(m, 2, 0, 2.0 ** -240)
+    out.append(m)
+    out.append(sweep_frame(3, 115))
+    for k, s_ in ((90, 40), (100, 40), (110, 20)):
+        out.append(lever2_built(k, s_))
+    for k, s_ in ((90, 40), (100, 40), (110, 20)):
+        out.append(tilt_built(k, s_))
+    # CEIL5A3 (K4-M24's proposed kill, ROOT's ruling Q14): A and B are
+    # LEVER2-k90 with a unit load Q added at D's ux, plus and minus; their
+    # half-sum is LEVER2-k90's own case.
+    lev = lever2_built(90, 40)
+    for name, sign in (("CEIL5A3-A", 1.0), ("CEIL5A3-B", -1.0)):
+        m = json.loads(json.dumps(lev))
+        m["name"] = name
+        m["nodes"] = [tuple(p) for p in m["nodes"]]
+        for mm in m["members"]:
+            mm["y"] = tuple(mm["y"])
+        load(m, 4, 0, sign * 1.0, src="q")
+        out.append(m)
+    # DIRECTIONAL-SPAN's springs span R³ only through 2^-52 (its condition is
+    # about 2^104) and 5a.3 withholds it; the recovery of directional springs
+    # keeps a selected control here: well-spread rotational springs and a
+    # translational one.
+    m = new_model("DIRECTIONAL-WELL", [(0, 0, 0), (0, 0, 3)])
+    add_member(m, 1, 0, 1, y=(1.0, 0.0, 0.0))
+    fix(m, 0, (0, 1, 2))
+    for sid, n in ((1, (1.0, 1.0, 1.0)), (2, (1.0, -1.0, 0.0)), (3, (1.0, 1.0, -2.0))):
+        m["dsprings"].append(dict(id=sid, node=0, kind="r", n=n, k=1e6))
+    m["dsprings"].append(dict(id=4, node=1, kind="t", n=(0.0, 1.0, 1.0), k=1e3))
+    load(m, 1, 3, 1.0)
+    load(m, 1, 1, 10.0)
+    out.append(m)
+    # F-1's ceiling control at P = 2^900 (A3b): CEIL-A and CEIL-B's E does not
+    # encode under 5a.3 (a 2^1013-rad rigid rotation), so the control keeps its
+    # ratio ε/P = 2^-1060 with ε = 2^-160.
+    for name, loads in (("CEIL-S-A", [2.0 ** 900, 2.0 ** -160]), ("CEIL-S-B", [2.0 ** 900]),
+                        ("CEIL-S-NET", [2.0 ** -160])):
+        m = pin_case(name, (3.0, 4.0, 0.0), 1e-4, (0.0, 0.0, 0.0))
+        for v in loads:
+            load(m, 1, 3, v)
+        out.append(m)
+    return out
+
+
+COMBOS5A3 = (
+    ("PRESCRIBED-TAIL", ((1.0, "PT-A"), (2.0 ** -100, "PT-B"))),
+    ("PRESCRIBED-TAIL-FREE", ((1.0, "PTF-A"), (2.0 ** -100, "PTF-B"))),
+    ("CEIL5A3", ((0.5, "CEIL5A3-A"), (0.5, "CEIL5A3-B"))),
+    ("CEILING-S", ((1.0, "CEIL-S-A"), (-1.0, "CEIL-S-B"))),
+)
+LARGE_A3B = tuple(i.replace("n00010", "n00100") for i in LARGE_A3A)
+
+
+def combined_model(name, operands, by_name):
+    """A combination as its own case (ROOT's F-1 ruling): the first operand's
+    stiffness, every operand's load term times its factor (exact Fractions),
+    and each prescribed value the exact Σ c·v."""
+    first = by_name[operands[0][1]]
+    m = dict(first)
+    m["name"] = name
+    m["loads"] = []
+    pres = {}
+    for c, opn in operands:
+        op = by_name[opn]
+        for l in op["loads"]:
+            m["loads"].append(dict(node=l["node"], c=l["c"], v=Fr(c) * Fr(l["v"]), src=l["src"]))
+        for cc in op["constraints"]:
+            g = (cc["node"], cc["c"])
+            pres[g] = pres.get(g, Fr(0)) + Fr(c) * Fr(cc["v"])
+    m["constraints"] = [dict(node=n_, c=c_, v=v) for (n_, c_), v in pres.items()]
+    return m
+
+
+# ---- K4's recovery, emulated in K4's layout (recover.rs; emu7's `recover`
+# plus support groups)
+
+def recover_em(em, u, ledger):
+    """recover.rs at p on the state u (all DOFs); ledger None omits it."""
+    p, model = em["p"], em["model"]
+    rnd = lambda x: rp(x, p)
+    nn = len(model["nodes"])
+    vals = list(u)
+    for node in range(nn):
+        sq = rnd(sum((u[6 * node + k] ** 2 for k in range(3)), Fr(0)))
+        vals.append(sqrt_p(sq, p) if sq else Fr(0))
+    Qs, ends = [], []
+    for mm, op in zip(model["members"], em["members"]):
+        dofs = member_dofs_em(mm)
+        d = [rnd(sum((op["axes"][r][c] * u[dofs[3 * blk + c]] for c in range(3)), Fr(0)))
+             for blk in range(4) for r in range(3)]
+        inv = op["inv"]
+        e = [rnd(d[6] - d[0]), rnd(d[9] - d[3])]
+        for rot, tr, sign in ((5, 1, True), (11, 1, True), (4, 2, False), (10, 2, False)):
+            e.append(rnd(d[rot] + (inv * d[tr] - inv * d[tr + 6]) * (1 if sign else -1)))
+        bz, by = op["bz"], op["by"]
+        Q = [rnd(op["axial"] * e[0]), rnd(op["torsion"] * e[1]), rnd(4 * bz * e[2] + 2 * bz * e[3]),
+             rnd(2 * bz * e[2] + 4 * bz * e[3]), rnd(4 * by * e[4] + 2 * by * e[5]), rnd(2 * by * e[4] + 4 * by * e[5])]
+        vy = rnd(inv * Q[2] + inv * Q[3])
+        vz = rnd(-inv * Q[4] - inv * Q[5])
+        ends.append([-Q[0], vy, vz, -Q[1], Q[4], Q[2], Q[0], -vy, -vz, Q[1], Q[5], Q[3]])
+        Qs.append(Q)
+    for acts in ends:
+        vals.extend(acts)
+    ids = [mm["id"] for mm in model["members"]]
+    for st in model["stations"]:
+        k = ids.index(st["member"])
+        Q, acts = Qs[k], ends[k]
+        t = Fr(st["t"])
+        vals.extend([acts[6], acts[7], acts[8], acts[9], rnd(t * Q[5] + t * Q[4] - Q[4]),
+                     rnd(t * Q[3] + t * Q[2] - Q[2])])
+    spring_action = {}
+    for s in model["springs"]:
+        v = rnd(-Fr(s["k"]) * u[6 * s["node"] + s["c"]])
+        spring_action[s["id"]] = (s["c"], v)
+        vals.append(v)
+    dir_action = {}
+    for s, (base, blk) in zip(model["dsprings"], em["dblocks"]):
+        comps = [rnd(-sum((blk[a][b] * u[base + b] for b in range(3)), Fr(0))) for a in range(3)]
+        dir_action[s["id"]] = (kind_offset(s["kind"]), comps)
+        vals.extend(comps)
+    K = em["K"]
+    get_k = lambda r, c: K.get((min(r, c), max(r, c)), Fr(0))
+    reaction = {}
+    for c in model["constraints"]:
+        g = 6 * c["node"] + c["c"]
+        s = sum((get_k(g, j) * u[j] for j in em["pattern"][g]), Fr(0))
+        if ledger is not None:
+            s -= ledger.get(g, Fr(0))
+        reaction[g] = rnd(s)
+        vals.append(reaction[g])
+    for grp in model["supports"]:
+        comp = []
+        for c in range(6):
+            g = 6 * grp["node"] + c
+            s = Fr(0)
+            if grp["r"][c]:
+                s += reaction.get(g, Fr(0))
+            for sid in grp["springs"]:
+                cc, v = spring_action[sid]
+                if cc == c:
+                    s += v
+            for sid in grp["dsprings"]:
+                off, comps = dir_action[sid]
+                if off <= c < off + 3:
+                    s += comps[c - off]
+            comp.append(rnd(s))
+        for part in (comp[:3], comp[3:]):
+            sq = rnd(sum((x * x for x in part), Fr(0)))
+            vals.append(sqrt_p(sq, p) if sq else Fr(0))
+    return vals
+
+
+def layout_meta(model):
+    """(kind 0..3, body, input_derived, id kind 'u'|'mag'|'row') per K4 row."""
+    kinds = layout_kinds(model)
+    nn = len(model["nodes"])
+    out = []
+    for i, (k, b, inp) in enumerate(kinds):
+        idk = "u" if i < 6 * nn else ("mag" if i < 7 * nn else "row")
+        out.append((k, b, inp, idk))
+    return out
+
+
+def verify_em(em):
+    """R7 §4.1.6.2 item 4 and §4.1.6.3 items 1-12 at a verification state
+    (verify.rs `verify_state`). Returns a dict, or dict(stop=...)."""
+    p, model = em["p"], em["model"]
+    rnd = lambda x: rp(x, p)
+    up = lambda x: ru(x, p)
+    qw = min(3 * (p // 2) + 64, 1024)
+    nodes = model["nodes"]
+    if qw == p:
+        mem_w, dblk_w = em["members"], [blk for _, blk in em["dblocks"]]
+    else:
+        mem_w = [form_member_em(nodes, m, qw) for m in model["members"]]
+        dblk_w = [directional_em(s, qw) for s in model["dsprings"]]
+    Kc = {}
+    for m, op in zip(model["members"], mem_w):
+        dofs = member_dofs_em(m)
+        for a in range(12):
+            for b in range(12):
+                key = (dofs[a], dofs[b])
+                Kc[key] = Kc.get(key, Fr(0)) + op["ke"][(min(a, b), max(a, b))]
+    for s in model["springs"]:
+        d = 6 * s["node"] + s["c"]
+        Kc[(d, d)] = Kc.get((d, d), Fr(0)) + Fr(s["k"])
+    for s, blk in zip(model["dsprings"], dblk_w):
+        base = 6 * s["node"] + kind_offset(s["kind"])
+        for a in range(3):
+            for b in range(3):
+                key = (base + a, base + b)
+                Kc[key] = Kc.get(key, Fr(0)) + blk[a][b]
+    abar = abar_em(em)
+    u = em["u"]
+    free, position, pattern = em["free"], em["position"], em["pattern"]
+    ledger = em["ledger"]
+    pres = em["prescribed"]
+    u0 = list(u)
+    for g, v in pres.items():
+        u0[g] = v
+    E = formation_scale_em(em, abar, [abs(x) for x in u], ledger, rnd)
+    meta = layout_meta(model)
+    body_of, nb = bodies_em(model)
+    top = [[Fr(0), Fr(0)] for _ in range(nb)]
+    for v, (k, b, _i, _t) in zip(E, meta):
+        if k >= 2 and v is not None:
+            top[b][k - 2] = max(top[b][k - 2], v)
+    resolution = [[fl_up(t[0]), fl_up(t[1])] for t in top]
+    for b, rr in enumerate(resolution):
+        for kind, v in (("fo", rr[0]), ("mo", rr[1])):
+            if v == math.inf:
+                return dict(stop="ResolutionScale", body=b, kind=kind)
+    scale = em["scale"]
+    s_of = [Fr(2) ** sc for sc in scale]
+    nf = len(free)
+    r_exact, r_hat, sr = [], [], []
+    for a, g in enumerate(free):
+        r = ledger.get(g, Fr(0)) - sum((Kc.get((g, j), Fr(0)) * u0[j] for j in pattern[g]), Fr(0))
+        r_exact.append(r)
+        r_hat.append(rnd(r))
+        sr.append(up(abs(r)) * s_of[a])
+    delta = em["solve"](r_hat) if nf else []
+    dfull = [Fr(0)] * em["n"]
+    for a, g in enumerate(free):
+        dfull[g] = delta[a]
+    rec = recover_em(em, dfull, None)
+    W = [abs(v) if k >= 2 else None for v, (k, _b, _i, _t) in zip(rec, meta)]
+    sr2 = []
+    for a, g in enumerate(free):
+        r2 = r_exact[a] - sum((Kc.get((g, j), Fr(0)) * dfull[j] for j in pattern[g] if j in position), Fr(0))
+        sr2.append(up(abs(r2)) * s_of[a])
+    inf_row, one_col, sau_row = [], [], []
+    for a, g in enumerate(free):
+        inf_row.append(up(sum((abar.get((g, j), Fr(0)) * s_of[a] * s_of[position[j]]
+                               for j in pattern[g] if j in position), Fr(0))))
+        one_col.append(up(sum((abar.get((j, g), Fr(0)) * s_of[a] * s_of[position[j]]
+                               for j in pattern[g] if j in position), Fr(0))))
+        sau_row.append(up(sum((abar.get((g, j), Fr(0)) * abs(u0[j]) for j in pattern[g]), Fr(0))) * s_of[a])
+    w_s = [Fr(0)] * em["n"]
+    for a, g in enumerate(free):
+        w_s[g] = s_of[a]
+    a_s = formation_scale_em(em, abar, w_s, None, up)
+    # Blocks, data flags, Uc, the shift, B.
+    blocks, blk = em["blocks"], em["blk"]
+    prescribed_nonzero = {g for g, v in pres.items() if v != 0}
+    data = []
+    for pl in blocks:
+        flag = False
+        for a in pl:
+            g = free[a]
+            if g in em["nonzero_terms"] or u[g] != 0 or any(c in prescribed_nonzero for c in pattern[g]):
+                flag = True
+        data.append(flag)
+    get, first, order = em["get"], em["first"], em["order"]
+    block_of_row = [blk[order[i]] for i in range(nf)]
+    gam = gamma_em(nf, p)
+    c_ = u_pass_em(get, first, nf, p) if nf else []
+    ct = nl_pass_em(get, first, nf, p) if nf else []
+    ucs = []
+    for b in range(len(blocks)):
+        rows_b = [i for i in range(nf) if block_of_row[i] == b]
+        U = max(c_[i] for i in rows_b)
+        NL = max(ct[i] for i in rows_b)
+        ucs.append(uc_from_em(U, NL, gam, p)[1])
+    start = []
+    for b, pl in enumerate(blocks):
+        est = em["est_blk"][b]
+        if data[b] and est > 0 and (ucs[b] is None or ucs[b] > 2 * ceil_sqrt_em(len(pl)) * est):
+            start.append((b, rd(Fr(1) / (2 * est), p), len(pl)))
+    shifts, count = shift_schedule_em(em["scaled"], first, block_of_row, gam, start, p) if start else ({}, 0)
+    B = []
+    uc_missing = None
+    for b in range(len(blocks)):
+        cands = [x for x in (ucs[b], shifts.get(b, {}).get("S")) if x is not None]
+        bb = min(cands) if (data[b] and cands) else None
+        if data[b] and bb is None and uc_missing is None:
+            uc_missing = b
+        B.append(bb)
+    norms = []
+    for pl in blocks:
+        n_ = dict(sas_one=max(one_col[a] for a in pl), sas_inf=max(inf_row[a] for a in pl),
+                  sau=max(sau_row[a] for a in pl), sr=max(sr[a] for a in pl), sr2=max(sr2[a] for a in pl),
+                  sid=max(abs(delta[a]) / s_of[a] for a in pl))
+        n_["sas"] = max(n_["sas_one"], n_["sas_inf"])
+        norms.append(n_)
+    theta = [up(B[b] * norms[b]["sas"]) * Fr(2) ** (7 - p) if B[b] is not None else None for b in range(len(blocks))]
+    g_max, g_violation = 0, None
+    for m, op in zip(model["members"], em["members"]):
+        dofs = member_dofs_em(m)
+        in_scope = any((d in position and data[blk[position[d]]]) or (d not in position and d in prescribed_nonzero)
+                       for d in dofs)
+        if in_scope:
+            g_max = max(g_max, op["g"])
+            if op["g"] > p - 16 and g_violation is None:
+                g_violation = m["id"]
+    block_body = [body_of[free[pl[0]] // 6] for pl in blocks]
+    bodies = []
+    for body in range(nb):
+        bb, th = None, Fr(0)
+        agg = dict(sas=Fr(0), sau=Fr(0), sr=Fr(0), sr2=Fr(0), sid=Fr(0))
+        for b in range(len(blocks)):
+            if block_body[b] != body or not data[b]:
+                continue
+            if B[b] is not None:
+                bb = B[b] if bb is None else max(bb, B[b])
+            if theta[b] is not None:
+                th = max(th, theta[b])
+            for key in agg:
+                agg[key] = max(agg[key], norms[b][key])
+        bv = bb if bb is not None else Fr(0)
+        n_u = up(agg["sau"] + up(up(2 * bv * agg["sas"]) * agg["sr"]))
+        t1 = up(bv * n_u) * Fr(2) ** (7 - qw)
+        t2 = up(70 * agg["sid"]) * Fr(2) ** (-p)
+        t3 = up(up(3 * bv) * agg["sr2"])
+        bodies.append(dict(b=bb, theta=th, n_u=n_u, t1=t1, t2=t2, t3=t3, **agg))
+    C = [None] * len(meta)
+    Wp = [None] * len(meta)
+    if uc_missing is None:
+        nn = len(model["nodes"])
+        for idx, (k, body, inp, idk) in enumerate(meta):
+            bd = bodies[body]
+            if k >= 2:
+                if a_s[idx] is not None:
+                    C[idx] = up(a_s[idx] * bd["t1"] + a_s[idx] * bd["t2"] + a_s[idx] * bd["t3"])
+            elif idk == "u" and not inp:
+                a = position[idx]
+                Wp[idx] = up(abs(delta[a]) + s_of[a] * bd["t1"] + s_of[a] * bd["t3"])
+            elif idk == "mag":
+                node = idx - 6 * nn
+                acc = Fr(0)
+                for c in range(3):
+                    g = 6 * node + c
+                    if g in position:
+                        a = position[g]
+                        acc += abs(delta[a]) + s_of[a] * bd["t1"] + s_of[a] * bd["t3"]
+                    else:
+                        acc += abs(u[g] - pres[g])
+                Wp[idx] = up(acc)
+    return dict(p=p, qw=qw, resolution=resolution, E=E, W=W, a_s=a_s, C=C, Wp=Wp, r_hat=r_hat, delta=delta,
+                data=data, ucs=ucs, shifts=shifts, count=count, B=B, norms=norms, theta=theta, bodies=bodies,
+                g_max=g_max, g_violation=g_violation, uc_missing=uc_missing, meta=meta)
+
+
+def scales_at_em(model, meta, values, P):
+    body_of, nb = bodies_em(model)
+    s = [[Fr(0)] * 4 for _ in range(nb)]
+    for (k, b, inp, _t), v in zip(meta, values):
+        if not inp:
+            s[b][k] = max(s[b][k], abs(v))
+    out = []
+    for b in range(nb):
+        coords = [model["nodes"][nd] for nd in range(len(model["nodes"])) if body_of[nd] == b]
+        L = body_extent_em(coords)
+        tr, ro, fo, mo = s[b]
+        if L == 0.0:
+            out.append([tr, ro, fo, mo])
+            continue
+        Lb = Fr(L)
+        out.append([max(tr, rp(Lb * ro, P)), max(ro, rp(tr / Lb, P)), max(fo, rp(mo / Lb, P)), max(mo, rp(Lb * fo, P))])
+    return out
+
+
+def decide_em(model, cand, ver, rep):
+    """adaptive.rs `decide`: (a) with V, the floor at 512; (b); uc; θ; g; (d).
+    Returns None (accepted) or (reason, detail)."""
+    P = rep["p"]
+    meta = rep["meta"]
+    body_of, nb = bodies_em(model)
+    scales = scales_at_em(model, meta, ver, P)
+    hats = []
+    for b in range(nb):
+        coords = [model["nodes"][nd] for nd in range(len(model["nodes"])) if body_of[nd] == b]
+        hats.append(e_hat_em(rep["resolution"][b], body_extent_em(coords)))
+    if P == 1024:
+        for b in range(nb):
+            for k, h in ((2, hats[b][0]), (3, hats[b][1])):
+                scales[b][k] = max(scales[b][k], Fr(phi_em(h)))
+    hat = lambda b, k: hats[b][0] if k == 2 else hats[b][1]
+    Ms = []
+    for idx, (k, b, inp, idk) in enumerate(meta):
+        q2 = ver[idx]
+        M = max(abs(q2), scales[b][k])
+        Ms.append(M)
+        lhs = abs(cand[idx] - q2)
+        if k >= 2:
+            lhs += Fr(hat(b, k)) * Fr(2) ** (8 - P)
+        elif not inp:
+            if rep["Wp"][idx] is not None:
+                lhs += rep["Wp"][idx]
+            if idk == "mag":
+                lhs += abs(q2) * Fr(2) ** (1 - P)
+        if lhs > M * Fr(2) ** -64:
+            return ("stop_rule", idx)
+    for idx, (k, b, inp, idk) in enumerate(meta):
+        if rep["W"][idx] is None:
+            continue
+        if rep["W"][idx] > Fr(hat(b, k)) * Fr(2) ** (6 - P):
+            return ("verification_estimate", idx)
+    if rep["uc_missing"] is not None:
+        return ("uc", rep["uc_missing"])
+    for b, t in enumerate(rep["theta"]):
+        if t is not None and t > Fr(1, 2):
+            return ("theta", b)
+    if rep["g_violation"] is not None:
+        return ("g_validity", rep["g_violation"])
+    for idx, (k, b, inp, idk) in enumerate(meta):
+        c = rep["C"][idx]
+        if c is None:
+            continue
+        allow = 60 * Fr(hat(b, k)) * Fr(2) ** (-P) if P < 1024 else Fr(2) ** -86 * Ms[idx]
+        if c > allow:
+            return ("charge", idx)
+    return None
+
+
+def schedule_em(model, seeds=()):
+    """adaptive.rs `run_schedule` with the verification pass and `decide`:
+    (selected precision or None, attempts [(p, outcome)])."""
+    cache = {}
+
+    def state(p):
+        if p not in cache:
+            em = emulate(model, p, seeds=seeds)
+            if "stop" in em:
+                cache[p] = (em["stop"], None, None)
+            else:
+                cache[p] = (None, em, recover_em(em, em["u"], em["ledger"]))
+        return cache[p]
+    attempts = []
+    ladder = [128, 256, 512, 1024]
+    c = 0
+    pending = None
+    while c < 3:
+        p = ladder[c]
+        if pending is not None:
+            cand = pending
+            pending = None
+        else:
+            cand = state(p)
+            if cand[0] is not None:
+                attempts.append((p, "failed:" + cand[0]))
+                c += 1
+                continue
+        ver = state(ladder[c + 1])
+        if ver[0] is not None:
+            attempts.append((p, "rejected:verification_failed"))
+            attempts.append((ladder[c + 1], "failed:" + ver[0]))
+            c += 2
+            continue
+        rep = verify_em(ver[1])
+        if "stop" in rep:
+            attempts.append((p, "rejected:verification_failed"))
+            attempts.append((ladder[c + 1], "failed:%s" % rep["stop"]))
+            return None, attempts
+        why = decide_em(ver[1]["model"], cand[2], ver[2], rep)
+        if why is None:
+            attempts.append((p, "accepted"))
+            attempts.append((ladder[c + 1], "verified"))
+            return p, attempts
+        attempts.append((p, "rejected:%s:%s" % why))
+        pending = ver
+        c += 1
+    return None, attempts
+
+
+def all5a3_models():
+    """Every model of models5a3.txt, in order."""
+    return models5a3() + models5a3_b() + probe_models() + large_models(LARGE_A3A) + large_models(LARGE_A3B)
+
+
+def models5a3_lines():
+    lines = []
+    large = set(LARGE_A3A) | set(LARGE_A3B)
+    for m in all5a3_models():
+        body = model_lines(m, expectations=m["name"] not in large)
+        for g, v in SEEDS5A3.get(m["name"], ()):
+            body.insert(-1, "seed %d %s" % (g, hexf(v)))
+        lines += body
+    by_name = {m["name"]: m for m in all5a3_models()}
+    for name, operands in COMBOS5A3:
+        lines.append("combo %s %s" % (name, " ".join("%s:%s" % (hexf(c), n_) for c, n_ in operands)))
+        try:
+            ex = solve_exact(combined_model(name, operands, by_name))
+        except (AssertionError, StopIteration):
+            ex = None
+        for key in sorted(ex or {}):
+            lines.append("expect %s %016x" % (key, to_f64_bits(ex[key])))
+        lines.append("end")
+    return lines
+
+
+def outcome_token(model, rep_block_body, item):
+    p, what = item
+    return "%d:%s" % (p, what)
+
+
+def outcome_lines():
+    """GEN's schedule (`schedule_em`) for every K4 model and 5a.3 control and
+    combination: the selected precision (or -) and each attempt's outcome; a
+    rejection names its layout row (stop_rule, verification_estimate, charge),
+    the block's body (uc, theta) or the member id (g_validity)."""
+    lines = []
+    everything = models() + routed_models() + all5a3_models()
+    by_name = {m["name"]: m for m in everything}
+    items = [(m["name"], m) for m in everything]
+    items += [(name, combined_model(name, ops, by_name)) for name, ops in COMBOS5A3]
+    for name, m in items:
+        sel, attempts = schedule_em(m, seeds=SEEDS5A3.get(name, ()))
+        mdl = canonical(m)
+        body_of, _ = bodies_em(mdl)
+        toks = []
+        for p, what in attempts:
+            f = what.split(":")
+            if f[0] == "rejected" and f[1] in ("uc", "theta"):
+                # the block's body
+                em = emulate(m, 2 * p, seeds=SEEDS5A3.get(name, ()))
+                block = int(f[2])
+                what = "rejected:%s:%d" % (f[1], body_of[em["free"][em["blocks"][block][0]] // 6])
+            toks.append("%d:%s" % (p, what))
+        lines.append("outcome %s %s %s" % (name, "-" if sel is None else sel, " ".join(toks)))
+    return lines
+
+
+def charge_record(name, model, P, seeds=()):
+    """E-CHARGE's record of a verification state at P (R7 §4.1.6.3 items
+    1-12, with R7's directed roundings), as digests and tokens."""
+    em = emulate(model, P, seeds=seeds)
+    if "stop" in em:
+        return ["chg %s %d stop %s" % (name, P, em["stop"])]
+    rep = verify_em(em)
+    if "stop" in rep:
+        return ["chg %s %d stop %s" % (name, P, rep["stop"])]
+    L = width_of(P)
+    tok = lambda v: W_of(v, L).token() if v is not None else "-"
+    rows = lambda vals: digest(["%d %s" % (i, tok(v)) for i, v in enumerate(vals) if v is not None])
+    lines = ["chg %s %d ok %d %s %s" % (name, P, rep["qw"], "-" if rep["uc_missing"] is None else rep["uc_missing"],
+                                         "-" if rep["g_violation"] is None else rep["g_violation"])]
+    lines.append("chgrows %s %d %s %s %s %s %s %s" % (
+        name, P, rows(rep["r_hat"]), rows(rep["delta"]), rows(rep["W"]), rows(rep["a_s"]), rows(rep["C"]),
+        rows(rep["Wp"])))
+    for b, n_ in enumerate(rep["norms"]):
+        lines.append("chgblk %s %d %d %d %s %s %s %s %s %s %s %s %s" % (
+            name, P, b, int(rep["data"][b]), tok(rep["B"][b]), tok(rep["theta"][b]), tok(n_["sas_one"]),
+            tok(n_["sas_inf"]), tok(n_["sau"]), tok(n_["sr"]), tok(n_["sr2"]), tok(n_["sid"]),
+            rep["shifts"].get(b, {}).get("tries", 0)))
+    for b, bd in enumerate(rep["bodies"]):
+        lines.append("chgbody %s %d %d %s %s %s %s %s %s" % (name, P, b, tok(bd["b"]), tok(bd["theta"]),
+                                                           tok(bd["n_u"]), tok(bd["t1"]), tok(bd["t2"]), tok(bd["t3"])))
+    lines.append("chgcount %s %d %d %d" % (name, P, rep["count"], rep["g_max"]))
+    return lines
+
+
+def charge_lines():
+    lines = []
+    large = set(LARGE_A3A) | set(LARGE_A3B)
+    for m in models() + routed_models() + all5a3_models():
+        if m["name"] in large and "n00100" in m["name"]:
+            precisions = (256,)
+        else:
+            precisions = (256, 512, 1024)
+        for P in precisions:
+            lines += charge_record(m["name"], m, P, seeds=SEEDS5A3.get(m["name"], ()))
+    return lines
+
+
+HP_BITS = 4096
+
+
+def hp_em(model):
+    """A recovery context at HP_BITS (E-ESTIMATE's reference): the model's
+    operators, directional blocks and K rounded at 4,096 bits, far below any
+    difference the test resolves."""
+    model = canonical(model)
+    nodes = model["nodes"]
+    members = [form_member_g(nodes, m, HP_BITS) for m in model["members"]]
+    contrib = {}
+    for m, op in zip(model["members"], members):
+        dofs = member_dofs_em(m)
+        for a in range(12):
+            for b in range(12):
+                if dofs[a] <= dofs[b]:
+                    contrib.setdefault((dofs[a], dofs[b]), []).append(op["ke"][(min(a, b), max(a, b))])
+    for s in model["springs"]:
+        d = 6 * s["node"] + s["c"]
+        contrib.setdefault((d, d), []).append(Fr(s["k"]))
+    dblocks = []
+    for s in model["dsprings"]:
+        blk = directional_em(s, HP_BITS)
+        base = 6 * s["node"] + kind_offset(s["kind"])
+        dblocks.append((base, blk))
+        for a in range(3):
+            for b in range(a, 3):
+                contrib.setdefault((base + a, base + b), []).append(blk[a][b])
+    K = {rc: rp(sum(vs, Fr(0)), HP_BITS) for rc, vs in contrib.items()}
+    pattern = {g: set() for g in range(6 * len(nodes))}
+    for (r, c) in K:
+        pattern[r].add(c)
+        pattern[c].add(r)
+    return dict(model=model, K=K, members=members, dblocks=dblocks, pattern=pattern, p=HP_BITS)
+
+
+def estimate_lines():
+    """E-ESTIMATE's reference (plan §5.1; ROOT's A3-0 ruling Q10): for every
+    control with an exact solution u* (RF-LARGE excepted) and P in (256, 512),
+    K4's P state u_P as `emulate` reproduces it, and on every force and moment
+    row the error |R*(u_P) − q*| = |R*(u_P − u*)|, with R* the recovery at
+    4,096 bits (linear: the ledger cancels). A row is listed when its error
+    exceeds 2^-(P+20)·ê, with ê from the P state's own E; the token is the
+    error rounded to P bits."""
+    lines = []
+    large = set(LARGE_A3A) | set(LARGE_A3B)
+    for m in models() + routed_models() + all5a3_models():
+        name = m["name"]
+        if name in large:
+            continue
+        try:
+            ex = solve_exact(m)
+        except (AssertionError, StopIteration, ZeroDivisionError):
+            continue
+        mdl = canonical(m)
+        n = 6 * len(mdl["nodes"])
+        ustar = [ex["u.%d.%d" % (g // 6, g % 6)] for g in range(n)]
+        hp = None
+        body_of, nb = bodies_em(mdl)
+        for P in (256, 512):
+            em = emulate(m, P, seeds=SEEDS5A3.get(name, ()))
+            if "stop" in em:
+                lines.append("estcount %s %d stop" % (name, P))
+                continue
+            rep = verify_em(em)
+            if "stop" in rep:
+                lines.append("estcount %s %d stop" % (name, P))
+                continue
+            if hp is None:
+                hp = hp_em(m)
+            u0 = list(em["u"])
+            for g, v in em["prescribed"].items():
+                u0[g] = v
+            err = recover_em(hp, [a - b for a, b in zip(u0, ustar)], None)
+            hats = []
+            for b in range(nb):
+                coords = [mdl["nodes"][nd] for nd in range(len(mdl["nodes"])) if body_of[nd] == b]
+                hats.append(e_hat_em(rep["resolution"][b], body_extent_em(coords)))
+            L = width_of(P)
+            count = 0
+            for idx, (k, b, _inp, _t) in enumerate(rep["meta"]):
+                if k < 2:
+                    continue
+                e = abs(err[idx])
+                h = Fr(hats[b][k - 2])
+                if e > h * Fr(2) ** (-(P + 20)):
+                    lines.append("est %s %d %d %s" % (name, P, idx, W_of(rp(e, P), L).token()))
+                    count += 1
+            lines.append("estcount %s %d %d" % (name, P, count))
+    return lines
+
+
 def build(parts=None):
     files = {}
     summary = {}
@@ -3172,15 +4319,18 @@ def build(parts=None):
         files["classification.txt"] = "\n".join(classification_lines()) + "\n"
     if want("r1"):
         files["r1_cases.txt"] = "\n".join(r1_lines()) + "\n"
+    if want("r1large"):
+        files["r1_large.txt"] = "\n".join(r1_large_lines()) + "\n"
     if want("directed"):
         files["directed.txt"] = "\n".join(directed_lines()) + "\n"
     if want("models5a3"):
-        lines = []
-        for m in models5a3():
-            lines += model_lines(m)
-        for m in large_models(LARGE_A3A):
-            lines += model_lines(m, expectations=False)
-        files["models5a3.txt"] = "\n".join(lines) + "\n"
+        files["models5a3.txt"] = "\n".join(models5a3_lines()) + "\n"
+    if want("outcomes"):
+        files["outcomes.txt"] = "\n".join(outcome_lines()) + "\n"
+    if want("charge"):
+        files["charge.txt"] = "\n".join(charge_lines()) + "\n"
+    if want("estimate"):
+        files["estimate.txt"] = "\n".join(estimate_lines()) + "\n"
     if want("scale"):
         files["scale.txt"] = "\n".join(scale_lines()) + "\n"
     if want("bounds"):

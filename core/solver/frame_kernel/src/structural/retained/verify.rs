@@ -1,7 +1,8 @@
 //! K4: the verification of D1 revision 5a.3 (R7 §4.1.6.1 item 6a, §4.1.6.2
-//! and §4.1.6.3; ROOT's A3-0 rulings). Checkpoint A3a holds the formation
-//! scale E and its binary64 companions; the verification estimate, the charge
-//! and W⁺ follow at A3b.
+//! and §4.1.6.3; ROOT's A3-0 rulings): the formation scale E and its binary64
+//! companions, and the verification pass (`verify_state`): the estimate's
+//! residual over the q_W contributions, δ̂ and Ŵ, the correction's residual,
+//! the norms, the certified bounds, θ, the g check, the charge and W⁺.
 //!
 //! **The formation scale E (§4.1.6.2 item 4).** Every force or moment row's
 //! recovery expansion evaluated with the bounded operator B̄, Ā and absolute
@@ -24,15 +25,25 @@
 //! 6a) couples it in binary64: ê_fo = max(E_fo, fl(E_mo/L_b)),
 //! ê_mo = max(E_mo, fl(L_b·E_fo)); L_b = 0 gives ê = E. **Φ** = fl↑(2^-438·ê),
 //! decided exactly as b is (the constant's bits `0x2490000000000000`).
-use super::adaptive::{next_up, AttemptStop, StageGuard};
-use super::assemble::{DirectionalBlock, MemberOperators, Structure};
-use super::directed::{binary64_up, round_toward, Toward};
+use super::adaptive::{
+    lme, next_up, AttemptStop, CasePrep, GroupPrep, Shared, Solved, StageGuard, StageWork,
+};
+use super::assemble::{
+    assemble_bounded, form_directional, form_members, BoundedCoefficients, Contribution,
+    DirectionalBlock, MemberOperators, Structure,
+};
+use super::bound::{
+    block_of_rows, certified, data_blocks, gamma_m, scaled_profile, shift_needed, shift_schedule,
+    sigma_from_estimate, uc_bounds, BlockBound, BlockCertificate,
+};
+use super::directed::{add_toward, binary64_up, mul_toward, round_toward, Toward};
+use super::factor::Ordering;
 use super::ledger::RetainedLedger;
-use super::recover::{Kind, QuantityMeta};
+use super::recover::{recover, Kind, QuantityId, QuantityMeta};
 use super::source::PrimitiveSource;
-use super::wide::multi::{SupportedWidth, WideContext};
+use super::wide::multi::{AttemptWork, SupportedWidth, WideContext};
 use super::wide::Wide;
-use super::wide_sum::ExactWideSum;
+use super::wide_sum::{ExactWideSum, SumWork};
 use crate::DOF_PER_NODE;
 use std::cmp::Ordering as CmpOrdering;
 
@@ -40,7 +51,6 @@ use std::cmp::Ordering as CmpOrdering;
 pub(crate) const PHI_SCALE_BITS: u64 = 0x2490_0000_0000_0000;
 
 /// How each stage of `formation_scale` is rounded.
-#[allow(dead_code)] // A3b: the verification pass (E-UNIT at A3a)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum StageRounding {
     /// E (R7 §3.1): to nearest.
@@ -70,7 +80,6 @@ where
 /// E_q for every force or moment row of `layout` (None for the other rows),
 /// with the nonnegative operand w at every DOF (module documentation). The
 /// ledger enters the reactions when given.
-#[allow(dead_code)] // A3b: the verification pass (E-UNIT at A3a)
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn formation_scale<const L: usize>(
     ctx: &mut WideContext<L>,
@@ -277,7 +286,6 @@ where
 /// E(body, kind) for force and moment: the largest E_q over the body's rows of
 /// the kind, rounded upward once to binary64 (+∞ when it overflows). `[E_fo,
 /// E_mo]` per body.
-#[allow(dead_code)] // A3b: the verification pass (E-UNIT at A3a)
 pub(crate) fn resolution_scale<const L: usize>(
     layout: &[QuantityMeta],
     e_rows: &[Option<Wide<L>>],
@@ -310,7 +318,6 @@ where
 
 /// Item 6a's coupling in binary64: ê_fo = max(E_fo, fl(E_mo/L_b)),
 /// ê_mo = max(E_mo, fl(L_b·E_fo)); a single-node body (L_b = 0) keeps E.
-#[allow(dead_code)] // A3b: V, the estimate's threshold, the allowance and Φ
 pub(crate) fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
     if extent == 0.0 {
         return e;
@@ -321,7 +328,6 @@ pub(crate) fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
 
 /// Φ = fl↑(2^-438·ê): the nearest, then the next up when it is below the exact
 /// product (decided exactly, as `absolute_bound` decides b).
-#[allow(dead_code)] // A3b: the ceiling floor
 pub(crate) fn phi_512(e_hat: f64) -> f64 {
     let scale = f64::from_bits(PHI_SCALE_BITS);
     let back = f64::from_bits(0x5B50_0000_0000_0000); // 2^438
@@ -330,6 +336,825 @@ pub(crate) fn phi_512(e_hat: f64) -> f64 {
         next_up(nearest)
     } else {
         nearest
+    }
+}
+
+// ------------------------------------------------------------ the verification pass (A3b)
+
+/// q_W = min(3p + 64, 1024) for the verification precision P = 2p (R7
+/// §4.1.6.3 item 1): 448 at 256, 832 at 512, 1024 at 1024 (Q4: the state's own
+/// entries).
+pub(crate) fn q_w_of(verification_precision: u32) -> u32 {
+    (3 * (verification_precision / 2) + 64).min(1024)
+}
+
+/// Precision-shared verification data: Ā at P, K_e and the directional blocks
+/// at q_W, γ_m and every block's comparison-matrix bound (R7 7b).
+#[derive(Debug)]
+pub(crate) struct VerifyShared<const L: usize, const W: usize>
+where
+    Wide<L>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
+    pub(crate) q_w: u32,
+    pub(crate) abar: Vec<Wide<L>>,
+    /// Per member, K_e at q_W (all 144 entries; symmetric).
+    pub(crate) ke_w: Vec<[[Wide<W>; 12]; 12]>,
+    pub(crate) directional_w: Vec<[[Wide<W>; 3]; 3]>,
+    pub(crate) gamma: Wide<L>,
+    pub(crate) uc: Vec<BlockBound<L>>,
+    pub(crate) work: AttemptWork,
+    pub(crate) sum_work: SumWork,
+    pub(crate) stages: StageWork,
+    pub(crate) total: u64,
+}
+
+/// A verification build or pass with the work it spent.
+pub(crate) struct VerifySpent<T> {
+    pub(crate) result: Result<T, AttemptStop>,
+    pub(crate) work: AttemptWork,
+    pub(crate) sum_work: SumWork,
+    pub(crate) stages: StageWork,
+    pub(crate) total: u64,
+}
+
+/// Builds `VerifyShared` from the verification precision's shared stages.
+pub(crate) fn build_verify_shared<const L: usize, const R: usize, const W: usize>(
+    shared: &Shared<L, R>,
+    source: &PrimitiveSource,
+    group: &GroupPrep,
+    guard: StageGuard,
+) -> VerifySpent<VerifyShared<L, W>>
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
+    let p = shared.p;
+    let q_w = q_w_of(p);
+    let mut ctx = WideContext::<L>::new(p).expect("supported precision");
+    let mut ctx_w = WideContext::<W>::new(q_w).expect("supported precision");
+    let mut sum = ExactWideSum::new();
+    let mut stages = StageWork::default();
+    let mut run = || -> Result<VerifyShared<L, W>, AttemptStop> {
+        let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
+            lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()
+        };
+        let t0 = spent(&ctx, &ctx_w, &sum);
+        let g = guard;
+        let bounded: Vec<BoundedCoefficients<L>> =
+            shared.members.iter().map(|m| m.bounded()).collect();
+        let abar = assemble_bounded(
+            &mut ctx,
+            &mut sum,
+            &g,
+            source,
+            &group.structure,
+            &bounded,
+            &shared.directional,
+        )?;
+        let t1 = spent(&ctx, &ctx_w, &sum);
+        stages.bounded_formation = t1 - t0;
+        let (ke_w, directional_w) = if q_w == p {
+            (
+                shared
+                    .members
+                    .iter()
+                    .map(|m| full_ke(m).map(|row| row.map(|v| v.widen::<W>())))
+                    .collect(),
+                shared
+                    .directional
+                    .iter()
+                    .map(|d| d.k.map(|row| row.map(|v| v.widen::<W>())))
+                    .collect(),
+            )
+        } else {
+            let gw = guard.with_base(lme(&ctx));
+            let members_w = form_members(&mut ctx_w, &mut sum, &gw, source)?;
+            let directional_w = form_directional(&mut ctx_w, &mut sum, source)?;
+            (
+                members_w.iter().map(full_ke).collect(),
+                directional_w.iter().map(|d| d.k).collect(),
+            )
+        };
+        let t2 = spent(&ctx, &ctx_w, &sum);
+        stages.wide_formation = t2 - t1;
+        let gu = guard.with_base(lme(&ctx_w));
+        let nf = group.ordering.free.len();
+        let gamma = gamma_m(&mut ctx, &mut sum, nf)?;
+        let rows = block_of_rows(&group.ordering, &group.blocks);
+        let uc = uc_bounds(
+            &mut ctx,
+            &mut sum,
+            &gu,
+            &shared.factor,
+            &rows,
+            group.blocks.len(),
+            &gamma,
+        )?;
+        let t3 = spent(&ctx, &ctx_w, &sum);
+        stages.uc = t3 - t2;
+        Ok(VerifyShared {
+            q_w,
+            abar,
+            ke_w,
+            directional_w,
+            gamma,
+            uc,
+            work: AttemptWork::default(),
+            sum_work: SumWork::default(),
+            stages: StageWork::default(),
+            total: 0,
+        })
+    };
+    let result = run();
+    let mut work = AttemptWork::default();
+    work.record(&ctx);
+    work.record(&ctx_w);
+    let sum_work = sum.work();
+    let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    let result = result.map(|mut v| {
+        v.work = work;
+        v.sum_work = sum_work;
+        v.stages = stages.clone();
+        v.total = total;
+        v
+    });
+    VerifySpent {
+        result,
+        work,
+        sum_work,
+        stages,
+        total,
+    }
+}
+
+fn full_ke<const L: usize>(m: &MemberOperators<L>) -> [[Wide<L>; 12]; 12]
+where
+    Wide<L>: SupportedWidth,
+{
+    let mut out = [[Wide::<L>::ZERO; 12]; 12];
+    for (a, row) in out.iter_mut().enumerate() {
+        for (b, v) in row.iter_mut().enumerate() {
+            *v = *m.ke(a, b);
+        }
+    }
+    out
+}
+
+/// Per block, the norms of item 6 (each rounded upward).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct BlockNorms<const L: usize>
+where
+    Wide<L>: SupportedWidth,
+{
+    /// ‖SĀS‖ as the larger of the 1-norm and the ∞-norm, and both.
+    pub(crate) sas: Wide<L>,
+    pub(crate) sas_one: Wide<L>,
+    pub(crate) sas_inf: Wide<L>,
+    /// ‖SĀ|u⁰|‖_∞.
+    pub(crate) sau: Wide<L>,
+    /// ‖S·r‖_∞ and ‖S·r₂‖_∞.
+    pub(crate) sr: Wide<L>,
+    pub(crate) sr2: Wide<L>,
+    /// ‖S⁻¹δ̂‖_∞.
+    pub(crate) sid: Wide<L>,
+}
+
+/// Per body: B_b, θ_b and the charge's terms (item 11).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct BodyReport<const L: usize>
+where
+    Wide<L>: SupportedWidth,
+{
+    pub(crate) b: Option<Wide<L>>,
+    pub(crate) theta: Wide<L>,
+    pub(crate) norms: BlockNorms<L>,
+    pub(crate) n_u: Wide<L>,
+    pub(crate) t1: Wide<L>,
+    pub(crate) t2: Wide<L>,
+    pub(crate) t3: Wide<L>,
+}
+
+/// Everything R7 §4.1.6.2 and §4.1.6.3 items 1–14 compute at one
+/// verification state.
+#[derive(Debug, Clone)]
+pub(crate) struct VerificationReport<const L: usize>
+where
+    Wide<L>: SupportedWidth,
+{
+    pub(crate) precision: u32,
+    #[allow(dead_code)] // evidence (E-CHARGE)
+    pub(crate) q_w: u32,
+    /// [E_fo, E_mo] per body (uncoupled, rounded upward to binary64).
+    pub(crate) resolution: Vec<[f64; 2]>,
+    #[allow(dead_code)] // evidence (E-CHARGE, E-HEADROOM)
+    pub(crate) e_rows: Vec<Option<Wide<L>>>,
+    /// Ŵ_q on force and moment rows.
+    pub(crate) w: Vec<Option<Wide<L>>>,
+    /// ‖ā_q S‖₁ on force and moment rows.
+    #[allow(dead_code)] // evidence (E-CHARGE)
+    pub(crate) a_s: Vec<Option<Wide<L>>>,
+    /// C_q on force and moment rows (None when a block lacks B).
+    pub(crate) charge: Vec<Option<Wide<L>>>,
+    /// W⁺ on free translation and rotation rows and node magnitudes (None
+    /// when a block lacks B: rule (a) then uses 0, R7-order Q7).
+    pub(crate) w_plus: Vec<Option<Wide<L>>>,
+    /// r̂ and δ̂ per free position.
+    #[allow(dead_code)] // evidence (E-CHARGE)
+    pub(crate) r_hat: Vec<Wide<L>>,
+    #[allow(dead_code)] // evidence (E-CHARGE)
+    pub(crate) delta: Vec<Wide<L>>,
+    pub(crate) blocks: Vec<BlockCertificate<L>>,
+    #[allow(dead_code)] // evidence (E-CHARGE)
+    pub(crate) norms: Vec<BlockNorms<L>>,
+    /// θ_c for each block with data.
+    pub(crate) theta: Vec<Option<Wide<L>>>,
+    pub(crate) bodies: Vec<BodyReport<L>>,
+    /// The largest g_exp in the g check's scope, and the first member (id)
+    /// above P − 16.
+    pub(crate) g_max: u32,
+    pub(crate) g_violation: Option<u32>,
+    pub(crate) uc_missing: Option<usize>,
+    pub(crate) shift_factorizations: u8,
+}
+
+/// K^c's contributions to row g (free), times u⁰ (exact at prescribed DOFs),
+/// subtracted from `r` (item 1): r_g = f_g − Σ k·u⁰. With `delta`, instead
+/// subtracts Σ_j K^c_gj·δ̂_j over the free columns (item 5's second part).
+#[allow(clippy::too_many_arguments)]
+fn contribution_products<const L: usize, const W: usize>(
+    ctx_w: &mut WideContext<W>,
+    r: &mut ExactWideSum,
+    structure: &Structure,
+    source: &PrimitiveSource,
+    vs_ke: &[[[Wide<W>; 12]; 12]],
+    vs_dir: &[[[Wide<W>; 3]; 3]],
+    ordering: &Ordering,
+    g: usize,
+    free_values: &[Wide<L>],
+    prescribed: Option<&[Vec<Wide<W>>]>,
+) -> Result<(), AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
+    for index in structure.pattern.row_range(g) {
+        let j = structure.pattern.column(index);
+        let position = ordering.position[j];
+        let operands: Vec<Wide<W>> = if position != usize::MAX {
+            let v = free_values[position];
+            if v.is_zero() {
+                continue;
+            }
+            vec![v.widen::<W>()]
+        } else {
+            match prescribed {
+                Some(terms) => terms[j].clone(),
+                None => continue,
+            }
+        };
+        if operands.is_empty() {
+            continue;
+        }
+        let upper = if g <= j {
+            index
+        } else {
+            structure.pattern.transpose(index)
+        };
+        for item in structure.contributions(upper) {
+            let k = match *item {
+                Contribution::Member { member, a, b } => {
+                    vs_ke[member as usize][a as usize][b as usize]
+                }
+                Contribution::Spring { spring } => {
+                    Wide::<W>::from_f64(source.springs()[spring as usize].stiffness)?
+                }
+                Contribution::Directional { spring, a, b } => {
+                    vs_dir[spring as usize][a as usize][b as usize]
+                }
+            };
+            if k.is_zero() {
+                continue;
+            }
+            for u in &operands {
+                r.add_product(ctx_w, &k, u, true)?;
+            }
+        }
+    }
+    Ok(())
+}
+
+/// max(a, b).
+fn wmax<const L: usize>(a: &Wide<L>, b: &Wide<L>) -> Wide<L>
+where
+    Wide<L>: SupportedWidth,
+{
+    if b.cmp_value(a) == CmpOrdering::Greater {
+        *b
+    } else {
+        *a
+    }
+}
+
+/// The verification pass at one state (R7 §4.1.6.2 item 4, §4.1.6.3 items
+/// 1–12): E, r, δ̂, Ŵ, r₂, the norms, ‖ā_q S‖₁, B_c (Uc_c and, where 7c needs
+/// it, the shift), θ_c, the g check, t₁–t₃, C_q and W⁺.
+#[allow(clippy::too_many_lines)]
+pub(crate) fn verify_state<const L: usize, const R: usize, const W: usize>(
+    shared: &Shared<L, R>,
+    vs: &VerifyShared<L, W>,
+    prep: &CasePrep,
+    group: &GroupPrep,
+    state: &Solved<L>,
+    guard: StageGuard,
+) -> VerifySpent<VerificationReport<L>>
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
+    let p = shared.p;
+    let q_w = vs.q_w;
+    let mut ctx = WideContext::<L>::new(p).expect("supported precision");
+    let mut ctx_w = WideContext::<W>::new(q_w).expect("supported precision");
+    let mut sum = ExactWideSum::new();
+    let mut stages = StageWork::default();
+    let mut run = || -> Result<VerificationReport<L>, AttemptStop> {
+        let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
+            lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()
+        };
+        let check = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
+            guard.test(spent(ctx, ctx_w, sum))
+        };
+        let source = &prep.source;
+        let layout = &prep.layout;
+        let structure = &group.structure;
+        let ordering = &group.ordering;
+        let blocks = &group.blocks;
+        let free = &ordering.free;
+        let nf = free.len();
+        let scale = shared.factor.scale();
+        let u = &state.u;
+        let zero = Wide::<L>::ZERO;
+        let t0 = spent(&ctx, &ctx_w, &sum);
+        // ---- E (§4.1.6.2 item 4): |u| with the prescribed values as at P.
+        let w_abs: Vec<Wide<L>> = u.iter().map(|v| v.abs()).collect();
+        let e_rows = formation_scale(
+            &mut ctx,
+            &mut sum,
+            &guard,
+            source,
+            layout,
+            structure,
+            &vs.abar,
+            &shared.members,
+            &shared.directional,
+            Some(&prep.ledger),
+            &w_abs,
+            StageRounding::Nearest,
+        )?;
+        let bodies = source.body_count() as usize;
+        let resolution = resolution_scale(layout, &e_rows, bodies)?;
+        for (b, e) in resolution.iter().enumerate() {
+            for (kind, v) in [(Kind::Force, e[0]), (Kind::Moment, e[1])] {
+                if !v.is_finite() {
+                    return Err(AttemptStop::ResolutionScale {
+                        body: b as u32,
+                        kind,
+                    });
+                }
+            }
+        }
+        let t1 = spent(&ctx, &ctx_w, &sum);
+        // ---- The exact prescribed values (item 1): each term c·v at q_W and
+        // at P (both exact: at most 106 bits), and whether the sum is nonzero.
+        let mut terms_w: Vec<Vec<Wide<W>>> = vec![Vec::new(); source.dof_count()];
+        let mut terms_p: Vec<Vec<Wide<L>>> = vec![Vec::new(); source.dof_count()];
+        let mut prescribed_nonzero = vec![false; source.dof_count()];
+        let mut prescribed_negative = vec![false; source.dof_count()];
+        for (g, list) in &prep.prescribed {
+            sum.clear();
+            for &(c, v) in list {
+                if c == 0.0 || v == 0.0 {
+                    continue;
+                }
+                let (cw, vw) = (Wide::<W>::from_f64(c)?, Wide::<W>::from_f64(v)?);
+                let mut t = ExactWideSum::new();
+                t.add_product(&mut ctx_w, &cw, &vw, false)?;
+                let tw = t.round(&mut ctx_w)?;
+                let (cl, vl) = (Wide::<L>::from_f64(c)?, Wide::<L>::from_f64(v)?);
+                t.clear();
+                t.add_product(&mut ctx, &cl, &vl, false)?;
+                let tl = t.round(&mut ctx)?;
+                sum.add_wide(&tl, false)?;
+                terms_w[*g].push(tw);
+                terms_p[*g].push(tl);
+            }
+            let sign = sum.signum();
+            prescribed_nonzero[*g] = sign != 0;
+            prescribed_negative[*g] = sign < 0;
+            sum.clear();
+        }
+        // ---- r (item 1), r̂, ‖S·r‖ per row, over the q_W contributions.
+        let u_free: Vec<Wide<L>> = free.iter().map(|&g| u[g]).collect();
+        let mut r_hat = vec![zero; nf];
+        let mut sr_row = vec![zero; nf];
+        for (a, &g) in free.iter().enumerate() {
+            let mut r = ExactWideSum::new();
+            prep.ledger.add_to(g, &mut r, false)?;
+            contribution_products(
+                &mut ctx_w,
+                &mut r,
+                structure,
+                source,
+                &vs.ke_w,
+                &vs.directional_w,
+                ordering,
+                g,
+                &u_free,
+                Some(&terms_w),
+            )?;
+            let mut rr = r.clone();
+            r_hat[a] = r.round(&mut ctx)?;
+            rr.make_absolute();
+            sr_row[a] = round_toward(&mut ctx, &mut rr, Toward::Up)?.mul_pow2(scale[a])?;
+            if a % 64 == 63 {
+                check(&ctx, &ctx_w, &sum)?;
+            }
+        }
+        // ---- δ̂ (item 2) and Ŵ (item 3): the recovery at P, ledger omitted.
+        let delta = if nf > 0 {
+            shared.factor.solve(&mut ctx, &r_hat)?
+        } else {
+            Vec::new()
+        };
+        let mut delta_full = vec![zero; source.dof_count()];
+        for (a, &g) in free.iter().enumerate() {
+            delta_full[g] = delta[a];
+        }
+        let empty = RetainedLedger::empty();
+        let recovered = recover(
+            &mut ctx,
+            &mut sum,
+            &guard,
+            source,
+            layout,
+            structure,
+            &shared.k,
+            &shared.members,
+            &shared.directional,
+            &empty,
+            &delta_full,
+        )?;
+        let w: Vec<Option<Wide<L>>> = layout
+            .iter()
+            .zip(&recovered.values)
+            .map(|(meta, v)| matches!(meta.kind, Kind::Force | Kind::Moment).then(|| v.abs()))
+            .collect();
+        let t2 = spent(&ctx, &ctx_w, &sum);
+        // ---- r₂ (item 5): r − K^c·δ̂, one exact expansion per row.
+        let mut sr2_row = vec![zero; nf];
+        for (a, &g) in free.iter().enumerate() {
+            let mut r = ExactWideSum::new();
+            prep.ledger.add_to(g, &mut r, false)?;
+            contribution_products(
+                &mut ctx_w,
+                &mut r,
+                structure,
+                source,
+                &vs.ke_w,
+                &vs.directional_w,
+                ordering,
+                g,
+                &u_free,
+                Some(&terms_w),
+            )?;
+            contribution_products(
+                &mut ctx_w,
+                &mut r,
+                structure,
+                source,
+                &vs.ke_w,
+                &vs.directional_w,
+                ordering,
+                g,
+                &delta,
+                None,
+            )?;
+            r.make_absolute();
+            sr2_row[a] = round_toward(&mut ctx, &mut r, Toward::Up)?.mul_pow2(scale[a])?;
+            if a % 64 == 63 {
+                check(&ctx, &ctx_w, &sum)?;
+            }
+        }
+        // ---- The norms of item 6 over Ā's free rows.
+        let mut sas_inf_row = vec![zero; nf];
+        let mut sas_one_col = vec![zero; nf];
+        let mut sau_row = vec![zero; nf];
+        for (a, &g) in free.iter().enumerate() {
+            let mut inf = ExactWideSum::new();
+            let mut one = ExactWideSum::new();
+            let mut au = ExactWideSum::new();
+            for index in structure.pattern.row_range(g) {
+                let j = structure.pattern.column(index);
+                let b = ordering.position[j];
+                let abar = &vs.abar[index];
+                if b != usize::MAX {
+                    // Row a's ∞-norm term s_a·Ā_aj·s_j; column a's 1-norm term
+                    // s_j·Ā_ja·s_a (Ā_ja at the transposed entry).
+                    inf.add_wide_scaled(abar, false, 1, scale[a] + scale[b])?;
+                    let transposed = &vs.abar[structure.pattern.transpose(index)];
+                    one.add_wide_scaled(transposed, false, 1, scale[a] + scale[b])?;
+                    au.add_product(&mut ctx, abar, &u[j].abs(), false)?;
+                } else {
+                    for t in &terms_p[j] {
+                        let negate = t.is_sign_negative() != prescribed_negative[j];
+                        au.add_product(&mut ctx, abar, &t.abs(), negate)?;
+                    }
+                }
+            }
+            sas_inf_row[a] = round_toward(&mut ctx, &mut inf, Toward::Up)?;
+            sas_one_col[a] = round_toward(&mut ctx, &mut one, Toward::Up)?;
+            sau_row[a] = round_toward(&mut ctx, &mut au, Toward::Up)?.mul_pow2(scale[a])?;
+            if a % 64 == 63 {
+                check(&ctx, &ctx_w, &sum)?;
+            }
+        }
+        // ---- ‖ā_q S‖₁: E's expansion with s at free DOFs, upward (Q2).
+        let mut w_s = vec![zero; source.dof_count()];
+        for (a, &g) in free.iter().enumerate() {
+            w_s[g] = Wide::<L>::ONE.mul_pow2(scale[a])?;
+        }
+        let a_s = formation_scale(
+            &mut ctx,
+            &mut sum,
+            &guard,
+            source,
+            layout,
+            structure,
+            &vs.abar,
+            &shared.members,
+            &shared.directional,
+            None,
+            &w_s,
+            StageRounding::Up,
+        )?;
+        let t3 = spent(&ctx, &ctx_w, &sum);
+        // ---- B_c (7a–7d): data flags, the shift where 7c needs it.
+        let data = data_blocks(
+            blocks,
+            ordering,
+            structure,
+            &prep.ledger,
+            &prescribed_nonzero,
+            u,
+        );
+        let mut start = Vec::new();
+        for b in 0..blocks.len() {
+            let n_c = blocks.positions[b].len();
+            if data[b] && shift_needed(&mut sum, &vs.uc[b].uc, &shared.est_blocks[b], n_c)? {
+                start.push((
+                    b,
+                    sigma_from_estimate(&mut ctx, &mut sum, &shared.est_blocks[b])?,
+                    n_c,
+                ));
+            }
+        }
+        let t4 = spent(&ctx, &ctx_w, &sum);
+        let (shifts, shift_factorizations) = if start.is_empty() {
+            (Vec::new(), 0)
+        } else {
+            let profile = scaled_profile(
+                structure,
+                &shared.k,
+                ordering,
+                blocks,
+                shared.factor.scale(),
+            )?;
+            shift_schedule(&mut ctx, &mut sum, &guard, &profile, &vs.gamma, &start)?
+        };
+        let t5 = spent(&ctx, &ctx_w, &sum);
+        let mut certificates = Vec::with_capacity(blocks.len());
+        let mut uc_missing = None;
+        for b in 0..blocks.len() {
+            let shift = shifts.iter().find(|s| s.0 == b).map(|s| s.1.clone());
+            let s = shift.as_ref().and_then(|r| r.s);
+            let bound = if data[b] {
+                certified(&vs.uc[b].uc, &s)
+            } else {
+                None
+            };
+            if data[b] && bound.is_none() && uc_missing.is_none() {
+                uc_missing = Some(b);
+            }
+            certificates.push(BlockCertificate {
+                bound: vs.uc[b].clone(),
+                est: shared.est_blocks[b],
+                data: data[b],
+                shift,
+                b: bound,
+            });
+        }
+        // Per-block norms.
+        let mut norms = Vec::with_capacity(blocks.len());
+        for positions in &blocks.positions {
+            let mut n = BlockNorms {
+                sas: zero,
+                sas_one: zero,
+                sas_inf: zero,
+                sau: zero,
+                sr: zero,
+                sr2: zero,
+                sid: zero,
+            };
+            for &a in positions {
+                n.sas_one = wmax(&n.sas_one, &sas_one_col[a]);
+                n.sas_inf = wmax(&n.sas_inf, &sas_inf_row[a]);
+                n.sau = wmax(&n.sau, &sau_row[a]);
+                n.sr = wmax(&n.sr, &sr_row[a]);
+                n.sr2 = wmax(&n.sr2, &sr2_row[a]);
+                n.sid = wmax(&n.sid, &delta[a].abs().mul_pow2(-scale[a])?);
+            }
+            n.sas = wmax(&n.sas_one, &n.sas_inf);
+            norms.push(n);
+        }
+        // θ_c (item 9) on the blocks with data.
+        let mut theta = vec![None; blocks.len()];
+        for b in 0..blocks.len() {
+            if let Some(bc) = &certificates[b].b {
+                let t = mul_toward(&mut ctx, &mut sum, bc, &norms[b].sas, Toward::Up)?;
+                theta[b] = Some(t.mul_pow2(7 - i64::from(p))?);
+            }
+        }
+        // The g check (item 10).
+        let mut g_max = 0u32;
+        let mut g_violation = None;
+        let limit = p - 16;
+        for (m, op) in source.members().iter().zip(&shared.members) {
+            let dofs = op.dofs();
+            let in_scope = dofs.iter().any(|&d| {
+                let b = ordering.position[d];
+                if b == usize::MAX {
+                    prescribed_nonzero[d]
+                } else {
+                    data[blocks.of[b] as usize]
+                }
+            });
+            if in_scope {
+                g_max = g_max.max(op.g_exp);
+                if op.g_exp > limit && g_violation.is_none() {
+                    g_violation = Some(m.id);
+                }
+            }
+        }
+        // Per body (item 11): B_b and the norms over its blocks with data.
+        let mut body_reports = Vec::with_capacity(bodies);
+        for body in 0..bodies {
+            let mut bb: Option<Wide<L>> = None;
+            let mut theta_b = zero;
+            let mut n = BlockNorms {
+                sas: zero,
+                sas_one: zero,
+                sas_inf: zero,
+                sau: zero,
+                sr: zero,
+                sr2: zero,
+                sid: zero,
+            };
+            for b in 0..blocks.len() {
+                if blocks.body[b] as usize != body || !data[b] {
+                    continue;
+                }
+                if let Some(bc) = &certificates[b].b {
+                    bb = Some(bb.map_or(*bc, |x| wmax(&x, bc)));
+                }
+                if let Some(t) = &theta[b] {
+                    theta_b = wmax(&theta_b, t);
+                }
+                let nb = &norms[b];
+                n.sas = wmax(&n.sas, &nb.sas);
+                n.sas_one = wmax(&n.sas_one, &nb.sas_one);
+                n.sas_inf = wmax(&n.sas_inf, &nb.sas_inf);
+                n.sau = wmax(&n.sau, &nb.sau);
+                n.sr = wmax(&n.sr, &nb.sr);
+                n.sr2 = wmax(&n.sr2, &nb.sr2);
+                n.sid = wmax(&n.sid, &nb.sid);
+            }
+            let b_val = bb.unwrap_or(zero);
+            // N_u = ‖SĀ|u⁰|‖ + 2·B_b·‖SĀS‖·‖S·r‖; t₁ = 2^(7−q_W)·B_b·N_u.
+            let x = mul_toward(&mut ctx, &mut sum, &b_val.mul_pow2(1)?, &n.sas, Toward::Up)?;
+            let y = mul_toward(&mut ctx, &mut sum, &x, &n.sr, Toward::Up)?;
+            let n_u = add_toward(&mut ctx, &mut sum, &n.sau, &y, Toward::Up)?;
+            let t1 = mul_toward(&mut ctx, &mut sum, &b_val, &n_u, Toward::Up)?
+                .mul_pow2(7 - i64::from(q_w))?;
+            // t₂ = 70·2^-P·‖S⁻¹δ̂‖; t₃ = 3·B_b·‖S·r₂‖.
+            let seventy = Wide::<L>::from_f64(70.0)?;
+            let t2 = mul_toward(&mut ctx, &mut sum, &seventy, &n.sid, Toward::Up)?
+                .mul_pow2(-i64::from(p))?;
+            let three = Wide::<L>::from_f64(3.0)?;
+            let three_b = mul_toward(&mut ctx, &mut sum, &three, &b_val, Toward::Up)?;
+            let t3 = mul_toward(&mut ctx, &mut sum, &three_b, &n.sr2, Toward::Up)?;
+            body_reports.push(BodyReport {
+                b: bb,
+                theta: theta_b,
+                norms: n,
+                n_u,
+                t1,
+                t2,
+                t3,
+            });
+        }
+        let t6 = spent(&ctx, &ctx_w, &sum);
+        // C_q (item 11) and W⁺ (item 12), unless a block with data lacks B.
+        let mut charge = vec![None; layout.len()];
+        let mut w_plus = vec![None; layout.len()];
+        if uc_missing.is_none() {
+            for (index, meta) in layout.iter().enumerate() {
+                let body = &body_reports[meta.body as usize];
+                match (meta.kind, meta.id) {
+                    (Kind::Force | Kind::Moment, _) => {
+                        let Some(sa) = &a_s[index] else { continue };
+                        sum.clear();
+                        sum.add_product(&mut ctx, sa, &body.t1, false)?;
+                        sum.add_product(&mut ctx, sa, &body.t2, false)?;
+                        sum.add_product(&mut ctx, sa, &body.t3, false)?;
+                        charge[index] = Some(round_toward(&mut ctx, &mut sum, Toward::Up)?);
+                    }
+                    (_, QuantityId::Displacement(dof)) if !meta.input_derived => {
+                        let a = ordering.position[dof.global()];
+                        sum.clear();
+                        sum.add_wide(&delta[a].abs(), false)?;
+                        sum.add_wide_scaled(&body.t1, false, 1, scale[a])?;
+                        sum.add_wide_scaled(&body.t3, false, 1, scale[a])?;
+                        w_plus[index] = Some(round_toward(&mut ctx, &mut sum, Toward::Up)?);
+                    }
+                    (_, QuantityId::DisplacementMagnitude(node)) => {
+                        sum.clear();
+                        for c in 0..3 {
+                            let g = node as usize * DOF_PER_NODE + c;
+                            let a = ordering.position[g];
+                            if a != usize::MAX {
+                                sum.add_wide(&delta[a].abs(), false)?;
+                                sum.add_wide_scaled(&body.t1, false, 1, scale[a])?;
+                                sum.add_wide_scaled(&body.t3, false, 1, scale[a])?;
+                            } else {
+                                // |u_P,c − Σ c·v|, exact.
+                                let mut d = ExactWideSum::new();
+                                d.add_wide(&u[g], false)?;
+                                for t in &terms_p[g] {
+                                    d.add_wide(t, true)?;
+                                }
+                                d.make_absolute();
+                                sum.add_scaled(&d, false, 1, 0)?;
+                            }
+                        }
+                        w_plus[index] = Some(round_toward(&mut ctx, &mut sum, Toward::Up)?);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        let t7 = spent(&ctx, &ctx_w, &sum);
+        stages.scale = t1 - t0;
+        stages.estimate = t2 - t1;
+        stages.charge = (t3 - t2) + (t7 - t6);
+        stages.bound = (t4 - t3) + (t6 - t5);
+        stages.shift = t5 - t4;
+        check(&ctx, &ctx_w, &sum)?;
+        Ok(VerificationReport {
+            precision: p,
+            q_w,
+            resolution,
+            e_rows,
+            w,
+            a_s,
+            charge,
+            w_plus,
+            r_hat,
+            delta,
+            blocks: certificates,
+            norms,
+            theta,
+            bodies: body_reports,
+            g_max,
+            g_violation,
+            uc_missing,
+            shift_factorizations,
+        })
+    };
+    let result = run();
+    let mut work = AttemptWork::default();
+    work.record(&ctx);
+    work.record(&ctx_w);
+    let sum_work = sum.work();
+    let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    VerifySpent {
+        result,
+        work,
+        sum_work,
+        stages,
+        total,
     }
 }
 

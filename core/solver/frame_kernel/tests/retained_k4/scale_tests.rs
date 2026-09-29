@@ -180,13 +180,30 @@ fn scale_at<const L: usize, const R: usize>(
     }
 }
 
+/// RF-LARGE at 100 members (A3b): checked at the precisions its schedule
+/// uses (selected at 128, verified at 256), in tests of their own (Q13).
+fn large(name: &str) -> bool {
+    name.contains("n00100")
+}
+
 #[test]
 fn e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision() {
+    let checked = e_unit(|name| !large(name), &[128, 256, 512, 1024]);
+    assert!(checked >= 240, "{checked}");
+}
+
+#[test]
+fn e_unit_on_rf_large_at_100_members_at_128_and_256() {
+    let checked = e_unit(large, &[128, 256]);
+    assert_eq!(checked, 12);
+}
+
+fn e_unit(select: impl Fn(&str) -> bool, precisions: &[u32]) -> usize {
     let mut checked = 0;
-    for m in all_models() {
+    for m in all_models().into_iter().filter(|m| select(&m.name)) {
         let prep = CasePrep::new(m.source()).unwrap();
         let group = prepare_group(&prep.source);
-        for p in [128u32, 256, 512, 1024] {
+        for &p in precisions {
             let recs = records(SCALE, &m.name, p);
             let recs: Vec<Vec<&str>> = recs.into_iter().filter(|f| f[0] != "bnd").collect();
             assert!(!recs.is_empty() && recs[0][0] == "scale", "{} {p}", m.name);
@@ -204,7 +221,7 @@ fn e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_p
             checked += 1;
         }
     }
-    assert!(checked >= 240, "{checked}");
+    checked
 }
 
 // ---------------------------------------------------------------- E-UC
@@ -399,14 +416,31 @@ where
 
 #[test]
 fn e_uc_uc_s_and_b_equal_the_emulation_and_never_fall_below_the_norm_per_block() {
+    let (models_checked, exact, shifted) = e_uc(|name| !large(name), &[256, 512, 1024]);
+    assert!(
+        models_checked >= 60 && exact >= 150 && shifted >= 30,
+        "{models_checked} {exact} {shifted}"
+    );
+}
+
+#[test]
+fn e_uc_on_rf_large_at_100_members_at_256() {
+    // Against GEN's certified upper bounds ‖X‖₁/(1 − ‖R‖₁) (ROOT's ruling on
+    // A3a); the forced shift (every block with est_c > 0) succeeds at its
+    // first σ on all six.
+    let (models_checked, exact, shifted) = e_uc(large, &[256]);
+    assert_eq!((models_checked, exact, shifted), (6, 0, 6));
+}
+
+fn e_uc(select: impl Fn(&str) -> bool, precisions: &[u32]) -> (usize, usize, usize) {
     let mut models_checked = 0;
     let (mut exact, mut shifted) = (0, 0);
-    for m in all_models() {
+    for m in all_models().into_iter().filter(|m| select(&m.name)) {
         let prep = CasePrep::new(m.source()).unwrap();
         let Ok(group) = prepare_group(&prep.source) else {
             continue;
         };
-        for p in [256u32, 512, 1024] {
+        for &p in precisions {
             let recs: Vec<Vec<&str>> = records(BOUNDS, &m.name, p);
             assert!(!recs.is_empty() && recs[0][0] == "bnd", "{} {p}", m.name);
             let (e, s) = match p {
@@ -419,10 +453,7 @@ fn e_uc_uc_s_and_b_equal_the_emulation_and_never_fall_below_the_norm_per_block()
         }
         models_checked += 1;
     }
-    assert!(
-        models_checked >= 60 && exact >= 150 && shifted >= 30,
-        "{models_checked} {exact} {shifted}"
-    );
+    (models_checked, exact, shifted)
 }
 
 // ---------------------------------------------------------------- Q4 and Q5: the factor loop
@@ -484,7 +515,7 @@ where
 #[test]
 fn factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them() {
     let mut checked = 0;
-    for m in all_models() {
+    for m in all_models().into_iter().filter(|m| !large(&m.name)) {
         let prep = CasePrep::new(m.source()).unwrap();
         let Ok(group) = prepare_group(&prep.source) else {
             continue;

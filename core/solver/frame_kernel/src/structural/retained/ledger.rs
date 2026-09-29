@@ -117,7 +117,6 @@ impl RetainedLedger {
 
     /// A ledger with no terms: the recovery of a correction δ̂ "with the ledger
     /// omitted" (D1 revision 5a.3, R7 §4.1.6.3 item 3).
-    #[allow(dead_code)] // A3b: the verification estimate's recovery
     pub(crate) fn empty() -> Self {
         Self {
             entries: Vec::new(),
@@ -127,7 +126,6 @@ impl RetainedLedger {
 
     /// Whether a nonzero ledger term acts at the DOF (R7 §4.1.6.3 item 7a's
     /// data flag), whatever its net.
-    #[allow(dead_code)] // A3b: the verification's data flags (tested at A3a)
     pub(crate) fn has_nonzero_term(&self, dof: usize) -> bool {
         self.entries
             .binary_search_by_key(&dof, |e| e.0)

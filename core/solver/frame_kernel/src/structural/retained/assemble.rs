@@ -98,6 +98,26 @@ where
     pub(crate) g_exp: u32,
 }
 
+impl<const L: usize> BoundedCoefficients<L>
+where
+    Wide<L>: SupportedWidth,
+{
+    /// The same values at a width M ≥ L (exact).
+    pub(crate) fn widen<const M: usize>(&self) -> BoundedCoefficients<M>
+    where
+        Wide<M>: SupportedWidth,
+    {
+        BoundedCoefficients {
+            inv_length: self.inv_length.widen::<M>(),
+            axial: self.axial.widen::<M>(),
+            torsion: self.torsion.widen::<M>(),
+            bend_z: self.bend_z.widen::<M>(),
+            bend_y: self.bend_y.widen::<M>(),
+            g_exp: self.g_exp,
+        }
+    }
+}
+
 impl<const L: usize> MemberOperators<L>
 where
     Wide<L>: SupportedWidth,
@@ -108,7 +128,6 @@ where
     }
 
     /// The member's bounded-operator coefficients.
-    #[allow(dead_code)] // A3b: Ā at the verification and the gate's fallback (tested at A3a)
     pub(crate) fn bounded(&self) -> BoundedCoefficients<L> {
         BoundedCoefficients {
             inv_length: self.inv_length,
@@ -140,6 +159,23 @@ where
     pub(crate) node: u32,
     pub(crate) kind: SpringKind,
     pub(crate) k: [[Wide<L>; 3]; 3],
+}
+
+impl<const L: usize> DirectionalBlock<L>
+where
+    Wide<L>: SupportedWidth,
+{
+    /// The same block at a width M ≥ L (exact).
+    pub(crate) fn widen<const M: usize>(&self) -> DirectionalBlock<M>
+    where
+        Wide<M>: SupportedWidth,
+    {
+        DirectionalBlock {
+            node: self.node,
+            kind: self.kind,
+            k: self.k.map(|row| row.map(|v| v.widen::<M>())),
+        }
+    }
 }
 
 fn lift<const L: usize>(x: f64) -> Result<Wide<L>, AttemptStop>
@@ -477,7 +513,7 @@ where
 
 /// One contribution to a pattern entry.
 #[derive(Debug, Clone, Copy)]
-enum Contribution {
+pub(crate) enum Contribution {
     Member { member: u32, a: u8, b: u8 },
     Spring { spring: u32 },
     Directional { spring: u32, a: u8, b: u8 },
@@ -601,6 +637,13 @@ impl Structure {
         self.pattern.entry_count()
     }
 
+    /// The contributions of an upper-triangle (row ≤ col) entry: member
+    /// entries (a, b) with row = dofs[a] and col = dofs[b], springs, and
+    /// directional-block entries (a, b). A lower entry reads its transpose's.
+    pub(crate) fn contributions(&self, upper: usize) -> &[Contribution] {
+        &self.items[self.starts[upper]..self.starts[upper + 1]]
+    }
+
     /// (row, col, entry index) of every stored entry, rows ascending.
     pub(crate) fn entries(&self) -> impl Iterator<Item = (usize, usize, usize)> + '_ {
         (0..self.pattern.dimension()).flat_map(move |row| {
@@ -664,7 +707,6 @@ where
 /// Ā at the context's precision (module documentation): one value per pattern
 /// entry, both triangles formed separately (the lower triangle reads the
 /// element blocks' (b, a) entries), each one exact sum rounded once.
-#[allow(dead_code)] // A3b: the verification's E and norms, and the gate's fallback
 pub(crate) fn assemble_bounded<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,

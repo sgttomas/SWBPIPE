@@ -268,6 +268,8 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/retained/adaptive.rs", "residual_rows", 1, "integer: product count m_i of the exact residual at p + 64 (the residual itself is one exact expansion)"),
     ("FK/structural/retained/adaptive.rs", "solve_case_at", 1, "integer: correction count"),
     ("FK/structural/retained/adaptive.rs", "run_schedule", 5, "integer: schedule index and stop-rule work counts"),
+    ("FK/structural/retained/adaptive.rs", "add", 19, "integer: StageWork::add, stage work counts (5a.3)"),
+    ("FK/structural/retained/adaptive.rs", "bounded_fallback", 2, "integer: product count m_i; a max over the rows' 64-bit approximate ratios (a prefilter: the worst bounded ratio is compared exactly) (5a.3)"),
     ("FK/structural/retained/adaptive.rs", "stop_rule", 0, "K4: exact differences and scales decided exactly"),
     ("FK/structural/retained/adaptive.rs", "combination", 0, "K4 (ROOT's F-1 ruling): a combination's exact ledger (products c_i*v in one accumulator per DOF) and prescribed terms"),
     ("FK/structural/retained/adaptive.rs", "prescribed_at", 0, "K4: each prescribed value one exact expansion of its terms c*v, rounded once"),
