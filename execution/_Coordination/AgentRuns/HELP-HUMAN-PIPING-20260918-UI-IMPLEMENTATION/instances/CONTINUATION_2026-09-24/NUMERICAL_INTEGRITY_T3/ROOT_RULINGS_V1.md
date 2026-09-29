@@ -1673,3 +1673,15 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   5. The gap between product-level and kernel-level RSS (F1b's CONT n10000 at 4.8–5.2 GiB, against K6's kernel sparse estimate of about 0.38 GiB) is recorded. B1's ascent will measure the kernel side.
 - **Disclosed slip:** I15 ran `git add -N` and `git reset -q` on `H/` in the k6 worktree, two index operations its brief forbids. The net effect is nil: the index is empty and HEAD is unchanged. Recorded; no further action.
 - **Next:** A2 (the runner, its tests, the pytest wrapper, `--plan`, `--smoke`). While K5's DEC-025 sweep runs on the Mac, I15 writes code only.
+
+## K5 merged (ROOT, 2026-09-29)
+
+- **Merged:** [PR1044](https://github.com/sgttomas/chirality/pull/1044) at head `babcf5e65`, merge `1cdeae2c1`, 2026-09-29 03:18:22Z. The merge record is `IMPLEMENTATION/K5_MERGE/RECORD.md`.
+- **DEC-025 on `babcf5e65`:**
+  - the suites match the Mac baseline, except K5's added tests (FK +18, NI +13, PP +4) and the three known Mac platform failures;
+  - pytest 3023 passed;
+  - the wasm and production builds passed;
+  - vitest failed once on `App.test.tsx`'s known 30 s render timeout, and the immediate re-run passed 2822 of 2822. K5 changes no desktop file.
+- **Consequences:**
+  - F1b merges second, so it merges main and re-runs its suites, T9 and gate part 1, which is quick at about 6 minutes, before its merge.
+  - K6 merges main and re-runs test E (N6).
