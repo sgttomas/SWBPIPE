@@ -26,7 +26,7 @@ use crate::DOF_PER_NODE;
 
 /// A DOF component, in FK's order (UX, UY, UZ, RX, RY, RZ).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum Component {
+pub enum Component {
     Ux,
     Uy,
     Uz,
@@ -36,7 +36,7 @@ pub(crate) enum Component {
 }
 
 impl Component {
-    pub(crate) const ALL: [Component; 6] = [
+    pub const ALL: [Component; 6] = [
         Component::Ux,
         Component::Uy,
         Component::Uz,
@@ -45,11 +45,11 @@ impl Component {
         Component::Rz,
     ];
 
-    pub(crate) fn index(self) -> usize {
+    pub fn index(self) -> usize {
         self as usize
     }
 
-    pub(crate) fn from_index(index: usize) -> Self {
+    pub fn from_index(index: usize) -> Self {
         Self::ALL[index]
     }
 
@@ -60,17 +60,17 @@ impl Component {
 
 /// A DOF: node `k` owns global DOFs 6k..6k+5.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct Dof {
-    pub(crate) node: u32,
-    pub(crate) component: Component,
+pub struct Dof {
+    pub node: u32,
+    pub component: Component,
 }
 
 impl Dof {
-    pub(crate) fn global(self) -> usize {
+    pub fn global(self) -> usize {
         self.node as usize * DOF_PER_NODE + self.component.index()
     }
 
-    pub(crate) fn from_global(global: usize) -> Self {
+    pub fn from_global(global: usize) -> Self {
         Self {
             node: (global / DOF_PER_NODE) as u32,
             component: Component::from_index(global % DOF_PER_NODE),
@@ -79,29 +79,29 @@ impl Dof {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct StraightMember {
-    pub(crate) id: u32,
-    pub(crate) node_i: u32,
-    pub(crate) node_j: u32,
-    pub(crate) elastic_modulus: f64,
-    pub(crate) shear_modulus: f64,
-    pub(crate) area: f64,
-    pub(crate) second_moment_y: f64,
-    pub(crate) second_moment_z: f64,
-    pub(crate) torsion_constant: f64,
-    pub(crate) y_reference: [f64; 3],
+pub struct StraightMember {
+    pub id: u32,
+    pub node_i: u32,
+    pub node_j: u32,
+    pub elastic_modulus: f64,
+    pub shear_modulus: f64,
+    pub area: f64,
+    pub second_moment_y: f64,
+    pub second_moment_z: f64,
+    pub torsion_constant: f64,
+    pub y_reference: [f64; 3],
 }
 
 /// A global-axis linear spring to ground.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct Spring {
-    pub(crate) id: u32,
-    pub(crate) dof: Dof,
-    pub(crate) stiffness: f64,
+pub struct Spring {
+    pub id: u32,
+    pub dof: Dof,
+    pub stiffness: f64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum SpringKind {
+pub enum SpringKind {
     Translation,
     Rotation,
 }
@@ -119,63 +119,63 @@ impl SpringKind {
 /// A kernel-only spring to ground along a binary64 direction (ROOT's K4 ruling
 /// Q6); F2a never builds one.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct DirectionalSpring {
-    pub(crate) id: u32,
-    pub(crate) node: u32,
-    pub(crate) kind: SpringKind,
-    pub(crate) direction: [f64; 3],
-    pub(crate) stiffness: f64,
+pub struct DirectionalSpring {
+    pub id: u32,
+    pub node: u32,
+    pub kind: SpringKind,
+    pub direction: [f64; 3],
+    pub stiffness: f64,
 }
 
 /// A rigid restraint (value 0) or a prescribed motion (any other value).
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct Constraint {
-    pub(crate) dof: Dof,
-    pub(crate) value: f64,
+pub struct Constraint {
+    pub dof: Dof,
+    pub value: f64,
 }
 
 /// One identified nodal load contribution (the ledger's granularity).
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct NodalLoad {
-    pub(crate) dof: Dof,
-    pub(crate) value: f64,
-    pub(crate) source_id: String,
+pub struct NodalLoad {
+    pub dof: Dof,
+    pub value: f64,
+    pub source_id: String,
 }
 
 /// A station on a member at a binary64 fraction of its chord (0 at node i).
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct Station {
-    pub(crate) id: u32,
-    pub(crate) member: u32,
-    pub(crate) fraction: f64,
+pub struct Station {
+    pub id: u32,
+    pub member: u32,
+    pub fraction: f64,
 }
 
 /// A support for the magnitude rows (ROOT's K4 ruling O2): the components it
 /// restrains at its node, and its springs.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct SupportGroup {
-    pub(crate) id: u32,
-    pub(crate) node: u32,
-    pub(crate) restrained: [bool; 6],
-    pub(crate) springs: Vec<u32>,
-    pub(crate) directional_springs: Vec<u32>,
+pub struct SupportGroup {
+    pub id: u32,
+    pub node: u32,
+    pub restrained: [bool; 6],
+    pub springs: Vec<u32>,
+    pub directional_springs: Vec<u32>,
 }
 
 /// The caller's lists, in any order.
 #[derive(Debug, Clone, Default, PartialEq)]
-pub(crate) struct SourceParts {
-    pub(crate) nodes: Vec<[f64; 3]>,
-    pub(crate) members: Vec<StraightMember>,
-    pub(crate) springs: Vec<Spring>,
-    pub(crate) directional_springs: Vec<DirectionalSpring>,
-    pub(crate) constraints: Vec<Constraint>,
-    pub(crate) loads: Vec<NodalLoad>,
-    pub(crate) stations: Vec<Station>,
-    pub(crate) supports: Vec<SupportGroup>,
+pub struct SourceParts {
+    pub nodes: Vec<[f64; 3]>,
+    pub members: Vec<StraightMember>,
+    pub springs: Vec<Spring>,
+    pub directional_springs: Vec<DirectionalSpring>,
+    pub constraints: Vec<Constraint>,
+    pub loads: Vec<NodalLoad>,
+    pub stations: Vec<Station>,
+    pub supports: Vec<SupportGroup>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum MemberProperty {
+pub enum MemberProperty {
     ElasticModulus,
     ShearModulus,
     Area,
@@ -187,7 +187,7 @@ pub(crate) enum MemberProperty {
 
 /// Why a source cannot be constructed.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum SourceError {
+pub enum SourceError {
     NoNodes,
     NonFiniteCoordinate {
         node: u32,
@@ -268,7 +268,7 @@ impl std::error::Error for SourceError {}
 
 /// The validated, canonically ordered source (module documentation).
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct PrimitiveSource {
+pub struct PrimitiveSource {
     nodes: Vec<[f64; 3]>,
     members: Vec<StraightMember>,
     springs: Vec<Spring>,
@@ -349,8 +349,7 @@ fn chord_checks(xi: [f64; 3], xj: [f64; 3], y: [f64; 3]) -> (bool, bool) {
 }
 
 impl PrimitiveSource {
-    #[allow(dead_code)] // F2a API (F2a's adapter builds the source)
-    pub(crate) fn new(parts: SourceParts) -> Result<Self, SourceError> {
+    pub fn new(parts: SourceParts) -> Result<Self, SourceError> {
         let SourceParts {
             nodes,
             mut members,
@@ -567,65 +566,65 @@ impl PrimitiveSource {
         })
     }
 
-    pub(crate) fn nodes(&self) -> &[[f64; 3]] {
+    pub fn nodes(&self) -> &[[f64; 3]] {
         &self.nodes
     }
-    pub(crate) fn members(&self) -> &[StraightMember] {
+    pub fn members(&self) -> &[StraightMember] {
         &self.members
     }
-    pub(crate) fn springs(&self) -> &[Spring] {
+    pub fn springs(&self) -> &[Spring] {
         &self.springs
     }
-    pub(crate) fn directional_springs(&self) -> &[DirectionalSpring] {
+    pub fn directional_springs(&self) -> &[DirectionalSpring] {
         &self.directional_springs
     }
-    pub(crate) fn constraints(&self) -> &[Constraint] {
+    pub fn constraints(&self) -> &[Constraint] {
         &self.constraints
     }
-    pub(crate) fn loads(&self) -> &[NodalLoad] {
+    pub fn loads(&self) -> &[NodalLoad] {
         &self.loads
     }
-    pub(crate) fn stations(&self) -> &[Station] {
+    pub fn stations(&self) -> &[Station] {
         &self.stations
     }
-    pub(crate) fn supports(&self) -> &[SupportGroup] {
+    pub fn supports(&self) -> &[SupportGroup] {
         &self.supports
     }
-    pub(crate) fn node_count(&self) -> usize {
+    pub fn node_count(&self) -> usize {
         self.nodes.len()
     }
-    pub(crate) fn dof_count(&self) -> usize {
+    pub fn dof_count(&self) -> usize {
         self.nodes.len() * DOF_PER_NODE
     }
     /// The constraint value of a global DOF, if constrained.
-    pub(crate) fn constraint(&self, global: usize) -> Option<f64> {
+    pub fn constraint(&self, global: usize) -> Option<f64> {
         self.constrained[global]
     }
     /// The free global DOFs, ascending.
-    pub(crate) fn free_dofs(&self) -> Vec<usize> {
+    pub fn free_dofs(&self) -> Vec<usize> {
         (0..self.dof_count())
             .filter(|&g| self.constrained[g].is_none())
             .collect()
     }
-    pub(crate) fn body_of_node(&self, node: u32) -> u32 {
+    pub fn body_of_node(&self, node: u32) -> u32 {
         self.body_of_node[node as usize]
     }
-    pub(crate) fn body_count(&self) -> u32 {
+    pub fn body_count(&self) -> u32 {
         self.body_count
     }
     /// The nodes of a body, ascending.
-    pub(crate) fn body_nodes(&self, body: u32) -> Vec<u32> {
+    pub fn body_nodes(&self, body: u32) -> Vec<u32> {
         (0..self.nodes.len() as u32)
             .filter(|&n| self.body_of_node[n as usize] == body)
             .collect()
     }
-    pub(crate) fn member_index(&self, id: u32) -> Option<usize> {
+    pub fn member_index(&self, id: u32) -> Option<usize> {
         self.members.binary_search_by_key(&id, |m| m.id).ok()
     }
 
     /// The canonical byte encoding (ROOT's K4 ruling Q10; hashed by F2a and
     /// V-K). Little-endian; binary64 values as their bits.
-    pub(crate) fn encoding(&self) -> Vec<u8> {
+    pub fn encoding(&self) -> Vec<u8> {
         let mut out = b"K4SRC\x01".to_vec();
         self.encode_stiffness_part(&mut out, true);
         put_u32(&mut out, self.loads.len() as u32);
@@ -660,7 +659,7 @@ impl PrimitiveSource {
 
     /// The factor-reuse identity (D1 §4.1.7): nodes, members, springs,
     /// directional springs and the constrained DOF set (not their values).
-    pub(crate) fn stiffness_encoding(&self) -> Vec<u8> {
+    pub fn stiffness_encoding(&self) -> Vec<u8> {
         let mut out = b"K4STF\x01".to_vec();
         self.encode_stiffness_part(&mut out, false);
         out

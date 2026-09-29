@@ -147,7 +147,7 @@ pub(crate) const ATAN_REGRESSION_TOLERANCE_TENTH_ULPS: u32 = 61;
 pub(crate) const ATAN_PROVED_BOUND_TENTH_ULPS: u32 = 236;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum WideError {
+pub enum WideError {
     /// Precision outside [MIN_PRECISION, MAX_PRECISION] (or below
     /// ATAN_MIN_PRECISION for the arctangent).
     InvalidPrecision(u32),

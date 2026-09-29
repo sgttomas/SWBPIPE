@@ -57,7 +57,7 @@ use std::collections::VecDeque;
 
 /// How one body entered the factor.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum BodyGeometry {
+pub enum BodyGeometry {
     Restrained,
     NumericallyUnresolved,
     /// Not assessed geometrically: directional grounds that do not span R³ at
@@ -287,7 +287,7 @@ fn pseudo_peripheral_start(seed: usize, neighbors: &[Vec<usize>], degrees: &[usi
 /// Deterministic reverse Cuthill–McKee, ported from `sparse_direct` (its
 /// tie-break rules): `order[k]` is the original index of the k-th ordered node.
 /// Adjacency indices must be in range (internal data).
-pub(crate) fn reverse_cuthill_mckee(adjacency: &[Vec<usize>]) -> Vec<usize> {
+pub fn reverse_cuthill_mckee(adjacency: &[Vec<usize>]) -> Vec<usize> {
     let node_count = adjacency.len();
     let mut neighbors: Vec<Vec<usize>> = vec![Vec::new(); node_count];
     for (node, raw) in adjacency.iter().enumerate() {
