@@ -338,8 +338,16 @@ fn the_estimate_equals_a_hand_derivation() {
     assert_eq!(e.state, [state(4), state(4), state(8), state(16)]);
     let verify = |l: u128, ww: u128| nnz * w(l) + m * 144 * w(ww) + b * (4 * w(l) + 8);
     assert_eq!(e.verify, [verify(4, 8), verify(8, 16), verify(16, 16)]);
-    let decide = 3 * 2 * rows * (2 * 2144 + 16);
+    // KF1's bounds (KF1 RETURN addendum 2): a row is 4,304 B, a table entry
+    // 40 B; the stop rule peaks at G + T = 4,608 rows, the pivot margin's
+    // tracker at 768, a solve attempt's trackers at 2,816; the fallback's
+    // per-state row list holds n_f rows in a growing Vec.
+    let row = 2 * 2144 + 16;
+    let decide = 4608 * row + 3 * 2 * rows * 40;
     assert_eq!(e.decide, decide);
+    let pivot = 768 * row + 2 * nf * 40;
+    let solve_trackers = 2816 * row + 2 * 5 * nf * 40 + 2 * nf * row;
+    let solve = |l: u128, r: u128| 4 * n * w(r) + nf * (16 + w(l)) + solve_trackers;
     // The 128-selected path: build 128, state 128, build 256, state 256, the
     // v256 build, the pass, the decision, the end.
     let build =
@@ -364,9 +372,9 @@ fn the_estimate_equals_a_hand_derivation() {
         (16, 16, true, Some((16, 16, true))),
     ];
     for (k, (l, r, same, v)) in steps.into_iter().enumerate() {
-        peak = peak.max(kept + build(l, r, same));
+        peak = peak.max(kept + build(l, r, same) + pivot);
         kept += shared(l, r);
-        peak = peak.max(kept + state(l) + 4 * n * w(r));
+        peak = peak.max(kept + state(l) + solve(l, r));
         kept += state(l);
         if let Some((vl, vw, vsame)) = v {
             peak = peak.max(kept + vbuild(vl, vw, vsame));

@@ -258,16 +258,36 @@ pub const SOLVE_VECTORS: u128 = 4;
 /// (`SUM_LIMBS`, `:43`), two i128, a usize, a bool and a `SumWork`: 2,129
 /// bytes, 2,144 with its 16-byte alignment.
 pub const EXACT_WIDE_SUM_BYTES: u128 = 2144;
-/// An `ExtremeTracker` entry (`K4R/adaptive.rs:540-544`): two sums and a u64.
+/// An unevaluated tracker row (`BoundedExtremeTracker::lazy`,
+/// `K4R/adaptive.rs:619`: two sums and two u64) and a fallback row
+/// (`bounded_fallback`'s `rows`, `:1476`: two sums and an f64): 4,304 bytes
+/// each with alignment (KF1 RETURN §4, "an unevaluated row 4,304 B").
 pub const TRACKER_ENTRY_BYTES: u128 = 2 * EXACT_WIDE_SUM_BYTES + 16;
-/// The stop rule (`decide`, `K4R/adaptive.rs:1611-1800`) keeps three tracker
-/// maps alive to its end: (a), the estimate (b) and the charge (d). A tracker
-/// keeps every row whose ratio lies within `WINDOW_ULPS` of the best (`:533`,
-/// `:555-575`), so rows that tie are all kept: at most every row in each map,
-/// in a `Vec` of at most twice its length. The bound is reached when ratios
-/// tie, as they do where Δ = 0 and M = S\* on force and moment rows.
+/// A tracker table entry (`:621`, a key and an `Evaluated`): 40 bytes (KF1
+/// RETURN §4).
+pub const TRACKER_TABLE_ENTRY_BYTES: u128 = 40;
+/// KF1's bounds on unevaluated rows (T = 512, G = 8T = 4,096; `:539`, `:544`),
+/// as KF1 RETURN addendum 2 restates them, each at its peak during one offer
+/// (a `Vec` growth briefly holds both buffers):
+/// - the stop rule's `TrackerSet` for one call (`rule`, `:1893`): G + T;
+/// - a standalone tracker (the pivot margin, `:1236`): 1.5T;
+/// - a solve attempt (the residual gate's tracker and the fallback's, up to
+///   four states, `residual_rows` `:1301` and `bounded_fallback` `:1437`):
+///   2,816 rows.
+pub const STOP_RULE_PEAK_ROWS: u128 = 4096 + 512;
+pub const PIVOT_TRACKER_PEAK_ROWS: u128 = 768;
+pub const SOLVE_TRACKER_PEAK_ROWS: u128 = 2816;
+/// The stop rule offers each published row to at most three trackers ((a),
+/// the estimate (b) and the charge (d)); a call's tables hold at most one
+/// entry per row kept in a window, so at most one per offered row (KF1 RETURN
+/// addendum 2, RV20-N3), in a `Vec` that a collapse may briefly double.
 pub const DECIDE_TRACKER_SETS: u128 = 3;
 pub const VEC_SLACK: u128 = 2;
+/// A solve attempt's tables: the residual gate's (one per evaluation, n_f
+/// rows) and the fallback's (up to four states of n_f rows).
+pub const SOLVE_TABLE_ROWS_PER_FREE_DOF: u128 = 5;
+/// `residual_rows`' list per free DOF (`:1301`): (bool, f64, `Wide<L>`).
+pub const RESIDUAL_ROW_EXTRA: u128 = 16;
 /// A ledger entry: (usize, `LedgerNet`) plus its limbs (`K4R/ledger.rs:25-30`).
 pub const LEDGER_ENTRY_BYTES: u128 = 64;
 /// A prescribed row: (usize, `Vec<(f64, f64)>`) plus one term.
@@ -383,7 +403,15 @@ pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
         }
     });
     let state = ATTEMPT_WIDTHS.map(|(_, l, _)| (n + 6 * m + rows) * w(l));
-    let solve = ATTEMPT_WIDTHS.map(|(_, _, r)| SOLVE_VECTORS * n * w(r));
+    // KF1: a solve attempt's trackers (bounded), their tables, the fallback's
+    // per-state row list (n_f rows of 4,304 B in a growing `Vec`, one state at
+    // a time), and the residual gate's row list.
+    let solve_trackers = SOLVE_TRACKER_PEAK_ROWS * TRACKER_ENTRY_BYTES
+        + VEC_SLACK * SOLVE_TABLE_ROWS_PER_FREE_DOF * nf * TRACKER_TABLE_ENTRY_BYTES
+        + VEC_SLACK * nf * TRACKER_ENTRY_BYTES;
+    let solve = ATTEMPT_WIDTHS.map(|(_, l, r)| {
+        SOLVE_VECTORS * n * w(r) + nf * (RESIDUAL_ROW_EXTRA + w(l)) + solve_trackers
+    });
     let verify = VERIFY_WIDTHS.map(|(_, l, ww)| {
         nnz * w(l)
             + m * BLOCK_WIDES * w(ww)
@@ -401,7 +429,12 @@ pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
     let report = VERIFY_WIDTHS
         .map(|(_, l, _)| REPORT_ROW_VECTORS * rows * (w(l) + OPTION_EXTRA) + 2 * nf * w(l));
     let pass = VERIFY_WIDTHS.map(|(_, l, _)| p_entries * w(l));
-    let decide = DECIDE_TRACKER_SETS * VEC_SLACK * rows * TRACKER_ENTRY_BYTES;
+    // KF1: the stop rule's trackers at their peak, and their tables.
+    let decide = STOP_RULE_PEAK_ROWS * TRACKER_ENTRY_BYTES
+        + DECIDE_TRACKER_SETS * VEC_SLACK * rows * TRACKER_TABLE_ENTRY_BYTES;
+    // KF1: the pivot margin's tracker in each shared build, and its table.
+    let pivot =
+        PIVOT_TRACKER_PEAK_ROWS * TRACKER_ENTRY_BYTES + VEC_SLACK * nf * TRACKER_TABLE_ENTRY_BYTES;
     let end = rows * (u(s.published_row) + 40)
         + enc
         + (n + 6 * m) * (9 + 8 * 16)
@@ -411,7 +444,7 @@ pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
     let mut peak = fixed + group_build;
     let mut sel128 = 0;
     for (k, &(p, _, _)) in ATTEMPT_WIDTHS.iter().enumerate() {
-        peak = peak.max(kept + shared[k] + shared_build[k]);
+        peak = peak.max(kept + shared[k] + shared_build[k] + pivot);
         kept += shared[k];
         peak = peak.max(kept + state[k] + solve[k]);
         kept += state[k];
