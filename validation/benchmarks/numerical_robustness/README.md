@@ -1,0 +1,76 @@
+# VP-ROBUST: `numerical_robustness`
+
+R1's frozen references (T3 `REFERENCES/references.json`, sha256 `7b176dbb…`)
+checked against the W1a kernel method (`frame_kernel::structural::retained_api`),
+independently of K4's own tests. This crate is T3 slice V-K, the kernel lane
+(T3 D1 §4.10). The product lane (V-P) extends it later.
+
+## What it checks
+
+- **The kernel lane.** Every R1 case of RF-CHAIN, RF-SKEW, RF-WEAK, RF-LARGE,
+  RF-INVARIANCE, RF-RANGE, RF-ZERO, RF-FINITE, RF-MECH and RF-CANCEL (without
+  its three UDL cases, which are W1b's) runs through `solve_case`. Cases with
+  `needs_directional_spring` use the kernel-only `DirectionalSpring`.
+- **The predicate.** Each R1 row is judged by the unchanged predicate
+  `|obs − exp| ≤ 1e-9·max(|exp|, scale)`, with R1's class scales. RF-CANCEL
+  uses its binding net-governed column.
+  - The predicate is decided exactly: R1's decimal strings against the
+    published binary64 values (`src/exact.rs`).
+  - Bending magnitudes are decided without forming a square root.
+  - Twist and extension are derived as `T/k_t` and `N/k_a`, never
+    differenced.
+- **Each row's outcome.** A row passes or fails, is `not_covered` (below the
+  zero-scale floor R·S\*, R = 2^-34; never a pass), is `pass_absolute_range`
+  (the expected value lies outside binary64's range), or is a structural zero.
+  - The not-covered set must equal the committed list,
+    `cases/not_covered.json`: RF-WEAK 46, RF-CANCEL 3, RF-SKEW 2.
+- **The negative controls.** Every discriminating negative control of R1 must
+  fail the same predicate. RF-MECH's mechanisms must be refused, or end
+  unresolved, with no rows.
+- **Expected-unresolved cases.** Every other R1 case must be selected. The
+  exceptions are the cases on `cases/expected_unresolved.json`: RF-RANGE-THIN-A
+  and THIN-B, whose stiffness ratio EA/(12EI/L³) of about 2^507 is beyond W1a's
+  512-bit candidate ceiling (ROOT's ruling; K4's generator gives the same
+  schedule).
+  - A listed case must end unresolved with no rows. Its rows are counted apart,
+    never as passes.
+  - A case leaving or joining the list fails.
+- **The binary64 parity checks.** RF-LARGE (up to 100 members) and RF-MECH also
+  run through the binary64 sparse gate, for D1 §4.8's parity items 1–3.
+  - The pattern assembly must equal the dense assembly bit for bit.
+  - The M03 outcome class must be the same in both modes.
+  - Where both modes are Passed, the displacements must agree within the
+    DEC-053 basis (1e-9 of the dense magnitude).
+  - RF-MECH is refused in both modes.
+- **The equality checks.**
+  - K4's canonical source bytes must equal the generator's, built from
+    `references.py --model` (the adapter check).
+  - K4's RCM port must equal `sparse_direct`'s.
+- **Per-case records.** Each case's outcome, precisions, attempts and work
+  are recorded in `observations/kernel_lane/`, for ROOT's W1 limits.
+
+## Files
+
+- `cases/gen_vk_cases.py` is the generator, standard library only. It reads
+  R1's pinned files, which CI never checks out, and writes `cases/*`.
+  - `python3 cases/gen_vk_cases.py --check` regenerates in memory and compares
+    with the committed files.
+  - `--large <dir>` writes the RF-LARGE models at 1,000 and 10,000 members.
+    These run as examples only, and are checked against
+    `cases/large_models.sha256`.
+- `observations/kernel_lane/<family>.json` are the committed per-case records.
+  `invariance.json` holds RF-INVARIANCE's cross-variant observations and
+  `parity.json` the binary64 parity observations. Both are recorded, not
+  asserted.
+  - `cargo run --release --example vk_records -- --write` regenerates them.
+    That is a decision, never done by CI: the lane tests compare the records
+    and never write them.
+
+## Running
+
+```
+cargo test --offline --locked --manifest-path validation/benchmarks/numerical_robustness/Cargo.toml
+```
+
+No threshold, time or memory bound is asserted anywhere. Time is an
+observation of the scale runs only.

@@ -1,0 +1,14 @@
+[package]
+name = "piping_numerical_robustness"
+version = "0.1.0"
+edition = "2021"
+description = "VP-ROBUST: R1's frozen references against the W1a kernel method (V-K) and the product lane (V-P)"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../../core/solver/frame_kernel" }
+open_pipe_stress_sparse_direct = { path = "../../../core/solver/sparse_direct" }
+serde_json = { version = "1", features = ["float_roundtrip"] }

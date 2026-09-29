@@ -1,0 +1,12 @@
+RF-RANGE-THIN-A section T: G stated exactly as 5/11*2^200
+RF-RANGE-THIN-A member: {'A': 9.42477796076938e-154, 'E': 1.6069380442589903e+60, 'G': 7.304263837540865e+59, 'Iy': 1.1780972450961726e-307, 'Iz': 1.1780972450961726e-307, 'J': 2.356194490192345e-307, 'y': (0.0, 0.0, 1.0)}
+RF-RANGE-THIN-A GEN schedule: selected None
+   128 rejected:stop_rule:7
+   256 rejected:stop_rule:14
+   512 rejected:charge:14
+RF-RANGE-THIN-B section T: G stated exactly as 5/11
+RF-RANGE-THIN-B member: {'A': 9.42477796076938e-154, 'E': 1.0, 'G': 0.45454545454545453, 'Iy': 1.1780972450961726e-307, 'Iz': 1.1780972450961726e-307, 'J': 2.356194490192345e-307, 'y': (0.0, 0.0, 1.0)}
+RF-RANGE-THIN-B GEN schedule: selected None
+   128 rejected:stop_rule:7
+   256 rejected:stop_rule:14
+   512 rejected:charge:14

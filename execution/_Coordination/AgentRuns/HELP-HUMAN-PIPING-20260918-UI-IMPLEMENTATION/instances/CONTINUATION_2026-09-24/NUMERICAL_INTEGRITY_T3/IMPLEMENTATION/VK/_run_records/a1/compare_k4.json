@@ -1,0 +1,819 @@
+{
+ "cases_compared": 140,
+ "unexpected": 0,
+ "report": [
+  {
+   "case": "RF-CANCEL-F-G1e5-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e5-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e5-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e6-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e6-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e6-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e7-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e7-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e7-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e8-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e8-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e8-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e80-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e80-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e80-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e5-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e5-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e5-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e6-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e6-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e6-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e7-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e7-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e7-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e8-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e8-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e8-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e80-GnG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e80-GGn",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e80-nGG",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n03-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n03-r1e-06",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n03-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n03-r1e-10",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n03-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n05-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n05-r1e-06",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n05-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n05-r1e-10",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n05-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n10-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n10-r1e-06",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n10-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n10-r1e-10",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-T-n10-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n03-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n03-r1e-06",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n03-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n03-r1e-10",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n03-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n05-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n05-r1e-06",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n05-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n05-r1e-10",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n05-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n10-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n10-r1e-06",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n10-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n10-r1e-10",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-CHAIN-A-n10-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-FINITE-THIRDS-O0",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-FINITE-THIRDS-O1e3",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-FINITE-THIRDS-O1e6",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-FINITE-TENTHS-O1e6",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-FINITE-THIRTIETHS-O1e6",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-FINITE-ROT-Q9-NONMULT",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n00010-AX",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n00010-ROT",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-TREE-n00010-AX",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-TREE-n00010-ROT",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CONT-n00010-AX",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CONT-n00010-ROT",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n00100-AX",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CHAIN-n00100-ROT",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-TREE-n00100-AX",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-TREE-n00100-ROT",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CONT-n00100-AX",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-LARGE-CONT-n00100-ROT",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-MECH-LINE122-TORQUE",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-MECH-LINE122-PERP",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-MECH-LINE122-UNLOADED",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-MECH-LINE345-RZ",
+   "differences": []
+  },
+  {
+   "case": "RF-MECH-K0",
+   "differences": [
+    "y_reference (plan \u00a74.4)",
+    "k = 0 spring omitted by V-K, kept by K4 (plan \u00a74.1, C10)"
+   ]
+  },
+  {
+   "case": "RF-MECH-DISC-CHAIN100",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-MECH-DISC-CHAIN100-SPRING",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-MECH-LINE-IN-CHAIN1000",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-MECH-LINE345-RX-COMPANION",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-PIN-AX-345-r1e-04",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-PIN-AX-345-r1e-08",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-PIN-AX-345-r1e-12",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-PIN-AX-122-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-PIN-AX-122-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-PIN-AX-122-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-AX-345-r1e-04",
+   "differences": [
+    "spring representation at mixed nodes (plan \u00a74.4): V-K 1 global-axis, K4 0"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-AX-345-r1e-08",
+   "differences": [
+    "spring representation at mixed nodes (plan \u00a74.4): V-K 1 global-axis, K4 0"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-AX-345-r1e-12",
+   "differences": [
+    "spring representation at mixed nodes (plan \u00a74.4): V-K 1 global-axis, K4 0"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-AX-122-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-AX-122-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-AX-122-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-AX-345-r1e-04",
+   "differences": [
+    "spring representation at mixed nodes (plan \u00a74.4): V-K 1 global-axis, K4 0"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-AX-345-r1e-08",
+   "differences": [
+    "spring representation at mixed nodes (plan \u00a74.4): V-K 1 global-axis, K4 0"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-AX-345-r1e-12",
+   "differences": [
+    "spring representation at mixed nodes (plan \u00a74.4): V-K 1 global-axis, K4 0"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-AX-122-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-AX-122-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-AX-122-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+   "differences": []
+  },
+  {
+   "case": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-AX-rho1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-AX-rho1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-AX-rho1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-L-r1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-L-r1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-L-r1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-3D-rho1e-04",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-3D-rho1e-08",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  },
+  {
+   "case": "RF-WEAK-W-3D-rho1e-12",
+   "differences": [
+    "y_reference (plan \u00a74.4)"
+   ]
+  }
+ ]
+}
