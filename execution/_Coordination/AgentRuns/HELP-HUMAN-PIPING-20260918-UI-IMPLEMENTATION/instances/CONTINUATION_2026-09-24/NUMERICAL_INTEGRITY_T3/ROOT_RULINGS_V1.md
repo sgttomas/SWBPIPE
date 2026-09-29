@@ -2534,7 +2534,7 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
     - the call charges 8.23e9 LME, with a heap of 814 MiB and a median call of 6.09 s, 7.6 times the binary64 sparse entry;
     - its stop rule is 2.60e9 LME, 31.5% of the call.
   - W1's heap grows with a log-log slope of 0.92–0.98 from 10 to 10,000 members.
-  - ρ_fp is at most 0.43 against the new E, and E_adm at 10,000 members is 2.65–2.73 GiB.
+  - ρ_fp is at most 0.43 against the new E, and E_adm at 10,000 members is 2.65–2.73 GiB. [Correction (I16 at D): E_adm at 10,000 members is 2,649–2,727 MiB, which is 2.59–2.66 GiB (2.78–2.86 GB). The b3 report had divided MiB by 1,000.]
   - **A K6 observation, not a stop:** K6's own sparse estimate gives ρ_fp up to 1.75 at 10,000 members (CHAIN-AX). The excess is outside the heap: heap/E is 0.64–0.73.
 - **D proceeds now, as for V-K.** K6b's records mark W1-T4's 10,000-member figures pre-KF3.
   - After KF3 merges, K6b merges main and re-runs W1-T4 as a records addendum, which may follow K6b's merge.
@@ -2570,3 +2570,14 @@ The plan is `IMPLEMENTATION/KF3/PLAN_CHECKPOINT0.md` on the KF3 branch (sha256 `
   - **whichever of KF3 and K6b merges second** updates that test and tightens the parity check back to equality, in its own PR;
   - if KF3 is second, `performance_harness/tests/k6b_w1.rs` and `src/k6/w1/staged.rs` join KF3's write set for that purpose only.
 - **Next:** checkpoint A. Builds may run, with one cargo job at `-j 4`; RV21 is reviewing V-K alongside.
+
+## K6b: D accepted; PR to review (ROOT, 2026-09-29)
+
+- **D is committed** on the K6b branch: `126fcb9f3` (the packet code and b3's packet) and `1123d19b9` (RETURN, CHANGE_RECORD and 1,774 run-record files, 21 MB, with oversized dumps trimmed and their sha256 kept).
+  - Both `SHA256SUMS` verify, and no machine paths appear.
+  - W1-T4 is marked pre-KF3 throughout, and the post-KF3 re-run is RETURN addendum 1.
+- **I16's corrections and notes are recorded:**
+  - E_adm at 10,000 members (bracketed above);
+  - KF1 moves the stop rule's cost from memory to work: at 1,000 members the heap increment is gone, and the work rises 1.2–2.4×;
+  - the 141 B constant in the sparse cross-check (N-4) is a note.
+- **The PR** is open, with its full-SHA dispatch. The independent reviewer is RV22.
