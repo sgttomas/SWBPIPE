@@ -12,7 +12,7 @@ use piping_numerical_robustness::floor;
 use piping_numerical_robustness::lane::value_controls;
 use piping_numerical_robustness::sha256::sha256_hex;
 use serde_json::Value;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::OnceLock;
 
 fn cases() -> &'static [Case] {
@@ -207,6 +207,26 @@ fn the_floor_check_reproduces_the_committed_not_covered_list() {
         assert_eq!(c.family, family);
         assert!(c.not_covered.iter().any(|k| k == key), "{id} {key}");
     }
+    // RV21-N3: the list is set-equal to the cases' lists, with no duplicate.
+    let listed_set: BTreeSet<(String, String)> = entries
+        .iter()
+        .map(|e| {
+            (
+                e[1].as_str().unwrap().to_string(),
+                e[2].as_str().unwrap().to_string(),
+            )
+        })
+        .collect();
+    assert_eq!(
+        listed_set.len(),
+        entries.len(),
+        "a duplicate in not_covered.json"
+    );
+    let case_set: BTreeSet<(String, String)> = cases()
+        .iter()
+        .flat_map(|c| c.not_covered.iter().map(|k| (c.id.clone(), k.clone())))
+        .collect();
+    assert_eq!(listed_set, case_set);
 }
 
 #[test]

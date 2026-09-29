@@ -1,0 +1,213 @@
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk-mut/c/RV21-H4/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk-mut/c/RV21-H4/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk-mut/c/RV21-H4/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.43s
+  Executable unittests src/lib.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/piping_numerical_robustness-f18e65577dad7d51)
+  Executable tests/adapter.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/adapter-171326531d4450fe)
+  Executable tests/engine.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/engine-339caf2fcca8e29e)
+  Executable tests/feature_guard.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/feature_guard-a0127103522b305f)
+  Executable tests/files.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/files-023312850821be65)
+  Executable tests/invariance.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/invariance-f380503b46a48e4d)
+  Executable tests/lane.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/lane-74d68683cbc46aee)
+  Executable tests/parity.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/parity-29f093d91c486278)
+  Executable tests/rcm.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/rcm-40d65129301a0b95)
+  Executable tests/scale.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/scale-cf73e6965e0f2935)
+
+running 7 tests
+test exact::tests::decimals_and_binary64_values_parse_exactly ... ok
+test exact::tests::the_binary64_range_is_decided_exactly ... ok
+test exact::tests::the_floor_is_r_times_s_star_exactly ... ok
+test exact::tests::the_magnitude_predicate_holds_at_both_bounds_and_not_one_ulp_beyond ... ok
+test exact::tests::the_predicate_holds_at_its_boundary_and_not_one_ulp_beyond ... ok
+test exact::tests::nat_arithmetic_equals_u128_arithmetic ... ok
+test sha256::tests::fips_180_known_answers ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+
+running 4 tests
+test permuting_every_list_changes_no_canonical_byte ... ok
+test every_ci_models_canonical_bytes_equal_the_generators_from_references_py_model ... ok
+RF-MECH-K0 literal model: NonPositiveSpring { id: 1 }
+test rf_mech_k0s_literal_model_is_refused_by_the_source_naming_its_spring ... ok
+test permuting_every_list_changes_no_published_bit_on_rf_invariance ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.87s
+
+
+running 5 tests
+test a_discriminating_control_that_passes_is_listed_never_dropped ... ok
+test a_wrong_value_on_a_sub_range_row_fails ... ok
+test r1s_five_absolute_range_rows_are_counted_apart_from_the_passes ... ok
+test the_comparison_scale_is_exps_magnitude_never_obss ... ok
+test an_overflowed_published_row_fails ... FAILED
+
+failures:
+
+failures:
+    an_overflowed_published_row_fails
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 5 tests
+test a_manifest_enabling_vrs_seeded_faults_is_flagged ... ok
+test ci_passes_no_cargo_features ... ok
+test no_vr_source_names_the_execution_tree ... ok
+test the_guard_flags_what_it_must ... ok
+test no_manifest_enables_the_mutation_controls_feature ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 10 tests
+test c1_the_prescaled_coefficients_equal_the_designs_wherever_it_is_defined ... ok
+test every_r1_key_resolves_and_the_structural_zeros_are_exact_zeros ... ok
+test every_discriminating_value_control_fails_the_predicate ... ok
+vectors: 2020 plain, 408 magnitude, 1322 hold
+test the_exact_engine_agrees_with_the_generators_fractions_on_every_vector ... ok
+test the_expected_unresolved_list_is_thin_a_and_thin_b ... ok
+test the_files_hold_r1s_213_kernel_lane_cases_as_counted ... ok
+test the_case_files_match_their_recorded_sha256 ... ok
+test the_floor_check_reproduces_the_committed_not_covered_list ... ok
+test v_ks_s_star_equals_k4s_exported_functions_bit_for_bit ... ok
+test the_rows_outside_binary64s_range_are_cont_n10000s_five ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+
+
+running 1 test
+{"at":"th.N3.RY","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":null,"largest_difference_in_allowances":1.3552505353625656e-7,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-ROT-Q3"}
+{"at":"th.N1.RY","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":null,"largest_difference_in_allowances":1.3552505353625656e-7,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-ROT-Q9"}
+{"at":"","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":92,"largest_difference_in_allowances":0.0,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-OFF-1e3"}
+{"at":"","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":92,"largest_difference_in_allowances":0.0,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-OFF-1e6"}
+{"at":"","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":92,"largest_difference_in_allowances":0.0,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-RELABEL"}
+{"at":"tw.M3","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":null,"largest_difference_in_allowances":1.2051082421725988e-7,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-UNITS-mm"}
+{"at":"th.A1.RY","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":null,"largest_difference_in_allowances":1.35520377425823e-7,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-ROT-Q3"}
+{"at":"th.A1.RY","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":null,"largest_difference_in_allowances":1.35520377425823e-7,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-ROT-Q9"}
+{"at":"","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":44,"largest_difference_in_allowances":0.0,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-OFF-1e3"}
+{"at":"","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":44,"largest_difference_in_allowances":0.0,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-OFF-1e6"}
+{"at":"","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":44,"largest_difference_in_allowances":0.0,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-RELABEL"}
+{"at":"th.A2.RY","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":null,"largest_difference_in_allowances":6.617205928995264e-11,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-UNITS-mm"}
+{"at":"Mb.A4.j","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":null,"largest_difference_in_allowances":1.4817388084955128e-7,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-ROT-Q3"}
+{"at":"u.C4.UX","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":null,"largest_difference_in_allowances":1.348360352762395e-7,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-ROT-Q9"}
+{"at":"","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":128,"largest_difference_in_allowances":0.0,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-OFF-1e3"}
+{"at":"","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":128,"largest_difference_in_allowances":0.0,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-OFF-1e6"}
+{"at":"Mb.E1.i","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":127,"largest_difference_in_allowances":4.2485079875940544e-30,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-RELABEL"}
+{"at":"u.C4.UY","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":null,"largest_difference_in_allowances":1.3807210012286924e-7,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-UNITS-mm"}
+test every_small_variants_rows_map_onto_its_base ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.23s
+
+
+running 10 tests
+RF-CANCEL: rows 1444: passes 1441, absolute-range passes 0, not covered 3 | structural zeros 0, expected unresolved 0, failures 0
+RF-CANCEL: outcomes {"selected": 38}
+RF-CANCEL: controls discriminated 90, non-discriminating 62
+test rf_cancel ... ok
+RF-FINITE: rows 748: passes 748, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-FINITE: outcomes {"selected": 6}
+RF-FINITE: controls discriminated 6, non-discriminating 6
+test rf_finite ... ok
+RF-CHAIN: rows 2760: passes 2700, absolute-range passes 0, not covered 0 | structural zeros 60, expected unresolved 0, failures 0
+RF-CHAIN: outcomes {"selected": 30}
+RF-CHAIN: controls discriminated 82, non-discriminating 38
+test rf_chain ... ok
+RF-INVARIANCE: rows 7096: passes 7056, absolute-range passes 0, not covered 0 | structural zeros 40, expected unresolved 0, failures 0
+RF-INVARIANCE: outcomes {"selected": 25}
+RF-INVARIANCE: controls discriminated 47, non-discriminating 7
+test rf_invariance ... ok
+RF-MECH: rows 26: passes 26, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-MECH: outcomes {"refused": 8, "selected": 1}
+RF-MECH: controls discriminated 26, non-discriminating 0
+test rf_mech ... ok
+RF-RANGE: rows 2720: passes 2590, absolute-range passes 0, not covered 0 | structural zeros 80, expected unresolved 50, failures 0
+RF-RANGE: outcomes {"selected": 30, "unresolved": 2}
+RF-RANGE: controls discriminated 80, non-discriminating 12
+test rf_range ... ok
+RF-SKEW: rows 1080: passes 982, absolute-range passes 0, not covered 2 | structural zeros 96, expected unresolved 0, failures 0
+RF-SKEW: outcomes {"selected": 36}
+RF-SKEW: controls discriminated 105, non-discriminating 33
+test rf_skew ... ok
+RF-WEAK: rows 618: passes 566, absolute-range passes 0, not covered 46 | structural zeros 6, expected unresolved 0, failures 0
+RF-WEAK: outcomes {"selected": 9}
+RF-WEAK: controls discriminated 23, non-discriminating 13
+test rf_weak ... ok
+RF-ZERO: rows 158: passes 158, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-ZERO: outcomes {"selected": 4}
+RF-ZERO: controls discriminated 9, non-discriminating 0
+test rf_zero ... ok
+RF-LARGE: rows 9054: passes 9054, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-LARGE: outcomes {"selected": 12}
+RF-LARGE: controls discriminated 38, non-discriminating 0
+test rf_large_at_10_and_100_members ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 21.87s
+
+
+running 2 tests
+RF-LARGE-CHAIN-n00010-AX: sparse Passed dense Some("Passed") delta Some((true, 0.00026094085797555896))
+RF-LARGE-CHAIN-n00010-ROT: sparse Passed dense Some("Passed") delta Some((true, 0.03820034152276524))
+RF-MECH-LINE122-TORQUE: sparse NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot) dense Some("NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)")
+RF-LARGE-TREE-n00010-AX: sparse Passed dense Some("Passed") delta Some((true, 0.00630702766467845))
+RF-LARGE-TREE-n00010-ROT: sparse Passed dense Some("Passed") delta Some((true, 0.005227033029933681))
+RF-LARGE-CONT-n00010-AX: sparse Passed dense Some("Passed") delta Some((true, 1.901512327101089e-7))
+RF-MECH-LINE122-PERP: sparse NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot) dense Some("NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)")
+RF-LARGE-CONT-n00010-ROT: sparse Passed dense Some("Passed") delta Some((true, 1.0741256124506697e-5))
+RF-MECH-LINE122-UNLOADED: sparse NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot) dense Some("NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)")
+RF-MECH-LINE345-RZ: sparse NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot) dense Some("NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)")
+RF-MECH-K0: sparse NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot) dense Some("NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)")
+RF-MECH-LINE345-RX-COMPANION: sparse Passed dense Some("Passed")
+test rf_mech_is_refused_in_both_modes_with_bitwise_k ... ok
+RF-LARGE-CHAIN-n00100-AX: sparse Sensitive dense Some("Sensitive") delta Some((false, 2.233387772482559))
+RF-LARGE-CHAIN-n00100-ROT: sparse Sensitive dense Some("Sensitive") delta Some((false, 344.8670229204612))
+RF-LARGE-TREE-n00100-AX: sparse Sensitive dense Some("Sensitive") delta Some((false, 14.319897703190744))
+RF-LARGE-TREE-n00100-ROT: sparse Sensitive dense Some("Sensitive") delta Some((false, 11.164786596598626))
+RF-LARGE-CONT-n00100-AX: sparse Passed dense Some("Passed") delta Some((true, 4.7582915453598174e-7))
+RF-LARGE-CONT-n00100-ROT: sparse Passed dense Some("Passed") delta Some((true, 4.039333669930846e-5))
+test rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 13.42s
+
+
+running 2 tests
+test k4s_rcm_equals_sparse_directs_on_seeded_synthetic_graphs ... ok
+test k4s_rcm_equals_sparse_directs_on_every_ci_models_adjacency ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+
+running 1 test
+test the_counts_equal_k4s_storage_counts_on_every_factored_ci_case ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.29s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/piping_numerical_robustness-f18e65577dad7d51)
+     Running tests/adapter.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/adapter-171326531d4450fe)
+     Running tests/engine.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/engine-339caf2fcca8e29e)
+
+thread 'an_overflowed_published_row_fails' (15888844) panicked at tests/engine.rs:134:9:
+Value(0.0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `--test engine`
+     Running tests/feature_guard.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/feature_guard-a0127103522b305f)
+     Running tests/files.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/files-023312850821be65)
+     Running tests/invariance.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/invariance-f380503b46a48e4d)
+     Running tests/lane.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/lane-74d68683cbc46aee)
+     Running tests/parity.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/parity-29f093d91c486278)
+     Running tests/rcm.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/rcm-40d65129301a0b95)
+     Running tests/scale.rs (<wt>/vk-mut/c/RV21-H4/target/debug/deps/scale-cf73e6965e0f2935)
+   Doc-tests piping_numerical_robustness
+error: 1 target failed:
+    `--test engine`

@@ -9,11 +9,18 @@
 //! - A discriminating control that passes is listed, never dropped, and a
 //!   failing one is counted (a constructed case: every committed
 //!   discriminating control fails).
-use piping_numerical_robustness::cases::{cases_dir, parse_case};
+//! - RV21-2 (RV21's drafted tests; plan §5.2 and §6.4): a wrong observation of
+//!   a sub-range row fails, never an absolute-range pass; an `Overflow` row
+//!   fails through the lane's own observation (RV21's mutants H6 and H4).
+use open_pipe_stress_frame_kernel::structural::retained_api::{
+    Binary64Outcome, Kind, PublishedRow, QuantityId, RowClass,
+};
+use piping_numerical_robustness::cases::{cases_dir, load_family, parse_case, Target};
 use piping_numerical_robustness::compare::{judge, Observed, Tally, Verdict};
 use piping_numerical_robustness::exact::{self, Exact};
-use piping_numerical_robustness::lane::value_controls;
+use piping_numerical_robustness::lane::{observe, value_controls};
 use serde_json::Value;
+use std::collections::BTreeMap;
 
 #[test]
 fn the_comparison_scale_is_exps_magnitude_never_obss() {
@@ -75,4 +82,58 @@ fn a_discriminating_control_that_passes_is_listed_never_dropped() {
     assert_eq!(t.undiscriminated, ["RF-TEST-CONTROLS:NC-PASSES"]);
     assert_eq!(t.non_discriminating, 1);
     assert!(t.unexpectedly_failing.is_empty());
+}
+
+/// RV21-2 (plan §6.4): on R1's five sub-range rows, a normal value beyond
+/// 1e-9·scale fails (it is never an absolute-range pass).
+#[test]
+fn a_wrong_value_on_a_sub_range_row_fails() {
+    let rows: Value = serde_json::from_str(
+        &std::fs::read_to_string(cases_dir().join("absolute_range_rows.json")).unwrap(),
+    )
+    .unwrap();
+    for r in rows.as_array().unwrap() {
+        let exp = Exact::parse_decimal(r["expected"].as_str().unwrap()).unwrap();
+        let scale = Exact::parse_decimal(r["scale"].as_str().unwrap()).unwrap();
+        let t = exact::tolerance(&exp, &scale).approx();
+        for obs in [2.0 * t, -2.0 * t, 1.0] {
+            let v = judge(&Observed::Value(obs), &exp, &scale, true);
+            assert!(matches!(v, Verdict::Fail(_)), "{r} {obs:e}: {v:?}");
+        }
+    }
+}
+
+/// RV21-2 (plan §5.2): an `Overflow` row fails through the lane's own
+/// observation.
+#[test]
+fn an_overflowed_published_row_fails() {
+    let case = load_family("RF-CHAIN")
+        .into_iter()
+        .find(|c| c.id == "RF-CHAIN-T-n03-r1e-04")
+        .unwrap();
+    let model = case.model.as_ref().unwrap();
+    let row = case.rows.iter().find(|r| r.key.starts_with("th.")).unwrap();
+    let target = model.resolve(&row.key).unwrap();
+    let Target::Displacement(d) = target else {
+        panic!("{target:?}")
+    };
+    let id = QuantityId::Displacement(d);
+    let mut rows = BTreeMap::new();
+    for negative in [false, true] {
+        rows.insert(
+            id,
+            PublishedRow {
+                id,
+                kind: Kind::Rotation,
+                body: 0,
+                value: Binary64Outcome::Overflow { negative },
+                class: RowClass::Unpublishable,
+            },
+        );
+        let obs = observe(target, &rows, model);
+        assert!(matches!(obs, Observed::Unavailable(_)), "{obs:?}");
+        let exp = Exact::parse_decimal(&row.expected).unwrap();
+        let scale = Exact::parse_decimal(case.scale_of(row)).unwrap();
+        assert!(matches!(judge(&obs, &exp, &scale, true), Verdict::Fail(_)));
+    }
 }

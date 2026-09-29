@@ -19,18 +19,20 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
   - `64470c6ba`: B's code (`src/scale.rs`, `tests/scale.rs`, `examples/vk_scale.rs`, `runner/vk_scale_runner.py`) and its small-size check;
   - `a4b8c1957`: B's setup and the KF3 ExactSumSpan exception in the runner, with its tests;
   - `f5379a5d4`: B, the scale runs' records (`_run_records/b/runs/`, `summary.*`);
+  - `3fd1baff3`: D, filled from B, which RV21 reviewed (PASS);
+  - **proposed next:** RV21's fixes, RETURN addendum 1 and `_run_records/rv21/`;
   - **D:** this record, RETURN, `_run_records/` and SHA256SUMS.
-- **Size** (the product tree against main `0f5d8c7b4`, at `a4b8c1957`):
-  - 83 files, +42,867 and −260.
+- **Size** (the product tree against main `0f5d8c7b4`, at the final head: `3fd1baff3` plus RV21's fixes):
+  - 83 files, +42,980 and −260.
   - **FK:** 17 files, +581 and −260:
     - K6b's A0 export, which is shared with K6b: 11 files, +269 and −260;
     - V-K's own change: +186 lines in 11 existing files (`Cargo.toml` and 10 sources) and the new 126-line `retained/seeded.rs`. Every code line is cfg-gated.
   - **VR (new):** 66 files, all insertions:
-    - Rust, 5,005 lines;
-    - Python, 1,956 lines (the generator and the runners);
+    - Rust, 5,107 lines;
+    - Python, 1,965 lines (the generator and the runners);
     - the manifest and lock, 137 lines;
     - the README, 147 lines;
-    - generated data, 35,041 lines (the cases 2,990 and the observations 32,051).
+    - generated data, 35,043 lines (the cases 2,990 and the observations 32,053).
   - The breakdown below is at C (`e24e911e6`), against the export base `3018343c2`: 73 files, +41,086.
   - **VR (new):**
     - Rust, 4,028 lines: `src` 2,820, `tests` 1,067 and `examples` 141;
@@ -54,7 +56,7 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
   - its own `Cargo.lock`, with dependencies FK, SD and `serde_json` (`float_roundtrip`);
   - `cases/gen_vk_cases.py`, standard library only. It reads R1's three pinned inputs and writes the committed case files: 213 cases, of which 201 are CI-scale, the not-covered list (51), the expected-unresolved list (THIN-A and THIN-B), the five absolute-range rows, 2,428 engine vectors and the large models' sha256. `--check` regenerates in memory;
   - `src/`: the adapter's Rust half and R1's key map (`cases`), the exact bignum predicate and floor (`exact`), S\* (`floor`), the verdicts and tallies (`compare`), the lane (`lane`), the per-case records (`records`), RCM (`rcm`), parity (`parity`), invariance (`invariance`) and SHA-256 (`sha256`);
-  - `tests/`: `adapter`, `engine`, `feature_guard`, `files`, `invariance`, `lane`, `parity` and `rcm`, 43 tests in all with the lib's units;
+  - `tests/`: `adapter`, `engine`, `feature_guard`, `files`, `invariance`, `lane`, `parity`, `rcm` and `scale`, 47 tests in all with the lib's units at the final head;
   - `examples/vk_records.rs`, which regenerates the committed records in release, by decision only;
   - `observations/`: `kernel_lane/` (the per-case records, parity and invariance), `seeded/` (the kill matrix and the evidence) and `harness/` (the harness-mutant matrix), each with `SHA256SUMS`;
   - `runner/`: `run_seeded_faults.py`, `check_fault_sites.py` and `run_harness_mutants.py`, standard library only, never CI.
@@ -103,7 +105,15 @@ This is the draft PR record for slice V-K of T3 (numerical integrity). It follow
     - VR's suite passes 43 of 43, with every committed per-case record unchanged, work included;
     - VK-R28's release selections are unchanged.
 - **The harness mutants (C):** all 18 are killed. NONE (43 of 43) and NONE-GEN, whose regeneration is byte-identical, pass.
-- **The CI cost:** VR's fresh build takes 3.8 s, and its tests take 37.9 s in debug on the Mac.
+  - After RV21's review, RV21's mutants H4 and H6 are killed as well. NONE passes 47 of 47 (addendum 1), giving 20 killed in all.
+- **The CI cost:** VR's fresh build takes 3.8 s, and its tests take 37.9 s in debug on the Mac (at C). RV21 measured 46.6 s for VR's step in the dispatch's numerical job, build included (20 min 6 s in all).
+- **RV21's review: PASS** on `3fd1baff3`, with 0 BLOCKING, 2 SHOULD-FIX and 5 NOTEs. The fixes are in RETURN addendum 1:
+  - RV21-1: the feature guard flags any manifest enabling VR's `seeded-faults`;
+  - RV21-2: two constructed tests, which kill RV21's mutants H4 and H6 from clean copies;
+  - N1: the counts updated here;
+  - N3's set check added;
+  - N2, N4 and N5 recorded.
+  - VR's suite passes 47 of 47.
 - **The scale runs (B):** all 18 runs are ok, with no stop.
   - 100 and 1,000 members: all 12 are selected at 128, and every row passes. At 1,000 members C9's two floor sets are empty.
   - 10,000 members *(pre-KF3)*:

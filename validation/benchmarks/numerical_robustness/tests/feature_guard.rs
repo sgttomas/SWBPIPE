@@ -4,8 +4,9 @@
 //! `frame_kernel`'s `mutation-controls` feature may be named only where it is
 //! defined (FK's `[features]` table, as a key) and in this crate's
 //! `[features]` table (as the value of `seeded-faults`); never in a
-//! dependency table and never in a `default` list. CI's cargo command passes
-//! no features. No VR source names a path under the execution tree, which the
+//! dependency table and never in a `default` list. VR's `seeded-faults`, which
+//! enables it, may be named only as that table's key (RV21-1). CI's cargo
+//! command passes no features. No VR source names a path under the execution tree, which the
 //! CI checkout omits.
 use piping_numerical_robustness::cases::crate_dir;
 use std::path::{Path, PathBuf};
@@ -44,7 +45,9 @@ fn violations(text: &str, role: &str) -> Vec<String> {
             table = line.to_string();
             continue;
         }
-        let names_it = line.contains(FEATURE) || (role == "vr" && line.contains("seeded-faults"));
+        // RV21-1: VR's `seeded-faults` enables FK's feature, so naming it is
+        // enabling it, in any manifest but as the key of VR's own table.
+        let names_it = line.contains(FEATURE) || line.contains("seeded-faults");
         if !names_it {
             continue;
         }
@@ -134,4 +137,22 @@ fn the_guard_flags_what_it_must() {
     assert_eq!(violations(vr_default, "vr").len(), 1);
     let dev = "[dev-dependencies]\nfk = { path = \"x\", features = [\"mutation-controls\"] }\n";
     assert_eq!(violations(dev, "vr").len(), 1);
+}
+
+/// RV21-1 (RV21's self-test): enabling VR's `seeded-faults` from another
+/// manifest enables FK's `mutation-controls` transitively, and is flagged.
+#[test]
+fn a_manifest_enabling_vrs_seeded_faults_is_flagged() {
+    let dep = "[dependencies]\npiping_numerical_robustness = { path = \"../x\", features = [\"seeded-faults\"] }\n";
+    assert_eq!(
+        violations(dep, "other").len(),
+        1,
+        "a dependency on VR with seeded-faults"
+    );
+    let fwd = "[features]\nx = [\"piping_numerical_robustness/seeded-faults\"]\n";
+    assert_eq!(
+        violations(fwd, "other").len(),
+        1,
+        "a feature forwarding to VR's seeded-faults"
+    );
 }

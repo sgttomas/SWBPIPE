@@ -8,7 +8,7 @@
 > finding. V3 re-runs after KF3 merges, and those figures are replaced then.
 
 - **Brief:** `T3/TASK_BRIEFS/I17_VK_IMPLEMENTATION.md`. As dispatched it had sha256 `06b16b82…`, committed at `306e225fe`, read at the numerics head.
-- **Branch:** `codex/piping-vk-20260929`, from main `ab02ee3a6` (K4 merged). The checked head is `485320e95`: ROOT's merge of main `0f5d8c7b4` (KF1) into the D draft `24449b5c8`. The runner and README edits of §12.4 are not yet committed.
+- **Branch:** `codex/piping-vk-20260929`, from main `ab02ee3a6` (K4 merged). RV21 reviewed head `3fd1baff3` (PASS). This return describes that head plus the RV21 fixes of addendum 1, which ROOT commits.
 - **Platform:** `aarch64-apple-darwin` (macOS 26.6.2, arm64), with rustc and cargo 1.97.1 (`_run_records/a1/toolchain.txt`).
   - **Every observation is Mac-only.**
 - **Observations only.** No test or record asserts a threshold, a time or a memory bound. V-K records outcomes and work. ROOT sets the limits.
@@ -35,8 +35,14 @@
     - `37bff1780`: A1;
     - `c1fea8574`: A2;
     - `e24e911e6`: C;
-  - `24449b5c8`: D, the draft;
-  - `485320e95`: main `0f5d8c7b4` (KF1) merged in, with no conflict.
+    - `24449b5c8`: D, the draft;
+    - `485320e95`: main `0f5d8c7b4` (KF1) merged in, with no conflict;
+    - `f94342a3d`: the post-KF1 re-run (§12.4) and `check_fault_sites.py`'s `--allow-commit`;
+    - `64470c6ba`: B's code and its small-size check;
+    - `a4b8c1957`: B's setup and the KF3 exception, with its tests;
+    - `f5379a5d4`: B's records;
+    - `3fd1baff3`: D, filled from B (the head RV21 reviewed);
+    - then RV21's fixes (addendum 1), committed by ROOT.
 - **Basis:**
   - D1 `DESIGN.md` revision 5a.2 (`fb62ef4a…`):
     - §4.10, "W5 — the VP-ROBUST harness" (`:850`), with its kernel lane (`:857`);
@@ -65,9 +71,18 @@
   - "V-K: C accepted".
   - Messages ROOT sent in the session and that are not yet in `ROOT_RULINGS_V1.md` are cited where they are used. For example, B waits for KF1.
 
-## 2. Files and line counts (against the export base `3018343c2`)
+## 2. Files and line counts
 
-**V-K's product-tree change is 73 files and 41,086 lines, all insertions.**
+**At the final head (`3fd1baff3` plus addendum 1), against main `0f5d8c7b4`:** 83 files, +42,980 and −260.
+- **FK:** 17 files, +581 and −260. This is K6b's shared A0 export (11 files, +269 and −260) plus V-K's own +186 lines in 11 existing files and the 126-line `seeded.rs`.
+- **VR:** 66 new files:
+  - Rust, 5,107 lines;
+  - Python, 1,965;
+  - the manifest and lock, 137;
+  - the README, 147;
+  - generated data, 35,043 (the cases 2,990 and the observations 32,053).
+
+**The table below is at C** (`e24e911e6`), against the export base `3018343c2`: 73 files and 41,086 lines, all insertions. B added `src/scale.rs` (390 lines), `tests/scale.rs` (72), `examples/vk_scale.rs` (513), `runner/vk_scale_runner.py` and its test. Addendum 1 added three tests and N3's check.
 
 | Path | Lines | What |
 |---|---:|---|
@@ -361,6 +376,7 @@ At A2 it ran VR's 40 tests. The post-KF1 re-run ran 43 and matched A2 row for ro
   - `FK_SEEDED_FAULT` was unset;
   - generator mutants regenerated the case files first.
 - **Run c1:** 20 runs, 26.5 min. **Run c2:** NONE and the three former survivors, re-run with `tests/engine.rs` overlaid; each overlay file's sha256 is in its row.
+- **Run rv21** (addendum 1): NONE, RV21-H4 and RV21-H6 from clean copies of `3fd1baff3`, with RV21's tests overlaid. NONE passes 47 of 47, and each mutant is killed by its own test.
 
 | Id | Run | Mutant | Verdict | Killed by |
 |---|---|---|---|---|
@@ -382,6 +398,8 @@ At A2 it ran VR's 40 tests. The post-KF1 re-run ran 43 and matched A2 row for ro
 | VK-H11 | c2 (c1 survived) | a passing discriminating control dropped | killed | `a_discriminating_control_that_passes_is_listed_never_dropped` |
 | VK-H12 | c1 | the feature guard ignores dependency tables | killed | the guard's self-test |
 | VK-H13 | c1 | an expected-unresolved case counted as a pass | killed | RF-RANGE's pin |
+| RV21-H4 | rv21 | an `Overflow` row observed as +0 (RV21's mutant) | killed | `an_overflowed_published_row_fails` |
+| RV21-H6 | rv21 | a sub-range row passes as absolute-range whatever the observation (RV21's mutant) | killed | `a_wrong_value_on_a_sub_range_row_fails` |
 
 - **The three c1 survivors** were not harness defects. R1's committed CI data never reaches those paths.
   - Two tests that plan §14.1 promised had not been delivered at A1.
@@ -489,9 +507,11 @@ All five take the same two attempts:
 - **These are observations with their load, not a timing claim.** Timing is K6b's.
 ## 15. Suites, CI time, toolchain and host
 
-- **VR's suite, 43 tests, all passing on `e24e911e6` plus `tests/engine.rs`.** They are:
+- **VR's suite at the final head: 47 tests, all passing, in 9 test files** (`_run_records/rv21/vr_suite.log`). They are:
   - lib units 7;
-  - `adapter` 4, `engine` 3, `feature_guard` 4, `files` 10, `invariance` 1, `lane` 10, `parity` 2 and `rcm` 2.
+  - `adapter` 4, `engine` 5, `feature_guard` 5, `files` 10, `invariance` 1, `lane` 10, `parity` 2, `rcm` 2 and `scale` 1.
+  - **The history:** 40 at A1, 43 at C (`tests/engine.rs`), 44 at B (`tests/scale.rs`), and 47 after RV21's fixes (two engine tests and the guard's self-test).
+  - The runner's own tests (`runner/test_vk_scale_runner.py`, 8) are standard-library Python outside CI, as ROOT ruled.
 - **VR's CI cost** (debug, `-j 4`, `RUST_TEST_THREADS=2`, on the Mac):
   - the fresh-target build takes 3.8 s (A1, `_run_records/a1/vr_fresh_build_final.log`);
   - the test binaries sum to 37.9 s at C, with `lane` 19.6 s, `parity` 11.7 s and `adapter` 3.7 s (`_run_records/c/run2/vr_suite_worktree.log`). At A1, with 40 tests, they summed to 35.1 s.
@@ -661,4 +681,42 @@ Work is in K4's limb-multiply equivalents (LME), taken from the committed record
   - `setup/`: the binary's build and sha256, the large models' generation and check, the counts-only runs (`counts.jsonl`), and the runner test's log;
   - `runs/`: the runner's `records.jsonl`, each run's JSONL, record, stderr and time file, the baselines, `metadata.json` and the three tier logs;
   - `summary.py` and `summary.txt`.
+- **`_run_records/rv21/`:** addendum 1's harness run (NONE, RV21-H4 and RV21-H6, with their logs and diffs) and VR's suite at the final head.
 - **`SHA256SUMS`** covers every file under `IMPLEMENTATION/VK/` except itself. It is regenerated whenever a file changes, and last at D's close.
+
+## RETURN addendum 1: RV21's review (PASS on `3fd1baff3`; the fixes)
+
+RV21 (`REVIEW/VK_REVIEW.md`, records `REVIEW/_run_records/vk_review/`) found 0 BLOCKING, 2 SHOULD-FIX and 5 NOTEs. ROOT's rulings ("V-K: rulings on RV21's review") require RV21-1, RV21-2 and N1 before the merge.
+
+### A1.1 RV21-1: the feature guard misses the transitive way in
+
+- **The finding:** a manifest enabling VR's `seeded-faults` would enable FK's `mutation-controls` through VR, and the guard looked only for the literal name.
+- **The fix is RV21's one line.** `violations` now treats `seeded-faults` like `mutation-controls` in every manifest, allowed only as the key of VR's own `[features]` table (`tests/feature_guard.rs`, `names_it`).
+- **RV21's self-test** is added as `a_manifest_enabling_vrs_seeded_faults_is_flagged`. It covers a dependency on VR with the feature, and a feature forwarding to it.
+- The guard's five tests pass, and every manifest under `P/` is still clean.
+
+### A1.2 RV21-2: two failure paths pinned by constructed tests
+
+- **The finding:** two failure paths were pinned by no test. R1's CI rows reach neither: the sub-range rows are CONT-n10000's, and no CI row overflows.
+- **The fix:** RV21's two drafted tests are added to `tests/engine.rs`:
+  - `a_wrong_value_on_a_sub_range_row_fails`: ±2t and 1.0 fail on each of R1's five sub-range rows;
+  - `an_overflowed_published_row_fails`: an `Overflow` row of either sign, through `lane::observe`, is `Unavailable` and fails.
+- **The mutants, from clean copies of `3fd1baff3` with the test files overlaid** (`_run_records/rv21/`; `run_harness_mutants.py` now carries RV21-H4 and RV21-H6):
+  - NONE passes 47 of 47;
+  - RV21-H4 (`Overflow` observed as +0) is killed by `an_overflowed_published_row_fails` alone;
+  - RV21-H6 (`Some(_)` for `Some(true)` in the absolute-range verdict) is killed by `a_wrong_value_on_a_sub_range_row_fails` alone.
+- **The harness matrix** (`observations/harness/harness_matrix.jsonl`) now has 22 rows: 20 mutants killed, plus NONE and NONE-GEN.
+  - NONE is re-run as run `rv21` and keeps its earlier result under `previous`.
+  - The other rows are carried from runs c1 and c2.
+
+### A1.3 The NOTEs
+
+- **N1 (done):** RETURN §1 gives the head and the full commit list, and §2 gives the head's size, with the table labelled as at C. §13 lists RV21's two mutants, §15 gives the 47 tests in 9 files, and CHANGE_RECORD matches.
+- **N2 (recorded):** plan §3's subprocess `--model` check was not implemented. The generator calls `model_json(defn, full=True)` in process, which `references.py:2984-2994` shows is what `--model` prints.
+  - RV21 closed the gap independently: 191 subprocess `--model` runs equal the committed models, and on two RF-LARGE cases the in-process JSON equals the subprocess output (`REVIEW/_run_records/vk_review/probes/adapter_check.log`).
+- **N3 (done in part):** `tests/files.rs` now asserts that `not_covered.json` has no duplicate and is set-equal to the cases' lists.
+  - The self-referential `SHA256SUMS` pin is unchanged. The cases' faithfulness to R1 rests on `gen_vk_cases.py --check`, which CI cannot run, and on review.
+- **N4 (recorded):** the KF3 exception is keyed on size, outcome text, nothing published and a single failure, not on the stop's location. All five B cases stop in the 256 verification's shared build (§14.2). If the exception outlives KF3, it should also require that location: attempt 2 a verification, `Failed(Stop(Span))`, with no `uc` work. It is meant to be retired after KF3.
+- **N5 (recorded):** `lane::run_parts` would list a below-floor structural-zero row in `not_covered` while tallying it as a structural zero, so the list and the tally could disagree for such a row.
+  - R1 has none: 51 are listed and 51 tallied. It affects no verdict.
+  - The lane test's list equality with the committed list would show any such row.
