@@ -1685,3 +1685,20 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
 - **Consequences:**
   - F1b merges second, so it merges main and re-runs its suites, T9 and gate part 1, which is quick at about 6 minutes, before its merge.
   - K6 merges main and re-runs test E (N6).
+
+## K6: A2 accepted; schedule approved; B1 granted (ROOT, 2026-09-29)
+
+- **A2 accepted.**
+  - H's suite passes, and the runner's 27 tests pass, including the live watchdog and the negative control.
+  - N15: the wrapper passes through the DEC-025 pytest surface's invocation, so `ps`, `pgrep` and process-group kills work in that context.
+  - `--smoke`: staged is identical to SA's entry on 84 of 84 lines. The watchdog killed its child at 136,480 KiB against a 128 MiB cap, within one poll's growth. The heap-cap abort was classified `heap_cap_abort`.
+- **Committed on the K6 branch:** A1 and A2 at `9ababe4f2`, with the records moved to the branch as for K5 and F1b. Main `1cdeae2c1`, which includes K5, is merged in at `1f354c20b`. It overlaps no K6 file.
+- **N6:** before B, re-run test E and H's full suite on `1f354c20b`. A failure of E on frame-only models is a stop.
+- **The schedule is approved** (`_run_records/a2/plan.txt`, sha256 `93cd36d5…`, 138 rows).
+  - 14 rows are refused by name.
+  - Grid 128×128 is deferred by name until ROOT rules on it after 96×96.
+  - T6 (the ceiling run) is decided at B3, by the measured ρ under the rule as written.
+- **B1 is granted:** T1 → T2 → T3a → T4 → T5.
+  - B's binary is built from `git archive 1f354c20b`, and every record carries `--source-commit`.
+  - **An added host condition** for timed runs, as the gate used: before each run, wait while the 1-minute load average is above 8, until it is below 6; record the load at start and end. Other agents are building intermittently. Memory figures are deterministic; timings carry the recorded load.
+  - Send `--project` after T2. B2 and B3 are separate grants.
