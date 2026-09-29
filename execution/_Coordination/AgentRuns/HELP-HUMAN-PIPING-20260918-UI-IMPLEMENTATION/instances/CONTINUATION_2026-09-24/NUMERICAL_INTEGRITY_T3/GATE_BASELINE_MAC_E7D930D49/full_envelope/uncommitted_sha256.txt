@@ -1,0 +1,4 @@
+Kept uncommitted in ROOT's scratch (<wt>/scratch/gate_base_e7d930d49_full/) because of their size (runs.jsonl; full/ holds 794 full envelopes, 1.0 GB). ROOT keeps them for as long as a record cites them.
+
+9139140c80a6b5233ef67c01b8eaec0df85e7c4ed44df41249cbb73ff902a38d  runs.jsonl
+14d052cabad25035850cae30292e00cd30868cecd4381308c9616d0b43feb02b  SHA256SUMS (the full re-run's digest list: 3,612 files, including every full envelope)

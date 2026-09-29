@@ -1,0 +1,81 @@
+RV14 SA probe (rv14_sa_probe.rs), built identically as an NI integration test in git-archive copies of 24dea2dae (base) and b379e5b27 (head).
+Each line: model | mode | b | selected | entry | full Debug of the outcome (displacement bits and report, or the error).
+  sa_probe_base.txt c3c2fc9f5aa9d12044fd8cb59e544e99e76cc98ef1f48f5dd7204ae706c491a1 (182 lines)
+  sa_probe_cand.txt 5f367583611ade7f26e6de1a5f4081efc77c6295689fc157b9b067cc09569f35 (182 lines)
+Lines that differ (diff base head): 12
+Models with any difference: X2_curved_first_then_frame 
+Differing lines, by model|mode|b|selected|entry:
+  X2_curved_first_then_frame|DenseScrutiny|b=0|selected=true|dense checked
+  X2_curved_first_then_frame|DenseScrutiny|b=0|selected=true|sparse checked
+  X2_curved_first_then_frame|DenseScrutiny|b=0|selected=true|dense fs checked
+  X2_curved_first_then_frame|DenseScrutiny|b=0|selected=true|sparse fs checked
+  X2_curved_first_then_frame|DenseScrutiny|b=2|selected=true|dense fs checked
+  X2_curved_first_then_frame|DenseScrutiny|b=2|selected=true|sparse fs checked
+  X2_curved_first_then_frame|SparseInteractive|b=0|selected=true|dense checked
+  X2_curved_first_then_frame|SparseInteractive|b=0|selected=true|sparse checked
+  X2_curved_first_then_frame|SparseInteractive|b=0|selected=true|dense fs checked
+  X2_curved_first_then_frame|SparseInteractive|b=0|selected=true|sparse fs checked
+  X2_curved_first_then_frame|SparseInteractive|b=2|selected=true|dense fs checked
+  X2_curved_first_then_frame|SparseInteractive|b=2|selected=true|sparse fs checked
+Frame-only models F1-F5 and the frame-first mixed model X1: byte-identical on every entry, mode and b.
+
+RV14 SA mutant probe (rv14_sa_mutprobe.rs; models P1, P2), same build:
+  sa_mutprobe_base.txt 278a69341889da93779f3b28984322f44e8b6c3de9912fd8f3708cfbcbb00875
+  sa_mutprobe_cand.txt 278a69341889da93779f3b28984322f44e8b6c3de9912fd8f3708cfbcbb00875
+  base and head byte-identical: yes
+  head, selected b = 0 entries:
+    P1_curved_curved_disagree|DenseScrutiny|b=0|selected=true|dense checked|Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(16) }
+    P1_curved_curved_disagree|DenseScrutiny|b=0|selected=true|sparse checked|Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(16) }
+    P1_curved_curved_disagree|SparseInteractive|b=0|selected=true|dense checked|Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(3)
+    P1_curved_curved_disagree|SparseInteractive|b=0|selected=true|sparse checked|Err NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(3
+    P2_curved_spring_companion|DenseScrutiny|b=0|selected=true|dense checked|Ok disp=[0, 0, 0, 13785626545772144810, 13790209198274871611, 13725029800826119519, 4512822578755033832, 137195522685
+    P2_curved_spring_companion|DenseScrutiny|b=0|selected=true|sparse checked|Ok disp=[0, 0, 0, 13785626545772144810, 13790209198274871611, 13725029800826119519, 4512822578755033832, 13719552268
+    P2_curved_spring_companion|SparseInteractive|b=0|selected=true|dense checked|Ok disp=[0, 0, 0, 13785626545772145237, 13790209198274872042, 13725029800826119441, 4512822578755033833, 13719552
+    P2_curved_spring_companion|SparseInteractive|b=0|selected=true|sparse checked|Ok disp=[0, 0, 0, 13785626545772145237, 13790209198274872042, 13725029800826119441, 4512822578755033833, 1371955
+
+RV14 PP spot-check (rv14_pp_probe.rs: I14's product-run harness functions from _run_records/a2/k5_product_runs.rs.txt, a reduced corpus, and 3 RV14 models), git-archive builds of base and head, both entries, both modes:
+  pp_runs_base.txt 2c9338d7d4f2f29880507f0707436c5158223bc279f06d814def6c27d9e9dbe2 (40 runs)
+  pp_runs_cand.txt 6da8721d42321a9b1152e1f7f6439d8b14717f8d29672e8dea16049b3356c7e9 (40 runs)
+  re-run lines also in I14's records: 28; byte-identical to product_runs_main.txt: 28; to product_runs_candidate.txt: 28
+  per run: base -> head
+    arc_model_k2 captured DenseScrutiny: MECHANICS_SOLVED/checks_passed/-/cb98c501 -> MECHANICS_SOLVED/checks_passed/-/cb98c501 [unchanged]
+    arc_model_k2 captured SparseInteractive: MECHANICS_SOLVED/checks_passed/-/885a2d5b -> MECHANICS_SOLVED/checks_passed/-/885a2d5b [unchanged]
+    arc_model_k2 typed DenseScrutiny: MECHANICS_SOLVED/checks_passed/-/cb98c501 -> MECHANICS_SOLVED/checks_passed/-/cb98c501 [unchanged]
+    arc_model_k2 typed SparseInteractive: MECHANICS_SOLVED/checks_passed/-/885a2d5b -> MECHANICS_SOLVED/checks_passed/-/885a2d5b [unchanged]
+    constructed_companion_r0.25_o1024 captured DenseScrutiny: MECHANICS_SOLVED/checks_passed/-/16ca8692 -> MECHANICS_SOLVED/checks_passed/-/16ca8692 [unchanged]
+    constructed_companion_r0.25_o1024 captured SparseInteractive: MECHANICS_SOLVED/checks_passed/-/882fb9da -> MECHANICS_SOLVED/checks_passed/-/882fb9da [unchanged]
+    constructed_companion_r0.25_o1024 typed DenseScrutiny: MECHANICS_SOLVED/checks_passed/-/16ca8692 -> MECHANICS_SOLVED/checks_passed/-/16ca8692 [unchanged]
+    constructed_companion_r0.25_o1024 typed SparseInteractive: MECHANICS_SOLVED/checks_passed/-/882fb9da -> MECHANICS_SOLVED/checks_passed/-/882fb9da [unchanged]
+    constructed_gap_r0.25_o1024 captured DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/741c7744 -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/741c7744 [unchanged]
+    constructed_gap_r0.25_o1024 captured SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/5b87c150 -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/5b87c150 [unchanged]
+    constructed_gap_r0.25_o1024 typed DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/741c7744 -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/741c7744 [unchanged]
+    constructed_gap_r0.25_o1024 typed SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/5b87c150 -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/5b87c150 [unchanged]
+    constructed_mechanism_r0.25_o1024 captured DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/3019362d -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/316bc254 [K5-C1]
+    constructed_mechanism_r0.25_o1024 captured SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0978222a -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/316bc254 [K5-C1]
+    constructed_mechanism_r0.25_o1024 typed DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/c9a5257a -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ca961f1d [K5-C1]
+    constructed_mechanism_r0.25_o1024 typed SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0da67104 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ca961f1d [K5-C1]
+    constructed_mechanism_r0.2_o0 captured DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/3019362d -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/682476dd [K5-C2]
+    constructed_mechanism_r0.2_o0 captured SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0978222a -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/682476dd [K5-C2]
+    constructed_mechanism_r0.2_o0 typed DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/c9a5257a -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/90fa0a19 [K5-C2]
+    constructed_mechanism_r0.2_o0 typed SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0da67104 -> MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/90fa0a19 [K5-C2]
+    constructed_mechanism_r0.3_o1000 captured DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/3019362d -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/316bc254 [K5-C1]
+    constructed_mechanism_r0.3_o1000 captured SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0978222a -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/316bc254 [K5-C1]
+    constructed_mechanism_r0.3_o1000 typed DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/c9a5257a -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ca961f1d [K5-C1]
+    constructed_mechanism_r0.3_o1000 typed SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0da67104 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ca961f1d [K5-C1]
+    pp_route_utm_5e6 captured DenseScrutiny: MECHANICS_SOLVED/sensitive/-/854ffe06 -> MECHANICS_SOLVED/sensitive/-/854ffe06 [unchanged]
+    pp_route_utm_5e6 captured SparseInteractive: MECHANICS_SOLVED/sensitive/-/f722d765 -> MECHANICS_SOLVED/sensitive/-/f722d765 [unchanged]
+    pp_route_utm_5e6 typed DenseScrutiny: MECHANICS_SOLVED/sensitive/-/fb6c92e2 -> MECHANICS_SOLVED/sensitive/-/fb6c92e2 [unchanged]
+    pp_route_utm_5e6 typed SparseInteractive: MECHANICS_SOLVED/sensitive/-/5be157ad -> MECHANICS_SOLVED/sensitive/-/5be157ad [unchanged]
+    rv14_lone_arc_pinned_o0 captured DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/6add4e38 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/c8152b88 [K5-C1]
+    rv14_lone_arc_pinned_o0 captured SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/a0670790 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/c8152b88 [K5-C1]
+    rv14_lone_arc_pinned_o0 typed DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/b1231c2b -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ed81c41c [K5-C1]
+    rv14_lone_arc_pinned_o0 typed SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/f5e04474 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ed81c41c [K5-C1]
+    rv14_lone_arc_pinned_o4096 captured DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/6add4e38 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/c8152b88 [K5-C1]
+    rv14_lone_arc_pinned_o4096 captured SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/a0670790 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/c8152b88 [K5-C1]
+    rv14_lone_arc_pinned_o4096 typed DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/b1231c2b -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ed81c41c [K5-C1]
+    rv14_lone_arc_pinned_o4096 typed SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/f5e04474 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ed81c41c [K5-C1]
+    rv14_mechanism_r0.25_o12345.678 captured DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/3019362d -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/316bc254 [K5-C1]
+    rv14_mechanism_r0.25_o12345.678 captured SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0978222a -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/316bc254 [K5-C1]
+    rv14_mechanism_r0.25_o12345.678 typed DenseScrutiny: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/c9a5257a -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ca961f1d [K5-C1]
+    rv14_mechanism_r0.25_o12345.678 typed SparseInteractive: MODEL_INCOMPLETE/unresolved/NUMERICAL_INTEGRITY_UNRESOLVED/0da67104 -> MODEL_INCOMPLETE/failed/NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM/ca961f1d [K5-C1]
+  runs where base published (MECHANICS_SOLVED) and head differs: 0

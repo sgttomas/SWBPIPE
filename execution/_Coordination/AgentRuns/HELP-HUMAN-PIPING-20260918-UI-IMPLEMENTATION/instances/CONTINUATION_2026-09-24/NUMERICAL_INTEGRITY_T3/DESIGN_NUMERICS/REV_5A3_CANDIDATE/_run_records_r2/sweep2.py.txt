@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Revision 2 sweep: the candidate's 1,966 seeded random frames (sweep.gen,
+seeds 11 and 12) under the current rule (K4's gate), the candidate (iii, K4's
+gate) and the revision (fin: iii + estimator, bounded-operator gate). Each
+classification is checked against the P = 2048 reference; G5a's published
+checks and W/V are recorded.
+Usage: python3 sweep2.py <seed> <count>  ->  sweep2_<seed>.json"""
+import json, random, sys, time
+import emu2
+from emu2 import Case, schedule, classify, honesty, solve_at, Stop
+from sweep import gen
+
+RUNS = [("current", "k4"), ("iii", "k4"), ("fin", "hybrid")]
+
+
+def main():
+    seed, count = int(sys.argv[1]), int(sys.argv[2])
+    rng = random.Random(seed)
+    out = []
+    t0 = time.time()
+    for idx in range(count):
+        m = gen(rng, idx)
+        case = Case(m)
+        rec = dict(name=m["name"], runs={})
+        emu2.GATE = "absolute"
+        try:
+            ref = solve_at(case, 2048, ref=True, estimate=False)
+        except Stop as s:
+            rec["ref"] = s.what
+            out.append(rec)
+            continue
+        caches = {}
+        for opt, gate in RUNS:
+            emu2.GATE = gate
+            r = schedule(case, opt, caches.setdefault(gate, {}))
+            o = dict(selected=r["selected"], solved=r["solved"],
+                     reasons=[a[1].split(":")[1] if a[1].startswith("rejected:") else a[1] for a in r["attempts"]])
+            if r["selected"] is not None:
+                pub, cl, sc, g5 = classify(case, r, opt)
+                w, c = honesty(case, pub, cl, ref)
+                o.update(counts=c, worst=w[0], row=str(w[1]), honest=w[0] <= 1.0, g5a=[str(x) for x in g5],
+                         w_over_v=r["info"]["w_over_v"])
+            rec["runs"]["%s/%s" % (opt, gate)] = o
+        emu2.GATE = "absolute"
+        out.append(rec)
+        if idx % 50 == 0:
+            print(idx, round(time.time() - t0, 1), flush=True)
+    json.dump(out, open("sweep2_%d.json" % seed, "w"))
+
+
+if __name__ == "__main__":
+    main()

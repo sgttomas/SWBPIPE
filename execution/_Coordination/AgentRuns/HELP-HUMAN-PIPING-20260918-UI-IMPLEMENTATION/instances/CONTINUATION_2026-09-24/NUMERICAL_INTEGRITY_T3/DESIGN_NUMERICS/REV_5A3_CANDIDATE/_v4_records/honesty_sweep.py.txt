@@ -1,0 +1,33 @@
+"""V4: full schedule under the current rule and (iii) on adversarial models (adversary.gen),
+with the tiny loads saturated at the verification precision 256 (lever2.saturate);
+honesty on every published row (translations and rotations included)."""
+import json, random, sys, time
+from v4emu import run, Stop
+from adversary import gen
+from lever2 import saturate
+seed = int(sys.argv[1]); count = int(sys.argv[2]); budget = float(sys.argv[3])
+rng = random.Random(seed)
+t0 = time.time(); k = 0; ran = 0
+summary = dict(current=dict(false=[], selected={}), iii=dict(false=[], selected={}))
+while ran < count and time.time() - t0 < budget:
+    k += 1
+    m = gen(rng, k)
+    if m is None: continue
+    if rng.random() < 0.7:
+        m = saturate(m, 256, rng.choice((1.0, -1.0)))
+    try:
+        out, tr = run(m, rules=("current", "iii"), verbose=False)
+    except (Stop, ZeroDivisionError, StopIteration, ValueError):
+        continue
+    ran += 1
+    for rule in ("current", "iii"):
+        rec = out[rule]
+        sel = str(rec["selected"])
+        summary[rule]["selected"][sel] = summary[rule]["selected"].get(sel, 0) + 1
+        h = rec.get("honesty")
+        if h and (h[0] == "inf" or h[0] > 1):
+            summary[rule]["false"].append((m["name"], str(h)))
+print("ran", ran)
+for rule in ("current", "iii"):
+    print(rule, "selected:", summary[rule]["selected"], "false claims:", len(summary[rule]["false"]), summary[rule]["false"][:8])
+json.dump(dict(seed=seed, ran=ran, summary=summary), open("honesty_sweep_%d.json" % seed, "w"), indent=1)

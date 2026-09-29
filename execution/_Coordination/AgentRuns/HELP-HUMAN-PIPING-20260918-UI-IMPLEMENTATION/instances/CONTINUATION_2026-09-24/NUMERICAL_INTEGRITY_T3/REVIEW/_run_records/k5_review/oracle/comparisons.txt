@@ -1,0 +1,43 @@
+RV14 oracle runs (FK probe rv14_fk_probe.rs on a clean archive of b379e5b27; oracle rv14_oracle.py)
+corpora:
+  cases_all.txt = cases_r1.txt (gen, seed 1402: 1,500 random R*, 1,200 constructed M*, 26 targeted T*) + cases_tiny.txt (gen_tiny, seed 1403: 1,500 S*)
+  2ea2b8af5d4f14a7ce102dda8b91390488df3ae4485b0a83c7586507994e07b9  cases_r1.txt  (2726 lines)
+  94c6b842dc33a50e6693f73ca191af46f9392489eec2786bd68013ac8dff0fbe  cases_tiny.txt  (1500 lines)
+  d8c79e5f848fbc12073738720eeef8c90aa40d0f64d106141b99556c766cb731  cases_all.txt  (4226 lines)
+  862d4614d20cb33675011870aa490a1b780aba6a7cf995a9c2593189f1eefaf7  results_all.txt  (4226 lines)
+  82db870a734b02cfcc342a0ab0b680fae18fcb5d52e2ab03dea92e95696b4d72  cases_huge.txt  (700 lines)
+  62e4ff8f0146f38975bfec38ffda4cb748ee4fa1e17a6b0d5bea7a1fffa0bf13  results_huge.txt  (700 lines)
+  0529ca530b4eaf7a9e8afa938bf7ddc425501b1dd6b6229812cc0ce1adeffcc9  cases_rv14_4.txt  (6 lines)
+  e467cefaa1c7d601e8934834507c2725e3a2eedefcec42ee5da6d0f754238042  results_rv14_4.txt  (6 lines)
+oracle summaries:
+  report_all:
+    cases=4226 results=4226
+    count MechanismWitnessed def RIGID-NONFINITE 349
+    count MechanismWitnessed def ok 2138
+    count NumericallyUnresolved def ok 392
+    count NumericallyUnresolved full ok 13
+    count Restrained full ok 1334
+    findings=349
+  report_huge:
+    cases=700 results=700
+    count MechanismWitnessed def ok 459
+    count NumericallyUnresolved def ok 34
+    count NumericallyUnresolved full ok 5
+    count Restrained full ok 202
+    findings=0
+  report_rv14_4:
+    cases=6 results=6
+    count MechanismWitnessed def RIGID-NONFINITE 1
+    count NumericallyUnresolved def ok 4
+    count NumericallyUnresolved full ok 1
+    findings=1
+order independence: rv14_permute.py (seed 1404) shuffles sub-bodies, nodes within them, ties, tie ends and grounds of all 4,226 cases:
+  cases_all_perm.txt 22c6f1099fe13f8a2c9f3af4660f6ee07ae27fe7691b3b8e0baa0af3f3133a64; results_all_perm.txt 862d4614d20cb33675011870aa490a1b780aba6a7cf995a9c2593189f1eefaf7
+  results byte-identical to results_all.txt: yes
+power-of-two invariance: rv14_scale.py, coordinates x 2^40 and x 2^-40 of cases_r1 (2,726; 5 cases dropped at 2^-40 where a coordinate would underflow)
+  2^40: 2726 cases, status differences 0
+  2^-40: 2721 cases, status differences 0
+prefilter: K5-PREFILTER (row loop removed; clean archive, own target) on cases_all: probe_results sha256 862d4614d20cb33675011870aa490a1b780aba6a7cf995a9c2593189f1eefaf7; identical to the clean run: yes
+M0438 (completeness NOTE): singular values
+  M0438|NumericallyUnresolved|16|2|4050000000000000|-|-|2.4563593347616193e-19|3.461317461195424e-13
+  M0438|sv|[1.5920868262900811, 1.048115466572161, 2.4563593347616193e-19, 2.173622179025126e-11, 3.0446070368067724, 1.7598526920491073]|iterations=7

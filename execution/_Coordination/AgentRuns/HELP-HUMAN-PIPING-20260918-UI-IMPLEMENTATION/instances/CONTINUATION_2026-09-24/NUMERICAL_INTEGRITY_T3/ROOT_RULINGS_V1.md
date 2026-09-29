@@ -1151,7 +1151,7 @@ RV11 reviewed PR #1040 at `087b3a088`: **FAIL**, with 1 BLOCKING, 3 SHOULD-FIX a
 
 ## K2b: ROOT's decisions at RV11's delta checks (ROOT, 2026-09-28; recorded late, RV13-S2)
 
-These decisions were stated in ROOT's resume messages to I10. Until RV13's review of records PR #1042 found the gap, they were recorded only in K2b's RETURN (addenda 1 and 2) and in RV11's review. They are recorded here with their original dates. Nothing in them is new.
+These decisions were stated in ROOT's resume messages to I10. [Correction (RV13-D1): the committed evidence puts decisions 1 and 2 at RV11's resume; only item 3's rulings went to I10.] Until RV13's review of records PR #1042 found the gap, they were recorded only in K2b's RETURN (addenda 1 and 2) and in RV11's review. They are recorded here with their original dates. Nothing in them is new.
 1. **The reaction check applies at every b, b = 0 included** (`IMPLEMENTATION/K2B/RETURN.md`, "The check applies at every b", where I10 left it "ROOT's call"; `REVIEW/K2B_REVIEW.md`, "ROOT's two decisions, against the code").
    - Where today's E12 would flush a subnormal product at b = 0, `force_scaled_reactions` refuses. F1b may keep today's E12 at b = 0 for byte identity.
    - RV11D-N2: the check is stricter than flushing requires, which costs availability only. **F1b's gate measures that cost.**
@@ -1173,4 +1173,384 @@ These decisions were stated in ROOT's resume messages to I10. Until RV13's revie
   - F2a does not merge without ROOT's per-case and per-invocation limits.
   - ROOT sets them from K6's measurements and V-K's kernel-lane runs, both of which precede F2a, together with K4's deterministic work counts. §4.1.7 asks for "W3/W5 measurements", which this admits.
   - V-P's product-lane measurements follow F2a, and confirm or revise the limits. A revision is its own ruling.
+  - [Added (RV13-D2): this amendment creates the dependency "K6 and V-K before F2a's merge"; the selected order did not state it. It departs from C4's and D-8's "from the K6 and V-P measurements" for W1's budgets, and from nothing else.]
 - Item 6 of K4's stale-design list, and the brief's Q5 ruling (`TASK_BRIEFS/I12_K4_IMPLEMENTATION.md`), carry bracketed pointers here. K4's own scope is unaffected: it ships the mechanism only.
+
+## K4: rulings on I12's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I12's plan (`<wt>/scratch/i12/CHECKPOINT0_PLAN.md`, sha256 `e1253faa…`, 591 lines) is **approved as written**, with the rulings below. The plan and its scratch probes go into K4's `_run_records/` at checkpoint D.
+- **Approved as positions or refinements,** each recorded in RETURN with the design's words:
+  - the multi-term sum, `retained/wide_sum.rs`: stack magnitudes, a span limit of 8,128 bits that refuses, and one rounding through `from_integer`;
+  - values only ever widen, and each lower-precision quantity is rounded once from its exact sum;
+  - the pivot screen, the residual gate and the stop rule are decided exactly, with no binary64 γ;
+  - directed roundings of the evidence ratios (the summary ratios upward, the pivot margin downward);
+  - radix equilibration as in M03, with rcond on the equilibrated K;
+  - RCM on the structural free–free pattern. V-K's equality test feeds both paths the same adjacency;
+  - the negative-energy allowance;
+  - frame dot products formed exactly. This is a refinement of D1's "every operation rounded to p": it is strictly more accurate, with a single rounding per step;
+  - the brief's item C holds at p = 53 on normal results only, with the exact-projection form added;
+  - item E's K-D5 cross-check is a test-only port;
+  - factor reuse. Each case's limit counts the full shared work, and the invocation meter counts it once;
+  - the budget API (required parameters, no `Default`, no numbers);
+  - the canonical encodings;
+  - O3, ids on members, springs, stations and groups;
+  - O4, a span refusal is terminal and the maximum span is recorded;
+  - O6, the K4-M16 control;
+  - O7, the combination rules;
+  - O9, unpublishable rows are listed, excluded from S\* and the classification, and F2a decides their standing;
+  - O10;
+  - O12, M03's coalesced denominator. [Reversed: see "D1 revision 5a.3: rulings on V4's verification", V4-S3 (RV16-S4).]
+- **O1: Q6 amended. A body with a directional ground that does not span R³ skips the geometric witness; it is not refused.**
+  - **The problem.** As ruled, Q6 refused a body whose directional springs of one kind do not span R³. That refuses RF-SKEW-T-PIN-AX's six cases. Each is restrained: both nodes are translation-pinned, and one rotational spring lies along the member axis. So §4.10's not-covered set would change, which is a stop item in the brief.
+  - **Amended rule:**
+    - Per node and kind, the directional springs **together with that node's global-axis springs and rigid DOFs of the kind** count as grounding the kind fully when their directions span R³, decided exactly. The kind is then passed to `assess_rigid_body` as grounded at that node.
+    - A body with any remaining directional ground that does not span is **not assessed geometrically**: no witness is sought, and none of `assess_rigid_body`'s outcomes is used for it. It proceeds as `NumericallyUnresolved` does.
+    - The attempt evidence records it: geometry not assessed, a non-spanning directional ground at node N, kind K.
+  - **Why this is safe.** "A witnessed mechanism is refused and never escalated" (§4.1.3) is unchanged. Such a body is simply not witnessed. A true mechanism there fails the pivot screen or the rcond test at every p, or is rejected by the stop rule, so it ends unresolved and is never published. The design already relies on that for `NumericallyUnresolved` bodies. The cost is work only.
+  - **Scope.** Directional springs are kernel-only; the product never builds one, so the product's geometry-first path is unchanged. RF-SKEW is 36 compared.
+  - **Routed:** a full geometric treatment of partial directional grounds belongs to W4/K5's generalized assessment (§4.9). RETURN derives the safety argument above, and K4's reviewer checks it.
+- **O2: the optional `SupportGroup` list is approved,** so that the per-support magnitude rows and `reaction_resultant` are formed at p and checked by the stop rule. F2a maps the product's supports onto groups.
+- **O5: an evidence-level kill of K4-M11 suffices, under two conditions.**
+  1. The killing assertion is on K4's returned attempt evidence, its correction count and golden work. F2a publishes these as evidence; they are not internal state.
+  2. RETURN derives the published-value equivalence step by step, and the reviewer checks it independently.
+
+  This follows the M31b lesson: an equivalence is accepted only when derived and checked, never by assertion.
+- **O8: approved.** The generator emulates the method bit for bit for three tiny cases (N05 and N06 at 128 and 256, and one skew member at 128), and pins their retained-state sha256. If the emulation proves disproportionate at A, stop and report before falling back to Rust-produced goldens; do not fall back silently.
+- **O11: measure at A.** If FK's debug suite grows by more than 20 minutes at opt-level 0, report it before B. Tests are never reduced or ignored. Splitting across test functions for parallelism is fine.
+- **Q5, amended** (this file, "K4: Q5 amended"): K4 is unaffected. It ships the mechanism only.
+- **The ceiling argument** (§11's two routes) goes into RETURN step by step, naming the uncertified step in each route. K4's independent reviewer checks it, as ruled under Q4.
+
+## F1b: spawn and rulings (ROOT, 2026-09-28)
+
+- **F1b (facade: the sparse wiring, the dense-scrutiny guard, and W2 at formation in the product) is spawned as I13** from main `e7d930d49`, where K1 and K2b are merged.
+  - A TASK drafted the brief (`TASK_BRIEFS/I13_F1B_IMPLEMENTATION.md`); ROOT reviewed it and ruled on Q1–Q14 in the brief. In short:
+    - the nonlinear loop stays out, and goes to T5;
+    - W2 engages after the ordinary attempt and after exact-block, on linear invocations only;
+    - at b ≠ 0 it admits only frames, ground springs, restraints, prescribed motion and nodal loads;
+    - today's publication functions at b = 0;
+    - R-b′'s Sensitive demotion is accepted;
+    - W2 refusals are `NUMERICAL_INTEGRITY_UNRESOLVED`, with the exact template fixed at checkpoint 0;
+    - the `range_scaling:` line is bounded by S11-G's `NAMED` limit;
+    - a provisional dense-scrutiny ceiling (6 GiB estimated) and no sparse ceiling;
+    - source recovery's dense view for n ≤ 256 only;
+    - PHYS-R4 restated as a named refusal, if A2 confirms it;
+    - the pin and site-test edits under K1's adapted conditions;
+    - the b-rule as merged;
+    - ROOT supplies the Mac gate baseline;
+    - one slice.
+  - K4 (I12) runs in parallel; their write sets are disjoint.
+- **Design text made stale or found inconsistent,** recorded here as rulings. `DESIGN.md` stays hash-pinned.
+  1. **The F1 row's and §4.8's line citations have drifted.** The assembly is now `PP:1826`, `:1957` and `:2276`; the reduction `:2726-2735`; the reactions `:3119`; `solve_preview_reduced_system` `:4392`; `dense_fallback_message` `:4490` (all on `e7d930d49`).
+  2. **"The nonlinear loop moves to sparse"** (the F1 row, §4.6 and §4.8) conflicts with the selection's hard constraint, and K1's pattern path has no binary64 binding. The move goes to T5 (Q1).
+  3. **"LEF-small and LEF-large solved"** (the F1 row, §4.10 and §7.1) is restated per entry in the brief's Scope §6:
+     - LEF-small is refused at model build on both entries;
+     - LEF-large is refused at capture on the captured entry;
+     - on the typed entry, W2 publishes LEF-large Sensitive (Q5).
+  4. **§4.7's "the public fixture then passes the evidence stage"** is unreachable with K2b's census, because the fixture's own exact-pressure operand is subnormal at formation. It is restated as a named refusal once A2 confirms it (Q10). The scaled formation of pressure operands goes on the T3-close list.
+  5. **§4.7's admitted range assumes that loads are exact inputs.** PP forms some loads at b = 0 from products, and a term formed to exactly zero is invisible to the census. So W2 admits only authored nodal loads at b ≠ 0 (Q3).
+  6. **§4.7's "the case stays `NUMERICAL_INTEGRITY_UNRESOLVED`"** is wrong for K2a formation refusals, which main publishes as `SOLVER_SYSTEM_BLOCKED` at the invocation. F1b publishes W2 refusals per case as `NUMERICAL_INTEGRITY_UNRESOLVED` (Q6).
+  7. **§4.7's evidence line and §5 item 6** give no template for subnormal precision or record outcomes, and no composition with F1a's line (Q7).
+  8. **§4.7's mechanism** (a private exponent on `AssemblyEvidence`, and a scaling `solve()`) was implemented by K2b as force-scaled siblings plus an orchestrator.
+  9. **§4.8's "ROOT picks both from measurement," with C4:** V-P follows F1b, and K6 has not run. The ceilings are provisional (Q8).
+  10. **§4.8's dense view for n ≤ 256** also concerns `source_receipt.rs`'s replay, which assembles its own dense K. That file is unchanged (Q9).
+  11. **The design does not order W2 against exact-block,** and §4.4's coexistence rule covers W1 only. W2 runs after exact-block (Q2).
+- **Added to the T3-close list:**
+  - PHYS-R4 with pressure (the scaled formation of exact-pressure operands);
+  - a scale-aware R-b′ bound (Q5(b)), which is also an input to F2a;
+  - W2's coverage beyond nodal loads (Q3(b)), if a real case needs it.
+- **The owner is told** of the provisional dense-scrutiny ceiling (Q8), which is a new refusal class for very large dense-scrutiny models, and of the PHYS-R4 restatement.
+
+## F1b: rulings on I13's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I13's plan (`<wt>/scratch/i13/CHECKPOINT0_PLAN.md`, sha256 `ba90de63…`, 856 lines) is **approved**, with the rulings below. It goes into F1b's `_run_records/` at checkpoint D.
+- **Approved as planned:**
+  - the A1/A2 split: A1 is a pure refactor at b = 0 with no deferral, byte-identical everywhere;
+  - `BasisStiffness` and the case loop (§2);
+  - W2 only in the final failure arm;
+  - the receipt's `OrdinaryAttempt` formed after W2 (t10b's single `passed(` call kept);
+  - PP's two-arm range classifier, pinned against the orchestrator;
+  - the publication path table (§3.4);
+  - the guard's constant of 96 bytes per n² entry, as counted in the code. At 6 GiB the provisional ceiling is 8,192 DOFs, that is 1,364 chain members. OQ12's placement and input are also approved;
+  - Q9's dense view with a shared `DENSE_SOURCE_DOF_LIMIT`;
+  - the RV11D-N2 method (§13.3);
+  - the C tests' sizes and bounds;
+  - derivations D1–D9, each written in full in RETURN and checked independently;
+  - the evidence-line template (§4.1).
+- **OQ1: c2, not c1.** The census scope, meaning which terms are counted, is part of the b-rule. Five loops copied from SA's private `force_scale_census` would be a replicated rule, and K5 will edit SA.
+  - The template prints `force_scale_exponent=<b>` only where the orchestrator's outcome carries b. Elsewhere it prints `range_scaling: attempted` with no b field, or `none` where no b exists (steps 2–3).
+  - RV11-N2's b on the step-4 and non-range paths waits for an SA change that puts b on the refusal: K5 or F2a, recorded on F2a's input list.
+- **OQ2: option B,** a zero-work named decline for a formation-range case. D2 derives that nothing is lost, and the reviewer checks it.
+- **OQ3:** the `solve_ordinary(input, limits, attempt_scale)` wrapper, the one-line t10b anchor amendment and the lexer pin are approved.
+- **OQ4:** approved. A `Structural(e)` failure at the chosen b keeps `append_integrity_failure`'s code mapping, under the W2 template. Formation and census errors are `NUMERICAL_INTEGRITY_UNRESOLVED`.
+- **OQ5:** approved. The DEC-050/053 observation lanes do not run at b ≠ 0, and the mode row's observation fields are published as not observed, disclosed.
+- **OQ6:** approved and disclosed. Rows derived from published values stay today's binary64, and a non-finite result keeps today's refusal.
+- **OQ7:** confirmed. Admission runs after the orchestrator.
+- **OQ8:** approved as a declared write-set extension: `formation_guard.rs`'s `const NAMED` becomes `pub(crate) const NAMED`. It is a visibility change only, and S11-G's tests must be unchanged.
+- **OQ9:** confirmed. Call-site-only updates in `src/source_receipt/load_state_join_tests.rs` and `load_state_tests.rs`; any assertion change stops the work.
+- **OQ10, OQ11, OQ14 and OQ15:** approved.
+- **OQ13, narrowed.** At b ≠ 0 a zero nodal load term is refused only when its authored value is nonzero, that is when formation at b = 0 produced a zero from a nonzero input. An authored zero is admitted.
+  - If the authored value is not available at that point, refuse every zero term and disclose it.
+  - Subnormal formed terms are already refused by the census.
+- **The refusal template (§4.2)** is fixed as proposed, with OQ1's c2.
+- **The C1 list** (28 runs, proposed from G1's Mac base data) is ruled at A2 with the product-run table, as the brief says.
+- **The gate's comparison scope.** G1's baseline (`GATE_BASELINE_MAC_E7D930D49/`) keeps P1's `run.envelope` summary bytes, not the full `MechanicsEnvelope`.
+  - At A2, I13 states exactly which published fields that summary covers and which it omits, including diagnostic messages, receipts and rows.
+  - If it omits published bytes, I13 proposes a probe variant that also emits the sha256 of the full serialized envelope, without changing `run_one`'s classification. ROOT then has G1 re-run the base's part 1 with the variant, which takes about 5 minutes, before B.
+
+## K5: spawn and rulings (ROOT, 2026-09-28)
+
+- **K5 (W4: the constrained-body witness and the curved rule) is spawned as I14** from main `24dea2dae`, whose product tree equals `e7d930d49`'s.
+  - A TASK drafted the brief (`TASK_BRIEFS/I14_K5_IMPLEMENTATION.md`); ROOT's rulings on Q1–Q11 are in the brief. In short:
+    - W4 only in the four `selected` formation-checked branches;
+    - curved slots qualified by their matched source, with a derived condition;
+    - T4's confirmation not a prerequisite;
+    - a libm-free screen in the new function;
+    - ties for today's element, with a T4 tripwire;
+    - directional ground rows in K5's API;
+    - a new mixed-family basis text; [Reversed to Q7 (a), and K5-C3 retired: see "K5: rulings on I14's checkpoint-0 plan" (RV16-S4).]
+    - gate part 1 as a regression net;
+    - no site-table change;
+    - the curved-formation item not K5's;
+    - one slice.
+  - K5 runs in parallel with K4 (I12) and F1b (I13); none of the three edits another's files. **Its checkpoint 0 is a plan only.** ROOT serializes its heavy phases (builds, T9, mutation batches, gate) against the other two.
+- **Design text made stale or found inconsistent** (the brief's list, items 1–17), recorded here as rulings. `DESIGN.md` stays hash-pinned.
+  1. §4.9's and §2.5's citations have drifted; the brief re-locates them on the base.
+  2. §4.9's SUP-17 paragraph was delivered by F1a.
+  3. §4.9 does not say which entries W4 applies to. The answer is the four selected branches (Q1).
+  4. §4.9's curved screen conflicts with R5-4, which says `curved_formation` does not bound the chord mismatch. Slots are qualified by source, and the screen is evidence (Q2).
+  5. §4.9's "Coordination" and D-9 (T4 confirms) conflict with R5-4 §5 and §4.3.1. T4's confirmation is not a prerequisite (Q3).
+  6. §4.9's ties assume positive stiffness, but §4.3.1 and D5C-2 call lateral zero "the only realized form". In fact the ordinary route realizes no user element. Ties are for today's element with positive stiffnesses (Q5).
+  7. T4's M07 repair will change the user element's zero-energy set; a tripwire guards it (Q5).
+  8. §4.9's "existing SVD rank screen" is platform-dependent through `hypot`. The new function is libm-free (Q4), and `assess_rigid_body`'s `hypot` goes on the T3-close list.
+  9. §4.9 gives no data path for curved node coordinates. They come from `curved_sources`, which only the selected entries receive.
+  10. §4.9's "with a reason" has no carrier in `StructuralReport`, which is Debug-published. The reason lives in K5's return types.
+  11. The K5 row omits the two site tests that scan SA. Neither changes (Q9).
+  12. §6's and D-10's serialization of K5 with the `SA` and `FK/structural.rs` sharers is stale. K5 runs in parallel with K4 and F1b.
+  13. §4.1.3's "W4 generalizes": W1b (F3) and W1c will call K5's function.
+  14. K4's O1 amendment routed directional grounds to W4, whose grounds were DOF-indexed. K5's API accepts directional rows (Q6).
+  15. The curved-formation T3-close item's "to K5" route is withdrawn; it stays on the T3-close list (Q10).
+  16. RF-MECH has no user or curved mechanism, so W4 has no frozen reference. Its tests are constructed with an exact generator.
+  17. The K5 row's "seeded negative" becomes an explicit or unmatched slot, and the screen is recorded evidence (Q2).
+- **Added to the T3-close list:**
+  - `assess_rigid_body`'s `hypot` dependence (frame-only bodies);
+  - wiring K4's geometry-first check to K5's directional rows.
+
+## F1b: I13's A2 stop on the non-finite mechanics test (ROOT, 2026-09-28)
+
+- **The stop.** With W2, `lib.rs` `tests::audit_nonfinite_computed_mechanics_never_publishes_solved_rows` behaves differently. Its model is linear, with a 1e308 N load.
+  - It now range-triggers, W2 publishes the direct values, and the derived stresses overflow.
+  - The invocation is then blocked by today's `SOLVER_SYSTEM_BLOCKED` ("computed mechanics must be finite") and `ELEMENT_FORCE_RECOVERY_FAILED`, not by the case's `NUMERICAL_INTEGRITY_UNRESOLVED`.
+  - No wrong value is published. This is OQ6 as ruled.
+- **Ruling: (a), tightened.**
+  - Only the test's third assertion changes, and it asserts the one deterministic new outcome in both modes: the range line, then the non-finite block.
+  - The no-solved-rows assertions are unchanged.
+  - It is an approved assertion change, declared in CHANGE_RECORD and RETURN.
+  - OQ6 stands; option (b) is not taken, and (c), a changed test input, is refused.
+- **A new C1 outcome class:** W2 publishes at b ≠ 0, then the derived-row non-finite check refuses the invocation.
+
+## K4: A1 findings F-1 to F-3, the stop rule's blind spot (ROOT, 2026-09-28)
+
+I12's A1 (`cef218a10`) found that the stop rule, which compares p with 2p and forms S\* from computed values only, **cannot see information lost identically at both precisions.** The probes are in `<wt>/scratch/i12/a1_probes/`.
+- **F-1: a combination published wrong zeros labelled exact.**
+  - The combination was formed as Σcᵢuᵢ of operands whose loads differ by a relative 2^-1060. It was selected at 128 with every row 0, as `AbsoluteVerified{bound 0}`. The truth is nonzero.
+  - **Ruling: option (a).** A combination is its own solve.
+    - Its right-hand side is one exact expansion of the combined ledger Σcᵢfᵢ and the combined prescribed coupling, rounded once to p. Its prescribed values are the exact combination, rounded once.
+    - It reuses the cached factor of the shared stiffness source, and runs its own schedule and stop rule.
+    - The operands' results never change.
+  - The Σcᵢuᵢ formulation is withdrawn. This refines §4.1.1 and §4.1.2 ("combinations … formed exactly and rounded once") within their intent: with a linear, shared K, the two are equal in exact arithmetic, and (a) avoids the cancellation.
+  - B1-E must still be caught, and the CEIL-NET truth reproduced.
+- **F-2: a single case published wrong zeros labelled exact.**
+  - One member, a prescribed ux = 1 (EA/L = 512), and a load of 2^-300.
+  - u cannot represent 1 + 2^-309 at 128 or 256, so the end actions and reactions are 0 at both, and S\*(force) = 0. The case is selected at 128 as exact, but the truth is N = 2^-300.
+- **F-3: an availability gap.** An unloaded body moved rigidly by prescribed values leaks reactions of about 2^-(p−27) at every p, and ends Unresolved at the ceiling. It is safe; nothing wrong is published.
+- **F-2 and F-3 are a design gap in D1 §4.1.6 and §4.1.6.1** (S\* has no resolution floor tied to the elastic-action scale of the quantities' formation). **They refute §4.1.9's claim** that only a precision-independent, common-mode error can pass the stop rule. A precision-dependent loss below both p's and 2p's resolution passes too.
+  - The fix changes S\*'s meaning, and so D2's published-row S\* and its G5a–G5c checks, which may then need the scale published as evidence. **ROOT does not improvise it.**
+  - A design TASK drafts an addendum, "D1 revision 5a.3: the stop rule's resolution floor". It gives options, a derivation, the effects on D2 and on the discriminating controls, and a recommendation. It is independently verified, and ROOT selects.
+  - **K4 does not reach checkpoint B until the addendum is selected and implemented in K4.** Until then, no K4 test pins the present behaviour of F-2 or F-3.
+- **K4's ceiling argument** (§11, route 1 step 10 and route 2) leans on §4.1.9's claim. RETURN must restate it in light of the addendum.
+- **The F2a gate is unchanged:** F2a does not merge without this addendum implemented, as well as the budget limits.
+
+## K5: rulings on I14's checkpoint-0 plan (ROOT, 2026-09-28)
+
+I14's plan (`<wt>/scratch/i14/CHECKPOINT0_PLAN.md`, sha256 `7f50c788…`, 943 lines [942 lines with a final newline (RV16-N1)]) is **approved**, with the rulings below.
+- **Approved as planned:**
+  - the FK API: `assess_constrained_bodies` over one connected body, the `ConstrainedGround` rows including directional rows, `TieRefusal`, and canonical input ordering;
+  - the tie reduction, six unknowns per body, derived in RETURN against the full stacked map;
+  - the libm-free screen: a power-of-two characteristic length, the `sqrt` forms of the Jacobi `hypot`, and m counting nonzero rows;
+  - the exact witness with canonical scaling;
+  - curved qualification by K-D5's source match plus coordinate agreement, with the Q2 condition derived in RETURN;
+  - the SA wiring on the four selected bodies only, with no public signature change and the contact-seed guard closed by derivation;
+  - Q9, no site-table change;
+  - the test, mutant and product-run lists;
+  - gate part 1 compared directly with G1's baseline, since the product trees are identical;
+  - positions P1–P11.
+- **The Mac-main product run is recorded.** The constructed curved mechanism is refused `NUMERICAL_INTEGRITY_UNRESOLVED` (a pivot failure) on main at 0 m, about 1 km and 5e6 m, on both entries and in both modes. So on this corpus K5-C1 changes a refusal's code to `NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM` with a direction, and **removes no published result.** Checkpoint B's corpus uses dyadic geometry, because non-dyadic bends at 5e6 m are refused earlier by the curved-bend radius check.
+- **S1: Q7 is reversed to (a). The basis text is unchanged on every entry.**
+  - A selected-only text breaks at least seven K-D5 tests that compare the selected branch's report `Debug` with the unselected path's. A text on every entry would change nonlinear invocations, which is forbidden.
+  - The text "physical rigid-null witness unqualified for bodies containing user/curved elements" now under-claims on the selected branches. That is conservative, and is recorded.
+  - Correcting it is on the T3-close list and F2a's input list, where the publication types are unified.
+  - K5-C3 no longer exists.
+- **Brief correction, recorded:** `invented_preview_model.json` is refused at `PP:1711` (legacy pressure), not at the joint check. The conclusion, that no element is built, holds.
+
+## F1b: rulings on I13's A2 (ROOT, 2026-09-28)
+
+A2 is committed as `e215c6007` on `codex/piping-f1b-20260928`. Every Scope §6 prediction was confirmed by a product run.
+- **(a) The admission order is approved.** Thermal/eigen, pressure thrust and exact-pressure operands are now checked before the element-primitive check. Only the reported family names change; the set of refused cases is the same.
+- **(b) Three admission checks cannot be reached in the product:** user-stiffness element, pressure thrust, and non-nodal term. They are pinned at unit level, and RETURN derives why each is unreachable.
+- **(c) Coexistence: I13's derivation is accepted, with a condition.** Exact-block cannot select a range-triggered case: its exact solve fails at `exact_radix` or at source closure, and large-magnitude triggers never reach the captured entry.
+  - The candidates were tried on Mac main, and the gate base has 16 selections, none after a Range.
+  - **Condition:** the derivation is written step by step in RETURN, and F1b's independent reviewer checks it (the M31b lesson). The candidate-side test stays.
+- **(d) The mixed captured invocation is pinned as observed.** It finalizes with a `partial` receipt: A `qualified`, B `unsupported` with OQ2's decline, and B's `ordinary_attempt` following W2's verdict (OQ15).
+- **(e) and (f) are approved under Q10 and Q11:** the NI K2b pin's product half as the declared table `F1B_PRODUCT_SITES` and `F1B_PRODUCT_NEVER`, and the restated linear variants.
+- **The C1 list is approved: 28 runs,** equal to the proposed list:
+  - 14 published: CHAIN-E-1000 ×4 at b = 540, Sensitive; THIN-B ×4 at b = 536, `CHECKS_PASSED`; the three LEF-large cases, typed ×2 each, at b = −702;
+  - 6 refused by W2's template;
+  - 8 in the new class "W2 published at b ≠ 0, then the derived-row non-finite check refuses": CONT-E-1000 and SKEW-E-1000 ×4 each, where `displacement_magnitude` overflows.
+  - The gate's PASS requires C1 ⊆ this list, **0 trusted breaches** (the published range cases are checked against the references), and C3 byte identity elsewhere. [Also required: no C2 sparse run aborts at the heap cap (`TASK_BRIEFS/I13_F1B_IMPLEMENTATION.md` PASS conditions; RV16-S2).]
+- **The full-envelope probe variant is approved,** and it is the method for every gate from now on:
+  - P1's `main.rs` plus `full_envelope()`, which emits `run.envelope_sha256` over `serde_json::to_vec(&MechanicsEnvelope)`;
+  - `sha2` is added to the probe's own `Cargo.toml`;
+  - `run.envelope` is unchanged, and `compare.classify` is unaffected.
+  - P1's summary omits published bytes (I13's A2 §7), so C3 byte identity is judged on the full hash. **G1 re-runs the base's part 1 with the variant** before any gate compares against it.
+- **RV11D-N2:** 0 refused and 0 mismatched across 766 runs of b = 0 publications (3,666 reactions, 251 spring actions, 3,456 end-action sets).
+  - The 13 gate cases of 1,000 or more members are observed in F1b's gate slot, typed and in sparse mode, where the candidate completes them.
+  - The 10,000-member cases are included only if sparse mode completes them within the gate's limits; otherwise their omission is disclosed.
+- **The b-rule (Q12):** of the 38 `ScaledEvaluation` refusals probed at every even b in [−1100, 1100], only K2b's documented limitation chain has a solving b. It stays a documented limitation, and the refinement stays on the T3-close list.
+
+## D1 revision 5a.3: rulings on V4's verification (ROOT, 2026-09-28)
+
+V4 (`DESIGN_NUMERICS/REV_5A3_CANDIDATE/V4_VERIFICATION.md`, sha256 `0222d0ec…`): **NOT VERIFIED**, with 0 BLOCKING, 7 SHOULD-FIX and 13 NOTEs.
+- **What held:** option (iii)'s rule held under V4's independent emulator, which is built from K4's Rust with its own exact oracle.
+  - On 200 saturating models, today's rule made 38 false claims and (iii) made none.
+  - Φ = 2^-438·Ê is correct.
+  - V4 re-counted λ from K4's Rust at ≤ 68g units, against DS1's 139g; both are within 2^8.
+- **DS1 revises the candidate to resolve every SHOULD-FIX item, and V4 then runs a delta check.** ROOT selects only after VERIFIED. ROOT's decisions on the two items that are ROOT's to make:
+  - **V4-S2: the premise becomes a runtime check, not an accepted risk.** The premise, that the solve's backward error carried into forces and moments stays within V, remains a conjecture.
+    - DS1's §8.1 estimator is adopted: one extra correction solve at 2p from the exact residual K4 already forms. A case whose estimate exceeds V escalates, and at the ceiling it is Unresolved. [Amended: the estimate is tested at W ≤ V/4, and the gate is hybrid; see "D1 revision 5a.3: rulings on V4's delta check at R2" (RV16-S4).]
+    - The revision specifies it exactly, with its work charged and its mutant.
+    - Rationale: the standing lesson. A claim relied on for publication is derived or checked, never assumed.
+  - **V4-S3: my O12 ruling is reversed.** The residual gate's denominator becomes the bounded operator, at contribution level, not M03's coalesced |K||u|. [Amended: the hybrid bounded-denominator gate; see "D1 revision 5a.3: rulings on V4's delta check at R2" (RV16-S4).]
+    - V4 found in emulation that the coalesced form refuses an ordinary loaded cantilever at every precision when y_reference has a chord component: y_ref (3,4,5) on a (3,4,0) run, with a gate ratio of about 6e15.
+    - The revision specifies the denominator. K4 builds a Rust control for that cantilever and confirms it before checkpoint B.
+- **The other SHOULD-FIX items, resolved in the revision:**
+  - **S1:** the demotion claim is restated with its threshold, |q| < 2^-472·Ê.
+  - **S4:** V, Φ and G5b's item 6a are computed from the same binary64 ê, bit for bit.
+  - **S5:** g, the directional blocks, the unpublishable rows and E's rounding direction are specified computably.
+  - **S6:** behavioural controls are added for M2, M7 and M10.
+  - **S7:** a published-data lower bound on ê (V4's) is added to G5a, so a D2 reader can check it at p = 512.
+- **NOTEs to carry:**
+  - **the saturated-assembled-entry reaction** (−1.5 N published `relative_verified` against a truth of 0): add a control;
+  - **the combination's prescribed rows are rounded twice when published** (1 + 2^-53 + 2^-150 publishes 1.0 at p = 128). **This is a K4 defect, independent of S\*.** K4 fixes it now: publish from the exact sum, rounded once;
+  - **the binary64 publication rounding** can exceed b by up to 2^-24·b [2^-23·b, per V4-R7's erratum (RV16-S4)]. The guarantee's statement says so; the gap already existed in 5a.2;
+  - Lemma 2's binade-boundary hypothesis is corrected.
+
+## Resume after the pause, and F1b's heap-cap finding (ROOT, 2026-09-28)
+
+- **Resumed** from `PAUSE_2026-09-28.md`. The Mac stayed up and the memory guard kept running. Main is unchanged at `24dea2dae`. GEN-8 passes on the pause commits.
+- **K5 (PR #1044):** hosted CI is green on `b379e5b27`, and the full-SHA dispatch 36459966791 (target_base `24dea2dae`) succeeded. RV14's review resumes from its pause state.
+- **F1b gate part 1** (candidate `948e0bb99`, full-envelope, against G1's full base):
+  - [Part 1 FAILED its own gate condition: 4 C2 sparse runs aborted at the heap cap, which the F1b brief makes a stop; I13's comparison reads `RESULT: FAIL`. `gate_check`, which checks trusted breaches only, passed (RV16-S2).] `gate_check` PASS; C3 has 832 runs with 0 differences; C1 is exactly the ruled 28; all 12 dense C2 runs get the guard's refusal.
+  - Of the 12 sparse C2 runs, 8 complete with named M03 refusals. **4 abort at the heap cap:** RF-LARGE-CONT-n10000-AX and -ROT, both entries.
+  - The allocation is in main's unchanged DEC-050/053 observation lane: `solve_symmetric_system_from_entries` → `SymmetricProfileMatrix::from_entries`, in identity order. For CONT n10000 that profile is 675,179,982 entries (5.4 GB), and it is built only to report `original_profile_entry_count` and `original_max_half_bandwidth`. On main the same runs aborted earlier, at the dense K.
+- **Ruling: guard the observation lane in PP (F1b's write set).**
+  - Before the lane runs, PP estimates its original-order profile from the pattern in O(nnz), with no allocation.
+  - If the lane's estimated bytes exceed the provisional 6 GiB ceiling (the named constant of Q8), the lane is not run, and its observation fields are published as not observed, with a named reason. This follows OQ5's precedent at b ≠ 0.
+  - **Conditions:**
+    1. **Derived in RETURN and checked by the reviewer:** no case main publishes can exceed the lane ceiling, because main's dense path needs far more memory first. So no byte changes for any case main publishes.
+    2. **Tests:** the estimate equals the lane's actual profile count on the B corpus; there is a lowered-ceiling unit test through the `#[cfg(test)]` hook; and there is a mutant that removes the guard.
+    3. The PP suite and T9 are re-run.
+    4. **Gate part 1 is re-run in full on the new head,** and then part 2. The 4 CONT sparse runs must no longer abort. What they publish or refuse instead goes in C2's table.
+  - A sparse ceiling for the main solve stays unset in F1b (Q8). Only this observation lane is guarded.
+- **D1 5a.3:** V4's delta check of R2 resumes from its pause state, including its open lead (a saturated stiffness entry amplified by a soft mode).
+
+## D1 revision 5a.3: rulings on V4's delta check at R2 (ROOT, 2026-09-28)
+
+V4's delta check at R2 (appended to `V4_VERIFICATION.md`, sha256 `c2f5539b…`): **NOT VERIFIED**, with 1 BLOCKING, 1 SHOULD-FIX and 6 NOTEs.
+- **V4-R1 (BLOCKING): the estimate misses a saturated assembled stiffness entry.**
+  - LEVER2 is an exactly representable lever with gain 2^90, a prescribed rigid translation, and a tip spring 2^-580 of its assembled diagonal, so the spring is lost in every assembled entry up to 576 bits.
+  - R2 selects it at 256 with W/V = 0, and publishes 0 `absolute_verified` against a truth about 1,000 times its bound.
+  - This refutes R2's claim of a 2^72 margin for the K^q term.
+  - **Ruling: adopt V4's demonstrated fix.** W's residual is formed as one exact sum over the element contributions [and the directional-block entries (RV16-N3)] and spring stiffnesses, not over K^q's rounded assembled entries. In V4's emulation, LEVER2 is then refused and no control changes.
+- **V4-R2 (SHOULD-FIX): the estimate recomputes its residual on the final state,** not reusing the gate's last evaluation. The R1 fix requires this anyway. SEEDED-COMMON must be caught.
+- **DS1's two departures from ROOT's rulings are confirmed,** on V4's derivations:
+  - **the hybrid gate:** acceptance on the bounded denominator, with refinement driven by the coalesced ratio. What is published is decided by the stop rule, V and W on the final state;
+  - **the estimate's test W ≤ V/4:** resolution (68) plus estimate (64) is 132 of V's 256 units, whereas a test at V would allow 324.
+- **NOTEs to carry into R3:**
+  - V4-R5: apply the bounded test to the best state, not the last;
+  - §1's "20 selected at 128" is labelled emulation-only;
+  - the Lemma 2 proof is repaired;
+  - G5a item 4 takes values after unit conversion;
+  - V4's two errata are recorded as corrected.
+- **Next:** DS1 writes R3, and V4 runs a delta check. ROOT selects only after VERIFIED. K4 stays blocked until then.
+
+## K5: rulings on RV14's delta check at 28517eaaa (ROOT, 2026-09-28)
+
+- **Verdict accepted:** PASS, 0 BLOCKING. RV14's four SHOULD-FIX findings and N1, N2, N5 are resolved; RV14-M1 to M4 are each killed by a new test (review committed at `f3e50948b`).
+- **RV14-D1 (SHOULD-FIX): fix before merge.** I14 adds RV14's construction as a `P` expectation (nodes (0,0,0) and (2^1023,0,0), grounds d2 to d5, directional row n = (2^-60, −1, 0) at node 0; expected: refused as "parameters not representable"), and shows mutant RV14-M5 (finiteness test only) killed.
+  - **Host timing:** I14 writes the test now but builds and runs nothing until F1b's gate part 2 has finished, because part 2's timed runs need a quiet host.
+  - **Review:** RV14 checks the delta.
+- **RV14-D2 (NOTE): accepted as a conservative limitation, not changed in K5.** A refused witness ends the candidate search with `NumericallyUnresolved`, even when a later candidate would publish.
+  - **Why not change it now:** the result is a refusal, never a wrong value, and it is reachable only through the FK API. Moving on to the next candidate would change FK's result classes and the probe hash, which would reopen the oracle and probe checks for no correctness gain.
+  - **Where it is recorded:** I14 records it in K5's RETURN as a known limitation, and it joins the T3-close list as a candidate refinement.
+- **DEC-025:** after the D1 fix and RV14's delta, on the final head, once F1b's part 2 frees the Mac.
+
+## D1 revision 5a.3: rulings on V4's delta check at R3 (ROOT, 2026-09-28)
+
+- **Verdict accepted:** NOT VERIFIED, with 1 BLOCKING (V4-T1) and 5 NOTEs [4 NOTEs, T2–T5; V4's verdict line says 5 (RV16-N1)]. V4's fix for V4-R1 is implemented faithfully, and V4-R2 to R8 are resolved.
+- **V4-T1: adopt V4's closure, both parts together.**
+  1. **The 3p + 64 option becomes specified text.** W's contributions are formed at q_W = 3p + 64 bits, capped at 1024. The extra formation pass is charged as work.
+  2. **The runtime charge.** Add to §4.1.6.3 the test C_q = 62.5·2^-q_W·F·est·‖a_q·S‖₁·‖S·Ā·|u|‖_∞ ≤ 60·2^-2p·ê(body, kind), inside the 124 units V leaves; at p = 512, test it against 2^-22·b.
+     - **The terms:** est is the verification's Hager–Higham estimate of ‖K̃⁻¹‖₁, S is K4's radix equilibration, Ā·|u| comes from E's reaction pass, and a_q is the recovery row.
+     - **F is pinned:** it is the same allowance that the condition screen and W's accuracy already rest on, with no new uncertified step.
+     - **On failure:** the precision is not selected at this p, and the next p is tried.
+- **Rigour required in R4.** R4 bounds e_q beyond first order: the second-order remainder is bounded, or dominated, under the design's own screens, for example ‖K⁻¹δK‖ ≤ 1/2 with a factor of 2. Alternatively R4 states exactly which first-order step remains and why the screens make it safe. No step is left "argued".
+- **Tests and mutants in R4's emulator:**
+  - LEVER2 and TILT-LEVER are charged out or refused;
+  - all 44 controls and the 20 probe cases keep their R3 precisions and classes at q_W;
+  - a mutant that drops the charge is killed by a control that the charge alone refuses; [if no admissible control exists, R4 derives the equivalence and reports it, and ROOT rules (RV16-N2). R4 built one: CHARGE-SLENDER.]
+  - a mutant that uses q = 2p + 64 for W is detected.
+- **NOTEs:**
+  - **V4-T2:** R4 drops its citation of V4's false R2 statement and records the erratum.
+  - **V4-T3, T4, T5:** recorded as V4 states them. M16's survival is acceptable.
+- **The limitation that remains, disclosed:** the honesty guarantee rests, to the factor F, on Hager–Higham's uncertified norm estimate. The condition screen and W already rest on it, and this closure adds no new reliance. R4 states it in §9, and ROOT carries it to the owner's list.
+- **Next:** DS1 writes R4, V4 runs a delta check, and ROOT selects only after VERIFIED. K4 stays blocked until then.
+
+## K6: spawn and rulings (ROOT, 2026-09-28)
+
+- **K6 (harness observations) is spawned as I15** from main `41aeb2a02` [correction: the K6 branch was created at main `56dd72334`, which changes only `projects/chirality-app-v4/**`; the piping tree is the same (RV16-S1)]. It departs from the selected kernel order ("K4 … then K6 and V-K"): K6's binary64 half runs before K4, and K6b keeps the W1 part after K4 (RV16-N6). Its piping tree equals `24dea2dae`'s; K1 is merged, and K6's row needs only K1.
+  - A TASK drafted the brief (`TASK_BRIEFS/I15_K6_IMPLEMENTATION.md`); ROOT reviewed it.
+  - The rulings on Q1–Q13 are in the brief's "ROOT rulings for this slice". In short: binary64 now, W1 in a K6b after K4; SA's path through an in-repo path dependency; an 8 GiB cap, a heap cap at C − 512 MiB, and the admission rule; one ceiling run at 16 GiB, last and alone; a runner pytest under conditions; no dense run at 10,000 members or more.
+- **Why now:** K6's measurements are what ROOT needs to replace F1b's provisional 6 GiB dense-scrutiny and observation-lane ceilings, and, with V-K's runs and K4's work counts, to set W1's budget limits before F2a merges ("K4: Q5 amended").
+- **Host:** checkpoint 0 is read and design only. Builds wait until F1b's gate part 2 releases the Mac. Observation runs happen only in slots ROOT grants.
+- **Design text made stale** (the brief's items 1–12), recorded as rulings; `DESIGN.md` stays hash-pinned:
+  1. K6's inputs are kernel models; the RF-LARGE product requests are P1's, hashed in `gen_out_sha256.txt:122-145`.
+  2. §4.8's stage list is read at public-API boundaries, including the geometry and formation-check stages the product path now runs.
+  3. The only Linux peaks known are P1's product-level ones. On the Mac, admission uses them or the derived estimate times the measured ratio (Q3).
+  4. The in-process heap cap from the platform calibration joins §4.8's host protection on macOS.
+  5. "For W1, limbs per entry" moves to K6b, after K4.
+  6. The kernel runner's home is `H/runner/`. §4.10's `numerical_robustness` home serves V-K's and V-P's product-level runs, which reuse the runner by path.
+  7. D-8's and C4's "K6 and V-P" is read as amended: limits from K6 and V-K, revisited by V-P.
+  8. §2.1's "about 100 bytes per n² entry" is superseded for the guard by F1b's count of 96. K6 measures the actual-to-estimate ratio.
+  9. The DEC-050/053 legacy LU call is at `PP:2508` on `d1cc97ce4`. The identity-order lane is observed too (Q12).
+  10. K6's sparse observation is a new pattern path; the old harness "sparse" path is left unchanged.
+  11. §7.2's RF-LARGE expectation is now measured at product level (P1, and F1b's gate); K6 adds the kernel level.
+  12. The DEC-050/053 pytest pins that read `H/src/lib.rs` constrain K6's edit there to one `pub mod` line.
+
+## K5: rulings on RV14's review (ROOT, 2026-09-28; recorded late, RV16-S3)
+
+These rulings were given in ROOT's message to I14 after RV14's review. They are recorded in K5's RETURN §16 on the K5 branch (`95c7501a7`) and in RV14's delta check, and are recorded here with their original date. Nothing in them is new.
+
+- **RV14's review at `b379e5b27`:** PASS; 0 BLOCKING, 4 SHOULD-FIX, 5 NOTEs (`REVIEW/K5_REVIEW.md`, `3a17799e4`).
+- **All four SHOULD-FIX findings are fixed before merge,** each with a test and a mutant killed from a clean archive:
+  - RV14-1: two FK cycle-band cases;
+  - RV14-2: an SA test on RV14's P1;
+  - RV14-3: a PP test on `constructed_mechanism_r0.2_o0`;
+  - RV14-4: `rigid_parameters` is exact, or the witness is refused.
+- **RV14-4's behaviour.** ROOT offered I14 two options: refuse a witness whose [t/L, θ] is not exactly representable, or publish the parameters in a form that is always exact. RV14 had offered publishing `None`, or [t, θ]. I14 chose the refusal, with the named reason `CONSTRAINED_WITNESS_PARAMETERS_UNREPRESENTABLE`, and ROOT accepts it.
+  - **Why:** the field keeps its documented meaning ([t/L, θ], as `assess_rigid_body` publishes it) for every published witness, and the refusal is conservative.
+  - **Consequence:** on RV14's 4,226-case FK corpus, exactly the 349 witnesses that published a non-finite component change from W to U. Every other result is byte-identical. The affected cases have subnormal spans, reachable through the FK API only.
+- **NOTEs:**
+  - N1 (stale line numbers) and N2 (spring grounds killed only by `unwrap` panics) are fixed;
+  - N3 and N4 take no action;
+  - N5 (main moved) is resolved by ROOT's merge of main.
+- **Erratum (RV16-N11).** The K5 merge commit `28517eaaa`'s message says "Merge main `df6d59e3c`", but its second parent is `65e2d6c2a`. RV14's delta check states the parents correctly. K5's merge record will disclose this.

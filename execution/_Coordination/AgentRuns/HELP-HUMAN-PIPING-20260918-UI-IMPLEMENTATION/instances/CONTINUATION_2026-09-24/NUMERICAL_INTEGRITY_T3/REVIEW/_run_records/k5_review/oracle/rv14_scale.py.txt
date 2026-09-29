@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""RV14: coordinates (and nothing else) times 2^k for every case of a corpus."""
+import sys, math
+sys.path.insert(0, '.')
+from rv14_oracle import parse_case, format_case
+k = int(sys.argv[3])
+out = open(sys.argv[2], 'w')
+for line in open(sys.argv[1]):
+    if not line.strip() or line.startswith('#'):
+        continue
+    c = parse_case(line)
+    coords = [[math.ldexp(x, k) for x in p] for p in c['coords']]
+    if any(math.isinf(x) or (x == 0 and y != 0) for p, q in zip(coords, c['coords']) for x, y in zip(p, q)):
+        continue
+    out.write(format_case(c['name'], c['subs'], c['ties'], c['grounds'], coords) + '\n')

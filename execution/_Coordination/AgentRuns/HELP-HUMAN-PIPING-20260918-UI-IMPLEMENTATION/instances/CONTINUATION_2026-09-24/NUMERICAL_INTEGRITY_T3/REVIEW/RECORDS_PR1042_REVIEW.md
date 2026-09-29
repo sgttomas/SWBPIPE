@@ -215,3 +215,76 @@ Each PR merged after its last review commit, its last CI run and its DEC-025 evi
 - `checks.stdout.txt`: its output (scope, hygiene scans, SHA256SUMS, in-place edits, suites, T9);
 - `github.txt`: the GitHub and Git facts for §4 to §6, the original sweep hashes and the reflog lines;
 - `gen8.txt`: both GEN-8 runs.
+
+## Delta check at 7df3acefe
+
+**Delta verdict: PASS.** All three SHOULD-FIX findings are resolved, and every NOTE is resolved or has only an optional remainder. The check adds 3 new NOTEs (D1–D3) and no BLOCKING or SHOULD-FIX finding. The review's verdict stands: PASS.
+
+**Scope.** ROOT resumed me for this check (mechanism unchanged: a background subagent of ROOT's session; no delegation, no Git writes).
+- **Head:** PR #1042's head is `7df3acefe7d04e5520403d8c7464b40c7e615d77`, verified after a plain `git fetch origin`; main is still `e7d930d49`.
+- **The delta `a8895ee84..7df3acefe` has two commits:**
+  - `4c82ea736` adds my seven files verbatim: the review hashes `ca4d715a…`, and the run records and brief match what I wrote.
+  - `7df3acefe` is the fix: 13 files, +50/−17.
+- **`<wt>/numerics` moved during the check.** ROOT added two local commits on top of the PR head: `bacf939a8` (K4 checkpoint-0 rulings) and `28bb8dfa8` (the F1b brief I13). They only append to `ROOT_RULINGS_V1.md` (+84 lines) and add one brief. They are not in the PR, and I did not review them. Every check below reads `7df3acefe` by commit, except the local GEN-8 run (see Hygiene).
+- **Evidence:** `_run_records/records_pr1042/delta/`.
+
+### Findings: resolution
+
+| ID | Status at `7df3acefe` | Evidence |
+|---|---|---|
+| S1 | **resolved** | :62 has three changes. The stale clause is kept, with "[Superseded: the skew pin and K2b merged; see below.]". The kernel sentence is rewritten to "K4 (W1a), **in implementation** (I12, from `e7d930d49`, 2026-09-28), then K5 and K6", which agrees with :35. "Active now: K4 (I12), and F1b's brief" is added; F1b's draft brief exists, uncommitted, in `<wt>/scratch/briefs/`. At :35, "open:" becomes "[closed]:", as proposed ("Remove 'open:'"), and the "Also run …" sentence gains "[Done: established by I9's runs … `ROOT_RULINGS_V1.md`, 'K2a product reach: main's skew standing is now established'.]". |
+| S2 | **resolved** (D1) | The new V1 section "K2b: ROOT's decisions at RV11's delta checks (ROOT, 2026-09-28; recorded late, RV13-S2)" is at :1152. Checked against K2B `RETURN.md` (:963–965, A2.4 at :1192, addendum 2's rulings at :1129–1134), `REVIEW/K2B_REVIEW.md` (:225, :237–238, :241–250) and my review: decision 1 and its F1b consequence, RV11D-N2, decision 2 and its reversal after RV11D-N1 (RV11D-PIN-ACTIONS-EVASION), both helpers in `FORCE_SCALED_ENTRY_POINTS`, the five addendum-2 rulings, and RV11D-N3 for F1b all match. K2B_MERGE :53 has its bracketed pointer, and RV11D-N2 is added to the "For F1b" list. |
+| S3 | **resolved** (D2) | The new section "K4: Q5 amended (ROOT, 2026-09-28; RV13-S3)" is at :1169, with bracketed pointers at V1 :1132, :1146 (item 6) and I12 brief :137. It adopts option (a): limits from K6 and V-K plus K4's deterministic counts, with V-P confirming or revising after F2a, and a revision is its own ruling. It states the error accurately against DESIGN §6's V-P row ("after F1 and F2a") and the selected order. |
+| N1 | resolved; optional remainder | (a) The bracketed correction at K2B_MERGE :44 is exact: the baseline `b7e93650e`, the 2 K3 tests, and K2b's 20 FK and 18 NI tests. It also cites the driver. (b) K3_MERGE still does not cite `dec025_mac.sh.txt` (optional). |
+| N2 | resolved; optional remainder | (a) and (b) have bracketed inserts at K3_MERGE :36 and :12. (c) The `e83e22356` row's doc-comment omission is not taken (optional). |
+| N3 | resolved; optional remainder | The bracket at K3_MERGE :44 adds the end load (11.91 at 11:22:00Z), the head by reflog rather than `meta.txt`, and that the "above 8" loads are uncommitted. "while two reviewers and pytest ran" (N3(b)) stays unchanged (optional). |
+| N4 | resolved; optional remainder | The K1_MERGE :47 heading gains the pointer to `OWNER_DIRECTION.md`. The later records still say "under the owner's Mac decision" (optional). PR #1041's edited description now says "ROOT's application of the owner's Mac decision". |
+| N5 | resolved (D3) | (a) is a new first bullet in the operating notes' §6, matching `cmd_self_check.py:750-759`. (b) is a bracketed pointer at K2a `RETURN_ADDENDUM_1.md:71`, citing RV10's S2(a) and N7 and the scoped M03 RETURN §3.4. |
+| N6 | resolved | The PR1035 sentence is added to :35, and its facts hold: `59660791a`, `5a2b9d112`, RV9's PASS, and the fixes in `a2c3421d2`. |
+| N7 | resolved | Identical dated banners are inserted at the top of the handoff and of the operating notes. |
+| N8 | resolved | GitHub descriptions of PRs #1041 (updated 13:07:12Z) and #1040 (13:07:14Z) no longer contain "To come". Each now has a "Done since this description was written (edited after merge, 2026-09-28)" line naming its merge record, which exists at `7df3acefe`. #1040's names RV11's FAIL at `087b3a088` and the fixes. |
+| N9 | resolved | V1 :1140 gains "[or found inconsistent within the design (RV13-N9)]". Inserting it moved one comma, from inside the bold span to after the bracket; every word is kept. This is text this PR added, not main's. |
+
+### In-place edits (`delta/delta_checks.stdout.txt`)
+
+- **Against main**, main's text survives verbatim, character for character, in every main file the fix touches except the work graph: the handoff, the operating notes, `K1_MERGE/RECORD.md`, K2a's `RETURN_ADDENDUM_1.md` and `ROOT_RULINGS_V1.md`. V1 is still a pure append after main's line 898: one hunk, +278 lines.
+- **Against `4c82ea736`,** every edit is insert-only except two:
+  - the work graph's rewrites, which are execution state and exactly S1's proposed resolution ("open" → "[closed]"; :62's kernel and F1b sentences);
+  - the comma at V1 :1140 (N9).
+- The two new V1 sections are appended, and each is dated.
+- `K2B_MERGE`, `K3_MERGE` and the I12 brief are this PR's own files, and their edits are bracketed inserts.
+
+### Q5's amended sequencing and the selected order
+
+**Consistent: it adds a dependency, and contradicts nothing.**
+- The selected order has two chains. The kernel chain runs "…, then K4, then K6 and V-K"; the facade chain runs "S11-F → F1 → F2a (atomic with S-G1) → … → F3 → V-P → join" (`ROOT_SELECTION_DESIGNS.md`, Selected item 2).
+- DESIGN §6's rows put K6 "after K1", V-K "after R1's references are frozen and K4", and F2a "after F1 and ROOT's identity reservation". F2a wires K4's method, so it follows K4 in any case.
+- Nothing orders V-K or K6 against F2a. Making F2a's merge wait for K6's and V-K's runs is therefore a new cross-chain dependency that the order allows. Only V-P must follow F2a, and the amendment keeps V-P after F2a, as a confirmation.
+- **Two wording points** are D2:
+  - "both of which precede F2a" states as fact a dependency that this ruling creates;
+  - the amendment departs from C4 and D-8 without naming them.
+- **Q9 stays workable.** Q9 says "V-K or F2a, whichever runs first" adds the export: F2a may still be developed first, but cannot merge before V-K's runs.
+
+### Other checks
+
+- **The four refreshed SHA256SUMS verify:** K1_MERGE 10/10, K2A 170/170, K2B_MERGE 13/13 and K3_MERGE 14/14. Each changes exactly the one line of its edited file, and each lists exactly its folder's tracked files. Every other SHA256SUMS covering a changed path also verifies, including `records_pr1042/` 4/4 at `7df3acefe` (`delta/checks_7df3acefe.stdout.txt` §3).
+- **Machine paths and model identifiers:** none in the 340 changed files at `7df3acefe`. The only pattern hits are RV10's two pattern-describing records (as before). The new banners, brackets and sections name only repository-relative paths, and so do the two edited PR descriptions.
+- **Scope:** still records only; all 340 paths are under `projects/chirality-piping/execution/`.
+- **GEN-8** (`delta/gen8_delta.txt`), `-p no:cacheprovider`:
+  - **Hosted:** governance-harness run 36426286583 is a `pull_request` run on `7df3acefe`: success.
+  - **Local:** it passes in `<wt>/numerics` at `28bb8dfa8`, with this delta's files present. That tree is the candidate plus two append-only local commits. GEN-8's lint is per-line, so a pass there covers `7df3acefe`'s files.
+  - **An archive run is not possible.** I extracted a `git archive` of `7df3acefe` outside any Git work tree, and the live self-check stopped with `HarnessOperationalError`: its brief-adoption check needs `git ls-files`. So a GEN-8 run needs a Git working tree of the candidate. This also means RV10's recorded premise, "outside a Git work tree the self-check walks every file", does not hold at all (N5(a)). I deleted the extraction.
+
+### Delta findings
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| D1 | NOTE | `ROOT_RULINGS_V1.md:1154` | "These decisions were stated in ROOT's resume messages to I10." The committed evidence puts decisions 1 and 2 at RV11's resume for the delta check ("ROOT's two decisions stated at resume", `K2B_REVIEW.md:225`). Only item 3's rulings are recorded as a message to I10 (`RETURN.md:1129`). A2.4's "ROOT reversed its decision" implies that I10 knew of decision 2. Nothing records that I10 was told decision 1. | Optional: "stated in ROOT's messages: decisions 1 and 2 at RV11's delta-check resume, and item 3's rulings to I10". |
+| D2 | NOTE | `ROOT_RULINGS_V1.md:1169-1176` | (a) "K6's measurements and V-K's kernel-lane runs, both of which precede F2a": the selected order does not order either against F2a, so this is the dependency the amendment creates, not an existing fact. (b) It departs from C4 ("selected from the K6 and V-P measurements", `ROOT_SELECTION_DESIGNS.md`) and D-8 (DESIGN :1270) without naming them. The substance is sound. | Optional: "which F2a's merge now waits for", and "amends C4 and D-8: the limits come from K6 and V-K, and V-P confirms or revises them". |
+| D3 | NOTE | `IMPLEMENTATION/K2A/RETURN_ADDENDUM_1.md:71` and `K2A/SHA256SUMS` | The N5(b) pointer, which I proposed, changes a hash-bound, merged K2a record: sha256 `b696e806…` becomes `cdafd957…`. Two committed records cite the old hash and now fail a re-check: `IMPLEMENTATION/M03_SKEW_PIN/RETURN.md:24` (I9's basis) and `REVIEW/_run_records/k2a/delta_aad23e82d.txt:26` (RV7). Both stay true of the bytes read then. The text is kept verbatim, but the bracket names RV13-N5 and not the prior hash. | Optional: record the prior hash `b696e806…` (the bytes on main `e7d930d49`) beside the pointer, or in `K2A_MERGE/RECORD.md`. For the future, prefer pointers from rulings or merge records over edits to hash-bound RETURNs. |
+
+### What I did not do in the delta
+
+- I did not review `bacf939a8` or `28bb8dfa8` (local, not in the PR), or I13's draft beyond confirming that it exists.
+- I did not re-run the original review's GitHub facts for PRs #1038, #1041 and #1040, beyond their edited descriptions.
+- No Git writes. My writes are this appended section, `_run_records/records_pr1042/delta/`, and the updated `_run_records/records_pr1042/SHA256SUMS`. All are uncommitted.
