@@ -69,7 +69,7 @@ impl LedgerNet {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LedgerRefusal {
+pub enum LedgerRefusal {
     /// The accumulator refused a term (`SumError`).
     Accumulator(SumError),
 }
