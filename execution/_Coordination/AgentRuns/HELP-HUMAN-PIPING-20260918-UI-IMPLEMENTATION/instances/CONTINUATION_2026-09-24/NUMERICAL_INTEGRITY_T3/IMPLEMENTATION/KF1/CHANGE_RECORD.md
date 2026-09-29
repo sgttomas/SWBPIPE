@@ -89,3 +89,27 @@ This is the draft PR record for slice KF1 of T3 (numerical integrity), following
   - include the fallback's per-state row list, about n_f × 4.3 KB, which is not a tracker;
   - re-run W1-T3 for the stop rule's changed work before W1-T4.
 - **V-K (I17):** the fault sites are clear of KF1's tracker edits, per ROOT's V-K A1 ruling.
+
+## Addendum 1: T = 512
+
+- **Ruling:** ROOT's "KF1: D received; T reopened and set to 512".
+  - ROOT's A ruling had misread the T = 64 work as "+15% of the stop rule's work". It is +2.5% to +16.2% of the case's work.
+  - On those figures ROOT set T = 512, with G = 8T = 4096. The approximation lemma stays out of the correctness basis.
+- **Change against `d267a755b`:**
+  - `FK/src/structural/retained/adaptive.rs` (+4 −2): `TRACKER_ROWS` = 512, and G follows as 8T;
+  - `FK/tests/retained_k4/kf1_tracker_tests.rs` (+27 −17):
+    - the stream differential adds T = 512;
+    - the model-level differential runs at T = ∞, 1 and 512;
+    - the collapse pin stays at T = 64 through the `#[cfg(test)]` hook, and now also asserts that T = 512 leaves both frames at K4's figures.
+- **Work at T = 512:** 0 extra evaluations on the six RF-LARGE frames at 100 members and on HH-FOOL-m100 (at T = 64 the frames added 128 to 768). No control moves, and the golden pins do not move.
+- **The per-call bound:**
+  - stop rule: ≤ 4,096 unevaluated rows (17.6 MB) after every offer, and ≤ 18.7 MB during one;
+  - pivot margin: 2.2 MB;
+  - residual gate: 2.2 MB per evaluation;
+  - fallback: 8.8 MB;
+  - tables are unchanged.
+- **Re-runs:**
+  - KF1's tests pass 7 of 7, with the differential at 882 runs;
+  - FK's full suite: 401 passed, 0 failed, with no warnings;
+  - NONE passes, and KF1-M7 and KF1-M8 are killed, from clean copies of `d267a755b` plus the change.
+- **Records:** RETURN addendum 1, `_run_records/t512/` and SHA256SUMS, refreshed.

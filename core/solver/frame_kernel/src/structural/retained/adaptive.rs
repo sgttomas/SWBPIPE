@@ -540,8 +540,10 @@ fn approximate_ratio(
 const WINDOW_ULPS: u64 = 1 << 13;
 
 /// KF1: T, the most rows one tracker holds unevaluated. At T it evaluates them
-/// (a collapse), so a tracker's memory does not depend on its rows.
-pub(crate) const TRACKER_ROWS: usize = 64;
+/// (a collapse), so a tracker's memory does not depend on its rows. T = 512
+/// (ROOT's ruling "KF1: D received; T reopened and set to 512"): no result
+/// depends on T, only the work of rows collapsed and later dropped.
+pub(crate) const TRACKER_ROWS: usize = 512;
 
 /// KF1: G, the most unevaluated rows (counted by allocated capacity) the
 /// trackers of one call hold together: 8·T, so the eight trackers `rule` keeps

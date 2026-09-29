@@ -429,3 +429,68 @@ The sha256 of each file is in the checkpoint's status message, and ROOT's commit
 - **The approximation lemma** (§4) is a practical bound only. It is argued, not machine-checked, and the proof of equality does not use it.
 - **The bounded-gate stage** never moved at the model level (§5). Its site is covered by result equality.
 - **Not measured:** memory, K6b's or I16's E_max, and W1-T4. I16 recomputes E_max from this code, and K6b re-measures after merge.
+
+## Addendum 1: T = 512 (ROOT's ruling "KF1: D received; T reopened and set to 512")
+
+**Basis.**
+- A at `68db15d41` and D at `d267a755b` are committed by ROOT.
+- ROOT's A ruling had recorded the T = 64 work as "+15% of the stop rule's work (about 2% of the call)". The measured figures (§5) are +21% to +159% of the stop rule's work and +2.5% to +16.2% of the case's work. On those figures ROOT reopened T and set T = 512 with G = 8T = 4096.
+- The approximation lemma stays out of the correctness basis.
+
+**The change** (against `d267a755b`):
+- **`K4R/adaptive.rs` (+4 −2):** `TRACKER_ROWS` = 512, with its doc comment. `TRACKER_SET_ROWS` = 8·`TRACKER_ROWS` follows, and nothing else in the code depends on T. The `#[cfg(test)]` hook is kept.
+- **`K4T/kf1_tracker_tests.rs` (+27 −17):**
+  - the stream differential adds T = 512;
+  - the model-level differential runs at T = ∞, 1 and 512, and the two tests are renamed `…_at_t_1_and_512`;
+  - the collapse pin is kept at T = 64 through the hook, and now also asserts that T = 512 leaves both frames at K4's figures.
+- **Correctness:** unchanged, because §3's invariant holds for any collapse schedule, so T and G never affect a result.
+
+**The work at T = 512.** From `_run_records/t512/work_table_probe.txt`, a temporary probe that is not committed, with T = 64 kept for comparison:
+
+| Model | Stop rule at T = ∞ | Case at T = ∞ | Extra at T = 64 | Extra at T = 512 |
+|---|---|---|---|---|
+| RF-LARGE-CHAIN-n00100-AX | 8,625,285 | 89,040,372 | +768 evaluations (+13,444,608) | **0** |
+| RF-LARGE-CHAIN-n00100-ROT | 8,450,524 | 110,522,408 | +768 | **0** |
+| RF-LARGE-TREE-n00100-AX | 10,723,845 | 91,059,023 | +128 | **0** |
+| RF-LARGE-TREE-n00100-ROT | 8,424,526 | 107,353,917 | +192 | **0** |
+| RF-LARGE-CONT-n00100-AX | 13,830,960 | 69,294,406 | +640 | **0** |
+| RF-LARGE-CONT-n00100-ROT | 14,727,834 | 92,115,467 | +640 | **0** |
+| HH-FOOL-m100 | 5,224 | 3,919,227 | 0 | **0** |
+
+- In every row, all of the extra work is in the stop rule; the refinement, bounded-gate and condition stages add 0.
+- At T = 512 the model-level differential moves no control: 0 "moved" lines at T = 512, and 129 at T = 1. The collapse pin still exercises collapse work at T = 64.
+- **The golden pins** (`golden_work_counts`, `A3B_WORK`) do not move.
+- **The worst case is unchanged:** +17,506 LME per offered row with a nonzero numerator, for any T. At 10,000 members, rows that tie in the window and are later dropped can still reach it once a tracker holds more than 512 of them.
+
+**The new bound.** A row is 4,304 B and a table entry 40 B:
+
+| Site | Unevaluated rows (allocated) |
+|---|---|
+| Stop rule (one call) | ≤ G = 4,096 rows (17,629,184 B, 17.6 MB) after every offer; ≤ 4,352 rows (18.7 MB) during one offer, before the cap acts |
+| Pivot margin | ≤ 512 rows (2.2 MB) |
+| Residual gate (per refinement evaluation) | ≤ 512 rows (2.2 MB) |
+| Fallback (up to 4 states) | ≤ 2,048 rows (8.8 MB) |
+| A solve attempt at its peak (residual gate and fallback together) | ≤ 2,560 rows (11.0 MB) |
+
+- The transient in the stop rule: within one offer, one tracker's capacity may double from 256 to 512, which adds at most 256 rows.
+- The tables are unchanged: at most W + 1 = 8,193 entries (0.33 MB) each, unconditionally. In practice (not used in the proof) they hold one value entry plus any refusal records.
+- The stop rule keeps at most 8 trackers per body, so G = 8T is never reached by one body.
+- Today's worst case is about 3.2 GB at 10,000 members.
+- The fallback's per-state row list (§4, about n_f × 4.3 KB) is unchanged, and I16 includes it.
+- The bound only caps memory: rows are held only when the data keeps that many within the window.
+
+**Re-runs** (one cargo job, `-j 4`, `RUST_TEST_THREADS=2`, target `<wt>/kf1-target`):
+- **KF1's tests:** 7 of 7 in 61 s (`t512/kf1_tests.log`).
+  - Differential coverage: 882 runs; 2,447 collapses; 152 runs where collapsed rows were later dropped; 131 runs where both trackers refused; 95 runs where a refusal was collapsed and then dropped; 35 all-tie streams longer than T; the largest table held 7 entries, at most one of them a value entry.
+  - The shared-cap test is unchanged, with 4,095 collapses of every tracker.
+  - The sizes line gives T = 512 rows as 2,203,648 B and G = 4,096 rows as 17,629,184 B.
+- **FK's full suite:** 401 passed, 0 failed. The lib has 335 tests, run in 693 s at 2 threads. The non-test build has 0 warnings (`t512/fk_full.log`).
+  - This includes `golden_work_counts`, the site table (3 of 3) and the controls, which are token-equal to GEN.
+  - GEN and its vectors are unchanged, so the `--check` from D stands.
+- **Mutants:** run from clean `git archive` copies of `d267a755b`, with the two changed files overlaid, each with its own target (deleted afterwards).
+  - NONE passes.
+  - **KF1-M7** (no collapse) is killed by the differential (the memory bound), the shared-cap test and the collapse pin.
+  - **KF1-M8** (the shared cap ignored) is killed by the shared-cap test.
+  - Files: `t512/mutants.jsonl`, `t512/mutants.py` and `t512/mutant_logs/`.
+  - The other eight mutants concern how a collapse evaluates, prunes and records rows, not the value of T. They were killed at A, and the differential now exercises that logic at T = 1, 2, 3, 5, 64 and 512.
+- **rustfmt:** the changed files are clean.

@@ -2,7 +2,8 @@
 //! internals): the bounded tracker against a test-only copy of K4's unbounded
 //! `ExtremeTracker` on randomized and adversarial streams, with the memory
 //! bound asserted after every row; its work; the shared cap G; and the
-//! model-level differential over every control at T = ∞, 1 and 64.
+//! model-level differential over every control at T = ∞, 1 and 512 (the
+//! production T), with collapse work pinned at T = 64 through the test hook.
 use super::super::combine::{CombinationOutcome, RetainedCombination};
 use super::super::wide::multi::{limb_multiply_cost, OpKind};
 use super::*;
@@ -521,8 +522,12 @@ fn kf1_bounded_tracker_equals_k4s_on_every_stream() {
     let mut rng = Rng(0x4B46_3120_5452_4143); // "KF1 TRAC"
     for family in 0..9u64 {
         for direction in [Direction::Up, Direction::Down] {
-            for limit in [1usize, 2, 3, 5, 64] {
-                let seeds = if limit == 64 { 6 } else { 10 };
+            for limit in [1usize, 2, 3, 5, 64, 512] {
+                let seeds = match limit {
+                    512 => 3,
+                    64 => 6,
+                    _ => 10,
+                };
                 for _ in 0..seeds {
                     let s = stream(&mut rng, family, limit, direction);
                     if s.len() > limit {
@@ -647,7 +652,7 @@ impl Drop for Setting {
 }
 
 const SETTINGS: [(&str, Option<usize>); 3] =
-    [("inf", Some(usize::MAX)), ("T=1", Some(1)), ("T=64", None)];
+    [("inf", Some(usize::MAX)), ("T=1", Some(1)), ("T=512", None)];
 
 /// The per-attempt work that moves, as (stop rule, refinement, bounded gate,
 /// condition) deltas against T = ∞.
@@ -808,7 +813,8 @@ fn report(name: &str, setting: &str, moved: &[Moved]) {
     }
 }
 
-/// Every model at T = ∞ (K4's behaviour), T = 1 and T = 64, compared.
+/// Every model at T = ∞ (K4's behaviour), T = 1 and T = 512 (`TRACKER_ROWS`),
+/// compared.
 fn models_differential(filter: impl Fn(&str) -> bool) -> usize {
     let mut compared = 0;
     for m in all_models().iter().filter(|m| filter(&m.name)) {
@@ -824,7 +830,7 @@ fn models_differential(filter: impl Fn(&str) -> bool) -> usize {
 }
 
 #[test]
-fn kf1_every_control_is_unchanged_but_its_work_at_t_1_and_64() {
+fn kf1_every_control_is_unchanged_but_its_work_at_t_1_and_512() {
     let compared = models_differential(|n| !n.contains("n00100"));
     assert!(compared >= 125, "{compared}");
     // GEN's 5a.3 combinations, operands and combination under each setting.
@@ -880,20 +886,22 @@ fn kf1_every_control_is_unchanged_but_its_work_at_t_1_and_64() {
 }
 
 #[test]
-fn kf1_rf_large_at_100_members_is_unchanged_but_its_work_at_t_1_and_64() {
+fn kf1_rf_large_at_100_members_is_unchanged_but_its_work_at_t_1_and_512() {
     assert_eq!(models_differential(|n| n.contains("n00100")), 6);
 }
 
 #[test]
 fn kf1_golden_stop_rule_work_where_collapses_occur() {
     // K4's golden work (`golden_work_counts`, `A3B_WORK`) does not move: no
-    // tracker of the four golden models reaches T = 64 rows, and at T = 64
-    // only the RF-LARGE frames at 100 members move (the model-level
-    // differential). Pinned here on two of them, per attempt (p, stop-rule
-    // work, refinement, bounded gate, shared condition), at T = ∞ (K4's
-    // figures, also measured on main `8cca91701`'s code) and at T = 64, where
-    // the stop rule adds 768 and 640 exact evaluations (collapsed rows the
-    // window later drops) at 17,506 LME each: 13,444,608 and 11,203,840.
+    // tracker of the four golden models reaches 64 rows. At T = 64 only the
+    // RF-LARGE frames at 100 members move (KF1's checkpoint A), and at the
+    // production T = 512 none moves (addendum 1). Pinned here on two of them,
+    // per attempt (p, stop-rule work, refinement, bounded gate, shared
+    // condition): at T = ∞ (K4's figures, also measured on main `8cca91701`'s
+    // code); at T = 512, unchanged; and at T = 64 through the test hook, so
+    // collapse work stays exercised at model level, where the stop rule adds
+    // 768 and 640 exact evaluations (collapsed rows the window later drops)
+    // at 17,506 LME each: 13,444,608 and 11,203,840.
     let cost = evaluation_cost();
     type Row = (u32, u64, u64, u64, u64);
     let golden: [(&str, u64, [Row; 2]); 2] = [
@@ -936,9 +944,11 @@ fn kf1_golden_stop_rule_work_where_collapses_occur() {
                 .collect()
         };
         assert_eq!(rows(Some(usize::MAX)), k4, "{name} at T = ∞");
-        let mut kf1 = k4;
-        kf1[0].1 += evaluations * cost;
-        assert_eq!(rows(None), kf1, "{name} at T = 64");
+        assert_eq!(TRACKER_ROWS, 512);
+        assert_eq!(rows(None), k4, "{name} at T = 512");
+        let mut at_64 = k4;
+        at_64[0].1 += evaluations * cost;
+        assert_eq!(rows(Some(64)), at_64, "{name} at T = 64");
     }
     assert_eq!(768 * cost, 13_444_608);
     assert_eq!(640 * cost, 11_203_840);
