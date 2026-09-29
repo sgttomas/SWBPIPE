@@ -1933,3 +1933,26 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
   - K4 (A3b in progress);
   - then K6b (W1 observations) and V-K;
   - then ROOT's budget limits, F2a, and the owner's ceiling decision with V-P.
+
+## K4: rulings at A3b (ROOT, 2026-09-29)
+
+- **A3b accepted,** committed on the K4 branch at `bb7757ac5`.
+  - Every control equals GEN's outcomes, and every selected control is honest and passes G5a.
+  - RF-LARGE at 10 and 100 members is honest at 128.
+  - E-CHARGE is bit-equal to GEN on 360 states.
+  - `factor.rs` is unchanged since A3a.
+- **Outcomes that moved from 5a.2 are accepted,** as the selected design's intended behaviour:
+  1. **DIRECTIONAL-SPAN: 128 → Unresolved(Ceiling).**
+     - Its springs span R³ only through 2^-52 (κ ≈ 2^104). The solve's error stays above V/4 at every precision, so 5a.3 withholds it.
+     - This is an availability loss, and it is honest.
+     - **RETURN must state whether 5a.2's 128-bit publication was within b,** checked against GEN's exact solution. If it was not, it is a false claim that 5a.3 now withholds, and it is recorded as such.
+     - DIRECTIONAL-WELL keeps the directional-spring recovery compared.
+  2. **CEIL-A and CEIL-B → Unresolved(ResolutionScaleUnencodable).** E overflows under a 2^1013-rad rigid rotation (Q8). F-1's control moves to CEIL-S (P = 2^900, ε = 2^-160).
+  3. **RIGID-UNLOADED: Unresolved → 512,** as R7 predicts.
+- **The edge case, E finite while ê = fl(L_b·E_fo) overflows:** map it to `Unresolved(ResolutionScaleUnencodable)`, the same terminal reason as an E overflow, with a unit test. Do not escalate: an infinite V can never pass. Currently it ends as `Arithmetic(NonFinite)`, which is withheld and honest, but mislabelled.
+- **Figures:** asserting at R7's two-figure rounding is accepted.
+- **RETURN §22,** the Q12 support-group E derivation and the certified-bound conditions, is noted for the reviewer.
+- **Next:**
+  - **B:** FK, SD and NI suites; the 39-manifest suites on the Mac; K4 is kernel only, so T9 and the gate are not run (K4's brief).
+  - **C:** mutants, including R7 §7's killable list and K4-M34 to M40.
+  - **D:** records.
