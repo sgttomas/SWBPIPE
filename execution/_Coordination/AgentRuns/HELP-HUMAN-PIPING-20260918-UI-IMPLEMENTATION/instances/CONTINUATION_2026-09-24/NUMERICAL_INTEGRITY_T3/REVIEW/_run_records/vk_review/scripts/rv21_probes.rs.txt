@@ -1,0 +1,377 @@
+//! RV21's own probes of V-K's harness (review of PR #1057). Not part of the PR:
+//! copied into a scratch archive's `tests/` only.
+//!
+//! Every probe feeds the harness a wrong answer through its own path (the
+//! published rows -> `lane::observe` -> `compare::judge`, or a whole case
+//! through `lane::run_case`/`run_parts`), and requires a failure.
+use open_pipe_stress_frame_kernel::structural::retained_api::{
+    Binary64Outcome, Component, End, PublishedRow, QuantityId,
+};
+use piping_numerical_robustness::cases::{load_all, load_family, Case, Target};
+use piping_numerical_robustness::compare::{judge, Observed, Verdict};
+use piping_numerical_robustness::exact::{self, Exact};
+use piping_numerical_robustness::floor;
+use piping_numerical_robustness::lane::{member_coefficients, observe, run_case};
+use std::collections::BTreeMap;
+
+type Rows = BTreeMap<QuantityId, PublishedRow>;
+
+/// The published rows each R1 key is formed from (V-K plan §4.2), written
+/// again here so that a mapping error in the harness would show as a miss.
+fn my_sources(t: Target) -> Vec<QuantityId> {
+    let end = |member: u32, j: bool, component: Component| QuantityId::EndAction {
+        member,
+        end: if j { End::J } else { End::I },
+        component,
+    };
+    match t {
+        Target::Displacement(d) => vec![QuantityId::Displacement(d)],
+        Target::Reaction(d) => vec![QuantityId::Reaction(d)],
+        Target::Spring { id, component } => vec![QuantityId::SpringAction {
+            spring: id,
+            component,
+        }],
+        Target::DirectionalSpring { id, component } => vec![QuantityId::DirectionalSpringAction {
+            spring: id,
+            component,
+        }],
+        Target::StructuralZero => vec![],
+        Target::Axial(m) | Target::Extension(m) => vec![end(m, true, Component::Ux)],
+        Target::Torque(m) | Target::Twist(m) => vec![end(m, true, Component::Rx)],
+        Target::BendingEnd { member, j_end } => vec![
+            end(member, j_end, Component::Ry),
+            end(member, j_end, Component::Rz),
+        ],
+        Target::BendingStation(s) => vec![
+            QuantityId::StationAction {
+                station: s,
+                component: Component::Ry,
+            },
+            QuantityId::StationAction {
+                station: s,
+                component: Component::Rz,
+            },
+        ],
+    }
+}
+
+fn set(rows: &mut Rows, id: QuantityId, v: f64) {
+    rows.get_mut(&id)
+        .unwrap_or_else(|| panic!("{id:?} not published"))
+        .value = Binary64Outcome::Normal(v);
+}
+
+fn get(rows: &Rows, id: QuantityId) -> f64 {
+    match rows[&id].value {
+        Binary64Outcome::Underflow { negative } => {
+            UNDERFLOWS.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            if negative { -0.0 } else { 0.0 }
+        }
+        v => v.value().unwrap_or_else(|| panic!("{id:?} {v:?}")),
+    }
+}
+
+static UNDERFLOWS: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
+fn up(x: f64) -> f64 {
+    if x == 0.0 {
+        return f64::from_bits(1);
+    }
+    if x > 0.0 {
+        f64::from_bits(x.to_bits() + 1)
+    } else {
+        f64::from_bits(x.to_bits() - 1)
+    }
+}
+
+fn is_fail(v: &Verdict) -> bool {
+    matches!(v, Verdict::Fail(_))
+}
+
+#[derive(Default, Debug)]
+struct Counts {
+    rows_probed: usize,
+    mutations: usize,
+    missed: Vec<String>,
+    boundary_checked: usize,
+    not_covered_skipped: usize,
+    structural_zero_skipped: usize,
+}
+
+/// Mutations of one published set that must fail row `key`.
+fn probe_case(case: &Case, counts: &mut Counts) {
+    let model = case.model.as_ref().unwrap();
+    let run = run_case(case);
+    if run.outcome != "selected" || case.refuse {
+        return;
+    }
+    assert!(run.failures.is_empty(), "{}: {:?}", case.id, run.failures);
+    let published = &run.published;
+    let scales = floor::scales(case, model);
+    let rows_by_key: BTreeMap<&str, &piping_numerical_robustness::cases::Row> =
+        case.rows.iter().map(|r| (r.key.as_str(), r)).collect();
+    for row in &case.rows {
+        let exp = Exact::parse_decimal(&row.expected).unwrap();
+        let scale = Exact::parse_decimal(case.scale_of(row)).unwrap();
+        let covered = exact::covered(&exp, &scale, floor::row_scale(row, &scales));
+        let target = model.resolve(&row.key).unwrap();
+        if target == Target::StructuralZero {
+            counts.structural_zero_skipped += 1;
+            continue;
+        }
+        if !covered {
+            counts.not_covered_skipped += 1;
+            continue;
+        }
+        counts.rows_probed += 1;
+        let t = exact::tolerance(&exp, &scale);
+        let srcs = my_sources(target);
+        // The unmutated row passes (sanity: the probe reads the same rows).
+        let base = judge(&observe(target, published, model), &exp, &scale, true);
+        assert!(
+            matches!(base, Verdict::Pass | Verdict::PassAbsoluteRange),
+            "{} {} {base:?}",
+            case.id,
+            row.key
+        );
+        let mut check = |what: &str, rows: &Rows| {
+            counts.mutations += 1;
+            let v = judge(&observe(target, rows, model), &exp, &scale, covered);
+            if !is_fail(&v) {
+                counts
+                    .missed
+                    .push(format!("{} {} {what}: {v:?}", case.id, row.key));
+            }
+        };
+        let three_t_up = exp.add(&t.scaled(0, 0)).add(&t).add(&t).approx();
+        let three_t_down = exp.sub(&t).sub(&t).sub(&t).approx();
+        match target {
+            Target::BendingEnd { .. } | Target::BendingStation(_) => {
+                for w in [three_t_up, three_t_down] {
+                    if w <= 0.0 {
+                        continue;
+                    }
+                    let mut rows = published.clone();
+                    set(&mut rows, srcs[0], 0.6 * w);
+                    set(&mut rows, srcs[1], 0.8 * w);
+                    check(&format!("magnitude moved to {w:e}"), &rows);
+                }
+                // The other end's magnitude, where R1's two ends differ by > 4t.
+                if let Target::BendingEnd { member, j_end } = target {
+                    let other_key = format!(
+                        "Mb.{}.{}",
+                        row.key.split('.').nth(1).unwrap(),
+                        if j_end { "i" } else { "j" }
+                    );
+                    if let Some(other) = rows_by_key.get(other_key.as_str()) {
+                        let oexp = Exact::parse_decimal(&other.expected).unwrap();
+                        let gap = oexp.sub(&exp).abs();
+                        if gap.cmp(&t.add(&t).add(&t).add(&t)) == std::cmp::Ordering::Greater {
+                            let other_srcs = my_sources(Target::BendingEnd {
+                                member,
+                                j_end: !j_end,
+                            });
+                            let mut rows = published.clone();
+                            let (y, z) = (get(published, other_srcs[0]), get(published, other_srcs[1]));
+                            set(&mut rows, srcs[0], y);
+                            set(&mut rows, srcs[1], z);
+                            check("the other end's bending", &rows);
+                        }
+                    }
+                }
+            }
+            Target::Twist(m) | Target::Extension(m) => {
+                let (kt, ka) = member_coefficients(model, m);
+                let k = if matches!(target, Target::Twist(_)) { kt } else { ka };
+                for w in [three_t_up, three_t_down] {
+                    let mut rows = published.clone();
+                    set(&mut rows, srcs[0], w * k);
+                    check(&format!("derived value moved to {w:e}"), &rows);
+                }
+                if exp.abs().cmp(&t.add(&t)) == std::cmp::Ordering::Greater {
+                    let mut rows = published.clone();
+                    set(&mut rows, srcs[0], -get(published, srcs[0]));
+                    check("sign of the source action", &rows);
+                }
+            }
+            _ => {
+                for w in [three_t_up, three_t_down] {
+                    let mut rows = published.clone();
+                    set(&mut rows, srcs[0], w);
+                    check(&format!("value moved to {w:e}"), &rows);
+                }
+                if exp.abs().cmp(&t.add(&t)) == std::cmp::Ordering::Greater {
+                    let mut rows = published.clone();
+                    set(&mut rows, srcs[0], -get(published, srcs[0]));
+                    check("sign flipped", &rows);
+                }
+                // The exact boundary through the full observe path.
+                let mut x = exp.add(&t).approx();
+                while !exact::predicate(&Exact::from_f64(x), &exp, &scale) {
+                    x = f64::from_bits(if x > 0.0 { x.to_bits() - 1 } else { x.to_bits() + 1 });
+                }
+                while exact::predicate(&Exact::from_f64(up(x)), &exp, &scale) {
+                    x = up(x);
+                }
+                let mut rows = published.clone();
+                set(&mut rows, srcs[0], x);
+                let v = judge(&observe(target, &rows, model), &exp, &scale, covered);
+                assert!(
+                    matches!(v, Verdict::Pass | Verdict::PassAbsoluteRange),
+                    "{} {} boundary {x:e}: {v:?}",
+                    case.id,
+                    row.key
+                );
+                set(&mut rows, srcs[0], up(x));
+                check("one ulp beyond the exact boundary", &rows);
+                counts.boundary_checked += 1;
+            }
+        }
+        // A missing row and an overflowed row.
+        let mut rows = published.clone();
+        rows.remove(&srcs[0]);
+        check("source row missing", &rows);
+        let mut rows = published.clone();
+        rows.get_mut(&srcs[0]).unwrap().value = Binary64Outcome::Overflow { negative: false };
+        check("source row overflowed", &rows);
+    }
+}
+
+#[test]
+fn rv21_wrong_published_values_always_fail() {
+    let mut counts = Counts::default();
+    for c in load_all().iter().filter(|c| !c.is_large()) {
+        probe_case(c, &mut counts);
+    }
+    println!(
+        "RV21 value probes: {} covered rows, {} mutations, {} boundary pairs, {} missed; skipped {} not-covered and {} structural-zero rows",
+        counts.rows_probed,
+        counts.mutations,
+        counts.boundary_checked,
+        counts.missed.len(),
+        counts.not_covered_skipped,
+        counts.structural_zero_skipped
+    );
+    println!("RV21 underflow sources read: {}", UNDERFLOWS.load(std::sync::atomic::Ordering::SeqCst));
+    for m in counts.missed.iter().take(40) {
+        println!("MISSED {m}");
+    }
+    assert!(counts.missed.is_empty());
+    assert!(counts.rows_probed > 25_000);
+}
+
+fn case(family: &str, id: &str) -> Case {
+    load_family(family)
+        .into_iter()
+        .find(|c| c.id == id)
+        .unwrap_or_else(|| panic!("{id}"))
+}
+
+#[test]
+fn rv21_outcome_and_list_probes_fail() {
+    // O1: a stable case that joins the expected-unresolved list (by id) but is selected.
+    let mut c = case("RF-CHAIN", "RF-CHAIN-T-n03-r1e-04");
+    c.id = "RF-RANGE-THIN-A".into();
+    let r = run_case(&c);
+    println!("O1 {:?}", r.failures.first());
+    assert!(!r.failures.is_empty(), "O1: listed but selected passed");
+
+    // O2: THIN-A under another id: unresolved and not listed.
+    let mut c = case("RF-RANGE", "RF-RANGE-THIN-A");
+    c.id = "RF-RANGE-THIN-Z".into();
+    let r = run_case(&c);
+    println!("O2 {:?} {}", r.failures.first(), r.tally);
+    assert!(!r.failures.is_empty() && r.tally.fail == c.rows.len() && r.tally.expected_unresolved == 0);
+
+    // O2b: THIN-A itself: expected unresolved, rows counted apart, never as passes.
+    let c = case("RF-RANGE", "RF-RANGE-THIN-A");
+    let r = run_case(&c);
+    assert!(r.failures.is_empty() && r.tally.pass == 0 && r.tally.expected_unresolved == c.rows.len());
+
+    // O3: a stable case marked as a mechanism: a published mechanism fails.
+    let mut c = case("RF-CHAIN", "RF-CHAIN-T-n03-r1e-04");
+    c.refuse = true;
+    let r = run_case(&c);
+    println!("O3 {:?}", r.failures.first());
+    assert!(!r.failures.is_empty(), "O3");
+
+    // O4: a mechanism marked stable: not selected fails.
+    let mut c = case("RF-MECH", "RF-MECH-LINE122-TORQUE");
+    c.refuse = false;
+    let r = run_case(&c);
+    println!("O4 {:?}", r.failures.first());
+    assert!(!r.failures.is_empty(), "O4");
+
+    // O5: the adapter's canonical bytes differ from the generator's path B.
+    let mut c = case("RF-CHAIN", "RF-CHAIN-T-n03-r1e-04");
+    c.k4src_sha256 = "0".repeat(64);
+    let r = run_case(&c);
+    assert!(!r.failures.is_empty(), "O5");
+
+    // O6: a model input changed (the adapter wrong) with R1's sha kept.
+    let mut c = case("RF-CHAIN", "RF-CHAIN-T-n05-r1e-12");
+    let m = c.model.as_mut().unwrap();
+    m.members[1].shear_modulus *= 1.0 + 1e-6;
+    let r = run_case(&c);
+    println!("O6 {} failures: {:?}", r.failures.len(), r.failures);
+    assert!(r.failures.len() > 1, "O6: a wrong G passes apart from the sha line");
+
+    // O7: a reference value moved by 2e-9 relative (a wrong expectation) fails.
+    let mut c = case("RF-SKEW", "RF-SKEW-T-CANT-AX-122-r1e-12");
+    let k = (0..c.rows.len())
+        .filter(|&k| c.rows[k].key.starts_with("th."))
+        .max_by(|&a, &b| {
+            let va = Exact::parse_decimal(&c.rows[a].expected).unwrap().abs();
+            let vb = Exact::parse_decimal(&c.rows[b].expected).unwrap().abs();
+            va.cmp(&vb)
+        })
+        .unwrap();
+    let e = Exact::parse_decimal(&c.rows[k].expected).unwrap().approx();
+    c.rows[k].expected = format!("{:e}", e * (1.0 + 3e-9));
+    let r = run_case(&c);
+    println!("O7 {:?}", r.failures);
+    assert!(!r.failures.is_empty(), "O7");
+
+    // O8: a class scale lowered: a covered zero row falls below the floor and
+    // the not-covered set leaves the committed list (the lane test's FLOOR).
+    let mut c = case("RF-ZERO", "RF-ZERO-SYM");
+    let zero_row = c.rows.iter().find(|r| r.expected == "0").unwrap().clone();
+    c.scales.insert(zero_row.class.clone(), "1e-300".into());
+    let r = run_case(&c);
+    println!("O8 not covered {:?} committed {:?}", r.not_covered, c.not_covered);
+    assert_ne!(r.not_covered, c.not_covered, "O8");
+
+    // O9: a committed not-covered entry dropped: the lane's set leaves the list.
+    let mut c = case("RF-WEAK", "RF-WEAK-W-AX-rho1e-12");
+    c.not_covered.pop();
+    let r = run_case(&c);
+    assert_ne!(r.not_covered, c.not_covered, "O9");
+}
+
+/// The judge on constructed observations of every kind (no kernel).
+#[test]
+fn rv21_judge_constructed() {
+    let e = |s: &str| Exact::parse_decimal(s).unwrap();
+    // Structural zero with a nonzero reference fails.
+    assert!(is_fail(&judge(&Observed::StructuralZero, &e("1e-30"), &e("1"), true)));
+    // Unavailable fails when covered, is never a pass when not covered.
+    assert!(is_fail(&judge(&Observed::Unavailable("x".into()), &e("1"), &e("1"), true)));
+    assert!(matches!(
+        judge(&Observed::Unavailable("x".into()), &e("1"), &e("1"), false),
+        Verdict::NotCovered { predicate_held: false }
+    ));
+    // A not-covered wrong value is not a pass.
+    assert!(matches!(
+        judge(&Observed::Value(5.0), &e("1"), &e("0"), false),
+        Verdict::NotCovered { predicate_held: false }
+    ));
+    // Sub-range reference: 0 passes as absolute-range, 1e-300 over a 1e-295 scale fails.
+    let tiny = e("-3.2913e-2864");
+    assert_eq!(judge(&Observed::Value(0.0), &tiny, &e("1e-295"), true), Verdict::PassAbsoluteRange);
+    assert!(is_fail(&judge(&Observed::Value(1e-300), &tiny, &e("1e-295"), true)));
+    // A negative scale string cannot widen the tolerance below |exp|.
+    assert!(is_fail(&judge(&Observed::Value(1.0 + 2e-9), &e("1"), &e("-5"), true)));
+    // Magnitude: components whose magnitude is 2t off fail; a sign swap passes.
+    assert!(is_fail(&judge(&Observed::Magnitude(3.0, 4.0 + 2e-8), &e("5"), &e("0"), true)));
+    assert_eq!(judge(&Observed::Magnitude(-3.0, -4.0), &e("5"), &e("0"), true), Verdict::Pass);
+}

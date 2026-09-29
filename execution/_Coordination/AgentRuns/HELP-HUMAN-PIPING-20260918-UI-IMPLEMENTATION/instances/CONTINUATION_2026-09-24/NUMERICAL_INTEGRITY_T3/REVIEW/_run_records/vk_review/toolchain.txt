@@ -1,0 +1,13 @@
+RV21 (V-K review) toolchain and host
+  rustc 1.97.1 (8bab26f4f 2026-07-14)
+  binary: rustc
+  commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452
+  commit-date: 2026-07-14
+  host: aarch64-apple-darwin
+  release: 1.97.1
+  LLVM version: 22.1.6
+  cargo 1.97.1 (c980f4866 2026-06-30)
+  Python 3.13.14
+  host: Darwin 25.6.0 arm64, 18 cores, 128 GiB
+  env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2, cargo -j 4 --offline --locked, one cargo job at a time
+  memory guard: <wt>/guard/memguard.sh running (pid from its start line); memguard.log has no KILLED line during the review

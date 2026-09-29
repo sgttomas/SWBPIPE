@@ -1,0 +1,17 @@
+rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo 1.97.1 (c980f4866 2026-06-30)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/rv21/head/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.14s
+  Executable unittests src/lib.rs (<wt>/rv21-target/debug/deps/piping_numerical_robustness-c470a1c675bec6fe)
+  Executable tests/adapter.rs (<wt>/rv21-target/debug/deps/adapter-60d0b2e79ca1732a)
+  Executable tests/engine.rs (<wt>/rv21-target/debug/deps/engine-ade4d75544e601cd)
+  Executable tests/feature_guard.rs (<wt>/rv21-target/debug/deps/feature_guard-601f6888b9a99a0a)
+  Executable tests/files.rs (<wt>/rv21-target/debug/deps/files-d35622f550358d53)
+  Executable tests/invariance.rs (<wt>/rv21-target/debug/deps/invariance-a83fc0f03984df02)
+  Executable tests/lane.rs (<wt>/rv21-target/debug/deps/lane-5c8f8d211b064c67)
+  Executable tests/parity.rs (<wt>/rv21-target/debug/deps/parity-f00e7322446ed1e2)
+  Executable tests/rcm.rs (<wt>/rv21-target/debug/deps/rcm-6426502fdfcbea3b)
+  Executable tests/scale.rs (<wt>/rv21-target/debug/deps/scale-c1244e9d031251d9)
+real 4.16
+user 11.25
+sys 1.86

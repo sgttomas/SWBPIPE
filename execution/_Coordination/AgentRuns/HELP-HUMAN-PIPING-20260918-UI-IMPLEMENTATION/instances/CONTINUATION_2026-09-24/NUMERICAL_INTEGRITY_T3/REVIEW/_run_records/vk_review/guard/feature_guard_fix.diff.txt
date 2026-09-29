@@ -1,0 +1,13 @@
+47c47
+<         let names_it = line.contains(FEATURE) || (role == "vr" && line.contains("seeded-faults"));
+---
+>         let names_it = line.contains(FEATURE) || line.contains("seeded-faults");
+137a138,145
+> 
+> #[test]
+> fn rv21_a_manifest_enabling_vrs_seeded_faults_is_flagged() {
+>     let dep = "[dependencies]\npiping_numerical_robustness = { path = \"../x\", features = [\"seeded-faults\"] }\n";
+>     assert_eq!(violations(dep, "other").len(), 1, "a dependency on VR with seeded-faults");
+>     let fwd = "[features]\nx = [\"piping_numerical_robustness/seeded-faults\"]\n";
+>     assert_eq!(violations(fwd, "other").len(), 1, "a feature forwarding to VR's seeded-faults");
+> }

@@ -1,0 +1,6 @@
+{"cases": 213, "rows": 27752, "controls": 715, "models_subprocess": 191, "models_inprocess": 22, "large_sha": 12}
+large models checked: 12
+problems: 0
+real 162.20
+user 158.27
+sys 3.11

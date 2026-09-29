@@ -1,0 +1,46 @@
+//! RV21: the exact engine against RV21's own Python-Fractions vectors.
+use piping_numerical_robustness::exact::{self, Exact};
+use serde_json::Value;
+
+#[test]
+fn rv21_engine_agrees_with_fractions() {
+    let path = std::env::var("RV21_VECTORS").expect("RV21_VECTORS");
+    let text = std::fs::read_to_string(path).unwrap();
+    let hex = |v: &Value| f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap());
+    let mut n = [0usize; 4];
+    let mut bad = Vec::new();
+    for line in text.lines() {
+        let v: Value = serde_json::from_str(line).unwrap();
+        let exp = Exact::parse_decimal(v["e"].as_str().unwrap()).unwrap();
+        let want = v["v"].as_bool().unwrap();
+        let got = match v["k"].as_str().unwrap() {
+            "p" => {
+                n[0] += 1;
+                let s = Exact::parse_decimal(v["s"].as_str().unwrap()).unwrap();
+                exact::predicate(&Exact::from_f64(hex(&v["o"])), &exp, &s)
+            }
+            "m" => {
+                n[1] += 1;
+                let s = Exact::parse_decimal(v["s"].as_str().unwrap()).unwrap();
+                exact::magnitude_predicate(hex(&v["y"]), hex(&v["z"]), &exp, &s)
+            }
+            "c" => {
+                n[2] += 1;
+                let s = Exact::parse_decimal(v["s"].as_str().unwrap()).unwrap();
+                exact::covered(&exp, &s, hex(&v["star"]))
+            }
+            _ => {
+                n[3] += 1;
+                exact::outside_binary64(&exp)
+            }
+        };
+        if got != want {
+            bad.push(line.to_string());
+        }
+    }
+    println!("RV21 engine vectors: predicate {}, magnitude {}, covered {}, range {}; disagreements {}", n[0], n[1], n[2], n[3], bad.len());
+    for b in bad.iter().take(10) {
+        println!("DISAGREE {b}");
+    }
+    assert!(bad.is_empty());
+}

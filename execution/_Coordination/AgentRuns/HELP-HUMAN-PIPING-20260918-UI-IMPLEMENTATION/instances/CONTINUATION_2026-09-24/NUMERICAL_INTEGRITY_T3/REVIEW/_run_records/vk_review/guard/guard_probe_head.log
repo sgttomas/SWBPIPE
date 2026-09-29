@@ -1,0 +1,28 @@
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/rv21/head/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.94s
+     Running tests/feature_guard.rs (<wt>/rv21-target/debug/deps/feature_guard-601f6888b9a99a0a)
+
+running 5 tests
+test ci_passes_no_cargo_features ... ok
+test no_vr_source_names_the_execution_tree ... ok
+test rv21_a_manifest_enabling_vrs_seeded_faults_is_flagged ... FAILED
+test the_guard_flags_what_it_must ... ok
+test no_manifest_enables_the_mutation_controls_feature ... ok
+
+failures:
+
+---- rv21_a_manifest_enabling_vrs_seeded_faults_is_flagged stdout ----
+
+thread 'rv21_a_manifest_enabling_vrs_seeded_faults_is_flagged' (15841934) panicked at tests/feature_guard.rs:142:5:
+assertion `left == right` failed: a dependency on VR with seeded-faults
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    rv21_a_manifest_enabling_vrs_seeded_faults_is_flagged
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+error: test failed, to rerun pass `--test feature_guard`

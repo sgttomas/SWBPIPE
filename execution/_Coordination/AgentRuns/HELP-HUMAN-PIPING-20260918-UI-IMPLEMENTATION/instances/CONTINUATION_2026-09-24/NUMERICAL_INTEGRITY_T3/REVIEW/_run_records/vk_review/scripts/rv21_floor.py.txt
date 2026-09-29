@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+"""RV21: the floor check re-derived from references.json (not from the case
+files or floor_kinds.json), by D1 section 4.1.6.1 items 4-7 and 4.10:
+
+  S(kind)  = max |fl(exp)| over the case's rows of the kind (class without
+             @region), for translation, rotation, force and moment;
+  L_b      = fl(sqrt(fl(fl(dx*dx) + fl(dy*dy)) + fl(dz*dz))), d = fl(max - min)
+             over the adapted (binary64) node coordinates;
+  coupling = item 6, in its order;
+  variant F: S*_tw(m) = fl(mo / k_t), S*_ext(m) = fl(fo / k_a), with
+             k_t = fl(fl(G*J)/L), k_a = fl(fl(E*A)/L), L = fl(sqrt(v.v)) of
+             the chord, and ROOT's C1 pre-scaling where fl(G*J) is not normal
+             (implemented here with exact rationals: k = round(round_s(G*J)/L)
+             where round_s keeps 53 significant bits without underflow or
+             overflow, which equals the pre-scaled formula);
+  covered  iff max(|exp|, scale) >= 2^-34 * S*, in Fractions.
+
+python3 -B rv21_floor.py <archive projects/chirality-piping>
+"""
+import sys
+sys.dont_write_bytecode = True
+import importlib.util
+import json
+import math
+import struct
+from fractions import Fraction as F
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+import rv21_adapter_check as A  # noqa: E402  (RV21's own adapter)
+
+ROOT = Path(sys.argv[1])
+VR = ROOT / 'validation/benchmarks/numerical_robustness'
+REF = A.REF if False else ROOT / ('execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/'
+                                  'instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES')
+KINDS = ('translation', 'rotation', 'force', 'moment')
+
+
+def unhex(h):
+    return struct.unpack('>d', bytes.fromhex(h))[0]
+
+
+def round53_unbounded(q):
+    """q rounded to 53 significant bits, nearest-even, with no exponent range."""
+    q = F(q)
+    if q == 0:
+        return q
+    sign = -1 if q < 0 else 1
+    q = abs(q)
+    n, d = q.numerator, q.denominator
+    e = n.bit_length() - d.bit_length()
+    if (n << max(0, -e)) < (d << max(0, e)):
+        e -= 1
+    qe = e - 52
+    num, den = (n, d << qe) if qe >= 0 else (n << -qe, d)
+    m, r = divmod(num, den)
+    if 2 * r > den or (2 * r == den and (m & 1)):
+        m += 1
+    return sign * F(m) * (F(2) ** qe)
+
+
+def coefficient(a, b, length):
+    """fl(fl(a*b)/L) with the product rounded to 53 bits without range limits;
+    equal to the design's formula wherever its intermediates are normal."""
+    p = round53_unbounded(F(a) * F(b))
+    return A.round_binary64(p / F(length))
+
+
+def main():
+    ref = json.loads((REF / 'references.json').read_text())
+    spec = importlib.util.spec_from_file_location('r1ref', REF / 'references.py')
+    r1 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(r1)
+    committed = {}
+    for f in sorted((VR / 'cases').glob('rf_*.jsonl')):
+        for line in f.read_text().splitlines():
+            c = json.loads(line)
+            committed[c['id']] = c['not_covered']
+    listed = json.loads((VR / 'cases/not_covered.json').read_text())['entries']
+    mine_all = {}
+    counts = {}
+    for cid, rc in ref['cases'].items():
+        if cid.startswith('RF-CANCEL-UDL'):
+            continue
+        fam = rc['family']
+        if 'generator' in rc['model']:
+            continue  # n >= 1,000: examples; C9 is recorded by B
+        basis = rc.get('basis', 'intended')
+        rows = rc.get('expected_represented') if basis == 'represented' else rc.get('expected', [])
+        if not rows:
+            mine_all[cid] = []
+            continue
+        model = A.rv21_adapt(rc['model'], basis, r1.PI_Q)
+        xyz = [[unhex(h) for h in n[1:]] for n in model['nodes']]
+        s = {k: 0.0 for k in KINDS}
+        for r in rows:
+            base = r[2].split('@')[0]
+            if base in s:
+                s[base] = max(s[base], abs(A.round_binary64(F(r[1]))))
+        d = [max(p[a] for p in xyz) - min(p[a] for p in xyz) for a in range(3)]
+        lb = math.sqrt((d[0] * d[0] + d[1] * d[1]) + d[2] * d[2])
+        tr, ro, fo, mo = s['translation'], s['rotation'], s['force'], s['moment']
+        if lb != 0.0:
+            tr, ro, fo, mo = (max(s['translation'], lb * s['rotation']), max(s['rotation'], s['translation'] / lb),
+                              max(s['force'], s['moment'] / lb), max(s['moment'], lb * s['force']))
+        star = {'translation': tr, 'rotation': ro, 'force': fo, 'moment': mo}
+        per = {}
+        for m in model['members']:
+            e, g, area, _iy, _iz, jt = (unhex(h) for h in m[4:10])
+            xi, xj = xyz[m[2]], xyz[m[3]]
+            v = [xj[k] - xi[k] for k in range(3)]
+            length = math.sqrt((v[0] * v[0] + v[1] * v[1]) + v[2] * v[2])
+            per[m[0]] = (mo / coefficient(g, jt, length), fo / coefficient(e, area, length))
+        mine = []
+        for r in rows:
+            key, value, cls = r[0], r[1], r[2]
+            base = cls.split('@')[0]
+            sk = star[base] if base in star else per[key.split('.', 1)[1]][0 if base == 'twist' else 1]
+            scale = r[3] if fam == 'RF-CANCEL' else rc['scales'][cls]['value']
+            comparison = max(abs(F(value)), F(scale))
+            if comparison < F(sk) / 2 ** 34:
+                mine.append(key)
+        mine_all[cid] = mine
+        if mine:
+            counts[fam] = counts.get(fam, 0) + len(mine)
+    diffs = [(cid, mine_all[cid], committed.get(cid)) for cid in mine_all if mine_all[cid] != committed.get(cid)]
+    print('cases derived:', len(mine_all), 'counts:', counts)
+    print('entries in not_covered.json:', len(listed), 'distinct:', len({tuple(e) for e in listed}))
+    lset = {(e[1], e[2]) for e in listed}
+    mset = {(cid, k) for cid, ks in mine_all.items() for k in ks}
+    print('list equals RV21 set:', lset == mset)
+    print('differences from the committed per-case lists:', len(diffs))
+    for d in diffs[:20]:
+        print('DIFF', d)
+    for cid, ks in sorted(mine_all.items()):
+        if ks:
+            print(cid, len(ks), ks)
+    return 1 if diffs or lset != mset or counts != {'RF-WEAK': 46, 'RF-CANCEL': 3, 'RF-SKEW': 2} else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

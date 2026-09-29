@@ -1,0 +1,106 @@
+
+running 7 tests
+test exact::tests::decimals_and_binary64_values_parse_exactly ... ok
+test exact::tests::the_binary64_range_is_decided_exactly ... ok
+test exact::tests::the_floor_is_r_times_s_star_exactly ... ok
+test exact::tests::the_magnitude_predicate_holds_at_both_bounds_and_not_one_ulp_beyond ... ok
+test exact::tests::the_predicate_holds_at_its_boundary_and_not_one_ulp_beyond ... ok
+test exact::tests::nat_arithmetic_equals_u128_arithmetic ... ok
+test sha256::tests::fips_180_known_answers ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+running 4 tests
+test permuting_every_list_changes_no_canonical_byte ... ok
+test every_ci_models_canonical_bytes_equal_the_generators_from_references_py_model ... ok
+test rf_mech_k0s_literal_model_is_refused_by_the_source_naming_its_spring ... ok
+test permuting_every_list_changes_no_published_bit_on_rf_invariance ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.03s
+
+
+running 3 tests
+test a_discriminating_control_that_passes_is_listed_never_dropped ... ok
+test the_comparison_scale_is_exps_magnitude_never_obss ... ok
+test r1s_five_absolute_range_rows_are_counted_apart_from_the_passes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test ci_passes_no_cargo_features ... ok
+test no_vr_source_names_the_execution_tree ... ok
+test the_guard_flags_what_it_must ... ok
+test no_manifest_enables_the_mutation_controls_feature ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 10 tests
+test c1_the_prescaled_coefficients_equal_the_designs_wherever_it_is_defined ... ok
+test every_r1_key_resolves_and_the_structural_zeros_are_exact_zeros ... ok
+test every_discriminating_value_control_fails_the_predicate ... ok
+test the_exact_engine_agrees_with_the_generators_fractions_on_every_vector ... ok
+test the_expected_unresolved_list_is_thin_a_and_thin_b ... ok
+test the_files_hold_r1s_213_kernel_lane_cases_as_counted ... ok
+test the_case_files_match_their_recorded_sha256 ... ok
+test the_floor_check_reproduces_the_committed_not_covered_list ... ok
+test v_ks_s_star_equals_k4s_exported_functions_bit_for_bit ... ok
+test the_rows_outside_binary64s_range_are_cont_n10000s_five ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+
+
+running 1 test
+test every_small_variants_rows_map_onto_its_base ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.10s
+
+
+running 10 tests
+test rf_cancel ... ok
+test rf_finite ... ok
+test rf_chain ... ok
+test rf_invariance ... ok
+test rf_mech ... ok
+test rf_range ... ok
+test rf_skew ... ok
+test rf_weak ... ok
+test rf_zero ... ok
+test rf_large_at_10_and_100_members ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 20.64s
+
+
+running 2 tests
+test rf_mech_is_refused_in_both_modes_with_bitwise_k ... ok
+test rf_large_at_10_and_100_members_has_bitwise_k_class_parity_and_the_dec053_basis ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.04s
+
+
+running 2 tests
+test k4s_rcm_equals_sparse_directs_on_seeded_synthetic_graphs ... ok
+test k4s_rcm_equals_sparse_directs_on_every_ci_models_adjacency ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+
+
+running 1 test
+test the_counts_equal_k4s_storage_counts_on_every_factored_ci_case ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/rv21/head/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.46s
+     Running unittests src/lib.rs (<wt>/rv21-target/debug/deps/piping_numerical_robustness-c470a1c675bec6fe)
+     Running tests/adapter.rs (<wt>/rv21-target/debug/deps/adapter-60d0b2e79ca1732a)
+     Running tests/engine.rs (<wt>/rv21-target/debug/deps/engine-ade4d75544e601cd)
+     Running tests/feature_guard.rs (<wt>/rv21-target/debug/deps/feature_guard-601f6888b9a99a0a)
+     Running tests/files.rs (<wt>/rv21-target/debug/deps/files-d35622f550358d53)
+     Running tests/invariance.rs (<wt>/rv21-target/debug/deps/invariance-a83fc0f03984df02)
+     Running tests/lane.rs (<wt>/rv21-target/debug/deps/lane-5c8f8d211b064c67)
+     Running tests/parity.rs (<wt>/rv21-target/debug/deps/parity-f00e7322446ed1e2)
+     Running tests/rcm.rs (<wt>/rv21-target/debug/deps/rcm-6426502fdfcbea3b)
+     Running tests/scale.rs (<wt>/rv21-target/debug/deps/scale-c1244e9d031251d9)

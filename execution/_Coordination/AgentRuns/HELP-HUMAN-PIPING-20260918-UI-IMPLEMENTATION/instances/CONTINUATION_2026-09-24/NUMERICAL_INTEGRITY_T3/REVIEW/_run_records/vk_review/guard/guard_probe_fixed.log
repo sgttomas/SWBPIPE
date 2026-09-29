@@ -1,0 +1,13 @@
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/rv21/head/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running tests/feature_guard.rs (<wt>/rv21-target/debug/deps/feature_guard-601f6888b9a99a0a)
+
+running 5 tests
+test ci_passes_no_cargo_features ... ok
+test no_vr_source_names_the_execution_tree ... ok
+test rv21_a_manifest_enabling_vrs_seeded_faults_is_flagged ... ok
+test the_guard_flags_what_it_must ... ok
+test no_manifest_enables_the_mutation_controls_feature ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

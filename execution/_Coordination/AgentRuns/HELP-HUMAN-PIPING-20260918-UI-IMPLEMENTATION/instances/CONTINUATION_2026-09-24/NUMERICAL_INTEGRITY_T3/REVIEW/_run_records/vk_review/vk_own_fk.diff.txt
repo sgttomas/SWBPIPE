@@ -1,0 +1,338 @@
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml head/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml
+--- base/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml	2026-09-29 15:34:25
++++ head/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml	2026-09-29 16:32:30
+@@ -9,3 +9,9 @@
+ path = "src/lib.rs"
+ 
+ [dependencies]
++
++[features]
++# V-K's seeded faults (T3 D1 §4.10): only numerical_robustness's mutation run
++# enables this, through its own `seeded-faults` feature; no product manifest
++# may name it (numerical_robustness's feature-guard test).
++mutation-controls = []
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs	2026-09-29 16:50:43
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs	2026-09-29 16:32:30
+@@ -400,6 +400,11 @@
+ /// |q| < fl(R·S\*), and always when S\* < 2^-988, with the bound of
+ /// `row_bound` (amendment A1).
+ pub fn classify(value: f64, s_star: f64) -> RowClass {
++    // V-K seeded fault VK-F17 (§7.3-17): every scaled row relative_verified.
++    #[cfg(any(test, feature = "mutation-controls"))]
++    if super::seeded::active(super::seeded::Fault::F17) {
++        return RowClass::RelativeVerified;
++    }
+     let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
+     if s_star < small || value.abs() < threshold(s_star) {
+         RowClass::AbsoluteVerified {
+@@ -3042,7 +3047,20 @@
+             &report,
+             guard,
+         );
++        // V-K seeded fault VK-F06 (§7.3-6): the candidate accepted whatever the
++        // verification's verdict (accepted on the pivot screen alone).
++        #[cfg(any(test, feature = "mutation-controls"))]
++        let decision = if super::seeded::active(super::seeded::Fault::F06)
++            && matches!(decision.result, Ok(false))
+         {
++            StopDecision {
++                result: Ok(true),
++                ..decision
++            }
++        } else {
++            decision
++        };
++        {
+             let record = &mut attempts[candidate_index];
+             record.stop_rule_work += decision.total;
+             record.stages.stop_rule += decision.total;
+@@ -3079,6 +3097,16 @@
+                     &prep.layout,
+                     &group,
+                 ));
++                // V-K seeded fault VK-F05 (§7.3-5): no escalation after a
++                // rejected candidate.
++                #[cfg(any(test, feature = "mutation-controls"))]
++                if super::seeded::active(super::seeded::Fault::F05) {
++                    return CaseOutcome::Unresolved {
++                        reason: UnresolvedReason::Ceiling,
++                        attempts,
++                        geometry,
++                    };
++                }
+                 if c + 1 < 3 {
+                     attempts[v_index].role = AttemptRole::VerificationThenCandidate;
+                     pending = Some((verification, v_index));
+Only in base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained: adaptive.rs.orig
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs	2026-09-29 15:34:25
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs	2026-09-29 16:32:30
+@@ -246,6 +246,13 @@
+         d[k] = sum.round(ctx)?;
+     }
+     let (ex, length) = normalize(ctx, sum, &d)?;
++    // V-K seeded fault VK-F04 (§7.3-4): e_x's first two components swapped.
++    #[cfg(any(test, feature = "mutation-controls"))]
++    let ex = if super::seeded::active(super::seeded::Fault::F04) {
++        [ex[1], ex[0], ex[2]]
++    } else {
++        ex
++    };
+     let yr = [
+         lift::<L>(m.y_reference[0])?,
+         lift::<L>(m.y_reference[1])?,
+@@ -498,6 +505,13 @@
+                 let m = sum.round(ctx)?;
+                 let km = ctx.mul(&k, &m)?;
+                 let v = ctx.div(&km, &norm2)?;
++                // V-K seeded fault VK-S1: k·n·nᵀ without the division by nᵀn.
++                #[cfg(any(test, feature = "mutation-controls"))]
++                let v = if super::seeded::active(super::seeded::Fault::S1) {
++                    km
++                } else {
++                    v
++                };
+                 block[a][b] = v;
+                 block[b][a] = v;
+             }
+@@ -689,6 +703,45 @@
+             }
+         }
+         values[index] = sum.round(ctx)?;
++        // V-K seeded fault VK-F03 (§7.3-4): the smallest contribution to a
++        // diagonal entry dropped (R1's NC-LOST-SOFT).
++        #[cfg(any(test, feature = "mutation-controls"))]
++        if row == col && super::seeded::active(super::seeded::Fault::F03) {
++            let items = &structure.items[structure.starts[index]..structure.starts[index + 1]];
++            if items.len() > 1 {
++                let mut terms: Vec<Wide<L>> = Vec::with_capacity(items.len());
++                for item in items {
++                    terms.push(match *item {
++                        Contribution::Member { member, a, b } => {
++                            *members[member as usize].ke(a as usize, b as usize)
++                        }
++                        Contribution::Spring { spring } => {
++                            lift::<L>(source.springs()[spring as usize].stiffness)?
++                        }
++                        Contribution::Directional { spring, a, b } => {
++                            directional[spring as usize].k[a as usize][b as usize]
++                        }
++                    });
++                }
++                let smallest = (0..terms.len())
++                    .min_by(|&x, &y| terms[x].abs().cmp_value(&terms[y].abs()))
++                    .unwrap();
++                sum.clear();
++                for (t, term) in terms.iter().enumerate() {
++                    if t != smallest {
++                        sum.add_wide(term, false)?;
++                    }
++                }
++                values[index] = sum.round(ctx)?;
++            }
++        }
++        // V-K seeded fault VK-F01 (§7.3-1): the entry promoted from its
++        // binary64 rounding.
++        #[cfg(any(test, feature = "mutation-controls"))]
++        if super::seeded::active(super::seeded::Fault::F01) {
++            let rounded = values[index].to_binary64().value().unwrap_or(0.0);
++            values[index] = lift::<L>(rounded)?;
++        }
+         done[index] = true;
+         if row == col {
+             guard.check(ctx, sum)?;
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs	2026-09-29 15:34:25
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs	2026-09-29 16:32:30
+@@ -661,6 +661,11 @@
+ where
+     Wide<L>: SupportedWidth,
+ {
++    // V-K seeded fault VK-R28 (R7-M28): no shift (Uc alone).
++    #[cfg(any(test, feature = "mutation-controls"))]
++    if super::seeded::active(super::seeded::Fault::R28) {
++        return Ok(false);
++    }
+     if est.is_zero() {
+         return Ok(false);
+     }
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs	2026-09-29 16:50:43
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs	2026-09-29 16:32:30
+@@ -130,6 +130,14 @@
+ pub(crate) fn geometry_first(
+     source: &PrimitiveSource,
+ ) -> Result<Vec<BodyGeometry>, GeometryRefusal> {
++    // V-K seeded fault VK-F07 (§7.3-7): the geometric mechanism check disabled.
++    #[cfg(any(test, feature = "mutation-controls"))]
++    if super::seeded::active(super::seeded::Fault::F07) {
++        return Ok(vec![
++            BodyGeometry::NumericallyUnresolved;
++            source.body_count() as usize
++        ]);
++    }
+     let mut out = Vec::with_capacity(source.body_count() as usize);
+     for body in 0..source.body_count() {
+         let nodes = source.body_nodes(body);
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs	2026-09-29 16:50:43
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs	2026-09-29 16:32:30
+@@ -86,6 +86,20 @@
+ impl RetainedLedger {
+     /// One `ExactAccumulator` per loaded DOF, one `add` per nodal load.
+     pub(crate) fn from_source(source: &PrimitiveSource) -> Result<Self, LedgerRefusal> {
++        // V-K seeded fault VK-F13 (§7.3-13): the loads folded at p = 128 in
++        // listed order instead of the exact ledger.
++        #[cfg(any(test, feature = "mutation-controls"))]
++        if super::seeded::active(super::seeded::Fault::F13) {
++            let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
++            for (dof, terms, nonzero) in super::seeded::folded_loads(source) {
++                let mut accumulator = ExactAccumulator::new();
++                for term in terms {
++                    accumulator.add(term).map_err(LedgerRefusal::Accumulator)?;
++                }
++                entries.push((dof, accumulator, nonzero));
++            }
++            return Ok(Self::netted(&entries));
++        }
+         let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
+         for load in source.loads() {
+             let dof = load.dof.global();
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs	2026-09-29 15:34:25
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs	2026-09-29 16:32:30
+@@ -39,6 +39,11 @@
+ pub(crate) mod factor;
+ pub(crate) mod ledger;
+ pub(crate) mod recover;
++// V-K's seeded faults (T3 D1 §4.10, §7.3): compiled only for tests and under
++// the `mutation-controls` feature, which only numerical_robustness's mutation
++// run enables; inactive unless `FK_SEEDED_FAULT` names a fault.
++#[cfg(any(test, feature = "mutation-controls"))]
++pub(crate) mod seeded;
+ pub(crate) mod source;
+ pub(crate) mod verify;
+ pub(crate) mod wide_sum;
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs	2026-09-29 16:50:43
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs	2026-09-29 16:32:30
+@@ -253,6 +253,20 @@
+     Wide<L>: SupportedWidth,
+ {
+     let zero = Wide::<L>::ZERO;
++    // V-K seeded fault VK-F02 (§7.3-2): u rounded to binary64 before recovery.
++    #[cfg(any(test, feature = "mutation-controls"))]
++    let seeded_u: Vec<Wide<L>>;
++    #[cfg(any(test, feature = "mutation-controls"))]
++    let u: &[Wide<L>] = if super::seeded::active(super::seeded::Fault::F02) {
++        let mut rounded = Vec::with_capacity(u.len());
++        for w in u {
++            rounded.push(lift::<L>(w.to_binary64().value().unwrap_or(0.0))?);
++        }
++        seeded_u = rounded;
++        &seeded_u
++    } else {
++        u
++    };
+     let mut values: Vec<Wide<L>> = Vec::with_capacity(layout.len());
+     // Displacements, then node magnitudes.
+     values.extend_from_slice(u);
+@@ -411,6 +425,13 @@
+         }
+         ledger.add_to(g, sum, true)?;
+         let r = sum.round(ctx)?;
++        // V-K seeded fault VK-S2: the reaction with the opposite sign.
++        #[cfg(any(test, feature = "mutation-controls"))]
++        let r = if super::seeded::active(super::seeded::Fault::S2) {
++            r.neg()
++        } else {
++            r
++        };
+         reaction[g] = Some(r);
+         values.push(r);
+     }
+Only in head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained: seeded.rs
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs	2026-09-29 16:50:43
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs	2026-09-29 16:32:30
+@@ -360,6 +360,17 @@
+             mut stations,
+             mut supports,
+         } = parts;
++        // V-K seeded fault VK-F10 (§7.3-10, list-order form): the canonical
++        // sort skipped (the caller's order kept).
++        #[cfg(any(test, feature = "mutation-controls"))]
++        let caller_order = (
++            members.clone(),
++            springs.clone(),
++            directional_springs.clone(),
++            constraints.clone(),
++            loads.clone(),
++            stations.clone(),
++        );
+         if nodes.is_empty() {
+             return Err(SourceError::NoNodes);
+         }
+@@ -551,6 +562,20 @@
+             }
+             body_of_node[node] = body_of_root[r];
+         }
++        #[cfg(any(test, feature = "mutation-controls"))]
++        let (members, springs, directional_springs, constraints, loads, stations) =
++            if super::seeded::active(super::seeded::Fault::F10) {
++                caller_order
++            } else {
++                (
++                    members,
++                    springs,
++                    directional_springs,
++                    constraints,
++                    loads,
++                    stations,
++                )
++            };
+         Ok(Self {
+             nodes,
+             members,
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs	2026-09-29 16:50:43
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs	2026-09-29 16:32:30
+@@ -319,6 +319,11 @@
+ /// Item 6a's coupling in binary64: ê_fo = max(E_fo, fl(E_mo/L_b)),
+ /// ê_mo = max(E_mo, fl(L_b·E_fo)); a single-node body (L_b = 0) keeps E.
+ pub fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
++    // V-K seeded fault VK-R02 (R7-M2): ê uncoupled.
++    #[cfg(any(test, feature = "mutation-controls"))]
++    if super::seeded::active(super::seeded::Fault::R02) {
++        return e;
++    }
+     if extent == 0.0 {
+         return e;
+     }
+diff -ru base/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs
+--- base/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs	2026-09-29 15:34:25
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs	2026-09-29 16:32:30
+@@ -651,6 +651,22 @@
+     for (a, b, matrix) in &formed {
+         scatter_block(&pattern, &mut values, *a, *b, matrix);
+     }
++    // V-K seeded fault VK-F08 (§7.3-8): member 1's i–j coupling block left
++    // out, in sparse mode only (the dense assembly keeps it).
++    #[cfg(any(test, feature = "mutation-controls"))]
++    if super::retained::seeded::active(super::retained::seeded::Fault::F08) {
++        if let Some(&(a, b, _)) = formed.first() {
++            let map = element_dof_map(a, b);
++            for r in 0..6 {
++                for c in 6..ELEMENT_DOF {
++                    for (row, col) in [(map[r], map[c]), (map[c], map[r])] {
++                        let index = pattern.find(row, col).expect("element block in pattern");
++                        values[index] = 0.0;
++                    }
++                }
++            }
++        }
++    }
+     for row in 0..dimension {
+         for index in pattern.row_range(row) {
+             let value = values[index];

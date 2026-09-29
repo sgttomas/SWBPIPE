@@ -2581,3 +2581,30 @@ The plan is `IMPLEMENTATION/KF3/PLAN_CHECKPOINT0.md` on the KF3 branch (sha256 `
   - KF1 moves the stop rule's cost from memory to work: at 1,000 members the heap increment is gone, and the work rises 1.2–2.4×;
   - the 141 B constant in the sparse cross-check (N-4) is a note.
 - **The PR** is open, with its full-SHA dispatch. The independent reviewer is RV22.
+
+## V-K: rulings on RV21's review (ROOT, 2026-09-29)
+
+RV21 (`REVIEW/VK_REVIEW.md`, sha256 `eab89fb5…`; records `REVIEW/_run_records/vk_review/`) reviewed head `3fd1baff3`: **PASS**, with 0 BLOCKING, 2 SHOULD-FIX and 5 NOTEs.
+- **No way was found for the harness to pass a wrong answer on a covered row:**
+  - 225,405 engine vectors against RV21's own `Fraction` oracle;
+  - 129,968 wrong answers through the harness's own path, every one failed, with the exact boundary pinned to the ulp on 16,778 rows;
+  - nine whole-case probes.
+- **Also confirmed by RV21:**
+  - its independent adapter matches every committed model;
+  - the floor lists re-derive as 46, 3 and 2;
+  - FK is unchanged with the feature off, and FK's suite passes 402;
+  - A0 is visibility only;
+  - B's exception is narrow;
+  - every `SHA256SUMS` verifies.
+
+**Fix before merge:**
+- **RV21-1:** the feature guard also flags a manifest that enables VR's `seeded-faults`, which enables FK's `mutation-controls` indirectly. Use RV21's one-line fix and its self-test.
+- **RV21-2:** add RV21's two drafted tests, a wrong observation of an out-of-range row fails, and an `Overflow` row fails. They kill RV21's mutants H4 and H6.
+- **N1:** RETURN and CHANGE_RECORD are brought to the final head's counts.
+
+**Recorded, optional:**
+- **N2:** the generator's subprocess `--model` check (RV21 ran it: 191 runs).
+- **N3:** a CI check that `not_covered.json` equals the committed set.
+- **N4 and N5.**
+
+**Then:** CI and the dispatch on the new head, DEC-025 (which gains VR's manifest), GEN-8, RV21's confirmation, and the merge.

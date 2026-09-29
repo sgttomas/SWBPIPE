@@ -1,0 +1,5 @@
+Excerpt of the dispatch run 36640222412, job 109650577996 ('Numerical cargo suite', pass, 20m6s) on head 3fd1baff3,
+fetched read-only with gh api repos/sgttomas/chirality/actions/jobs/109650577996/logs. VR's step: 22:52:24.847Z -> 22:53:11.434Z (next step) = 46.6 s.
+2026-09-29T22:33:40.1930204Z Running: cargo fetch --locked --manifest-path validation/benchmarks/numerical_robustness/Cargo.toml
+2026-09-29T22:52:24.8467711Z Running: cargo test --offline --manifest-path validation/benchmarks/numerical_robustness/Cargo.toml --locked
+2026-09-29T22:53:11.4338397Z Running: cargo test --offline --manifest-path validation/benchmarks/physics_audit_regression/Cargo.toml --locked

@@ -1,0 +1,67 @@
+diff -ru clean/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+--- clean/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs	2026-09-29 16:32:30
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs	2026-09-29 17:05:32
+@@ -2474,6 +2474,43 @@
+     extents: &[f64],
+     floor: Option<&[[f64; 2]]>,
+ ) -> Publication {
++    #[cfg(any(test, feature = "mutation-controls"))]
++    let rv21_values: Vec<Binary64Outcome>;
++    #[cfg(any(test, feature = "mutation-controls"))]
++    let values: &[Binary64Outcome] = if super::seeded::active(super::seeded::Fault::Rv21A)
++        || super::seeded::active(super::seeded::Fault::Rv21B)
++    {
++        let mut out = values.to_vec();
++        if super::seeded::active(super::seeded::Fault::Rv21A) {
++            for (meta, v) in layout.iter().zip(out.iter_mut()) {
++                if let QuantityId::EndAction { end: super::recover::End::J, component: super::source::Component::Ux, .. } = meta.id {
++                    if let Binary64Outcome::Normal(x) = *v {
++                        *v = Binary64Outcome::Normal(x * (1.0 + f64::from_bits(0x3E40_0000_0000_0000)));
++                    }
++                }
++            }
++        } else {
++            let mut big = vec![[0.0f64; 2]; extents.len()];
++            for (meta, v) in layout.iter().zip(values) {
++                if let (QuantityId::Displacement(d), Some(x)) = (meta.id, v.value()) {
++                    let k = usize::from(!d.component.is_translation());
++                    big[meta.body as usize][k] = big[meta.body as usize][k].max(x.abs());
++                }
++            }
++            for (meta, v) in layout.iter().zip(out.iter_mut()) {
++                if let (QuantityId::Displacement(d), Some(x)) = (meta.id, v.value()) {
++                    let k = usize::from(!d.component.is_translation());
++                    if x.abs() < 1e-6 * big[meta.body as usize][k] {
++                        *v = Binary64Outcome::Normal(0.0);
++                    }
++                }
++            }
++        }
++        rv21_values = out;
++        &rv21_values
++    } else {
++        values
++    };
+     let mut s = vec![[0.0f64; 4]; extents.len()];
+     for (meta, v) in layout.iter().zip(values) {
+         if meta.input_derived {
+diff -ru clean/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs
+--- clean/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs	2026-09-29 16:32:30
++++ head/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs	2026-09-29 17:05:15
+@@ -49,9 +49,15 @@
+     S1,
+     /// Reactions with the opposite sign.
+     S2,
++    /// RV21 (reviewer's own): J-end axial force published x (1 + 2^-27).
++    Rv21A,
++    /// RV21 (reviewer's own): displacements below 1e-6 of their body's largest published as 0.
++    Rv21B,
+ }
+ 
+-pub(crate) const IDS: [(&str, Fault); 15] = [
++pub(crate) const IDS: [(&str, Fault); 17] = [
++    ("RV21-A", Fault::Rv21A),
++    ("RV21-B", Fault::Rv21B),
+     ("VK-F01", Fault::F01),
+     ("VK-F02", Fault::F02),
+     ("VK-F03", Fault::F03),
