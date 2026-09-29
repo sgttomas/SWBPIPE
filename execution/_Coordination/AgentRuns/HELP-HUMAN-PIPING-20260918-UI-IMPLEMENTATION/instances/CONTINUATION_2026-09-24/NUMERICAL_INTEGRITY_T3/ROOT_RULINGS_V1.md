@@ -2222,3 +2222,18 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
     - It is paired with K6's N10 (bounding the dense witness) as the kernel follow-up slice.
     - **ROOT's W1 memory limit is not set until KF1 lands, or until the limit accounts for the worst case explicitly.**
 - **Next:** A2: the runner's W1 tiers, `--plan`, `--smoke`, the approved counts-only runs at 1,000 and 10,000 members (no solve, 512 MiB cap) and the release projection. No W1 solve above 100 members before ROOT approves the schedule.
+
+## K6b: A2 accepted; W1-T1 to W1-T3 approved (ROOT, 2026-09-29)
+
+- **A2 is accepted.** ROOT committed it at `f4d40dd17` on the K6b branch. ROOT checked the four files' sha256 against I16's return and found no machine paths.
+  - K6's four modes are frozen, and its 138 rows are unchanged, checked field by field.
+  - The W1 tiers add 132 interleaved rows.
+  - The runner suite passes 44 of 44, and the wrapper with the DEC-050/053 pins 46 of 46.
+  - The counts-only runs cover every sealed model at up to 10,000 members, with a heap of at most 197 MB under the 512 MiB cap.
+  - The smoke selected all 21 models at 128, with 0 parity failures.
+- **The schedule is approved** (`plan.txt`, sha256 `091ee187…`), with B's binary built in release from a `git archive` of `f4d40dd17`:
+  - **W1-T1 and W1-T2 in slot K6B-S1, and W1-T3 in slot K6B-S2,** with pass-1 prefixes at 1,000 members. One observation process at a time, the quiet-host wait, the load recorded per run, and the memory guard running.
+  - **W1-T4 stays deferred.** ROOT rules on it from W1-T3's measured prefixes and tracker figures, and from KF1's status.
+  - A watchdog kill, a heap-cap abort, a budget outcome or a parity failure on an admitted run is a stop.
+- **The slot:** ROOT grants K6B-S1 and K6B-S2 now. I17 holds cargo and heavy Python until I16 reports B's runs done.
+  - An unrelated long-running external process (one core, outside this repository) keeps the load near 5. It is recorded, not waited out. Timings are observations with their load.
