@@ -1761,3 +1761,17 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - dense heap slope 1.975 over 100–1,000 members;
   - the dense `factor` stage takes 78.7 s at 1,000 members for the Cholesky (not an N10 case).
 - **B2 resumes** under this ruling: runs 098–108, then grid 128×128. **B3** stays a separate grant.
+
+## F1b merged (ROOT, 2026-09-29)
+
+- **Merged:** [PR1052](https://github.com/sgttomas/chirality/pull/1052) at head `6fa422979`, merge `59cb20073`, 2026-09-29 05:31:23Z. The merge record is `IMPLEMENTATION/F1B_MERGE/RECORD.md`.
+- **The gates, on the final head:**
+  - RV17 PASSED, with its delta check PASSED as well;
+  - hosted CI was green, including Linux's numerical suite, the first cross-platform check of the three hash pins;
+  - the dispatch (36524065976) succeeded;
+  - DEC-025: F1b's 41 tests are the only suite change, pytest and vitest were clean, and so were the builds;
+  - the src-tauri suite: 116 of 116;
+  - GEN-8.
+- **Native witnesses: ruled as join items** (§7.5), as the brief proposed. The gate covers the product's solve path on both entries, the src-tauri suite covers the desktop's Rust side, and F1b changes no native shell or desktop file.
+- **Still provisional, for the owner:** the dense-scrutiny and observation-lane ceilings at 6 GiB. The kernel-to-product gap and macOS RSS inflation are recorded from K6; V-P's product-level runs are needed as well.
+- **Next on the facade path:** F2a, after D1 5a.3 is selected, K4 merges, and ROOT sets the budget limits from K6 and V-K.
