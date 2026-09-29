@@ -1,0 +1,9 @@
+#!/bin/bash
+# F1b checkpoint D (I13): the lane guard's mutant re-run on 130445db2 as committed (no overlay).
+# NONE first and alone, then F1B-LANE-UNGUARDED; run_mutant.sh, apply.sh and mutate_lane.py are the
+# lane-guard run's, unchanged (each on a clean git archive and target under <wt>/f1b-mut/<id>/, deleted after).
+C=$(cd "$(dirname "$0")" && pwd); W=$(cd "$C/../../../.." && pwd); REV=130445db2
+: > $C/MUTANTS.txt
+$C/run_mutant.sh $W $C $REV NONE
+$C/run_mutant.sh $W $C $REV F1B-LANE-UNGUARDED
+echo DRIVE-DONE >> $C/MUTANTS.txt

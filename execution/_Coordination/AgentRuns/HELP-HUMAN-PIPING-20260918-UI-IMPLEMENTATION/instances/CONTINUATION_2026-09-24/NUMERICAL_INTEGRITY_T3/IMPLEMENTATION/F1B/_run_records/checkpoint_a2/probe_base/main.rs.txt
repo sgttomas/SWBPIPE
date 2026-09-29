@@ -1,0 +1,141 @@
+//! T3 P1 detection probe. Scratch copy only; never part of a product crate.
+//! Usage: t3_p1_probe <request.json> <sparse_interactive|dense_scrutiny> [typed]
+//! Runs ONE request in ONE mode through the captured public entry
+//! `run_linear_static_preview_value_with_mode` (or, with `typed`, the historical
+//! typed entry `run_linear_static_preview_with_mode`, used only as a secondary
+//! observation where capture refuses). Prints one JSON line. It makes no pass/fail
+//! judgement; comparison against the references happens outside, in Python.
+//! Standing is computed by the product's own Rust function
+//! `numerical_use_standing_with_context` on the serialized envelope, with the actual
+//! invocation {request, solver_mode}, as the headless binding does.
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
+    LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
+};
+use open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context;
+use serde_json::{json, Value};
+use std::time::Instant;
+
+const KEPT_KINDS: &[&str] = &[
+    "global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z",
+    "global_nodal_rotation_x", "global_nodal_rotation_y", "global_nodal_rotation_z",
+    "support_reaction_component_v2",
+    "element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z",
+    "element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z",
+];
+
+fn summarize(e: &MechanicsEnvelope, request: &Value, mode: PreviewSolverMode) -> Value {
+    let v = serde_json::to_value(e).expect("envelope serializes");
+    let requested: Vec<Value> = request["model"]["load_cases"].as_array().map(|cs| cs.iter()
+        .map(|c| json!({"ref_type":"load_case","ref_id":c["id"]})).collect()).unwrap_or_default();
+    let invocation = json!({"request": request, "solver_mode": mode.as_str()});
+    let standing = numerical_use_standing_with_context(&v, &requested, Some(&invocation));
+    let receipt = v.get("source_block_recovery").filter(|r| !r.is_null()).map(|r| json!({
+        "status": r["body"]["status"],
+        "policy": r["body"]["policy"],
+        "cases": r["body"]["cases"].as_array().map(|cs| cs.iter().map(|c| json!({
+            "basis_ref": c["basis_ref"], "outcome": c["outcome"], "selected_method": c["selected_method"],
+            "failure": c["failure"], "ordinary_outcome": c["ordinary_attempt"]["outcome"],
+            "ordinary_failure": c["ordinary_attempt"]["failure"]})).collect::<Vec<_>>()),
+    }));
+    let diagnostics: Vec<Value> = e.diagnostics.iter().map(|d| {
+        let mut m = d.message.clone();
+        let keep_full = d.code.starts_with("NUMERICAL_INTEGRITY") || d.code.starts_with("SOURCE_BLOCK");
+        let cap = if keep_full { 200_000 } else { 600 };
+        if m.len() > cap { let mut cut = cap; while !m.is_char_boundary(cut) { cut -= 1; } m.truncate(cut); m.push_str("..."); }
+        json!({"id": d.id, "code": d.code, "severity": d.severity, "message": m})
+    }).collect();
+    let results: Vec<Value> = v["results"].as_array().unwrap().iter()
+        .filter(|r| r["kind"].as_str().is_some_and(|k| KEPT_KINDS.contains(&k)))
+        .map(|r| json!({"id": r["id"], "kind": r["kind"], "entity": r["entity_ref"], "unit": r["unit"],
+            "value": r["value"], "component": r["metadata"]["component"], "location": r["metadata"]["location"],
+            "basis": r["basis_ref"]["ref_id"]}))
+        .collect();
+    json!({
+        "producer": v["producer"], "numerical_quality": v["numerical_quality"], "status": v["status"],
+        "source_block_recovery": receipt, "standing": standing, "diagnostics": diagnostics,
+        "result_count": v["results"].as_array().map(|a| a.len()), "results": results,
+    })
+}
+
+/// F1b A2 variant of P1's probe (scratch; proposed to ROOT for G1's base
+/// re-run): the sha256 of the complete serialized `MechanicsEnvelope`
+/// (`serde_json::to_vec`, the struct's field order), as `run.envelope_sha256`,
+/// and the bytes themselves when `T3_FULL_ENVELOPE_PATH` names a file. It is a
+/// sibling of `run.envelope`, whose bytes are unchanged, and `run_one`'s
+/// classification reads neither.
+fn full_envelope(e: &MechanicsEnvelope) -> String {
+    use sha2::{Digest, Sha256};
+    let bytes = serde_json::to_vec(e).expect("envelope serializes");
+    if let Ok(path) = std::env::var("T3_FULL_ENVELOPE_PATH") {
+        std::fs::write(path, &bytes).expect("full envelope written");
+    }
+    format!("{:x}", Sha256::digest(&bytes))
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let text = std::fs::read_to_string(&args[1]).expect("request file");
+    let request: Value = serde_json::from_str(&text).expect("request json");
+    let mode = PreviewSolverMode::from_wire(&args[2]).expect("mode");
+    let typed = args.get(3).is_some_and(|a| a == "typed");
+    let t0 = Instant::now();
+    let out = if typed {
+        match serde_json::from_value::<LinearStaticPreviewRequest>(request.clone()) {
+            Ok(r) => {
+                let e = run_linear_static_preview_with_mode(r, mode);
+                let secs = t0.elapsed().as_secs_f64();
+                json!({"entry": "typed_run_linear_static_preview_with_mode", "ok": true, "solve_seconds": secs, "envelope": summarize(&e, &request, mode), "envelope_sha256": full_envelope(&e)})
+            }
+            Err(err) => json!({"entry": "typed_run_linear_static_preview_with_mode", "ok": false, "error": format!("DTO: {err}")}),
+        }
+    } else {
+        match run_linear_static_preview_value_with_mode(request.clone(), mode) {
+            Ok(e) => {
+                let secs = t0.elapsed().as_secs_f64();
+                json!({"entry": "captured_run_linear_static_preview_value_with_mode", "ok": true, "solve_seconds": secs, "envelope": summarize(&e, &request, mode), "envelope_sha256": full_envelope(&e)})
+            }
+            Err(err) => json!({"entry": "captured_run_linear_static_preview_value_with_mode", "ok": false, "solve_seconds": t0.elapsed().as_secs_f64(), "error": err}),
+        }
+    };
+    println!("{}", serde_json::to_string(&json!({"mode": mode.as_str(), "run": out})).unwrap());
+}
+
+// ---- calibration only (not P1's probe): macOS cannot set RLIMIT_AS, so the heap is capped at
+// 6 GiB here instead. A refused allocation returns null, and Rust aborts with "memory allocation
+// of N bytes failed", as the Linux runs do when RLIMIT_AS (6 GiB) refuses the mapping.
+mod heap_cap {
+    use std::alloc::{GlobalAlloc, Layout, System};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    const CAP: usize = 6 * 1024 * 1024 * 1024;
+    static USED: AtomicUsize = AtomicUsize::new(0);
+    pub struct Capped;
+    fn reserve(n: usize) -> bool {
+        let mut cur = USED.load(Ordering::Relaxed);
+        loop {
+            let Some(next) = cur.checked_add(n) else { return false };
+            if next > CAP { return false; }
+            match USED.compare_exchange_weak(cur, next, Ordering::Relaxed, Ordering::Relaxed) { Ok(_) => return true, Err(c) => cur = c }
+        }
+    }
+    fn release(n: usize) { USED.fetch_sub(n, Ordering::Relaxed); }
+    unsafe impl GlobalAlloc for Capped {
+        unsafe fn alloc(&self, l: Layout) -> *mut u8 {
+            if !reserve(l.size()) { return std::ptr::null_mut(); }
+            let p = System.alloc(l); if p.is_null() { release(l.size()); } p
+        }
+        unsafe fn alloc_zeroed(&self, l: Layout) -> *mut u8 {
+            if !reserve(l.size()) { return std::ptr::null_mut(); }
+            let p = System.alloc_zeroed(l); if p.is_null() { release(l.size()); } p
+        }
+        unsafe fn dealloc(&self, p: *mut u8, l: Layout) { System.dealloc(p, l); release(l.size()); }
+        unsafe fn realloc(&self, p: *mut u8, l: Layout, new: usize) -> *mut u8 {
+            if new > l.size() && !reserve(new - l.size()) { return std::ptr::null_mut(); }
+            let q = System.realloc(p, l, new);
+            if q.is_null() { if new > l.size() { release(new - l.size()); } } else if new < l.size() { release(l.size() - new); }
+            q
+        }
+    }
+    #[global_allocator]
+    static A: Capped = Capped;
+}

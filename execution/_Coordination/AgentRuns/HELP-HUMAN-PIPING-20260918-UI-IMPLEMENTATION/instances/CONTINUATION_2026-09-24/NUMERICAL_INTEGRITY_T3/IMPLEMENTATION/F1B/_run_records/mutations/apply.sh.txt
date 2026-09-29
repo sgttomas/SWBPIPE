@@ -1,0 +1,9 @@
+#!/bin/bash
+# F1b checkpoint C: dispatch one mutant id. F1B-* -> mutate_f1b.py (I13's); K2B-* -> K2b's
+# mutate_k2b.py; everything else -> K1's mutate_k1.py (both unchanged from K2b's records).
+X=$1; CORE=$2; m=$3
+case $m in
+  F1B-*) python3 -B $X/mutate_f1b.py $CORE $m ;;
+  K2B-*) python3 -B $X/mutate_k2b.py $CORE $m ;;
+  *) python3 -B $X/mutate_k1.py $CORE $m ;;
+esac

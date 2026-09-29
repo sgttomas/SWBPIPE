@@ -1,0 +1,12 @@
+#!/bin/bash
+# F1b checkpoint C rerun: the two survivors of the first batch against F1b's two new tests (overlay of
+# f1b_tests.rs), with a NONE control on the same overlay first; at most two at once.
+W=<wt>; C=$W/scratch/i13/c/rerun; REV=e215c6007
+: > $C/MUTANTS.txt
+$C/run_mutant.sh $W $C $REV NONE $C/overlay.txt
+for m in $(cat $C/ids.txt); do
+  while [ $(jobs -rp | wc -l) -ge 2 ]; do sleep 5; done
+  $C/run_mutant.sh $W $C $REV $m $C/overlay.txt &
+done
+wait
+echo DRIVE-DONE >> $C/MUTANTS.txt
