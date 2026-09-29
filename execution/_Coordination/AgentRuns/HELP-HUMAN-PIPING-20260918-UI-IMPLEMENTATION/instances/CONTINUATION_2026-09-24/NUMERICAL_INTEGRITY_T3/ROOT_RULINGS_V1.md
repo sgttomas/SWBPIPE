@@ -1890,3 +1890,14 @@ I12's plan (`IMPLEMENTATION/K4/PLAN_A3_5A3.md`, sha256 `07186550…`, 784 lines,
 
 **Checkpoints:** A3a (the bounds and E, with no behaviour change), then A3b (the method and every control), then B, C and D.
 - **Host:** as the plan states — one cargo job, `-j 4`, `RUST_TEST_THREADS=2`, and memguard checks.
+
+## K6: rulings at C and D (ROOT, 2026-09-29; the C ruling was given in session and is recorded here)
+
+- **C's stop:** K6-M4 (the watchdog kills the child only) and K6-M26 (the resume skip counts a not_run record as measured) survived the first pass.
+  - ROOT approved I15's two tests, added to existing classes in `runner/test_k6_runner.py`: `LiveLimit.test_kills_take_the_whole_group` and `PlanAdmission.test_measured_runs_are_kept_and_not_run_records_are_run`.
+  - After the re-runs, 26 of 26 are killed (K6 branch, `014b2ae04`).
+- **D accepted:** committed on the K6 branch at `ae3320b5a`. Main `59cb20073` (F1b) is merged in at `3e90176c6`, and H's suite and test E pass there. No product byte changes (Scope 8).
+  - **Disclosed:** the observation packet was written at D, not at B, within the write set, and it regenerates byte for byte from the committed records.
+  - **Disclosed:** the provenance lock copy no longer matches `H/Cargo.lock`. Nothing reads it, and it is outside K6's write set.
+  - **A limit:** the binary's time-budget and first-repeat stops were reached by no observation and have no dedicated test. The reviewer judges whether a test is needed before merge.
+- **Next:** PR, an independent reviewer (RV18), hosted CI with the full-SHA dispatch, DEC-025 and GEN-8.
