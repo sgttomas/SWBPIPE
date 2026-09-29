@@ -2171,3 +2171,32 @@ The plan is `IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md` on the K6b branch (sha256 `
 - **The export commit alone is cherry-picked onto the V-K branch** as `3018343c2`, with the same patch-id as `bb89e4f8f`. H's test stays on K6b.
   - Whichever PR merges first carries the export to main. The other merges main, and the identical change merges cleanly.
 - **Next:** K6b's A1 (the W1 mode and the adapter), and V-K's A1 kernel lane. Each uses one cargo job.
+
+## V-K: rulings on I17's A1 stop (THIN-A and THIN-B) (ROOT, 2026-09-29)
+
+- **The stop.** RF-RANGE-THIN-A and THIN-B (R1's PHYS-R4 geometry: OD 4e-77 m, L = 1 m) end `Unresolved(Ceiling)` through W1a.
+  - The attempts: 128 is rejected by the stop rule, 256 by the stop rule, 512 by the charge test (d), and 1024 verifies with nothing above it.
+  - EA/(12EI/L³) ≈ 6.7e152, about 2^507, so no candidate at 512 bits or below can reach the stop rule's 2^-64 accuracy.
+  - K4 publishes nothing: the result is honest, but unavailable. V-K's adapter is not the cause, as I17's probe with K4's y_reference shows. Every other of V-K's 201 CI cases passes as projected.
+- **Ruling, subject to one confirmation. I17 first runs K4's generator (`K4T/gen_k4_vectors.py`, K4's bit oracle for the design) on THIN-A and THIN-B.** GEN must give the same attempt chain and outcome. If it does, this is the design's limit, not a K4 defect. If it does not, it is a K4 finding and a stop.
+- **Given that confirmation, THIN-A and THIN-B are W1a's coverage limit,** and VP-ROBUST's kernel-lane gate (§4.10) is amended as follows:
+  - V-K commits an **expected-unresolved list**, THIN-A and THIN-B with their reason, pinned like the `not_covered` list.
+  - Those cases must end honestly unresolved, with no rows published.
+  - Their comparisons are never counted as passes. They are reported as a separate count.
+  - A case that leaves or joins the list blocks the gate until ROOT reviews it.
+  - Every other case keeps §4.10's rule: an unsolved case fails.
+- **Why this is acceptable:**
+  - It is not a product regression. On the ordinary route, W2's scaling solves the PHYS-R4 geometry (K2b's rulings: "PHYS-R4 (b = 536) … solved and accurate").
+  - W1 is selected only for Sensitive and D-5-routed cases.
+  - W1's ladder tops out at a 512-bit candidate by design (R7). An intrinsic stiffness spread near 2^507 is beyond it, and W1a withholds honestly.
+- **Routed:**
+  - **To F2a and V-P:** THIN's product standing on the ordinary route, and what F2a publishes if such a case is routed to W1 and W1 ends unresolved.
+  - **To the owner's PHYS-R4 decision** (F1b's rulings): this fact is added to it.
+  - **To D1 and the T3-close list:** whether W1 should reach beyond 512 (a 1024 candidate with a 2048 verification) or treat decoupled stiffness spreads separately. It is not needed now.
+- **The three input-derived rows** (`RF-WEAK-W-AX-rho1e-12` `u.N5.UX/UY/UZ`, at a restrained node): I17's reading is confirmed. Rule 2a makes rows at restrained DOFs `input_derived`, exact prescriptions. So they are exempt from the "`not_covered` implies `absolute_verified`" check, pinned to those three.
+- **§7.3 item 5 (no escalation)** is now killable on THIN's attempt evidence. Add it to the seeded faults at A2 (VK-F05).
+- **Next, for I17:**
+  - the GEN confirmation;
+  - the expected-unresolved list and its test;
+  - A1's remaining items: §5.3's parity at up to 100 members, and Q7's recorded observations;
+  - then return A1.
