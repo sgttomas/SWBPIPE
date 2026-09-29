@@ -1,0 +1,5 @@
+NONE      pass            build   4.8s tests   39.7s  failing []
+VK-H6     killed          build   4.5s tests   38.6s  failing ['the_comparison_scale_is_exps_magnitude_never_obss']
+VK-H9     killed          build   4.3s tests   39.3s  failing ['r1s_five_absolute_range_rows_are_counted_apart_from_the_passes']
+VK-H11    killed          build   4.5s tests   40.8s  failing ['a_discriminating_control_that_passes_is_listed_never_dropped']
+rc=0 total=180s

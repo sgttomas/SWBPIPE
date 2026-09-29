@@ -90,6 +90,23 @@ FK carries V-K's seeded faults behind its `mutation-controls` feature.
   removing the gated items from FK leaves only added comments. With the
   feature off, every product build is FK's base code.
 
+## The harness mutants (checkpoint C; never CI)
+
+`runner/run_harness_mutants.py --out <dir> --copies <dir> [--rev <rev>]`
+mutates this crate's own harness: the engine, the floor, the lane, the
+adapter (both its Rust half and the generator's path A) and the feature
+guard.
+- **Isolation:** each run gets a clean `git archive` copy of the piping tree
+  at `<rev>` and its own fresh target. Cargo runs one job at a time.
+- **Controls:** NONE runs first and must pass every test. NONE-GEN
+  regenerates the case files with the unmutated generator; they must come out
+  byte-identical, and every test must pass.
+- **Mutants:** each is exact text edits with checked match counts, and
+  `--dry-run` checks them against `<rev>`. A generator mutant regenerates the
+  case files before the tests run.
+- **Verdict:** a mutant must build and fail at least one test. A survivor is
+  a stop.
+
 ## Running
 
 ```

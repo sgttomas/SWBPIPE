@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs
+@@ -507,7 +507,8 @@
+ /// at least R·S*, R = 2^-34, decided exactly (no rounding of R·S*).
+ pub fn covered(exp: &Exact, scale: &Exact, s_star: f64) -> bool {
+     let comparison = Exact::max(&exp.abs(), scale);
+-    let floor = Exact::from_f64(s_star).scaled(-34, 0);
++    let floor = Exact::from_f64(s_star)
++        .mul(&Exact::parse_decimal("1e9").unwrap().mul(&Exact::pow2(-64)));
+     comparison.cmp(&floor) != Ordering::Less
+ }
+ 
