@@ -2080,3 +2080,46 @@ RV19 (`REVIEW/K4_REVIEW.md`, sha256 `d906539e…`; records `REVIEW/_run_records/
 - **V-K is spawned as I17** (`TASK_BRIEFS/I17_VK_IMPLEMENTATION.md`), on branch `codex/piping-vk-20260929` in `<wt>/vk`, from the same main. ROOT cherry-picks K6b's A0 export commit onto it once that commit exists.
 - **The briefs cite K4 at `7d8fa9c0e`.** The merged head is `5a46a6278`. RETURN §16's export list is unchanged by the review fixes, apart from `CombinationReason::OperandsDiffer` (RV19-3). Re-locate every line on main.
 - **Checkpoint 0 is read and design only** for both. There is no build until ROOT approves each plan.
+
+## V-K: rulings on I17's checkpoint-0 plan (ROOT, 2026-09-29)
+
+The plan is `IMPLEMENTATION/VK/PLAN_CHECKPOINT0.md` on the V-K branch (sha256 `adaf697a…`; committed by ROOT). **It is approved, with these rulings.**
+
+- **Q1:** V-P adds `product_physics`; V-K does not.
+- **Q2:** the generated, committed cases file with R1's sha256 pinned and `--check`, is approved.
+  - Expected values are R1's decimal strings, byte for byte.
+  - Comparisons are decided exactly by an in-crate big-integer engine, with no registry dependency. The engine gets its own unit tests, including against Python's `fractions` on sampled rows, and the reviewer checks it.
+  - The 1,000- and 10,000-member models are generated on demand, with their sha256 committed.
+- **Q3:** CI runs every case up to 100 members. RF-LARGE at 1,000 and 10,000 members run as examples. Report VR's measured CI time at A1; more than 3 min added is reported.
+- **Q4:** the 14 seeded faults are approved.
+  - VK-F06, VK-F07 and VK-R28 may be killed on evidence: the outcome, attempts and selected precision against V-K's committed per-case records. These are returned evidence, which F2a publishes (O5's condition).
+  - VK-F17's extra check is approved: every `not_covered` comparison's row must be `absolute_verified`.
+  - **The selector** (`K4R/seeded.rs`, cfg-gated, reading `FK_SEEDED_FAULT` once) and its cfg-gated `mod` line count as fault sites. An unknown id panics.
+  - With the feature off and outside `cfg(test)`, the code is absent. FK's own test build must be unchanged in effect: FK's suite passes with the variable unset.
+- **Q5:** approved. V-K runs its own models, one release process each, under K6's runner, with the heap cap at C − 512 MiB.
+  - The ascent is 100 → 1,000 → 10,000. 10,000 members run only as ROOT approves, and after K6b's timed runs.
+  - A 30-minute slot per tier. V-K's scale runs record the outcome, work and time with its load, and are not a timing claim; timing is K6b's.
+- **Q6 and Q7:** approved.
+  - The one-off bit comparison against K4's `r1_cases.txt` and `r1_large.txt` is recorded. Every difference must be one of the plan's §4.4 list, explained.
+  - Bit identity is asserted for list permutations only.
+- **Q8 (the export) binds K6b's A0 as well, and extends it.** RETURN §16's list names types, but a consumer outside FK also needs:
+  - the fields of the plain-data input types, to build a source: `SourceParts`, `StraightMember`, `Spring`, `DirectionalSpring`, `Constraint`, `NodalLoad`, `Station`, `SupportGroup` and `Dof`;
+  - the fields of the output and evidence records, to read them: `Publication`, `PublishedRow`, `RetainedEvidence`, `AttemptRecord`, `StageWork`, `StorageCounts` and the other evidence types in the list;
+  - the methods `Binary64Outcome::value`, `Component::{index, from_index, ALL}` and `Dof::{global, from_global}`.
+  - **Types whose invariants matter keep private fields and public accessors:** `PrimitiveSource` (built only through `new`), `RetainedSolve`, `PrecisionState`, `CaseLimit` and `InvocationMeter`.
+  - **I16 implements A0 and I17 confirms it covers V-K's needs** before ROOT commits A0. The exact list is recorded in A0's commit message and in both RETURNs.
+  - Nothing that lets a caller supply a matrix, factor, closure or label becomes public.
+- **The conflicts:**
+  - **C1 (RF-RANGE twist and extension):** the exact power-of-two pre-scaling is approved. It must give bits identical to §4.10's formula wherever that formula's k_t and k_a are finite and normal, and a test asserts this on every such case. Record the derivation.
+  - **C2:** approved as planned. §7.3 items 5, 16, 3 and the relabelling half of 10 are not seeded in V-K, and V-K adds no cases outside R1. For each, cite K4's killing control from K4's mutation table, or record it as undiscriminated by R1.
+  - **C3:** the kill on evidence for §7.3 item 7 is approved; the design's "recovered" is recorded as inexact.
+  - **C4:** the parity items are §4.8 items 1–3, at up to 100 members.
+  - **C5:** confirmed. V-K's scale runs use R1's own rounding and are separate from K6b's.
+  - **C7:** approved. No site goes in the byte-identical `factor.rs` functions or in `bound.rs`'s shift loop. The scans run before any site is written, and a flagged site is a stop.
+  - **C8:** `hypot` is decided exactly.
+  - **C9:** compute it both ways and report.
+  - **C10:** a k = 0 spring refused by K4's source counts as RF-MECH's refusal only if the refusal names it (the `SourceError`). Record it.
+  - C11 and C12 are recorded.
+- **Next:**
+  - A1 without the export, now: the generator, the cases file, the exact engine and the parts of VR that do not call `retained`. One cargo job at `-j 4`.
+  - A1's kernel lane waits for A0. ROOT cherry-picks A0 onto the V-K branch once it is committed on K6b's.
