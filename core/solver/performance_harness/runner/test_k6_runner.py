@@ -308,6 +308,40 @@ class Aggregation(unittest.TestCase):
         self.assertEqual(stages['prepare']['median_ns'], 60)
         self.assertEqual(stages['prepare']['min_ns'], 50)
 
+    def test_w1_figures(self):
+        """K6b: seconds per LME divides the median w1_solve time by the meter's charged work; the
+        prefix increments and the stop rule's increment are differences of the recorded peaks."""
+        import k6b_analysis as a
+        objects = [
+            {'kind': 'counts', 'model': 'M', 'estimate_adm_bytes_w1a': 1000, 'estimate_w1_sel128_bytes': 500,
+             'estimate_w1_decide_bytes': 300},
+            {'kind': 'stage', 'stage': 'w1_solve', 'repeat': 0, 'elapsed_ns': 3_000_000_000,
+             'heap_current_begin': 100, 'heap_peak': 400, 'heap_peak_move': 400, 'ok': True},
+            {'kind': 'outcome', 'repeat': 0, 'class': 'Selected', 'selected_precision': 128, 'rows': 7,
+             'attempts': 2, 'meter_charged': 1_000_000},
+            {'kind': 'stage', 'stage': 'w1_solve', 'repeat': 1, 'elapsed_ns': 1_000_000_000,
+             'heap_current_begin': 100, 'heap_peak': 400, 'heap_peak_move': 400, 'ok': True},
+            {'kind': 'stage', 'stage': 'w1_solve', 'repeat': 2, 'elapsed_ns': 2_000_000_000,
+             'heap_current_begin': 100, 'heap_peak': 400, 'heap_peak_move': 400, 'ok': True},
+            {'kind': 'stage', 'stage': 'w1_prefix_1', 'repeat': 3, 'elapsed_ns': 5, 'heap_current_begin': 100,
+             'heap_peak': 200, 'heap_peak_move': 200, 'ok': True},
+            {'kind': 'prefix', 'prefix': 1, 'through_segment': 'solve_128', 'case_limit': 10},
+            {'kind': 'stage', 'stage': 'w1_prefix_2', 'repeat': 3, 'elapsed_ns': 7, 'heap_current_begin': 100,
+             'heap_peak': 350, 'heap_peak_move': 350, 'ok': True},
+            {'kind': 'prefix', 'prefix': 2, 'through_segment': 'verify_256', 'case_limit': 20},
+        ]
+        f = a.w1_figures(objects)
+        self.assertEqual(f['solve_median_ns'], 2_000_000_000)
+        self.assertEqual(f['s_per_lme_median'], 2.0 / 1_000_000)
+        self.assertEqual(f['s_per_lme_min'], 1.0 / 1_000_000)
+        self.assertEqual([p['heap_peak'] for p in f['prefixes']], [100, 250])
+        self.assertEqual([p['increment'] for p in f['prefixes']], [100, 150])
+        self.assertEqual(f['call_heap_peak'], 300)
+        self.assertEqual(f['decide_increment'], 50)
+        self.assertEqual(f['tracker_entries_equivalent'], 50 / a.TRACKER_ENTRY_BYTES)
+        self.assertEqual(f['heap_over_e_max'], 0.3)
+        self.assertEqual(a.TRACKER_ENTRY_BYTES, 4304)
+
     def test_fit(self):
         fit = r.fit_loglog([(10, 1000.0), (100, 10000.0), (1000, 100000.0)])
         self.assertAlmostEqual(fit['slope'], 1.0, places=12)
@@ -379,8 +413,11 @@ class PlanAdmission(unittest.TestCase):
     """H7: the schedule and the admission rule (Q3, Q4, Q12, N9, N11, N14; RV16-N4; the A1-stop Q2)."""
 
     def test_schedule_shape(self):
-        runs = r.schedule()
+        # K6's tiers keep K6's 138 rows (K6b freezes K6_MODES); K6b's W1 tiers follow them.
+        runs = [x for x in r.schedule() if not x['tier'].startswith('W1-')]
         self.assertEqual(len(runs), 138)
+        self.assertEqual([x['order'] for x in runs], list(range(1, 139)))
+        self.assertEqual(r.K6_MODES, ('sparse', 'dense', 'lane-id', 'lane-lu'))
         self.assertEqual({x['slot'] for x in runs if x['tier'] == 'T3b'}, {'B2'})
         self.assertEqual([x['slot'] for x in runs if x['tier'] == 'T6'], ['B3'])
         ceiling = run_of('K6-CEIL-CHAIN-n01364-AX', 'dense')
@@ -517,8 +554,79 @@ class PlanAdmission(unittest.TestCase):
             rows = r.plan(None)
         finally:
             r.subprocess.Popen = original
-        self.assertEqual(len(rows), 138)
+        self.assertEqual(len(rows), 138 + 132)
         self.assertIn('never:n2_mode_at_or_above_10000_members', r.format_plan(rows))
+
+    def test_w1_tiers(self):
+        """K6b (plan section 4): four W1 tiers of ABAB/BABA pairs, 132 rows after K6's 138."""
+        runs = [x for x in r.schedule() if x['tier'].startswith('W1-')]
+        self.assertEqual(len(runs), 132)
+        self.assertEqual(runs[0]['order'], 139)
+        self.assertEqual({x['tier']: x['slot'] for x in runs},
+                         {'W1-T1': 'K6B-S1', 'W1-T2': 'K6B-S1', 'W1-T3': 'K6B-S2', 'W1-T4': 'K6B-S3'})
+        by_model = {}
+        for x in runs:
+            by_model.setdefault((x['tier'], x['model']), []).append(x)
+        self.assertEqual(len(by_model), 15 + 6 + 6 + 6)
+        for (tier, model_id), rows in by_model.items():
+            modes = [x['mode'] for x in rows]
+            self.assertIn(modes, (['w1a', 'sparse', 'w1a', 'sparse'], ['sparse', 'w1a', 'sparse', 'w1a']))
+            self.assertEqual([x['pass'] for x in rows if x['mode'] == 'w1a'], [1, 2])
+            self.assertEqual(len({x['run_id'] for x in rows}), 4)
+        first = [x['mode'] for x in runs if x['tier'] == 'W1-T1' and x['model'] == 'RF-LARGE-CHAIN-n00010-AX']
+        second = [x['mode'] for x in runs if x['tier'] == 'W1-T1' and x['model'] == 'RF-LARGE-CHAIN-n00010-ROT']
+        self.assertEqual(first, ['w1a', 'sparse', 'w1a', 'sparse'])
+        self.assertEqual(second, ['sparse', 'w1a', 'sparse', 'w1a'])
+        self.assertTrue(all(x['conditional'] for x in runs if x['tier'] == 'W1-T4'))
+        self.assertFalse(any(x['conditional'] for x in runs if x['tier'] != 'W1-T4'))
+
+    def test_w1_admission_and_argv(self):
+        """w1a is never refused by name; it is admitted on E_max x rho; pass 1 dumps its rows and
+        runs the prefixes, pass 2 does not."""
+        self.assertIn('w1a', r.MODES)
+        self.assertEqual(r.estimate_key('w1a'), 'estimate_adm_bytes_w1a')
+        self.assertIsNone(r.refusal_by_name('RF-LARGE-CHAIN-n10000-AX', 'w1a', 10000))
+        run = next(x for x in r.schedule() if x['tier'] == 'W1-T3' and x['mode'] == 'w1a')
+        counts = fake_counts({run['model']: {'w1a': 3 * r.GIB}})
+        decision = r.admission(run, counts, [], None, require_ascent=False)
+        self.assertEqual(decision['decision'], 'deferred')
+        self.assertTrue(decision['reason'].startswith('deferred:estimate_fails_admission'))
+        counts = fake_counts({run['model']: {'w1a': r.GIB}})
+        self.assertEqual(r.admission(run, counts, [], None, require_ascent=False)['decision'], 'admitted')
+        argv = r.binary_argv('k6_observe', run, 'counts.jsonl', 'records')
+        self.assertIn('--w1-prefixes', argv)
+        self.assertIn('--dump-published', argv)
+        second = next(x for x in r.schedule() if x['tier'] == 'W1-T3' and x['mode'] == 'w1a'
+                      and x['model'] == run['model'] and x['pass'] == 2)
+        argv2 = r.binary_argv('k6_observe', second, 'counts.jsonl', 'records')
+        self.assertNotIn('--w1-prefixes', argv2)
+        self.assertNotIn('--dump-published', argv2)
+
+    def test_w1_t4_rows_are_deferred_by_name_until_root_approves(self):
+        run = next(x for x in r.schedule() if x['tier'] == 'W1-T4' and x['mode'] == 'sparse')
+        self.assertEqual(run['conditional_reason'], 'deferred:w1_t4_needs_root_approval_after_w1_t3_prefixes')
+        with tempfile.TemporaryDirectory() as d:
+            counts_path = os.path.join(d, 'counts.jsonl')
+            with open(counts_path, 'w') as fh:
+                for x in r.schedule():
+                    if x['tier'] == 'W1-T4':
+                        fh.write(json.dumps({'kind': 'counts', 'model': x['model'],
+                                             'estimate_adm_bytes_sparse': 1, 'estimate_adm_bytes_w1a': 1}) + '\n')
+            calls = []
+            original = (r.baseline_run, r.wait_for_quiet_host, r.launch, r.metadata)
+            r.baseline_run = lambda *a, **k: {'rss': {}}
+            r.wait_for_quiet_host = lambda *a, **k: calls.append('quiet')
+            r.launch = lambda *a, **k: calls.append('launch')
+            r.metadata = lambda *a, **k: {}
+            try:
+                r.run_tier('W1-T4', 'k6_observe', counts_path, d, 'c', 't', log=lambda *a: None)
+            finally:
+                r.baseline_run, r.wait_for_quiet_host, r.launch, r.metadata = original
+            self.assertNotIn('launch', calls)
+            records = r.read_records(d)
+            self.assertEqual(len(records), 24)
+            self.assertTrue(all(x['classification'] == 'not_run' for x in records))
+            self.assertTrue(all(x['admission']['reason'].startswith('deferred:') for x in records))
 
     def test_measured_runs_are_kept_and_not_run_records_are_run(self):
         # The resume skip (I15's B1 fix; C mutant K6-M26): run_tier keeps a measured run and runs
