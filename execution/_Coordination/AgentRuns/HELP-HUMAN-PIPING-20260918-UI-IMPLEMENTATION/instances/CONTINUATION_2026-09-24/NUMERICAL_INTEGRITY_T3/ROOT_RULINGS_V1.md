@@ -1654,3 +1654,22 @@ I15's plan (`IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md`, sha256 `4b4d9b27…`, 633 l
   - V6: an encoding rule for a Uc of 2^1024 or more in the receipt.
   - V7: V4's own R3 count erratum.
 - **Next:** DS1 writes R6, V4 runs a delta check, and ROOT selects only after VERIFIED. K4 stays blocked until then.
+
+## K6: rulings at I15's A1 stop (ROOT, 2026-09-29)
+
+- **The stop was correct.** Test D breached the DEC-053 parity basis (1e-9 relative) on three 100-member models: CHAIN-ROT at 7.15e-8, TREE-AX at 1.45e-8 and TREE-ROT at 4.78e-8.
+  - In all three, both modes are **Sensitive**.
+  - Test E shows both vectors are SA's own results, bit for bit. Bitwise K holds and the outcome classes agree.
+  - Every Passed model is within 5.9e-11.
+  - This agrees with P1's product-level finding at the same sizes (`DETECTION/RETURN.md:242-249`).
+- **Ruling: option (a).** The DEC-053 basis is asserted where both modes are Passed. Where a mode is Sensitive, the delta is recorded and not asserted.
+  - **Why:** a Sensitive publication carries no accuracy claim at that level. The product publishes it as `needs_recompute`, and that demotion is M03's statement that the integrity checks could not confirm the result. The outcome classes must still agree in every case; that stays asserted.
+  - **Recorded as a stale-design item:** §4.8 item 3's "published quantities agree within the DEC-053 basis" is read as applying to Passed publications.
+- **Questions:**
+  1. `--counts-file` is approved: observation runs take counts from the counts-only record, checked by the model's canonical digest, with the estimates recomputed and the refusals kept.
+  2. ρ for admission uses RSS net of a process baseline, measured in the same slot by a no-op run of the binary. Admission at 1,000 members or more uses ρ measured at 100 members or more.
+  3. The CONT n10000 lane counts (675,174,982 ROT, 562,627,485 AX; F1b's 675,179,982 is the full-block form) are recorded as context. The run stays never-run.
+  4. The TREE identity-bound erratum (75n − 72) and 5, the lane-id `ledger` stage, are accepted.
+  5. The gap between product-level and kernel-level RSS (F1b's CONT n10000 at 4.8–5.2 GiB, against K6's kernel sparse estimate of about 0.38 GiB) is recorded. B1's ascent will measure the kernel side.
+- **Disclosed slip:** I15 ran `git add -N` and `git reset -q` on `H/` in the k6 worktree, two index operations its brief forbids. The net effect is nil: the index is empty and HEAD is unchanged. Recorded; no further action.
+- **Next:** A2 (the runner, its tests, the pytest wrapper, `--plan`, `--smoke`). While K5's DEC-025 sweep runs on the Mac, I15 writes code only.
