@@ -2725,3 +2725,15 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
 - **B's slot is granted now.** No other slice is building, and ROOT's records work uses no cargo.
   - The slot covers the H update above, then B: RF-LARGE-CHAIN-n10000-AX through W1, and the other five 10,000-member RF-LARGE frames with main's `vk_scale`, each with its outcome and, where it publishes, its honesty against R1.
   - It ends with I19's report.
+
+## KF2: spawn (ROOT, 2026-09-30)
+
+- **KF2 (K6's N10) is spawned as I20** (`TASK_BRIEFS/I20_KF2_IMPLEMENTATION.md`), on branch `codex/piping-kf2-20260930` in `<wt>/kf2`, from main `78f55f927` (K6b merged).
+- **ROOT's reading** (for I20 to confirm or refute):
+  - the dense negative-pair witness is O(n⁴): every pair allocates an n-vector, re-validates, and scans n² entries;
+  - K1's sparse witness already evaluates a pair in O(1), in the dense order.
+  - So the dense witness can be made O(n²) with every result bit-identical, errors included. That is the slice.
+- **The dense pivot screen** (2j + 2 against the skyline's 2(i − first_i) + 2) is **diagnosed and proposed only.** Changing it changes published dense classes, so it needs ROOT's ruling, and possibly an owner-facing note.
+- **Product-reaching gates:** review, T9 (112 of 112), the both-entry gate (part 1 byte-identical; part 2's four dense N10 runs must end within 1,800 s), CI with the dispatch, DEC-025, GEN-8 and the src-tauri suite.
+- **Host:** KF3's slot B is running, so checkpoint 0 is reading only. I20's first build waits for ROOT's word.
+- **KF2 does not block W1's limits or F2a.** It is on the T3-close list.
