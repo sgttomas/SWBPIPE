@@ -1,0 +1,8 @@
+KF2 B: T9 (Mac-only; S11-K's fixdiff_main.rs ec089c1d..., release, --offline, lock copied from each tree's core/product_physics and extended by cargo with the harness package only).
+base = git archive 78f55f927; candidate = git archive 1b10121fa (projects/chirality-piping, execution/ excluded; the trees differ only in the three FK files).
+outputs: 112 each (core 10, fixtures 72, validation 30); extra corpus: F1b's 8 requests (inputs hashed in extra_corpus_inputs_sha256.txt), 16 outputs.
+harness binaries: base 382cf88db610d2a5a6fcebc9a14ec667a3ea80d1d760acf2146822c7a908d0d1, candidate d06d2ca757c26fb07f48aac97f79901b63cfafe5cb44810893f1753e4b26c350
+base vs candidate: 112/112 byte-identical (diff empty)
+extra corpus base vs candidate: 16/16 byte-identical
+base vs PLATFORM_CALIBRATION_MAC/t9/output_sha256_main_mac_native.txt (sorted): identical
+extra corpus base vs F1b A1's base extra (scratch i13/a1/t9/extra_sha_base.txt): identical

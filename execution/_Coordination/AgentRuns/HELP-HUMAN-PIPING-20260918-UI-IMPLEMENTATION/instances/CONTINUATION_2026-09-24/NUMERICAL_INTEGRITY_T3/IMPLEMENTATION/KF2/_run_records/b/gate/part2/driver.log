@@ -1,0 +1,9 @@
+2026-09-30T03:06:53Z part 2 start: 4 runs, candidate only, one at a time
+2026-09-30T03:06:53Z load1 9.58 > 8: waiting for < 6
+2026-09-30T03:09:53Z load1 4.78 < 6: starting after 180.0 s
+2026-09-30T03:11:01Z cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured ok 67.5428 exit 0 load [4.78, 8.54, 8.88] [4.13, 7.64, 8.52] mem% 94
+2026-09-30T03:12:09Z cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed ok 68.0264 exit 0 load [4.13, 7.64, 8.52] [4.51, 6.93, 8.17] mem% 94
+2026-09-30T03:13:17Z cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured ok 67.6866 exit 0 load [4.51, 6.93, 8.17] [4.96, 6.58, 7.95] mem% 94
+2026-09-30T03:14:24Z cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed ok 67.4158 exit 0 load [4.96, 6.58, 7.95] [5.43, 6.45, 7.79] mem% 94
+2026-09-30T03:14:24Z part 2 done
+driver exit 0

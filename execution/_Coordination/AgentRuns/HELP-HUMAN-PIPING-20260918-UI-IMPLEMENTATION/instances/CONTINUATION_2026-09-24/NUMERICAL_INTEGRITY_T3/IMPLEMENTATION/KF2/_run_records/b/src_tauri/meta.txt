@@ -1,0 +1,1 @@
+src-tauri suite: apps/desktop/src-tauri, cargo test --offline --locked -j 4, RUST_TEST_THREADS=2, rustc 1.97.1, from a clean git archive of 1b10121fa (projects/chirality-piping, execution/ excluded), target <wt>/kf2-target/b-tauri. Result: 116 passed, 0 failed (lib); main.rs 0; doc 0. F1b's run (F1B_MERGE/src_tauri/) also had 116.

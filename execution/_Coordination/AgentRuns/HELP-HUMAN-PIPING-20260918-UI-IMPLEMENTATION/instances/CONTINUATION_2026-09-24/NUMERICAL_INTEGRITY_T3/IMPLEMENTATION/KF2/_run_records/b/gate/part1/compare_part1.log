@@ -1,0 +1,10 @@
+formula check: skipped (no envelope_sha256.tsv in the base directory; both sides indexed by index())
+runs with run.envelope_sha256 (base): 818
+gate_check rows compared: 764
+runs with run.envelope_sha256 (candidate): 818
+runs: base 884 candidate 884 missing either side 0
+candidate outcomes {'refused_blocked': 142, 'refused_capture': 64, 'refused_error': 2, 'solved': 676}
+heap-cap runs compared (stderr tails): 0
+differences: 0
+RESULT PASS
+exit 0
