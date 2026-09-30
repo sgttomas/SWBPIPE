@@ -1,0 +1,19 @@
+# RV22 confirmation: records checks at 011911e4e (the k6b worktree is clean at that head)
+HEAD 011911e4e9ab8b73b502066089276ab356a03bf9
+## H/observations/k6b/SHA256SUMS (from the archive)
+counts.jsonl: OK
+k6b_packet.json: OK
+sources.txt: OK
+k6b_packet.json unchanged since 1123d19b9: yes
+## T3/IMPLEMENTATION/K6B/SHA256SUMS: 1941 entries; failures: 0
+coverage (every file but SHA256SUMS listed, nothing extra): exact
+files added or changed in the K6B folder by 011911e4e: 167 (existing files changed: CHANGE_RECORD.md RETURN.md SHA256SUMS )
+## Machine paths in the files 011911e4e adds or changes (home, private, var/folders, /tmp, rustup, user name)
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K6B/_run_records/rv22fix/assemble_rv22fix.p
+(end of hits)
+non-empty non-text files among them: 0
+## Files the commit touches outside H and the K6B records
+(none)
+FK unchanged since 1123d19b9: yes; FK diff against main 0f5d8c7b4 patch-id: b43efeb4fdd2b15f0f5f45248ef97f1fb5303edb
+manifest or lock changes: 0
+retained_api named outside FK and H at 011911e4e: 0

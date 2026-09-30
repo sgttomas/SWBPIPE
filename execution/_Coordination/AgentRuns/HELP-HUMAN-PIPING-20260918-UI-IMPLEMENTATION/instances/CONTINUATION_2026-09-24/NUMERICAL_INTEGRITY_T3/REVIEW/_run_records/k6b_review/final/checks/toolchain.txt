@@ -1,0 +1,6 @@
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+python: Python 3.13.14; wrapper: <VENV> Python 3.13.14
+env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2, --offline --locked, -j 4, one cargo job at a time; archive of 011911e4e under <wt>/rv22c/, target <wt>/rv22c-target (both deleted afterwards)
+release k6_observe (my build, path-dependent): fd38edf69b42b104c9c7eb1f636832afa7796c06b5b31a26b715b8ca8c2d3d83
+memory guard: running (pid 5387); log last line: 2026-09-27 19:36:20 memguard start floor=35% pid=5387

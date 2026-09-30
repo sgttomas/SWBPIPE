@@ -16,3 +16,8 @@ checks/     export_scan, merge_check, records_checks, tables_6_1, tables_6_2_to_
 w1a_runs/   my four release w1a runs (5 repeats, --w1-prefixes, --dump-published), at 10 and 100 members;
             the rows dumps are not kept (their sha256 are in checks/w1a_runs_compare.out and equal b3's).
 mutations/  mut_results.jsonl (one line per run), the driver's output and each run's log.
+
+final/      RV22's confirmation of head 011911e4e (RV22-1 to RV22-3 closed): scripts/ (the move-model
+            itemization, the adapted probe, the mutant driver, the admission replay), suites/, checks/
+            (counts diff and regeneration sample, the estimate re-derivation, the probe, records checks,
+            b3's admission replay, toolchain) and mutations/.

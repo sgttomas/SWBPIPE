@@ -1,0 +1,4 @@
+# RV22: counts-only lines from my release build of 011911e4e against the committed counts.jsonl
+DEC053:invented-grid-frame-7x8       keys differing: ['phase_elapsed_ns']
+RF-LARGE-CHAIN-n00010-AX             keys differing: ['phase_elapsed_ns']
+RF-LARGE-CONT-n00100-ROT             keys differing: ['phase_elapsed_ns']

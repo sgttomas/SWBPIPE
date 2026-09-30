@@ -2685,3 +2685,10 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - `FK/src/structural.rs`'s facade lines, for `BlockRefusal`;
   - **VR's committed records** (`VR/observations/**`), if KF3's partial-stage recording or `bound_refusals` changes them. They are regenerated with VR's own tools, only the expected fields may change, and VR's suite and kill matrix must pass. V-K's tests compare its records byte for byte, and V-K is now on main.
 - **K6b's `uc == 0` test and parity check** follow the earlier rule: whichever of KF3 and K6b merges second updates them.
+- **RV22 confirms K6b's `011911e4e`: PASS.** RV22-1, RV22-2 and RV22-3 are closed.
+  - RV22's independent itemization is at or below E_max on all 33 lines, and 0 of b3's 132 admissions change.
+  - RV22-M5B is acceptable as recorded.
+  - **Two new NOTEs, recorded:**
+    - C-N1: a stop inside the solve (`into_solve_128`) has no test, so RV22-C4 survives;
+    - C-N2: on a stopped verification build, the two builds' summed stages can hide one build's shortfall. This is within the ruling, and KF3's equality closes it.
+  - Because K6b's head is now ROOT's merge `597c81ba4`, RV22 checks that the merge adds exactly main's delta and that H passes on the merged tree.

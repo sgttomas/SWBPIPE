@@ -1,0 +1,9 @@
+{"mutant": "NONE", "kind": "rust", "rc": 0, "seconds": 21.1, "compile_error": false, "failed_tests": [], "result": "passes"}
+{"mutant": "NONE-PY", "kind": "py", "rc": 0, "seconds": 8.1, "compile_error": false, "failed_tests": [], "result": "passes"}
+{"mutant": "RV22-M6", "kind": "rust", "rc": 101, "seconds": 39.2, "compile_error": false, "failed_tests": ["the_committed_counts_carry_this_codes_estimate", "the_estimate_equals_a_hand_derivation", "the_solve_and_pass_terms_bind_on_the_large_models"], "result": "killed"}
+{"mutant": "RV22-M7", "kind": "py", "rc": 1, "seconds": 9.5, "compile_error": false, "failed_tests": ["test_every_admitted_row_passes_the_binarys_backstop"], "result": "killed"}
+{"mutant": "RV22-M5B", "kind": "rust", "rc": 0, "seconds": 23.4, "compile_error": false, "failed_tests": [], "result": "passes"}
+{"mutant": "RV22-C1", "kind": "rust", "rc": 101, "seconds": 21.5, "compile_error": false, "failed_tests": ["the_committed_counts_carry_this_codes_estimate", "the_estimate_equals_a_hand_derivation", "the_solve_and_pass_terms_bind_on_the_large_models"], "result": "killed"}
+{"mutant": "RV22-C2", "kind": "rust", "rc": 101, "seconds": 17.9, "compile_error": false, "failed_tests": ["the_committed_counts_carry_this_codes_estimate", "the_estimate_equals_a_hand_derivation", "the_solve_and_pass_terms_bind_on_the_large_models"], "result": "killed"}
+{"mutant": "RV22-C3", "kind": "rust", "rc": 101, "seconds": 17.1, "compile_error": false, "failed_tests": ["a_stop_in_the_stop_rule_is_held_to_equality"], "result": "killed"}
+{"mutant": "RV22-C4", "kind": "rust", "rc": 0, "seconds": 17.3, "compile_error": false, "failed_tests": [], "result": "passes"}

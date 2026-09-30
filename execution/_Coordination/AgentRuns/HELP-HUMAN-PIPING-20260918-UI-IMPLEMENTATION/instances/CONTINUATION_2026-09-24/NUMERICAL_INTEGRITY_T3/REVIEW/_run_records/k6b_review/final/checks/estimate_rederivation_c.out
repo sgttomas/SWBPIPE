@@ -1,0 +1,47 @@
+# RV22: my phase itemization (move model) against the regenerated E_max (011911e4e counts.jsonl)
+RF-LARGE-CHAIN-n00010-AX               E_max      22726516  mine      22726516 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CHAIN-n00010-ROT              E_max      22726516  mine      22726516 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CHAIN-n00100-AX               E_max      48326122  mine      48326122 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CHAIN-n00100-ROT              E_max      48326122  mine      48326122 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CHAIN-n01000-AX               E_max     313263224  mine     306219112 (at solve_1024 )  E/mine 1.0230  OK
+RF-LARGE-CHAIN-n01000-ROT              E_max     313263224  mine     306219112 (at solve_1024 )  E/mine 1.0230  OK
+RF-LARGE-CHAIN-n10000-AX               E_max    3009837834  mine    3009836106 (at pass_1024  )  E/mine 1.0000  OK
+   phases (MiB), mine | the counts line's terms:
+     pass_1024       2870.4  (-0.00% of E_max)
+     decide_1024     2731.6  (-4.84% of E_max)
+     solve_1024      2715.0  (-5.41% of E_max)
+     end             2687.6  (-6.37% of E_max)
+     vbuild_1024     2652.9  (-7.58% of E_max)
+     build_1024      2061.4  (-28.19% of E_max)
+     vbuild_512      1763.6  (-38.56% of E_max)
+     solve_512       1746.7  (-39.15% of E_max)
+     pass_512        1664.7  (-42.00% of E_max)
+     decide_512      1624.2  (-43.42% of E_max)
+     counts line: estimate_w1_solve_1024 713150080, estimate_w1_pass_1024 442682052, estimate_w1_decide_bytes 89836472
+RF-LARGE-CHAIN-n10000-ROT              E_max    3009837834  mine    3009836106 (at pass_1024  )  E/mine 1.0000  OK
+RF-LARGE-TREE-n00010-AX                E_max      22726088  mine      22726088 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-TREE-n00010-ROT               E_max      22727800  mine      22727800 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-TREE-n00100-AX                E_max      48334070  mine      48334070 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-TREE-n00100-ROT               E_max      48352546  mine      48352546 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-TREE-n01000-AX                E_max     313354298  mine     306310186 (at solve_1024 )  E/mine 1.0230  OK
+RF-LARGE-TREE-n01000-ROT               E_max     313539038  mine     306494926 (at solve_1024 )  E/mine 1.0230  OK
+RF-LARGE-TREE-n10000-AX                E_max    3010765802  mine    3010764074 (at pass_1024  )  E/mine 1.0000  OK
+RF-LARGE-TREE-n10000-ROT               E_max    3012624342  mine    3012622614 (at pass_1024  )  E/mine 1.0000  OK
+RF-LARGE-CONT-n00010-AX                E_max      22655045  mine      22655045 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CONT-n00010-ROT               E_max      22656543  mine      22656543 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CONT-n00100-AX                E_max      47571837  mine      47571837 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CONT-n00100-ROT               E_max      47583662  mine      47583662 (at decide_1024)  E/mine 1.0000  OK
+RF-LARGE-CONT-n01000-AX                E_max     302573516  mine     296740420 (at decide_1024)  E/mine 1.0197  OK
+RF-LARGE-CONT-n01000-ROT               E_max     302689076  mine     296855980 (at decide_1024)  E/mine 1.0196  OK
+RF-LARGE-CONT-n10000-AX                E_max    2839853737  mine    2835532009 (at pass_1024  )  E/mine 1.0015  OK
+RF-LARGE-CONT-n10000-ROT               E_max    2841011432  mine    2836689704 (at pass_1024  )  E/mine 1.0015  OK
+DEC053:invented-cantilever-chain-8     E_max      22156566  mine      22156566 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-cantilever-chain-24    E_max      26707607  mine      26707607 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-cantilever-chain-48    E_max      33534167  mine      33534167 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-grid-frame-4x3         E_max      24288432  mine      24288432 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-grid-frame-6x8         E_max      42239937  mine      42239937 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-grid-frame-7x8         E_max      46509339  mine      46509339 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-grid-frame-5x5         E_max      30528975  mine      30528975 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-cantilever-chain-32    E_max      28983127  mine      28983127 (at decide_1024)  E/mine 1.0000  OK
+DEC053:invented-grid-frame-5x6         E_max      33021015  mine      33021015 (at decide_1024)  E/mine 1.0000  OK
+E_max >= my itemized maximum on every line: True; smallest E_max/mine: 1.0000 (DEC053:invented-cantilever-chain-24)

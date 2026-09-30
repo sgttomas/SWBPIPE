@@ -1,0 +1,80 @@
+"""RV22 confirmation: my own itemization of W1's live bytes per phase (K4R after KF1, read at 011911e4e's
+FK = main + A0), under the allocator's move model, against the regenerated counts' E_max.
+
+It is written from my reading of the code, not from counts.rs: kept bytes as in my first review
+(fixed, S(p), U(p), V(P)); then per phase the transient I itemize from K4R:
+  build_p   shared build transient (members_q at R) + the pivot tracker (1.5 T rows) and its table;
+  solve_p   u (n w_L, part of U) + rhs, u_free (n_f w_L each) + evaluated (4 n_f w_L + 4 headers)
+            + residual rows n_f(16 + w_L) + trackers (512 + 3*512 + 768 rows) + tables (5 n_f entries,
+            x2 in place, +1 growing) + abar_q (nnz w_R) + worsts (4 x 4,304 B) + the larger of
+            [assemble_bounded's blocks 144 m w_R] and [u copy n w_L + row list 1.5 * 2^ceil(log2 n_f) rows];
+  vbuild_P  as the formula (unchanged since my first review);
+  pass_P    verify_state's locals (3n + 8n_f wide, recover's (rows + 6m) wide, 48 n headers + 2n flags)
+            + max(at the shift: 3 row vectors + the scaled profile and its clone (2 P w) + 76 n_f
+            + shifted/work (n_f (2w + 8)); after it: 5 row vectors);
+  decide_P  report (5 row vectors + 2 n_f w) + 4,608 rows + (3*2 + 1) rows x 40 B;
+  end       as the formula.
+Usage: rv22_estimate_c.py <counts.jsonl> [model]"""
+import json, sys
+SZ = dict(straight_member=88, constraint=16, nodal_load=40, station=16, quantity_meta=20,
+          published_row=64, attempt_record=800, frame_element=136)
+w = lambda l: 8 * l + 16
+ROW, TAB = 2 * 2144 + 16, 40
+ATT = [(128, 4, 4), (256, 4, 8), (512, 8, 16), (1024, 16, 16)]
+VER = {256: (4, 8), 512: (8, 16), 1024: (16, 16)}
+
+def pow2(x):
+    c = 1
+    while c < x: c *= 2
+    return c if x else 0
+
+def phases(c):
+    m, n, nf, nnz = c['w1_members'], c['w1_dofs'], c['w1_free_dofs'], c['w1_pattern_entries']
+    P, B, rows = c['w1_profile_entries'], max(c['w1_blocks'], 1), c['w1_rows']
+    nodes, r, loads, st, bodies, enc = c['w1_nodes'], c['w1_constraints'], c['w1_loads'], c['w1_stations'], c['w1_bodies'], c['w1_source_encoding_len']
+    harness = nodes * 64 + m * 80 + loads * 16 + m * SZ['frame_element']
+    source = 24 * nodes + m * SZ['straight_member'] + r * SZ['constraint'] + loads * (SZ['nodal_load'] + 16) + st * SZ['station'] + 16 * n + 4 * nodes
+    case = loads * 64 + r * 48 + enc + rows * SZ['quantity_meta'] + 8 * bodies
+    group = 8 * (n + 1) + 16 * nnz + 8 * (nnz + 1) + m * 78 * 8 + 32 * nf + 8 * n + 12 * nf + 24 * B
+    fixed = harness + 2 * source + case + group
+    S = lambda l, rr: m * (164 * w(l) + 16) + nnz * (w(l) + w(rr)) + m * (5 * w(rr) + 8) + P * w(l) + nf * (2 * w(l) + 56) + B * w(l)
+    U = lambda l: (n + 6 * m + rows) * w(l)
+    V = lambda l, ww: nnz * w(l) + m * 144 * w(ww) + B * (4 * w(l) + 8)
+    out = {}; kept = fixed
+    out['group_build'] = fixed + m * 78 * 32
+    for p, l, rr in ATT:
+        out['build_%d' % p] = kept + S(l, rr) + (0 if p == 1024 else m * (164 * w(rr) + 16)) + 768 * ROW + 3 * nf * TAB
+        kept += S(l, rr)
+        solve = (n * w(l) + 2 * nf * w(l) + 4 * nf * w(l) + 96 + nf * (16 + w(l)) + 2816 * ROW + (2 * 5 + 1) * nf * TAB
+                 + nnz * w(rr) + 4 * ROW + max(144 * m * w(rr), n * w(l) + (pow2(nf) + pow2(nf) // 2) * ROW))
+        out['solve_%d' % p] = kept + solve
+        kept += U(l)
+        if p in VER:
+            lp, ww = VER[p]
+            out['vbuild_%d' % p] = kept + V(lp, ww) + m * (5 * w(lp) + 8) + m * 144 * w(lp) + (0 if p == 1024 else m * (164 * w(ww) + 16))
+            kept += V(lp, ww)
+            W = w(lp)
+            live = 3 * n * W + 8 * nf * W + (rows + 6 * m) * W + 48 * n + 2 * n
+            at_shift = 3 * rows * (W + 8) + 2 * P * W + 68 * nf + nf * (2 * W + 8)
+            out['pass_%d' % p] = kept + live + max(at_shift, 5 * rows * (W + 8))
+            out['decide_%d' % p] = kept + 5 * rows * (W + 8) + 2 * nf * W + 4608 * ROW + 7 * rows * TAB
+    end = rows * (SZ['published_row'] + 40) + enc + (n + 6 * m) * (9 + 128) + 8 * SZ['attempt_record']
+    out['end'] = kept + 5 * rows * (w(16) + 8) + 2 * nf * w(16) + end
+    return out
+
+focus = sys.argv[2] if len(sys.argv) > 2 else None
+worst = None; allok = True
+print('# RV22: my phase itemization (move model) against the regenerated E_max (011911e4e counts.jsonl)')
+for line in open(sys.argv[1]):
+    c = json.loads(line); ph = phases(c); mine = max(ph.values()); at = max(ph, key=ph.get)
+    E = c['estimate_adm_bytes_w1a']; ok = E >= mine; allok &= ok
+    ratio = E / mine
+    worst = min(worst or (9, ''), (ratio, c['model']))
+    print('%-38s E_max %13d  mine %13d (at %-11s)  E/mine %.4f  %s' % (c['model'], E, mine, at, ratio, 'OK' if ok else 'E_max BELOW MINE'))
+    if c['model'] == focus:
+        print('   phases (MiB), mine | the counts line\'s terms:')
+        for k, v in sorted(ph.items(), key=lambda kv: -kv[1])[:10]:
+            print('     %-12s %9.1f  (%+.2f%% of E_max)' % (k, v / 2**20, 100 * (v - E) / E))
+        print('     counts line: estimate_w1_solve_1024 %d, estimate_w1_pass_1024 %d, estimate_w1_decide_bytes %d' % (
+            c['estimate_w1_solve_1024'], c['estimate_w1_pass_1024'], c['estimate_w1_decide_bytes']))
+print('E_max >= my itemized maximum on every line: %s; smallest E_max/mine: %.4f (%s)' % (allok, worst[0], worst[1]))

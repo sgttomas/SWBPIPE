@@ -235,3 +235,118 @@ Each mutant ran from a clean `git archive` of the head (`projects/chirality-pipi
 - `w1a_runs/`: my four `w1a` JSONL outputs.
 - `mutations/`: `mut_results.jsonl`, the driver's output and each mutant's log.
 - Paths are shown as `<wt>`, `<scratch>`, `<home>` and `<VENV>`.
+
+## Confirmation at 011911e4e (RV22, 2026-09-29)
+
+- **Head confirmed:** `011911e4e` (`011911e4e9ab8b73b502066089276ab356a03bf9`), one commit on `1123d19b9`. It changes H and the K6B records only.
+  - FK is unchanged since `1123d19b9`, and its diff against main still has A0's patch-id (`b43efeb4…`).
+  - There is no manifest or lock change, and `retained_api` is still named only by FK and H.
+- **Verdict: PASS.** RV22-1, RV22-2 and RV22-3 are closed. There are two new NOTEs (C-N1, C-N2), and no BLOCKING or SHOULD-FIX finding.
+- **Read:**
+  - "K6b: rulings on RV22's review" (`ROOT_RULINGS_V1.md` at the numerics head `899f28965`), with I16's correction on the 1,000-member change;
+  - the KF3 section's RV22 lines, which accept I16's extension to RV22-1;
+  - the full diff `1123d19b9..011911e4e` of H;
+  - RETURN addendum 2 and CHANGE_RECORD's changes;
+  - `_run_records/rv22fix/`.
+
+### C.1 RV22-1: the stage check on stopped attempts
+
+- **The code:**
+  - `builds_completed` is `!Failed(Stop(_)) || stop_rule_work > 0` (`H/src/k6/w1/staged.rs:189-190`);
+  - on any other stopped attempt, each side is ≤ its total and at least one side is equal (`:224`);
+  - `stages_complete` is `unstaged == (0, 0)` (`:206-207`), and the attempt line uses it.
+- **My probe, re-run** (`final/checks/probe_relaxed_check_c.out`, CHAIN-n00010-AX at my six case limits):
+  - **The two stop-rule stops** (`verify_256` and `into_decide_128`, `stop_rule_work` 82,452 and 665,714) are now held to equality. Both 1-LME under-records, own and shared, fail the check. These were the cases my first probe showed passing.
+  - **On the three stopped builds**, a 1-LME under-record on the complete side now fails (`solve_256` own, `into_uc` own, `into_solve_128` shared).
+  - **The genuine K4 attempts pass the check on all six paths.**
+- **Could it reject a genuine K4 path? No.**
+  - Only a candidate's decision charges `stop_rule_work` (`K4R/adaptive.rs:3040-3045`), and it files the same total in `stages.stop_rule`. The decision runs only after the candidate's builds and its verification's have completed. The only later outcome written to that record comes from the same decision (`:3055-3058`). So such an attempt's stages equal its totals.
+  - Every other stop falls inside exactly one build or pass, so at most one side is short:
+    - in `build_shared`, own is 0 and its total is 0;
+    - in `solve_case_at` or the verification pass, shared is complete;
+    - in `build_verify_shared`, own is complete;
+    - after the post-build budget checks, both sides are complete.
+  - A decision that stops before charging any work would fall to the one-side rule with both sides equal, and is accepted.
+  - After KF3 both sides equal their totals on every path, which the check accepts.
+  - b3's 25 stopped attempts all pass (own exact, shared short).
+- **C-N1 (NOTE): a mis-tightening would go unseen.**
+  - RV22-C4 survives. It requires the own side to be exact on a stopped attempt, which would reject a genuine stop inside the solve: `into_solve_128`, own 576/100,728, shared exact.
+  - The tests cover only shared-short and stop-rule paths.
+  - Fix: add RETURN A2.2's `into_solve_128` limit (the 128 shared build's end + 10 LME) to a test asserting that the check passes with own short. This kills RV22-C4. KF3 changes these paths anyway.
+- **C-N2 (NOTE): the residual inside the short side.**
+  - `shared_stages` sums the attempt's build and the verification's build. On a stopped verification build (the Span path), a shortfall in the attempt's own completed build cannot be told apart from more unstaged `uc` work. In my probe, 1 LME off `formation` at `into_uc` still passes.
+  - This is within ROOT's ruling, and KF3's equality closes it.
+  - Optional: when `verification_shared_work > 0`, check that the attempt-build fields (formation to condition) sum to `shared_work`.
+
+### C.2 RV22-2: E_max bounds every phase I identified
+
+- **The code** (`counts.rs:475-541`):
+  - The solve term now carries the fallback: `u_free`, 4 evaluated states and `abar_q`, then the larger of `assemble_bounded`'s blocks and a state's copy of u plus the row list. The row list is `fallback_row_list_rows` = 1.5 × 2^⌈log2 n_f⌉ (`:274`), its move-model peak.
+  - The pass term is the pass's locals plus the larger of (three row vectors, both profiles, the clone's `first`, `shifted` and `work`) and (all five row vectors). The pass phase is `kept + pass[v]` (`:541`).
+  - The tables carry the growing buffer.
+- **My independent itemization.** I wrote it from K4R under the move model, not from `counts.rs` (`final/scripts/rv22_estimate_c.py.txt`, `final/checks/estimate_rederivation_c.out`). **E_max is at or above my maximum on all 33 committed lines.**
+  - **RF-LARGE-CHAIN-n10000-AX:**
+    - E_max is 3,009,837,834 B, against my 3,009,836,106 B at pass_1024. The 1,728 B gap is the formula's allowance for prescribed terms, r·(w_W + w_L), which are zero here.
+    - The next phases are decide_1024 at −4.84% and solve_1024 at −5.41%.
+    - The pass term matches my list item by item: 3n + 8n_f wide, `recover`'s (rows + 6m), 50 B per DOF, and at the shift 3 row vectors, 2·P·w and 68·n_f + n_f·(2w + 8).
+  - **CHAIN, TREE and CONT at 10,000:** E_max equals mine to within 0.15% at pass_1024.
+  - **At 1,000 members:** E_max is 2.0–2.3% above mine, because the solve term's 4n·w_R also covers u and `rhs`. My maximum is solve_1024 on CHAIN and TREE, which agrees with I16's correction (+3.28%, +2.33%).
+- **`counts.jsonl`** (`final/checks/counts_diff.out`):
+  - It has the same 33 models in the same order.
+  - Added keys: `estimate_w1_solve_{128,256,512,1024}` and `estimate_w1_pass_{256,512,1024}`.
+  - Changed keys: `estimate_adm_bytes_w1a`, `estimate_w1_sel128_bytes` and `estimate_w1_decide_bytes` on all 33 lines, plus `phase_elapsed_ns`, a measured time.
+  - The 28 `w1_*` count keys and K6's 8 estimate keys are identical.
+  - Three counts-only lines from my release build (CHAIN-n00010-AX, CONT-n00100-ROT and DEC053 grid-frame-7x8) reproduce the committed lines except `phase_elapsed_ns` (`final/checks/counts_regen_sample.out`).
+- **b3's admissions**, replayed with the head's runner and the new counts, each row against the rows recorded before it (`final/checks/b3_admission_replay_c.out`):
+  - 132 rows, 0 decisions changed;
+  - the largest W1 E_max/(heap cap/2) is 0.748;
+  - the largest projected RSS is 1.48 GB, against 0.8 C = 6.87 GB.
+
+### C.3 RV22-3: the estimate is tied to the committed counts
+
+- `the_committed_counts_carry_this_codes_estimate` (`tests/k6b_w1.rs:661`) recomputes E_max and E_sel128 for all 33 lines.
+- `the_solve_and_pass_terms_bind_on_the_large_models` (`:679`) checks the estimate against the hand derivation on the 12 large lines. It also asserts that solve_256 sets E_sel128, and that a solve or pass phase sets E_max at 10,000 members.
+- Both pass in my run.
+- **RV22-M6 is killed** by all three estimate tests. So are my RV22-C1 (the row list at its in-place capacity C) and RV22-C2 (the shift's profile clone dropped).
+- RV22-M7 is killed, which closes RV22-N2.
+- The hand derivation re-types the formula with literal constants, so it pins the formula. The independent check that the formula bounds the code is C.2's itemization.
+
+### C.4 RV22-M5B: acceptable
+
+- The predicate now lives in `staged::prefix_matches` (`staged.rs:343`). The prefix test checks that it is true at each prefix, false one segment further, and false on a completed call. RV22-M5L is killed.
+- The binary passes its arguments straight through. `main.rs:967` calls `prefix_line(j + 1, …)`, and `w1.rs:276` calls `prefix_matches(j, full, &solve.outcome)` with the 1-based j that the predicate documents. I reviewed the call site.
+- I re-ran RV22-M5B, and it survives as recorded.
+- A genuine run cannot produce a false prefix, so killing it would need a fault hook in the binary. Recording it is proportionate.
+
+### C.5 Records
+
+- `H/observations/k6b/SHA256SUMS` verifies 3 of 3. `counts.jsonl` has its new hash. `k6b_packet.json` is unchanged: b3's packet, computed against the E b3 ran with, as addendum 2 says.
+- `T3/IMPLEMENTATION/K6B/SHA256SUMS` verifies 1,941 of 1,941, and its coverage is exact. There are 164 new files in `rv22fix/`, and RETURN, CHANGE_RECORD and SHA256SUMS changed.
+- The 167 added or changed files carry no machine path. The one hit is the scrubber's own pattern in `rv22fix/assemble_rv22fix.py.txt`. There are no non-text files (`final/checks/records_checks_c.txt`).
+
+### C.6 Suites, mutants, host and Git
+
+- **Suites** (clean `git archive` of `011911e4e`; `final/suites/`):
+  - H's debug suite (`--all-targets`) passes 74 libtest tests and `k6_alloc`, with 0 warnings, in 84 s from a cold target.
+  - The runner suite passes 47 of 47.
+  - The pytest wrapper with the DEC-050/053 pins passes 49 of 49.
+  - The release build is warning-free.
+- **Mutants** (each from a clean archive of the head with its own target, deleted afterwards; `final/mutations/`):
+
+| Mutant | Change | Result | Killing test |
+|---|---|---|---|
+| NONE, NONE-PY | the head | pass | — |
+| RV22-M6 | `SOLVE_TRACKER_PEAK_ROWS` 2816 → 2048 | killed | the three estimate tests |
+| RV22-M7 | the backstop against `rss_cap_bytes // 2` | killed | `test_every_admitted_row_passes_the_binarys_backstop` |
+| RV22-M5B | the binary's call site forced true | survives (C.4) | — |
+| RV22-C1 | the fallback row list at C, not C + C/2 | killed | the three estimate tests |
+| RV22-C2 | the pass without the shift's profile clone | killed | the three estimate tests |
+| RV22-C3 | `builds_completed` keyed on `verification_work` | killed | `a_stop_in_the_stop_rule_is_held_to_equality` |
+| RV22-C4 | a stopped attempt's own side required exact | **survives** (C-N1) | — |
+
+- **Host:** one cargo job at `-j 4`, with `RUST_TEST_THREADS=2`. No DEC-025 sweep was running at my start. The memory guard ran throughout and logged no kill. `<wt>/rv22c` and `<wt>/rv22c-target` are deleted.
+- **Git: read-only.**
+  - In `<wt>/k6b`: `rev-parse`, `status`, `log`, `diff`, `show`, `patch-id`, `grep` and `archive`.
+  - In `<wt>/numerics`: `log` and `status`.
+  - No writes, no fetch and no GitHub access.
+- **My writes:** this section and `_run_records/k6b_review/final/`, with `k6b_review/SHA256SUMS` updated. All are uncommitted.
