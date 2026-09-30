@@ -162,6 +162,8 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural.rs", "estimate_rcond", 4, "exempt: condition-estimate probe norms and dot (section 4.3 limit 1); RV1-N1: a row 1-norm"),
     ("FK/structural.rs", "finish_checked_factor", 3, "exempt: max fold of residual ratios; integer refinement count; RV1-N1: the refinement update y = y + delta (a correction of the solution, not a load sum)"),
     ("FK/structural.rs", "verify_negative_direction", 3, "integer: term count; RV1-N1: energy and magnitude sums of the witness direction (stiffness quadratic form)"),
+    // KF2 (ROOT's KF2 checkpoint-0 ruling Q5: declared, additive).
+    ("FK/structural.rs", "negative_pair_witness_counted", 6, "KF2: integer: visited-pair, evaluated-term and verification counts and the term count; energy and magnitude sums of a pair direction (stiffness quadratic form), as verify_negative_direction"),
     ("FK/structural.rs", "exact_scaled_rhs", 0, "KS1: exact accumulator, scaled before one rounding"),
     ("FK/structural.rs", "prepare_bound", 1, "KS1 dispatch; RV1-N1: the legacy expression `b = checked_value(b - K*u)` kept for the option (c) Binary64 binding and for legacy rows without a nonzero prescribed product (b - (+-0) is exact); ledger and coupled rows use exact_scaled_rhs"),
     // ---- FK/structural/sparse.rs (K1: the sparse representation; the

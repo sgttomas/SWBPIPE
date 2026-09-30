@@ -1,0 +1,1 @@
+k6_observe sha256 587a034afe59bc7ef27b622eb15e8cc1188039d1f0bc83e747e08f283218b3a3 (built in release from git archive 573bd3835 of P/core + the candidate's three FK files; H unedited)

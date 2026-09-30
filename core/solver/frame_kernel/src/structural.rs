@@ -2195,23 +2195,72 @@ pub fn verify_negative_direction(
 pub fn negative_pair_witness(
     prepared: &PreparedSystem<'_>,
 ) -> Result<Option<StructuralError>, StructuralError> {
+    negative_pair_witness_counted(prepared).map(|(witness, _, _, _)| witness)
+}
+
+/// KF2: `negative_pair_witness` in O(n^2), with its work counts (pairs
+/// visited, cell terms evaluated, verifications). It visits the pairs (i, j < i)
+/// in the order of the search it replaces, and for each builds no direction:
+/// the direction e_i + sign*e_j has only four cells, (j,j), (j,i), (i,j) and
+/// (i,i), and they are exactly the cells `verify_negative_direction` evaluates
+/// for it, in that order. The guard below repeats its arithmetic on them, so
+/// it fails with the verifier's error, or reaches the verifier's verdict, bit
+/// for bit. Only a pair whose verdict is a witness is built and passed to the
+/// unchanged verifier, which publishes the witness (once, in O(n^2)).
+fn negative_pair_witness_counted(
+    prepared: &PreparedSystem<'_>,
+) -> Result<(Option<StructuralError>, usize, usize, usize), StructuralError> {
     validate_prepared(prepared)?;
+    let system = prepared.source;
     let n = prepared.matrix.len();
+    let mut visited = 0;
+    let mut evaluated = 0;
+    let mut verified = 0;
     for i in 0..n {
         for j in 0..i {
-            let mut v = vec![0.0; n];
-            v[i] = 1.0;
-            v[j] = if prepared.matrix[i][j] >= 0.0 {
+            visited += 1;
+            let sign = if prepared.matrix[i][j] >= 0.0 {
                 -1.0
             } else {
                 1.0
             };
-            if let Some(witness) = verify_negative_direction(prepared, &v)? {
-                return Ok(Some(witness));
+            // (cell, v[a], v[b]) in the verifier's row-major order (j < i).
+            let cells = [
+                (j, j, sign, sign),
+                (j, i, sign, 1.0),
+                (i, j, 1.0, sign),
+                (i, i, 1.0, 1.0),
+            ];
+            let mut energy = 0.0;
+            let mut magnitude = 0.0;
+            let mut terms = 0;
+            for (a, b, da, db) in cells {
+                if prepared.matrix[a][b] == 0.0 {
+                    continue;
+                }
+                let original = radix_scale(
+                    system.stiffness[system.free_dofs[a]][system.free_dofs[b]],
+                    prepared.scale_exponents[a] + prepared.scale_exponents[b],
+                )?;
+                let term = checked_product(checked_product(da, original)?, db)?;
+                energy = checked_value(energy + term)?;
+                magnitude = checked_value(magnitude + term.abs())?;
+                terms += 1;
+            }
+            evaluated += terms;
+            let allowance = 64.0 * gamma(3 * terms + 2) * magnitude;
+            if energy < -allowance {
+                verified += 1;
+                let mut v = vec![0.0; n];
+                v[i] = 1.0;
+                v[j] = sign;
+                if let Some(witness) = verify_negative_direction(prepared, &v)? {
+                    return Ok((Some(witness), visited, evaluated, verified));
+                }
             }
         }
     }
-    Ok(None)
+    Ok((None, visited, evaluated, verified))
 }
 
 // ------------------------------------------------------------------ K2b
@@ -2648,6 +2697,8 @@ pub fn unscale_structural_error(
     }
 }
 
+#[cfg(test)]
+mod kf2_witness_tests;
 #[cfg(test)]
 mod s11f_tests;
 #[cfg(test)]

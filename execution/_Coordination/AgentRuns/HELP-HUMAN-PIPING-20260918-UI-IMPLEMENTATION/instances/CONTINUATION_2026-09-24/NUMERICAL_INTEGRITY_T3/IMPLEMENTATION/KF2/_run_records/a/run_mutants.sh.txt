@@ -1,0 +1,36 @@
+#!/bin/bash
+# KF2 mutation runs (plan §9): one clean `git archive HEAD` copy of P/core per
+# mutant, the candidate's three files overlaid, one mutant edit, its own
+# target; run one at a time; copy and target deleted afterwards. The lib test
+# binary runs under a 600 s alarm (M9 restores the O(n^4) search, so its T5
+# would run for hours; its failures print as they happen).
+set -u
+WT=<wt>
+KF2=$WT/kf2
+SCR=$WT/scratch/i20
+OUT=$SCR/mut
+mkdir -p $OUT
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2
+FKREL=projects/chirality-piping/core/solver/frame_kernel
+for m in "$@"; do
+  D=$WT/kf2-mut/$m
+  L=$OUT/$m.log
+  rm -rf "$D"; mkdir -p "$D"
+  git -C "$KF2" archive HEAD projects/chirality-piping/core | tar -x -C "$D"
+  for f in src/structural.rs src/structural/kf2_witness_tests.rs tests/s11_site_table.rs; do
+    cp "$KF2/$FKREL/$f" "$D/$FKREL/$f"
+  done
+  { echo "== mutant $m $(date -u +%FT%TZ)"; uptime; } > "$L"
+  python3 $SCR/mutants.py "$m" "$D/$FKREL/src/structural.rs" >> "$L" 2>&1
+  diff -u "$KF2/$FKREL/src/structural.rs" "$D/$FKREL/src/structural.rs" | sed "s#$WT#<wt>#g" >> "$L"
+  (cd "$D/$FKREL" && CARGO_TARGET_DIR="$D/target" cargo test --offline --locked -j 4 --lib --no-run) > "$OUT/$m.build.log" 2>&1
+  echo "build_exit $?" >> "$L"
+  BIN=$(grep -o 'Executable unittests src/lib.rs ([^)]*)' "$OUT/$m.build.log" | sed 's/.*(\(.*\))/\1/')
+  (cd "$D/$FKREL" && perl -e 'alarm 600; exec @ARGV' "$BIN" kf2_ krev04 k1_negative_witness) >> "$L" 2>&1
+  echo "lib_exit $?" >> "$L"
+  (cd "$D/$FKREL" && CARGO_TARGET_DIR="$D/target" cargo test --offline --locked -j 4 --test s11_site_table) >> "$L" 2>&1
+  echo "site_exit $?" >> "$L"
+  rm -rf "$D"
+  echo "$m done: $(grep -E '^(build|lib|site)_exit' "$L" | tr '\n' ' ') failed: $(grep -E '^test .* FAILED$' "$L" | sed 's/^test //; s/ \.\.\. FAILED//' | tr '\n' ' ')"
+done
+rmdir $WT/kf2-mut 2>/dev/null || true

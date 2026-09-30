@@ -1,0 +1,70 @@
+== mutant M3 2026-09-30T02:20:28Z
+20:20  up 2 days,  1:07, 1 user, load averages: 6.99 7.11 5.86
+M3 applied 1 edit(s)
+--- <wt>/kf2/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs	2026-09-29 20:00:44
++++ <wt>/kf2-mut/M3/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs	2026-09-29 20:20:28
+@@ -2248,7 +2248,7 @@
+                 terms += 1;
+             }
+             evaluated += terms;
+-            let allowance = 64.0 * gamma(3 * terms + 2) * magnitude;
++            let allowance = 64.0 * gamma(3 * (terms + 1) + 2) * magnitude;
+             if energy < -allowance {
+                 verified += 1;
+                 let mut v = vec![0.0; n];
+build_exit 0
+
+running 18 tests
+test structural::kf2_witness_tests::kf2_cells_follow_the_prepared_matrix_not_the_source ... ok
+test structural::kf2_witness_tests::kf2_corrupted_shapes_and_sources_match_the_reference ... ok
+test structural::kf2_witness_tests::kf2_cost_bound_at_6006_dofs ... ignored, KF2 T6: release-only cost test (n = 6,006); run with --release -- --ignored
+test structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness ... ok
+test structural::kf2_witness_tests::kf2_first_error_depends_on_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict ... ok
+test structural::kf2_witness_tests::kf2_cost_counts_on_a_100_member_chain ... ok
+test structural::kf2_witness_tests::kf2_reference_verifier_is_todays_verifier ... ok
+test structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order ... FAILED
+test structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge ... FAILED
+test structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs ... ok
+test structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference ... ok
+test structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited ... ok
+test structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification ... ok
+test structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs ... ok
+test structural::sparse::tests::krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::tests::krev04_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several ... ok
+
+failures:
+
+---- structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order' (17224833) panicked at src/structural/kf2_witness_tests.rs:157:5:
+edge a=1.7800214665134368e0 b=2.9088253776590354e0 k=2.344423422086703e0: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0], energy: -9.334755191048316e-13, allowance: 9.32855297981252e-13 })), new Ok(None)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge stdout ----
+KF2 exact ties: 9
+
+thread 'structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge' (17224834) panicked at src/structural/kf2_witness_tests.rs:157:5:
+tie t=1.0089285714286702e0 b=1.0178571428569387e0: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0], energy: -4.0167869030938164e-13, allowance: 4.014566457044566e-13 })), new Ok(None)
+
+
+failures:
+    structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order
+    structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge
+
+test result: FAILED. 15 passed; 2 failed; 1 ignored; 0 measured; 332 filtered out; finished in 9.91s
+
+lib_exit 101
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/kf2-mut/M3/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.69s
+     Running tests/s11_site_table.rs (<wt>/kf2-mut/M3/target/debug/deps/s11_site_table-c8ba14d9f767e011)
+
+running 3 tests
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+site_exit 0

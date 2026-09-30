@@ -1,0 +1,95 @@
+== mutant M4 2026-09-30T02:21:15Z
+20:21  up 2 days,  1:08, 1 user, load averages: 8.90 7.80 6.19
+M4 applied 3 edit(s)
+--- <wt>/kf2/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs	2026-09-29 20:00:44
++++ <wt>/kf2-mut/M4/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs	2026-09-29 20:21:15
+@@ -2216,6 +2216,7 @@
+     let mut visited = 0;
+     let mut evaluated = 0;
+     let mut verified = 0;
++    let mut last = None;
+     for i in 0..n {
+         for j in 0..i {
+             visited += 1;
+@@ -2255,12 +2256,12 @@
+                 v[i] = 1.0;
+                 v[j] = sign;
+                 if let Some(witness) = verify_negative_direction(prepared, &v)? {
+-                    return Ok((Some(witness), visited, evaluated, verified));
++                    last = Some(witness);
+                 }
+             }
+         }
+     }
+-    Ok((None, visited, evaluated, verified))
++    Ok((last, visited, evaluated, verified))
+ }
+ 
+ // ------------------------------------------------------------------ K2b
+build_exit 0
+
+running 18 tests
+test structural::kf2_witness_tests::kf2_cells_follow_the_prepared_matrix_not_the_source ... ok
+test structural::kf2_witness_tests::kf2_corrupted_shapes_and_sources_match_the_reference ... ok
+test structural::kf2_witness_tests::kf2_cost_bound_at_6006_dofs ... ignored, KF2 T6: release-only cost test (n = 6,006); run with --release -- --ignored
+test structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness ... FAILED
+test structural::kf2_witness_tests::kf2_first_error_depends_on_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict ... ok
+test structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference ... FAILED
+test structural::kf2_witness_tests::kf2_reference_verifier_is_todays_verifier ... ok
+test structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge ... ok
+test structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs ... ok
+test structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several ... FAILED
+test structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited ... FAILED
+test structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification ... ok
+test structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs ... ok
+test structural::sparse::tests::krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::tests::krev04_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::kf2_witness_tests::kf2_cost_counts_on_a_100_member_chain ... ok
+
+failures:
+
+---- structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness' (17228388) panicked at src/structural/kf2_witness_tests.rs:157:5:
+overflow witness_first=true: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0, 0.0, 0.0], energy: -4.0, allowance: 7.958078640513134e-13 })), new Err(Range("arithmetic outside normal range"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference' (17228391) panicked at src/structural/kf2_witness_tests.rs:157:5:
+round 4 n=13 Wild: reference Ok(Some(NegativeEnergy { direction: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.9073486328125e-6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0009765625], energy: -0.9070781297751052, allowance: 1.071754641770006e-12 })), new Ok(Some(NegativeEnergy { direction: [32.0, 0.0, 0.0, 0.0, 0.0, -2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], energy: -0.5308466174575082, allowance: 6.661664669884456e-13 }))
+
+---- structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several' (17228396) panicked at src/structural/kf2_witness_tests.rs:157:5:
+n=4 several density=0: reference Ok(Some(NegativeEnergy { direction: [0.0, 3.814697265625e-6, 0.0, 0.0, 0.0, -524288.0], energy: -0.7363521206788097, allowance: 1.014207353460356e-12 })), new Ok(Some(NegativeEnergy { direction: [0.0, 3.814697265625e-6, 0.0, 0.0, 0.0078125, 0.0], energy: -1.3236723043411627, allowance: 1.51161580740548e-12 }))
+
+---- structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited' (17228397) panicked at src/structural/kf2_witness_tests.rs:157:5:
+negative source diagonal, zero 0.0: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0, 0.0], energy: -1.0, allowance: 2.8421709430404033e-13 })), new Ok(Some(NegativeEnergy { direction: [0.0, -1.0, 0.5], energy: -1.75, allowance: 2.4158453015843427e-13 }))
+
+
+failures:
+    structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness
+    structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference
+    structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several
+    structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited
+
+test result: FAILED. 13 passed; 4 failed; 1 ignored; 0 measured; 332 filtered out; finished in 0.18s
+
+lib_exit 101
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/kf2-mut/M4/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.24s
+     Running tests/s11_site_table.rs (<wt>/kf2-mut/M4/target/debug/deps/s11_site_table-c8ba14d9f767e011)
+
+running 3 tests
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+site_exit 0
