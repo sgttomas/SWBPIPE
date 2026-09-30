@@ -2838,5 +2838,5 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - RV22's C-N1 if it fits.
 - **I21 is spawned after KF3 merges.** Its base must carry KF3's kernel.
 - **V-K's routed V3 re-run** ("V-K merged", Routed) **is satisfied by KF3's B.** B ran V-K's runner and `vk_scale`, unedited, on `e114b23c1`, whose FK equals KF3's final head `b8c55c92e`'s. It covers V1 to V3, outcomes and R1 honesty (`KF3/_run_records/b/`).
-  - The E_max column in those records comes from VR's stale port. It is superseded by K6c's corrected estimate, and no admission decision there relied on it at the margin.
+  - The E_max column in those records comes from VR's stale port. It is superseded by K6c's corrected estimate. K6c re-checks B's admission decisions against the corrected estimate; ROOT has not verified them.
 - **ROOT's W1 limits wait for K6c's merge** (the corrected E_max and the post-KF3 W1-T4).
