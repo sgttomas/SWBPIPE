@@ -3077,3 +3077,4 @@ RV26 (`REVIEW/RECORDS_PR1063_REVIEW.md`, sha256 `60813369…`; records `REVIEW/_
   - **D1** is fixed in the notes: from K5 on, DEC-025 ran on each exact final head. On 2026-09-28, M03's and K3's sweeps were carried to a tests-and-records-only head, as their merge records disclose.
   - D2 to D4 are also fixed, in the notes and in the handoff's inventory line, which is new in this PR. The notes gain the next free numbers and a reviewer-prompt shape, since no reviewer prompt has been committed since RV13.
   - Then RV26's short confirmation, and the merge.
+- **RV26's confirmation at `2a6f87562`: PASS,** with two optional NOTEs, C1 and C2. Both are fixed in the notes: C1 cites the M03 and K3 merge records' own justification of their sweep carry-over, and C2 corrects "RV19" to "RV14". RV26 confirms the fix, then the merge.

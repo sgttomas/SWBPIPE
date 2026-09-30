@@ -2,7 +2,7 @@
 
 > **Practice notes, not rulings.** Where these touch a ruling, `ROOT_RULINGS_V1.md` governs.
 >
-> This succeeds `OPERATING_NOTES_FOR_LOCAL_ROOT.md` (2026-09-28), which stays valid except where the handoff's §7 or this file differs (RV26-N7). There is no separate T3 manager now: ROOT did that work. And from K5 (2026-09-29) on, DEC-025 ran on each slice's exact final head. On 2026-09-28, M03's and K3's sweeps were carried to a later head that changed only tests and records, as their merge records disclose (RV26 delta D1). Carrying a sweep over is allowed under the 2026-09-28 notes' rule, but running it on the exact head is simpler to audit. It complements `HANDOFF_2026-09-30_AUDIT_PAUSE.md`. The handoff gives the **state** and the **mechanics** (commands, paths, gates). This file gives the **practice**: how the work was actually run day to day, the judgment calls, what went wrong and why, and what a successor would otherwise have to re-learn.
+> This succeeds `OPERATING_NOTES_FOR_LOCAL_ROOT.md` (2026-09-28), which stays valid except where the handoff's §7 or this file differs (RV26-N7). There is no separate T3 manager now: ROOT did that work. And from K5 (2026-09-29) on, DEC-025 ran on each slice's exact final head. On 2026-09-28, M03's and K3's sweeps were carried to a later head that changed only tests and records, as their merge records disclose (RV26 delta D1). Their merge records justify each carry-over: M03's later head changed only records, and K3's changed FK tests and records, with FK's suite re-run at the head (RV26 C1). The 2026-09-28 notes' carry-over rule covers only a main merge that touches no piping product path. Running the sweep on the exact head is simpler to audit. It complements `HANDOFF_2026-09-30_AUDIT_PAUSE.md`. The handoff gives the **state** and the **mechanics** (commands, paths, gates). This file gives the **practice**: how the work was actually run day to day, the judgment calls, what went wrong and why, and what a successor would otherwise have to re-learn.
 >
 > **Sources.** Most statements here cite committed records. Some rest on ROOT's session experience only. Examples: the resent grant, token usage, the number of concurrent subagents, the owner's words in §9, and parts of §4's timings and §8's quirks. They are not contradicted by the records, but they cannot be checked there (RV26-N5, N6).
 >
@@ -119,7 +119,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
   - append-only against main (in-place brackets are listed and checked);
   - every SHA256SUMS;
   - merge records against GitHub, and a sample of ROOT's figures against their sources. **This is where ROOT's own errors were caught.**
-- **The reviewer prompts for RV19 to RV26 were given inline, and not committed** (RV26-N8). Their shape, to reuse:
+- **The reviewer prompts for RV14 to RV26 were given inline, and not committed** (RV26-N8, C2). `TASK_BRIEFS/` holds reviewer briefs only up to RV13. Their shape, to reuse:
   1. Role and independence: "You did not write the code; don't rely on the implementer's tests as oracles."
   2. The candidate: PR, exact head SHA, base, implementer.
   3. Absolute paths: `<wt>`, T3/, `<VENV>`.

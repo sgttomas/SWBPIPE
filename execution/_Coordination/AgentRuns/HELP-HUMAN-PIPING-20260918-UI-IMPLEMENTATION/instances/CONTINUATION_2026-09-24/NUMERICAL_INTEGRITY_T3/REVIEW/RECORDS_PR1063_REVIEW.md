@@ -310,3 +310,53 @@ D1 is my own error carried forward. My N7 said DEC-025 on the exact head "is wha
 - **Not re-checked:** the first review's checks outside the delta. The merge records, the durations and the named findings are unchanged by `95bb2e700`.
 - **Runs:** GEN-8 twice at the head; read-only `git`, `gh`, `shasum` and `sysctl`.
 - **Writes:** this appended section and `delta_95bb2e700/` (7 files). SHA256SUMS is extended by appending their entries; its 11 existing lines are unchanged. All are uncommitted.
+
+## Confirmation at 2a6f87562
+
+**Verdict: PASS.** D1 is fixed and now agrees with the M03 and K3 merge records. D2–D4 are as ROOT stated. There is no new BLOCKING or SHOULD-FIX finding, and there are two optional NOTEs (C1, C2). The review's verdict stands: PASS.
+
+- **The head:** `2a6f87562b5b48976b72c94eb8d67ed5b80a1922`, PR #1063's `headRefOid`. It has one parent, `95bb2e700`, and `origin/main` is still `490b75bd9`.
+- **The commit changes 12 paths, all under `_Coordination/`:**
+  - 7 added: my `delta_95bb2e700/` files;
+  - 5 modified: the notes, the handoff, `V1`, my review and my SHA256SUMS.
+- **My files are byte-identical to what I returned:** the review is `11f5b8c7…` and SHA256SUMS is `4bac004e…`. All 19 files in my folder are at mode 100644.
+- **Records:** `_run_records/records_pr1063_review/delta_2a6f87562/`. That covers `conf_checks.sh.txt` and its output, RV25's three scripts re-run, and `gen8_conf.out.txt`.
+
+| Item | Status | Evidence (`conf_checks.out.txt`) |
+|---|---|---|
+| D1 | **resolved** | ON:5 reads "from K5 (2026-09-29) on, DEC-025 ran on each slice's exact final head. On 2026-09-28, M03's and K3's sweeps were carried to a later head that changed only tests and records, as their merge records disclose".<br>• **M03:** swept on `1d105d633`; `5dd6dfdd8` changes 4 `_Coordination/` paths, and nothing else (record :40).<br>• **K3:** swept on `b7e93650e`; `2511f5a3c` adds 6 FK test paths (`frame_kernel/tests/`) and 25 `_Coordination/` paths (record :45).<br>• Every other record from K1 to KF2 swept its exact final head, as the delta check found. See C1 for the added clause about the rule. |
+| D2 | resolved | ON:155: "Earlier in the same week, RV11, …". |
+| D3 | resolved | ON:84: "about 1 GiB of dynamic swap allocated, about 0.2 GiB in use", matching `vm.swapusage` (1024 M total, 228.75 M used). |
+| D4 | resolved | • ON:7: "Some rest on ROOT's session experience only. Examples: …, and parts of §4's timings and §8's quirks".<br>• ON:16: "The next free numbers are I22 and RV27".<br>• ON:116: "From RV23 on they did; some earlier reviewers' folders remain (handoff §9)". On disk, no folder remains for RV18 or RV20–RV25, so this is conservative, not wrong.<br>• ON:122-132: a reviewer-prompt shape in eight steps, plus confirmations by `SendMessage`.<br>• Handoff :236 now adds `k2b-target` and `scratch/rv7`, `rv9`, `rv10`, `rv12`, `rv14` and `rv17`. |
+| Rulings | as stated | `V1:3076-3079` appends four lines recording the delta check and D1–D4. |
+
+- **Append-only:**
+  - Against `95bb2e700` (`append_only_delta.out.txt`):
+    - `V1` appends 4 lines;
+    - my review appends 70, and my SHA256SUMS 7, with no line changed;
+    - handoff :236 is insert-only, and it is this PR's own line;
+    - the notes' rewordings are this PR's own text.
+  - Against main `490b75bd9` (`append_only_vs_main.out.txt`), nothing changes from `95bb2e700`:
+    - `V1` keeps main's 3,035 lines and appends 44;
+    - the handoff's three changes are insert-only;
+    - I21 has one inserted line;
+    - `WG:62` is insert-only;
+    - RV25's review and SHA256SUMS only append.
+- **SHA256SUMS:**
+  - mine, 18/18, run from the folder;
+  - RV25's, 34/34;
+  - main's `REVIEW/_run_records/`, 76/76 from `REVIEW/`.
+
+  `sums_coverage_2a6f87562.out.txt` finds both review folders complete.
+- **Leak scan over the 12 changed paths:** 0 hits in every class.
+- **GEN-8 passes at `2a6f87562`** (`gen8_conf.out.txt`): 1 passed and 10 deselected. It was run twice:
+  - on a clean tree;
+  - with this section and `delta_2a6f87562/` present.
+- **Hosted CI on `2a6f87562`:** the four `pull_request` runs succeeded: 36716356462, 36716356429, 36716356360 and 36716356565.
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| C1 | NOTE | `ON:5` ("Carrying a sweep over is allowed under the 2026-09-28 notes' rule") | **The 2026-09-28 rule** (`OPERATING_NOTES_FOR_LOCAL_ROOT.md:21`) covers a *main merge* that touches no piping product, `tools/` or `.github/` path.<br>**M03's and K3's carry-overs** were for the slices' own later commits. K3's added FK test files, and its record justifies the carry-over by re-running FK's suite at the head (229 passed; `K3_MERGE/RECORD.md:45`). | Optional: "…as their merge records justify it (records only; FK tests and records, with FK's suite re-run at the head)". |
+| C2 | NOTE | `ON:122` ("The reviewer prompts for RV19 to RV26 were given inline, and not committed") | RV14 to RV18's prompts are not committed either. `TASK_BRIEFS/` holds RV briefs only up to RV13. | Optional: "RV14 to RV26". |
+
+- **Writes:** this appended section and `delta_2a6f87562/` (7 files). SHA256SUMS is extended by appending their entries; its 18 existing lines are unchanged. All are uncommitted. No Git writes.

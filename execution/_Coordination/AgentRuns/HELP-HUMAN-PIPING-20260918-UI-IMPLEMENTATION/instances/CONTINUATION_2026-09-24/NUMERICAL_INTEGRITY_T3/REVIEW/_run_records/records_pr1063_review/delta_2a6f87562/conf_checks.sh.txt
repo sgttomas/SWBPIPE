@@ -1,0 +1,47 @@
+#!/bin/bash
+# RV26: confirmation of records PR #1063 at 2a6f87562 (one commit on 95bb2e700).
+# Usage, from the repository root of the numerics working tree at 2a6f87562:
+#   bash conf_checks.sh.txt
+# Read-only: git show/diff/rev-list/ls-tree, gh pr/run view, shasum. No writes.
+# Other outputs in this folder come from RV25's committed scripts (unchanged):
+#   append_only_delta.out.txt        append_only.py.txt 95bb2e700 2a6f87562
+#   append_only_vs_main.out.txt      append_only.py.txt 490b75bd9 2a6f87562
+#   sums_coverage_2a6f87562.out.txt  sums_coverage.py.txt 490b75bd9 2a6f87562 <_Coordination>
+#   leak_scan_delta.out.txt          leak_scan.py.txt 95bb2e700 2a6f87562 (host patterns at run time)
+set -u
+OLD=95bb2e7002a6a519199172615c1e0a00821a3287; NEW=2a6f87562b5b48976b72c94eb8d67ed5b80a1922
+T3=projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3
+O=$T3/REVIEW/_run_records/records_pr1063_review
+ON=$T3/OPERATING_NOTES_2026-09-30.md
+REPO=sgttomas/chirality
+echo "== 1. The commit"
+gh pr view 1063 --repo $REPO --json headRefOid --jq '"   PR head \(.headRefOid[0:10])"'
+echo "   parents of NEW: $(git rev-list --parents -n1 $NEW | cut -d' ' -f2- | cut -c1-10); origin/main $(git rev-parse --short=10 origin/main)"
+git diff --name-status $OLD $NEW | awk '{print $1}' | sort | uniq -c | sed 's/^/   /'
+echo "   paths outside _Coordination: $(git diff --name-only $OLD $NEW | grep -vc '^projects/chirality-piping/execution/_Coordination/')"
+echo "   RV26's review as committed: $(git show $NEW:$T3/REVIEW/RECORDS_PR1063_REVIEW.md | shasum -a 256 | cut -c1-16) (returned 11f5b8c7aef9cf12)"
+echo "   RV26's SHA256SUMS as committed: $(git show $NEW:$O/SHA256SUMS | shasum -a 256 | cut -c1-16) (returned 4bac004e8ba28c13)"
+echo "   modes of RV26's folder: $(git ls-tree -r $NEW $O/ | awk '{print $1}' | sort | uniq -c | tr -s ' ')"
+echo "== 2. shasum -c from each folder (working tree)"
+( cd $O && shasum -a 256 -c SHA256SUMS 2>&1 | awk '{print $NF}' | sort | uniq -c | sed 's/^/   records_pr1063_review: /' )
+( cd $T3/REVIEW/_run_records/records_pr1062_review && shasum -a 256 -c SHA256SUMS 2>&1 | awk '{print $NF}' | sort | uniq -c | sed 's/^/   records_pr1062_review: /' )
+( cd $T3/REVIEW && shasum -a 256 -c _run_records/SHA256SUMS 2>&1 | awk '{print $NF}' | sort | uniq -c | sed 's/^/   REVIEW\/_run_records (from REVIEW\/): /' )
+echo "== 3. D1 against the M03 and K3 merge records"
+echo "   ON:5 at NEW: $(git show $NEW:$ON | sed -n 5p | grep -oE 'from K5 .*simpler to audit\.')"
+echo "   M03: sweep head $(grep -oE 'head [0-9a-f]{10}' $T3/IMPLEMENTATION/M03_SKEW_PIN_MERGE/dec025/meta.txt | head -1 | cut -c6-); final $(gh pr view 1038 --repo $REPO --json headRefOid --jq '.headRefOid[0:10]')"
+git diff --name-only 1d105d633 5dd6dfdd8 | sed -E 's#^(projects/chirality-piping/execution/_Coordination)/.*#\1/...#; s#^(projects/chirality-piping/core/solver/[a-z_]+)/(tests)/.*#\1/\2/...#' | sort | uniq -c | sed 's/^/      /'
+echo "   K3: sweep head $(grep -oE 'head [0-9a-f]{10}' $T3/IMPLEMENTATION/K3_MERGE/dec025/meta.txt | head -1 | cut -c6-); final $(gh pr view 1041 --repo $REPO --json headRefOid --jq '.headRefOid[0:10]')"
+git diff --name-only b7e93650e 2511f5a3c | sed -E 's#^(projects/chirality-piping/execution/_Coordination)/.*#\1/...#; s#^(projects/chirality-piping/core/solver/[a-z_]+)/(tests)/.*#\1/\2/...#' | sort | uniq -c | sed 's/^/      /'
+echo "   M03 record :40: $(sed -n 40p $T3/IMPLEMENTATION/M03_SKEW_PIN_MERGE/RECORD.md | cut -c1-140)"
+echo "   K3 record: $(grep -nF 'The evidence at `b7e93650e` stands for' $T3/IMPLEMENTATION/K3_MERGE/RECORD.md | cut -c1-140)"
+echo "   2026-09-28 notes :21: $(sed -n 21p $T3/OPERATING_NOTES_FOR_LOCAL_ROOT.md | cut -c1-200)"
+echo "== 4. D2-D4 sites at NEW"
+for p in 'Earlier in the same week' 'allocated, about 0.2 GiB in use' 'Some rest on' 'Examples:' 'I22 and RV27' 'From RV23 on they did' 'reviewer prompts for RV19 to RV26' 'Confirmations and delta checks reuse'; do
+  echo "   ON:$(git show $NEW:$ON | grep -nF -- "$p" | cut -d: -f1 | tr '\n' ',' | sed 's/,$//')  \"$p\""
+done
+echo "   handoff :236 names k2b-target: $(git show $NEW:$T3/HANDOFF_2026-09-30_AUDIT_PAUSE.md | sed -n 236p | grep -c 'k2b-target'); scratch rv folders: $(git show $NEW:$T3/HANDOFF_2026-09-30_AUDIT_PAUSE.md | sed -n 236p | grep -oE '`(scratch/)?rv[0-9]+`' | tr '\n' ' ')"
+echo "   RV briefs committed in TASK_BRIEFS/: $(git ls-tree --name-only $NEW $T3/TASK_BRIEFS/ | grep -oE 'RV[0-9]+' | sort -uV | tr '\n' ' ')"
+echo "== 5. Hosted CI on NEW"
+for r in $(gh run list --repo $REPO --commit $NEW --json databaseId --jq '.[].databaseId'); do
+  gh run view $r --repo $REPO --json workflowName,event,headSha,status,conclusion --jq "\"   $r \(.workflowName) | \(.event) | \(.headSha[0:10]) | \(.status)/\(.conclusion)\""
+done
