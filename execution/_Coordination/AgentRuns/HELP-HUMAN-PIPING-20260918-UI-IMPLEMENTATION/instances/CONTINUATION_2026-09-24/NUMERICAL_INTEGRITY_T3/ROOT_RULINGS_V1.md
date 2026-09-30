@@ -3078,3 +3078,14 @@ RV26 (`REVIEW/RECORDS_PR1063_REVIEW.md`, sha256 `60813369…`; records `REVIEW/_
   - D2 to D4 are also fixed, in the notes and in the handoff's inventory line, which is new in this PR. The notes gain the next free numbers and a reviewer-prompt shape, since no reviewer prompt has been committed since RV13.
   - Then RV26's short confirmation, and the merge.
 - **RV26's confirmation at `2a6f87562`: PASS,** with two optional NOTEs, C1 and C2. Both are fixed in the notes: C1 cites the M03 and K3 merge records' own justification of their sweep carry-over, and C2 corrects "RV19" to "RV14". RV26 confirms the fix, then the merge.
+
+## Records PR #1063 merged (ROOT, 2026-09-30)
+
+- **Merged:** [PR1063](https://github.com/sgttomas/chirality/pull/1063) at head `a2768ce49`, merge `74b3c7313`, 2026-09-30 12:48:09Z, with `--match-head-commit`. ROOT checked immediately before the merge that main had not moved from `490b75bd9`.
+- **Review:**
+  - RV26's review at `21e2285e3`: PASS, with 2 SHOULD-FIX (fixed) and 10 NOTEs;
+  - its delta check at `95bb2e700`: PASS, with D1 fixed and D2–D4;
+  - its confirmations at `2a6f87562` and `a2768ce49`: PASS, with C1 and C2 fixed.
+  - RV26's last confirmation section is committed here, after the merge.
+- **Hosted CI:** 7 passed and 6 were skipped, as selected for a records-only change. GEN-8 passed at each head.
+- **Main now carries `OPERATING_NOTES_2026-09-30.md`** beside the handoff. T3 stays paused for the owner's audit.
