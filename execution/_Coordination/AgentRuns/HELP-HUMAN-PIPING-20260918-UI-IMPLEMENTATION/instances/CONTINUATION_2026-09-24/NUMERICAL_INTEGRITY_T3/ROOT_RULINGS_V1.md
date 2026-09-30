@@ -2737,3 +2737,29 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
 - **Product-reaching gates:** review, T9 (112 of 112), the both-entry gate (part 1 byte-identical; part 2's four dense N10 runs must end within 1,800 s), CI with the dispatch, DEC-025, GEN-8 and the src-tauri suite.
 - **Host:** KF3's slot B is running, so checkpoint 0 is reading only. I20's first build waits for ROOT's word.
 - **KF2 does not block W1's limits or F2a.** It is on the T3-close list.
+
+## KF3: checkpoint B accepted; two findings for D (ROOT, 2026-09-30)
+
+- **Accepted and committed on the KF3 branch as `ae831ca51`:** H's parity update and B's records.
+  - **H:** `stages_equal_totals` holds every attempt to equality. The budget-stopped build carries its partial `uc` work, the one-short-side probes expect `false` (RV22's C-N2 closed), and a new test finds nothing unstaged at every segment end and midpoint of CHAIN-n00010-AX. H's suite and the runner's 47 pass. The runner needed no change.
+  - **B:** `vk_scale` in release, from a `git archive` of `e114b23c1`, with V-K's runner unedited.
+    - V1 and V2 (12 models) are byte-identical to V-K's B, charged work included.
+    - **At 10,000 members:**
+      - CHAIN-AX, CHAIN-ROT and CONT-ROT move from `Unresolved(ExactSumSpan)` to **selected at 128**, and pass R1 on every row (103, 103, and 214 plus 1 absolute-range of 215). Uc is refused in the forward pass, so B = S_c, with one shifted factorization each. Charged work is 10.1, 12.1 and 10.4 G LME, against 6.7, 8.3 and 6.8 before KF3.
+      - CONT-AX is unchanged.
+      - **TREE-AX and TREE-ROT** move from `Unresolved(ExactSumSpan)` to `Unresolved(Ceiling)`. R7's verification estimate (b) rejects them at 128, 256 and 512, on member 1's end force at the root, and the ceiling is reached after the 1024 verification. They publish nothing, before and after, and charge 65.3 and 74.2 G LME (6.6 and 8.1 before).
+    - Every published row passes R1, and every C9 S_full set is empty.
+    - The refusals' rows match the plan's forward-pass prediction on all five frames.
+- **Finding KF3-B1: the TREE frames at 10,000 members are an availability loss of estimate (b), not of KF3.** They are honest: nothing is published.
+  - **For D:** from the existing records only, with no new heavy run, give (b)'s estimate against its threshold at the rejecting row for each precision. Classify the loss as a design limit (like THIN) or slack in (b). ROOT rules from that.
+  - **For W1's limits:** a case budget ends these cases earlier. Their charged work before `Ceiling` (65–74 G LME) is recorded.
+  - **RETURN must say plainly** that the runner summary's `fail` column for these two frames counts unpublished rows, and that no wrong value was published.
+- **Finding KF3-B2: the measured heap exceeds E_max.** TREE-AX peaks at 2,889.9 MiB against E_max 2,750 (ρ ≈ 1.05), and TREE-ROT at 2,891.5 against 2,752. The ruling on RV22-2 requires E_max to be an upper bound on every phase.
+  - **For D:** derive, with file:line, which allocations are alive at the peak, and whether pre-KF3 code on the same path holds them. There are two possibilities:
+    - a K6b omission that no earlier run reached (I19's reading: the shifted factorization's two profile copies at 1024 bits);
+    - a KF3 change in what is alive.
+  - **Routing, once derived:**
+    - a K6b omission goes to K6b's post-KF3 follow-up, which becomes a small H PR with its own review: the E_max term, `counts.jsonl` regenerated, and W1-T4 re-run;
+    - a KF3-induced term is fixed in KF3 before its PR.
+  - **Either way, ROOT's W1 limits wait for E_max to bound every phase at 10,000 members.**
+- **Next:** checkpoint D, with KF3-B1 and KF3-B2 derived.
