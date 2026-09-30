@@ -3,6 +3,38 @@
 pub mod exact_boundary;
 mod formation_check;
 mod retained;
+/// W1a's public surface: T3 K4 `RETURN.md` §16's export list, with ROOT's
+/// rulings on K6b's A0 and V-K's Q8. `retained` stays private; no product
+/// crate names this module. `PrecisionState` and `RetainedSolve::state` stay
+/// crate-private (ROOT's ruling C-2).
+pub mod retained_api {
+    pub use super::retained::adaptive::{
+        absolute_bound, body_extent, classify, classify_rows, classify_rows_floored,
+        coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,
+        AttemptOutcome, AttemptReason, AttemptRecord, AttemptRole, AttemptStop, BudgetScope,
+        CaseLimit, CaseOutcome, GateTest, InvocationMeter, Publication, PublishedRow, Refusal,
+        RetainedEvidence, RetainedSolve, RowClass, StageWork, StorageCounts, UnresolvedReason,
+        VerificationSummary, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN,
+        POLICY, PRECISIONS, RCOND_LABEL,
+    };
+    pub use super::retained::bound::{
+        BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,
+    };
+    pub use super::retained::combine::{
+        CombinationOutcome, CombinationReason, RetainedCombination,
+    };
+    pub use super::retained::factor::{reverse_cuthill_mckee, BodyGeometry};
+    pub use super::retained::ledger::LedgerRefusal;
+    pub use super::retained::recover::{layout, End, Kind, QuantityId, QuantityMeta};
+    pub use super::retained::source::{
+        Component, Constraint, DirectionalSpring, Dof, MemberProperty, NodalLoad, PrimitiveSource,
+        SourceError, SourceParts, Spring, SpringKind, Station, StraightMember, SupportGroup,
+    };
+    pub use super::retained::verify::{e_hat, phi_512, resolution_hats, PHI_SCALE_BITS};
+    pub use super::retained::wide::multi::{AttemptWork, Binary64Outcome, WidthWork};
+    pub use super::retained::wide::WideError;
+    pub use super::retained::wide_sum::SumWork;
+}
 mod sparse;
 
 pub use formation_check::{

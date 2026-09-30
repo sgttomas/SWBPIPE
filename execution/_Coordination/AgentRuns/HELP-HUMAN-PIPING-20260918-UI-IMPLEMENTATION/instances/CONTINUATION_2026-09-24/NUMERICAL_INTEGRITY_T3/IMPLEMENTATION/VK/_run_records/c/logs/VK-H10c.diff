@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+@@ -482,7 +482,7 @@
+                 node_i: m.node_i,
+                 node_j: m.node_j,
+                 elastic_modulus: m.elastic_modulus,
+-                shear_modulus: m.shear_modulus,
++                shear_modulus: m.elastic_modulus,
+                 area: m.area,
+                 second_moment_y: m.second_moment_y,
+                 second_moment_z: m.second_moment_z,

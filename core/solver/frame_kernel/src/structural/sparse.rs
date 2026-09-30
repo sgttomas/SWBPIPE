@@ -651,6 +651,22 @@ pub fn assemble_sparse_stiffness(
     for (a, b, matrix) in &formed {
         scatter_block(&pattern, &mut values, *a, *b, matrix);
     }
+    // V-K seeded fault VK-F08 (§7.3-8): member 1's i–j coupling block left
+    // out, in sparse mode only (the dense assembly keeps it).
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::retained::seeded::active(super::retained::seeded::Fault::F08) {
+        if let Some(&(a, b, _)) = formed.first() {
+            let map = element_dof_map(a, b);
+            for r in 0..6 {
+                for c in 6..ELEMENT_DOF {
+                    for (row, col) in [(map[r], map[c]), (map[c], map[r])] {
+                        let index = pattern.find(row, col).expect("element block in pattern");
+                        values[index] = 0.0;
+                    }
+                }
+            }
+        }
+    }
     for row in 0..dimension {
         for index in pattern.row_range(row) {
             let value = values[index];

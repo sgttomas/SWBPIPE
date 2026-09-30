@@ -74,7 +74,7 @@ impl From<WideError> for SumRefusal {
 
 /// Deterministic work of an accumulator (limb-multiply equivalents).
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub(crate) struct SumWork {
+pub struct SumWork {
     /// Limbs of the added terms, of their scaling multiplications and of the
     /// carries they propagated.
     pub(crate) term_limbs: u64,
@@ -89,7 +89,7 @@ pub(crate) struct SumWork {
 }
 
 impl SumWork {
-    pub(crate) fn limb_multiply_equivalents(&self) -> u64 {
+    pub fn limb_multiply_equivalents(&self) -> u64 {
         self.term_limbs
             .saturating_add(self.shift_limbs)
             .saturating_add(self.net_limbs)

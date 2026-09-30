@@ -1,0 +1,119 @@
+## NONE: cargo test --test engine (fresh target)
+   Compiling zmij v1.0.23
+   Compiling serde_core v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk-mut/c/NONE/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk-mut/c/NONE/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk-mut/c/NONE/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.67s
+     Running tests/engine.rs (<wt>/vk-mut/c/NONE/target-proposed/debug/deps/engine-d6d3d339b060062e)
+
+running 3 tests
+test a_discriminating_control_that_passes_is_listed_never_dropped ... ok
+test the_comparison_scale_is_exps_magnitude_never_obss ... ok
+test r1s_five_absolute_range_rows_are_counted_apart_from_the_passes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+## VK-H6: cargo test --test engine (fresh target)
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk-mut/c/VK-H6/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk-mut/c/VK-H6/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk-mut/c/VK-H6/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.86s
+     Running tests/engine.rs (<wt>/vk-mut/c/VK-H6/target-proposed/debug/deps/engine-55f9c10df97929ba)
+
+running 3 tests
+test a_discriminating_control_that_passes_is_listed_never_dropped ... ok
+test the_comparison_scale_is_exps_magnitude_never_obss ... FAILED
+test r1s_five_absolute_range_rows_are_counted_apart_from_the_passes ... ok
+
+failures:
+
+---- the_comparison_scale_is_exps_magnitude_never_obss stdout ----
+
+thread 'the_comparison_scale_is_exps_magnitude_never_obss' (14466009) panicked at tests/engine.rs:25:5:
+assertion failed: !exact::predicate(&Exact::from_f64(1.0), &exp, &zero)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    the_comparison_scale_is_exps_magnitude_never_obss
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test engine`
+## VK-H9: cargo test --test engine (fresh target)
+   Compiling zmij v1.0.23
+   Compiling serde_core v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk-mut/c/VK-H9/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk-mut/c/VK-H9/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk-mut/c/VK-H9/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.30s
+     Running tests/engine.rs (<wt>/vk-mut/c/VK-H9/target-proposed/debug/deps/engine-444329b0fb1a7b16)
+
+running 3 tests
+test a_discriminating_control_that_passes_is_listed_never_dropped ... ok
+test the_comparison_scale_is_exps_magnitude_never_obss ... ok
+test r1s_five_absolute_range_rows_are_counted_apart_from_the_passes ... FAILED
+
+failures:
+
+---- r1s_five_absolute_range_rows_are_counted_apart_from_the_passes stdout ----
+
+thread 'r1s_five_absolute_range_rows_are_counted_apart_from_the_passes' (14466630) panicked at tests/engine.rs:52:9:
+assertion `left == right` failed: {"case":"RF-LARGE-CONT-n10000-AX","class":"translation","expected":"6.397676447394991570905655725327672279949e-1435","key":"u.C2500.UZ","scale":"1.509260420023993036919271e-4"}
+  left: Pass
+ right: PassAbsoluteRange
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    r1s_five_absolute_range_rows_are_counted_apart_from_the_passes
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test engine`
+## VK-H11: cargo test --test engine (fresh target)
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk-mut/c/VK-H11/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk-mut/c/VK-H11/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk-mut/c/VK-H11/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.79s
+     Running tests/engine.rs (<wt>/vk-mut/c/VK-H11/target-proposed/debug/deps/engine-865565a87de658b6)
+
+running 3 tests
+test a_discriminating_control_that_passes_is_listed_never_dropped ... FAILED
+test the_comparison_scale_is_exps_magnitude_never_obss ... ok
+test r1s_five_absolute_range_rows_are_counted_apart_from_the_passes ... ok
+
+failures:
+
+---- a_discriminating_control_that_passes_is_listed_never_dropped stdout ----
+
+thread 'a_discriminating_control_that_passes_is_listed_never_dropped' (14467104) panicked at tests/engine.rs:75:5:
+assertion `left == right` failed
+  left: []
+ right: ["RF-TEST-CONTROLS:NC-PASSES"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    a_discriminating_control_that_passes_is_listed_never_dropped
+
+test result: FAILED. 2 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test engine`

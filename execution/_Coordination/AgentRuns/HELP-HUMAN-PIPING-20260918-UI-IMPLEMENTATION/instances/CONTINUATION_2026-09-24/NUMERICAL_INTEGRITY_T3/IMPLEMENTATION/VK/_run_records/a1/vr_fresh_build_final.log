@@ -1,0 +1,21 @@
+12:26  up 1 day, 17:13, 1 user, load averages: 4.81 4.51 4.67
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling serde_json v1.0.151
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling piping_numerical_robustness v0.1.0 (<wt>/vk/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.77s
+  Executable unittests src/lib.rs (<wt>/vk-target/fresh/debug/deps/piping_numerical_robustness-77b06bd647e8a416)
+  Executable tests/adapter.rs (<wt>/vk-target/fresh/debug/deps/adapter-e98120173884227c)
+  Executable tests/feature_guard.rs (<wt>/vk-target/fresh/debug/deps/feature_guard-6e796d03db7ae898)
+  Executable tests/files.rs (<wt>/vk-target/fresh/debug/deps/files-bb3e6180ea6a77c5)
+  Executable tests/invariance.rs (<wt>/vk-target/fresh/debug/deps/invariance-43669344ff5a4905)
+  Executable tests/lane.rs (<wt>/vk-target/fresh/debug/deps/lane-edefd552b20e8cff)
+  Executable tests/parity.rs (<wt>/vk-target/fresh/debug/deps/parity-860bf507401259db)
+  Executable tests/rcm.rs (<wt>/vk-target/fresh/debug/deps/rcm-7487d42bc222302c)
+real 3.79
+user 10.41
+sys 1.20

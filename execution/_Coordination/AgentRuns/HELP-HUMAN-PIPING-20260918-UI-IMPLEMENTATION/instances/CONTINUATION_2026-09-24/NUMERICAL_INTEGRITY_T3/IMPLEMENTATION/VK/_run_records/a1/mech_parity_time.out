@@ -1,0 +1,13 @@
+    Finished `release` profile [optimized] target(s) in 1.69s
+     Running `<wt>/vk-target/release/mech_parity_time`
+RF-MECH-LINE122-TORQUE members 10: sparse-only 0.00s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra 0.01s (Some("NumericallyUnresolved(nonpositive or cancellation-unresolved stru
+RF-MECH-LINE122-PERP members 10: sparse-only 0.00s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra 0.01s (Some("NumericallyUnresolved(nonpositive or cancellation-unresolved struct
+RF-MECH-LINE122-UNLOADED members 10: sparse-only 0.00s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra 0.01s (Some("NumericallyUnresolved(nonpositive or cancellation-unresolved st
+RF-MECH-LINE345-RZ members 10: sparse-only 0.00s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra 0.00s (Some("NumericallyUnresolved(nonpositive or cancellation-unresolved structur
+RF-MECH-K0 members 10: sparse-only 0.00s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra 0.03s (Some("NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot
+RF-MECH-DISC-CHAIN100 members 103: sparse-only 0.01s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra 312.40s (Some("NumericallyUnresolved(nonpositive or cancellation-unresolved st
+RF-MECH-DISC-CHAIN100-SPRING members 103: sparse-only 0.01s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra 294.87s (Some("NumericallyUnresolved(nonpositive or cancellation-unreso
+RF-MECH-LINE-IN-CHAIN1000 members 1005: sparse-only 0.07s (NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)), with dense extra NaNs (None)
+RF-MECH-LINE345-RX-COMPANION members 1: sparse-only 0.00s (Passed), with dense extra 0.00s (Some("Passed"))
+
+[exited with code 0]

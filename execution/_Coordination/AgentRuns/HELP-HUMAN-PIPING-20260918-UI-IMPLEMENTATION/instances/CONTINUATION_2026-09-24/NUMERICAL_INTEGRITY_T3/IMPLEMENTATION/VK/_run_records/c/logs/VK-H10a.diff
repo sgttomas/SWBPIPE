@@ -1,0 +1,13 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+@@ -479,8 +479,8 @@
+         for m in &self.members {
+             parts.members.push(StraightMember {
+                 id: m.id,
+-                node_i: m.node_i,
+-                node_j: m.node_j,
++                node_i: m.node_j,
++                node_j: m.node_i,
+                 elastic_modulus: m.elastic_modulus,
+                 shear_modulus: m.shear_modulus,
+                 area: m.area,

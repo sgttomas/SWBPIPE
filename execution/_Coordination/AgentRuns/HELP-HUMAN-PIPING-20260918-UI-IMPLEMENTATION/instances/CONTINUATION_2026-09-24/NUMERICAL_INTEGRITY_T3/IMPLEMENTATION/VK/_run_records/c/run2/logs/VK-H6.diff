@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs
+@@ -469,7 +469,7 @@
+ 
+ /// The unchanged predicate `|obs − exp| ≤ 1e-9·max(|exp|, scale)`, exactly.
+ pub fn predicate(obs: &Exact, exp: &Exact, scale: &Exact) -> bool {
+-    obs.sub(exp).abs().cmp(&tolerance(exp, scale)) != Ordering::Greater
++    obs.sub(exp).abs().cmp(&tolerance(obs, scale)) != Ordering::Greater
+ }
+ 
+ /// The predicate on a magnitude `√(my² + mz²)`, exactly, without forming the

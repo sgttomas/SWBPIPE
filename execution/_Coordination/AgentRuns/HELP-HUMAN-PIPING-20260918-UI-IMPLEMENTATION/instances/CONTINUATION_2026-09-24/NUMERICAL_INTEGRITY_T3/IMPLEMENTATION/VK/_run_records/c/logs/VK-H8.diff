@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py
+@@ -376,7 +376,7 @@
+ # ----------------------------------------------------------------------------- cases
+ 
+ def case_rows(case):
+-    rows_src = case.get('expected_represented') if case.get('basis') == 'represented' else case.get('expected', [])
++    rows_src = case.get('expected', [])
+     rows = []
+     for r in rows_src or []:
+         if case['family'] == 'RF-CANCEL':

@@ -48,7 +48,7 @@ use crate::DOF_PER_NODE;
 use std::cmp::Ordering as CmpOrdering;
 
 /// The bits of 2^-438 (item 6a).
-pub(crate) const PHI_SCALE_BITS: u64 = 0x2490_0000_0000_0000;
+pub const PHI_SCALE_BITS: u64 = 0x2490_0000_0000_0000;
 
 /// How each stage of `formation_scale` is rounded.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -318,7 +318,12 @@ where
 
 /// Item 6a's coupling in binary64: ê_fo = max(E_fo, fl(E_mo/L_b)),
 /// ê_mo = max(E_mo, fl(L_b·E_fo)); a single-node body (L_b = 0) keeps E.
-pub(crate) fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
+pub fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
+    // V-K seeded fault VK-R02 (R7-M2): ê uncoupled.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::R02) {
+        return e;
+    }
     if extent == 0.0 {
         return e;
     }
@@ -332,7 +337,7 @@ pub(crate) fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
 /// threshold and the charge's allowance would be infinite, and no precision
 /// can pass, so the verification stops with `ResolutionScale` (F2a:
 /// `receipt_encoding`).
-pub(crate) fn resolution_hats(
+pub fn resolution_hats(
     resolution: &[[f64; 2]],
     extents: &[f64],
 ) -> Result<Vec<[f64; 2]>, AttemptStop> {
@@ -357,7 +362,7 @@ pub(crate) fn resolution_hats(
 
 /// Φ = fl↑(2^-438·ê): the nearest, then the next up when it is below the exact
 /// product (decided exactly, as `absolute_bound` decides b).
-pub(crate) fn phi_512(e_hat: f64) -> f64 {
+pub fn phi_512(e_hat: f64) -> f64 {
     let scale = f64::from_bits(PHI_SCALE_BITS);
     let back = f64::from_bits(0x5B50_0000_0000_0000); // 2^438
     let nearest = e_hat * scale;

@@ -42,7 +42,7 @@ use std::sync::Arc;
 
 /// Why a combination is not selected.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum CombinationReason {
+pub enum CombinationReason {
     /// "At the ceiling … `combination_unresolved`".
     CombinationUnresolved,
     /// No operand, or a non-finite factor.
@@ -63,9 +63,8 @@ pub(crate) enum CombinationReason {
 /// A combination's outcome: a selected solve (its own `RetainedSolve`, whose
 /// evidence carries the combination's identity and combined ledger), or the
 /// reason it is withheld with its attempts.
-#[allow(dead_code)] // F2a API (F2a reads the outcome's fields)
 #[derive(Debug, Clone)]
-pub(crate) enum CombinationOutcome {
+pub enum CombinationOutcome {
     Selected(Box<RetainedSolve>),
     Unresolved {
         reason: CombinationReason,
@@ -74,12 +73,11 @@ pub(crate) enum CombinationOutcome {
 }
 
 /// Combinations Σ cᵢ·(case i) of selected cases.
-pub(crate) struct RetainedCombination;
+pub struct RetainedCombination;
 
 impl RetainedCombination {
     /// The combination's own solve (module documentation).
-    #[allow(dead_code)] // F2a API
-    pub(crate) fn solve(
+    pub fn solve(
         operands: &[(f64, &RetainedSolve)],
         case_limit: CaseLimit,
         meter: &mut InvocationMeter,

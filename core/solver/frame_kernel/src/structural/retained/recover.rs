@@ -27,7 +27,7 @@ use crate::DOF_PER_NODE;
 
 /// The kinds of D1 §4.1.6 that K4's quantities belong to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum Kind {
+pub enum Kind {
     Translation,
     Rotation,
     Force,
@@ -43,14 +43,14 @@ impl Kind {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum End {
+pub enum End {
     I,
     J,
 }
 
 /// A published quantity of a case.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum QuantityId {
+pub enum QuantityId {
     Displacement(Dof),
     DisplacementMagnitude(u32),
     EndAction {
@@ -77,12 +77,12 @@ pub(crate) enum QuantityId {
 
 /// A quantity's place in the published set.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct QuantityMeta {
-    pub(crate) id: QuantityId,
-    pub(crate) kind: Kind,
-    pub(crate) body: u32,
+pub struct QuantityMeta {
+    pub id: QuantityId,
+    pub kind: Kind,
+    pub body: u32,
     /// Rule 2a: a displacement or rotation at a restrained or prescribed DOF.
-    pub(crate) input_derived: bool,
+    pub input_derived: bool,
 }
 
 fn component_kind(component: Component, motion: bool) -> Kind {
@@ -98,7 +98,7 @@ fn component_kind(component: Component, motion: bool) -> Kind {
 /// displacement magnitudes, end actions (by member id, end, component), station
 /// actions, spring actions, directional spring actions, reactions (constrained
 /// DOFs), support magnitudes.
-pub(crate) fn layout(source: &PrimitiveSource) -> Vec<QuantityMeta> {
+pub fn layout(source: &PrimitiveSource) -> Vec<QuantityMeta> {
     let mut out = Vec::new();
     let body = |node: u32| source.body_of_node(node);
     for g in 0..source.dof_count() {
@@ -253,6 +253,20 @@ where
     Wide<L>: SupportedWidth,
 {
     let zero = Wide::<L>::ZERO;
+    // V-K seeded fault VK-F02 (§7.3-2): u rounded to binary64 before recovery.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    let seeded_u: Vec<Wide<L>>;
+    #[cfg(any(test, feature = "mutation-controls"))]
+    let u: &[Wide<L>] = if super::seeded::active(super::seeded::Fault::F02) {
+        let mut rounded = Vec::with_capacity(u.len());
+        for w in u {
+            rounded.push(lift::<L>(w.to_binary64().value().unwrap_or(0.0))?);
+        }
+        seeded_u = rounded;
+        &seeded_u
+    } else {
+        u
+    };
     let mut values: Vec<Wide<L>> = Vec::with_capacity(layout.len());
     // Displacements, then node magnitudes.
     values.extend_from_slice(u);
@@ -411,6 +425,13 @@ where
         }
         ledger.add_to(g, sum, true)?;
         let r = sum.round(ctx)?;
+        // V-K seeded fault VK-S2: the reaction with the opposite sign.
+        #[cfg(any(test, feature = "mutation-controls"))]
+        let r = if super::seeded::active(super::seeded::Fault::S2) {
+            r.neg()
+        } else {
+            r
+        };
         reaction[g] = Some(r);
         values.push(r);
     }

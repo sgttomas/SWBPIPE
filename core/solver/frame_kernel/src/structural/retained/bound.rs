@@ -219,7 +219,7 @@ where
 
 /// How a bound's formation was refused (amendment A2).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RefusalKind {
+pub enum RefusalKind {
     /// An exact sum spanned more than `SPAN_LIMIT_BITS`.
     Span,
     /// A result outside the `Wide` exponent range.
@@ -228,7 +228,7 @@ pub(crate) enum RefusalKind {
 
 /// The pass of 7b or 7c in which a block's first refusal occurred.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum BoundPass {
+pub enum BoundPass {
     /// 7b: a = M(L)⁻¹e.
     Forward,
     /// 7b: b_i = a_i/d_i.
@@ -256,10 +256,10 @@ pub(crate) enum BoundPass {
 /// A block's first refusal (amendment A2): its kind, its pass and the
 /// elimination row (`usize::MAX` for a per-block step).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct BoundRefusal {
-    pub(crate) kind: RefusalKind,
-    pub(crate) pass: BoundPass,
-    pub(crate) row: usize,
+pub struct BoundRefusal {
+    pub kind: RefusalKind,
+    pub pass: BoundPass,
+    pub row: usize,
 }
 
 impl BoundRefusal {
@@ -275,7 +275,7 @@ impl BoundRefusal {
 
 /// Which certified bound a refusal belongs to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum CertifiedBound {
+pub enum CertifiedBound {
     Uc,
     S,
 }
@@ -283,10 +283,10 @@ pub(crate) enum CertifiedBound {
 /// One block's refusal, as the attempt's evidence records it (amendment A2;
 /// ROOT's ruling 3: on `AttemptRecord` only).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct BlockRefusal {
-    pub(crate) block: u32,
-    pub(crate) bound: CertifiedBound,
-    pub(crate) refusal: BoundRefusal,
+pub struct BlockRefusal {
+    pub block: u32,
+    pub bound: CertifiedBound,
+    pub refusal: BoundRefusal,
 }
 
 /// A2's classification of an operation's result: `Ok(Some(v))`, `Ok(None)`
@@ -975,6 +975,11 @@ pub(crate) fn shift_needed<const L: usize>(
 where
     Wide<L>: SupportedWidth,
 {
+    // V-K seeded fault VK-R28 (R7-M28): no shift (Uc alone).
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::R28) {
+        return Ok(false);
+    }
     if est.is_zero() {
         return Ok(false);
     }

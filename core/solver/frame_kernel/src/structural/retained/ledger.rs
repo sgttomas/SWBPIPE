@@ -69,7 +69,7 @@ impl LedgerNet {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LedgerRefusal {
+pub enum LedgerRefusal {
     /// The accumulator refused a term (`SumError`).
     Accumulator(SumError),
 }
@@ -86,6 +86,20 @@ pub(crate) struct RetainedLedger {
 impl RetainedLedger {
     /// One `ExactAccumulator` per loaded DOF, one `add` per nodal load.
     pub(crate) fn from_source(source: &PrimitiveSource) -> Result<Self, LedgerRefusal> {
+        // V-K seeded fault VK-F13 (§7.3-13): the loads folded at p = 128 in
+        // listed order instead of the exact ledger.
+        #[cfg(any(test, feature = "mutation-controls"))]
+        if super::seeded::active(super::seeded::Fault::F13) {
+            let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
+            for (dof, terms, nonzero) in super::seeded::folded_loads(source) {
+                let mut accumulator = ExactAccumulator::new();
+                for term in terms {
+                    accumulator.add(term).map_err(LedgerRefusal::Accumulator)?;
+                }
+                entries.push((dof, accumulator, nonzero));
+            }
+            return Ok(Self::netted(&entries));
+        }
         let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
         for load in source.loads() {
             let dof = load.dof.global();

@@ -52,59 +52,54 @@ use std::cmp::Ordering as CmpOrdering;
 use std::sync::Arc;
 
 /// Proposed method token (a placeholder for ROOT, D1 §4.1).
-pub(crate) const METHOD_TOKEN: &str = "contribution_preserving_multiprecision_v1";
+pub const METHOD_TOKEN: &str = "contribution_preserving_multiprecision_v1";
 /// Proposed policy (a placeholder for ROOT).
-pub(crate) const POLICY: &str = "M03-INTEGRITY-MP-v1";
+pub const POLICY: &str = "M03-INTEGRITY-MP-v1";
 /// The label D1 §4.1.3 gives the published condition estimate.
-pub(crate) const RCOND_LABEL: &str =
+pub const RCOND_LABEL: &str =
     "sensitivity to matrix-entry perturbation, not to authored parameters";
 /// The solve precisions: candidates 128, 256, 512; the ceiling 1024.
-pub(crate) const PRECISIONS: [u32; 4] = [128, 256, 512, 1024];
+pub const PRECISIONS: [u32; 4] = [128, 256, 512, 1024];
 /// R = 2^-34.
-pub(crate) const FLOOR_RATIO_BITS: u64 = 0x3DD0_0000_0000_0000;
+pub const FLOOR_RATIO_BITS: u64 = 0x3DD0_0000_0000_0000;
 /// k√2, the nearest double to √2 (≥ √2).
-pub(crate) const K_SQRT2_BITS: u64 = 0x3FF6_A09E_667F_3BCD;
+pub const K_SQRT2_BITS: u64 = 0x3FF6_A09E_667F_3BCD;
 /// k_{2√2} = 2·k√2.
-#[allow(dead_code)] // F2a API (per-member stress classification)
-pub(crate) const K_TWO_SQRT2_BITS: u64 = 0x4006_A09E_667F_3BCD;
+pub const K_TWO_SQRT2_BITS: u64 = 0x4006_A09E_667F_3BCD;
 
 // ------------------------------------------------------------ budgets
 
 /// The per-case work limit, in limb-multiply equivalents (required; no default).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct CaseLimit(u64);
+pub struct CaseLimit(u64);
 
 impl CaseLimit {
-    #[allow(dead_code)] // F2a API (W1's caller is wired at F2a; ROOT's K4 ruling Q1)
-    pub(crate) fn new(limb_multiply_equivalents: u64) -> Self {
+    pub fn new(limb_multiply_equivalents: u64) -> Self {
         Self(limb_multiply_equivalents)
     }
-    pub(crate) fn get(self) -> u64 {
+    pub fn get(self) -> u64 {
         self.0
     }
 }
 
 /// The per-invocation work meter (required; no default).
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct InvocationMeter {
+pub struct InvocationMeter {
     limit: u64,
     charged: u64,
 }
 
 impl InvocationMeter {
-    #[allow(dead_code)] // F2a API
-    pub(crate) fn new(limit: u64) -> Self {
+    pub fn new(limit: u64) -> Self {
         Self { limit, charged: 0 }
     }
-    #[allow(dead_code)] // F2a API (evidence)
-    pub(crate) fn charged(&self) -> u64 {
+    pub fn charged(&self) -> u64 {
         self.charged
     }
-    #[allow(dead_code)] // F2a API (evidence)
-    pub(crate) fn limit(&self) -> u64 {
+    pub fn limit(&self) -> u64 {
         self.limit
     }
-    pub(crate) fn exhausted(&self) -> bool {
+    pub fn exhausted(&self) -> bool {
         self.charged >= self.limit
     }
     fn room(&self) -> u64 {
@@ -116,14 +111,14 @@ impl InvocationMeter {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum BudgetScope {
+pub enum BudgetScope {
     Case,
     Invocation,
 }
 
 /// Why an attempt stopped.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum AttemptStop {
+pub enum AttemptStop {
     Budget(BudgetScope),
     /// An exact sum exceeded the span limit (terminal: ROOT's ruling O4).
     Span,
@@ -278,7 +273,7 @@ pub(crate) fn next_down(x: f64) -> f64 {
 
 /// Item 5: d_a = fl(max_a − min_a), L_b = fl(√(fl(fl(fl(d_x·d_x) + fl(d_y·d_y)) +
 /// fl(d_z·d_z)))); 0 for a single node.
-pub(crate) fn body_extent(coordinates: &[[f64; 3]]) -> f64 {
+pub fn body_extent(coordinates: &[[f64; 3]]) -> f64 {
     if coordinates.is_empty() {
         return 0.0;
     }
@@ -298,7 +293,7 @@ pub(crate) fn body_extent(coordinates: &[[f64; 3]]) -> f64 {
 /// Item 6, in this order: tr = max(S_tr, fl(L_b·S_rot)); ro = max(S_rot,
 /// fl(S_tr/L_b)); fo = max(S_fo, fl(S_mo/L_b)); mo = max(S_mo, fl(L_b·S_fo)). A
 /// single-node body (L_b = 0) omits the coupled terms. `s` in `Kind` order.
-pub(crate) fn coupled_scales(s: [f64; 4], extent: f64) -> [f64; 4] {
+pub fn coupled_scales(s: [f64; 4], extent: f64) -> [f64; 4] {
     if extent == 0.0 {
         return s;
     }
@@ -312,15 +307,13 @@ pub(crate) fn coupled_scales(s: [f64; 4], extent: f64) -> [f64; 4] {
 }
 
 /// Item 7: σ_k(m) = fl(fl(fo/A) + fl(k·fl(mo/Z))).
-#[allow(dead_code)] // F2a API (per-member stress classification)
-pub(crate) fn stress_scale(fo: f64, mo: f64, area: f64, modulus: f64, k: f64) -> f64 {
+pub fn stress_scale(fo: f64, mo: f64, area: f64, modulus: f64, k: f64) -> f64 {
     fo / area + k * (mo / modulus)
 }
 
 /// Item 7: k_i = fl↑(k√2·i): the nearest, then the next up when the nearest is
 /// below the exact product (decided with an exact product).
-#[allow(dead_code)] // F2a API (per-member stress classification)
-pub(crate) fn intensified_k(i: f64) -> f64 {
+pub fn intensified_k(i: f64) -> f64 {
     let k = f64::from_bits(K_SQRT2_BITS);
     let nearest = k * i;
     let exact_above = (|| -> Option<bool> {
@@ -345,13 +338,13 @@ pub(crate) fn intensified_k(i: f64) -> f64 {
 }
 
 /// t = fl(R·S*).
-pub(crate) fn threshold(s_star: f64) -> f64 {
+pub fn threshold(s_star: f64) -> f64 {
     f64::from_bits(FLOOR_RATIO_BITS) * s_star
 }
 
 /// b = fl↑(2^-64·S*), for S* ≥ 0: exact whenever 2^-64·S* is representable,
 /// at least 2^-1074 for any 0 < S*, and 0 only at S* = 0.
-pub(crate) fn absolute_bound(s_star: f64) -> f64 {
+pub fn absolute_bound(s_star: f64) -> f64 {
     let two64 = 18_446_744_073_709_551_616.0_f64;
     let nearest = s_star / two64;
     if nearest * two64 < s_star {
@@ -363,7 +356,7 @@ pub(crate) fn absolute_bound(s_star: f64) -> f64 {
 
 /// The verified-accuracy class of a published row of a scaled kind.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) enum RowClass {
+pub enum RowClass {
     RelativeVerified,
     /// Withheld from reliance, with its absolute bound b (bits).
     AbsoluteVerified {
@@ -416,7 +409,12 @@ pub(crate) fn row_bound(value: f64, s_star: f64) -> f64 {
 /// D1 §4.1.6 item 1 on the published value: `absolute_verified` iff
 /// |q| < fl(R·S\*), and always when S\* < 2^-988, with the bound of
 /// `row_bound` (amendment A1).
-pub(crate) fn classify(value: f64, s_star: f64) -> RowClass {
+pub fn classify(value: f64, s_star: f64) -> RowClass {
+    // V-K seeded fault VK-F17 (§7.3-17): every scaled row relative_verified.
+    #[cfg(any(test, feature = "mutation-controls"))]
+    if super::seeded::active(super::seeded::Fault::F17) {
+        return RowClass::RelativeVerified;
+    }
     let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988
     if s_star < small || value.abs() < threshold(s_star) {
         RowClass::AbsoluteVerified {
@@ -1030,31 +1028,31 @@ pub(crate) struct GroupPrep {
 
 /// Work of the shared stages at one precision.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub(crate) struct StageWork {
-    pub(crate) formation: u64,
-    pub(crate) assembly: u64,
-    pub(crate) residual_formation: u64,
-    pub(crate) factor: u64,
-    pub(crate) condition: u64,
-    pub(crate) rhs: u64,
-    pub(crate) solve: u64,
-    pub(crate) refinement: u64,
-    pub(crate) recovery: u64,
-    pub(crate) stop_rule: u64,
+pub struct StageWork {
+    pub formation: u64,
+    pub assembly: u64,
+    pub residual_formation: u64,
+    pub factor: u64,
+    pub condition: u64,
+    pub rhs: u64,
+    pub solve: u64,
+    pub refinement: u64,
+    pub recovery: u64,
+    pub stop_rule: u64,
     /// D1 revision 5a.3: the gate's fallback (Ā^q and the bounded rows).
-    pub(crate) bounded_gate: u64,
+    pub bounded_gate: u64,
     /// The verification pass: E; the estimate (r, δ̂, Ŵ); the charge (r₂,
     /// the norms, ‖ā_q S‖₁, t, C and W⁺); the bounds (data flags, B_c, θ, g);
     /// the shifted factorizations.
-    pub(crate) scale: u64,
-    pub(crate) estimate: u64,
-    pub(crate) charge: u64,
-    pub(crate) bound: u64,
-    pub(crate) shift: u64,
+    pub scale: u64,
+    pub estimate: u64,
+    pub charge: u64,
+    pub bound: u64,
+    pub shift: u64,
     /// The verification's shared stages: Ā at P, K_e at q_W, the Uc passes.
-    pub(crate) bounded_formation: u64,
-    pub(crate) wide_formation: u64,
-    pub(crate) uc: u64,
+    pub bounded_formation: u64,
+    pub wide_formation: u64,
+    pub uc: u64,
 }
 
 /// A stage of `StageWork` (T3 KF3: the stage in progress when a build stops).
@@ -1224,7 +1222,7 @@ where
 
 /// The test that passed the residual gate (D1 revision 5a.3, R7 §4.1.4 step 3).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum GateTest {
+pub enum GateTest {
     /// Every row passed with the coalesced denominator d^c.
     Coalesced,
     /// Refinement ended without the coalesced pass; the best evaluated state
@@ -2327,18 +2325,18 @@ pub(crate) enum VerificationState {
 
 /// A verification's report in binary64 (the attempt's evidence).
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct VerificationSummary {
+pub struct VerificationSummary {
     /// [E_fo, E_mo] per body (uncoupled, rounded upward).
-    pub(crate) resolution: Vec<[f64; 2]>,
+    pub resolution: Vec<[f64; 2]>,
     /// Per body: the largest θ_c over its blocks with data, rounded upward (0
     /// without), and B_b rounded upward (None without a block with data).
-    pub(crate) theta: Vec<f64>,
-    pub(crate) bound: Vec<Option<f64>>,
-    pub(crate) data_blocks: usize,
-    pub(crate) shift_factorizations: u8,
-    pub(crate) uc_missing: Option<usize>,
-    pub(crate) g_max: u32,
-    pub(crate) g_violation: Option<u32>,
+    pub theta: Vec<f64>,
+    pub bound: Vec<Option<f64>>,
+    pub data_blocks: usize,
+    pub shift_factorizations: u8,
+    pub uc_missing: Option<usize>,
+    pub g_max: u32,
+    pub g_violation: Option<u32>,
 }
 
 fn summarize<const L: usize>(r: &VerificationReport<L>) -> Result<VerificationSummary, AttemptStop>
@@ -2417,14 +2415,14 @@ fn compare_states(
 // ------------------------------------------------------------ attempts and evidence
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum AttemptRole {
+pub enum AttemptRole {
     Candidate,
     Verification,
     VerificationThenCandidate,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum AttemptReason {
+pub enum AttemptReason {
     Stop(AttemptStop),
     StopRule {
         quantity: QuantityId,
@@ -2459,7 +2457,7 @@ pub(crate) enum AttemptReason {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum AttemptOutcome {
+pub enum AttemptOutcome {
     Accepted,
     Verified,
     Rejected(AttemptReason),
@@ -2470,63 +2468,63 @@ pub(crate) enum AttemptOutcome {
 
 /// Deterministic storage counts (not measurements).
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub(crate) struct StorageCounts {
-    pub(crate) pattern_entries: usize,
-    pub(crate) profile_entries: usize,
-    pub(crate) limbs_per_entry: usize,
+pub struct StorageCounts {
+    pub pattern_entries: usize,
+    pub profile_entries: usize,
+    pub limbs_per_entry: usize,
 }
 
 /// One solve's record (D1 §5 item 1: "the attempts list (p, outcome, reason,
 /// work)").
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct AttemptRecord {
-    pub(crate) precision: u32,
-    pub(crate) role: AttemptRole,
-    pub(crate) outcome: AttemptOutcome,
+pub struct AttemptRecord {
+    pub precision: u32,
+    pub role: AttemptRole,
+    pub outcome: AttemptOutcome,
     /// p + 64, or p at the ceiling (ROOT's Q4).
-    pub(crate) residual_basis: u32,
-    pub(crate) corrections: u8,
+    pub residual_basis: u32,
+    pub corrections: u8,
     /// fl↓ of the minimum d_i/(64·γ_p(m_i)·c_i).
-    pub(crate) pivot_margin_min: Option<f64>,
+    pub pivot_margin_min: Option<f64>,
     /// rcond at p (nearest; model information).
-    pub(crate) rcond: Option<f64>,
+    pub rcond: Option<f64>,
     /// fl↑ of the worst |r_i|/(64·γ_p(m_i)·d_i).
-    pub(crate) residual_worst: Option<f64>,
+    pub residual_worst: Option<f64>,
     /// This case's own contexts (each recorded once).
-    pub(crate) work: AttemptWork,
-    pub(crate) k4_work: SumWork,
-    pub(crate) stages: StageWork,
+    pub work: AttemptWork,
+    pub k4_work: SumWork,
+    pub stages: StageWork,
     /// The shared stages' work at this precision (formation, assembly, residual
     /// formation, factor, condition), counted in full against the case limit.
-    pub(crate) shared_work: u64,
-    pub(crate) shared_stages: StageWork,
+    pub shared_work: u64,
+    pub shared_stages: StageWork,
     /// Whether this attempt built the shared stages (so charged them to the
     /// invocation).
-    pub(crate) shared_built_here: bool,
+    pub shared_built_here: bool,
     /// The stop-rule work charged to this attempt as a candidate (a part of
     /// `work` and `k4_work`, which hold every context and sum it charged).
-    pub(crate) stop_rule_work: u64,
-    pub(crate) storage: StorageCounts,
+    pub stop_rule_work: u64,
+    pub storage: StorageCounts,
     /// D1 revision 5a.3: the test that passed the gate.
-    pub(crate) gate: Option<GateTest>,
+    pub gate: Option<GateTest>,
     /// The verification pass on this state (a part of `work`, `k4_work` and
     /// `stages`), and its report.
-    pub(crate) verification_work: u64,
-    pub(crate) verification: Option<VerificationSummary>,
+    pub verification_work: u64,
+    pub verification: Option<VerificationSummary>,
     /// The verification's shared stages (Ā at P, K_e at q_W, the Uc passes),
     /// counted in full against the case, and against the invocation when
     /// built here.
-    pub(crate) verification_shared_work: u64,
-    pub(crate) verification_shared_built_here: bool,
+    pub verification_shared_work: u64,
+    pub verification_shared_built_here: bool,
     /// T3 KF3 (D1 revision 5a.3 amendment A2; ROOT's ruling 3 on I19's plan):
     /// on a verification attempt, every block's Uc_c refusal (from the shared
     /// build) and every S_c refusal of this pass, on every path.
-    pub(crate) bound_refusals: Vec<BlockRefusal>,
+    pub bound_refusals: Vec<BlockRefusal>,
 }
 
 /// A refusal: no rows, no escalation.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum Refusal {
+pub enum Refusal {
     MechanismWitnessed {
         body: u32,
         rigid_parameters: [f64; 6],
@@ -2544,7 +2542,7 @@ pub(crate) enum Refusal {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) enum UnresolvedReason {
+pub enum UnresolvedReason {
     /// "At the ceiling … the case is unresolved."
     Ceiling,
     Budget(BudgetScope),
@@ -2569,24 +2567,23 @@ pub(crate) enum UnresolvedReason {
 
 /// A published row and its class.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct PublishedRow {
-    pub(crate) id: QuantityId,
-    pub(crate) kind: Kind,
-    pub(crate) body: u32,
-    pub(crate) value: Binary64Outcome,
-    pub(crate) class: RowClass,
+pub struct PublishedRow {
+    pub id: QuantityId,
+    pub kind: Kind,
+    pub body: u32,
+    pub value: Binary64Outcome,
+    pub class: RowClass,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct Publication {
-    pub(crate) rows: Vec<PublishedRow>,
+pub struct Publication {
+    pub rows: Vec<PublishedRow>,
     /// S\* per (body, kind) from the published values, as bits.
-    pub(crate) body_scales: Vec<(u32, Kind, u64)>,
+    pub body_scales: Vec<(u32, Kind, u64)>,
 }
 
 /// The classification of published rows (items 1, 2a, 4–6; O9).
-#[allow(dead_code)] // F2a API and the classification tests (the schedule floors)
-pub(crate) fn classify_rows(
+pub fn classify_rows(
     layout: &[QuantityMeta],
     values: &[Binary64Outcome],
     extents: &[f64],
@@ -2597,7 +2594,7 @@ pub(crate) fn classify_rows(
 /// `classify_rows` with item 6a (D1 revision 5a.3): when the selected
 /// precision is 512, `floor` holds Φ_fo and Φ_mo per body, applied after item
 /// 6's coupling and before items 7 and 8.
-pub(crate) fn classify_rows_floored(
+pub fn classify_rows_floored(
     layout: &[QuantityMeta],
     values: &[Binary64Outcome],
     extents: &[f64],
@@ -2660,47 +2657,47 @@ pub(crate) fn classify_rows_floored(
 
 /// The evidence F2a's receipt needs (D1 §5 item 1), as kernel types.
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct RetainedEvidence {
-    pub(crate) method: &'static str,
-    pub(crate) policy: &'static str,
-    pub(crate) attempts: Vec<AttemptRecord>,
-    pub(crate) selected_precision: u32,
-    pub(crate) verification_precision: u32,
-    pub(crate) stop_rule: Vec<(u32, Kind, f64)>,
-    pub(crate) floor_ratio_bits: u64,
-    pub(crate) body_scales: Vec<(u32, Kind, u64)>,
-    pub(crate) input_derived_dofs: Vec<Dof>,
-    pub(crate) absolute_verified: Vec<(QuantityId, u64)>,
-    pub(crate) not_covered: Vec<QuantityId>,
-    pub(crate) unpublishable: Vec<(QuantityId, Binary64Outcome)>,
-    pub(crate) pivot_margin_min: f64,
-    pub(crate) rcond: f64,
-    pub(crate) rcond_label: &'static str,
-    pub(crate) residual_worst: f64,
-    pub(crate) corrections: u8,
-    pub(crate) geometry: Vec<BodyGeometry>,
-    pub(crate) source_encoding: Vec<u8>,
-    pub(crate) ledger_encoding: Vec<u8>,
-    pub(crate) retained_state_encoding: Vec<u8>,
+pub struct RetainedEvidence {
+    pub method: &'static str,
+    pub policy: &'static str,
+    pub attempts: Vec<AttemptRecord>,
+    pub selected_precision: u32,
+    pub verification_precision: u32,
+    pub stop_rule: Vec<(u32, Kind, f64)>,
+    pub floor_ratio_bits: u64,
+    pub body_scales: Vec<(u32, Kind, u64)>,
+    pub input_derived_dofs: Vec<Dof>,
+    pub absolute_verified: Vec<(QuantityId, u64)>,
+    pub not_covered: Vec<QuantityId>,
+    pub unpublishable: Vec<(QuantityId, Binary64Outcome)>,
+    pub pivot_margin_min: f64,
+    pub rcond: f64,
+    pub rcond_label: &'static str,
+    pub residual_worst: f64,
+    pub corrections: u8,
+    pub geometry: Vec<BodyGeometry>,
+    pub source_encoding: Vec<u8>,
+    pub ledger_encoding: Vec<u8>,
+    pub retained_state_encoding: Vec<u8>,
     /// D1 revision 5a.3 (R7 §5.8): per body, E_fo and E_mo bits (uncoupled,
     /// rounded upward, finite).
-    pub(crate) resolution_scale: Vec<(u32, u64, u64)>,
+    pub resolution_scale: Vec<(u32, u64, u64)>,
     /// Per body and kind of force and moment: the worst Ŵ_q/V_q and C_q over
     /// its allowance, rounded upward.
-    pub(crate) verification_estimate: Vec<(u32, Kind, f64)>,
-    pub(crate) verification_charge: Vec<(u32, Kind, f64)>,
+    pub verification_estimate: Vec<(u32, Kind, f64)>,
+    pub verification_charge: Vec<(u32, Kind, f64)>,
     /// Per body: the largest θ_c over its blocks with data (0 without).
-    pub(crate) theta: Vec<(u32, f64)>,
+    pub theta: Vec<(u32, f64)>,
     /// Per body with a block with data: B_b's bits, rounded upward (ROOT's
     /// A3-0 ruling Q9: no entry otherwise).
-    pub(crate) certified_bound: Vec<(u32, u64)>,
+    pub certified_bound: Vec<(u32, u64)>,
     /// Φ_fo and Φ_mo bits per body when the selected precision is 512.
-    pub(crate) floor: Option<Vec<(u32, u64, u64)>>,
+    pub floor: Option<Vec<(u32, u64, u64)>>,
 }
 
 /// A selected case: bound to its source and precision (D1 §4.1.1).
 #[derive(Debug, Clone)]
-pub(crate) struct RetainedSolve {
+pub struct RetainedSolve {
     pub(crate) prep: Arc<CasePrep>,
     pub(crate) group: Arc<GroupPrep>,
     /// The group's shared stages as this solve left them (a combination of
@@ -2714,20 +2711,16 @@ pub(crate) struct RetainedSolve {
 
 impl RetainedSolve {
     /// "RetainedSolve::publish() rounds each quantity once."
-    #[allow(dead_code)] // F2a API
-    pub(crate) fn publish(&self) -> &Publication {
+    pub fn publish(&self) -> &Publication {
         &self.publication
     }
-    #[allow(dead_code)] // F2a API
-    pub(crate) fn evidence(&self) -> &RetainedEvidence {
+    pub fn evidence(&self) -> &RetainedEvidence {
         &self.evidence
     }
-    #[allow(dead_code)] // F2a API
-    pub(crate) fn source(&self) -> &PrimitiveSource {
+    pub fn source(&self) -> &PrimitiveSource {
         &self.prep.source
     }
-    #[allow(dead_code)] // F2a API
-    pub(crate) fn selected_precision(&self) -> u32 {
+    pub fn selected_precision(&self) -> u32 {
         self.selected
     }
     #[allow(dead_code)] // F2a API
@@ -2737,9 +2730,8 @@ impl RetainedSolve {
 }
 
 /// A case's outcome.
-#[allow(dead_code)] // F2a API (F2a reads the outcome's fields)
 #[derive(Debug, Clone)]
-pub(crate) enum CaseOutcome {
+pub enum CaseOutcome {
     Selected(Box<RetainedSolve>),
     Refused {
         refusal: Refusal,
@@ -3185,6 +3177,19 @@ pub(crate) fn run_schedule(
             &report,
             guard,
         );
+        // V-K seeded fault VK-F06 (§7.3-6): the candidate accepted whatever the
+        // verification's verdict (accepted on the pivot screen alone).
+        #[cfg(any(test, feature = "mutation-controls"))]
+        let decision = if super::seeded::active(super::seeded::Fault::F06)
+            && matches!(decision.result, Ok(false))
+        {
+            StopDecision {
+                result: Ok(true),
+                ..decision
+            }
+        } else {
+            decision
+        };
         {
             let record = &mut attempts[candidate_index];
             record.stop_rule_work += decision.total;
@@ -3222,6 +3227,16 @@ pub(crate) fn run_schedule(
                     &prep.layout,
                     &group,
                 ));
+                // V-K seeded fault VK-F05 (§7.3-5): no escalation after a
+                // rejected candidate.
+                #[cfg(any(test, feature = "mutation-controls"))]
+                if super::seeded::active(super::seeded::Fault::F05) {
+                    return CaseOutcome::Unresolved {
+                        reason: UnresolvedReason::Ceiling,
+                        attempts,
+                        geometry,
+                    };
+                }
                 if c + 1 < 3 {
                     attempts[v_index].role = AttemptRole::VerificationThenCandidate;
                     pending = Some((verification, v_index));
@@ -3405,8 +3420,7 @@ fn prepare_group(source: &PrimitiveSource) -> Result<GroupPrep, (Refusal, Vec<Bo
 
 /// The kernel entry: every case of an invocation (F2a API). Cases with the
 /// same stiffness identity share formation and the p-factor per precision.
-#[allow(dead_code)] // F2a API (W1's caller is wired at F2a; ROOT's K4 ruling Q1)
-pub(crate) fn solve_cases(
+pub fn solve_cases(
     sources: &[PrimitiveSource],
     case_limit: CaseLimit,
     meter: &mut InvocationMeter,
@@ -3465,8 +3479,7 @@ pub(crate) fn solve_cases(
 }
 
 /// One case (a group of one; F2a API).
-#[allow(dead_code)] // F2a API (W1's caller is wired at F2a; ROOT's K4 ruling Q1)
-pub(crate) fn solve_case(
+pub fn solve_case(
     source: PrimitiveSource,
     case_limit: CaseLimit,
     meter: &mut InvocationMeter,

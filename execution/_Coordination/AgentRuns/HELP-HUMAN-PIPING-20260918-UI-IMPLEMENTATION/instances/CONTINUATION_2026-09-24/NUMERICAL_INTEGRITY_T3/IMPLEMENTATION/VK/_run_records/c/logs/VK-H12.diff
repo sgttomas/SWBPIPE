@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/feature_guard.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/feature_guard.rs
+@@ -42,6 +42,9 @@
+         let line = raw.split('#').next().unwrap().trim();
+         if line.starts_with('[') {
+             table = line.to_string();
++            continue;
++        }
++        if table.contains("dependencies") {
+             continue;
+         }
+         let names_it = line.contains(FEATURE) || (role == "vr" && line.contains("seeded-faults"));

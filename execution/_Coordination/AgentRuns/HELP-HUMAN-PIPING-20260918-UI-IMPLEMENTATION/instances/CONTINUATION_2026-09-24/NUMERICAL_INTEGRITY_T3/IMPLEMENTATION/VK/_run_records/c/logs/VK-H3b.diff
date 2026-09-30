@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
+@@ -280,7 +280,6 @@
+                 Ok(target) => {
+                     let v = judge(&observe(target, &published, model), &exp, &scale, covered);
+                     if !covered {
+-                        not_covered.push(row.key.clone());
+                         for id in sources(target) {
+                             let restrained = matches!(id, QuantityId::Displacement(d)
+                                 if model.constraints.contains(&(d.node, d.component.index())));
