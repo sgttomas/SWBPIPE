@@ -2951,3 +2951,16 @@ RV24 (`REVIEW/KF2_REVIEW.md`, sha256 `6785aa13…`; records `REVIEW/_run_records
   - treat the published `operation_count` change as a contract note.
 - **RV24-N5:** the cost reproduces (0.966 s at n = 6,006; the old search grows about ×16 per doubling). Recorded.
 - **Then:** RV24 confirms the new head, then CI, then DEC-025 on the final head, then GEN-8 and the merge. If KF3 merges first, KF2 merges main, and RV24's confirmation includes a merge check.
+
+## KF3 and KF2: review fixes committed; confirmations requested (ROOT, 2026-09-30)
+
+- **KF3 `aa83f6796`** (by I19; RV23-1 and RV23-N1):
+  - **The fix:** the caller owns the refusal slots, so a stopped build's Uc refusals and the S refusals kept when `shift_schedule` stops reach `bound_refusals`. It is evidence only.
+  - **Tests and mutants:** RV23's probe, a swept three-block S test, and the `verify_state` precedence test. Six mutants are killed, including M4b.
+  - **Suites:** FK 351 lib, 7 integration files and 6 doc-tests; `gen --check` 24 of 24.
+  - **CI:** the dispatch is 36669370536. RV23 is confirming.
+- **KF2 `1c7558df5`** (by I20; RV24-1):
+  - **The change:** RV24's cases are adopted into `kf2_witness_tests.rs`, and RV24-M1, M4b and M5 are killed from clean archives. No product file changes. FK passes 417.
+  - **I20 corrects RV24-N3's count:** 4 of the 16 witness runs (the captured-entry FX-NP-A runs) publish a recovered result, and 12 the refusal. RV24 checks this at confirmation.
+  - **CI:** the dispatch is 36669470111. RV24 is confirming.
+- **Merge order:** KF3 first, if RV23 confirms. KF2 then merges main, and RV24 adds a merge check.
