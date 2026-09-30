@@ -2882,3 +2882,26 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - **src-tauri:** 116 passed, as in F1b's run.
 - **D now:** RETURN, CHANGE_RECORD and SHA256SUMS. Then ROOT opens the PR with its dispatch.
 - **I20's scratch** (`<wt>/scratch/i20/b`, `<wt>/kf2-target`) is kept until KF2 merges, for its reviewer.
+
+## KF3: rulings on RV23's review (ROOT, 2026-09-30)
+
+RV23 (`REVIEW/KF3_REVIEW.md`, sha256 `96060f9e…`; records `REVIEW/_run_records/kf3_review/`) reviewed head `b8c55c92e`: **PASS**, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs. RV23 found no way for A2 to publish a wrong value.
+- **A2's honesty:** every reader of B goes through `certificates`/`certified`, and blocks are contiguous, so no pass reads another block's rows. RV23 built three oracles of its own:
+  - synthetic multi-block refusals, where B ≥ the exact norm and B = min over the formed bounds;
+  - 52 forced-refusal W1 runs on 16 controls;
+  - KF3-UC-SPAN in closed form.
+- **The partial-stage identity:** 0 mismatches over 3,611 W1 runs with case limits on 11 models, and over 2,011 on H's model.
+- **B:** reproduced byte for byte on CHAIN-n10000-AX and TREE-n10000-AX.
+- **Reach:** no product crate names `retained_api` or `retained`.
+- **Mutants:** 18 plus NONE, of which 15 are killed and 3 survive (RV23-N1's M4b, and the two equivalents in RV23-N4).
+
+**Rulings:**
+- **RV23-1 (SHOULD-FIX): fix it before merge.** Carry the refusals out on the error path.
+  - **The defect:** a refusal recorded in the verification's shared build (`uc_bounds`), or in `shift_schedule` (S), must reach `AttemptRecord::bound_refusals` even when a budget stop follows it in the same build. Today it is dropped after `vs?` (`adaptive.rs:3028-3030`).
+  - **The test:** RV23's probe (KF3-UC-SPAN with the case limit 1 to 100 LME short of the shared build's total) must record the refusal on the `Failed(Stop(Budget(Case)))` attempt. Add a test for each of the two sites, and a mutant for each.
+  - **No outcome, row, class, bound or work count may change;** evidence only.
+  - The claim "on every path" in the `AttemptRecord` doc, RETURN §3.1 and CHANGE_RECORD then holds as written.
+- **RV23-N1: add the test.** Precedence in `verify_state` (a refusal stop outranks `uc`) gets a test that kills M4b. It is cheap, and the rule is a ruled decision (plan §11 item 2).
+- **RETURN §12's wording** (RV23's routing check): "c is a property of the model" holds only where (b) binds. Correct it in a RETURN addendum; the routing is unchanged.
+- **RV23-N2, N3, N4 and N5 are recorded,** with no change. N5 is already routed to K6c.
+- **Then:** RV23 confirms the new head. After that come CI with the dispatch, DEC-025, GEN-8 and the merge.

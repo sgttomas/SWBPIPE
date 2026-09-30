@@ -1,0 +1,5 @@
+KF3-UC-SPAN closed form: 8983 expectations, 8983 closed-form keys; GEN keys without a closed form: []; closed-form keys GEN lacks: 0
+largest relative gap GEN (128-bit token) vs closed form: 2^-128.0 at u.356.3
+tip displacement u.390.0..2 = [0.8634013788945833, -10.167154494611829, 10.142952621862761]
+published rows by class: {'input': 6, 'rel': 7415, 'abs': 2} (selected at 128)
+Rust published rows checked against the closed form and their claims (relative rows: 2^-64·max(|q|, S)·(1 + 2^-21) plus half an ulp): 7423, violations 0, worst |q - x|/b 9.544e-01 at u.80.1

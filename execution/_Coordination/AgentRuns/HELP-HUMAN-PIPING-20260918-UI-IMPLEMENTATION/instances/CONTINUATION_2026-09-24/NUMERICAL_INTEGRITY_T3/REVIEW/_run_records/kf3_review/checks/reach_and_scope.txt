@@ -1,0 +1,75 @@
+# RV23 reach scan at b8c55c92e (git grep, read-only; run in <wt>/kf3)
+## files naming retained_api (*.rs, *.toml)
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/rows.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_adapter.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/rcm.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/engine.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/files.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs
+## files naming structural::retained outside FK (*.rs), with counts
+   1 projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs
+   1 projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs
+   1 projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs
+   1 projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs
+   1 projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs
+   1 projects/chirality-piping/core/solver/performance_harness/src/k6/w1/rows.rs
+   1 projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs
+   1 projects/chirality-piping/core/solver/performance_harness/tests/k6b_adapter.rs
+   2 projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs
+   1 projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/src/rcm.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/engine.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/files.rs
+   1 projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs
+## manifests (outside execution/ records) naming the harness (H) or VR
+projects/chirality-piping/core/solver/frame_kernel/Cargo.toml:14:# V-K's seeded faults (T3 D1 §4.10): only numerical_robustness's mutation run
+projects/chirality-piping/core/solver/frame_kernel/Cargo.toml:16:# may name it (numerical_robustness's feature-guard test).
+projects/chirality-piping/core/solver/performance_harness/Cargo.toml:2:name = "open_pipe_stress_solver_performance_harness"
+projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml:2:name = "piping_numerical_robustness"
+## Cargo.toml / Cargo.lock changes in the PR (78f55f927...b8c55c92e)
+(none if empty)
+## files changed by the PR outside T3's KF3 records
+ projects/chirality-piping/core/solver/frame_kernel/src/structural.rs                                                          |     3 +
+ projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs                                        |   135 +-
+ projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs                                           |   687 ++-
+ projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs                                          |   152 +-
+ projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs                                        |    14 +
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS                                               |     1 +
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs                                           |   332 ++
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py                                        |   326 +-
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt                                                  | 19587 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs                                             |   521 ++
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs                                          |    54 +-
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs                                           |    73 +-
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs                                        |    45 +
+ projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs                                                 |    54 +-
+ projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs                                                     |    90 +-
+ 131 files changed, 31531 insertions(+), 264 deletions(-)
+## FK and VR identical between e114b23c1 (B's source) and b8c55c92e
+(identical if empty)
+## K4T vector files changed by the PR
+ .../frame_kernel/tests/retained_k4/SHA256SUMS      |     1 +
+ .../solver/frame_kernel/tests/retained_k4/kf3.txt  | 19587 +++++++++++++++++++
+ 2 files changed, 19588 insertions(+)

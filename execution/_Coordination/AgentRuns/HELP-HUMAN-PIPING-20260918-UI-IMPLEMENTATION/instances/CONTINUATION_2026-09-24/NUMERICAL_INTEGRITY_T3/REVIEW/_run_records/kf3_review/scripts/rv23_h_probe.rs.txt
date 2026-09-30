@@ -1,0 +1,97 @@
+//! RV23 probe (review only; never committed to the branch): RV22's six case
+//! limits on H's own RF-LARGE-CHAIN-n00010-AX (K6B_REVIEW, RV22-1 and RV22-N7)
+//! and a dense sweep, on KF3's head. Every attempt's own and shared stages are
+//! held to equality with their charged totals (computed here, not with H's
+//! helpers), and H's `stages_equal_totals` must agree.
+use open_pipe_stress_frame_kernel::structural::retained_api::AttemptRecord;
+use open_pipe_stress_solver_performance_harness::k6::models::model;
+use open_pipe_stress_solver_performance_harness::k6::staged::{Stage, StageObserver};
+use open_pipe_stress_solver_performance_harness::k6::w1::adapter;
+use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
+    attempts_of, segments, stages_equal_totals, unstaged, w1_solve, work_closes, W1Limits,
+};
+
+struct Quiet;
+impl StageObserver for Quiet {
+    fn begin(&mut self, _: Stage) {}
+    fn end(&mut self, _: Stage, _: bool, _: Option<String>) {}
+}
+
+fn stage_total(w: &open_pipe_stress_frame_kernel::structural::retained_api::StageWork) -> u64 {
+    [
+        w.formation, w.assembly, w.residual_formation, w.factor, w.condition, w.rhs, w.solve,
+        w.refinement, w.recovery, w.stop_rule, w.bounded_gate, w.scale, w.estimate, w.charge,
+        w.bound, w.shift, w.bounded_formation, w.wide_formation, w.uc,
+    ]
+    .iter()
+    .sum()
+}
+
+fn run(id: &str, case: u64) -> (Vec<AttemptRecord>, u64) {
+    let m = model(id).unwrap();
+    let s = adapter::source(&m).unwrap();
+    let r = w1_solve(s, W1Limits { case, invocation: u64::MAX }, Stage::W1Solve, &mut Quiet);
+    (attempts_of(&r.outcome).to_vec(), r.charged)
+}
+
+fn check(label: &str, limit: u64, atts: &[AttemptRecord], charged: u64, print: bool) -> bool {
+    let mut ok = true;
+    for (i, a) in atts.iter().enumerate() {
+        let own_t = a.work.limb_multiply_equivalents() + a.k4_work.limb_multiply_equivalents();
+        let sh_t = a.shared_work + a.verification_shared_work;
+        let (own, sh) = (stage_total(&a.stages), stage_total(&a.shared_stages));
+        let eq = own == own_t && sh == sh_t;
+        ok &= eq;
+        if print || !eq {
+            println!(
+                "RV23H {label} limit={limit} attempt {i} p={} outcome={:?} own={own}/{own_t} shared={sh}/{sh_t} unstaged={:?} equal={eq}",
+                a.precision,
+                a.outcome,
+                unstaged(a)
+            );
+        }
+    }
+    let h = stages_equal_totals(atts);
+    let closes = work_closes(atts, charged);
+    if print || h != ok || !closes {
+        println!("RV23H {label} limit={limit} mine={ok} H={h} work_closes={closes}");
+    }
+    ok && h == ok && closes
+}
+
+#[test]
+fn rv23_rv22_paths_and_a_dense_sweep() {
+    let id = "RF-LARGE-CHAIN-n00010-AX";
+    let (full, charged) = run(id, u64::MAX);
+    assert!(check("full", u64::MAX, &full, charged, true));
+    let segs = segments(&full);
+    let v = &full[1];
+    let into_uc = segs[1].end
+        + v.shared_stages.bounded_formation
+        + v.shared_stages.wide_formation
+        + v.shared_stages.uc / 2;
+    let mut named: Vec<(String, u64)> = segs.iter().take(3).map(|s| (s.label.clone(), s.end)).collect();
+    named.push(("into_uc".into(), into_uc));
+    named.push(("into_solve_128".into(), full[0].shared_work + 10));
+    named.push(("into_decide_128".into(), segs[2].end + full[0].stop_rule_work / 2));
+    let mut all_ok = true;
+    for (label, limit) in &named {
+        let (atts, ch) = run(id, *limit);
+        all_ok &= check(label, *limit, &atts, ch, true);
+    }
+    // A dense sweep: 2,000 even limits and every segment end ± 1.
+    let mut limits: Vec<u64> = (1..2000u64).map(|k| charged * k / 2000).collect();
+    for s in &segs {
+        limits.extend([s.end.saturating_sub(1), s.end, s.end + 1]);
+    }
+    let (mut runs, mut bad) = (0, 0);
+    for limit in limits {
+        let (atts, ch) = run(id, limit);
+        runs += 1;
+        if !check("sweep", limit, &atts, ch, false) {
+            bad += 1;
+        }
+    }
+    println!("RV23H sweep {id}: runs {runs}, failures {bad}");
+    assert!(all_ok && bad == 0);
+}

@@ -1,0 +1,208 @@
+#!/usr/bin/env python3
+"""RV23: KF3-UC-SPAN's exact solution in closed form (review only).
+
+KF3-UC-SPAN is a straight cantilever: 390 collinear members along
+(-1, 12, -12) (each 17 long), fixed at node 0, loaded at the tip only. Its
+member end forces are statically determinate and its displacements follow
+Euler-Bernoulli beam theory exactly (a cubic-Hermite frame element reproduces
+them at the nodes). With the model's binary64 inputs taken as exact rationals
+the solution is rational. This checks GEN's expectations for the model
+(`kf3.txt`, the `expect` lines: the two high-precision solves, with their
+128-bit tokens) against it, independently of GEN's solver and of the Rust.
+
+Optionally (a second argument) it checks a dump of the Rust's published rows
+(`RV23 PUB` lines of the reviewer's probe) against the same closed form and
+each row's claim.
+usage: rv23_kf3_closed_form.py <kf3.txt> [<probe stdout>]"""
+import math
+import struct
+import sys
+from fractions import Fraction as Fr
+
+
+def hf(h):
+    return Fr(struct.unpack(">d", bytes.fromhex(h))[0])
+
+
+text = open(sys.argv[1]).read().split("\n")
+start = text.index("model KF3-UC-SPAN")
+end = text.index("end", start)
+nodes, members, loads, expect = [], [], [], {}
+for line in text[start + 1:end]:
+    f = line.split()
+    if f[0] == "node":
+        nodes.append(tuple(hf(x) for x in f[1:4]))
+    elif f[0] == "member":
+        members.append(dict(id=int(f[1]), i=int(f[2]), j=int(f[3]), E=hf(f[4]), G=hf(f[5]), A=hf(f[6]),
+                            Iy=hf(f[7]), Iz=hf(f[8]), J=hf(f[9]), y=tuple(hf(x) for x in f[10:13])))
+    elif f[0] == "load":
+        loads.append((int(f[1]), int(f[2]), hf(f[3])))
+    elif f[0] == "expect":
+        tok = f[3]
+        assert tok.startswith("x:")
+        v = tok[2:]
+        if v == "0":
+            x = Fr(0)
+        else:
+            sign = -1 if v[0] == "-" else 1
+            h, e = v[1:].split("p")
+            x = sign * Fr(int(h, 16)) * Fr(2) ** int(e)
+        err = None
+        for t in f[4:]:
+            if t.startswith("err:"):
+                err = Fr(2) ** int(t[4:])
+        expect[f[1]] = (x, err)
+
+N = len(members)
+m0 = members[0]
+assert all((m["E"], m["G"], m["A"], m["Iy"], m["Iz"], m["J"], m["y"]) ==
+           (m0["E"], m0["G"], m0["A"], m0["Iy"], m0["Iz"], m0["J"], m0["y"]) for m in members)
+E, G, A, Iy, Iz, J = m0["E"], m0["G"], m0["A"], m0["Iy"], m0["Iz"], m0["J"]
+d = tuple(nodes[1][k] - nodes[0][k] for k in range(3))
+Lm = Fr(17)
+assert sum(c * c for c in d) == Lm * Lm
+for k in range(N + 1):
+    assert nodes[k] == tuple(k * c for c in d)
+e1 = tuple(c / Lm for c in d)
+yr = m0["y"]
+assert sum(a * b for a, b in zip(e1, yr)) == 0 and sum(c * c for c in yr) == 289
+e2 = tuple(c / 17 for c in yr)
+e3 = (e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0])
+dot = lambda a, b: sum(x * y for x, y in zip(a, b))
+F = [Fr(0)] * 3
+M = [Fr(0)] * 3
+for node, c, v in loads:
+    assert node == N
+    (F if c < 3 else M)[c % 3] += v
+Fl = (dot(F, e1), dot(F, e2), dot(F, e3))
+Ml = (dot(M, e1), dot(M, e2), dot(M, e3))
+ell = N * Lm
+
+
+def moment(x):
+    """The internal moment at x transmitted from the tip part, local axes."""
+    return (Ml[0], Ml[1] - (ell - x) * Fl[2], Ml[2] + (ell - x) * Fl[1])
+
+
+exact = {}
+for m in members:
+    xi, xj = (m["i"]) * Lm, m["j"] * Lm
+    mi, mj = moment(xi), moment(xj)
+    for c in range(3):
+        exact["end.%d.j.%d" % (m["id"], c)] = Fl[c]
+        exact["end.%d.i.%d" % (m["id"], c)] = -Fl[c]
+        exact["end.%d.j.%d" % (m["id"], c + 3)] = mj[c]
+        exact["end.%d.i.%d" % (m["id"], c + 3)] = -mi[c]
+    exact["N.%d" % m["id"]] = ("N", Fl[0])
+    exact["T.%d" % m["id"]] = ("T", Ml[0])
+    exact["Mb.%d.i" % m["id"]] = ("sqrt", mi[1] ** 2 + mi[2] ** 2)
+    exact["Mb.%d.j" % m["id"]] = ("sqrt", mj[1] ** 2 + mj[2] ** 2)
+for k in range(N + 1):
+    x = k * Lm
+    u = Fl[0] * x / (E * A)
+    phi = Ml[0] * x / (G * J)
+    v = Fl[1] * x * x * (3 * ell - x) / (6 * E * Iz) + Ml[2] * x * x / (2 * E * Iz)
+    thz = Fl[1] * x * (2 * ell - x) / (2 * E * Iz) + Ml[2] * x / (E * Iz)
+    w = Fl[2] * x * x * (3 * ell - x) / (6 * E * Iy) - Ml[1] * x * x / (2 * E * Iy)
+    thy = -(Fl[2] * x * (2 * ell - x) / (2 * E * Iy) - Ml[1] * x / (E * Iy))
+    g = [u * e1[c] + v * e2[c] + w * e3[c] for c in range(3)]
+    r = [phi * e1[c] + thy * e2[c] + thz * e3[c] for c in range(3)]
+    for c in range(3):
+        exact["u.%d.%d" % (k, c)] = g[c]
+        exact["u.%d.%d" % (k, c + 3)] = r[c]
+    exact["mag.%d" % k] = ("sqrt", sum(t * t for t in g))
+# The reactions at node 0 balance the loads (moment about node 0).
+rx = [ell * e1[c] for c in range(3)]
+Mr = [M[c] + (rx[(c + 1) % 3] * F[(c + 2) % 3] - rx[(c + 2) % 3] * F[(c + 1) % 3]) for c in range(3)]
+for c in range(3):
+    exact["R.0.%d" % c] = -F[c]
+    exact["R.0.%d" % (c + 3)] = -Mr[c]
+
+
+def value(v):
+    """(value, is_sqrt): a rational, or a square to compare with a root."""
+    if isinstance(v, tuple):
+        if v[0] == "sqrt":
+            return v[1], True
+        return v[1], False
+    return v, False
+
+
+def rel_gap(key, x):
+    v, is_sqrt = value(exact[key])
+    if is_sqrt:
+        # |x² − v| / v bounds twice the relative gap of the root.
+        if v == 0:
+            return abs(x)
+        return abs(x * x - v) / v / 2
+    if v == 0:
+        return abs(x)
+    return abs(x - v) / abs(v)
+
+
+worst = (Fr(0), None)
+missing = []
+for key, (x, err) in expect.items():
+    if key not in exact:
+        missing.append(key)
+        continue
+    g = rel_gap(key, x)
+    if g > worst[0]:
+        worst = (g, key)
+unmatched = [k for k in exact if k not in expect]
+lg = lambda q: "%.1f" % math.log2(q) if q > 0 else "-inf"
+print("KF3-UC-SPAN closed form: %d expectations, %d closed-form keys; GEN keys without a closed form: %s;"
+      " closed-form keys GEN lacks: %d" % (len(expect), len(exact), missing[:5], len(unmatched)))
+print("largest relative gap GEN (128-bit token) vs closed form: 2^%s at %s" % (lg(worst[0]), worst[1]))
+print("tip displacement u.%d.0..2 = %s" % (N, [float(exact["u.%d.%d" % (N, c)]) for c in range(3)]))
+
+if len(sys.argv) > 2:
+    # The Rust's published rows: `RV23 PUB <key> <value bits> <class> <bound bits|->`.
+    rows = []
+    scales = {}
+    sel = None
+    for line in open(sys.argv[2]):
+        if "RV23 SCALE " in line:
+            f = line[line.index("RV23 SCALE "):].split()
+            scales[(f[2], f[3])] = Fr(struct.unpack(">d", bytes.fromhex(f[4]))[0])
+        if "RV23 PUBSEL " in line:
+            sel = int(line.split()[-1])
+        if "RV23 PUB " not in line:
+            continue
+        f = line[line.index("RV23 PUB "):].split()
+        rows.append((f[2], f[3], f[4], f[5], f[6], f[7]))
+    classes = {}
+    for r in rows:
+        classes[r[2]] = classes.get(r[2], 0) + 1
+    print("published rows by class: %s (selected at %s)" % (classes, sel))
+    n = bad = 0
+    worst = (0.0, None)
+    for key, bits, cls, bnd, body, kind in rows:
+        if key not in exact or bits == "-":
+            continue
+        q = Fr(struct.unpack(">d", bytes.fromhex(bits))[0])
+        v, is_sqrt = value(exact[key])
+        n += 1
+        if cls == "rel":
+            # relative_verified: 2^-64·max(|q|, S)·(1 + 2^-21), plus publication's half ulp.
+            b = Fr(1, 2 ** 64) * max(abs(q), scales.get((body, kind), Fr(0))) * (1 + Fr(1, 2 ** 21)) \
+                + abs(q) * Fr(1, 2 ** 53) + Fr(2) ** -1074
+        if cls == "input":
+            # input_derived: the prescribed value itself, within half an ulp.
+            ok = abs(q - v) <= abs(q) * Fr(1, 2 ** 53) + Fr(2) ** -1074
+            bad += 0 if ok else 1
+        if cls in ("abs", "rel"):
+            if cls == "abs":
+                b = Fr(struct.unpack(">d", bytes.fromhex(bnd))[0]) * (1 + Fr(1, 2 ** (21 if sel == 512 else 22)))
+            # |q − x| ≤ b, with x = √v for a magnitude: (q − b)² ≤ v ≤ (q + b)².
+            if is_sqrt:
+                ok = (max(q - b, 0)) ** 2 <= v <= (q + b) ** 2
+                gap = None
+            else:
+                ok = abs(q - v) <= b
+                gap = float(abs(q - v) / b) if b else (0.0 if q == v else math.inf)
+            if gap is not None and gap > worst[0]:
+                worst = (gap, key)
+            bad += 0 if ok else 1
+    print("Rust published rows checked against the closed form and their claims (relative rows: 2^-64·max(|q|, S)·(1 + 2^-21) plus half an ulp): %d, violations %d,"
+          " worst |q - x|/b %.3e at %s" % (n, bad, worst[0], worst[1]))

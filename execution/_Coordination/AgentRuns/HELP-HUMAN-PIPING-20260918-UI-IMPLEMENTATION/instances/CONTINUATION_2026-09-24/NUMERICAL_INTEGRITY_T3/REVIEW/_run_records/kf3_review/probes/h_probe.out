@@ -1,0 +1,47 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/frame_kernel)
+warning: function `set` is never used
+   --> <wt>/rv23-mut/probe/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs:339:19
+    |
+339 |     pub(crate) fn set(v: Option<(usize, u8)>) {
+    |                   ^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/rv23-mut/probe/projects/chirality-piping/core/solver/performance_harness)
+warning: `open_pipe_stress_frame_kernel` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 16.43s
+     Running tests/rv23_h_probe.rs (<wt>/rv23-mut/probe-target/release/deps/rv23_h_probe-3efc3ce32a8125e8)
+
+running 1 test
+RV23H full limit=18446744073709551615 attempt 0 p=128 outcome=Accepted own=1420064/1420064 shared=2074272/2074272 unstaged=(0, 0) equal=true
+RV23H full limit=18446744073709551615 attempt 1 p=256 outcome=Verified own=1429260/1429260 shared=4205875/4205875 unstaged=(0, 0) equal=true
+RV23H full limit=18446744073709551615 mine=true H=true work_closes=true
+RV23H solve_128 limit=2367491 attempt 0 p=128 outcome=Rejected(VerificationFailed) own=293219/293219 shared=2074272/2074272 unstaged=(0, 0) equal=true
+RV23H solve_128 limit=2367491 attempt 1 p=256 outcome=Failed(Stop(Budget(Case))) own=0/0 shared=28740/28740 unstaged=(0, 0) equal=true
+RV23H solve_128 limit=2367491 mine=true H=true work_closes=true
+RV23H solve_256 limit=5447988 attempt 0 p=128 outcome=Rejected(VerificationFailed) own=293219/293219 shared=2074272/2074272 unstaged=(0, 0) equal=true
+RV23H solve_256 limit=5447988 attempt 1 p=256 outcome=Failed(Stop(Budget(Case))) own=330698/330698 shared=2782745/2782745 unstaged=(0, 0) equal=true
+RV23H solve_256 limit=5447988 mine=true H=true work_closes=true
+RV23H verify_256 limit=8002626 attempt 0 p=128 outcome=Failed(Stop(Budget(Case))) own=375671/375671 shared=2074272/2074272 unstaged=(0, 0) equal=true
+RV23H verify_256 limit=8002626 attempt 1 p=256 outcome=Solved own=1429260/1429260 shared=4205875/4205875 unstaged=(0, 0) equal=true
+RV23H verify_256 limit=8002626 mine=true H=true work_closes=true
+RV23H into_uc limit=6826161 attempt 0 p=128 outcome=Rejected(VerificationFailed) own=293219/293219 shared=2074272/2074272 unstaged=(0, 0) equal=true
+RV23H into_uc limit=6826161 attempt 1 p=256 outcome=Failed(Stop(Budget(Case))) own=330698/330698 shared=4152466/4152466 unstaged=(0, 0) equal=true
+RV23H into_uc limit=6826161 mine=true H=true work_closes=true
+RV23H into_solve_128 limit=2074282 attempt 0 p=128 outcome=Failed(Stop(Budget(Case))) own=100728/100728 shared=2074272/2074272 unstaged=(0, 0) equal=true
+RV23H into_solve_128 limit=2074282 mine=true H=true work_closes=true
+RV23H into_decide_128 limit=8566048 attempt 0 p=128 outcome=Failed(Stop(Budget(Case))) own=958933/958933 shared=2074272/2074272 unstaged=(0, 0) equal=true
+RV23H into_decide_128 limit=8566048 attempt 1 p=256 outcome=Solved own=1429260/1429260 shared=4205875/4205875 unstaged=(0, 0) equal=true
+RV23H into_decide_128 limit=8566048 mine=true H=true work_closes=true
+RV23H sweep RF-LARGE-CHAIN-n00010-AX: runs 2011, failures 0
+test rv23_rv22_paths_and_a_dense_sweep ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.61s
+

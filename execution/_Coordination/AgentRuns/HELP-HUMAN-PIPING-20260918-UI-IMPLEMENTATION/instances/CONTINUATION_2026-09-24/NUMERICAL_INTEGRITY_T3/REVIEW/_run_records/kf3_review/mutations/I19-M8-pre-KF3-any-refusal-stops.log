@@ -1,0 +1,117 @@
+
+running 56 tests
+test structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work ... FAILED
+test structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path ... ok
+test structural::retained::adaptive::kf3_tests::kf3_a_refused_block_without_data_needs_no_bound ... FAILED
+test structural::retained::adaptive::kf3_tests::kf3_txt_is_the_pinned_file ... ok
+test structural::retained::adaptive::kf3_tests::kf3_uc_span_moves_from_a_stop_to_selected_honestly ... FAILED
+test structural::retained::adaptive::kf3_tests::kf3_models_equal_the_generators_emulation_at_128_and_256 ... FAILED
+test structural::retained::adaptive::method_tests::directional_span_under_5a2_was_selected_at_256_and_published_within_its_claim ... ok
+test structural::retained::adaptive::kf3_tests::kf3_with_neither_bound_the_attempt_stops_with_the_refusal_as_before ... FAILED
+test structural::retained::adaptive::method_tests::e_charge_on_rf_large_at_100_members_at_256 ... ok
+test structural::retained::adaptive::method_tests::e_headroom_every_state_pair_is_within_2_to_the_8_of_its_resolution ... ok
+test structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification ... ok
+test structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star ... ok
+test structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row ... ok
+test structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order ... ok
+test structural::retained::adaptive::method_tests::sd_g5_lever2s_estimate_residual_is_nonzero_where_the_assembled_one_vanishes ... ok
+test structural::retained::adaptive::method_tests::sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_above ... ok
+test structural::retained::adaptive::method_tests::sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state ... ok
+test structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms ... ok
+test structural::retained::adaptive::scale_tests::blocks_are_the_free_free_components_and_data_follows_7a ... ok
+test structural::retained::adaptive::scale_tests::e_uc_on_rf_large_at_100_members_at_256 ... ok
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... ok
+test structural::retained::adaptive::scale_tests::e_uc_uc_s_and_b_equal_the_emulation_and_never_fall_below_the_norm_per_block ... ok
+test structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision ... ok
+test structural::retained::adaptive::scale_tests::e_unit_on_rf_large_at_100_members_at_128_and_256 ... ok
+test structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends ... ok
+test structural::retained::adaptive::tests::a_ceiling_case_is_unresolved_with_its_attempts ... ok
+test structural::retained::adaptive::tests::a_structural_zero_kind_is_accepted_through_the_coupled_scale ... ok
+test structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds ... ok
+test structural::retained::adaptive::tests::an_all_zero_body_agrees_exactly ... ok
+test structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule ... ok
+test structural::retained::adaptive::tests::factor_reuse_is_bit_identical_to_separate_solves ... ok
+test structural::retained::adaptive::tests::failed_and_verification_attempts_are_charged ... ok
+test structural::retained::adaptive::tests::golden_work_counts ... ok
+test structural::retained::adaptive::tests::k4s_files_call_no_binary64_transcendental_or_fused_function ... ok
+test structural::retained::adaptive::tests::k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_against_512 ... ok
+test structural::retained::adaptive::tests::n05_and_n06_are_accepted_at_128_against_256 ... ok
+test structural::retained::adaptive::tests::probe_v4_s3_y_reference_with_a_chord_component ... ok
+test structural::retained::adaptive::tests::refinement_stops_after_three_corrections_and_the_attempt_escalates ... ok
+test structural::retained::adaptive::tests::retained_states_equal_the_generators_emulation_of_the_method_bit_for_bit ... ok
+test structural::retained::adaptive::tests::runs_and_list_permutations_are_deterministic ... ok
+test structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary ... ok
+test structural::retained::adaptive::tests::the_reactions_only_control_is_rejected_at_128_by_a_reaction ... ok
+test structural::retained::adaptive::tests::the_six_member_skew_run_is_rejected_at_128_and_its_verification_is_reused ... ok
+test structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal ... ok
+test structural::retained::bound::tests::kf3_a_refused_s_is_unavailable_and_b_is_uc ... ok
+test structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s ... FAILED
+test structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without ... FAILED
+test structural::retained::bound::tests::sd_g5s_searched_profiles_reach_each_boundary_of_7b_to_7d ... ok
+test structural::retained::bound::tests::the_low_precision_stress_keeps_every_bound_above_the_exact_norm_and_m27s_does_not ... ok
+test structural::retained::bound::tests::the_product_of_two_exact_sums_is_exact ... ok
+test structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm ... ok
+test structural::retained::verify::tests::an_e_hat_that_overflows_while_e_encodes_stops_as_e_does ... ok
+test structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64 ... ok
+test structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584 ... ok
+test structural::retained::wide_sum::tests::a_refused_term_writes_nothing_and_reset_zeroes_both_magnitudes_in_full ... ok
+test structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them ... ok
+
+failures:
+
+---- structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work stdout ----
+
+thread 'structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work' (17472327) panicked at src/structural/retained/../../../tests/retained_k4/kf3_tests.rs:505:35:
+called `Result::unwrap()` on an `Err` value: Span
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- structural::retained::adaptive::kf3_tests::kf3_a_refused_block_without_data_needs_no_bound stdout ----
+KF3-UC-SPAN-ZERO: debug wall time 0.4 s
+
+thread 'structural::retained::adaptive::kf3_tests::kf3_a_refused_block_without_data_needs_no_bound' (17472328) panicked at src/structural/retained/../../../tests/retained_k4/kf3_tests.rs:238:9:
+KF3-UC-SPAN-ZERO: Unresolved { reason: ExactSumSpan, attempts: [AttemptRecord { precision: 128, role: Candidate, outcome: Rejected(VerificationFailed), residual_basis: 192, corrections: 0, pivot_margin_min: Some(9.488408194875909e24), rcond: Some(4.611935659992392e-19), residual_worst: Some(0.0), work: AttemptWork { widths: [WidthWork { add: 0, sub: 39708, mul: 39708, div: 2340, sqrt: 391, round: 19903, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 18768, solve: 3971592, refinement: 56160, recovery: 689564, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 98297911, shared_stages: StageWork { formation: 17464389, assembly: 469527, residual_formation: 18985029, factor: 28201404, condition: 33177562, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 42156, profile_entries: 22194, limbs_per_entry: 4 }, gate: Some(Coalesced), verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }, AttemptRecord { precision: 256, role: Verification, outcome: Failed(Stop(Span)), residual_basis: 320, corrections: 0, pivot_margin_min: Some(3.2287379988644036e63), rcond: Some(4.611935659992392e-19), residual_worst: Some(0.0), work: AttemptWork { widths: [WidthWork { add: 0, sub: 39708, mul: 39708, div: 2340, sqrt: 391, round: 19903, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 18768, solve: 3971592, refinement: 56160, recovery: 689564, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 136368939, shared_stages: StageWork { formation: 19409709, assembly: 663873, residual_formation: 54648483, factor: 28243562, condition: 33403312, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 14892588, wide_formation: 55618479, uc: 11879623 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 42156, profile_entries: 22194, limbs_per_entry: 4 }, gate: Some(Coalesced), verification_work: 0, verification: None, verification_shared_work: 82390690, verification_shared_built_here: true, bound_refusals: [] }], geometry: [Restrained] }
+
+---- structural::retained::adaptive::kf3_tests::kf3_uc_span_moves_from_a_stop_to_selected_honestly stdout ----
+KF3-UC-SPAN: debug wall time 0.4 s
+
+thread 'structural::retained::adaptive::kf3_tests::kf3_uc_span_moves_from_a_stop_to_selected_honestly' (17472341) panicked at src/structural/retained/../../../tests/retained_k4/kf3_tests.rs:185:9:
+KF3-UC-SPAN: Unresolved { reason: ExactSumSpan, attempts: [AttemptRecord { precision: 128, role: Candidate, outcome: Rejected(VerificationFailed), residual_basis: 192, corrections: 0, pivot_margin_min: Some(9.488408194875909e24), rcond: Some(4.611935659992392e-19), residual_worst: Some(0.0010079858458139602), work: AttemptWork { widths: [WidthWork { add: 0, sub: 39708, mul: 39708, div: 7020, sqrt: 391, round: 24583, two_sum: 0, two_product: 93896 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 1, sqrt: 0, round: 2, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 300782, shift_limbs: 254840, net_limbs: 142534, rounded_limbs: 60269, max_span_bits: 467 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 18792, solve: 3971592, refinement: 8634872, recovery: 1966071, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 98297911, shared_stages: StageWork { formation: 17464389, assembly: 469527, residual_formation: 18985029, factor: 28201404, condition: 33177562, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 42156, profile_entries: 22194, limbs_per_entry: 4 }, gate: Some(Coalesced), verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false, bound_refusals: [] }, AttemptRecord { precision: 256, role: Verification, outcome: Failed(Stop(Span)), residual_basis: 320, corrections: 0, pivot_margin_min: Some(3.2287379988644036e63), rcond: Some(4.611935659992392e-19), residual_worst: Some(0.0010361569284447804), work: AttemptWork { widths: [WidthWork { add: 0, sub: 39708, mul: 39708, div: 7020, sqrt: 391, round: 24583, two_sum: 0, two_product: 23804 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 70092 }, WidthWork { add: 0, sub: 0, mul: 0, div: 1, sqrt: 0, round: 2, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 490907, shift_limbs: 419058, net_limbs: 237471, rounded_limbs: 100720, max_span_bits: 851 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 18792, solve: 3971592, refinement: 13261162, recovery: 2315400, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 136368939, shared_stages: StageWork { formation: 19409709, assembly: 663873, residual_formation: 54648483, factor: 28243562, condition: 33403312, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 14892588, wide_formation: 55618479, uc: 11879623 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 42156, profile_entries: 22194, limbs_per_entry: 4 }, gate: Some(Coalesced), verification_work: 0, verification: None, verification_shared_work: 82390690, verification_shared_built_here: true, bound_refusals: [] }], geometry: [Restrained] }
+
+---- structural::retained::adaptive::kf3_tests::kf3_models_equal_the_generators_emulation_at_128_and_256 stdout ----
+
+thread 'structural::retained::adaptive::kf3_tests::kf3_models_equal_the_generators_emulation_at_128_and_256' (17472336) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:313:6:
+called `Result::unwrap()` on an `Err` value: Span
+
+---- structural::retained::adaptive::kf3_tests::kf3_with_neither_bound_the_attempt_stops_with_the_refusal_as_before stdout ----
+
+thread 'structural::retained::adaptive::kf3_tests::kf3_with_neither_bound_the_attempt_stops_with_the_refusal_as_before' (17472350) panicked at src/structural/retained/../../../tests/retained_k4/kf3_tests.rs:290:5:
+assertion `left == right` failed
+  left: []
+ right: [(0, Uc, "refused:span:backward:66")]
+
+---- structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s stdout ----
+
+thread 'structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s' (17472646) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:352:77:
+called `Result::unwrap()` on an `Err` value: Span
+
+---- structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without stdout ----
+
+thread 'structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without' (17472647) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:464:84:
+called `Result::unwrap()` on an `Err` value: Span
+
+
+failures:
+    structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work
+    structural::retained::adaptive::kf3_tests::kf3_a_refused_block_without_data_needs_no_bound
+    structural::retained::adaptive::kf3_tests::kf3_models_equal_the_generators_emulation_at_128_and_256
+    structural::retained::adaptive::kf3_tests::kf3_uc_span_moves_from_a_stop_to_selected_honestly
+    structural::retained::adaptive::kf3_tests::kf3_with_neither_bound_the_attempt_stops_with_the_refusal_as_before
+    structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s
+    structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without
+
+test result: FAILED. 49 passed; 7 failed; 0 ignored; 0 measured; 292 filtered out; finished in 5.56s
+
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv23-mut/I19-M8-pre-KF3-any-refusal-stops/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `release` profile [optimized] target(s) in 24.19s
+     Running unittests src/lib.rs (<wt>/rv23-mut/I19-M8-pre-KF3-any-refusal-stops-target/release/deps/open_pipe_stress_frame_kernel-6c73ea1aa0136d52)
+error: test failed, to rerun pass `--lib`

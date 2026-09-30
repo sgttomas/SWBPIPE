@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""RV23: checks `rv23_synthetic_forward_refusal_and_refused_s` (`RV23 SYN2`):
+a 400-node nilpotent chain whose Uc refuses in the forward pass, and a
+tridiagonal block whose S is refused (σ = 2^-9000: σ′'s subtraction spans).
+- the reviewer's passes and GEN's A2 passes against the Rust (refusal row,
+  and U, N_L, t, Uc of the other block);
+- GEN's `shift_schedule_em(a2=True)` against the Rust's shift results (S, and
+  the refusal);
+- B = S on the chain, B = Uc where S is refused, each against the exact norm.
+usage: rv23_syn2.py <probe stdout> <gen_k4_vectors.py>"""
+import importlib.util
+import math
+import sys
+from fractions import Fraction as Fr
+
+from rv23_oracle import (bounds_from, floor_log2, full_from_profile, gamma, inv_norm1_dense,
+                         inv_norm1_nilpotent, opt, parse_tok, passes)
+
+P = 256
+lines = [l[l.index("RV23 SYN2"):].split() for l in open(sys.argv[1]) if "RV23 SYN2" in l]
+first, rows, blk, Lrows, bl, shf, cert, misc = {}, {}, {}, {}, {}, {}, {}, {}
+for f in lines:
+    k = f[2]
+    if k == "K":
+        i = int(f[3]); blk[i] = int(f[4]); first[i] = int(f[5]); rows[i] = [parse_tok(t) for t in f[6:]]
+    elif k == "L":
+        Lrows[int(f[3])] = [parse_tok(t) for t in f[6:]]
+    elif k == "blk":
+        bl[int(f[3])] = dict(ref=f[4], U=f[6], NL=f[8], t=f[10], Uc=f[12])
+    elif k == "shf":
+        shf[int(f[3])] = dict(zip(f[4::2], f[5::2]))
+    elif k == "cert":
+        cert[int(f[3])] = dict(data=f[5], B=f[7])
+    else:
+        misc[k] = f[3:]
+n = len(first)
+fl = [first[i] for i in range(n)]
+rl = [rows[i] for i in range(n)]
+bk = [blk[i] for i in range(n)]
+L = [Lrows[i] for i in range(n)]
+gam = gamma(n, P)
+out = ["gamma equal: %s" % (gam == parse_tok(misc["gamma"][0]))]
+Ld = [dict() for _ in range(n)]
+for i in range(n):
+    for j in range(fl[i], i + 1):
+        Ld[i][j] = L[i][j - fl[i]]
+Lacc = [[Ld[i].get(j, Fr(0)) for j in range(0, i + 1)] for i in range(n)]
+c, ct, refused = passes(Lacc, fl, bk, P)
+for b in (0, 1):
+    rb = [i for i in range(n) if bk[i] == b]
+    if b in refused:
+        mine = "refused:span:%s:%d" % refused[b]
+        out.append("block %d: mine %s rust %s equal %s" % (b, mine, bl[b]["ref"], mine == bl[b]["ref"]))
+    else:
+        U = max(c[i] for i in rb); NL = max(ct[i] for i in rb)
+        t, uc = bounds_from(U, NL, gam, P)
+        out.append("block %d: mine U,NL,t,Uc equal rust: %s" % (b, U == parse_tok(bl[b]["U"]) and NL == parse_tok(bl[b]["NL"])
+                                                               and t == parse_tok(bl[b]["t"]) and uc == opt(bl[b]["Uc"])))
+spec = importlib.util.spec_from_file_location("gen", sys.argv[2])
+gen = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(gen)
+get = lambda i, j: Ld[i].get(j, Fr(0))
+gref = {}
+gc = gen.u_pass_em(get, fl, n, P, bk, gref)
+gct = gen.nl_pass_em(get, fl, n, P, bk, gref)
+for b in (0, 1):
+    rb = [i for i in range(n) if bk[i] == b]
+    if b in gref:
+        tg = gen.refusal_token(gref[b])
+        out.append("GEN block %d: %s rust %s equal %s" % (b, tg, bl[b]["ref"], tg == bl[b]["ref"]))
+    else:
+        U = max(gc[i] for i in rb); NL = max(gct[i] for i in rb)
+        t, uc = gen.uc_from_em_a2(U, NL, gen.gamma_em(n, P), P)
+        out.append("GEN block %d: U,NL,Uc equal rust: %s" % (b, U == parse_tok(bl[b]["U"]) and NL == parse_tok(bl[b]["NL"])
+                                                          and uc == opt(bl[b]["Uc"])))
+# GEN's shift schedule with A2, on the same K̃ (lower triangle by row).
+scaled = [dict() for _ in range(n)]
+for i in range(n):
+    for off, v in enumerate(rl[i]):
+        if v != 0:
+            scaled[i][fl[i] + off] = v
+na = sum(1 for x in bk if x == 0)
+start = [(0, Fr(2) ** -9000, na), (1, Fr(2) ** -60, n - na)]
+res, count = gen.shift_schedule_em(scaled, fl, bk, gen.gamma_em(n, P), start, P, a2=True)
+out.append("GEN shiftcount %d rust %s" % (count, misc["shiftcount"][0]))
+for b in (0, 1):
+    r = res[b]
+    gS = r.get("S")
+    gref_s = gen.refusal_token(r["refused"]) if "refused" in r else "-"
+    out.append("GEN shf %d: S equal rust %s, refusal %s rust %s" % (b, gS == opt(shf[b]["S"]), gref_s, shf[b]["refused"]))
+# Exact norms and B.
+norm = {}
+ia = [i for i in range(n) if bk[i] == 0]
+norm[0], _ = inv_norm1_dense(full_from_profile(fl, rl, ia))
+norm[1] = inv_norm1_nilpotent(fl, rl, L, [i for i in range(n) if bk[i] == 1])
+lg = lambda x: "%.3f" % (floor_log2(x) + math.log2(float(x / Fr(2) ** floor_log2(x)))) if x else "-"
+for b in (0, 1):
+    B = opt(cert[b]["B"]); S = opt(shf[b]["S"]); Uc = opt(bl[b]["Uc"])
+    cands = [x for x in (Uc, S) if x is not None]
+    out.append("7d block %d: refusedUc %s refusedS %s Uc 2^%s S 2^%s B 2^%s norm 2^%s | B>=norm %s B==min(formed) %s" % (
+        b, bl[b]["ref"], shf[b]["refused"], lg(Uc), lg(S), lg(B), lg(norm[b]), B >= norm[b], B == min(cands)))
+out.append("7d: ucmissing/stop = %s" % " ".join(misc["ucmissing"]))
+print("\n".join(out))
