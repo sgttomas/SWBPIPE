@@ -1,0 +1,1547 @@
+{
+  "basis": "74b3c7313491f27f71c4361d5e1657ee4a39e2f1",
+  "results": [
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T15:49:37Z",
+          "conclusion": "success",
+          "duration_seconds": 14.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-29T15:49:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T16:09:45Z",
+          "conclusion": "success",
+          "duration_seconds": 1204.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-29T15:49:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:59:22Z",
+          "conclusion": "success",
+          "duration_seconds": 581.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-29T15:49:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:56:22Z",
+          "conclusion": "success",
+          "duration_seconds": 402.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-29T15:49:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:55:33Z",
+          "conclusion": "success",
+          "duration_seconds": 353.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-29T15:49:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:58:29Z",
+          "conclusion": "success",
+          "duration_seconds": 530.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-29T15:49:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:49:37Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-29T15:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T16:09:53Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-29T16:09:47Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5a46a6278af3c857a52ecb9be6880990493190f8",
+        "status": "completed"
+      },
+      "run_id": "36593109243",
+      "slice": "K4"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T15:49:30Z",
+          "conclusion": "success",
+          "duration_seconds": 7.0,
+          "name": "Select App coverage",
+          "startedAt": "2026-09-29T15:49:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:49:37Z",
+          "conclusion": "success",
+          "duration_seconds": 4.0,
+          "name": "Harness pre-merge",
+          "startedAt": "2026-09-29T15:49:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:49:30Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "App instruction bundle",
+          "startedAt": "2026-09-29T15:49:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:49:30Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "App Runtime integration",
+          "startedAt": "2026-09-29T15:49:31Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5a46a6278af3c857a52ecb9be6880990493190f8",
+        "status": "completed"
+      },
+      "run_id": "36593109220",
+      "slice": "K4"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T15:51:28Z",
+          "conclusion": "success",
+          "duration_seconds": 126.0,
+          "name": "harness",
+          "startedAt": "2026-09-29T15:49:22Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5a46a6278af3c857a52ecb9be6880990493190f8",
+        "status": "completed"
+      },
+      "run_id": "36593109362",
+      "slice": "K4"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T15:49:33Z",
+          "conclusion": "success",
+          "duration_seconds": 11.0,
+          "name": "Select PEC coverage",
+          "startedAt": "2026-09-29T15:49:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:49:41Z",
+          "conclusion": "success",
+          "duration_seconds": 5.0,
+          "name": "pec",
+          "startedAt": "2026-09-29T15:49:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:49:33Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "PEC workspace tests",
+          "startedAt": "2026-09-29T15:49:34Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5a46a6278af3c857a52ecb9be6880990493190f8",
+        "status": "completed"
+      },
+      "run_id": "36593109318",
+      "slice": "K4"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T15:49:35Z",
+          "conclusion": "success",
+          "duration_seconds": 13.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-29T15:49:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T16:02:18Z",
+          "conclusion": "success",
+          "duration_seconds": 760.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-29T15:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T16:07:58Z",
+          "conclusion": "success",
+          "duration_seconds": 1100.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-29T15:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:57:13Z",
+          "conclusion": "success",
+          "duration_seconds": 455.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-29T15:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T16:00:10Z",
+          "conclusion": "success",
+          "duration_seconds": 632.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-29T15:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:58:52Z",
+          "conclusion": "success",
+          "duration_seconds": 554.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-29T15:49:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T15:49:36Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-29T15:49:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T16:08:05Z",
+          "conclusion": "success",
+          "duration_seconds": 4.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-29T16:08:01Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "headSha": "5a46a6278af3c857a52ecb9be6880990493190f8",
+        "status": "completed"
+      },
+      "run_id": "36593106169",
+      "slice": "K4"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T20:42:12Z",
+          "conclusion": "success",
+          "duration_seconds": 15.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-29T20:41:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:52:54Z",
+          "conclusion": "success",
+          "duration_seconds": 640.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-29T20:42:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:51:47Z",
+          "conclusion": "success",
+          "duration_seconds": 573.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-29T20:42:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:52:39Z",
+          "conclusion": "success",
+          "duration_seconds": 624.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-29T20:42:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:49:57Z",
+          "conclusion": "success",
+          "duration_seconds": 462.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-29T20:42:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:50:44Z",
+          "conclusion": "success",
+          "duration_seconds": 509.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-29T20:42:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:42:12Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-29T20:42:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:53:02Z",
+          "conclusion": "success",
+          "duration_seconds": 5.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-29T20:52:57Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "66adfede42de817efb5e0090342c02e3e4382f21",
+        "status": "completed"
+      },
+      "run_id": "36628177877",
+      "slice": "KF1"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T20:42:08Z",
+          "conclusion": "success",
+          "duration_seconds": 10.0,
+          "name": "Select App coverage",
+          "startedAt": "2026-09-29T20:41:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:42:19Z",
+          "conclusion": "success",
+          "duration_seconds": 7.0,
+          "name": "Harness pre-merge",
+          "startedAt": "2026-09-29T20:42:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:42:09Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App instruction bundle",
+          "startedAt": "2026-09-29T20:42:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:42:09Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App Runtime integration",
+          "startedAt": "2026-09-29T20:42:09Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "66adfede42de817efb5e0090342c02e3e4382f21",
+        "status": "completed"
+      },
+      "run_id": "36628178388",
+      "slice": "KF1"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T20:44:08Z",
+          "conclusion": "success",
+          "duration_seconds": 131.0,
+          "name": "harness",
+          "startedAt": "2026-09-29T20:41:57Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "66adfede42de817efb5e0090342c02e3e4382f21",
+        "status": "completed"
+      },
+      "run_id": "36628177857",
+      "slice": "KF1"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T20:42:09Z",
+          "conclusion": "success",
+          "duration_seconds": 11.0,
+          "name": "Select PEC coverage",
+          "startedAt": "2026-09-29T20:41:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:42:18Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "pec",
+          "startedAt": "2026-09-29T20:42:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:42:09Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "PEC workspace tests",
+          "startedAt": "2026-09-29T20:42:10Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "66adfede42de817efb5e0090342c02e3e4382f21",
+        "status": "completed"
+      },
+      "run_id": "36628177872",
+      "slice": "KF1"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T20:42:23Z",
+          "conclusion": "success",
+          "duration_seconds": 26.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-29T20:41:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:59:56Z",
+          "conclusion": "success",
+          "duration_seconds": 1050.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-29T20:42:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:51:51Z",
+          "conclusion": "success",
+          "duration_seconds": 566.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-29T20:42:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:53:41Z",
+          "conclusion": "success",
+          "duration_seconds": 676.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-29T20:42:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:50:45Z",
+          "conclusion": "success",
+          "duration_seconds": 500.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-29T20:42:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:53:33Z",
+          "conclusion": "success",
+          "duration_seconds": 668.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-29T20:42:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T20:42:23Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-29T20:42:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T21:00:05Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-29T20:59:59Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "headSha": "66adfede42de817efb5e0090342c02e3e4382f21",
+        "status": "completed"
+      },
+      "run_id": "36628173972",
+      "slice": "KF1"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T23:45:40Z",
+          "conclusion": "success",
+          "duration_seconds": 16.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-29T23:45:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:04:03Z",
+          "conclusion": "success",
+          "duration_seconds": 1101.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-29T23:45:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:54:28Z",
+          "conclusion": "success",
+          "duration_seconds": 526.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-29T23:45:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:52:37Z",
+          "conclusion": "success",
+          "duration_seconds": 415.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-29T23:45:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:56:38Z",
+          "conclusion": "success",
+          "duration_seconds": 656.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-29T23:45:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:51:30Z",
+          "conclusion": "success",
+          "duration_seconds": 348.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-29T23:45:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:45:40Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-29T23:45:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:04:12Z",
+          "conclusion": "success",
+          "duration_seconds": 7.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T00:04:05Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5f0d394262516e4053322730506cb88dfb36a2f0",
+        "status": "completed"
+      },
+      "run_id": "36646865501",
+      "slice": "VK"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T23:45:33Z",
+          "conclusion": "success",
+          "duration_seconds": 9.0,
+          "name": "Select App coverage",
+          "startedAt": "2026-09-29T23:45:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:45:42Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Harness pre-merge",
+          "startedAt": "2026-09-29T23:45:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:45:33Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "App Runtime integration",
+          "startedAt": "2026-09-29T23:45:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:45:33Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "App instruction bundle",
+          "startedAt": "2026-09-29T23:45:34Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5f0d394262516e4053322730506cb88dfb36a2f0",
+        "status": "completed"
+      },
+      "run_id": "36646865424",
+      "slice": "VK"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T23:47:25Z",
+          "conclusion": "success",
+          "duration_seconds": 120.0,
+          "name": "harness",
+          "startedAt": "2026-09-29T23:45:25Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5f0d394262516e4053322730506cb88dfb36a2f0",
+        "status": "completed"
+      },
+      "run_id": "36646865511",
+      "slice": "VK"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T23:45:35Z",
+          "conclusion": "success",
+          "duration_seconds": 10.0,
+          "name": "Select PEC coverage",
+          "startedAt": "2026-09-29T23:45:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:45:43Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "pec",
+          "startedAt": "2026-09-29T23:45:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:45:35Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "PEC workspace tests",
+          "startedAt": "2026-09-29T23:45:36Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "5f0d394262516e4053322730506cb88dfb36a2f0",
+        "status": "completed"
+      },
+      "run_id": "36646865507",
+      "slice": "VK"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-29T23:45:42Z",
+          "conclusion": "success",
+          "duration_seconds": 18.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-29T23:45:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:06:22Z",
+          "conclusion": "success",
+          "duration_seconds": 1227.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-29T23:45:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:55:00Z",
+          "conclusion": "success",
+          "duration_seconds": 556.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-29T23:45:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:53:44Z",
+          "conclusion": "success",
+          "duration_seconds": 480.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-29T23:45:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:58:01Z",
+          "conclusion": "success",
+          "duration_seconds": 737.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-29T23:45:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:54:49Z",
+          "conclusion": "success",
+          "duration_seconds": 545.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-29T23:45:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-29T23:45:42Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-29T23:45:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:06:30Z",
+          "conclusion": "success",
+          "duration_seconds": 5.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T00:06:25Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "headSha": "5f0d394262516e4053322730506cb88dfb36a2f0",
+        "status": "completed"
+      },
+      "run_id": "36646861753",
+      "slice": "VK"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T00:29:29Z",
+          "conclusion": "success",
+          "duration_seconds": 15.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-30T00:29:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:51:46Z",
+          "conclusion": "success",
+          "duration_seconds": 1335.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-30T00:29:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:39:24Z",
+          "conclusion": "success",
+          "duration_seconds": 593.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-30T00:29:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:37:19Z",
+          "conclusion": "success",
+          "duration_seconds": 468.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-30T00:29:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:37:10Z",
+          "conclusion": "success",
+          "duration_seconds": 459.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-30T00:29:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:37:32Z",
+          "conclusion": "success",
+          "duration_seconds": 481.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-30T00:29:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:29:29Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-30T00:29:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:51:52Z",
+          "conclusion": "success",
+          "duration_seconds": 4.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T00:51:48Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "597c81ba4b3dcf9a1154ef438a3c827054a57ad9",
+        "status": "completed"
+      },
+      "run_id": "36650521264",
+      "slice": "K6B"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T00:28:52Z",
+          "conclusion": "success",
+          "duration_seconds": 9.0,
+          "name": "Select App coverage",
+          "startedAt": "2026-09-30T00:28:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:29:19Z",
+          "conclusion": "success",
+          "duration_seconds": 5.0,
+          "name": "Harness pre-merge",
+          "startedAt": "2026-09-30T00:29:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:28:53Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App instruction bundle",
+          "startedAt": "2026-09-30T00:28:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:28:53Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App Runtime integration",
+          "startedAt": "2026-09-30T00:28:53Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "597c81ba4b3dcf9a1154ef438a3c827054a57ad9",
+        "status": "completed"
+      },
+      "run_id": "36650521165",
+      "slice": "K6B"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T00:31:01Z",
+          "conclusion": "success",
+          "duration_seconds": 137.0,
+          "name": "harness",
+          "startedAt": "2026-09-30T00:28:44Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "597c81ba4b3dcf9a1154ef438a3c827054a57ad9",
+        "status": "completed"
+      },
+      "run_id": "36650521163",
+      "slice": "K6B"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T00:28:53Z",
+          "conclusion": "success",
+          "duration_seconds": 10.0,
+          "name": "Select PEC coverage",
+          "startedAt": "2026-09-30T00:28:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:28:59Z",
+          "conclusion": "success",
+          "duration_seconds": 4.0,
+          "name": "pec",
+          "startedAt": "2026-09-30T00:28:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:28:53Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "PEC workspace tests",
+          "startedAt": "2026-09-30T00:28:54Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "597c81ba4b3dcf9a1154ef438a3c827054a57ad9",
+        "status": "completed"
+      },
+      "run_id": "36650521260",
+      "slice": "K6B"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T00:36:55Z",
+          "conclusion": "success",
+          "duration_seconds": 15.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-30T00:36:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:48:37Z",
+          "conclusion": "success",
+          "duration_seconds": 700.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-30T00:36:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:55:52Z",
+          "conclusion": "success",
+          "duration_seconds": 1135.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-30T00:36:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:46:24Z",
+          "conclusion": "success",
+          "duration_seconds": 567.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-30T00:36:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:48:18Z",
+          "conclusion": "success",
+          "duration_seconds": 681.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-30T00:36:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:46:40Z",
+          "conclusion": "success",
+          "duration_seconds": 583.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-30T00:36:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:36:55Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-30T00:36:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T00:55:59Z",
+          "conclusion": "success",
+          "duration_seconds": 5.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T00:55:54Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "headSha": "597c81ba4b3dcf9a1154ef438a3c827054a57ad9",
+        "status": "completed"
+      },
+      "run_id": "36650532005",
+      "slice": "K6B"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T04:33:41Z",
+          "conclusion": "success",
+          "duration_seconds": 14.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-30T04:33:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:55:46Z",
+          "conclusion": "success",
+          "duration_seconds": 1287.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-30T04:34:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:42:12Z",
+          "conclusion": "success",
+          "duration_seconds": 509.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-30T04:33:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:45:11Z",
+          "conclusion": "success",
+          "duration_seconds": 688.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-30T04:33:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:41:41Z",
+          "conclusion": "success",
+          "duration_seconds": 478.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-30T04:33:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:41:14Z",
+          "conclusion": "success",
+          "duration_seconds": 451.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-30T04:33:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:33:41Z",
+          "conclusion": "skipped",
+          "duration_seconds": -1.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-30T04:33:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:55:55Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T04:55:49Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+        "status": "completed"
+      },
+      "run_id": "36669372845",
+      "slice": "KF3"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T04:33:37Z",
+          "conclusion": "success",
+          "duration_seconds": 10.0,
+          "name": "Select App coverage",
+          "startedAt": "2026-09-30T04:33:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:33:43Z",
+          "conclusion": "success",
+          "duration_seconds": 4.0,
+          "name": "Harness pre-merge",
+          "startedAt": "2026-09-30T04:33:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:33:37Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App Runtime integration",
+          "startedAt": "2026-09-30T04:33:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:33:37Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App instruction bundle",
+          "startedAt": "2026-09-30T04:33:37Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+        "status": "completed"
+      },
+      "run_id": "36669372847",
+      "slice": "KF3"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T04:35:43Z",
+          "conclusion": "success",
+          "duration_seconds": 136.0,
+          "name": "harness",
+          "startedAt": "2026-09-30T04:33:27Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+        "status": "completed"
+      },
+      "run_id": "36669372872",
+      "slice": "KF3"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T04:33:33Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Select PEC coverage",
+          "startedAt": "2026-09-30T04:33:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:33:42Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "pec",
+          "startedAt": "2026-09-30T04:33:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:33:34Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "PEC workspace tests",
+          "startedAt": "2026-09-30T04:33:34Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+        "status": "completed"
+      },
+      "run_id": "36669372875",
+      "slice": "KF3"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T04:33:39Z",
+          "conclusion": "success",
+          "duration_seconds": 13.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-30T04:33:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:55:07Z",
+          "conclusion": "success",
+          "duration_seconds": 1286.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-30T04:33:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:39:56Z",
+          "conclusion": "success",
+          "duration_seconds": 374.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-30T04:33:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:44:34Z",
+          "conclusion": "success",
+          "duration_seconds": 653.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-30T04:33:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:40:52Z",
+          "conclusion": "success",
+          "duration_seconds": 430.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-30T04:33:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:45:30Z",
+          "conclusion": "success",
+          "duration_seconds": 708.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-30T04:33:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:33:40Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-30T04:33:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T04:55:15Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T04:55:09Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "headSha": "aa83f67969c2f618034b856ba6e1fc13ae10762e",
+        "status": "completed"
+      },
+      "run_id": "36669370536",
+      "slice": "KF3"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T05:30:05Z",
+          "conclusion": "success",
+          "duration_seconds": 14.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-30T05:29:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:54:04Z",
+          "conclusion": "success",
+          "duration_seconds": 1437.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-30T05:30:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:39:57Z",
+          "conclusion": "success",
+          "duration_seconds": 590.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-30T05:30:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:36:17Z",
+          "conclusion": "success",
+          "duration_seconds": 370.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-30T05:30:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:37:16Z",
+          "conclusion": "success",
+          "duration_seconds": 429.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-30T05:30:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:41:08Z",
+          "conclusion": "success",
+          "duration_seconds": 661.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-30T05:30:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:30:05Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-30T05:30:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:54:46Z",
+          "conclusion": "success",
+          "duration_seconds": 4.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T05:54:42Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "522167ac62f27ad999a4416d10b95f922ff8c665",
+        "status": "completed"
+      },
+      "run_id": "36673665663",
+      "slice": "KF2"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T05:30:33Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Select App coverage",
+          "startedAt": "2026-09-30T05:30:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:30:42Z",
+          "conclusion": "success",
+          "duration_seconds": 7.0,
+          "name": "Harness pre-merge",
+          "startedAt": "2026-09-30T05:30:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:30:33Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App Runtime integration",
+          "startedAt": "2026-09-30T05:30:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:30:33Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "App instruction bundle",
+          "startedAt": "2026-09-30T05:30:33Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "522167ac62f27ad999a4416d10b95f922ff8c665",
+        "status": "completed"
+      },
+      "run_id": "36673665575",
+      "slice": "KF2"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T05:32:03Z",
+          "conclusion": "success",
+          "duration_seconds": 132.0,
+          "name": "harness",
+          "startedAt": "2026-09-30T05:29:51Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "522167ac62f27ad999a4416d10b95f922ff8c665",
+        "status": "completed"
+      },
+      "run_id": "36673665617",
+      "slice": "KF2"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T05:30:01Z",
+          "conclusion": "success",
+          "duration_seconds": 9.0,
+          "name": "Select PEC coverage",
+          "startedAt": "2026-09-30T05:29:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:30:10Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "pec",
+          "startedAt": "2026-09-30T05:30:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:30:02Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "PEC workspace tests",
+          "startedAt": "2026-09-30T05:30:02Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "522167ac62f27ad999a4416d10b95f922ff8c665",
+        "status": "completed"
+      },
+      "run_id": "36673665543",
+      "slice": "KF2"
+    },
+    {
+      "head_matches": true,
+      "jobs": [
+        {
+          "completedAt": "2026-09-30T05:30:01Z",
+          "conclusion": "success",
+          "duration_seconds": 13.0,
+          "name": "Select source coverage",
+          "startedAt": "2026-09-30T05:29:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:50:55Z",
+          "conclusion": "success",
+          "duration_seconds": 1252.0,
+          "name": "Numerical cargo suite",
+          "startedAt": "2026-09-30T05:30:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:41:20Z",
+          "conclusion": "success",
+          "duration_seconds": 677.0,
+          "name": "Source remainder (4/4)",
+          "startedAt": "2026-09-30T05:30:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:37:44Z",
+          "conclusion": "success",
+          "duration_seconds": 461.0,
+          "name": "Source remainder (2/4)",
+          "startedAt": "2026-09-30T05:30:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:40:02Z",
+          "conclusion": "success",
+          "duration_seconds": 599.0,
+          "name": "Source remainder (1/4)",
+          "startedAt": "2026-09-30T05:30:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:40:28Z",
+          "conclusion": "success",
+          "duration_seconds": 625.0,
+          "name": "Source remainder (3/4)",
+          "startedAt": "2026-09-30T05:30:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:30:01Z",
+          "conclusion": "skipped",
+          "duration_seconds": 0.0,
+          "name": "Accessibility barrier and selected coverage",
+          "startedAt": "2026-09-30T05:30:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-09-30T05:51:04Z",
+          "conclusion": "success",
+          "duration_seconds": 6.0,
+          "name": "Desktop E2E (source mode)",
+          "startedAt": "2026-09-30T05:50:58Z",
+          "status": "completed"
+        }
+      ],
+      "metadata": {
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "headSha": "522167ac62f27ad999a4416d10b95f922ff8c665",
+        "status": "completed"
+      },
+      "run_id": "36673660523",
+      "slice": "KF2"
+    }
+  ]
+}
