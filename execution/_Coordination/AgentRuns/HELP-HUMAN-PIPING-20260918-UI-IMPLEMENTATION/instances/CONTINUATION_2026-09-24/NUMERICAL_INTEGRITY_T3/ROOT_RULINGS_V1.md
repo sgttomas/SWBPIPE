@@ -2634,3 +2634,20 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
 **The NOTEs are recorded:** RETURN's load range, the move-model heap/E column, the adapter through K6's section formula, and the two further unstaged paths, which go to KF3. RV22-M5 (the binary's prefix parity always true) and RV22-M7 (the backstop against the RSS cap) are killed if cheap, and otherwise recorded; RV22-M2 is equivalent on single-case models.
 
 **Then:** CI and the dispatch on the new head, DEC-025, GEN-8, RV22's confirmation, and the merge.
+
+## KF3: checkpoint A accepted (ROOT, 2026-09-29)
+
+- **A is accepted.** ROOT committed it on the KF3 branch: `29c0b69e4` (the code and tests) and `a7ec4981a` (the checkpoint record).
+  - **Amendment A2 is implemented as ruled:**
+    - a refused bound marks only its block;
+    - B = min over the formed bounds;
+    - a block with data and no bound stops with the refusal, which outranks a `uc` rejection;
+    - budget stops are never refusals;
+    - refusals are recorded per block.
+  - **Partial stage work** is staged on every path of all four builds.
+  - **No control changes** outcome, row, class, bound or golden work; only the new `kf3.txt` controls move.
+  - FK's full suite passes, `gen --check` is byte-identical on every earlier file, and 11 mutants are killed.
+- **The constructed CI model is 390 members,** not under about 200. I19 found that slender sections shift log2 U_c by a constant and leave its growth rate unchanged. KF3-UC-SPAN, a chain along (−1, 12, −12) growing about 20.8 bits per member, is the smallest that refuses.
+  - On main it ends `Unresolved(ExactSumSpan)`. Under KF3 it is selected at 128 with B = S_c, and is honest against GEN on 8,983 checks, the worst at 0.969 of its allowance, with G5a passing.
+  - Its debug CI time is 38–64 s for the KF3 tests, which is accepted.
+- **B (the scale evidence) waits for V-K's merge,** which carries `retained_api` and `vk_scale` to main. ROOT then merges main into KF3, and I19 runs B with `vk_scale` built from a `git archive` of that merged head, in a slot ROOT grants.
