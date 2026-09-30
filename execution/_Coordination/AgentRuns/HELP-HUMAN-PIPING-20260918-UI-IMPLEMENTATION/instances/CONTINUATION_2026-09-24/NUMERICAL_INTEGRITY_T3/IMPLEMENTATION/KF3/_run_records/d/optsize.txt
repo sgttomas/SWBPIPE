@@ -1,0 +1,8 @@
+Option<Wide<L>> has the size of Wide<L> (the bool field's niche), checked with the
+pinned toolchain on a copy of K4R/wide.rs:200-204's struct (optsize.rs.txt):
+    RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 rustc -O -o optsize optsize.rs && ./optsize
+Wide<4> 48 Option 48
+Wide<8> 80 Option 80
+Wide<16> 144 Option 144
+So H's OPTION_EXTRA (counts.rs:259, 8 B per Option<Wide> entry) over-counts by 8 B
+per entry.

@@ -174,26 +174,21 @@ pub fn shared_total(a: &AttemptRecord) -> u64 {
     a.shared_work.saturating_add(a.verification_shared_work)
 }
 
-/// Whether an attempt's builds all completed, so that its stages must equal
-/// its totals. K4 marks an attempt that stopped `Failed(Stop(_))`
-/// (`K4R/adaptive.rs:2979-3057`). On a stop inside a build K4 charges the
-/// stopped stage's partial work to the attempt's totals but records no stage
-/// for it (the verification's shared build, `K4R/verify.rs:471-485`; routed
-/// to KF3), so one side's stages can fall short of its total (ROOT's ruling on
-/// the K6B-S3 stop).
-///
-/// A candidate that stopped in its stop rule (`:3050-3058`) is marked the same
-/// way, but every build of it had completed, and K4 files the stop rule's
-/// partial work in `stages.stop_rule` (`:3040-3045`). Its `stop_rule_work` is
-/// then positive, and it is held to equality (RV22-1).
+/// Whether an attempt's builds all completed: not `Failed(Stop(_))` inside a
+/// build (`K4R/adaptive.rs`), or stopped in its stop rule with every build
+/// complete (a positive `stop_rule_work`, RV22-1). Evidence only: since T3
+/// KF3 every build stages the work of the stage it stopped in, so
+/// `stages_equal_totals` holds every attempt to equality, completed or
+/// stopped (ROOT's ruling "KF3: main merged; K6b's parity restored in KF3").
 pub fn builds_completed(a: &AttemptRecord) -> bool {
     !matches!(a.outcome, AttemptOutcome::Failed(AttemptReason::Stop(_))) || a.stop_rule_work > 0
 }
 
-/// The work an attempt was charged that no stage records: (own, shared). Zero
-/// on completed builds; on a stopped build, the stopped stage's partial work.
-/// Saturating: a stage sum above its total shows as zero here and fails
-/// `stages_equal_totals`.
+/// The work an attempt was charged that no stage records: (own, shared). Since
+/// T3 KF3 (every build stages its partial work when it stops) this is (0, 0)
+/// on every attempt, stopped builds included; the attempt line keeps it
+/// (RV22-1). Saturating: a stage sum above its total shows as zero here and
+/// fails `stages_equal_totals`.
 pub fn unstaged(a: &AttemptRecord) -> (u64, u64) {
     (
         own_total(a).saturating_sub(stage_sum(&a.stages)),
@@ -202,34 +197,27 @@ pub fn unstaged(a: &AttemptRecord) -> (u64, u64) {
 }
 
 /// Whether no charged work is unstaged: the attempt line's `stages_complete`
-/// (RV22-1).
+/// (RV22-1); true on every attempt since T3 KF3.
 pub fn stages_complete(a: &AttemptRecord) -> bool {
     unstaged(a) == (0, 0)
 }
 
-/// Parity `w1_stages_equal_totals` (ROOT's rulings on the K6B-S3 stop and on
-/// RV22's review). On an attempt whose builds completed, the own stages add up
-/// to the own work and the shared stages to the shared work (the attempt's
-/// build and the verification's shared data). On an attempt that stopped
-/// inside a build, one build stopped, so at most one side is short: each stage
-/// sum is at most its charged total, and at least one of them equals it. The
-/// remainder is `unstaged`.
+/// Parity `w1_stages_equal_totals`: on every attempt, completed or stopped,
+/// the own stages add up to the own work and the shared stages to the shared
+/// work (the attempt's build and the verification's shared data). T3 KF3
+/// (ROOT's ruling "KF3: main merged; K6b's parity restored in KF3") makes
+/// every build that stops add the work its stages do not record to the stage
+/// in progress, so the relaxation for a stopped build (ROOT's ruling on the
+/// K6B-S3 stop; RV22's review) is withdrawn: one short side fails.
 pub fn stages_equal_totals(attempts: &[AttemptRecord]) -> bool {
     attempts.iter().all(|a| {
-        let (own, shared) = (stage_sum(&a.stages), stage_sum(&a.shared_stages));
-        let (own_t, shared_t) = (own_total(a), shared_total(a));
-        if builds_completed(a) {
-            own == own_t && shared == shared_t
-        } else {
-            own <= own_t && shared <= shared_t && (own == own_t || shared == shared_t)
-        }
+        stage_sum(&a.stages) == own_total(a) && stage_sum(&a.shared_stages) == shared_total(a)
     })
 }
 
 /// Work by precision: each precision's attempts, their own stages and their
 /// shared stages (counted in full against the case, K4 RETURN §14), and the
-/// charged totals, which equal the stage sums on completed builds and exceed
-/// them by the unstaged work on a stopped build.
+/// charged totals, which equal the stage sums on every attempt (T3 KF3).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PrecisionWork {
     pub precision: u32,

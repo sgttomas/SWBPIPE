@@ -17,6 +17,9 @@ pub mod retained_api {
         VerificationSummary, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN,
         POLICY, PRECISIONS, RCOND_LABEL,
     };
+    pub use super::retained::bound::{
+        BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,
+    };
     pub use super::retained::combine::{
         CombinationOutcome, CombinationReason, RetainedCombination,
     };

@@ -8,8 +8,10 @@
 //!   twelve RF-LARGE frames (`K4T/r1_large.txt`, its sha256 asserted).
 //! - W1's counts against every attempt's storage; the work closure; the work by
 //!   precision; the prefixes; the estimate against a hand derivation.
-//! - A build that stops partway (ROOT's ruling on the K6B-S3 stop): its stages
-//!   are checked against its charged total, and the remainder is unstaged.
+//! - A build that stops partway (ROOT's ruling on the K6B-S3 stop): since T3
+//!   KF3 it stages the partial work of the stage it stopped in, so its stages
+//!   equal its charged total and nothing is unstaged (ROOT's ruling "KF3: main
+//!   merged; K6b's parity restored in KF3").
 
 mod k6b_support;
 
@@ -239,9 +241,10 @@ fn work_by_precision_files_each_attempt_under_its_own_precision() {
 
 /// ROOT's ruling on the K6B-S3 stop: a build that stops partway. A case limit
 /// inside the 256 verification's `uc` stage stops its shared build with
-/// `Budget(Case)` on the error path row 247 took with `Span`
-/// (`K4R/verify.rs:471-485`): the charged total holds the partial `uc` work,
-/// and no stage records it.
+/// `Budget(Case)` on the error path row 247 took with `Span`. Since T3 KF3 the
+/// build stages its partial `uc` work in `uc`, so the stages equal the charged
+/// totals and nothing is unstaged; one short side now fails the check (ROOT's
+/// ruling "KF3: main merged; K6b's parity restored in KF3"; RV22's C-N2).
 #[test]
 fn a_build_that_stops_partway_is_checked_against_its_charged_total() {
     let id = "RF-LARGE-CHAIN-n00010-AX";
@@ -288,42 +291,77 @@ fn a_build_that_stops_partway_is_checked_against_its_charged_total() {
         AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Budget(BudgetScope::Case)))
     );
     assert!(builds_completed(c) && !builds_completed(a));
-    assert_eq!(unstaged(c), (0, 0));
-    // The stopped build: its stages stop before uc, and the charged total
-    // holds the partial uc work.
-    assert_eq!(a.shared_stages.uc, 0);
+    // The stopped build: its `uc` stage holds the partial uc work (T3 KF3),
+    // and nothing charged is unstaged, on either attempt.
+    assert!(a.shared_stages.uc > 0 && a.shared_stages.uc < v.shared_stages.uc);
     assert_eq!(
         a.shared_stages.wide_formation,
         v.shared_stages.wide_formation
     );
-    let (own_rest, shared_rest) = unstaged(a);
-    assert_eq!(own_rest, 0);
-    assert!(shared_rest > 0);
-    assert_eq!(stage_sum(&a.shared_stages) + shared_rest, shared_total(a));
-    // The equality does not hold on it; the check does, and the work closes.
-    assert_ne!(stage_sum(&a.shared_stages), shared_total(a));
+    assert_eq!((unstaged(c), unstaged(a)), ((0, 0), (0, 0)));
+    assert!(stages_complete(c) && stages_complete(a));
+    assert_eq!(stage_sum(&a.shared_stages), shared_total(a));
+    assert_eq!(stage_sum(&a.stages), own_total(a));
     assert!(stages_equal_totals(attempts));
     assert!(work_closes(attempts, stopped.charged));
-    // The work by precision reports the charged totals.
+    // The work by precision reports the charged totals, equal to the stages.
     let by = work_by_precision(attempts);
     assert_eq!(by[1].precision, 256);
     assert_eq!(by[1].shared_total, shared_total(a));
-    assert_eq!(by[1].shared_total, stage_sum(&by[1].shared) + shared_rest);
+    assert_eq!(by[1].shared_total, stage_sum(&by[1].shared));
     assert_eq!(by[1].own_total, own_total(a));
-    // A stopped build's stage sum above its charged total fails the check.
+    // A stage sum above its charged total fails the check.
     let mut over = attempts.to_vec();
-    over[1].shared_stages.uc = shared_rest + 1;
+    over[1].shared_stages.uc += 1;
     assert!(!stages_equal_totals(&over));
-    // One build stopped, so at most one side is short (RV22-1): 1 LME off the
-    // complete own side fails too.
-    let mut both_short = attempts.to_vec();
-    both_short[1].stages.rhs -= 1;
-    assert!(!stages_equal_totals(&both_short));
-    assert!(stages_complete(c) && !stages_complete(a));
-    // A completed build is still held to the equality.
+    // One short side, which the check accepted on a stopped build before KF3,
+    // now fails, on either side.
+    let mut shared_short = attempts.to_vec();
+    shared_short[1].shared_stages.uc -= 1;
+    assert!(!stages_equal_totals(&shared_short));
+    let mut own_short = attempts.to_vec();
+    own_short[1].stages.rhs -= 1;
+    assert!(!stages_equal_totals(&own_short));
+    // A completed build is held to the equality too.
     let mut short = full_attempts.to_vec();
     short[0].stages.rhs -= 1;
     assert!(!stages_equal_totals(&short));
+}
+
+/// T3 KF3: a case limit at every segment boundary of the full call, and
+/// halfway into every segment, stops a build somewhere; every attempt of
+/// every stopped run has nothing unstaged and its stages equal its totals.
+#[test]
+fn every_stopped_build_leaves_nothing_unstaged() {
+    let id = "RF-LARGE-CHAIN-n00010-AX";
+    let full = run(id, W1Limits::default());
+    let segs = segments(attempts_of(&full.outcome));
+    let mut limits = Vec::new();
+    let mut start = 0;
+    for s in &segs {
+        limits.push(start + (s.end - start) / 2);
+        limits.push(s.end);
+        start = s.end;
+    }
+    let mut stopped_builds = 0;
+    for limit in limits {
+        let solve = run(
+            id,
+            W1Limits {
+                case: limit,
+                invocation: u64::MAX,
+            },
+        );
+        let attempts = attempts_of(&solve.outcome);
+        for a in attempts {
+            assert_eq!(unstaged(a), (0, 0), "limit {limit}: {:?}", a.outcome);
+            assert!(stages_complete(a), "limit {limit}");
+            stopped_builds += usize::from(!builds_completed(a));
+        }
+        assert!(stages_equal_totals(attempts), "limit {limit}");
+        assert!(work_closes(attempts, solve.charged), "limit {limit}");
+    }
+    assert!(stopped_builds > 0);
 }
 
 /// RV22-1: a candidate stopped in its stop rule (a case limit at the end of

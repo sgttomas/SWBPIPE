@@ -23,7 +23,7 @@ use std::collections::BTreeMap;
 
 #[allow(dead_code)]
 #[path = "models.rs"]
-mod models;
+pub(super) mod models;
 #[allow(dead_code)]
 #[path = "support.rs"]
 mod support;
@@ -47,10 +47,10 @@ fn in_default_lane(name: &str) -> bool {
 
 /// R7 §7's SEED hook for the duration of a solve (cleared on drop, so a
 /// failing test leaves no seed on its thread).
-struct Seeded;
+pub(super) struct Seeded;
 
 impl Seeded {
-    fn new(seeds: &[(usize, f64)]) -> Self {
+    pub(super) fn new(seeds: &[(usize, f64)]) -> Self {
         seed::set(seeds.to_vec());
         Seeded
     }
@@ -83,7 +83,7 @@ fn stop_name(stop: &AttemptStop) -> String {
 /// GEN's tokens for a list of attempts: `p:outcome[:detail]`, the detail a
 /// layout index (stop rule, estimate, charge), a body (uc, θ) or a member id
 /// (g); a verification solved but never needed as a candidate is not listed.
-fn tokens(attempts: &[AttemptRecord], layout: &[QuantityMeta]) -> Vec<String> {
+pub(super) fn tokens(attempts: &[AttemptRecord], layout: &[QuantityMeta]) -> Vec<String> {
     let index = |q: &QuantityId| layout.iter().position(|m| m.id == *q).unwrap();
     attempts
         .iter()
@@ -241,6 +241,11 @@ fn reason_kinds(o: &Outcome) -> Vec<String> {
 fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
     let gen = gen_outcomes();
     let runs = run_controls();
+    // T3 KF3: every attempt's stages sum to its charged totals, on every
+    // path (the partial stage of a stopped build included).
+    for (name, o) in &runs {
+        super::kf3_tests::assert_stage_identity(name, &o.attempts);
+    }
     // GEN's schedule, token for token (the geometry refusals K4 makes before
     // any attempt excepted: GEN has no geometry screen).
     let mut compared = 0;
@@ -885,15 +890,15 @@ where
 
 /// A verification report's figures that R7 names (plan §6's "also asserted").
 #[derive(Debug, Default, Clone)]
-struct Figures {
+pub(super) struct Figures {
     /// max Ŵ_q/V_q and C_q/allowance over force and moment rows (P < 1024).
-    estimate: f64,
-    charge: f64,
-    theta: f64,
-    shifts: u8,
-    tries: Vec<u8>,
-    uc_missing_blocks: usize,
-    b_is_uc_after_three: bool,
+    pub(super) estimate: f64,
+    pub(super) charge: f64,
+    pub(super) theta: f64,
+    pub(super) shifts: u8,
+    pub(super) tries: Vec<u8>,
+    pub(super) uc_missing_blocks: usize,
+    pub(super) b_is_uc_after_three: bool,
 }
 
 fn figures<const L: usize>(r: &VerificationReport<L>, prep: &CasePrep) -> Figures
@@ -964,7 +969,6 @@ where
 
 /// E-CHARGE's and E-ESTIMATE's checks of one model at one verification
 /// precision; returns the figures (None when GEN records a stop).
-#[allow(clippy::too_many_lines)]
 fn verification_at<const L: usize, const R: usize, const W: usize>(
     p: u32,
     q: u32,
@@ -977,8 +981,28 @@ where
     Wide<R>: SupportedWidth,
     Wide<W>: SupportedWidth,
 {
+    verification_in::<L, R, W>(CHARGE, ESTIMATE, p, q, m, prep, group)
+}
+
+/// `verification_at` against given E-CHARGE and E-ESTIMATE texts (T3 KF3's
+/// `kf3.txt` too).
+#[allow(clippy::too_many_lines)]
+pub(super) fn verification_in<const L: usize, const R: usize, const W: usize>(
+    charge: &str,
+    estimate: &str,
+    p: u32,
+    q: u32,
+    m: &models::Model,
+    prep: &CasePrep,
+    group: &GroupPrep,
+) -> Option<Figures>
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
     let name = m.name.as_str();
-    let recs = records(CHARGE, name, p);
+    let recs = records(charge, name, p);
     assert!(!recs.is_empty() && recs[0][0] == "chg", "{name} {p}");
     let guard = StageGuard::unlimited();
     let _seeded = Seeded::new(&m.seeds);
@@ -1072,7 +1096,7 @@ where
     // E-ESTIMATE (P = 256 and 512): Ŵ_q against |R*(u_P) − q*| within a
     // relative 2^-8 on the rows GEN lists (error above 2^-(P+20)·ê).
     if p < 1024 {
-        let est = records(ESTIMATE, name, p);
+        let est = records(estimate, name, p);
         if let Some(count) = est.iter().find(|f| f[0] == "estcount") {
             assert_ne!(count[3], "stop", "{name} {p}");
             let rows: Vec<&Vec<&str>> = est.iter().filter(|f| f[0] == "est").collect();

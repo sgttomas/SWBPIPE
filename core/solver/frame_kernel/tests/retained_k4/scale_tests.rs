@@ -9,7 +9,8 @@
 use super::super::assemble::{assemble_bounded, BoundedCoefficients};
 use super::super::bound::{
     block_of_rows, certified, certify, data_blocks, gamma_m, scaled_profile, shift_needed,
-    shift_schedule, shifted_factor, sigma_from_estimate, uc_bounds, ProfileLdl,
+    shift_schedule, shifted_factor, sigma_from_estimate, uc_bounds, BoundPass, BoundRefusal,
+    ProfileLdl, RefusalKind,
 };
 use super::super::verify::{e_hat, formation_scale, phi_512, resolution_scale, StageRounding};
 use super::*;
@@ -55,9 +56,37 @@ where
     v.as_ref().map(tok).unwrap_or_else(|| "-".to_string())
 }
 
+/// A block's refusal as GEN writes it (T3 KF3; `gen_k4_vectors.py`
+/// `refusal_token`): refused:<kind>:<pass>:<row>, `-` for a per-block step.
+pub(super) fn refusal_token(r: &BoundRefusal) -> String {
+    let kind = match r.kind {
+        RefusalKind::Span => "span",
+        RefusalKind::Exponent => "exponent",
+    };
+    let pass = match r.pass {
+        BoundPass::Forward => "forward",
+        BoundPass::Pivot => "pivot",
+        BoundPass::Backward => "backward",
+        BoundPass::NlColumn => "nl_column",
+        BoundPass::NlScale => "nl_scale",
+        BoundPass::NlRow => "nl_row",
+        BoundPass::Form => "form",
+        BoundPass::Need => "need",
+        BoundPass::Sigma => "sigma",
+        BoundPass::ShiftFactor => "shift_factor",
+        BoundPass::ShiftForm => "shift_form",
+    };
+    let row = if r.row == usize::MAX {
+        "-".to_string()
+    } else {
+        r.row.to_string()
+    };
+    format!("refused:{kind}:{pass}:{row}")
+}
+
 /// The records of one model at one precision (lines whose second field is
 /// the model's name and third the precision).
-fn records<'a>(text: &'a str, name: &str, p: u32) -> Vec<Vec<&'a str>> {
+pub(super) fn records<'a>(text: &'a str, name: &str, p: u32) -> Vec<Vec<&'a str>> {
     let p = p.to_string();
     text.lines()
         .map(|l| l.split_whitespace().collect::<Vec<_>>())
@@ -67,7 +96,7 @@ fn records<'a>(text: &'a str, name: &str, p: u32) -> Vec<Vec<&'a str>> {
 
 // ---------------------------------------------------------------- E-UNIT
 
-fn scale_at<const L: usize, const R: usize>(
+pub(super) fn scale_at<const L: usize, const R: usize>(
     p: u32,
     q: u32,
     prep: &CasePrep,
@@ -227,7 +256,7 @@ fn e_unit(select: impl Fn(&str) -> bool, precisions: &[u32]) -> usize {
 // ---------------------------------------------------------------- E-UC
 
 #[allow(clippy::too_many_lines)]
-fn bounds_at<const L: usize, const R: usize>(
+pub(super) fn bounds_at<const L: usize, const R: usize>(
     p: u32,
     q: u32,
     prep: &CasePrep,
@@ -278,7 +307,7 @@ where
         &guard,
         factor,
         &rows,
-        blocks.len(),
+        &mut vec![None; blocks.len()],
         &gamma,
     )
     .unwrap();
@@ -307,8 +336,16 @@ where
             )
         })
         .collect();
-    let (shifts, count) =
-        shift_schedule(&mut ctx, &mut sum, &guard, &profile, &gamma, &start).unwrap();
+    let (shifts, count) = shift_schedule(
+        &mut ctx,
+        &mut sum,
+        &guard,
+        &profile,
+        &gamma,
+        &start,
+        &mut vec![None; blocks.len()],
+    )
+    .unwrap();
     let mut norms = Vec::new();
     let (mut exact_checked, mut shifted) = (0, 0);
     for f in &recs[1..] {
@@ -327,19 +364,26 @@ where
                 let flag = data
                     .as_ref()
                     .map_or("-".to_string(), |d| u8::from(d[b]).to_string());
+                // Amendment A2 (T3 KF3): a refused block records its refusal
+                // in U's place, and U, N_L, t and Uc are not formed.
+                let (u, n_l, t) = match &bb.refused {
+                    Some(r) => (refusal_token(r), "-".to_string(), "-".to_string()),
+                    None => (tok(&bb.u), tok(&bb.n_l), tok(&bb.t)),
+                };
                 let got = [
                     blocks.positions[b].len().to_string(),
                     flag,
                     tok(&est[b]),
-                    tok(&bb.u),
-                    tok(&bb.n_l),
-                    tok(&bb.t),
+                    u,
+                    n_l,
+                    t,
                     opt_tok(&bb.uc),
                     need,
                 ];
                 assert_eq!(got.to_vec(), f[4..12].to_vec(), "{name} {p} block {b}");
                 norms.push((b, f[12], f[13], f[14]));
-                if let Some(uc) = &bb.uc {
+                // KF3's models carry no norm (`-`): too large for GEN's bound.
+                if let (Some(uc), true) = (&bb.uc, f[12] != "-") {
                     assert!(
                         support::wide_at_least(uc, f[13], f[14]),
                         "{name} {p} block {b}: Uc below the norm"
@@ -350,7 +394,7 @@ where
             "shf" => {
                 let b: usize = f[3].parse().unwrap();
                 let r = &shifts.iter().find(|s| s.0 == b).unwrap().1;
-                let got = [
+                let mut got = vec![
                     tok(&r.sigma),
                     r.tries.to_string(),
                     opt_tok(&r.n_l),
@@ -358,8 +402,15 @@ where
                     opt_tok(&r.sigma_prime),
                     opt_tok(&r.s),
                 ];
-                assert_eq!(got.to_vec(), f[4..10].to_vec(), "{name} {p} shift {b}");
+                if let Some(refusal) = &r.refused {
+                    got.push(refusal_token(refusal));
+                }
+                assert_eq!(got, f[4..].to_vec(), "{name} {p} shift {b}");
                 let norm = norms.iter().find(|n| n.0 == b).unwrap();
+                if norm.1 == "-" {
+                    shifted += usize::from(r.s.is_some());
+                    continue;
+                }
                 if let Some(s) = &r.s {
                     assert!(
                         support::wide_at_least(s, norm.2, norm.3),
@@ -381,7 +432,7 @@ where
     // certify(): the shift only where 7c needs it, on the blocks with data;
     // each block's outcome equals the forced run's (7a: blocks do not interact).
     if let Some(data) = &data {
-        let (certs, _) = certify(
+        let (certs, _, stop) = certify(
             &mut ctx,
             &mut sum,
             &guard,
@@ -396,6 +447,14 @@ where
             &gamma,
         )
         .unwrap();
+        // A2: a stop only where a block with data is left with no bound after
+        // a refusal.
+        let expect_stop = certs.iter().enumerate().find_map(|(b, c)| {
+            (c.data && c.b.is_none())
+                .then(|| c.bound.refused.or(c.s_refused).map(|r| (b, r)))
+                .flatten()
+        });
+        assert_eq!(stop, expect_stop, "{name} {p} stop");
         for (b, c) in certs.iter().enumerate() {
             let forced = shifts.iter().find(|s| s.0 == b).map(|s| &s.1);
             match (&c.shift, data[b]) {
@@ -497,8 +556,15 @@ where
         factor.scale(),
     )
     .unwrap();
-    let unshifted =
-        shifted_factor(&mut ctx, &sum, &guard, &profile, &vec![None; blocks.len()]).unwrap();
+    let unshifted = shifted_factor(
+        &mut ctx,
+        &sum,
+        &guard,
+        &profile,
+        &vec![None; blocks.len()],
+        &mut vec![None; blocks.len()],
+    )
+    .unwrap();
     assert!(unshifted.failed.iter().all(|f| !f), "{name} {p}");
     for i in 0..nf {
         for j in factor.first_of(i)..=i {

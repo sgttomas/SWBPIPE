@@ -26,15 +26,15 @@
 //! ê_mo = max(E_mo, fl(L_b·E_fo)); L_b = 0 gives ê = E. **Φ** = fl↑(2^-438·ê),
 //! decided exactly as b is (the constant's bits `0x2490000000000000`).
 use super::adaptive::{
-    lme, next_up, AttemptStop, CasePrep, GroupPrep, Shared, Solved, StageGuard, StageWork,
+    lme, next_up, AttemptStop, CasePrep, GroupPrep, Shared, Solved, Stage, StageGuard, StageWork,
 };
 use super::assemble::{
     assemble_bounded, form_directional, form_members, BoundedCoefficients, Contribution,
     DirectionalBlock, MemberOperators, Structure,
 };
 use super::bound::{
-    block_of_rows, certified, data_blocks, gamma_m, scaled_profile, shift_needed, shift_schedule,
-    sigma_from_estimate, uc_bounds, BlockBound, BlockCertificate,
+    block_of_rows, block_refusals, certificates, data_blocks, gamma_m, shift_run, shift_start,
+    uc_bounds, uc_refusals, BlockBound, BlockCertificate, BlockRefusal, BoundRefusal,
 };
 use super::directed::{add_toward, binary64_up, mul_toward, round_toward, Toward};
 use super::factor::Ordering;
@@ -410,6 +410,10 @@ pub(crate) struct VerifySpent<T> {
     pub(crate) sum_work: SumWork,
     pub(crate) stages: StageWork,
     pub(crate) total: u64,
+    /// T3 KF3 (amendment A2): the pass's S_c refusals, per block, on every
+    /// path. For the shared build, its Uc_c refusals when it stops (RV23-1);
+    /// a completed shared build's are in `uc`, and this is empty.
+    pub(crate) refusals: Vec<BlockRefusal>,
 }
 
 /// Builds `VerifyShared` from the verification precision's shared stages.
@@ -430,6 +434,11 @@ where
     let mut ctx_w = WideContext::<W>::new(q_w).expect("supported precision");
     let mut sum = ExactWideSum::new();
     let mut stages = StageWork::default();
+    // T3 KF3: the stage in progress, for a stopped build's unstaged work.
+    let mut current = Stage::BoundedFormation;
+    // RV23-1: the Uc_c refusal slots, one per block, held outside the build so
+    // that a stop after a refusal keeps it in the evidence.
+    let mut uc_refused: Vec<Option<BoundRefusal>> = vec![None; group.blocks.len()];
     let mut run = || -> Result<VerifyShared<L, W>, AttemptStop> {
         let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
             lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()
@@ -449,6 +458,7 @@ where
         )?;
         let t1 = spent(&ctx, &ctx_w, &sum);
         stages.bounded_formation = t1 - t0;
+        current = Stage::WideFormation;
         let (ke_w, directional_w) = if q_w == p {
             (
                 shared
@@ -473,17 +483,20 @@ where
         };
         let t2 = spent(&ctx, &ctx_w, &sum);
         stages.wide_formation = t2 - t1;
+        current = Stage::Uc;
         let gu = guard.with_base(lme(&ctx_w));
         let nf = group.ordering.free.len();
         let gamma = gamma_m(&mut ctx, &mut sum, nf)?;
         let rows = block_of_rows(&group.ordering, &group.blocks);
+        // Amendment A2: a refusal makes only its block's Uc_c unavailable; it
+        // no longer stops the build.
         let uc = uc_bounds(
             &mut ctx,
             &mut sum,
             &gu,
             &shared.factor,
             &rows,
-            group.blocks.len(),
+            &mut uc_refused,
             &gamma,
         )?;
         let t3 = spent(&ctx, &ctx_w, &sum);
@@ -507,6 +520,13 @@ where
     work.record(&ctx_w);
     let sum_work = sum.work();
     let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    stages.close_stopped(&result, current, total);
+    // RV23-1: a stopped build's Uc_c refusals (a completed build's are in `uc`).
+    let refusals = if result.is_err() {
+        uc_refusals(&uc_refused)
+    } else {
+        Vec::new()
+    };
     let result = result.map(|mut v| {
         v.work = work;
         v.sum_work = sum_work;
@@ -520,6 +540,7 @@ where
         sum_work,
         stages,
         total,
+        refusals,
     }
 }
 
@@ -714,6 +735,10 @@ where
     let mut ctx_w = WideContext::<W>::new(q_w).expect("supported precision");
     let mut sum = ExactWideSum::new();
     let mut stages = StageWork::default();
+    // T3 KF3: the stage in progress, for a stopped pass's unstaged work, and
+    // the pass's S_c refusals (amendment A2), both kept on every path.
+    let mut current = Stage::Scale;
+    let mut refusals: Vec<BlockRefusal> = Vec::new();
     let mut run = || -> Result<VerificationReport<L>, AttemptStop> {
         let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
             lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()
@@ -763,6 +788,8 @@ where
         // E encodes for every body; then ê (ROOT's A3b ruling).
         resolution_hats(&resolution, &prep.extents)?;
         let t1 = spent(&ctx, &ctx_w, &sum);
+        stages.scale = t1 - t0;
+        current = Stage::Estimate;
         // ---- The exact prescribed values (item 1): each term c·v at q_W and
         // at P (both exact: at most 106 bits), and whether the sum is nonzero.
         let mut terms_w: Vec<Vec<Wide<W>>> = vec![Vec::new(); source.dof_count()];
@@ -849,6 +876,8 @@ where
             .map(|(meta, v)| matches!(meta.kind, Kind::Force | Kind::Moment).then(|| v.abs()))
             .collect();
         let t2 = spent(&ctx, &ctx_w, &sum);
+        stages.estimate = t2 - t1;
+        current = Stage::Charge;
         // ---- r₂ (item 5): r − K^c·δ̂, one exact expansion per row.
         let mut sr2_row = vec![zero; nf];
         for (a, &g) in free.iter().enumerate() {
@@ -937,6 +966,8 @@ where
             StageRounding::Up,
         )?;
         let t3 = spent(&ctx, &ctx_w, &sum);
+        stages.charge = t3 - t2;
+        current = Stage::Bound;
         // ---- B_c (7a–7d): data flags, the shift where 7c needs it.
         let data = data_blocks(
             blocks,
@@ -946,51 +977,51 @@ where
             &prescribed_nonzero,
             u,
         );
-        let mut start = Vec::new();
-        for b in 0..blocks.len() {
-            let n_c = blocks.positions[b].len();
-            if data[b] && shift_needed(&mut sum, &vs.uc[b].uc, &shared.est_blocks[b], n_c)? {
-                start.push((
-                    b,
-                    sigma_from_estimate(&mut ctx, &mut sum, &shared.est_blocks[b])?,
-                    n_c,
-                ));
-            }
-        }
+        // Amendment A2: a refusal in 7c makes S_c unavailable for its block.
+        let mut s_refused = vec![None; blocks.len()];
+        #[cfg(test)]
+        let hooked = hooks::estimates(&shared.est_blocks);
+        #[cfg(test)]
+        let est_blocks: &[Wide<L>] = &hooked;
+        #[cfg(not(test))]
+        let est_blocks: &[Wide<L>] = &shared.est_blocks;
+        let start = shift_start(
+            &mut ctx,
+            &mut sum,
+            blocks,
+            &vs.uc,
+            est_blocks,
+            &data,
+            &mut s_refused,
+        )?;
         let t4 = spent(&ctx, &ctx_w, &sum);
-        let (shifts, shift_factorizations) = if start.is_empty() {
-            (Vec::new(), 0)
-        } else {
-            let profile = scaled_profile(
-                structure,
-                &shared.k,
-                ordering,
-                blocks,
-                shared.factor.scale(),
-            )?;
-            shift_schedule(&mut ctx, &mut sum, &guard, &profile, &vs.gamma, &start)?
-        };
+        stages.bound = t4 - t3;
+        current = Stage::Shift;
+        let shifted = shift_run(
+            &mut ctx,
+            &mut sum,
+            &guard,
+            structure,
+            &shared.k,
+            ordering,
+            shared.factor.scale(),
+            blocks,
+            &vs.gamma,
+            &start,
+            &mut s_refused,
+        );
+        refusals = block_refusals::<L>(&[], &s_refused);
+        let (shifts, shift_factorizations) = shifted?;
         let t5 = spent(&ctx, &ctx_w, &sum);
-        let mut certificates = Vec::with_capacity(blocks.len());
-        let mut uc_missing = None;
-        for b in 0..blocks.len() {
-            let shift = shifts.iter().find(|s| s.0 == b).map(|s| s.1.clone());
-            let s = shift.as_ref().and_then(|r| r.s);
-            let bound = if data[b] {
-                certified(&vs.uc[b].uc, &s)
-            } else {
-                None
-            };
-            if data[b] && bound.is_none() && uc_missing.is_none() {
-                uc_missing = Some(b);
-            }
-            certificates.push(BlockCertificate {
-                bound: vs.uc[b].clone(),
-                est: shared.est_blocks[b],
-                data: data[b],
-                shift,
-                b: bound,
-            });
+        stages.shift = t5 - t4;
+        current = Stage::Bound;
+        // 7d with A2: a block with data left with no bound after a refusal
+        // stops the attempt with that refusal, before any `uc` rejection
+        // (ROOT's rulings 1 and 2 on I19's plan).
+        let (certificates, uc_missing, stop) =
+            certificates(blocks, &vs.uc, est_blocks, &data, &shifts, &s_refused);
+        if let Some((_, refusal)) = stop {
+            return Err(refusal.stop());
         }
         // Per-block norms.
         let mut norms = Vec::with_capacity(blocks.len());
@@ -1102,6 +1133,8 @@ where
             });
         }
         let t6 = spent(&ctx, &ctx_w, &sum);
+        stages.bound = (t4 - t3) + (t6 - t5);
+        current = Stage::Charge;
         // C_q (item 11) and W⁺ (item 12), unless a block with data lacks B.
         let mut charge = vec![None; layout.len()];
         let mut w_plus = vec![None; layout.len()];
@@ -1152,11 +1185,7 @@ where
             }
         }
         let t7 = spent(&ctx, &ctx_w, &sum);
-        stages.scale = t1 - t0;
-        stages.estimate = t2 - t1;
         stages.charge = (t3 - t2) + (t7 - t6);
-        stages.bound = (t4 - t3) + (t6 - t5);
-        stages.shift = t5 - t4;
         check(&ctx, &ctx_w, &sum)?;
         Ok(VerificationReport {
             precision: p,
@@ -1185,12 +1214,45 @@ where
     work.record(&ctx_w);
     let sum_work = sum.work();
     let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    stages.close_stopped(&result, current, total);
     VerifySpent {
         result,
         work,
         sum_work,
         stages,
         total,
+        refusals,
+    }
+}
+
+/// A test-only hook (T3 KF3; ROOT's ruling 5 on I19's plan, V-K's `seeded`
+/// module not being on main): with it set, every block's est_c reads as 0, so
+/// no shift runs and S_c does not exist (the "neither bound" control, W2).
+#[cfg(test)]
+pub(crate) mod hooks {
+    use super::super::wide::multi::SupportedWidth;
+    use super::super::wide::Wide;
+    use std::cell::Cell;
+
+    thread_local! {
+        static NO_SHIFT: Cell<bool> = const { Cell::new(false) };
+    }
+
+    /// Sets or clears this thread's hook.
+    pub(crate) fn set_no_shift(on: bool) {
+        NO_SHIFT.with(|h| h.set(on));
+    }
+
+    /// est_c as the pass reads it: zero on every block while the hook is set.
+    pub(crate) fn estimates<const L: usize>(est: &[Wide<L>]) -> Vec<Wide<L>>
+    where
+        Wide<L>: SupportedWidth,
+    {
+        if NO_SHIFT.with(Cell::get) {
+            vec![Wide::<L>::ZERO; est.len()]
+        } else {
+            est.to_vec()
+        }
     }
 }
 

@@ -195,6 +195,20 @@ impl ExactWideSum {
         self.high = 0;
     }
 
+    /// Resets the value to zero after a refusal (T3 KF3; D1 revision 5a.3
+    /// amendment A2; ROOT's ruling 7 on I19's plan): both magnitudes are zeroed
+    /// in full, not only the used prefix `clear` zeroes, so a write that a
+    /// refusal interrupted (the in-loop refusal of `add_raw`, unreachable under
+    /// the span check) cannot reach a later sum. The work counts are kept.
+    pub(crate) fn reset(&mut self) {
+        self.positive.fill(0);
+        self.negative.fill(0);
+        self.used = 0;
+        self.empty = true;
+        self.anchor = 0;
+        self.high = 0;
+    }
+
     pub(crate) fn work(&self) -> SumWork {
         self.work
     }

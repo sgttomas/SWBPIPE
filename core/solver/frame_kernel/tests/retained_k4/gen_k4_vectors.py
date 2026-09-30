@@ -85,6 +85,19 @@ After ROOT's rulings on RV19's review:
 - after RV19's delta check (RV19-DN2): `models.txt`'s PRECISION-RULE carries
   the expectations of the combination as its own case (`combined_model`).
 
+T3 KF3 (D1 revision 5a.3 amendment A2; ROOT's ruling on I19's plan):
+- the Uc_c and S_c passes mirror `ExactWideSum`'s span limit (8,128 bits from
+  the lowest set bit to the highest, over a directed sum's two terms and its
+  nearest result): a refused bound is unavailable for its block only, B_c is
+  the minimum over the bounds formed, and a block with data left with no bound
+  after a refusal stops the verification (`failed:Span`). No earlier model
+  refuses, so every earlier record is unchanged;
+- `kf3.txt`: the constructed controls KF3-UC-SPAN and KF3-UC-SPAN-ZERO (a
+  390-member chain whose comparison-matrix bound outgrows the span at 256),
+  with their expectations (the two high-precision solves: the dense exact
+  solve is out of reach at 2,340 DOFs), E-UNIT at 128 and 256, E-UC and
+  E-CHARGE at 256, and their schedule.
+
 Usage:  python3 gen_k4_vectors.py [--check]
 
 With --check nothing is written; the files are regenerated in memory and
@@ -1178,8 +1191,10 @@ def expectation_lines(model):
     otherwise the two high-precision solves; none for a singular model."""
     exact = None
     try:
-        exact = solve_exact(model)
-        if not full_axes(model, exact):
+        # T3 KF3: a model too large for the dense exact solve takes the two
+        # high-precision solves (RCM-ordered, sparse).
+        exact = None if model.get("hp_only") else solve_exact(model)
+        if exact is not None and not full_axes(model, exact):
             exact = None
     except (AssertionError, StopIteration, ZeroDivisionError):
         exact = None
@@ -3081,38 +3096,146 @@ def scale_lines():
 
 # ---- the bounds (R7 7b-7d), at the verification precisions
 
-def u_pass_em(get, first, nf, p):
+# T3 KF3 (D1 revision 5a.3 amendment A2): `ExactWideSum` refuses a sum whose
+# terms span more than 8,128 bits, from the lowest set bit to the highest
+# (`wide_sum.rs`: 128 limbs less 64 bits of carry headroom). In a directed
+# addition x + y (`directed.rs` `add_toward`, `sub_toward`) the terms are x, y
+# and the nearest result; a product's or a quotient's terms span at most
+# 2P + 2 bits, never refused at K4's precisions (asserted). A refusal in the
+# formation of Uc_c or S_c makes that bound unavailable for its block only.
+SPAN_LIMIT_BITS = 8128
+
+
+class Refused(Exception):
+    """An exact sum the accumulator refuses (amendment A2)."""
+
+
+def _hi_bit(x):
+    x = abs(x)
+    return x.numerator.bit_length() - x.denominator.bit_length()
+
+
+def _lo_bit(x):
+    x = abs(x)
+    n = x.numerator
+    return (n & -n).bit_length() - x.denominator.bit_length()
+
+
+def sum_span(terms):
+    """The bits an exact sum of dyadic terms spans (0 when all are zero)."""
+    t = [x for x in terms if x != 0]
+    return (max(_hi_bit(x) for x in t) - min(_lo_bit(x) for x in t) + 1) if t else 0
+
+
+def add_dir(x, y, p, up=True):
+    """x + y rounded upward (or downward) at p, refused as `add_toward` is."""
+    s = x + y
+    if sum_span([x, y, rp(s, p)]) > SPAN_LIMIT_BITS:
+        raise Refused("span")
+    return ru(s, p) if up else rd(s, p)
+
+
+def mul_up(x, y, p):
+    """x·y rounded upward at p (`mul_toward`): never refused at p <= 1024."""
+    s = rp(x * y, p)
+    assert sum_span([s, x * y - s, s]) <= SPAN_LIMIT_BITS
+    return ru(x * y, p)
+
+
+def u_pass_em(get, first, nf, p, blk=None, refused=None):
+    """bound.rs `u_pass`. With `blk` (the block of each row) and `refused` (a
+    dict block -> (kind, pass, row)), amendment A2's refusals: a block's first
+    refusal is kept, and its later rows are skipped."""
+    if blk is None:
+        a_ = [Fr(1)] * nf
+        for i in range(nf):
+            acc = Fr(1)
+            for j in range(first[i], i):
+                l = abs(get(i, j))
+                if l:
+                    acc = ru(acc + ru(l * a_[j], p), p)
+            a_[i] = acc
+        c_ = [ru(a_[i] / get(i, i), p) for i in range(nf)]
+        for i in reversed(range(nf)):
+            for j in range(first[i], i):
+                l = abs(get(i, j))
+                if l:
+                    c_[j] = ru(c_[j] + ru(l * c_[i], p), p)
+        return c_
     a_ = [Fr(1)] * nf
     for i in range(nf):
+        b = blk[i]
+        if b in refused:
+            continue
         acc = Fr(1)
-        for j in range(first[i], i):
-            l = abs(get(i, j))
-            if l:
-                acc = ru(acc + ru(l * a_[j], p), p)
-        a_[i] = acc
-    c_ = [ru(a_[i] / get(i, i), p) for i in range(nf)]
+        try:
+            for j in range(first[i], i):
+                l = abs(get(i, j))
+                if l:
+                    acc = add_dir(acc, mul_up(l, a_[j], p), p)
+            a_[i] = acc
+        except Refused:
+            refused[b] = ("span", "forward", i)
+    c_ = [ru(a_[i] / get(i, i), p) if blk[i] not in refused else Fr(0) for i in range(nf)]
     for i in reversed(range(nf)):
+        b = blk[i]
+        if b in refused:
+            continue
         for j in range(first[i], i):
             l = abs(get(i, j))
             if l:
-                c_[j] = ru(c_[j] + ru(l * c_[i], p), p)
+                try:
+                    c_[j] = add_dir(c_[j], mul_up(l, c_[i], p), p)
+                except Refused:
+                    refused[b] = ("span", "backward", j)
+                    break
     return c_
 
 
-def nl_pass_em(get, first, nf, p):
+def nl_pass_em(get, first, nf, p, blk=None, refused=None):
+    """bound.rs `nl_pass`; refusals as in `u_pass_em`."""
+    if blk is None:
+        at = [Fr(1)] * nf
+        for i in range(nf):
+            for j in range(first[i], i):
+                l = abs(get(i, j))
+                if l:
+                    at[j] = ru(at[j] + l, p)
+        bt = [ru(get(i, i) * at[i], p) for i in range(nf)]
+        ct = list(bt)
+        for i in range(nf):
+            for j in range(first[i], i):
+                l = abs(get(i, j))
+                if l:
+                    ct[i] = ru(ct[i] + ru(l * bt[j], p), p)
+        return ct
     at = [Fr(1)] * nf
     for i in range(nf):
+        b = blk[i]
+        if b in refused:
+            continue
         for j in range(first[i], i):
             l = abs(get(i, j))
             if l:
-                at[j] = ru(at[j] + l, p)
-    bt = [ru(get(i, i) * at[i], p) for i in range(nf)]
+                try:
+                    at[j] = add_dir(at[j], l, p)
+                except Refused:
+                    refused[b] = ("span", "nl_column", j)
+                    break
+    bt = [mul_up(get(i, i), at[i], p) if blk[i] not in refused else Fr(0) for i in range(nf)]
     ct = list(bt)
     for i in range(nf):
+        b = blk[i]
+        if b in refused:
+            continue
         for j in range(first[i], i):
             l = abs(get(i, j))
             if l:
-                ct[i] = ru(ct[i] + ru(l * bt[j], p), p)
+                try:
+                    ct[i] = add_dir(ct[i], mul_up(l, bt[j], p), p)
+                except Refused:
+                    refused[b] = ("span", "nl_row", i)
+                    break
     return ct
 
 
@@ -3125,6 +3248,19 @@ def uc_from_em(U, NL, gam, p):
     t = ru(ru(U * gam, p) * NL, p)
     uc = ru(U / rd(1 - t, p), p) if t < 1 else None
     return t, uc
+
+
+def uc_from_em_a2(U, NL, gam, p):
+    """`bounds_from` with A2: 1 - t is a directed sum (refused as `sub_toward`)."""
+    t = mul_up(mul_up(U, gam, p), NL, p)
+    uc = ru(U / add_dir(Fr(1), -t, p, up=False), p) if t < 1 else None
+    return t, uc
+
+
+def refusal_token(r):
+    """A block's refusal as K4's evidence names it: refused:<kind>:<pass>:<row>."""
+    kind, pas, row = r
+    return "refused:%s:%s:%s" % (kind, pas, "-" if row is None else row)
 
 
 def shifted_factor_em(scaled, first, block_of_row, sigma, p):
@@ -3163,8 +3299,10 @@ def ceil_sqrt_em(k):
     return r if r * r == k else r + 1
 
 
-def shift_schedule_em(scaled, first, block_of_row, gam, start, p):
-    """bound.rs `shift_schedule`: start = [(block, sigma, n_c)]."""
+def shift_schedule_em(scaled, first, block_of_row, gam, start, p, a2=False):
+    """bound.rs `shift_schedule`: start = [(block, sigma, n_c)]. With `a2`,
+    amendment A2's refusals (N'_L's passes, and e and sigma' as directed sums):
+    a refused block has `refused` set and is not retried."""
     nf = len(first)
     res = {b: dict(sigma=s, tries=0, nl=None, delta=None, sp=None, S=None) for b, s, _ in start}
     cur = list(start)
@@ -3173,20 +3311,35 @@ def shift_schedule_em(scaled, first, block_of_row, gam, start, p):
         sig = {b: s for b, s, _ in cur}
         get, failed, dsh = shifted_factor_em(scaled, first, block_of_row, sig, p)
         count += 1
-        ct = nl_pass_em(get, first, nf, p)
+        refused = {}
+        if a2:
+            ct = nl_pass_em(get, first, nf, p, block_of_row, refused)
+        else:
+            ct = nl_pass_em(get, first, nf, p)
         nxt = []
         for b, s, n_c in cur:
             r = res[b]
             r["tries"] += 1
             r["sigma"] = s
+            if b in refused:
+                r["refused"] = refused[b]
+                continue
             if b in failed:
                 nxt.append((b, s / 2, n_c))
                 continue
             rows_b = [i for i in range(nf) if block_of_row[i] == b]
             NLp = max(ct[i] for i in rows_b)
             delta = Fr(2) ** (1 - p) * max(abs(dsh[i]) for i in rows_b)
-            e = ru(ru(gam * NLp, p) + delta, p)
-            sp = rd(s - e, p)
+            if a2:
+                try:
+                    e = add_dir(mul_up(gam, NLp, p), delta, p)
+                    sp = add_dir(s, -e, p, up=False)
+                except Refused:
+                    r["refused"] = ("span", "shift_form", None)
+                    continue
+            else:
+                e = ru(ru(gam * NLp, p) + delta, p)
+                sp = rd(s - e, p)
             r.update(nl=NLp, delta=delta, sp=sp)
             if sp > 0:
                 r["S"] = ru(Fr(ceil_sqrt_em(n_c)) / sp, p)
@@ -3315,8 +3468,10 @@ def bounds_record(name, model, p, exact=True):
     block_of_row = [blk[order[i]] for i in range(nf)]
     gam = gamma_em(nf, p)
     lines = ["bnd %s %d %d %d %s %s" % (name, p, nf, len(em["blocks"]), W_of(gam, L).token(), factor_digest(em, L))]
-    c_ = u_pass_em(get, first, nf, p)
-    ct = nl_pass_em(get, first, nf, p)
+    # Amendment A2 (T3 KF3): the passes refuse per block as K4's do.
+    refused = {}
+    c_ = u_pass_em(get, first, nf, p, block_of_row, refused)
+    ct = nl_pass_em(get, first, nf, p, block_of_row, refused)
     # Data flags at the state (7a), when the state exists.
     data = None
     if "u" in em:
@@ -3334,11 +3489,20 @@ def bounds_record(name, model, p, exact=True):
     start = []
     for b, pl in enumerate(em["blocks"]):
         rows_b = [i for i in range(nf) if block_of_row[i] == b]
-        U = max(c_[i] for i in rows_b)
-        NL = max(ct[i] for i in rows_b)
-        t, uc = uc_from_em(U, NL, gam, p)
-        est = em["est_blk"][b]
         tok = lambda v: W_of(v, L).token() if v is not None else "-"
+        if b not in refused:
+            U = max(c_[i] for i in rows_b)
+            NL = max(ct[i] for i in rows_b)
+            try:
+                t, uc = uc_from_em_a2(U, NL, gam, p)
+            except Refused:
+                refused[b] = ("span", "form", None)
+        if b in refused:
+            U, NL, t, uc = refusal_token(refused[b]), None, None, None
+            u_tok = U
+        else:
+            u_tok = tok(U)
+        est = em["est_blk"][b]
         norm = "- - -"
         if exact:
             sub = [[em["scaled"][max(i, j)].get(min(i, j), Fr(0)) for j in rows_b] for i in rows_b]
@@ -3351,14 +3515,17 @@ def bounds_record(name, model, p, exact=True):
             need = uc is None or uc > 2 * ceil_sqrt_em(len(pl)) * est
             start.append((b, rd(Fr(1) / (2 * est), p), len(pl)))
         lines.append("blk %s %d %d %d %s %s %s %s %s %s %s %s" % (
-            name, p, b, len(pl), "-" if data is None else int(data[b]), tok(est), tok(U), tok(NL), tok(t), tok(uc),
+            name, p, b, len(pl), "-" if data is None else int(data[b]), tok(est), u_tok, tok(NL), tok(t), tok(uc),
             "-" if need is None else int(need), norm))
-    res, count = shift_schedule_em(em["scaled"], first, block_of_row, gam, start, p)
+    res, count = shift_schedule_em(em["scaled"], first, block_of_row, gam, start, p, a2=True)
     for b in sorted(res):
         r = res[b]
         tok = lambda v: W_of(v, L).token() if v is not None else "-"
-        lines.append("shf %s %d %d %s %d %s %s %s %s" % (name, p, b, tok(r["sigma"]), r["tries"], tok(r["nl"]),
-                                                        tok(r["delta"]), tok(r["sp"]), tok(r["S"])))
+        line = "shf %s %d %d %s %d %s %s %s %s" % (name, p, b, tok(r["sigma"]), r["tries"], tok(r["nl"]),
+                                                  tok(r["delta"]), tok(r["sp"]), tok(r["S"]))
+        if "refused" in r:
+            line += " " + refusal_token(r["refused"])
+        lines.append(line)
     lines.append("shiftcount %s %d %d" % (name, p, count))
     return lines
 
@@ -4249,28 +4416,47 @@ def verify_em(em):
     get, first, order = em["get"], em["first"], em["order"]
     block_of_row = [blk[order[i]] for i in range(nf)]
     gam = gamma_em(nf, p)
-    c_ = u_pass_em(get, first, nf, p) if nf else []
-    ct = nl_pass_em(get, first, nf, p) if nf else []
+    # Amendment A2 (T3 KF3): a refused Uc_c (or S_c) is unavailable for its
+    # block only (verify.rs `verify_state`, bound.rs `certificates`).
+    refused = {}
+    c_ = u_pass_em(get, first, nf, p, block_of_row, refused) if nf else []
+    ct = nl_pass_em(get, first, nf, p, block_of_row, refused) if nf else []
     ucs = []
     for b in range(len(blocks)):
+        if b in refused:
+            ucs.append(None)
+            continue
         rows_b = [i for i in range(nf) if block_of_row[i] == b]
         U = max(c_[i] for i in rows_b)
         NL = max(ct[i] for i in rows_b)
-        ucs.append(uc_from_em(U, NL, gam, p)[1])
+        try:
+            ucs.append(uc_from_em_a2(U, NL, gam, p)[1])
+        except Refused:
+            refused[b] = ("span", "form", None)
+            ucs.append(None)
     start = []
     for b, pl in enumerate(blocks):
         est = em["est_blk"][b]
         if data[b] and est > 0 and (ucs[b] is None or ucs[b] > 2 * ceil_sqrt_em(len(pl)) * est):
             start.append((b, rd(Fr(1) / (2 * est), p), len(pl)))
-    shifts, count = shift_schedule_em(em["scaled"], first, block_of_row, gam, start, p) if start else ({}, 0)
+    shifts, count = shift_schedule_em(em["scaled"], first, block_of_row, gam, start, p, a2=True) if start else ({}, 0)
     B = []
     uc_missing = None
+    stop = None
     for b in range(len(blocks)):
         cands = [x for x in (ucs[b], shifts.get(b, {}).get("S")) if x is not None]
         bb = min(cands) if (data[b] and cands) else None
-        if data[b] and bb is None and uc_missing is None:
-            uc_missing = b
+        if data[b] and bb is None:
+            why = refused.get(b) or shifts.get(b, {}).get("refused")
+            if why is not None and stop is None:
+                stop = why
+            elif why is None and uc_missing is None:
+                uc_missing = b
         B.append(bb)
+    if stop is not None:
+        # 7d with A2: a block with data and no bound after a refusal stops the
+        # attempt with that refusal, before any `uc` rejection.
+        return dict(stop="Span" if stop[0] == "span" else "Exponent")
     norms = []
     for pl in blocks:
         n_ = dict(sas_one=max(one_col[a] for a in pl), sas_inf=max(inf_row[a] for a in pl),
@@ -4713,6 +4899,74 @@ def directional_span_lines():
     return ["qstar DIRECTIONAL-SPAN %d %s" % (i, W_of(rp(q, 512), 8).token()) for i, q in enumerate(qs)]
 
 
+# ----------------------------------------------------------------------------
+# T3 KF3: D1 revision 5a.3 amendment A2 (ROOT's ruling on I19's plan): a
+# certified bound whose formation is refused is unavailable for its block, and
+# B_c is the minimum over the bounds formed.
+# ----------------------------------------------------------------------------
+KF3_MEMBERS = 390
+# R1's RF-LARGE section (E, G, A, I, I, J as R1 states them), scaled here by
+# exact powers of two: invented inputs.
+KF3_SECTION = dict(E=2e11, G=8e10, A=0.005969026041820607 * 2.0 ** -26,
+                   Iy=2.7009842839238247e-05 * 2.0 ** 16, Iz=2.7009842839238247e-05 * 2.0 ** 28,
+                   J=5.4019685678476494e-05 * 2.0 ** 10)
+
+
+def kf3_models():
+    """KF3's constructed controls: a straight chain of 390 members along
+    (-1, 12, -12) (each 17 long), y_ref (-12, -9, -8) (orthogonal to the axis,
+    norm 17: the local axes are rational), fixed at node 0, with KF3_SECTION.
+    In K4's elimination order the comparison-matrix bound M(L)^-1 grows about
+    20.8 bits per member, so at the 256 verification the Uc_c passes refuse
+    (a backward sum spans more than 8,128 bits), while the true inverse norm
+    is about 2^56 and S_c exists (KF3's plan and RETURN).
+    - KF3-UC-SPAN: tip loads; before A2 the case ends Unresolved(ExactSumSpan),
+      under A2 its block's B_c = S_c.
+    - KF3-UC-SPAN-ZERO: no loads; its only block carries no data, so it needs
+      no bound, and the refusal is only recorded.
+    Too large for the dense exact solve: its expectations are the two
+    high-precision solves (`hp_only`)."""
+    out = []
+    for name, loaded in (("KF3-UC-SPAN", True), ("KF3-UC-SPAN-ZERO", False)):
+        nodes = [(-1.0 * k, 12.0 * k, -12.0 * k) for k in range(KF3_MEMBERS + 1)]
+        m = new_model(name, nodes)
+        for k in range(KF3_MEMBERS):
+            add_member(m, k + 1, k, k + 1, y=(-12.0, -9.0, -8.0), section=KF3_SECTION)
+        fix(m, 0, range(6))
+        if loaded:
+            load(m, KF3_MEMBERS, 0, 0.09375, src="l0")
+            load(m, KF3_MEMBERS, 1, -0.046875, src="l1")
+            load(m, KF3_MEMBERS, 5, 0.25, src="l2")
+        m["hp_only"] = True
+        out.append(m)
+    return out
+
+
+def kf3_lines():
+    """`kf3.txt`: the KF3 models (with their high-precision expectations),
+    their E-UNIT records at 128 and 256, their E-UC record at 256 (the norm
+    column `-`: no certified norm at this size), their E-CHARGE record at 256
+    and their schedule, in the formats of `models5a3.txt`, `scale.txt`,
+    `bounds.txt`, `charge.txt` and `outcomes.txt`."""
+    lines = []
+    ms = kf3_models()
+    for m in ms:
+        lines += model_lines(m)
+    for m in ms:
+        for p in (128, 256):
+            lines += scale_record(m["name"], m, p)
+    for m in ms:
+        lines += bounds_record(m["name"], m, 256, exact=False)
+    for m in ms:
+        lines += charge_record(m["name"], m, 256)
+    for m in ms:
+        sel, attempts = schedule_em(m)
+        toks = ["%d:%s" % (p, what) for p, what in attempts]
+        assert not any(t.split(":")[1:2] == ["rejected"] and t.split(":")[2] in ("uc", "theta") for t in toks)
+        lines.append("outcome %s %s %s" % (m["name"], "-" if sel is None else sel, " ".join(toks)))
+    return lines
+
+
 def build(parts=None):
     files = {}
     summary = {}
@@ -4773,6 +5027,8 @@ def build(parts=None):
         files["bounds.txt"] = "\n".join(bounds_lines()) + "\n"
     if want("profiles"):
         files["profiles.txt"] = "\n".join(profile_lines()) + "\n"
+    if want("kf3"):
+        files["kf3.txt"] = "\n".join(kf3_lines()) + "\n"
     if want("models"):
         lines = []
         by_name = {}
