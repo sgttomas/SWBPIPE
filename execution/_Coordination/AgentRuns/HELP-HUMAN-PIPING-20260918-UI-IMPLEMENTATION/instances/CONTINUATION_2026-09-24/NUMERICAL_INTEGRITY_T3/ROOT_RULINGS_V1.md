@@ -2697,3 +2697,31 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - FK equals main's byte for byte.
   - The remerge diff covers only the two resolved conflicts, each keeping main's side.
   - H passes 74 tests plus `k6_alloc`, and the runner 47 of 47, on a clean archive.
+
+## K6b merged (ROOT, 2026-09-30)
+
+- **Merged:** [PR1058](https://github.com/sgttomas/chirality/pull/1058) at head `597c81ba4`, merge `78f55f927`, 2026-09-30 01:08:38Z. The merge record is `IMPLEMENTATION/K6B_MERGE/RECORD.md`.
+- **The gates, on `597c81ba4`:**
+  - RV22 PASSED the review, confirmed `011911e4e`, and passed the merge check of `597c81ba4`;
+  - hosted CI was green: the four pull_request runs and the full-SHA dispatch 36650532005;
+  - DEC-025 was clean against V-K's Mac run (keyed by manifest path): the only suite change is performance_harness, 54 → 74 (K6b's tests). frame_kernel is unchanged, and the failing tests are exactly the three known Mac platform tests. pytest passed 3070 (V-K's 3062, plus K6b's 8 runner tests: `test_k6_runner.py` has 39 → 47), vitest 2822 of 2822, and both builds exited 0;
+  - GEN-8 passed.
+- **Still routed from K6b:**
+  - W1-T4 at 10,000 members re-runs after KF3 merges, as a records addendum (RETURN addendum 1);
+  - VR's cited copy of E_max is deduplicated against K6b's, with RV22-2's terms;
+  - RV22's C-N1 (no test of a stop inside the solve) stays open as a NOTE.
+
+## KF3: main merged; K6b's parity restored in KF3; B's slot granted (ROOT, 2026-09-30)
+
+- **The merge of main `f8400d290` (V-K) is committed as `c0473301e`.** I19 resolved the one conflict by editing only; ROOT staged and committed.
+  - ROOT checked that each resolved file differs from main's side only by the ruled visibility: `bound_refusals` `pub` in adaptive.rs; `BlockRefusal`, `BoundRefusal`, `RefusalKind`, `BoundPass` and `CertifiedBound` `pub` in bound.rs; and one facade line in structural.rs.
+  - I19 reports that FK (348 lib, 7 integration files, 6 doc-tests), VR (47) and H build without warnings and pass, and that VR's records regenerate byte for byte, so no VR record changes.
+- **Main `78f55f927` (K6b) is merged as `e114b23c1`,** with no conflict. K6b changes no FK file.
+- **KF3 merges second, so KF3 updates K6b's checks (the earlier rule).** KF3's write set gains:
+  - `performance_harness/src/k6/w1/staged.rs`: `stages_equal_totals` requires equality on every attempt, completed or stopped. Its doc comment says so and cites KF3. `unstaged` and `stages_complete` stay, since the attempt line records them (RV22-1). They are now always (0, 0) and true, and a test asserts that on a stopped build;
+  - `performance_harness/tests/k6b_w1.rs`: the `uc == 0` assertion on the budget-stopped build becomes the partial `uc` work KF3 records, and the relaxation tests (one short side accepted) now expect `false`. RV22's C-N2 closes here;
+  - `performance_harness/runner/**`, only if the runner encodes the relaxation.
+  - Anything else in H is a stop. H's suite (`--all-targets`, with `k6_alloc`) and the runner's suite must pass.
+- **B's slot is granted now.** No other slice is building, and ROOT's records work uses no cargo.
+  - The slot covers the H update above, then B: RF-LARGE-CHAIN-n10000-AX through W1, and the other five 10,000-member RF-LARGE frames with main's `vk_scale`, each with its outcome and, where it publishes, its honesty against R1.
+  - It ends with I19's report.
