@@ -1,0 +1,40 @@
+//! Scratch probe (T3 KF3 checkpoint B; not committed): each attempt's bound
+//! refusals and verification summary for one RF-LARGE model file.
+use open_pipe_stress_frame_kernel::structural::retained_api::{
+    solve_case, CaseLimit, CaseOutcome, InvocationMeter, PrimitiveSource,
+};
+use piping_numerical_robustness::cases::load_large_model;
+
+fn main() {
+    let path = std::env::args().nth(1).expect("model file");
+    let (model, sha) = load_large_model(std::path::Path::new(&path));
+    let source = PrimitiveSource::new(model.source_parts()).expect("source");
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let out = solve_case(source, CaseLimit::new(u64::MAX), &mut meter);
+    let (label, attempts) = match &out {
+        CaseOutcome::Selected(s) => (
+            format!("Selected at {}", s.selected_precision()),
+            s.evidence().attempts.clone(),
+        ),
+        CaseOutcome::Unresolved {
+            reason, attempts, ..
+        } => (format!("Unresolved {reason:?}"), attempts.clone()),
+        CaseOutcome::Refused { refusal, .. } => (format!("Refused {refusal:?}"), Vec::new()),
+    };
+    println!("MODEL {path} sha256 {sha} outcome {label} charged {}", meter.charged());
+    for a in &attempts {
+        let v = a.verification.as_ref().map(|v| {
+            (
+                v.data_blocks,
+                v.shift_factorizations,
+                v.uc_missing,
+                v.bound.clone(),
+                v.theta.clone(),
+            )
+        });
+        println!(
+            "ATTEMPT {} {:?} {:?} uc_stage {} shift_stage {} refusals {:?} verification {:?}",
+            a.precision, a.role, a.outcome, a.shared_stages.uc, a.stages.shift, a.bound_refusals, v
+        );
+    }
+}
