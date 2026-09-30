@@ -740,6 +740,13 @@ class PlanAdmission(unittest.TestCase):
         # Just under the backstop, the same row is admitted.
         counts = fake_counts({run['model']: {'w1a': run['heap_cap_bytes'] // 2}})
         self.assertEqual(r.admission(run, counts, measured, None, require_ascent=False)['decision'], 'admitted')
+        # One byte over: deferred by name. The backstop is the heap cap's half, not the RSS cap's
+        # (RV22-N2: between the two, 3.75 to 4 GiB, the binary refuses what the RSS cap admits).
+        self.assertLess(run['heap_cap_bytes'], run['rss_cap_bytes'])
+        counts = fake_counts({run['model']: {'w1a': run['heap_cap_bytes'] // 2 + 1}})
+        decision = r.admission(run, counts, measured, None, require_ascent=False)
+        self.assertEqual(decision['decision'], 'deferred')
+        self.assertTrue(decision['reason'].startswith('deferred:binary_backstop_refuses'), decision['reason'])
 
     def test_measured_runs_are_kept_and_not_run_records_are_run(self):
         # The resume skip (I15's B1 fix; C mutant K6-M26): run_tier keeps a measured run and runs

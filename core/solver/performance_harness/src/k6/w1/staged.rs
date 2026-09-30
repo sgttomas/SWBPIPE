@@ -21,7 +21,7 @@ use super::super::staged::{Stage, StageObserver};
 use super::adapter;
 use open_pipe_stress_frame_kernel::structural::retained_api::{
     solve_case, AttemptOutcome, AttemptReason, AttemptRecord, CaseLimit, CaseOutcome,
-    InvocationMeter, PrimitiveSource, SourceError, StageWork,
+    InvocationMeter, PrimitiveSource, SourceError, StageWork, UnresolvedReason,
 };
 
 /// The per-case limit and the invocation meter's limit (ROOT's Q3 ruling:
@@ -174,14 +174,20 @@ pub fn shared_total(a: &AttemptRecord) -> u64 {
     a.shared_work.saturating_add(a.verification_shared_work)
 }
 
-/// Whether an attempt's builds all completed. K4 marks an attempt that stopped
-/// inside a build `Failed(Stop(_))` (`K4R/adaptive.rs:2979-3057`). On that
-/// error path K4 charges the stopped stage's partial work to the attempt's
-/// totals but records no stage for it (the verification's shared build,
-/// `K4R/verify.rs:471-485`; routed to KF3), so the stages can fall short of
-/// the totals (ROOT's ruling on the K6B-S3 stop).
+/// Whether an attempt's builds all completed, so that its stages must equal
+/// its totals. K4 marks an attempt that stopped `Failed(Stop(_))`
+/// (`K4R/adaptive.rs:2979-3057`). On a stop inside a build K4 charges the
+/// stopped stage's partial work to the attempt's totals but records no stage
+/// for it (the verification's shared build, `K4R/verify.rs:471-485`; routed
+/// to KF3), so one side's stages can fall short of its total (ROOT's ruling on
+/// the K6B-S3 stop).
+///
+/// A candidate that stopped in its stop rule (`:3050-3058`) is marked the same
+/// way, but every build of it had completed, and K4 files the stop rule's
+/// partial work in `stages.stop_rule` (`:3040-3045`). Its `stop_rule_work` is
+/// then positive, and it is held to equality (RV22-1).
 pub fn builds_completed(a: &AttemptRecord) -> bool {
-    !matches!(a.outcome, AttemptOutcome::Failed(AttemptReason::Stop(_)))
+    !matches!(a.outcome, AttemptOutcome::Failed(AttemptReason::Stop(_))) || a.stop_rule_work > 0
 }
 
 /// The work an attempt was charged that no stage records: (own, shared). Zero
@@ -195,18 +201,27 @@ pub fn unstaged(a: &AttemptRecord) -> (u64, u64) {
     )
 }
 
-/// Parity `w1_stages_equal_totals` (ROOT's ruling on the K6B-S3 stop). On an
-/// attempt whose builds completed, the own stages add up to the own work and
-/// the shared stages to the shared work (the attempt's build and the
-/// verification's shared data). On an attempt that stopped inside a build,
-/// each stage sum is at most its charged total; the remainder is `unstaged`.
+/// Whether no charged work is unstaged: the attempt line's `stages_complete`
+/// (RV22-1).
+pub fn stages_complete(a: &AttemptRecord) -> bool {
+    unstaged(a) == (0, 0)
+}
+
+/// Parity `w1_stages_equal_totals` (ROOT's rulings on the K6B-S3 stop and on
+/// RV22's review). On an attempt whose builds completed, the own stages add up
+/// to the own work and the shared stages to the shared work (the attempt's
+/// build and the verification's shared data). On an attempt that stopped
+/// inside a build, one build stopped, so at most one side is short: each stage
+/// sum is at most its charged total, and at least one of them equals it. The
+/// remainder is `unstaged`.
 pub fn stages_equal_totals(attempts: &[AttemptRecord]) -> bool {
     attempts.iter().all(|a| {
         let (own, shared) = (stage_sum(&a.stages), stage_sum(&a.shared_stages));
+        let (own_t, shared_t) = (own_total(a), shared_total(a));
         if builds_completed(a) {
-            own == own_total(a) && shared == shared_total(a)
+            own == own_t && shared == shared_t
         } else {
-            own <= own_total(a) && shared <= shared_total(a)
+            own <= own_t && shared <= shared_t && (own == own_t || shared == shared_t)
         }
     })
 }
@@ -320,6 +335,22 @@ pub fn segments(attempts: &[AttemptRecord]) -> Vec<Segment> {
         }
     }
     out
+}
+
+/// Parity `w1_prefix_segments` for prefix j (1-based): the prefix call ended on
+/// the case budget, and its first j segments equal the full call's (RV22-N3:
+/// the binary's predicate, here so that it is tested).
+pub fn prefix_matches(j: usize, full: &[AttemptRecord], prefix: &CaseOutcome) -> bool {
+    let full_segments = segments(full);
+    let own = segments(attempts_of(prefix));
+    let budget_stop = matches!(
+        prefix,
+        CaseOutcome::Unresolved {
+            reason: UnresolvedReason::Budget(_),
+            ..
+        }
+    );
+    budget_stop && own.len() >= j && full_segments.len() > j && own[..j] == full_segments[..j]
 }
 
 /// The prefix limits: every segment's end but the last (the last is the full

@@ -394,10 +394,13 @@ fn counts_line(
         for (k, &(p, _)) in LIMBS_PER_ENTRY.iter().enumerate() {
             line = line
                 .n(&format!("estimate_w1_shared_{p}"), e.shared[k])
-                .n(&format!("estimate_w1_state_{p}"), e.state[k]);
+                .n(&format!("estimate_w1_state_{p}"), e.state[k])
+                .n(&format!("estimate_w1_solve_{p}"), e.solve[k]);
         }
         for (k, p) in [256, 512, 1024].iter().enumerate() {
-            line = line.n(&format!("estimate_w1_verify_{p}"), e.verify[k]);
+            line = line
+                .n(&format!("estimate_w1_verify_{p}"), e.verify[k])
+                .n(&format!("estimate_w1_pass_{p}"), e.pass[k]);
         }
         line = line
             .b("w1_source_ok", w.source_ok)

@@ -369,6 +369,7 @@ K6's sparse estimate gives ρ_fp up to 1.75 (CHAIN-AX) while heap/E is 0.64–0.
   - **KF1's tracker terms** (row 4,304 B, table entry 40 B): the stop rule 4,608 × 4,304 + 3 × 2 × rows × 40; the pivot margin 768 × 4,304 + 2 n_f × 40 on each shared build; a solve attempt 2,816 × 4,304 + 2 × 5 n_f × 40 + 2 n_f × 4,304;
   - E_fix: the harness's model, the source twice, the case and the group.
 - **E_max** is E_fix plus the maximum over the schedule's time order (128, 256, v256, 512, v512, 1024, v1024) of everything kept plus the current transient; **E_sel128** stops at v256. Transients are added on top of kept bytes, so the estimate bounds the peak rather than tracks it.
+- **Revised in RETURN addendum 2 (RV22-2):** as first committed, the solve's fallback items and the verification pass's locals and shift profiles were missing, so E_max did not bound the 1024 pass at 10,000 members. Addendum 2 adds them, with each `Vec` growth under the move model, and regenerates `counts.jsonl`.
 - `tests/k6b_w1.rs::the_estimate_equals_a_hand_derivation` re-derives every term for CHAIN-n00010-AX; mutants M6a and M6b are killed by it.
 
 ### 9.2 The staged sequence equals K4's own entries
@@ -524,4 +525,120 @@ k6_observe --emit-source --model <id>
   - `b2/`: slot K6B-S3: row 247 (the stop's evidence), the index, the logs and the report;
   - `b3/`: slot K6B-S4, the result: 132 processes, the report, the R1 comparison, the slot scripts (W1-T4 pre-KF3);
   - `fix/`: the parity fix's suite, runner suite and mutants;
-  - `d/`: the tables (`d_tables.py.txt`, `tables.md`), the packet's reproduction (from `_run_records/b3/records` too), the D scan, N-4's cross-check, the runner suite at D, the guard status and the assembly script.
+  - `d/`: the tables (`d_tables.py.txt`, `tables.md`), the packet's reproduction (from `_run_records/b3/records` too), the D scan, N-4's cross-check, the runner suite at D, the guard status and the assembly script;
+  - `rv22fix/` (addendum 2): the suites, the release build, the counts-only runs and the estimate change, the independent phase recomputation, b3's admission recheck and ratios, and the mutants.
+
+## RETURN addendum 2 (RV22's review; fixes on `1123d19b9`)
+
+RV22 (`REVIEW/K6B_REVIEW.md`) passed head `1123d19b9` with 0 BLOCKING, 3 SHOULD-FIX and 7 NOTEs. ROOT ruled that the three SHOULD-FIX findings are fixed before merge ("K6b: rulings on RV22's review"). Addendum 1 stays reserved for the post-KF3 W1-T4 re-run. **W1-T4's figures are still pre-KF3.**
+
+### A2.1 Files (the proposed next commit; sha256 in the return to ROOT)
+
+- `H/src/k6/w1/staged.rs`: `builds_completed` holds a stop in the stop rule to equality; `stages_equal_totals` allows at most one short side on a stopped build; new `stages_complete` and `prefix_matches`.
+- `H/src/k6/w1/counts.rs`: the estimate's fallback, pass and move-model terms; `W1Estimate` gains `solve` and `pass`.
+- `H/src/bin/k6_observe/{w1,main}.rs`: `stages_complete` is unstaged = (0, 0); the prefix parity calls `prefix_matches`; the counts line gains `estimate_w1_solve_<p>` and `estimate_w1_pass_<P>`.
+- `H/tests/k6b_w1.rs`: three new tests and a general hand derivation (§A2.4); `H/runner/test_k6_runner.py`: one assertion (RV22-N2).
+- `H/observations/k6b/counts.jsonl` (regenerated) and `SHA256SUMS`; `H/README.md`.
+- This addendum, `CHANGE_RECORD.md`, `_run_records/rv22fix/` and `SHA256SUMS`.
+
+### A2.2 RV22-1: the stage check on stopped attempts
+
+- **The finding:** the check relaxed every `Failed(Stop(_))` attempt, both sides, although K4 also marks a candidate that stopped in its stop rule, with every build complete, and only one build can stop.
+- **The fix:**
+  - an attempt whose builds completed is held to equality. That now includes a stopped attempt with `stop_rule_work > 0`: only a candidate's decision charges stop-rule work, and K4 files it in `stages.stop_rule` (`K4R/adaptive.rs:3040-3058`), so all of its stages are recorded;
+  - any other `Failed(Stop(_))` attempt may have one short side: each stage sum is at most its charged total, and at least one equals it;
+  - the attempt line's `stages_complete` is unstaged = (0, 0), per ROOT.
+- **Tests** (`tests/k6b_w1.rs`):
+  - `a_stop_in_the_stop_rule_is_held_to_equality`: RV22's probe. A case limit at the end of CHAIN-n00010-AX's `verify_256` stops the 128 candidate in its stop rule (`Failed(Stop(Budget(Case)))`, `stop_rule_work` > 0). The check passes, `stages_complete` is true, and 1 LME taken off either side fails it.
+  - `a_build_that_stops_partway_is_checked_against_its_charged_total` gains a 1-LME shortfall on the complete own side of the stopped `uc` build, which now fails, and checks `stages_complete` on both attempts.
+- **b3 is unaffected:** its 25 stopped attempts (5 models × 5 repeats) each have own unstaged 0 and shared unstaged > 0 (RV22's `closure_check.out`), so the tightened check passes on all of them.
+- **KF3 (RV22-N7):** besides the verification's shared build, two more error paths leave work unstaged. `build_shared` at a case limit at the end of `solve_128` leaves shared 0 of 28,740 staged. `solve_case_at` at a limit 10 LME into the 128 solve leaves own 576 of 100,728 staged. KF3's ruling already covers all four builds; these two limits are ready-made test paths.
+
+### A2.3 RV22-2: E_max bounds every modelled phase
+
+- **What was missing** (by my reading of K4 after KF1, agreeing with RV22's):
+  - **The verification pass** (`K4R/verify.rs:731-925`) keeps these alive to its end:
+    - 3 vectors over every DOF (`w_abs`, `delta_full`, `w_s`);
+    - 8 over the free DOFs (`u_free`, `r_hat`, `sr_row`, `delta`, `sr2_row`, `sas_inf_row`, `sas_one_col`, `sau_row`);
+    - `recover`'s output (rows + 6m values);
+    - the prescribed term lists' headers and flags (50 B per DOF) and their terms.
+    - At the shift, the scaled profile and `shifted_factor`'s clone of its rows are both alive (`K4R/bound.rs:433-441`, `:548-600`), before `charge` and `w_plus` exist.
+    - **The new pass term:** the locals, plus the larger of (three row vectors, both profiles and the clone's `first`, `shifted` and `work`) and (all five row vectors).
+  - **The solve's fallback** (`K4R/adaptive.rs:1437-1500`, `:1554-1700`):
+    - `u_free` and up to 4 evaluated states (n_f values each), and `abar_q` (nnz values at R), alive through the fallback;
+    - then either `assemble_bounded`'s member blocks (144 m at R) or, per state, a copy of u (n values) and the row list.
+    - The row list starts empty and takes one push per free row, so its capacity doubles to C = 2^⌈log2 n_f⌉. Under the allocator's move model its last growth holds C/2 + C rows (the formula had 2 n_f in place).
+  - **Tables under the move model:** one growing tracker table also holds its old buffer. That adds one entry per row to the stop rule's tables and one per free DOF to the pivot margin's and the solve's.
+- **Regenerated counts:** `counts.jsonl` comes from counts-only runs of the 33 sealed models (O(nnz), no solve, 512 MiB heap cap, one process at a time). They ran on a release binary of the candidate (sha256 `a5cdaf33e1e34d886b0ac91fa469afcec0b83228705fde28ebd4498a8c437c77`), and all were ok, with a peak RSS of at most 218 MiB. Only the W1 estimate keys change, and the counts line gains `estimate_w1_solve_<p>` and `estimate_w1_pass_<P>` (`_run_records/rv22fix/estimate_change.txt`).
+
+| Size (RF-LARGE) | E_max change | Phase that sets E_max (was) | E_sel128 change |
+|---|---|---|---|
+| 10 | +0.05% | decide_1024 (decide_1024) | +0.05% |
+| 100 | +0.21% (CHAIN, TREE), +0.22% (CONT) | decide_1024 | +0.35–0.38% |
+| 1,000 | +3.28% (CHAIN, TREE), +2.33% (CONT) | **solve_1024** (decide_1024) | +9.5% (CHAIN, TREE), +22.4% (CONT); solve_256 |
+| 10,000 | **+5.37% (CHAIN, TREE), +2.23% (CONT)** | **pass_1024** (pass_1024 CHAIN, TREE; decide_1024 CONT) | +1.1% (CHAIN, TREE), +14.1% (CONT); solve_256 |
+| the DEC-053 nine | +0.04–0.19% | decide_1024 | +0.04–0.31% |
+
+  - **The new values at 10,000 members:** E_max is 2,708–2,873 MiB (2.64–2.81 GiB; 2.84–3.01 GB), and E_sel128 is 1,065–1,102 MiB.
+  - **At 10,000 members the result is RV22's** (+5.4% and +2.1%). At 1,000 members and below it differs from RV22's "0" for two reasons:
+    - under the move model the fallback's items outgrow the stop rule's tracker term at 1,000 members;
+    - the growing table's buffer adds rows × 40 B at every size.
+  - **The phases lie close together:** at 10,000 members the next phase is solve_1024, 3.1% (CHAIN, TREE) and 1.0% (CONT) below the maximum (`estimate_phases.out`, an independent Python recomputation that reproduces all 33 committed lines).
+- **b3's admissions are unaffected:** every b3 row re-admitted against the records it had before it, with the new counts, gives 0 changed decisions (`b3_admission_recheck.out`).
+  - The largest W1 E/(heap cap/2) is now 0.748 (was 0.71).
+  - The largest E·ρ/(C/2) is 0.303, and every projected RSS is at most 1.49 GB, against 0.8 C = 6.87 GB.
+- **b3's heap against the new E** (`b3_ratios_new_e.out`, pass 1):
+
+| Size | heap move / E_max | ρ_fp |
+|---|---|---|
+| 10 | 0.042–0.062 | 0.105–0.200 |
+| 100 | 0.197–0.260 | 0.263–0.392 |
+| 1,000 | 0.281–0.288 | 0.373–0.418 |
+| 10,000 (pre-KF3) | 0.290–0.301 | 0.300–0.367 |
+| the nine | 0.045–0.186 | 0.104–0.317 |
+
+  The committed packet and §6–§7 keep b3's figures against the E it ran with. The ratios are observations; no bound is asserted.
+
+### A2.4 RV22-3: the committed counts are tied to the code
+
+- `the_committed_counts_carry_this_codes_estimate`: every line of `observations/k6b/counts.jsonl` (33) is parsed, and `estimate` recomputed from its W1 counts must equal its `estimate_adm_bytes_w1a` and `estimate_w1_sel128_bytes`. So the runner's admission (from the file) and the binary's backstop (recomputed from the file's counts) use one figure.
+- `the_solve_and_pass_terms_bind_on_the_large_models`: on the committed 1,000- and 10,000-member lines (nothing is built or solved), the estimate equals an independent hand derivation term by term. E_sel128 is set by solve_256 on all 12, and E_max at 10,000 members by a solve or pass phase.
+- `the_estimate_equals_a_hand_derivation` now uses the same general hand derivation (every constant written out in the test), on CHAIN-n00010-AX's computed counts, where the stop rule's term sets both (decide_1024, decide_256).
+- **RV22-M6** (`SOLVE_TRACKER_PEAK_ROWS` 2816 → 2048) is killed by all three.
+
+### A2.5 The optional mutants, and the NOTEs
+
+- **RV22-N3 / RV22-M5:** the prefix parity predicate is now `staged::prefix_matches`, which the binary calls. The prefix test checks that it is true for each prefix and false one segment further or on a completed call. The predicate forced true in the library (RV22-M5L) is killed. RV22-M5 as written, forcing the binary's call site true (RV22-M5B), survives: the binary only calls the tested predicate, and no binary run can produce a false prefix.
+- **RV22-N2 / RV22-M7:** the runner's backstop test adds a row one byte over the heap cap's half, which must be deferred by name. The backstop compared with the RSS cap's half (RV22-M7) is killed.
+- **RV22-N4 / RV22-M2:** equivalent on every model W1a runs. Within one case K4 builds each precision's shared data once, and `solve_cases` is tested with one source (C-9). The built-here branches of `charged_by` are recorded as untested by a multi-case group.
+- **RV22-N1:** the §6.1 and §7.2 columns headed "heap/E" divide the move-model heap (`repeats_heap_peak_move`), while §6.1's "heap MiB" column is the in-place `repeats_heap_peak`. Read "heap/E" as "heap move / E". The values are right (RV22 traced all 518).
+- **RV22-N5, the load in §5:** the records show 1-minute loads of 5.59–6.65 in b, 3.40–4.72 in b2 and 3.55–6.48 in b3, not "3.4–6.0 throughout". Every row carries its own load, and §6.1's load column is right.
+- **RV22-N6:** the adapter check of §4 Q6(a) compares with R1's model realized through K6's binary64 section formula, by design (plan §3.2). RV22's decode finds every other field exactly equal, and the section values within 2.1 ulps (A) and 5.5 ulps (I, J) of R1's exact values.
+- **RV22-N7:** A2.2's two further unstaged paths, routed to KF3.
+
+### A2.6 Mutations (`_run_records/rv22fix/`; from clean `git archive 1123d19b9` copies with the candidate's files over them, own targets deleted afterwards; NONE first)
+
+| Mutant | Change | Result | Killing test |
+|---|---|---|---|
+| NONE | the candidate | passes | — |
+| M21 | RV22-1 reverted: a stopped build may be short on both sides | killed | `a_build_that_stops_partway_is_checked_against_its_charged_total` |
+| M22 | a stop in the stop rule relaxed like a stopped build | killed | `a_stop_in_the_stop_rule_is_held_to_equality` |
+| M23 | `stages_complete` as the outcome test | killed | same |
+| RV22-M6 | `SOLVE_TRACKER_PEAK_ROWS` 2816 → 2048 | killed | the three estimate tests |
+| E1 | the estimate omits the fallback | killed | the three estimate tests |
+| E2 | the pass omits its three full-length vectors | killed | the three estimate tests |
+| E3 | the row list at 2 n_f in place, not its move-model peak | killed | the three estimate tests |
+| E4 | the tables without the growing one's buffer | killed | the three estimate tests |
+| RV22-M5L | the prefix predicate always true | killed | `prefixes_stop_on_the_case_budget_after_each_segment` |
+| RV22-M5B | the binary's call site forced true | survives (A2.5) | — |
+| RV22-M7 | the runner's backstop against the RSS cap's half | killed | `test_every_admitted_row_passes_the_binarys_backstop` |
+
+11 mutants: 10 killed, 1 survivor (RV22-M5B, A2.5).
+
+### A2.7 Suites (the candidate; one cargo job at `-j 4`, `RUST_TEST_THREADS=2`)
+
+- H's debug suite (`--all-targets`): 74 of 74, 0 warnings, rustfmt clean, 76.4 s (with DEC-025 and KF3 running beside it).
+- The runner suite: 47 of 47.
+- The pytest wrapper with the DEC-050/053 pins: 49 of 49.
+- The release binary builds warning-free.
+- The memory guard logged no kill.

@@ -13,6 +13,12 @@
 //! definitions (the constants below cite them); sizes of exported types come
 //! from `size_of`. It is an admission estimate: the measured ratio ρ
 //! calibrates it, and nothing asserts a memory bound.
+//!
+//! It bounds every modelled phase of the schedule, each Vec growth under the
+//! allocator's move model (the old and new buffers alive together), which is
+//! the model ρ reads: the shared builds, each solve with its fallback, each
+//! verification build and pass (with the shift), each decision, and the end
+//! (ROOT's ruling on RV22-2).
 
 use super::super::models::K6Model;
 use super::super::Fnv64;
@@ -254,6 +260,53 @@ pub const OPTION_EXTRA: u128 = 8;
 /// A solve's working vectors at the residual width (rhs, u, residual,
 /// correction).
 pub const SOLVE_VECTORS: u128 = 4;
+/// The solve's evaluated states (`K4R/adaptive.rs:1606-1612`): the first
+/// solve and up to three corrections, each n_f values, alive to the solve's
+/// end with `u_free` (RV22-2).
+pub const EVALUATED_STATES: u128 = 4;
+/// A `Vec` header (pointer, capacity, length).
+pub const VEC_HEADER_BYTES: u128 = 24;
+/// The rows of the fallback's per-state row list at its peak under the move
+/// model (RV22-2). The list starts empty and takes one push per free row
+/// (`K4R/adaptive.rs:1476`, `:1515`), so its capacity doubles from 1 (the
+/// minimum for elements over 1 KiB) to C = the next power of two ≥ its
+/// length ≤ n_f; its last growth holds the old C/2 rows and the new C.
+pub const fn fallback_row_list_rows(free_dofs: u128) -> u128 {
+    let c = next_pow2(free_dofs);
+    c + c / 2
+}
+
+/// The least power of two ≥ x (0 for 0).
+pub const fn next_pow2(x: u128) -> u128 {
+    if x == 0 {
+        return 0;
+    }
+    let mut c = 1;
+    while c < x {
+        c *= 2;
+    }
+    c
+}
+/// A growing tracker table under the move model holds its old buffer too: at
+/// most one more entry per counted row, for the one table growing.
+pub const TABLE_MOVE_EXTRA: u128 = 1;
+/// The verification pass's locals alive to its end (`K4R/verify.rs:731-925`):
+/// three over every DOF (`w_abs`, `delta_full`, `w_s`) and eight over the free
+/// DOFs (`u_free`, `r_hat`, `sr_row`, `delta`, `sr2_row`, `sas_inf_row`,
+/// `sas_one_col`, `sau_row`), plus `recover`'s output (rows + 6m values,
+/// `K4R/recover.rs:203-211`) and, per DOF, the two term lists' headers and
+/// two flags (RV22-2).
+pub const PASS_FULL_VECTORS: u128 = 3;
+pub const PASS_FREE_VECTORS: u128 = 8;
+pub const PASS_PER_DOF_EXTRA: u128 = 2 * VEC_HEADER_BYTES + 2;
+/// The report's row vectors alive before the shift (e_rows, w, a_s); charge
+/// and w_plus follow it.
+pub const PASS_EARLY_ROW_VECTORS: u128 = 3;
+/// The shift (`K4R/bound.rs:433-441`, `:548-600`): the scaled profile (its
+/// rows, a header, `first` and `block_of_row` per free row) and
+/// `shifted_factor`'s clone of the rows with `first`, `shifted` and `work`.
+pub const PROFILE_ROW_EXTRA: u128 = VEC_HEADER_BYTES + 8 + 4;
+pub const PROFILE_CLONE_ROW_EXTRA: u128 = VEC_HEADER_BYTES + 8;
 /// `ExactWideSum` (`K4R/wide_sum.rs:112-124`): two 128-limb magnitudes
 /// (`SUM_LIMBS`, `:43`), two i128, a usize, a bool and a `SumWork`: 2,129
 /// bytes, 2,144 with its 16-byte alignment.
@@ -332,6 +385,11 @@ impl W1SizeFacts {
 pub struct W1Estimate {
     /// The stop rule's tracker bound (a transient at each decision).
     pub decide: u128,
+    /// Each attempt's solve transient, with the fallback.
+    pub solve: [u128; 4],
+    /// Each verification pass's transient, at its larger of the shift and
+    /// after it.
+    pub pass: [u128; 3],
     /// Alive through the call: the harness's model and frames, the source
     /// twice, the case and the group.
     pub fixed: u128,
@@ -347,8 +405,9 @@ pub struct W1Estimate {
     pub sel128: u128,
 }
 
-/// The W1 estimate (plan §3.5). Build transients are added on top of each
-/// build's kept bytes, so the estimate bounds rather than tracks the peak.
+/// The W1 estimate (plan §3.5; ROOT's ruling on RV22-2). Each phase's
+/// transient is added to the bytes kept when it runs, so the estimate bounds
+/// every modelled phase rather than tracking the peak.
 pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
     let u = |x: usize| x as u128;
     let (m, n, nf, nnz) = (
@@ -403,14 +462,23 @@ pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
         }
     });
     let state = ATTEMPT_WIDTHS.map(|(_, l, _)| (n + 6 * m + rows) * w(l));
-    // KF1: a solve attempt's trackers (bounded), their tables, the fallback's
-    // per-state row list (n_f rows of 4,304 B in a growing `Vec`, one state at
-    // a time), and the residual gate's row list.
+    // KF1: a solve attempt's trackers (bounded) and their tables.
     let solve_trackers = SOLVE_TRACKER_PEAK_ROWS * TRACKER_ENTRY_BYTES
-        + VEC_SLACK * SOLVE_TABLE_ROWS_PER_FREE_DOF * nf * TRACKER_TABLE_ENTRY_BYTES
-        + VEC_SLACK * nf * TRACKER_ENTRY_BYTES;
+        + (VEC_SLACK * SOLVE_TABLE_ROWS_PER_FREE_DOF + TABLE_MOVE_EXTRA)
+            * nf
+            * TRACKER_TABLE_ENTRY_BYTES;
+    // The solve (`K4R/adaptive.rs:1554-1700`): its working vectors and the
+    // residual gate's row list, then the fallback (`:1437-1500`, RV22-2):
+    // `u_free`, the evaluated states and `abar_q`, alive throughout; then
+    // either `assemble_bounded`'s member blocks (while `abar_q` is built) or,
+    // per state, the copy of u and the row list under the move model.
     let solve = ATTEMPT_WIDTHS.map(|(_, l, r)| {
-        SOLVE_VECTORS * n * w(r) + nf * (RESIDUAL_ROW_EXTRA + w(l)) + solve_trackers
+        let fallback = nf * w(l)
+            + EVALUATED_STATES * (nf * w(l) + VEC_HEADER_BYTES)
+            + nnz * w(r)
+            + (m * BLOCK_WIDES * w(r))
+                .max(n * w(l) + fallback_row_list_rows(nf) * TRACKER_ENTRY_BYTES);
+        SOLVE_VECTORS * n * w(r) + nf * (RESIDUAL_ROW_EXTRA + w(l)) + solve_trackers + fallback
     });
     let verify = VERIFY_WIDTHS.map(|(_, l, ww)| {
         nnz * w(l)
@@ -426,15 +494,34 @@ pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
                 m * (MEMBER_OPERATOR_WIDES * w(ww) + MEMBER_OPERATOR_EXTRA)
             }
     });
+    // The report, kept after the pass: its row vectors and two over the free
+    // DOFs.
     let report = VERIFY_WIDTHS
         .map(|(_, l, _)| REPORT_ROW_VECTORS * rows * (w(l) + OPTION_EXTRA) + 2 * nf * w(l));
-    let pass = VERIFY_WIDTHS.map(|(_, l, _)| p_entries * w(l));
+    // The pass (`K4R/verify.rs:731-925`, RV22-2): its locals, with either the
+    // first three row vectors and the shift's two profiles (`K4R/bound.rs`
+    // `scaled_profile`, `shifted_factor`) or, after the shift, all five row
+    // vectors.
+    let pass = VERIFY_WIDTHS.map(|(_, l, ww)| {
+        let live = PASS_FULL_VECTORS * n * w(l)
+            + PASS_FREE_VECTORS * nf * w(l)
+            + (rows + 6 * m) * w(l)
+            + n * PASS_PER_DOF_EXTRA
+            + r * (w(ww) + w(l));
+        let at_shift = PASS_EARLY_ROW_VECTORS * rows * (w(l) + OPTION_EXTRA)
+            + p_entries * w(l)
+            + nf * PROFILE_ROW_EXTRA
+            + p_entries * w(l)
+            + nf * (PROFILE_CLONE_ROW_EXTRA + (w(l) + OPTION_EXTRA) + w(l));
+        let after = REPORT_ROW_VECTORS * rows * (w(l) + OPTION_EXTRA);
+        live + at_shift.max(after)
+    });
     // KF1: the stop rule's trackers at their peak, and their tables.
     let decide = STOP_RULE_PEAK_ROWS * TRACKER_ENTRY_BYTES
-        + DECIDE_TRACKER_SETS * VEC_SLACK * rows * TRACKER_TABLE_ENTRY_BYTES;
+        + (DECIDE_TRACKER_SETS * VEC_SLACK + TABLE_MOVE_EXTRA) * rows * TRACKER_TABLE_ENTRY_BYTES;
     // KF1: the pivot margin's tracker in each shared build, and its table.
-    let pivot =
-        PIVOT_TRACKER_PEAK_ROWS * TRACKER_ENTRY_BYTES + VEC_SLACK * nf * TRACKER_TABLE_ENTRY_BYTES;
+    let pivot = PIVOT_TRACKER_PEAK_ROWS * TRACKER_ENTRY_BYTES
+        + (VEC_SLACK + TABLE_MOVE_EXTRA) * nf * TRACKER_TABLE_ENTRY_BYTES;
     let end = rows * (u(s.published_row) + 40)
         + enc
         + (n + 6 * m) * (9 + 8 * 16)
@@ -451,7 +538,7 @@ pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
         if let Some(v) = VERIFY_WIDTHS.iter().position(|&(vp, _, _)| vp == p) {
             peak = peak.max(kept + verify[v] + verify_build[v]);
             kept += verify[v];
-            peak = peak.max(kept + report[v] + pass[v]);
+            peak = peak.max(kept + pass[v]);
             peak = peak.max(kept + report[v] + decide);
             if p == 256 {
                 sel128 = peak.max(kept + report[v] + end);
@@ -461,6 +548,8 @@ pub fn estimate(c: &W1Counts, s: &W1SizeFacts) -> W1Estimate {
     let max = peak.max(kept + report[2] + end);
     W1Estimate {
         decide,
+        solve,
+        pass,
         fixed,
         shared,
         state,

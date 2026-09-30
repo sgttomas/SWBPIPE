@@ -3,10 +3,11 @@
 //! kinds keep their schema), the parity items, the rows dump and the prefix
 //! lines.
 //!
-//! ROOT's ruling on the K6B-S3 stop: the outcome's per-precision work is the
-//! charged totals, and each attempt line carries whether its builds completed
-//! and the work it was charged that no stage records (`own_unstaged`,
-//! `shared_unstaged`; zero on completed builds).
+//! ROOT's rulings on the K6B-S3 stop and on RV22's review: the outcome's
+//! per-precision work is the charged totals, and each attempt line carries the
+//! work it was charged that no stage records (`own_unstaged`,
+//! `shared_unstaged`; zero on completed builds) and whether that is none
+//! (`stages_complete`).
 
 use super::Line;
 use open_pipe_stress_frame_kernel::structural::retained_api::{
@@ -17,8 +18,8 @@ use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
 };
 use open_pipe_stress_solver_performance_harness::k6::w1::rows::{class_counts, write_rows};
 use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
-    attempts_of, builds_completed, charged_by, outcome_class, own_total, segments, stage_fields,
-    stages_equal_totals, unstaged, work_by_precision, work_closes, W1Solve,
+    attempts_of, charged_by, outcome_class, own_total, prefix_matches, stage_fields,
+    stages_complete, stages_equal_totals, unstaged, work_by_precision, work_closes, W1Solve,
 };
 use open_pipe_stress_solver_performance_harness::k6::{debug_digest, Fnv64};
 use std::io::Write;
@@ -147,7 +148,7 @@ pub fn attempt_lines(repeat: usize, attempts: &[AttemptRecord]) {
         }
         let v = a.verification.as_ref();
         let (own_unstaged, shared_unstaged) = unstaged(a);
-        line.b("stages_complete", builds_completed(a))
+        line.b("stages_complete", stages_complete(a))
             .n("own_unstaged", own_unstaged)
             .n("shared_unstaged", shared_unstaged)
             .n("own_total", own_total(a))
@@ -256,9 +257,6 @@ pub fn dump_rows(path: &str, model_id: &str, solve: &W1Solve) {
 /// The line of one prefix call (`prefix`, a new kind): its limit and segment,
 /// its outcome, and whether its completed segments equal the full call's.
 pub fn prefix_line(j: usize, label: &str, limit: u64, full: &[AttemptRecord], solve: &W1Solve) {
-    let full_segments = segments(full);
-    let own = segments(attempts_of(&solve.outcome));
-    let equal = own.len() >= j && full_segments.len() > j && own[..j] == full_segments[..j];
     let reason = match &solve.outcome {
         CaseOutcome::Unresolved { reason, .. } => Some(bounded(format!("{reason:?}"))),
         _ => None,
@@ -272,12 +270,10 @@ pub fn prefix_line(j: usize, label: &str, limit: u64, full: &[AttemptRecord], so
         .n("attempts", attempts_of(&solve.outcome).len())
         .n("meter_charged", solve.charged)
         .emit();
-    let budget_stop = matches!(
-        solve.outcome,
-        CaseOutcome::Unresolved {
-            reason: UnresolvedReason::Budget(_),
-            ..
-        }
-    );
-    parity("w1_prefix_segments", j, equal && budget_stop).emit();
+    parity(
+        "w1_prefix_segments",
+        j,
+        prefix_matches(j, full, &solve.outcome),
+    )
+    .emit();
 }
