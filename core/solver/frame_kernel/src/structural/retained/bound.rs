@@ -38,6 +38,17 @@
 //!   factorizations in all. A block whose pivots pass with σ′_c ≤ 0 is not
 //!   retried.
 //! - **B_c (7d)** = min(Uc_c, S_c) over those that exist, for a block with data.
+//! - **Amendment A2 (T3 KF3; ROOT's ruling on I19's plan).** A Uc_c or S_c
+//!   whose formation is refused (an exact sum spanning more than
+//!   `SPAN_LIMIT_BITS`, or a result outside the exponent range: `Span`,
+//!   `Exponent`) is unavailable for its block and treated as R7's "does not
+//!   exist" (+∞). The first refusal of a block is recorded (`BoundRefusal`: the
+//!   kind, the pass and the elimination row), every later operation on the
+//!   block's rows is skipped, and the accumulator is reset in full. Every other
+//!   block runs operation for operation as before (its rows read only its own
+//!   values: cross-block multipliers are exact zeros, which the passes skip,
+//!   7a). Budget stops and every other stop propagate. Whether the attempt
+//!   stops is decided in `verify_state` (7d).
 use super::adaptive::{AttemptStop, StageGuard};
 use super::assemble::Structure;
 use super::directed::{add_toward, div_toward, mul_toward, sub_toward, Toward};
@@ -204,6 +215,117 @@ where
     }
 }
 
+// ------------------------------------------------------------ A2: refusals
+
+/// How a bound's formation was refused (amendment A2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum RefusalKind {
+    /// An exact sum spanned more than `SPAN_LIMIT_BITS`.
+    Span,
+    /// A result outside the `Wide` exponent range.
+    Exponent,
+}
+
+/// The pass of 7b or 7c in which a block's first refusal occurred.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum BoundPass {
+    /// 7b: a = M(L)⁻¹e.
+    Forward,
+    /// 7b: b_i = a_i/d_i.
+    Pivot,
+    /// 7b: c = M(L)⁻ᵀb.
+    Backward,
+    /// 7b (and 7c's N′_L): a′ = |Lᵀ|e.
+    NlColumn,
+    /// b′_i = d_i·a′_i.
+    NlScale,
+    /// c′ = |L|b′.
+    NlRow,
+    /// 7b: t_c and Uc_c from U_c and N_L,c.
+    Form,
+    /// 7c: whether the shift is needed (the exact comparison).
+    Need,
+    /// 7c: σ_c = 1/(2·est_c).
+    Sigma,
+    /// 7c: the shifted factorization.
+    ShiftFactor,
+    /// 7c: δ_c, σ′_c and S_c.
+    ShiftForm,
+}
+
+/// A block's first refusal (amendment A2): its kind, its pass and the
+/// elimination row (`usize::MAX` for a per-block step).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct BoundRefusal {
+    pub(crate) kind: RefusalKind,
+    pub(crate) pass: BoundPass,
+    pub(crate) row: usize,
+}
+
+impl BoundRefusal {
+    /// The stop the refusal would have been before A2 (and is when a block
+    /// with data is left with no bound, 7d).
+    pub(crate) fn stop(&self) -> AttemptStop {
+        match self.kind {
+            RefusalKind::Span => AttemptStop::Span,
+            RefusalKind::Exponent => AttemptStop::Exponent,
+        }
+    }
+}
+
+/// Which certified bound a refusal belongs to.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CertifiedBound {
+    Uc,
+    S,
+}
+
+/// One block's refusal, as the attempt's evidence records it (amendment A2;
+/// ROOT's ruling 3: on `AttemptRecord` only).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct BlockRefusal {
+    pub(crate) block: u32,
+    pub(crate) bound: CertifiedBound,
+    pub(crate) refusal: BoundRefusal,
+}
+
+/// A2's classification of an operation's result: `Ok(Some(v))`, `Ok(None)`
+/// after recording a refusal in `slot` (the first one kept) and resetting the
+/// accumulator in full, or the stop itself when it is not a refusal.
+pub(crate) fn refusable<T>(
+    result: Result<T, AttemptStop>,
+    sum: &mut ExactWideSum,
+    slot: &mut Option<BoundRefusal>,
+    pass: BoundPass,
+    row: usize,
+) -> Result<Option<T>, AttemptStop> {
+    match result {
+        Ok(v) => Ok(Some(v)),
+        Err(stop) => {
+            let kind = refusal_kind(stop)?;
+            sum.reset();
+            record(slot, kind, pass, row);
+            Ok(None)
+        }
+    }
+}
+
+/// A refusal's kind, or the stop itself when it is not a refusal (A2).
+pub(crate) fn refusal_kind(stop: AttemptStop) -> Result<RefusalKind, AttemptStop> {
+    match stop {
+        AttemptStop::Span => Ok(RefusalKind::Span),
+        AttemptStop::Exponent => Ok(RefusalKind::Exponent),
+        other => Err(other),
+    }
+}
+
+/// Keeps a block's first refusal.
+fn record(slot: &mut Option<BoundRefusal>, kind: RefusalKind, pass: BoundPass, row: usize) {
+    if slot.is_none() {
+        *slot = Some(BoundRefusal { kind, pass, row });
+    }
+}
+
 // ------------------------------------------------------------ Uc_c (7b)
 
 /// A unit lower triangular L and diagonal D on a profile, in elimination
@@ -234,11 +356,19 @@ where
 }
 
 /// c = M(L)⁻ᵀD⁻¹M(L)⁻¹e, every operation upward (emu7's `u_pass`).
+///
+/// Amendment A2: `refused` holds each block's first refusal. A refusal on a
+/// row of block b records (kind, pass, row) in `refused[b]`, and every later
+/// operation on b's rows is skipped (their values are not formed and not
+/// read); every other block runs operation for operation as without it. A
+/// block already refused on entry is skipped throughout.
 pub(crate) fn u_pass<const L: usize, F: ProfileLdl<L>>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
     guard: &StageGuard,
     f: &F,
+    block_of_row: &[u32],
+    refused: &mut [Option<BoundRefusal>],
 ) -> Result<Vec<Wide<L>>, AttemptStop>
 where
     Wide<L>: SupportedWidth,
@@ -247,43 +377,106 @@ where
     let one = Wide::<L>::ONE;
     let mut a = vec![one; n];
     for i in 0..n {
-        let mut acc = one;
-        for j in f.first_of(i)..i {
-            let l = f.entry(i, j).abs();
-            if l.is_zero() {
-                continue;
+        let b = block_of_row[i] as usize;
+        if refused[b].is_none() {
+            let mut acc = Some(one);
+            for j in f.first_of(i)..i {
+                let l = f.entry(i, j).abs();
+                if l.is_zero() {
+                    continue;
+                }
+                let Some(t) = refusable(
+                    mul_toward(ctx, sum, &l, &a[j], Toward::Up),
+                    sum,
+                    &mut refused[b],
+                    BoundPass::Forward,
+                    i,
+                )?
+                else {
+                    acc = None;
+                    break;
+                };
+                let Some(v) = refusable(
+                    add_toward(ctx, sum, &acc.unwrap_or(one), &t, Toward::Up),
+                    sum,
+                    &mut refused[b],
+                    BoundPass::Forward,
+                    i,
+                )?
+                else {
+                    acc = None;
+                    break;
+                };
+                acc = Some(v);
             }
-            let t = mul_toward(ctx, sum, &l, &a[j], Toward::Up)?;
-            acc = add_toward(ctx, sum, &acc, &t, Toward::Up)?;
+            if let Some(v) = acc {
+                a[i] = v;
+            }
         }
-        a[i] = acc;
         guard.check(ctx, sum)?;
     }
     let mut c = Vec::with_capacity(n);
     for (i, ai) in a.iter().enumerate() {
-        c.push(div_toward(ctx, sum, ai, &f.entry(i, i), Toward::Up)?);
+        let b = block_of_row[i] as usize;
+        let v = if refused[b].is_none() {
+            refusable(
+                div_toward(ctx, sum, ai, &f.entry(i, i), Toward::Up),
+                sum,
+                &mut refused[b],
+                BoundPass::Pivot,
+                i,
+            )?
+        } else {
+            None
+        };
+        c.push(v.unwrap_or(Wide::<L>::ZERO));
     }
     for i in (0..n).rev() {
-        let ci = c[i];
-        for j in f.first_of(i)..i {
-            let l = f.entry(i, j).abs();
-            if l.is_zero() {
-                continue;
+        let b = block_of_row[i] as usize;
+        if refused[b].is_none() {
+            let ci = c[i];
+            for j in f.first_of(i)..i {
+                let l = f.entry(i, j).abs();
+                if l.is_zero() {
+                    continue;
+                }
+                let Some(t) = refusable(
+                    mul_toward(ctx, sum, &l, &ci, Toward::Up),
+                    sum,
+                    &mut refused[b],
+                    BoundPass::Backward,
+                    j,
+                )?
+                else {
+                    break;
+                };
+                let Some(v) = refusable(
+                    add_toward(ctx, sum, &c[j], &t, Toward::Up),
+                    sum,
+                    &mut refused[b],
+                    BoundPass::Backward,
+                    j,
+                )?
+                else {
+                    break;
+                };
+                c[j] = v;
             }
-            let t = mul_toward(ctx, sum, &l, &ci, Toward::Up)?;
-            c[j] = add_toward(ctx, sum, &c[j], &t, Toward::Up)?;
         }
         guard.check(ctx, sum)?;
     }
     Ok(c)
 }
 
-/// c′ = |L|D|Lᵀ|e, every operation upward (emu7's `nl_pass`).
+/// c′ = |L|D|Lᵀ|e, every operation upward (emu7's `nl_pass`); refusals as in
+/// `u_pass` (amendment A2).
 pub(crate) fn nl_pass<const L: usize, F: ProfileLdl<L>>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
     guard: &StageGuard,
     f: &F,
+    block_of_row: &[u32],
+    refused: &mut [Option<BoundRefusal>],
 ) -> Result<Vec<Wide<L>>, AttemptStop>
 where
     Wide<L>: SupportedWidth,
@@ -291,27 +484,75 @@ where
     let n = f.rows();
     let mut at = vec![Wide::<L>::ONE; n];
     for i in 0..n {
+        let b = block_of_row[i] as usize;
+        if refused[b].is_some() {
+            continue;
+        }
         for j in f.first_of(i)..i {
             let l = f.entry(i, j).abs();
             if l.is_zero() {
                 continue;
             }
-            at[j] = add_toward(ctx, sum, &at[j], &l, Toward::Up)?;
+            let Some(v) = refusable(
+                add_toward(ctx, sum, &at[j], &l, Toward::Up),
+                sum,
+                &mut refused[b],
+                BoundPass::NlColumn,
+                j,
+            )?
+            else {
+                break;
+            };
+            at[j] = v;
         }
     }
     let mut bt = Vec::with_capacity(n);
     for (i, a) in at.iter().enumerate() {
-        bt.push(mul_toward(ctx, sum, &f.entry(i, i), a, Toward::Up)?);
+        let b = block_of_row[i] as usize;
+        let v = if refused[b].is_none() {
+            refusable(
+                mul_toward(ctx, sum, &f.entry(i, i), a, Toward::Up),
+                sum,
+                &mut refused[b],
+                BoundPass::NlScale,
+                i,
+            )?
+        } else {
+            None
+        };
+        bt.push(v.unwrap_or(Wide::<L>::ZERO));
     }
     let mut ct = bt.clone();
     for i in 0..n {
-        for j in f.first_of(i)..i {
-            let l = f.entry(i, j).abs();
-            if l.is_zero() {
-                continue;
+        let b = block_of_row[i] as usize;
+        if refused[b].is_none() {
+            for j in f.first_of(i)..i {
+                let l = f.entry(i, j).abs();
+                if l.is_zero() {
+                    continue;
+                }
+                let Some(t) = refusable(
+                    mul_toward(ctx, sum, &l, &bt[j], Toward::Up),
+                    sum,
+                    &mut refused[b],
+                    BoundPass::NlRow,
+                    i,
+                )?
+                else {
+                    break;
+                };
+                let Some(v) = refusable(
+                    add_toward(ctx, sum, &ct[i], &t, Toward::Up),
+                    sum,
+                    &mut refused[b],
+                    BoundPass::NlRow,
+                    i,
+                )?
+                else {
+                    break;
+                };
+                ct[i] = v;
             }
-            let t = mul_toward(ctx, sum, &l, &bt[j], Toward::Up)?;
-            ct[i] = add_toward(ctx, sum, &ct[i], &t, Toward::Up)?;
         }
         guard.check(ctx, sum)?;
     }
@@ -347,6 +588,25 @@ where
     pub(crate) t: Wide<L>,
     /// U_c/(1 − t_c) when t_c < 1.
     pub(crate) uc: Option<Wide<L>>,
+    /// Amendment A2: the block's first refusal. When present, Uc_c is
+    /// unavailable (`uc` is `None`), and `u`, `n_l` and `t` were not formed
+    /// (recorded as zero, never read for a bound).
+    pub(crate) refused: Option<BoundRefusal>,
+}
+
+impl<const L: usize> BlockBound<L>
+where
+    Wide<L>: SupportedWidth,
+{
+    fn refused(refusal: BoundRefusal) -> Self {
+        Self {
+            u: Wide::<L>::ZERO,
+            n_l: Wide::<L>::ZERO,
+            t: Wide::<L>::ZERO,
+            uc: None,
+            refused: Some(refusal),
+        }
+    }
 }
 
 /// Per block: max over the rows `rows_of_block` of `values` (elimination order).
@@ -398,6 +658,7 @@ where
         n_l: *n_l,
         t,
         uc,
+        refused: None,
     })
 }
 
@@ -414,13 +675,28 @@ pub(crate) fn uc_bounds<const L: usize, F: ProfileLdl<L>>(
 where
     Wide<L>: SupportedWidth,
 {
-    let c = u_pass(ctx, sum, guard, f)?;
-    let ct = nl_pass(ctx, sum, guard, f)?;
+    // Amendment A2: a refusal makes only its own block's Uc_c unavailable.
+    let mut refused = vec![None; blocks];
+    let c = u_pass(ctx, sum, guard, f, block_of_row, &mut refused)?;
+    let ct = nl_pass(ctx, sum, guard, f, block_of_row, &mut refused)?;
     let u = block_max(&c, block_of_row, blocks);
     let n_l = block_max(&ct, block_of_row, blocks);
     let mut out = Vec::with_capacity(blocks);
-    for b in 0..blocks {
-        out.push(bounds_from(ctx, sum, gamma, &u[b], &n_l[b])?);
+    for (b, slot) in refused.iter_mut().enumerate() {
+        if let Some(r) = slot {
+            out.push(BlockBound::refused(*r));
+            continue;
+        }
+        match refusable(
+            bounds_from(ctx, sum, gamma, &u[b], &n_l[b]),
+            sum,
+            slot,
+            BoundPass::Form,
+            usize::MAX,
+        )? {
+            Some(bound) => out.push(bound),
+            None => out.push(BlockBound::refused(slot.expect("recorded"))),
+        }
     }
     Ok(out)
 }
@@ -520,6 +796,10 @@ where
     pub(crate) failed: Vec<bool>,
     /// d̃_i for each row of a shifted block.
     pub(crate) shifted: Vec<Option<Wide<L>>>,
+    /// Per block: the first refusal of its shifted factorization (A2; only an
+    /// exponent refusal can occur in the context's operations). A refused
+    /// block's later rows are not formed.
+    pub(crate) refused: Vec<Option<BoundRefusal>>,
 }
 
 impl<const L: usize> ProfileLdl<L> for ShiftedFactor<L>
@@ -559,12 +839,26 @@ where
     let first = profile.first.clone();
     let mut rows = profile.rows.clone();
     let mut shifted = vec![None; n];
+    let mut refused: Vec<Option<BoundRefusal>> = vec![None; profile.blocks];
     for i in 0..n {
-        if let Some(s) = &sigma[profile.block_of_row[i] as usize] {
+        let b = profile.block_of_row[i] as usize;
+        if let Some(s) = &sigma[b] {
+            if refused[b].is_some() {
+                continue;
+            }
             let at = i - first[i];
-            let d = ctx.sub(&rows[i][at], s)?;
-            rows[i][at] = d;
-            shifted[i] = Some(d);
+            match ctx.sub(&rows[i][at], s) {
+                Ok(d) => {
+                    rows[i][at] = d;
+                    shifted[i] = Some(d);
+                }
+                Err(e) => record(
+                    &mut refused[b],
+                    refusal_kind(e.into())?,
+                    BoundPass::ShiftFactor,
+                    i,
+                ),
+            }
         }
     }
     let zero = Wide::<L>::ZERO;
@@ -578,24 +872,40 @@ where
     let mut failed = vec![false; profile.blocks];
     let mut work = vec![zero; n];
     for i in 0..n {
-        for j in first[i]..i {
-            let mut s = get(&rows, i, j);
-            for kk in first[i].max(first[j])..j {
-                let t = ctx.mul(&work[kk], &get(&rows, j, kk))?;
-                s = ctx.sub(&s, &t)?;
+        let b = profile.block_of_row[i] as usize;
+        if refused[b].is_some() {
+            guard.check(ctx, sum)?;
+            continue;
+        }
+        // The row's operations; an exponent refusal ends the row (A2).
+        let mut row = || -> Result<Wide<L>, AttemptStop> {
+            for j in first[i]..i {
+                let mut s = get(&rows, i, j);
+                for kk in first[i].max(first[j])..j {
+                    let t = ctx.mul(&work[kk], &get(&rows, j, kk))?;
+                    s = ctx.sub(&s, &t)?;
+                }
+                work[j] = s;
+                let d = get(&rows, j, j);
+                rows[i][j - first[i]] = ctx.div(&s, &d)?;
             }
-            work[j] = s;
-            let d = get(&rows, j, j);
-            rows[i][j - first[i]] = ctx.div(&s, &d)?;
-        }
-        let mut pivot = get(&rows, i, i);
-        for kk in first[i]..i {
-            let term = ctx.mul(&work[kk], &get(&rows, i, kk))?;
-            pivot = ctx.sub(&pivot, &term)?;
-        }
+            let mut pivot = get(&rows, i, i);
+            for kk in first[i]..i {
+                let term = ctx.mul(&work[kk], &get(&rows, i, kk))?;
+                pivot = ctx.sub(&pivot, &term)?;
+            }
+            Ok(pivot)
+        };
+        let mut pivot = match row() {
+            Ok(p) => p,
+            Err(e) => {
+                record(&mut refused[b], refusal_kind(e)?, BoundPass::ShiftFactor, i);
+                Wide::<L>::ONE
+            }
+        };
         if pivot.is_zero() || pivot.is_sign_negative() {
             // The block has failed at this σ_c; its later rows are not used.
-            failed[profile.block_of_row[i] as usize] = true;
+            failed[b] = true;
             pivot = Wide::<L>::ONE;
         }
         rows[i][i - first[i]] = pivot;
@@ -606,6 +916,7 @@ where
         rows,
         failed,
         shifted,
+        refused,
     })
 }
 
@@ -623,6 +934,9 @@ where
     pub(crate) delta: Option<Wide<L>>,
     pub(crate) sigma_prime: Option<Wide<L>>,
     pub(crate) s: Option<Wide<L>>,
+    /// Amendment A2: the block's first refusal in 7c; S_c is then unavailable
+    /// and the block is not retried.
+    pub(crate) refused: Option<BoundRefusal>,
 }
 
 /// ⌈√n⌉, exactly.
@@ -702,6 +1016,7 @@ where
                     delta: None,
                     sigma_prime: None,
                     s: None,
+                    refused: None,
                 },
             )
         })
@@ -715,7 +1030,9 @@ where
         }
         let f = shifted_factor(ctx, sum, guard, profile, &sigma)?;
         factorizations += 1;
-        let ct = nl_pass(ctx, sum, guard, &f)?;
+        // A2: N′_L per block, a refusal of the factorization carried over.
+        let mut refused = f.refused.clone();
+        let ct = nl_pass(ctx, sum, guard, &f, &profile.block_of_row, &mut refused)?;
         let n_l = block_max(&ct, &profile.block_of_row, profile.blocks);
         let mut next = Vec::new();
         for (b, s, n_c) in current {
@@ -726,8 +1043,21 @@ where
                 .1;
             r.tries += 1;
             r.sigma = s;
+            if let Some(refusal) = refused[b] {
+                // S_c is unavailable; a refusal is not retried (A2).
+                r.refused = Some(refusal);
+                continue;
+            }
             if f.failed[b] {
-                next.push((b, s.mul_pow2(-1)?, n_c));
+                match s.mul_pow2(-1) {
+                    Ok(half) => next.push((b, half, n_c)),
+                    Err(e) => record(
+                        &mut r.refused,
+                        refusal_kind(e.into())?,
+                        BoundPass::ShiftForm,
+                        usize::MAX,
+                    ),
+                }
                 continue;
             }
             // δ_c = 2^(1−P)·max_{i∈c}|d̃_i|, exact.
@@ -741,16 +1071,33 @@ where
                     }
                 }
             }
-            let delta = top.mul_pow2(1 - i64::from(ctx.precision()))?;
-            let gn = mul_toward(ctx, sum, gamma, &n_l[b], Toward::Up)?;
-            let e = add_toward(ctx, sum, &gn, &delta, Toward::Up)?;
-            let sp = sub_toward(ctx, sum, &s, &e, Toward::Down)?;
-            r.n_l = Some(n_l[b]);
-            r.delta = Some(delta);
-            r.sigma_prime = Some(sp);
-            if !sp.is_zero() && !sp.is_sign_negative() {
-                let root = Wide::<L>::from_f64(ceil_sqrt(n_c) as f64)?;
-                r.s = Some(div_toward(ctx, sum, &root, &sp, Toward::Up)?);
+            let form = |ctx: &mut WideContext<L>,
+                        sum: &mut ExactWideSum|
+             -> Result<(Wide<L>, Wide<L>, Option<Wide<L>>), AttemptStop> {
+                let delta = top.mul_pow2(1 - i64::from(ctx.precision()))?;
+                let gn = mul_toward(ctx, sum, gamma, &n_l[b], Toward::Up)?;
+                let e = add_toward(ctx, sum, &gn, &delta, Toward::Up)?;
+                let sp = sub_toward(ctx, sum, &s, &e, Toward::Down)?;
+                let sv = if !sp.is_zero() && !sp.is_sign_negative() {
+                    let root = Wide::<L>::from_f64(ceil_sqrt(n_c) as f64)?;
+                    Some(div_toward(ctx, sum, &root, &sp, Toward::Up)?)
+                } else {
+                    None
+                };
+                Ok((delta, sp, sv))
+            };
+            let formed = form(ctx, sum);
+            if let Some((delta, sp, sv)) = refusable(
+                formed,
+                sum,
+                &mut r.refused,
+                BoundPass::ShiftForm,
+                usize::MAX,
+            )? {
+                r.n_l = Some(n_l[b]);
+                r.delta = Some(delta);
+                r.sigma_prime = Some(sp);
+                r.s = sv;
             }
         }
         current = next;
@@ -788,15 +1135,182 @@ where
     pub(crate) est: Wide<L>,
     pub(crate) data: bool,
     pub(crate) shift: Option<ShiftResult<L>>,
+    /// Amendment A2: S_c's first refusal (before the shift, or in it).
+    pub(crate) s_refused: Option<BoundRefusal>,
     /// B_c, for a block with data (None: neither bound exists, or no data).
     pub(crate) b: Option<Wide<L>>,
 }
 
+/// 7c's start, for the blocks with data (`shift_needed`): (block, σ_c, n_c).
+/// A refusal of the exact comparison or of σ_c makes that block's S_c
+/// unavailable (A2), recorded in `s_refused`.
+pub(crate) fn shift_start<const L: usize>(
+    ctx: &mut WideContext<L>,
+    sum: &mut ExactWideSum,
+    blocks: &FreeBlocks,
+    bounds: &[BlockBound<L>],
+    est: &[Wide<L>],
+    data: &[bool],
+    s_refused: &mut [Option<BoundRefusal>],
+) -> Result<Vec<(usize, Wide<L>, usize)>, AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    let mut start = Vec::new();
+    for b in 0..blocks.len() {
+        if !data[b] {
+            continue;
+        }
+        let n_c = blocks.positions[b].len();
+        let needed = refusable(
+            shift_needed(sum, &bounds[b].uc, &est[b], n_c),
+            sum,
+            &mut s_refused[b],
+            BoundPass::Need,
+            usize::MAX,
+        )?;
+        if needed == Some(true) {
+            if let Some(sigma) = refusable(
+                sigma_from_estimate(ctx, sum, &est[b]),
+                sum,
+                &mut s_refused[b],
+                BoundPass::Sigma,
+                usize::MAX,
+            )? {
+                start.push((b, sigma, n_c));
+            }
+        }
+    }
+    Ok(start)
+}
+
+/// 7c's shifted factorizations for `start`, on the verification's own K̃. A
+/// refusal of the scaled profile (derived unreachable: `factor()` formed the
+/// same scalings) makes S_c unavailable for every started block (A2).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn shift_run<const L: usize>(
+    ctx: &mut WideContext<L>,
+    sum: &mut ExactWideSum,
+    guard: &StageGuard,
+    structure: &Structure,
+    k: &[Wide<L>],
+    ordering: &Ordering,
+    scale: &[i64],
+    blocks: &FreeBlocks,
+    gamma: &Wide<L>,
+    start: &[(usize, Wide<L>, usize)],
+    s_refused: &mut [Option<BoundRefusal>],
+) -> Result<(Vec<(usize, ShiftResult<L>)>, u8), AttemptStop>
+where
+    Wide<L>: SupportedWidth,
+{
+    if start.is_empty() {
+        return Ok((Vec::new(), 0));
+    }
+    let profile = match scaled_profile(structure, k, ordering, blocks, scale) {
+        Ok(profile) => profile,
+        Err(stop) => {
+            let kind = refusal_kind(stop)?;
+            for &(b, _, _) in start {
+                record(&mut s_refused[b], kind, BoundPass::ShiftFactor, usize::MAX);
+            }
+            return Ok((Vec::new(), 0));
+        }
+    };
+    let (shifts, count) = shift_schedule(ctx, sum, guard, &profile, gamma, start)?;
+    for (b, r) in &shifts {
+        if let Some(refusal) = r.refused {
+            record(&mut s_refused[*b], refusal.kind, refusal.pass, refusal.row);
+        }
+    }
+    Ok((shifts, count))
+}
+
+/// 7d with amendment A2, for every block: the certificates, the first block
+/// with data and no bound (`uc`), and the first such block with a refused
+/// bound, which stops the attempt with that refusal (it takes precedence over
+/// `uc`: ROOT's rulings 1 and 2 on I19's plan; Uc_c's refusal before S_c's).
+#[allow(clippy::type_complexity)]
+pub(crate) fn certificates<const L: usize>(
+    blocks: &FreeBlocks,
+    bounds: &[BlockBound<L>],
+    est: &[Wide<L>],
+    data: &[bool],
+    shifts: &[(usize, ShiftResult<L>)],
+    s_refused: &[Option<BoundRefusal>],
+) -> (
+    Vec<BlockCertificate<L>>,
+    Option<usize>,
+    Option<(usize, BoundRefusal)>,
+)
+where
+    Wide<L>: SupportedWidth,
+{
+    let mut out = Vec::with_capacity(blocks.len());
+    let (mut uc_missing, mut stop) = (None, None);
+    for b in 0..blocks.len() {
+        let shift = shifts.iter().find(|s| s.0 == b).map(|s| s.1.clone());
+        let s = shift.as_ref().and_then(|r| r.s);
+        let bound = if data[b] {
+            certified(&bounds[b].uc, &s)
+        } else {
+            None
+        };
+        if data[b] && bound.is_none() {
+            match bounds[b].refused.or(s_refused[b]) {
+                Some(refusal) if stop.is_none() => stop = Some((b, refusal)),
+                Some(_) => {}
+                None if uc_missing.is_none() => uc_missing = Some(b),
+                None => {}
+            }
+        }
+        out.push(BlockCertificate {
+            bound: bounds[b].clone(),
+            est: est[b],
+            data: data[b],
+            shift,
+            s_refused: s_refused[b],
+            b: bound,
+        });
+    }
+    (out, uc_missing, stop)
+}
+
+/// The evidence of a verification's refusals, per block (A2; ROOT's ruling 3:
+/// `AttemptRecord.bound_refusals`): every block's Uc_c refusal, then every
+/// block's S_c refusal, each in block order.
+pub(crate) fn block_refusals<const L: usize>(
+    bounds: &[BlockBound<L>],
+    s_refused: &[Option<BoundRefusal>],
+) -> Vec<BlockRefusal>
+where
+    Wide<L>: SupportedWidth,
+{
+    let uc = bounds.iter().enumerate().filter_map(|(b, bb)| {
+        bb.refused.map(|refusal| BlockRefusal {
+            block: b as u32,
+            bound: CertifiedBound::Uc,
+            refusal,
+        })
+    });
+    let s = s_refused.iter().enumerate().filter_map(|(b, r)| {
+        r.map(|refusal| BlockRefusal {
+            block: b as u32,
+            bound: CertifiedBound::S,
+            refusal,
+        })
+    });
+    uc.chain(s).collect()
+}
+
 /// 7b to 7d for every block: the shift runs only for the blocks with data that
-/// need it (`shift_needed`), and B_c is formed for the blocks with data.
-/// Returns the certificates and the number of shifted factorizations.
+/// need it (`shift_needed`), and B_c is formed for the blocks with data (with
+/// amendment A2, as `verify_state` composes them). Returns the certificates,
+/// the number of shifted factorizations, and the refusal that stops the
+/// attempt, if any.
 #[allow(dead_code)] // test entry: 7b–7d composed as `verify_state` does
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::type_complexity)]
 pub(crate) fn certify<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
@@ -810,40 +1324,27 @@ pub(crate) fn certify<const L: usize>(
     est: &[Wide<L>],
     data: &[bool],
     gamma: &Wide<L>,
-) -> Result<(Vec<BlockCertificate<L>>, u8), AttemptStop>
+) -> Result<(Vec<BlockCertificate<L>>, u8, Option<(usize, BoundRefusal)>), AttemptStop>
 where
     Wide<L>: SupportedWidth,
 {
-    let mut start = Vec::new();
-    for b in 0..blocks.len() {
-        let n_c = blocks.positions[b].len();
-        if data[b] && shift_needed(sum, &bounds[b].uc, &est[b], n_c)? {
-            start.push((b, sigma_from_estimate(ctx, sum, &est[b])?, n_c));
-        }
-    }
-    let (shifts, factorizations) = if start.is_empty() {
-        (Vec::new(), 0)
-    } else {
-        let profile = scaled_profile(structure, k, ordering, blocks, factor.scale())?;
-        shift_schedule(ctx, sum, guard, &profile, gamma, &start)?
-    };
-    let mut out = Vec::with_capacity(blocks.len());
-    for b in 0..blocks.len() {
-        let shift = shifts.iter().find(|s| s.0 == b).map(|s| s.1.clone());
-        let s = shift.as_ref().and_then(|r| r.s);
-        out.push(BlockCertificate {
-            bound: bounds[b].clone(),
-            est: est[b],
-            data: data[b],
-            b: if data[b] {
-                certified(&bounds[b].uc, &s)
-            } else {
-                None
-            },
-            shift,
-        });
-    }
-    Ok((out, factorizations))
+    let mut s_refused = vec![None; blocks.len()];
+    let start = shift_start(ctx, sum, blocks, bounds, est, data, &mut s_refused)?;
+    let (shifts, factorizations) = shift_run(
+        ctx,
+        sum,
+        guard,
+        structure,
+        k,
+        ordering,
+        factor.scale(),
+        blocks,
+        gamma,
+        &start,
+        &mut s_refused,
+    )?;
+    let (out, _, stop) = certificates(blocks, bounds, est, data, &shifts, &s_refused);
+    Ok((out, factorizations, stop))
 }
 
 #[cfg(test)]

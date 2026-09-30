@@ -536,3 +536,48 @@ fn n5_stream_p320_l8() {
 fn n5_stream_p576_l16() {
     run_stream::<16>("p576", 576);
 }
+
+// ---------------------------------------------------------------- KF3: the reset after a refusal
+
+#[test]
+fn a_refused_term_writes_nothing_and_reset_zeroes_both_magnitudes_in_full() {
+    // T3 KF3 (D1 revision 5a.3 amendment A2; ROOT's ruling 7 on I19's plan).
+    let mut sum = ExactWideSum::new();
+    sum.add_binary64(1.0, false).unwrap();
+    let before = (sum.positive, sum.negative, sum.used, sum.anchor, sum.high);
+    let work = sum.work();
+    // A term 8,128 bits above 2^0 spans 8,129 bits: refused before any write.
+    let far = Wide::<4>::ONE.mul_pow2(8128).unwrap();
+    assert_eq!(sum.add_wide(&far, false), Err(SumRefusal::Span));
+    assert_eq!(
+        (sum.positive, sum.negative, sum.used, sum.anchor, sum.high),
+        before
+    );
+    assert_eq!(sum.work(), work);
+    // `clear` zeroes only the used prefix; a bit beyond it (the in-loop
+    // refusal's partial write, unreachable under the span check) would stay.
+    sum.positive[SUM_LIMBS - 1] = 1;
+    sum.negative[SUM_LIMBS - 2] = 7;
+    sum.clear();
+    assert_eq!(sum.positive[SUM_LIMBS - 1], 1);
+    // `reset` zeroes every limb of both magnitudes and keeps the work counts.
+    sum.add_binary64(3.0, true).unwrap();
+    let work = sum.work();
+    sum.reset();
+    assert!(sum
+        .positive
+        .iter()
+        .chain(sum.negative.iter())
+        .all(|&l| l == 0));
+    assert_eq!((sum.used, sum.empty, sum.anchor, sum.high), (0, true, 0, 0));
+    assert_eq!(sum.work(), work);
+    // The accumulator is exact again: 2^-60 + 1 − 1 = 2^-60.
+    let mut ctx = WideContext::<4>::new(128).unwrap();
+    sum.add_binary64(2f64.powi(-60), false).unwrap();
+    sum.add_binary64(1.0, false).unwrap();
+    sum.add_binary64(1.0, true).unwrap();
+    assert_eq!(
+        sum.round(&mut ctx).unwrap(),
+        Wide::<4>::from_f64(2f64.powi(-60)).unwrap()
+    );
+}

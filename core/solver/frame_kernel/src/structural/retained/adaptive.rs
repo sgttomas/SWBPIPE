@@ -30,7 +30,7 @@ use super::assemble::{
     assemble, assemble_bounded, form_directional, form_members, reduced_rhs, BoundedCoefficients,
     DirectionalBlock, MemberOperators, Structure,
 };
-use super::bound::{free_blocks, BlockRatios, FreeBlocks};
+use super::bound::{block_refusals, free_blocks, BlockRatios, BlockRefusal, FreeBlocks};
 use super::directed::binary64_up;
 use super::factor::{
     geometry_first, order_free, BodyGeometry, GeometryRefusal, Ordering, RetainedFactor,
@@ -214,6 +214,16 @@ impl StageGuard {
         Self {
             base: 0,
             case_room: u64::MAX,
+            invocation_room: u64::MAX,
+        }
+    }
+
+    /// A guard with a case room (tests; T3 KF3's budget stop inside `uc`).
+    #[cfg(test)]
+    pub(crate) fn with_case_room(case_room: u64) -> Self {
+        Self {
+            base: 0,
+            case_room,
             invocation_room: u64::MAX,
         }
     }
@@ -1047,7 +1057,100 @@ pub(crate) struct StageWork {
     pub(crate) uc: u64,
 }
 
+/// A stage of `StageWork` (T3 KF3: the stage in progress when a build stops).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Stage {
+    Formation,
+    Assembly,
+    ResidualFormation,
+    Factor,
+    Condition,
+    Rhs,
+    Solve,
+    Refinement,
+    Recovery,
+    BoundedGate,
+    Scale,
+    Estimate,
+    Charge,
+    Bound,
+    Shift,
+    BoundedFormation,
+    WideFormation,
+    Uc,
+}
+
 impl StageWork {
+    /// The sum of every stage (saturating).
+    pub(crate) fn total(&self) -> u64 {
+        [
+            self.formation,
+            self.assembly,
+            self.residual_formation,
+            self.factor,
+            self.condition,
+            self.rhs,
+            self.solve,
+            self.refinement,
+            self.recovery,
+            self.stop_rule,
+            self.bounded_gate,
+            self.scale,
+            self.estimate,
+            self.charge,
+            self.bound,
+            self.shift,
+            self.bounded_formation,
+            self.wide_formation,
+            self.uc,
+        ]
+        .iter()
+        .copied()
+        .reduce(u64::saturating_add)
+        .unwrap_or(0)
+    }
+
+    /// Adds `work` to one stage (saturating).
+    pub(crate) fn add_to(&mut self, stage: Stage, work: u64) {
+        let slot = match stage {
+            Stage::Formation => &mut self.formation,
+            Stage::Assembly => &mut self.assembly,
+            Stage::ResidualFormation => &mut self.residual_formation,
+            Stage::Factor => &mut self.factor,
+            Stage::Condition => &mut self.condition,
+            Stage::Rhs => &mut self.rhs,
+            Stage::Solve => &mut self.solve,
+            Stage::Refinement => &mut self.refinement,
+            Stage::Recovery => &mut self.recovery,
+            Stage::BoundedGate => &mut self.bounded_gate,
+            Stage::Scale => &mut self.scale,
+            Stage::Estimate => &mut self.estimate,
+            Stage::Charge => &mut self.charge,
+            Stage::Bound => &mut self.bound,
+            Stage::Shift => &mut self.shift,
+            Stage::BoundedFormation => &mut self.bounded_formation,
+            Stage::WideFormation => &mut self.wide_formation,
+            Stage::Uc => &mut self.uc,
+        };
+        *slot = slot.saturating_add(work);
+    }
+
+    /// T3 KF3: a build that stopped adds the work it was charged beyond its
+    /// recorded stages to the stage in progress, so that its stages sum to its
+    /// charged total on every path (ROOT's ruling on I19's plan). A completed
+    /// build adds nothing.
+    pub(crate) fn close_stopped<T, E>(
+        &mut self,
+        result: &Result<T, E>,
+        current: Stage,
+        total: u64,
+    ) {
+        if result.is_err() {
+            let rest = total.saturating_sub(self.total());
+            self.add_to(current, rest);
+        }
+    }
+
     /// Adds another record's stages.
     pub(crate) fn add(&mut self, o: &StageWork) {
         self.formation += o.formation;
@@ -1156,6 +1259,8 @@ where
     let mut ctx64 = WideContext::<4>::new(64).expect("supported precision");
     let mut sum = ExactWideSum::new();
     let mut stages = StageWork::default();
+    // T3 KF3: the stage in progress, for a stopped build's unstaged work.
+    let mut current = Stage::Formation;
     let mut run = || -> Result<Shared<L, R>, AttemptStop> {
         let t0 = lme(&ctx) + sum.work().limb_multiply_equivalents();
         let g = guard.with_base(0);
@@ -1163,6 +1268,7 @@ where
         let directional = form_directional(&mut ctx, &mut sum, source)?;
         let t1 = lme(&ctx) + sum.work().limb_multiply_equivalents();
         stages.formation = t1 - t0;
+        current = Stage::Assembly;
         let k = assemble(
             &mut ctx,
             &mut sum,
@@ -1175,6 +1281,7 @@ where
         let t2 = lme(&ctx) + sum.work().limb_multiply_equivalents();
         stages.assembly = t2 - t1;
         g.check(&ctx, &sum)?;
+        current = Stage::ResidualFormation;
         // The residual system re-formed at q (the ceiling: K itself, widened),
         // with the coefficients the gate's fallback forms Ā^q from.
         type AtQ<const R: usize> = (
@@ -1209,6 +1316,7 @@ where
         };
         let t3 = lme(&ctx) + lme(&ctx_q) + sum.work().limb_multiply_equivalents();
         stages.residual_formation = t3 - t2;
+        current = Stage::Factor;
         let gp = guard.with_base(lme(&ctx_q));
         let factor = super::factor::factor(
             &mut ctx,
@@ -1220,6 +1328,7 @@ where
         )?;
         let t4 = lme(&ctx) + lme(&ctx_q) + sum.work().limb_multiply_equivalents();
         stages.factor = t4 - t3;
+        current = Stage::Condition;
         // At p ≥ 256 the screen's solves also give est_c per block (read only).
         let (rcond, est_blocks) = if p >= 256 {
             let mut ratios = BlockRatios::new(&group.blocks);
@@ -1286,6 +1395,7 @@ where
     work.record(&ctx64);
     let sum_work = sum.work();
     let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    stages.close_stopped(&result, current, total);
     let result = result.map(|mut shared| {
         shared.work = work;
         shared.sum_work = sum_work;
@@ -1577,6 +1687,8 @@ where
     let mut stages = StageWork::default();
     let source = &prep.source;
     let free = &group.ordering.free;
+    // T3 KF3: the stage in progress, for a stopped solve's unstaged work.
+    let mut current = Stage::Rhs;
     let mut run = || -> Result<Solved<L>, AttemptStop> {
         let total = |ctx: &WideContext<L>,
                      ctx_q: &WideContext<R>,
@@ -1602,10 +1714,12 @@ where
         )?;
         let t1 = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
         stages.rhs = t1 - t0;
+        current = Stage::Solve;
         let mut u_free = shared.factor.solve(&mut ctx, &rhs)?;
         guard.test(total(&ctx, &ctx_q, &ctx16, &ctx64, &sum))?;
         let t2 = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
         stages.solve = t2 - t1;
+        current = Stage::Refinement;
         let mut corrections = 0u8;
         let mut prior = f64::INFINITY;
         let residual_worst;
@@ -1649,12 +1763,18 @@ where
                 // D1 revision 5a.3 (R7 §4.1.4 step 3): the bounded test on the
                 // best evaluated state (ROOT's A3-0 rulings Q6, Q17).
                 let tf = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
+                // The refinement up to the fallback, then the fallback's own
+                // stage (the same values as at t3).
+                stages.refinement = tf - t2;
+                current = Stage::BoundedGate;
                 let chosen = bounded_fallback(
                     &mut ctx_q, &mut ctx64, &mut ctx16, &mut sum, p, shared, prep, group, &u,
                     &evaluated, &guard,
                 )?;
                 guard.test(total(&ctx, &ctx_q, &ctx16, &ctx64, &sum))?;
                 fallback_work = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum) - tf;
+                stages.bounded_gate = fallback_work;
+                current = Stage::Refinement;
                 match chosen {
                     Some((k, ratio)) => {
                         u_free = evaluated[k].clone();
@@ -1686,6 +1806,7 @@ where
         let t3 = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum);
         stages.refinement = t3 - t2 - fallback_work;
         stages.bounded_gate = fallback_work;
+        current = Stage::Recovery;
         // A test-only seed of the final state (R7 §7's SEEDED controls), after
         // the gate and before recovery.
         #[cfg(test)]
@@ -1723,6 +1844,7 @@ where
     work.record(&ctx64);
     let sum_work = sum.work();
     let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
+    stages.close_stopped(&result, current, total);
     Spent {
         result,
         work,
@@ -2396,6 +2518,10 @@ pub(crate) struct AttemptRecord {
     /// built here.
     pub(crate) verification_shared_work: u64,
     pub(crate) verification_shared_built_here: bool,
+    /// T3 KF3 (D1 revision 5a.3 amendment A2; ROOT's ruling 3 on I19's plan):
+    /// on a verification attempt, every block's Uc_c refusal (from the shared
+    /// build) and every S_c refusal of this pass, on every path.
+    pub(crate) bound_refusals: Vec<BlockRefusal>,
 }
 
 /// A refusal: no rows, no escalation.
@@ -2744,6 +2870,7 @@ fn solve_precision(
         verification: None,
         verification_shared_work: 0,
         verification_shared_built_here: false,
+        bound_refusals: Vec::new(),
     };
     macro_rules! run {
         ($slot:expr, $L:literal, $R:literal, $q:expr, $variant:ident) => {{
@@ -2907,6 +3034,8 @@ fn verify_precision(
             budget.used = budget.used.saturating_add(vs_total);
             meter.charge(invocation_spent);
             let vs = vs?;
+            // Amendment A2: the shared build's Uc_c refusals, per block.
+            record.bound_refusals = block_refusals(&vs.uc, &[]);
             if vs_total > case_room {
                 return Err(AttemptStop::Budget(BudgetScope::Case));
             }
@@ -2920,6 +3049,7 @@ fn verify_precision(
             record.k4_work.merge(&spent.sum_work);
             record.stages.add(&spent.stages);
             record.verification_work = spent.total;
+            record.bound_refusals.extend(spent.refusals.iter().copied());
             budget.used = budget.used.saturating_add(spent.total);
             meter.charge(spent.total);
             let state = VerificationState::$variant(Arc::new(spent.result?));
@@ -3448,6 +3578,9 @@ mod references_tests;
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/classification_tests.rs"]
 mod classification_tests;
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/kf3_tests.rs"]
+mod kf3_tests;
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/method_tests.rs"]
 mod method_tests;
