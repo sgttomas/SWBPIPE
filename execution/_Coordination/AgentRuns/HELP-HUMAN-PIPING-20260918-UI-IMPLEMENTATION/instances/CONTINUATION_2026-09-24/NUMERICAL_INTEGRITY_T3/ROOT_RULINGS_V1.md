@@ -3049,3 +3049,10 @@ RV25 (`REVIEW/RECORDS_PR1062_REVIEW.md`, sha256 `45b27642…`; records `REVIEW/_
   - `HANDOFF_2026-09-30_AUDIT_PAUSE.md` and its tools.
 - **This section, and RV25's last delta records,** stay on numerics until the next records PR.
 - **T3 is paused.** No agent is running, and no slice PR is open. On resumption, follow the handoff's §10.
+
+## Operating notes for the pause; a second records PR (ROOT, 2026-09-30)
+
+- **At the owner's request,** ROOT writes `OPERATING_NOTES_2026-09-30.md`. It succeeds the 2026-09-28 operating notes and complements the handoff: how ROOT ran each slice and checked agents' reports, the judgment calls, ROOT's own errors and the fix that works, the environment's quirks, working with the owner, and what ROOT would do differently.
+  - The handoff and the work graph's pause paragraph gain a pointer to it; both are insert-only.
+- **The owner chose to land it on main now,** through a small records PR with an independent records review (RV26). It carries this file, the pointers, and the numerics commits since PR #1062 (RV25's last delta check and "Records PR #1062 merged").
+- **The notes are practice, not rulings.** Where they touch a ruling, this file governs.

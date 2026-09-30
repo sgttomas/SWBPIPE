@@ -2,6 +2,8 @@
 
 > **A dated snapshot.** Its present tense is as of the pause. For current status, read the T3 row of the work graph and the latest sections of `ROOT_RULINGS_V1.md`. This file builds on `OPERATING_NOTES_FOR_LOCAL_ROOT.md` and `HANDOFF_2026-09-28_TO_LOCAL.md`, which remain valid except where §7 below corrects them; read those two first.
 
+> **Companion (added 2026-09-30, after PR #1062):** `OPERATING_NOTES_2026-09-30.md` covers the practice: how ROOT ran each slice and checked agents' reports, the judgment calls, ROOT's own errors and the fix that works, the environment's quirks, and working with the owner. Read it with §7 below.
+
 ## 0. Why this pause, and who reads this
 
 - **The pause:** ROOT (HELP_HUMAN, the Mac session) paused T3 on 2026-09-30, for a session usage limit.
