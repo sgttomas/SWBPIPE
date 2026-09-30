@@ -21,3 +21,6 @@ final/      RV22's confirmation of head 011911e4e (RV22-1 to RV22-3 closed): scr
             itemization, the adapted probe, the mutant driver, the admission replay), suites/, checks/
             (counts diff and regeneration sample, the estimate re-derivation, the probe, records checks,
             b3's admission replay, toolchain) and mutations/.
+
+merge_597c81ba4/  RV22's merge check of 597c81ba4 (main f8400d290 merged): the path-by-path and stat check, the
+            remerge diff, H's suite and the runner suite on a clean archive, the toolchain.

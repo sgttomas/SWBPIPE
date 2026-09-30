@@ -350,3 +350,25 @@ Each mutant ran from a clean `git archive` of the head (`projects/chirality-pipi
   - In `<wt>/numerics`: `log` and `status`.
   - No writes, no fetch and no GitHub access.
 - **My writes:** this section and `_run_records/k6b_review/final/`, with `k6b_review/SHA256SUMS` updated. All are uncommitted.
+
+## Merge check at 597c81ba4 (RV22, 2026-09-29)
+
+- **Head:** `597c81ba4`. It is ROOT's merge of main `f8400d290` (V-K, PR #1057) into `codex/piping-k6b-20260929`, with parents `011911e4e` and `f8400d290`, and merge-base `0f5d8c7b4`.
+- **Verdict: PASS.** There are no findings. The records are in `_run_records/k6b_review/merge_597c81ba4/`.
+
+1. **The first-parent diff is main's delta, less the A0 both sides already carry** (`merge_check.txt`).
+   - Checked path by path over 59,471 paths, blob and mode, the merge tree is: K6b's version where only K6b changed (1,966 paths); main's where only main changed (482); and main's on the 11 paths both changed. Those 11 are exactly A0's FK files, and 5 of them were already identical on both sides. There are 0 mismatches.
+   - **The stats reconcile.**
+     - first-parent: 488 files, +91,067 −0;
+     - main's delta: 493 files, +91,336 −260;
+     - A0 (bb89e4f8f): 11 files, +269 −260;
+     - 493 − 5 = 488, 91,336 − 269 = 91,067, and 260 − 260 = 0.
+   - Outside A0's 11 files, the first-parent diff and main's delta have the same patch-id (`02b94fb1…`).
+   - **A0 is kept.** K6b's FK to main's FK is +312 −0, V-K's `cfg`-gated fault sites only. Main's FK change since the merge-base removes exactly A0's 260 lines.
+   - **The remerge diff is clean** (`remerge.diff`, 44 lines). It covers only the two conflicts, in `adaptive.rs` (`classify`) and `verify.rs` (`e_hat`). Each resolution only drops the markers and the base's `pub(crate) fn` line, keeping main's side; A0's `pub fn` line is the common context. The resolution adds 0 lines.
+2. **FK at `597c81ba4` equals main's FK byte for byte:** all 112 FK paths have the same blob and mode, and `git ls-tree -r` of FK is identical in both.
+3. **The suites pass on a clean `git archive` of `597c81ba4`** (`projects/chirality-piping/core`; one cargo job at `-j 4`, alongside a DEC-025 sweep's cargo):
+   - H's debug suite (`--all-targets`) passes 74 tests and `k6_alloc`, with 0 warnings, in 87 s (`h_suite.log`).
+   - The runner suite passes 47 of 47 (`runner_unittest.txt`).
+   - FK's `mutation-controls` feature has no default, and H names FK without features, so V-K's fault sites are compiled out of FK as H's dependency. H itself is unchanged by the merge.
+- **Git, read-only:** `rev-parse`, `status`, `log`, `diff`, `show --remerge-diff`, `ls-tree`, `merge-base`, `patch-id` and `archive` in `<wt>/k6b`. `<wt>/rv22m` and `<wt>/rv22m-target` are deleted. My writes are this section and the records folder, left uncommitted.

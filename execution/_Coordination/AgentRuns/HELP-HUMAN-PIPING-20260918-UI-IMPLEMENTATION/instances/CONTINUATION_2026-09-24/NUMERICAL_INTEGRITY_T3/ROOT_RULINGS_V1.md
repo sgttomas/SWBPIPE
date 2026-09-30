@@ -2692,3 +2692,8 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
     - C-N1: a stop inside the solve (`into_solve_128`) has no test, so RV22-C4 survives;
     - C-N2: on a stopped verification build, the two builds' summed stages can hide one build's shortfall. This is within the ruling, and KF3's equality closes it.
   - Because K6b's head is now ROOT's merge `597c81ba4`, RV22 checks that the merge adds exactly main's delta and that H passes on the merged tree.
+- **RV22's merge check of `597c81ba4`: PASS, with no findings.**
+  - Path by path over 59,471 paths, there are 0 mismatches. The first-parent diff is main's delta less A0, which both sides carry.
+  - FK equals main's byte for byte.
+  - The remerge diff covers only the two resolved conflicts, each keeping main's side.
+  - H passes 74 tests plus `k6_alloc`, and the runner 47 of 47, on a clean archive.

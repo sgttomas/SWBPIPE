@@ -1,0 +1,5 @@
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2, --offline --locked, -j 4, one cargo job (a DEC-025 sweep's cargo ran alongside); archive of 597c81ba4 (projects/chirality-piping/core) under <wt>/rv22m/, target <wt>/rv22m-target, both deleted afterwards
+FK features: mutation-controls = [] (no default); H depends on FK with no features, so V-K's cfg(any(test, feature = "mutation-controls")) fault sites are compiled out of FK as H's dependency
+H unchanged by the merge: git diff 011911e4e 597c81ba4 -- H is empty
+memory guard: running (pid 5387); last log line: 2026-09-27 19:36:20 memguard start floor=35% pid=5387
