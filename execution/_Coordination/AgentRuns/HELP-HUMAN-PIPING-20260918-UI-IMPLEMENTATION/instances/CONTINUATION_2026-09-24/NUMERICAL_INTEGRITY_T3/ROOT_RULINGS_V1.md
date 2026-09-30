@@ -2788,3 +2788,42 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
 - **Q6: yes.** SD's suite is added at A (SD:37 and `k1_tests.rs:371` call the witness).
 - **Q7: confirmed.** The one private helper is `negative_pair_witness_counted`, holding the loop, the counts and the pair evaluation inline.
 - **Builds may start now:** one cargo job at `-j 4`, `<wt>/kf2-target`, with the memory guard running. No timed slot is held; KF3 is writing D.
+
+## KF3: D accepted; KF3-B1 and KF3-B2 routed; PR to review (ROOT, 2026-09-30)
+
+- **D is accepted, and committed on the KF3 branch as `b8c55c92e`** (records only; the code equals `ae831ca51`'s). It holds RETURN (sha256 `a582135f…`), CHANGE_RECORD (`b9fca3a6…`), `_run_records/{b,d,h,merge}/` and SHA256SUMS (115 entries, verified by ROOT).
+- **The write set is confirmed by ROOT against main:** FK's facade line (the merge ruling), `K4R/{adaptive,bound,verify,wide_sum}.rs` (`wide_sum.rs` under ruling 7), K4T's tests, GEN and `kf3.txt`, and H's `staged.rs` and `k6b_w1.rs` (the parity ruling).
+- **KF3-B1 (the TREE frames' `Ceiling`) is classified:**
+  - Estimate (b) rejects on member 1's end force at the root. Its ratio Ŵ/(2^(6−P)·ê) is independent of P, so no precision passes, as with THIN.
+  - I19's probe of R1's comb tree (AX) gives c = 64 × ratio:
+    - 20.5 at 1,000 members and 25.3 at 2,000 (both selected);
+    - 74.1 at 3,000, 64.8 at 4,000, 142.9 at 6,000 and 177.1 at 8,000.
+  - **At 3,000 and 4,000 members this is slack in (b):** R7's Corollary would still hold (c ≤ 127 at p = 128 and 256).
+  - **At 6,000 members and above, it is beyond what R7's split of λ = 2^8 leaves for (b)** while (d) keeps 60. That is a design limit of the split, and 10,000 members is taken to be the same, by extrapolation.
+  - **Routed:** a D1 design question: re-splitting λ between (b) and (d), and whether (b) can be sharpened on tree roots. It is not KF3's, and not a T3-close blocker.
+  - **Owner-facing:** W1a publishes no retained-precision result for R1's large trees at about 3,000 members and more. The binary64 route publishes them with its ordinary class, as today. This joins THIN on the owner's availability list, beside the PHYS-R4 question.
+- **KF3-B2 (heap above E_max) is a K6b omission, not KF3-induced.**
+  - Against K6b's final formula, the peak inside `nl_pass` on the shifted factor at 1024 (bound.rs:1040) exceeds E_max by 19.5 MB (AX) and 19.4 MB (ROT).
+    - H's pass term leaves out `at`, `bt` and `ct` (3·nf·w).
+    - It counts `work`, which is freed before `nl_pass`.
+    - It over-counts `Option<Wide>` by 8 B per entry.
+    - Net, it is short by 10,799,688 B at the 1024 shift.
+  - Pre-KF3 code holds the same allocations on the same path. KF3 only makes the path reachable (A2's shift, where Uc used to stop the attempt at 256).
+  - I19's B-time reading ("two profile copies") described VR's stale port, not K6b's formula; the correction is recorded in RETURN.
+  - **Routed to a K6b follow-up (K6c), a small H PR with its own review, after KF3 merges:**
+    - E_max's pass and shift terms corrected;
+    - the overlap of `uc_bounds`' transients checked;
+    - `counts.jsonl` regenerated;
+    - W1-T4 re-run on the post-KF3 code (RETURN addendum 1's content);
+    - **VR's stale E_max port** (`VR/src/scale.rs`, 153 MB below K6b's final formula; V-K's runner admits with it) replaced by K6b's estimate, deduplicating it.
+  - **ROOT's W1 limits wait for K6c.**
+- **T9 and the both-entry gate stay unrun for KF3.** `retained_api` is public in FK, but no product crate names it (the V-K and K6b scans). KF3's product-crate reach is unchanged; the reviewer re-runs the scan.
+- **KF3's stale doc NOTE** (`H/src/bin/k6_observe/w1.rs:6-10`) goes to K6c.
+- **The PR is opened** from `b8c55c92e`, with its full-SHA dispatch. **RV23 is the independent reviewer,** directed to:
+  - A2's honesty argument, against every reader of Uc, S and B;
+  - the partial-stage identity on all four builds;
+  - the controls' invariance;
+  - KF3-UC-SPAN's honesty against GEN;
+  - the H parity update;
+  - B's records.
+- **DEC-025 and GEN-8 run on the final head after RV23.**
