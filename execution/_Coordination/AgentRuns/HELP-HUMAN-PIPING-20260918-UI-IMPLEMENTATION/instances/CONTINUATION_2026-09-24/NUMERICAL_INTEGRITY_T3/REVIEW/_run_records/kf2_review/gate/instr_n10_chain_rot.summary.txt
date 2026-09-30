@@ -1,0 +1,10 @@
+2026-09-30T04:07:02Z
+22:07  up 2 days,  2:54, 1 user, load averages: 6.39 6.68 6.46
+runs 4
+full envelope equal to I20's candidate index: 2 of 4
+timeouts 0 nonzero exits 0
+runs where the dense witness ran: 2
+  RF-LARGE-CHAIN-n01000-ROT dense_scrutiny captured: RV24_WITNESS n=6000 visited=17997000 evaluated=36065952 verified=0 witness=false
+  RF-LARGE-CHAIN-n01000-ROT dense_scrutiny typed: RV24_WITNESS n=6000 visited=17997000 evaluated=36065952 verified=0 witness=false
+2026-09-30T04:09:17Z
+22:09  up 2 days,  2:56, 1 user, load averages: 5.20 6.15 6.28

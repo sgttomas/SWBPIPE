@@ -1,0 +1,64 @@
+"""RV24: independent comparison of KF2 B's two uncommitted gate part-1 runs.jsonl files.
+Usage: rv24_runs_diff.py <base runs.jsonl> <cand runs.jsonl> [index_base.tsv index_cand.tsv]
+Reports, per (case, mode, entry): every JSON path whose value differs between base and candidate.
+Written by RV24 from the files' own structure; it does not reuse I20's compare scripts."""
+import sys, json, hashlib, collections
+
+def load(path):
+    out = {}
+    with open(path) as f:
+        for line in f:
+            r = json.loads(line)
+            key = (r["case"], r["mode"], r["entry"])
+            assert key not in out, key
+            out[key] = r
+    return out
+
+def diffs(a, b, path=""):
+    if type(a) != type(b):
+        yield path, "type"
+        return
+    if isinstance(a, dict):
+        for k in sorted(set(a) | set(b)):
+            if k not in a or k not in b:
+                yield path + "/" + k, "missing"
+            else:
+                yield from diffs(a[k], b[k], path + "/" + k)
+    elif isinstance(a, list):
+        if len(a) != len(b):
+            yield path, "len"
+        for i, (x, y) in enumerate(zip(a, b)):
+            yield from diffs(x, y, path + "[%d]" % i)
+    else:
+        if a != b or (isinstance(a, float) and repr(a) != repr(b)):
+            yield path, "value"
+
+def canon(x):
+    return hashlib.sha256(json.dumps(x, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+base = load(sys.argv[1])
+cand = load(sys.argv[2])
+print("records: base", len(base), "cand", len(cand), "keys equal", set(base) == set(cand))
+path_counts = collections.Counter()
+per_key_nonvolatile = []
+VOLATILE = {"/wall_seconds", "/peak_rss_kib", "/memorystatus_level_end"}
+for k in sorted(base):
+    ds = [p for p, _ in diffs(base[k], cand[k])]
+    for p in ds:
+        path_counts[p] += 1
+    nv = [p for p in ds if p not in VOLATILE]
+    if nv:
+        per_key_nonvolatile.append((k, nv))
+print("differing paths over all records (path: count):")
+for p, c in sorted(path_counts.items()):
+    print("  ", p, c)
+print("records with a difference outside", sorted(VOLATILE), ":", len(per_key_nonvolatile))
+for k, nv in per_key_nonvolatile[:20]:
+    print("  ", k, nv[:5])
+probe_equal = sum(canon(base[k]["probe"]) == canon(cand[k]["probe"]) for k in base)
+print("records whose whole 'probe' object is equal:", probe_equal, "of", len(base))
+outc = collections.Counter()
+for k, r in cand.items():
+    env = r["probe"].get("run", {})
+    outc[(r["exit_code"], r["timed_out"])] += 1
+print("candidate (exit_code, timed_out):", dict(outc))

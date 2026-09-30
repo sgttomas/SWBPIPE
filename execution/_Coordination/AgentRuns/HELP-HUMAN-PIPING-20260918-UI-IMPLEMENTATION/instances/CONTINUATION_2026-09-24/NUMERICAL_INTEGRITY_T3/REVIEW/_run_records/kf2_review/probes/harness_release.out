@@ -1,0 +1,103 @@
+
+running 7 tests
+RV24 adversarial: -0 below, +0 above, hidden source coupling, negative diagonal: SOME:NegativeEnergy{e=bff0000000000000,a=3d54000000000005,d=[bff0000000000000,3ff0000000000000]}
+RV24 adversarial: +0 below, -0 above, negative diagonal: SOME:NegativeEnergy{e=bff0000000000000,a=3d54000000000005,d=[bff0000000000000,3ff0000000000000]}
+RV24 adversarial: -0 both sides, source -0: SOME:NegativeEnergy{e=bfe0000000000000,a=3d44000000000005,d=[bff0000000000000,3ff0000000000000]}
+RV24 adversarial: subnormal source coupling at exponent sum 0 (product underflow): ERR:Range("product overflow or underflow")
+RV24 adversarial: subnormal source coupling lifted by exponents (+537, +537): NONE
+RV24 adversarial: subnormal prepared entries, normal source: NONE
+RV24 adversarial: subnormal partial energy (2^-1021 - (2^-1021 - 2^-1060)): ERR:Range("arithmetic outside normal range")
+RV24 adversarial: magnitude overflow only (1e308 then -1e308): ERR:Range("arithmetic outside normal range")
+RV24 adversarial: energy and magnitude overflow: ERR:Range("arithmetic outside normal range")
+RV24 adversarial: magnitude overflow at a later pair, witness at none: ERR:Range("arithmetic outside normal range")
+RV24 adversarial: radix: exactly the least normal (2^-1000 * 2^-22): NONE
+RV24 adversarial: radix: one below the least normal: ERR:Range("radix scaling loses normal range")
+RV24 adversarial: radix: steps of 512 up and back (2^-1000 * 2^1500): NONE
+RV24 adversarial: radix: intermediate overflow (2^1000 * 2^+600 then nothing): ERR:Range("radix scaling loses normal range")
+RV24 adversarial: radix: exactly f64::MAX (MAX/4 at exponent sum 2): NONE
+RV24 adversarial: radix: one step past f64::MAX (MAX/4 at exponent sum 4): ERR:Range("radix scaling loses normal range")
+RV24 adversarial: radix: first cell (j,j) fails, (i,i) would fail in the product: ERR:Range("radix scaling loses normal range")
+RV24 adversarial: coupling (j,i) overflows the magnitude, (i,j) underflows in the product (asymmetric source): ERR:Range("arithmetic outside normal range")
+RV24 adversarial: coupling (j,i) underflows in the product, (i,j) overflows the magnitude (asymmetric source): ERR:Range("product overflow or underflow")
+RV24 adversarial: coupling (j,i) fails in radix, (i,j) is fine: exponent sum 30 (asymmetric source): ERR:Range("radix scaling loses normal range")
+RV24 adversarial: mapping error after the verdict (exponents +1100, -1100): ERR:Range("radix scaling loses normal range")
+RV24 adversarial: zero-magnitude pair (source zeros behind prepared diagonals): NONE
+RV24 adversarial: n = 0 free DOFs: NONE
+RV24 adversarial: n = 1 free DOF, negative source diagonal: NONE
+RV24 adversarial: validation: prepared matrix asymmetric: ERR:InvalidInput("prepared symmetry")
+RV24 adversarial: validation: NaN in the prepared matrix: ERR:InvalidInput("prepared shape/map/finiteness")
+RV24 adversarial: validation: exponents too short: ERR:InvalidInput("prepared shape/map/finiteness")
+RV24 adversarial: validation: infinite source entry: ERR:InvalidInput("nonfinite original equations")
+RV24 adversarial: i32 overflow in the exponent sum: NONE
+RV24 adversarial: systems=29 max_n=3 first_pair_events=15 last_pair_events=16
+RV24 adversarial:   class err:InvalidInput("nonfinite original equations") = 1
+RV24 adversarial:   class err:InvalidInput("prepared shape/map/finiteness") = 2
+RV24 adversarial:   class err:InvalidInput("prepared symmetry") = 1
+RV24 adversarial:   class err:Range("arithmetic outside normal range") = 5
+RV24 adversarial:   class err:Range("product overflow or underflow") = 2
+RV24 adversarial:   class err:Range("radix scaling loses normal range") = 6
+RV24 adversarial:   class none = 9
+RV24 adversarial:   class witness = 3
+RV24 adversarial:   layout err_only = 13
+RV24 adversarial:   layout neither = 9
+RV24 adversarial:   layout witness_only = 3
+test structural::rv24_probe::rv24_adversarial_cases ... ok
+RV24 built: systems=2864 max_n=99 first_pair_events=283 last_pair_events=72
+RV24 built:   class err:Range("arithmetic outside normal range") = 9
+RV24 built:   class err:Range("product overflow or underflow") = 8
+RV24 built:   class none = 856
+RV24 built:   class witness = 1991
+RV24 built:   layout err_only = 6
+RV24 built:   layout err_then_witness = 9
+RV24 built:   layout neither = 849
+RV24 built:   layout witness_only = 1597
+RV24 built:   layout witness_then_err = 32
+RV24 built: prepare refused Range("radix scaling loses normal range") = 136
+test structural::rv24_probe::rv24_built_random_systems ... ok
+RV24 corrupted: systems=24000 max_n=15 first_pair_events=4457 last_pair_events=1032
+RV24 corrupted:   class err:InvalidInput("nonfinite original equations") = 3911
+RV24 corrupted:   class err:Range("arithmetic outside normal range") = 245
+RV24 corrupted:   class err:Range("product overflow or underflow") = 1338
+RV24 corrupted:   class err:Range("radix scaling loses normal range") = 5106
+RV24 corrupted:   class none = 8456
+RV24 corrupted:   class witness = 4944
+RV24 corrupted:   layout err_only = 4729
+RV24 corrupted:   layout err_then_witness = 1960
+RV24 corrupted:   layout neither = 8456
+RV24 corrupted:   layout witness_only = 3551
+RV24 corrupted:   layout witness_then_err = 1393
+test structural::rv24_probe::rv24_corrupted_random_systems ... ok
+RV24 edge: systems=134400 max_n=5 first_pair_events=0 last_pair_events=0
+RV24 edge:   class err:Range("product overflow or underflow") = 47700
+RV24 edge:   class none = 43134
+RV24 edge:   class witness = 43566
+RV24 edge: P1-ii skewed=false: scans 60, crossing the verdict 0
+RV24 edge: P1-ii skewed=true: scans 60, crossing the verdict 0
+RV24 edge: P1-jj skewed=false: scans 60, crossing the verdict 0
+RV24 edge: P1-jj skewed=true: scans 60, crossing the verdict 0
+RV24 edge: P2c-coup skewed=false: scans 60, crossing the verdict 0
+RV24 edge: P2c-coup skewed=true: scans 60, crossing the verdict 60
+RV24 edge: P2d-diag skewed=false: scans 60, crossing the verdict 60
+RV24 edge: P2d-diag skewed=true: scans 60, crossing the verdict 60
+RV24 edge: P3a-jj0 skewed=false: scans 60, crossing the verdict 60
+RV24 edge: P3a-jj0 skewed=true: scans 60, crossing the verdict 60
+RV24 edge: P3b-ii0 skewed=false: scans 60, crossing the verdict 60
+RV24 edge: P3b-ii0 skewed=true: scans 60, crossing the verdict 60
+RV24 edge: P4 skewed=false: scans 60, crossing the verdict 60
+RV24 edge: P4 skewed=true: scans 60, crossing the verdict 60
+test structural::rv24_probe::rv24_edge_scans_every_term_count ... ok
+RV24 oracle verifier: 2400 directions equal
+test structural::rv24_probe::rv24_oracle_is_the_base_verifier_on_arbitrary_directions ... ok
+RV24 skewed: systems=20000 max_n=4 first_pair_events=0 last_pair_events=0
+RV24 skewed:   class none = 13603
+RV24 skewed:   class witness = 6397
+RV24 skewed: pairs whose energy bits depend on the coupling order = 3989
+test structural::rv24_probe::rv24_skewed_order_sensitive_pairs ... ok
+RV24 large: systems=4 max_n=120 first_pair_events=0 last_pair_events=0
+RV24 large:   class none = 2
+RV24 large:   class witness = 2
+test structural::rv24_probe::rv24_large_built_systems ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 350 filtered out; finished in 1.13s
+
+$BIN rv24_ --nocapture  1.91s user 0.01s system 99% cpu 1.931 total

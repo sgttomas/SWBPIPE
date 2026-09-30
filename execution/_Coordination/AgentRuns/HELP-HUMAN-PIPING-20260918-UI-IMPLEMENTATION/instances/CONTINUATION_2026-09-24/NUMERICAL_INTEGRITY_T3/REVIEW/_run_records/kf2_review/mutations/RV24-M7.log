@@ -1,0 +1,174 @@
+== mutant RV24-M7 2026-09-30T03:53:41Z
+21:53  up 2 days,  2:41, 1 user, load averages: 5.93 6.41 6.53
+RV24-M7 applied 1 edit(s)
+--- <wt>/rv24/head/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs	2026-09-29 21:22:07
++++ <wt>/rv24-mut/RV24-M7/core/solver/frame_kernel/src/structural.rs	2026-09-29 21:53:41
+@@ -2253,7 +2253,7 @@
+                 verified += 1;
+                 let mut v = vec![0.0; n];
+                 v[i] = 1.0;
+-                v[j] = sign;
++                v[j] = -sign;
+                 if let Some(witness) = verify_negative_direction(prepared, &v)? {
+                     return Ok((Some(witness), visited, evaluated, verified));
+                 }
+@@ -3044,3 +3044,5 @@
+         assert!(factor_structural_profile(&prepared, &[0, 1], &[0, 1]).is_err());
+     }
+ }
++#[cfg(test)]
++mod rv24_probe;
+build_exit 0
+
+running 26 tests
+test structural::kf2_witness_tests::kf2_corrupted_shapes_and_sources_match_the_reference ... ok
+test structural::kf2_witness_tests::kf2_cells_follow_the_prepared_matrix_not_the_source ... ok
+test structural::kf2_witness_tests::kf2_cost_bound_at_6006_dofs ... ignored, KF2 T6: release-only cost test (n = 6,006); run with --release -- --ignored
+test structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness ... FAILED
+test structural::kf2_witness_tests::kf2_first_error_depends_on_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict ... FAILED
+test structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference ... FAILED
+test structural::kf2_witness_tests::kf2_reference_verifier_is_todays_verifier ... ok
+test structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order ... FAILED
+test structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge ... FAILED
+test structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs ... FAILED
+test structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several ... FAILED
+test structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited ... FAILED
+test structural::rv24_probe::rv24_adversarial_cases ... FAILED
+test structural::rv24_probe::rv24_built_random_systems ... FAILED
+test structural::rv24_probe::rv24_corrupted_random_systems ... FAILED
+test structural::rv24_probe::rv24_cost_scaling_release ... ignored, RV24 cost observation: release only
+test structural::rv24_probe::rv24_edge_scans_every_term_count ... FAILED
+test structural::kf2_witness_tests::kf2_cost_counts_on_a_100_member_chain ... ok
+test structural::rv24_probe::rv24_oracle_is_the_base_verifier_on_arbitrary_directions ... ok
+test structural::rv24_probe::rv24_skewed_order_sensitive_pairs ... FAILED
+test structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification ... FAILED
+test structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs ... ok
+test structural::sparse::tests::krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::tests::krev04_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::rv24_probe::rv24_large_built_systems ... FAILED
+
+failures:
+
+---- structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness' (17655455) panicked at src/structural/kf2_witness_tests.rs:157:5:
+overflow witness_first=true: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0, 0.0, 0.0], energy: -4.0, allowance: 7.958078640513134e-13 })), new Err(Range("arithmetic outside normal range"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict' (17655457) panicked at src/structural/kf2_witness_tests.rs:157:5:
+mapping error: reference Err(Range("radix scaling loses normal range")), new Ok(None)
+
+---- structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference' (17655458) panicked at src/structural/kf2_witness_tests.rs:157:5:
+round 2 n=2 Planted: reference Ok(Some(NegativeEnergy { direction: [0.0, 6.103515625e-5, -4096.0], energy: -0.7608306922866297, allowance: 1.1521289854973106e-12 })), new Ok(None)
+
+---- structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order' (17655460) panicked at src/structural/kf2_witness_tests.rs:157:5:
+edge a=1.7800214665134368e0 b=2.9088253776590354e0 k=2.344423422086703e0: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0], energy: -9.334755191048316e-13, allowance: 9.32855297981252e-13 })), new Ok(None)
+
+---- structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge stdout ----
+KF2 exact ties: 9
+
+thread 'structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge' (17655461) panicked at src/structural/kf2_witness_tests.rs:157:5:
+tie t=1.0089285714286702e0 b=1.0178571428569387e0: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0], energy: -4.0167869030938164e-13, allowance: 4.014566457044566e-13 })), new Ok(None)
+
+---- structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs' (17655462) panicked at src/structural/kf2_witness_tests.rs:157:5:
+n=4 sign=1 zero=0.0: reference Ok(Some(NegativeEnergy { direction: [0.0, 0.0, 0.0, 0.0625, -0.0625], energy: -0.9663176359846073, allowance: 1.0573793640960346e-12 })), new Ok(None)
+
+---- structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several' (17655463) panicked at src/structural/kf2_witness_tests.rs:157:5:
+n=2 first density=0: reference Ok(Some(NegativeEnergy { direction: [-128.0, 3.814697265625e-6], energy: -1.2906979053287717, allowance: 1.0174038296552518e-12 })), new Ok(None)
+
+---- structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited stdout ----
+
+thread 'structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited' (17655464) panicked at src/structural/kf2_witness_tests.rs:157:5:
+negative source diagonal, zero 0.0: reference Ok(Some(NegativeEnergy { direction: [-1.0, 1.0, 0.0], energy: -1.0, allowance: 2.8421709430404033e-13 })), new Ok(Some(NegativeEnergy { direction: [1.0, 1.0, 0.0], energy: -1.0, allowance: 2.8421709430404033e-13 }))
+
+---- structural::rv24_probe::rv24_adversarial_cases stdout ----
+
+thread 'structural::rv24_probe::rv24_adversarial_cases' (17655465) panicked at src/structural/rv24_probe.rs:96:5:
+assertion `left == right` failed: RV24 DIFFERENCE -0 below, +0 above, hidden source coupling, negative diagonal
+  left: "SOME:NegativeEnergy{e=bff0000000000000,a=3d54000000000005,d=[bff0000000000000,3ff0000000000000]}"
+ right: "SOME:NegativeEnergy{e=bff0000000000000,a=3d54000000000005,d=[3ff0000000000000,3ff0000000000000]}"
+
+---- structural::rv24_probe::rv24_built_random_systems stdout ----
+
+thread 'structural::rv24_probe::rv24_built_random_systems' (17655466) panicked at src/structural/rv24_probe.rs:96:5:
+assertion `left == right` failed: RV24 DIFFERENCE built round 0 n=78
+  left: "SOME:NegativeEnergy{e=c010993d4e9815a4,a=3d7147f046d80027,d=[0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,3fe0000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,bff0000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000]}"
+ right: "NONE"
+
+---- structural::rv24_probe::rv24_corrupted_random_systems stdout ----
+
+thread 'structural::rv24_probe::rv24_corrupted_random_systems' (17655467) panicked at src/structural/rv24_probe.rs:96:5:
+assertion `left == right` failed: RV24 DIFFERENCE corrupt round 2 n=2
+  left: "SOME:NegativeEnergy{e=bfba55b8d0ffab58,a=3d2ac5364e325d45,d=[0000000000000000,3db0000000000000,6000000000000000]}"
+ right: "NONE"
+
+---- structural::rv24_probe::rv24_edge_scans_every_term_count stdout ----
+
+thread 'structural::rv24_probe::rv24_edge_scans_every_term_count' (17655468) panicked at src/structural/rv24_probe.rs:96:5:
+assertion `left == right` failed: RV24 DIFFERENCE edge rep 0 P4 skewed=false step 0 value=2.2523864952785053e0
+  left: "SOME:NegativeEnergy{e=bd6e740000000000,a=3d6d3342c8decf84,d=[bff0000000000000,3ff0000000000000,0000000000000000,0000000000000000,0000000000000000]}"
+ right: "NONE"
+
+---- structural::rv24_probe::rv24_skewed_order_sensitive_pairs stdout ----
+
+thread 'structural::rv24_probe::rv24_skewed_order_sensitive_pairs' (17655471) panicked at src/structural/rv24_probe.rs:96:5:
+assertion `left == right` failed: RV24 DIFFERENCE skewed rep 4
+  left: "SOME:NegativeEnergy{e=c02a753ddb478c61,a=3d7b4cc94b60c118,d=[3ff0000000000000,3ff0000000000000]}"
+ right: "NONE"
+
+---- structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification stdout ----
+
+thread 'structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification' (17655472) panicked at src/structural/sparse/tests.rs:1183:9:
+assertion failed: dw.is_some()
+
+---- structural::rv24_probe::rv24_large_built_systems stdout ----
+
+thread 'structural::rv24_probe::rv24_large_built_systems' (17655469) panicked at src/structural/rv24_probe.rs:96:5:
+assertion `left == right` failed: RV24 DIFFERENCE large n=100 last_witness=true
+  left: "SOME:NegativeEnergy{e=c017000000000000,a=3d78f0000000000b,d=[0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,0000000000000000,bff0000000000000,3ff0000000000000,0000000000000000,0000000000000000,0000000000000000]}"
+ right: "NONE"
+
+
+failures:
+    structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness
+    structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict
+    structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference
+    structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order
+    structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge
+    structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs
+    structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several
+    structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited
+    structural::rv24_probe::rv24_adversarial_cases
+    structural::rv24_probe::rv24_built_random_systems
+    structural::rv24_probe::rv24_corrupted_random_systems
+    structural::rv24_probe::rv24_edge_scans_every_term_count
+    structural::rv24_probe::rv24_large_built_systems
+    structural::rv24_probe::rv24_skewed_order_sensitive_pairs
+    structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification
+
+test result: FAILED. 9 passed; 15 failed; 2 ignored; 0 measured; 332 filtered out; finished in 4.49s
+
+lib_exit 101 seconds 5
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv24-mut/RV24-M7/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.75s
+     Running tests/s11_site_table.rs (<wt>/rv24-mut/RV24-M7/target/debug/deps/s11_site_table-c8ba14d9f767e011)
+
+running 3 tests
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+site_exit 0

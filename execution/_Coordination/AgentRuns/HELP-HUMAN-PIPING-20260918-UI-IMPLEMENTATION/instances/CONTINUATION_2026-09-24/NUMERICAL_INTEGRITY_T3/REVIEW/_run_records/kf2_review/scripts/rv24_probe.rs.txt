@@ -1,0 +1,1042 @@
+//! RV24's differential harness for KF2 (reviewer's copy only; never committed to FK).
+//!
+//! The oracle is `rv24_old_witness`, a verbatim copy of base `78f55f927`'s
+//! `verify_negative_direction` and `negative_pair_witness`, generated from the
+//! base's own bytes by `make_old_fns.sh` (`rv24_old_fns.rs`). Nothing from I20's
+//! `kf2_witness_tests.rs` is used: its generators, comparator and reference
+//! copies are not read by this file.
+//!
+//! Each system is run through the oracle, the product's `negative_pair_witness`
+//! and the private `negative_pair_witness_counted`, each under `catch_unwind`.
+//! Outcomes are compared as strings that carry every bit (`to_bits`) of a
+//! `NegativeEnergy`'s energy, allowance and direction, the `Debug` text of any
+//! other error, and the panic message of a panic.
+//!
+//! Invented inputs only. Every value is generated below from fixed seeds.
+use super::*;
+use std::collections::BTreeMap;
+use std::panic::{catch_unwind, AssertUnwindSafe};
+
+include!("rv24_old_fns.rs");
+
+type Out = Result<Option<StructuralError>, StructuralError>;
+
+fn err_repr(e: &StructuralError) -> String {
+    match e {
+        StructuralError::NegativeEnergy {
+            direction,
+            energy,
+            allowance,
+        } => {
+            let d: Vec<String> = direction
+                .iter()
+                .map(|x| format!("{:016x}", x.to_bits()))
+                .collect();
+            format!(
+                "NegativeEnergy{{e={:016x},a={:016x},d=[{}]}}",
+                energy.to_bits(),
+                allowance.to_bits(),
+                d.join(",")
+            )
+        }
+        other => format!("{other:?}"),
+    }
+}
+
+fn panic_message(p: &Box<dyn std::any::Any + Send>) -> String {
+    p.downcast_ref::<&str>()
+        .map(|s| s.to_string())
+        .or_else(|| p.downcast_ref::<String>().cloned())
+        .unwrap_or_default()
+}
+
+fn repr(r: &std::thread::Result<Out>) -> String {
+    match r {
+        Err(p) => format!("PANIC:{}", panic_message(p)),
+        Ok(Ok(None)) => "NONE".into(),
+        Ok(Ok(Some(e))) => format!("SOME:{}", err_repr(e)),
+        Ok(Err(e)) => format!("ERR:{}", err_repr(e)),
+    }
+}
+
+/// A short class of an outcome string, for the tallies.
+fn class(s: &str) -> String {
+    if s.starts_with("SOME:NegativeEnergy") {
+        "witness".into()
+    } else if s == "NONE" {
+        "none".into()
+    } else if let Some(rest) = s.strip_prefix("ERR:") {
+        format!("err:{}", rest.chars().take(60).collect::<String>())
+    } else if s.starts_with("PANIC:") {
+        format!("panic:{}", &s[6..s.len().min(50)])
+    } else {
+        format!("other:{}", &s[..s.len().min(40)])
+    }
+}
+
+#[derive(Default)]
+struct Tally {
+    systems: usize,
+    classes: BTreeMap<String, usize>,
+    /// Per-pair event order in the system (from the oracle's verifier, pair by pair):
+    /// "err_then_witness", "witness_then_err", "err_only", "witness_only", "neither".
+    layouts: BTreeMap<&'static str, usize>,
+    max_n: usize,
+    first_pair_events: usize,
+    last_pair_events: usize,
+}
+
+/// Runs the oracle and the new code on `p`; panics with the context on any
+/// difference. Returns the oracle's outcome string.
+fn compare(p: &PreparedSystem<'_>, context: &str, tally: &mut Tally, per_pair: bool) -> String {
+    let old = catch_unwind(AssertUnwindSafe(|| rv24_old_witness(p)));
+    let new = catch_unwind(AssertUnwindSafe(|| negative_pair_witness(p)));
+    let counted = catch_unwind(AssertUnwindSafe(|| negative_pair_witness_counted(p)));
+    let (so, sn) = (repr(&old), repr(&new));
+    assert_eq!(so, sn, "RV24 DIFFERENCE {context}");
+    let sc = match &counted {
+        Err(payload) => format!("PANIC:{}", panic_message(payload)),
+        Ok(Ok((w, _, _, _))) => repr(&Ok(Ok(w.clone()))),
+        Ok(Err(e)) => repr(&Ok(Err(e.clone()))),
+    };
+    assert_eq!(so, sc, "RV24 DIFFERENCE (counted) {context}");
+    // Count invariants (the cost claim: one validation, O(1) cells per pair, one verification per witness).
+    if let Ok(Ok((w, visited, evaluated, verified))) = &counted {
+        let n = p.matrix.len();
+        let pairs = n * n.saturating_sub(1) / 2;
+        assert!(*verified <= 1, "{context}: verified {verified}");
+        assert_eq!(*verified, usize::from(w.is_some()), "{context}");
+        assert!(*visited <= pairs && *evaluated <= 4 * *visited, "{context}");
+        if w.is_none() {
+            assert_eq!(*visited, pairs, "{context}");
+        }
+        // Cells evaluated = nonzero prepared cells among each visited pair's four (my own count).
+        let mut cells = 0;
+        let mut seen = 0;
+        'outer: for i in 0..n {
+            for j in 0..i {
+                if seen == *visited {
+                    break 'outer;
+                }
+                seen += 1;
+                for (a, b) in [(j, j), (j, i), (i, j), (i, i)] {
+                    if p.matrix[a][b] != 0.0 {
+                        cells += 1;
+                    }
+                }
+            }
+        }
+        assert_eq!(cells, *evaluated, "{context}: cells");
+    }
+    tally.systems += 1;
+    *tally.classes.entry(class(&so)).or_default() += 1;
+    tally.max_n = tally.max_n.max(p.matrix.len());
+    if per_pair && !so.starts_with("PANIC:") && validate_prepared(p).is_ok() {
+        // Every pair's own event, with the oracle's verifier, in the search order.
+        let n = p.matrix.len();
+        let mut events: Vec<char> = Vec::new();
+        let mut k = 0;
+        let mut first_event_at = None;
+        for i in 0..n {
+            for j in 0..i {
+                let mut v = vec![0.0; n];
+                v[i] = 1.0;
+                v[j] = if p.matrix[i][j] >= 0.0 { -1.0 } else { 1.0 };
+                let e = match rv24_old_verify(p, &v) {
+                    Ok(None) => '.',
+                    Ok(Some(_)) => 'W',
+                    Err(_) => 'E',
+                };
+                if e != '.' && first_event_at.is_none() {
+                    first_event_at = Some(k);
+                    // The search's result is the first event (a harness self-check).
+                    let expect = match rv24_old_verify(p, &v) {
+                        Ok(Some(w)) => format!("SOME:{}", err_repr(&w)),
+                        Err(x) => format!("ERR:{}", err_repr(&x)),
+                        Ok(None) => unreachable!(),
+                    };
+                    assert_eq!(expect, so, "{context}: first event");
+                }
+                events.push(e);
+                k += 1;
+            }
+        }
+        if first_event_at.is_none() {
+            assert_eq!(so, "NONE", "{context}: no event");
+        }
+        if first_event_at == Some(0) {
+            tally.first_pair_events += 1;
+        }
+        if k > 0 && first_event_at == Some(k - 1) {
+            tally.last_pair_events += 1;
+        }
+        let fe = events.iter().position(|&c| c == 'E');
+        let fw = events.iter().position(|&c| c == 'W');
+        let layout = match (fe, fw) {
+            (Some(e), Some(w)) if e < w => "err_then_witness",
+            (Some(_), Some(_)) => "witness_then_err",
+            (Some(_), None) => "err_only",
+            (None, Some(_)) => "witness_only",
+            (None, None) => "neither",
+        };
+        *tally.layouts.entry(layout).or_default() += 1;
+    }
+    so
+}
+
+fn report(name: &str, t: &Tally) {
+    eprintln!(
+        "RV24 {name}: systems={} max_n={} first_pair_events={} last_pair_events={}",
+        t.systems, t.max_n, t.first_pair_events, t.last_pair_events
+    );
+    for (k, v) in &t.classes {
+        eprintln!("RV24 {name}:   class {k} = {v}");
+    }
+    for (k, v) in &t.layouts {
+        eprintln!("RV24 {name}:   layout {k} = {v}");
+    }
+}
+
+// ------------------------------------------------------------------ generator
+
+/// xorshift64* (fixed seeds; not I20's generator).
+struct R(u64);
+impl R {
+    fn u(&mut self) -> u64 {
+        let mut x = self.0;
+        x ^= x >> 12;
+        x ^= x << 25;
+        x ^= x >> 27;
+        self.0 = x;
+        x.wrapping_mul(0x2545_F491_4F6C_DD1D)
+    }
+    fn f(&mut self) -> f64 {
+        (self.u() >> 11) as f64 * (1.0 / 9_007_199_254_740_992.0)
+    }
+    fn n(&mut self, k: usize) -> usize {
+        (self.u() % k as u64) as usize
+    }
+    fn p(&mut self, q: f64) -> bool {
+        self.f() < q
+    }
+    fn sign(&mut self) -> f64 {
+        if self.p(0.5) {
+            1.0
+        } else {
+            -1.0
+        }
+    }
+    fn perm(&mut self, n: usize) -> Vec<usize> {
+        let mut v: Vec<usize> = (0..n).collect();
+        for k in (1..n).rev() {
+            v.swap(k, self.n(k + 1));
+        }
+        v
+    }
+}
+
+fn p2(k: i32) -> f64 {
+    // 2^k for any k in [-1074, 1023], built without powi's range limits.
+    let mut x = 1.0_f64;
+    let mut e = k;
+    while e > 0 {
+        let s = e.min(1000);
+        x *= 2.0_f64.powi(s);
+        e -= s;
+    }
+    while e < 0 {
+        let s = (-e).min(1000);
+        x *= 2.0_f64.powi(-s);
+        e += s;
+    }
+    x
+}
+
+/// Values at the edges of binary64's normal range, and a few ordinary ones.
+fn hazard(r: &mut R) -> f64 {
+    let pick = r.n(16);
+    let s = r.sign();
+    s * match pick {
+        0 => 5e-324,
+        1 => f64::MIN_POSITIVE,
+        2 => f64::MIN_POSITIVE / 2.0,
+        3 => 1e308,
+        4 => f64::MAX,
+        5 => p2(-1021) * (1.0 + r.f()),
+        6 => p2(1000) * (1.0 + r.f()),
+        7 => p2(-1060),
+        8 => (1.0 + r.f()) * p2(r.n(2098) as i32 - 1074),
+        9 => 0.0,
+        10 => 1.5 * p2(-1022),
+        11 => p2(1023),
+        12 => (1.0 + r.f()) * p2(r.n(80) as i32 - 40),
+        13 => 3.0,
+        14 => 1e-310,
+        _ => (1.0 + r.f()) * p2(r.n(200) as i32 + 820),
+    }
+}
+
+fn edge_exponent(r: &mut R) -> i32 {
+    const E: [i32; 14] = [0, 1, 2, 511, 512, 513, 537, 600, 1022, 1023, 1074, 1100, 2046, 40];
+    if r.p(0.6) {
+        0
+    } else if r.p(0.5) {
+        r.n(121) as i32 - 60
+    } else {
+        let e = E[r.n(E.len())];
+        if r.p(0.5) {
+            e
+        } else {
+            -e
+        }
+    }
+}
+
+/// An owned source system.
+struct Src {
+    k: Vec<Vec<f64>>,
+    f: Vec<f64>,
+    free: Vec<usize>,
+    bc: Vec<(usize, f64)>,
+    ev: Option<(Vec<Vec<f64>>, Vec<Vec<usize>>)>,
+}
+impl Src {
+    fn sys(&self) -> StructuralSystem<'_> {
+        StructuralSystem {
+            stiffness: &self.k,
+            force: &self.f,
+            free_dofs: &self.free,
+            prescribed: &self.bc,
+            contributions: None,
+            symmetry: self.ev.as_ref().map(|(a, c)| SymmetryEvidence {
+                absolute_roundoff: a,
+                operation_counts: c,
+                basis: "RV24: invented roundoff allowance",
+            }),
+        }
+    }
+    /// An identity source with the given free map (a valid system to prepare
+    /// and then corrupt).
+    fn identity(total: usize, free: &[usize]) -> Self {
+        let mut k = vec![vec![0.0; total]; total];
+        for (d, row) in k.iter_mut().enumerate() {
+            row[d] = 1.0;
+        }
+        let bc = (0..total)
+            .filter(|g| !free.contains(g))
+            .map(|g| (g, 0.0))
+            .collect();
+        Src {
+            k,
+            f: vec![0.0; total],
+            free: free.to_vec(),
+            bc,
+            ev: None,
+        }
+    }
+}
+
+/// A corrupted system: arbitrary prepared matrix pattern and signs, arbitrary
+/// exponents and an arbitrary (possibly asymmetric, evidence-allowed) source.
+struct Corrupt {
+    src: Src,
+    m: Vec<Vec<f64>>,
+    e: Vec<i32>,
+    total: usize,
+}
+
+fn corrupt_case(r: &mut R, n: usize, hazard_rate: f64, witness_rate: f64) -> Corrupt {
+    let extra = r.n(3);
+    let total = n + extra;
+    let order = r.perm(total);
+    let free: Vec<usize> = order[..n].to_vec();
+    let e: Vec<i32> = (0..n).map(|_| edge_exponent(r)).collect();
+    let asym = r.p(0.35);
+    let mut k = vec![vec![0.0; total]; total];
+    // benign values, pre-scaled so their prepared-space value is ordinary.
+    let pre = |v: f64, s: i32| -> f64 {
+        // v * 2^-s without leaving the finite range (it may underflow: that is a hazard too).
+        v * p2((-s).clamp(-1074, 1023))
+    };
+    for a in 0..n {
+        for b in 0..n {
+            let (ga, gb) = (free[a], free[b]);
+            let s = e[a] + e[b];
+            let v = if a == b {
+                if r.p(witness_rate) {
+                    -(0.5 + 3.0 * r.f())
+                } else {
+                    1.0 + 3.0 * r.f()
+                }
+            } else if a > b || asym {
+                if r.p(witness_rate) {
+                    r.sign() * (2.0 + 4.0 * r.f())
+                } else if r.p(0.4) {
+                    if r.p(0.5) {
+                        0.0
+                    } else {
+                        -0.0
+                    }
+                } else {
+                    r.sign() * 0.4 * r.f()
+                }
+            } else {
+                k[gb][ga] // the symmetric copy, set when a > b
+            };
+            k[ga][gb] = if r.p(hazard_rate) {
+                hazard(r)
+            } else if r.p(0.8) {
+                pre(v, s)
+            } else {
+                v
+            };
+        }
+    }
+    if !asym {
+        for a in 0..n {
+            for b in 0..a {
+                let (ga, gb) = (free[a], free[b]);
+                k[gb][ga] = k[ga][gb];
+            }
+        }
+    }
+    for g in 0..total {
+        if !free.contains(&g) {
+            k[g][g] = 1.0 + r.f();
+            for &h in &free {
+                if r.p(0.2) {
+                    let v = r.sign() * r.f();
+                    k[g][h] = v;
+                    k[h][g] = if asym { v * 1.5 } else { v };
+                }
+            }
+        }
+    }
+    let ev = asym.then(|| (vec![vec![f64::MAX; total]; total], vec![vec![0; total]; total]));
+    let bc = (0..total)
+        .filter(|g| !free.contains(g))
+        .map(|g| (g, if r.p(0.5) { 0.0 } else { r.f() - 0.5 }))
+        .collect();
+    let f = (0..total).map(|_| r.f() - 0.5).collect();
+    // The prepared matrix: only its zero pattern and its lower-triangle signs matter.
+    let mut m = vec![vec![0.0; n]; n];
+    for a in 0..n {
+        m[a][a] = if r.p(0.1) {
+            if r.p(0.5) {
+                0.0
+            } else {
+                -0.0
+            }
+        } else if r.p(0.1) {
+            hazard(r)
+        } else {
+            1.0 + 3.0 * r.f()
+        };
+        if m[a][a] == 0.0 && r.p(0.5) {
+            m[a][a] = r.sign() * 0.0;
+        }
+        for b in 0..a {
+            if r.p(0.45) {
+                // a zero: +0.0 or -0.0, independently on each side (validation allows it).
+                m[a][b] = r.sign() * 0.0;
+                m[b][a] = r.sign() * 0.0;
+            } else {
+                let v = if r.p(0.15) {
+                    hazard(r)
+                } else {
+                    r.sign() * (0.1 + r.f())
+                };
+                let v = if v == 0.0 { 0.5 } else { v };
+                m[a][b] = v;
+                m[b][a] = v;
+            }
+        }
+    }
+    Corrupt {
+        src: Src {
+            k,
+            f,
+            free,
+            bc,
+            ev,
+        },
+        m,
+        e,
+        total,
+    }
+}
+
+/// Runs a corrupted case: prepare an identity system with the same free map,
+/// then install the corrupted matrix, exponents and source.
+fn run_corrupt(c: &Corrupt, context: &str, tally: &mut Tally, per_pair: bool) -> String {
+    let base = Src::identity(c.total, &c.src.free);
+    let bs = base.sys();
+    let mut prepared = prepare_structural(&bs).expect("identity prepares");
+    let s = c.src.sys();
+    prepared.source = &s;
+    prepared.matrix = c.m.clone();
+    prepared.scale_exponents = c.e.clone();
+    compare(&prepared, context, tally, per_pair)
+}
+
+// ------------------------------------------------------------------ built systems
+
+/// A system that `prepare_structural` builds: physical diagonals over a wide
+/// exponent range, couplings as fractions of sqrt(d_a d_b), optional one- to
+/// four-ulp skew under symmetry evidence, -0.0/+0.0 zero couplings, and rare
+/// subnormal or huge couplings.
+fn built_case(r: &mut R, n: usize) -> Src {
+    let extra = r.n(4);
+    let total = n + extra;
+    let order = r.perm(total);
+    let free: Vec<usize> = order[..n].to_vec();
+    let mut k = vec![vec![0.0; total]; total];
+    let spread = [0, 4, 40, 300][r.n(4)];
+    let d: Vec<f64> = (0..total)
+        .map(|_| (1.0 + r.f()) * p2(r.n(2 * spread + 1) as i32 - spread as i32))
+        .collect();
+    let density = [0.05, 0.3, 0.8, 1.0][r.n(4)];
+    let skew = r.p(0.3);
+    let mut round = vec![vec![0.0; total]; total];
+    let rare = r.p(0.15);
+    for a in 0..total {
+        k[a][a] = d[a];
+        for b in 0..a {
+            let (lo, up) = if r.p(density) {
+                let t = if r.p(0.7) {
+                    0.45 * r.f()
+                } else if r.p(0.66) {
+                    0.95 + 0.2 * r.f()
+                } else {
+                    1.1 + 2.0 * r.f()
+                };
+                let mut v = r.sign() * t * (d[a] * d[b]).sqrt();
+                if rare && r.p(0.05) {
+                    v = if r.p(0.5) {
+                        r.sign() * 5e-324 * (1 + r.n(8)) as f64
+                    } else {
+                        r.sign() * 1e308
+                    };
+                }
+                let up = if skew && v.is_normal() {
+                    let mut u = v;
+                    for _ in 0..1 + r.n(4) {
+                        u = u.next_up();
+                    }
+                    let delta = (u - v).abs();
+                    round[a][b] = delta;
+                    round[b][a] = delta;
+                    u
+                } else {
+                    v
+                };
+                (v, up)
+            } else if r.p(0.3) {
+                // -0.0 below, +0.0 or -0.0 above
+                (-0.0, if r.p(0.5) { 0.0 } else { -0.0 })
+            } else {
+                (0.0, 0.0)
+            };
+            k[a][b] = lo;
+            k[b][a] = up;
+        }
+    }
+    let bc = (0..total)
+        .filter(|g| !free.contains(g))
+        .map(|g| (g, if r.p(0.5) { 0.0 } else { r.f() - 0.5 }))
+        .collect();
+    let f = (0..total).map(|_| r.f() - 0.5).collect();
+    let ev = skew.then(|| (round, vec![vec![0; total]; total]));
+    Src { k, f, free, bc, ev }
+}
+
+// ------------------------------------------------------------------ edge scans
+
+/// My own evaluation of one pair's verdict margin, in the verifier's cell order
+/// (only to locate the crossing; the oracle decides).
+fn margin(terms: &[f64]) -> f64 {
+    let mut energy = 0.0;
+    let mut magnitude = 0.0;
+    for &t in terms {
+        energy += t;
+        magnitude += t.abs();
+    }
+    energy + 64.0 * gamma(3 * terms.len() + 2) * magnitude
+}
+
+/// Patterns of the four cells (j,j), (j,i), (i,j), (i,i) that are nonzero in
+/// the prepared matrix.
+const PATTERNS: [(&str, [bool; 4]); 7] = [
+    ("P4", [true, true, true, true]),
+    ("P3a-jj0", [false, true, true, true]),
+    ("P3b-ii0", [true, true, true, false]),
+    ("P2d-diag", [true, false, false, true]),
+    ("P2c-coup", [false, true, true, false]),
+    ("P1-ii", [false, false, false, true]),
+    ("P1-jj", [true, false, false, false]),
+];
+
+// ------------------------------------------------------------------ tests
+
+#[test]
+fn rv24_oracle_is_the_base_verifier_on_arbitrary_directions() {
+    // The generated oracle verifier against the product's (unchanged) verifier.
+    let mut r = R(0x5256_3234_0001);
+    let mut n_dirs = 0;
+    for round in 0..400 {
+        let n = 2 + r.n(9);
+        let c = corrupt_case(&mut r, n, 0.1, 0.1);
+        let base = Src::identity(c.total, &c.src.free);
+        let bs = base.sys();
+        let mut p = prepare_structural(&bs).unwrap();
+        let s = c.src.sys();
+        p.source = &s;
+        p.matrix = c.m.clone();
+        p.scale_exponents = c.e.clone();
+        for _ in 0..6 {
+            let v: Vec<f64> = (0..n)
+                .map(|_| match r.n(5) {
+                    0 => 0.0,
+                    1 => -0.0,
+                    2 => r.sign(),
+                    3 => hazard(&mut r),
+                    _ => r.f() - 0.5,
+                })
+                .collect();
+            let a = repr(&catch_unwind(AssertUnwindSafe(|| rv24_old_verify(&p, &v))));
+            let b = repr(&catch_unwind(AssertUnwindSafe(|| {
+                verify_negative_direction(&p, &v)
+            })));
+            assert_eq!(a, b, "round {round}");
+            n_dirs += 1;
+        }
+    }
+    eprintln!("RV24 oracle verifier: {n_dirs} directions equal");
+}
+
+#[test]
+fn rv24_corrupted_random_systems() {
+    let mut r = R(0x5256_3234_0002);
+    let mut t = Tally::default();
+    for round in 0..24_000 {
+        let n = 2 + r.n(if round % 10 == 0 { 14 } else { 7 });
+        let hz = [0.0, 0.02, 0.08, 0.25][r.n(4)];
+        let wr = [0.0, 0.02, 0.1][r.n(3)];
+        let c = corrupt_case(&mut r, n, hz, wr);
+        run_corrupt(&c, &format!("corrupt round {round} n={n}"), &mut t, true);
+    }
+    report("corrupted", &t);
+    for layout in ["err_then_witness", "witness_then_err", "err_only", "witness_only", "neither"] {
+        assert!(t.layouts.get(layout).copied().unwrap_or(0) >= 50, "coverage {layout}");
+    }
+}
+
+#[test]
+fn rv24_built_random_systems() {
+    let mut r = R(0x5256_3234_0003);
+    let mut t = Tally::default();
+    let mut prepare_refused = BTreeMap::<String, usize>::new();
+    for round in 0..3_000 {
+        let n = if round % 100 == 0 {
+            60 + r.n(41)
+        } else {
+            2 + r.n(if round % 5 == 0 { 40 } else { 12 })
+        };
+        let src = built_case(&mut r, n);
+        let s = src.sys();
+        match prepare_structural(&s) {
+            Ok(p) => {
+                compare(&p, &format!("built round {round} n={n}"), &mut t, n <= 14);
+            }
+            Err(e) => {
+                *prepare_refused.entry(format!("{e:?}").chars().take(50).collect()).or_default() += 1;
+            }
+        }
+    }
+    report("built", &t);
+    for (k, v) in &prepare_refused {
+        eprintln!("RV24 built: prepare refused {k} = {v}");
+    }
+    assert!(t.classes.get("witness").copied().unwrap_or(0) >= 200);
+    assert!(t.classes.get("none").copied().unwrap_or(0) >= 200);
+}
+
+#[test]
+fn rv24_edge_scans_every_term_count() {
+    // For each pattern of nonzero cells, and for symmetric and skewed sources,
+    // scan the last evaluated cell's source value (both couplings together when
+    // the source is symmetric) over 160 ulps around the verdict's crossing. The
+    // pair sits first, last or in the middle of the search; the other DOFs have
+    // diagonals of 1e6 and zero couplings.
+    let mut r = R(0x5256_3234_0004);
+    let mut t = Tally::default();
+    let mut flips = BTreeMap::<String, usize>::new();
+    let mut scans = BTreeMap::<String, usize>::new();
+    for rep in 0..60 {
+        for (name, pat) in PATTERNS {
+            for skewed in [false, true] {
+                let n = 2 + r.n(4);
+                let (i, j) = match r.n(3) {
+                    0 => (1, 0),
+                    1 => (n - 1, n - 2),
+                    _ => {
+                        let i = 1 + r.n(n - 1);
+                        (i, r.n(i))
+                    }
+                };
+                let coupled = pat[1];
+                // The prepared coupling's sign sets s; a zero coupling gives s = -1.
+                let msign = r.sign();
+                let s = if !coupled || msign >= 0.0 { -1.0 } else { 1.0 };
+                let a = (1.0 + r.f()) * [1.0, 2.0][r.n(2)];
+                let k1 = r.sign() * (1.0 + r.f()) * 2.0;
+                let k2 = if skewed { k1 * (1.0 + 1e-3 * r.f()) } else { k1 };
+                let b0 = (1.0 + r.f()) * 2.0;
+                let last = (0..4).rev().find(|&c| pat[c]).unwrap();
+                let set = |x: f64| -> [f64; 4] {
+                    let mut v = [a, k1, k2, b0];
+                    v[last] = x;
+                    if !skewed && (last == 1 || last == 2) {
+                        v[1] = x;
+                        v[2] = x;
+                    }
+                    v
+                };
+                let terms = |v: [f64; 4]| -> Vec<f64> {
+                    let mult = [1.0, s, s, 1.0];
+                    (0..4).filter(|&c| pat[c]).map(|c| v[c] * mult[c]).collect()
+                };
+                let g = |x: f64| margin(&terms(set(x)));
+                let (mut lo, mut hi) = (-64.0, 64.0);
+                if (g(lo) < 0.0) == (g(hi) < 0.0) {
+                    continue;
+                }
+                for _ in 0..2000 {
+                    let mid = lo / 2.0 + hi / 2.0;
+                    if mid == lo || mid == hi {
+                        break;
+                    }
+                    if (g(mid) < 0.0) == (g(lo) < 0.0) {
+                        lo = mid;
+                    } else {
+                        hi = mid;
+                    }
+                }
+                let mut value = lo;
+                for _ in 0..80 {
+                    value = value.next_down();
+                }
+                let mut verdicts = Vec::new();
+                for step in 0..160 {
+                    let vals = set(value);
+                    let mut k = vec![vec![0.0; n]; n];
+                    let mut m = vec![vec![0.0; n]; n];
+                    for d in 0..n {
+                        k[d][d] = 1e6;
+                        m[d][d] = 1e6;
+                    }
+                    k[j][j] = vals[0];
+                    k[j][i] = vals[1];
+                    k[i][j] = vals[2];
+                    k[i][i] = vals[3];
+                    m[j][j] = if pat[0] { 1.0 } else { 0.0 };
+                    m[i][i] = if pat[3] { 1.0 } else { 0.0 };
+                    m[i][j] = if coupled { msign } else { 0.0 };
+                    m[j][i] = m[i][j];
+                    let asym = k[j][i] != k[i][j];
+                    let c = Corrupt {
+                        src: Src {
+                            k,
+                            f: vec![0.0; n],
+                            free: (0..n).collect(),
+                            bc: Vec::new(),
+                            ev: asym.then(|| (vec![vec![f64::MAX; n]; n], vec![vec![0; n]; n])),
+                        },
+                        m,
+                        e: vec![0; n],
+                        total: n,
+                    };
+                    let out = run_corrupt(
+                        &c,
+                        &format!("edge rep {rep} {name} skewed={skewed} step {step} value={value:e}"),
+                        &mut t,
+                        false,
+                    );
+                    verdicts.push(out.starts_with("SOME:"));
+                    value = value.next_up();
+                }
+                let key = format!("{name} skewed={skewed}");
+                *scans.entry(key.clone()).or_default() += 1;
+                let changes = verdicts.windows(2).filter(|w| w[0] != w[1]).count();
+                *flips.entry(key).or_default() += usize::from(changes > 0);
+            }
+        }
+    }
+    report("edge", &t);
+    for (k, v) in &scans {
+        eprintln!(
+            "RV24 edge: {k}: scans {v}, crossing the verdict {}",
+            flips.get(k).copied().unwrap_or(0)
+        );
+    }
+    for (name, _) in PATTERNS {
+        for skewed in [false, true] {
+            if name.starts_with("P1") || (name == "P2c-coup" && !skewed) {
+                continue; // one term ties only at 0; a symmetric P2c is 2sk, which never crosses
+            }
+            let key = format!("{name} skewed={skewed}");
+            assert!(
+                flips.get(&key).copied().unwrap_or(0) > 0,
+                "{key}: no scan crossed the verdict"
+            );
+        }
+    }
+}
+
+#[test]
+fn rv24_skewed_order_sensitive_pairs() {
+    // Four-term pairs whose two couplings differ in the source (evidence-allowed
+    // asymmetry) and whose sums round, so that swapping (j,i) and (i,j), or
+    // reading the source transposed, can change the verdict or the energy bits.
+    let mut r = R(0x5256_3234_0005);
+    let mut t = Tally::default();
+    let mut order_sensitive = 0;
+    for rep in 0..20_000 {
+        let a = (1.0 + r.f()) * p2(r.n(6) as i32 - 3);
+        let b = (1.0 + r.f()) * p2(r.n(6) as i32 - 3);
+        let k1 = r.sign() * (1.0 + r.f()) * p2(r.n(8) as i32 - 3);
+        let k2 = r.sign() * (1.0 + r.f()) * p2(r.n(8) as i32 - 3);
+        let msign = r.sign();
+        let s = if msign >= 0.0 { -1.0 } else { 1.0 };
+        let fwd = [a, s * k1, s * k2, b];
+        let swp = [a, s * k2, s * k1, b];
+        let e = |v: &[f64]| {
+            let mut en = 0.0;
+            for &x in v {
+                en += x;
+            }
+            en
+        };
+        order_sensitive += usize::from(e(&fwd).to_bits() != e(&swp).to_bits());
+        let n = 2 + r.n(3);
+        let (i, j) = (n - 1, r.n(n - 1));
+        let mut k = vec![vec![0.0; n]; n];
+        let mut m = vec![vec![0.0; n]; n];
+        for d in 0..n {
+            k[d][d] = 1e6;
+            m[d][d] = 1e6;
+        }
+        k[j][j] = a;
+        k[j][i] = k1;
+        k[i][j] = k2;
+        k[i][i] = b;
+        m[j][j] = 1.0;
+        m[i][i] = 1.0;
+        m[i][j] = msign;
+        m[j][i] = msign;
+        let c = Corrupt {
+            src: Src {
+                k,
+                f: vec![0.0; n],
+                free: (0..n).collect(),
+                bc: Vec::new(),
+                ev: Some((vec![vec![f64::MAX; n]; n], vec![vec![0; n]; n])),
+            },
+            m,
+            e: vec![0; n],
+            total: n,
+        };
+        run_corrupt(&c, &format!("skewed rep {rep}"), &mut t, false);
+    }
+    report("skewed", &t);
+    eprintln!("RV24 skewed: pairs whose energy bits depend on the coupling order = {order_sensitive}");
+    assert!(order_sensitive > 1000);
+}
+
+#[test]
+fn rv24_adversarial_cases() {
+    let mut t = Tally::default();
+    let mut outcomes = Vec::new();
+    // Build one 2x2 or 3x3 corrupted case from explicit values.
+    let mut case = |name: &str, k: Vec<Vec<f64>>, m: Vec<Vec<f64>>, e: Vec<i32>| {
+        let n = m.len();
+        let total = k.len();
+        let asym = (0..total).any(|a| (0..total).any(|b| k[a][b].to_bits() != k[b][a].to_bits() && k[a][b] != k[b][a]));
+        let c = Corrupt {
+            src: Src {
+                k,
+                f: vec![0.0; total],
+                free: (0..n).collect(),
+                bc: (n..total).map(|g| (g, 0.0)).collect(),
+                ev: asym.then(|| (vec![vec![f64::MAX; total]; total], vec![vec![0; total]; total])),
+            },
+            m,
+            e,
+            total,
+        };
+        let out = run_corrupt(&c, name, &mut t, true);
+        eprintln!("RV24 adversarial: {name}: {}", &out[..out.len().min(140)]);
+        outcomes.push((name.to_string(), out));
+    };
+    let one = vec![vec![1.0, 1.0], vec![1.0, 1.0]];
+    // negative zero couplings, either side, with a hidden source coupling and a negative diagonal
+    case("-0 below, +0 above, hidden source coupling, negative diagonal",
+        vec![vec![2.0, 7.0], vec![7.0, -3.0]], vec![vec![1.0, 0.0], vec![-0.0, 1.0]], vec![0, 0]);
+    case("+0 below, -0 above, negative diagonal",
+        vec![vec![2.0, 0.0], vec![0.0, -3.0]], vec![vec![1.0, -0.0], vec![0.0, 1.0]], vec![0, 0]);
+    case("-0 both sides, source -0",
+        vec![vec![1.0, -0.0], vec![-0.0, -1.5]], vec![vec![1.0, -0.0], vec![-0.0, 1.0]], vec![0, 0]);
+    // subnormals
+    case("subnormal source coupling at exponent sum 0 (product underflow)",
+        vec![vec![1.0, 5e-324], vec![5e-324, 1.0]], one.clone(), vec![0, 0]);
+    case("subnormal source coupling lifted by exponents (+537, +537)",
+        vec![vec![p2(-1074), 5e-324], vec![5e-324, p2(-1074)]], one.clone(), vec![537, 537]);
+    case("subnormal prepared entries, normal source",
+        vec![vec![1.0, 3.0], vec![3.0, 1.0]], vec![vec![5e-324, -5e-324], vec![-5e-324, 5e-324]], vec![0, 0]);
+    case("subnormal partial energy (2^-1021 - (2^-1021 - 2^-1060))",
+        vec![vec![p2(-1021), -(p2(-1021) - p2(-1060))], vec![-(p2(-1021) - p2(-1060)), 1.0]],
+        vec![vec![1.0, -1.0], vec![-1.0, 0.0]], vec![0, 0]);
+    // magnitude overflows, energy does not
+    case("magnitude overflow only (1e308 then -1e308)",
+        vec![vec![1e308, 1e308], vec![1e308, 1.0]], one.clone(), vec![0, 0]);
+    case("energy and magnitude overflow",
+        vec![vec![1.0, 1e308], vec![1e308, 1.0]], one.clone(), vec![0, 0]);
+    case("magnitude overflow at a later pair, witness at none",
+        vec![vec![1.0, 0.0, 0.0], vec![0.0, f64::MAX, f64::MAX], vec![0.0, f64::MAX, 1.0]],
+        vec![vec![1.0, 0.0, 0.0], vec![0.0, 1.0, 1.0], vec![0.0, 1.0, 1.0]], vec![0, 0, 0]);
+    // radix_scale edges
+    case("radix: exactly the least normal (2^-1000 * 2^-22)",
+        vec![vec![p2(-1000), 0.0], vec![0.0, 1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![-11, 0]);
+    case("radix: one below the least normal",
+        vec![vec![p2(-1000), 0.0], vec![0.0, 1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![-12, 0]);
+    case("radix: steps of 512 up and back (2^-1000 * 2^1500)",
+        vec![vec![p2(-1000), 0.0], vec![0.0, -1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![750, 0]);
+    case("radix: intermediate overflow (2^1000 * 2^+600 then nothing)",
+        vec![vec![p2(1000), 0.0], vec![0.0, 1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![300, 0]);
+    case("radix: exactly f64::MAX (MAX/4 at exponent sum 2)",
+        vec![vec![f64::MAX / 4.0, 0.0], vec![0.0, -1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![1, 0]);
+    case("radix: one step past f64::MAX (MAX/4 at exponent sum 4)",
+        vec![vec![f64::MAX / 4.0, 0.0], vec![0.0, -1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![2, 0]);
+    case("radix: first cell (j,j) fails, (i,i) would fail in the product",
+        vec![vec![2.0, 0.0], vec![0.0, 5e-324]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![600, 0]);
+    case("coupling (j,i) overflows the magnitude, (i,j) underflows in the product (asymmetric source)",
+        vec![vec![1e308, 1e308], vec![5e-324, 1.0]], vec![vec![1.0, 1.0], vec![1.0, 1.0]], vec![0, 0]);
+    case("coupling (j,i) underflows in the product, (i,j) overflows the magnitude (asymmetric source)",
+        vec![vec![1e308, 5e-324], vec![1e308, 1.0]], vec![vec![1.0, 1.0], vec![1.0, 1.0]], vec![0, 0]);
+    case("coupling (j,i) fails in radix, (i,j) is fine: exponent sum 30 (asymmetric source)",
+        vec![vec![1.0, p2(1000)], vec![1.0, 1.0]], vec![vec![1.0, 1.0], vec![1.0, 1.0]], vec![30, 0]);
+    case("mapping error after the verdict (exponents +1100, -1100)",
+        vec![vec![1.0, 3.0], vec![3.0, 1.0]], vec![vec![0.0, 1.0], vec![1.0, 0.0]], vec![1100, -1100]);
+    case("zero-magnitude pair (source zeros behind prepared diagonals)",
+        vec![vec![0.0, 0.0], vec![0.0, 0.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![0, 0]);
+    case("n = 0 free DOFs", vec![vec![1.0]], vec![], vec![]);
+    case("n = 1 free DOF, negative source diagonal", vec![vec![-1.0]], vec![vec![1.0]], vec![0]);
+    case("validation: prepared matrix asymmetric",
+        vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![vec![1.0, 2.0], vec![3.0, 1.0]], vec![0, 0]);
+    case("validation: NaN in the prepared matrix",
+        vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![vec![1.0, f64::NAN], vec![f64::NAN, 1.0]], vec![0, 0]);
+    case("validation: exponents too short",
+        vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![0]);
+    case("validation: infinite source entry",
+        vec![vec![1.0, f64::INFINITY], vec![f64::INFINITY, 1.0]], one.clone(), vec![0, 0]);
+    // i32 overflow in the exponent sum: a debug panic (a wrap in release) at the same cell in both
+    case("i32 overflow in the exponent sum",
+        vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![vec![1.0, 0.0], vec![0.0, 1.0]], vec![i32::MAX, 0]);
+    report("adversarial", &t);
+    assert!(outcomes.len() >= 25);
+}
+
+#[test]
+fn rv24_large_built_systems() {
+    // No witness at n = 100 and 120, and a witness planted at the very last pair.
+    let mut t = Tally::default();
+    for (n, last_witness) in [(100, false), (100, true), (120, false), (120, true)] {
+        let total = n + 3;
+        let mut k = vec![vec![0.0; total]; total];
+        for a in 0..total {
+            k[a][a] = 2.0 + (a % 7) as f64 * 0.25;
+            if a > 0 {
+                k[a][a - 1] = -0.4;
+                k[a - 1][a] = -0.4;
+            }
+        }
+        if last_witness {
+            k[n - 1][n - 2] = 2.5 * 2.0;
+            k[n - 2][n - 1] = 2.5 * 2.0;
+        }
+        let src = Src {
+            k,
+            f: vec![1.0; total],
+            free: (0..n).collect(),
+            bc: (n..total).map(|g| (g, 0.5)).collect(),
+            ev: None,
+        };
+        let s = src.sys();
+        let p = prepare_structural(&s).unwrap();
+        let out = compare(&p, &format!("large n={n} last_witness={last_witness}"), &mut t, false);
+        assert_eq!(out.starts_with("SOME:"), last_witness);
+    }
+    report("large", &t);
+}
+
+/// A banded SPD system in dense storage (block tridiagonal, 6 DOFs per node,
+/// couplings inside |a_ij| <= 0.1 of the diagonal): no witness, every pair visited.
+fn banded(n: usize) -> Src {
+    let total = n + 6;
+    let mut k = vec![vec![0.0; total]; total];
+    for a in 0..total {
+        k[a][a] = 2.0 + (a % 5) as f64 * 0.125;
+        for b in a.saturating_sub(11)..a {
+            let v = if (a + b) % 3 == 0 { -0.05 } else { 0.03 };
+            k[a][b] = v;
+            k[b][a] = v;
+        }
+    }
+    Src {
+        k,
+        f: vec![1.0; total],
+        free: (6..total).collect(),
+        bc: (0..6).map(|g| (g, 0.0)).collect(),
+        ev: None,
+    }
+}
+
+#[test]
+#[ignore = "RV24 cost observation: release only"]
+fn rv24_cost_scaling_release() {
+    // The new search's time and counts at n = 750 .. 6,006, and the old search's
+    // at n = 40 .. 160 (observations; the host is shared).
+    for n in [750, 1500, 3000, 6006] {
+        let src = banded(n);
+        let s = src.sys();
+        let p = prepare_structural(&s).unwrap();
+        let t0 = std::time::Instant::now();
+        let v0 = std::time::Instant::now();
+        validate_prepared(&p).unwrap();
+        let validation = v0.elapsed().as_secs_f64();
+        let t1 = std::time::Instant::now();
+        let (w, visited, evaluated, verified) = negative_pair_witness_counted(&p).unwrap();
+        let search = t1.elapsed().as_secs_f64();
+        let _ = t0;
+        assert!(w.is_none());
+        assert_eq!(visited, n * (n - 1) / 2);
+        assert_eq!(verified, 0);
+        eprintln!(
+            "RV24 cost new: n={n} visited={visited} evaluated={evaluated} verified={verified} one_validation_s={validation:.4} witness_s={search:.4} ns_per_pair={:.2}",
+            search * 1e9 / visited as f64
+        );
+    }
+    for n in [40, 80, 160] {
+        let src = banded(n);
+        let s = src.sys();
+        let p = prepare_structural(&s).unwrap();
+        let t0 = std::time::Instant::now();
+        let old = rv24_old_witness(&p).unwrap();
+        let old_s = t0.elapsed().as_secs_f64();
+        let t1 = std::time::Instant::now();
+        let new = negative_pair_witness(&p).unwrap();
+        let new_s = t1.elapsed().as_secs_f64();
+        assert!(old.is_none() && new.is_none());
+        eprintln!("RV24 cost old vs new: n={n} old_s={old_s:.4} new_s={new_s:.6}");
+    }
+}

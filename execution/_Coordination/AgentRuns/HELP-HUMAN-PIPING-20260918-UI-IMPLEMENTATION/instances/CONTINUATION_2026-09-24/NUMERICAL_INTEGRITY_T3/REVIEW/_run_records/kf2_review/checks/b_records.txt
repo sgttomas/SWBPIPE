@@ -1,0 +1,64 @@
+RV24: KF2 B's records (committed on the KF2 branch at f2b8c85a2, read in <wt>/kf2), checked by the reviewer.
+== KF2 folder integrity
+top-level SHA256SUMS failures: 0
+a failures: 0
+b failures: 0
+fe19dbc63e58cf73c66d03de27a16c4ee2ac49e4c56982692bfe22ea2a1897fc  RETURN.md
+1457a990cb7b2e8dc2e4d7a8bc0fc9b764dab1e9c371bf98fdf089de7b427e49  CHANGE_RECORD.md
+5b51af43c33acd842a21730fc732f4cb2a83ccf2700cb1239830584751b81e77  SHA256SUMS
+76337c43cad7c2e8618c4abc572e62d875a9d0acd944854006169b469d093863  PLAN_CHECKPOINT0.md
+247459f7de8570ae65d5ab0f0dc8e51c5770465df52aeb0726da1403f15350f4  _run_records/b/SHA256SUMS
+files in the KF2 folder: 113; lines in the three SHA256SUMS: 112
+machine paths in the KF2 folder: 0
+== T9
+sha_base lines:      112
+sha_cand lines:      112
+sha_base.txt == sha_cand.txt (112/112 byte-identical outputs)
+extra_sha_base.txt == extra_sha_cand.txt (16 outputs)
+dense outputs in the list (suffix .dense_scrutiny.out): 56
+base list == PLATFORM_CALIBRATION_MAC/t9/output_sha256_main_mac_native.txt (sorted)
+T9 outputs (I20's uncommitted <wt>/scratch/i20/b/t9/out_cand, extra_cand) carrying a factor pivot refusal or NegativeEnergy: 0
+their NumericallyUnresolved reasons:
+  12 NumericallyUnresolved { reason: \"positive diagonal contribution absorbed by assembly; stabilization unresolved
+== gate part 1: the two uncommitted runs.jsonl against gate/uncommitted_sha256.txt
+part1_base/runs.jsonl  c42981e541650578a60efe48cbf346360fedbb4507b3d02365b5f5abb78e9f68  605711611 bytes, 884 records
+part1_cand/runs.jsonl  11dfe8296681280e0fd4163ee3195cc16ff0f78f3ce81dff82516a520bf2ef3f  605711700 bytes, 884 records
+c42981e541650578a60efe48cbf346360fedbb4507b3d02365b5f5abb78e9f68  part1_base/runs.jsonl
+11dfe8296681280e0fd4163ee3195cc16ff0f78f3ce81dff82516a520bf2ef3f  part1_cand/runs.jsonl
+ 605711611 part1_base/runs.jsonl
+ 605711700 part1_cand/runs.jsonl
+ 1211423311 total
+     884 part1_base/runs.jsonl
+     884 part1_cand/runs.jsonl
+    1768 total
+(my own comparison of the two files: checks/runs_jsonl_diff.out)
+== gate part 1: dense/sparse outcome disagreements in index_cand.tsv (same entry)
+  RF-CHAIN-A-n10-r1e-12 captured: dense refused_blocked, sparse solved
+  RF-CHAIN-A-n10-r1e-12 typed: dense refused_blocked, sparse solved
+  RF-CHAIN-T-n10-r1e-12 captured: dense refused_blocked, sparse solved
+  RF-CHAIN-T-n10-r1e-12 typed: dense refused_blocked, sparse solved
+  RF-LARGE-CHAIN-n01000-ROT captured: dense None, sparse solved
+  RF-LARGE-CHAIN-n01000-ROT typed: dense None, sparse solved
+  RF-LARGE-CONT-n10000-AX captured: dense refused_blocked, sparse solved
+  RF-LARGE-CONT-n10000-AX typed: dense refused_blocked, sparse solved
+  RF-LARGE-CONT-n10000-ROT captured: dense refused_blocked, sparse solved
+  RF-LARGE-CONT-n10000-ROT typed: dense refused_blocked, sparse solved
+  RF-LARGE-TREE-n01000-AX captured: dense None, sparse solved
+  RF-LARGE-TREE-n01000-AX typed: dense None, sparse solved
+  RF-SKEW-T-CANT-OFF-122-r1e-12 captured: dense solved, sparse refused_blocked
+  RF-SKEW-T-CANT-OFF-122-r1e-12 typed: dense solved, sparse refused_blocked
+  RF-SKEW-T-PIN-OFF-122-r1e-12 captured: dense refused_blocked, sparse solved
+  RF-SKEW-T-PIN-OFF-122-r1e-12 typed: dense refused_blocked, sparse solved
+  RF-WEAK-W-L-r1e-12 captured: dense refused_blocked, sparse solved
+  RF-WEAK-W-L-r1e-12 typed: dense refused_blocked, sparse solved
+== gate part 2 (committed part2/runs.jsonl)
+  RF-LARGE-CHAIN-n01000-ROT dense_scrutiny captured: exit 0 timed_out False wall 67.5 s, results 0, NegativeEnergy anywhere: False
+     NUMERICAL_INTEGRITY_UNRESOLVED: Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(6001
+     SOURCE_BLOCK: The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: "source closure", helpe
+  RF-LARGE-CHAIN-n01000-ROT dense_scrutiny typed: exit 0 timed_out False wall 68.0 s, results 0, NegativeEnergy anywhere: False
+     NUMERICAL_INTEGRITY_UNRESOLVED: Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(6001
+  RF-LARGE-TREE-n01000-AX dense_scrutiny captured: exit 0 timed_out False wall 67.7 s, results 0, NegativeEnergy anywhere: False
+     NUMERICAL_INTEGRITY_UNRESOLVED: Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(6002
+     SOURCE_BLOCK: The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: "source closure", helpe
+  RF-LARGE-TREE-n01000-AX dense_scrutiny typed: exit 0 timed_out False wall 67.4 s, results 0, NegativeEnergy anywhere: False
+     NUMERICAL_INTEGRITY_UNRESOLVED: Load case case: structural integrity: NumericallyUnresolved { reason: "nonpositive or cancellation-unresolved structural pivot", global_dof: Some(6002

@@ -1,0 +1,32 @@
+== head: token `negative_pair_witness` (comments and literals stripped)
+  core/solver/frame_kernel/src/structural.rs:1965  fn solve_prepared_dense  [product]  Err(error) => return Err(negative_pair_witness(&prepared)?.unwrap_or(error)),
+  core/solver/frame_kernel/src/structural.rs:2195  fn verify_negative_direction  [product]  pub fn negative_pair_witness(
+  core/solver/frame_kernel/src/structural.rs:3006  fn krev04_witness_helpers_reject_internally_corrupted_shape_without_panic  [test]  std::panic::catch_unwind(|| negative_pair_witness(&prepared))
+  core/solver/frame_kernel/src/structural.rs:3021  fn krev04_witness_helpers_reject_internally_corrupted_shape_without_panic  [test]  std::panic::catch_unwind(|| negative_pair_witness(&prepared))
+  core/solver/frame_kernel/src/structural/kf2_witness_tests.rs:149  fn check  [test]  let public = catch_unwind(AssertUnwindSafe(|| negative_pair_witness(prepared)))
+  core/solver/frame_kernel/src/structural/kf2_witness_tests.rs:950  fn kf2_cost_counts_on_a_100_member_chain  [test]  assert!(same(&negative_pair_witness(&prepared), &Ok(None)));
+  core/solver/frame_kernel/src/structural/sparse/tests.rs:1181  fn k1_negative_witness_matches_the_dense_search_and_verification  [test]  let dw = negative_pair_witness(&dp).unwrap();
+  core/solver/frame_kernel/src/structural/sparse/tests.rs:1226  fn k1_negative_witness_visits_only_pattern_pairs  [test]  assert!(negative_pair_witness(&prepare_structural(&ds).unwrap())
+  core/solver/nonlinear_integration/src/structural_adapter.rs:2017  fn solve_prepared  [product]  Err(error) => return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error)),
+  core/solver/performance_harness/src/k6/staged.rs:29  fn -  [product]  finish_sparse_structural, finish_structural, negative_pair_witness,
+  core/solver/performance_harness/src/k6/staged.rs:474  fn dense_factor_finish  [product]  let witness = negative_pair_witness(&prepared);
+  core/solver/sparse_direct/src/structural.rs:37  fn solve_structural_sparse  [product]  Err(error) => return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error)),
+  core/solver/sparse_direct/src/structural/k1_tests.rs:12  fn -  [test]  assemble_sparse_stiffness, gamma, negative_pair_witness, transform_roundoff, FormationSource,
+  core/solver/sparse_direct/src/structural/k1_tests.rs:371  fn today  [test]  Err(error) => return Err(negative_pair_witness(&prepared)?.unwrap_or(error)),
+== head: declared signatures
+  core/solver/frame_kernel/src/structural.rs: pub fn negative_pair_witness( prepared: &PreparedSystem<'_>, ) -> Result<Option<StructuralError>, StructuralError> {
+== base: token `negative_pair_witness` (comments and literals stripped)
+  core/solver/frame_kernel/src/structural.rs:1965  fn solve_prepared_dense  [product]  Err(error) => return Err(negative_pair_witness(&prepared)?.unwrap_or(error)),
+  core/solver/frame_kernel/src/structural.rs:2195  fn verify_negative_direction  [product]  pub fn negative_pair_witness(
+  core/solver/frame_kernel/src/structural.rs:2955  fn krev04_witness_helpers_reject_internally_corrupted_shape_without_panic  [test]  std::panic::catch_unwind(|| negative_pair_witness(&prepared))
+  core/solver/frame_kernel/src/structural.rs:2970  fn krev04_witness_helpers_reject_internally_corrupted_shape_without_panic  [test]  std::panic::catch_unwind(|| negative_pair_witness(&prepared))
+  core/solver/frame_kernel/src/structural/sparse/tests.rs:1181  fn k1_negative_witness_matches_the_dense_search_and_verification  [test]  let dw = negative_pair_witness(&dp).unwrap();
+  core/solver/frame_kernel/src/structural/sparse/tests.rs:1226  fn k1_negative_witness_visits_only_pattern_pairs  [test]  assert!(negative_pair_witness(&prepare_structural(&ds).unwrap())
+  core/solver/nonlinear_integration/src/structural_adapter.rs:2017  fn solve_prepared  [product]  Err(error) => return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error)),
+  core/solver/performance_harness/src/k6/staged.rs:29  fn -  [product]  finish_sparse_structural, finish_structural, negative_pair_witness,
+  core/solver/performance_harness/src/k6/staged.rs:474  fn dense_factor_finish  [product]  let witness = negative_pair_witness(&prepared);
+  core/solver/sparse_direct/src/structural.rs:37  fn solve_structural_sparse  [product]  Err(error) => return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error)),
+  core/solver/sparse_direct/src/structural/k1_tests.rs:12  fn -  [test]  assemble_sparse_stiffness, gamma, negative_pair_witness, transform_roundoff, FormationSource,
+  core/solver/sparse_direct/src/structural/k1_tests.rs:371  fn today  [test]  Err(error) => return Err(negative_pair_witness(&prepared)?.unwrap_or(error)),
+== base: declared signatures
+  core/solver/frame_kernel/src/structural.rs: pub fn negative_pair_witness( prepared: &PreparedSystem<'_>, ) -> Result<Option<StructuralError>, StructuralError> {

@@ -1,0 +1,15 @@
+diff -r <wt>/rv24/head/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs <wt>/rv24/instr/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+2198c2198,2208
+<     negative_pair_witness_counted(prepared).map(|(witness, _, _, _)| witness)
+---
+>     // RV24 instrumentation (reviewer's copy only): one stderr line per call.
+>     let result = negative_pair_witness_counted(prepared);
+>     match &result {
+>         Ok((w, visited, evaluated, verified)) => eprintln!(
+>             "RV24_WITNESS n={} visited={visited} evaluated={evaluated} verified={verified} witness={}",
+>             prepared.matrix.len(),
+>             w.is_some()
+>         ),
+>         Err(e) => eprintln!("RV24_WITNESS n={} err={e:?}", prepared.matrix.len()),
+>     }
+>     result.map(|(witness, _, _, _)| witness)

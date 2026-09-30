@@ -2918,3 +2918,36 @@ RV23 (`REVIEW/KF3_REVIEW.md`, sha256 `96060f9e…`; records `REVIEW/_run_records
   - the callers' reach;
   - the screen diagnosis, as a claim check only.
 - **Then:** CI, DEC-025 on the final head, GEN-8 and the merge.
+
+## KF2: rulings on RV24's review (ROOT, 2026-09-30)
+
+RV24 (`REVIEW/KF2_REVIEW.md`, sha256 `6785aa13…`; records `REVIEW/_run_records/kf2_review/`) reviewed head `f2b8c85a2`: **PASS**, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs.
+- **The equality holds.** RV24 read the code line by line against the base. Its own differential harness, whose oracle is a verbatim copy generated from the base's bytes, found 0 differences in debug and release. It covered:
+  - 24,000 corrupted systems, with errors before and after witnesses;
+  - 2,864 built systems;
+  - 134,400 steps around the verdict's crossing;
+  - skewed pairs and 29 adversarial cases.
+- **I20's reference copies are verbatim,** apart from the names and a dropped `pub`.
+- **B's records hold.** RV24 checked the uncommitted `runs.jsonl` hashes: only the time and memory fields differ over 884 records. RV24 rebuilt the probe from its own archives: a 20-run sample is byte-identical, an instrumented head matches 860 of 860 part-1 runs (10,000-member runs excluded under the host rule), and N10 CHAIN-ROT reproduces, with all 17,997,000 pairs visited.
+
+**Rulings:**
+- **RV24-1 (SHOULD-FIX): add the tests before merge. It is test-only.** Three single-edit regressions of the guard survive the committed tests and are killed only by RV24's harness:
+  - the coupling cells swapped (RV24-M1);
+  - the source cell transposed (RV24-M5);
+  - the allowance charged for four cells whatever `terms` is (RV24-M4b).
+
+  I20 adopts RV24's cases (`_run_records/kf2_review/`):
+  - the asymmetric-source error-order cases;
+  - a skewed edge scan;
+  - edge scans for 2- and 3-term pairs.
+
+  Each of the three mutants must then be killed by the committed tests. No product file other than the test file may change.
+- **RV24-N1:** the two equivalent mutants are recorded.
+- **RV24-N2:** the witness also runs on the `sparse_interactive` route (SA:2017 serves both modes), in the nonlinear loop (NI `lib.rs:1990` and `:2013`) and in SD:37. The caller list is complete and the signature unchanged. **ROOT amends the PR text to name these routes.**
+- **RV24-N3:** no T9 output reaches the witness, so T9 is an invariance check only. B's SUMMARY misstates the eight captured-entry FX-NP-A runs, which publish a recovered result, not the refusal. The correction goes in a RETURN addendum, since B's records are hash-bound.
+- **RV24-N4:** plan §7's screen claims check out. RV24's notes are carried to the split-out dense-screen slice:
+  - measure the refusing rows' pivots;
+  - enumerate class changes by running, not by prediction;
+  - treat the published `operation_count` change as a contract note.
+- **RV24-N5:** the cost reproduces (0.966 s at n = 6,006; the old search grows about ×16 per doubling). Recorded.
+- **Then:** RV24 confirms the new head, then CI, then DEC-025 on the final head, then GEN-8 and the merge. If KF3 merges first, KF2 merges main, and RV24's confirmation includes a merge check.

@@ -1,0 +1,139 @@
+"""RV24's mutants of KF2's `negative_pair_witness_counted` (reviewer's copies only).
+Usage: rv24_mutants.py <id> <structural.rs>. Each applies one edit inside the function.
+I20-* re-implement I20's recorded mutants (their mutants.py.txt) with the same edit text;
+RV24-* are the reviewer's own."""
+import sys
+
+FN_START = "fn negative_pair_witness_counted("
+FN_END = "\n// ------------------------------------------------------------------ K2b"
+
+CELLS = """            let cells = [
+                (j, j, sign, sign),
+                (j, i, sign, 1.0),
+                (i, j, 1.0, sign),
+                (i, i, 1.0, 1.0),
+            ];"""
+LOOP = """            for (a, b, da, db) in cells {
+                if prepared.matrix[a][b] == 0.0 {
+                    continue;
+                }
+                let original = radix_scale(
+                    system.stiffness[system.free_dofs[a]][system.free_dofs[b]],
+                    prepared.scale_exponents[a] + prepared.scale_exponents[b],
+                )?;
+                let term = checked_product(checked_product(da, original)?, db)?;
+                energy = checked_value(energy + term)?;
+                magnitude = checked_value(magnitude + term.abs())?;
+                terms += 1;
+            }"""
+LOOP_SWALLOW = """            let mut failed = false;
+            for (a, b, da, db) in cells {
+                if prepared.matrix[a][b] == 0.0 {
+                    continue;
+                }
+                let step = (|| -> Result<(f64, f64), StructuralError> {
+                    let original = radix_scale(
+                        system.stiffness[system.free_dofs[a]][system.free_dofs[b]],
+                        prepared.scale_exponents[a] + prepared.scale_exponents[b],
+                    )?;
+                    let term = checked_product(checked_product(da, original)?, db)?;
+                    Ok((checked_value(energy + term)?, checked_value(magnitude + term.abs())?))
+                })();
+                match step {
+                    Ok((e, m)) => {
+                        energy = e;
+                        magnitude = m;
+                    }
+                    Err(_) => {
+                        failed = true;
+                        break;
+                    }
+                }
+                terms += 1;
+            }
+            if failed {
+                continue;
+            }"""
+
+MUTANTS = {
+    "NONE": [],
+    # ---- I20's (their mutants.py.txt, same edit text)
+    "I20-M1": [("            visited += 1;\n",
+                "            if (i, j) == (1, 0) {\n                continue;\n            }\n            visited += 1;\n")],
+    "I20-M2": [(CELLS, """            let cells = [
+                (i, i, 1.0, 1.0),
+                (i, j, 1.0, sign),
+                (j, i, sign, 1.0),
+                (j, j, sign, sign),
+            ];""")],
+    "I20-M3p": [("gamma(3 * terms + 2)", "gamma(3 * terms + 1)")],
+    "I20-M5": [("            visited += 1;\n",
+                "            if prepared.matrix[i][j] == 0.0 {\n                continue;\n            }\n            visited += 1;\n")],
+    "I20-M6": [("if prepared.matrix[i][j] >= 0.0 {", "if prepared.matrix[i][j] > 0.0 {")],
+    "I20-M10": [("""                if prepared.matrix[a][b] == 0.0 {
+                    continue;
+                }
+""", "")],
+    # ---- RV24's own
+    # the two coupling cells swapped (the diagonals keep their places)
+    "RV24-M1": [(CELLS, """            let cells = [
+                (j, j, sign, sign),
+                (i, j, 1.0, sign),
+                (j, i, sign, 1.0),
+                (i, i, 1.0, 1.0),
+            ];""")],
+    # the sign computed from the transposed entry
+    "RV24-M2": [("if prepared.matrix[i][j] >= 0.0 {", "if prepared.matrix[j][i] >= 0.0 {")],
+    # the guard's error swallowed and the pair skipped
+    "RV24-M3": [(LOOP, LOOP_SWALLOW)],
+    # `terms` counted on zero cells (before the zero test)
+    "RV24-M4a": [("""                if prepared.matrix[a][b] == 0.0 {
+                    continue;
+                }
+""", """                terms += 1;
+                if prepared.matrix[a][b] == 0.0 {
+                    continue;
+                }
+"""), ("""                magnitude = checked_value(magnitude + term.abs())?;
+                terms += 1;
+""", """                magnitude = checked_value(magnitude + term.abs())?;
+""")],
+    # the allowance charges all four cells; the evaluated count is unchanged
+    "RV24-M4b": [("gamma(3 * terms + 2)", "gamma(3 * 4 + 2)")],
+    # the source cell read transposed
+    "RV24-M5": [("system.stiffness[system.free_dofs[a]][system.free_dofs[b]]",
+                 "system.stiffness[system.free_dofs[b]][system.free_dofs[a]]")],
+    # the exponent sum from one index
+    "RV24-M6": [("prepared.scale_exponents[a] + prepared.scale_exponents[b]",
+                 "prepared.scale_exponents[a] + prepared.scale_exponents[a]")],
+    # the verified direction's coupling sign flipped
+    "RV24-M7": [("                v[j] = sign;\n", "                v[j] = -sign;\n")],
+    # the magnitude sums signed terms (a more permissive guard)
+    "RV24-M8": [("magnitude = checked_value(magnitude + term.abs())?;",
+                 "magnitude = checked_value(magnitude + term)?;")],
+    # the energy and magnitude checks in the other order (both give the same message)
+    "RV24-M9": [("""                energy = checked_value(energy + term)?;
+                magnitude = checked_value(magnitude + term.abs())?;""",
+                 """                magnitude = checked_value(magnitude + term.abs())?;
+                energy = checked_value(energy + term)?;""")],
+}
+
+
+def edit(src, old, new):
+    start = src.index(FN_START)
+    end = src.index(FN_END, start)
+    body = src[start:end]
+    assert body.count(old) == 1, (old[:60], body.count(old))
+    return src[:start] + body.replace(old, new) + src[end:]
+
+
+if __name__ == "__main__":
+    if sys.argv[1] == "LIST":
+        print(" ".join(MUTANTS))
+        sys.exit(0)
+    mutant, path = sys.argv[1], sys.argv[2]
+    src = open(path).read()
+    for old, new in MUTANTS[mutant]:
+        src = edit(src, old, new)
+    open(path, "w").write(src)
+    print(mutant, "applied", len(MUTANTS[mutant]), "edit(s)")

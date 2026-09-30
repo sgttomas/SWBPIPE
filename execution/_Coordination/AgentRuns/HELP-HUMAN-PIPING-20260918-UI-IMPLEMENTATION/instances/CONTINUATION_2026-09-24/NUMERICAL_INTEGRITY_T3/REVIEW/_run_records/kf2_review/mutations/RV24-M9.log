@@ -1,0 +1,66 @@
+== mutant RV24-M9 2026-09-30T03:54:26Z
+21:54  up 2 days,  2:41, 1 user, load averages: 5.13 6.15 6.43
+RV24-M9 applied 1 edit(s)
+--- <wt>/rv24/head/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs	2026-09-29 21:22:07
++++ <wt>/rv24-mut/RV24-M9/core/solver/frame_kernel/src/structural.rs	2026-09-29 21:54:26
+@@ -2243,8 +2243,8 @@
+                     prepared.scale_exponents[a] + prepared.scale_exponents[b],
+                 )?;
+                 let term = checked_product(checked_product(da, original)?, db)?;
+-                energy = checked_value(energy + term)?;
+                 magnitude = checked_value(magnitude + term.abs())?;
++                energy = checked_value(energy + term)?;
+                 terms += 1;
+             }
+             evaluated += terms;
+@@ -3044,3 +3044,5 @@
+         assert!(factor_structural_profile(&prepared, &[0, 1], &[0, 1]).is_err());
+     }
+ }
++#[cfg(test)]
++mod rv24_probe;
+build_exit 0
+
+running 26 tests
+test structural::kf2_witness_tests::kf2_cells_follow_the_prepared_matrix_not_the_source ... ok
+test structural::kf2_witness_tests::kf2_corrupted_shapes_and_sources_match_the_reference ... ok
+test structural::kf2_witness_tests::kf2_cost_bound_at_6006_dofs ... ignored, KF2 T6: release-only cost test (n = 6,006); run with --release -- --ignored
+test structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness ... ok
+test structural::kf2_witness_tests::kf2_first_error_depends_on_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict ... ok
+test structural::kf2_witness_tests::kf2_cost_counts_on_a_100_member_chain ... ok
+test structural::kf2_witness_tests::kf2_reference_verifier_is_todays_verifier ... ok
+test structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge ... ok
+test structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs ... ok
+test structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference ... ok
+test structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited ... ok
+test structural::rv24_probe::rv24_adversarial_cases ... ok
+test structural::rv24_probe::rv24_built_random_systems ... ok
+test structural::rv24_probe::rv24_corrupted_random_systems ... ok
+test structural::rv24_probe::rv24_cost_scaling_release ... ignored, RV24 cost observation: release only
+test structural::rv24_probe::rv24_edge_scans_every_term_count ... ok
+test structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several ... ok
+test structural::rv24_probe::rv24_oracle_is_the_base_verifier_on_arbitrary_directions ... ok
+test structural::rv24_probe::rv24_skewed_order_sensitive_pairs ... ok
+test structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification ... ok
+test structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs ... ok
+test structural::sparse::tests::krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::tests::krev04_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::rv24_probe::rv24_large_built_systems ... ok
+
+test result: ok. 24 passed; 0 failed; 2 ignored; 0 measured; 332 filtered out; finished in 21.68s
+
+lib_exit 0 seconds 22
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/rv24-mut/RV24-M9/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.77s
+     Running tests/s11_site_table.rs (<wt>/rv24-mut/RV24-M9/target/debug/deps/s11_site_table-c8ba14d9f767e011)
+
+running 3 tests
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+site_exit 0

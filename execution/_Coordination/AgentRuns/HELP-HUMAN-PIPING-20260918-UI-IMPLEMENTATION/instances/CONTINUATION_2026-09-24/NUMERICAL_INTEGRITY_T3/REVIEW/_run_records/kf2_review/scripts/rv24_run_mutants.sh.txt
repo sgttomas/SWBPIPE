@@ -1,0 +1,39 @@
+#!/bin/bash
+# RV24 mutation runs: per mutant, a clean copy of the head's core (from the reviewer's git
+# archive of f2b8c85a2) with the reviewer's probe mounted (rv24_probe.rs, rv24_old_fns.rs and one
+# `mod rv24_probe;` line), one edit (rv24_mutants.py), its own target; one at a time; copy and
+# target deleted afterwards. Tests: FK's lib filtered to I20's kf2_, krev04 and k1_negative_witness
+# tests and the reviewer's rv24_ tests (one binary, under a 1,200 s alarm), then FKT/s11_site_table.
+set -u
+WT=$1; SP=$2; shift 2
+OUT=$SP/mut
+mkdir -p $OUT
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2
+for m in "$@"; do
+  D=$WT/rv24-mut/$m
+  L=$OUT/$m.log
+  rm -rf "$D"; mkdir -p "$D"
+  cp -R $WT/rv24/head/projects/chirality-piping/core "$D/"
+  FK=$D/core/solver/frame_kernel
+  cp $SP/rv24_probe.rs $SP/rv24_old_fns.rs $FK/src/structural/
+  printf '#[cfg(test)]\nmod rv24_probe;\n' >> $FK/src/structural.rs
+  { echo "== mutant $m $(date -u +%FT%TZ)"; uptime; } > "$L"
+  python3 $SP/rv24_mutants.py "$m" "$FK/src/structural.rs" >> "$L" 2>&1
+  diff -u "$WT/rv24/head/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs" "$FK/src/structural.rs" | sed "s#$WT#<wt>#g" >> "$L"
+  (cd "$FK" && CARGO_TARGET_DIR="$D/target" cargo test --offline --locked -j 4 --lib --no-run) > "$OUT/$m.build.log" 2>&1
+  echo "build_exit $?" >> "$L"
+  BIN=$(grep -o 'Executable unittests src/lib.rs ([^)]*)' "$OUT/$m.build.log" | sed 's/.*(\(.*\))/\1/')
+  T0=$(date +%s)
+  case "$BIN" in /*) ;; *) BIN="$FK/$BIN";; esac
+  (cd "$FK" && perl -e 'alarm 1200; exec @ARGV' "$BIN" kf2_ krev04 k1_negative_witness rv24_) > "$OUT/$m.test.raw" 2>&1
+  RC=$?
+  grep -v "^RV24 " "$OUT/$m.test.raw" >> "$L"
+  grep "^RV24 " "$OUT/$m.test.raw" > "$OUT/$m.rv24.txt"
+  rm -f "$OUT/$m.test.raw"
+  echo "lib_exit $RC seconds $(( $(date +%s) - T0 ))" >> "$L"
+  (cd "$FK" && CARGO_TARGET_DIR="$D/target" cargo test --offline --locked -j 4 --test s11_site_table) >> "$L" 2>&1
+  echo "site_exit $?" >> "$L"
+  sed -i '' "s#$WT#<wt>#g; s#$SP#<scratch>/rv24#g; s#$HOME#<home>#g" "$L" "$OUT/$m.build.log" "$OUT/$m.rv24.txt"
+  rm -rf "$D"
+  echo "$m done: $(grep -E '^(build|lib|site)_exit' "$L" | tr '\n' ' ') failed: $(grep -E '^test .* FAILED$' "$L" | sed 's/^test //; s/ \.\.\. FAILED//' | tr '\n' ' ')"
+done
