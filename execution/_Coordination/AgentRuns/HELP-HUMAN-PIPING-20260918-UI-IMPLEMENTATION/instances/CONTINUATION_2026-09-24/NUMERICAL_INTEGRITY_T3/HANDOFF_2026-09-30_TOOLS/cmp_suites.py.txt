@@ -1,0 +1,33 @@
+# DEC-025 suite comparison, keyed by manifest path (ROOT, T3; used for K4 to K6b's merges).
+# Usage: python3 cmp_suites.py <baseline>/suites <candidate>/suites "<baseline label>" "<candidate label>"
+# Each argument is a dec025_mac.sh log directory's suites/ folder (one NNN_<manifest>.log per
+# manifest). The positional NNN_ index is dropped, because a slice that adds a manifest shifts it.
+# Prints every manifest whose (passed, failed, ignored) totals or failing-test names differ, then
+# both sides' failing tests. On the Mac the expected failures are product_physics's
+# s11g_tests::t13_committed_fallback_uz_is_byte_identical and runner_headless's two
+# load_reference tests (platform bytes; see PLATFORM_CALIBRATION_MAC).
+import re, sys, os
+def load(d):
+    out = {}
+    for f in sorted(os.listdir(d)):
+        if not f.endswith('.log'): continue
+        key = re.sub(r'^\d+_', '', f)
+        txt = open(os.path.join(d, f), errors='replace').read()
+        txt = re.sub(r'\x1b\[[0-9;]*m', '', txt)
+        p = fl = ig = 0; seen = False
+        for m in re.finditer(r'test result: \w+\. (\d+) passed; (\d+) failed; (\d+) ignored', txt):
+            seen = True; p += int(m.group(1)); fl += int(m.group(2)); ig += int(m.group(3))
+        fails = sorted(set(re.findall(r'^test (\S+) \.\.\. FAILED', txt, re.M)))
+        out[key] = ((p, fl, ig) if seen else None, fails)
+    return out
+b, c = load(sys.argv[1]), load(sys.argv[2])
+print(f"baseline: {sys.argv[3]}"); print(f"candidate: {sys.argv[4]}")
+print("keys: manifest path (the positional index is dropped)"); print()
+for k in sorted(set(b) | set(c)):
+    bb, cc = b.get(k, (None, None)), c.get(k, (None, None))
+    if bb != cc:
+        print(f"CHANGED {k}: base {bb[0]} -> cand {cc[0]}; base fails {bb[1]}; cand fails {cc[1]}")
+print()
+print("candidate failing:", [(k, v[1]) for k, v in sorted(c.items()) if v[1]])
+print("baseline failing:", [(k, v[1]) for k, v in sorted(b.items()) if v[1]])
+print("manifests:", len(b), len(c))
