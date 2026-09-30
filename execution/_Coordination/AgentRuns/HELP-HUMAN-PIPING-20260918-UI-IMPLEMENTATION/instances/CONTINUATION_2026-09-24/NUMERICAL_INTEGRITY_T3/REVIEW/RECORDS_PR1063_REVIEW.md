@@ -240,3 +240,73 @@ The owner statements (ON:16, :166, :167) are N6.
   - `gen8.out.txt`, `README.txt` and `SHA256SUMS`.
 
   The host-name patterns for the leak scan lived only in my session scratch.
+
+## Delta check at 95bb2e700
+
+**Delta verdict: PASS, with one new SHOULD-FIX (D1) to fix before merge, and 3 NOTEs.** S1 and S2 are fixed, and both now agree with the records. N1–N10 are handled as ROOT's ruling says. Main's text is only inserted into, and every SHA256SUMS verifies. GEN-8 passes. The review's verdict stands: PASS.
+
+D1 is my own error carried forward. My N7 said DEC-025 on the exact head "is what every Mac-era record did (RV25 §5)", but RV25 §5 covered only the nine merge records from K5 on. ROOT's fix turned that into a stronger claim, and two records of 2026-09-28 contradict it. My N7 wording (§6 and N7 above) is corrected here, not rewritten.
+
+- **Mechanism:** ROOT resumed me for this check. I am still a background subagent of ROOT's session, with no delegation, no Git writes and no index operations.
+- **The head:** `95bb2e7002a6a519199172615c1e0a00821a3287`, PR #1063's `headRefOid`. It has one parent, `21e2285e3`, the head I reviewed. `origin/main` is still `490b75bd9`.
+- **The commit changes 17 paths, all under `_Coordination/`:**
+  - 13 added: my review and its 12 run-record files;
+  - 4 modified: the notes, the handoff, `V1` and I21.
+- **My files are byte-identical to what I returned:** the review is `60813369e84f3a2b…`, and SHA256SUMS is `5ab47a89346287f1…`, 11/11 OK when run from the folder. All are at mode 100644.
+- **Records:** `_run_records/records_pr1063_review/delta_95bb2e700/`. That covers `delta_checks.sh.txt` and its output, RV25's three scripts re-run (append-only on the delta and against main, SUMS coverage, leak scan), and `gen8_delta.out.txt`.
+
+### Findings: resolution
+
+| ID | Status at `95bb2e700` | Evidence |
+|---|---|---|
+| S1 | **resolved** | ON:97: "its recorded runs span about 28 minutes (02:48–03:16Z). Gate part 1 took about 6.4 min per side, and part 2 about 7.5 min". The bracket flags the first draft's "a few hours" as a ROOT figure error (RV26-S1).<br>Against the records: 384 s and 382 s are 6.4 min; part 2 ran 03:06:53Z–03:14:24Z, which is 7.5 min including the 180 s load wait. |
+| S2 | **resolved** | ON:124-128 lists the four process slips, each with a site that exists:<br>• `V1` :1152, :1539 and :1894 (rulings left in messages);<br>• :2457 and handoff §7.2 item 2 (the merge request);<br>• §7.2 item 7 (the work graph);<br>• §7.2 item 6 (the main move).<br>ON:122 adds RV26-S1 to the error count. ON:133 now reads "went wrong twice", with RV25-D2. |
+| N1 | resolved, with D2 | ON:143 adds RV26-S1/S2 and names RV11, RV13, RV14, RV16, RV17, RV18 and RV19. |
+| N2 | resolved | ON:92: 17–24 min. ON:93: about 40–80 min. |
+| N3 | resolved, with D3 | ON:83: "no swap partition; macOS showed about 1 GiB of dynamic swap in use". |
+| N4 | resolved | (a) ON:48 now reads §3.<br>(b) ON:74: "a clean auto-merge checked the same way".<br>(c) ON:109: "the last is ROOT's own".<br>(d) ON:149: "routed to a separate slice, not yet scheduled".<br>(e) ON:158: zsh's `=` expansion. This session's own `echo =====` in zsh failed with "==== not found".<br>(f) ON:167: start and end times. |
+| N5, N6 | resolved as ruled | ON:7 adds a "Sources" note. ON:18 and ON:172-173 mark the owner's words as said in this session and not otherwise recorded. The ruling gives its reason for not adding them to `OWNER_DIRECTION.md` (`V1:3069`). Both remedies I offered are acceptable. See D4 for the Sources list. |
+| N7 | resolved, but see **D1** | Handoff :148 now reads "OPERATING_NOTES_FOR_LOCAL_ROOT §2", an insert-only edit. ON:5 now states the two divergences, and one of them is wrong (D1). |
+| N8 | I21 part resolved | I21:67 is an inserted Required-tests line: "Record every mutant's patch as `_run_records/**/mutants/<id>.diff`". The other two parts are not mentioned (D4). |
+| N9 | handoff part resolved | Handoff :236 is an insert-only line saying the inventory is partial, and naming the missing targets, `k4-rv19`, `k4-rv19d` and the `*-mut` folders. See D4 for what it still omits. |
+| N10 | resolved | `V1:3042` gains an insert-only bracket: D3 was fixed in the PR body, and the final review is `0ab9812e…`. |
+
+### Main's text is only inserted into
+
+`append_only_vs_main.out.txt` checks the head against main `490b75bd9`:
+- `V1` keeps main's 3,035 lines and appends 40. The :3042 bracket is in text this PR added.
+- `RECORDS_PR1062_REVIEW.md` and RV25's SHA256SUMS still only append.
+- The handoff's three changes are insert-only: :4-5, the `_FOR_LOCAL_ROOT` insertion at :148, and the new line at :236.
+- `WG:62` is insert-only.
+- I21 gains one inserted line (:67).
+
+`append_only_delta.out.txt` shows the rewordings are confined to `OPERATING_NOTES_2026-09-30.md`, which is new in this PR.
+
+### Hashes, leaks, GEN-8 and CI
+
+- **SHA256SUMS** (`sums_coverage_95bb2e700.out.txt` and `delta_checks.out.txt` §2):
+  - mine, 11/11;
+  - RV25's, 34/34;
+  - main's `REVIEW/_run_records/`, 76/76 from `REVIEW/`.
+
+  The 7 changed paths that no sums file lists are the notes, the handoff, `V1`, `WG`, I21 and the two reviews, as on main.
+- **Leak scan over the 17 changed paths:** 0 hits in every class, including the run-time host patterns.
+- **GEN-8 passes at `95bb2e700`** (`gen8_delta.out.txt`): 1 passed and 10 deselected. It was run twice:
+  - on a clean tree, with `git status` empty;
+  - again with this section and `delta_95bb2e700/` present.
+- **Hosted CI on `95bb2e700`:** 7 passed and 6 were skipped, the records-only selection. The runs are 36715479547, 36715479472, 36715479324 and 36715479441, all `pull_request` on the head.
+
+### Delta findings
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| D1 | SHOULD-FIX | `ON:5` ("And this week DEC-025 was always run on each slice's exact final head, never carried over from an earlier head"); my own N7 (§6 and the N7 row above: "which is what every Mac-era record did (RV25 §5)") | **Two merges this week carried DEC-025 over from an earlier head.**<br>• **M03 skew pin (#1038, merged 2026-09-28):** swept on `1d105d633`; the final head is `5dd6dfdd8`. The record says "The evidence stands for `5dd6dfdd8`, since that head changes only records" (`M03_SKEW_PIN_MERGE/RECORD.md:31`, `:40`).<br>• **K3 (#1041, merged 2026-09-28):** swept on `b7e93650e`; the final head is `2511f5a3c`. Two commits followed the sweep head, `e62837f7e` ("tests only", FK) and `2511f5a3c` (records) (`K3_MERGE/RECORD.md:37`).<br>• **Every other record from K1 to KF2 swept its exact final head** (`delta_checks.out.txt` §4).<br>**Where the error came from:** my N7 generalized RV25 §5, which covered the nine records from K5 on, to "every Mac-era record". The claim matters because it describes when the 2026-09-28 carry-over rule was used: it was used twice. | Reword ON:5, for example: "From K5 (2026-09-29) on, DEC-025 was run on each slice's exact final head. On 2026-09-28, M03's and K3's sweeps were carried to a later head (records only; tests and records), as their merge records disclose."<br>My N7 wording is corrected by this row. |
+| D2 | NOTE | `ON:143` | "This week that covered RV20-1 … Earlier, RV11, RV13, RV14, RV16, RV17, RV18 and RV19's …". RV11 to RV19 were also this week (2026-09-28 and 29), so "Earlier" reads as before this week. | Optional: "This week: RV11, RV13, RV14, RV16, RV17, RV18 and RV19's findings, then RV20-1, …". |
+| D3 | NOTE | `ON:83` | "about 1 GiB of dynamic swap in use". `vm.swapusage` gives a total of 1024 M, of which 228.75 M is used, so about 1 GiB is allocated and about 0.2 GiB is in use. | Optional: "about 1 GiB of dynamic swap allocated, about 0.2 GiB in use". |
+| D4 | NOTE | `ON:7`; `ON:15`; `ON:115`; handoff :236 | **Parts of the NOTEs are left, and the ruling does not mention them. All are optional.**<br>• **ON:7's Sources list reads as complete.** Other claims also rest on session experience: the compactions (:15), "line by line" (:38), the PR bar, the completion-notice wording, the `rm` check and `.output` files.<br>• **N8's other two parts:** no reviewer-prompt template is committed, and ON:15 still says to take the next numbers from `TASK_BRIEFS/` and `REVIEW/` (next: I22, RV27).<br>• **N9's note at ON:115** (formerly :113) is unchanged.<br>• **Handoff :236** still omits `k2b-target` and the scratch reviewer folders (`scratch/rv{7,9,10,12,14,17}`). `du -sh <wt>/*/` does not list scratch's subfolders. | Optional: "for example" in ON:7, and a line in the next rulings section recording what was left. |
+
+### What I did not do in the delta
+
+- **Not re-checked:** the first review's checks outside the delta. The merge records, the durations and the named findings are unchanged by `95bb2e700`.
+- **Runs:** GEN-8 twice at the head; read-only `git`, `gh`, `shasum` and `sysctl`.
+- **Writes:** this appended section and `delta_95bb2e700/` (7 files). SHA256SUMS is extended by appending their entries; its 11 existing lines are unchanged. All are uncommitted.

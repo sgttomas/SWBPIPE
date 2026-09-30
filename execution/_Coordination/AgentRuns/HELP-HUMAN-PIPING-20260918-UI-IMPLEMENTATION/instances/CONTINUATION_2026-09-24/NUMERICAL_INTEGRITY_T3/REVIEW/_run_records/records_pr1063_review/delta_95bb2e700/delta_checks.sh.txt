@@ -1,0 +1,60 @@
+#!/bin/bash
+# RV26: delta check of records PR #1063 at 95bb2e700 (one commit on 21e2285e3).
+# Usage, from the repository root of the numerics working tree at 95bb2e700:
+#   bash delta_checks.sh.txt
+# Read-only: git show/diff/rev-list/ls-tree, gh pr/run view, shasum, sysctl. No writes.
+# Other outputs in this folder come from RV25's committed scripts (unchanged):
+#   append_only_delta.out.txt        append_only.py.txt 21e2285e3 95bb2e700
+#   append_only_vs_main.out.txt      append_only.py.txt 490b75bd9 95bb2e700
+#   sums_coverage_95bb2e700.out.txt  sums_coverage.py.txt 490b75bd9 95bb2e700 <_Coordination>
+#   leak_scan_delta.out.txt          leak_scan.py.txt 21e2285e3 95bb2e700 (host patterns at run time)
+set -u
+OLD=21e2285e30d47113a4d4dceae71c60696f1832ab; NEW=95bb2e7002a6a519199172615c1e0a00821a3287
+T3=projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3
+O=$T3/REVIEW/_run_records/records_pr1063_review
+ON=$T3/OPERATING_NOTES_2026-09-30.md
+REPO=sgttomas/chirality
+
+echo "== 1. The commit"
+gh pr view 1063 --repo $REPO --json headRefOid --jq '"   PR head \(.headRefOid[0:10])"'
+echo "   parents of NEW: $(git rev-list --parents -n1 $NEW | cut -d' ' -f2- | cut -c1-10)"
+git diff --name-status $OLD $NEW | awk '{print $1}' | sort | uniq -c | sed 's/^/   /'
+echo "   paths outside _Coordination: $(git diff --name-only $OLD $NEW | grep -vc '^projects/chirality-piping/execution/_Coordination/')"
+echo "   RV26's review as committed: $(git show $NEW:$T3/REVIEW/RECORDS_PR1063_REVIEW.md | shasum -a 256 | cut -c1-16) (returned 60813369e84f3a2b)"
+echo "   RV26's SHA256SUMS as committed: $(git show $NEW:$O/SHA256SUMS | shasum -a 256 | cut -c1-16) (returned 5ab47a89346287f1)"
+echo "   modes of RV26's folder: $(git ls-tree $NEW $O/ | awk '{print $1}' | sort | uniq -c | tr -s ' ')"
+
+echo "== 2. shasum -c from each folder (working tree)"
+( cd $O && shasum -a 256 -c SHA256SUMS 2>&1 | awk '{print $NF}' | sort | uniq -c | sed 's/^/   records_pr1063_review: /' )
+( cd $T3/REVIEW/_run_records/records_pr1062_review && shasum -a 256 -c SHA256SUMS 2>&1 | awk '{print $NF}' | sort | uniq -c | sed 's/^/   records_pr1062_review: /' )
+( cd $T3/REVIEW && shasum -a 256 -c _run_records/SHA256SUMS 2>&1 | awk '{print $NF}' | sort | uniq -c | sed 's/^/   REVIEW\/_run_records (from REVIEW\/): /' )
+
+echo "== 3. The fix sites in the notes at NEW"
+for p in 'recorded runs span about 28 minutes' 'about 6.4 min per side' '(RV26-S1).]' 'several process slips' ':1152, :1539, :1894' ':2457; handoff' '(§7.2 item 7)' '(§7.2 item 6)' 'went wrong twice' 'RV25-D2' 'RV26-N1' '17–24' 'about 40–80' 'dynamic swap' '(§3).' 'a clean auto-merge' "the last is ROOT's own" 'not yet scheduled' "zsh's \`=\` expansion" 'start and end times' '**Sources.**' 'not otherwise recorded' 'RV26-N7' 'exact final head'; do
+  echo "   ON:$(git show $NEW:$ON | grep -nF -- "$p" | cut -d: -f1 | tr '\n' ',' | sed 's/,$//')  \"$p\""
+done
+
+echo "== 4. N7's new claim: 'this week DEC-025 was always run on each slice's exact final head'"
+echo "   (the DEC-025 meta.txt head against the PR's final head, for every merge record since the 2026-09-28 handoff)"
+for s in K1:1034 M03_SKEW_PIN:1038 K2B:1040 K3:1041 K5:1044 F1B:1052 K6:1053 K4:1054 KF1:1056 VK:1057 K6B:1058 KF3:1059 KF2:1060; do
+  n=${s%%:*}; p=${s##*:}
+  h=$(grep -oE 'head [0-9a-f]{40}' $T3/IMPLEMENTATION/${n}_MERGE/dec025/meta.txt 2>/dev/null | head -1 | cut -c6-15)
+  read -r ph ma <<<"$(gh pr view $p --repo $REPO --json headRefOid,mergedAt --jq '"\(.headRefOid[0:10]) \(.mergedAt)"')"
+  if [ "$h" = "$ph" ]; then r=same; else r="EARLIER HEAD ($(git log --oneline $h..$ph | wc -l | tr -d ' ') later commits)"; fi
+  echo "   $n #$p merged $ma: sweep ${h:-none} | final $ph | $r"
+done
+echo "   M03_SKEW_PIN_MERGE/RECORD.md :31, :40:"
+sed -n '31p;40p' $T3/IMPLEMENTATION/M03_SKEW_PIN_MERGE/RECORD.md | cut -c1-200 | sed 's/^/      /'
+echo "   K3_MERGE/RECORD.md :37 and the commits after the sweep head:"
+sed -n '37p' $T3/IMPLEMENTATION/K3_MERGE/RECORD.md | cut -c1-200 | sed 's/^/      /'
+git log --format='      %h %s' b7e93650e..2511f5a3c
+echo "   RV26's own N7 wording (the source of the claim; the review is committed at NEW):"
+git show $NEW:$T3/REVIEW/RECORDS_PR1063_REVIEW.md | grep -nF 'every Mac-era record did' | cut -c1-200 | sed 's/^/      at NEW: /'
+
+echo "== 5. Host swap (N3's wording)"
+echo "   $(sysctl vm.swapusage)"
+
+echo "== 6. Hosted CI on NEW"
+for r in $(gh run list --repo $REPO --commit $NEW --json databaseId --jq '.[].databaseId'); do
+  gh run view $r --repo $REPO --json workflowName,event,headSha,conclusion --jq "\"   $r \(.workflowName) | \(.event) | \(.headSha[0:10]) | \(.conclusion)\""
+done

@@ -2,9 +2,9 @@
 
 > **Practice notes, not rulings.** Where these touch a ruling, `ROOT_RULINGS_V1.md` governs.
 >
-> This succeeds `OPERATING_NOTES_FOR_LOCAL_ROOT.md` (2026-09-28), which stays valid except where the handoff's §7 or this file differs (RV26-N7). There is no separate T3 manager now: ROOT did that work. And this week DEC-025 was always run on each slice's exact final head, never carried over from an earlier head. It complements `HANDOFF_2026-09-30_AUDIT_PAUSE.md`. The handoff gives the **state** and the **mechanics** (commands, paths, gates). This file gives the **practice**: how the work was actually run day to day, the judgment calls, what went wrong and why, and what a successor would otherwise have to re-learn.
+> This succeeds `OPERATING_NOTES_FOR_LOCAL_ROOT.md` (2026-09-28), which stays valid except where the handoff's §7 or this file differs (RV26-N7). There is no separate T3 manager now: ROOT did that work. And from K5 (2026-09-29) on, DEC-025 ran on each slice's exact final head. On 2026-09-28, M03's and K3's sweeps were carried to a later head that changed only tests and records, as their merge records disclose (RV26 delta D1). Carrying a sweep over is allowed under the 2026-09-28 notes' rule, but running it on the exact head is simpler to audit. It complements `HANDOFF_2026-09-30_AUDIT_PAUSE.md`. The handoff gives the **state** and the **mechanics** (commands, paths, gates). This file gives the **practice**: how the work was actually run day to day, the judgment calls, what went wrong and why, and what a successor would otherwise have to re-learn.
 >
-> **Sources.** Most statements here cite committed records. A few rest on ROOT's session experience only: the resent grant, token usage, the number of concurrent subagents, and the owner's words in §9. They are not contradicted by the records, but they cannot be checked there (RV26-N5, N6).
+> **Sources.** Most statements here cite committed records. Some rest on ROOT's session experience only. Examples: the resent grant, token usage, the number of concurrent subagents, the owner's words in §9, and parts of §4's timings and §8's quirks. They are not contradicted by the records, but they cannot be checked there (RV26-N5, N6).
 >
 > **Readers:** the owner's auditor, and any agent that resumes T3 as ROOT. Placeholders follow the handoff's §0 (`<wt>`, `<VENV>`, `T3/`, `P/`).
 
@@ -13,6 +13,7 @@
 - **One ROOT, no manager.** On the Mac, ROOT (HELP_HUMAN, one Claude Code session) dispatched every TASK directly as a background subagent. ROOT also did the manager's work: it verified and committed every change, ran every PR, gate and merge, and wrote every ruling and merge record.
   - This worked, with up to four subagents at once.
   - The cost is ROOT's own attention and context. Long sessions were compacted several times, and the rulings file and the records were what made that survivable.
+- **The next free numbers are I22 and RV27** (I21 is reserved for K6c; RV26 reviewed records PR #1063).
 - **Implementers are numbered I<n>; reviewers RV<n>.** There is one fresh reviewer per slice PR and per records PR, and the same reviewer confirms its own findings' fixes.
   - The numbering continues: I21 is reserved for K6c. Take the next free numbers from `TASK_BRIEFS/` and `REVIEW/`.
 - **Everything durable goes in the repository.** Rulings, briefs, run records and reviews are committed. A message to an agent is not a record until the ruling it carries is committed where the agent can read it. That was the owner's instruction in this session; it is not otherwise recorded.
@@ -80,7 +81,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
   - a message "queued" to a running agent can land after it has ended its turn, and it then never sees it. I20's B grant had to be resent. **After granting work, look for evidence that it started.**
 - **Implementers' mutant diffs must be recorded** (the patch text, not just a description). RV23 had to rebuild five of I19's mutants from descriptions. Ask for `_run_records/**/mutants/<id>.diff` in every brief.
 
-## 4. The host and the clock (observed on this Mac: 18 cores, 128 GiB, no swap partition; macOS showed about 1 GiB of dynamic swap in use, RV26-N3)
+## 4. The host and the clock (observed on this Mac: 18 cores, 128 GiB, no swap partition; macOS showed about 1 GiB of dynamic swap allocated, about 0.2 GiB in use, RV26-N3)
 
 - **Rough durations.** Plan around these; they were observed with other work running.
 
@@ -112,12 +113,23 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
   - RV23-1, refusals dropped on a stop;
   - RV24-1, three regressions surviving the committed tests;
   - RV25-S1 and S2, ROOT's own figures.
-- **Reviewers build from `git archive <exact commit>`** in their own `<wt>/rv<n>*/` folders, and delete them afterwards. They write their report **uncommitted** into the numerics worktree, and ROOT commits only their paths (`git add <their files>`), because several agents write to that worktree at once.
+- **Reviewers build from `git archive <exact commit>`** in their own `<wt>/rv<n>*/` folders, and delete them afterwards. From RV23 on they did; some earlier reviewers' folders remain (handoff §9). They write their report **uncommitted** into the numerics worktree, and ROOT commits only their paths (`git add <their files>`), because several agents write to that worktree at once.
 - **Records reviewers** check four things:
   - scope;
   - append-only against main (in-place brackets are listed and checked);
   - every SHA256SUMS;
   - merge records against GitHub, and a sample of ROOT's figures against their sources. **This is where ROOT's own errors were caught.**
+- **The reviewer prompts for RV19 to RV26 were given inline, and not committed** (RV26-N8). Their shape, to reuse:
+  1. Role and independence: "You did not write the code; don't rely on the implementer's tests as oracles."
+  2. The candidate: PR, exact head SHA, base, implementer.
+  3. Absolute paths: `<wt>`, T3/, `<VENV>`.
+  4. What to read first: `AGENTS.md`, `agents/AGENT_TASK.md`, `_COMMON.md`, the Mac host rules, the brief, the slice's rulings sections, the slice's RETURN and plan.
+  5. Review items in priority order, each naming the claim to break and the evidence to produce: independent oracles, a differential harness against a verbatim copy, single-edit mutants, and re-running a sample of the gate.
+  6. Host and method: `git archive` into `<wt>/rv<n>/`, own target, one cargo job at `-j 4`, the memory guard, no Git writes.
+  7. Output: `T3/REVIEW/<SLICE>_REVIEW.md` in the format of the last review (a verdict, counts, and a findings table with file:line, evidence and remedy), records in `T3/REVIEW/_run_records/<slice>_review/` with README and SHA256SUMS, placeholder paths only; ROOT commits.
+  8. "End with the verdict, the counts, one line per finding, the report's sha256, and anything ROOT must rule on."
+
+  Confirmations and delta checks reuse the same agent (`SendMessage`), listing exactly what changed and what to check.
 
 ## 6. ROOT's own errors, and the fix that works
 
@@ -140,7 +152,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
 
 ## 7. Judgment calls, and how they were made
 
-- **SHOULD-FIX findings are fixed before merge, even test-only ones,** where the fix costs less than a day. This week that covered RV20-1, RV21-1/2, RV22-1/2/3, RV23-1, RV24-1, RV25-S1/S2 and RV26-S1/S2. Earlier, RV11, RV13, RV14, RV16, RV17, RV18 and RV19's SHOULD-FIX findings were fixed before merge too (RV26-N1).
+- **SHOULD-FIX findings are fixed before merge, even test-only ones,** where the fix costs less than a day. This week that covered RV20-1, RV21-1/2, RV22-1/2/3, RV23-1, RV24-1, RV25-S1/S2 and RV26-S1/S2. Earlier in the same week, RV11, RV13, RV14, RV16, RV17, RV18 and RV19's SHOULD-FIX findings were fixed before merge too (RV26-N1).
   - The practice kept "review PASS" meaning something.
 - **A NOTE is left as a NOTE** unless one of these applies:
   - a test is cheap and protects a ruled decision (RV23-N1's precedence test);

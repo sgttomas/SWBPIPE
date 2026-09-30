@@ -3073,3 +3073,7 @@ RV26 (`REVIEW/RECORDS_PR1063_REVIEW.md`, sha256 `60813369…`; records `REVIEW/_
     - N9: the handoff's prune inventory is completed;
     - N10: a bracket in "Records PR #1062 merged".
 - **Then:** RV26's delta check, and the merge.
+- **RV26's delta check at `95bb2e700`: PASS,** with 1 new SHOULD-FIX (D1) and 3 NOTEs.
+  - **D1** is fixed in the notes: from K5 on, DEC-025 ran on each exact final head. On 2026-09-28, M03's and K3's sweeps were carried to a tests-and-records-only head, as their merge records disclose.
+  - D2 to D4 are also fixed, in the notes and in the handoff's inventory line, which is new in this PR. The notes gain the next free numbers and a reviewer-prompt shape, since no reviewer prompt has been committed since RV13.
+  - Then RV26's short confirmation, and the merge.

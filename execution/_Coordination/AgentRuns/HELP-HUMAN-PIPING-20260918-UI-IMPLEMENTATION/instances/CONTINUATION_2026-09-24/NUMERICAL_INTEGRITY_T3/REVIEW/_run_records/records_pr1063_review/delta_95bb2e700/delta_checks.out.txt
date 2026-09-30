@@ -1,0 +1,69 @@
+== 1. The commit
+   PR head 95bb2e7002
+   parents of NEW: 21e2285e30
+     13 A
+      4 M
+   paths outside _Coordination: 0
+   RV26's review as committed: 60813369e84f3a2b (returned 60813369e84f3a2b)
+   RV26's SHA256SUMS as committed: 5ab47a89346287f1 (returned 5ab47a89346287f1)
+   modes of RV26's folder:  12 100644
+== 2. shasum -c from each folder (working tree)
+   records_pr1063_review:   11 OK
+   records_pr1062_review:   34 OK
+   REVIEW/_run_records (from REVIEW/):   76 OK
+== 3. The fix sites in the notes at NEW
+   ON:97  "recorded runs span about 28 minutes"
+   ON:97  "about 6.4 min per side"
+   ON:97  "(RV26-S1).]"
+   ON:124  "several process slips"
+   ON:125  ":1152, :1539, :1894"
+   ON:126  ":2457; handoff"
+   ON:127  "(§7.2 item 7)"
+   ON:128  "(§7.2 item 6)"
+   ON:133  "went wrong twice"
+   ON:133  "RV25-D2"
+   ON:143  "RV26-N1"
+   ON:92  "17–24"
+   ON:93  "about 40–80"
+   ON:83  "dynamic swap"
+   ON:48  "(§3)."
+   ON:74  "a clean auto-merge"
+   ON:109  "the last is ROOT's own"
+   ON:149  "not yet scheduled"
+   ON:158  "zsh's `=` expansion"
+   ON:167  "start and end times"
+   ON:7  "**Sources.**"
+   ON:18,172  "not otherwise recorded"
+   ON:5  "RV26-N7"
+   ON:5  "exact final head"
+== 4. N7's new claim: 'this week DEC-025 was always run on each slice's exact final head'
+   (the DEC-025 meta.txt head against the PR's final head, for every merge record since the 2026-09-28 handoff)
+   K1 #1034 merged 2026-09-28T05:31:50Z: sweep b6f1724b4a | final b6f1724b4a | same
+   M03_SKEW_PIN #1038 merged 2026-09-28T07:53:23Z: sweep 1d105d6337 | final 5dd6dfdd8f | EARLIER HEAD (1 later commits)
+   K2B #1040 merged 2026-09-28T12:05:31Z: sweep 33e33c723a | final 33e33c723a | same
+   K3 #1041 merged 2026-09-28T11:22:51Z: sweep b7e93650ea | final 2511f5a3c7 | EARLIER HEAD (2 later commits)
+   K5 #1044 merged 2026-09-29T03:18:22Z: sweep babcf5e658 | final babcf5e658 | same
+   F1B #1052 merged 2026-09-29T05:31:23Z: sweep 6fa4229792 | final 6fa4229792 | same
+   K6 #1053 merged 2026-09-29T09:52:09Z: sweep cd325c1fe8 | final cd325c1fe8 | same
+   K4 #1054 merged 2026-09-29T16:25:25Z: sweep 5a46a6278a | final 5a46a6278a | same
+   KF1 #1056 merged 2026-09-29T21:34:25Z: sweep 66adfede42 | final 66adfede42 | same
+   VK #1057 merged 2026-09-30T00:26:51Z: sweep 5f0d394262 | final 5f0d394262 | same
+   K6B #1058 merged 2026-09-30T01:08:38Z: sweep 597c81ba4b | final 597c81ba4b | same
+   KF3 #1059 merged 2026-09-30T05:28:58Z: sweep aa83f67969 | final aa83f67969 | same
+   KF2 #1060 merged 2026-09-30T06:08:13Z: sweep 522167ac62 | final 522167ac62 | same
+   M03_SKEW_PIN_MERGE/RECORD.md :31, :40:
+      - **DEC-025**, under the owner's Mac decision (`OWNER_DIRECTION.md`, 2026-09-28), on `1d105d633`; the evidence is in `dec025/`:
+        - The evidence stands for `5dd6dfdd8`, since that head changes only records (RV10's delta check).
+   K3_MERGE/RECORD.md :37 and the commits after the sweep head:
+      - **DEC-025,** under the owner's Mac decision (`OWNER_DIRECTION.md`, 2026-09-28), on `b7e93650e`; the evidence is in `dec025/`:
+      2511f5a3c7 T3: K3 RETURN addendum 2, RV12's findings (records)
+      e62837f7ed K3: RV12's test gaps: value assertions for the K4-facing API, and a tail-decides-tie class (tests only)
+   RV26's own N7 wording (the source of the claim; the review is committed at NEW):
+      at NEW: 187:    - their §1 lets an earlier DEC-025 sweep stand after a main merge that touches no piping, `tools/` or `.github/` path, while ON:59 runs DEC-025 "on that exact head", which is what every Mac-e
+== 5. Host swap (N3's wording)
+   vm.swapusage: total = 1024.00M  used = 228.75M  free = 795.25M  (encrypted)
+== 6. Hosted CI on NEW
+   36715479547 Piping Desktop E2E | pull_request | 95bb2e7002 | success
+   36715479472 Harness Pre-merge Validation | pull_request | 95bb2e7002 | success
+   36715479324 pec-tests | pull_request | 95bb2e7002 | success
+   36715479441 governance-harness | pull_request | 95bb2e7002 | success
