@@ -2628,7 +2628,7 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
 - **RV22-2:** E_max must be an upper bound on every phase.
   - Add the 1024 verification's live vectors (about 3n + 8n_f wide values, and `recover`'s output) and the shift's profile clone (`bound.rs:560`) to the verification phase.
   - Add the solve-phase fallback items (`abar_q`, `evaluated`, `rhs`, `u_free`, the per-state u) under the move model.
-  - Regenerate `counts.jsonl`, and state the change in RETURN: +5.4% on CHAIN and TREE and +2.1% on CONT at 10,000 members, and 0 at 1,000 or fewer. b3's admissions are unaffected.
+  - Regenerate `counts.jsonl`, and state the change in RETURN: +5.4% on CHAIN and TREE and +2.1% on CONT at 10,000 members, and 0 at 1,000 or fewer. b3's admissions are unaffected. [Correction (I16): the change at 1,000 members is +3.28% (CHAIN, TREE) and +2.33% (CONT), because under the move model the fallback's items outgrow the tracker term there; at 10 and 100 members and on the nine it is +0.04–0.22%. b3's admissions are still unaffected: 0 decisions change.]
 - **RV22-3:** add a test that recomputes every committed `counts.jsonl` line's E_max and E_sel128 from the code, and one that exercises the solve-phase terms at a size where they bind. Kill RV22-M6.
 
 **The NOTEs are recorded:** RETURN's load range, the move-model heap/E column, the adapter through K6's section formula, and the two further unstaged paths, which go to KF3. RV22-M5 (the binary's prefix parity always true) and RV22-M7 (the backstop against the RSS cap) are killed if cheap, and otherwise recorded; RV22-M2 is equivalent on single-case models.
@@ -2651,3 +2651,10 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - On main it ends `Unresolved(ExactSumSpan)`. Under KF3 it is selected at 128 with B = S_c, and is honest against GEN on 8,983 checks, the worst at 0.969 of its allowance, with G5a passing.
   - Its debug CI time is 38–64 s for the KF3 tests, which is accepted.
 - **B (the scale evidence) waits for V-K's merge,** which carries `retained_api` and `vk_scale` to main. ROOT then merges main into KF3, and I19 runs B with `vk_scale` built from a `git archive` of that merged head, in a slot ROOT grants.
+- **RV22's findings are closed** on the K6b branch.
+  - **RV22-1:** at most one short side on a stopped build.
+    - **I16's extension is accepted:** a stopped candidate that charged stop-rule work is held to equality. The decision runs only after its builds complete, and only that rule catches RV22's probe.
+  - **RV22-2:** E_max bounds every modelled phase. At 10,000 members it is 2.64–2.81 GiB, and b3's admissions are unchanged.
+  - **RV22-3:** tests recompute every committed line's estimate.
+  - Of the new mutants, 10 of 11 are killed. RV22-M5B, the binary's call site forced true, survives and is recorded: no binary run can produce a false prefix, and the library form (M5L) is killed.
+- **Then:** CI and the dispatch on the new head, DEC-025 after V-K's, GEN-8, RV22's confirmation, and the merge.
