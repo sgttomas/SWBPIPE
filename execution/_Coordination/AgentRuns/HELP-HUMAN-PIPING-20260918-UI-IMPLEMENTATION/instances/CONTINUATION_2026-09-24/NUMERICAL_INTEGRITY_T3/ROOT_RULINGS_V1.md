@@ -2658,3 +2658,17 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - **RV22-3:** tests recompute every committed line's estimate.
   - Of the new mutants, 10 of 11 are killed. RV22-M5B, the binary's call site forced true, survives and is recorded: no binary run can produce a false prefix, and the library form (M5L) is killed.
 - **Then:** CI and the dispatch on the new head, DEC-025 after V-K's, GEN-8, RV22's confirmation, and the merge.
+
+## V-K merged (ROOT, 2026-09-30)
+
+- **Merged:** [PR1057](https://github.com/sgttomas/chirality/pull/1057) at head `5f0d39426`, merge `f8400d290`, 2026-09-30 00:26:51Z. The merge record is `IMPLEMENTATION/VK_MERGE/RECORD.md`.
+- **The gates:**
+  - RV21 PASSED the review and confirmed the final head;
+  - hosted CI was green, and the dispatch (36646861753) succeeded;
+  - DEC-025 was clean: the only change is the new `numerical_robustness` (47 tests), and frame_kernel is unchanged at 402;
+  - GEN-8 passed.
+- **FK's `retained_api` export is now on main.** K6b's identical A0 merges cleanly.
+- **Next:**
+  - ROOT merges main into KF3 and K6b;
+  - KF3's B (the scale evidence) runs with main's `vk_scale`;
+  - K6b's gates continue.
