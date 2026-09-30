@@ -1,0 +1,1514 @@
+{
+ "rf_cancel": {
+  "cases": 38,
+  "charged": {
+   "at_max": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+   "max": 2412241,
+   "median": 1752966.0,
+   "min": 1698658
+  },
+  "outcomes": {
+   "Selected at 128": 38
+  },
+  "selected_precision": {
+   "128": 38
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 1632
+   },
+   "128/condition": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 147008
+   },
+   "128/factor": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 92964
+   },
+   "128/formation": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 54707
+   },
+   "128/recovery": {
+    "at_max": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "max": 8447
+   },
+   "128/refinement": {
+    "at_max": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "max": 35719
+   },
+   "128/residual_formation": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 56339
+   },
+   "128/rhs": {
+    "at_max": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "max": 160
+   },
+   "128/solve": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 18648
+   },
+   "128/stop_rule": {
+    "at_max": "RF-CANCEL-M-G1e5-GnG",
+    "max": 1142036
+   },
+   "256/assembly": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 1632
+   },
+   "256/bound": {
+    "at_max": "RF-CANCEL-M-G1e80-GnG",
+    "max": 952
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 55284
+   },
+   "256/charge": {
+    "at_max": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+    "max": 27608
+   },
+   "256/condition": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 154313
+   },
+   "256/estimate": {
+    "at_max": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "max": 31616
+   },
+   "256/factor": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 93036
+   },
+   "256/formation": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 54707
+   },
+   "256/recovery": {
+    "at_max": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+    "max": 8932
+   },
+   "256/refinement": {
+    "at_max": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+    "max": 44947
+   },
+   "256/residual_formation": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 185355
+   },
+   "256/rhs": {
+    "at_max": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "max": 160
+   },
+   "256/scale": {
+    "at_max": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+    "max": 4623
+   },
+   "256/solve": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 18648
+   },
+   "256/uc": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 25185
+   },
+   "256/wide_formation": {
+    "at_max": "RF-CANCEL-F-G1e5-GnG",
+    "max": 182643
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-CANCEL-M-G1e8-nGG",
+    "cases": 38,
+    "max": 1541802,
+    "median": 876083.0
+   },
+   "256": {
+    "at_max": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+    "cases": 38,
+    "max": 889346,
+    "median": 857599.0
+   }
+  }
+ },
+ "rf_chain": {
+  "cases": 30,
+  "charged": {
+   "at_max": "RF-CHAIN-A-n10-r1e-04",
+   "max": 9969108,
+   "median": 4684123.5,
+   "min": 2916025
+  },
+  "outcomes": {
+   "Selected at 128": 30
+  },
+  "selected_precision": {
+   "128": 30
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-CHAIN-T-n10-r1e-08",
+    "max": 7422
+   },
+   "128/condition": {
+    "at_max": "RF-CHAIN-A-n10-r1e-12",
+    "max": 695033
+   },
+   "128/factor": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 680863
+   },
+   "128/formation": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 276563
+   },
+   "128/recovery": {
+    "at_max": "RF-CHAIN-A-n10-r1e-04",
+    "max": 21882
+   },
+   "128/refinement": {
+    "at_max": "RF-CHAIN-A-n10-r1e-04",
+    "max": 50545
+   },
+   "128/residual_formation": {
+    "at_max": "RF-CHAIN-T-n10-r1e-08",
+    "max": 285401
+   },
+   "128/rhs": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 536
+   },
+   "128/solve": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 101730
+   },
+   "128/stop_rule": {
+    "at_max": "RF-CHAIN-A-n10-r1e-04",
+    "max": 2724823
+   },
+   "256/assembly": {
+    "at_max": "RF-CHAIN-T-n10-r1e-08",
+    "max": 7854
+   },
+   "256/bound": {
+    "at_max": "RF-CHAIN-A-n10-r1e-04",
+    "max": 2447
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-CHAIN-T-n10-r1e-08",
+    "max": 306307
+   },
+   "256/charge": {
+    "at_max": "RF-CHAIN-A-n10-r1e-08",
+    "max": 91027
+   },
+   "256/condition": {
+    "at_max": "RF-CHAIN-A-n10-r1e-12",
+    "max": 705015
+   },
+   "256/estimate": {
+    "at_max": "RF-CHAIN-A-n10-r1e-06",
+    "max": 129266
+   },
+   "256/factor": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 681814
+   },
+   "256/formation": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 278911
+   },
+   "256/recovery": {
+    "at_max": "RF-CHAIN-A-n10-r1e-08",
+    "max": 22582
+   },
+   "256/refinement": {
+    "at_max": "RF-CHAIN-A-n10-r1e-06",
+    "max": 54951
+   },
+   "256/residual_formation": {
+    "at_max": "RF-CHAIN-T-n10-r1e-08",
+    "max": 932537
+   },
+   "256/rhs": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 536
+   },
+   "256/scale": {
+    "at_max": "RF-CHAIN-A-n10-r1e-08",
+    "max": 18040
+   },
+   "256/shift": {
+    "at_max": "RF-CHAIN-T-n10-r1e-06",
+    "max": 715121
+   },
+   "256/solve": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 101730
+   },
+   "256/uc": {
+    "at_max": "RF-CHAIN-A-n10-r1e-10",
+    "max": 162225
+   },
+   "256/wide_formation": {
+    "at_max": "RF-CHAIN-T-n10-r1e-04",
+    "max": 921983
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-CHAIN-A-n10-r1e-04",
+    "cases": 30,
+    "max": 4844758,
+    "median": 2478123.5
+   },
+   "256": {
+    "at_max": "RF-CHAIN-A-n10-r1e-06",
+    "cases": 30,
+    "max": 5130116,
+    "median": 2205407.0
+   }
+  }
+ },
+ "rf_finite": {
+  "cases": 6,
+  "charged": {
+   "at_max": "RF-FINITE-THIRDS-O0",
+   "max": 9213132,
+   "median": 8995446.0,
+   "min": 2321922
+  },
+  "outcomes": {
+   "Selected at 128": 6
+  },
+  "selected_precision": {
+   "128": 6
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 7431
+   },
+   "128/condition": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 824190
+   },
+   "128/factor": {
+    "at_max": "RF-FINITE-TENTHS-O1e6",
+    "max": 672553
+   },
+   "128/formation": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 278944
+   },
+   "128/recovery": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 41273
+   },
+   "128/refinement": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 189993
+   },
+   "128/residual_formation": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 291353
+   },
+   "128/rhs": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 560
+   },
+   "128/solve": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 100152
+   },
+   "128/stop_rule": {
+    "at_max": "RF-FINITE-TENTHS-O1e6",
+    "max": 1179386
+   },
+   "256/assembly": {
+    "at_max": "RF-FINITE-THIRDS-O1e3",
+    "max": 9163
+   },
+   "256/bound": {
+    "at_max": "RF-FINITE-ROT-Q9-NONMULT",
+    "max": 2452
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 361068
+   },
+   "256/charge": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 188807
+   },
+   "256/condition": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 834730
+   },
+   "256/estimate": {
+    "at_max": "RF-FINITE-THIRDS-O1e3",
+    "max": 183669
+   },
+   "256/factor": {
+    "at_max": "RF-FINITE-TENTHS-O1e6",
+    "max": 673626
+   },
+   "256/formation": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 287456
+   },
+   "256/recovery": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 46749
+   },
+   "256/refinement": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 225607
+   },
+   "256/residual_formation": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 945401
+   },
+   "256/rhs": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 560
+   },
+   "256/scale": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 23635
+   },
+   "256/shift": {
+    "at_max": "RF-FINITE-TENTHS-O1e6",
+    "max": 706083
+   },
+   "256/solve": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 100152
+   },
+   "256/uc": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "max": 162406
+   },
+   "256/wide_formation": {
+    "at_max": "RF-FINITE-THIRTIETHS-O1e6",
+    "max": 939264
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "cases": 6,
+    "max": 3530993,
+    "median": 3435783.5
+   },
+   "256": {
+    "at_max": "RF-FINITE-THIRDS-O0",
+    "cases": 6,
+    "max": 5682139,
+    "median": 5560711.0
+   }
+  }
+ },
+ "rf_invariance": {
+  "cases": 25,
+  "charged": {
+   "at_max": "RF-INVARIANCE-TREE100-OFF-1e6",
+   "max": 91067033,
+   "median": 4148652,
+   "min": 1939087
+  },
+  "outcomes": {
+   "Selected at 128": 25
+  },
+  "selected_precision": {
+   "128": 25
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 71290
+   },
+   "128/condition": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 7128219
+   },
+   "128/factor": {
+    "at_max": "RF-INVARIANCE-TREE100-RELABEL",
+    "max": 7192475
+   },
+   "128/formation": {
+    "at_max": "RF-INVARIANCE-TREE100-OFF-1e3",
+    "max": 2783625
+   },
+   "128/recovery": {
+    "at_max": "RF-INVARIANCE-TREE100-RELABEL",
+    "max": 387504
+   },
+   "128/refinement": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 1556382
+   },
+   "128/residual_formation": {
+    "at_max": "RF-INVARIANCE-TREE100-OFF-1e3",
+    "max": 2874924
+   },
+   "128/rhs": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 5192
+   },
+   "128/solve": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 1017072
+   },
+   "128/stop_rule": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 10723845
+   },
+   "256/assembly": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 76908
+   },
+   "256/bound": {
+    "at_max": "RF-INVARIANCE-CONT4-ROT-Q3",
+    "max": 2502
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 3209412
+   },
+   "256/charge": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 1935125
+   },
+   "256/condition": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 7167934
+   },
+   "256/estimate": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 1842566
+   },
+   "256/factor": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 7201479
+   },
+   "256/formation": {
+    "at_max": "RF-INVARIANCE-TREE100-OFF-1e3",
+    "max": 2818025
+   },
+   "256/recovery": {
+    "at_max": "RF-INVARIANCE-TREE100-RELABEL",
+    "max": 435619
+   },
+   "256/refinement": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 1967829
+   },
+   "256/residual_formation": {
+    "at_max": "RF-INVARIANCE-TREE100-OFF-1e3",
+    "max": 9357510
+   },
+   "256/rhs": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 5192
+   },
+   "256/scale": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 210513
+   },
+   "256/shift": {
+    "at_max": "RF-INVARIANCE-TREE100-RELABEL",
+    "max": 7972398
+   },
+   "256/solve": {
+    "at_max": "RF-INVARIANCE-TREE100-BASE",
+    "max": 1017072
+   },
+   "256/uc": {
+    "at_max": "RF-INVARIANCE-TREE100-RELABEL",
+    "max": 2850671
+   },
+   "256/wide_formation": {
+    "at_max": "RF-INVARIANCE-TREE100-OFF-1e3",
+    "max": 9266425
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-INVARIANCE-TREE100-OFF-1e6",
+    "cases": 25,
+    "max": 33740442,
+    "median": 2306094
+   },
+   "256": {
+    "at_max": "RF-INVARIANCE-TREE100-OFF-1e6",
+    "cases": 25,
+    "max": 57326591,
+    "median": 2485542
+   }
+  }
+ },
+ "rf_large": {
+  "cases": 12,
+  "charged": {
+   "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+   "max": 111006193,
+   "median": 40207229.5,
+   "min": 7040249
+  },
+  "outcomes": {
+   "Selected at 128": 12
+  },
+  "selected_precision": {
+   "128": 12
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 119948
+   },
+   "128/condition": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 8497586
+   },
+   "128/factor": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 7192570
+   },
+   "128/formation": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 4104544
+   },
+   "128/recovery": {
+    "at_max": "RF-LARGE-CONT-n00100-ROT",
+    "max": 517303
+   },
+   "128/refinement": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 2308570
+   },
+   "128/residual_formation": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 4412108
+   },
+   "128/rhs": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 5880
+   },
+   "128/solve": {
+    "at_max": "RF-LARGE-CHAIN-n00100-AX",
+    "max": 1017072
+   },
+   "128/stop_rule": {
+    "at_max": "RF-LARGE-CONT-n00100-ROT",
+    "max": 14709526
+   },
+   "256/assembly": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 170068
+   },
+   "256/bound": {
+    "at_max": "RF-LARGE-TREE-n00010-AX",
+    "max": 2399
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-LARGE-CHAIN-n00100-AX",
+    "max": 3209412
+   },
+   "256/charge": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 3713013
+   },
+   "256/condition": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 8562691
+   },
+   "256/estimate": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 2913219
+   },
+   "256/factor": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 7203499
+   },
+   "256/formation": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 4471144
+   },
+   "256/recovery": {
+    "at_max": "RF-LARGE-CONT-n00100-ROT",
+    "max": 594265
+   },
+   "256/refinement": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 3641096
+   },
+   "256/residual_formation": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 12896946
+   },
+   "256/rhs": {
+    "at_max": "RF-LARGE-TREE-n00100-ROT",
+    "max": 5880
+   },
+   "256/scale": {
+    "at_max": "RF-LARGE-CONT-n00100-ROT",
+    "max": 292081
+   },
+   "256/shift": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 8665424
+   },
+   "256/solve": {
+    "at_max": "RF-LARGE-CHAIN-n00100-AX",
+    "max": 1017072
+   },
+   "256/uc": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 4443350
+   },
+   "256/wide_formation": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "max": 13043444
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "cases": 12,
+    "max": 36550548,
+    "median": 16902421.0
+   },
+   "256": {
+    "at_max": "RF-LARGE-CHAIN-n00100-ROT",
+    "cases": 12,
+    "max": 74455645,
+    "median": 23304808.5
+   }
+  }
+ },
+ "rf_mech": {
+  "cases": 9,
+  "charged": {
+   "at_max": "RF-MECH-LINE345-RX-COMPANION",
+   "max": 1034744,
+   "median": 0,
+   "min": 0
+  },
+  "outcomes": {
+   "Refused MechanismWitnessed": 8,
+   "Selected at 128": 1
+  },
+  "selected_precision": {
+   "128": 1
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 1128
+   },
+   "128/condition": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 69663
+   },
+   "128/factor": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 13642
+   },
+   "128/formation": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 31990
+   },
+   "128/recovery": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 4747
+   },
+   "128/refinement": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 26262
+   },
+   "128/residual_formation": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 33705
+   },
+   "128/rhs": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 112
+   },
+   "128/solve": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 6930
+   },
+   "128/stop_rule": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 403965
+   },
+   "256/assembly": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 1168
+   },
+   "256/bound": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 982
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 32304
+   },
+   "256/charge": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 10726
+   },
+   "256/condition": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 76556
+   },
+   "256/estimate": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 12828
+   },
+   "256/factor": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 13695
+   },
+   "256/formation": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 32888
+   },
+   "256/recovery": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 5031
+   },
+   "256/refinement": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 27584
+   },
+   "256/residual_formation": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 103876
+   },
+   "256/rhs": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 112
+   },
+   "256/scale": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 2495
+   },
+   "256/solve": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 6930
+   },
+   "256/uc": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 12565
+   },
+   "256/wide_formation": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "max": 102860
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "cases": 1,
+    "max": 592144,
+    "median": 592144
+   },
+   "256": {
+    "at_max": "RF-MECH-LINE345-RX-COMPANION",
+    "cases": 1,
+    "max": 442600,
+    "median": 442600
+   }
+  }
+ },
+ "rf_range": {
+  "cases": 32,
+  "charged": {
+   "at_max": "RF-RANGE-CONT-SIM-b",
+   "max": 7040249,
+   "median": 4658470.0,
+   "min": 1353053
+  },
+  "outcomes": {
+   "Selected at 128": 30,
+   "Unresolved Ceiling": 2
+  },
+  "selected_precision": {
+   "128": 30
+  },
+  "stage_max": {
+   "1024/assembly": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 2716
+   },
+   "1024/bound": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 4562
+   },
+   "1024/bounded_formation": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 206550
+   },
+   "1024/charge": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 79044
+   },
+   "1024/condition": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 841321
+   },
+   "1024/estimate": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 168939
+   },
+   "1024/factor": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 272844
+   },
+   "1024/formation": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 331364
+   },
+   "1024/recovery": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 52602
+   },
+   "1024/refinement": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 55682
+   },
+   "1024/rhs": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 408
+   },
+   "1024/scale": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 20700
+   },
+   "1024/solve": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 113292
+   },
+   "1024/uc": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 150584
+   },
+   "128/assembly": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 7200
+   },
+   "128/condition": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 493169
+   },
+   "128/factor": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 350929
+   },
+   "128/formation": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 278183
+   },
+   "128/recovery": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 35940
+   },
+   "128/refinement": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 95099
+   },
+   "128/residual_formation": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 287382
+   },
+   "128/rhs": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 584
+   },
+   "128/solve": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 70146
+   },
+   "128/stop_rule": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 1490684
+   },
+   "256/assembly": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 7758
+   },
+   "256/bound": {
+    "at_max": "RF-RANGE-THIN-B",
+    "max": 940
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 321492
+   },
+   "256/charge": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 130700
+   },
+   "256/condition": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 502300
+   },
+   "256/estimate": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 126902
+   },
+   "256/factor": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 351595
+   },
+   "256/formation": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 281623
+   },
+   "256/recovery": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 39536
+   },
+   "256/refinement": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 104050
+   },
+   "256/residual_formation": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 935788
+   },
+   "256/rhs": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 584
+   },
+   "256/scale": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 26468
+   },
+   "256/solve": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 70146
+   },
+   "256/stop_rule": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 19532
+   },
+   "256/uc": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 104668
+   },
+   "256/wide_formation": {
+    "at_max": "RF-RANGE-CONT-L-240",
+    "max": 926463
+   },
+   "512/assembly": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 1468
+   },
+   "512/bound": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 2161
+   },
+   "512/bounded_formation": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 68934
+   },
+   "512/charge": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 34107
+   },
+   "512/condition": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 243161
+   },
+   "512/estimate": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 49157
+   },
+   "512/factor": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 72796
+   },
+   "512/formation": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 91108
+   },
+   "512/recovery": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 15402
+   },
+   "512/refinement": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 32080
+   },
+   "512/residual_formation": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 334080
+   },
+   "512/rhs": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 216
+   },
+   "512/scale": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 7737
+   },
+   "512/solve": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 30156
+   },
+   "512/stop_rule": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 107497
+   },
+   "512/uc": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 41734
+   },
+   "512/wide_formation": {
+    "at_max": "RF-RANGE-THIN-A",
+    "max": 331364
+   }
+  },
+  "work_by_precision": {
+   "1024": {
+    "at_max": "RF-RANGE-THIN-A",
+    "cases": 2,
+    "max": 2300608,
+    "median": 2275113.5
+   },
+   "128": {
+    "at_max": "RF-RANGE-CONT-SIM-b",
+    "cases": 32,
+    "max": 3109316,
+    "median": 2455989.0
+   },
+   "256": {
+    "at_max": "RF-RANGE-CONT-SIM-b",
+    "cases": 32,
+    "max": 3930933,
+    "median": 2202481.0
+   },
+   "512": {
+    "at_max": "RF-RANGE-THIN-A",
+    "cases": 2,
+    "max": 1463158,
+    "median": 1451062.5
+   }
+  }
+ },
+ "rf_skew": {
+  "cases": 36,
+  "charged": {
+   "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+   "max": 1747367,
+   "median": 1346170.5,
+   "min": 1089699
+  },
+  "outcomes": {
+   "Selected at 128": 36
+  },
+  "selected_precision": {
+   "128": 36
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-SKEW-T-CANT-AX-122-r1e-04",
+    "max": 1652
+   },
+   "128/condition": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-08",
+    "max": 113160
+   },
+   "128/factor": {
+    "at_max": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+    "max": 49953
+   },
+   "128/formation": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "max": 66211
+   },
+   "128/recovery": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-08",
+    "max": 8926
+   },
+   "128/refinement": {
+    "at_max": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+    "max": 90347
+   },
+   "128/residual_formation": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "max": 69992
+   },
+   "128/rhs": {
+    "at_max": "RF-SKEW-T-CANT-AX-122-r1e-04",
+    "max": 144
+   },
+   "128/solve": {
+    "at_max": "RF-SKEW-T-CANT-AX-345-r1e-04",
+    "max": 13338
+   },
+   "128/stop_rule": {
+    "at_max": "RF-SKEW-T-PIN-AX-122-r1e-08",
+    "max": 444509
+   },
+   "256/assembly": {
+    "at_max": "RF-SKEW-T-CANT-AX-122-r1e-04",
+    "max": 2300
+   },
+   "256/bound": {
+    "at_max": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+    "max": 2566
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "max": 37104
+   },
+   "256/charge": {
+    "at_max": "RF-SKEW-T-CANT-AX-122-r1e-12",
+    "max": 36896
+   },
+   "256/condition": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-04",
+    "max": 120877
+   },
+   "256/estimate": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-04",
+    "max": 33666
+   },
+   "256/factor": {
+    "at_max": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+    "max": 50108
+   },
+   "256/formation": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "max": 70403
+   },
+   "256/recovery": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-08",
+    "max": 10521
+   },
+   "256/refinement": {
+    "at_max": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+    "max": 111829
+   },
+   "256/residual_formation": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "max": 218316
+   },
+   "256/rhs": {
+    "at_max": "RF-SKEW-T-CANT-AX-122-r1e-04",
+    "max": 144
+   },
+   "256/scale": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-08",
+    "max": 5308
+   },
+   "256/shift": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-08",
+    "max": 63120
+   },
+   "256/solve": {
+    "at_max": "RF-SKEW-T-CANT-AX-345-r1e-04",
+    "max": 13338
+   },
+   "256/uc": {
+    "at_max": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+    "max": 42272
+   },
+   "256/wide_formation": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "max": 218893
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+    "cases": 36,
+    "max": 791164,
+    "median": 666782.5
+   },
+   "256": {
+    "at_max": "RF-SKEW-A-CANT-AX-122-r1e-12",
+    "cases": 36,
+    "max": 976034,
+    "median": 666558.5
+   }
+  }
+ },
+ "rf_weak": {
+  "cases": 9,
+  "charged": {
+   "at_max": "RF-WEAK-W-3D-rho1e-12",
+   "max": 3955489,
+   "median": 3765713,
+   "min": 1771013
+  },
+  "outcomes": {
+   "Selected at 128": 9
+  },
+  "selected_precision": {
+   "128": 9
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 3920
+   },
+   "128/condition": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 281563
+   },
+   "128/factor": {
+    "at_max": "RF-WEAK-W-3D-rho1e-08",
+    "max": 237867
+   },
+   "128/formation": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 136832
+   },
+   "128/recovery": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 20528
+   },
+   "128/refinement": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 89836
+   },
+   "128/residual_formation": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 140752
+   },
+   "128/rhs": {
+    "at_max": "RF-WEAK-W-AX-rho1e-04",
+    "max": 312
+   },
+   "128/solve": {
+    "at_max": "RF-WEAK-W-AX-rho1e-04",
+    "max": 39024
+   },
+   "128/stop_rule": {
+    "at_max": "RF-WEAK-W-AX-rho1e-08",
+    "max": 861184
+   },
+   "256/assembly": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 3920
+   },
+   "256/bound": {
+    "at_max": "RF-WEAK-W-AX-rho1e-08",
+    "max": 1073
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-WEAK-W-AX-rho1e-12",
+    "max": 137778
+   },
+   "256/charge": {
+    "at_max": "RF-WEAK-W-3D-rho1e-08",
+    "max": 76060
+   },
+   "256/condition": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 289483
+   },
+   "256/estimate": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 75268
+   },
+   "256/factor": {
+    "at_max": "RF-WEAK-W-3D-rho1e-08",
+    "max": 238241
+   },
+   "256/formation": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 136832
+   },
+   "256/recovery": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 22293
+   },
+   "256/refinement": {
+    "at_max": "RF-WEAK-W-3D-rho1e-08",
+    "max": 105411
+   },
+   "256/residual_formation": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 463040
+   },
+   "256/rhs": {
+    "at_max": "RF-WEAK-W-AX-rho1e-04",
+    "max": 312
+   },
+   "256/scale": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 12235
+   },
+   "256/solve": {
+    "at_max": "RF-WEAK-W-AX-rho1e-04",
+    "max": 39024
+   },
+   "256/uc": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 114327
+   },
+   "256/wide_formation": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "max": 456672
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-WEAK-W-3D-rho1e-12",
+    "cases": 9,
+    "max": 1787216,
+    "median": 1714404
+   },
+   "256": {
+    "at_max": "RF-WEAK-W-3D-rho1e-08",
+    "cases": 9,
+    "max": 2168661,
+    "median": 2037702
+   }
+  }
+ },
+ "rf_zero": {
+  "cases": 4,
+  "charged": {
+   "at_max": "RF-ZERO-SYM",
+   "max": 3261916,
+   "median": 1558054.0,
+   "min": 1229257
+  },
+  "outcomes": {
+   "Selected at 128": 4
+  },
+  "selected_precision": {
+   "128": 4
+  },
+  "stage_max": {
+   "128/assembly": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 3024
+   },
+   "128/condition": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 214035
+   },
+   "128/factor": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 165408
+   },
+   "128/formation": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 109416
+   },
+   "128/recovery": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 15039
+   },
+   "128/refinement": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 65056
+   },
+   "128/residual_formation": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 112440
+   },
+   "128/rhs": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 256
+   },
+   "128/solve": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 28836
+   },
+   "128/stop_rule": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 962438
+   },
+   "256/assembly": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 3024
+   },
+   "256/bound": {
+    "at_max": "RF-ZERO-PLANAR",
+    "max": 943
+   },
+   "256/bounded_formation": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 109956
+   },
+   "256/charge": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 46013
+   },
+   "256/condition": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 221643
+   },
+   "256/estimate": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 51395
+   },
+   "256/factor": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 165551
+   },
+   "256/formation": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 109416
+   },
+   "256/recovery": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 15306
+   },
+   "256/refinement": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 48526
+   },
+   "256/residual_formation": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 370304
+   },
+   "256/rhs": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 256
+   },
+   "256/scale": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 9275
+   },
+   "256/solve": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 28836
+   },
+   "256/uc": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 40237
+   },
+   "256/wide_formation": {
+    "at_max": "RF-ZERO-SYM",
+    "max": 365288
+   }
+  },
+  "work_by_precision": {
+   "128": {
+    "at_max": "RF-ZERO-SYM",
+    "cases": 4,
+    "max": 1675948,
+    "median": 909751.0
+   },
+   "256": {
+    "at_max": "RF-ZERO-SYM",
+    "cases": 4,
+    "max": 1585968,
+    "median": 722650.0
+   }
+  }
+ }
+}

@@ -1,0 +1,106 @@
+{
+ "schema": "vk-seeded-evidence/1",
+ "what": "V-K A2: the evidence-level kills' detail, and D1 §7.3's kernel-lane items that are not seeded (plan §10.4)",
+ "VK-R28_release": {
+  "run": "FK_SEEDED_FAULT=VK-R28, vk_records RF-LARGE, release, --features seeded-faults (no --write)",
+  "report": "RF-LARGE: rows 9054: passes 9054, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0",
+  "cases": [
+   {
+    "case": "RF-LARGE-CHAIN-n00010-AX",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 128"
+   },
+   {
+    "case": "RF-LARGE-CHAIN-n00010-ROT",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 128"
+   },
+   {
+    "case": "RF-LARGE-TREE-n00010-AX",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 128"
+   },
+   {
+    "case": "RF-LARGE-TREE-n00010-ROT",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 128"
+   },
+   {
+    "case": "RF-LARGE-CONT-n00010-AX",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 128"
+   },
+   {
+    "case": "RF-LARGE-CONT-n00010-ROT",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 128"
+   },
+   {
+    "case": "RF-LARGE-CHAIN-n00100-AX",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 512"
+   },
+   {
+    "case": "RF-LARGE-CHAIN-n00100-ROT",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 512"
+   },
+   {
+    "case": "RF-LARGE-TREE-n00100-AX",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 256"
+   },
+   {
+    "case": "RF-LARGE-TREE-n00100-ROT",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 512"
+   },
+   {
+    "case": "RF-LARGE-CONT-n00100-AX",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 128"
+   },
+   {
+    "case": "RF-LARGE-CONT-n00100-ROT",
+    "none": "Selected at 128",
+    "vk_r28": "Selected at 256"
+   }
+  ],
+  "reading": "availability kill: every row still passes; R7 §7 predicts CHAIN-n00100-AX at 512 and TREE-n00100-AX at 256; both hold"
+ },
+ "VK-F07_rf_mech": {
+  "none": {
+   "refused": 8,
+   "selected": 1
+  },
+  "vk_f07": {
+   "selected": 1,
+   "unresolved": 8
+  },
+  "reading": "RF-MECH's eight refusals become unresolved; no mechanism is published (every row passes), so the kill is at evidence and outcome level"
+ },
+ "VK-F05_rf_range": {
+  "none": "RF-RANGE-THIN-A and THIN-B: Unresolved Ceiling after 4 attempts (the expected-unresolved list)",
+  "reading": "still unresolved, with fewer attempts: the kill is the per-case records' attempts (evidence)"
+ },
+ "not_seeded": [
+  {
+   "item": "§7.3-3",
+   "mutation": "drop K_fc u_c, or round the reduced RHS to binary64",
+   "reason": "undiscriminated by R1: R1 has no nonzero prescribed motion",
+   "killed_in_k4_by": "K4-D3: the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once (K4 _run_records/c/mutation_table.md)"
+  },
+  {
+   "item": "§7.3-10 (relabelling half)",
+   "mutation": "make the order depend on labels",
+   "reason": "undiscriminated by R1: W1's answer does not depend on the order within its claim, so no 1e-9 comparison sees it; the list-order half is VK-F10",
+   "killed_in_k4_by": "K4-D10: retained_states_equal_the_generators_emulation_of_the_method_bit_for_bit, e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision; and V-K's tests/rcm.rs (RCM equal to sparse_direct's)"
+  },
+  {
+   "item": "§7.3-16",
+   "mutation": "assemble stiffness entries or recovery sums by sequential addition at p",
+   "reason": "undiscriminated by R1: R1's smallest ratio is 1e-12, far from the 2^-300 the control needs",
+   "killed_in_k4_by": "K4-D16a: the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member, assembled_entries_equal_the_fraction_emulation_bit_for_bit; K4-D16b: a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term"
+  }
+ ]
+}

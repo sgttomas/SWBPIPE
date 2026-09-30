@@ -1,0 +1,6 @@
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+rustfmt: rustfmt 1.9.0-stable (8bab26f4f6 2026-07-14)
+python3: Python 3.13.14
+host: Darwin arm64
+env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2; cargo --offline --locked -j 4; targets <wt>/vk-target (suites, scans) and <wt>/vk-mut/target (the mutation run)

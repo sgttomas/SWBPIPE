@@ -1,0 +1,8 @@
+baseline (no-op) peak RSS 1867776 bytes, footprint 1163576 bytes; memory-guard kills so far 0
+07_RF-LARGE-CHAIN-n01000-AX_w1a: ok 0.9s rss=129433600 outcome=Selected at 128
+08_RF-LARGE-CHAIN-n01000-ROT_w1a: ok 1.7s rss=126877696 outcome=Selected at 128
+09_RF-LARGE-TREE-n01000-AX_w1a: ok 1.0s rss=124649472 outcome=Selected at 128
+10_RF-LARGE-TREE-n01000-ROT_w1a: ok 1.6s rss=127041536 outcome=Selected at 128
+11_RF-LARGE-CONT-n01000-AX_w1a: ok 0.8s rss=131891200 outcome=Selected at 128
+12_RF-LARGE-CONT-n01000-ROT_w1a: ok 1.4s rss=133496832 outcome=Selected at 128
+rc=0

@@ -1,0 +1,22 @@
+## S11 site table
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.75s
+     Running tests/s11_site_table.rs (<wt>/vk-target/debug/deps/s11_site_table-c8ba14d9f767e011)
+
+running 3 tests
+test scanner_counts_what_it_claims ... ok
+test scanner_counts_self_assignment_folds ... ok
+test site_table_is_exactly_the_accumulations_of_the_scanned_files ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+## K4 source scan
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.52s
+     Running unittests src/lib.rs (<wt>/vk-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 1 test
+test structural::retained::adaptive::tests::k4s_files_call_no_binary64_transcendental_or_fused_function ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 335 filtered out; finished in 0.02s
+
