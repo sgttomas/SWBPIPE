@@ -2763,3 +2763,28 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
     - a KF3-induced term is fixed in KF3 before its PR.
   - **Either way, ROOT's W1 limits wait for E_max to bound every phase at 10,000 members.**
 - **Next:** checkpoint D, with KF3-B1 and KF3-B2 derived.
+
+## KF2: rulings on I20's checkpoint-0 plan (ROOT, 2026-09-30)
+
+- **The plan is accepted,** and committed on the KF2 branch as `573bd3835` (`IMPLEMENTATION/KF2/PLAN_CHECKPOINT0.md`, sha256 `76337c43…`).
+- **ROOT checked the equality argument (§4) and accepts it:**
+  - **The design:** an O(1) guard per pair repeats `verify_negative_direction`'s exact arithmetic on the pair's four cells, in its order. Only a pair the guard marks as a witness is passed to the unchanged verifier, which produces the published value.
+  - **Why it holds:**
+    - validation's result is the same at every call;
+    - the direction check always passes;
+    - the verifier's nonzero cells are exactly the guard's cells, in the same order, with the same operations;
+    - so both reach the same first error or the same verdict.
+  - Zero couplings are still visited, so the equality holds for every value of the type, not only on `prepare_bound`'s invariants.
+- **The cost:** ROOT confirmed that the old witness is O(n⁴). The prediction at 6,006 DOFs is about 31 days, a lower bound. At K6's kill about 0.06% of the pairs had been searched. The new witness is predicted at about 1 s; A measures it.
+- **Q1: (a), approved.** The tests go in a new `FK/structural/kf2_witness_tests.rs`, and FKS gains one `#[cfg(test)] mod kf2_witness_tests;` line beside `s11f_tests` and `s11k_tests`.
+- **Q2: approved.** N10's two models run through H's unchanged `k6_observe`, built in release from a `git archive` of the KF2 tree. H is not edited.
+- **Q3: the screen is declined for KF2 and split out.** KF2 stays byte-identical.
+  - **What a change would alter:** I20 showed a profile-based operation count is honest, because the dense factor's entries before a row's first nonzero are exact ±0. But the change alters every dense report's bytes, since `PivotEvidence.operation_count` and `.screen` are published (PP:1106-1107): T9's 56 dense outputs, and the dense part-1 envelopes. It also changes dense classes. That is certain on the N10 pair and likely on RF-CHAIN-A and RF-CHAIN-T at n10-r1e-12; RF-SKEW-T-PIN-OFF-122 and RF-WEAK-W-L at r1e-12 are candidates.
+  - **Routed:** a separate dense-screen slice on the T3-close list, with an owner-facing note, since dense scrutiny's published standing changes. It is not scheduled yet.
+- **Q4: no budget in the witness.**
+  - **Recorded for the owner:** the dense route observes cancellation only before the solve and before publication (APP:1688-1692, :1711-1717). A cancelled dense job keeps its thread and memory until the solve returns. After KF2 the dense factor is the long step (65–188 s at 1,000 members).
+  - Routed as an observation to T6 and T9; it is not T3 scope.
+- **Q5: the site-table row is authorized:** `("FK/structural.rs", "negative_pair_witness_counted", 6, …)`, one declared, additive row.
+- **Q6: yes.** SD's suite is added at A (SD:37 and `k1_tests.rs:371` call the witness).
+- **Q7: confirmed.** The one private helper is `negative_pair_witness_counted`, holding the loop, the counts and the pair evaluation inline.
+- **Builds may start now:** one cargo job at `-j 4`, `<wt>/kf2-target`, with the memory guard running. No timed slot is held; KF3 is writing D.
