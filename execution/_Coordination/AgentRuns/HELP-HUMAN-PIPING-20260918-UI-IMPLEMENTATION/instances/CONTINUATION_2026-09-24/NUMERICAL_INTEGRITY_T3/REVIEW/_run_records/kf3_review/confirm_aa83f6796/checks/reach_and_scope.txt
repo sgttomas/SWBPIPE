@@ -1,0 +1,67 @@
+# RV23 confirmation: reach and scope at aa83f6796 (git, read-only; run in <wt>/kf3)
+## the delta b8c55c92e..aa83f6796
+aa83f67969c2f618034b856ba6e1fc13ae10762e KF3: RV23's review closed: refusals kept in the evidence when a stop follows them; the verify_state precedence test
+ projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs                                        |  48 +++++++++++----
+ projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs                                           | 217 +++++++++++++++++++++++++++++++++++++++++-------------------------
+ projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs                                          |  18 ++++--
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs                                           | 188 +++++++++++++++++++++++++++++++++++++++++++++++++++++----
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs                                             | 132 ++++++++++++++++++++++++++++++++++++++++
+ projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs                                           |  25 ++++++--
+ .../instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/CHANGE_RECORD.md                              |  39 ++++++++++++
+ .../instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/RETURN.md                                     | 151 ++++++++++++++++++++++++++++++++++++++++++++++
+ .../instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/KF3/SHA256SUMS                                    |  16 ++++-
+ 21 files changed, 965 insertions(+), 119 deletions(-)
+## files outside FK's retained kernel, its K4 tests and the KF3 records touched by the delta
+(none if empty)
+## Cargo.toml / Cargo.lock / structural.rs facade changes in the delta
+(none if empty)
+## files naming retained_api (*.rs, *.toml) at aa83f6796
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/rows.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_adapter.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/rcm.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/engine.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/files.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs
+## structural::retained outside FK at aa83f6796
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/rows.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_adapter.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/rcm.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/engine.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/files.rs
+projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs
+## same lists at b8c55c92e (for comparison)
+identical
+## K4T vector files changed by the delta
+(none if empty)
+## H and VR changed by the delta
+(none if empty)

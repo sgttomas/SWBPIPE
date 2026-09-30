@@ -1,0 +1,974 @@
+//! RV23 probe (review only; never committed to the branch). Mounted in the
+//! reviewer's copy of `adaptive.rs`. It prints `RV23 …` lines that the
+//! reviewer's Python oracles (`rv23_oracle.py`) check with exact rational
+//! arithmetic. The forced refusals use the reviewer's `bound::rv23_force`
+//! (a copy-only patch: one block's operation in one pass returns `Span`).
+use super::super::bound::{
+    certificates, gamma_m, rv23_force, scaled_profile, shift_schedule, shifted_factor, uc_bounds,
+    BlockBound, BoundRefusal, FreeBlocks, ProfileLdl, ScaledProfile,
+};
+use super::super::verify::{build_verify_shared, verify_state};
+use super::method_tests::models;
+use super::*;
+
+#[allow(dead_code)]
+#[path = "support.rs"]
+mod support;
+use support::tok;
+
+const KF3: &str = include_str!("kf3.txt");
+const MODELS_5A3: &str = include_str!("models5a3.txt");
+
+fn rtok(r: &Option<BoundRefusal>) -> String {
+    match r {
+        None => "-".into(),
+        Some(r) => super::scale_tests::refusal_token(r),
+    }
+}
+
+fn otok<const L: usize>(v: &Option<Wide<L>>) -> String
+where
+    Wide<L>: SupportedWidth,
+{
+    v.as_ref().map(tok).unwrap_or_else(|| "-".into())
+}
+
+fn w(v: f64) -> Wide<4> {
+    Wide::<4>::from_f64(v).unwrap()
+}
+
+// ---------------------------------------------------------------- synthetic blocks
+
+/// A block's rows (elimination order, local indices) and profile starts.
+struct Blk {
+    first: Vec<usize>,
+    rows: Vec<Vec<Wide<4>>>,
+}
+
+/// Nilpotent 3-row-node chain: K̃ = L·D·Lᵀ with L = I − N, N's node-to-next
+/// block m·u·vᵀ (vᵀu = 0, so N² = 0 and L⁻¹ = I + N), D per node `d(k)`.
+fn nil_chain(nodes: usize, m: f64, u: [f64; 3], v: [f64; 3], d: impl Fn(usize) -> [f64; 3]) -> Blk {
+    assert_eq!(u[0] * v[0] + u[1] * v[1] + u[2] * v[2], 0.0);
+    let mut first = Vec::new();
+    let mut rows = Vec::new();
+    for k in 0..nodes {
+        let dk = d(k);
+        for r in 0..3 {
+            let mut row = Vec::new();
+            if k == 0 {
+                first.push(0);
+                for c in 0..=r {
+                    row.push(if c == r { dk[r] } else { 0.0 });
+                }
+            } else {
+                let dp = d(k - 1);
+                first.push(3 * (k - 1));
+                for c in 0..3 {
+                    row.push(-m * u[r] * v[c] * dp[c]);
+                }
+                let q: f64 = (0..3).map(|c| v[c] * v[c] * dp[c]).sum();
+                for c in 0..=r {
+                    let diag = if c == r { dk[r] } else { 0.0 };
+                    row.push(diag + m * m * u[r] * u[c] * q);
+                }
+            }
+            rows.push(row.into_iter().map(w).collect());
+        }
+    }
+    Blk { first, rows }
+}
+
+fn banded(n: usize, diag: f64, off: &[f64]) -> Blk {
+    let mut first = Vec::new();
+    let mut rows = Vec::new();
+    for i in 0..n {
+        let f = i.saturating_sub(off.len());
+        first.push(f);
+        let mut row = Vec::new();
+        for j in f..i {
+            row.push(w(off[i - j - 1]));
+        }
+        row.push(w(diag));
+        rows.push(row);
+    }
+    Blk { first, rows }
+}
+
+/// [[1, 1 − 2^-250], [1 − 2^-250, 1]]: Uc exists nowhere (t ≥ 1) without a
+/// refusal, and a shift above λ_min fails.
+fn near_singular() -> Blk {
+    let mut ctx = WideContext::<4>::new(256).unwrap();
+    let one = Wide::<4>::ONE;
+    let off = ctx.sub(&one, &one.mul_pow2(-250).unwrap()).unwrap();
+    Blk {
+        first: vec![0, 0],
+        rows: vec![vec![one], vec![off, one]],
+    }
+}
+
+fn combine(blocks: &[&Blk]) -> (Vec<usize>, Vec<Vec<Wide<4>>>, Vec<u32>) {
+    let (mut first, mut rows, mut blk) = (Vec::new(), Vec::new(), Vec::new());
+    for (b, x) in blocks.iter().enumerate() {
+        let start = rows.len();
+        for (f, r) in x.first.iter().zip(&x.rows) {
+            first.push(start + f);
+            rows.push(r.clone());
+            blk.push(b as u32);
+        }
+    }
+    (first, rows, blk)
+}
+
+fn dump_profile(tag: &str, first: &[usize], rows: &[Vec<Wide<4>>], blk: &[u32]) {
+    for (i, (f, r)) in first.iter().zip(rows).enumerate() {
+        let t: Vec<String> = r.iter().map(tok).collect();
+        println!("RV23 {tag} K {i} {} {} {}", blk[i], f, t.join(" "));
+    }
+}
+
+fn dump_factor<F: ProfileLdl<4>>(tag: &str, f: &F, blk: &[u32]) {
+    for i in 0..f.rows() {
+        let t: Vec<String> = (f.first_of(i)..=i).map(|j| tok(&f.entry(i, j))).collect();
+        println!("RV23 {tag} L {i} {} {} {}", blk[i], f.first_of(i), t.join(" "));
+    }
+}
+
+fn print_bounds(tag: &str, bounds: &[BlockBound<4>]) {
+    for (b, x) in bounds.iter().enumerate() {
+        println!(
+            "RV23 {tag} blk {b} {} U {} NL {} t {} Uc {}",
+            rtok(&x.refused),
+            tok(&x.u),
+            tok(&x.n_l),
+            tok(&x.t),
+            otok(&x.uc)
+        );
+    }
+}
+
+#[test]
+fn rv23_synthetic_multiblock() {
+    let p = 256;
+    let a = banded(9, 3.0, &[-1.0]);
+    let d1 = |k: usize| if k % 2 == 0 { [1.0, 2.0, 1.0] } else { [2.0, 1.0, 1.0] };
+    let f = nil_chain(200, 1_048_576.0, [1.0, 1.0, 2.0], [1.0, 1.0, -1.0], d1);
+    let c = banded(7, 6.0, &[-2.0, 0.5]);
+    let f2 = nil_chain(195, 1_048_576.0, [1.0, 2.0, 1.0], [1.0, 0.0, -1.0], |_| [1.0, 1.0, 1.0]);
+    let m = near_singular();
+    let parts = [&a, &f, &c, &f2, &m];
+    let (first, rows, blk) = combine(&parts);
+    let n = rows.len();
+    let nb = parts.len();
+    let mut ctx = WideContext::<4>::new(p).unwrap();
+    let mut sum = ExactWideSum::new();
+    let guard = StageGuard::unlimited();
+    let gamma = gamma_m(&mut ctx, &mut sum, n).unwrap();
+    println!("RV23 SYN gamma {} n {n}", tok(&gamma));
+    let profile = ScaledProfile::from_rows(first.clone(), rows.clone(), blk.clone());
+    dump_profile("SYN", &first, &rows, &blk);
+    let fac = shifted_factor(&mut ctx, &sum, &guard, &profile, &vec![None; nb], &mut vec![None; nb]).unwrap();
+    assert!(fac.failed.iter().all(|x| !x), "{:?}", fac.failed);
+    dump_factor("SYN", &fac, &blk);
+    let bounds = uc_bounds(&mut ctx, &mut sum, &guard, &fac, &blk, &mut vec![None; nb], &gamma).unwrap();
+    print_bounds("SYN", &bounds);
+    // Each block alone (same γ): BlockBound bit-identical.
+    let mut starts = vec![0usize];
+    for x in &parts {
+        starts.push(starts.last().unwrap() + x.rows.len());
+    }
+    for (b, x) in parts.iter().enumerate() {
+        let alone = ScaledProfile::from_rows(x.first.clone(), x.rows.clone(), vec![0; x.rows.len()]);
+        let fa = shifted_factor(&mut ctx, &sum, &guard, &alone, &[None], &mut vec![None; 1]).unwrap();
+        let ba = uc_bounds(&mut ctx, &mut sum, &guard, &fa, &vec![0; x.rows.len()], &mut vec![None; 1], &gamma).unwrap();
+        // The refusal's row is an elimination row: shift the standalone one.
+        let mut alone_b = ba[0].clone();
+        if let Some(r) = alone_b.refused.as_mut() {
+            r.row += starts[b];
+        }
+        println!(
+            "RV23 SYN iso_uc {b} {} alone_refused {}",
+            alone_b == bounds[b],
+            rtok(&ba[0].refused)
+        );
+        assert_eq!(alone_b, bounds[b], "block {b} alone");
+    }
+    // The shift for A (0), F (1), F2 (3) and M (4) together, and each alone.
+    let s_a = w(0.5);
+    let s_f = Wide::<4>::ONE.mul_pow2(-60).unwrap();
+    let s_f2 = w(4.0);
+    let s_m = Wide::<4>::ONE.mul_pow2(-240).unwrap();
+    let start = vec![
+        (0usize, s_a, a.rows.len()),
+        (1, s_f, f.rows.len()),
+        (3, s_f2, f2.rows.len()),
+        (4, s_m, m.rows.len()),
+    ];
+    let (shifts, count) = shift_schedule(&mut ctx, &mut sum, &guard, &profile, &gamma, &start, &mut vec![None; nb]).unwrap();
+    println!("RV23 SYN shiftcount {count}");
+    for (b, r) in &shifts {
+        println!(
+            "RV23 SYN shf {b} tries {} sigma {} nl {} delta {} sp {} S {} refused {}",
+            r.tries,
+            tok(&r.sigma),
+            otok(&r.n_l),
+            otok(&r.delta),
+            otok(&r.sigma_prime),
+            otok(&r.s),
+            rtok(&r.refused)
+        );
+    }
+    for &(b, s, nc) in &start {
+        let x = parts[b];
+        let alone = ScaledProfile::from_rows(x.first.clone(), x.rows.clone(), vec![0; x.rows.len()]);
+        let (sh, _) =
+            shift_schedule(&mut ctx, &mut sum, &guard, &alone, &gamma, &[(0, s, nc)], &mut vec![None; 1]).unwrap();
+        let comb = &shifts.iter().find(|r| r.0 == b).unwrap().1;
+        let mut alone_r = sh[0].1.clone();
+        if let Some(r) = alone_r.refused.as_mut() {
+            if r.row != usize::MAX {
+                r.row += starts[b];
+            }
+        }
+        println!("RV23 SYN iso_shift {b} {}", &alone_r == comb);
+        assert_eq!(&alone_r, comb, "shift of block {b} alone");
+    }
+    // 7d with A2 over the five blocks: A, F, F2 and M carry data; C does not.
+    let blocks = FreeBlocks {
+        of: (0..n).map(|i| blk[i]).collect(),
+        positions: (0..nb).map(|b| (starts[b]..starts[b + 1]).collect()).collect(),
+        body: vec![0; nb],
+    };
+    let data = [true, true, false, true, true];
+    let est = vec![Wide::<4>::ONE; nb];
+    let s_refused = vec![None; nb];
+    let (certs, uc_missing, stop) = certificates(&blocks, &bounds, &est, &data, &shifts, &s_refused);
+    for (b, cert) in certs.iter().enumerate() {
+        println!("RV23 SYN cert {b} data {} B {}", cert.data, otok(&cert.b));
+    }
+    println!(
+        "RV23 SYN ucmissing {} stop {}",
+        uc_missing.map_or("-".into(), |b| b.to_string()),
+        stop.map_or("-".into(), |(b, r)| format!("{b} {}", super::scale_tests::refusal_token(&r)))
+    );
+    // Precedence with the uc block first: [M, F2].
+    let two = FreeBlocks {
+        of: vec![0, 1],
+        positions: vec![vec![0], vec![1]],
+        body: vec![0, 0],
+    };
+    let sh2: Vec<_> = shifts
+        .iter()
+        .filter(|r| r.0 == 4 || r.0 == 3)
+        .map(|r| (if r.0 == 4 { 0 } else { 1 }, r.1.clone()))
+        .collect();
+    let (_, um, st) = certificates(
+        &two,
+        &[bounds[4].clone(), bounds[3].clone()],
+        &[Wide::<4>::ONE; 2],
+        &[true, true],
+        &sh2,
+        &[None, None],
+    );
+    println!(
+        "RV23 SYN precedence_MF2 ucmissing {} stop {}",
+        um.map_or("-".into(), |b| b.to_string()),
+        st.map_or("-".into(), |(b, r)| format!("{b} {}", super::scale_tests::refusal_token(&r)))
+    );
+}
+
+// ---------------------------------------------------------------- forced refusals at W1 level
+
+fn find_model(name: &str) -> models::Model {
+    let mut all = models::models();
+    all.extend(models::parse_models(MODELS_5A3));
+    all.extend(models::parse_models(KF3));
+    all.into_iter().find(|m| m.name == name).unwrap_or_else(|| panic!("{name}"))
+}
+
+struct Force;
+impl Force {
+    fn new(v: Option<(usize, u8)>) -> Self {
+        rv23_force::set(v);
+        Force
+    }
+}
+impl Drop for Force {
+    fn drop(&mut self) {
+        rv23_force::set(None);
+    }
+}
+
+fn stage_identity(attempts: &[AttemptRecord]) -> bool {
+    attempts.iter().all(|a| {
+        a.stages.total() == a.work.limb_multiply_equivalents() + a.k4_work.limb_multiply_equivalents()
+            && a.shared_stages.total() == a.shared_work + a.verification_shared_work
+    })
+}
+
+/// The 256 verification of 128, built directly: per block data, Uc, S, B.
+fn verification_blocks(tag: &str, m: &models::Model, dump: bool) -> Option<Vec<(bool, bool)>> {
+    let _seeded = super::method_tests::Seeded::new(&m.seeds);
+    let prep = CasePrep::new(m.source()).unwrap();
+    let group = prepare_group(&prep.source).ok()?;
+    let g = StageGuard::unlimited();
+    let shared = build_shared::<4, 8>(256, 320, &prep.source, &group, g).result.ok()?;
+    let state = solve_case_at::<4, 8>(&shared, &prep, &group, g).result.ok()?;
+    let vs = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, g);
+    let vs = match vs.result {
+        Ok(v) => v,
+        Err(e) => {
+            println!("RV23 {tag} vshared_stop {e:?}");
+            return None;
+        }
+    };
+    let spent = verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, g);
+    let refusals: Vec<String> = spent
+        .refusals
+        .iter()
+        .map(|r| format!("{}:{:?}:{}", r.block, r.bound, super::scale_tests::refusal_token(&r.refusal)))
+        .collect();
+    println!("RV23 {tag} s_refusals {}", refusals.join(","));
+    let rep = match spent.result {
+        Ok(r) => r,
+        Err(e) => {
+            for (b, x) in vs.uc.iter().enumerate() {
+                println!("RV23 {tag} vblk {b} uc {} refused {}", otok(&x.uc), rtok(&x.refused));
+            }
+            println!("RV23 {tag} verify_stop {e:?}");
+            return None;
+        }
+    };
+    let mut out = Vec::new();
+    let profile = scaled_profile(
+        &group.structure,
+        &shared.k,
+        &group.ordering,
+        &group.blocks,
+        shared.factor.scale(),
+    )
+    .unwrap();
+    let rows_of = |b: usize| -> Vec<usize> {
+        (0..profile.first.len())
+            .filter(|&i| group.blocks.of[group.ordering.order[i]] as usize == b)
+            .collect()
+    };
+    for (b, cert) in rep.blocks.iter().enumerate() {
+        let s = cert.shift.as_ref().and_then(|r| r.s);
+        let sref = cert
+            .shift
+            .as_ref()
+            .and_then(|r| r.refused)
+            .or(cert.s_refused);
+        let rows = rows_of(b);
+        let has_mult = rows.iter().any(|&i| profile.first[i] < i);
+        println!(
+            "RV23 {tag} vblk {b} n {} data {} uc {} refused {} S {} srefused {} B {} theta {}",
+            rows.len(),
+            cert.data,
+            otok(&cert.bound.uc),
+            rtok(&cert.bound.refused),
+            otok(&s),
+            rtok(&sref),
+            otok(&cert.b),
+            otok(&rep.theta[b])
+        );
+        if dump && rows.len() <= 90 {
+            for &i in &rows {
+                let t: Vec<String> = profile.rows[i].iter().map(tok).collect();
+                println!("RV23 {tag} K {b} {i} {} {}", profile.first[i], t.join(" "));
+            }
+        }
+        out.push((cert.data, has_mult));
+    }
+    Some(out)
+}
+
+fn w1(tag: &str, m: &models::Model) {
+    let _seeded = super::method_tests::Seeded::new(&m.seeds);
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let out = solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter);
+    let layout = CasePrep::new(m.source()).unwrap().layout;
+    match &out {
+        CaseOutcome::Selected(s) => {
+            let attempts = &s.evidence().attempts;
+            let toks = super::method_tests::tokens(attempts, &layout);
+            let (worst, at, compared) =
+                models::compare_honest(s.publish(), s.selected_precision(), &m.exact);
+            let g = models::g5a(s).map_or_else(|e| format!("FAIL:{e}"), |_| "ok".into());
+            let refs: Vec<String> = attempts
+                .iter()
+                .flat_map(|a| {
+                    a.bound_refusals.iter().map(move |r| {
+                        format!("{}/{}:{:?}:{}", a.precision, r.block, r.bound, super::scale_tests::refusal_token(&r.refusal))
+                    })
+                })
+                .collect();
+            println!(
+                "RV23 {tag} W1 selected {} toks {} honest_worst {worst:e} at {at} compared {compared} g5a {g} stages {} refusals {}",
+                s.selected_precision(),
+                toks.join(","),
+                stage_identity(attempts),
+                refs.join(",")
+            );
+        }
+        CaseOutcome::Unresolved { reason, attempts, .. } => {
+            let toks = super::method_tests::tokens(attempts, &layout);
+            let refs: Vec<String> = attempts
+                .iter()
+                .flat_map(|a| {
+                    a.bound_refusals.iter().map(move |r| {
+                        format!("{}/{}:{:?}:{}", a.precision, r.block, r.bound, super::scale_tests::refusal_token(&r.refusal))
+                    })
+                })
+                .collect();
+            println!(
+                "RV23 {tag} W1 unresolved {reason:?} toks {} stages {} refusals {}",
+                toks.join(","),
+                stage_identity(attempts),
+                refs.join(",")
+            );
+        }
+        CaseOutcome::Refused { refusal, .. } => println!("RV23 {tag} W1 refused {refusal:?}"),
+    }
+}
+
+#[test]
+fn rv23_forced_refusals() {
+    let names = [
+        "N05",
+        "TWO-SPAN",
+        "SKEW6-K1E-12",
+        "ALL-ZERO-BODY",
+        "THETA-STUB-COUPLED",
+        "THETA-STUB",
+        "HH-FOOL-m40-LOADED",
+        "CHARGE-SLENDER",
+        "BLOCK-PRESC",
+        "GROUP-DIR",
+        "G-PRESC-MEMBER",
+        "RF-LARGE-CHAIN-n00010-ROT",
+        "RF-LARGE-TREE-n00010-AX",
+        "RF-LARGE-CONT-n00010-ROT",
+        "SPRING-CARRIED",
+        "DIRECTIONAL-WELL",
+    ];
+    for name in names {
+        let m = find_model(name);
+        let tag = format!("F {name} none");
+        let Some(blocks) = verification_blocks(&tag, &m, true) else {
+            w1(&tag, &m);
+            continue;
+        };
+        w1(&tag, &m);
+        for (b, &(data, has_mult)) in blocks.iter().enumerate() {
+            if !data && blocks.len() > 1 && b > 0 {
+                // One data-less block per model is enough.
+                continue;
+            }
+            // Uc refused (forward if the block has a multiplier, else the
+            // pivot division), then S refused.
+            let code = if has_mult { 0 } else { 1 };
+            for pass in [code, 2, 5] {
+                if pass == 2 && !has_mult {
+                    continue;
+                }
+                let tag = format!("F {name} {b}:{pass}");
+                let _f = Force::new(Some((b, pass)));
+                verification_blocks(&tag, &m, false);
+                w1(&tag, &m);
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------- the stage identity under budget stops
+
+fn segments(attempts: &[AttemptRecord]) -> Vec<(String, u64)> {
+    // H's `segments` (K6b), re-typed here.
+    let mut out = Vec::new();
+    let mut total = 0u64;
+    for (i, a) in attempts.iter().enumerate() {
+        let own = a.work.limb_multiply_equivalents() + a.k4_work.limb_multiply_equivalents();
+        let own_solve = own.saturating_sub(a.verification_work).saturating_sub(a.stop_rule_work);
+        total += a.shared_work + own_solve;
+        out.push((format!("solve_{}", a.precision), total));
+        if a.verification.is_some() || a.verification_work > 0 || a.verification_shared_work > 0 {
+            total += a.verification_shared_work + a.verification_work;
+            out.push((format!("verify_{}", a.precision), total));
+            if i > 0 && attempts[i - 1].stop_rule_work > 0 {
+                total += attempts[i - 1].stop_rule_work;
+                out.push((format!("decide_{}", attempts[i - 1].precision), total));
+            }
+        }
+    }
+    out
+}
+
+fn attempts_of(out: &CaseOutcome) -> Vec<AttemptRecord> {
+    match out {
+        CaseOutcome::Selected(s) => s.evidence().attempts.clone(),
+        CaseOutcome::Unresolved { attempts, .. } => attempts.clone(),
+        CaseOutcome::Refused { .. } => Vec::new(),
+    }
+}
+
+fn run_limit(m: &models::Model, limit: u64) -> (CaseOutcome, u64) {
+    let _seeded = super::method_tests::Seeded::new(&m.seeds);
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let out = solve_case(m.source(), CaseLimit::new(limit), &mut meter);
+    (out, meter.charged())
+}
+
+fn sweep_model(name: &str, points: u64) {
+    let m = find_model(name);
+    let (full, charged) = run_limit(&m, u64::MAX);
+    let fa = attempts_of(&full);
+    let segs = segments(&fa);
+    let mut limits: Vec<u64> = (1..points).map(|k| charged * k / points).collect();
+    let mut at = 0u64;
+    for a in &fa {
+        // Every stage boundary of every build of every attempt, and ±1, in
+        // the order the schedule charges them (shared, own, v-shared, pass).
+        for part in [&a.shared_stages, &a.stages] {
+            for x in [
+                part.formation,
+                part.assembly,
+                part.residual_formation,
+                part.factor,
+                part.condition,
+                part.rhs,
+                part.solve,
+                part.refinement,
+                part.bounded_gate,
+                part.recovery,
+                part.stop_rule,
+                part.scale,
+                part.estimate,
+                part.charge,
+                part.bound,
+                part.shift,
+                part.bounded_formation,
+                part.wide_formation,
+                part.uc,
+            ] {
+                if x > 0 {
+                    limits.push(at + x / 2);
+                    at += x;
+                }
+            }
+        }
+    }
+    for (_, e) in &segs {
+        for d in [0i64, -1, 1, 10, -10] {
+            limits.push((*e as i64 + d).max(1) as u64);
+        }
+    }
+    // RV22-N7's two paths: the end of the 128 solve, and 10 LME into it.
+    if !fa.is_empty() {
+        limits.push(segs[0].1);
+        limits.push(fa[0].shared_work + 10);
+    }
+    limits.sort_unstable();
+    limits.dedup();
+    let (mut runs, mut stopped, mut bad) = (0, 0, 0);
+    let mut partial_stops = std::collections::BTreeMap::<String, usize>::new();
+    for limit in limits {
+        let (out, _) = run_limit(&m, limit);
+        let atts = attempts_of(&out);
+        runs += 1;
+        for a in &atts {
+            let own = a.work.limb_multiply_equivalents() + a.k4_work.limb_multiply_equivalents();
+            let sh = a.shared_work + a.verification_shared_work;
+            let ok = a.stages.total() == own && a.shared_stages.total() == sh;
+            if !ok {
+                bad += 1;
+                println!(
+                    "RV23 SWEEP {name} limit {limit} p {} {:?} own {}/{own} shared {}/{sh} MISMATCH",
+                    a.precision,
+                    a.outcome,
+                    a.stages.total(),
+                    a.shared_stages.total()
+                );
+            }
+            if matches!(a.outcome, AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Budget(_)))) {
+                stopped += 1;
+                *partial_stops.entry(format!("p{}", a.precision)).or_default() += 1;
+            }
+        }
+        if limit == segs[0].1 || (!fa.is_empty() && limit == fa[0].shared_work + 10) {
+            for (i, a) in atts.iter().enumerate() {
+                let own = a.work.limb_multiply_equivalents() + a.k4_work.limb_multiply_equivalents();
+                println!(
+                    "RV23 N7 {name} limit {limit} attempt {i} p {} {:?} own {}/{own} shared {}/{} stages_shared {:?}",
+                    a.precision,
+                    a.outcome,
+                    a.stages.total(),
+                    a.shared_stages.total(),
+                    a.shared_work + a.verification_shared_work,
+                    a.shared_stages
+                );
+            }
+        }
+    }
+    println!("RV23 SWEEP {name} runs {runs} budget_stopped_attempts {stopped} mismatches {bad} by {partial_stops:?}");
+    assert_eq!(bad, 0, "{name}");
+}
+
+#[test]
+fn rv23_stage_sweep_small() {
+    for name in [
+        "RF-LARGE-CHAIN-n00010-AX",
+        "N05",
+        "SKEW6-K1E-12",
+        "HH-FOOL-m40-LOADED",
+        "TWO-SPAN",
+        "SKEW-K1E-28",
+        "PIVOT",
+        "N09-B",
+        "EHAT-OVERFLOW",
+        "ALL-ZERO-BODY",
+    ] {
+        sweep_model(name, 300);
+    }
+}
+
+#[test]
+fn rv23_stage_sweep_kf3() {
+    sweep_model("KF3-UC-SPAN", 60);
+}
+
+// ---------------------------------------------------------------- a refusal lost on a budget stop
+
+#[test]
+fn rv23_refusal_evidence_on_a_budget_stop_after_the_refusal() {
+    let m = find_model("KF3-UC-SPAN");
+    let (full, _) = run_limit(&m, u64::MAX);
+    let fa = attempts_of(&full);
+    let segs = segments(&fa);
+    // verify_128 ends at segs[1]; its shared build is the 256 verification's.
+    let v = &fa[1];
+    println!(
+        "RV23 LOST full: p {} refusals {} vshared {}",
+        v.precision,
+        v.bound_refusals.len(),
+        v.verification_shared_work
+    );
+    // The case limit that leaves the 256 verification's shared build `delta`
+    // LME short of its total: with delta = 1 it stops at the first guard check
+    // after the refusal (every later operation of the only block is skipped).
+    let start_of_vshared = segs[1].1;
+    for delta in [1u64, 2, 100, 10_000, 1_000_000] {
+        let limit = start_of_vshared + v.verification_shared_work - delta;
+        let (out, _) = run_limit(&m, limit);
+        let atts = attempts_of(&out);
+        let a = &atts[1];
+        println!(
+            "RV23 LOST limit start+vshared-{delta}: p {} outcome {:?} vshared {}/{} bound_refusals {:?} shared_stages.uc {}/{}",
+            a.precision,
+            a.outcome,
+            a.verification_shared_work,
+            v.verification_shared_work,
+            a.bound_refusals,
+            a.shared_stages.uc,
+            v.shared_stages.uc
+        );
+    }
+}
+
+// ---------------------------------------------------------------- KF3-B1: (b)'s ratio against P
+
+/// R7's verification estimate (b) at a verification state of precision P:
+/// the largest Ŵ_q/(2^(6−P)·ê) over force and moment rows ((b) rejects above
+/// 1), and its row.
+fn b_ratio<const L: usize, const R: usize, const W: usize>(p: u32, q: u32, m: &models::Model) -> (f64, usize)
+where
+    Wide<L>: SupportedWidth,
+    Wide<R>: SupportedWidth,
+    Wide<W>: SupportedWidth,
+{
+    use super::super::recover::Kind;
+    let _seeded = super::method_tests::Seeded::new(&m.seeds);
+    let prep = CasePrep::new(m.source()).unwrap();
+    let group = prepare_group(&prep.source).unwrap();
+    let g = StageGuard::unlimited();
+    let shared = build_shared::<L, R>(p, q, &prep.source, &group, g).result.unwrap();
+    let state = solve_case_at::<L, R>(&shared, &prep, &group, g).result.unwrap();
+    let vs = build_verify_shared::<L, R, W>(&shared, &prep.source, &group, g).result.unwrap();
+    let r = verify_state::<L, R, W>(&shared, &vs, &prep, &group, &state, g).result.unwrap();
+    let mut worst = (0.0f64, 0usize);
+    for (index, meta) in prep.layout.iter().enumerate() {
+        let k = match meta.kind {
+            Kind::Force => 0,
+            Kind::Moment => 1,
+            _ => continue,
+        };
+        let hat = super::super::verify::e_hat(r.resolution[meta.body as usize], prep.extents[meta.body as usize])[k];
+        if let Some(w) = &r.w[index] {
+            let scaled = w.mul_pow2(i64::from(p) - 6).unwrap();
+            let x = super::super::directed::binary64_up(&scaled).unwrap() / hat;
+            if x > worst.0 {
+                worst = (x, index);
+            }
+        }
+    }
+    worst
+}
+
+#[test]
+fn rv23_b1_estimate_ratio_against_p() {
+    for name in [
+        "RF-LARGE-TREE-n00010-AX",
+        "RF-LARGE-TREE-n00100-AX",
+        "RF-LARGE-TREE-n00100-ROT",
+        "RF-LARGE-CHAIN-n00100-AX",
+        "N05",
+        "SKEW6-K1E-12",
+    ] {
+        let m = find_model(name);
+        let a = b_ratio::<4, 8, 8>(256, 320, &m);
+        let b = b_ratio::<8, 16, 16>(512, 576, &m);
+        let c = b_ratio::<16, 16, 16>(1024, 1024, &m);
+        println!(
+            "RV23 B1 {name} ratio(256) {:.12e} row {} ratio(512) {:.12e} row {} ratio(1024) {:.12e} row {} spread {:.3e}",
+            a.0,
+            a.1,
+            b.0,
+            b.1,
+            c.0,
+            c.1,
+            (a.0.max(b.0).max(c.0) - a.0.min(b.0).min(c.0)) / a.0.max(b.0).max(c.0)
+        );
+    }
+}
+
+// ---------------------------------------------------------------- a forward refusal and a refused S
+
+#[test]
+fn rv23_synthetic_forward_refusal_and_refused_s() {
+    let p = 256;
+    let a = banded(9, 3.0, &[-1.0]);
+    let d1 = |k: usize| if k % 2 == 0 { [1.0, 2.0, 1.0] } else { [2.0, 1.0, 1.0] };
+    let f3 = nil_chain(400, 1_048_576.0, [1.0, 1.0, 2.0], [1.0, 1.0, -1.0], d1);
+    let parts = [&a, &f3];
+    let (first, rows, blk) = combine(&parts);
+    let n = rows.len();
+    let mut ctx = WideContext::<4>::new(p).unwrap();
+    let mut sum = ExactWideSum::new();
+    let guard = StageGuard::unlimited();
+    let gamma = gamma_m(&mut ctx, &mut sum, n).unwrap();
+    println!("RV23 SYN2 gamma {} n {n}", tok(&gamma));
+    let profile = ScaledProfile::from_rows(first.clone(), rows.clone(), blk.clone());
+    dump_profile("SYN2", &first, &rows, &blk);
+    let fac = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None, None], &mut vec![None; 2]).unwrap();
+    dump_factor("SYN2", &fac, &blk);
+    let bounds = uc_bounds(&mut ctx, &mut sum, &guard, &fac, &blk, &mut vec![None; 2], &gamma).unwrap();
+    print_bounds("SYN2", &bounds);
+    let s_a = Wide::<4>::ONE.mul_pow2(-9000).unwrap();
+    let s_f = Wide::<4>::ONE.mul_pow2(-60).unwrap();
+    let start = vec![(0usize, s_a, a.rows.len()), (1, s_f, f3.rows.len())];
+    let (shifts, count) = shift_schedule(&mut ctx, &mut sum, &guard, &profile, &gamma, &start, &mut vec![None; 2]).unwrap();
+    println!("RV23 SYN2 shiftcount {count}");
+    for (b, r) in &shifts {
+        println!(
+            "RV23 SYN2 shf {b} tries {} sigma {} nl {} delta {} sp {} S {} refused {}",
+            r.tries,
+            tok(&r.sigma),
+            otok(&r.n_l),
+            otok(&r.delta),
+            otok(&r.sigma_prime),
+            otok(&r.s),
+            rtok(&r.refused)
+        );
+    }
+    let blocks = FreeBlocks {
+        of: blk.clone(),
+        positions: vec![(0..a.rows.len()).collect(), (a.rows.len()..n).collect()],
+        body: vec![0, 0],
+    };
+    let s_refused: Vec<Option<BoundRefusal>> = shifts.iter().map(|r| r.1.refused).collect();
+    let (certs, uc_missing, stop) =
+        certificates(&blocks, &bounds, &[Wide::<4>::ONE; 2], &[true, true], &shifts, &s_refused);
+    for (b, cert) in certs.iter().enumerate() {
+        println!("RV23 SYN2 cert {b} data {} B {}", cert.data, otok(&cert.b));
+    }
+    println!(
+        "RV23 SYN2 ucmissing {} stop {}",
+        uc_missing.map_or("-".into(), |b| b.to_string()),
+        stop.map_or("-".into(), |(b, r)| format!("{b} {}", super::scale_tests::refusal_token(&r)))
+    );
+}
+
+// ---------------------------------------------------------------- KF3-UC-SPAN's published rows
+
+#[test]
+fn rv23_kf3_uc_span_published_rows() {
+    let m = find_model("KF3-UC-SPAN");
+    let mut meter = InvocationMeter::new(u64::MAX);
+    let out = solve_case(m.source(), CaseLimit::new(u64::MAX), &mut meter);
+    let CaseOutcome::Selected(s) = out else { panic!("{out:?}") };
+    let publication = s.publish();
+    for (body, kind, bits) in &publication.body_scales {
+        println!("RV23 SCALE {body} {kind:?} {bits:016x}");
+    }
+    for r in &publication.rows {
+        let v = r.value.value().map_or("-".into(), |x| format!("{:016x}", x.to_bits()));
+        let (cls, b) = match r.class {
+            RowClass::AbsoluteVerified { bound_bits } => ("abs", format!("{bound_bits:016x}")),
+            RowClass::RelativeVerified => ("rel", "-".into()),
+            RowClass::InputDerived => ("input", "-".into()),
+            RowClass::Unpublishable => ("unpub", "-".into()),
+        };
+        println!("RV23 PUB {} {v} {cls} {b} {} {:?}", models::key(&r.id), r.body, r.kind);
+    }
+    println!("RV23 PUBSEL {}", s.selected_precision());
+}
+
+// ---------------------------------------------------------------- confirmation at aa83f6796 (RV23-1)
+
+/// KF3-UC-SPAN plus a second, independent body (one member along x, fixed at
+/// its first node, loaded at its second with `load`): two blocks with data.
+fn two_body(load: f64) -> models::Model {
+    let text: String = KF3
+        .lines()
+        .skip_while(|l| *l != "model KF3-UC-SPAN")
+        .take_while(|l| *l != "end")
+        .filter(|l| !l.starts_with("expect "))
+        .map(|l| format!("{l}\n"))
+        .collect();
+    let member = text.lines().find(|l| l.starts_with("member 1 ")).unwrap();
+    let section: Vec<&str> = member.split_whitespace().skip(4).take(6).collect();
+    let h = |x: f64| format!("{:016x}", x.to_bits());
+    let mut extra = format!(
+        "node {} {} {}\nnode {} {} {}\nmember 391 391 392 {} {} {} {}\n",
+        h(2048.0),
+        h(0.0),
+        h(0.0),
+        h(2048.0),
+        h(0.0),
+        h(34.0),
+        section.join(" "),
+        h(1.0),
+        h(0.0),
+        h(0.0)
+    );
+    for c in 0..6 {
+        extra.push_str(&format!("constraint 391 {c} {}\n", h(0.0)));
+    }
+    extra.push_str(&format!("load 392 0 {} l9\n", h(load)));
+    models::parse_models(&format!("{text}{extra}end\n")).into_iter().next().unwrap()
+}
+
+fn refusal_line(a: &AttemptRecord) -> String {
+    a.bound_refusals
+        .iter()
+        .map(|r| format!("{}:{:?}:{}", r.block, r.bound, super::scale_tests::refusal_token(&r.refusal)))
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+#[test]
+fn rv23c_a_cached_failed_shared_build_carries_its_refusals_to_a_later_case() {
+    let (a, b) = (two_body(0.0625), two_body(0.125));
+    // The chain's block (its Uc_c is refused) and the other block, at 256.
+    let prep = CasePrep::new(a.source()).unwrap();
+    let group = prepare_group(&prep.source).unwrap();
+    let g = StageGuard::unlimited();
+    let shared = build_shared::<4, 8>(256, 320, &prep.source, &group, g).result.unwrap();
+    let vs = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, g).result.unwrap();
+    assert_eq!(vs.uc.len(), 2);
+    let chain = vs.uc.iter().position(|x| x.refused.is_some()).expect("refused");
+    let other = 1 - chain;
+    println!("RV23C CACHE blocks: chain {chain} refused {} other {other} uc {}", rtok(&vs.uc[chain].refused), otok(&vs.uc[other].uc));
+    for (label, fail) in [("unforced", None), ("forced", Some((other, 6u8)))] {
+        rv23_force::set_fail(fail);
+        let mut meter = InvocationMeter::new(u64::MAX);
+        let outs = solve_cases(&[a.source(), b.source()], CaseLimit::new(u64::MAX), &mut meter);
+        rv23_force::set_fail(None);
+        for (k, out) in outs.iter().enumerate() {
+            let atts = attempts_of(out);
+            let kind = match out {
+                CaseOutcome::Selected(s) => format!("selected {}", s.selected_precision()),
+                CaseOutcome::Unresolved { reason, .. } => format!("unresolved {reason:?}"),
+                CaseOutcome::Refused { refusal, .. } => format!("refused {refusal:?}"),
+            };
+            for at in &atts {
+                if at.precision == 256 {
+                    println!(
+                        "RV23C CACHE {label} case {k} {kind} p256 outcome {:?} vshared_built_here {} vshared {} refusals [{}] stages_ok {}",
+                        at.outcome,
+                        at.verification_shared_built_here,
+                        at.verification_shared_work,
+                        refusal_line(at),
+                        stage_identity(&atts)
+                    );
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn rv23c_s_refusals_survive_a_stop_inside_the_schedule() {
+    // A: S refused in factorization 1's formation (σ = 2^-9000). C: S refused
+    // in flight, in factorization 1's N′_L column pass (a forced refusal).
+    // F2: fails three times, so factorizations 2 and 3 run after both.
+    let p = 256;
+    let a = banded(9, 3.0, &[-1.0]);
+    let c = banded(7, 6.0, &[-2.0, 0.5]);
+    let f2 = nil_chain(195, 1_048_576.0, [1.0, 2.0, 1.0], [1.0, 0.0, -1.0], |_| [1.0, 1.0, 1.0]);
+    let parts = [&a, &c, &f2];
+    let (first, rows, blk) = combine(&parts);
+    let n = rows.len();
+    let mut ctx = WideContext::<4>::new(p).unwrap();
+    let mut sum = ExactWideSum::new();
+    let gamma = gamma_m(&mut ctx, &mut sum, n).unwrap();
+    let profile = ScaledProfile::from_rows(first, rows, blk);
+    let start = vec![
+        (0usize, Wide::<4>::ONE.mul_pow2(-9000).unwrap(), a.rows.len()),
+        (1, w(0.5), c.rows.len()),
+        (2, w(4.0), f2.rows.len()),
+    ];
+    let _f = Force::new(Some((1, 3)));
+    let run = |room: Option<u64>| {
+        let mut ctx = WideContext::<4>::new(p).unwrap();
+        let mut sum = ExactWideSum::new();
+        let guard = room.map_or(StageGuard::unlimited(), StageGuard::with_case_room);
+        let mut s_refused = vec![None; 3];
+        let r = shift_schedule(&mut ctx, &mut sum, &guard, &profile, &gamma, &start, &mut s_refused);
+        let work = super::super::adaptive::lme(&ctx) + sum.work().limb_multiply_equivalents();
+        (r, s_refused, work)
+    };
+    let (full, _, total) = run(None);
+    let (shifts, count) = full.unwrap();
+    let expect: Vec<Option<BoundRefusal>> = (0..3).map(|b| shifts.iter().find(|r| r.0 == b).unwrap().1.refused).collect();
+    println!("RV23C S unlimited: factorizations {count}, total {total} LME, refusals {:?}", expect.iter().map(rtok).collect::<Vec<_>>());
+    assert!(expect[0].is_some() && expect[1].is_some() && expect[2].is_none());
+    let (mut stops, mut none, mut only_c, mut both, mut bad) = (0, 0, 0, 0, 0);
+    let mut last = 0usize;
+    for k in 1..800u64 {
+        let room = total * k / 800;
+        let (r, s_refused, work) = run(Some(room));
+        let Err(stop) = r else { continue };
+        assert!(matches!(stop, AttemptStop::Budget(_)), "{stop:?}");
+        stops += 1;
+        let got: Vec<bool> = s_refused.iter().map(|x| x.is_some()).collect();
+        // No refusal other than the unlimited run's, each identical to it.
+        let spurious = (0..3).any(|b| s_refused[b].is_some() && s_refused[b] != expect[b]);
+        // Monotone: the refusals kept never shrink as the room grows.
+        let count = got.iter().filter(|x| **x).count();
+        if spurious || count < last {
+            bad += 1;
+            println!("RV23C S BAD room {room} work {work} {:?}", s_refused.iter().map(rtok).collect::<Vec<_>>());
+        }
+        last = count;
+        match (got[0], got[1]) {
+            (false, false) => none += 1,
+            (false, true) => only_c += 1,
+            (true, true) => both += 1,
+            (true, false) => bad += 1,
+        }
+    }
+    println!("RV23C S sweep: 799 rooms, {stops} budget stops: none {none}, C only (in flight) {only_c}, A and C {both}; violations {bad}");
+    assert_eq!(bad, 0);
+    assert!(only_c > 0 && both > 0);
+}

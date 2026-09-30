@@ -1,0 +1,128 @@
+--- a/FK/src/structural/retained/bound.rs (head aa83f6796)
++++ b/FK/src/structural/retained/bound.rs (reviewer copy only)
+@@ -326,6 +326,39 @@
+     }
+ }
+ 
++
++/// RV23 probe only (review copy; never committed): a forced refusal (`Span`)
++/// or a forced non-refusal stop (`Arithmetic`) of one block's operation in one
++/// pass.
++pub(crate) mod rv23_force {
++    use super::super::wide::WideError;
++    use super::AttemptStop;
++    use std::cell::Cell;
++    thread_local! {
++        static AT: Cell<Option<(usize, u8)>> = const { Cell::new(None) };
++        static FAIL: Cell<Option<(usize, u8)>> = const { Cell::new(None) };
++    }
++    pub(crate) fn set(v: Option<(usize, u8)>) {
++        AT.with(|c| c.set(v));
++    }
++    pub(crate) fn set_fail(v: Option<(usize, u8)>) {
++        FAIL.with(|c| c.set(v));
++    }
++    pub(crate) fn wrap<T>(block: usize, pass: u8, r: Result<T, AttemptStop>) -> Result<T, AttemptStop> {
++        if FAIL.with(|c| c.get()) == Some((block, pass)) {
++            return Err(AttemptStop::Arithmetic(WideError::NonFinite));
++        }
++        if AT.with(|c| c.get()) == Some((block, pass)) {
++            match r {
++                Ok(_) => Err(AttemptStop::Span),
++                Err(e) => Err(e),
++            }
++        } else {
++            r
++        }
++    }
++}
++
+ // ------------------------------------------------------------ Uc_c (7b)
+ 
+ /// A unit lower triangular L and diagonal D on a profile, in elimination
+@@ -397,7 +430,7 @@
+                     break;
+                 };
+                 let Some(v) = refusable(
+-                    add_toward(ctx, sum, &acc.unwrap_or(one), &t, Toward::Up),
++                    rv23_force::wrap(b, 0, add_toward(ctx, sum, &acc.unwrap_or(one), &t, Toward::Up)),
+                     sum,
+                     &mut refused[b],
+                     BoundPass::Forward,
+@@ -420,7 +453,7 @@
+         let b = block_of_row[i] as usize;
+         let v = if refused[b].is_none() {
+             refusable(
+-                div_toward(ctx, sum, ai, &f.entry(i, i), Toward::Up),
++                rv23_force::wrap(b, 1, div_toward(ctx, sum, ai, &f.entry(i, i), Toward::Up)),
+                 sum,
+                 &mut refused[b],
+                 BoundPass::Pivot,
+@@ -451,7 +484,7 @@
+                     break;
+                 };
+                 let Some(v) = refusable(
+-                    add_toward(ctx, sum, &c[j], &t, Toward::Up),
++                    rv23_force::wrap(b, 2, add_toward(ctx, sum, &c[j], &t, Toward::Up)),
+                     sum,
+                     &mut refused[b],
+                     BoundPass::Backward,
+@@ -494,7 +527,7 @@
+                 continue;
+             }
+             let Some(v) = refusable(
+-                add_toward(ctx, sum, &at[j], &l, Toward::Up),
++                rv23_force::wrap(b, 3, add_toward(ctx, sum, &at[j], &l, Toward::Up)),
+                 sum,
+                 &mut refused[b],
+                 BoundPass::NlColumn,
+@@ -542,7 +575,7 @@
+                     break;
+                 };
+                 let Some(v) = refusable(
+-                    add_toward(ctx, sum, &ct[i], &t, Toward::Up),
++                    rv23_force::wrap(b, 4, add_toward(ctx, sum, &ct[i], &t, Toward::Up)),
+                     sum,
+                     &mut refused[b],
+                     BoundPass::NlRow,
+@@ -691,7 +724,7 @@
+             continue;
+         }
+         match refusable(
+-            bounds_from(ctx, sum, gamma, &u[b], &n_l[b]),
++            rv23_force::wrap(b, 6, bounds_from(ctx, sum, gamma, &u[b], &n_l[b])),
+             sum,
+             slot,
+             BoundPass::Form,
+@@ -713,8 +746,8 @@
+ where
+     Wide<L>: SupportedWidth,
+ {
+-    first: Vec<usize>,
+-    rows: Vec<Vec<Wide<L>>>,
++    pub(crate) first: Vec<usize>,
++    pub(crate) rows: Vec<Vec<Wide<L>>>,
+     block_of_row: Vec<u32>,
+     blocks: usize,
+ }
+@@ -1110,7 +1143,7 @@
+                     };
+                     Ok((delta, sp, sv))
+                 };
+-                let formed = form(ctx, sum);
++                let formed = rv23_force::wrap(b, 5, form(ctx, sum));
+                 if let Some((delta, sp, sv)) = refusable(
+                     formed,
+                     sum,
+--- a/FK/src/structural/retained/adaptive.rs (head aa83f6796)
++++ b/FK/src/structural/retained/adaptive.rs (reviewer copy only)
+@@ -3619,6 +3619,9 @@
+ #[path = "../../../tests/retained_k4/kf3_tests.rs"]
+ mod kf3_tests;
+ #[cfg(test)]
++#[path = "../../../tests/retained_k4/rv23_probe.rs"]
++mod rv23_probe;
++#[cfg(test)]
+ #[path = "../../../tests/retained_k4/method_tests.rs"]
+ mod method_tests;
+ #[cfg(test)]

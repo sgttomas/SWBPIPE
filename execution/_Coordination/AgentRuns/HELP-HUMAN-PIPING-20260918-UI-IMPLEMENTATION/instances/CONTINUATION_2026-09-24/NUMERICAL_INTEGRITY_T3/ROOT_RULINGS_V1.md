@@ -2964,3 +2964,16 @@ RV24 (`REVIEW/KF2_REVIEW.md`, sha256 `6785aa13…`; records `REVIEW/_run_records
   - **I20 corrects RV24-N3's count:** 4 of the 16 witness runs (the captured-entry FX-NP-A runs) publish a recovered result, and 12 the refusal. RV24 checks this at confirmation.
   - **CI:** the dispatch is 36669470111. RV24 is confirming.
 - **Merge order:** KF3 first, if RV23 confirms. KF2 then merges main, and RV24 adds a merge check.
+
+## KF3: RV23 confirms aa83f6796 (ROOT, 2026-09-30)
+
+- **RV23's confirmation at `aa83f6796`: PASS.** There is no new BLOCKING or SHOULD-FIX finding, and one new NOTE (`REVIEW/KF3_REVIEW.md`, "Confirmation at aa83f6796"; sha256 `0030aa39…`).
+  - **RV23-1 is closed on both sites:**
+    - the Uc probe now records `[block 0, Uc, Span, Backward, row 66]` on the budget-stopped attempt;
+    - RV23's new two-case probe shows a cached non-budget failure passing its refusal to the later case;
+    - RV23's three-block S sweep (799 case rooms) never loses, changes or invents a refusal.
+  - **M4b is killed** by the new `verify_state` precedence test.
+  - **Nothing else changed.** Every earlier probe re-runs byte-identical, apart from the refusals now recorded. FK's suite and `gen --check` pass on a clean archive, and product-crate reach is unchanged.
+- **RV23C-N1 (NOTE) is recorded, with no test now.** The cache's refusal-keeping on a non-budget failure is shown by RV23's probe, but it is not covered by I19's tests. It needs a non-budget, non-refusal stop after a refusal, and FK has no hook to force one; honesty is unaffected.
+  - **Routed:** if a fault hook for an `Arithmetic` stop is added (V-K's `mutation-controls` sites are the natural home), a two-case test goes with it.
+- **The merge path:** CI on `aa83f6796` (dispatch 36669370536), DEC-025 (running now), GEN-8, then the merge.

@@ -220,3 +220,83 @@ One cargo job at a time: each mutant is a clean `git archive` of the head's FK, 
 - `b_runs/`: my two `vk_scale` runs.
 - `mutations/`: `mutants.jsonl` and each mutant's log.
 - Paths are shown as `<wt>`, `<scratch>`, `<home>` and `<tmp>`.
+
+## Confirmation at aa83f6796 (RV23, 2026-09-29)
+
+- **Head:** `aa83f6796` (`aa83f67969c2f618034b856ba6e1fc13ae10762e`), one commit on `b8c55c92e`: RV23-1's fix, the RV23-N1 test, and RETURN and CHANGE_RECORD addendum 1. The rulings are "KF3: rulings on RV23's review" (numerics `24ef16301`).
+- **Verdict: PASS.** RV23-1 is closed, and RV23-N1's test kills M4b. There are no new BLOCKING or SHOULD-FIX findings and 1 new NOTE (RV23C-N1).
+- The records are in `_run_records/kf3_review/confirm_aa83f6796/`.
+
+### C.1 RV23-1 is closed on both sites
+
+**The Uc site** (the verification's shared build):
+- `uc_bounds` takes the slots from its caller (`K4R/bound.rs:669`), and `build_verify_shared` holds them outside its build (`verify.rs:441`).
+- On a stopped build it returns them (`uc_refusals`, `verify.rs:526`; `bound.rs:1321`), and `verify_precision` records them before `vs?` (`adaptive.rs:3050-3052`).
+- **My probe, re-run at the head** (`probes/sweep.out`, `RV23 LOST`): with KF3-UC-SPAN's case limit 1, 2 and 100 LME short of the shared build, the attempt ends `Failed(Stop(Budget(Case)))` after all of the build's work. Its `bound_refusals` is now `[block 0, Uc, Span, Backward, row 66]`, the completed attempt's, where it was `[]` at `b8c55c92e`.
+  - At 10,000 and 1,000,000 LME short, the stop falls at an earlier guard check. That is before the refusal row, the last row with work in the build, so the empty list is right.
+
+**The cached failure, reused by a later case** (`VerifySlot`, `adaptive.rs:2757`; stored at `:3005`). My new probe `rv23c_a_cached_failed_shared_build_carries_its_refusals_to_a_later_case` (`probes/confirm.out`):
+- Two load cases share one stiffness: KF3-UC-SPAN plus a second one-member body of my own.
+- The chain's Uc_c is refused, `backward:72`. My copy-only patch then forces an `Arithmetic` stop in the other block's `bounds_from`, a non-budget failure after the refusal, which the cache keeps.
+- In case 0, which built the shared data, and in case 1, which met the cached failure (`verification_shared_built_here: false`), the 256 attempt ends `Failed(Stop(Arithmetic))` with `bound_refusals = [0:Uc:refused:span:backward:72]`. The stage identity holds.
+- With the cache's refusals dropped (RV23C-M1, applied to my probe copy), case 1's list is `[]` (`probes/cache_probe_under_M1.out`). So the probe discriminates.
+
+**The S site** (`shift_schedule`, `bound.rs:1011-1146`):
+- The factorizations run in a closure. On `Err`, the results' kept refusals and the in-flight factorization's refusals for its shifted blocks go into the caller's `s_refused`, before `steps?`.
+- `shift_run` passes `s_refused` through (`:1260`), and `verify_state` lists it into `VerifySpent.refusals` before `shifted?` (`verify.rs:1013`).
+- **My sweep** (`rv23c_s_refusals_survive_a_stop_inside_the_schedule`), independently of I19's test:
+  - three blocks: A with S refused in formation at σ = 2^-9000; C with S refused in flight (a forced N′_L column refusal); and F2, which fails three times;
+  - 799 case rooms across the schedule's 9,979,960 LME: 255 stops before any refusal, 11 carrying C's in-flight refusal alone, and 533 carrying A's and C's;
+  - never a refusal the unlimited run lacks, never a changed one, and never fewer as the room grows.
+
+**The claim "on every path"** (the `AttemptRecord` doc, RETURN §3.1, CHANGE_RECORD) now holds on every path I probed.
+
+### C.2 Nothing else changed
+
+- **Delta read:**
+  - The fix moves the refusal slots to the callers (`uc_bounds`, `shifted_factor`, `shift_schedule`), with every slot `None` on entry, as the locals were.
+  - It re-indents the schedule's loop into a closure with the same operations in the same order; `refused.fill(None)` per factorization (`:1055`) replaces the fresh `f.refused.clone()`.
+  - On success `shift_schedule` never touches `s_refused`, so `shift_run` records as before.
+  - `build_verify_shared` and `obtain_verify` add only the returned or cached refusals.
+  - No formed value, operation or order changes.
+  - The S11 site table passes (3 of 3).
+- **My probes re-run at the head give byte-identical `RV23` lines** (`checks/invariance.txt`), apart from the LOST lines above. That covers:
+  - the synthetic cases' K̃ and factor dumps, bounds, shifts and certificates;
+  - the 68 forced-refusal W1 runs, with their honesty ratios, B values and refusal evidence;
+  - KF3-UC-SPAN's 7,423 published rows, bit for bit;
+  - (b)'s ratios;
+  - the stage sweeps: 3,611 runs, 0 mismatches.
+- **Suites** (debug, clean archive, one cargo job, `RUST_TEST_THREADS=2`): FK's full suite passes 351 lib tests (the 348 and I19's three), 7 integration files and 6 doc-tests, in 12:52, with no warning (`suites/fk_suite.log`). `gen_k4_vectors.py --check` passes all 24 files, exit 0, in 15:35 (`suites/gen_check.log`).
+- **Reach** (`checks/reach_and_scope.txt`):
+  - the delta touches only `K4R/{adaptive,bound,verify}.rs`, `K4T/{bound,kf3,scale}_tests.rs` and the KF3 records;
+  - no manifest, lock, facade, H, VR or vector file changes;
+  - the files naming `retained_api` or `structural::retained` are identical to `b8c55c92e`'s.
+- **Not re-run:** H, VR and B. The delta touches none of them, uses no new public API, and changes evidence only on stopped builds.
+
+### C.3 Mutants (`mutations/`; one clean FK archive of the head and one release target each, deleted; my earlier filters, now 59 tests)
+
+| Mutant | Change | Result | Killing test |
+|---|---|---|---|
+| NONE | the head | 59 of 59 pass | — |
+| RV23-M4b | `verify_state` honours the stop only when no block is `uc` | **killed** | `kf3_in_verify_state_a_refusal_stop_outranks_uc` |
+| RV23C-M2 | `verify_precision` ignores a stopped build's refusals | killed | `kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence` |
+| RV23C-M5 | `build_verify_shared` returns none when it stops | killed | the same |
+| RV23C-M3 | the schedule's stop drops the kept results | killed | `kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence` |
+| RV23C-M4 | the schedule's stop drops the in-flight refusals | killed | the same |
+| RV23C-M1 | the cache keeps a failure's stages but not its refusals | **survives** | RV23C-N1 (my probe kills it) |
+
+RV23C-M2 to M5 re-implement I19's RV23-1-M1 to M3b from my own reading.
+
+### C.4 New NOTE
+
+| ID | Class | Site | Evidence | Remedy |
+|---|---|---|---|---|
+| RV23C-N1 | NOTE | `K4R/adaptive.rs:2757`, `:3000-3006`; RETURN addendum A1.1 ("so a case that meets the cached failure records them too"). | **The cached-failure path is right but untested.** RV23C-M1 survives the suite. My probe shows the path works at the head and fails under the mutant. It needs a non-budget, non-refusal stop in the shared build after a refusal (an `Arithmetic` or `Structure` stop, "not expected for a valid source"), so it is practically unreachable, and FK has no hook to force one. Honesty is unaffected. | Optional: a two-case test when a fault hook exists. Otherwise record it. |
+
+### C.5 Host and Git
+
+- **Builds:** clean `git archive` copies of `aa83f6796` under `<wt>/rv23c/` (`head`, `probe`, one per mutant), with the targets `<wt>/rv23c-target`, `<wt>/rv23c/probe-target` and one per mutant, all deleted.
+  - One cargo job at `-j 4`; `RUSTUP_TOOLCHAIN=1.97.1`, `--offline --locked`, `CARGO_INCREMENTAL=0`.
+  - The memory guard ran and logged no kill. No other cargo job was running at my start; I20 (KF2) may have built alongside.
+- **Git, read-only:** `rev-parse`, `log`, `diff`, `show`, `grep` and `archive` in `<wt>/kf3`; `log` and `status` in `<wt>/numerics`.
+- **Writes:** this section, `_run_records/kf3_review/confirm_aa83f6796/`, and the folder's `SHA256SUMS`, all uncommitted.

@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""RV23's mutation driver (review only). One clean copy of FK (a `git archive`
+of the head, unpacked from fk_head.tar) and one target per mutant, built in
+release, one cargo job at a time (-j 4, RUST_TEST_THREADS=2); the target and
+the copy are deleted afterwards. A mutant is killed when the filtered tests
+fail (or it does not compile).
+usage: rv23_mut.py <mutdir> <out.jsonl> [ids...]"""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+MUT = sys.argv[1]
+OUT = sys.argv[2]
+ONLY = set(sys.argv[3:])
+R = "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/"
+FILTERS = ["kf3", "a_refused_term_writes_nothing", "method_tests", "scale_tests", "verify::tests::",
+           "bound::tests", "adaptive::tests::"]
+# Confirmation at aa83f6796: the same filters (the new RV23-1 and N1 tests are
+# named kf3_*).
+
+M = {
+    "NONE": [],
+    "RV23-M4b-precedence-swapped-in-verify-state": [(R + "verify.rs",
+        "        if let Some((_, refusal)) = stop {",
+        "        if let (Some((_, refusal)), None) = (stop, uc_missing) {", 0)],
+    "RV23C-M1-cached-failure-drops-its-refusals": [(R + "adaptive.rs",
+        "                    spent.stages.clone(),\n                    spent.refusals.clone(),",
+        "                    spent.stages.clone(),\n                    Vec::new(),", 0)],
+    "RV23C-M2-verify-precision-ignores-a-stopped-builds-refusals": [(R + "adaptive.rs",
+        "                record.bound_refusals = vs_refusals;",
+        "                let _ = vs_refusals;", 0)],
+    "RV23C-M3-schedule-stop-drops-kept-results": [(R + "bound.rs",
+        "        for (b, r) in &results {\n            if let Some(x) = r.refused {",
+        "        for (b, r) in results.iter().take(0) {\n            if let Some(x) = r.refused {", 0)],
+    "RV23C-M4-schedule-stop-drops-in-flight": [(R + "bound.rs",
+        "        for &b in &in_flight {",
+        "        for &b in in_flight.iter().take(0) {", 0)],
+    "RV23C-M5-stopped-shared-build-returns-no-refusals": [(R + "verify.rs",
+        "        uc_refusals(&uc_refused)\n    } else {",
+        "        Vec::new()\n    } else {", 0)],
+}
+
+
+def apply(root, subs):
+    for path, old, new, occ in subs:
+        p = os.path.join(root, path)
+        s = open(p).read()
+        idx = [m.start() for m in re.finditer(re.escape(old), s)]
+        assert len(idx) > occ, (path, old[:60], len(idx))
+        i = idx[occ]
+        s = s[:i] + new + s[i + len(old):]
+        open(p, "w").write(s)
+
+
+env = dict(os.environ, RUSTUP_TOOLCHAIN="1.97.1", RUSTUP_AUTO_INSTALL="0", CARGO_INCREMENTAL="0",
+           RUST_TEST_THREADS="2")
+for mid, subs in M.items():
+    if ONLY and mid not in ONLY:
+        continue
+    d = os.path.join(MUT, mid)
+    t = d + "-target"
+    shutil.rmtree(d, ignore_errors=True)
+    shutil.rmtree(t, ignore_errors=True)
+    os.makedirs(d)
+    subprocess.run(["tar", "-xf", os.path.join(MUT, "fk_head.tar"), "-C", d], check=True)
+    apply(d, subs)
+    fk = os.path.join(d, "projects/chirality-piping/core/solver/frame_kernel")
+    t0 = time.time()
+    r = subprocess.run(["cargo", "test", "--offline", "--locked", "-j", "4", "--release", "--lib", "--"] + FILTERS,
+                       cwd=fk, env=dict(env, CARGO_TARGET_DIR=t), capture_output=True, text=True)
+    out = r.stdout + r.stderr
+    wall = time.time() - t0
+    res = re.findall(r"test result: (\w+)\. (\d+) passed; (\d+) failed", out)
+    failed = sorted(set(re.findall(r"^test (\S+) \.\.\. FAILED", out, re.M)))
+    compile_error = "error[E" in out or "could not compile" in out
+    rec = dict(mutant=mid, exit=r.returncode, result=res, failed=failed, compile_error=compile_error,
+               killed=(r.returncode != 0) if mid != "NONE" else None, wall_s=round(wall, 1))
+    with open(os.path.join(MUT, mid + ".log"), "w") as fh:
+        fh.write(out)
+    with open(OUT, "a") as fh:
+        fh.write(json.dumps(rec) + "\n")
+    print(json.dumps(rec), flush=True)
+    shutil.rmtree(t, ignore_errors=True)
+    shutil.rmtree(d, ignore_errors=True)
