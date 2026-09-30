@@ -2905,3 +2905,16 @@ RV23 (`REVIEW/KF3_REVIEW.md`, sha256 `96060f9e…`; records `REVIEW/_run_records
 - **RETURN §12's wording** (RV23's routing check): "c is a property of the model" holds only where (b) binds. Correct it in a RETURN addendum; the routing is unchanged.
 - **RV23-N2, N3, N4 and N5 are recorded,** with no change. N5 is already routed to K6c.
 - **Then:** RV23 confirms the new head. After that come CI with the dispatch, DEC-025, GEN-8 and the merge.
+
+## KF2: D accepted; PR to review (ROOT, 2026-09-30)
+
+- **D is accepted, and committed on the KF2 branch as `f2b8c85a2`:** RETURN (`fe19dbc6…`), CHANGE_RECORD (`1457a990…`) and SHA256SUMS (`5b51af43…`, verified by ROOT). The code diff against main is exactly the three FK files.
+- **The PR is [#1060](https://github.com/sgttomas/chirality/pull/1060),** with the full-SHA dispatch 36664104717 (target_base `78f55f927`).
+- **RV24 is the independent reviewer,** directed to:
+  - the equality argument, errors included;
+  - the differential tests' coverage and the reference copies' fidelity;
+  - the mutants;
+  - B's records: T9, the gate's two parts and src-tauri;
+  - the callers' reach;
+  - the screen diagnosis, as a claim check only.
+- **Then:** CI, DEC-025 on the final head, GEN-8 and the merge.
