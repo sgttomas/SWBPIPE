@@ -1,0 +1,123 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "RF-LARGE-CONT-n00100-ROT",
+  "--mode",
+  "w1a",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "540",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "../observations/k6b/counts.jsonl",
+  "--dump-published",
+  "220_RF-LARGE-CONT-n00100-ROT_w1a.rows",
+  "--w1-prefixes"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  5.78662109375,
+  5.63818359375,
+  5.12841796875
+ ],
+ "load_before": [
+  5.78662109375,
+  5.63818359375,
+  5.12841796875
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 28606464,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 13423729,
+ "repeats_heap_peak_move": 14525553,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 27920,
+  "ps_samples": 9,
+  "time_max_rss_bytes": 28606464,
+  "time_peak_footprint_bytes": 26722688,
+  "wait4_maxrss_bytes": 28606464
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "220_RF-LARGE-CONT-n00100-ROT_w1a",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 58,
+ "stdout_sha256": "043af8b2bfead1939b964bb231e3d9d0e37a01517738316c3b003b7dd0265cd4",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 980356000,
+  "heap_peak": 13423729,
+  "heap_peak_move": 14525553,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "prefix_phase_heap_peak": 8495758,
+  "prefix_phase_heap_peak_move": 8495758,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 13423729,
+  "repeats_heap_peak_move": 14525553,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 1.0392,
+ "watchdog_last_kib": 27920,
+ "watchdog_polls": 9,
+ "watchdog_samples": [
+  [
+   0.026,
+   7200
+  ],
+  [
+   0.14,
+   18480
+  ],
+  [
+   0.257,
+   26016
+  ],
+  [
+   0.372,
+   26576
+  ],
+  [
+   0.487,
+   27920
+  ],
+  [
+   0.6,
+   27920
+  ],
+  [
+   0.715,
+   27920
+  ],
+  [
+   0.823,
+   27920
+  ],
+  [
+   0.929,
+   27920
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

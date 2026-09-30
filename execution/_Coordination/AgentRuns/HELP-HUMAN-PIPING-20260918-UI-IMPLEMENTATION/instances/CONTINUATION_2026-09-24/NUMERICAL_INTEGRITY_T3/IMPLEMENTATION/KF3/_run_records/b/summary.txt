@@ -1,0 +1,23 @@
+KF3 checkpoint B (vk_scale, release, git archive of e114b23c1; binary sha256 2bc2a436...; V-K's runner at e114b23c1)
+V1 and V2 (100 and 1,000 members): all 12 per-case records are identical to V-K's B records (pre-KF3), charged work included.
+Uc refusals: from the scratch probe kf3_refusals.rs.txt (refusals.txt): verification precision, pass, elimination row.
+
+run | outcome | rows pass abs-range not-covered fail | charged G LME (KF3 / V-K B pre-KF3) | W1 s | heap MiB (E_max MiB) | Uc refusal (p:pass:row) | C9 S_full | RCM equal | binary64 sparse
+RF-LARGE-CHAIN-n00100-AX | Selected at 128 | 1312 1312 0 0 0 | 0.089 / 0.089 | 0.08 | 11.2 (46) | - | None | True | Sensitive
+RF-LARGE-CHAIN-n00100-ROT | Selected at 128 | 1312 1312 0 0 0 | 0.111 / 0.111 | 0.15 | 11.2 (46) | - | None | True | Sensitive
+RF-LARGE-TREE-n00100-AX | Selected at 128 | 1312 1312 0 0 0 | 0.091 / 0.091 | 0.09 | 9.6 (46) | - | None | True | Sensitive
+RF-LARGE-TREE-n00100-ROT | Selected at 128 | 1312 1312 0 0 0 | 0.108 / 0.108 | 0.14 | 9.1 (46) | - | None | True | Sensitive
+RF-LARGE-CONT-n00100-AX | Selected at 128 | 1462 1462 0 0 0 | 0.069 / 0.069 | 0.06 | 10.9 (45) | - | None | True | Passed
+RF-LARGE-CONT-n00100-ROT | Selected at 128 | 1462 1462 0 0 0 | 0.092 / 0.092 | 0.12 | 10.9 (45) | - | None | True | Passed
+RF-LARGE-CHAIN-n01000-AX | Selected at 128 | 103 103 0 0 0 | 1.004 / 1.004 | 0.8 | 85.9 (291) | - | [] | True | Sensitive
+RF-LARGE-CHAIN-n01000-ROT | Selected at 128 | 103 103 0 0 0 | 1.228 / 1.228 | 1.54 | 85.9 (291) | - | [] | True | Sensitive
+RF-LARGE-TREE-n01000-AX | Selected at 128 | 194 194 0 0 0 | 0.928 / 0.928 | 0.86 | 86.0 (291) | - | [] | True | Sensitive
+RF-LARGE-TREE-n01000-ROT | Selected at 128 | 194 194 0 0 0 | 1.105 / 1.105 | 1.4 | 86.2 (292) | - | [] | True | Sensitive
+RF-LARGE-CONT-n01000-AX | Selected at 128 | 215 215 0 0 0 | 0.799 / 0.799 | 0.62 | 81.4 (284) | - | [] | True | Passed
+RF-LARGE-CONT-n01000-ROT | Selected at 128 | 215 215 0 0 0 | 1.032 / 1.032 | 1.23 | 81.5 (284) | - | [] | True | Passed
+RF-LARGE-CHAIN-n10000-AX | Selected at 128 | 103 103 0 0 0 | 10.121 / 6.748 | 7.82 | 853.6 (2749) | 256:Forward:28302 | [] | True | NumericallyUnresolved(scaled condition estimate at working-precision boundary)
+RF-LARGE-CHAIN-n10000-ROT | Selected at 128 | 103 103 0 0 0 | 12.079 / 8.299 | 14.67 | 853.6 (2749) | 256:Forward:14784 | [] | True | NumericallyUnresolved(scaled condition estimate at working-precision boundary)
+RF-LARGE-TREE-n10000-AX | Unresolved Ceiling [Restrained] | 194 0 0 0 194 | 65.323 / 6.639 | 40.16 | 2889.9 (2750) | 256:Forward:54799 512:Forward:53023 1024:Forward:49458 | [] | True | NumericallyUnresolved(scaled condition estimate at working-precision boundary)
+RF-LARGE-TREE-n10000-ROT | Unresolved Ceiling [Restrained] | 194 0 0 0 194 | 74.170 / 8.107 | 63.76 | 2891.5 (2752) | 256:Forward:27666 512:Forward:25794 1024:Forward:22098 | [] | True | NumericallyUnresolved(scaled condition estimate at working-precision boundary)
+RF-LARGE-CONT-n10000-AX | Selected at 128 | 215 211 4 0 0 | 8.135 / 8.135 | 6.16 | 816.5 (2676) | - | [] | True | Sensitive
+RF-LARGE-CONT-n10000-ROT | Selected at 128 | 215 214 1 0 0 | 10.423 / 6.796 | 11.82 | 817.6 (2677) | 256:Forward:36891 | [] | True | Sensitive

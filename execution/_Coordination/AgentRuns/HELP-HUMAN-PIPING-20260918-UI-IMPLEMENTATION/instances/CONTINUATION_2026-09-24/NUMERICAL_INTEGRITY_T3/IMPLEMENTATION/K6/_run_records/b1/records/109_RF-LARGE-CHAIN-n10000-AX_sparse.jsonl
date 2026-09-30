@@ -1,0 +1,124 @@
+{"kind":"start","schema":"k6-observe-v1","pid":75509,"model":"RF-LARGE-CHAIN-n10000-AX","model_from_file":false,"mode":"sparse","counts_only":false,"repeats":5,"entry_repeats":5,"heap_cap_bytes":8053063680,"time_budget_s":1740,"first_repeat_limit_s":600,"allow_over_estimate":false}
+{"kind":"counts","counts_source":"file","model":"RF-LARGE-CHAIN-n10000-AX","family":"CHAIN","nodes":10001,"members":10000,"dofs":60006,"free_dofs":60000,"restrained_dofs":6,"pattern_entries":1080036,"lower_entries":570021,"free_entries":1079928,"free_lower_entries":569964,"free_lower_nonzero":159992,"rcm_profile_entries":179988,"rcm_half_bandwidth":4,"identity_profile_entries":479964,"identity_half_bandwidth":10,"lane_entries":259982,"lane_off_diagonal":139988,"contributions":1440000,"dense_entries":3600720036,"estimate_f1b_bytes_sparse":null,"estimate_adm_bytes_sparse":413929312,"estimate_f1b_bytes_dense":345669123456,"estimate_adm_bytes_dense":345769845808,"estimate_f1b_bytes_lane_id":11519136,"estimate_adm_bytes_lane_id":70878088,"estimate_f1b_bytes_lane_lu":null,"estimate_adm_bytes_lane_lu":57636961448,"mode":"sparse","size_stiffness_contribution":24,"size_contribution_rounding":96,"size_residual_row":104,"size_pivot_evidence":48,"size_frame_element":136,"size_symmetric_matrix_entry":24,"model_canonical_len":1453844,"model_canonical_fnv64":"e7d871dbd26e60ec","phase_elapsed_ns":null,"phase_peak_heap":null,"phase_peak_heap_move":null}
+{"kind":"stage_begin","repeat":0,"stage":"assembly","heap_current":3785702}
+{"kind":"stage","repeat":0,"stage":"assembly","ok":true,"elapsed_ns":27501916,"heap_current_begin":3785638,"heap_current_end":34129182,"heap_peak":45969182,"heap_peak_move":45969182,"alloc_calls":190033,"error":null}
+{"kind":"stage_begin","repeat":0,"stage":"evidence","heap_current":34129246}
+{"kind":"stage","repeat":0,"stage":"evidence","ok":true,"elapsed_ns":126057167,"heap_current_begin":34129182,"heap_current_end":121575286,"heap_peak":138855862,"heap_peak_move":163825078,"alloc_calls":42,"error":null}
+{"kind":"stage_begin","repeat":0,"stage":"ledger","heap_current":121575350}
+{"kind":"stage","repeat":0,"stage":"ledger","ok":true,"elapsed_ns":7342208,"heap_current_begin":121575286,"heap_current_end":123496562,"heap_peak":123496562,"heap_peak_move":123496562,"alloc_calls":18,"error":null}
+{"kind":"stage_begin","repeat":0,"stage":"reduce","heap_current":123496690}
+{"kind":"stage","repeat":0,"stage":"reduce","ok":true,"elapsed_ns":7573791,"heap_current_begin":123496626,"heap_current_end":124020914,"heap_peak":126421250,"heap_peak_move":126421250,"alloc_calls":20,"error":null}
+{"kind":"stage_begin","repeat":0,"stage":"geometry","heap_current":124021074}
+{"kind":"stage","repeat":0,"stage":"geometry","ok":true,"elapsed_ns":58471375,"heap_current_begin":124021010,"heap_current_end":124021010,"heap_peak":124796059,"heap_peak_move":124991995,"alloc_calls":34,"error":null}
+{"kind":"stage_begin","repeat":0,"stage":"prepare","heap_current":124021074}
+{"kind":"stage","repeat":0,"stage":"prepare","ok":true,"elapsed_ns":264365542,"heap_current_begin":124021010,"heap_current_end":186512576,"heap_peak":266515488,"heap_peak_move":266515488,"alloc_calls":860103,"error":null}
+{"kind":"stage_begin","repeat":0,"stage":"factor","heap_current":186512640}
+{"kind":"stage","repeat":0,"stage":"factor","ok":true,"elapsed_ns":28344583,"heap_current_begin":186512576,"heap_current_end":193498208,"heap_peak":221020536,"heap_peak_move":224261312,"alloc_calls":380143,"error":null}
+{"kind":"stage_begin","repeat":0,"stage":"finish","heap_current":193498272}
+{"kind":"stage","repeat":0,"stage":"finish","ok":false,"elapsed_ns":14570833,"heap_current_begin":193498208,"heap_current_end":193498352,"heap_peak":198778208,"heap_peak_move":198778208,"alloc_calls":19,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"outcome","repeat":0,"class":"NumericallyUnresolved","failed_stage":"finish","factor_error":null,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)","formation_demoted":false,"load_fidelity_flagged":false,"contribution_rounding_rows":null,"recovery_ok":null,"recovery_digest":null,"solution_debug_len":114,"solution_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"parity","item":"rcm_count_equals_ordering","repeat":0,"equal":true,"ordering_profile_entries":179988,"ordering_half_bandwidth":4}
+{"kind":"stage_begin","repeat":0,"stage":"entry_checked","heap_current":124021074}
+{"kind":"stage","repeat":0,"stage":"entry_checked","ok":false,"elapsed_ns":364764708,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":266515609,"heap_peak_move":266515609,"alloc_calls":1240299,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"staged_vs_entry_checked","repeat":0,"equal":true,"entry_class":"NumericallyUnresolved","entry_debug_len":114,"entry_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":0,"stage":"entry_plain","heap_current":124021074}
+{"kind":"stage","repeat":0,"stage":"entry_plain","ok":false,"elapsed_ns":368723000,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":265155609,"heap_peak_move":265155609,"alloc_calls":1240298,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"entry_plain_vs_entry_checked","repeat":0,"equal":true,"entry_plain_class":"NumericallyUnresolved","entry_plain_debug_len":114,"entry_plain_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":1,"stage":"assembly","heap_current":3785702}
+{"kind":"stage","repeat":1,"stage":"assembly","ok":true,"elapsed_ns":23998458,"heap_current_begin":3785638,"heap_current_end":34129182,"heap_peak":45969182,"heap_peak_move":45969182,"alloc_calls":190033,"error":null}
+{"kind":"stage_begin","repeat":1,"stage":"evidence","heap_current":34129246}
+{"kind":"stage","repeat":1,"stage":"evidence","ok":true,"elapsed_ns":122728417,"heap_current_begin":34129182,"heap_current_end":121575286,"heap_peak":138855862,"heap_peak_move":163825078,"alloc_calls":42,"error":null}
+{"kind":"stage_begin","repeat":1,"stage":"ledger","heap_current":121575350}
+{"kind":"stage","repeat":1,"stage":"ledger","ok":true,"elapsed_ns":7282042,"heap_current_begin":121575286,"heap_current_end":123496562,"heap_peak":123496562,"heap_peak_move":123496562,"alloc_calls":18,"error":null}
+{"kind":"stage_begin","repeat":1,"stage":"reduce","heap_current":123496690}
+{"kind":"stage","repeat":1,"stage":"reduce","ok":true,"elapsed_ns":7540875,"heap_current_begin":123496626,"heap_current_end":124020914,"heap_peak":126421250,"heap_peak_move":126421250,"alloc_calls":20,"error":null}
+{"kind":"stage_begin","repeat":1,"stage":"geometry","heap_current":124021074}
+{"kind":"stage","repeat":1,"stage":"geometry","ok":true,"elapsed_ns":59538834,"heap_current_begin":124021010,"heap_current_end":124021010,"heap_peak":124796059,"heap_peak_move":124991995,"alloc_calls":34,"error":null}
+{"kind":"stage_begin","repeat":1,"stage":"prepare","heap_current":124021074}
+{"kind":"stage","repeat":1,"stage":"prepare","ok":true,"elapsed_ns":268530167,"heap_current_begin":124021010,"heap_current_end":186512576,"heap_peak":266515488,"heap_peak_move":266515488,"alloc_calls":860103,"error":null}
+{"kind":"stage_begin","repeat":1,"stage":"factor","heap_current":186512640}
+{"kind":"stage","repeat":1,"stage":"factor","ok":true,"elapsed_ns":27652625,"heap_current_begin":186512576,"heap_current_end":193498208,"heap_peak":221020536,"heap_peak_move":224261312,"alloc_calls":380143,"error":null}
+{"kind":"stage_begin","repeat":1,"stage":"finish","heap_current":193498272}
+{"kind":"stage","repeat":1,"stage":"finish","ok":false,"elapsed_ns":14636292,"heap_current_begin":193498208,"heap_current_end":193498352,"heap_peak":198778208,"heap_peak_move":198778208,"alloc_calls":19,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"outcome","repeat":1,"class":"NumericallyUnresolved","failed_stage":"finish","factor_error":null,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)","formation_demoted":false,"load_fidelity_flagged":false,"contribution_rounding_rows":null,"recovery_ok":null,"recovery_digest":null,"solution_debug_len":114,"solution_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"parity","item":"rcm_count_equals_ordering","repeat":1,"equal":true,"ordering_profile_entries":179988,"ordering_half_bandwidth":4}
+{"kind":"stage_begin","repeat":1,"stage":"entry_checked","heap_current":124021074}
+{"kind":"stage","repeat":1,"stage":"entry_checked","ok":false,"elapsed_ns":370834458,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":266515609,"heap_peak_move":266515609,"alloc_calls":1240299,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"staged_vs_entry_checked","repeat":1,"equal":true,"entry_class":"NumericallyUnresolved","entry_debug_len":114,"entry_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":1,"stage":"entry_plain","heap_current":124021074}
+{"kind":"stage","repeat":1,"stage":"entry_plain","ok":false,"elapsed_ns":367199333,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":265155609,"heap_peak_move":265155609,"alloc_calls":1240298,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"entry_plain_vs_entry_checked","repeat":1,"equal":true,"entry_plain_class":"NumericallyUnresolved","entry_plain_debug_len":114,"entry_plain_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":2,"stage":"assembly","heap_current":3785702}
+{"kind":"stage","repeat":2,"stage":"assembly","ok":true,"elapsed_ns":23211292,"heap_current_begin":3785638,"heap_current_end":34129182,"heap_peak":45969182,"heap_peak_move":45969182,"alloc_calls":190033,"error":null}
+{"kind":"stage_begin","repeat":2,"stage":"evidence","heap_current":34129246}
+{"kind":"stage","repeat":2,"stage":"evidence","ok":true,"elapsed_ns":121204208,"heap_current_begin":34129182,"heap_current_end":121575286,"heap_peak":138855862,"heap_peak_move":163825078,"alloc_calls":42,"error":null}
+{"kind":"stage_begin","repeat":2,"stage":"ledger","heap_current":121575350}
+{"kind":"stage","repeat":2,"stage":"ledger","ok":true,"elapsed_ns":7548875,"heap_current_begin":121575286,"heap_current_end":123496562,"heap_peak":123496562,"heap_peak_move":123496562,"alloc_calls":18,"error":null}
+{"kind":"stage_begin","repeat":2,"stage":"reduce","heap_current":123496690}
+{"kind":"stage","repeat":2,"stage":"reduce","ok":true,"elapsed_ns":7569667,"heap_current_begin":123496626,"heap_current_end":124020914,"heap_peak":126421250,"heap_peak_move":126421250,"alloc_calls":20,"error":null}
+{"kind":"stage_begin","repeat":2,"stage":"geometry","heap_current":124021074}
+{"kind":"stage","repeat":2,"stage":"geometry","ok":true,"elapsed_ns":58728125,"heap_current_begin":124021010,"heap_current_end":124021010,"heap_peak":124796059,"heap_peak_move":124991995,"alloc_calls":34,"error":null}
+{"kind":"stage_begin","repeat":2,"stage":"prepare","heap_current":124021074}
+{"kind":"stage","repeat":2,"stage":"prepare","ok":true,"elapsed_ns":264931792,"heap_current_begin":124021010,"heap_current_end":186512576,"heap_peak":266515488,"heap_peak_move":266515488,"alloc_calls":860103,"error":null}
+{"kind":"stage_begin","repeat":2,"stage":"factor","heap_current":186512640}
+{"kind":"stage","repeat":2,"stage":"factor","ok":true,"elapsed_ns":29904750,"heap_current_begin":186512576,"heap_current_end":193498208,"heap_peak":221020536,"heap_peak_move":224261312,"alloc_calls":380143,"error":null}
+{"kind":"stage_begin","repeat":2,"stage":"finish","heap_current":193498272}
+{"kind":"stage","repeat":2,"stage":"finish","ok":false,"elapsed_ns":14877708,"heap_current_begin":193498208,"heap_current_end":193498352,"heap_peak":198778208,"heap_peak_move":198778208,"alloc_calls":19,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"outcome","repeat":2,"class":"NumericallyUnresolved","failed_stage":"finish","factor_error":null,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)","formation_demoted":false,"load_fidelity_flagged":false,"contribution_rounding_rows":null,"recovery_ok":null,"recovery_digest":null,"solution_debug_len":114,"solution_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"parity","item":"rcm_count_equals_ordering","repeat":2,"equal":true,"ordering_profile_entries":179988,"ordering_half_bandwidth":4}
+{"kind":"stage_begin","repeat":2,"stage":"entry_checked","heap_current":124021074}
+{"kind":"stage","repeat":2,"stage":"entry_checked","ok":false,"elapsed_ns":368766625,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":266515609,"heap_peak_move":266515609,"alloc_calls":1240299,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"staged_vs_entry_checked","repeat":2,"equal":true,"entry_class":"NumericallyUnresolved","entry_debug_len":114,"entry_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":2,"stage":"entry_plain","heap_current":124021074}
+{"kind":"stage","repeat":2,"stage":"entry_plain","ok":false,"elapsed_ns":367327167,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":265155609,"heap_peak_move":265155609,"alloc_calls":1240298,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"entry_plain_vs_entry_checked","repeat":2,"equal":true,"entry_plain_class":"NumericallyUnresolved","entry_plain_debug_len":114,"entry_plain_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":3,"stage":"assembly","heap_current":3785702}
+{"kind":"stage","repeat":3,"stage":"assembly","ok":true,"elapsed_ns":23763833,"heap_current_begin":3785638,"heap_current_end":34129182,"heap_peak":45969182,"heap_peak_move":45969182,"alloc_calls":190033,"error":null}
+{"kind":"stage_begin","repeat":3,"stage":"evidence","heap_current":34129246}
+{"kind":"stage","repeat":3,"stage":"evidence","ok":true,"elapsed_ns":122873500,"heap_current_begin":34129182,"heap_current_end":121575286,"heap_peak":138855862,"heap_peak_move":163825078,"alloc_calls":42,"error":null}
+{"kind":"stage_begin","repeat":3,"stage":"ledger","heap_current":121575350}
+{"kind":"stage","repeat":3,"stage":"ledger","ok":true,"elapsed_ns":7385000,"heap_current_begin":121575286,"heap_current_end":123496562,"heap_peak":123496562,"heap_peak_move":123496562,"alloc_calls":18,"error":null}
+{"kind":"stage_begin","repeat":3,"stage":"reduce","heap_current":123496690}
+{"kind":"stage","repeat":3,"stage":"reduce","ok":true,"elapsed_ns":7544333,"heap_current_begin":123496626,"heap_current_end":124020914,"heap_peak":126421250,"heap_peak_move":126421250,"alloc_calls":20,"error":null}
+{"kind":"stage_begin","repeat":3,"stage":"geometry","heap_current":124021074}
+{"kind":"stage","repeat":3,"stage":"geometry","ok":true,"elapsed_ns":58940167,"heap_current_begin":124021010,"heap_current_end":124021010,"heap_peak":124796059,"heap_peak_move":124991995,"alloc_calls":34,"error":null}
+{"kind":"stage_begin","repeat":3,"stage":"prepare","heap_current":124021074}
+{"kind":"stage","repeat":3,"stage":"prepare","ok":true,"elapsed_ns":264316250,"heap_current_begin":124021010,"heap_current_end":186512576,"heap_peak":266515488,"heap_peak_move":266515488,"alloc_calls":860103,"error":null}
+{"kind":"stage_begin","repeat":3,"stage":"factor","heap_current":186512640}
+{"kind":"stage","repeat":3,"stage":"factor","ok":true,"elapsed_ns":29939958,"heap_current_begin":186512576,"heap_current_end":193498208,"heap_peak":221020536,"heap_peak_move":224261312,"alloc_calls":380143,"error":null}
+{"kind":"stage_begin","repeat":3,"stage":"finish","heap_current":193498272}
+{"kind":"stage","repeat":3,"stage":"finish","ok":false,"elapsed_ns":14646333,"heap_current_begin":193498208,"heap_current_end":193498352,"heap_peak":198778208,"heap_peak_move":198778208,"alloc_calls":19,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"outcome","repeat":3,"class":"NumericallyUnresolved","failed_stage":"finish","factor_error":null,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)","formation_demoted":false,"load_fidelity_flagged":false,"contribution_rounding_rows":null,"recovery_ok":null,"recovery_digest":null,"solution_debug_len":114,"solution_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"parity","item":"rcm_count_equals_ordering","repeat":3,"equal":true,"ordering_profile_entries":179988,"ordering_half_bandwidth":4}
+{"kind":"stage_begin","repeat":3,"stage":"entry_checked","heap_current":124021074}
+{"kind":"stage","repeat":3,"stage":"entry_checked","ok":false,"elapsed_ns":370891000,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":266515609,"heap_peak_move":266515609,"alloc_calls":1240299,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"staged_vs_entry_checked","repeat":3,"equal":true,"entry_class":"NumericallyUnresolved","entry_debug_len":114,"entry_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":3,"stage":"entry_plain","heap_current":124021074}
+{"kind":"stage","repeat":3,"stage":"entry_plain","ok":false,"elapsed_ns":375218709,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":265155609,"heap_peak_move":265155609,"alloc_calls":1240298,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"entry_plain_vs_entry_checked","repeat":3,"equal":true,"entry_plain_class":"NumericallyUnresolved","entry_plain_debug_len":114,"entry_plain_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":4,"stage":"assembly","heap_current":3785702}
+{"kind":"stage","repeat":4,"stage":"assembly","ok":true,"elapsed_ns":23481584,"heap_current_begin":3785638,"heap_current_end":34129182,"heap_peak":45969182,"heap_peak_move":45969182,"alloc_calls":190033,"error":null}
+{"kind":"stage_begin","repeat":4,"stage":"evidence","heap_current":34129246}
+{"kind":"stage","repeat":4,"stage":"evidence","ok":true,"elapsed_ns":154688000,"heap_current_begin":34129182,"heap_current_end":121575286,"heap_peak":138855862,"heap_peak_move":163825078,"alloc_calls":42,"error":null}
+{"kind":"stage_begin","repeat":4,"stage":"ledger","heap_current":121575350}
+{"kind":"stage","repeat":4,"stage":"ledger","ok":true,"elapsed_ns":8428458,"heap_current_begin":121575286,"heap_current_end":123496562,"heap_peak":123496562,"heap_peak_move":123496562,"alloc_calls":18,"error":null}
+{"kind":"stage_begin","repeat":4,"stage":"reduce","heap_current":123496690}
+{"kind":"stage","repeat":4,"stage":"reduce","ok":true,"elapsed_ns":8330042,"heap_current_begin":123496626,"heap_current_end":124020914,"heap_peak":126421250,"heap_peak_move":126421250,"alloc_calls":20,"error":null}
+{"kind":"stage_begin","repeat":4,"stage":"geometry","heap_current":124021074}
+{"kind":"stage","repeat":4,"stage":"geometry","ok":true,"elapsed_ns":66081375,"heap_current_begin":124021010,"heap_current_end":124021010,"heap_peak":124796059,"heap_peak_move":124991995,"alloc_calls":34,"error":null}
+{"kind":"stage_begin","repeat":4,"stage":"prepare","heap_current":124021074}
+{"kind":"stage","repeat":4,"stage":"prepare","ok":true,"elapsed_ns":313839292,"heap_current_begin":124021010,"heap_current_end":186512576,"heap_peak":266515488,"heap_peak_move":266515488,"alloc_calls":860103,"error":null}
+{"kind":"stage_begin","repeat":4,"stage":"factor","heap_current":186512640}
+{"kind":"stage","repeat":4,"stage":"factor","ok":true,"elapsed_ns":32040584,"heap_current_begin":186512576,"heap_current_end":193498208,"heap_peak":221020536,"heap_peak_move":224261312,"alloc_calls":380143,"error":null}
+{"kind":"stage_begin","repeat":4,"stage":"finish","heap_current":193498272}
+{"kind":"stage","repeat":4,"stage":"finish","ok":false,"elapsed_ns":15944500,"heap_current_begin":193498208,"heap_current_end":193498352,"heap_peak":198778208,"heap_peak_move":198778208,"alloc_calls":19,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"outcome","repeat":4,"class":"NumericallyUnresolved","failed_stage":"finish","factor_error":null,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)","formation_demoted":false,"load_fidelity_flagged":false,"contribution_rounding_rows":null,"recovery_ok":null,"recovery_digest":null,"solution_debug_len":114,"solution_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"parity","item":"rcm_count_equals_ordering","repeat":4,"equal":true,"ordering_profile_entries":179988,"ordering_half_bandwidth":4}
+{"kind":"stage_begin","repeat":4,"stage":"entry_checked","heap_current":124021074}
+{"kind":"stage","repeat":4,"stage":"entry_checked","ok":false,"elapsed_ns":374726875,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":266515609,"heap_peak_move":266515609,"alloc_calls":1240299,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"staged_vs_entry_checked","repeat":4,"equal":true,"entry_class":"NumericallyUnresolved","entry_debug_len":114,"entry_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"stage_begin","repeat":4,"stage":"entry_plain","heap_current":124021074}
+{"kind":"stage","repeat":4,"stage":"entry_plain","ok":false,"elapsed_ns":386553500,"heap_current_begin":124021010,"heap_current_end":124021154,"heap_peak":265155609,"heap_peak_move":265155609,"alloc_calls":1240298,"error":"NumericallyUnresolved(scaled condition estimate at working-precision boundary; global_dof=None)"}
+{"kind":"parity","item":"entry_plain_vs_entry_checked","repeat":4,"equal":true,"entry_plain_class":"NumericallyUnresolved","entry_plain_debug_len":114,"entry_plain_debug_fnv64":"e2fe59a8c39ab81a"}
+{"kind":"parity","item":"repeat_determinism","repeat":4,"equal":true}
+{"kind":"summary","repeats_completed":5,"stop_reason":null,"repeats_heap_peak":266515609,"repeats_heap_peak_move":266515609,"counts_phase_heap_peak":null,"counts_phase_heap_peak_move":null,"parity_phase_heap_peak":null,"parity_phase_heap_peak_move":null,"heap_peak":266515609,"heap_peak_move":266515609,"elapsed_ns":6465567417}

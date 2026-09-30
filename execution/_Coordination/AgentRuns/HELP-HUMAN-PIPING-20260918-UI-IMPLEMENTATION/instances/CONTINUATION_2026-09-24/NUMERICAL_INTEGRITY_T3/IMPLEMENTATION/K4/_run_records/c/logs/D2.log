@@ -1,0 +1,45 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/D2/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.94s
+  Executable unittests src/lib.rs (<wt>/k4-mut/D2/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly stdout ----
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12164067) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:199:30:
+CEIL5A3: operand CEIL5A3-A: Unresolved { reason: Ceiling, attempts: [AttemptRecord { precision: 128, role: Candidate, outcome: Failed(Stop(Pivot { global_dof: 17 })), residual_basis: 192, corrections: 0, pivot_margin_min: None, rcond: None, residual_worst: None, work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 0, shift_limbs: 0, net_limbs: 0, rounded_limbs: 0, max_span_bits: 0 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 231420, shared_stages: StageWork { formation: 108474, assembly: 2947, residual_formation: 111421, factor: 0, condition: 0, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 468, profile_entries: 13, limbs_per_entry: 4 }, gate: None, verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false }, AttemptRecord { precision: 256, role: Candidate, outcome: Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Uz }, body: 0, kind: Force }), residual_basis: 320, corrections: 0, pivot_margin_min: Some(23068671.999999996), rcond: Some(1.4167106825542234e-68), residual_worst: Some(0.0), work: AttemptWork { widths: [WidthWork { add: 0, sub: 14, mul: 14, div: 90, sqrt: 5, round: 376, two_sum: 0, two_product: 51 }, WidthWork { add: 0, sub: 0, mul: 2, div: 2, sqrt: 0, round: 0, two_sum: 0, two_product: 26 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }] }, k4_work: SumWork { term_limbs: 2611, shift_limbs: 1630, net_limbs: 1242, rounded_limbs: 83, max_span_bits: 1023 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 610, solve: 8076, refinement: 2883, recovery: 10443, stop_rule: 124246, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 575710, shared_stages: StageWork { formation: 108474, assembly: 2947, residual_formation: 369285, factor: 9539, condition: 85465, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_built_here: true, stop_rule_work: 124246, storage: StorageCounts { pattern_entries: 468, profile_entries: 13, limbs_per_entry: 4 }, gate: Some(Coalesced), verification_work: 0, verification: None, verification_shared_work: 0, verification_shared_built_here: false }, AttemptRecord { precision: 512, role: VerificationThenCandidate, outcome: Rejected(VerificationEstimate { quantity: EndAction { member: 1, end: I, component: Uz }, body: 0, kind: Force }), residual_basis: 576, corrections: 0, pivot_margin_min: Some(2.671169726810377e84), rcond: Some(1.4167106825542234e-68), residual_worst: Some(0.0), work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 84, sqrt: 0, round: 206, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 28, mul: 28, div: 12, sqrt: 10, round: 667, two_sum: 0, two_product: 648 }, WidthWork { add: 0, sub: 0, mul: 2, div: 2, sqrt: 0, round: 3, two_sum: 0, two_product: 83 }] }, k4_work: SumWork { term_limbs: 11139, shift_limbs: 9706, net_limbs: 9789, rounded_limbs: 2923, max_span_bits: 2047 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 1426, solve: 28876, refinement: 8875, recovery: 32163, stop_rule: 154533, bounded_gate: 0, scale: 17873, estimate: 69345, charge: 72789, bound: 1769, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 1974678, shared_stages: StageWork { formation: 364346, assembly: 4939, residual_formation: 1334293, factor: 33619, condition: 237481, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 267855, wide_formation: 1325370, uc: 46256 }, shared_built_here: true, stop_rule_work: 154533, storage: StorageCounts { pattern_entries: 468, profile_entries: 13, limbs_per_entry: 8 }, gate: Some(Coalesced), verification_work: 161776, verification: Some(VerificationSummary { resolution: [[52776558133370.01, 3.2667107224410097e40]], theta: [2.9001338089852712e35], bound: [Some(3.1371574303593476e67)], data_blocks: 1, shift_factorizations: 0, uc_missing: None, g_max: 0, g_violation: None }), verification_shared_work: 1639481, verification_shared_built_here: true }, AttemptRecord { precision: 1024, role: Verification, outcome: Solved, residual_basis: 1024, corrections: 0, pivot_margin_min: Some(3.5814530645350774e238), rcond: Some(1.4167106825542234e-68), residual_worst: Some(0.0005885847107438013), work: AttemptWork { widths: [WidthWork { add: 0, sub: 0, mul: 0, div: 10, sqrt: 0, round: 22, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 0, mul: 0, div: 0, sqrt: 0, round: 0, two_sum: 0, two_product: 0 }, WidthWork { add: 0, sub: 28, mul: 28, div: 13, sqrt: 10, round: 659, two_sum: 0, two_product: 869 }] }, k4_work: SumWork { term_limbs: 11985, shift_limbs: 13318, net_limbs: 13891, rounded_limbs: 5192, max_span_bits: 3020 }, stages: StageWork { formation: 0, assembly: 0, residual_formation: 0, factor: 0, condition: 0, rhs: 3922, solve: 108684, refinement: 48092, recovery: 120320, stop_rule: 0, bounded_gate: 0, scale: 71973, estimate: 234764, charge: 183776, bound: 4589, shift: 0, bounded_formation: 0, wide_formation: 0, uc: 0 }, shared_work: 2279394, shared_stages: StageWork { formation: 1325370, assembly: 8923, residual_formation: 0, factor: 125741, condition: 819360, rhs: 0, solve: 0, refinement: 0, recovery: 0, stop_rule: 0, bounded_gate: 0, scale: 0, estimate: 0, charge: 0, bound: 0, shift: 0, bounded_formation: 816015, wide_formation: 0, uc: 163052 }, shared_built_here: true, stop_rule_work: 0, storage: StorageCounts { pattern_entries: 468, profile_entries: 13, limbs_per_entry: 16 }, gate: Some(Coalesced), verification_work: 495102, verification: Some(VerificationSummary { resolution: [[52776558133370.01, 3.2667107224410097e40]], theta: [2.1630186113485648e-119], bound: [Some(3.1371574303593476e67)], data_blocks: 1, shift_factorizations: 0, uc_missing: None, g_max: 0, g_violation: None }), verification_shared_work: 979067, verification_shared_built_here: true }], geometry: [Restrained] }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 21.27s
+
+
+===== test_n06s_torque_and_spring_action_are_nonzero_and_correct.log =====
+
+running 1 test
+test structural::retained::recover::tests::n06s_torque_and_spring_action_are_nonzero_and_correct ... FAILED
+
+failures:
+
+---- structural::retained::recover::tests::n06s_torque_and_spring_action_are_nonzero_and_correct stdout ----
+
+thread 'structural::retained::recover::tests::n06s_torque_and_spring_action_are_nonzero_and_correct' (12164064) panicked at src/structural/retained/../../../tests/retained_k4/recover_tests.rs:147:9:
+explicit panic
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::recover::tests::n06s_torque_and_spring_action_are_nonzero_and_correct
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.07s
+
+

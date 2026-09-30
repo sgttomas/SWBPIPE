@@ -1,0 +1,223 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "RF-LARGE-CONT-n01000-AX",
+  "--mode",
+  "w1a",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "1740",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "../observations/k6b/counts.jsonl",
+  "--dump-published",
+  "239_RF-LARGE-CONT-n01000-AX_w1a.rows",
+  "--w1-prefixes"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  6.64794921875,
+  5.88623046875,
+  5.2607421875
+ ],
+ "load_before": [
+  6.64794921875,
+  5.88623046875,
+  5.2607421875
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 211697664,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 122885034,
+ "repeats_heap_peak_move": 131699626,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 206736,
+  "ps_samples": 34,
+  "time_max_rss_bytes": 211697664,
+  "time_peak_footprint_bytes": 209961512,
+  "wait4_maxrss_bytes": 211697664
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "239_RF-LARGE-CONT-n01000-AX_w1a",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 58,
+ "stdout_sha256": "e1e2660fea86f320cea0e5c41c6efa9933cf86332444cd7e0cbaa52b09840f1a",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 3797543333,
+  "heap_peak": 122885034,
+  "heap_peak_move": 131699626,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "prefix_phase_heap_peak": 85127933,
+  "prefix_phase_heap_peak_move": 85127933,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 122885034,
+  "repeats_heap_peak_move": 131699626,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 1800,
+ "wall_s": 3.8434,
+ "watchdog_last_kib": 206736,
+ "watchdog_polls": 34,
+ "watchdog_samples": [
+  [
+   0.023,
+   18528
+  ],
+  [
+   0.137,
+   43136
+  ],
+  [
+   0.251,
+   72704
+  ],
+  [
+   0.358,
+   79232
+  ],
+  [
+   0.463,
+   100912
+  ],
+  [
+   0.568,
+   145584
+  ],
+  [
+   0.675,
+   149712
+  ],
+  [
+   0.789,
+   154144
+  ],
+  [
+   0.9,
+   154384
+  ],
+  [
+   1.005,
+   154816
+  ],
+  [
+   1.119,
+   157936
+  ],
+  [
+   1.233,
+   168720
+  ],
+  [
+   1.347,
+   168720
+  ],
+  [
+   1.462,
+   168736
+  ],
+  [
+   1.575,
+   168736
+  ],
+  [
+   1.69,
+   168784
+  ],
+  [
+   1.804,
+   181424
+  ],
+  [
+   1.916,
+   181424
+  ],
+  [
+   2.023,
+   181424
+  ],
+  [
+   2.136,
+   181424
+  ],
+  [
+   2.25,
+   181424
+  ],
+  [
+   2.364,
+   194080
+  ],
+  [
+   2.478,
+   194080
+  ],
+  [
+   2.592,
+   194080
+  ],
+  [
+   2.707,
+   194080
+  ],
+  [
+   2.821,
+   194080
+  ],
+  [
+   2.935,
+   206720
+  ],
+  [
+   3.048,
+   206736
+  ],
+  [
+   3.162,
+   206736
+  ],
+  [
+   3.276,
+   206736
+  ],
+  [
+   3.39,
+   206736
+  ],
+  [
+   3.503,
+   206736
+  ],
+  [
+   3.617,
+   206736
+  ],
+  [
+   3.729,
+   206736
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

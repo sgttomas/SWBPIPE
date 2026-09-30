@@ -1,0 +1,13 @@
+#!/bin/bash
+# K6b B: W1-T1 and W1-T2 (slot K6B-S1), then W1-T3 (slot K6B-S2); one tier after another, stop on a stop.
+cd <scratch>/i16/b/src/projects/chirality-piping/core/solver/performance_harness/runner
+export PYTHONDONTWRITEBYTECODE=1
+for tier in W1-T1 W1-T2 W1-T3; do
+  echo "=== $tier $(date '+%H:%M:%S') load=$(sysctl -n vm.loadavg)"
+  python3 k6_runner.py --run --tier $tier --binary <wt>/k6b-target/b/release/k6_observe --counts ../observations/k6b/counts.jsonl --records <scratch>/i16/b/records --source-commit f4d40dd17c3608cf9b574bdf9ef0da749a91eb88 --source-tree d7b7da6e97e71743d7c6a7c0466cd9d3b94dc646 > <scratch>/i16/b/tier_$tier.log 2>&1
+  rc=$?
+  tail -1 <scratch>/i16/b/tier_$tier.log
+  echo "=== $tier rc=$rc $(date '+%H:%M:%S')"
+  if [ $rc -ne 0 ]; then echo STOPPED; exit $rc; fi
+done
+echo ALL_DONE

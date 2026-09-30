@@ -261,6 +261,25 @@ impl ExactAccumulator {
         }
     }
 
+    /// K4 (T3 D1 §4.1.2 item 5; ROOT's K4 ruling Q3): the exact value, netted
+    /// once with `compare` and `subtract`, as (negative, magnitude, exponent of
+    /// the magnitude's unit bit). The exponent is always -2148 (the quantum);
+    /// an exact zero is (false, 0, -2148).
+    pub(crate) fn net_parts(&self) -> (bool, Magnitude, i64) {
+        match compare(&self.positive, &self.negative) {
+            std::cmp::Ordering::Less => (
+                true,
+                subtract(&self.negative, &self.positive),
+                QUANTUM_EXPONENT,
+            ),
+            _ => (
+                false,
+                subtract(&self.positive, &self.negative),
+                QUANTUM_EXPONENT,
+            ),
+        }
+    }
+
     /// The exact value, rounded once to binary64 (nearest, ties to even).
     pub fn round(&self) -> Result<f64, SumError> {
         self.round_scaled(0)

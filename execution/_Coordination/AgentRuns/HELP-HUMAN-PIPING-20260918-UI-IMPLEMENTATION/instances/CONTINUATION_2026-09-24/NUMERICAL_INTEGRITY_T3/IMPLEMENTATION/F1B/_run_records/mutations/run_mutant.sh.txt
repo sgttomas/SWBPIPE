@@ -1,0 +1,39 @@
+#!/bin/bash
+# F1b checkpoint C (I13): one mutant on a clean copy. Usage: run_mutant.sh <wt> <scratch-c-dir> <commit> <mutant-id>
+# A git archive of <commit> (without execution/, fresh mtimes) and one clean target, both under
+# <wt>/f1b-mut/<id>/, deleted after the run. NONE is the control. Patches are dispatched by apply.sh.
+# Tests, each --no-fail-fast, -j 4, RUST_TEST_THREADS=4: nonlinear_integration and product_physics
+# in full for every mutant; frame_kernel and sparse_direct in full as well when the patch touches
+# either crate (the only crates whose tests can observe it).
+WT=$1; X=$2; REV=$3; m=$4
+D=$WT/f1b-mut/$m; LOG=$X/logs/$m.log
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=$D/target CARGO_BUILD_JOBS=4 RUST_TEST_THREADS=4
+rm -rf $D; mkdir -p $D/tree
+git -C $WT/f1b archive --format=tar $REV projects/chirality-piping ':(exclude)projects/chirality-piping/execution' | tar -x -m -C $D/tree
+: > $LOG
+CORE=$D/tree/projects/chirality-piping/core
+if [ "$m" != NONE ]; then
+  cp -R $CORE/solver $D/solver.orig
+  $X/apply.sh $X $CORE $m >> $LOG 2>&1 || { echo "$m PATCH-FAILED" >> $X/MUTANTS.txt; rm -rf $D; exit 1; }
+  touched=$(diff -rq $D/solver.orig $CORE/solver | /usr/bin/grep -oE 'solver/(frame_kernel|sparse_direct)' | sort -u | tr '\n' ' ')
+  rm -rf $D/solver.orig
+else
+  echo "control: no patch" >> $LOG; touched="solver/frame_kernel"
+fi
+echo "touched-kernel-crates: ${touched:-none}" >> $LOG
+echo "start=$(date -u +%FT%TZ)" >> $LOG
+crates="solver/nonlinear_integration| product_physics|"
+if [ -n "$touched" ]; then crates="solver/frame_kernel| solver/sparse_direct| $crates"; fi
+rc_all=""
+for t in $crates; do
+  dir=${t%%|*}
+  echo "=== $dir: cargo test --no-fail-fast" >> $LOG
+  (cd $CORE/$dir && cargo test --offline --locked --no-fail-fast -j 4 >> $LOG 2>&1); rc_all="$rc_all ${dir##*/}=$?"
+done
+echo "end=$(date -u +%FT%TZ)" >> $LOG
+killers=$(/usr/bin/grep -E '^test .* FAILED$' $LOG | awk '{print $2}' | sort -u | tr '\n' ' ')
+comp=$(/usr/bin/grep -c '^error\[\|^error: could not compile' $LOG)
+aborts=$(/usr/bin/grep -cE 'memory allocation of [0-9]+ bytes failed|stack overflow|SIGABRT|signal: 6' $LOG)
+sites=$(/usr/bin/grep -oE "panicked at [^ ]+:[0-9]+:[0-9]+" $LOG | sed 's/panicked at //' | sort | uniq -c | awk '{print $2"x"$1}' | tr '\n' ' ')
+echo "$m exit:$rc_all compile_errors=$comp aborts=$aborts failed: ${killers:-NONE} panic_sites: ${sites:-NONE}" >> $X/MUTANTS.txt
+rm -rf $D

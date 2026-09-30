@@ -1,0 +1,6 @@
+rustc: rustc 1.97.1 (8bab26f4f 2026-07-14)
+cargo: cargo 1.97.1 (c980f4866 2026-06-30)
+python3: Python 3.13.14
+host: Darwin arm64
+env: RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2; FK_SEEDED_FAULT unset; cargo --offline --locked -j 4, one job at a time
+copies: <wt>/vk-mut/c/<id> (git archive of c1fea85749: projects/chirality-piping without execution/, plus the generator's three pinned inputs); each with its own fresh target <wt>/vk-mut/c/<id>/target, removed after its run

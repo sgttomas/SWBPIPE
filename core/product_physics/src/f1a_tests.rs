@@ -411,6 +411,7 @@ fn unit_record(
         None,
         finding,
         check,
+        None,
     );
     assert_eq!(diagnostics.len(), 1);
     diagnostics.pop().unwrap()
@@ -638,7 +639,7 @@ fn f1a_no_record_is_byte_identical_to_main() {
             let report = unit_report(quality);
             let mut ours = vec![existing.clone()];
             let mut mains = vec![existing.clone()];
-            append_integrity_report(&mut ours, "c", &report, &model, None, finding.as_ref(), None);
+            append_integrity_report(&mut ours, "c", &report, &model, None, finding.as_ref(), None, None);
             main_append_integrity_report(&mut mains, "c", &report, &model, None, finding.as_ref());
             assert_eq!(
                 serde_json::to_string(&ours).unwrap(),
@@ -648,7 +649,7 @@ fn f1a_no_record_is_byte_identical_to_main() {
             // With a record, main's bytes plus exactly " <line>".
             let check = estimate(3, 4e-9, 1.0);
             let mut with = vec![existing.clone()];
-            append_integrity_report(&mut with, "c", &report, &model, None, finding.as_ref(), Some(&check));
+            append_integrity_report(&mut with, "c", &report, &model, None, finding.as_ref(), Some(&check), None);
             mains[1].message = format!(
                 "{} {}",
                 mains[1].message,

@@ -1,0 +1,22 @@
+RF-RANGE-THIN-A: EA/L 1.5145034263853982e-93, 12EI/L^3 2.2717551395780974e-246, ratio 6.666666666666666e152
+  y_ref [0.0, 1.0, 0.0]: unresolved Ceiling
+    128 Candidate Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })
+    256 VerificationThenCandidate Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    512 VerificationThenCandidate Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    1024 Verification Solved
+  y_ref [0.0, 0.0, 1.0]: unresolved Ceiling
+    128 Candidate Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })
+    256 VerificationThenCandidate Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    512 VerificationThenCandidate Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    1024 Verification Solved
+RF-RANGE-THIN-B: EA/L 9.42477796076938e-154, 12EI/L^3 1.413716694115407e-306, ratio 6.666666666666666e152
+  y_ref [0.0, 1.0, 0.0]: unresolved Ceiling
+    128 Candidate Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })
+    256 VerificationThenCandidate Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    512 VerificationThenCandidate Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    1024 Verification Solved
+  y_ref [0.0, 0.0, 1.0]: unresolved Ceiling
+    128 Candidate Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })
+    256 VerificationThenCandidate Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    512 VerificationThenCandidate Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })
+    1024 Verification Solved

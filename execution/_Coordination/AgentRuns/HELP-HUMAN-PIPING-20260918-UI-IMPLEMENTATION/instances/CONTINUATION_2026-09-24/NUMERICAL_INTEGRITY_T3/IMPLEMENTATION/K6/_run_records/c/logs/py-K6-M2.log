@@ -1,0 +1,43 @@
+=== py K6-M2: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (performance_harness, tests/test_performance_harness_runner.py) into <wt>/k6-mut/py-K6-M2
+K6-M2 applied to projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py: watchdog compares KiB with bytes
+--- a/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
++++ b/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
+@@ -585,3 +585,3 @@
+     """ps -o rss= reports KiB; the cap is in bytes."""
+-    return rss_kib * KIB > cap_bytes
++    return rss_kib > cap_bytes
+
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+....F...........................F                                        [100%]
+=================================== FAILURES ===================================
+_______________________ LiveLimit.test_live_memory_limit _______________________
+
+self = <test_k6_runner.LiveLimit testMethod=test_live_memory_limit>
+
+    def test_live_memory_limit(self):
+        system = platform.system()
+        child = r.growing_child_argv(r.MIB, 0, 512 * r.MIB, 0.01)
+        with tempfile.TemporaryDirectory() as folder:
+            if system == 'Darwin':
+                rec = r.launch(child, rss_cap_bytes=self.CAP, timeout_s=60, record_dir=folder, run_id='watchdog',
+                               k6_protocol=False)
+>               self.assertNotEqual(rec['exit_code'], 3, 'the child reached its failsafe: the watchdog did not kill')
+E               AssertionError: 3 == 3 : the child reached its failsafe: the watchdog did not kill
+
+core/solver/performance_harness/runner/test_k6_runner.py:522: AssertionError
+_______________________ Watchdog.test_kib_against_bytes ________________________
+
+self = <test_k6_runner.Watchdog testMethod=test_kib_against_bytes>
+
+    def test_kib_against_bytes(self):
+        cap = 128 * r.MIB
+        self.assertFalse(r.watchdog_exceeds(128 * 1024, cap))
+>       self.assertTrue(r.watchdog_exceeds(128 * 1024 + 1, cap))
+E       AssertionError: False is not true
+
+core/solver/performance_harness/runner/test_k6_runner.py:206: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_performance_harness_runner.py::LiveLimit::test_live_memory_limit
+FAILED tests/test_performance_harness_runner.py::Watchdog::test_kib_against_bytes
+2 failed, 31 passed in 9.27s
+=== exit 1 elapsed 10 s

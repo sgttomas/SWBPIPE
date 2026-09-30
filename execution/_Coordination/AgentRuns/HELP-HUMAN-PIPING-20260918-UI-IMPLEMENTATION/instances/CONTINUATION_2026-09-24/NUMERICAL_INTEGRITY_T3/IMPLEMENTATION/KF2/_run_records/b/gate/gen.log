@@ -1,0 +1,2 @@
+cases 252 authorable 222 not_authorable 30
+python3 -B scripts/gen.py inputs/references.py inputs/references.json  gen_ou  50.24s user 0.42s system 99% cpu 50.755 total

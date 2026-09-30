@@ -1,0 +1,51 @@
+"""I13 F1b A1 scratch: extra T9 corpus for B6 (relabelling byte identity with
+Mac main per numbering) and B7 (nonlinear gap/one-way/friction and range
+models byte-identical to Mac main). Standard library only; invented inputs."""
+import json, re, sys, pathlib, copy
+out = pathlib.Path(sys.argv[1]); pp = pathlib.Path(sys.argv[2])
+PROV = "invented_t3_f1b_test_input_no_library_data"
+def frame(id_, nodes, members, supports, loads):
+    L = []
+    for (lid, node, dof, value) in loads:
+        if dof.startswith('R'):
+            L.append({"id": lid, "category": "concentrated_moment", "target": {"type": "node", "node": node},
+                      "direction": dof, "magnitude": {"value": value, "unit": "N*m"}, "dimension": "moment", "provenance": PROV})
+        else:
+            L.append({"id": lid, "category": "concentrated_force", "target": {"type": "node", "node": node},
+                      "direction": "global_" + dof[1:].lower(), "magnitude": {"value": value, "unit": "N"}, "dimension": "force", "provenance": PROV})
+    return {"model": {"schema_version": "0.1.0", "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+        "project": {"id": "invented:t3-f1b:" + id_, "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC", "stress": "Pa"}},
+        "nodes": [{"id": n, "position": {"x": p[0], "y": p[1], "z": p[2]}, "provenance": PROV} for n, p in nodes],
+        "pipe_segments": [{"id": m, "from": a, "to": b, "material": "mat:F1B", "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
+            "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"}}, "provenance": PROV} for m, a, b in members],
+        "materials": [{"id": "mat:F1B", "elastic_modulus": {"value": 2.0e11, "unit": "Pa"}, "shear_modulus": {"value": 8.0e10, "unit": "Pa"}, "provenance": PROV}],
+        "supports": supports,
+        "load_cases": [{"id": "case", "label": id_, "kind": "primitive_user_load", "primitive_loads": L, "provenance": PROV}],
+        "combinations": []}, "materials": []}
+def anchor(n):
+    return {"id": "anchor:" + n, "node": n, "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": PROV}
+def chain(m):
+    nodes = [("N%d" % i, [float(i), 0.125 * i, -0.0625 * i]) for i in range(m + 1)]
+    members = [("M%d" % i, "N%d" % (i - 1), "N%d" % i) for i in range(1, m + 1)]
+    return frame("chain-%d" % m, nodes, members, [anchor("N0")], [("load:tip-y", "N%d" % m, "UY", 1250.0), ("load:tip-rx", "N%d" % m, "RX", 40.0)])
+def write(name, value):
+    (out / (name + ".json")).write_text(json.dumps(value, indent=1))
+base = chain(6); write("b6_chain6_forward", base)
+r = copy.deepcopy(base); r["model"]["nodes"].reverse(); r["model"]["pipe_segments"].reverse(); write("b6_chain6_reversed", r)
+p = copy.deepcopy(base); orig = p["model"]["nodes"][:]; p["model"]["nodes"] = [orig[i] for i in [3, 0, 5, 1, 6, 2, 4]]
+ps = p["model"]["pipe_segments"]; p["model"]["pipe_segments"] = ps[2:] + ps[:2]; write("b6_chain6_permuted", p)
+# A floating body (mechanism) and the two-body anchor model.
+write("c_mechanism", frame("mechanism", [("N0", [0.0, 0.0, 0.0]), ("N1", [1.0, 0.0, 0.0]), ("N2", [0.0, 2.0, 0.0]), ("N3", [1.0, 2.0, 0.0])],
+      [("M1", "N0", "N1"), ("M2", "N2", "N3")], [anchor("N0")], [("load:y", "N3", "UY", 10.0)]))
+# K-D5's P1 requests (formation_check_runtime.rs), with and without an open gap (B7).
+src = (pp / "tests/formation_check_runtime.rs").read_text()
+for const in ["RF_SKEW_T_CANT_OFF_122_R1E_04", "RF_CHAIN_T_N05_R1E_04"]:
+    m = re.search(r'const %s: &str = r#"(.*?)"#;' % const, src)
+    v = json.loads(m.group(1)); write("kd5_" + const.lower(), v)
+    g = copy.deepcopy(v)
+    g["model"]["supports"].append({"id": "support:kd5-open-gap", "node": "N1", "family": "nonlinear", "restraints": [],
+        "nonlinear": {"behavior": "gap", "dof": "UZ", "initial_state": "inactive", "closes_when": "positive_displacement", "gap": {"value": 1000.0, "unit": "mm"}},
+        "provenance": "invented K-D5 control: an open gap support that never closes"})
+    write("b7_gap_" + const.lower(), g)
+print("written", len(list(out.glob("*.json"))))

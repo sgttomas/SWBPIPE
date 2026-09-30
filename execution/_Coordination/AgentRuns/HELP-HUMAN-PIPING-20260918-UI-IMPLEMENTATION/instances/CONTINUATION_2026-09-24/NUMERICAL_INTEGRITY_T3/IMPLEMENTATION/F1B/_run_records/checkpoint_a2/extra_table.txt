@@ -1,0 +1,189 @@
+A2-COEXIST-1e-300 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-COEXIST-1e-310 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: subnormal stiffness or load at formation', 'Evaluation(Range("radix scaling loses normal range"))', 'force_scale_exponent=none')] oth=[]
+A2-COEXIST-2.5e-308 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("radix scaling loses normal range"))', '')] oth=[]
+A2-COEXIST-spring-2.5e-308 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("radix scaling loses normal range"))', '')] oth=[]
+A2-FA2-overflow-reaction [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 109722481375873770000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 109722481375873770000000
+A2-FA2-overflow-reaction [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: publication outside binary64; at=reaction@N0:RZ', 'Evaluation(Range("physical residual record overflow"))', 'force_scale_exponent=-482')] oth=[]
+A2-FA2-series-54 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] b=None rbp=None ref=[('structural integrity: NumericallyUnresolved { reason: "posit', 'Formation(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })', '')] oth=[]
+A2-FA2-series-60 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] b=None rbp=None ref=[('structural integrity: NumericallyUnresolved { reason: "posit', 'Formation(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })', '')] oth=[]
+A2-FA2-series-66 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] b=None rbp=None ref=[('structural integrity: NumericallyUnresolved { reason: "posit', 'Formation(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })', '')] oth=[]
+A2-FAMILY-constant_effort-b0 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-constant_effort-range [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: constant_eff', 'Evaluation(Range("arithmetic outside normal range"))', 'force_scale_exponent=514')] oth=[]
+A2-FAMILY-curved_bend-b0 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-curved_bend-e900 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-curved_bend-e950 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-curved_bend-e970 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-curved_bend-e990 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-curved_bend-f1010 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("product overflow or underflow"))', '')] oth=[]
+A2-FAMILY-curved_bend-f900 [SAME] dense_/capt,dense_/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-curved_bend-f900 [DIFF] sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: curved_bend_', 'Evaluation(Range("product overflow or underflow"))', 'force_scale_exponent=454')] oth=[]
+A2-FAMILY-curved_bend-f950 [DIFF] dense_/capt,dense_/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: curved_bend_', 'Evaluation(Range("product overflow or underflow"))', 'force_scale_exponent=478')] oth=[]
+A2-FAMILY-curved_bend-f950 [DIFF] sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("product overflow or underflow"))', '')] oth=[]
+A2-FAMILY-curved_bend-f980 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("product overflow or underflow"))', '')] oth=[]
+A2-FAMILY-curved_bend-range [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_FAILED'] int=['NUMERICAL_INTEGRITY_FAILED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-curved_bend-tinyload [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("product overflow or underflow"))', '')] oth=[]
+A2-FAMILY-exact_pressure_operand-b0 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: exact_pressu', 'Evaluation(Range("arithmetic outside normal range"))', 'force_scale_exponent=536')] oth=[]
+A2-FAMILY-exact_pressure_operand-normal [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-exact_pressure_operand-range [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: exact_pressu', 'Evaluation(Range("arithmetic outside normal range"))', 'force_scale_exponent=536')] oth=[]
+A2-FAMILY-thermal-b0 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-thermal-range [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: thermal_or_e', 'Evaluation(Range("arithmetic outside normal range"))', 'force_scale_exponent=516')] oth=[]
+A2-FAMILY-uniform-b0 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-FAMILY-uniform-range [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: uniform_elem', 'Evaluation(Range("arithmetic outside normal range"))', 'force_scale_exponent=516')] oth=[]
+A2-FAMILY-user_element-b0 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+    C: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+A2-FAMILY-user_element-e990 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+    C: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+A2-FAMILY-user_element-range [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+    C: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+A2-FAMILY-user_element-tinyload [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+    C: refused_ blk=['EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID', 'PIPE_ELEMENT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['PIPE_ELEMENT_INPUT_INVALID:degenerate axis definition: element length', 'EXPANSION_JOINT_MACRO_ELEMENT_INPUT_INVALID:degenerate axis definition: user-stiffness element length']
+A2-FS-k1e-20 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: subnormal stiffness or load at formation', 'Formation(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })', 'force_scale_exponent=none')] oth=[]
+A2-FS-k1e-40 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SUPPORT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['SUPPORT_INPUT_INVALID:spring support requires explicit stiffness']
+    C: refused_ blk=['SUPPORT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['SUPPORT_INPUT_INVALID:spring support requires explicit stiffness']
+A2-FS-k1e-60 [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SUPPORT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['SUPPORT_INPUT_INVALID:spring support requires explicit stiffness']
+    C: refused_ blk=['SUPPORT_INPUT_INVALID'] int=[] b=None rbp=None ref=[] oth=['SUPPORT_INPUT_INVALID:spring support requires explicit stiffness']
+A2-FS-least-subnormal-spring [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED'] b=None rbp=None ref=[('structural integrity: NumericallyUnresolved { reason: "posit', 'Formation(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })', '')] oth=[]
+A2-FS-overflow-spring [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 109722481375873770000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 109722481375873770000000
+A2-FS-overflow-spring [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: publication outside binary64; at=spring_action@N0:RZ', 'Evaluation(Range("physical residual record overflow"))', 'force_scale_exponent=-482')] oth=[]
+A2-LEF-ANALOGUE-base [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-LEF-ANALOGUE-large [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 518689446110124100000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 518689446110124100000000
+A2-LEF-ANALOGUE-large [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[-702] rbp=True ref=[] oth=[]
+A2-LIMITATION-CHAIN [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 283921376677971440000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 283921376677971440000000
+A2-LIMITATION-CHAIN [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Evaluation(Range("radix scaling loses normal range"))', '')] oth=[]
+A2-MIXED [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: subnormal stiffness or load at formation', 'Evaluation(Range("radix scaling loses normal range"))', 'force_scale_exponent=none')] oth=[]
+A2-MIXED-N05 [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE', 'NUMERICAL_INTEGRITY_SENSITIVE'] b=[524] rbp=None ref=[] oth=[]
+A2-PHYS-R4-no-pressure [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=[536] rbp=None ref=[] oth=[]
+A2-PHYS-R4-pressure [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: subnormal stiffness or load at formation', 'Evaluation(Range("arithmetic outside normal range"))', 'force_scale_exponent=none')] oth=[]
+A2-REACH-exact-zero [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[734] rbp=True ref=[] oth=[]
+A2-REACH-exact-zero-open-gap [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+A2-REACH-least-subnormal [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[734] rbp=True ref=[] oth=[]
+A2-REACH-least-subnormal-open-gap [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+A2-REACH-partial-underflow [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_SENSITIVE'] b=[898] rbp=True ref=[] oth=[]
+A2-REACH-partial-underflow-open-gap [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+A2-REACH-spring-carried [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: scaled evaluation outside normal range', 'Formation(NumericalRange { name: "GJ/L: G*J" })', '')] oth=[]
+A2-REACH-spring-carried-open-gap [SAME] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED'] int=[] b=None rbp=None ref=[] oth=['NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED:the current gap input is a length; rotational gaps require a']
+    C: refused_ blk=['NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED'] int=[] b=None rbp=None ref=[] oth=['NONLINEAR_ROTATIONAL_GAP_UNSUPPORTED:the current gap input is a length; rotational gaps require a']
+A2-SUBNORMAL-I-b0 [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 100000000000000000000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 100000000000000000000000
+A2-SUBNORMAL-I-b0 [SAME] dense_/type,sparse/type
+    B: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+    C: solved blk=[] int=['NUMERICAL_INTEGRITY_CHECKS_PASSED'] b=None rbp=None ref=[] oth=[]
+A2-SUBNORMAL-I-range [SAME] dense_/capt,sparse/capt
+    B: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 100000000000000000000000
+    C: refused_capture:CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 100000000000000000000000
+A2-SUBNORMAL-I-range [DIFF] dense_/type,sparse/type
+    B: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[] oth=[]
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: subnormal stiffness or load at formation', 'Evaluation(Range("radix scaling loses normal range"))', 'force_scale_exponent=none')] oth=[]
+A2-ZERO-TERM [DIFF] dense_/capt,dense_/type,sparse/capt,sparse/type
+    B: refused_ blk=['SOLVER_SYSTEM_BLOCKED'] int=[] b=None rbp=None ref=[] oth=['SOLVER_SYSTEM_BLOCKED:range: stiffness formation outside the binary64 normal range']
+    C: refused_ blk=['NUMERICAL_INTEGRITY_UNRESOLVED'] int=['NUMERICAL_INTEGRITY_UNRESOLVED'] b=None rbp=None ref=[('range: family not admitted under force scaling: zero_nodal_l', 'Formation(NumericalRange { name: "12EIy/L^3: (12*E)*Iy" })', 'force_scale_exponent=734')] oth=[]

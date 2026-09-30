@@ -1,0 +1,10 @@
+baseline (no-op) peak RSS 1818624 bytes
+133_K6-GRID-16x16_sparse K6-GRID-16x16 sparse: ok 0.8s rss=20447232
+134_K6-GRID-32x32_sparse K6-GRID-32x32 sparse: ok 3.4s rss=87441408
+135_K6-GRID-64x64_sparse K6-GRID-64x64 sparse: ok 18.1s rss=350879744
+host busy ([]; memorystatus 94; load 8.22); waiting 30 s
+host busy ([]; memorystatus 94; load 7.33); waiting 30 s
+136_K6-GRID-96x96_sparse K6-GRID-96x96 sparse: ok 60.0s rss=930955264
+137_K6-GRID-128x128_sparse K6-GRID-128x128 sparse: deferred:conditional_run_needs_rulings_on_projection (N14)
+{"stop": [], "stop_after_tier": []}
+T5 exit=0

@@ -1,0 +1,49 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/R7-M22/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.12s
+  Executable unittests src/lib.rs (<wt>/k4-mut/R7-M22/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly stdout ----
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12100346) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:379:9:
+assertion `left == right` failed: DEMOTION2
+  left: ("512", ["128:rejected:stop_rule:21", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"])
+ right: ("512", ["128:rejected:stop_rule:13", "256:rejected:stop_rule:21", "512:accepted", "1024:verified"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.56s
+
+
+===== test_sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translati.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row stdout ----
+
+thread 'structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row' (12100753) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1669:5:
+assertion `left == right` failed
+  left: None
+ right: Some(StopRule { index: 0 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+

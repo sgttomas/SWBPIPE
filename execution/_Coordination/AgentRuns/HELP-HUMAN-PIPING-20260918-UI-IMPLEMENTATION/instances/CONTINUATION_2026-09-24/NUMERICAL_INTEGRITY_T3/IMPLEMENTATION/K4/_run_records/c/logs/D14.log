@@ -1,0 +1,49 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/D14/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.77s
+  Executable unittests src/lib.rs (<wt>/k4-mut/D14/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_b1_c_the_cancelled_1e80_terms_leave_the_1e_minus_8_load_exac.log =====
+
+running 1 test
+test structural::retained::combine::tests::b1_c_the_cancelled_1e80_terms_leave_the_1e_minus_8_load_exactly ... FAILED
+
+failures:
+
+---- structural::retained::combine::tests::b1_c_the_cancelled_1e80_terms_leave_the_1e_minus_8_load_exactly stdout ----
+
+thread 'structural::retained::combine::tests::b1_c_the_cancelled_1e80_terms_leave_the_1e_minus_8_load_exactly' (12172186) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:72:5:
+assertion `left == right` failed
+  left: [("u.0.0", 0), ("u.0.1", 0), ("u.0.2", 0), ("u.0.3", 0), ("u.0.4", 0), ("u.0.5", 0), ("u.1.0", 0), ("u.1.1", 0), ("u.1.2", 0), ("u.1.3", 0), ("u.1.4", 0), ("u.1.5", 0), ("mag.0", 0), ("mag.1", 0), ("end.1.i.0", 0), ("end.1.i.1", 0), ("end.1.i.2", 0), ("end.1.i.3", 0), ("end.1.i.4", 0), ("end.1.i.5", 0), ("end.1.j.0", 0), ("end.1.j.1", 0), ("end.1.j.2", 0), ("end.1.j.3", 0), ("end.1.j.4", 0), ("end.1.j.5", 0), ("spr.3.3", 0), ("spr.4.4", 0), ("spr.5.5", 0), ("R.0.0", 0), ("R.0.1", 0), ("R.0.2", 0)]
+ right: [("u.0.0", 0), ("u.0.1", 0), ("u.0.2", 0), ("u.0.3", 4547007122018943788), ("u.0.4", 4134304457926275328), ("u.0.5", 0), ("u.1.0", 0), ("u.1.1", 0), ("u.1.2", 4556014321274026262), ("u.1.3", 4547007122019688219), ("u.1.4", 4383130787346842135), ("u.1.5", 0), ("mag.0", 0), ("mag.1", 4556014321274026262), ("end.1.i.0", 0), ("end.1.i.1", 4067459689981883187), ("end.1.i.2", 0), ("end.1.i.3", 13707203621378736607), ("end.1.i.4", 0), ("end.1.i.5", 13709289369366877845), ("end.1.j.0", 0), ("end.1.j.1", 13290831726836658995), ("end.1.j.2", 0), ("end.1.j.3", 4483831584523960799), ("end.1.j.4", 0), ("end.1.j.5", 4485917332512102037), ("spr.3.3", 13710498295186492474), ("spr.4.4", 13297501198000079660), ("spr.5.5", 0), ("R.0.0", 0), ("R.0.1", 0), ("R.0.2", 4066291502447746961)]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::combine::tests::b1_c_the_cancelled_1e80_terms_leave_the_1e_minus_8_load_exactly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.13s
+
+
+===== test_b1_e_is_caught_the_combination_reproduces_the_truth_that_a_s.log =====
+
+running 1 test
+test structural::retained::combine::tests::b1_e_is_caught_the_combination_reproduces_the_truth_that_a_sum_of_states_loses ... FAILED
+
+failures:
+
+---- structural::retained::combine::tests::b1_e_is_caught_the_combination_reproduces_the_truth_that_a_sum_of_states_loses stdout ----
+
+thread 'structural::retained::combine::tests::b1_e_is_caught_the_combination_reproduces_the_truth_that_a_sum_of_states_loses' (12172189) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:72:5:
+assertion `left == right` failed
+  left: [("u.0.0", 0), ("u.0.1", 0), ("u.0.2", 0), ("u.0.3", 0), ("u.0.4", 0), ("u.0.5", 0), ("u.1.0", 0), ("u.1.1", 0), ("u.1.2", 0), ("u.1.3", 0), ("u.1.4", 0), ("u.1.5", 0), ("mag.0", 0), ("mag.1", 0), ("end.1.i.0", 0), ("end.1.i.1", 0), ("end.1.i.2", 0), ("end.1.i.3", 0), ("end.1.i.4", 0), ("end.1.i.5", 0), ("end.1.j.0", 0), ("end.1.j.1", 0), ("end.1.j.2", 0), ("end.1.j.3", 0), ("end.1.j.4", 0), ("end.1.j.5", 0), ("spr.3.3", 0), ("spr.4.4", 0), ("spr.5.5", 0), ("R.0.0", 0), ("R.0.1", 0), ("R.0.2", 0)]
+ right: [("u.0.0", 0), ("u.0.1", 0), ("u.0.2", 0), ("u.0.3", 3873857694494683923), ("u.0.4", 3460688666370446393), ("u.0.5", 0), ("u.1.0", 0), ("u.1.1", 0), ("u.1.2", 3882864893749668605), ("u.1.3", 3873857694495215167), ("u.1.4", 3709997080688831251), ("u.1.5", 0), ("mag.0", 0), ("mag.1", 3882864893749668605), ("end.1.i.0", 0), ("end.1.i.1", 3392086793621602304), ("end.1.i.2", 0), ("end.1.i.3", 13034090031742937851), ("end.1.i.4", 0), ("end.1.i.5", 13035815468329635492), ("end.1.j.0", 0), ("end.1.j.1", 12615458830476378112), ("end.1.j.2", 0), ("end.1.j.3", 3810717994888162043), ("end.1.j.4", 0), ("end.1.j.5", 3812443431474859684), ("spr.3.3", 13037540904916333133), ("spr.4.4", 12624351770475754259), ("spr.5.5", 0), ("R.0.0", 0), ("R.0.1", 0), ("R.0.2", 3390848706935252024)]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::combine::tests::b1_e_is_caught_the_combination_reproduces_the_truth_that_a_sum_of_states_loses
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.09s
+
+

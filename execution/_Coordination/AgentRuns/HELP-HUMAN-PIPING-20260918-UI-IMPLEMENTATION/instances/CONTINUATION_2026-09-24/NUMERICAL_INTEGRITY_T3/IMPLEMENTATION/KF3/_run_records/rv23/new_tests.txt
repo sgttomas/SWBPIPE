@@ -1,0 +1,8 @@
+The three new tests (debug, one cargo job, RUST_TEST_THREADS=2, each run alone; wall times of the test binary)
+
+kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence    (K4T/kf3_tests.rs)    33.27 s
+kf3_in_verify_state_a_refusal_stop_outranks_uc                     (K4T/kf3_tests.rs)     8.85 s
+kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence             (K4T/bound_tests.rs)   6.95 s
+
+The S test's sweep (its printed line):
+RV23-1 (S): total 114530 LME, step 19: 327 stops in flight, 4011 after the results kept both

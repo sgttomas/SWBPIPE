@@ -1,0 +1,49 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M3/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.15s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M3/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it ... FAILED
+
+failures:
+
+---- structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it stdout ----
+
+thread 'structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it' (12129955) panicked at src/structural/retained/../../../tests/retained_k4/wide_sum_tests.rs:169:5:
+assertion `left == right` failed
+  left: "+8p0"
+ right: "+80000000000000000000000000000001p0"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+
+===== test_targeted_sums_match_the_fraction_oracle.log =====
+
+running 1 test
+test structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle ... FAILED
+
+failures:
+
+---- structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle stdout ----
+
+thread 'structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle' (12129951) panicked at src/structural/retained/../../../tests/retained_k4/wide_sum_tests.rs:102:17:
+assertion `left == right` failed: p 128 terms ["w:+80000000000000000000000000000001p0", "w:+8p-128", "w:-8p-400"]
+  left: "+8p0"
+ right: "+80000000000000000000000000000001p0"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::wide_sum::tests::targeted_sums_match_the_fraction_oracle
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.00s
+
+

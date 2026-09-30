@@ -1,0 +1,85 @@
+"""K6b RV22-2: the W1 estimate after the fix, phase by phase, in Python (standard library), from the
+committed counts. It reproduces each line's estimate_adm_bytes_w1a and estimate_w1_sel128_bytes and
+reports which phase sets each (the Rust test `the_solve_and_pass_terms_bind_on_the_large_models`
+asserts the same). Sizes of the exported types: this build's (the W1SizeFacts the binary uses).
+Usage: python3 estimate_phases.py <counts.jsonl>"""
+import json
+import sys
+
+SZ = dict(straight_member=88, constraint=16, nodal_load=40, station=16, quantity_meta=20,
+          published_row=64, attempt_record=800, frame_element=136)
+ROW, TAB = 2 * 2144 + 16, 40
+
+
+def w(l):
+    return 8 * l + 16
+
+
+def pow2(x):
+    c = 1
+    while c < x:
+        c *= 2
+    return c if x else 0
+
+
+def phases(c):
+    m, n, nf, nnz = c['w1_members'], c['w1_dofs'], c['w1_free_dofs'], c['w1_pattern_entries']
+    P, B, rows = c['w1_profile_entries'], max(c['w1_blocks'], 1), c['w1_rows']
+    nodes, r, loads, st, enc = c['w1_nodes'], c['w1_constraints'], c['w1_loads'], c['w1_stations'], c['w1_source_encoding_len']
+    harness = nodes * 64 + m * 80 + loads * 16 + m * SZ['frame_element']
+    src = 24 * nodes + m * SZ['straight_member'] + r * SZ['constraint'] + loads * (SZ['nodal_load'] + 16) \
+        + st * SZ['station'] + 16 * n + 4 * nodes
+    case = loads * 64 + r * 48 + enc + rows * SZ['quantity_meta'] + 8 * c['w1_bodies']
+    group = 8 * (n + 1) + 16 * nnz + 8 * (nnz + 1) + m * 78 * 8 + 32 * nf + 8 * n + 12 * nf + 24 * B
+    fixed = harness + 2 * src + case + group
+    shared = lambda l, rr: m * (164 * w(l) + 16) + nnz * (w(l) + w(rr)) + m * (5 * w(rr) + 8) + P * w(l) \
+        + nf * (2 * w(l) + 56) + B * w(l)
+    state = lambda l: (n + 6 * m + rows) * w(l)
+    verify = lambda l, ww: nnz * w(l) + m * 144 * w(ww) + B * (4 * w(l) + 8)
+    decide = 4608 * ROW + 7 * rows * TAB
+    pivot = 768 * ROW + 3 * nf * TAB
+    row_list = pow2(nf) + pow2(nf) // 2
+    solve = lambda l, rr: 4 * n * w(rr) + nf * (16 + w(l)) + 2816 * ROW + 11 * nf * TAB + nf * w(l) \
+        + 4 * (nf * w(l) + 24) + nnz * w(rr) + max(m * 144 * w(rr), n * w(l) + row_list * ROW)
+    def pas(l, ww):
+        live = 3 * n * w(l) + 8 * nf * w(l) + (rows + 6 * m) * w(l) + 50 * n + r * (w(ww) + w(l))
+        at_shift = 3 * rows * (w(l) + 8) + 2 * P * w(l) + 36 * nf + nf * (32 + w(l) + 8 + w(l))
+        return live + max(at_shift, 5 * rows * (w(l) + 8))
+    build = lambda l, rr, same: shared(l, rr) + (0 if same else m * (164 * w(rr) + 16))
+    vbuild = lambda l, ww, same: verify(l, ww) + m * (5 * w(l) + 8) + m * 144 * w(l) + (0 if same else m * (164 * w(ww) + 16))
+    report = lambda l: 5 * rows * (w(l) + 8) + 2 * nf * w(l)
+    end = rows * (SZ['published_row'] + 40) + enc + (n + 6 * m) * (9 + 128) + 8 * SZ['attempt_record']
+    out = [('group', fixed + m * 78 * 32)]
+    kept = fixed
+    sel = None
+    for p, l, rr, same, v in [(128, 4, 4, False, None), (256, 4, 8, False, (4, 8, False)),
+                              (512, 8, 16, False, (8, 16, False)), (1024, 16, 16, True, (16, 16, True))]:
+        out.append(('build_%d' % p, kept + build(l, rr, same) + pivot))
+        kept += shared(l, rr)
+        out.append(('solve_%d' % p, kept + state(l) + solve(l, rr)))
+        kept += state(l)
+        if v:
+            vl, vw, vs = v
+            out.append(('vbuild_%d' % p, kept + vbuild(vl, vw, vs)))
+            kept += verify(vl, vw)
+            out.append(('pass_%d' % p, kept + pas(vl, vw)))
+            out.append(('decide_%d' % p, kept + report(vl) + decide))
+            if p == 256:
+                sel = list(out) + [('end_128', kept + report(vl) + end)]
+    out.append(('end', kept + report(16) + end))
+    top = max(out, key=lambda t: t[1])
+    stop = max(sel, key=lambda t: t[1])
+    return top, stop, dict(out)
+
+
+ok = True
+for line in open(sys.argv[1]):
+    c = json.loads(line)
+    (at, e), (sat, s), ph = phases(c)
+    same = e == c['estimate_adm_bytes_w1a'] and s == c['estimate_w1_sel128_bytes']
+    ok &= same
+    second = sorted(ph.items(), key=lambda t: -t[1])[1]
+    print('%-38s E_max %10.1f MiB at %-11s (next %-11s %5.2f%% below)  E_sel128 %9.1f MiB at %-9s %s'
+          % (c['model'], e / 2**20, at, second[0], 100 * (1 - second[1] / e), s / 2**20, sat,
+             'equal' if same else 'DIFFERS'))
+print('the Python phases reproduce every committed E_max and E_sel128: %s' % ok)

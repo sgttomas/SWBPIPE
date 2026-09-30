@@ -1,0 +1,49 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/K4-M10/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.99s
+  Executable unittests src/lib.rs (<wt>/k4-mut/K4-M10/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_a_constructed_ill_conditioned_matrix_whose_pivots_pass_escal.log =====
+
+running 1 test
+test structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only ... FAILED
+
+failures:
+
+---- structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only stdout ----
+
+thread 'structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only' (12136488) panicked at src/structural/retained/../../../tests/retained_k4/factor_tests.rs:152:5:
+assertion `left == right` failed
+  left: Ok(Z+)
+ right: Err(Condition)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.02s
+
+
+===== test_k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_agai.log =====
+
+running 1 test
+test structural::retained::adaptive::tests::k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_against_512 ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::tests::k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_against_512 stdout ----
+
+thread 'structural::retained::adaptive::tests::k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_against_512' (12136491) panicked at src/structural/retained/../../../tests/retained_k4/adaptive_tests.rs:83:5:
+assertion `left == right` failed
+  left: [(128, Candidate, Rejected(StopRule { quantity: Displacement(Dof { node: 0, component: Rx }), body: 0, kind: Rotation })), (256, VerificationThenCandidate, Accepted), (512, Verification, Verified)]
+ right: [(128, Candidate, Failed(Stop(Condition))), (256, Candidate, Accepted), (512, Verification, Verified)]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::tests::k_1e_minus_28_escalates_past_128_and_is_accepted_at_256_against_512
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 0.07s
+
+

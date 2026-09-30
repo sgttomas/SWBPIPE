@@ -1,0 +1,5 @@
+cases=4226 findings=0
+count MechanismWitnessed def ok 2138
+count NumericallyUnresolved def ok 741
+count NumericallyUnresolved full ok 13
+count Restrained full ok 1334

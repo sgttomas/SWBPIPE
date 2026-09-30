@@ -1,0 +1,49 @@
+===== build.log =====
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-mut/R7-M6/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.86s
+  Executable unittests src/lib.rs (<wt>/k4-mut/R7-M6/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+===== test_e_unit_g_the_bounded_operator_and_e_equal_the_generators_emu.log =====
+
+running 1 test
+test structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision stdout ----
+
+thread 'structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision' (12089503) panicked at src/structural/retained/../../../tests/retained_k4/scale_tests.rs:156:24:
+assertion `left == right` failed: LEDGER-AT-RESTRAINT 128 E rows
+  left: "1eec48a5eac21de6d9b0a907b738e90381e3203814173c1f16f03c0dc3adf156"
+ right: "46a055701ad5fa52045ca068f7c15833933675ff00c680ab0730efa4c3a5d98c"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 10.81s
+
+
+===== test_every_control_follows_gens_schedule_and_r7s_expectations_hon.log =====
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly stdout ----
+
+thread 'structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly' (12088953) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:379:9:
+assertion `left == right` failed: LEDGER-AT-RESTRAINT
+  left: ("256", ["128:rejected:stop_rule:14", "256:accepted", "512:verified"])
+ right: ("128", ["128:accepted", "256:verified"])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 322 filtered out; finished in 9.62s
+
+

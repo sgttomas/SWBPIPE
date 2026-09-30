@@ -1,0 +1,30 @@
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/k6b/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.34s
+     Running tests/k6b_w1.rs (<wt>/k6b-target/debug/deps/k6b_w1-dd8dac1ab4a39495)
+
+running 6 tests
+test a_build_that_stops_partway_is_checked_against_its_charged_total ... ok
+test a_stop_in_the_stop_rule_is_held_to_equality ... ok
+test the_committed_counts_carry_this_codes_estimate ... FAILED
+test the_estimate_equals_a_hand_derivation ... ok
+test the_solve_and_pass_terms_bind_on_the_large_models ... ok
+test prefixes_stop_on_the_case_budget_after_each_segment ... ok
+
+failures:
+
+---- the_committed_counts_carry_this_codes_estimate stdout ----
+
+thread 'the_committed_counts_carry_this_codes_estimate' (16009695) panicked at tests/k6b_w1.rs:662:9:
+assertion `left == right` failed: RF-LARGE-CHAIN-n00010-AX
+  left: 22726516
+ right: 22715996
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    the_committed_counts_carry_this_codes_estimate
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 1.05s
+
+error: test failed, to rerun pass `--test k6b_w1`
+cargo test --offline --locked -j 4 --test k6b_w1 -- a_stop_in_the_stop_rule    4.10s user 0.38s system 158% cpu 2.825 total

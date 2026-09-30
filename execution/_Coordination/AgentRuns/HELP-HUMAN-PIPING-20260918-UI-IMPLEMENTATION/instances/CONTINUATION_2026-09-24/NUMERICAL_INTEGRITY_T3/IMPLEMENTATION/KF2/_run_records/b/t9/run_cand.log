@@ -1,0 +1,8 @@
+runs: 10
+core rc=0
+runs: 72
+fixtures rc=0
+runs: 30
+validation rc=0
+runs: 16
+extra rc=0

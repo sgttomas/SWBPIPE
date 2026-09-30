@@ -1,0 +1,12 @@
+{
+ "inputs": {
+  "core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py": "ca48d1bd65540eb3da7f30acbbdd4fa553fe03fed432f2b18afd960e2ba4da29",
+  "core/solver/nonlinear_integration/src/structural_adapter/k2b_models.rs": "c23eedd273ebacd4d3d324bb24e72cbe766b33d2768c8808e5f9d51674c63090",
+  "core/solver/nonlinear_integration/src/structural_adapter/kd5_models.rs": "17a4680c83ff3e940a7dcfd908ef334c8b5a53427b6ff388dafb5888477dca23",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/_run_records/floor_kinds.json": "8326561530598e1f6b69d9f174b70946e52800373b5ecab48864ae174087ae78",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.json": "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9",
+  "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REFERENCES/references.py": "80d473a7351e92a2a903d233b9e633aac794aeff07f3ac41e40d25a0d94fc8a8",
+  "validation/benchmarks/numerical_integrity/fixtures.json": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e"
+ }
+}
+python3 -B gen_k4_vectors.py --only=scale,bounds,charge,estimate  367.44s user 0.93s system 99% cpu 6:09.74 total

@@ -663,7 +663,7 @@ where
 /// The correctly rounded binary64 value of a `Wide`, with its outcome (module
 /// documentation).
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) enum Binary64Outcome {
+pub enum Binary64Outcome {
     /// A normal result, or an exact ±0 (sign kept). Rounded to nearest.
     Normal(f64),
     /// A subnormal result: absolute error at most 2^−1075, and
@@ -677,8 +677,7 @@ pub(crate) enum Binary64Outcome {
 
 impl Binary64Outcome {
     /// The binary64 value, or None for underflow and overflow.
-    #[allow(dead_code)] // K4 API (publication of retained quantities)
-    pub(crate) fn value(&self) -> Option<f64> {
+    pub fn value(&self) -> Option<f64> {
         match *self {
             Self::Normal(v) | Self::Subnormal { value: v, .. } => Some(v),
             Self::Underflow { .. } | Self::Overflow { .. } => None,
@@ -999,7 +998,7 @@ pub(crate) fn limb_multiply_cost(kind: OpKind, limbs: usize) -> u64 {
 
 /// Operations of one width, by kind. Saturating; never wraps.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub(crate) struct WidthWork {
+pub struct WidthWork {
     pub(crate) add: u64,
     pub(crate) sub: u64,
     pub(crate) mul: u64,
@@ -1071,7 +1070,7 @@ impl WidthWork {
 
 /// The work of one attempt across widths (L = 4, 8, 16). Saturating.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-pub(crate) struct AttemptWork {
+pub struct AttemptWork {
     widths: [WidthWork; 3],
 }
 
@@ -1103,8 +1102,7 @@ impl AttemptWork {
     }
 
     /// The whole attempt's cost in limb-multiply equivalents.
-    #[allow(dead_code)] // K4 API (budgets)
-    pub(crate) fn limb_multiply_equivalents(&self) -> u64 {
+    pub fn limb_multiply_equivalents(&self) -> u64 {
         self.widths
             .iter()
             .zip(SLOT_LIMBS)

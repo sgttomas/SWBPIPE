@@ -1,0 +1,25 @@
+#!/bin/bash
+# I14 (K5, checkpoint C): one mutant in its own clean git archive copy and target, then delete the target.
+# Usage: run_mutant.sh <id> <tests: fk|ni|pp list, comma-separated> [k1]
+# The copy is `git archive 416b0d456` plus the four uncommitted C test files (overlay, hashes recorded).
+set -u
+ID=$1; TESTS=$2; SCRIPT=${3:-k5}
+W=<wt>
+S=$W/scratch/i14/mut; D=$W/k5-mut/$ID; OUT=$S/logs/$ID; PY=<VENV>/bin/python
+rm -rf $D $OUT; mkdir -p $D/src $OUT
+(cd $W/k5 && git archive 416b0d456 projects/chirality-piping/core projects/chirality-piping/fixtures projects/chirality-piping/schemas projects/chirality-piping/validation | tar -x -C $D/src)
+for f in $(cat $S/overlay.txt); do cp $W/k5/$f $D/src/$f; done
+CORE=$D/src/projects/chirality-piping/core
+if [ "$SCRIPT" = "k1" ]; then $PY -B $S/mutate_k1.py $CORE $ID > $OUT/apply.txt 2>&1; else $PY -B $S/mutate_k5.py $CORE $ID > $OUT/apply.txt 2>&1; fi
+echo "apply exit=$?" >> $OUT/apply.txt
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4 CARGO_TARGET_DIR=$D/target
+for t in $(echo $TESTS | tr ',' ' '); do
+  case $t in
+    fk) (cd $CORE/solver/frame_kernel && cargo test --offline --locked -j 4 --no-fail-fast --test k5_constrained_bodies --test k5_scale --lib -- rigid_body:: k5_ > $OUT/fk.txt 2>&1; echo "exit=$?" >> $OUT/fk.txt) ;;
+    ni) (cd $CORE/solver/nonlinear_integration && cargo test --offline --locked -j 4 --no-fail-fast --lib > $OUT/ni.txt 2>&1; echo "exit=$?" >> $OUT/ni.txt) ;;
+    ni5) (cd $CORE/solver/nonlinear_integration && cargo test --offline --locked -j 4 --no-fail-fast --lib k5_tests > $OUT/ni5.txt 2>&1; echo "exit=$?" >> $OUT/ni5.txt) ;;
+    pp) (cd $CORE/product_physics && cargo test --offline --locked -j 4 --no-fail-fast --test k5_curved_mechanism_runtime > $OUT/pp.txt 2>&1; echo "exit=$?" >> $OUT/pp.txt) ;;
+  esac
+done
+rm -rf $D/target
+echo "$ID done $(date -u +%FT%TZ)" > $OUT/done.txt

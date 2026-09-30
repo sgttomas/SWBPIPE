@@ -1,0 +1,348 @@
+[
+ {
+  "id": "NONE (py)",
+  "kind": "py",
+  "what": "control: unmutated archive copy",
+  "status": "passes",
+  "tests": [
+   "35 passed in 6.49s"
+  ],
+  "intended": "-",
+  "elapsed": "7"
+ },
+ {
+  "id": "NONE (rs)",
+  "kind": "rs",
+  "what": "control: unmutated archive copy",
+  "status": "passes",
+  "tests": [],
+  "intended": "-",
+  "elapsed": "68"
+ },
+ {
+  "id": "K6-M1",
+  "kind": "py",
+  "what": "watchdog never kills (comparison skipped)",
+  "status": "killed",
+  "tests": [
+   "LiveLimit::test_live_memory_limit"
+  ],
+  "intended": "H1 live watchdog (LiveLimit.test_live_memory_limit)",
+  "elapsed": "9"
+ },
+ {
+  "id": "K6-M2",
+  "kind": "py",
+  "what": "watchdog compares KiB with bytes",
+  "status": "killed",
+  "tests": [
+   "LiveLimit::test_live_memory_limit",
+   "Watchdog::test_kib_against_bytes"
+  ],
+  "intended": "H1/H2 (Watchdog.test_kib_against_bytes; live)",
+  "elapsed": "10"
+ },
+ {
+  "id": "K6-M3",
+  "kind": "py",
+  "what": "watchdog polls the time wrapper's PID",
+  "status": "killed",
+  "tests": [
+   "LiveLimit::test_live_memory_limit"
+  ],
+  "intended": "H1 live watchdog",
+  "elapsed": "9"
+ },
+ {
+  "id": "K6-M4",
+  "kind": "py",
+  "what": "SIGKILL to the child only, not the group (watchdog kill)",
+  "status": "killed",
+  "tests": [
+   "LiveLimit::test_kills_take_the_whole_group"
+  ],
+  "intended": "H1's no-survivor assertion (plan); LiveLimit.test_kills_take_the_whole_group (added at the C stop)",
+  "elapsed": "7"
+ },
+ {
+  "id": "K6-M5",
+  "kind": "py",
+  "what": "RLIMIT_AS applied on Darwin too (not only Linux)",
+  "status": "killed",
+  "tests": [
+   "LiveLimit::test_live_memory_limit",
+   "LiveLimit::test_negative_control",
+   "RlimitOnlyOnLinux::test_darwin_does_not"
+  ],
+  "intended": "H4 (RlimitOnlyOnLinux)",
+  "elapsed": "2"
+ },
+ {
+  "id": "K6-M6",
+  "kind": "py",
+  "what": "time -l bytes read as KiB",
+  "status": "killed",
+  "tests": [
+   "Parsers::test_time_l_bytes"
+  ],
+  "intended": "H5 (Parsers.test_time_l_bytes)",
+  "elapsed": "3"
+ },
+ {
+  "id": "K6-M7",
+  "kind": "py",
+  "what": "mean for median",
+  "status": "killed",
+  "tests": [
+   "Aggregation::test_median_and_minimum"
+  ],
+  "intended": "H6 (Aggregation.test_median_and_minimum)",
+  "elapsed": "3"
+ },
+ {
+  "id": "K6-M13",
+  "kind": "py",
+  "what": "admission admits an estimate > C/2",
+  "status": "killed",
+  "tests": [
+   "PlanAdmission::test_lane_id_deferred_by_name_when_the_estimate_fails",
+   "PlanAdmission::test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline"
+  ],
+  "intended": "H7 (PlanAdmission)",
+  "elapsed": "3"
+ },
+ {
+  "id": "K6-M19",
+  "kind": "py",
+  "what": "rho taken as the smallest ratio, not the largest",
+  "status": "killed",
+  "tests": [
+   "PlanAdmission::test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline"
+  ],
+  "intended": "H7 (test_rho_is_the_largest_footprint_ratio...)",
+  "elapsed": "4"
+ },
+ {
+  "id": "K6-M21",
+  "kind": "py",
+  "what": "the runner's by-name n2 refusal covers dense only",
+  "status": "killed",
+  "tests": [
+   "PlanAdmission::test_refusals_by_name"
+  ],
+  "intended": "H7 (test_refusals_by_name)",
+  "elapsed": "3"
+ },
+ {
+  "id": "K6-M22",
+  "kind": "py",
+  "what": "(own, B2-stop rule) projected RSS <= 0.8C check removed",
+  "status": "killed",
+  "tests": [
+   "PlanAdmission::test_projected_rss_above_0_8_c_is_deferred_by_name"
+  ],
+  "intended": "test_projected_rss_above_0_8_c_is_deferred_by_name",
+  "elapsed": "3"
+ },
+ {
+  "id": "K6-M23",
+  "kind": "py",
+  "what": "(own, B2-stop rule) rho read on RSS, not on the footprint",
+  "status": "killed",
+  "tests": [
+   "PlanAdmission::test_footprint_not_rss_decides_rho",
+   "PlanAdmission::test_projected_rss_above_0_8_c_is_deferred_by_name",
+   "PlanAdmission::test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline"
+  ],
+  "intended": "test_footprint_not_rss_decides_rho",
+  "elapsed": "3"
+ },
+ {
+  "id": "K6-M24",
+  "kind": "py",
+  "what": "(own, B2-stop rule) the dense RSS/footprint floor 1.45 dropped",
+  "status": "killed",
+  "tests": [
+   "PlanAdmission::test_dense_uses_the_ruled_rss_ratio_floor"
+  ],
+  "intended": "test_dense_uses_the_ruled_rss_ratio_floor",
+  "elapsed": "4"
+ },
+ {
+  "id": "K6-M25",
+  "kind": "py",
+  "what": "(own, B1 grant) load-wait hysteresis removed (resume at load <= 8)",
+  "status": "killed",
+  "tests": [
+   "QuietHost::test_load_wait_hysteresis"
+  ],
+  "intended": "QuietHost.test_load_wait_hysteresis",
+  "elapsed": "4"
+ },
+ {
+  "id": "K6-M26",
+  "kind": "py",
+  "what": "(own, B1 fix) the resume skip counts a not_run record as measured",
+  "status": "killed",
+  "tests": [
+   "PlanAdmission::test_measured_runs_are_kept_and_not_run_records_are_run"
+  ],
+  "intended": "PlanAdmission.test_measured_runs_are_kept_and_not_run_records_are_run (added at the C stop)",
+  "elapsed": "7"
+ },
+ {
+  "id": "K6-M8",
+  "kind": "rs",
+  "what": "pattern entries from one triangle",
+  "status": "killed",
+  "tests": [
+   "k1_table_cross_check",
+   "closed_forms",
+   "failed targets: --test k6_counts"
+  ],
+  "intended": "C1 (k6_counts closed_forms)",
+  "elapsed": "72"
+ },
+ {
+  "id": "K6-M9",
+  "kind": "rs",
+  "what": "identity profile reported as RCM",
+  "status": "killed",
+  "tests": [
+   "oracle_constants",
+   "k1_table_cross_check",
+   "rcm_count_equals_ordering",
+   "failed targets: --test k6_counts"
+  ],
+  "intended": "C3, C4 (k6_counts)",
+  "elapsed": "73"
+ },
+ {
+  "id": "K6-M10",
+  "kind": "rs",
+  "what": "realloc accounting wrong (a shrink releases nothing)",
+  "status": "killed",
+  "tests": [
+   "k6_alloc (harness=false: assertion `left == right` failed: realloc down releases the difference)",
+   "failed targets: --test k6_alloc"
+  ],
+  "intended": "F1 (k6_alloc accounting)",
+  "elapsed": "71"
+ },
+ {
+  "id": "K6-M11",
+  "kind": "rs",
+  "what": "cap off by one (>= for >)",
+  "status": "killed",
+  "tests": [
+   "k6_alloc (harness=false: an allocation exactly at the cap succeeds)",
+   "failed targets: --test k6_alloc"
+  ],
+  "intended": "F2 (k6_alloc cap boundary)",
+  "elapsed": "71"
+ },
+ {
+  "id": "K6-M12",
+  "kind": "rs",
+  "what": "the binary's >= 10,000 n2 refusal narrowed to dense only (lane-lu passes)",
+  "status": "killed",
+  "tests": [
+   "n2_modes_at_10000_refused_before_n2",
+   "failed targets: --test k6_bin"
+  ],
+  "intended": "G1 (k6_bin n2_modes_at_10000_refused_before_n2)",
+  "elapsed": "76"
+ },
+ {
+  "id": "K6-M14",
+  "kind": "rs",
+  "what": "Q3 transposed in the generator",
+  "status": "killed",
+  "tests": [
+   "oracle_constants",
+   "loads_match_r1_at_ten_members",
+   "canonical_bytes_equal_committed_models",
+   "failed targets: --test k6_counts, --test k6_models"
+  ],
+  "intended": "B1, B3 (k6_models)",
+  "elapsed": "72"
+ },
+ {
+  "id": "K6-M15",
+  "kind": "rs",
+  "what": "n - 1 members (CHAIN)",
+  "status": "killed",
+  "tests": [
+   "peak_requested_bytes_are_deterministic",
+   "estimate_over_half_cap_refused",
+   "heap_cap_abort_is_marked",
+   "n2_modes_at_10000_refused_before_n2",
+   "closed_forms",
+   "k1_table_cross_check",
+   "rcm_count_equals_ordering",
+   "oracle_constants",
+   "model_shapes_follow_r1",
+   "canonical_bytes_equal_committed_models",
+   "outcome_parity_and_dec053_basis_small_models",
+   "failed targets: --test k6_bin, --test k6_counts, --test k6_models, --test k6_parity"
+  ],
+  "intended": "B1, B3 (k6_models); C1",
+  "elapsed": "52"
+ },
+ {
+  "id": "K6-M16",
+  "kind": "rs",
+  "what": "staged sequence skips the contribution audit (contributions None, sparse)",
+  "status": "killed",
+  "tests": [
+   "staged_equals_sa_entries_small_models_both_modes",
+   "staged_equals_sa_entries_100_member_models_sparse",
+   "failed targets: --test k6_staged"
+  ],
+  "intended": "E1/E2 (k6_staged)",
+  "elapsed": "71"
+ },
+ {
+  "id": "K6-M17",
+  "kind": "rs",
+  "what": "alloc_zeroed forwarded without accounting",
+  "status": "killed",
+  "tests": [
+   "counts_file_replaces_the_counts_phase",
+   "peak_requested_bytes_are_deterministic",
+   "estimate_over_half_cap_refused",
+   "k6_alloc (harness=false: assertion `left == right` failed: alloc_zeroed is counted)",
+   "failed targets: --test k6_alloc, --test k6_bin"
+  ],
+  "intended": "F1 (k6_alloc accounting)",
+  "elapsed": "71"
+ },
+ {
+  "id": "K6-M18",
+  "kind": "rs",
+  "what": "the basis string's family text changed (the mixed branch)",
+  "status": "killed",
+  "tests": [
+   "staged_equals_sa_entries_small_models_both_modes",
+   "staged_equals_sa_entries_100_member_models_sparse",
+   "staged_equals_sa_entries_100_member_models_dense",
+   "failed targets: --test k6_staged"
+  ],
+  "intended": "E1 (k6_staged)",
+  "elapsed": "33"
+ },
+ {
+  "id": "K6-M20",
+  "kind": "rs",
+  "what": "TREE branch directions swapped (+z at odd k)",
+  "status": "killed",
+  "tests": [
+   "oracle_constants",
+   "canonical_bytes_equal_committed_models",
+   "outcome_parity_and_dec053_basis_100_member_models",
+   "failed targets: --test k6_counts, --test k6_models, --test k6_parity"
+  ],
+  "intended": "B1, B3 (k6_models)",
+  "elapsed": "62"
+ }
+]

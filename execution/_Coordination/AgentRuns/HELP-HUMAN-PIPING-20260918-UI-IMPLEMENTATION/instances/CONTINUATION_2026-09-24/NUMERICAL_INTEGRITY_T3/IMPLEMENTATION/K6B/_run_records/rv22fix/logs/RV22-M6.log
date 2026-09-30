@@ -1,0 +1,87 @@
+$ cargo test --offline --locked -j 4 --test k6b_adapter --test k6b_w1 --test k6b_bin --test k6b_export
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/k6b-mut/rv22/RV22-M6/src/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.05s
+     Running tests/k6b_adapter.rs (<wt>/k6b-mut/rv22/RV22-M6/target/debug/deps/k6b_adapter-461ca88c10ba4c83)
+
+running 2 tests
+test the_encoding_is_deterministic_and_independent_of_list_order ... ok
+test the_adapters_bytes_equal_the_independent_python_bytes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/k6b_bin.rs (<wt>/k6b-mut/rv22/RV22-M6/target/debug/deps/k6b_bin-8a6d12ff502963b3)
+
+running 3 tests
+test emit_source_prints_the_adapters_encoding ... ok
+test w1a_admission_and_counts_file ... ok
+test w1a_prints_its_lines_and_every_parity_holds ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.37s
+
+     Running tests/k6b_export.rs (<wt>/k6b-mut/rv22/RV22-M6/target/debug/deps/k6b_export-7f51ede0e735d576)
+
+running 1 test
+test a_source_built_outside_fk_is_solved_and_read_through_the_public_path ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/k6b_w1.rs (<wt>/k6b-mut/rv22/RV22-M6/target/debug/deps/k6b_w1-d980b13746b4023a)
+
+running 14 tests
+test a_build_that_stops_partway_is_checked_against_its_charged_total ... ok
+test a_stop_in_the_stop_rule_is_held_to_equality ... ok
+test prefixes_stop_on_the_case_budget_after_each_segment ... ok
+test r1_large_txt_is_the_pinned_file ... ok
+test outcomes_publications_evidence_and_work_are_deterministic ... ok
+test r1_predicate_and_counts_at_100_members_chain ... ok
+test r1_predicate_and_counts_at_100_members_cont ... ok
+test r1_predicate_and_counts_at_10_members ... ok
+test the_committed_counts_carry_this_codes_estimate ... FAILED
+test the_estimate_equals_a_hand_derivation ... FAILED
+test the_solve_and_pass_terms_bind_on_the_large_models ... FAILED
+test the_staged_solve_equals_k4s_own_entries ... ok
+test work_by_precision_files_each_attempt_under_its_own_precision ... ok
+test r1_predicate_and_counts_at_100_members_tree ... ok
+
+failures:
+
+---- the_committed_counts_carry_this_codes_estimate stdout ----
+
+thread 'the_committed_counts_carry_this_codes_estimate' (16122807) panicked at tests/k6b_w1.rs:668:9:
+assertion `left == right` failed: RF-LARGE-CHAIN-n01000-AX
+  left: 309957752
+ right: 313263224
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- the_estimate_equals_a_hand_derivation stdout ----
+
+thread 'the_estimate_equals_a_hand_derivation' (16122808) panicked at tests/k6b_w1.rs:603:5:
+assertion `left == right` failed: RF-LARGE-CHAIN-n00010-AX
+  left: [9341920, 9386080, 9488032, 9515296]
+ right: [12647392, 12691552, 12793504, 12820768]
+
+---- the_solve_and_pass_terms_bind_on_the_large_models stdout ----
+
+thread 'the_solve_and_pass_terms_bind_on_the_large_models' (16122809) panicked at tests/k6b_w1.rs:603:5:
+assertion `left == right` failed: RF-LARGE-CHAIN-n01000-AX
+  left: [72793408, 77019328, 86815360, 89503744]
+ right: [76098880, 80324800, 90120832, 92809216]
+
+
+failures:
+    the_committed_counts_carry_this_codes_estimate
+    the_estimate_equals_a_hand_derivation
+    the_solve_and_pass_terms_bind_on_the_large_models
+
+test result: FAILED. 11 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 10.78s
+
+error: test failed, to rerun pass `--test k6b_w1`
+

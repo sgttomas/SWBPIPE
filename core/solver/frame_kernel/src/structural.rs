@@ -3,6 +3,38 @@
 pub mod exact_boundary;
 mod formation_check;
 mod retained;
+/// W1a's public surface: T3 K4 `RETURN.md` §16's export list, with ROOT's
+/// rulings on K6b's A0 and V-K's Q8. `retained` stays private; no product
+/// crate names this module. `PrecisionState` and `RetainedSolve::state` stay
+/// crate-private (ROOT's ruling C-2).
+pub mod retained_api {
+    pub use super::retained::adaptive::{
+        absolute_bound, body_extent, classify, classify_rows, classify_rows_floored,
+        coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,
+        AttemptOutcome, AttemptReason, AttemptRecord, AttemptRole, AttemptStop, BudgetScope,
+        CaseLimit, CaseOutcome, GateTest, InvocationMeter, Publication, PublishedRow, Refusal,
+        RetainedEvidence, RetainedSolve, RowClass, StageWork, StorageCounts, UnresolvedReason,
+        VerificationSummary, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN,
+        POLICY, PRECISIONS, RCOND_LABEL,
+    };
+    pub use super::retained::bound::{
+        BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,
+    };
+    pub use super::retained::combine::{
+        CombinationOutcome, CombinationReason, RetainedCombination,
+    };
+    pub use super::retained::factor::{reverse_cuthill_mckee, BodyGeometry};
+    pub use super::retained::ledger::LedgerRefusal;
+    pub use super::retained::recover::{layout, End, Kind, QuantityId, QuantityMeta};
+    pub use super::retained::source::{
+        Component, Constraint, DirectionalSpring, Dof, MemberProperty, NodalLoad, PrimitiveSource,
+        SourceError, SourceParts, Spring, SpringKind, Station, StraightMember, SupportGroup,
+    };
+    pub use super::retained::verify::{e_hat, phi_512, resolution_hats, PHI_SCALE_BITS};
+    pub use super::retained::wide::multi::{AttemptWork, Binary64Outcome, WidthWork};
+    pub use super::retained::wide::WideError;
+    pub use super::retained::wide_sum::SumWork;
+}
 mod sparse;
 
 pub use formation_check::{
@@ -2166,23 +2198,72 @@ pub fn verify_negative_direction(
 pub fn negative_pair_witness(
     prepared: &PreparedSystem<'_>,
 ) -> Result<Option<StructuralError>, StructuralError> {
+    negative_pair_witness_counted(prepared).map(|(witness, _, _, _)| witness)
+}
+
+/// KF2: `negative_pair_witness` in O(n^2), with its work counts (pairs
+/// visited, cell terms evaluated, verifications). It visits the pairs (i, j < i)
+/// in the order of the search it replaces, and for each builds no direction:
+/// the direction e_i + sign*e_j has only four cells, (j,j), (j,i), (i,j) and
+/// (i,i), and they are exactly the cells `verify_negative_direction` evaluates
+/// for it, in that order. The guard below repeats its arithmetic on them, so
+/// it fails with the verifier's error, or reaches the verifier's verdict, bit
+/// for bit. Only a pair whose verdict is a witness is built and passed to the
+/// unchanged verifier, which publishes the witness (once, in O(n^2)).
+fn negative_pair_witness_counted(
+    prepared: &PreparedSystem<'_>,
+) -> Result<(Option<StructuralError>, usize, usize, usize), StructuralError> {
     validate_prepared(prepared)?;
+    let system = prepared.source;
     let n = prepared.matrix.len();
+    let mut visited = 0;
+    let mut evaluated = 0;
+    let mut verified = 0;
     for i in 0..n {
         for j in 0..i {
-            let mut v = vec![0.0; n];
-            v[i] = 1.0;
-            v[j] = if prepared.matrix[i][j] >= 0.0 {
+            visited += 1;
+            let sign = if prepared.matrix[i][j] >= 0.0 {
                 -1.0
             } else {
                 1.0
             };
-            if let Some(witness) = verify_negative_direction(prepared, &v)? {
-                return Ok(Some(witness));
+            // (cell, v[a], v[b]) in the verifier's row-major order (j < i).
+            let cells = [
+                (j, j, sign, sign),
+                (j, i, sign, 1.0),
+                (i, j, 1.0, sign),
+                (i, i, 1.0, 1.0),
+            ];
+            let mut energy = 0.0;
+            let mut magnitude = 0.0;
+            let mut terms = 0;
+            for (a, b, da, db) in cells {
+                if prepared.matrix[a][b] == 0.0 {
+                    continue;
+                }
+                let original = radix_scale(
+                    system.stiffness[system.free_dofs[a]][system.free_dofs[b]],
+                    prepared.scale_exponents[a] + prepared.scale_exponents[b],
+                )?;
+                let term = checked_product(checked_product(da, original)?, db)?;
+                energy = checked_value(energy + term)?;
+                magnitude = checked_value(magnitude + term.abs())?;
+                terms += 1;
+            }
+            evaluated += terms;
+            let allowance = 64.0 * gamma(3 * terms + 2) * magnitude;
+            if energy < -allowance {
+                verified += 1;
+                let mut v = vec![0.0; n];
+                v[i] = 1.0;
+                v[j] = sign;
+                if let Some(witness) = verify_negative_direction(prepared, &v)? {
+                    return Ok((Some(witness), visited, evaluated, verified));
+                }
             }
         }
     }
-    Ok(None)
+    Ok((None, visited, evaluated, verified))
 }
 
 // ------------------------------------------------------------------ K2b
@@ -2619,6 +2700,8 @@ pub fn unscale_structural_error(
     }
 }
 
+#[cfg(test)]
+mod kf2_witness_tests;
 #[cfg(test)]
 mod s11f_tests;
 #[cfg(test)]

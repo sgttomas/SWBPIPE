@@ -1,0 +1,261 @@
+{'items': 72, 'methods': 38, 'fields': 130, 'markers': 20}
+adaptive.rs:55 items pub const METHOD_TOKEN: &str = "contribution_preserving_multiprecision_v1";
+adaptive.rs:57 items pub const POLICY: &str = "M03-INTEGRITY-MP-v1";
+adaptive.rs:59 items pub const RCOND_LABEL: &str =
+adaptive.rs:62 items pub const PRECISIONS: [u32; 4] = [128, 256, 512, 1024];
+adaptive.rs:64 items pub const FLOOR_RATIO_BITS: u64 = 0x3DD0_0000_0000_0000;
+adaptive.rs:66 items pub const K_SQRT2_BITS: u64 = 0x3FF6_A09E_667F_3BCD;
+adaptive.rs:69 items pub const K_TWO_SQRT2_BITS: u64 = 0x4006_A09E_667F_3BCD;
+adaptive.rs:75 items pub struct CaseLimit(u64);
+adaptive.rs:89 items pub struct InvocationMeter {
+adaptive.rs:119 items pub enum BudgetScope {
+adaptive.rs:126 items pub enum AttemptStop {
+adaptive.rs:271 items pub fn body_extent(coordinates: &[[f64; 3]]) -> f64 {
+adaptive.rs:291 items pub fn coupled_scales(s: [f64; 4], extent: f64) -> [f64; 4] {
+adaptive.rs:306 items pub fn stress_scale(fo: f64, mo: f64, area: f64, modulus: f64, k: f64) -> f64 {
+adaptive.rs:313 items pub fn intensified_k(i: f64) -> f64 {
+adaptive.rs:338 items pub fn threshold(s_star: f64) -> f64 {
+adaptive.rs:344 items pub fn absolute_bound(s_star: f64) -> f64 {
+adaptive.rs:356 items pub enum RowClass {
+adaptive.rs:409 items pub fn classify(value: f64, s_star: f64) -> RowClass {
+adaptive.rs:779 items pub struct StageWork {
+adaptive.rs:880 items pub enum GateTest {
+adaptive.rs:1944 items pub struct VerificationSummary {
+adaptive.rs:2034 items pub enum AttemptRole {
+adaptive.rs:2041 items pub enum AttemptReason {
+adaptive.rs:2076 items pub enum AttemptOutcome {
+adaptive.rs:2087 items pub struct StorageCounts {
+adaptive.rs:2096 items pub struct AttemptRecord {
+adaptive.rs:2139 items pub enum Refusal {
+adaptive.rs:2157 items pub enum UnresolvedReason {
+adaptive.rs:2182 items pub struct PublishedRow {
+adaptive.rs:2191 items pub struct Publication {
+adaptive.rs:2199 items pub fn classify_rows(
+adaptive.rs:2210 items pub fn classify_rows_floored(
+adaptive.rs:2273 items pub struct RetainedEvidence {
+adaptive.rs:2313 items pub struct RetainedSolve {
+adaptive.rs:2352 items pub enum CaseOutcome {
+adaptive.rs:3015 items pub fn solve_cases(
+adaptive.rs:3075 items pub fn solve_case(
+adaptive.rs:79 methods pub fn new(limb_multiply_equivalents: u64) -> Self {
+adaptive.rs:82 methods pub fn get(self) -> u64 {
+adaptive.rs:96 methods pub fn new(limit: u64) -> Self {
+adaptive.rs:100 methods pub fn charged(&self) -> u64 {
+adaptive.rs:104 methods pub fn limit(&self) -> u64 {
+adaptive.rs:107 methods pub fn exhausted(&self) -> bool {
+adaptive.rs:2328 methods pub fn publish(&self) -> &Publication {
+adaptive.rs:2332 methods pub fn evidence(&self) -> &RetainedEvidence {
+adaptive.rs:2336 methods pub fn source(&self) -> &PrimitiveSource {
+adaptive.rs:2340 methods pub fn selected_precision(&self) -> u32 {
+adaptive.rs:780 fields pub formation: u64,
+adaptive.rs:781 fields pub assembly: u64,
+adaptive.rs:782 fields pub residual_formation: u64,
+adaptive.rs:783 fields pub factor: u64,
+adaptive.rs:784 fields pub condition: u64,
+adaptive.rs:785 fields pub rhs: u64,
+adaptive.rs:786 fields pub solve: u64,
+adaptive.rs:787 fields pub refinement: u64,
+adaptive.rs:788 fields pub recovery: u64,
+adaptive.rs:789 fields pub stop_rule: u64,
+adaptive.rs:791 fields pub bounded_gate: u64,
+adaptive.rs:795 fields pub scale: u64,
+adaptive.rs:796 fields pub estimate: u64,
+adaptive.rs:797 fields pub charge: u64,
+adaptive.rs:798 fields pub bound: u64,
+adaptive.rs:799 fields pub shift: u64,
+adaptive.rs:801 fields pub bounded_formation: u64,
+adaptive.rs:802 fields pub wide_formation: u64,
+adaptive.rs:803 fields pub uc: u64,
+adaptive.rs:1946 fields pub resolution: Vec<[f64; 2]>,
+adaptive.rs:1949 fields pub theta: Vec<f64>,
+adaptive.rs:1950 fields pub bound: Vec<Option<f64>>,
+adaptive.rs:1951 fields pub data_blocks: usize,
+adaptive.rs:1952 fields pub shift_factorizations: u8,
+adaptive.rs:1953 fields pub uc_missing: Option<usize>,
+adaptive.rs:1954 fields pub g_max: u32,
+adaptive.rs:1955 fields pub g_violation: Option<u32>,
+adaptive.rs:2088 fields pub pattern_entries: usize,
+adaptive.rs:2089 fields pub profile_entries: usize,
+adaptive.rs:2090 fields pub limbs_per_entry: usize,
+adaptive.rs:2097 fields pub precision: u32,
+adaptive.rs:2098 fields pub role: AttemptRole,
+adaptive.rs:2099 fields pub outcome: AttemptOutcome,
+adaptive.rs:2101 fields pub residual_basis: u32,
+adaptive.rs:2102 fields pub corrections: u8,
+adaptive.rs:2104 fields pub pivot_margin_min: Option<f64>,
+adaptive.rs:2106 fields pub rcond: Option<f64>,
+adaptive.rs:2108 fields pub residual_worst: Option<f64>,
+adaptive.rs:2110 fields pub work: AttemptWork,
+adaptive.rs:2111 fields pub k4_work: SumWork,
+adaptive.rs:2112 fields pub stages: StageWork,
+adaptive.rs:2115 fields pub shared_work: u64,
+adaptive.rs:2116 fields pub shared_stages: StageWork,
+adaptive.rs:2119 fields pub shared_built_here: bool,
+adaptive.rs:2122 fields pub stop_rule_work: u64,
+adaptive.rs:2123 fields pub storage: StorageCounts,
+adaptive.rs:2125 fields pub gate: Option<GateTest>,
+adaptive.rs:2128 fields pub verification_work: u64,
+adaptive.rs:2129 fields pub verification: Option<VerificationSummary>,
+adaptive.rs:2133 fields pub verification_shared_work: u64,
+adaptive.rs:2134 fields pub verification_shared_built_here: bool,
+adaptive.rs:2183 fields pub id: QuantityId,
+adaptive.rs:2184 fields pub kind: Kind,
+adaptive.rs:2185 fields pub body: u32,
+adaptive.rs:2186 fields pub value: Binary64Outcome,
+adaptive.rs:2187 fields pub class: RowClass,
+adaptive.rs:2192 fields pub rows: Vec<PublishedRow>,
+adaptive.rs:2194 fields pub body_scales: Vec<(u32, Kind, u64)>,
+adaptive.rs:2274 fields pub method: &'static str,
+adaptive.rs:2275 fields pub policy: &'static str,
+adaptive.rs:2276 fields pub attempts: Vec<AttemptRecord>,
+adaptive.rs:2277 fields pub selected_precision: u32,
+adaptive.rs:2278 fields pub verification_precision: u32,
+adaptive.rs:2279 fields pub stop_rule: Vec<(u32, Kind, f64)>,
+adaptive.rs:2280 fields pub floor_ratio_bits: u64,
+adaptive.rs:2281 fields pub body_scales: Vec<(u32, Kind, u64)>,
+adaptive.rs:2282 fields pub input_derived_dofs: Vec<Dof>,
+adaptive.rs:2283 fields pub absolute_verified: Vec<(QuantityId, u64)>,
+adaptive.rs:2284 fields pub not_covered: Vec<QuantityId>,
+adaptive.rs:2285 fields pub unpublishable: Vec<(QuantityId, Binary64Outcome)>,
+adaptive.rs:2286 fields pub pivot_margin_min: f64,
+adaptive.rs:2287 fields pub rcond: f64,
+adaptive.rs:2288 fields pub rcond_label: &'static str,
+adaptive.rs:2289 fields pub residual_worst: f64,
+adaptive.rs:2290 fields pub corrections: u8,
+adaptive.rs:2291 fields pub geometry: Vec<BodyGeometry>,
+adaptive.rs:2292 fields pub source_encoding: Vec<u8>,
+adaptive.rs:2293 fields pub ledger_encoding: Vec<u8>,
+adaptive.rs:2294 fields pub retained_state_encoding: Vec<u8>,
+adaptive.rs:2297 fields pub resolution_scale: Vec<(u32, u64, u64)>,
+adaptive.rs:2300 fields pub verification_estimate: Vec<(u32, Kind, f64)>,
+adaptive.rs:2301 fields pub verification_charge: Vec<(u32, Kind, f64)>,
+adaptive.rs:2303 fields pub theta: Vec<(u32, f64)>,
+adaptive.rs:2306 fields pub certified_bound: Vec<(u32, u64)>,
+adaptive.rs:2308 fields pub floor: Option<Vec<(u32, u64, u64)>>,
+adaptive.rs:3074 marker-removed #[allow(dead_code)] // F2a API (W1's caller is wired at F2a; ROOT's K4 ruling Q1)
+adaptive.rs:3014 marker-removed #[allow(dead_code)] // F2a API (W1's caller is wired at F2a; ROOT's K4 ruling Q1)
+adaptive.rs:2350 marker-removed #[allow(dead_code)] // F2a API (F2a reads the outcome's fields)
+adaptive.rs:2339 marker-removed #[allow(dead_code)] // F2a API
+adaptive.rs:2335 marker-removed #[allow(dead_code)] // F2a API
+adaptive.rs:2331 marker-removed #[allow(dead_code)] // F2a API
+adaptive.rs:2327 marker-removed #[allow(dead_code)] // F2a API
+adaptive.rs:2198 marker-removed #[allow(dead_code)] // F2a API and the classification tests (the schedule floors)
+adaptive.rs:312 marker-removed #[allow(dead_code)] // F2a API (per-member stress classification)
+adaptive.rs:305 marker-removed #[allow(dead_code)] // F2a API (per-member stress classification)
+adaptive.rs:103 marker-removed #[allow(dead_code)] // F2a API (evidence)
+adaptive.rs:99 marker-removed #[allow(dead_code)] // F2a API (evidence)
+adaptive.rs:95 marker-removed #[allow(dead_code)] // F2a API
+adaptive.rs:78 marker-removed #[allow(dead_code)] // F2a API (W1's caller is wired at F2a; ROOT's K4 ruling Q1)
+adaptive.rs:68 marker-removed #[allow(dead_code)] // F2a API (per-member stress classification)
+source.rs:29 items pub enum Component {
+source.rs:63 items pub struct Dof {
+source.rs:82 items pub struct StraightMember {
+source.rs:97 items pub struct Spring {
+source.rs:104 items pub enum SpringKind {
+source.rs:122 items pub struct DirectionalSpring {
+source.rs:132 items pub struct Constraint {
+source.rs:139 items pub struct NodalLoad {
+source.rs:147 items pub struct Station {
+source.rs:156 items pub struct SupportGroup {
+source.rs:166 items pub struct SourceParts {
+source.rs:178 items pub enum MemberProperty {
+source.rs:190 items pub enum SourceError {
+source.rs:271 items pub struct PrimitiveSource {
+source.rs:39 methods pub const ALL: [Component; 6] = [
+source.rs:48 methods pub fn index(self) -> usize {
+source.rs:52 methods pub fn from_index(index: usize) -> Self {
+source.rs:69 methods pub fn global(self) -> usize {
+source.rs:73 methods pub fn from_global(global: usize) -> Self {
+source.rs:353 methods pub fn new(parts: SourceParts) -> Result<Self, SourceError> {
+source.rs:570 methods pub fn nodes(&self) -> &[[f64; 3]] {
+source.rs:573 methods pub fn members(&self) -> &[StraightMember] {
+source.rs:576 methods pub fn springs(&self) -> &[Spring] {
+source.rs:579 methods pub fn directional_springs(&self) -> &[DirectionalSpring] {
+source.rs:582 methods pub fn constraints(&self) -> &[Constraint] {
+source.rs:585 methods pub fn loads(&self) -> &[NodalLoad] {
+source.rs:588 methods pub fn stations(&self) -> &[Station] {
+source.rs:591 methods pub fn supports(&self) -> &[SupportGroup] {
+source.rs:594 methods pub fn node_count(&self) -> usize {
+source.rs:597 methods pub fn dof_count(&self) -> usize {
+source.rs:601 methods pub fn constraint(&self, global: usize) -> Option<f64> {
+source.rs:605 methods pub fn free_dofs(&self) -> Vec<usize> {
+source.rs:610 methods pub fn body_of_node(&self, node: u32) -> u32 {
+source.rs:613 methods pub fn body_count(&self) -> u32 {
+source.rs:617 methods pub fn body_nodes(&self, body: u32) -> Vec<u32> {
+source.rs:622 methods pub fn member_index(&self, id: u32) -> Option<usize> {
+source.rs:628 methods pub fn encoding(&self) -> Vec<u8> {
+source.rs:663 methods pub fn stiffness_encoding(&self) -> Vec<u8> {
+source.rs:64 fields pub node: u32,
+source.rs:65 fields pub component: Component,
+source.rs:83 fields pub id: u32,
+source.rs:84 fields pub node_i: u32,
+source.rs:85 fields pub node_j: u32,
+source.rs:86 fields pub elastic_modulus: f64,
+source.rs:87 fields pub shear_modulus: f64,
+source.rs:88 fields pub area: f64,
+source.rs:89 fields pub second_moment_y: f64,
+source.rs:90 fields pub second_moment_z: f64,
+source.rs:91 fields pub torsion_constant: f64,
+source.rs:92 fields pub y_reference: [f64; 3],
+source.rs:98 fields pub id: u32,
+source.rs:99 fields pub dof: Dof,
+source.rs:100 fields pub stiffness: f64,
+source.rs:123 fields pub id: u32,
+source.rs:124 fields pub node: u32,
+source.rs:125 fields pub kind: SpringKind,
+source.rs:126 fields pub direction: [f64; 3],
+source.rs:127 fields pub stiffness: f64,
+source.rs:133 fields pub dof: Dof,
+source.rs:134 fields pub value: f64,
+source.rs:140 fields pub dof: Dof,
+source.rs:141 fields pub value: f64,
+source.rs:142 fields pub source_id: String,
+source.rs:148 fields pub id: u32,
+source.rs:149 fields pub member: u32,
+source.rs:150 fields pub fraction: f64,
+source.rs:157 fields pub id: u32,
+source.rs:158 fields pub node: u32,
+source.rs:159 fields pub restrained: [bool; 6],
+source.rs:160 fields pub springs: Vec<u32>,
+source.rs:161 fields pub directional_springs: Vec<u32>,
+source.rs:167 fields pub nodes: Vec<[f64; 3]>,
+source.rs:168 fields pub members: Vec<StraightMember>,
+source.rs:169 fields pub springs: Vec<Spring>,
+source.rs:170 fields pub directional_springs: Vec<DirectionalSpring>,
+source.rs:171 fields pub constraints: Vec<Constraint>,
+source.rs:172 fields pub loads: Vec<NodalLoad>,
+source.rs:173 fields pub stations: Vec<Station>,
+source.rs:174 fields pub supports: Vec<SupportGroup>,
+source.rs:352 marker-removed #[allow(dead_code)] // F2a API (F2a's adapter builds the source)
+recover.rs:30 items pub enum Kind {
+recover.rs:46 items pub enum End {
+recover.rs:53 items pub enum QuantityId {
+recover.rs:80 items pub struct QuantityMeta {
+recover.rs:101 items pub fn layout(source: &PrimitiveSource) -> Vec<QuantityMeta> {
+recover.rs:81 fields pub id: QuantityId,
+recover.rs:82 fields pub kind: Kind,
+recover.rs:83 fields pub body: u32,
+recover.rs:85 fields pub input_derived: bool,
+factor.rs:60 items pub enum BodyGeometry {
+factor.rs:290 items pub fn reverse_cuthill_mckee(adjacency: &[Vec<usize>]) -> Vec<usize> {
+ledger.rs:72 items pub enum LedgerRefusal {
+combine.rs:45 items pub enum CombinationReason {
+combine.rs:68 items pub enum CombinationOutcome {
+combine.rs:77 items pub struct RetainedCombination;
+combine.rs:82 methods pub fn solve(
+combine.rs:81 marker-removed #[allow(dead_code)] // F2a API
+combine.rs:66 marker-removed #[allow(dead_code)] // F2a API (F2a reads the outcome's fields)
+verify.rs:51 items pub const PHI_SCALE_BITS: u64 = 0x2490_0000_0000_0000;
+verify.rs:321 items pub fn e_hat(e: [f64; 2], extent: f64) -> [f64; 2] {
+verify.rs:335 items pub fn resolution_hats(
+verify.rs:360 items pub fn phi_512(e_hat: f64) -> f64 {
+wide.rs:150 items pub enum WideError {
+wide/multi.rs:666 items pub enum Binary64Outcome {
+wide/multi.rs:1002 items pub struct WidthWork {
+wide/multi.rs:1074 items pub struct AttemptWork {
+wide/multi.rs:681 methods pub fn value(&self) -> Option<f64> {
+wide/multi.rs:1107 methods pub fn limb_multiply_equivalents(&self) -> u64 {
+wide/multi.rs:1106 marker-removed #[allow(dead_code)] // K4 API (budgets)
+wide/multi.rs:680 marker-removed #[allow(dead_code)] // K4 API (publication of retained quantities)
+wide_sum.rs:77 items pub struct SumWork {
+wide_sum.rs:92 methods pub fn limb_multiply_equivalents(&self) -> u64 {

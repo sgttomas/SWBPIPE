@@ -19,10 +19,15 @@ use exact::functionals::{
 use open_pipe_stress_frame_kernel::element_dof_map;
 use open_pipe_stress_frame_kernel::load_ledger::{AssembledForce, LoadLedger};
 use open_pipe_stress_frame_kernel::structural::{exact_boundary as exact, StructuralSystem};
+use open_pipe_stress_frame_kernel::ForceScale;
 use open_pipe_stress_primitive_loads::LoadApplication;
 use std::collections::{HashMap, HashSet};
 
 pub(super) const RELATIVE_LIMIT: f64 = 1.0e-9;
+/// The largest system (global DOFs) the method accepts; above it `prepare_sources`
+/// refuses by budget before any read of `Input::stiffness` (F1b: the product
+/// builds its dense view only up to this size; ROOT Q9(a)).
+pub(super) const DENSE_SOURCE_DOF_LIMIT: usize = 256;
 pub(super) const STATIONS: [f64; 5] = [0.0, 0.25, 0.5, 0.75, 1.0];
 const END_CONVENTION: FunctionalConvention = FunctionalConvention::NodeOnElement;
 
@@ -85,6 +90,55 @@ pub(super) fn formation_decline_without_attempt() -> RecoveryFailure {
             limit: 0,
         },
     }
+}
+
+/// F1b (ROOT OQ2, option B): the reason of the decline of a case whose
+/// basis's formation left the binary64 range.
+const RANGE_FORMATION_DECLINE: &str =
+    "the ordinary stiffness was not formed (range at formation); no retained-source attempt";
+
+/// F1b (ROOT OQ2, option B): a case whose basis's formation left the range has
+/// no assembled stiffness to recover from, and `prepare_sources` would refuse
+/// it at the same frames' formation (`AssemblyEvidence::new`; F1b's derivation
+/// D2), so it is declined without an attempt, with zero work, as
+/// `formation_decline_without_attempt` declines.
+pub(super) fn range_formation_decline_without_attempt() -> RecoveryFailure {
+    RecoveryFailure {
+        stage: "range formation",
+        helper_stage: AttemptStage::SourceClosure,
+        error: RecoveryError::Unsupported(RANGE_FORMATION_DECLINE),
+        work: exact::WorkReport {
+            charged: 0,
+            rejected: 0,
+            limit: 0,
+        },
+    }
+}
+
+/// F1b (T3 D1 §4.7 with ROOT Q2(a) and OQ3): the reason of the scaled-evidence
+/// refusal.
+const FORCE_SCALED_EVIDENCE: &str =
+    "force-scaled ordinary evidence (b != 0) is not a retained-source input";
+
+/// F1b (ROOT OQ3): the product's only entry into the method. `attempt_scale`
+/// is the force scale 2^b of the ordinary evidence the input carries; an
+/// evidence formed at b != 0 is refused as `Unsupported` before any work is
+/// charged. The product runs exact-block before W2 and passes `UNSCALED`, so
+/// this is a defensive guard (F1b's derivation D3).
+pub(super) fn solve_ordinary(
+    input: Input<'_>,
+    limits: exact::Limits,
+    attempt_scale: ForceScale,
+) -> Result<SelectedSourceRecovery, RecoveryFailure> {
+    if !attempt_scale.is_unscaled() {
+        let budget = AttemptBudget::new(limits);
+        return Err(failure(
+            "source closure",
+            unsupported(FORCE_SCALED_EVIDENCE),
+            &budget,
+        ));
+    }
+    solve(input, limits)
 }
 
 #[derive(Debug, Clone)]
@@ -463,7 +517,11 @@ fn prepare_sources(
         .and_then(|v| v.checked_add(input.spring_entries.len()))
         .and_then(|v| v.checked_add(input.load_application.nodal_loads.len()))
         .ok_or(exact::Error::Budget)?;
-    if n > 256 || n > limits.dofs || source_count > 16_384 || source_count > limits.source_terms {
+    if n > DENSE_SOURCE_DOF_LIMIT
+        || n > limits.dofs
+        || source_count > 16_384
+        || source_count > limits.source_terms
+    {
         return Err(exact::Error::Budget.into());
     }
     if input.force.len() != n

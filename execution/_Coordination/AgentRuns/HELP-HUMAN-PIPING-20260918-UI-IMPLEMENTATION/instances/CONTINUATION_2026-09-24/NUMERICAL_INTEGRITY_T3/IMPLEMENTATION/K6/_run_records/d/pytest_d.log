@@ -1,0 +1,6 @@
+=== pytest on 3e90176c66d27e530332025b855dd3556e793ea7 (N15 invocation; the tests conftest builds its tool binaries)
+    Finished `release` profile [optimized] target(s) in 0.07s
+    Finished `release` profile [optimized] target(s) in 0.05s
+.....................................                                    [100%]
+37 passed in 6.49s
+=== exit 0 elapsed 7 s

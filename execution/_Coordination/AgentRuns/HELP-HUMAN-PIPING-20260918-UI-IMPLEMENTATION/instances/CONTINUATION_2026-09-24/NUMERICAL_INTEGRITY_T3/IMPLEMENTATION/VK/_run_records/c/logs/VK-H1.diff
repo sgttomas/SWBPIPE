@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
+@@ -273,6 +273,9 @@
+         }
+         let scales = floor::scales(case, model);
+         for row in &case.rows {
++            if row.key.starts_with("ext.") {
++                continue;
++            }
+             let exp = Exact::parse_decimal(&row.expected).unwrap();
+             let scale = Exact::parse_decimal(case.scale_of(row)).unwrap();
+             let covered = exact::covered(&exp, &scale, floor::row_scale(row, &scales));

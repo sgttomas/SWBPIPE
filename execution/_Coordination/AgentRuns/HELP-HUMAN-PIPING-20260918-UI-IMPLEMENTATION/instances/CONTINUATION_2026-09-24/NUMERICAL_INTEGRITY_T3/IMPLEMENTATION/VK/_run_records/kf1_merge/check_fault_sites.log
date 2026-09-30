@@ -1,0 +1,23 @@
+## base main 0f5d8c7b4, allowing A0 (3018343c2)
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs: 0 gated item(s); 4 added comment line(s); 25 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs: 3 gated item(s); 5 added comment line(s); 281 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs: 4 gated item(s); 6 added comment line(s); 0 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs: 1 gated item(s); 1 added comment line(s); 0 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs: 0 gated item(s); 0 added comment line(s); 10 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs: 1 gated item(s); 1 added comment line(s); 4 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs: 1 gated item(s); 2 added comment line(s); 2 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs: 1 gated item(s); 3 added comment line(s); 0 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs: 3 gated item(s); 2 added comment line(s); 18 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs: 2 gated item(s); 2 added comment line(s); 159 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs: 1 gated item(s); 1 added comment line(s); 8 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs: 0 gated item(s); 0 added comment line(s); 2 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs: 0 gated item(s); 0 added comment line(s); 12 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs: 0 gated item(s); 0 added comment line(s); 4 line(s) of 3018343c21; 0 other difference(s)
+projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs: 1 gated item(s); 2 added comment line(s); 0 line(s) of 3018343c21; 0 other difference(s)
+new files: []
+OK
+rc=0
+
+## base the pre-merge V-K head 24449b5c85 (sites unchanged by the merge?)
+ .../src/structural/retained/adaptive.rs            | 411 +++++++++++++++++----
+ 1 file changed, 349 insertions(+), 62 deletions(-)

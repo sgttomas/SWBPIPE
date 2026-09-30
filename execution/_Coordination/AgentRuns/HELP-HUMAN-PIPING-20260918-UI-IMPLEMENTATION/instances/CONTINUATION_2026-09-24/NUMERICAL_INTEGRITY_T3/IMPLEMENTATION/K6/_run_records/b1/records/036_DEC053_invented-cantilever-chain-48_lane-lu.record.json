@@ -1,0 +1,86 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "DEC053:invented-cantilever-chain-48",
+  "--mode",
+  "lane-lu",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "540",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "counts.jsonl"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  5.21044921875,
+  7.09521484375,
+  9.35791015625
+ ],
+ "load_before": [
+  5.21044921875,
+  7.09521484375,
+  9.35791015625
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 4603904,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 1538322,
+ "repeats_heap_peak_move": 1538322,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 4432,
+  "ps_samples": 1,
+  "time_max_rss_bytes": 4603904,
+  "time_peak_footprint_bytes": 3670352,
+  "wait4_maxrss_bytes": 4603904
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "036_DEC053_invented-cantilever-chain-48_lane-lu",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 59,
+ "stdout_sha256": "ead5b5f72ffc745acbb02e88d13f6c7eece33e27afdbacce4a148564170ae04d",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 39027083,
+  "heap_peak": 1538322,
+  "heap_peak_move": 1538322,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 1538322,
+  "repeats_heap_peak_move": 1538322,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 0.1278,
+ "watchdog_last_kib": 4432,
+ "watchdog_polls": 1,
+ "watchdog_samples": [
+  [
+   0.024,
+   4432
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

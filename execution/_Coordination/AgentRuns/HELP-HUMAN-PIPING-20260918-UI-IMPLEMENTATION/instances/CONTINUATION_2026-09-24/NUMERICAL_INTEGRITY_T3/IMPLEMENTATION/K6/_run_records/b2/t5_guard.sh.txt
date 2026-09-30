@@ -1,0 +1,20 @@
+#!/bin/bash
+# I15's B2 guard (resume 2): after T3b's outcome line, stop the driver before T5 (grid 128x128)
+# when T3b recorded a stop, or a class divergence on a model other than ROOT's two known N10 cases.
+L=<wt>/scratch/i15/b2/b2.log
+until grep -q '^{"T3b"' "$L" || grep -q 'B2 driver resume2 exit' "$L"; do sleep 1; done
+line=$(grep '^{"T3b"' "$L" | tail -1)
+[ -z "$line" ] && { echo "guard: driver ended before T3b's outcome"; exit 0; }
+verdict=$(printf '%s' "$line" | python3 -c '
+import json,sys
+o=json.load(sys.stdin)["T3b"]
+known=("RF-LARGE-CHAIN-n01000-ROT","RF-LARGE-TREE-n01000-AX")
+other=[s for s in o["stop_after_tier"] if not any(k+" " in s for k in known)]
+print("halt" if (o["stop"] or other) else "continue", json.dumps(o))')
+if [ "${verdict%% *}" = halt ]; then
+  pkill -TERM -f 'b2_driver.py' ; sleep 1; pkill -KILL -f 'k6_observe' 2>/dev/null
+  echo "=== STOPPED by I15's guard before T5: T3b ${verdict#* }" >> "$L"
+  echo "guard: halted before T5: ${verdict#* }"
+else
+  echo "guard: T5 allowed: ${verdict#* }"
+fi

@@ -1,0 +1,58 @@
+=== py K6-M13: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (performance_harness, tests/test_performance_harness_runner.py) into <wt>/k6-mut/py-K6-M13
+K6-M13 applied to projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py: admission admits an estimate > C/2
+--- a/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
++++ b/projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py
+@@ -526,3 +526,3 @@
+         branch = 'p1_linux_peak %.1f MiB <= C/2' % p1
+-    elif estimate * rho <= half:
++    elif True:
+         footprint_estimate = int(estimate * rho)
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+..................F.....F........                                        [100%]
+=================================== FAILURES ===================================
+_____ PlanAdmission.test_lane_id_deferred_by_name_when_the_estimate_fails ______
+
+self = <test_k6_runner.PlanAdmission testMethod=test_lane_id_deferred_by_name_when_the_estimate_fails>
+
+    def test_lane_id_deferred_by_name_when_the_estimate_fails(self):
+        run = run_of('RF-LARGE-CHAIN-n10000-AX', 'lane-id')
+        counts = fake_counts({run['model']: {'lane-id': 3 * r.GIB}})
+        decision = r.admission(run, counts, [], None, require_ascent=False)
+        self.assertEqual(decision['decision'], 'deferred')
+>       self.assertTrue(decision['reason'].startswith('deferred:estimate_fails_admission'))
+E       AssertionError: False is not true
+
+core/solver/performance_harness/runner/test_k6_runner.py:375: AssertionError
+_ PlanAdmission.test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline _
+
+self = <test_k6_runner.PlanAdmission testMethod=test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline>
+
+    def test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline(self):
+        run = run_of('RF-LARGE-CHAIN-n10000-AX', 'sparse')
+        counts = fake_counts({run['model']: {'sparse': 1 * r.GIB}})
+
+        def rec(model_id, members, footprint, rss, heap, estimate):
+            return {'order': 1, 'model': model_id, 'mode': 'sparse', 'family': 'CHAIN', 'members': members,
+                    'classification': 'ok', 'peak_rss_bytes': rss, 'rss': {'time_peak_footprint_bytes': footprint},
+                    'repeats_heap_peak_move': heap, 'estimate_adm_bytes': estimate}
+        measured = [rec('RF-LARGE-CHAIN-n00010-AX', 10, 50 * r.MIB, 60 * r.MIB, 1, 1 * r.MIB),   # excluded
+                    rec('RF-LARGE-CHAIN-n00100-AX', 100, 11 * r.MIB, 12 * r.MIB, 3 * r.MIB, 4 * r.MIB),
+                    rec('RF-LARGE-CHAIN-n01000-AX', 1000, 21 * r.MIB, 25 * r.MIB, 10 * r.MIB, 40 * r.MIB)]
+        decision = r.admission(run, counts, measured, 2 * r.MIB, baseline_footprint_bytes=1 * r.MIB)
+        # rho (footprint) = max(max(11-1, 3)/4, max(21-1, 10)/40) = 2.5; rho_rss = max((12-2)/4, (25-2)/40) = 2.5
+        self.assertAlmostEqual(decision['rho'], 2.5)
+        self.assertAlmostEqual(decision['rho_rss'], 2.5)
+        self.assertEqual(decision['decision'], 'admitted')
+        measured[1]['rss']['time_peak_footprint_bytes'] = 18 * r.MIB     # rho 4.25: 4.25 GiB > 4 GiB
+        decision = r.admission(run, counts, measured, 2 * r.MIB, baseline_footprint_bytes=1 * r.MIB)
+>       self.assertEqual(decision['decision'], 'deferred')
+E       AssertionError: 'admitted' != 'deferred'
+E       - admitted
+E       + deferred
+
+core/solver/performance_harness/runner/test_k6_runner.py:403: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_performance_harness_runner.py::PlanAdmission::test_lane_id_deferred_by_name_when_the_estimate_fails
+FAILED tests/test_performance_harness_runner.py::PlanAdmission::test_rho_is_the_largest_footprint_ratio_at_smaller_sizes_net_of_baseline
+2 failed, 31 passed in 3.77s
+=== exit 1 elapsed 3 s

@@ -1,0 +1,24 @@
+pressure_thrust_b0 sparse_interactive typed base MECHANICS_SOLVED 84 2bcabbefdc55330cb5dcb56b91ea2f8e34e21cb9a47891cf78eb9e284358e70f NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_b0 sparse_interactive typed cand MECHANICS_SOLVED 84 2bcabbefdc55330cb5dcb56b91ea2f8e34e21cb9a47891cf78eb9e284358e70f NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_b0 sparse_interactive captured base MECHANICS_SOLVED 84 2bcabbefdc55330cb5dcb56b91ea2f8e34e21cb9a47891cf78eb9e284358e70f NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_b0 sparse_interactive captured cand MECHANICS_SOLVED 84 2bcabbefdc55330cb5dcb56b91ea2f8e34e21cb9a47891cf78eb9e284358e70f NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_b0 dense_scrutiny typed base MECHANICS_SOLVED 85 235eae7fb0de18304c224a5ae61f9866361a562092cb2d0ee6aaa0db3b86789a NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_b0 dense_scrutiny typed cand MECHANICS_SOLVED 85 235eae7fb0de18304c224a5ae61f9866361a562092cb2d0ee6aaa0db3b86789a NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_b0 dense_scrutiny captured base MECHANICS_SOLVED 85 235eae7fb0de18304c224a5ae61f9866361a562092cb2d0ee6aaa0db3b86789a NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_b0 dense_scrutiny captured cand MECHANICS_SOLVED 85 235eae7fb0de18304c224a5ae61f9866361a562092cb2d0ee6aaa0db3b86789a NUMERICAL_INTEGRITY_CHECKS_PASSED []
+pressure_thrust_range sparse_interactive typed base MODEL_INCOMPLETE 0 a038e71e1f3f0e151eb19eead85de726e50ad6ca4c19a7d26b27b9ee351ac627 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: structural integrity: Range("arithmetic outside normal range")
+pressure_thrust_range sparse_interactive typed cand MODEL_INCOMPLETE 0 0f77f99fc84528b558f1b3901c56ef04da3491029331d0bbd4eeb6b9b9245b01 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: range: family not admitted under force scaling: pressure_thrust_load; range_scaling: attempted; step1_trigger=Evaluation(Range("arithmetic outside normal range")); force_scale_exponent=516; basis=exact power-of-two
+pressure_thrust_range sparse_interactive captured base MODEL_INCOMPLETE 0 c23a0900866d5ad870352ba6ca1fa2d5d2048ac04a9621105c18684b3f42e1a9 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: structural integrity: Range("arithmetic outside normal range")
+pressure_thrust_range sparse_interactive captured cand MODEL_INCOMPLETE 0 ad25f57fece74badb7178851bc2772f2612eb34639f62868ae7dfed6d8f8c9d0 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: range: family not admitted under force scaling: pressure_thrust_load; range_scaling: attempted; step1_trigger=Evaluation(Range("arithmetic outside normal range")); force_scale_exponent=516; basis=exact power-of-two
+pressure_thrust_range dense_scrutiny typed base MODEL_INCOMPLETE 0 a038e71e1f3f0e151eb19eead85de726e50ad6ca4c19a7d26b27b9ee351ac627 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: structural integrity: Range("arithmetic outside normal range")
+pressure_thrust_range dense_scrutiny typed cand MODEL_INCOMPLETE 0 0f77f99fc84528b558f1b3901c56ef04da3491029331d0bbd4eeb6b9b9245b01 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: range: family not admitted under force scaling: pressure_thrust_load; range_scaling: attempted; step1_trigger=Evaluation(Range("arithmetic outside normal range")); force_scale_exponent=516; basis=exact power-of-two
+pressure_thrust_range dense_scrutiny captured base MODEL_INCOMPLETE 0 c23a0900866d5ad870352ba6ca1fa2d5d2048ac04a9621105c18684b3f42e1a9 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: structural integrity: Range("arithmetic outside normal range")
+pressure_thrust_range dense_scrutiny captured cand MODEL_INCOMPLETE 0 ad25f57fece74badb7178851bc2772f2612eb34639f62868ae7dfed6d8f8c9d0 NUMERICAL_INTEGRITY_UNRESOLVED ['NUMERICAL_INTEGRITY_UNRESOLVED']
+    Load case case:f: range: family not admitted under force scaling: pressure_thrust_load; range_scaling: attempted; step1_trigger=Evaluation(Range("arithmetic outside normal range")); force_scale_exponent=516; basis=exact power-of-two

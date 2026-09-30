@@ -1,0 +1,5 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (<wt>/k4-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+real 205.64
+user 403.68
+sys 0.57

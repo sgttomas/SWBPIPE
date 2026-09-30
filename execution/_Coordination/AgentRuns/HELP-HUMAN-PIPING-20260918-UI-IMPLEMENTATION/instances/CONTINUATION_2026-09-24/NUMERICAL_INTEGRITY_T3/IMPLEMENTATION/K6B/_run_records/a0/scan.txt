@@ -1,0 +1,47 @@
+# K6b A0 scan (worktree <wt>/k6b, base c0436769f + the uncommitted A0 edits)
+
+## 1. `retained_api` anywhere in the repository (tracked and untracked files)
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs:10:pub mod retained_api {
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:4://! Every exported name is imported from `structural::retained_api`, outside
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:15:use open_pipe_stress_frame_kernel::structural::retained_api::{
+
+## 2. The entry and source names, word-matched, in projects/chirality-piping outside frame_kernel/ and execution/
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:6://! case is then built from `SourceParts`, solved through `solve_case`, and a
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:17:    e_hat, intensified_k, layout, phi_512, resolution_hats, reverse_cuthill_mckee, solve_case,
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:18:    solve_cases, stress_scale, threshold, AttemptOutcome, AttemptReason, AttemptRecord,
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:19:    AttemptRole, AttemptStop, AttemptWork, Binary64Outcome, BodyGeometry, BudgetScope, CaseLimit,
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:21:    Dof, End, GateTest, InvocationMeter, Kind, LedgerRefusal, MemberProperty, NodalLoad,
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:22:    PrimitiveSource, Publication, PublishedRow, QuantityId, QuantityMeta, Refusal,
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:23:    RetainedCombination, RetainedEvidence, RetainedSolve, RowClass, SourceError, SourceParts,
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:51:fn cantilever() -> PrimitiveSource {
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:52:    let parts = SourceParts {
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:75:        ..SourceParts::default()
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:77:    PrimitiveSource::new(parts).expect("the invented cantilever is a valid source")
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:92:    let mut meter = InvocationMeter::new(u64::MAX);
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:93:    let outcome = solve_case(source, CaseLimit::new(u64::MAX), &mut meter);
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:94:    let solve: Box<RetainedSolve> = match outcome {
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:120:    let evidence: &RetainedEvidence = solve.evidence();
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:123:    let first: &AttemptRecord = &evidence.attempts[0];
+
+## 3. The path `structural::retained` outside frame_kernel/src
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs:1://! K3a tests for `structural::retained::wide` (T3 D1 §4.11 and §7.4, V1-S9's
+projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs:1://! K3 tests for `structural::retained::wide::multi` (T3 D1 §4.11 and §7.4;
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:4://! Every exported name is imported from `structural::retained_api`, outside
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs:15:use open_pipe_stress_frame_kernel::structural::retained_api::{
+
+## 4. Manifests and lockfiles changed
+(none above means none)
+
+## 5. Changed and new files
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs
+ M projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs
+?? projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs

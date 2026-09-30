@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""F1b checkpoint C (I13): F1b's mutants. Usage: python3 mutate_f1b.py <core-dir> <id>
+Each patch is an exact text replacement that must match exactly once, applied to a clean copy of
+projects/chirality-piping/core at e215c6007. Mutants:
+- design §7.3: F1B-DES8 (a spring omitted from the basis's pattern assembly; the assembly is shared
+  by both modes since A1, so "sparse mode only" has no product form), F1B-DES9 (W2 publishes without
+  unscaling by 2^-b), F1B-DES10 (the assembly order depends on the input order: frames reversed),
+  F1B-DES11 (one modulus basis reused for every case), F1B-LEAK-LINE (the line at b = 0),
+  F1B-LEAK-W2 (W2 engaged for a non-range failure);
+- F1b's own, as planned: F1B-M1 .. F1B-M21 (M9 as M9a, the call removed, and M9b, the comparison
+  inverted);
+- the NI pin's new product half: F1B-PIN-SECOND (a second product call of the orchestrator, in a new
+  item), F1B-PIN-HELPER (a scaled helper named in an undeclared product item), F1B-PIN-NEVER (the
+  product names `with_force_scale`, behaviour unchanged);
+- PP rule 8: F1B-FOLD (a binary64 `+=` fold in every new F1b product function at once; the rule's
+  failure message names each)."""
+import sys
+
+core, mid = sys.argv[1], sys.argv[2]
+LIB = core + "/product_physics/src/lib.rs"
+SR = core + "/product_physics/src/source_recovery.rs"
+
+FOLD = "    let mut mutant_fold = 0.0;\n    for step in [1.0, 2.0] {\n        mutant_fold += step;\n    }\n    let _ = mutant_fold;\n"
+
+M = {
+    "F1B-DES8": [(LIB, """    let springs = springs
+        .iter()
+        .map(|spring| (spring.node_dof.global_index(), spring.stiffness.value))
+        .collect::<Vec<_>>();
+    assemble_sparse_stiffness(""", """    let springs = springs
+        .iter()
+        .skip(1)
+        .map(|spring| (spring.node_dof.global_index(), spring.stiffness.value))
+        .collect::<Vec<_>>();
+    assemble_sparse_stiffness(""")],
+    "F1B-DES9": [(LIB, "            values[dof] = published.value;\n",
+                  "            values[dof] = published.value * 2f64.powi(self.force_scale_exponent);\n"),
+                 (LIB, "Some(publication) => publication.end_actions[pipe_index].map(|action| action.value),",
+                  "Some(publication) => publication.end_actions[pipe_index].map(|action| action.value * 2f64.powi(publication.force_scale_exponent)),"),
+                 (LIB, "Some(publication) => publication.spring_actions[spring_index].value,",
+                  "Some(publication) => publication.spring_actions[spring_index].value * 2f64.powi(publication.force_scale_exponent),")],
+    "F1B-DES10": [(LIB, """    assemble_sparse_stiffness(
+        built.nodes.len(),
+        &built.frame_elements,
+        &built.user_stiffness_elements,
+        &blocks,
+        &springs,
+        &SparseAssemblyOptions::new(),
+    )""", """    let reversed = built.frame_elements.iter().rev().cloned().collect::<Vec<_>>();
+    assemble_sparse_stiffness(
+        built.nodes.len(),
+        &reversed,
+        &built.user_stiffness_elements,
+        &blocks,
+        &springs,
+        &SparseAssemblyOptions::new(),
+    )""")],
+    "F1B-DES11": [(LIB, """        let (_, basis_materials, basis_built, basis_stiffness, basis_record) =
+            &basis_solve_states[state_index];
+""", """        let (_, basis_materials, basis_built, _, basis_record) =
+            &basis_solve_states[state_index];
+        let basis_stiffness = &basis_solve_states[0].3;
+""")],
+    "F1B-LEAK-LINE": [(LIB, """    if let (Some(publication), Some(record)) = (range_scaling, diagnostics.last_mut()) {""",
+                       """    if let (None, Some(record)) = (range_scaling, diagnostics.last_mut()) {
+        record.message = format!("{} range_scaling: force_scale_exponent=0; basis=exact power-of-two", record.message);
+    }
+    if let (Some(publication), Some(record)) = (range_scaling, diagnostics.last_mut()) {""")],
+    "F1B-LEAK-W2": [(LIB, """            let trigger = ordinary_range_trigger(&failure)
+                .filter(|_| built.nonlinear_supports.is_empty());""",
+                     """            let trigger = ordinary_range_trigger(&failure)
+                .or(Some(RangeTrigger::Evaluation(StructuralError::Range("mutant"))))
+                .filter(|_| built.nonlinear_supports.is_empty());""")],
+    # W2 engaged for an invocation with a nonlinear support (the deferral and the arm).
+    "F1B-M1": [(LIB, "    let linear = built.nonlinear_supports.is_empty();\n", "    let linear = true;\n"),
+               (LIB, """            let trigger = ordinary_range_trigger(&failure)
+                .filter(|_| built.nonlinear_supports.is_empty());""",
+                """            let trigger = ordinary_range_trigger(&failure);""")],
+    # W2 before exact-block: a range-triggered case never reaches exact-block.
+    "F1B-M2": [(LIB, "    if source_eligible && needs_source_recovery {\n",
+                "    if source_eligible && needs_source_recovery && !matches!(&attempted_linear, Err(failure) if ordinary_range_trigger(failure).is_some()) {\n")],
+    "F1B-M3": [(LIB, """                linear.formation_check.as_ref(),
+                w2_publication.as_ref(),
+            );""", """                linear.formation_check.as_ref(),
+                None,
+            );""")],
+    "F1B-M4": [(LIB, """                    "subnormal=reaction@{}:relative_precision={p:?}",
+                    integrity_dof_label(model, *dof)""", """                    "subnormal=reaction@{}",
+                    integrity_dof_label(model, *dof)""")],
+    "F1B-M5": [(LIB, "    for (index, record) in publication.records.iter().enumerate() {\n",
+                "    for (index, record) in publication.records.iter().enumerate().filter(|_| false) {\n")],
+    # Reactions at b != 0 through `SparseStiffness::reactions` on the scaled K, unchecked.
+    "F1B-M6": [(LIB, """    let reactions = outcome
+        .stiffness
+        .force_scaled_reactions(u, force, scale, &dofs)
+        .map_err(|error| {""", """    let mutant_all = restrained_reactions(&outcome.stiffness, u, force);
+    let reactions: Result<Vec<PublishedValue>, ForceScaledError> = Ok(dofs
+        .iter()
+        .map(|&d| PublishedValue { value: mutant_all[d], representability: Representability::Normal })
+        .collect());
+    let reactions = reactions
+        .map_err(|error: ForceScaledError| {""")],
+    # Member actions at b != 0 through SP's b = 0 recovery.
+    "F1B-M7": [(LIB, "Some(publication) => publication.end_actions[pipe_index].map(|action| action.value),",
+                "Some(_) => match pipe.recover_local_forces_from_global_model(&displacements) { Ok(local) => local.local_forces, Err(error) => { diagnostics.push(diag(&format!(\"diagnostic:stress:{}\", stable_suffix(&pipe.element_id)), \"ELEMENT_FORCE_RECOVERY_FAILED\", \"blocking\", error.to_string(), vec![pipe.element_id.clone()])); continue; } },")],
+    # A spring action at b != 0 as unchecked -k*u.
+    "F1B-M8": [(LIB, "Some(publication) => publication.spring_actions[spring_index].value,",
+                "Some(_) => -spring.stiffness.value * displacements[global],")],
+    "F1B-M9a": [(LIB, """        if let Err(refusal) = dense_scrutiny_guard(
+            built.nodes.len() * DOF_PER_NODE,
+            dense_scrutiny_ceiling_bytes(),
+        ) {""", """        if let Err(refusal) = Ok::<(), DenseScrutinyRefusal>(()) {""")],
+    "F1B-M9b": [(LIB, "    if estimated_bytes > ceiling_bytes {\n", "    if estimated_bytes < ceiling_bytes {\n")],
+    # Sparse mode materializes the dense view (kept alive through the attempt).
+    "F1B-M10": [(LIB, """    let mut preliminary_diagnostics = Vec::new();
+    let attempted_linear = match stiffness {""", """    let mut preliminary_diagnostics = Vec::new();
+    let mutant_dense_view = formed.map(|formed| formed.to_dense());
+    let attempted_linear = match stiffness {"""),
+                (LIB, """    let report_sensitive = matches!(&attempted_linear, Ok(solve) if solve.structural_report.quality == SolveQuality::Sensitive);""",
+                 """    drop(mutant_dense_view);
+    let report_sensitive = matches!(&attempted_linear, Ok(solve) if solve.structural_report.quality == SolveQuality::Sensitive);""")],
+    "F1B-M11": [(SR, "    if !attempt_scale.is_unscaled() {\n", "    if false && !attempt_scale.is_unscaled() {\n")],
+    "F1B-M12": [(LIB, """    match family {
+        Some(family) => Err(ForceScalingFailure::NotAdmitted { family, b }),
+        None => Ok(()),
+    }""", """    match family.filter(|_| false) {
+        Some(family) => Err(ForceScalingFailure::NotAdmitted { family, b }),
+        None => Ok(()),
+    }""")],
+    # A pre-scaled ledger passed to the orchestrator (the case's force scaled by the outcome's 2^b).
+    "F1B-M13": [(LIB, """    if outcome.solution.force_scale.is_unscaled() {
+        return Err(ForceScalingFailure::NotEngaged);
+    }""", """    let mutant_prescaled = force
+        .force_scaled(outcome.solution.force_scale)
+        .map_err(|_| ForceScalingFailure::NotEngaged)?;
+    let mutant_case = ForceScalingCase {
+        force: &mutant_prescaled,
+        ..case
+    };
+    let outcome = solve_with_force_scaling(&mutant_case).map_err(|error| match error {
+        ForceScaledError::Refused(refusal) => ForceScalingFailure::Refused(refusal),
+        error => ForceScalingFailure::Failed(error),
+    })?;
+    if outcome.solution.force_scale.is_unscaled() {
+        return Err(ForceScalingFailure::NotEngaged);
+    }""")],
+    "F1B-M14": [(LIB, "range_scaling: attempted; step1_trigger={trigger:?}{b}; global_dof_map=",
+                 "range_scaling: attempted{b}; global_dof_map=")],
+    "F1B-M15": [(LIB, "        Err(error @ FrameKernelError::NumericalRange { .. }) if linear => {",
+                 "        Err(error @ FrameKernelError::NumericalRange { .. }) if linear && false => {")],
+    "F1B-M16": [(LIB, "        OrdinaryFailure::Structural(error @ StructuralError::Range(_)) => {",
+                 "        OrdinaryFailure::Structural(error) => {")],
+    "F1B-M17": [(LIB, "const DENSE_SCRUTINY_BYTES_PER_ENTRY: u128 = 96;", "const DENSE_SCRUTINY_BYTES_PER_ENTRY: u128 = 32;")],
+    "F1B-M18": [(LIB, "    if estimated_bytes > ceiling_bytes {\n", "    if estimated_bytes >= ceiling_bytes {\n")],
+    "F1B-M19": [(LIB, """    } else if force.terms().iter().any(|term| {
+        matches!(
+            term.kind,
+            open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(value) if value == 0.0
+        )
+    }) {""", """    } else if false && force.terms().iter().any(|term| {
+        matches!(
+            term.kind,
+            open_pipe_stress_frame_kernel::load_ledger::ForceTermKind::Term(value) if value == 0.0
+        )
+    }) {""")],
+    "F1B-M20": [(LIB, "        .take(formation_guard::NAMED)\n", "        .take(usize::MAX)\n"),
+                (LIB, "    let more = if entries.len() > formation_guard::NAMED {", "    let more = if false && entries.len() > formation_guard::NAMED {")],
+    # The receipt's ordinary attempt formed from the b = 0 attempt for a W2-published case.
+    "F1B-M21": [(LIB, "        (Some(solve), _) => source_receipt::OrdinaryAttempt::passed(",
+                 "        (Some(_), _) if w2_publication.is_some() => source_receipt::OrdinaryAttempt::not_attempted(solver_mode),\n        (Some(solve), _) => source_receipt::OrdinaryAttempt::passed(")],
+    # ---- the NI pin's product half
+    "F1B-PIN-SECOND": [(LIB, "// ------------------------------------------------------------ F1b: W2 (range)",
+                        "#[allow(dead_code)]\nfn mutant_second_call(case: &ForceScalingCase<'_>) {\n    let _ = solve_with_force_scaling(case);\n}\n\n// ------------------------------------------------------------ F1b: W2 (range)")],
+    "F1B-PIN-HELPER": [(LIB, "Some(publication) => publication.spring_actions[spring_index].value,",
+                        "Some(publication) => { let _ = force_scaled_spring_action; publication.spring_actions[spring_index].value }")],
+    "F1B-PIN-NEVER": [(LIB, """        &springs,
+        &SparseAssemblyOptions::new(),
+    )
+}""", """        &springs,
+        &SparseAssemblyOptions::new().with_force_scale(ForceScale::UNSCALED),
+    )
+}""")],
+    # ---- PP rule 8: a binary64 fold in every new F1b product function.
+    "F1B-FOLD": [(LIB, f, f + FOLD) for f in [
+        "fn ordinary_range_trigger(failure: &OrdinaryFailure) -> Option<RangeTrigger> {\n",
+        "fn integrity_failure_code(error: &StructuralError) -> &'static str {\n",
+        ") -> Result<(PreviewLinearSolve, ForceScaledPublication), ForceScalingFailure> {\n",
+        ") -> Result<(), ForceScalingFailure> {\n",
+        ") -> Result<ForceScaledPublication, ForceScalingFailure> {\n",
+        "    publication: &ForceScaledPublication,\n) -> String {\n",
+        "    model: &PreviewModel,\n) {\n    let exponent = |b: i32|",
+        ") -> Result<SparseStiffness, FrameKernelError> {\n",
+        ") -> Result<BasisStiffness, FrameKernelError> {\n",
+        "fn dense_scrutiny_guard(dimension: usize, ceiling_bytes: u128) -> Result<(), DenseScrutinyRefusal> {\n",
+    ]] + [(SR, "    attempt_scale: ForceScale,\n) -> Result<SelectedSourceRecovery, RecoveryFailure> {\n",
+           "    attempt_scale: ForceScale,\n) -> Result<SelectedSourceRecovery, RecoveryFailure> {\n" + FOLD)],
+}
+
+# The refusal function's anchor splits its signature: re-join the fold after `model: &PreviewModel,\n) {`.
+FIXUPS = {
+    "    model: &PreviewModel,\n) {\n    let exponent = |b: i32|": (
+        "    model: &PreviewModel,\n) {\n    let exponent = |b: i32|" + FOLD,
+        "    model: &PreviewModel,\n) {\n" + FOLD + "    let exponent = |b: i32|"),
+}
+
+if mid != "NONE":
+    for path, old, new in M[mid]:
+        if old in FIXUPS and new == FIXUPS[old][0]:
+            new = FIXUPS[old][1]
+        text = open(path).read()
+        assert text.count(old) == 1, (mid, path, old[:80], text.count(old))
+        open(path, "w").write(text.replace(old, new))
+print("applied", mid)

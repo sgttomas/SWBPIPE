@@ -1,0 +1,5 @@
+    Finished `release` profile [optimized] target(s) in 0.17s
+    Finished `release` profile [optimized] target(s) in 0.05s
+.................................................                        [100%]
+49 passed in 7.91s
+python3 -m pytest -q -p no:cacheprovider     2.72s user 0.40s system 37% cpu 8.433 total

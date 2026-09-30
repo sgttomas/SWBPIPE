@@ -1,0 +1,86 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "RF-LARGE-TREE-n01000-AX",
+  "--mode",
+  "lane-id",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "1740",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "counts.jsonl"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  6.58203125,
+  7.20166015625,
+  9.22216796875
+ ],
+ "load_before": [
+  6.58203125,
+  7.20166015625,
+  9.22216796875
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 14204928,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 7830880,
+ "repeats_heap_peak_move": 7830880,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 13792,
+  "ps_samples": 1,
+  "time_max_rss_bytes": 14204928,
+  "time_peak_footprint_bytes": 13255016,
+  "wait4_maxrss_bytes": 14204928
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "090_RF-LARGE-TREE-n01000-AX_lane-id",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 54,
+ "stdout_sha256": "dede32358858d1ccc4f5e6058f68a19391debffb10f7a15bf7c4b98b35298e5a",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 31108584,
+  "heap_peak": 7830880,
+  "heap_peak_move": 7830880,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 7830880,
+  "repeats_heap_peak_move": 7830880,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 1800,
+ "wall_s": 0.1296,
+ "watchdog_last_kib": 13792,
+ "watchdog_polls": 1,
+ "watchdog_samples": [
+  [
+   0.023,
+   13792
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

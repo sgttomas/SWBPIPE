@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""I14 (K5, A2): converts R1's RF-MECH models (`references.py --model`, frozen
+at c0f14201c; references.json 7b176dbb..., references.py 80d473a7...) to a
+plain text model for the base-against-candidate harness. Standard library only.
+
+Sections: A = pi/4 (OD^2 - ID^2), I = pi/64 (OD^4 - ID^4), J = 2I, written as
+Python float reprs (round-trip exact). The same file feeds both builds, so the
+values need only be identical, not independently derived. y_reference: global
+z unless a member is parallel to z (then global y). Springs are axis-aligned
+(asserted); a zero spring is kept (RF-MECH-K0), as the product passes it.
+"""
+import json
+import math
+import sys
+
+DOF = {"UX": 0, "UY": 1, "UZ": 2, "RX": 3, "RY": 4, "RZ": 5}
+
+
+def convert(path, out):
+    d = json.load(open(path))
+    names = list(d["nodes_m"].keys())
+    index = {n: i for i, n in enumerate(names)}
+    xyz = [[float(v) for v in d["nodes_m"][n]] for n in names]
+    lines = [f"nodes {len(names)}"]
+    lines += [" ".join(repr(v) for v in p) for p in xyz]
+    sections = {}
+    for key, s in d["sections"].items():
+        od, idd = float(s["OD"]), float(s["ID"])
+        a = math.pi / 4.0 * (od * od - idd * idd)
+        i = math.pi / 64.0 * (od ** 4 - idd ** 4)
+        sections[key] = (float(s["E"]), float(s["G"]), a, i, 2.0 * i)
+    lines.append(f"members {len(d['members'])}")
+    for _, ni, nj, sec in d["members"]:
+        i, j = index[ni], index[nj]
+        dx = [xyz[j][k] - xyz[i][k] for k in range(3)]
+        yref = (0.0, 1.0, 0.0) if dx[0] == 0.0 and dx[1] == 0.0 else (0.0, 0.0, 1.0)
+        e, g, a, ii, jj = sections[sec]
+        lines.append(" ".join(repr(v) for v in (i, j, e, g, a, ii, jj, *yref)))
+    rigid, springs = [], []
+    for n, s in d["supports"].items():
+        base = 6 * index[n]
+        rigid += [base + DOF[r] for r in s["rigid"]]
+        for sp in s["springs"]:
+            direction = [float(v) for v in sp["direction"]]
+            axis = [k for k in range(3) if direction[k] != 0.0]
+            assert len(axis) == 1 and direction[axis[0]] == 1.0, sp
+            offset = 0 if sp["kind"] == "translation" else 3
+            springs.append((base + offset + axis[0], float(sp["k"])))
+    lines.append(f"rigid {len(rigid)}")
+    lines += [str(r) for r in rigid]
+    lines.append(f"springs {len(springs)}")
+    lines += [f"{dof} {k!r}" for dof, k in springs]
+    loads = []
+    for n, l in d["loads"].items():
+        base = 6 * index[n]
+        for key, offset in (("F", 0), ("M", 3)):
+            for k, v in enumerate(l.get(key, [])):
+                if float(v) != 0.0:
+                    loads.append((base + offset + k, float(v)))
+    lines.append(f"loads {len(loads)}")
+    lines += [f"{dof} {v!r}" for dof, v in loads]
+    with open(out, "w") as f:
+        f.write("\n".join(lines) + "\n")
+
+
+if __name__ == "__main__":
+    for path in sys.argv[1:]:
+        convert(path, path.replace(".json", ".txt"))

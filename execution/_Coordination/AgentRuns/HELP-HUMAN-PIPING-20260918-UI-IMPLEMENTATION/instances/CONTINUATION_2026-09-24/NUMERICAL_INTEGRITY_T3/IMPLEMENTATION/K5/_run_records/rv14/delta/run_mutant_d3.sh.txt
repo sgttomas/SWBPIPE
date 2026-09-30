@@ -1,0 +1,26 @@
+#!/bin/bash
+# I14 (K5, RV14 delta check, stage 2): one mutant in its own clean copy and target, then delete both.
+# Usage: run_mutant_d3.sh <id> <sets: fk,ni,pp,probe> <script: k5|rv14>
+# The copy is `git archive 28517eaaa` (the delta-checked head) plus the RV14-D1 test file listed in
+# overlay_d3.txt. RV14-M5 is applied from mutate_k5.py, with RV14's delta text (also RV14-M5.patch).
+set -u
+ID=$1; SETS=$2; SCRIPT=${3:-k5}; REV=28517eaaa
+W=<wt>
+S=$W/scratch/i14/mut; D=$W/k5-mut/$ID; OUT=$S/logs/$ID; PY=<VENV>/bin/python
+rm -rf $D $OUT; mkdir -p $D/src $OUT
+(cd $W/k5 && git archive $REV projects/chirality-piping/core projects/chirality-piping/fixtures projects/chirality-piping/schemas projects/chirality-piping/validation | tar -x -C $D/src)
+for f in $(cat $S/overlay_d3.txt); do cp $W/k5/$f $D/src/$f; done
+CORE=$D/src/projects/chirality-piping/core
+if [ "$SCRIPT" = "rv14" ]; then $PY -B $S/rv14_mutate.py $CORE $ID > $OUT/apply.txt 2>&1; else $PY -B $S/mutate_k5.py $CORE $ID > $OUT/apply.txt 2>&1; fi
+echo "apply exit=$? (script $SCRIPT)" >> $OUT/apply.txt
+export RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4 CARGO_TARGET_DIR=$D/target
+for t in $(echo $SETS | tr ',' ' '); do
+  case $t in
+    fk) (cd $CORE/solver/frame_kernel && cargo test --offline --locked -j 8 --no-fail-fast --test k5_constrained_bodies --test k5_scale --lib -- rigid_body:: k5_ > $OUT/fk.txt 2>&1; echo "exit=$?" >> $OUT/fk.txt) ;;
+    ni) (cd $CORE/solver/nonlinear_integration && cargo test --offline --locked -j 8 --no-fail-fast --lib > $OUT/ni.txt 2>&1; echo "exit=$?" >> $OUT/ni.txt) ;;
+    pp) (cd $CORE/product_physics && cargo test --offline --locked -j 8 --no-fail-fast --test k5_curved_mechanism_runtime > $OUT/pp.txt 2>&1; echo "exit=$?" >> $OUT/pp.txt) ;;
+    probe) cp $S/rv14_fk_probe.rs $CORE/solver/frame_kernel/tests/ && (cd $CORE/solver/frame_kernel && RV14_IN=$S/rv14_cases_all.txt RV14_OUT=$OUT/probe_results.txt cargo test --offline --locked -j 8 --test rv14_fk_probe > $OUT/probe.txt 2>&1; echo "exit=$?" >> $OUT/probe.txt) ;;
+  esac
+done
+rm -rf $D
+echo "$ID done $(date -u +%FT%TZ)" > $OUT/done.txt

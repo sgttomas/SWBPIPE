@@ -1,0 +1,7 @@
+Kept uncommitted in <wt>/scratch/i13/ because of their size; ROOT keeps them for as long as a record cites them. Each is indexed by the committed envelope_sha256.tsv or summary beside it.
+
+954300267e4bdc8d1576a9c1ab16c8a443324567c66f26b304f58ac755ff7b7b  gate/part1/runs.jsonl
+2a035a1159711290f582d78c5f797a7cd189f767f14d7ccda166457289577fab  gate/rv11d_large/runs.jsonl
+30d99bf0102a2fd41246fc4767af11599a6b17abb38bdf20e101b93f248d0014  gate2/part1/runs.jsonl
+093c16dc9dd6ab722942398f73e7326fdfb70f7f1eee04951130c9b1866b034d  gate2/obs/rv11d_cont/runs.jsonl
+b1f18a7c7a53597227b63ee6e3f2fdac769bf75745d740204eb7773a0c16bda4  gate2/SHA256SUMS (the gate2 scratch digest list: 3,456 files, every full envelope included; copied here as gate2_130445db2/scratch_SHA256SUMS.txt)

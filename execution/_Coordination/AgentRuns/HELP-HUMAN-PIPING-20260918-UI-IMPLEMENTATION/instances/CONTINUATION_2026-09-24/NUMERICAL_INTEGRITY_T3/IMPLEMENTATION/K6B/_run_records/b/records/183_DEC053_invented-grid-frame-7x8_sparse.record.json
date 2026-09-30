@@ -1,0 +1,92 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "DEC053:invented-grid-frame-7x8",
+  "--mode",
+  "sparse",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "540",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "../observations/k6b/counts.jsonl",
+  "--dump-solution",
+  "183_DEC053_invented-grid-frame-7x8_sparse.u"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  5.9384765625,
+  5.6640625,
+  5.12646484375
+ ],
+ "load_before": [
+  5.9384765625,
+  5.6640625,
+  5.12646484375
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 6144000,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 2054527,
+ "repeats_heap_peak_move": 2054527,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 5984,
+  "ps_samples": 2,
+  "time_max_rss_bytes": 6144000,
+  "time_peak_footprint_bytes": 4735312,
+  "wait4_maxrss_bytes": 6144000
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "183_DEC053_invented-grid-frame-7x8_sparse",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 134,
+ "stdout_sha256": "f8ce92ddb69e3a82f775998e772765ae1c636dc1e3a4cec695a9a6b45d598e53",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 133116917,
+  "heap_peak": 2054527,
+  "heap_peak_move": 2054527,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 2054527,
+  "repeats_heap_peak_move": 2054527,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 0.2431,
+ "watchdog_last_kib": 5984,
+ "watchdog_polls": 2,
+ "watchdog_samples": [
+  [
+   0.023,
+   5776
+  ],
+  [
+   0.131,
+   5984
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

@@ -1,0 +1,321 @@
+RF-RANGE-CHAIN-E+960           captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1949062802279999800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-E+960           captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1949062802279999800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-E+960           typed    dense_scrutiny     MECHANICS_SOLVED       results=315 
+RF-RANGE-CHAIN-E+960           typed    sparse_interactive MECHANICS_SOLVED       results=314 
+RF-RANGE-CHAIN-E-1000          captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-CHAIN-E-1000          captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-CHAIN-E-1000          typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-CHAIN-E-1000          typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-CHAIN-F+960           captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2104987826462400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-F+960           captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2104987826462400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-F+960           typed    dense_scrutiny     MECHANICS_SOLVED       results=315 
+RF-RANGE-CHAIN-F+960           typed    sparse_interactive MECHANICS_SOLVED       results=314 
+RF-RANGE-CHAIN-F-960           captured dense_scrutiny     MECHANICS_SOLVED       results=315 
+RF-RANGE-CHAIN-F-960           captured sparse_interactive MECHANICS_SOLVED       results=314 
+RF-RANGE-CHAIN-F-960           typed    dense_scrutiny     MECHANICS_SOLVED       results=315 
+RF-RANGE-CHAIN-F-960           typed    sparse_interactive MECHANICS_SOLVED       results=314 
+RF-RANGE-CHAIN-L+240           captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3816389659921310000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-L+240           captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3816389659921310000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-L+240           typed    dense_scrutiny     MECHANICS_SOLVED       results=315 
+RF-RANGE-CHAIN-L+240           typed    sparse_interactive MECHANICS_SOLVED       results=314 
+RF-RANGE-CHAIN-L-240           captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-L-240           captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-L-240           typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-L-240           typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-LEF-large       captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1440291117502048600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-LEF-large       captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1440291117502048600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CHAIN-LEF-large       typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)
+RF-RANGE-CHAIN-LEF-large       typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)
+RF-RANGE-CHAIN-LEF-small       captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-LEF-small       captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-LEF-small       typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-LEF-small       typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-SIM-a           captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3010600601801634000000000000000000000
+RF-RANGE-CHAIN-SIM-a           captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3010600601801634000000000000000000000
+RF-RANGE-CHAIN-SIM-a           typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-SIM-a           typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M5] degenerate axis definition: element length
+RF-RANGE-CHAIN-SIM-b           captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2658455991569832000000000000000000000
+RF-RANGE-CHAIN-SIM-b           captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 2658455991569832000000000000000000000
+RF-RANGE-CHAIN-SIM-b           typed    dense_scrutiny     MECHANICS_SOLVED       results=314 
+RF-RANGE-CHAIN-SIM-b           typed    sparse_interactive MECHANICS_SOLVED       results=314 
+RF-RANGE-CONT-E+960            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1949062802279999800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-E+960            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1949062802279999800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-E+960            typed    dense_scrutiny     MECHANICS_SOLVED       results=637 
+RF-RANGE-CONT-E+960            typed    sparse_interactive MECHANICS_SOLVED       results=636 
+RF-RANGE-CONT-E-1000           captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["S0:UX", "S0:UY", "S0:UZ", "S0:RX", "S0:RY", "S0:RZ", "S1:UX", "S1:UY", "S
+RF-RANGE-CONT-E-1000           captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["S0:UX", "S0:UY", "S0:UZ", "S0:RX", "S0:RY", "S0:RZ", "S1:UX", "S1:UY", "S
+RF-RANGE-CONT-E-1000           typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["S0:UX", "S0:UY", "S0:UZ", "S0:RX", "S0:RY", "S0:RZ", "S1:UX", "S1:UY", "S
+RF-RANGE-CONT-E-1000           typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["S0:UX", "S0:UY", "S0:UZ", "S0:RX", "S0:RY", "S0:RZ", "S1:UX", "S1:UY", "S
+RF-RANGE-CONT-F+960            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -935550145094399900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-F+960            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -935550145094399900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-F+960            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] computed mechanics must be finite, got inf
+RF-RANGE-CONT-F+960            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] computed mechanics must be finite, got inf
+RF-RANGE-CONT-F-960            captured dense_scrutiny     MECHANICS_SOLVED       results=637 
+RF-RANGE-CONT-F-960            captured sparse_interactive MECHANICS_SOLVED       results=636 
+RF-RANGE-CONT-F-960            typed    dense_scrutiny     MECHANICS_SOLVED       results=637 
+RF-RANGE-CONT-F-960            typed    sparse_interactive MECHANICS_SOLVED       results=636 
+RF-RANGE-CONT-L+240            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10601082388670306000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-L+240            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 10601082388670306000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-L+240            typed    dense_scrutiny     MECHANICS_SOLVED       results=637 
+RF-RANGE-CONT-L+240            typed    sparse_interactive MECHANICS_SOLVED       results=636 
+RF-RANGE-CONT-L-240            captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-L-240            captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-L-240            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-L-240            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-LEF-large        captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -398353494612575300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-LEF-large        captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -398353494612575300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-LEF-large        typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)
+RF-RANGE-CONT-LEF-large        typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)
+RF-RANGE-CONT-LEF-small        captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-LEF-small        captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-LEF-small        typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-LEF-small        typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-SIM-a            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -177856649068517680000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-SIM-a            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: -177856649068517680000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-CONT-SIM-a            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-SIM-a            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B1] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B2] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B3] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B4] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:A5] degenerate axis definition: element length
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:B5] degenerate axis definition: element length
+RF-RANGE-CONT-SIM-b            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 7975367974709495000000000000000000000
+RF-RANGE-CONT-SIM-b            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 7975367974709495000000000000000000000
+RF-RANGE-CONT-SIM-b            typed    dense_scrutiny     MECHANICS_SOLVED       results=636 
+RF-RANGE-CONT-SIM-b            typed    sparse_interactive MECHANICS_SOLVED       results=636 
+RF-RANGE-SKEW-E+960            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1949062802279999800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-E+960            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1949062802279999800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-E+960            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("radix scaling loses normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "
+RF-RANGE-SKEW-E+960            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("radix scaling loses normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "
+RF-RANGE-SKEW-E-1000           captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-SKEW-E-1000           captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-SKEW-E-1000           typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-SKEW-E-1000           typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-SKEW-F+960            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 4677750725471999000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-F+960            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 4677750725471999000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-F+960            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] computed mechanics must be finite, got inf
+RF-RANGE-SKEW-F+960            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] computed mechanics must be finite, got inf
+RF-RANGE-SKEW-F-960            captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("product overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N1:
+RF-RANGE-SKEW-F-960            captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-SKEW-F-960            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("product overflow or underflow"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N1:
+RF-RANGE-SKEW-F-960            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-SKEW-L+240            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-L+240            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 848086591093624400000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-L+240            typed    dense_scrutiny     MECHANICS_SOLVED       results=98 
+RF-RANGE-SKEW-L+240            typed    sparse_interactive MECHANICS_SOLVED       results=98 
+RF-RANGE-SKEW-L-240            captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-L-240            captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-L-240            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-L-240            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-LEF-large        captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3200646927782330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-LEF-large        captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 3200646927782330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+RF-RANGE-SKEW-LEF-large        typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)
+RF-RANGE-SKEW-LEF-large        typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      SOLVER_SYSTEM_BLOCKED [diagnostic:physics:solver] range: stiffness formation outside the binary64 normal range at GJ/L: G*J (zero, subnormal or non-finite from nonzero finite operands)
+RF-RANGE-SKEW-LEF-small        captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-LEF-small        captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-LEF-small        typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-LEF-small        typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-SIM-a            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000000000000000
+RF-RANGE-SKEW-SIM-a            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 669022355955918600000000000000000000
+RF-RANGE-SKEW-SIM-a            typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-SIM-a            typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      PIPE_ELEMENT_INPUT_INVALID [diagnostic:pipe-element:M1] degenerate axis definition: element length
+RF-RANGE-SKEW-SIM-b            captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1329227995784916000000000000000000000
+RF-RANGE-SKEW-SIM-b            captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1329227995784916000000000000000000000
+RF-RANGE-SKEW-SIM-b            typed    dense_scrutiny     MECHANICS_SOLVED       results=98 
+RF-RANGE-SKEW-SIM-b            typed    sparse_interactive MECHANICS_SOLVED       results=98 
+RF-RANGE-THIN-A                captured dense_scrutiny     None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1606938044258990300000000000000000000000000000000000000000000
+RF-RANGE-THIN-A                captured sparse_interactive None                   results=None ERR CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: 1606938044258990300000000000000000000000000000000000000000000
+RF-RANGE-THIN-A                typed    dense_scrutiny     MECHANICS_SOLVED       results=74 
+RF-RANGE-THIN-A                typed    sparse_interactive MECHANICS_SOLVED       results=74 
+RF-RANGE-THIN-B                captured dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-THIN-B                captured sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-THIN-B                typed    dense_scrutiny     MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+RF-RANGE-THIN-B                typed    sparse_interactive MODEL_INCOMPLETE       results=0 
+      NUMERICAL_INTEGRITY_UNRESOLVED [diagnostic:numerical-integrity:case] Load case case: structural integrity: Range("arithmetic outside normal range"); global_dof_map=["N0:UX", "N0:UY", "N0:UZ", "N0:RX", "N0:RY", "N0:RZ", "N1:UX", "N1:UY", "N
+Counter({('ERR', 'captured'): 38, ('MECHANICS_SOLVED', 'typed'): 24, ('PIPE_ELEMENT_INPUT_INVALID', 'typed'): 18, ('NUMERICAL_INTEGRITY_UNRESOLVED', 'typed'): 12, ('PIPE_ELEMENT_INPUT_INVALID', 'captured'): 12, ('NUMERICAL_INTEGRITY_UNRESOLVED', 'captured'): 10, ('SOLVER_SYSTEM_BLOCKED', 'typed'): 10, ('MECHANICS_SOLVED', 'captured'): 4})

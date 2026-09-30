@@ -1,0 +1,76 @@
+{
+ "argv": [
+  "k6_observe",
+  "--counts-only",
+  "--model",
+  "RF-LARGE-CONT-n10000-ROT",
+  "--heap-cap-bytes",
+  "536870912"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  5.60791015625,
+  4.91357421875,
+  4.646484375
+ ],
+ "load_before": [
+  5.60791015625,
+  4.91357421875,
+  4.646484375
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 185417728,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": null,
+ "repeats_heap_peak_move": null,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 166496,
+  "ps_samples": 3,
+  "time_max_rss_bytes": 185417728,
+  "time_peak_footprint_bytes": 184402424,
+  "wait4_maxrss_bytes": 185417728
+ },
+ "rss_cap_bytes": 1073741824,
+ "run_id": "counts_RF-LARGE-CONT-n10000-ROT",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 3,
+ "stdout_sha256": "8fcb1860e57085b777ce1b308a2a0efde4cbceb5bb7e0d9bd119591622989efd",
+ "summary": {
+  "heap_peak": 161279752,
+  "heap_peak_move": 164425480,
+  "kind": "summary",
+  "repeats_completed": 0,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 600,
+ "wall_s": 0.3516,
+ "watchdog_last_kib": 166496,
+ "watchdog_polls": 3,
+ "watchdog_samples": [
+  [
+   0.023,
+   45024
+  ],
+  [
+   0.136,
+   108576
+  ],
+  [
+   0.246,
+   166496
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

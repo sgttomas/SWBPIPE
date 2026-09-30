@@ -1,0 +1,200 @@
+{
+ "argv": [
+  "k6_observe",
+  "--model",
+  "RF-LARGE-CONT-n01000-AX",
+  "--mode",
+  "w1a",
+  "--heap-cap-bytes",
+  "8053063680",
+  "--repeats",
+  "5",
+  "--entry-repeats",
+  "5",
+  "--time-budget-s",
+  "1740",
+  "--first-repeat-limit-s",
+  "600",
+  "--counts-file",
+  "../observations/k6b/counts.jsonl"
+ ],
+ "binary_pid_found": true,
+ "classification": "ok",
+ "classification_detail": null,
+ "exit_code": 0,
+ "kill_after_s": null,
+ "killed_by_rss_watchdog": false,
+ "load_after": [
+  5.62060546875,
+  4.7080078125,
+  4.5576171875
+ ],
+ "load_before": [
+  5.84912109375,
+  4.7373046875,
+  4.56689453125
+ ],
+ "memorystatus_after": 94,
+ "memorystatus_before": 94,
+ "peak_rss_bytes": 116785152,
+ "peak_rss_source": "time",
+ "poll_s": 0.1,
+ "repeats_heap_peak": 85127667,
+ "repeats_heap_peak_move": 85127667,
+ "rlimit_as_applied": false,
+ "rss": {
+  "ps_max_kib": 114016,
+  "ps_samples": 29,
+  "time_max_rss_bytes": 116785152,
+  "time_peak_footprint_bytes": 114917808,
+  "wait4_maxrss_bytes": 116785152
+ },
+ "rss_cap_bytes": 8589934592,
+ "run_id": "241_RF-LARGE-CONT-n01000-AX_w1a",
+ "schema": "k6-runner-record-v1",
+ "stderr_tail": "",
+ "stdout_lines": 46,
+ "stdout_sha256": "85e790c93371fd5e530a8b887d53ca29d0f85e93b9ee28ff6864bf6e2cd85c69",
+ "summary": {
+  "counts_phase_heap_peak": null,
+  "counts_phase_heap_peak_move": null,
+  "elapsed_ns": 3305554834,
+  "heap_peak": 85127667,
+  "heap_peak_move": 85127667,
+  "kind": "summary",
+  "parity_phase_heap_peak": null,
+  "parity_phase_heap_peak_move": null,
+  "prefix_phase_heap_peak": null,
+  "prefix_phase_heap_peak_move": null,
+  "repeats_completed": 5,
+  "repeats_heap_peak": 85127667,
+  "repeats_heap_peak_move": 85127667,
+  "stop_reason": null
+ },
+ "survivors": [],
+ "system": "Darwin",
+ "timed_out": false,
+ "timeout_s": 1800,
+ "wall_s": 3.3302,
+ "watchdog_last_kib": 114016,
+ "watchdog_polls": 29,
+ "watchdog_samples": [
+  [
+   0.058,
+   34528
+  ],
+  [
+   0.172,
+   55968
+  ],
+  [
+   0.277,
+   74544
+  ],
+  [
+   0.389,
+   90976
+  ],
+  [
+   0.503,
+   103680
+  ],
+  [
+   0.617,
+   107072
+  ],
+  [
+   0.731,
+   111152
+  ],
+  [
+   0.845,
+   111280
+  ],
+  [
+   0.959,
+   111520
+  ],
+  [
+   1.073,
+   111520
+  ],
+  [
+   1.187,
+   112240
+  ],
+  [
+   1.297,
+   112240
+  ],
+  [
+   1.412,
+   112592
+  ],
+  [
+   1.526,
+   112720
+  ],
+  [
+   1.643,
+   112720
+  ],
+  [
+   1.769,
+   112720
+  ],
+  [
+   1.873,
+   113936
+  ],
+  [
+   1.988,
+   113936
+  ],
+  [
+   2.102,
+   113968
+  ],
+  [
+   2.216,
+   113984
+  ],
+  [
+   2.323,
+   113984
+  ],
+  [
+   2.437,
+   113984
+  ],
+  [
+   2.551,
+   114016
+  ],
+  [
+   2.658,
+   114016
+  ],
+  [
+   2.772,
+   114016
+  ],
+  [
+   2.886,
+   114016
+  ],
+  [
+   2.997,
+   114016
+  ],
+  [
+   3.103,
+   114016
+  ],
+  [
+   3.216,
+   114016
+  ]
+ ],
+ "wrapper": "/usr/bin/time -l"
+}

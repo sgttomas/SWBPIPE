@@ -1,0 +1,13 @@
+2026-09-28T22:04:52Z part 2 start: 4 runs x (base, candidate), one at a time
+2026-09-28T22:34:52Z base RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured timed_out 1800.0557 exit -9 load [5.87, 7.96, 6.98] [8.62, 7.98, 7.39] mem% 93
+2026-09-28T22:34:52Z load1 8.62 > 8: waiting for < 6
+2026-09-28T22:36:52Z load1 5.94 < 6: starting after 120.0 s
+2026-09-28T23:06:52Z cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__captured timed_out 1800.041 exit -9 load [5.94, 7.23, 7.17] [4.28, 4.9, 5.17] mem% 94
+2026-09-28T23:36:52Z base RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed timed_out 1800.0314 exit -9 load [4.28, 4.9, 5.17] [6.11, 6.19, 5.97] mem% 94
+2026-09-29T00:06:52Z cand RF-LARGE-CHAIN-n01000-ROT__dense_scrutiny__typed timed_out 1800.0413 exit -9 load [6.11, 6.19, 5.97] [5.69, 5.2, 5.19] mem% 94
+2026-09-29T00:36:53Z base RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured timed_out 1800.0444 exit -9 load [5.69, 5.2, 5.19] [5.25, 4.96, 4.66] mem% 94
+2026-09-29T01:06:53Z cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__captured timed_out 1800.0341 exit -9 load [5.07, 4.93, 4.65] [7.01, 6.24, 5.49] mem% 94
+2026-09-29T01:36:53Z base RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed timed_out 1800.0342 exit -9 load [7.01, 6.24, 5.49] [4.23, 4.52, 4.71] mem% 94
+2026-09-29T02:06:53Z cand RF-LARGE-TREE-n01000-AX__dense_scrutiny__typed timed_out 1800.0596 exit -9 load [4.23, 4.52, 4.71] [5.98, 5.53, 5.08] mem% 94
+2026-09-29T02:06:53Z part 2 done
+exit=0

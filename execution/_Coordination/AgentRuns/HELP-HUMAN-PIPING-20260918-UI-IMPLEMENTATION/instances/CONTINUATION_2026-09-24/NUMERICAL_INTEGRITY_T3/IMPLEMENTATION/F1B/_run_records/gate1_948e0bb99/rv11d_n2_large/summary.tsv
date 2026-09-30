@@ -1,0 +1,15 @@
+RV11D-N2 on the 13 gate cases of 1,000 or more members, typed, sparse, observation build of 948e0bb99 (obs_patch.py + obs_block.rs).
+case	mode	entry	exit_code	outcome	full_envelope_sha256	rv11d_n2 rows by (kind, status)	other probe rows
+RF-LARGE-CHAIN-n01000-AX	sparse_interactive	typed	0	solved	e8f418512ebc19e263a6292f3f0e15d86f989184c230800236d2375756701f11	{"end_actions:equal": 1000, "reaction:equal": 6}	{}
+RF-LARGE-CHAIN-n01000-ROT	sparse_interactive	typed	0	solved	9f16f8d50bc31171977e144a01cf51d53139e08d19f72fc7dc87a166925f3d24	{"end_actions:equal": 1000, "reaction:equal": 6}	{}
+RF-LARGE-TREE-n01000-AX	sparse_interactive	typed	0	solved	af6351b011ece7740ef4a616c784c533546f223bc3670aa6e857a1152ecb3790	{"end_actions:equal": 1000, "reaction:equal": 6}	{}
+RF-LARGE-TREE-n01000-ROT	sparse_interactive	typed	0	solved	42e70b39f02d4f7a7f05447c632f31465d4a329e31685f070c38023611e6499c	{"end_actions:equal": 1000, "reaction:equal": 6}	{}
+RF-LARGE-CONT-n01000-AX	sparse_interactive	typed	0	solved	4410773d26c6ea4c46bdf7cfa353e7cbcde4b14dcccec68650d292895e9a42c5	{"end_actions:equal": 1000, "reaction:equal": 1506}	{}
+RF-LARGE-CONT-n01000-ROT	sparse_interactive	typed	0	solved	c718626dea58edf121fec03c4c6cfe02060892d523e84c3934950e8b6b94f6e1	{"end_actions:equal": 1000, "reaction:equal": 1506}	{}
+RF-MECH-LINE-IN-CHAIN1000	sparse_interactive	typed	0	refused_blocked	d80e1b9609905740e3461544e348f16f295cd14c1fd7fddce979e1792609b7ac	no observation log	{}
+RF-LARGE-CHAIN-n10000-AX	sparse_interactive	typed	0	refused_blocked	7d38b764dc7e4c6620d96e88c05ea2e44d2772176d15c4a3052de82a8f617bb0	no observation log	{}
+RF-LARGE-CHAIN-n10000-ROT	sparse_interactive	typed	0	refused_blocked	e33127846e5bd5b3c2c2b98a84558e4aabd11cefb614b2ca6afd55edbb36ed11	no observation log	{}
+RF-LARGE-TREE-n10000-AX	sparse_interactive	typed	0	refused_blocked	0d50112698655e16594846bb5a43896e3a08100411b0c551397e34ddda88dcc1	no observation log	{}
+RF-LARGE-TREE-n10000-ROT	sparse_interactive	typed	0	refused_blocked	83961d9f8392a5139874790cc1ec9b3f9c35d89965bb5100f0a281403edd9bfb	no observation log	{}
+RF-LARGE-CONT-n10000-AX	sparse_interactive	typed	-6	memory_refused	-	no observation log	{}
+RF-LARGE-CONT-n10000-ROT	sparse_interactive	typed	-6	memory_refused	-	no observation log	{}

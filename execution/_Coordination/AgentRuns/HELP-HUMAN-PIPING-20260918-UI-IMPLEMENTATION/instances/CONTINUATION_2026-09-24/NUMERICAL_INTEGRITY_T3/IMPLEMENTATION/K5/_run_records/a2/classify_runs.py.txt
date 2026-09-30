@@ -1,0 +1,42 @@
+"""I14 (K5): base-against-candidate product-run table with K5's change classes.
+K5-C1: a selected invocation (no nonlinear support) whose candidate refusal is
+NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM. K5-C2: its candidate refusal is
+NUMERICAL_INTEGRITY_UNRESOLVED with reason "constrained-body rank unresolved".
+Anything else that changes, or any change with a nonlinear support, is STOP."""
+import sys
+def load(path):
+    out = {}
+    for line in open(path):
+        if not line.startswith("K5RUN "):
+            continue
+        parts = line.split()
+        key = tuple(parts[1:4])
+        fields = dict(p.split("=", 1) for p in parts[4:] if "=" in p)
+        out[key] = fields
+    return out
+base, cand = load(sys.argv[1]), load(sys.argv[2])
+assert base.keys() == cand.keys(), set(base) ^ set(cand)
+rows, stops, counts = [], [], {}
+for key in sorted(base):
+    b, c = base[key], cand[key]
+    label = key[0]
+    nonlinear = "_gap_" in label or label.startswith("constructed_gap") or label.startswith("committed")
+    if b == c:
+        cls = "unchanged"
+    elif c.get("blocking") == "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM" and "gap" not in label:
+        cls = "K5-C1"
+    elif c.get("blocking") == "NUMERICAL_INTEGRITY_UNRESOLVED" and "constrained-body_rank_unresolved" in c.get("integrity", "") and "gap" not in label:
+        cls = "K5-C2"
+    else:
+        cls = "STOP"
+        stops.append(key)
+    counts[cls] = counts.get(cls, 0) + 1
+    rows.append((key, b, c, cls))
+print("| Input | Entry | Mode | Main: mechanics / standing / blocking | Candidate: mechanics / standing / blocking | Main sha256 | Candidate sha256 | Class |")
+print("|---|---|---|---|---|---|---|---|")
+for (label, entry, mode), b, c, cls in rows:
+    fmt = lambda f: f"{f.get('mechanics','?')} / {f.get('nq','?')} / {f.get('blocking','?')}"
+    print(f"| {label} | {entry} | {mode} | {fmt(b)} | {fmt(c)} | `{b.get('sha256','-')[:8]}` | `{c.get('sha256','-')[:8]}` | {cls} |")
+print()
+print("counts", counts)
+print("stops", stops)

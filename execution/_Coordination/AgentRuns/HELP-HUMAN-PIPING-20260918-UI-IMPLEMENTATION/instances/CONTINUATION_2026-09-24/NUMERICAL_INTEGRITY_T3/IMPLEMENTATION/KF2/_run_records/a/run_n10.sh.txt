@@ -1,0 +1,15 @@
+#!/bin/bash
+# KF2 T7: N10's two models, dense, through H's unchanged k6_observe (K6's
+# argv for runs 100/101), one at a time, each under an 1,800 s alarm.
+set -u
+BIN=$1; COUNTS=$2; OUT=$3; shift 3
+mkdir -p "$OUT"
+for MODEL in "$@"; do
+  { date -u +%FT%TZ; uptime; memory_pressure 2>/dev/null | tail -1; } > "$OUT/${MODEL}_dense.host_before.txt"
+  /usr/bin/time -l perl -e 'alarm 1800; exec @ARGV' "$BIN" --model "$MODEL" --mode dense \
+    --heap-cap-bytes 8053063680 --repeats 1 --entry-repeats 1 --time-budget-s 1740 \
+    --first-repeat-limit-s 600 --counts-file "$COUNTS" \
+    > "$OUT/${MODEL}_dense.jsonl" 2> "$OUT/${MODEL}_dense.time.txt"
+  echo "exit $?" >> "$OUT/${MODEL}_dense.time.txt"
+  { date -u +%FT%TZ; uptime; memory_pressure 2>/dev/null | tail -1; } > "$OUT/${MODEL}_dense.host_after.txt"
+done

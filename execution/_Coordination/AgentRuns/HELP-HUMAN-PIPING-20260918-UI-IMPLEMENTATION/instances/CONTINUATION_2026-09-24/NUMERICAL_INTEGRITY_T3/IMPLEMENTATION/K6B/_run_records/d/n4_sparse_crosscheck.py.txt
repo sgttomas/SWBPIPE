@@ -1,0 +1,44 @@
+"""K6b plan N-4: K6b's sparse processes against K6's recorded sparse processes, same model (a cross-check,
+not a stop). The deterministic heap peaks (repeats_heap_peak and its move-model twin) come from the same
+allocation sequence, so they should be equal; the binaries differ (K6's B-slot builds against b3's).
+
+Usage: python3 n4_sparse_crosscheck.py <K6 _run_records> <b3 records>
+"""
+import glob
+import json
+import os
+import sys
+
+sys.dont_write_bytecode = True
+k6_dir, b3_dir = sys.argv[1], sys.argv[2]
+
+
+def runs(path):
+    out = []
+    with open(path) as fh:
+        for line in fh:
+            x = json.loads(line)
+            if 'order' in x and x.get('mode') == 'sparse' and x.get('classification') == 'ok':
+                out.append(x)
+    return out
+
+
+k6 = {}
+for path in sorted(glob.glob(os.path.join(k6_dir, '*', 'records', 'records.jsonl'))):
+    for x in runs(path):
+        k6.setdefault(x['model'], []).append((os.path.relpath(path, k6_dir).split(os.sep)[0], x))
+equal = differ = missing = 0
+for x in runs(os.path.join(b3_dir, 'records.jsonl')):
+    mine = (x['repeats_heap_peak'], x['repeats_heap_peak_move'])
+    theirs = k6.get(x['model'])
+    if not theirs:
+        missing += 1
+        print('NO K6 RECORD', x['model'])
+        continue
+    vals = sorted({(t['repeats_heap_peak'], t['repeats_heap_peak_move']) for _, t in theirs})
+    ok = mine in vals
+    equal += ok
+    differ += not ok
+    print('%s %s pass %s K6b %s K6 %s (%s)' % ('EQUAL' if ok else 'DIFFER', x['model'], x.get('pass'), mine, vals,
+                                              ','.join(sorted({f for f, _ in theirs}))))
+print('summary: %d equal, %d differ, %d without a K6 record' % (equal, differ, missing))

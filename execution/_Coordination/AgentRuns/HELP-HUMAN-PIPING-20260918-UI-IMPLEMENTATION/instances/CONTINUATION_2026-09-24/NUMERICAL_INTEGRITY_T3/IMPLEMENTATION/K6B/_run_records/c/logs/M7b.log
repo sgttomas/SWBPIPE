@@ -1,0 +1,17 @@
+$ <home>/.local/share/mise/installs/python/3.13/bin/python3 -m unittest test_k6_runner
+......................F......................
+======================================================================
+FAIL: test_every_admitted_row_passes_the_binarys_backstop (test_k6_runner.PlanAdmission.test_every_admitted_row_passes_the_binarys_backstop)
+ROOT's ruling after W1-T4's stop: for every row the runner admits, the binary's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/k6b-mut/M7b/src/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 652, in test_every_admitted_row_passes_the_binarys_backstop
+    self.assertAlmostEqual(decision['rho'], 0.184)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2.0 != 0.184 within 7 places (1.816 difference)
+
+----------------------------------------------------------------------
+Ran 45 tests in 8.110s
+
+FAILED (failures=1)
+

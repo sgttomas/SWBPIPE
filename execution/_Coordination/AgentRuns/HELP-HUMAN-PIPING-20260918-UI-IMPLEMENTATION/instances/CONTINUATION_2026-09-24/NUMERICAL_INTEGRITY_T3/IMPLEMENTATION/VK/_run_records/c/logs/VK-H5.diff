@@ -1,0 +1,40 @@
+--- a/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
++++ b/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs
+@@ -160,15 +160,28 @@
+             }
+         }
+         Target::Twist(m) | Target::Extension(m) => {
+-            let (kt, ka) = member_coefficients(model, m);
+-            match value_of(rows, sources(target)[0]) {
+-                Ok(v) => Observed::Value(if matches!(target, Target::Twist(_)) {
+-                    v / kt
+-                } else {
+-                    v / ka
+-                }),
+-                Err(e) => unavailable(e),
+-            }
++            // VK-H5: differenced from the published rotations and translations.
++            let mem = model.members.iter().find(|x| x.id == m).unwrap();
++            let (xi, xj) = (model.nodes[mem.node_i as usize], model.nodes[mem.node_j as usize]);
++            let l = floor::member_length(xi, xj);
++            let off = if matches!(target, Target::Twist(_)) { 3 } else { 0 };
++            let at = |n: u32, c: usize| {
++                value_of(
++                    rows,
++                    QuantityId::Displacement(open_pipe_stress_frame_kernel::structural::retained_api::Dof {
++                        node: n,
++                        component: Component::from_index(off + c),
++                    }),
++                )
++            };
++            let mut acc = 0.0;
++            for c in 0..3 {
++                match (at(mem.node_j, c), at(mem.node_i, c)) {
++                    (Ok(a), Ok(b)) => acc += (a - b) * ((xj[c] - xi[c]) / l),
++                    (Err(e), _) | (_, Err(e)) => return unavailable(e),
++                }
++            }
++            Observed::Value(acc)
+         }
+         _ => match value_of(rows, sources(target)[0]) {
+             Ok(v) => Observed::Value(v),

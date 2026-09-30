@@ -1,0 +1,6 @@
+RF-LARGE-CHAIN-n10000-AX rc=0 refusal=0 solves=0 "estimate_adm_bytes_w1a":2856520478
+RF-LARGE-CHAIN-n10000-ROT rc=0 refusal=0 solves=0 "estimate_adm_bytes_w1a":2856520478
+RF-LARGE-TREE-n10000-AX rc=0 refusal=0 solves=0 "estimate_adm_bytes_w1a":2857448446
+RF-LARGE-TREE-n10000-ROT rc=0 refusal=0 solves=0 "estimate_adm_bytes_w1a":2859306986
+RF-LARGE-CONT-n10000-AX rc=0 refusal=0 solves=0 "estimate_adm_bytes_w1a":2777832333
+RF-LARGE-CONT-n10000-ROT rc=0 refusal=0 solves=0 "estimate_adm_bytes_w1a":2778990028

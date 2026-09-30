@@ -1,0 +1,52 @@
+"""I13 checkpoint-0 experiment (standard library only): the product-level census
+b for RF-RANGE-{CHAIN,SKEW,CONT}-LEF-large, from K2b's generated LefCase inputs
+(NI k2b_models.rs, main e7d930d49), with PP's section formula and K2b's census
+rule (FK ForceScaleCensus: E, G, and 24 predicted exponents per frame; exact
+exponents of springs and load terms; window b_lo=-1022+64-e_min,
+b_hi=1023-8-e_max; even midpoint). Section values are formed in binary64 as PP
+does (od*od etc.); exponents are floor(log2|x|) of the binary64 values."""
+import struct, math
+def f(h): return struct.unpack('>d', bytes.fromhex(h))[0]
+def ex(x):  # binary exponent of a normal binary64
+    m, e = math.frexp(abs(x)); return e - 1
+cases = {
+ "CHAIN": dict(e=f("55074876e8000000"), g=f("54f2a05f20000000"), od=f("4c4999999999999a"), wall=f("4c047ae147ae147b"),
+   lengths=None, springs=[f("77d61e4f765fd8ae")], loads=[f("70c21e908ed8f651")]),
+ "SKEW": dict(e=f("55074876e8000000"), g=f("54f2a05f20000000"), od=f("4c4999999999999a"), wall=f("4c047ae147ae147b"),
+   lengths=None, springs=[f("77cd7dbf487fcb92"), f("796e848000000000"), f("796e848000000000")],
+   loads=[f("70a01b2b29a4692b"), f("70b01b2b29a4692b"), f("70b01b2b29a4692b")]),
+ "CONT": dict(e=f("55074876e8000000"), g=f("54f2a05f20000000"), od=f("4c4999999999999a"), wall=f("4c047ae147ae147b"),
+   lengths=None, springs=[], loads=[f("e5d8000000000000"), f("65d8000000000000"), f("65e8000000000000")]),
+}
+import re, pathlib
+src = pathlib.Path("<wt>/f1b/projects/chirality-piping/core/solver/nonlinear_integration/src/structural_adapter/k2b_models.rs").read_text()
+lef = src[src.index("pub const LEF_LARGE"):src.index("pub const LEF_BASE")]
+blocks = lef.split("LefCase {")[1:]
+for blk in blocks:
+    cid = re.search(r'id: "([^"]+)"', blk).group(1)
+    key = cid.split("-")[2]
+    nodes_txt = blk[blk.index("nodes:"):blk.index("e: f64")]
+    nodes = [[f(h) for h in re.findall(r"0x([0-9a-f]{16})", n)] for n in re.findall(r"\[f64[^\]]*\]", nodes_txt)]
+    members = [(int(a), int(b)) for a, b in re.findall(r'\("[^"]+", (\d+), (\d+)\)', blk[blk.index("members:"):blk.index("rigid:")])]
+    c = cases[key]
+    od, wall = c["od"], c["wall"]
+    idd = od - 2.0 * wall
+    area = math.pi * (od*od - idd*idd) / 4.0
+    I = math.pi * ((od*od)*(od*od) - (idd*idd)*(idd*idd)) / 64.0
+    J = 2.0 * I
+    span = []
+    for (a, b) in members:
+        d = [nodes[b][k] - nodes[a][k] for k in range(3)]
+        L = math.sqrt(d[0]*d[0] + d[1]*d[1] + d[2]*d[2])
+        e_, g_, a_, i_, j_, l_ = map(ex, (c["e"], c["g"], area, I, J, L))
+        span += [e_, g_, e_+a_, e_+a_-l_, g_+j_, g_+j_-l_]
+        for k, p in [(3, 3), (2, 2), (2, 1), (1, 1)]:
+            span.append(k + e_)
+            for ii in (i_, i_):
+                span += [k + e_ + ii, k + e_ + ii - p * l_]
+    span += [ex(s) for s in c["springs"]] + [ex(x) for x in c["loads"] if x != 0.0]
+    lo, hi = min(span), max(span)
+    blo, bhi = -1022 + 64 - lo, 1023 - 8 - hi
+    m = (blo + bhi) // 2
+    b = m if m % 2 == 0 else (m - 1 if m - 1 >= blo else m + 1)
+    print(f"{cid}: members={len(members)} span=[{lo},{hi}] window=[{blo},{bhi}] b={b}  (A exp {ex(area)}, I exp {ex(I)}, L exps {sorted(set(ex(math.dist(nodes[a],nodes[b])) for a,b in members))})")

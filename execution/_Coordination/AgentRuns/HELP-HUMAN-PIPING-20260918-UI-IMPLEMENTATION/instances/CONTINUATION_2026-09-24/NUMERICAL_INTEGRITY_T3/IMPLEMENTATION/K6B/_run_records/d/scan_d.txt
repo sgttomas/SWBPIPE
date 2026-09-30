@@ -1,0 +1,29 @@
+# K6b D scan (worktree <wt>/k6b, head 4eeb206c0 plus D's uncommitted files)
+
+## 1. Files naming retained_api (git grep, tracked files; the execution records excluded)
+projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+projects/chirality-piping/core/solver/performance_harness/README.md
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs
+projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/w1.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/adapter.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/mod.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/rows.rs
+projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_adapter.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_export.rs
+projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs
+
+## 2. Crates whose Cargo.toml depends on the performance harness
+projects/chirality-piping/core/solver/performance_harness/Cargo.toml
+
+## 3. FK's diff against main 0f5d8c7b4: A0 only (git diff --stat; patch-id of that diff b43efeb4fdd2b15f0f5f45248ef97f1fb5303edb equals A0's commit bb89e4f8f's b43efeb4fdd2b15f0f5f45248ef97f1fb5303edb)
+ .../src/structural/retained/wide/multi.rs          |  12 +-
+ .../src/structural/retained/wide_sum.rs            |   4 +-
+ 11 files changed, 269 insertions(+), 260 deletions(-)
+
+## 4. Files changed by K6b against main 0f5d8c7b4 (committed), by top directory
+  11 projects/chirality-piping/core/solver/frame_kernel
+  22 projects/chirality-piping/core/solver/performance_harness
+   1 projects/chirality-piping/execution/_Coordination/AgentRuns

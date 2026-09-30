@@ -1,0 +1,145 @@
+=== rs K6-M8: git archive ada18de702b47e8bcca194754815ec53e4ecd161 (core/solver, core/loads) into <wt>/k6-mut/rs-K6-M8; target <wt>/k6-mut-target/rs-K6-M8
+K6-M8 applied to projects/chirality-piping/core/solver/performance_harness/src/k6/counts.rs: pattern entries from one triangle
+--- a/projects/chirality-piping/core/solver/performance_harness/src/k6/counts.rs
++++ b/projects/chirality-piping/core/solver/performance_harness/src/k6/counts.rs
+@@ -165,3 +165,3 @@
+         (
+-            storage.stored_entries,
++            storage.lower_entries,
+             storage.lower_entries,
+=== cargo test --offline --locked -j 8 --no-fail-fast (RUSTUP_TOOLCHAIN=1.97.1 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=4)
+    Blocking waiting for file lock on package cache
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/k6-mut/rs-K6-M8/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.82s
+     Running unittests src/lib.rs (<wt>/k6-mut-target/rs-K6-M8/debug/deps/open_pipe_stress_solver_performance_harness-2ebe924f4ffdbcd8)
+
+running 25 tests
+test tests::audit_nonfinite_diagnostics_are_not_zero ... ok
+test tests::audit_condition_resolves_tiny_coupled_blocks ... ok
+test tests::audit_nonfinite_observations_fail_before_record_publication ... ok
+test tests::condition_thresholds_add_diagnostic_without_release_claim ... ok
+test tests::conditioning_observation_is_recorded_without_threshold_policy ... ok
+test tests::fixture_force_length_must_match_node_dofs ... ok
+test tests::grid_fixture_rejects_degenerate_dimensions ... ok
+test tests::grid_fixture_supports_sparse_measurement_alongside_dense ... ok
+test tests::default_invented_suite_uses_declared_fixture_sizes ... ok
+test tests::invented_fixture_produces_deterministic_repeat_record ... ok
+test tests::audit_condition_chain_matches_frozen_independent_reference ... ok
+test tests::rejects_invalid_repeat_count ... ok
+test tests::rejects_protected_or_unknown_fixture_provenance ... ok
+test tests::singular_fixture_records_located_sparse_singular_diagnostic ... ok
+test tests::singular_repeat_attempt_records_solver_diagnostic ... ok
+test tests::invented_suite_preserves_fixture_records_and_summary_counts ... ok
+test tests::sparse_path_parity_is_observed_for_invented_chain_fixture ... ok
+test tests::audit_condition_matches_analytic_spectra_and_scaling ... ok
+test tests::suite_rejects_empty_fixture_size_list ... ok
+test tests::suite_rejects_zero_element_fixture_size ... ok
+test tests::suite_summary_aggregates_sparse_observations ... ok
+test tests::zero_element_fixture_is_rejected ... ok
+test tests::larger_generated_banded_grid_parity_stays_within_dec026_seed ... ok
+test tests::sparse_suitability_observations_emit_accepted_threshold_policy ... ok
+test tests::sparse_default_promotion_observations_cover_nine_practical_records ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.73s
+
+     Running tests/k6_alloc.rs (<wt>/k6-mut-target/rs-K6-M8/debug/deps/k6_alloc-482be2dc7a9e5872)
+k6_observe: heap cap refused 1 bytes (current 1612, cap 1612)
+k6_observe: heap cap refused 1 bytes (current 1612, cap 1612)
+k6_observe: heap cap refused 1 bytes (current 1612, cap 1612)
+k6_alloc: F1 accounting and F2 cap boundary passed
+     Running tests/k6_bin.rs (<wt>/k6-mut-target/rs-K6-M8/debug/deps/k6_bin-0fbf9612f2c8da3b)
+
+running 8 tests
+test allow_over_estimate_needs_a_small_cap ... ok
+test counts_file_replaces_the_counts_phase ... ok
+test cont_n10000_identity_lane_refused ... ok
+test noop_prints_start_and_summary_only ... ok
+test n2_modes_at_10000_refused_before_n2 ... ok
+test heap_cap_abort_is_marked ... ok
+test estimate_over_half_cap_refused ... ok
+test peak_requested_bytes_are_deterministic ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.08s
+
+     Running tests/k6_counts.rs (<wt>/k6-mut-target/rs-K6-M8/debug/deps/k6_counts-23cb2bc6660a9a9b)
+
+running 4 tests
+test k1_table_cross_check ... FAILED
+test closed_forms ... FAILED
+test oracle_constants ... ok
+test rcm_count_equals_ordering ... ok
+
+failures:
+
+---- k1_table_cross_check stdout ----
+
+thread 'k1_table_cross_check' (10785486) panicked at tests/k6_counts.rs:164:9:
+assertion `left == right` failed: RF-LARGE-CHAIN-n00010-AX
+  left: (591, 591, 534)
+ right: (1116, 591, 534)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- closed_forms stdout ----
+
+thread 'closed_forms' (10785485) panicked at tests/k6_counts.rs:40:9:
+assertion `left == right` failed: RF-LARGE-CHAIN-n00010-AX pattern
+  left: 591
+ right: 1116
+
+
+failures:
+    closed_forms
+    k1_table_cross_check
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.77s
+
+error: test failed, to rerun pass `--test k6_counts`
+     Running tests/k6_models.rs (<wt>/k6-mut-target/rs-K6-M8/debug/deps/k6_models-d2cdadf83e4e5246)
+
+running 7 tests
+test loads_match_r1_at_ten_members ... ok
+test model_set_is_the_sealed_33_and_the_extras ... ok
+test model_shapes_follow_r1 ... ok
+test p1_y_reference_rule ... ok
+test section_bits_are_pinned ... ok
+test canonical_bytes_equal_committed_models ... ok
+test canonical_round_trip ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/k6_parity.rs (<wt>/k6-mut-target/rs-K6-M8/debug/deps/k6_parity-3d09bf309659a826)
+
+running 4 tests
+test bitwise_k_detects_differences ... ok
+test bitwise_k_equals_dense_assembly ... ok
+test outcome_parity_and_dec053_basis_small_models ... ok
+test outcome_parity_and_dec053_basis_100_member_models ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.65s
+
+     Running tests/k6_staged.rs (<wt>/k6-mut-target/rs-K6-M8/debug/deps/k6_staged-16c7a71185c6aa2a)
+
+running 3 tests
+test staged_equals_sa_entries_100_member_models_sparse ... ok
+test staged_equals_sa_entries_small_models_both_modes ... ok
+test staged_equals_sa_entries_100_member_models_dense ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 43.69s
+
+   Doc-tests open_pipe_stress_solver_performance_harness
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 1 target failed:
+    `--test k6_counts`
+=== exit 101 elapsed 72 s

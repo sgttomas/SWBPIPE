@@ -1,0 +1,17 @@
+# Scratch (KF3-B1 probe): R1's comb tree at n members, through GEN's R1 adapter, in K4T text.
+import sys, json, math, importlib.util, time
+from fractions import Fraction as Fr
+K4T = "<wt>/kf3/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py"
+sys.dont_write_bytecode = True
+spec = importlib.util.spec_from_file_location("gen", K4T); gen = importlib.util.module_from_spec(spec); spec.loader.exec_module(gen)
+r1 = gen.r1
+for n in [int(x) for x in sys.argv[1].split(',')]:
+    t=time.time()
+    tb = r1.lg_tree_defn(n)
+    s0 = r1.solve(tb, ('tree', 'P0'))
+    sc = round(math.log2(1e-4 / float(r1.max_rotation(s0))))
+    tdef = r1.scale_loads(tb, Fr(2) ** sc)
+    mj = json.loads(json.dumps(r1.model_json(tdef, full=True)))
+    gm, _, _ = gen.r1_adapt('KF3-TREE-n%05d-AX' % n, {'basis': 'intended'}, mj)
+    open('tree_n%05d.k4t' % n, 'w').write('\n'.join(gen.model_lines(gm, expectations=False)) + '\n')
+    print(n, 'sc', sc, 'members', len(gm['members']), round(time.time()-t,1), flush=True)

@@ -1,0 +1,20 @@
+RF-LARGE-TREE-n10000-AX
+  measured heap peak (vk_scale, K6 allocator)         3030269132
+  VR E_max (VR/src/scale.rs, port of 082990c8d)        2883922498  measured - E = +146346634  rho 1.0507
+  K6b E_max (H counts.jsonl, H harness)                3010765802  measured - E = +19503330
+    H fixed 50291470, kept before the 1024 pass 2568083750, pass_1024 442682052
+  K6b kernel terms (E_max - H fixed)                   2960474332
+  K6b kernel terms + VR fixed (76765522)                3037239854  measured - E = -6970722
+  1024 shift: H at_shift 299995560; from the code 310795248; difference +10799688
+    of which nl_pass at/bt/ct less work: +17280000; Option overcount (3 rows + nf) x 8: -6480312
+  K6b E_max with the 1024 shift from the code (H harness)    3021565490
+RF-LARGE-TREE-n10000-ROT
+  measured heap peak (vk_scale, K6 allocator)         3031977247
+  VR E_max (VR/src/scale.rs, port of 082990c8d)        2886171220  measured - E = +145806027  rho 1.0505
+  K6b E_max (H counts.jsonl, H harness)                3012624342  measured - E = +19352905
+    H fixed 52150010, kept before the 1024 pass 2569942290, pass_1024 442682052
+  K6b kernel terms (E_max - H fixed)                   2960474332
+  K6b kernel terms + VR fixed (79014244)                3039488576  measured - E = -7511329
+  1024 shift: H at_shift 299995560; from the code 310795248; difference +10799688
+    of which nl_pass at/bt/ct less work: +17280000; Option overcount (3 rows + nf) x 8: -6480312
+  K6b E_max with the 1024 shift from the code (H harness)    3023424030

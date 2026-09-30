@@ -1,0 +1,13 @@
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/k6b/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.25s
+  Executable unittests src/lib.rs (<wt>/k6b-target/debug/deps/open_pipe_stress_solver_performance_harness-00162947ea13f399)
+  Executable tests/k6_alloc.rs (<wt>/k6b-target/debug/deps/k6_alloc-e484e4d1844396c4)
+  Executable tests/k6_bin.rs (<wt>/k6b-target/debug/deps/k6_bin-5a792d9cf7d28d7c)
+  Executable tests/k6_counts.rs (<wt>/k6b-target/debug/deps/k6_counts-59bf6b92374d3fd0)
+  Executable tests/k6_models.rs (<wt>/k6b-target/debug/deps/k6_models-8cb691e5bb5df6bf)
+  Executable tests/k6_parity.rs (<wt>/k6b-target/debug/deps/k6_parity-42aeb3616416d83b)
+  Executable tests/k6_staged.rs (<wt>/k6b-target/debug/deps/k6_staged-ef514829d3eccf26)
+  Executable tests/k6b_adapter.rs (<wt>/k6b-target/debug/deps/k6b_adapter-877bc55d8ab91aa9)
+  Executable tests/k6b_bin.rs (<wt>/k6b-target/debug/deps/k6b_bin-1bb57da95c12b13a)
+  Executable tests/k6b_export.rs (<wt>/k6b-target/debug/deps/k6b_export-8298f1eb6c851790)
+  Executable tests/k6b_w1.rs (<wt>/k6b-target/debug/deps/k6b_w1-dd8dac1ab4a39495)

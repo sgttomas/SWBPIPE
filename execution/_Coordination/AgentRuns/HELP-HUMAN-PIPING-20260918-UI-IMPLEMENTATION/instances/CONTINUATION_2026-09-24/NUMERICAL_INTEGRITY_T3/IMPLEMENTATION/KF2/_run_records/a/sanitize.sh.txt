@@ -1,0 +1,8 @@
+#!/bin/bash
+# copy a log into the KF2 run records with machine paths replaced by placeholders
+# usage: sanitize.sh <src> <dest>
+sed -e 's#<wt>#<wt>#g' \
+    -e 's#<tmp>/claude-501/[^ ]*scratchpad#<scratch>#g' \
+    -e 's#{REPO_ROOT}#{REPO_ROOT}#g' \
+    -e 's#<home>#<home>#g' \
+    -e 's#<tmp>#<tmp>#g' -e 's#<tmp>/#<tmp>/#g' "$1" > "$2"

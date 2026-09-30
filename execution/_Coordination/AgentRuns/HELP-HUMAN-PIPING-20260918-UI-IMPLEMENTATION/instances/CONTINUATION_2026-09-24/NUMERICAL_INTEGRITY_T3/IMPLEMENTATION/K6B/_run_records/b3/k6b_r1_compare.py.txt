@@ -1,0 +1,137 @@
+"""K6b (plan section 5.4): W1's published rows against R1's expected values, exactly.
+
+Usage: python3 k6b_r1_compare.py <runner dir> <references.json> <records dir>
+
+For every pass-1 w1a rows dump (``k6b-rows v1``) of an RF-LARGE model, each of R1's expected
+values (``references.json``, 7b176dbb...; every value at 10 and 100 members, R1's published
+subset at 1,000) is compared under R1's unchanged predicate
+    |obs - exp| <= 1e-9 * max(|exp|, scale),
+with ``scale`` R1's class scale of the row's kind, decided exactly (Fractions). R1's member
+quantities come from the published rows as in ``H/src/k6/w1/rows.rs``: N = end.j.0,
+T = end.j.3, Mb = |(M_y, M_z)| at each end and at the mid-span station, tw = T/k_t,
+ext = N/k_a with k_t = fl(fl(G*J)/L), k_a = fl(fl(E*A)/L). A published row that fails is a
+stop. Standard library only; no bytecode is written.
+"""
+import json
+import math
+import os
+import struct
+import sys
+from fractions import Fraction as Fr
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, sys.argv[1])
+import k6_runner as r  # noqa: E402
+
+DOFS = {'UX': 0, 'UY': 1, 'UZ': 2, 'RX': 3, 'RY': 4, 'RZ': 5}
+TOL = Fr(1, 10 ** 9)
+
+
+def unhex(token):
+    return struct.unpack('>d', bytes.fromhex(token))[0]
+
+
+def magnitude(a, b):
+    m = max(abs(a), abs(b))
+    if m > 2.0 ** 500 or (0 < m < 2.0 ** -500):
+        s = 2.0 ** (-600 if m > 1 else 600)
+        x, y = a * s, b * s
+        return math.sqrt(x * x + y * y) / s
+    return math.sqrt(a * a + b * b)
+
+
+def read_rows(path):
+    values, model_id = {}, None
+    with open(path) as fh:
+        for line in fh:
+            f = line.split()
+            if f[0] == 'model':
+                model_id = f[1]
+            elif f[0] != 'k6b-rows':
+                key, token = f[0], f[5]
+                values[key] = None if token.startswith(('underflow', 'overflow')) else unhex(token)
+    return model_id, values
+
+
+def derived(model, values):
+    E, G, A, _iy, _iz, J = model.section
+    out = dict(values)
+    for k, (_label, a, b, _y) in enumerate(model.members):
+        mid = k + 1
+        get = values.get
+        n, t = get('end.%d.j.0' % mid), get('end.%d.j.3' % mid)
+        for end in ('i', 'j'):
+            my, mz = get('end.%d.%s.4' % (mid, end)), get('end.%d.%s.5' % (mid, end))
+            if my is not None and mz is not None:
+                out['Mb.%d.%s' % (mid, end)] = magnitude(my, mz)
+        my, mz = get('st.%d.4' % mid), get('st.%d.5' % mid)
+        if my is not None and mz is not None:
+            out['Mbs.%d' % mid] = magnitude(my, mz)
+        pa, pb = model.nodes[a][1], model.nodes[b][1]
+        length = math.sqrt(sum((pb[i] - pa[i]) ** 2 for i in range(3)))
+        kt, ka = (G * J) / length, (E * A) / length
+        if n is not None:
+            out['N.%d' % mid] = n
+            out['ext.%d' % mid] = n / ka
+        if t is not None:
+            out['T.%d' % mid] = t
+            out['tw.%d' % mid] = t / kt
+    return out
+
+
+def our_key(label, node_index, member_index):
+    q, rest = label.split('.', 1)
+    if q in ('u', 'th', 'R'):
+        node, dof = rest.rsplit('.', 1)
+        return '%s.%d.%d' % ('R' if q == 'R' else 'u', node_index[node], DOFS[dof])
+    if q == 'Mb':
+        member, where = rest.rsplit('.', 1)
+        if where == 'mid':
+            return 'Mbs.%d' % member_index[member]
+        return 'Mb.%d.%s' % (member_index[member], where)
+    return '%s.%d' % (q, member_index[rest])
+
+
+def main():
+    refs_path, records_dir = sys.argv[2], sys.argv[3]
+    with open(refs_path) as fh:
+        cases = json.load(fh)['cases']
+    failures = total = 0
+    for name in sorted(os.listdir(records_dir)):
+        if not (name.endswith('_w1a.rows') and 'RF-LARGE' in name):
+            continue
+        model_id, values = read_rows(os.path.join(records_dir, name))
+        case = cases[model_id]
+        model = r.model(model_id)
+        node_index = {label: i for i, (label, _p) in enumerate(model.nodes)}
+        member_index = {label: k + 1 for k, (label, _a, _b, _y) in enumerate(model.members)}
+        obs = derived(model, values)
+        scales = {k: Fr(v['value']) for k, v in case['scales'].items()}
+        compared = fails = missing = 0
+        worst = (Fr(0), None)
+        for label, exp_text, kind in case['expected']:
+            key = our_key(label, node_index, member_index)
+            o = obs.get(key)
+            exp = Fr(exp_text)
+            if o is None:
+                missing += 1
+                continue
+            compared += 1
+            bound = TOL * max(abs(exp), scales.get(kind, Fr(0)))
+            diff = abs(Fr(o) - exp)
+            if diff > bound:
+                fails += 1
+            ratio = (diff / bound) if bound else (Fr(0) if diff == 0 else Fr(10 ** 30))
+            if ratio > worst[0]:
+                worst = (ratio, label)
+        failures += fails + missing
+        total += compared
+        print('%s %s compared=%d failures=%d missing=%d worst=%.3e of the allowance at %s' % (
+            'PASS' if not (fails or missing) else 'FAIL', model_id, compared, fails, missing,
+            float(worst[0]), worst[1]))
+    print('summary: %d comparisons, %d failures or missing' % (total, failures))
+    return 1 if failures else 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

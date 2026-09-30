@@ -517,16 +517,16 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "max_abs_delta", 1, "max fold of an observation"),
     ("PP/lib.rs", "max_abs_entry_residual", 3, "allow-listed DEC050/053 sparse parity observation lane (limit 2)"),
     ("PP/lib.rs", "max_abs_value", 1, "max fold of an observation"),
-    ("PP/lib.rs", "multiply_matrix_vector", 1, "formed elastic term K*u of E12 (section 2.5)"),
+    ("PP/lib.rs", "observation_lane_profile", 1, "integer: the observation lane's profile entry count (F1b, the lane's resource guard)"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the chord rotation after the E8/E9 exact sums"),
     ("PP/lib.rs", "reserve_publication", 2, "integer: budget charge"),
-    ("PP/lib.rs", "run_linear_static_preview_captured_once", 4, "stiffness assembly (spring diagonals, 2) and integer per-case counts (2)"),
+    ("PP/lib.rs", "run_linear_static_preview_captured_once", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
     ("PP/lib.rs", "solve_load_case", 2, "integer: source-budget attempts and component modifier count"),
     ("PP/lib.rs", "straight_local_uniform_loads", 1, "declared formation: one load's local transform (section 2.5 PP:7479)"),
     ("PP/lib.rs", "straight_summary_extrema", 1, "declared: the stress bound's same-sign pattern sums (section 2.2)"),
     ("PP/lib.rs", "exact_straight_end_forces", 0, "E5"),
     ("PP/lib.rs", "exact_straight_summary_extrema", 0, "E7"),
-    ("PP/lib.rs", "restrained_reactions", 0, "E12"),
+    ("PP/lib.rs", "restrained_reactions", 0, "E12 (F1b: `SparseStiffness::reactions`, whose formed row is K1's `multiply`)"),
     ("PP/lib.rs", "pressure_for_pipe", 0, "E15"),
     ("PP/lib.rs", "pressure_thrusts_for_pipe", 0, "E5/E9/E11 inputs: one entry per thrust load"),
     ("PP/lib.rs", "curved_bend_uniform_intensities_by_pipe", 0, "E10 removed: one intensity per load"),
@@ -1097,6 +1097,9 @@ fn rule_1_and_forbidden_calls_the_product_never_folds_or_uses_untyped_seams() {
     let case = body("solve_load_case");
     assert!(case.contains("reduce_assembled_system_with_prescribed_displacements("));
     assert!(case.contains("reduce_assembled_system("));
+    // F1b (§4.8): the ordinary route's partition is the pattern's; the dense
+    // reductions above remain only for dense scrutiny's protected LU lane.
+    assert!(case.contains("reduce_assembled_sparse_system("));
     assert!(case.contains("finish_case_ledger("));
     assert!(body("append_nonlinear_support_loop_results")
         .contains("solve_active_set_frame_with_mode_and_springs_assembled("));
@@ -1544,7 +1547,23 @@ fn t10b_routing_site_calls_the_tested_predicates() {
     let zero = case
         .find("formation_decline_without_attempt()")
         .expect("E-1 decline");
-    let solve = case.find("source_recovery::solve(").expect("the attempt");
+    // F1b (ROOT OQ3): the attempt enters through `solve_ordinary`, with the
+    // ordinary evidence's scale `ForceScale::UNSCALED`, and no other non-test
+    // product code calls `source_recovery::solve(` directly.
+    let solve = case
+        .find("source_recovery::solve_ordinary(")
+        .expect("the attempt");
+    let ordinary = call_arguments(&case, "source_recovery::solve_ordinary(");
+    assert_eq!(ordinary.len(), 1);
+    assert_eq!(last_argument(&ordinary[0]), "ForceScale::UNSCALED");
+    for source in PRODUCT.iter().filter(|s| s.name != "PP/source_recovery.rs") {
+        assert_eq!(
+            calls(&code_of(source.text), "source_recovery::solve(").count(),
+            0,
+            "{}",
+            source.name
+        );
+    }
     assert!(zero < solve);
     assert!(case[..zero].contains("needs_source_recovery(report_sensitive, attempt_err, None)"));
     // G-3: the decline precedes the 0.4.0 replay reservation.

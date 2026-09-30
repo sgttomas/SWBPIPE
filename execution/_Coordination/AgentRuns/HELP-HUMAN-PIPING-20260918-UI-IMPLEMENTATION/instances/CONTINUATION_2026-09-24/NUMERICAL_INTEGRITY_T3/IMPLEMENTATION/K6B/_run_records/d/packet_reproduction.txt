@@ -1,0 +1,12 @@
+# K6b D: H/observations/k6b/k6b_packet.json is reproduced from b3's records by the committed analysis
+
+From H/runner (records: <scratch>/i16/b3/records, which are _run_records/b3/records here, trimmed):
+
+python3 -B k6b_analysis.py --packet --records <scratch>/i16/b3/records \
+  --note "K6b slot K6B-S4 (b3): W1-T1 to W1-T4 on the release binary 20b67776... from 4eeb206c0 (the parity fix), after KF1 (main 0f5d8c7b4). The runner labels each row with its tier's planned slot; all four tiers ran together in slot K6B-S4." \
+  --note "W1-T4 (10,000 members) is pre-KF3. KF3 makes an unformable Uc unavailable instead of an attempt stop and records partial stage work on every error path; W1-T4 is re-run after KF3 merges, as a records addendum. ROOT's W1 limits use the post-KF3 figures." \
+  --note "Observation only: no time or memory bound is asserted. Times carry their recorded load."
+
+Output sha256: f97ea23955428c33f86bdaa4cee565b7a8349baea82fa178f3dcb5a72e424269, twice, equal to the committed file.
+The packet reads only records.jsonl and the per-run JSONL files, which _run_records/b3/records keeps in full
+(only the rows dumps over 512 KiB are trimmed), so it reproduces from _run_records/b3/records as well.

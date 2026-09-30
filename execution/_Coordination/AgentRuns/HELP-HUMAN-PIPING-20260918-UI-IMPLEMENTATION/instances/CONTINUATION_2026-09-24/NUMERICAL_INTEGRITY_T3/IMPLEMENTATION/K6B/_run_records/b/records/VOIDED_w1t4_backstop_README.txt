@@ -1,0 +1,1 @@
+VOIDED (ROOT, "K6b: W1-T4 stopped by the binary's backstop; deferred until KF1"): row 247 was admitted by the runner and refused by the binary backstop (estimate_exceeds_half_cap) before any solve; W1-T4 is deferred until KF1 merges, and the record is voided so a later resume runs the row.

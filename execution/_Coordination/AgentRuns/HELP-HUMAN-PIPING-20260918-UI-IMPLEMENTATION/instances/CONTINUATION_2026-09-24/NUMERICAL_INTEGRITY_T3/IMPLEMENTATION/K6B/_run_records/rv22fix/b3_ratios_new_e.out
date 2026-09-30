@@ -1,0 +1,6 @@
+# b3 (pass 1, w1a): heap move and footprint against the new E_max (RV22-2) and against E_sel128
+10      n=6 rho_fp 0.105-0.200 heap_move/E_max 0.042-0.062 heap_move/E_sel128 0.047-0.068
+DEC053  n=9 rho_fp 0.104-0.317 heap_move/E_max 0.045-0.186 heap_move/E_sel128 0.049-0.308
+100     n=6 rho_fp 0.263-0.392 heap_move/E_max 0.197-0.260 heap_move/E_sel128 0.333-0.439
+1000    n=6 rho_fp 0.373-0.418 heap_move/E_max 0.281-0.288 heap_move/E_sel128 0.639-0.658
+10000   n=6 rho_fp 0.300-0.367 heap_move/E_max 0.290-0.301 heap_move/E_sel128 0.757-0.765

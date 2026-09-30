@@ -1,0 +1,99 @@
+I13-DIAG refused allocation of 8589934592 bytes; in use 4550048885
+   0: std::backtrace_rs::backtrace::libunwind::trace
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/../../backtrace/src/backtrace/libunwind.rs:117:9
+   1: std::backtrace_rs::backtrace::trace_unsynchronized::<<std::backtrace::Backtrace>::create::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/../../backtrace/src/backtrace/mod.rs:66:14
+   2: <std::backtrace::Backtrace>::create
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/backtrace.rs:331:13
+   3: t3_p1_probe::heap_cap::diag_refused::{closure#0}
+             at ./diag/probe/src/main.rs:119:115
+   4: <std::thread::local::LocalKey<core::cell::Cell<bool>>>::try_with::<t3_p1_probe::heap_cap::diag_refused::{closure#0}, ()>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/thread/local.rs:462:12
+   5: <std::thread::local::LocalKey<core::cell::Cell<bool>>>::with::<t3_p1_probe::heap_cap::diag_refused::{closure#0}, ()>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/thread/local.rs:426:20
+   6: t3_p1_probe::heap_cap::diag_refused
+             at ./diag/probe/src/main.rs:116:17
+   7: <t3_p1_probe::heap_cap::Capped as core::alloc::global::GlobalAlloc>::realloc
+             at ./diag/probe/src/main.rs:143:61
+   8: __rustc::__rust_realloc
+             at ./diag/probe/src/main.rs:150:15
+   9: <alloc::raw_vec::RawVecInner>::finish_grow
+  10: <alloc::raw_vec::RawVecInner<_>>::reserve::do_reserve_and_handle::<alloc::alloc::Global>
+  11: <alloc::raw_vec::RawVecInner>::reserve
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/raw_vec/mod.rs:675:17
+  12: <alloc::raw_vec::RawVec<f64>>::reserve
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/raw_vec/mod.rs:341:29
+  13: <alloc::vec::Vec<f64>>::reserve
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:1471:18
+  14: <alloc::vec::Vec<f64>>::extend_with
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:3649:14
+  15: <alloc::vec::Vec<f64>>::resize
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/vec/mod.rs:3526:18
+  16: <open_pipe_stress_sparse_direct::SymmetricProfileMatrix>::from_entries_with_order
+             at ./tree/projects/chirality-piping/core/solver/sparse_direct/src/lib.rs:249:20
+  17: <open_pipe_stress_sparse_direct::SymmetricProfileMatrix>::from_entries
+             at ./tree/projects/chirality-piping/core/solver/sparse_direct/src/lib.rs:209:9
+  18: open_pipe_stress_sparse_direct::solve_symmetric_system_from_entries
+             at ./tree/projects/chirality-piping/core/solver/sparse_direct/src/lib.rs:716:28
+  19: open_pipe_stress_product_physics::solve_preview_reduced_system::{closure#6}
+             at ./tree/projects/chirality-piping/core/product_physics/src/lib.rs:5311:23
+  20: <core::option::Option<&open_pipe_stress_product_physics::ReducedSparseEntrySystem>>::and_then::<open_pipe_stress_sparse_direct::SparseSolveResult, open_pipe_stress_product_physics::solve_preview_reduced_system::{closure#6}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:1543:24
+  21: open_pipe_stress_product_physics::solve_preview_reduced_system
+             at ./tree/projects/chirality-piping/core/product_physics/src/lib.rs:5311:10
+  22: open_pipe_stress_product_physics::solve_load_case
+             at ./tree/projects/chirality-piping/core/product_physics/src/lib.rs:3445:43
+  23: open_pipe_stress_product_physics::run_linear_static_preview_captured_once
+             at ./tree/projects/chirality-piping/core/product_physics/src/lib.rs:2463:19
+  24: open_pipe_stress_product_physics::run_linear_static_preview_captured
+             at ./tree/projects/chirality-piping/core/product_physics/src/lib.rs:2194:9
+  25: open_pipe_stress_product_physics::run_linear_static_preview_with_mode
+             at ./tree/projects/chirality-piping/core/product_physics/src/lib.rs:2146:5
+  26: t3_p1_probe::main
+             at ./diag/probe/src/main.rs:86:25
+  27: <fn() as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+  28: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/sys/backtrace.rs:166:18
+  29: std::rt::lang_start::<()>::{closure#0}
+  30: <&dyn core::ops::function::Fn<(), Output = i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:287:21
+  31: std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe, i32>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:581:40
+  32: std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:544:19
+  33: std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe, i32>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panic.rs:359:14
+  34: std::rt::lang_start_internal::{closure#0}
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/rt.rs:175:24
+  35: std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:581:40
+  36: std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:544:19
+  37: std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panic.rs:359:14
+  38: std::rt::lang_start_internal
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/rt.rs:171:5
+  39: _main
+
+memory allocation of 8589934592 bytes failed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+time: command terminated abnormally
+        2.60 real         1.22 user         0.23 sys
+          4742430720  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              291354  page reclaims
+                  78  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  35  involuntary context switches
+         21587715151  instructions retired
+          4166059721  cycles elapsed
+          4679552768  peak memory footprint

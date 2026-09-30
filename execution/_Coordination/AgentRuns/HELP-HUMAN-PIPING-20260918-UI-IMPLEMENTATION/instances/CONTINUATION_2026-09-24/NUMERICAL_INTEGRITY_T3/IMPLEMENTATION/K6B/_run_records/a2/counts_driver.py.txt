@@ -1,0 +1,21 @@
+"""K6b A2: counts-only for the 33 sealed models (O(nnz), no solve; 512 MiB heap cap; one process at a time)."""
+import json, os, sys
+sys.dont_write_bytecode = True
+sys.path.insert(0, sys.argv[1])
+import k6_runner as r
+binary, out_dir, counts_path = sys.argv[2], sys.argv[3], sys.argv[4]
+os.makedirs(out_dir, exist_ok=True)
+lines = []
+for model_id in r.sealed_model_ids():
+    run_id = 'counts_' + model_id.replace(':', '_')
+    rec = r.launch([binary, '--counts-only', '--model', model_id, '--heap-cap-bytes', str(512 * r.MIB)],
+                   rss_cap_bytes=r.GIB, timeout_s=r.TIMEOUT_SMALL, record_dir=out_dir, run_id=run_id)
+    with open(os.path.join(out_dir, run_id + '.jsonl')) as fh:
+        objs = r.jsonl(fh)
+    c = r.first_of(objs, 'counts')
+    lines.append(json.dumps(c, separators=(',', ':')))
+    r.append_record(out_dir, {k: rec.get(k) for k in ('run_id', 'classification', 'wall_s', 'peak_rss_bytes', 'rss')})
+    print(model_id, rec['classification'], round(rec['wall_s'], 2), rec.get('peak_rss_bytes'),
+          c.get('phase_peak_heap'), c.get('w1_profile_entries'), c.get('estimate_adm_bytes_w1a'), flush=True)
+with open(counts_path, 'w') as fh:
+    fh.write('\n'.join(lines) + '\n')

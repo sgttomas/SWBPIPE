@@ -1,0 +1,14 @@
+## FK check, feature off
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.13s
+## FK check, mutation-controls
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.13s
+## FK check --tests
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.56s
+## VR check --tests --examples, seeded-faults
+    Checking open_pipe_stress_frame_kernel v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/frame_kernel)
+    Checking open_pipe_stress_sparse_direct v0.1.0 (<wt>/vk/projects/chirality-piping/core/solver/sparse_direct)
+    Checking piping_numerical_robustness v0.1.0 (<wt>/vk/projects/chirality-piping/validation/benchmarks/numerical_robustness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.53s

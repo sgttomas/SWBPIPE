@@ -1,0 +1,139 @@
+order tier slot model mode repeats entry_repeats C_GiB heap_cap_bytes timeout_s estimate_adm_MiB estimate_f1b_MiB decision reason ascent_after
+1 T1 B1 RF-LARGE-CHAIN-n00010-AX sparse 5 5 8 8053063680 600 0.4 - admitted "p1_linux_peak 34.4 MiB <= C/2" -
+2 T1 B1 RF-LARGE-CHAIN-n00010-AX dense 5 5 8 8053063680 600 0.5 0.4 admitted "p1_linux_peak 34.4 MiB <= C/2" -
+3 T1 B1 RF-LARGE-CHAIN-n00010-AX lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 68968 B x rho 2.000 <= C/2" -
+4 T1 B1 RF-LARGE-CHAIN-n00010-AX lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 96008 B x rho 2.000 <= C/2" -
+5 T1 B1 RF-LARGE-CHAIN-n00010-ROT dense 5 5 8 8053063680 600 0.5 0.4 admitted "p1_linux_peak 34.4 MiB <= C/2" -
+6 T1 B1 RF-LARGE-CHAIN-n00010-ROT lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 135584 B x rho 2.000 <= C/2" -
+7 T1 B1 RF-LARGE-CHAIN-n00010-ROT lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 96008 B x rho 2.000 <= C/2" -
+8 T1 B1 RF-LARGE-CHAIN-n00010-ROT sparse 5 5 8 8053063680 600 0.4 - admitted "p1_linux_peak 34.4 MiB <= C/2" -
+9 T1 B1 RF-LARGE-TREE-n00010-AX lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 72472 B x rho 2.000 <= C/2" -
+10 T1 B1 RF-LARGE-TREE-n00010-AX lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 96008 B x rho 2.000 <= C/2" -
+11 T1 B1 RF-LARGE-TREE-n00010-AX sparse 5 5 8 8053063680 600 0.4 - admitted "p1_linux_peak 34.4 MiB <= C/2" -
+12 T1 B1 RF-LARGE-TREE-n00010-AX dense 5 5 8 8053063680 600 0.5 0.4 admitted "p1_linux_peak 34.4 MiB <= C/2" -
+13 T1 B1 RF-LARGE-TREE-n00010-ROT lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 96008 B x rho 2.000 <= C/2" -
+14 T1 B1 RF-LARGE-TREE-n00010-ROT sparse 5 5 8 8053063680 600 0.4 - admitted "p1_linux_peak 34.6 MiB <= C/2" -
+15 T1 B1 RF-LARGE-TREE-n00010-ROT dense 5 5 8 8053063680 600 0.5 0.4 admitted "p1_linux_peak 34.4 MiB <= C/2" -
+16 T1 B1 RF-LARGE-TREE-n00010-ROT lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 138368 B x rho 2.000 <= C/2" -
+17 T1 B1 RF-LARGE-CONT-n00010-AX sparse 5 5 8 8053063680 600 0.4 - admitted "p1_linux_peak 34.4 MiB <= C/2" -
+18 T1 B1 RF-LARGE-CONT-n00010-AX dense 5 5 8 8053063680 600 0.5 0.4 admitted "p1_linux_peak 34.4 MiB <= C/2" -
+19 T1 B1 RF-LARGE-CONT-n00010-AX lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 62920 B x rho 2.000 <= C/2" -
+20 T1 B1 RF-LARGE-CONT-n00010-AX lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 82808 B x rho 2.000 <= C/2" -
+21 T1 B1 RF-LARGE-CONT-n00010-ROT dense 5 5 8 8053063680 600 0.5 0.4 admitted "p1_linux_peak 34.4 MiB <= C/2" -
+22 T1 B1 RF-LARGE-CONT-n00010-ROT lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 101368 B x rho 2.000 <= C/2" -
+23 T1 B1 RF-LARGE-CONT-n00010-ROT lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 82808 B x rho 2.000 <= C/2" -
+24 T1 B1 RF-LARGE-CONT-n00010-ROT sparse 5 5 8 8053063680 600 0.4 - admitted "p1_linux_peak 34.4 MiB <= C/2" -
+25 T1 B1 DEC053:invented-cantilever-chain-8 lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 54792 B x rho 2.000 <= C/2" -
+26 T1 B1 DEC053:invented-cantilever-chain-8 lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 67880 B x rho 2.000 <= C/2" -
+27 T1 B1 DEC053:invented-cantilever-chain-8 sparse 5 5 8 8053063680 600 0.3 - admitted "estimate 340448 B x rho 2.000 <= C/2" -
+28 T1 B1 DEC053:invented-cantilever-chain-8 dense 5 5 8 8053063680 600 0.3 0.3 admitted "estimate 362864 B x rho 2.000 <= C/2" -
+29 T1 B1 DEC053:invented-cantilever-chain-24 lane-lu 5 5 8 8053063680 600 0.4 - admitted "estimate 421928 B x rho 2.000 <= C/2" -
+30 T1 B1 DEC053:invented-cantilever-chain-24 sparse 5 5 8 8053063680 600 1.0 - admitted "estimate 1002720 B x rho 2.000 <= C/2" -
+31 T1 B1 DEC053:invented-cantilever-chain-24 dense 5 5 8 8053063680 600 2.3 2.1 admitted "estimate 2404080 B x rho 2.000 <= C/2" -
+32 T1 B1 DEC053:invented-cantilever-chain-24 lane-id 5 5 8 8053063680 600 0.2 0.0 admitted "estimate 168200 B x rho 2.000 <= C/2" -
+33 T1 B1 DEC053:invented-cantilever-chain-48 sparse 5 5 8 8053063680 600 1.9 - admitted "estimate 1996128 B x rho 2.000 <= C/2" -
+34 T1 B1 DEC053:invented-cantilever-chain-48 dense 5 5 8 8053063680 600 8.4 7.9 admitted "estimate 8783664 B x rho 2.000 <= C/2" -
+35 T1 B1 DEC053:invented-cantilever-chain-48 lane-id 5 5 8 8053063680 600 0.3 0.1 admitted "estimate 338312 B x rho 2.000 <= C/2" -
+36 T1 B1 DEC053:invented-cantilever-chain-48 lane-lu 5 5 8 8053063680 600 1.4 - admitted "estimate 1505960 B x rho 2.000 <= C/2" -
+37 T1 B1 DEC053:invented-grid-frame-4x3 dense 5 5 8 8053063680 600 0.6 0.5 admitted "estimate 657656 B x rho 2.000 <= C/2" -
+38 T1 B1 DEC053:invented-grid-frame-4x3 lane-id 5 5 8 8053063680 600 0.1 0.0 admitted "estimate 94200 B x rho 2.000 <= C/2" -
+39 T1 B1 DEC053:invented-grid-frame-4x3 lane-lu 5 5 8 8053063680 600 0.1 - admitted "estimate 105032 B x rho 2.000 <= C/2" -
+40 T1 B1 DEC053:invented-grid-frame-4x3 sparse 5 5 8 8053063680 600 0.6 - admitted "estimate 618104 B x rho 2.000 <= C/2" -
+41 T1 B1 DEC053:invented-grid-frame-6x8 lane-id 5 5 8 8053063680 600 0.6 0.2 admitted "estimate 612072 B x rho 2.000 <= C/2" -
+42 T1 B1 DEC053:invented-grid-frame-6x8 lane-lu 5 5 8 8053063680 600 1.3 - admitted "estimate 1378664 B x rho 2.000 <= C/2" -
+43 T1 B1 DEC053:invented-grid-frame-6x8 sparse 5 5 8 8053063680 600 2.8 - admitted "estimate 2923536 B x rho 2.000 <= C/2" -
+44 T1 B1 DEC053:invented-grid-frame-6x8 dense 5 5 8 8053063680 600 8.3 7.6 admitted "estimate 8711040 B x rho 2.000 <= C/2" -
+45 T1 B1 DEC053:invented-grid-frame-7x8 lane-lu 5 5 8 8053063680 600 1.8 - admitted "estimate 1838552 B x rho 2.000 <= C/2" -
+46 T1 B1 DEC053:invented-grid-frame-7x8 sparse 5 5 8 8053063680 600 3.3 - admitted "estimate 3448432 B x rho 2.000 <= C/2" -
+47 T1 B1 DEC053:invented-grid-frame-7x8 dense 5 5 8 8053063680 600 11.2 10.3 admitted "estimate 11721544 B x rho 2.000 <= C/2" -
+48 T1 B1 DEC053:invented-grid-frame-7x8 lane-id 5 5 8 8053063680 600 0.7 0.3 admitted "estimate 756040 B x rho 2.000 <= C/2" -
+49 T1 B1 DEC053:invented-grid-frame-5x5 sparse 5 5 8 8053063680 600 1.4 - admitted "estimate 1435520 B x rho 2.000 <= C/2" -
+50 T1 B1 DEC053:invented-grid-frame-5x5 dense 5 5 8 8053063680 600 2.4 2.1 admitted "estimate 2528816 B x rho 2.000 <= C/2" -
+51 T1 B1 DEC053:invented-grid-frame-5x5 lane-id 5 5 8 8053063680 600 0.3 0.1 admitted "estimate 266360 B x rho 2.000 <= C/2" -
+52 T1 B1 DEC053:invented-grid-frame-5x5 lane-lu 5 5 8 8053063680 600 0.4 - admitted "estimate 397928 B x rho 2.000 <= C/2" -
+53 T1 B1 DEC053:invented-cantilever-chain-32 dense 5 5 8 8053063680 600 3.9 3.6 admitted "estimate 4088240 B x rho 2.000 <= C/2" -
+54 T1 B1 DEC053:invented-cantilever-chain-32 lane-id 5 5 8 8053063680 600 0.2 0.0 admitted "estimate 224904 B x rho 2.000 <= C/2" -
+55 T1 B1 DEC053:invented-cantilever-chain-32 lane-lu 5 5 8 8053063680 600 0.7 - admitted "estimate 709544 B x rho 2.000 <= C/2" -
+56 T1 B1 DEC053:invented-cantilever-chain-32 sparse 5 5 8 8053063680 600 1.3 - admitted "estimate 1333856 B x rho 2.000 <= C/2" -
+57 T1 B1 DEC053:invented-grid-frame-5x6 lane-id 5 5 8 8053063680 600 0.3 0.1 admitted "estimate 337064 B x rho 2.000 <= C/2" -
+58 T1 B1 DEC053:invented-grid-frame-5x6 lane-lu 5 5 8 8053063680 600 0.5 - admitted "estimate 564440 B x rho 2.000 <= C/2" -
+59 T1 B1 DEC053:invented-grid-frame-5x6 sparse 5 5 8 8053063680 600 1.7 - admitted "estimate 1756560 B x rho 2.000 <= C/2" -
+60 T1 B1 DEC053:invented-grid-frame-5x6 dense 5 5 8 8053063680 600 3.4 3.0 admitted "estimate 3560712 B x rho 2.000 <= C/2" -
+61 T2 B1 RF-LARGE-CHAIN-n00100-AX sparse 5 5 8 8053063680 600 4.0 - admitted "p1_linux_peak 49.6 MiB <= C/2" RF-LARGE-CHAIN-n00010-AX
+62 T2 B1 RF-LARGE-CHAIN-n00100-AX dense 5 5 8 8053063680 600 34.6 33.6 admitted "p1_linux_peak 49.9 MiB <= C/2" RF-LARGE-CHAIN-n00010-AX
+63 T2 B1 RF-LARGE-CHAIN-n00100-AX lane-id 5 5 8 8053063680 600 0.7 0.1 admitted "estimate 706888 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00010-AX
+64 T2 B1 RF-LARGE-CHAIN-n00100-AX lane-lu 5 5 8 8053063680 600 5.8 - admitted "estimate 6131048 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00010-AX
+65 T2 B1 RF-LARGE-CHAIN-n00100-ROT dense 5 5 8 8053063680 600 34.6 33.6 admitted "p1_linux_peak 50.1 MiB <= C/2" RF-LARGE-CHAIN-n00010-ROT
+66 T2 B1 RF-LARGE-CHAIN-n00100-ROT lane-id 5 5 8 8053063680 600 1.4 0.1 admitted "estimate 1418624 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00010-ROT
+67 T2 B1 RF-LARGE-CHAIN-n00100-ROT lane-lu 5 5 8 8053063680 600 5.8 - admitted "estimate 6131048 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00010-ROT
+68 T2 B1 RF-LARGE-CHAIN-n00100-ROT sparse 5 5 8 8053063680 600 4.0 - admitted "p1_linux_peak 49.8 MiB <= C/2" RF-LARGE-CHAIN-n00010-ROT
+69 T2 B1 RF-LARGE-TREE-n00100-AX lane-id 5 5 8 8053063680 600 0.7 0.1 admitted "estimate 763184 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00010-AX
+70 T2 B1 RF-LARGE-TREE-n00100-AX lane-lu 5 5 8 8053063680 600 5.8 - admitted "estimate 6131048 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00010-AX
+71 T2 B1 RF-LARGE-TREE-n00100-AX sparse 5 5 8 8053063680 600 4.0 - admitted "p1_linux_peak 50.5 MiB <= C/2" RF-LARGE-TREE-n00010-AX
+72 T2 B1 RF-LARGE-TREE-n00100-AX dense 5 5 8 8053063680 600 34.6 33.6 admitted "p1_linux_peak 50.5 MiB <= C/2" RF-LARGE-TREE-n00010-AX
+73 T2 B1 RF-LARGE-TREE-n00100-ROT lane-lu 5 5 8 8053063680 600 5.8 - admitted "estimate 6131048 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00010-ROT
+74 T2 B1 RF-LARGE-TREE-n00100-ROT sparse 5 5 8 8053063680 600 4.0 - admitted "p1_linux_peak 52.6 MiB <= C/2" RF-LARGE-TREE-n00010-ROT
+75 T2 B1 RF-LARGE-TREE-n00100-ROT dense 5 5 8 8053063680 600 34.6 33.6 admitted "p1_linux_peak 52.6 MiB <= C/2" RF-LARGE-TREE-n00010-ROT
+76 T2 B1 RF-LARGE-TREE-n00100-ROT lane-id 5 5 8 8053063680 600 1.4 0.2 admitted "estimate 1460648 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00010-ROT
+77 T2 B1 RF-LARGE-CONT-n00100-AX sparse 5 5 8 8053063680 600 3.8 - admitted "p1_linux_peak 52.3 MiB <= C/2" RF-LARGE-CONT-n00010-AX
+78 T2 B1 RF-LARGE-CONT-n00100-AX dense 5 5 8 8053063680 600 34.6 33.6 admitted "p1_linux_peak 51.6 MiB <= C/2" RF-LARGE-CONT-n00010-AX
+79 T2 B1 RF-LARGE-CONT-n00100-AX lane-id 5 5 8 8053063680 600 1.8 1.3 admitted "estimate 1846360 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00010-AX
+80 T2 B1 RF-LARGE-CONT-n00100-AX lane-lu 5 5 8 8053063680 600 4.6 - admitted "estimate 4865048 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00010-AX
+81 T2 B1 RF-LARGE-CONT-n00100-ROT dense 5 5 8 8053063680 600 34.6 33.6 admitted "p1_linux_peak 51.7 MiB <= C/2" RF-LARGE-CONT-n00010-ROT
+82 T2 B1 RF-LARGE-CONT-n00100-ROT lane-id 5 5 8 8053063680 600 2.4 1.6 admitted "estimate 2492848 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00010-ROT
+83 T2 B1 RF-LARGE-CONT-n00100-ROT lane-lu 5 5 8 8053063680 600 4.6 - admitted "estimate 4865048 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00010-ROT
+84 T2 B1 RF-LARGE-CONT-n00100-ROT sparse 5 5 8 8053063680 600 3.8 - admitted "p1_linux_peak 52.7 MiB <= C/2" RF-LARGE-CONT-n00010-ROT
+85 T3a B1 RF-LARGE-CHAIN-n01000-AX sparse 5 5 8 8053063680 1800 39.5 - admitted "p1_linux_peak 3605.2 MiB <= C/2" RF-LARGE-CHAIN-n00100-AX
+86 T3a B1 RF-LARGE-CHAIN-n01000-AX lane-id 5 5 8 8053063680 1800 6.8 1.1 admitted "estimate 7086088 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00100-AX
+87 T3a B1 RF-LARGE-CHAIN-n01000-ROT lane-id 5 5 8 8053063680 1800 13.6 1.3 admitted "estimate 14249024 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00100-ROT
+88 T3a B1 RF-LARGE-CHAIN-n01000-ROT sparse 5 5 8 8053063680 1800 39.5 - admitted "p1_linux_peak 3606.5 MiB <= C/2" RF-LARGE-CHAIN-n00100-ROT
+89 T3a B1 RF-LARGE-TREE-n01000-AX sparse 5 5 8 8053063680 1800 39.5 - admitted "p1_linux_peak 3608.7 MiB <= C/2" RF-LARGE-TREE-n00100-AX
+90 T3a B1 RF-LARGE-TREE-n01000-AX lane-id 5 5 8 8053063680 1800 7.3 1.5 admitted "estimate 7660784 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00100-AX
+91 T3a B1 RF-LARGE-TREE-n01000-ROT lane-id 5 5 8 8053063680 1800 14.0 1.7 admitted "estimate 14683448 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00100-ROT
+92 T3a B1 RF-LARGE-TREE-n01000-ROT sparse 5 5 8 8053063680 1800 39.5 - admitted "p1_linux_peak 3617.2 MiB <= C/2" RF-LARGE-TREE-n00100-ROT
+93 T3a B1 RF-LARGE-CONT-n01000-AX sparse 5 5 8 8053063680 1800 37.9 - admitted "p1_linux_peak 3372.8 MiB <= C/2" RF-LARGE-CONT-n00100-AX
+94 T3a B1 RF-LARGE-CONT-n01000-AX lane-id 5 5 8 8053063680 1800 133.5 129.0 admitted "estimate 139965760 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00100-AX
+95 T3a B1 RF-LARGE-CONT-n01000-ROT lane-id 5 5 8 8053063680 1800 162.8 154.9 admitted "estimate 170749648 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00100-ROT
+96 T3a B1 RF-LARGE-CONT-n01000-ROT sparse 5 5 8 8053063680 1800 37.9 - admitted "p1_linux_peak 3377.2 MiB <= C/2" RF-LARGE-CONT-n00100-ROT
+97 T3b B2 RF-LARGE-CHAIN-n01000-AX dense 5 1 8 8053063680 1800 3312.1 3302.5 admitted "p1_linux_peak 3605.2 MiB <= C/2" RF-LARGE-CHAIN-n00100-AX
+98 T3b B2 RF-LARGE-CHAIN-n01000-AX lane-lu 1 1 8 8053063680 1800 552.8 - admitted "estimate 579697448 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00100-AX
+99 T3b B2 RF-LARGE-CHAIN-n01000-ROT lane-lu 1 1 8 8053063680 1800 552.8 - admitted "estimate 579697448 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n00100-ROT
+100 T3b B2 RF-LARGE-CHAIN-n01000-ROT dense 1 1 8 8053063680 1800 3312.1 3302.5 admitted "p1_linux_peak 3606.7 MiB <= C/2" RF-LARGE-CHAIN-n00100-ROT
+101 T3b B2 RF-LARGE-TREE-n01000-AX dense 1 1 8 8053063680 1800 3312.1 3302.5 admitted "p1_linux_peak 3609.1 MiB <= C/2" RF-LARGE-TREE-n00100-AX
+102 T3b B2 RF-LARGE-TREE-n01000-AX lane-lu 1 1 8 8053063680 1800 552.8 - admitted "estimate 579697448 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00100-AX
+103 T3b B2 RF-LARGE-TREE-n01000-ROT lane-lu 1 1 8 8053063680 1800 552.8 - admitted "estimate 579697448 B x rho 2.000 <= C/2" RF-LARGE-TREE-n00100-ROT
+104 T3b B2 RF-LARGE-TREE-n01000-ROT dense 5 1 8 8053063680 1800 3312.1 3302.5 admitted "p1_linux_peak 3617.2 MiB <= C/2" RF-LARGE-TREE-n00100-ROT
+105 T3b B2 RF-LARGE-CONT-n01000-AX dense 5 1 8 8053063680 1800 3312.1 3302.5 admitted "p1_linux_peak 3373.0 MiB <= C/2" RF-LARGE-CONT-n00100-AX
+106 T3b B2 RF-LARGE-CONT-n01000-AX lane-lu 1 1 8 8053063680 1800 432.6 - admitted "estimate 453637448 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00100-AX
+107 T3b B2 RF-LARGE-CONT-n01000-ROT lane-lu 1 1 8 8053063680 1800 432.6 - admitted "estimate 453637448 B x rho 2.000 <= C/2" RF-LARGE-CONT-n00100-ROT
+108 T3b B2 RF-LARGE-CONT-n01000-ROT dense 5 1 8 8053063680 1800 3312.1 3302.5 admitted "p1_linux_peak 3377.2 MiB <= C/2" RF-LARGE-CONT-n00100-ROT
+109 T4 B1 RF-LARGE-CHAIN-n10000-AX sparse 5 5 8 8053063680 1800 394.8 - admitted "estimate 413929312 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n01000-AX
+110 T4 B1 RF-LARGE-CHAIN-n10000-AX dense 5 1 8 8053063680 1800 - 329655.8 never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CHAIN-n01000-AX
+111 T4 B1 RF-LARGE-CHAIN-n10000-AX lane-id 5 5 8 8053063680 1800 67.6 11.0 admitted "estimate 70878088 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n01000-AX
+112 T4 B1 RF-LARGE-CHAIN-n10000-AX lane-lu 1 1 8 8053063680 1800 - - never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CHAIN-n01000-AX
+113 T4 B1 RF-LARGE-CHAIN-n10000-ROT dense 5 1 8 8053063680 1800 - 329655.8 never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CHAIN-n01000-ROT
+114 T4 B1 RF-LARGE-CHAIN-n10000-ROT lane-id 5 5 8 8053063680 1800 135.9 12.8 admitted "estimate 142553024 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n01000-ROT
+115 T4 B1 RF-LARGE-CHAIN-n10000-ROT lane-lu 1 1 8 8053063680 1800 - - never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CHAIN-n01000-ROT
+116 T4 B1 RF-LARGE-CHAIN-n10000-ROT sparse 5 5 8 8053063680 1800 394.8 - admitted "estimate 413929312 B x rho 2.000 <= C/2" RF-LARGE-CHAIN-n01000-ROT
+117 T4 B1 RF-LARGE-TREE-n10000-AX lane-id 5 5 8 8053063680 1800 73.1 15.1 admitted "estimate 76636784 B x rho 2.000 <= C/2" RF-LARGE-TREE-n01000-AX
+118 T4 B1 RF-LARGE-TREE-n10000-AX lane-lu 1 1 8 8053063680 1800 - - never "never:n2_mode_at_or_above_10000_members" RF-LARGE-TREE-n01000-AX
+119 T4 B1 RF-LARGE-TREE-n10000-AX sparse 5 5 8 8053063680 1800 394.8 - admitted "estimate 413929312 B x rho 2.000 <= C/2" RF-LARGE-TREE-n01000-AX
+120 T4 B1 RF-LARGE-TREE-n10000-AX dense 5 1 8 8053063680 1800 - 329655.8 never "never:n2_mode_at_or_above_10000_members" RF-LARGE-TREE-n01000-AX
+121 T4 B1 RF-LARGE-TREE-n10000-ROT lane-lu 1 1 8 8053063680 1800 - - never "never:n2_mode_at_or_above_10000_members" RF-LARGE-TREE-n01000-ROT
+122 T4 B1 RF-LARGE-TREE-n10000-ROT sparse 5 5 8 8053063680 1800 394.8 - admitted "estimate 413929312 B x rho 2.000 <= C/2" RF-LARGE-TREE-n01000-ROT
+123 T4 B1 RF-LARGE-TREE-n10000-ROT dense 5 1 8 8053063680 1800 - 329655.8 never "never:n2_mode_at_or_above_10000_members" RF-LARGE-TREE-n01000-ROT
+124 T4 B1 RF-LARGE-TREE-n10000-ROT lane-id 5 5 8 8053063680 1800 140.1 17.1 admitted "estimate 146911448 B x rho 2.000 <= C/2" RF-LARGE-TREE-n01000-ROT
+125 T4 B1 RF-LARGE-CONT-n10000-AX sparse 5 5 8 8053063680 1800 379.4 - admitted "estimate 397790464 B x rho 2.000 <= C/2" RF-LARGE-CONT-n01000-AX
+126 T4 B1 RF-LARGE-CONT-n10000-AX dense 5 1 8 8053063680 1800 - 329655.8 never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CONT-n01000-AX
+127 T4 B1 RF-LARGE-CONT-n10000-AX lane-id 5 5 8 8053063680 1800 - 12877.5 never "never:cont_n10000_identity_lane" RF-LARGE-CONT-n01000-AX
+128 T4 B1 RF-LARGE-CONT-n10000-AX lane-lu 1 1 8 8053063680 1800 - - never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CONT-n01000-AX
+129 T4 B1 RF-LARGE-CONT-n10000-ROT dense 5 1 8 8053063680 1800 - 329655.8 never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CONT-n01000-ROT
+130 T4 B1 RF-LARGE-CONT-n10000-ROT lane-id 5 5 8 8053063680 1800 - 15453.5 never "never:cont_n10000_identity_lane" RF-LARGE-CONT-n01000-ROT
+131 T4 B1 RF-LARGE-CONT-n10000-ROT lane-lu 1 1 8 8053063680 1800 - - never "never:n2_mode_at_or_above_10000_members" RF-LARGE-CONT-n01000-ROT
+132 T4 B1 RF-LARGE-CONT-n10000-ROT sparse 5 5 8 8053063680 1800 379.4 - admitted "estimate 397790464 B x rho 2.000 <= C/2" RF-LARGE-CONT-n01000-ROT
+133 T5 B1 K6-GRID-16x16 sparse 5 5 8 8053063680 600 16.1 - admitted "estimate 16893072 B x rho 2.000 <= C/2" -
+134 T5 B1 K6-GRID-32x32 sparse 5 5 8 8053063680 1800 66.4 - admitted "estimate 69578768 B x rho 2.000 <= C/2" K6-GRID-16x16
+135 T5 B1 K6-GRID-64x64 sparse 5 5 8 8053063680 1800 269.3 - admitted "estimate 282334992 B x rho 2.000 <= C/2" K6-GRID-32x32
+136 T5 B1 K6-GRID-96x96 sparse 5 5 8 8053063680 1800 608.7 - admitted "estimate 638270992 B x rho 2.000 <= C/2" K6-GRID-64x64
+137 T5 B1 K6-GRID-128x128 sparse 5 5 8 8053063680 1800 1084.7 - admitted(conditional) "estimate 1137386768 B x rho 2.000 <= C/2" K6-GRID-96x96
+138 T6 B3 K6-CEIL-CHAIN-n01364-AX dense 5 1 16 16642998272 1800 6154.1 6141.0 deferred "deferred:estimate_fails_admission (6453046160 B x rho 2.000 > C/2)" RF-LARGE-CHAIN-n01000-AX

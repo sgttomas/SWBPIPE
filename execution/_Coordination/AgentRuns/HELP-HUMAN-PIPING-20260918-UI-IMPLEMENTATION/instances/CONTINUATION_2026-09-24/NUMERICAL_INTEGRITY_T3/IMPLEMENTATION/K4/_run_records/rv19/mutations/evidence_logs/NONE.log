@@ -1,0 +1,17 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k4-rv19/ev-NONE/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.18s
+     Running unittests src/lib.rs (<wt>/k4-rv19/ev-NONE/target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 1 test
+test structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly ... EVIDENCE N02: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE N03-RZ: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+EVIDENCE N04: - [] (GEN - ["128:failed:Pivot", "256:failed:Pivot", "512:failed:Pivot"])
+amendment A1 changes the bounds of: ["PT-B 26", "PTF-B 45", "TINY-S-995 24"]
+bounded gates: ["DIRECTIONAL-WELL 128 1/4", "DIRECTIONAL-WELL 256 1/4", "GROUP-DIR 128 1/4", "GROUP-DIR 256 1/4", "GS-ROT-y345-LOADED 128 3/4", "GS-ROT-y345-LOADED 256 2/4", "GS-TRANS-y345 128 1/2", "GS-TRANS-y345 256 1/2", "GS-TRANS-y345 512 1/2", "LOADONLY-y345 128 3/4", "LOADONLY-y345 256 3/4", "M10-ANISO 128 1/2", "PROBE-y345-m1-axial 128 1/4", "PROBE-y345-m1-axial 256 3/4", "PROBE-y345-m1-inplane 128 1/2", "PROBE-y345-m1-inplane 256 1/4", "PROBE-y345-m1-outofplane 128 1/4", "PROBE-y345-m1-outofplane 256 1/4", "PROBE-y345-m1-torque 128 3/4", "PROBE-y345-m1-torque 256 3/4", "PROBE-y345-m3-axial 128 1/4", "PROBE-y345-m3-axial 256 2/4", "PROBE-y345-m3-inplane 128 1/4", "PROBE-y345-m3-inplane 256 1/2", "PROBE-y345-m3-outofplane 128 1/4", "PROBE-y345-m3-outofplane 256 1/4", "PROBE-y345-m3-torque 128 2/4", "PROBE-y345-m3-torque 256 1/4"]
+claims: 117 controls, 9412 rows; worst |obs − exp|/allowed 9.490957612018488e-1 (B1-C-A u.0.3)
+DEMOTION2: relative rows 7 -> 4, b 4.720447033220132e-6
+EXACT-RIGID: b 1.0692277272248616e-150
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 325 filtered out; finished in 15.34s
+

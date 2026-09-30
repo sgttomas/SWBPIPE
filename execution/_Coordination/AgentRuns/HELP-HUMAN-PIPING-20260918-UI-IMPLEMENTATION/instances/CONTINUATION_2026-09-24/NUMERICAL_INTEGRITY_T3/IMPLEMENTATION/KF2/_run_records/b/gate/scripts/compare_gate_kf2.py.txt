@@ -1,0 +1,113 @@
+"""I20 (KF2, checkpoint B): gate part 1, candidate 1b10121fa against a fresh Mac base run of 78f55f927.
+Derived from I14's compare_gate_part1.py (K5 B). Changes: this docstring's first line, and the G1
+formula check runs only when the base directory has an envelope_sha256.tsv (a fresh base run has none;
+both sides are indexed from runs.jsonl and envelopes/ by the same index()); an --index option writes
+each side's index as TSV. Everything compared, and the PASS rule, is unchanged.
+Original docstring follows.
+
+index(dir): one row per run key (case, mode, entry) from <dir>/runs.jsonl and <dir>/envelopes:
+  outcome (compare.classify, unchanged), ok, exit code, envelope sha256 (the exact span file
+  G1's driver writes), error-text sha256 (sha256 of run.error), stderr tail sha256.
+The error-text formula is validated first: rebuilt from G1's own runs.jsonl it must equal G1's
+envelope_sha256.tsv in every column it shares.
+PASS: every key present in both; outcome, ok, exit code, envelope sha256 and error-text sha256
+identical for every run; the heap-cap runs' stderr tails identical; the standing of every
+evaluated row identical (gate_check rows, compared separately by main()).
+Usage: python3 -B compare_gate_part1.py <G1-dir> <candidate-dir> <G1-scripts-dir> [<G1-result.json> <candidate-result.json>]
+"""
+import hashlib
+import json
+import os
+import sys
+
+g1, cand, scripts = sys.argv[1:4]
+sys.path.insert(0, scripts)
+import compare as C  # noqa: E402  (G1's copy, unchanged)
+
+
+def sha(b):
+    return hashlib.sha256(b).hexdigest()
+
+
+def index(d):
+    out = {}
+    for line in open(os.path.join(d, 'runs.jsonl')):
+        rec = json.loads(line)
+        key = (rec['case'], rec['mode'], rec['entry'])
+        outcome, _ = C.classify(rec)
+        run = (rec.get('probe') or {}).get('run', {})
+        ok = 'ok' if run.get('ok') else 'ERR'
+        env_path = os.path.join(d, 'envelopes', '%s__%s__%s.json' % key)
+        env = sha(open(env_path, 'rb').read()) if os.path.exists(env_path) else '-'
+        err = sha(run['error'].encode()) if 'error' in run else '-'
+        out[key] = dict(outcome=outcome, ok=ok, exit=str(rec.get('exit_code')), envelope=env, error=err,
+                        full=run.get('envelope_sha256', '-'),
+                        stderr_tail=sha(rec.get('stderr_tail', '').encode()))
+    return out
+
+
+def tsv(d):
+    out = {}
+    lines = open(os.path.join(d, 'envelope_sha256.tsv')).read().splitlines()
+    head = lines[0].split('\t')
+    names = dict(outcome=['outcome'], ok=['ok'], exit=['exit_code'],
+                 envelope=['envelope_sha256', 'summary_envelope_sha256'], error=['error_text_sha256'],
+                 full=['full_envelope_sha256'])
+    for line in lines[1:]:
+        f = dict(zip(head, line.split('\t')))
+        out[(f['case'], f['mode'], f['entry'])] = {k: f[v] for k, vs in names.items() for v in vs if v in f}
+    return out
+
+
+base = index(g1)
+if os.path.exists(os.path.join(g1, 'envelope_sha256.tsv')):
+    listed = tsv(g1)
+    assert base.keys() == listed.keys(), 'G1 index keys differ from runs.jsonl'
+    shared = [c for c in ('outcome', 'ok', 'exit', 'envelope', 'error', 'full') if c in next(iter(listed.values()))]
+    for k in base:
+        for col in shared:
+            assert base[k][col] == listed[k][col], ('formula check', k, col, base[k][col], listed[k][col])
+    print('formula check columns:', shared)
+    print('formula check: rebuilt G1 index equals envelope_sha256.tsv on', len(base), 'runs')
+else:
+    print('formula check: skipped (no envelope_sha256.tsv in the base directory; both sides indexed by index())')
+
+new = index(cand)
+for side, d, idx in (('base', g1, base), ('cand', cand, new)):
+    with open(os.path.join(d, 'index_%s.tsv' % side), 'w') as fh:
+        fh.write('case\tmode\tentry\toutcome\tok\texit\tsummary_envelope_sha256\tfull_envelope_sha256\terror_text_sha256\tstderr_tail_sha256\n')
+        for k in sorted(idx):
+            v = idx[k]
+            fh.write('\t'.join(list(k) + [v['outcome'], v['ok'], v['exit'], v['envelope'], v['full'], v['error'], v['stderr_tail']]) + '\n')
+missing = sorted(set(base) ^ set(new))
+diffs = []
+for k in sorted(set(base) & set(new)):
+    for col in ('outcome', 'ok', 'exit', 'envelope', 'error', 'full'):
+        if base[k][col] != new[k][col]:
+            diffs.append((k, col, base[k][col], new[k][col]))
+    if base[k]['outcome'] == 'memory_refused' and base[k]['stderr_tail'] != new[k]['stderr_tail']:
+        diffs.append((k, 'stderr_tail', base[k]['stderr_tail'], new[k]['stderr_tail']))
+full_present = sum(1 for k in new if new[k]['full'] != '-')
+print('runs with run.envelope_sha256 (base):', sum(1 for k in base if base[k]['full'] != '-'))
+if len(sys.argv) > 5:
+    rows = lambda p: {(r['case'], r['mode'], r['entry']): r for r in json.load(open(p))['runs']}
+    rb, rc = rows(sys.argv[4]), rows(sys.argv[5])
+    if rb.keys() != rc.keys():
+        diffs.append(('gate_check rows', sorted(set(rb) ^ set(rc))[:5]))
+    for k in sorted(set(rb) & set(rc)):
+        for col in ('outcome', 'quality', 'standing', 'trusted', 'breaches'):
+            if rb[k].get(col) != rc[k].get(col):
+                diffs.append((k, 'gate_check.' + col, rb[k].get(col), rc[k].get(col)))
+    print('gate_check rows compared:', len(rb))
+heap = sum(1 for k in base if base[k]['outcome'] == 'memory_refused')
+print('runs with run.envelope_sha256 (candidate):', full_present)
+counts = {}
+for k, v in new.items():
+    counts[v['outcome']] = counts.get(v['outcome'], 0) + 1
+print('runs: base', len(base), 'candidate', len(new), 'missing either side', len(missing))
+print('candidate outcomes', dict(sorted(counts.items())))
+print('heap-cap runs compared (stderr tails):', heap)
+print('differences:', len(diffs))
+for d in diffs[:40]:
+    print('  DIFF', d)
+print('RESULT', 'PASS' if not missing and not diffs else 'FAIL')

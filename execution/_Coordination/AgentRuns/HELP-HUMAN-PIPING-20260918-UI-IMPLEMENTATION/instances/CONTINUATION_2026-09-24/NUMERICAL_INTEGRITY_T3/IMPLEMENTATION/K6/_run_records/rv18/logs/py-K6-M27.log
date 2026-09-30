@@ -1,0 +1,68 @@
+=== py K6-M27: git archive ae3320b5a93aa0e65a71483b4db6f40eeb9d8f1c (performance_harness, the wrapper) + overlay (I15's RV18 fixes)
+overlay ./projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py aaa56b5f35d80eee
+overlay ./projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py 020c547c64a1b01e
+overlay ./projects/chirality-piping/core/solver/performance_harness/src/k6/models.rs 85715e1f29094680
+overlay ./projects/chirality-piping/core/solver/performance_harness/tests/k6_bin.rs f6e3800a0b9108e6
+applied K6-M27 - RV18-3: launch's finally does not kill the group
+=== <VENV>/bin/python -m pytest -q -p no:cacheprovider --noconftest tests/test_performance_harness_runner.py
+....F..................................                                  [100%]
+=================================== FAILURES ===================================
+____________ LiveLimit.test_a_terminated_runner_leaves_no_survivor _____________
+
+self = <test_k6_runner.LiveLimit testMethod=test_a_terminated_runner_leaves_no_survivor>
+
+    def test_a_terminated_runner_leaves_no_survivor(self):
+        # RV18-3: SIGTERM to the runner mid-run. A driver process runs `launch` on a sleeping
+        # child, which starts the sleeping helper and writes its process group to a file.
+        # The test then sends SIGTERM to the driver. The driver's `finally` must kill the group
+        # before it exits with 143. The cap is 1 GiB, so Linux's RLIMIT_AS does not bind on the
+        # interpreters.
+        system = platform.system()
+        child_code = (HELPER_FIRST + 'import os, time\n'
+                      'open(sys.argv[1] + ".tmp", "w").write(str(os.getpgrp()))\n'
+                      'os.replace(sys.argv[1] + ".tmp", sys.argv[1])\n'
+                      'time.sleep(30)\n')
+        driver_code = ('import sys\n'
+                       'sys.path.insert(0, sys.argv[1])\n'
+                       'import k6_runner as r\n'
+                       "r.launch([sys.executable, '-c', sys.argv[3], sys.argv[2]], rss_cap_bytes=r.GIB,"
+                       " timeout_s=60, record_dir=sys.argv[4], run_id='term', wrapper=sys.argv[5] == 'Darwin',"
+                       ' k6_protocol=False)\n')
+        with tempfile.TemporaryDirectory() as folder:
+            marker = os.path.join(folder, 'pgid')
+            driver = subprocess.Popen([sys.executable, '-c', driver_code, HERE, marker, child_code, folder, system])
+            pgid = None
+            try:
+                deadline = time.monotonic() + 20
+                while not os.path.exists(marker) and time.monotonic() < deadline and driver.poll() is None:
+                    time.sleep(0.02)
+                self.assertTrue(os.path.exists(marker), 'the observed child did not start')
+                with open(marker) as fh:
+                    pgid = int(fh.read())
+                started = time.monotonic()
+                driver.send_signal(signal.SIGTERM)
+                code = driver.wait(timeout=20)
+                survivors = r.survivors_of(pgid)
+            finally:
+                if driver.poll() is None:
+                    driver.kill()
+                    driver.wait()
+                if pgid is not None and r.survivors_of(pgid, attempts=1):
+                    os.killpg(pgid, signal.SIGKILL)
+        self.assertEqual(code, 128 + signal.SIGTERM)
+        self.assertLess(time.monotonic() - started, 20)
+>       self.assertEqual(survivors, [], 'a terminated runner left a process of the observation group')
+E       AssertionError: Lists differ: [32933, 32935, 32936] != []
+E
+E       First list contains 3 additional elements.
+E       First extra element 0:
+E       32933
+E
+E       - [32933, 32935, 32936]
+E       + [] : a terminated runner left a process of the observation group
+
+core/solver/performance_harness/runner/test_k6_runner.py:713: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_performance_harness_runner.py::LiveLimit::test_a_terminated_runner_leaves_no_survivor
+1 failed, 38 passed in 8.59s
+=== exit 1 elapsed 9 s

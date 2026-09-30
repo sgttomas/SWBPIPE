@@ -1,0 +1,3 @@
+BEFORE KF3-UC-SPAN Unresolved(ExactSumSpan) charged 351215813 attempts [(128, Rejected(VerificationFailed), 0, 0, 0), (256, Failed(Stop(Span)), 0, 70511067, 82390690)]
+BEFORE KF3-UC-SPAN-ZERO Unresolved(ExactSumSpan) charged 326529708 attempts [(128, Rejected(VerificationFailed), 0, 0, 0), (256, Failed(Stop(Span)), 0, 70511067, 82390690)]
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 336 filtered out; finished in 18.95s
