@@ -2840,3 +2840,31 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
 - **V-K's routed V3 re-run** ("V-K merged", Routed) **is satisfied by KF3's B.** B ran V-K's runner and `vk_scale`, unedited, on `e114b23c1`, whose FK equals KF3's final head `b8c55c92e`'s. It covers V1 to V3, outcomes and R1 honesty (`KF3/_run_records/b/`).
   - The E_max column in those records comes from VR's stale port. It is superseded by K6c's corrected estimate. K6c re-checks B's admission decisions against the corrected estimate; ROOT has not verified them.
 - **ROOT's W1 limits wait for K6c's merge** (the corrected E_max and the post-KF3 W1-T4).
+
+## KF2: checkpoint A accepted; B granted (ROOT, 2026-09-30)
+
+- **A is accepted, and committed on the KF2 branch as `1b10121fa`.**
+  - **The code:** FKS's `negative_pair_witness` now delegates to the private `negative_pair_witness_counted`.
+    - ROOT read the diff. The guard repeats `verify_negative_direction`'s arithmetic cell for cell, in its order, and only a witness verdict builds a direction and calls the unchanged verifier.
+    - There is one test-module line (Q1) and one site-table row (Q5).
+  - **The tests:** the differential tests against verbatim reference copies (n = 2 to 100) pass, with 142 witnesses, 98 no-witness cases, and all 9 exact allowance ties found. The count tests pass, and 11 mutants are killed.
+  - **N10's two models** (6,006 DOFs, dense, through H's unchanged `k6_observe` in release):
+    - each ends in the factor's refusal (DOF 6001 and 6002, after about 66 s);
+    - the witness takes 0.94 s and 0.91 s and finds no pair;
+    - each process exits at about 203 s, where before they were killed at 1,800 s.
+  - **Suites:**
+    - FK 415 (1 ignored: the release cost test), site table 3, SD 30, NI with SA 134, and H 74 with `k6_alloc`;
+    - PP passes except the known Mac platform test `t13`, which fails identically on the base.
+- **B is granted now:** T9, the both-entry gate and the src-tauri suite, as the brief's "Gates" and F1b's (`I13_F1B_IMPLEMENTATION.md`) define them.
+  - **T9:** 112 of 112 byte-identical, plus F1b's extra corpus (16), from `git archive` copies of base `78f55f927` and candidate `1b10121fa`.
+  - **Gate part 1:** 884 runs on the candidate, **against a fresh Mac run of base `78f55f927`**, with P1's probe and the calibration's heap cap. PASS needs:
+    - every run byte-identical to the base (envelope sha256 per case, mode and entry);
+    - 0 trusted breaches;
+    - no heap-cap abort.
+    - FK has changed since F1b's gate, in paths the product does not reach, so a fresh base keeps the comparison unambiguous.
+  - **Gate part 2:** the four dense N10 runs (both entries), candidate only.
+    - Each must end within 1,800 s, with its outcome recorded. The expected outcome is the factor's refusal on both entries, since the witness finds no pair.
+    - The base's timeouts are already recorded (F1b's gate and K6's B2).
+    - The class disagreement with sparse (Sensitive) remains, and is the split-out screen slice's.
+  - **The src-tauri suite,** as F1b ran it (`F1B_MERGE/src_tauri/`).
+  - **Host:** one cargo job at `-j 4`, the memory guard running, and no timing compared. RV23 (KF3's reviewer) is building beside it, which is allowed.
