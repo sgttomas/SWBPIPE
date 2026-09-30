@@ -2,7 +2,9 @@
 
 > **Practice notes, not rulings.** Where these touch a ruling, `ROOT_RULINGS_V1.md` governs.
 >
-> This succeeds `OPERATING_NOTES_FOR_LOCAL_ROOT.md` (2026-09-28), which stays valid, and it complements `HANDOFF_2026-09-30_AUDIT_PAUSE.md`. The handoff gives the **state** and the **mechanics** (commands, paths, gates). This file gives the **practice**: how the work was actually run day to day, the judgment calls, what went wrong and why, and what a successor would otherwise have to re-learn.
+> This succeeds `OPERATING_NOTES_FOR_LOCAL_ROOT.md` (2026-09-28), which stays valid except where the handoff's §7 or this file differs (RV26-N7). There is no separate T3 manager now: ROOT did that work. And this week DEC-025 was always run on each slice's exact final head, never carried over from an earlier head. It complements `HANDOFF_2026-09-30_AUDIT_PAUSE.md`. The handoff gives the **state** and the **mechanics** (commands, paths, gates). This file gives the **practice**: how the work was actually run day to day, the judgment calls, what went wrong and why, and what a successor would otherwise have to re-learn.
+>
+> **Sources.** Most statements here cite committed records. A few rest on ROOT's session experience only: the resent grant, token usage, the number of concurrent subagents, and the owner's words in §9. They are not contradicted by the records, but they cannot be checked there (RV26-N5, N6).
 >
 > **Readers:** the owner's auditor, and any agent that resumes T3 as ROOT. Placeholders follow the handoff's §0 (`<wt>`, `<VENV>`, `T3/`, `P/`).
 
@@ -13,7 +15,7 @@
   - The cost is ROOT's own attention and context. Long sessions were compacted several times, and the rulings file and the records were what made that survivable.
 - **Implementers are numbered I<n>; reviewers RV<n>.** There is one fresh reviewer per slice PR and per records PR, and the same reviewer confirms its own findings' fixes.
   - The numbering continues: I21 is reserved for K6c. Take the next free numbers from `TASK_BRIEFS/` and `REVIEW/`.
-- **Everything durable goes in the repository.** Rulings, briefs, run records and reviews are committed. A message to an agent is not a record until the ruling it carries is committed where the agent can read it (the owner's instruction).
+- **Everything durable goes in the repository.** Rulings, briefs, run records and reviews are committed. A message to an agent is not a record until the ruling it carries is committed where the agent can read it. That was the owner's instruction in this session; it is not otherwise recorded.
 
 ## 2. The rhythm of one slice, and what ROOT checks at each step
 
@@ -43,7 +45,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
    - a machine-path scan.
 
    Then ROOT commits ("By I<n>; ROOT committed.") and pushes.
-5. **Checkpoint B (measurements or heavy gates).** ROOT grants a slot explicitly, then **checks that the work started**: a process, a scratch folder or a log growing (§4).
+5. **Checkpoint B (measurements or heavy gates).** ROOT grants a slot explicitly, then **checks that the work started**: a process, a scratch folder or a log growing (§3).
 6. **Checkpoint D (records),** checked as at A.
 7. **The PR:**
    - merge main in first if it moved;
@@ -69,7 +71,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
 
 - **Trust, but recompute what matters.**
   - **Suite counts.** DEC-025's per-crate change must equal the slice's added `#[test]`s, counted with `git diff <main> <head> -- <crate> | grep -c '^+\s*#\[test\]'`. It did every time (KF3 +15 and +1; KF2 +16, 1 ignored), and that makes the sweep comparison mean something.
-  - **Merge resolutions.** For each resolved file, main's delta and the resolution's delta should differ only by the ruled change (KF3's `c0473301e`; KF2's `522167ac6`).
+  - **Merge resolutions.** For each resolved file, main's delta and the resolution's delta should differ only by the ruled change (KF3's `c0473301e`, a resolved conflict; KF2's `522167ac6`, a clean auto-merge checked the same way).
   - **Figures a ruling will rest on.** Open the source table before writing the ruling (§6).
 - **Reviewers can be wrong too, and implementers catch it.** RV24 counted 8 recovered runs where there were 4, and I20 caught it; RV24 then confirmed. Treat every count as a claim.
 - **The return path is noisy:**
@@ -78,7 +80,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
   - a message "queued" to a running agent can land after it has ended its turn, and it then never sees it. I20's B grant had to be resent. **After granting work, look for evidence that it started.**
 - **Implementers' mutant diffs must be recorded** (the patch text, not just a description). RV23 had to rebuild five of I19's mutants from descriptions. Ask for `_run_records/**/mutants/<id>.diff` in every brief.
 
-## 4. The host and the clock (observed on this Mac: 18 cores, 128 GiB, no swap)
+## 4. The host and the clock (observed on this Mac: 18 cores, 128 GiB, no swap partition; macOS showed about 1 GiB of dynamic swap in use, RV26-N3)
 
 - **Rough durations.** Plan around these; they were observed with other work running.
 
@@ -87,12 +89,12 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
   | DEC-025 | about 36–37 min (K6b, KF3, KF2) |
   | FK's full debug suite at `RUST_TEST_THREADS=2` | about 11–13 min |
   | `gen_k4_vectors.py --check` | about 15 min |
-  | hosted CI's numerical cargo job | 18–24 min |
-  | a slice review | about 50–80 min |
+  | hosted CI's numerical cargo job | 17–24 min |
+  | a slice review | about 40–80 min |
   | a records review | about 40 min |
   | a confirmation or delta check | 5–25 min |
 
-  KF2's B (T9, gate part 1 at 884 × 2, part 2 and src-tauri) took a few hours of mostly machine time.
+  KF2's B (T9, gate part 1 at 884 × 2, part 2 and src-tauri): its recorded runs span about 28 minutes (02:48–03:16Z). Gate part 1 took about 6.4 min per side, and part 2 about 7.5 min. [This line said "a few hours" in its first draft, a ROOT figure error in this very file (RV26-S1).]
 - **Overlap freely, except for timing.**
   - Two or three slices building, plus a reviewer, plus a DEC-025 sweep, ran together safely.
   - ROOT started a slice's sweep while its reviewer was still confirming the same head, and would have re-run it had the confirmation failed.
@@ -104,7 +106,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
 ## 5. Reviewers: how to get real findings
 
 - **The prompt lists review items in priority order.** It names the claim to break ("the equality holds for every value of the type, errors included") and says: **build independent oracles** (exact rationals in Python's `fractions`, GEN, probes of your own), don't reuse the implementer's tests, and try single-edit mutants.
-- **The reviewers repeatedly found real issues that the implementer's tests missed.** Examples:
+- **The reviewers repeatedly found real issues that the implementer's tests missed.** Examples (the last is ROOT's own, not an implementer's):
   - RV19-1, a false publication;
   - RV22-1, a relaxation applied to completed builds;
   - RV23-1, refusals dropped on a stop;
@@ -119,12 +121,16 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
 
 ## 6. ROOT's own errors, and the fix that works
 
-- **This week ROOT made at least seven figure or claim errors in rulings** (handoff §7.2 item 1), and one process slip: merging without checking a main move.
+- **This week ROOT made at least seven figure or claim errors in rulings** (handoff §7.2 item 1), plus one in this file's first draft (RV26-S1). **It also made several process slips** (RV26-S2):
+  - rulings left only in messages, and recorded late (`ROOT_RULINGS_V1.md` :1152, :1539, :1894);
+  - asking TASKs to prepare merges, an index operation their rules forbid (:2457; handoff §7.2 item 2);
+  - the work graph lagging the rulings (§7.2 item 7);
+  - merging without checking a main move (§7.2 item 6).
 - **Common cause:** compressing a table from a RETURN into one sentence loses its qualifiers:
   - the unit (MiB/1,000 written as GB, twice);
   - the basis of a comparison (`k6_observe`'s fixed term against `vk_scale`'s measured peak);
   - which size a range belongs to (65–188 s spans two sizes).
-- **The corrections themselves overshot once.** The S1 correction said E_max "has not been shown to fail" a phase that, by construction, it does not bound (RV25-D1).
+- **The corrections themselves went wrong twice.** The S1 correction said E_max "has not been shown to fail" a phase that, by construction, it does not bound (RV25-D1). And a ruling said fixes to new text were bracketed when they had been reworded (RV25-D2).
 - **What works:**
   - **cite, don't restate:** "KF3 RETURN §13" rather than a number;
   - when a number must appear, **copy it from the source in the same turn, with its unit and basis**;
@@ -134,13 +140,13 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
 
 ## 7. Judgment calls, and how they were made
 
-- **SHOULD-FIX findings are fixed before merge, even test-only ones,** where the fix costs less than a day. Every one this week was: RV20-1, RV21-1/2, RV22-1/2/3, RV23-1, RV24-1, RV25-S1/S2.
+- **SHOULD-FIX findings are fixed before merge, even test-only ones,** where the fix costs less than a day. This week that covered RV20-1, RV21-1/2, RV22-1/2/3, RV23-1, RV24-1, RV25-S1/S2 and RV26-S1/S2. Earlier, RV11, RV13, RV14, RV16, RV17, RV18 and RV19's SHOULD-FIX findings were fixed before merge too (RV26-N1).
   - The practice kept "review PASS" meaning something.
 - **A NOTE is left as a NOTE** unless one of these applies:
   - a test is cheap and protects a ruled decision (RV23-N1's precedence test);
   - it corrects a published claim or a figure (RV25's NOTEs).
 - **Prefer fixing the evidence to narrowing the claim** when a later slice will consume the evidence. RV23-1 was fixed because F2a will publish `bound_refusals`.
-- **Split a change out** when it would alter published bytes or classes beyond what the slice promised. KF2's dense-screen change was honest, but it moved report bytes and dense classes, so it became its own slice with an owner-facing note.
+- **Split a change out** when it would alter published bytes or classes beyond what the slice promised. KF2's dense-screen change was honest, but it moved report bytes and dense classes, so it is routed to a separate slice, not yet scheduled, with an owner-facing note.
 - **Coupled slices use "whichever merges second adapts":** the export shared by K6b and V-K, and K6b's parity check tightened by KF3. Neither slice waits for the other.
 - **A stop is a result.** The most useful findings came from stops, such as K6b's backstop, K6B-S3's parity stop and V-K's THIN. Diagnose and route; don't force past a stop.
 - **When a finding belongs to an earlier slice's code,** such as KF3-B2's E_max omission, route it to that slice's follow-up (K6c) rather than widening the current slice. Record the reason.
@@ -149,7 +155,7 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
 
 - **zsh:**
   - quote globs passed to tools (`--include='*.rs'`);
-  - a bare `echo ====` fails as a glob;
+  - a bare `echo ====` fails, through zsh's `=` expansion;
   - macOS `cat` has `-e`, not `-A`;
   - `sed -i ''` needs the empty suffix.
 - **Removals:** the host's safety check refuses `rm` on a variable path such as `rm $D/$J`. Use literal absolute paths, or `"${D:?}"/"${J:?}"`.
@@ -158,13 +164,13 @@ The sequence below is what KF1, V-K, K6b, KF3 and KF2 followed. Every "ROOT chec
 - **`gh` reads:**
   - `gh run list --commit <sha>` shows a head's CI;
   - `gh pr checks <n>` shows pass and skip counts;
-  - `gh run view <id> --json jobs` shows job durations.
+  - `gh run view <id> --json jobs` shows each job's start and end times.
   - A dispatch's `target_base` must be a full SHA that is an ancestor of the head. Copy it from `git rev-parse origin/main`.
 
 ## 9. Working with the owner
 
-- **The owner prefers the cleanest path over speed,** and says so. They are "not in a rush". Offer a stop point when it's clean; don't push to finish.
-- **At closure-type points** (a pause, a handoff, anything hard to reverse), the owner may ask to hear intentions before any action. Then state the plan and wait.
+- **The owner prefers the cleanest path over speed,** and said so in this session ("not in a rush"; not otherwise recorded). Offer a stop point when it's clean; don't push to finish.
+- **At closure-type points** (a pause, a handoff, anything hard to reverse), the owner may ask to hear intentions before any action; they did so in this session. Then state the plan and wait.
 - **Status answers:** say plainly what is complete, what remains and what has not started (for example, T4 onwards), with numbers.
 - **Answers meant for other agents** must be committed where those agents can read them, not only said in chat.
 - **Surface your own errors plainly,** in the records and to the owner. The owner's stated aim for the audit is to find issues early, not to catch anyone out. Candor makes that possible.

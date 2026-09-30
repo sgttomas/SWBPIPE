@@ -1,0 +1,26 @@
+#!/bin/bash
+# RV26: the operating notes' section 3 claim "DEC-025's per-crate change must equal the
+# slice's added #[test]s ... It did every time (KF3 +15 and +1; KF2 +16, 1 ignored)".
+# Recount with the notes' own command (macOS /usr/bin/grep, BSD 2.6.0), against the main
+# each head carries, and compare with each merge record's suites_vs_baseline.txt.
+# Usage (repository root): bash test_counts.sh.txt
+set -u
+P=projects/chirality-piping
+T3=projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3
+echo "/usr/bin/grep: $(/usr/bin/grep --version | head -1)"
+echo "self-test of '^+\\s*#\\[test\\]' on 4 lines (+4sp, +0sp, ' ', +tab): $(printf '+    #[test]\n+#[test]\n #[test]\n+\t#[test]\n' | /usr/bin/grep -c '^+\s*#\[test\]') (expect 3)"
+while read -r slice base head crates; do
+  for c in $crates; do
+    add=$(git diff "$base" "$head" -- "$P/$c" | /usr/bin/grep -c '^+\s*#\[test\]')
+    del=$(git diff "$base" "$head" -- "$P/$c" | /usr/bin/grep -c '^-\s*#\[test\]')
+    ign=$(git diff "$base" "$head" -- "$P/$c" | /usr/bin/grep -c '^+\s*#\[ignore')
+    echo "$slice $base..$head $c: +$add -$del #[test] (net $((add-del))); +$ign #[ignore]"
+  done
+  echo "  record: $(grep -hE 'CHANGED' $T3/IMPLEMENTATION/${slice}_MERGE/dec025/suites_vs_baseline.txt 2>/dev/null | tr '\n' ' ' | cut -c1-400)"
+done <<'LIST'
+KF3 78f55f927 aa83f6796 core/solver/frame_kernel core/solver/performance_harness
+KF2 dd61120ff 522167ac6 core/solver/frame_kernel core/solver/performance_harness
+K6B f8400d290 597c81ba4 core/solver/frame_kernel core/solver/performance_harness
+KF1 8cca91701 66adfede4 core/solver/frame_kernel core/solver/performance_harness
+VK 0f5d8c7b4 5f0d39426 core/solver/frame_kernel validation/benchmarks/numerical_robustness
+LIST

@@ -145,7 +145,7 @@ The rules are in `_COMMON.md`, `I8R_K1_RESUME.md:24-50` (the Mac host) and `OWNE
   - When a TASK's branch needs main, **ROOT runs the merge.** The TASK resolves conflict markers by editing only, and ROOT stages and commits.
   - **Verify the resolution mechanically:** for each resolved file, the diff from the base to main's side and the diff from the branch head to the resolution should differ only by the ruled delta. This was done for KF3's merge, `c0473301e`.
 - **Briefs work best with:** the exact paths, the base, a write set with "anything else is a stop", explicit stop conditions, the checkpoint list (0 is plan-only; A is the code; B the measurements; D the records), and the host rules.
-- **The subagent return path is noisy** (see also OPERATING_NOTES §2):
+- **The subagent return path is noisy** (see also OPERATING_NOTES_FOR_LOCAL_ROOT §2):
   - a `SendMessage` to a subagent that has just ended its turn may not be seen. After granting work, check that it started: a process, a scratch folder, or a file changing. If not, resend, saying it is a resend;
   - hand-backs can arrive twice (I20's checkpoint A did). Check the branch state before acting on one.
 - **Reviewers** are fresh per slice, and are told to build independent oracles: exact rationals in Python (`fractions`), GEN, and probes of their own. Their verdict names the exact head, and later commits get a confirmation or delta check.
@@ -233,6 +233,7 @@ The auditor is a colleague looking for issues early. Findings are welcome, and s
 - **worktrees of merged slices:** `f1b`, `k1`, `k2b`, `k3`, `k4`, `k5`, `k6`, `k6b`, `kf1`, `kf2`, `kf3`, `vk`, `skewpin` and `sweep-k1`, about 2.2 GB each (sweep-k1 5 GB);
 - **targets:** `k1-target`, `k4-b-target`, `k4-b`, `f1b-target`, `tauri-f1b-target`, `rv7-target`, `rv11-target`, `k6b-target`, `kf3-target` and `kf2-target`, about 24 GB. `root-target` (6.4 GB) is of unrecorded origin; check before removing;
 - **scratch** (about 70 GB): the largest are `i13` (27 GB), `rv11` (12 GB), `i20` (about 12 GB, including KF2's uncommitted gate `runs.jsonl` files, whose sha256 is recorded), `calib`, the two `gate_base_e7d930d49*` folders, `i14` and `tauri_f1b`. The merged slices' sweep folders (`sweep_k4` to `sweep_kf3`) are small. `sweep_kf2` is kept as the current Mac baseline, which overrides the prune list in `KF2_MERGE/RECORD.md` (RV25-N7).
+- **The inventory above is partial** (RV26-N9). `<wt>` also holds `k4-target`, `k5-target`, `k6-target`, `kf1-target`, `vk-target`, `skewpin-target`, `root-verify-target`, `k5-gate-target`, the `gate-*-target` folders, reviewers' copies (`k4-rv19`, `k4-rv19d`), and the `*-mut` folders (`f1b-mut`, `k1-mut`, `k2b-mut`, `k4-mut`, `k6b-mut`, `skewpin-mut`, `vk-mut`). Run `du -sh <wt>/*/` for the current list.
 - **Keep:**
   - `numerics` and `sweep-skewpin` (the DEC-025 worktree);
   - `scratch/sweep_skewpin` (the driver), `scratch/sweep_kf2` (the latest Mac baseline; its piping source equals main `7ad3a9adf`'s) and `scratch/calib` (the platform calibration);

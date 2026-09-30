@@ -1,0 +1,70 @@
+== 1. The PR, its commits and scope
+   PR head 21e2285e30 base main OPEN MERGEABLE
+   origin/main: 490b75bd99; merge-base(HEAD, main): 490b75bd99
+   commit c8e13bb7d8 parents 490b75bd99 | T3: records PR #1062 merged; RV25's last delta check; T3 paused for the audit
+   commit 21e2285e30 parents c8e13bb7d8 | T3: operating notes for the audit pause (practice, lessons, judgment calls); pointers from the handoff and wor
+   #1062 merge 490b75bd9 parents: 7ad3a9adf4 7b59a1efc3 
+   #1062 head 7b59a1efc3 merged 2026-09-30T07:10:41Z as 490b75bd99
+      8 A
+      5 M
+   paths outside _Coordination: 0
+   binaries: 0; modes:  13 100644
+   git diff --check lines: 2
+   delta_7b59a1efc/delta_checks.out.txt:18: trailing whitespace.
+   delta_7b59a1efc/delta_checks.out.txt:19: trailing whitespace.
+== 2. shasum -c from each folder (working tree at the head)
+   records_pr1062_review:   34 OK
+   REVIEW/_run_records (run from REVIEW/):   76 OK
+   RECORDS_PR1062_REVIEW.md at head: 0ab9812e3e450300; records_pr1062_review/SHA256SUMS: 0a1e3082f59850c2
+   OPERATING_NOTES_2026-09-30.md at head: 66809bce2942b0cf, 180 lines
+== 3. DEC-025 durations (meta.txt start -> ALL-DONE)
+   K5: 2026-09-29T02:43:28Z -> 2026-09-29T03:13:47Z = 30.3 min
+   F1B: 2026-09-29T04:29:42Z -> 2026-09-29T04:58:46Z = 29.1 min
+   K6: 2026-09-29T09:18:55Z -> 2026-09-29T09:49:34Z = 30.6 min
+   K4: 2026-09-29T15:49:39Z -> 2026-09-29T16:24:39Z = 35.0 min
+   KF1: 2026-09-29T20:59:22Z -> 2026-09-29T21:33:54Z = 34.5 min
+   VK: 2026-09-29T23:45:45Z -> 2026-09-30T00:26:24Z = 40.6 min
+   K6B: 2026-09-30T00:30:05Z -> 2026-09-30T01:06:46Z = 36.7 min
+   KF3: 2026-09-30T04:52:24Z -> 2026-09-30T05:28:23Z = 36.0 min
+   KF2: 2026-09-30T05:30:05Z -> 2026-09-30T06:06:44Z = 36.6 min
+== 4. KF2's B: the grant, its records' time span, and the acceptance
+   grant ruling commit:  bbbfce02a0 2026-09-29T20:44:12 (local -0600)
+   accept ruling commit: 1642bd310b 2026-09-29T21:18:15 (local -0600)
+   timestamps in KF2/_run_records/b (UTC): first 2026-09-30T02:48:38Z, last 2026-09-30T03:16:24Z
+   2026-09-30T02:59:13Z done 884 runs in 384 s
+   2026-09-30T03:05:50Z done 884 runs in 382 s
+   2026-09-30T03:06:53Z part 2 start: 4 runs, candidate only, one at a time
+   2026-09-30T03:14:24Z part 2 done
+       Finished `release` profile [optimized] target(s) in 29.15s
+       Finished `release` profile [optimized] target(s) in 28.87s
+       Finished `release` profile [optimized] target(s) in 32.41s
+       Finished `release` profile [optimized] target(s) in 33.84s
+== 5. Review windows: 'to review' ruling commit -> 'rulings on the review' commit (local -0600)
+   RV19 (K4): 59 min (2026-09-29T06:43:05 -> 2026-09-29T07:42:05)
+   RV20 (KF1): 45 min (2026-09-29T13:47:55 -> 2026-09-29T14:32:30)
+   RV21 (V-K): 51 min (2026-09-29T16:45:06 -> 2026-09-29T17:36:26)
+   RV22 (K6b): 45 min (2026-09-29T17:07:14 -> 2026-09-29T17:52:37)
+   RV23 (KF3): 80 min (2026-09-29T20:00:58 -> 2026-09-29T21:20:34)
+   RV24 (KF2): 52 min (2026-09-29T21:23:13 -> 2026-09-29T22:15:11)
+   RV23 confirmation: 23 min (2026-09-29T22:35:05 -> 2026-09-29T22:58:33)
+   RV25 (records #1062): PR opened 2026-09-30T06:12:44Z
+   RV25 ruling commit 18b625268b at 2026-09-30T00:53:57-06:00
+   KF3 DEC-025 start 2026-09-30T04:52:24Z; 'KF3: RV23 confirms' commit at 2026-09-29T22:58:33-06:00 (the sweep ran during the confirmation)
+== 6. Rulings behind named findings and events (line numbers at the head)
+   V1:2964 "RV24-N3's count"
+   V1:2457 "Correction: ROOT's first message asked both implementers"
+   V1:1152 "recorded late, RV13-S2"
+   V1:1539 "recorded late, RV16-S3"
+   V1:1894 "the C ruling was given in session"
+   V1:2989 "Disclosed: ROOT merged without first checking"
+   V1:2172 "Whichever PR merges first carries the export"
+   V1:2570 "whichever of KF3 and K6b merges second"
+   V1:2720 "KF3 merges second, so KF3 updates"
+   V1:2904 "RV23-N1: add the test"
+   V1:2783 "a separate dense-screen slice"
+   V1:3018 "RV25-D2"
+   V1:2425 "Fix before merge, as with earlier slices"
+   KF3_REVIEW.md:19 "five of I19's (re-implemented ... since their diffs are not recorded)"
+   KF2_REVIEW.md:271 "I20's correction is right, and my eight was wrong"
+   I21 brief asks for mutant diffs: 0
+   RV briefs committed in TASK_BRIEFS/: RV1 RV1 RV2 RV2 RV3 RV4 RV5 RV8 RV11 RV12 RV13 

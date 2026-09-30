@@ -3039,7 +3039,7 @@ RV25 (`REVIEW/RECORDS_PR1062_REVIEW.md`, sha256 `45b27642…`; records `REVIEW/_
 - **Merged:** [PR1062](https://github.com/sgttomas/chirality/pull/1062) at head `7b59a1efc`, merge `490b75bd9`, 2026-09-30 07:10:41Z, with `--match-head-commit`. ROOT checked immediately before the merge that main had not moved from `7ad3a9adf`.
 - **Review:**
   - RV25's review at `b0e357985`: PASS, with 0 BLOCKING, 2 SHOULD-FIX (S1 and S2, both ROOT figure errors, fixed in `18b625268`) and 10 NOTEs;
-  - its delta check at `18b625268`: PASS, with NOTEs D1–D4, fixed in `7b59a1efc`;
+  - its delta check at `18b625268`: PASS, with NOTEs D1–D4, fixed in `7b59a1efc`; [Correction (ROOT, 2026-09-30, RV26-N10): D3 was fixed in the PR body, not in `7b59a1efc`. RV25's final review is sha256 `0ab9812e…`.]
   - its delta check at `7b59a1efc`: PASS, with no new finding.
   - The last delta check's section and records (`delta_7b59a1efc/`) are committed here, after the merge, as for RV16.
 - **Hosted CI on the head:** 7 passed and 6 were skipped, as selected for a records-only change. GEN-8 passed at each head.
@@ -3056,3 +3056,20 @@ RV25 (`REVIEW/RECORDS_PR1062_REVIEW.md`, sha256 `45b27642…`; records `REVIEW/_
   - The handoff and the work graph's pause paragraph gain a pointer to it; both are insert-only.
 - **The owner chose to land it on main now,** through a small records PR with an independent records review (RV26). It carries this file, the pointers, and the numerics commits since PR #1062 (RV25's last delta check and "Records PR #1062 merged").
 - **The notes are practice, not rulings.** Where they touch a ruling, this file governs.
+
+## Records PR #1063: rulings on RV26's review (ROOT, 2026-09-30)
+
+RV26 (`REVIEW/RECORDS_PR1063_REVIEW.md`, sha256 `60813369…`; records `REVIEW/_run_records/records_pr1063_review/`) reviewed head `21e2285e3`: **PASS**, with 0 BLOCKING, 2 SHOULD-FIX and 10 NOTEs.
+- **Scope, append-only, hashes, leaks and GEN-8 all pass.** Every named finding and event in the operating notes matches its source.
+- **Both SHOULD-FIX findings are fixed before merge, in the notes' own new text:**
+  - **RV26-S1:** KF2's B "took a few hours" was another ROOT figure error. Its recorded runs span about 28 minutes. The notes now give the recorded figure and flag the error.
+  - **RV26-S2:** the notes admitted one process slip; the records show at least four. The notes now list them.
+- **The NOTEs:**
+  - **Fixed in the notes:** N1–N7 and N5/N6's marking of statements that rest on session experience or on the owner's words in this session.
+    - **N6:** the owner's words are not added to `OWNER_DIRECTION.md`. They are working preferences stated in this session, not directions, and the notes now say so.
+  - **Insert-only on main's text:**
+    - N7: the handoff's pointer is disambiguated;
+    - N8: K6c's brief now requires mutant diffs;
+    - N9: the handoff's prune inventory is completed;
+    - N10: a bracket in "Records PR #1062 merged".
+- **Then:** RV26's delta check, and the merge.

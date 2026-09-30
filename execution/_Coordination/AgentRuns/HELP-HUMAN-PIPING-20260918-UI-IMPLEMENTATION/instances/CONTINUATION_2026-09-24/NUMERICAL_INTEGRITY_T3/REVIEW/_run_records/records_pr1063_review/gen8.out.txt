@@ -1,0 +1,13 @@
+# GEN-8 at 21e2285e3: set -o pipefail; <VENV>/bin/python -m pytest -q tools/practitioner_harness/test_live_baseline.py -k gen8
+# run from <wt>/numerics (PR #1063 head)
+run 1: before any RV26 file existed
+HEAD 21e2285e30d47113a4d4dceae71c60696f1832ab
+git status --short --untracked-files=all lines: 0
+1 passed, 10 deselected in 30.11s
+exit 0
+
+run 2: this folder and the review present (untracked)
+HEAD 21e2285e30d47113a4d4dceae71c60696f1832ab
+git status --short --untracked-files=all lines: 12
+1 passed, 10 deselected in 29.64s
+exit 0

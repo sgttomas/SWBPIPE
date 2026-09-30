@@ -64,6 +64,7 @@ Anything else is a stop, including FK and K4R.
 
 ## Required tests
 
+- **Record every mutant's patch** as `_run_records/**/mutants/<id>.diff`, not only its description, so a reviewer can re-run it exactly (RV26-N8).
 - **The estimate:**
   - a test per corrected term, each killed by its removal;
   - the committed `counts.jsonl` lines recomputed from the code (RV22-3's test, kept);

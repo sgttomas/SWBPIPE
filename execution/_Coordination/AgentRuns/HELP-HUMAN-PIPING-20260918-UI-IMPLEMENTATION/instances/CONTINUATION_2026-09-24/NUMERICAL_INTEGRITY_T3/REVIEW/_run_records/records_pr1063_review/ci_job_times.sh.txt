@@ -1,0 +1,19 @@
+#!/bin/bash
+# RV26: hosted CI "Numerical cargo suite" job durations on each Mac-era slice PR's
+# heads (every Piping Desktop E2E run, pull_request and workflow_dispatch), to
+# check OPERATING_NOTES_2026-09-30.md section 4's "18-24 min". Read-only gh calls.
+# Usage (from the repository root): bash ci_job_times.sh.txt
+set -u
+REPO=sgttomas/chirality
+for pr in 1044 1052 1053 1054 1056 1057 1058 1059 1060; do
+  shas=$(gh pr view $pr --repo $REPO --json commits --jq '.commits[].oid')
+  for sha in $shas; do
+    for id in $(gh run list --repo $REPO --commit $sha --workflow piping-desktop-e2e.yml --json databaseId --jq '.[].databaseId' 2>/dev/null); do
+      gh run view $id --repo $REPO --json event,conclusion,jobs --jq \
+        '.event as $e | .conclusion as $c | .jobs[] | select(.name=="Numerical cargo suite") | select(.conclusion=="success" or .conclusion=="failure") | "\($e)\t\($c)\t\(.startedAt)\t\(.completedAt)"' |
+      while IFS=$'\t' read -r ev c s e; do
+        python3 -c "import sys,datetime as d;f=lambda x:d.datetime.strptime(x,'%Y-%m-%dT%H:%M:%SZ');print(f'PR#$pr\t${sha:0:9}\trun $id\t$ev\t$c\t{(f(\"$e\")-f(\"$s\")).total_seconds()/60:.2f} min')"
+      done
+    done
+  done
+done
