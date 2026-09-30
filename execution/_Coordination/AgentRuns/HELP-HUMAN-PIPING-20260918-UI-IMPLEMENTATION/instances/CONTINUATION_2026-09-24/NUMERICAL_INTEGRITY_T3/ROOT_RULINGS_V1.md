@@ -2990,3 +2990,14 @@ RV24 (`REVIEW/KF2_REVIEW.md`, sha256 `6785aa13…`; records `REVIEW/_run_records
 - **Next:**
   - KF2 has merged main `dd61120ff` as `522167ac6` (clean; `structural.rs` is main's plus exactly KF2's delta). RV24's merge check, CI and DEC-025 are running.
   - K6c spawns after the pause, on a base that carries KF3.
+
+## KF2 merged (ROOT, 2026-09-30)
+
+- **Merged:** [PR1060](https://github.com/sgttomas/chirality/pull/1060) at head `522167ac6`, merge `7ad3a9adf`, 2026-09-30 06:08:13Z. The merge record is `IMPLEMENTATION/KF2_MERGE/RECORD.md`. ROOT checked immediately before the merge that main had not moved from `dd61120ff`.
+- **The gates:**
+  - RV24 PASSED the review, confirmed `1c7558df5`, and passed the merge check of `522167ac6` with no findings;
+  - B's T9 (112 of 112), gate part 1 (884 of 884), part 2 (four runs in 67–68 s) and src-tauri (116) pass;
+  - hosted CI was green, and the dispatch (36673660523) succeeded;
+  - DEC-025 was clean: the only change is frame_kernel 417 → 432 plus 1 ignored, exactly KF2's added tests;
+  - GEN-8 passed.
+- **Routed:** the dense-screen slice (with RV24-N4's notes), and the dense cancellation note to T6 and T9.
