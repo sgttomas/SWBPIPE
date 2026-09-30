@@ -2827,3 +2827,16 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - the H parity update;
   - B's records.
 - **DEC-025 and GEN-8 run on the final head after RV23.**
+
+## K6c briefed; V-K's V3 addendum satisfied by KF3's B (ROOT, 2026-09-30)
+
+- **K6c's brief is committed:** `TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md`. It covers:
+  - E_max re-derived phase by phase against the post-KF3 kernel and corrected (KF3-B2);
+  - VR's stale port deduplicated;
+  - W1-T4 re-run post-KF3, as K6b's reserved addendum 1, in `T3/IMPLEMENTATION/K6C/`, since K6b's records are hash-bound;
+  - KF3's stale-doc NOTE;
+  - RV22's C-N1 if it fits.
+- **I21 is spawned after KF3 merges.** Its base must carry KF3's kernel.
+- **V-K's routed V3 re-run** ("V-K merged", Routed) **is satisfied by KF3's B.** B ran V-K's runner and `vk_scale`, unedited, on `e114b23c1`, whose FK equals KF3's final head `b8c55c92e`'s. It covers V1 to V3, outcomes and R1 honesty (`KF3/_run_records/b/`).
+  - The E_max column in those records comes from VR's stale port. It is superseded by K6c's corrected estimate, and no admission decision there relied on it at the margin.
+- **ROOT's W1 limits wait for K6c's merge** (the corrected E_max and the post-KF3 W1-T4).
