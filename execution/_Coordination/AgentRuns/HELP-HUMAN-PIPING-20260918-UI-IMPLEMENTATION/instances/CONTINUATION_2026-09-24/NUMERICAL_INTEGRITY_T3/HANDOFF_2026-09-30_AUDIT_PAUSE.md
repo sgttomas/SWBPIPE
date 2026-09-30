@@ -36,11 +36,13 @@ Each slice has `IMPLEMENTATION/<SLICE>_MERGE/RECORD.md`, with its gates and a sa
 | KF1 | K4's stop-rule trackers bounded (memory independent of the data) | #1056 | `0f5d8c7b4` |
 | V-K | the VP-ROBUST kernel lane (`numerical_robustness`, VR), FK's `retained_api` export | #1057 | `f8400d290` |
 | K6b | W1 observations on the K6 harness | #1058 | `78f55f927` |
-| KF3 | [TO FILL AT CLOSE] | #1059 | [TO FILL] |
+| KF3 | W1a at scale: amendment A2 (an unformable certified bound is unavailable, not a stop); partial stage work and per-block refusals on every path | #1059 | `dd61120ff` |
+| KF2 | K6's N10: the dense negative-pair witness from O(n⁴) to O(n²), every result bit-identical | #1060 | `7ad3a9adf` |
 
 ### 1.2 Open at the pause
 
-[TO FILL AT CLOSE: KF3's final state if it has not merged; KF2's state (branch `codex/piping-kf2-20260930`, `<wt>/kf2`); the records PR.]
+- **No slice PR is open.** KF3 and KF2 both merged on 2026-09-30.
+- **The records PR** (numerics → main, branch `codex/piping-t3-records-20260930`) carries this file and every T3 record since PR #1049. Its review, merge and outcome are recorded in a numerics ruling after this file ("Records PR … merged", or its open state if the pause came first). That ruling and anything after it stay on numerics until the next records PR.
 
 ### 1.3 Briefed, not spawned
 
@@ -51,12 +53,12 @@ Each slice has `IMPLEMENTATION/<SLICE>_MERGE/RECORD.md`, with its gates and a sa
 
 ### 1.4 No agent is running at the pause
 
-[TO CONFIRM AT CLOSE.] ROOT dispatched every TASK directly as a background subagent (host-native, D-GOV-35), and no T3 manager (WORKING_ITEMS) was used on the Mac: ROOT verified and committed every TASK's work. A resumed session has none of these subagents; start fresh ones from their briefs and the records.
+The TASKs of 2026-09-29 and 30 (I16 to I20, and RV19 to RV24) have all finished. ROOT dispatched every TASK directly as a background subagent (host-native, D-GOV-35), and no T3 manager (WORKING_ITEMS) was used on the Mac: ROOT verified and committed every TASK's work. A resumed session has none of these subagents; start fresh ones from their briefs and the records.
 
 ## 2. Remaining T3 order
 
 The work graph's T3 row governs where it differs.
-1. **Finish KF3 and KF2** (§1.2).
+1. **Rule on the audit's findings** (§10).
 2. **K6c.** Then **ROOT's W1 limits** (per-case work and memory), from K6, K6b, K6c, V-K and K4's work counts. **They must be set before F2a merges.**
 3. **The facade:** F2a (with D2's S-G1), then S-I, then F2b per domain, then F3. F2a is the first slice that makes W1a's results reach users.
 4. **Candidate slices, routed but not scheduled:**
@@ -90,8 +92,8 @@ Sections are appended in time order, each headed "(ROOT, date)". A later section
 | K6, K6b | "K6: …" sections; "K6b and V-K: spawn" through "K6b merged" |
 | V-K | "V-K: rulings on I17's checkpoint-0 plan" through "V-K merged" (THIN: "V-K: rulings on I17's A1 stop") |
 | KF1 | "KF1: spawn" through "KF1 merged" |
-| KF3 | "KF3: rulings on I19's diagnosis and plan …" through [the last KF3 section at close] |
-| KF2 | "KF2: spawn" through [the last KF2 section at close] |
+| KF3 | "KF3: rulings on I19's diagnosis and plan …" through "KF3 merged" |
+| KF2 | "KF2: spawn" through "KF2 merged" |
 | K6c, V3 | "K6c briefed; V-K's V3 addendum satisfied by KF3's B" |
 | Coupled merges | "Main merged into K6b and KF3"; "KF3: main merged; K6b's parity restored in KF3" |
 
@@ -123,7 +125,7 @@ The rules are in `_COMMON.md`, `I8R_K1_RESUME.md:24-50` (the Mac host) and `OWNE
    - strip ANSI codes;
    - replace the venv path with `<VENV>` and the T3 root with `<wt>`;
    - record the unsanitized JSON's sha256 in `sweep_json_original_sha256.txt`.
-   - The latest Mac baseline is `<wt>/scratch/sweep_k6b/`, whose piping source equals main `78f55f927`'s.
+   - The latest Mac baseline is `<wt>/scratch/sweep_kf2/`, whose piping source equals main `7ad3a9adf`'s (after KF2).
 8. **vitest's `App.test.tsx` workspace render can time out at 30 s** under a load above about 8. A timing-only failure is re-run on a quieter host, never waved through (K2b precedent).
 
 ### 5.3 GEN-8, CI and the merge
@@ -186,8 +188,9 @@ The rules are in `_COMMON.md`, `I8R_K1_RESUME.md:24-50` (the Mac host) and `OWNE
 3. **Porting code across crates goes stale.** VR's copy of E_max fell 153 MB behind K6b's. **Fix:** share rather than port (K6c's dedup). If a copy is unavoidable, pin it to the original with a test.
 4. **V-K's scale runner stops a tier at the first "not selected".** Re-run with `--run <tier>`, which skips recorded runs (I19's B note).
 5. **The rulings file is long.** Use §4's index.
-6. **The work graph lagged the rulings.** Update the T3 row at every merge, not in batches.
-7. **Shell detail:** in zsh, an unquoted `--include=*.rs` fails with "no matches found". Quote globs passed to grep.
+6. **ROOT merged KF3 without first checking that main had moved** (to PR #1061). It was harmless: #1061 touched only `chirality-app-v4`, and the merged piping, `tools/` and `.github/` trees equal the gated head's (`KF3_MERGE/RECORD.md`). But it was luck, not process. **Fix:** immediately before `gh pr merge`, run `git fetch origin main`, then `git diff --name-only <the main the head carries> origin/main`. If any path is under `projects/chirality-piping`, `tools/` or `.github/`, merge main into the branch and re-gate the affected checks.
+7. **The work graph lagged the rulings.** Update the T3 row at every merge, not in batches.
+8. **Shell detail:** in zsh, an unquoted `--include=*.rs` fails with "no matches found". Quote globs passed to grep.
 
 ## 8. For the auditor
 
@@ -197,7 +200,7 @@ The auditor is a colleague looking for issues early. Findings are welcome, and s
 
 1. **D1 revision 5a.3's amendments A1 and A2.** ROOT made both by ruling (§4). The base design (R7) had an independent design verifier (V4); A1 and A2 were checked only by slice reviewers (RV19 for A1, RV23 for A2). A design-level check of each honesty argument against R7's §5 text is the most valuable audit item. A2's claim is that B_c enters the guarantee only through B_c ≥ ‖K̃_c⁻¹‖₁, so a minimum over the formed, certified bounds preserves every step.
 2. **ROOT's rulings' figures** (§7.2 item 1): sample the figures in the 2026-09-29 and 2026-09-30 sections against their source records (RETURNs, `_run_records/`, reviews).
-3. **Merge records against reality,** for K4, KF1, V-K, K6b and KF3: heads, CI run IDs, target_base, DEC-025 comparisons, GEN-8 and the review verdicts.
+3. **Merge records against reality,** for K4, KF1, V-K, K6b, KF3 and KF2 (and KF3's disclosed merge-order slip): heads, CI run IDs, target_base, DEC-025 comparisons, GEN-8 and the review verdicts.
 4. **E_max:** it is known not to be an upper bound yet (KF3-B2; K6c's job). Check whether anything besides the harness's own admission relied on it.
 5. **The open design questions,** which the audit may investigate but not decide:
    - KF3-B1 (estimate (b), the λ split);
@@ -220,17 +223,17 @@ The auditor is a colleague looking for issues early. Findings are welcome, and s
 ## 9. Disk and prune candidates (nothing was deleted for this handoff)
 
 `<wt>` holds about 130 GB. The records keep every hash, so the items below are regenerable. Prune only with the owner's word:
-- **worktrees of merged slices:** `f1b`, `k1`, `k2b`, `k3`, `k4`, `k5`, `k6`, `k6b`, `kf1`, `vk`, `skewpin` and `sweep-k1`, about 2.2 GB each (sweep-k1 5 GB);
-- **targets:** `k1-target`, `k4-b-target`, `k4-b`, `f1b-target`, `tauri-f1b-target`, `rv7-target`, `rv11-target`, `k6b-target` and `kf3-target` (after KF3 merges), about 20 GB. `root-target` (6.4 GB) is of unrecorded origin; check before removing;
-- **scratch** (61 GB): the largest are `i13` (27 GB), `rv11` (12 GB), `i20`, `calib`, the two `gate_base_e7d930d49*` folders, `i14` and `tauri_f1b`.
+- **worktrees of merged slices:** `f1b`, `k1`, `k2b`, `k3`, `k4`, `k5`, `k6`, `k6b`, `kf1`, `kf2`, `kf3`, `vk`, `skewpin` and `sweep-k1`, about 2.2 GB each (sweep-k1 5 GB);
+- **targets:** `k1-target`, `k4-b-target`, `k4-b`, `f1b-target`, `tauri-f1b-target`, `rv7-target`, `rv11-target`, `k6b-target`, `kf3-target` and `kf2-target`, about 24 GB. `root-target` (6.4 GB) is of unrecorded origin; check before removing;
+- **scratch** (about 70 GB): the largest are `i13` (27 GB), `rv11` (12 GB), `i20` (about 12 GB, including KF2's uncommitted gate `runs.jsonl` files, whose sha256 is recorded), `calib`, the two `gate_base_e7d930d49*` folders, `i14` and `tauri_f1b`. The merged slices' sweep folders (`sweep_k4` to `sweep_kf2`) are small.
 - **Keep:**
-  - `numerics`, `kf2`, `kf3` (until merged) and `sweep-skewpin` (the DEC-025 worktree);
-  - `scratch/sweep_skewpin` (the driver), `scratch/sweep_k6b` (the latest Mac baseline) and `scratch/calib` (the platform calibration);
+  - `numerics` and `sweep-skewpin` (the DEC-025 worktree);
+  - `scratch/sweep_skewpin` (the driver), `scratch/sweep_kf2` (the latest Mac baseline; its piping source equals main `7ad3a9adf`'s) and `scratch/calib` (the platform calibration);
   - `guard/`.
 
 ## 10. Resuming
 
 1. Read this file, §7 first, then the T3 row of the work graph, then the last sections of `ROOT_RULINGS_V1.md`.
 2. Read the audit's handback (`T3/AUDIT/`), and rule on its findings in `ROOT_RULINGS_V1.md`.
-3. Merge main into numerics and into any open slice branch (§5.4), checking what the audit's repairs changed.
-4. Continue from §2: KF3 and KF2 if they are still open, then K6c (spawn I21 from its brief), then the W1 limits.
+3. Merge main into numerics (§5.4), checking what the audit's repairs changed.
+4. Continue from §2: K6c (spawn I21 from its brief, on a base that carries KF3), then the W1 limits, then F2a.
