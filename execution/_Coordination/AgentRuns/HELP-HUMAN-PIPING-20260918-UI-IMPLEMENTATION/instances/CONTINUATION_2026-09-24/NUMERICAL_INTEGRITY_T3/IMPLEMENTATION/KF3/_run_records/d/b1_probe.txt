@@ -1,0 +1,65 @@
+KF3-B1 light probe (T3 KF3 checkpoint D; scratch, not committed code)
+
+What: R7's verification estimate (b), W_q <= 2^(6-P)·ê, evaluated for every force
+and moment row of one verification, printed as ratio = Ŵ_q / (2^(6-P)·ê)
+(binary64, upward). (b) rejects when a ratio exceeds 1. Each PAIR is one candidate
+p verified at P = 2p (128/256, 256/512, 512/1024), built exactly as W1 builds them
+(build_shared, solve_case_at, build_verify_shared, verify_state, decide), with no
+case limit.
+
+Source: kf3_b1_probe.rs.txt, mounted #[cfg(test)] in the scratch archive copy's
+K4R/adaptive.rs (a git archive of e114b23c1 at <wt>/kf3-b/src):
+    #[cfg(test)]
+    #[path = "../../../tests/retained_k4/kf3_b1_probe.rs"]
+    mod kf3_b1_probe;
+
+Models: gentree.py.txt (R1's comb tree lg_tree_defn(n), loads scaled by 2^sc so the
+largest rotation is near 1e-4, through GEN's R1 adapter r1_adapt, K4T text). These
+are not VR's committed RF-LARGE-TREE files: the family and the load case are R1's,
+the encodings differ (K4SRC below). Generated in <scratch>/kf3:
+    python3 gentree.py 1000,2000,4000
+    python3 gentree.py 3000,6000,8000     -> 3000 sc -17; 6000 sc -18; 8000 sc -20
+sha256 of the model files:
+    b1ec4a9d295e73a7f77e21690c62fbf9d6d6df691fa4f8591fafeeb34f007984  tree_n01000.k4t
+    58b442be5344be0e9fa5805ba307aa8df1fb9bb0b18f466c1544bb116690bfb0  tree_n02000.k4t
+    af8f0cdd936c80ac6ed47c1fa959d6154561bfd0c8ca4d323d2a254d0bd0eba8  tree_n03000.k4t
+    b4bde26b6e36e02a351d37f76ef8ddff32e7158048041e98bdb3b0b0873f3824  tree_n04000.k4t
+    01fcd156edca8538263dba2acea5aacbf6f528a579eda50128514850d36c7f84  tree_n06000.k4t
+    7a7930094900573842321cc90502b7cb921c11156619ad8c8dcca34e1e0cc292  tree_n08000.k4t
+
+Command (in <wt>/kf3-b/src/projects/chirality-piping/core/solver/frame_kernel):
+    KF3_B1_MODEL=<scratch>/kf3/tree_nNNNNN.k4t KF3_B1_PAIRS=<pairs> \
+    env RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 \
+    cargo test --offline --locked -j 4 --release --lib --target-dir <wt>/kf3-target \
+      -- --ignored kf3_b1_probe --nocapture
+Pairs run: 1000, 2000, 3000, 6000, 8000: 128; 4000: 128, then 256,512.
+Longest single pair: 11.6 s (4000, 512/1024). One cargo job at a time; the memory
+guard ran throughout.
+
+Output (the MODEL, PAIR and top5 lines, verbatim):
+
+MODEL KF3-TREE-n01000-AX K4SRC 391db2026afe47f50a11fe7c8b7310c9ae446905e0b1545b008630cb2c7c4517
+PAIR 128 vs 256: decision Ok(true) rejection None; worst (b) ratio Some(0.3205211561836846) at Some(EndAction { member: 11, end: I, component: Uy }); member 1 end I Uy (index 7008) ratio Some(0.32052114764998924); B [Some(1798301576867214.0)]; theta [2.099726236780691e-57]; 0.9s
+  top5 EndAction { member: 11, end: I, component: Uy }=0.321 EndAction { member: 11, end: J, component: Uy }=0.321 StationAction { station: 11, component: Uy }=0.321 EndAction { member: 7, end: I, component: Uy }=0.321 EndAction { member: 7, end: J, component: Uy }=0.321
+
+MODEL KF3-TREE-n02000-AX K4SRC 43fdd5c977fc93992ff8c2de56802388a5c284a96b1732d24775ce2195fc2a1c
+PAIR 128 vs 256: decision Ok(true) rejection None; worst (b) ratio Some(0.39469837984019246) at Some(EndAction { member: 1, end: I, component: Uz }); member 1 end I Uy (index 14008) ratio Some(0.3266897322012174); B [Some(4.046620827367066e16)]; theta [4.724900445412452e-56]; 1.7s
+
+MODEL KF3-TREE-n03000-AX K4SRC ea810cbab0bd5bb4a1ac9ddcd68728a3d727721e866cf2a340964765f957ccd7
+PAIR 128 vs 256: decision Ok(false) rejection Some(VerificationEstimate { index: 21009 }); worst (b) ratio Some(1.1583424177326738) at Some(EndAction { member: 3, end: I, component: Uz }); member 1 end I Uy (index 21008) ratio Some(2.627912580874559e-6); B [Some(2.5118988271563498e17)]; theta [2.932934019168847e-55]; 2.4s
+
+MODEL KF3-TREE-n04000-AX K4SRC 2e04de65cb9f278cf639d1fce5d09a6a5aefe235c72a99f1d1c74bda5f237eb6
+PAIR 128 vs 256: decision Ok(false) rejection Some(VerificationEstimate { index: 28009 }); worst (b) ratio Some(1.0125195052673408) at Some(EndAction { member: 1, end: I, component: Uz }); member 1 end I Uy (index 28008) ratio Some(0.44052410149282784); B [Some(9.110803665863356e17)]; theta [1.0637922883155853e-54]; 3.2s
+PAIR 256 vs 512: decision Ok(false) rejection Some(VerificationEstimate { index: 28009 }); worst (b) ratio Some(1.0125195054160825) at Some(EndAction { member: 1, end: I, component: Uz }); member 1 end I Uy (index 28008) ratio Some(0.44052410150026894); B [Some(9.110803665863356e17)]; theta [9.187089509503021e-132]; 6.0s
+  top5 EndAction { member: 1, end: I, component: Uz }=1.013 EndAction { member: 1, end: J, component: Uz }=1.013 StationAction { station: 1, component: Uz }=1.013 Reaction(Dof { node: 0, component: Uy })=1.013 EndAction { member: 5, end: I, component: Uz }=1.013
+PAIR 512 vs 1024: decision Ok(false) rejection Some(VerificationEstimate { index: 28009 }); worst (b) ratio Some(1.0125195073386881) at Some(EndAction { member: 1, end: I, component: Uz }); member 1 end I Uy (index 28008) ratio Some(0.44052410151150445); B [Some(9.110803665863356e17)]; theta [6.852044388990851e-286]; 11.6s
+
+MODEL KF3-TREE-n06000-AX K4SRC 0ece3134c042b982d8b3b49aff605257ed5c150ec8f50742a2cd845bead405de
+PAIR 128 vs 256: decision Ok(false) rejection Some(VerificationEstimate { index: 42009 }); worst (b) ratio Some(2.2332256183396226) at Some(EndAction { member: 1, end: I, component: Uz }); member 1 end I Uy (index 42008) ratio Some(2.7617998034553867e-6); B [Some(5.651259335424139e18)]; theta [6.59850252598542e-54]; 4.7s
+
+MODEL KF3-TREE-n08000-AX K4SRC b948aa9904ec4b21e5ab52a4ff4feb762ec576e4fe0c772fc4411bfb211e43e6
+PAIR 128 vs 256: decision Ok(false) rejection Some(VerificationEstimate { index: 56008 }); worst (b) ratio Some(2.7672590741469034) at Some(EndAction { member: 1, end: I, component: Uy }); member 1 end I Uy (index 56008) ratio Some(2.7672590741469034); B [Some(2.067616776236612e19)]; theta [2.4141830538985814e-53]; 6.2s
+
+Derived: c = 64 x ratio = Ŵ_q·2^P/ê at the worst row (the (b) coefficient the row
+would need): 1000: 20.5; 2000: 25.3; 3000: 74.1; 4000: 64.80 (at P = 256, 512 and
+1024 alike, to 9 digits); 6000: 142.9; 8000: 177.1. (b) admits c <= 64.

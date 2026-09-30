@@ -1,0 +1,84 @@
+RF-CHAIN: rows 2760: passes 2700, absolute-range passes 0, not covered 0 | structural zeros 60, expected unresolved 0, failures 0
+RF-CHAIN: outcomes {"selected Some(128)": 30}
+RF-CHAIN: controls discriminated 82, non-discriminating 38, undiscriminated [], unexpectedly failing []
+RF-CHAIN: 0.1s
+RF-SKEW: rows 1080: passes 982, absolute-range passes 0, not covered 2 | structural zeros 96, expected unresolved 0, failures 0
+RF-SKEW: outcomes {"selected Some(128)": 36}
+RF-SKEW: controls discriminated 105, non-discriminating 33, undiscriminated [], unexpectedly failing []
+RF-SKEW: 0.1s
+RF-WEAK: rows 618: passes 566, absolute-range passes 0, not covered 46 | structural zeros 6, expected unresolved 0, failures 0
+RF-WEAK: outcomes {"selected Some(128)": 9}
+RF-WEAK: controls discriminated 23, non-discriminating 13, undiscriminated [], unexpectedly failing []
+RF-WEAK: 0.0s
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-CHAIN-n00010-AX","dec053_ratio_in_allowances":0.00026094085797555896,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-CHAIN-n00010-ROT","dec053_ratio_in_allowances":0.03820034152276524,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-TREE-n00010-AX","dec053_ratio_in_allowances":0.00630702766467845,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-TREE-n00010-ROT","dec053_ratio_in_allowances":0.005227033029933681,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-CONT-n00010-AX","dec053_ratio_in_allowances":1.901512327101089e-7,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-CONT-n00010-ROT","dec053_ratio_in_allowances":0.000010741256124506697,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-LARGE-CHAIN-n00100-AX","dec053_ratio_in_allowances":2.233387772482559,"dec053_within":false,"dense":"Sensitive","sparse":"Sensitive"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-LARGE-CHAIN-n00100-ROT","dec053_ratio_in_allowances":344.8670229204612,"dec053_within":false,"dense":"Sensitive","sparse":"Sensitive"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-LARGE-TREE-n00100-AX","dec053_ratio_in_allowances":14.319897703190744,"dec053_within":false,"dense":"Sensitive","sparse":"Sensitive"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-LARGE-TREE-n00100-ROT","dec053_ratio_in_allowances":11.164786596598626,"dec053_within":false,"dense":"Sensitive","sparse":"Sensitive"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-CONT-n00100-AX","dec053_ratio_in_allowances":4.7582915453598174e-7,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-LARGE-CONT-n00100-ROT","dec053_ratio_in_allowances":0.00004039333669930846,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-LARGE: rows 9054: passes 9054, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-LARGE: outcomes {"selected Some(128)": 12}
+RF-LARGE: controls discriminated 38, non-discriminating 0, undiscriminated [], unexpectedly failing []
+RF-LARGE: 1.2s
+RF-INVARIANCE: {"at":"th.N3.RY","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":null,"largest_difference_in_allowances":1.3552505353625656e-7,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-ROT-Q3"}
+RF-INVARIANCE: {"at":"th.N1.RY","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":null,"largest_difference_in_allowances":1.3552505353625656e-7,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-ROT-Q9"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":92,"largest_difference_in_allowances":0.0,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-OFF-1e3"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":92,"largest_difference_in_allowances":0.0,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-OFF-1e6"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":92,"largest_difference_in_allowances":0.0,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-RELABEL"}
+RF-INVARIANCE: {"at":"tw.M3","base":"RF-INVARIANCE-PINTOR-BASE","bit_identical":null,"largest_difference_in_allowances":1.2051082421725988e-7,"rows_compared":92,"rows_unmatched":0,"variant":"RF-INVARIANCE-PINTOR-UNITS-mm"}
+RF-INVARIANCE: {"at":"th.A1.RY","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":null,"largest_difference_in_allowances":1.35520377425823e-7,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-ROT-Q3"}
+RF-INVARIANCE: {"at":"th.A1.RY","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":null,"largest_difference_in_allowances":1.35520377425823e-7,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-ROT-Q9"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":44,"largest_difference_in_allowances":0.0,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-OFF-1e3"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":44,"largest_difference_in_allowances":0.0,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-OFF-1e6"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":44,"largest_difference_in_allowances":0.0,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-RELABEL"}
+RF-INVARIANCE: {"at":"th.A2.RY","base":"RF-INVARIANCE-LFRAME-BASE","bit_identical":null,"largest_difference_in_allowances":6.617205928995264e-11,"rows_compared":44,"rows_unmatched":0,"variant":"RF-INVARIANCE-LFRAME-UNITS-mm"}
+RF-INVARIANCE: {"at":"Mb.A4.j","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":null,"largest_difference_in_allowances":1.4817388084955128e-7,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-ROT-Q3"}
+RF-INVARIANCE: {"at":"u.C4.UX","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":null,"largest_difference_in_allowances":1.348360352762395e-7,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-ROT-Q9"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":128,"largest_difference_in_allowances":0.0,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-OFF-1e3"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":128,"largest_difference_in_allowances":0.0,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-OFF-1e6"}
+RF-INVARIANCE: {"at":"Mb.E1.i","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":127,"largest_difference_in_allowances":4.2485079875940544e-30,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-RELABEL"}
+RF-INVARIANCE: {"at":"u.C4.UY","base":"RF-INVARIANCE-CONT4-BASE","bit_identical":null,"largest_difference_in_allowances":1.3807210012286924e-7,"rows_compared":128,"rows_unmatched":0,"variant":"RF-INVARIANCE-CONT4-UNITS-mm"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-TREE100-BASE","bit_identical":1312,"largest_difference_in_allowances":0.0,"rows_compared":1312,"rows_unmatched":0,"variant":"RF-INVARIANCE-TREE100-OFF-1e3"}
+RF-INVARIANCE: {"at":"","base":"RF-INVARIANCE-TREE100-BASE","bit_identical":1312,"largest_difference_in_allowances":0.0,"rows_compared":1312,"rows_unmatched":0,"variant":"RF-INVARIANCE-TREE100-OFF-1e6"}
+RF-INVARIANCE: {"at":"tw.E84","base":"RF-INVARIANCE-TREE100-BASE","bit_identical":1063,"largest_difference_in_allowances":7.409663449528548e-25,"rows_compared":1312,"rows_unmatched":0,"variant":"RF-INVARIANCE-TREE100-RELABEL"}
+RF-INVARIANCE: rows 7096: passes 7056, absolute-range passes 0, not covered 0 | structural zeros 40, expected unresolved 0, failures 0
+RF-INVARIANCE: outcomes {"selected Some(128)": 25}
+RF-INVARIANCE: controls discriminated 47, non-discriminating 7, undiscriminated [], unexpectedly failing []
+RF-INVARIANCE: 0.5s
+RF-RANGE: rows 2720: passes 2590, absolute-range passes 0, not covered 0 | structural zeros 80, expected unresolved 50, failures 0
+RF-RANGE: outcomes {"selected Some(128)": 30, "unresolved None": 2}
+RF-RANGE: controls discriminated 80, non-discriminating 12, undiscriminated [], unexpectedly failing []
+RF-RANGE: 0.1s
+RF-ZERO: rows 158: passes 158, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-ZERO: outcomes {"selected Some(128)": 4}
+RF-ZERO: controls discriminated 9, non-discriminating 0, undiscriminated [], unexpectedly failing []
+RF-ZERO: 0.0s
+RF-FINITE: rows 748: passes 748, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-FINITE: outcomes {"selected Some(128)": 6}
+RF-FINITE: controls discriminated 6, non-discriminating 6, undiscriminated [], unexpectedly failing []
+RF-FINITE: 0.0s
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-MECH-LINE122-TORQUE","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)","sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-MECH-LINE122-PERP","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)","sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-MECH-LINE122-UNLOADED","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)","sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-MECH-LINE345-RZ","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)","sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-MECH-K0","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)","sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-MECH-DISC-CHAIN100","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)","sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":false,"case":"RF-MECH-DISC-CHAIN100-SPRING","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)","sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":null,"both_passed":false,"case":"RF-MECH-LINE-IN-CHAIN1000","dec053_ratio_in_allowances":null,"dec053_within":null,"dense":null,"sparse":"NumericallyUnresolved(nonpositive or cancellation-unresolved structural pivot)"}
+RF-MECH: parity {"bitwise_k_equal":true,"both_passed":true,"case":"RF-MECH-LINE345-RX-COMPANION","dec053_ratio_in_allowances":3.999344720270697e-7,"dec053_within":true,"dense":"Passed","sparse":"Passed"}
+RF-MECH: rows 26: passes 26, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0
+RF-MECH: outcomes {"refused None": 8, "selected Some(128)": 1}
+RF-MECH: controls discriminated 26, non-discriminating 0, undiscriminated [], unexpectedly failing []
+RF-MECH: 623.7s
+RF-CANCEL: rows 1444: passes 1441, absolute-range passes 0, not covered 3 | structural zeros 0, expected unresolved 0, failures 0
+RF-CANCEL: outcomes {"selected Some(128)": 38}
+RF-CANCEL: controls discriminated 90, non-discriminating 62, undiscriminated [], unexpectedly failing []
+RF-CANCEL: 0.1s
+env RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 cargo    621.49s user 1.28s system 97% cpu 10:38.50 total
+git diff -- projects/chirality-piping/validation/ after vk_records --write: empty (every committed VR record reproduced byte for byte)
