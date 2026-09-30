@@ -2672,3 +2672,16 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - ROOT merges main into KF3 and K6b;
   - KF3's B (the scale evidence) runs with main's `vk_scale`;
   - K6b's gates continue.
+
+## Main merged into K6b and KF3 (ROOT, 2026-09-30)
+
+- **K6b:** ROOT merged main `f8400d290` (V-K) as `597c81ba4`.
+  - The conflicts in `retained/adaptive.rs` and `verify.rs` were resolved to main's versions. K6b's FK change was exactly A0 (patch-id `b43efeb4`), and A0 is identical on main, so main's FK (A0 plus V-K's gated sites) is the merged result.
+  - K6b's FK now equals main's. The full-SHA dispatch 36650532005 runs on the new head.
+- **KF3:** ROOT started the merge of main `f8400d290`. There is one conflict hunk, in `AttemptRecord`: A0 made `verification_shared_work` and `verification_shared_built_here` public, and KF3 added `bound_refusals` beside them.
+  - **Resolution rule:** under A0's rule (the fields of evidence records are public; "V-K: rulings on I17's checkpoint-0 plan" Q8), `bound_refusals` is `pub`. `BlockRefusal`, and any type it carries, becomes `pub` and is added to the `retained_api` facade.
+  - I19 resolves the conflict markers by editing only; ROOT stages and commits the merge.
+- **KF3's write set gains, for the merge only:**
+  - `FK/src/structural.rs`'s facade lines, for `BlockRefusal`;
+  - **VR's committed records** (`VR/observations/**`), if KF3's partial-stage recording or `bound_refusals` changes them. They are regenerated with VR's own tools, only the expected fields may change, and VR's suite and kill matrix must pass. V-K's tests compare its records byte for byte, and V-K is now on main.
+- **K6b's `uc == 0` test and parity check** follow the earlier rule: whichever of KF3 and K6b merges second updates them.
