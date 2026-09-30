@@ -41,6 +41,7 @@ ROOT's W1 limits rest on K6b's E_max being an upper bound on W1's heap in every 
 3. **Deduplicate VR's estimate.** VR takes E_max from H's `estimate`, or from one shared definition, rather than its own port.
    - Choose the mechanism at checkpoint 0: a dependency, a shared module, or a generated table.
    - Say which committed VR records carry the estimate, and whether VR's byte-for-byte tests move. Only the estimate's fields may change, and VR's suite and kill matrix must pass.
+   - Re-check every admission decision V-K's runner made with the stale port (V-K's B and KF3's B) against the corrected estimate, and list any that would change.
 4. **W1-T4 post-KF3** (K6b's reserved addendum 1), in a slot ROOT grants.
    - Run K6b's W1-T4 schedule (b3's six RF-LARGE 10,000-member models, both passes, the repeats), with its prefixes, on a release binary from a `git archive` of your candidate.
    - Record, per model: outcome, precision, work by stage and precision, heap, footprint, RSS, time with its load, and heap against the corrected E_max.
