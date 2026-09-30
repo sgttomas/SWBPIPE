@@ -1,0 +1,54 @@
+#!/bin/bash
+# RV25: delta check of records PR #1062 at 18b625268 (one commit on b0e357985).
+# Usage, from the repository root of the numerics working tree at 18b625268:
+#   bash delta_checks.sh.txt
+# Read-only: git show/diff/rev-list, gh pr/run view, shasum. No writes.
+# The other outputs in this folder come from the review's own scripts:
+#   append_only_delta.out.txt   append_only.py.txt b0e3579856 18b625268b
+#   append_only_vs_main.out.txt append_only.py.txt 7ad3a9adf4 18b625268b
+#   sums_coverage_18b625268.out.txt sums_coverage.py.txt 7ad3a9adf4 18b625268b <_Coordination>
+#   leak_scan_delta.out.txt     leak_scan.py.txt b0e3579856 18b625268b
+set -u
+T3=projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3
+WG=projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+OLD=b0e357985; NEW=18b625268
+
+echo "== 1. The commit"
+echo "parents: $(git rev-list --parents -n1 $NEW | cut -d' ' -f2- | cut -c1-10)"
+git diff --name-status $OLD $NEW | awk '{print $1}' | sort | uniq -c | sed 's/^/   /'
+echo "paths outside _Coordination: $(git diff --name-only $OLD $NEW | grep -vc '^projects/chirality-piping/execution/_Coordination/')"
+echo "RV25's review committed verbatim: $(git show $NEW:$T3/REVIEW/RECORDS_PR1062_REVIEW.md | shasum -a 256 | cut -c1-12) (returned 45b276421c97)"
+echo "RV25's SHA256SUMS committed verbatim: $(git show $NEW:$T3/REVIEW/_run_records/records_pr1062_review/SHA256SUMS | shasum -a 256 | cut -c1-12) (returned fe00bcef6f62)"
+
+echo "== 2. shasum -c in RV25's folder at the head (committed files only)"
+( cd $T3/REVIEW/_run_records/records_pr1062_review && git show $NEW:./SHA256SUMS | shasum -a 256 -c - 2>&1 | awk '{print $NF}' | sort | uniq -c | sed 's/^/   /' )
+
+echo "== 3. Phrases the fixes target, at the head (V1 line: bracketed after the phrase?)"
+V1=$T3/ROOT_RULINGS_V1.md
+for p in '19\.5 MB' '0\.82 GB' '65–188 s at 1,000' 'before `uc`' 'relied on it at the margin' 'ROOT has not verified them'; do
+  git show $NEW:$V1 | grep -nE "$p" | while IFS=: read n rest; do
+    b=$(printf '%s' "$rest" | grep -c 'Correction (ROOT, 2026-09-30, RV25-')
+    echo "   V1:$n '$p' -> RV25 bracket on the line: $b"
+  done
+done
+echo "   I21 :20 RV25-S1 bracket: $(git show $NEW:$T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md | sed -n 20p | grep -c 'Correction (ROOT, 2026-09-30, RV25-S1)')"
+echo "   I21 like-for-like bar: $(git show $NEW:$T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md | grep -c 'Compare like for like')"
+echo "   WG 'about 19 MB': $(git show $NEW:$WG | grep -c 'about 19 MB'); WG 'APP:': $(git show $NEW:$WG | grep -c 'APP:'); WG '10.8 MB': $(git show $NEW:$WG | grep -c 'net 10.8 MB')"
+H=$T3/HANDOFF_2026-09-30_AUDIT_PAUSE.md
+echo "   handoff 'APP:': $(git show $NEW:$H | grep -c 'APP:'); 'at least seven': $(git show $NEW:$H | grep -c 'at least seven'); 'surfaced THIN': $(git show $NEW:$H | grep -c 'surfaced THIN'); 'RV25-N5': $(git show $NEW:$H | grep -c 'RV25-N5'); 'RV25-N7': $(git show $NEW:$H | grep -c 'RV25-N7'); 'about 2,850': $(git show $NEW:$H | grep -c 'about 2,850')"
+
+echo "== 4. KF3 RETURN §13 (the source S1's corrections cite)"
+git show $NEW:$T3/IMPLEMENTATION/KF3/RETURN.md | sed -n '420,423p;441,445p' | cut -c1-220 | sed 's/^/   /'
+echo "== 5. VK RETURN §14.3 row (the source S2's correction cites)"
+git show $NEW:$T3/IMPLEMENTATION/VK/RETURN.md | sed -n 502p | cut -c1-200 | sed 's/^/   /'
+python3 -c "
+for a,b in ((816.5,835.0),(2676,2752)):
+    print(f'   {a}-{b} MiB = {a*1.048576/1000:.2f}-{b*1.048576/1000:.2f} GB = {a/1024:.2f}-{b/1024:.2f} GiB')"
+
+echo "== 6. PR body and CI at the head"
+gh pr view 1062 --repo sgttomas/chirality --json headRefOid --jq '"   PR head \(.headRefOid[0:10])"'
+gh pr view 1062 --repo sgttomas/chirality --json body --jq '.body' | grep -nE 'RV25-N1|RV25-N9|1,447 lines' | cut -c1-200 | sed 's/^/   body:/'
+for r in $(gh pr view 1062 --repo sgttomas/chirality --json statusCheckRollup --jq '[.statusCheckRollup[] | .detailsUrl | capture("runs/(?<r>[0-9]+)").r] | unique | .[]'); do
+  gh run view $r --repo sgttomas/chirality --json workflowName,event,headSha,conclusion --jq "\"   $r \(.workflowName) | \(.event) | \(.headSha[0:10]) | \(.conclusion)\""
+done
+gh pr view 1062 --repo sgttomas/chirality --json statusCheckRollup --jq '"   checks: " + ([.statusCheckRollup[] | .conclusion] | group_by(.) | map("\(.[0])=\(length)") | join(" "))'

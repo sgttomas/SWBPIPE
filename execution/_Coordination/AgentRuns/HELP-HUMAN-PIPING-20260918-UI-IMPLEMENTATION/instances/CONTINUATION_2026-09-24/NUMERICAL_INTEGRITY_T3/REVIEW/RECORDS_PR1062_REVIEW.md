@@ -266,3 +266,71 @@ Checked with `append_only.py.txt` (difflib line opcodes, and a character-subsequ
   - `<wt>/scratch/tauri_f1b/tree` (one file);
   - `<wt>/scratch/sweep_skewpin/dec025_mac.sh`.
 - **Writes:** this file and `T3/REVIEW/_run_records/records_pr1062_review/` (scripts `*.py.txt`/`*.sh.txt`, their outputs, `README.txt`, `SHA256SUMS`), all uncommitted. The host-name patterns for the leak scan lived only in my session scratch.
+
+## Delta check at 18b625268
+
+**Delta verdict: PASS.** S1 and S2 are fixed at every site I named, and the corrected statements agree with KF3 RETURN §13 and VK RETURN §14.3. N2–N8 are handled as the rulings say. N1 and N9 are disclosed in the PR body, and N10 is recorded in the rulings. The check adds 4 new NOTEs (D1–D4) and no BLOCKING or SHOULD-FIX finding. The review's verdict stands: PASS.
+
+**Scope.** ROOT resumed me for this check. The mechanism is unchanged: a background subagent of ROOT's session, with no delegation and no Git writes or index operations.
+- **The head:** `18b625268b76606401961fc512fb0ec8fcb5947d`, PR #1062's `headRefOid` and `<wt>/numerics` HEAD. It has one parent, `b0e357985`, the head I reviewed. Base main is `7ad3a9adf`.
+- **The commit changes 26 paths, all under `_Coordination/`:** 22 added and 4 modified.
+  - **Added:** this review (sha256 `45b27642…`) and my 21 run-record files (`SHA256SUMS` `fe00bcef…`). Both are byte-identical to what I returned.
+  - **Modified:** `ROOT_RULINGS_V1.md`, `TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md`, `HANDOFF_2026-09-30_AUDIT_PAUSE.md` and the work graph.
+- **Records:** `_run_records/records_pr1062_review/delta_18b625268/`. That covers `delta_checks.sh.txt` and its output, the review's scripts re-run on the delta (append-only, SUMS coverage, leak scan), and `gen8_delta.out.txt`.
+
+### Findings: resolution
+
+| ID | Status at `18b625268` | Evidence |
+|---|---|---|
+| S1 | **resolved** | Insert-only brackets now stand at every site I named, and at one more:<br>• **V1 :2806:** "not like for like … On `vk_scale`'s own fixed term, K6b's final formula **bounds** both measured peaks, by 7.0 and 7.5 MB … net 10,799,688 B … On main the call is at `bound.rs:1059`."<br>• **V1 :2757**, the checkpoint-B finding: its 2,750 is VR's stale port, and like for like the peaks are bounded.<br>• **I21 :20:** a bracket giving the premise, the basis and `:1059`.<br>• **I21 :37:** a new like-for-like requirement in K6c's bar.<br>• **`WG:62`:** the phrase is re-worded to "by code derivation, its 1024 shift term under-counts by a net 10.8 MB …, chiefly `nl_pass`'s buffers; like for like the measured peaks were still within it, by 7.0–7.5 MB". This text is new in this PR, so rewording it is acceptable.<br>• **Handoff §8.1 item 4:** the same.<br>**Against the source:** KF3 RETURN §13's table (+19.5/+19.4 MB on `k6_observe`'s fixed term, −7.0/−7.5 MB on `vk_scale`'s) and its derivation (+17,280,000 − 6,480,312 = 10,799,688 B) match every corrected figure. The call is at `bound.rs:1059` at main, where the file equals `aa83f6796`'s. No "about 19 MB" is left in `WG`. See D1 for one clause of I21's bracket. |
+| S2 | **resolved** | V1 :2521 gains "[Correction (ROOT, 2026-09-30, RV25-S2): … a heap of 816.5–835.0 MiB (0.86–0.88 GB) and E_max 2,676–2,752 MiB (2.81–2.89 GB). ρ is unaffected.]". VK RETURN :502 gives 816.5–835.0 and 2,676–2,752 MiB, and the conversions are right: 0.86–0.88 GB and 2.81–2.89 GB. |
+| N1 | disclosed | The PR body's "Modified files (main's text)" section names `WG:62`'s RV16-D1 rewording, and says V1's append starts at "K6: rulings on I15's checkpoint-0 plan". Against main, `WG:62`'s only non-insert edit is still that one clause. See D3. |
+| N2 | resolved | V1 :2841 gains a bracket quoting the withdrawn words and citing `e48774292` and `ffc489f52`, 12 s apart. Handoff §7.2 item 1 now lists seven errors, each with its V1 bracket: :2348, :2537, :2631, :2841, :2521, :2757/:2806 and :2785. Every one exists. |
+| N3 | resolved | V1 :2785 gains "[… 65–86 s at 1,000 members; 166–188 s at K6's 1,364-member ceiling (B3).]", which matches KF2's plan :415. |
+| N4 | resolved | V1 :2519 gains "[… 'before the Uc bounds complete' … inside `uc_bounds`.]", which matches VK RETURN :493 and V1 :2548. |
+| N5 | resolved | Handoff :154 now names `REVIEW/_run_records/SHA256SUMS` as the exception, run from `REVIEW/`. |
+| N6 | resolved | Handoff §7.1 item 1 no longer credits checkpoint 0 with THIN. §4 now says "about 3,000 lines"; the file has 3,035. §1.4 now lists I12–I20, RV17–RV25, V4 and DS1. |
+| N7 | resolved | Handoff :233 now reads "`sweep_k4` to `sweep_kf3` … `sweep_kf2` is kept as the current Mac baseline, which overrides the prune list in `KF2_MERGE/RECORD.md`". The hash-bound record is untouched. |
+| N8 | resolved | "APP:" is gone from `WG` and the handoff. Both now cite `P/apps/desktop/src-tauri/src/lib.rs:1688-1692` and `:1711-1717`. V1 :2785 keeps "APP:", which is acceptable in a ruling. See D4. |
+| N9 | disclosed | The PR body's "Hygiene (RV25-N9)" line. |
+| N10 | recorded | The new V1 section, "Records PR #1062: rulings on RV25's review" (:3004-3035), records it, and the hash-bound K5 record is untouched. |
+
+### No main or earlier ruling text removed
+
+- **Against `b0e357985`** (`append_only_delta.out.txt`):
+  - **V1:** six replaced lines (:2519, :2521, :2757, :2785, :2806 and :2841). Each is insert-only: the old line is a character subsequence of the new line, and the only additions are the "[Correction (ROOT, 2026-09-30, RV25-…)]" brackets. Then 32 appended lines, the new rulings section.
+  - **I21:** two insert-only lines, :20 and :37.
+  - **`WG` :38 and :62, and the handoff (:56, :80, :82, :162, :180, :209 and :233):** these are rewordings. Each rewords only text that this PR itself added: `WG:38`'s T6 note and `WG:62`'s audit-pause paragraph, both added in `07fb44d56`, and the handoff, which is new in this PR. :154 and :184 are insert-only.
+- **Against main `7ad3a9adf`** (`append_only_vs_main.out.txt`):
+  - main's 1,556 lines of V1 are kept, with the one insert-only bracket at :1400 as before, and then 1,479 appended lines;
+  - `V4_VERIFICATION.md`, `K5_REVIEW.md` and `RECORDS_PR1049_REVIEW.md` still start with main's bytes;
+  - the three modified SHA256SUMS files are as before;
+  - `WG`'s only non-insert change is still N1's clause.
+
+### Hashes, leaks, GEN-8 and CI
+
+- **SHA256SUMS** (`sums_coverage_18b625268.out.txt`, checked against the head's blobs): all 26 files that cover a changed path verify and are complete. That includes my own folder, 20/20, which `delta_checks.out.txt` §2 also verifies with `shasum -a 256 -c`. Main's `REVIEW/_run_records/SHA256SUMS` is 76/76 from `REVIEW/`, as before.
+- **Machine paths:** `leak_scan_delta.out.txt` over the 26 changed paths finds hits only in my own records, and only where a pattern describes itself:
+  - GEN-8's regex matches the two pattern-list lines of my `leak_scan.py.txt` (:9, :26);
+  - the host patterns match my review's `<home>/.local` placeholder mention (:128) and RV18's pattern list as copied into `leak_scan.out.txt` (:12).
+  - None is a machine path, and ROOT's new text has none.
+- **GEN-8 passes at `18b625268`** (`gen8_delta.out.txt`): 1 passed, 10 deselected. It was run twice:
+  - with this delta folder moved aside, so the tree was exactly the head, with `git status` empty;
+  - again with the delta folder present.
+- **Hosted CI on `18b625268`:** 7 success and 6 skipped, the records-only selection. The four runs are pec-tests 36680738836, governance-harness 36680738848, Harness Pre-merge 36680738849 and Piping Desktop E2E 36680738860, all `pull_request` on the head.
+
+### Delta findings
+
+| ID | Severity | Site | Evidence | Resolution |
+|---|---|---|---|---|
+| D1 | NOTE | `TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md:20` (the S1 bracket's last sentence); also V1 :2806 and handoff :209 ("not yet *shown* to bound that phase") | **The bracket understates what KF3's derivation shows.** It ends "So E_max is not yet *shown* to bound that phase; it has not been shown to fail it either."<br>KF3 RETURN §13 (:444-445): "With this phase taken from the code, K6b's E_max on H's harness would be 3,021,565,490 (AX) …. So K6b's formula **does not bound this phase by construction**." Against the current 3,010,765,802 B, the derivation shows the formula falls short for that phase. What no one has shown is a *measured* peak above it (no `k6_observe` run exists), and the one like-for-like measurement is within it.<br>K6c's task and bar are unaffected. It re-derives and corrects either way, and D1 does not reopen S1. | Before K6c spawns, reword I21's last clause, for example: "By the code derivation, E_max falls short of that phase by 10,799,688 B ('does not bound this phase by construction', KF3 RETURN §13); no measured peak has yet exceeded it." Optionally align V1 :2806 and handoff :209 in the same way. |
+| D2 | NOTE | V1 :3017-3018 (the new section, S1: "Corrected in place with brackets: … the work graph's state paragraph; and the handoff §8.1"); commit `18b625268`'s message ("All corrections are brackets or additions") | **The ruling says two S1 corrections are brackets; they are rewordings.** `WG:62`'s phrase and handoff §8.1 item 4 were reworded, which ROOT's dispatch message and the PR body state correctly. The rewordings touch only this PR's own new text, and Git keeps the old wording, so nothing is lost. | Optional: "[the work-graph and handoff fixes are rewordings of this PR's own text]" in the next rulings section. |
+| D3 | NOTE | PR #1062 body, "What", the `ROOT_RULINGS_V1.md` bullet (line 10) | **The body contradicts itself.** It still says "1,447 lines appended (from 'Records PR #1049 merged' onward)". Its own "Modified files" section (line 24) gives the correct start, and at `18b625268` V1 appends 1,479 lines. | Edit the "What" bullet to match line 24, with 1,479 lines. |
+| D4 | NOTE | `WG:38` (the T6 note) | **"APP" is replaced by a prefix the work graph doesn't define.** `P/` is defined in the handoff (:17), but the work graph defines no `P/` and uses it nowhere else; main's work graph has none. | Optional: `projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs`. |
+
+### What I did not do in the delta
+
+- **Not re-checked:** the first review's facts outside the delta. The merge records, DEC-025 and the figure sample are unchanged by `18b625268`.
+- **Not re-derived:** KF3's §13 byte accounting. I checked the corrections against §13's stated table and derivation.
+- **Runs:** GEN-8 twice at the head, plus read-only `git`, `gh` and `shasum`.
+- **Writes:** this appended section and `delta_18b625268/` (7 files), with SHA256SUMS extended by appending their entries (the 20 existing lines are unchanged). All are uncommitted.

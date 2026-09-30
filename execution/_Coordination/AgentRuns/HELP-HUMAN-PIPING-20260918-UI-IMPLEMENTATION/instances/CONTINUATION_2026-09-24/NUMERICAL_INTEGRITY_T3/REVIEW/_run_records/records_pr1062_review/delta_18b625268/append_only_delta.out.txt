@@ -1,0 +1,117 @@
+== projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/HANDOFF_2026-09-30_AUDIT_PAUSE.md
+   base lines 239, head lines 244; head starts with base bytes: False
+   replace base 56-56 -> head 56-56
+      base 56 / head 56: insert-only=False
+         replace at col 0: 'Th' -> 'Ev'
+         + at col 3: 'ry'
+         + at col 10: ' dispatched in thi'
+         + at col 30: 'sessi'
+         + at col 36: 'n has '
+         + at col 43: 'inished (on'
+         replace at col 31: '(' -> 'these included '
+         replace at col 34: '6' -> '2'
+         delete at col 44: 'and ' -> ''
+         replace at col 51: '9' -> '7'
+         + at col 111: '5, V'
+         delete at col 60: ') have' -> ''
+         replace at col 68: 'll' -> 'nd'
+         replace at col 71: 'finished' -> 'DS1)'
+   replace base 80-80 -> head 80-80
+      base 80 / head 80: insert-only=False
+         replace at col 121: 'A' -> '`'
+         replace at col 123: 'P' -> '/apps/desktop/src-tauri/src/lib.rs'
+         + at col 167: '`'
+         + at col 173: '`'
+         + at col 184: '`'
+   replace base 82-82 -> head 82-82
+      base 82 / head 82: insert-only=False
+         replace at col 45: '2' -> '3'
+         replace at col 47: '85' -> '00'
+   replace base 154-154 -> head 154-154
+      base 154 / head 154: insert-only=True
+         + at col 122: ' The one exception on main is `REVIEW/_run_records/SHA256SUMS`, whose paths are relative to `REVIEW/`, so it is run from there (RV25-N5).'
+   replace base 162-162 -> head 162-162
+      base 162 / head 162: insert-only=False
+         + at col 127: 'and '
+         delete at col 172: ', and surfaced THIN in V-K before B' -> ''
+   replace base 180-180 -> head 180-180
+      base 180 / head 180: insert-only=False
+         + at col 29: 'or claims '
+         replace at col 40: 'four' -> 'at least seven'
+         + at col 91: 'now carr'
+         delete at col 72: 's r' -> ''
+         delete at col 76: 'corded a' -> ''
+         + at col 125: ' in `ROOT_RULINGS_V1.md`'
+   replace base 184-184 -> head 184-189
+      block insert-only=True
+         + at char 66: ' It was replaced in place without a bracket at first; the bracket was added after RV25-N2;'
+         + at char 157: "   - V-K B's heap and E_max in GB that were MiB/1,000, the same slip again (RV25-S2);\n   - KF3-B2 stated as a measured excess of 19.5 MB, when the like-for-like comparison is within the bound. It spread into K6c's brief and the work graph before RV25 caught it (RV25-S1);\n   - the dense factor's time"
+   replace base 204-204 -> head 209-209
+      base 204 / head 209: insert-only=False
+         + at col 14: 'by code derivation '
+         delete at col 16: ' i' -> ''
+         replace at col 20: 'known' -> '1024'
+         replace at col 26: 'no' -> 'shif'
+         delete at col 31: 'o b' -> ''
+         replace at col 35: ' an' -> 'rm'
+         replace at col 40: 'pp' -> 'nd'
+         replace at col 44: ' b' -> '-c'
+         replace at col 49: 'd' -> 'ts'
+         + at col 66: 'b'
+         + at col 68: ' a n'
+         + at col 74: ' 10.8 MB at 10,000 members'
+         + at col 120: '. Like for like, the measured peaks were still within it by 7.0–7.5 MB (RV25-S1), so it is not yet *shown* to bound that phase'
+   replace base 228-228 -> head 233-233
+      base 228 / head 233: insert-only=False
+         replace at col 305: '2' -> '3'
+         + at col 319: ' `sweep_kf2` is kept as the current Mac baseline, which overrides the prune list in `KF2_MERGE/RECORD.md` (RV25-N7).'
+== projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md
+   base lines 3003, head lines 3035; head starts with base bytes: False
+   replace base 2519-2519 -> head 2519-2519
+      base 2519 / head 2519: insert-only=True
+         + at col 246: ' [Correction (ROOT, 2026-09-30, RV25-N4): "before `uc`" should read "before the Uc bounds complete". The shared build recorded no `uc` stage for the partial work, and KF3\'s diagnosis places the stop inside `uc_bounds`.]'
+   replace base 2521-2521 -> head 2521-2521
+      base 2521 / head 2521: insert-only=True
+         + at col 112: ' [Correction (ROOT, 2026-09-30, RV25-S2): these GB figures are MiB divided by 1,000, the E_adm slip again. VK RETURN §14.3 gives a heap of 816.5–835.0 MiB (0.86–0.88 GB) and E_max 2,676–2,752 MiB (2.81–2.89 GB). ρ is unaffected.]'
+   replace base 2757-2757 -> head 2757-2757
+      base 2757 / head 2757: insert-only=True
+         + at col 54: ' [Correction (ROOT, 2026-09-30, RV25-S1): the figures below compare against VR\'s stale port of E_max, and like for like K6b\'s final formula bounds the measured peaks (see the correction in "KF3: D accepted; KF3-B1 and KF3-B2 routed"). KF3-B2 stands on the code derivation of an under-count, not on a measured excess.]'
+   replace base 2785-2785 -> head 2785-2785
+      base 2785 / head 2785: insert-only=True
+         + at col 291: " [Correction (ROOT, 2026-09-30, RV25-N3): 65–86 s at 1,000 members; 166–188 s at K6's 1,364-member ceiling (B3).]"
+   replace base 2806-2806 -> head 2806-2806
+      base 2806 / head 2806: insert-only=True
+         + at col 153: " [Correction (ROOT, 2026-09-30, RV25-S1): that comparison is not like for like. It sets `vk_scale`'s measured peak against K6b's E_max with `k6_observe`'s fixed term. On `vk_scale`'s own fixed term, K6b's final formula **bounds** both measured peaks, by 7.0 and 7.5 MB (KF3 RETURN §13); that fixed term is itself an estimate. KF3-B2 stands on the code derivation alone: H's pass term under-counts the 1024 shift by a net 10,799,688 B (`at`/`bt`/`ct` omitted, `work` counted after it is freed, `OPTION_EXTRA` over-counted), so E_max is not yet shown to bound that phase. On main the call is at `bound.rs:1059`. The routing to K6c is unchanged.]"
+   replace base 2841-2841 -> head 2841-2841
+      base 2841 / head 2841: insert-only=True
+         + at col 209: ' [Correction (ROOT, 2026-09-30, RV25-N2): as first written (`e48774292`), the previous sentence ended "…, and no admission decision there relied on it at the margin". That was an unverified claim, replaced in place 12 s later (`ffc489f52`) with no bracket. The bracket is added here.]'
+   insert at head 3004-3035 (32 lines) after base 3003
+== projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md
+   base lines 97, head lines 97; head starts with base bytes: False
+   replace base 20-20 -> head 20-20
+      base 20 / head 20: insert-only=True
+         + at col 234: " **[Correction (ROOT, 2026-09-30, RV25-S1): this comparison is not like for like. It uses `k6_observe`'s fixed term against `vk_scale`'s measured peak. On `vk_scale`'s own fixed term, K6b's final formula bounds both peaks, by 7.0 and 7.5 MB (KF3 RETURN §13). The finding rests on the code derivation below (a net under-count of 10,799,688 B at the 1024 shift), not on a measured excess. So E_max is not yet *shown* to bound that phase; it has not been shown to fail it either. On K6c's base (main), the `nl_pass` call in `shift_schedule` is at `K4R/bound.rs:1059`.]**"
+   replace base 37-37 -> head 37-37
+      base 37 / head 37: insert-only=True
+         + at col 154: ' **Compare like for like:** use the fixed term of the binary that measured the peak (`k6_observe` or `vk_scale`), and say how that fixed term is derived (RV25-S1).'
+== projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md
+   base lines 416, head lines 416; head starts with base bytes: False
+   replace base 38-38 -> head 38-38
+      base 38 / head 38: insert-only=False
+         replace at col 1919: 'A' -> '`'
+         replace at col 1921: 'P' -> '/apps/desktop/src-tauri/src/lib.rs'
+         replace at col 1932: ',' -> '`'
+         + at col 1967: 'and `'
+         + at col 1982: '`'
+   replace base 62-62 -> head 62-62
+      base 62 / head 62: insert-only=False
+         + at col 8283: 'by code der'
+         + at col 8295: 'va'
+         + at col 8298: 'ion,'
+         delete at col 8286: 'om' -> ''
+         replace at col 8292: "`nl_pass`'s buffers on a" -> '1024'
+         + at col 8317: ' t'
+         + at col 8320: 'rm un'
+         + at col 8326: 'er-counts by a net'
+         replace at col 8327: '24 factor, about 19' -> '.8'
+         + at col 8370: ", chiefly `nl_pass`'s buffers; like for like the measured peaks were still within it, by 7.0–7.5 MB; RV25-S1"
