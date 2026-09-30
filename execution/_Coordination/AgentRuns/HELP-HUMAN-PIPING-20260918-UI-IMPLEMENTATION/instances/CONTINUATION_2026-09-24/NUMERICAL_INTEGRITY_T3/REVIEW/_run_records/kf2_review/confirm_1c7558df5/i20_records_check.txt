@@ -1,0 +1,6 @@
+RV24 confirmation at 1c7558df5: I20's rv24_mutants.py.txt (committed at 1c7558df5, _run_records/rv24/) against the reviewer's rv24_mutants.py (../scripts/rv24_mutants.py.txt):
+byte-identical
+fd619dd891267fe459939952ef759b91aa4e20d31dc2ae99f8b12dc9907eae0b
+
+KF2 folder integrity at 1c7558df5 (reviewer's archive of the folder): every SHA256SUMS verifies (top-level, a, b, rv24): 0 failures each; 126 files, 125 listed + the top-level SHA256SUMS; 0 machine paths.
+RETURN.md 891476c0...  CHANGE_RECORD.md 05f5f994...  SHA256SUMS 2814d9f7...  _run_records/rv24/SHA256SUMS e75b551b...  (B's records unchanged since 6caa38e23: git diff --stat empty)

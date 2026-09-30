@@ -31,3 +31,9 @@ To re-run the harness: copy scripts/rv24_probe.rs.txt and scripts/rv24_old_fns.r
 make_old_fns.sh) into FK/src/structural/ of a head copy as rv24_probe.rs and rv24_old_fns.rs, append
 `#[cfg(test)]\nmod rv24_probe;` to FK/src/structural.rs, and run `cargo test --lib rv24_ -- --nocapture` (add
 `--release -- --ignored rv24_cost_scaling_release` for the cost observation).
+
+confirm_1c7558df5/  RV24's confirmation of head 1c7558df5 (KF2_REVIEW.md, "Confirmation at 1c7558df5"): scope.txt (the delta
+            f2b8c85a2..1c7558df5 and file hashes), mutations/ (NONE, RV24-M1, M4b and M5 on the committed tests only, from the
+            reviewer's archive of 1c7558df5; driver.log, per-mutant logs and build logs), rv24c_run_mutants.sh.txt (the driver),
+            fk_full_suite_debug.log (FK at 1c7558df5: 417 passed, 1 ignored), n3_count.txt (RV24-N3's count against B's index and
+            the instrumented part-1 run), i20_records_check.txt (I20's mutant texts and KF2's SHA256SUMS at 1c7558df5).

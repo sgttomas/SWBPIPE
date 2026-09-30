@@ -234,3 +234,45 @@ The base has the same set, less I20's module. A whole-repository `git grep -w` f
 - `checks/`: the reference copies and scope, B's records, the runs.jsonl diff, the reach scan, the built-order search, the screen arithmetic.
 - `gate/`: the probe hashes and inputs, their build logs, the 20-run sample, the 860-run instrumented part 1 and the N10 CHAIN-ROT runs.
 - Paths are shown as `<wt>`, `<scratch>`, `<home>` and `<tmp>`.
+
+## Confirmation at 1c7558df5
+
+- **Head confirmed:** `1c7558df5` (`1c7558df50e44efcc81382c4e391597ae8b21e90`), I20's one commit on `f2b8c85a2` after this review, under ROOT's "KF2: rulings on RV24's review".
+- **Verdict: CONFIRMED.** RV24-1 is closed. There is no new finding, and one correction to my own RV24-N3 wording.
+- **Records:** `_run_records/kf2_review/confirm_1c7558df5/`.
+- **Host and git:** my own clean `git archive` copies of `1c7558df5` and `f2b8c85a2` under `<wt>/rv24c/`, with their own targets, since deleted. One cargo job of mine at a time, at `-j 4` with `RUST_TEST_THREADS=2`. The memory guard ran, with no KILLED line, and RV23's cargo ran beside mine. Git was read-only.
+
+**1. The delta touches no product file** (`scope.txt`).
+- Outside `execution/`, the whole-repository diff `f2b8c85a2..1c7558df5` is `FK/structural/kf2_witness_tests.rs` only: +262 lines and 0 deletions, so every earlier test is unchanged.
+- `diff -rq` of my two archives finds only that file.
+- `structural.rs` (`2d794ee8…`) and `tests/s11_site_table.rs` (`b15aa8b8…`) are byte-identical to `f2b8c85a2`.
+- The rest of the delta is KF2's records: RETURN and CHANGE_RECORD addendum 1, `SHA256SUMS`, and the new `_run_records/rv24/`. B's records are unchanged since `6caa38e23`.
+- Every KF2 `SHA256SUMS` verifies: top-level, a, b and rv24, with 126 files and no machine path (`i20_records_check.txt`).
+
+**2. The three mutants are killed by the committed tests** (`mutations/`). The driver is `rv24c_run_mutants.sh.txt`.
+- **Method:** a clean copy of `core` from my archive of `1c7558df5`, with **no reviewer probe mounted**, one edit with the review's own edit text, and its own target. Tests: FK's lib filtered to `kf2_`, `krev04` and `k1_negative_witness`, then the site table.
+- I20's committed `rv24_mutants.py.txt` is byte-identical to mine.
+
+| Mutant | Result | Killing tests |
+|---|---|---|
+| NONE | 19 passed, 1 ignored; site table 3 of 3 | — |
+| RV24-M1 (the coupling cells swapped) | **killed** | `kf2_rv24_asymmetric_source_error_order` by result: the reference gives `Range("arithmetic outside normal range")`, the mutant `Range("product overflow or underflow")`. Also `kf2_rv24_edge_scans_by_term_count_and_skew`, by the verification count on a skewed 3-term pair |
+| RV24-M4b (the allowance charged for four cells) | **killed** | `kf2_rv24_edge_scans_by_term_count_and_skew` by result: on a 3-term pair the reference publishes the witness, and the mutant gives `Ok(None)` |
+| RV24-M5 (the source read transposed) | **killed** | as RV24-M1 |
+
+- **The new tests' self-checks are live.** Every crossable pattern crosses in all 60 of its scans, over 840 scans and 67,200 systems. 61 skewed pairs discriminate the coupling order, and 17,050 pairs of 1–3 terms discriminate the charged count.
+- The adopted cases use this file's reference copies and `check`, which I found verbatim in §2.
+
+**3. FK passes** (`fk_full_suite_debug.log`, my archive of `1c7558df5`, debug).
+- The lib passes 351 with 1 ignored (T6, release-only). With the 7 integration files (60) and 6 doc-tests, that is **417 passed, 0 failed** and 0 warnings.
+- The 15 debug `kf2_` tests pass, including the two new ones; the 16th, T6, is release-only and ignored.
+- The equality code is byte-identical to `f2b8c85a2`, so this review's harness results (§1) stand for this head.
+
+**4. The RV24-N3 count: I20's correction is right, and my "eight" was wrong** (`n3_count.txt`).
+- In B's index, the dense witness ran in 16 runs; my instrumented part-1 run lists them.
+- **4 of the 16 publish a recovered (solved) response:** the captured-entry dense FX-NP-A-ulp-.75, -1, -1.5 and -2.
+- **The other 12 publish the refusal:** those four cases' typed dense runs, and both entries of RF-CHAIN-T-n10, RF-CHAIN-A-n10, RF-SKEW-T-PIN-OFF-122 and RF-WEAK-W-L at r1e-12.
+- **Where eight came from:** the eight FX-NP-A captured runs I counted include the four sparse-mode ones. Those also publish a recovered result, but do not run the dense witness. The ulp .25 and .5 cases, solved or refused in either mode, do not reach the witness either.
+- RETURN addendum 1 (A1.4) states this correctly.
+
+**Merge check:** none is needed yet. KF2 has not merged main. If ROOT merges main into KF2 after KF3, I will check that head.
