@@ -91,3 +91,22 @@ This is the draft PR record for slice KF2 of T3 (numerical integrity; K6's findi
 - **T6 and T9 (routed by ROOT):** the desktop's dense route observes cancellation only before the solve and before publication (APP:1688-1692, :1711-1717). After KF2 the dense factor is the long step, 65–188 s at 1,000 members up to the ceiling.
 - **V-K:** the 103-member RF-MECH-DISC dense parity, which stayed out of CI because of the witness's cost (about 300 s each), could now be reconsidered by its owners.
 - **The reviewer:** I20's scratch (`<wt>/scratch/i20/`, `<wt>/kf2-target`) is kept until KF2 merges.
+
+## Addendum 1: RV24's review (PASS) and its test fix
+
+- **Review:** RV24 (`T3/REVIEW/KF2_REVIEW.md`) reviewed head `f2b8c85a2`: PASS, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs. ROOT's "KF2: rulings on RV24's review" (`78950b720`) asks for RV24-1's tests before merge, test-only.
+- **Change:** `FK/structural/kf2_witness_tests.rs` +262 (1,231 lines, sha256 `4a805ef7…`, rustfmt-clean). No production code or site-table change.
+  - `kf2_rv24_asymmetric_source_error_order`: three 2×2 corrupted pairs on evidence-allowed asymmetric sources, whose (j,i) and (i,j) cells fail differently.
+  - `kf2_rv24_edge_scans_by_term_count_and_skew`: RV24's edge scan over 1- to 4-term pairs, symmetric and skewed. It runs 840 scans and 67,200 systems, and self-checks its power to discriminate the coupling order and the charged-term count.
+  - Both are adopted from RV24's harness onto this file's reference copies and checks.
+- **The three mutants are now killed by the committed tests.** They were run from clean `git archive f2b8c85a2` copies with RV24's edit texts, and NONE passes:
+  - RV24-M1 (the coupling cells swapped) and RV24-M5 (the source read transposed) are killed by the error-order test (by result) and the edge scan (by the verification count);
+  - RV24-M4b (the allowance charged for four cells) is killed by the edge scan (by result).
+- **Suites:** FK's full suite passes 417, with 0 failed, 1 ignored and 0 warnings. The KF2 and witness tests take 10.2 s in debug, against 9.3 s before.
+- **NOTEs:**
+  - **N1:** RV24-M2 and RV24-M9 are equivalent, and recorded.
+  - **N2:** the dense witness is also reached from `sparse_interactive` (SA:2017), from the nonlinear loop (NI `lib.rs:1990` and `:2013`, through SA's binary64 solves) and from SD:37. The PR text names these routes.
+  - **N3:** T9 does not reach the witness, and the found-witness path is unit-tested only. B's SUMMARY wording is corrected in RETURN addendum 1: the four captured-entry FX-NP-A witness runs publish a recovered (solved) response; the other 12 publish the refusal.
+  - **N4:** carried to the dense-screen slice. Measure the pivots, enumerate class changes by running, and treat the `operation_count` change as a contract note.
+  - **N5:** the cost reproduces, and is recorded.
+- **Records:** RETURN addendum 1, and `_run_records/rv24/` with its own `SHA256SUMS`. The folder's `SHA256SUMS` is refreshed.

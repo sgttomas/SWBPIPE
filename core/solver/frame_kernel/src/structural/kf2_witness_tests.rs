@@ -885,6 +885,268 @@ fn kf2_cells_follow_the_prepared_matrix_not_the_source() {
     assert_eq!(check(&prepared, "magnitude 0"), Ok(None));
 }
 
+// ------------------------------------------------------------------ RV24-1
+
+// Adopted from RV24's review harness (`REVIEW/_run_records/kf2_review/scripts/
+// rv24_probe.rs.txt`: `rv24_adversarial_cases` and
+// `rv24_edge_scans_every_term_count`), onto this file's reference and checks.
+// The cases above use symmetric sources and four-term edge pairs, where the two
+// coupling terms are equal; these give the guard an asymmetric source (allowed
+// by symmetry evidence) and edge pairs of 1 to 4 terms, so that swapping the
+// coupling cells, reading the source transposed, or charging the allowance for
+// four cells changes the outcome.
+
+/// A source whose asymmetry any evidence allows (roundoff f64::MAX per entry).
+fn skew_allowed(k: Vec<Vec<f64>>) -> Case {
+    let n = k.len();
+    Case {
+        evidence: Some((vec![vec![f64::MAX; n]; n], vec![vec![0_usize; n]; n])),
+        ..Case::plain(k)
+    }
+}
+
+/// RV24's `run_corrupt`: an identity source with `source`'s free map is
+/// prepared, then its prepared matrix, exponents and source are replaced.
+fn run_corrupted(
+    source: &Case,
+    matrix: Vec<Vec<f64>>,
+    exponents: Vec<i32>,
+    context: &str,
+) -> Outcome {
+    let total = source.k.len();
+    let mut k = vec![vec![0.0; total]; total];
+    for (d, row) in k.iter_mut().enumerate() {
+        row[d] = 1.0;
+    }
+    let identity = Case {
+        k,
+        f: vec![0.0; total],
+        free: source.free.clone(),
+        bc: (0..total)
+            .filter(|g| !source.free.contains(g))
+            .map(|g| (g, 0.0))
+            .collect(),
+        evidence: None,
+    };
+    let is = identity.system();
+    let mut prepared = prepare_structural(&is).unwrap();
+    let s = source.system();
+    prepared.source = &s;
+    prepared.matrix = matrix;
+    prepared.scale_exponents = exponents;
+    check(&prepared, context)
+}
+
+#[test]
+fn kf2_rv24_asymmetric_source_error_order() {
+    // Pair (1, 0) of a 2×2 system whose two source couplings fail differently:
+    // in the verifier's order the (j,i) cell comes first. Swapping the coupling
+    // cells, or reading the source transposed, reaches the other error first.
+    let ones = vec![vec![1.0, 1.0], vec![1.0, 1.0]];
+    let cases = [
+        (
+            "(j,i) overflows the magnitude, (i,j) underflows in the product",
+            vec![vec![1e308, 1e308], vec![5e-324, 1.0]],
+            vec![0, 0],
+            "arithmetic outside normal range",
+        ),
+        (
+            "(j,i) underflows in the product, (i,j) overflows the magnitude",
+            vec![vec![1e308, 5e-324], vec![1e308, 1.0]],
+            vec![0, 0],
+            "product overflow or underflow",
+        ),
+        (
+            "(j,i) fails in radix_scale at exponent sum 30, (i,j) is fine",
+            vec![vec![1.0, pow2(1000)], vec![1.0, 1.0]],
+            vec![30, 0],
+            "radix scaling loses normal range",
+        ),
+    ];
+    for (name, k, e, message) in cases {
+        let source = skew_allowed(k);
+        let outcome = run_corrupted(&source, ones.clone(), e, name);
+        assert_eq!(outcome, Err(StructuralError::Range(message)), "{name}");
+    }
+}
+
+/// The verdict of V's sums over `terms`, with the allowance charged for
+/// `charged` terms (V charges `terms.len()`). Independent of the product code.
+fn local_verdict_charged(terms: &[f64], charged: usize) -> bool {
+    let mut energy = 0.0;
+    let mut magnitude = 0.0;
+    for &t in terms {
+        energy = energy + t;
+        magnitude = magnitude + t.abs();
+    }
+    energy < -(64.0 * gamma(3 * charged + 2) * magnitude)
+}
+
+/// Patterns of the four cells (j,j), (j,i), (i,j), (i,i) that are nonzero in
+/// the prepared matrix (RV24's `PATTERNS`).
+const PATTERNS: [(&str, [bool; 4]); 7] = [
+    ("P4", [true, true, true, true]),
+    ("P3a-jj0", [false, true, true, true]),
+    ("P3b-ii0", [true, true, true, false]),
+    ("P2d-diag", [true, false, false, true]),
+    ("P2c-coup", [false, true, true, false]),
+    ("P1-ii", [false, false, false, true]),
+    ("P1-jj", [true, false, false, false]),
+];
+
+#[test]
+fn kf2_rv24_edge_scans_by_term_count_and_skew() {
+    // RV24's edge scan: for each pattern of nonzero cells, and for symmetric
+    // and skewed sources (couplings k and k(1 + 1e-3 u) under f64::MAX
+    // evidence), scan the last evaluated cell's source value (both couplings
+    // together when symmetric) over 80 ulps around the verdict's crossing. The
+    // pair sits first, last or in the middle of the search; the other DOFs have
+    // diagonals of 1e6 and zero couplings.
+    // Self-checks of discriminating power, computed locally: skewed pairs of
+    // three or four terms whose verdict changes when the two couplings trade
+    // places (a swapped cell order, or a transposed source read); and pairs of
+    // one to three terms whose verdict changes when the allowance charges four
+    // cells.
+    let mut rng = Rng(0x4B46_3206);
+    let mut crossings = std::collections::BTreeMap::<String, usize>::new();
+    let mut scans = 0;
+    let mut systems = 0;
+    let mut order_discriminating = 0;
+    let mut charge_discriminating = 0;
+    for rep in 0..60 {
+        for (name, pat) in PATTERNS {
+            for skewed in [false, true] {
+                let n = 2 + rng.below(4);
+                let (i, j) = match rng.below(3) {
+                    0 => (1, 0),
+                    1 => (n - 1, n - 2),
+                    _ => {
+                        let i = 1 + rng.below(n - 1);
+                        (i, rng.below(i))
+                    }
+                };
+                let coupled = pat[1];
+                let msign = if rng.chance(0.5) { 1.0 } else { -1.0 };
+                let s = if !coupled || msign >= 0.0 { -1.0 } else { 1.0 };
+                let a = (1.0 + rng.unit()) * [1.0, 2.0][rng.below(2)];
+                let k1 = if rng.chance(0.5) { 1.0 } else { -1.0 } * (1.0 + rng.unit()) * 2.0;
+                let k2 = if skewed {
+                    k1 * (1.0 + 1e-3 * rng.unit())
+                } else {
+                    k1
+                };
+                let b0 = (1.0 + rng.unit()) * 2.0;
+                let last = (0..4).rev().find(|&c| pat[c]).unwrap();
+                let set = |x: f64| -> [f64; 4] {
+                    let mut v = [a, k1, k2, b0];
+                    v[last] = x;
+                    if !skewed && (last == 1 || last == 2) {
+                        v[1] = x;
+                        v[2] = x;
+                    }
+                    v
+                };
+                let terms = |v: [f64; 4]| -> Vec<f64> {
+                    let mult = [1.0, s, s, 1.0];
+                    (0..4).filter(|&c| pat[c]).map(|c| v[c] * mult[c]).collect()
+                };
+                let witness = |x: f64| local_verdict_charged(&terms(set(x)), terms(set(x)).len());
+                let (mut lo, mut hi) = (-64.0_f64, 64.0_f64);
+                if witness(lo) == witness(hi) {
+                    continue;
+                }
+                for _ in 0..2000 {
+                    let mid = lo / 2.0 + hi / 2.0;
+                    if mid == lo || mid == hi {
+                        break;
+                    }
+                    if witness(mid) == witness(lo) {
+                        lo = mid;
+                    } else {
+                        hi = mid;
+                    }
+                }
+                scans += 1;
+                let mut value = lo;
+                for _ in 0..40 {
+                    value = value.next_down();
+                }
+                let mut verdicts = Vec::new();
+                for step in 0..80 {
+                    let v = set(value);
+                    let t = terms(v);
+                    if skewed && coupled && t.len() >= 3 {
+                        let mut swapped = v;
+                        swapped.swap(1, 2);
+                        order_discriminating += usize::from(
+                            local_verdict_charged(&terms(swapped), t.len())
+                                != local_verdict_charged(&t, t.len()),
+                        );
+                    }
+                    if t.len() < 4 {
+                        charge_discriminating += usize::from(
+                            local_verdict_charged(&t, 4) != local_verdict_charged(&t, t.len()),
+                        );
+                    }
+                    let mut k = vec![vec![0.0; n]; n];
+                    let mut m = vec![vec![0.0; n]; n];
+                    for d in 0..n {
+                        k[d][d] = 1e6;
+                        m[d][d] = 1e6;
+                    }
+                    k[j][j] = v[0];
+                    k[j][i] = v[1];
+                    k[i][j] = v[2];
+                    k[i][i] = v[3];
+                    m[j][j] = if pat[0] { 1.0 } else { 0.0 };
+                    m[i][i] = if pat[3] { 1.0 } else { 0.0 };
+                    m[i][j] = if coupled { msign } else { 0.0 };
+                    m[j][i] = m[i][j];
+                    let source = if k[j][i] != k[i][j] {
+                        skew_allowed(k)
+                    } else {
+                        Case::plain(k)
+                    };
+                    let context = format!(
+                        "edge rep {rep} {name} skewed={skewed} step {step} value={value:e}"
+                    );
+                    let outcome = run_corrupted(&source, m, vec![0; n], &context);
+                    systems += 1;
+                    verdicts.push(matches!(outcome, Ok(Some(_))));
+                    value = value.next_up();
+                }
+                let changes = verdicts.windows(2).filter(|w| w[0] != w[1]).count();
+                *crossings
+                    .entry(format!("{name} skewed={skewed}"))
+                    .or_default() += usize::from(changes > 0);
+            }
+        }
+    }
+    eprintln!(
+        "KF2 RV24 edge scans: {scans} scans, {systems} systems; crossings {crossings:?}; order-discriminating {order_discriminating}; charge-discriminating {charge_discriminating}"
+    );
+    for (name, _) in PATTERNS {
+        for skewed in [false, true] {
+            if name.starts_with("P1") || (name == "P2c-coup" && !skewed) {
+                continue; // one term ties only at 0; a symmetric P2c is 2sk, which never crosses
+            }
+            let key = format!("{name} skewed={skewed}");
+            assert!(
+                crossings.get(&key).copied().unwrap_or(0) > 0,
+                "{key}: no scan crossed the verdict"
+            );
+        }
+    }
+    assert!(
+        order_discriminating > 0,
+        "no skewed pair discriminates the coupling order"
+    );
+    assert!(
+        charge_discriminating > 0,
+        "no 1- to 3-term pair discriminates the charged terms"
+    );
+}
+
 // ------------------------------------------------------------------ T5, T6: cost
 
 /// R1's SEC_N properties (E 200 GPa, G 80 GPa, OD 0.2 m, ID 0.18 m; J = 2I).

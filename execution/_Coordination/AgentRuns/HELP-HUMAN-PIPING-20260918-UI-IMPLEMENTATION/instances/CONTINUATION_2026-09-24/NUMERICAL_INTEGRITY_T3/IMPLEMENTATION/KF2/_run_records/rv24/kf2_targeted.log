@@ -1,0 +1,33 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (<wt>/kf2-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+
+running 20 tests
+test structural::kf2_witness_tests::kf2_cells_follow_the_prepared_matrix_not_the_source ... ok
+test structural::kf2_witness_tests::kf2_corrupted_shapes_and_sources_match_the_reference ... ok
+test structural::kf2_witness_tests::kf2_cost_bound_at_6006_dofs ... ignored, KF2 T6: release-only cost test (n = 6,006); run with --release -- --ignored
+test structural::kf2_witness_tests::kf2_errors_in_a_pair_before_and_after_a_witness ... ok
+test structural::kf2_witness_tests::kf2_first_error_depends_on_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_mapping_error_after_the_verdict ... ok
+test structural::kf2_witness_tests::kf2_cost_counts_on_a_100_member_chain ... ok
+test structural::kf2_witness_tests::kf2_reference_verifier_is_todays_verifier ... ok
+KF2 rounding family: 4 of 12288 pairs change verdict in the reversed order
+test structural::kf2_witness_tests::kf2_rounding_family_discriminates_the_cell_order ... ok
+test structural::kf2_witness_tests::kf2_rv24_asymmetric_source_error_order ... ok
+KF2 randomized: 142 witnesses, 98 none
+test structural::kf2_witness_tests::kf2_randomized_systems_match_the_reference ... ok
+KF2 exact ties: 9
+test structural::kf2_witness_tests::kf2_ties_at_the_allowance_edge ... ok
+test structural::kf2_witness_tests::kf2_witness_across_zero_couplings_and_both_signs ... ok
+KF2 RV24 edge scans: 840 scans, 67200 systems; crossings {"P1-ii skewed=false": 0, "P1-ii skewed=true": 0, "P1-jj skewed=false": 0, "P1-jj skewed=true": 0, "P2c-coup skewed=false": 0, "P2c-coup skewed=true": 60, "P2d-diag skewed=false": 60, "P2d-diag skewed=true": 60, "P3a-jj0 skewed=false": 60, "P3a-jj0 skewed=true": 60, "P3b-ii0 skewed=false": 60, "P3b-ii0 skewed=true": 60, "P4 skewed=false": 60, "P4 skewed=true": 60}; order-discriminating 61; charge-discriminating 17050
+test structural::kf2_witness_tests::kf2_rv24_edge_scans_by_term_count_and_skew ... ok
+test structural::kf2_witness_tests::kf2_zero_coupling_pairs_are_visited ... ok
+test structural::sparse::tests::k1_negative_witness_matches_the_dense_search_and_verification ... ok
+test structural::sparse::tests::k1_negative_witness_visits_only_pattern_pairs ... ok
+test structural::sparse::tests::krev04_on_sparse_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::tests::krev04_witness_helpers_reject_internally_corrupted_shape_without_panic ... ok
+test structural::kf2_witness_tests::kf2_witness_position_first_last_middle_none_and_several ... ok
+
+test result: ok. 19 passed; 0 failed; 1 ignored; 0 measured; 332 filtered out; finished in 10.24s
+
+cargo test --offline --locked -j 4 --lib -- kf2_ krev04 k1_negative_witness   11.81s user 0.10s system 115% cpu 10.267 total
+exit 0

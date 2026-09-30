@@ -248,3 +248,94 @@ Nothing else changes: no FKP, SD, NI/SA, PP, H, app or tooling file, and no scre
 - **The two part-1 `runs.jsonl` files** are not committed (606 MB each). Their hashes are in `_run_records/b/gate/uncommitted_sha256.txt`.
 - **B's derived scripts:** `compare_gate_kf2.py` (from K5's comparison: the G1 formula check is skipped for a fresh base, and it writes index TSVs) and `gate_part2_cand.py` (from F1b's part-2 driver: candidate only). Each script's docstring lists its changes.
 - **Scratch kept until KF2 merges,** for the reviewer: `<wt>/scratch/i20/` (including `b/`, about 8.6 GB) and `<wt>/kf2-target` (about 4.3 GB).
+
+## Addendum 1: RV24's review (PASS) and RV24-1's tests (ROOT's "KF2: rulings on RV24's review", numerics `78950b720`)
+
+**The review.** RV24 (`T3/REVIEW/KF2_REVIEW.md`; records `T3/REVIEW/_run_records/kf2_review/`) reviewed head `f2b8c85a2`: **PASS**, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs.
+- ROOT asks for RV24-1's tests before merge. They are test-only.
+- This addendum records the tests, the NOTEs, and a correction to B's wording. B's records are hash-bound and unchanged.
+
+**The change.** `FK/structural/kf2_witness_tests.rs` gains 262 lines and no removals: 1,231 lines, sha256 `4a805ef758361151f837159686109aa67ad46003785a667d32e4911d8a270f29`, rustfmt-clean. No other file under `P/core` changes: FKS and the site table are unchanged from `f2b8c85a2`.
+
+### A1.1 RV24-1: the adopted cases (`:888-1149`)
+
+The cases are adopted from RV24's harness (`scripts/rv24_probe.rs.txt`: `rv24_adversarial_cases` and `rv24_edge_scans_every_term_count`), onto this file's reference copies and checks (`check`: bitwise equality with the reference, plus the count invariants).
+
+- **Helpers:**
+  - `skew_allowed`: a source whose asymmetry symmetry evidence of f64::MAX allows;
+  - `run_corrupted`: RV24's `run_corrupt`, which prepares an identity source with the same free map, then replaces the prepared matrix, exponents and source;
+  - `local_verdict_charged`: V's sums with the allowance charged for a given number of terms, computed independently of the product code.
+- **`kf2_rv24_asymmetric_source_error_order`:** three 2×2 corrupted pairs on asymmetric sources, where (j,i) and (i,j) fail differently.
+  - (j,i) overflows the magnitude and (i,j) underflows in the product. The result is `Range("arithmetic outside normal range")`.
+  - The reverse gives `Range("product overflow or underflow")`.
+  - A (j,i) that fails in `radix_scale` at exponent sum 30 gives `Range("radix scaling loses normal range")`.
+- **`kf2_rv24_edge_scans_by_term_count_and_skew`:** RV24's edge scan.
+  - It covers seven patterns of nonzero cells (4, 3, 3, 2, 2, 1 and 1 terms), each with a symmetric source and a skewed one (couplings k and k(1 + 10⁻³u) under f64::MAX evidence).
+  - Each scan runs 80 ulps around the verdict's crossing of the last evaluated cell, with 60 repetitions and the pair first, last or in the middle.
+  - That is 840 scans and 67,200 systems. Every pattern that can cross does cross, in all 60 scans.
+  - **Its self-checks of discriminating power:**
+    - 61 skewed pairs change verdict when the two couplings trade places, as under a swapped cell order or a transposed source read;
+    - 17,050 pairs of 1–3 terms change verdict when the allowance charges four cells.
+- **Debug time:**
+  - the two new tests take 1.4 s;
+  - the KF2 and witness tests together (`kf2_`, `krev04`, `k1_negative_witness`) take 10.2 s, against 9.3 s before: 19 passed, 1 ignored (`_run_records/rv24/kf2_targeted.log`);
+  - FK's full lib suite takes 683 s at 2 threads, against 680 s at A.
+
+### A1.2 The three mutants, killed by the committed tests (`_run_records/rv24/mutants/`)
+
+**Method:**
+- RV24's own edit texts (`rv24_mutants.py.txt`, sha256 `fd619dd8…`, unchanged), each on a clean `git archive f2b8c85a2` copy of `P/core` with the new test file overlaid.
+- Each copy had its own target and was deleted afterwards. The mutants ran one at a time.
+- The tests were FK's lib filtered to `kf2_`, `krev04` and `k1_negative_witness`, then the site table.
+
+| ID | Mutation | Result | Killed by |
+|---|---|---|---|
+| NONE | none | 19 passed, 1 ignored; the site table 3 of 3 | — |
+| RV24-M1 | the coupling cells swapped to (j,j), (i,j), (j,i), (i,i) | **killed** | `kf2_rv24_asymmetric_source_error_order`, by result (the reference gives `Range("arithmetic outside normal range")`, the mutant `Range("product overflow or underflow")`); and `kf2_rv24_edge_scans_by_term_count_and_skew`, by the verification count on a skewed 3-term pair |
+| RV24-M4b | the allowance charged for four cells whatever `terms` is | **killed** | `kf2_rv24_edge_scans_by_term_count_and_skew`, by result: on a 3-term pair the reference publishes the witness and the mutant gives `Ok(None)` |
+| RV24-M5 | the source cell read as `stiffness[free[b]][free[a]]` | **killed** | as RV24-M1 |
+
+The site table passes under every mutant, since none changes an accumulation.
+
+### A1.3 FK's full suite (`_run_records/rv24/fk_suite.log`)
+
+417 passed, 0 failed and 1 ignored (the release-only cost test). That is lib 351 plus the integration tests 66, with 0 warnings. At A it was 415 passed.
+
+### A1.4 RV24's NOTEs
+
+- **RV24-N1 (recorded): two equivalent mutants.** Both survive every test, as the argument predicts.
+  - RV24-M2 takes the sign from `matrix[j][i]`. `validate_prepared` requires `matrix[i][j] == matrix[j][i]` before the loop, and `>= 0.0` agrees on IEEE-equal values.
+  - RV24-M9 checks the magnitude before the energy. Both checks give one message and have no side effect before the `?`.
+- **RV24-N2: the routes that reach the dense witness.** It is not dense-scrutiny-only.
+  - SA:2017 (`solve_prepared`) runs it after a failed factor in either mode, including SD's skyline LDLᵀ in `SparseInteractive`.
+  - SA:282-306 (`solve_binary64`) and SA:1996-2003 (`solve_structural_sparse_binary64`) reach it too, and the product's nonlinear active-set loop calls them (NI `lib.rs:1990` and `:2013`).
+  - SD:31-39 (`solve_structural_sparse`) reaches it.
+  - The linear product routes use the pattern evidence and the sparse witness.
+  - The caller list in §2 is complete and the signature is unchanged. RETURN §0 and §2's "dense scrutiny" wording should be read with these routes, and ROOT names them in the PR text.
+  - **Measured by RV24:** in gate part 1 the dense witness ran in exactly the 16 dense runs B named, and in no sparse run.
+- **RV24-N3: what B's runs exercise, and a correction to B's wording.**
+  - **No T9 output reaches the witness.** None carries a factor pivot refusal or a `NegativeEnergy`. The 12 unresolved outputs are refused at prepare ("positive diagonal contribution absorbed"). So T9's 112 of 112 is an invariance check that does not run the new code.
+  - **Part 1's 16 witness runs** see n ≤ 61 and find no pair. The path that finds a witness is exercised only by the unit tests (CHANGE_RECORD "Limits").
+  - **Correction** to `_run_records/b/gate/part1/SUMMARY.txt` ("16 dense runs … publish the dense factor's refusal") and RETURN §7.2 and §8.1. In all 16 the dense factor refuses and the witness runs, but not all publish the refusal:
+    - the captured-entry FX-NP-A runs (ulp .75, 1, 1.5 and 2) publish a recovered response: `MECHANICS_SOLVED`, with `SOURCE_BLOCK_RECOVERY_SELECTED` and the ordinary attempt's refusal in their diagnostics;
+    - the typed FX-NP-A runs and the eight r1e-12 runs publish the refusal.
+  - **A count discrepancy:** RV24 writes "the eight captured-entry FX-NP-A runs". B's index (`part1/index_cand.tsv`) shows four captured-entry FX-NP-A witness runs, all solved, and four typed ones, all `refused_blocked`. The captured runs for ulp .25 and .5 are solved as well, but do not reach the witness.
+  - All 16 are byte-identical to the base, as B recorded.
+- **RV24-N4: carried to the split-out dense-screen slice.** Plan §7's claims check out: the counts, the screens, the predicted pivot/scale (3.37e-11 and 2.41e-11), Lemma Z and the part-1 disagreement list. For that slice:
+  1. measure the refusing rows' pivots, which are still predictions;
+  2. RF-CHAIN-T/A's dense counts of 118 and 112 fit n = 61 free DOFs, as RV24's instrumented runs show;
+  3. enumerate class changes by running, since a dense refusal can also become a publication where sparse refuses;
+  4. the published `PivotEvidence.operation_count` would change meaning, which is a contract note.
+- **RV24-N5 (recorded): the cost reproduces.**
+  - RV24 measured the new search at 0.006, 0.028, 0.157 and 0.781 s at n = 750, 1,500, 3,000 and 6,006 (0.966 s in ROOT's ruling text).
+  - The old search grows about ×16 per doubling.
+  - RV24's extrapolation for its banded system without symmetry evidence is about 20 days at 6,000, the same order as §4.1's 31-day lower bound.
+  - All of these are observations under shared load.
+
+### A1.5 Files and records
+
+- `FK/structural/kf2_witness_tests.rs`: sha256 `4a805ef7…`, as above.
+- `_run_records/rv24/`: `kf2_targeted.log`, `fk_suite.log`, `mutants/` (NONE, RV24-M1, M4b and M5, each with its log, diff and build log), `rv24_mutants.py.txt`, `run_rv24_mutants.sh.txt` and its own `SHA256SUMS`.
+- `CHANGE_RECORD.md` gains addendum 1, and the folder's `SHA256SUMS` is refreshed.
+
+**Host:** one cargo job of mine at a time, `-j 4`, `RUST_TEST_THREADS=2`, `<wt>/kf2-target`, with the memory guard running. No timing is compared.
