@@ -3033,3 +3033,19 @@ RV25 (`REVIEW/RECORDS_PR1062_REVIEW.md`, sha256 `45b27642…`; records `REVIEW/_
   - N9: whitespace in raw logs and 3 lines of `KF2_REVIEW.md`, and executable `.sh.txt` copies. The latter are already common on main, so they are left as they are.
 - **N10, recorded here:** `K5_MERGE/RECORD.md` says its baseline's piping tree equals main `b37331092`'s. It differs by 741 records-only `_Coordination/` paths, and no product or test path, so the suites are unaffected. The hash-bound record is not edited.
 - **Then:** RV25's delta check of the fix commit, then the merge.
+
+## Records PR #1062 merged; T3 paused for the audit (ROOT, 2026-09-30)
+
+- **Merged:** [PR1062](https://github.com/sgttomas/chirality/pull/1062) at head `7b59a1efc`, merge `490b75bd9`, 2026-09-30 07:10:41Z, with `--match-head-commit`. ROOT checked immediately before the merge that main had not moved from `7ad3a9adf`.
+- **Review:**
+  - RV25's review at `b0e357985`: PASS, with 0 BLOCKING, 2 SHOULD-FIX (S1 and S2, both ROOT figure errors, fixed in `18b625268`) and 10 NOTEs;
+  - its delta check at `18b625268`: PASS, with NOTEs D1–D4, fixed in `7b59a1efc`;
+  - its delta check at `7b59a1efc`: PASS, with no new finding.
+  - The last delta check's section and records (`delta_7b59a1efc/`) are committed here, after the merge, as for RV16.
+- **Hosted CI on the head:** 7 passed and 6 were skipped, as selected for a records-only change. GEN-8 passed at each head.
+- **Main now carries:**
+  - every T3 record through the audit pause;
+  - the work graph's state at the pause;
+  - `HANDOFF_2026-09-30_AUDIT_PAUSE.md` and its tools.
+- **This section, and RV25's last delta records,** stay on numerics until the next records PR.
+- **T3 is paused.** No agent is running, and no slice PR is open. On resumption, follow the handoff's §10.

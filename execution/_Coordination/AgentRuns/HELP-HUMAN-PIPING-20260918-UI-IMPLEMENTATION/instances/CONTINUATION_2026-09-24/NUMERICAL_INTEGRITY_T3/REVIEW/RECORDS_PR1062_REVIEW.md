@@ -334,3 +334,30 @@ Checked with `append_only.py.txt` (difflib line opcodes, and a character-subsequ
 - **Not re-derived:** KF3's §13 byte accounting. I checked the corrections against §13's stated table and derivation.
 - **Runs:** GEN-8 twice at the head, plus read-only `git`, `gh` and `shasum`.
 - **Writes:** this appended section and `delta_18b625268/` (7 files), with SHA256SUMS extended by appending their entries (the 20 existing lines are unchanged). All are uncommitted.
+
+## Delta check at 7b59a1efc
+
+**Delta verdict: PASS.** D1–D4 are fixed, and the D1 wording agrees with KF3 RETURN §13. I raise no new finding. The review's verdict stands: PASS.
+
+- **The head:** `7b59a1efc3a1578d1ecbbe78f3a876c9608b68b1`, PR #1062's `headRefOid`. It has one parent, `18b625268`, and changes 13 paths, all under `_Coordination/`: 7 added and 6 modified.
+- **My files went in byte-identical to what I returned:** the review (sha256 `a131c10d…`), `SHA256SUMS` (`fb294698…`) and the seven `delta_18b625268/` files, each hash equal to its SUMS line.
+- **Records:** `_run_records/records_pr1062_review/delta_7b59a1efc/`.
+
+| ID | Status at `7b59a1efc` | Evidence |
+|---|---|---|
+| D1 | **resolved** | **Two insert-only "[Correction (ROOT, 2026-09-30, RV25-D1) …]" brackets:** after the S1 bracket at V1 :2806, and inside I21 :20's S1 bracket, right after the sentence it corrects. Each reads "By construction, K6b's formula does not bound this phase: taken from the code, the phase needs 3,021,565,490 B (AX) against E_max 3,010,765,802 B … Only a *measured* excess is unshown".<br>**Against KF3 RETURN §13:** :444 gives 3,021,565,490 (AX), and :445 says "does not bound this phase by construction … through slack elsewhere". The difference is 10,799,688 B, the net under-count. The cite ":440-445" covers everything except E_max's 3,010,765,802, which is §13's table at :420.<br>**Reworded to the same effect:** handoff §8.1 item 4 (:209) and `WG:62`'s KF3-B2 phrase ("by construction, E_max does not bound the 1024 shift phase … a net 10.8 MB more … No measured peak has exceeded it"). Both are text new in this PR. |
+| D2 | resolved | V1 :3018 gains an insert-only bracket saying that the work-graph and handoff S1 fixes were rewordings of this PR's own text, and that `18b625268`'s message overstated it. |
+| D3 | resolved | The PR body's "What" bullet now reads "1,479 lines appended to main's 1,556, from 'K6: rulings on I15's checkpoint-0 plan' onward (RV25-N1, D3)". |
+| D4 | resolved | `WG:38` cites `projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs:1688-1692` and `:1711-1717`, and no `` `P/ `` remains in `WG`. |
+
+- **Append-only** (`append_only_delta.out.txt`, `append_only_vs_main.out.txt`):
+  - Against `18b625268`, the V1 and I21 changes are insert-only brackets: V1 :2806 and :3018, and I21 :20. The review and `SHA256SUMS` only append.
+  - The rewordings touch only text this PR added: handoff :209, and `WG` :38 (the T6 note) and :62 (the pause paragraph).
+  - Against main, nothing changes from `18b625268`: V1 keeps main's 1,556 lines, with the :1400 bracket, then appends 1,479, and `WG:62`'s only non-insert edit is still N1's clause.
+- **SHA256SUMS** (`sums_coverage_7b59a1efc.out.txt`): all 26 files that cover a changed path verify and are complete. My folder is 27/27 with `shasum -a 256 -c`, run from the folder. Main's `REVIEW/_run_records/SHA256SUMS` still verifies from `REVIEW/`.
+- **Machine paths** (`leak_scan_delta.out.txt`): hits only in my own records, as pattern lists and the `<home>/.local` placeholder mention. ROOT's new text has none.
+- **GEN-8 passes at `7b59a1efc`** (`gen8_delta.out.txt`): 1 passed, 10 deselected. It was run twice:
+  - with this folder moved aside, so the tree was exactly the head, with `git status` empty;
+  - again with this folder and this section present.
+- **Hosted CI on `7b59a1efc`:** 7 success and 6 skipped. The four runs are pec-tests 36681884821, Piping Desktop E2E 36681884888, Harness Pre-merge 36681884935 and governance-harness 36681885065, all `pull_request` on the head.
+- **Writes:** this section and `delta_7b59a1efc/` (7 files), with SHA256SUMS extended by appending their entries (the 27 existing lines are unchanged). All are uncommitted. No Git writes.
