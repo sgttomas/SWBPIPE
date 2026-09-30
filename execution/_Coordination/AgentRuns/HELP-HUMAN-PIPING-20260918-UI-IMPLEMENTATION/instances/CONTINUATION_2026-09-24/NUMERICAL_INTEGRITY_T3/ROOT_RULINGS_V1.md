@@ -2977,3 +2977,16 @@ RV24 (`REVIEW/KF2_REVIEW.md`, sha256 `6785aa13…`; records `REVIEW/_run_records
 - **RV23C-N1 (NOTE) is recorded, with no test now.** The cache's refusal-keeping on a non-budget failure is shown by RV23's probe, but it is not covered by I19's tests. It needs a non-budget, non-refusal stop after a refusal, and FK has no hook to force one; honesty is unaffected.
   - **Routed:** if a fault hook for an `Arithmetic` stop is added (V-K's `mutation-controls` sites are the natural home), a two-case test goes with it.
 - **The merge path:** CI on `aa83f6796` (dispatch 36669370536), DEC-025 (running now), GEN-8, then the merge.
+
+## KF3 merged (ROOT, 2026-09-30)
+
+- **Merged:** [PR1059](https://github.com/sgttomas/chirality/pull/1059) at head `aa83f6796`, merge `dd61120ff`, 2026-09-30 05:28:58Z. The merge record is `IMPLEMENTATION/KF3_MERGE/RECORD.md`.
+- **The gates, on `aa83f6796`:**
+  - RV23 PASSED the review and confirmed the head;
+  - hosted CI was green, and the dispatch (36669370536) succeeded;
+  - DEC-025 was clean: the only changes are frame_kernel 402 → 417 and harness 74 → 75, exactly KF3's added tests;
+  - GEN-8 passed.
+- **Disclosed: ROOT merged without first checking that main had moved** (to `45ffd91d1`, PR #1061). The check made right after shows that #1061 changes only `projects/chirality-app-v4/**`, and that the merged piping, `tools/` and `.github/` trees equal the gated head's byte for byte. The gates therefore cover what merged. The lesson is added to the handoff's §7.2.
+- **Next:**
+  - KF2 has merged main `dd61120ff` as `522167ac6` (clean; `structural.rs` is main's plus exactly KF2's delta). RV24's merge check, CI and DEC-025 are running.
+  - K6c spawns after the pause, on a base that carries KF3.
