@@ -1,0 +1,11 @@
+RV24 merge check at 522167ac62f27ad999a4416d10b95f922ff8c665 (parents: 1c7558df50e44efcc81382c4e391597ae8b21e90 = KF2's confirmed head, dd61120ff271b02bf5fcb032f264564af5e8bb09 = main; merge base 78f55f927db47c7f44299fd32793d4b64e8b3572).
+Command: python3 rv24_merge_check.py <wt>/kf2 78f55f927... 1c7558df5... dd61120ff... 522167ac6... (git ls-tree, git show, git diff, git merge-file on temporary files; read-only)
+
+paths in the union of the four trees: 60002
+classification: {'unchanged': 59395, 'main_only': 478, 'kf2_only': 128, 'both': 1}
+paths where the merge is not the expected side's blob: 0
+== path changed on both sides: projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+   git merge-file conflicts: 0 ; independent 3-way result == merge blob: True
+   KF2's hunks (B..K) == the merge's second-parent hunks (M..X), line numbers ignored: True (88 lines)
+   main's hunks (B..M) == the merge's first-parent hunks (K..X), line numbers ignored: True (10 lines)
+mode check: every path's mode in X equals the expected side's: True

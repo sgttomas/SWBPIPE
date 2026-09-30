@@ -37,3 +37,10 @@ confirm_1c7558df5/  RV24's confirmation of head 1c7558df5 (KF2_REVIEW.md, "Confi
             reviewer's archive of 1c7558df5; driver.log, per-mutant logs and build logs), rv24c_run_mutants.sh.txt (the driver),
             fk_full_suite_debug.log (FK at 1c7558df5: 417 passed, 1 ignored), n3_count.txt (RV24-N3's count against B's index and
             the instrumented part-1 run), i20_records_check.txt (I20's mutant texts and KF2's SHA256SUMS at 1c7558df5).
+
+merge_522167ac6/  RV24's merge check of 522167ac6 (main dd61120ff merged into KF2 1c7558df5; KF2_REVIEW.md, "Merge check at
+            522167ac6"): merge_check.out and rv24_merge_check.py.txt (path-by-path classification over 60,002 paths, and an
+            independent git merge-file of the one two-sided path), remerge_and_diffs.txt (main's structural.rs hunk, the empty
+            remerge diff, both parent diffs by area), reach.txt (the witness's callers at 1c7558df5 and 522167ac6),
+            archive_hashes.txt, fk_full_suite_debug.log (432 passed, 1 ignored), harness_debug.out (the review's harness on the
+            merged tree).

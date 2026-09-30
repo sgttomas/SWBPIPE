@@ -1,0 +1,49 @@
+== main's change to structural.rs (git diff 78f55f927 dd61120ff):
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs b/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+index 2ef6d6d43b..76f5426d68 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+@@ -17,6 +17,9 @@ pub mod retained_api {
+         VerificationSummary, FLOOR_RATIO_BITS, K_SQRT2_BITS, K_TWO_SQRT2_BITS, METHOD_TOKEN,
+         POLICY, PRECISIONS, RCOND_LABEL,
+     };
++    pub use super::retained::bound::{
++        BlockRefusal, BoundPass, BoundRefusal, CertifiedBound, RefusalKind,
++    };
+     pub use super::retained::combine::{
+         CombinationOutcome, CombinationReason, RetainedCombination,
+     };
+
+== remerge diff (git show --remerge-diff 522167ac6); empty below means the recorded merge equals git's own automatic merge:
+522167ac62f27ad999a4416d10b95f922ff8c665 Merge main dd61120ff (KF3, and PR #1061) into KF2
+(end of remerge diff)
+
+== git diff dd61120ff 522167ac6 outside execution/ (the second-parent diff, product side):
+ .../core/solver/frame_kernel/src/structural.rs     |   63 +-
+ .../src/structural/kf2_witness_tests.rs            | 1231 ++++++++++++++++++++
+ .../solver/frame_kernel/tests/s11_site_table.rs    |    2 +
+ 3 files changed, 1290 insertions(+), 6 deletions(-)
+
+== git diff 1c7558df5 522167ac6 outside the two execution/ trees, by top-level area (first-parent diff):
+ .../core/solver/frame_kernel/src/structural.rs     |     3 +
+ .../src/structural/retained/adaptive.rs            |   181 +-
+ .../frame_kernel/src/structural/retained/bound.rs  |   798 +-
+ .../frame_kernel/src/structural/retained/verify.rs |   164 +-
+ .../src/structural/retained/wide_sum.rs            |    14 +
+ .../frame_kernel/tests/retained_k4/SHA256SUMS      |     1 +
+ .../frame_kernel/tests/retained_k4/bound_tests.rs  |   498 +-
+ .../tests/retained_k4/gen_k4_vectors.py            |   326 +-
+ .../solver/frame_kernel/tests/retained_k4/kf3.txt  | 19587 +++++++++++++++++++
+ .../frame_kernel/tests/retained_k4/kf3_tests.rs    |   653 +
+ .../frame_kernel/tests/retained_k4/method_tests.rs |    54 +-
+ .../frame_kernel/tests/retained_k4/scale_tests.rs  |    98 +-
+ .../tests/retained_k4/wide_sum_tests.rs            |    45 +
+ .../solver/performance_harness/src/k6/w1/staged.rs |    54 +-
+ .../solver/performance_harness/tests/k6b_w1.rs     |    90 +-
+ 15 files changed, 22253 insertions(+), 313 deletions(-)
+
+== paths the first-parent diff touches, by area:
+   1 projects/chirality-app-v4/docs
+ 335 projects/chirality-app-v4/execution
+  15 projects/chirality-piping/core
+ 128 projects/chirality-piping/execution

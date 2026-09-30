@@ -1,0 +1,65 @@
+"""RV24 merge check (read-only git): for merge X with first parent K (KF2's confirmed head), second parent M
+(main) and merge base B, check path by path that X adds exactly main's delta to K and exactly KF2's delta to
+M. Paths changed on both sides are merged independently with `git merge-file` (base B, ours K, theirs M) and
+compared with X's blob, and their hunks are compared with each side's own hunks (line numbers ignored).
+Usage: rv24_merge_check.py <repo> <B> <K> <M> <X>"""
+import subprocess, sys, os, tempfile, re
+
+repo, B, K, M, X = sys.argv[1:6]
+def git(*a, binary=False):
+    r = subprocess.run(["git", "-C", repo] + list(a), capture_output=True)
+    if r.returncode not in (0, 1):
+        raise SystemExit(r.stderr.decode())
+    return r.stdout if binary else r.stdout.decode()
+def tree(c):
+    out = {}
+    for line in git("ls-tree", "-r", "--full-tree", c).splitlines():
+        meta, path = line.split("\t", 1)
+        mode, typ, sha = meta.split()
+        out[path] = (mode, sha)
+    return out
+tb, tk, tm, tx = tree(B), tree(K), tree(M), tree(X)
+paths = sorted(set(tb) | set(tk) | set(tm) | set(tx))
+counts = {"unchanged": 0, "main_only": 0, "kf2_only": 0, "both": 0}
+bad = []
+both = []
+for p in paths:
+    b, k, m, x = tb.get(p), tk.get(p), tm.get(p), tx.get(p)
+    if k == b and m == b:
+        counts["unchanged"] += 1
+        if x != b: bad.append((p, "changed in the merge only"))
+    elif k == b:
+        counts["main_only"] += 1
+        if x != m: bad.append((p, "main-only path differs from main"))
+    elif m == b:
+        counts["kf2_only"] += 1
+        if x != k: bad.append((p, "KF2-only path differs from KF2"))
+    else:
+        counts["both"] += 1
+        both.append(p)
+print("paths in the union of the four trees:", len(paths))
+print("classification:", counts)
+print("paths where the merge is not the expected side's blob:", len(bad))
+for p, why in bad: print("   BAD", p, why)
+
+def hunks(a, b, path):
+    d = git("diff", "--no-color", "-U3", "%s:%s" % (a, path), "%s:%s" % (b, path))
+    body = [l for l in d.splitlines() if not l.startswith(("diff ", "index ", "--- ", "+++ "))]
+    return [re.sub(r"^@@ .* @@.*$", "@@", l) for l in body]
+
+for p in both:
+    print("== path changed on both sides:", p)
+    with tempfile.TemporaryDirectory() as t:
+        f = {}
+        for name, c in (("base", B), ("ours", K), ("theirs", M)):
+            f[name] = os.path.join(t, name)
+            open(f[name], "wb").write(git("show", "%s:%s" % (c, p), binary=True))
+        r = subprocess.run(["git", "merge-file", "-p", f["ours"], f["base"], f["theirs"]], capture_output=True)
+        merged = r.stdout
+        xb = git("show", "%s:%s" % (X, p), binary=True)
+        print("   git merge-file conflicts:", r.returncode, "; independent 3-way result == merge blob:", merged == xb)
+    hk = hunks(B, K, p); hxm = hunks(M, X, p)
+    hm = hunks(B, M, p); hxk = hunks(K, X, p)
+    print("   KF2's hunks (B..K) == the merge's second-parent hunks (M..X), line numbers ignored:", hk == hxm, "(%d lines)" % len(hk))
+    print("   main's hunks (B..M) == the merge's first-parent hunks (K..X), line numbers ignored:", hm == hxk, "(%d lines)" % len(hm))
+print("mode check: every path's mode in X equals the expected side's:", not bad)

@@ -276,3 +276,39 @@ The base has the same set, less I20's module. A whole-repository `git grep -w` f
 - RETURN addendum 1 (A1.4) states this correctly.
 
 **Merge check:** none is needed yet. KF2 has not merged main. If ROOT merges main into KF2 after KF3, I will check that head.
+
+## Merge check at 522167ac6
+
+- **Head checked:** `522167ac6` (`522167ac62f27ad999a4416d10b95f922ff8c665`), ROOT's merge of main `dd61120ff` into KF2. Main now carries KF3 (PR #1059) and PR #1061.
+- **Parents:** the first is `1c7558df5` (KF2's confirmed head) and the second `dd61120ff`. The merge base is `78f55f927`.
+- **Verdict: CLEAN.** No finding. Records: `_run_records/kf2_review/merge_522167ac6/`.
+- **Host and git:** my own clean `git archive` of `522167ac6` under `<wt>/rv24m/`, with its own target, since deleted. One cargo job at `-j 4` with `RUST_TEST_THREADS=2`, and the memory guard running (no KILLED line). Git was read-only: `ls-tree`, `show`, `diff`, `grep`, `archive`, `merge-file` on temporary files, and `show --remerge-diff`.
+
+**1. The merge adds exactly each side's delta, path by path** (`merge_check.out`, `rv24_merge_check.py.txt`). Over all 60,002 paths in the four trees (base, both parents, merge):
+- **Unchanged on both sides:** 59,395 paths, all unchanged in the merge.
+- **Main-only:** 478 paths, each equal in the merge to main's blob, mode included. They are 14 under `piping/core`: FK's `retained/{adaptive,bound,verify,wide_sum}.rs`, eight files under `tests/retained_k4/` (including `kf3.txt`) and H's `k6/w1/staged.rs` and `tests/k6b_w1.rs`. Main's fifteenth core path, `structural.rs`, is the two-sided one below. There are also 128 under `piping/execution` and 336 under `chirality-app-v4`.
+- **KF2-only:** 128 paths, each equal to KF2's blob: `kf2_witness_tests.rs`, `s11_site_table.rs` and the 126 KF2 record files.
+- **Both sides: only `FK/structural.rs`.**
+  - An independent `git merge-file` of that file (base, KF2, main) has no conflict and is byte-equal to the merge's blob.
+  - The merge's second-parent hunks equal KF2's own hunks: 88 lines, line numbers ignored.
+  - Its first-parent hunks equal main's own: 10 lines, the three-line `retained::bound` re-export in `retained_api` (`:20-22`).
+- **So the first-parent diff is exactly main's delta, and the second-parent diff exactly KF2's.** Outside `execution/`, `git diff dd61120ff 522167ac6` is KF2's three FK files (`remerge_and_diffs.txt`).
+
+**2. The remerge diff is empty.** `git show --remerge-diff 522167ac6` prints no hunk, so the recorded merge equals git's own automatic merge, with no manual resolution.
+
+**3. KF2's witness is unchanged by the merge.**
+- The KF2 function bodies and the test module equal `1c7558df5`'s. `kf2_witness_tests.rs` is `4a805ef7…` and the site table `b15aa8b8…`.
+- **The callers:** every `negative_pair_witness` token (`git grep -w`, outside `execution/`) is in the same file with the same text as at `1c7558df5`. Only `structural.rs`'s line numbers shift, by +3 from the re-export: `solve_prepared_dense` is now `:1968` and the function `:2198` (`reach.txt`).
+- KF3's H change is `k6/w1/staged.rs`, not `k6/staged.rs`, where the dense witness is called (`:474`, unchanged).
+
+**4. FK's full suite passes** (`fk_full_suite_debug.log`, debug, my archive):
+- lib 366 passed and 1 ignored (T6, release-only); that is KF2's 351 plus KF3's 15;
+- 7 integration files, 60 passed, the site table 3 of 3 among them;
+- 6 doc-tests;
+- **432 passed, 0 failed, 0 warnings.**
+
+**5. KF2's debug tests pass on the merged tree.** All 15 `kf2_` tests pass, including `kf2_rv24_asymmetric_source_error_order` and `kf2_rv24_edge_scans_by_term_count_and_skew`; T6 is ignored.
+
+**6. An extra check.** My review's harness (§1), mounted in my copy of the merged tree only, passes with 0 differences against the base oracle (`harness_debug.out`).
+
+**Not run:** the other crates' suites (NI, SD, PP, H), `gen_k4_vectors.py --check`, and a release build. The merge changes no file of theirs beyond main's own, path by path.
