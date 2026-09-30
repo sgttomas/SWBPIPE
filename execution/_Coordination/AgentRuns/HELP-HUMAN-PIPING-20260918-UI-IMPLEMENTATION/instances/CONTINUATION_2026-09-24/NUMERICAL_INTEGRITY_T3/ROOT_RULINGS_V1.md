@@ -2868,3 +2868,17 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
     - The class disagreement with sparse (Sensitive) remains, and is the split-out screen slice's.
   - **The src-tauri suite,** as F1b ran it (`F1B_MERGE/src_tauri/`).
   - **Host:** one cargo job at `-j 4`, the memory guard running, and no timing compared. RV23 (KF3's reviewer) is building beside it, which is allowed.
+
+## KF2: checkpoint B accepted; D now (ROOT, 2026-09-30)
+
+- **B is accepted, and committed on the KF2 branch** (`_run_records/b/`, SHA256SUMS `247459f7…`, verified by ROOT). It ran on this Mac, with base main `78f55f927` and candidate `1b10121fa`, as `git archive` trees that differ only in KF2's three FK files.
+  - **T9:** 112 of 112 byte-identical, and F1b's extra corpus 16 of 16. The base also equals the platform calibration's Mac hashes.
+  - **Gate part 1: PASS against a fresh base run.**
+    - All 884 runs are identical: outcomes, exit codes, summary and full envelopes (818 each), and error text.
+    - `gate_check` finds 0 trusted breach triples on both sides, and there is no heap-cap abort or timeout.
+    - Sixteen dense runs reach the witness (FX-NP-A-ulp-* and the four r1e-12 cases). The witness finds no pair, and they are byte-identical to the base.
+    - ROOT checked the two uncommitted 606 MB `runs.jsonl` files against their recorded sha256 (base `c42981e5…`, candidate `11dfe829…`). They stay in `<wt>/scratch/i20/b/gate/`, as F1b's did.
+  - **Gate part 2:** the four dense N10 runs, both entries, end in the dense factor's refusal (`NUMERICAL_INTEGRITY_UNRESOLVED`, DOF 6001 and 6002) in 67–68 s each. They were previously killed at 1,800 s.
+  - **src-tauri:** 116 passed, as in F1b's run.
+- **D now:** RETURN, CHANGE_RECORD and SHA256SUMS. Then ROOT opens the PR with its dispatch.
+- **I20's scratch** (`<wt>/scratch/i20/b`, `<wt>/kf2-target`) is kept until KF2 merges, for its reviewer.
