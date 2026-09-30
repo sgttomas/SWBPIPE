@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""RV25: check sha256 prefixes and line counts that ROOT_RULINGS_V1.md's
+appended sections cite for a file, against every version of that file in Git.
+
+Run from the repository root of a Git working tree whose object store holds the
+slice branches' commits (read-only):
+    python3 cited_hashes.py.txt
+For each (V1 line, path, claimed sha256 prefix, claimed line count or None), it
+walks `git log --all --format=%H -- <path>` and reports the first commit whose
+blob of <path> has that sha256 prefix, with its line count. "NOT FOUND" means no
+version of the file in any ref hashes to the prefix.
+"""
+import hashlib
+import subprocess
+
+T3 = ("projects/chirality-piping/execution/_Coordination/AgentRuns/"
+      "HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/"
+      "NUMERICAL_INTEGRITY_T3/")
+CASES = [
+    (1560, T3 + "IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md", "4b4d9b27", 633),
+    (1834, T3 + "DESIGN_NUMERICS/REV_5A3_CANDIDATE/D1_REV_5A3_SSTAR_RESOLUTION_R7.md",
+     "5502aef9803f05f42e93c2a05a0de495401e3f94fe92adb19fc2a0c3f80d8f42", None),
+    (1864, T3 + "IMPLEMENTATION/K4/PLAN_A3_5A3.md", "07186550", 784),
+    (2009, T3 + "REVIEW/K4_REVIEW.md", "d906539e", None),
+    (2049, T3 + "REVIEW/K4_REVIEW.md", "319701f6", None),
+    (2086, T3 + "IMPLEMENTATION/VK/PLAN_CHECKPOINT0.md", "adaf697a", None),
+    (2129, T3 + "IMPLEMENTATION/K6B/PLAN_CHECKPOINT0.md", "7d6b7af3", None),
+    (2308, T3 + "IMPLEMENTATION/KF1/PLAN_CHECKPOINT0.md", "2129c337", None),
+    (2421, T3 + "REVIEW/KF1_REVIEW.md", "d1cde558", None),
+    (2546, T3 + "IMPLEMENTATION/KF3/PLAN_CHECKPOINT0.md", "721fc2d6", None),
+    (2587, T3 + "REVIEW/VK_REVIEW.md", "eab89fb5", None),
+    (2769, T3 + "IMPLEMENTATION/KF2/PLAN_CHECKPOINT0.md", "76337c43", None),
+    (2794, T3 + "IMPLEMENTATION/KF3/RETURN.md", "a582135f", None),
+    (2794, T3 + "IMPLEMENTATION/KF3/CHANGE_RECORD.md", "b9fca3a6", None),
+    (2888, T3 + "REVIEW/KF3_REVIEW.md", "96060f9e", None),
+    (2911, T3 + "IMPLEMENTATION/KF2/RETURN.md", "fe19dbc6", None),
+    (2911, T3 + "IMPLEMENTATION/KF2/CHANGE_RECORD.md", "1457a990", None),
+    (2911, T3 + "IMPLEMENTATION/KF2/SHA256SUMS", "5b51af43", None),
+    (2924, T3 + "REVIEW/KF2_REVIEW.md", "6785aa13", None),
+    (2970, T3 + "REVIEW/KF3_REVIEW.md", "0030aa39", None),
+    (1697, T3 + "IMPLEMENTATION/K6/_run_records/a2/plan.txt", "93cd36d5", 138),
+    (2049, T3 + "REVIEW/_run_records/k4_review/SHA256SUMS", "ab9f24d8", 80),
+    (2009, T3 + "REVIEW/_run_records/k4_review/SHA256SUMS", "8b8e2beb", 47),
+    (1992, T3 + "IMPLEMENTATION/K4/_run_records/SHA256SUMS", "f79cfe57", 214),
+    (2874, T3 + "IMPLEMENTATION/KF2/_run_records/b/SHA256SUMS", "247459f7", None),
+]
+
+
+def git(*a):
+    return subprocess.run(["git", *a], capture_output=True, check=False).stdout
+
+
+def main():
+    for line, path, prefix, nlines in CASES:
+        revs = git("log", "--all", "--format=%H", "--", path).decode().split()
+        found = None
+        for r in revs:
+            blob = git("show", f"{r}:{path}")
+            if not blob:
+                continue
+            h = hashlib.sha256(blob).hexdigest()
+            if h.startswith(prefix):
+                found = (r, blob.count(b"\n"))
+                break
+        short = path[len(T3):] if path.startswith(T3) else path
+        if found:
+            lc = f"; lines {found[1]}" + (f" (claimed {nlines})" if nlines else "")
+            ok = "" if (nlines is None or nlines == found[1]) else "  <-- LINE COUNT DIFFERS"
+            print(f"V1:{line} {short} {prefix[:8]}: found at {found[0][:10]}{lc}{ok}")
+        else:
+            print(f"V1:{line} {short} {prefix[:8]}: NOT FOUND in {len(revs)} versions")
+
+
+if __name__ == "__main__":
+    main()

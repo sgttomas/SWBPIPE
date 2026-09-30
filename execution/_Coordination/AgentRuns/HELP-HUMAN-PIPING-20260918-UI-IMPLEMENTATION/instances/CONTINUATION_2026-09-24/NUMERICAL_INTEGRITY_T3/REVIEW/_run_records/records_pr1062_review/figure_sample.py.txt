@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""RV25: sample of figures restated in ROOT_RULINGS_V1.md's appended sections,
+searched for in the source record each cites or implies.
+
+Run from the T3 folder of a working tree at the PR head:
+    python3 figure_sample.py.txt
+For each (V1 line, figure as ROOT states it, source file, regex), it prints the
+first matching source lines (up to 2), or "NOT FOUND". A hit shows the source
+states the figure; a miss is then read by hand (see the review's findings).
+"""
+import re
+
+CASES = [
+    # V-K
+    (2180, "201 CI cases", "IMPLEMENTATION/VK/RETURN.md", r"\b201\b"),
+    (2273, "2,590 passes, 80 zeros, 50 expected-unresolved", "IMPLEMENTATION/VK/RETURN.md", r"2,?590"),
+    (2329, "506 discriminating controls", "IMPLEMENTATION/VK/RETURN.md", r"\b506\b"),
+    (2331, "3.8 s build, 37 s tests", "IMPLEMENTATION/VK/RETURN.md", r"3\.8 s"),
+    (2272, "log2 spread 507.67", "IMPLEMENTATION/VK/RETURN.md", r"507\.67"),
+    (2521, "5-10 s per call", "IMPLEMENTATION/VK/RETURN.md", r"5\.05.10\.10 s"),
+    (2521, "0.82 GB heap / E_max 2.7 GB", "IMPLEMENTATION/VK/RETURN.md", r"816\.5.835\.0 MiB"),
+    # RV21
+    (2589, "225,405 engine vectors", "REVIEW/VK_REVIEW.md", r"225,?405"),
+    (2590, "129,968 wrong answers", "REVIEW/VK_REVIEW.md", r"129,?968"),
+    (2590, "16,778 rows", "REVIEW/VK_REVIEW.md", r"16,?778"),
+    (2594, "floor lists 46, 3 and 2", "REVIEW/VK_REVIEW.md", r"\b46\b.*\b3\b.*\b2\b"),
+    (2606, "191 runs", "REVIEW/VK_REVIEW.md", r"\b191\b"),
+    # RV22
+    (2623, "330 outcomes", "REVIEW/K6B_REVIEW.md", r"\b330\b"),
+    (2624, "934 RETURN values", "REVIEW/K6B_REVIEW.md", r"\b934\b"),
+    (2689, "33 lines", "REVIEW/K6B_REVIEW.md", r"\b33 (lines|counts)"),
+    (2696, "59,471 paths", "REVIEW/K6B_REVIEW.md", r"59,?471"),
+    # RV23
+    (2893, "3,611 W1 runs, 11 models", "REVIEW/KF3_REVIEW.md", r"3,?611"),
+    (2893, "2,011 on H's model", "REVIEW/KF3_REVIEW.md", r"2,?011"),
+    (2891, "52 forced-refusal runs on 16 controls", "REVIEW/KF3_REVIEW.md", r"\b52\b"),
+    (2974, "799 case rooms", "REVIEW/KF3_REVIEW.md", r"\b799\b"),
+    (2972, "[block 0, Uc, Span, Backward, row 66]", "REVIEW/KF3_REVIEW.md", r"row 66"),
+    # RV24
+    (2926, "24,000 corrupted systems", "REVIEW/KF2_REVIEW.md", r"24,?000"),
+    (2927, "2,864 built systems", "REVIEW/KF2_REVIEW.md", r"2,?864"),
+    (2928, "134,400 steps", "REVIEW/KF2_REVIEW.md", r"134,?400"),
+    (2929, "29 adversarial cases", "REVIEW/KF2_REVIEW.md", r"\b29\b"),
+    (2931, "860 of 860", "REVIEW/KF2_REVIEW.md", r"860"),
+    (2931, "17,997,000 pairs", "REVIEW/KF2_REVIEW.md", r"17,?997,?000"),
+    (2952, "0.966 s", "REVIEW/KF2_REVIEW.md", r"0\.966"),
+    # RV20
+    (2422, "36,000 streams", "REVIEW/KF1_REVIEW.md", r"36,?000"),
+    (2423, "400 rounds", "REVIEW/KF1_REVIEW.md", r"\b400\b"),
+    (2439, "SHA256SUMS 42 of 42", "REVIEW/KF1_REVIEW.md", r"42 of 42|42/42|\b42\b"),
+    (2429, "4,608 rows (19.8 MB)", "REVIEW/KF1_REVIEW.md", r"4,?608"),
+    # KF1
+    (2341, "828 streams", "IMPLEMENTATION/KF1/RETURN.md", r"\b828\b"),
+    (2342, "131 controls", "IMPLEMENTATION/KF1/RETURN.md", r"\b131\b"),
+    (2345, "2.3 MB stop rule", "IMPLEMENTATION/KF1/RETURN.md", r"2\.3 MB"),
+    (2348, "+2.2 to +13.4 M LME", "IMPLEMENTATION/KF1/RETURN.md", r"13\.4"),
+    (2358, "+2.5% to +16.2%", "IMPLEMENTATION/KF1/RETURN.md", r"16\.2"),
+    (2360, "17.6 MB at T=512", "IMPLEMENTATION/KF1/RETURN.md", r"17\.6"),
+    (2384, "882 runs", "IMPLEMENTATION/KF1/RETURN.md", r"\b882\b"),
+    # KF2
+    (2778, "about 31 days", "IMPLEMENTATION/KF2/PLAN_CHECKPOINT0.md", r"31 days"),
+    (2778, "0.06% of the pairs", "IMPLEMENTATION/KF2/PLAN_CHECKPOINT0.md", r"0\.06"),
+    (2850, "142 witnesses, 98 no-witness, 9 ties", "IMPLEMENTATION/KF2/RETURN.md", r"\b142\b"),
+    (2853, "0.94 s and 0.91 s", "IMPLEMENTATION/KF2/RETURN.md", r"0\.94"),
+    (2854, "about 203 s", "IMPLEMENTATION/KF2/RETURN.md", r"\b203\b"),
+    (2856, "FK 415 (1 ignored)", "IMPLEMENTATION/KF2/RETURN.md", r"\b415\b"),
+    (2877, "818 full envelopes", "IMPLEMENTATION/KF2/RETURN.md", r"\b818\b"),
+    (2879, "sixteen dense runs reach the witness", "IMPLEMENTATION/KF2/RETURN.md", r"\b16\b|[Ss]ixteen"),
+    (2880, "runs.jsonl c42981e5 / 11dfe829", "IMPLEMENTATION/KF2/RETURN.md", r"c42981e5|11dfe829"),
+    (2881, "67-68 s", "IMPLEMENTATION/KF2/RETURN.md", r"67.68 s|6[78]\.\d s"),
+    (2785, "65-188 s at 1,000 members", "IMPLEMENTATION/KF2/PLAN_CHECKPOINT0.md", r"188"),
+    # K6b
+    (2250, "108 processes", "IMPLEMENTATION/K6B/RETURN.md", r"\b108\b"),
+    (2252, "10,078 comparisons", "IMPLEMENTATION/K6B/RETURN.md", r"10,?078"),
+    (2253, "6.8-14.2 times", "IMPLEMENTATION/K6B/RETURN.md", r"14\.2"),
+    (2256, "0-8,773 entries, 5.5%", "IMPLEMENTATION/K6B/RETURN.md", r"8,?773"),
+    (2259, "rho 0.17-0.27", "IMPLEMENTATION/K6B/RETURN.md", r"0\.17.0\.27"),
+    (2216, "0.3-4.9 MB at 100 members", "IMPLEMENTATION/K6B/RETURN.md", r"4\.9 MB"),
+    (2232, "heap at most 197 MB", "IMPLEMENTATION/K6B/RETURN.md", r"\b197\b"),
+    (2281, "raw E_max 9.23 GB", "IMPLEMENTATION/K6B/RETURN.md", r"9\.23"),
+    (2473, "rho_fp 0.38-0.40 at 1,000", "IMPLEMENTATION/K6B/RETURN.md", r"0\.38.0\.40"),
+    (2478, "6.84e9 LME, 832 MiB, about 5 s", "IMPLEMENTATION/K6B/RETURN.md", r"6\.84|6,84\d"),
+    (2536, "slope 0.92-0.98", "IMPLEMENTATION/K6B/RETURN.md", r"0\.92.0\.98"),
+    (2581, "work rises 1.2-2.4x", "IMPLEMENTATION/K6B/RETURN.md", r"1\.2.2\.4"),
+    (2657, "E_max 2.64-2.81 GiB at 10,000", "IMPLEMENTATION/K6B/RETURN.md", r"2\.64.2\.81"),
+    # K4
+    (1993, "99 controls, 5,490 rows, worst 0.28", "IMPLEMENTATION/K4/RETURN.md", r"5,?490"),
+    (2017, "seven rows, by 222 to 819 times", "REVIEW/K4_REVIEW.md", r"222.*819|819"),
+    (1942, "E-CHARGE bit-equal on 360 states", "IMPLEMENTATION/K4/RETURN.md", r"\b360\b"),
+    (1945, "worst ratio 1.5e-24", "IMPLEMENTATION/K4/RETURN.md", r"1\.5e-24"),
+    # F1b / RV17
+    (1710, "CX-F/CX-G, 3*2^-1016 or 2^-1015 N", "REVIEW/F1B_REVIEW.md", r"2\^-1016|2\^-1015"),
+    (1711, "all 10 selected runs", "REVIEW/F1B_REVIEW.md", r"10 selected"),
+    (1716, "8 of the 14 published C1 runs; 9.7e-8; 1.7e-5", "REVIEW/F1B_REVIEW.md", r"9\.7e-8|1\.7e-5"),
+    (1773, "src-tauri 116 of 116", "IMPLEMENTATION/F1B_MERGE/src_tauri/src_tauri_test.log", r"116 passed"),
+]
+
+
+def main():
+    for line, fig, src, rx in CASES:
+        try:
+            txt = open(src, encoding="utf-8", errors="replace").read().splitlines()
+        except FileNotFoundError:
+            print(f"V1:{line} [{fig}] {src}: FILE NOT FOUND")
+            continue
+        hits = [(i + 1, l) for i, l in enumerate(txt) if re.search(rx, l)]
+        if hits:
+            h = "; ".join(f":{n} {l.strip()[:150]}" for n, l in hits[:2])
+            print(f"V1:{line} [{fig}] {src}: {len(hits)} hit(s) {h}")
+        else:
+            print(f"V1:{line} [{fig}] {src}: NOT FOUND")
+
+
+if __name__ == "__main__":
+    main()

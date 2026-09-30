@@ -1,0 +1,102 @@
+== 1. The head's merge of main (b0e357985)
+parents 07fb44d565 7ad3a9adf4
+merge base of the parents: 0256decc65
+path changed identically on both sides: IMPLEMENTATION/K6/PLAN_CHECKPOINT0.md: numerics 4b4d9b277e04, main 4b4d9b277e04
+adds main's delta (less that path): 38f1a4052fd3 vs 38f1a4052fd3
+keeps numerics' delta (less that path): e4f6c3e979ea vs e4f6c3e979ea
+remerge-diff lines: 0
+== 2. KF3's merge-order slip
+#1061 merge 45ffd91d19 at 2026-09-30T05:01:47Z, 336 files
+#1061 paths by top folder:
+ 336    projects/chirality-app-v4
+KF3 merge dd61120ff parents: 45ffd91d19 aa83f67969
+45ffd91d1 ancestor of the KF3 head aa83f6796: no
+git diff aa83f6796 dd61120ff -- projects/chirality-piping tools .github: 0 lines
+all paths aa83f6796..dd61120ff by top folder:
+ 336    projects/chirality-app-v4
+remerge-diff lines of dd61120ff: 0
+== 3. Slice-branch merges named in the records (parents)
+   c0473301e: a7ec4981a f8400d290
+   e114b23c1: c0473301e 78f55f927
+   b86081221: 1f5c1a6d0 0f5d8c7b4
+   485320e95: 24449b5c8 0f5d8c7b4
+   597c81ba4: 011911e4e f8400d290
+   522167ac6: 1c7558df5 dd61120ff
+   ba88db495: 5ad1b6174 59cb20073
+   8f8023a20: 8a59458a1 7ac7b1c37
+   1f354c20b: 9ababe4f2 1cdeae2c1
+   3e90176c6: 014b2ae04 59cb20073
+   9aeed9c22: 9ecf2bdca b37331092
+   c4879c496: 07bed2638 1cdeae2c1
+   babcf5e65: a4378835c b37331092
+   28517eaaa: 95c7501a7 65e2d6c2a
+remerge-diff files of 597c81ba4 (K6b), c0473301e (KF3); line counts of 522167ac6 (KF2) and e114b23c1 (KF3):
+   597c81ba4 FK/src/structural/retained/adaptive.rs
+   597c81ba4 FK/src/structural/retained/verify.rs
+   c0473301e FK/src/structural.rs
+   c0473301e FK/src/structural/retained/adaptive.rs
+   c0473301e FK/src/structural/retained/bound.rs
+   522167ac6: 0; e114b23c1: 0
+K6b head FK equals main f8400d290's: yes
+== 4. Spawn bases (first-parent first commit's parent)
+   K6b: c0436769fe K6b checkpoint 0: the plan (I16) <- parent ab02ee3a6
+   VK: 40421b7f15 V-K checkpoint 0: the plan (I17) <- parent ab02ee3a6
+   KF1: d0566126ef KF1 checkpoint 0: the plan (I18) <- parent 8cca91701
+   KF3: 75a1222a67 KF3 checkpoint 0: the diagnosis and plan (I19) <- parent 0f5d8c7b4
+   KF2: 573bd38350 KF2 checkpoint 0: the plan (I20) <- parent 78f55f927
+#1055 paths: projects/chirality-app-v4
+== 5. A0 export (V1 'K6b A0 accepted')
+   bb89e4f8f patch-id b43efeb4fdd2
+   3018343c2 patch-id b43efeb4fdd2
+   bb89e4f8f: removed pub(crate) lines 240, removed dead_code markers 20
+== 6. CI runs cited only in the rulings
+   36584733672 Piping Desktop E2E | pull_request | a5fa0eaf7c | success
+   36584733559 Harness Pre-merge Validation | pull_request | a5fa0eaf7c | success
+   36584733590 governance-harness | pull_request | a5fa0eaf7c | success
+   36584733821 pec-tests | pull_request | a5fa0eaf7c | success
+   36640221444 Piping Desktop E2E | workflow_dispatch | 3fd1baff33 | success
+   36664104717 Piping Desktop E2E | workflow_dispatch | f2b8c85a2d | success
+   36669470111 Piping Desktop E2E | workflow_dispatch | 1c7558df50 | success
+   36621651732 Piping Desktop E2E | workflow_dispatch | 1854911d16 | success
+   36640221444 target_base 0f5d8c7b46
+   36664104717 target_base 78f55f927d
+   36669470111 target_base 78f55f927d
+PR #1062 runs on the head:
+   36677114375 governance-harness | pull_request | b0e3579856 | success
+   36677114483 Harness Pre-merge Validation | pull_request | b0e3579856 | success
+   36677114522 pec-tests | pull_request | b0e3579856 | success
+   36677114545 Piping Desktop E2E | pull_request | b0e3579856 | success
+   checks: SKIPPED=6 SUCCESS=7
+numerical cargo job minutes (K4 pr/dispatch, K6 dispatch, KF3 pr/dispatch, KF2 pr/dispatch):
+   36593109243 20.07
+   36593106169 18.33
+   36548351414 14.05
+   36669372845 21.45
+   36669370536 21.43
+   36673665663 23.95
+   36673660523 20.87
+== 7. K5's DEC-025 baseline 33e33c723 against main b37331092 (piping paths outside _Coordination)
+   0 paths; 33e33c723 == e7d930d49 piping: yes
+== 8. In-place edits to ROOT_RULINGS_V1.md inside the PR's own history (commits that remove a line)
+   ed74fd813d 2026-09-29T04:59:42-06:00 T3: K4 B accepted; correction to the A3b ruling (DIRECTIONAL-SPAN was sel: removed 1
+      -  1. **DIRECTIONAL-SPAN: 128 → Unresolved(Ceiling).**
+   40e508008f 2026-09-29T13:25:05-06:00 T3: KF1 T reopened on corrected work figures and set to 512; V-K A2 accep: removed 1
+      -  - At T = 64 only the six 100-member frames move, and only in the stop rule: +2.2 to +13.4 M LME, at most about +15% of the stop rule's work (about 2% of the call).
+   b60a2022a6 2026-09-29T17:07:14-06:00 T3: K6b D accepted; PR opened; E_adm correction recorded: removed 1
+      -  - ρ_fp is at most 0.43 against the new E, and E_adm at 10,000 members is 2.65–2.73 GiB.
+   899f289657 2026-09-29T18:16:21-06:00 T3: K6b RV22 fixes accepted; correction on the 1,000-member estimate chan: removed 1
+      -  - Regenerate `counts.jsonl`, and state the change in RETURN: +5.4% on CHAIN and TREE and +2.1% on CONT at 10,000 members, and 0 at 1,000 or fewer. b3's admissions are unaffected.
+   ffc489f524 2026-09-29T20:03:56-06:00 T3: correct an unverified claim in the K6c ruling: removed 1
+      -  - The E_max column in those records comes from VR's stale port. It is superseded by K6c's corrected estimate, and no admission decision there relied on it at the margin.
+   the claim 'relied on it at the margin' was introduced by: ffc489f524 2026-09-29T20:03:56-06:00 e487742929 2026-09-29T20:03:44-06:00 
+== 9. Uncommitted evidence cited by the rulings (sha256 prefixes; paths relative to <wt>)
+   scratch/i13/gate2/SHA256SUMS lines: 3456
+   scratch/i13/gate2/part1/runs.jsonl: 30d99bf0102a
+   scratch/gate_base_e7d930d49_full/*/runs.jsonl: 9139140c80a6
+   scratch/i20/b/gate/part1_base/runs.jsonl: c42981e54165
+   scratch/i20/b/gate/part1_cand/runs.jsonl: 11dfe8296681
+   KF2 dec025: original JSON sha256 (record) 9b4d80026c9b, scratch 9b4d80026c9b; suites.log identical: yes
+   KF3 dec025: original JSON sha256 (record) b28a88cc5862, scratch b28a88cc5862; suites.log identical: yes
+   K4 dec025: original JSON sha256 (record) 9aabdee58f68, scratch 9aabdee58f68; suites.log identical: yes
+   VK dec025: original JSON sha256 (record) 8a02119f9bcc, scratch 8a02119f9bcc; suites.log identical: yes
+   scratch/sweep_kf2/meta.txt head: 522167ac62

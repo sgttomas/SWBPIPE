@@ -2516,9 +2516,9 @@ RV20 (`REVIEW/KF1_REVIEW.md`, sha256 `d1cde558…`; records `REVIEW/_run_records
 
 - **V-K's B is accepted.** ROOT committed its records at `f5379a5d4` on the V-K branch.
   - **V1 (100 members) and V2 (1,000):** 12 of 12 selected at 128, every row passes, and C9's floor sets are empty.
-  - **V3 (10,000):** CONT-n10000-AX is selected at 128, with 211 passes and 4 absolute-range passes out of 215. The other five end `Unresolved(ExactSumSpan)` in the 256 verification's shared build, before `uc`, recorded under the named exception.
+  - **V3 (10,000):** CONT-n10000-AX is selected at 128, with 211 passes and 4 absolute-range passes out of 215. The other five end `Unresolved(ExactSumSpan)` in the 256 verification's shared build, before `uc`, recorded under the named exception. [Correction (ROOT, 2026-09-30, RV25-N4): "before `uc`" should read "before the Uc bounds complete". The shared build recorded no `uc` stage for the partial work, and KF3's diagnosis places the stop inside `uc_bounds`.]
   - No watchdog kill, heap-cap abort or memory-guard kill occurred.
-  - W1 at 10,000 members takes 5–10 s per call and about 0.82 GB of heap, against E_max of 2.7 GB (ρ 0.32–0.37).
+  - W1 at 10,000 members takes 5–10 s per call and about 0.82 GB of heap, against E_max of 2.7 GB (ρ 0.32–0.37). [Correction (ROOT, 2026-09-30, RV25-S2): these GB figures are MiB divided by 1,000, the E_adm slip again. VK RETURN §14.3 gives a heap of 816.5–835.0 MiB (0.86–0.88 GB) and E_max 2,676–2,752 MiB (2.81–2.89 GB). ρ is unaffected.]
 - **KF3 is spawned as I19** (`TASK_BRIEFS/I19_KF3_IMPLEMENTATION.md`), on branch `codex/piping-kf3-20260929` in `<wt>/kf3`, from main `0f5d8c7b4`. It covers:
   - the diagnosis of the Span;
   - D1 revision 5a.3 **amendment A2**, which ROOT records when KF3's plan confirms the reading: a certified bound (Uc or S) that cannot be formed is +∞, so B = min over the available bounds, and the attempt stops only if a block needs a bound and none is available;
@@ -2754,7 +2754,7 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - **For D:** from the existing records only, with no new heavy run, give (b)'s estimate against its threshold at the rejecting row for each precision. Classify the loss as a design limit (like THIN) or slack in (b). ROOT rules from that.
   - **For W1's limits:** a case budget ends these cases earlier. Their charged work before `Ceiling` (65–74 G LME) is recorded.
   - **RETURN must say plainly** that the runner summary's `fail` column for these two frames counts unpublished rows, and that no wrong value was published.
-- **Finding KF3-B2: the measured heap exceeds E_max.** TREE-AX peaks at 2,889.9 MiB against E_max 2,750 (ρ ≈ 1.05), and TREE-ROT at 2,891.5 against 2,752. The ruling on RV22-2 requires E_max to be an upper bound on every phase.
+- **Finding KF3-B2: the measured heap exceeds E_max.** [Correction (ROOT, 2026-09-30, RV25-S1): the figures below compare against VR's stale port of E_max, and like for like K6b's final formula bounds the measured peaks (see the correction in "KF3: D accepted; KF3-B1 and KF3-B2 routed"). KF3-B2 stands on the code derivation of an under-count, not on a measured excess.] TREE-AX peaks at 2,889.9 MiB against E_max 2,750 (ρ ≈ 1.05), and TREE-ROT at 2,891.5 against 2,752. The ruling on RV22-2 requires E_max to be an upper bound on every phase.
   - **For D:** derive, with file:line, which allocations are alive at the peak, and whether pre-KF3 code on the same path holds them. There are two possibilities:
     - a K6b omission that no earlier run reached (I19's reading: the shifted factorization's two profile copies at 1024 bits);
     - a KF3 change in what is alive.
@@ -2782,7 +2782,7 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - **What a change would alter:** I20 showed a profile-based operation count is honest, because the dense factor's entries before a row's first nonzero are exact ±0. But the change alters every dense report's bytes, since `PivotEvidence.operation_count` and `.screen` are published (PP:1106-1107): T9's 56 dense outputs, and the dense part-1 envelopes. It also changes dense classes. That is certain on the N10 pair and likely on RF-CHAIN-A and RF-CHAIN-T at n10-r1e-12; RF-SKEW-T-PIN-OFF-122 and RF-WEAK-W-L at r1e-12 are candidates.
   - **Routed:** a separate dense-screen slice on the T3-close list, with an owner-facing note, since dense scrutiny's published standing changes. It is not scheduled yet.
 - **Q4: no budget in the witness.**
-  - **Recorded for the owner:** the dense route observes cancellation only before the solve and before publication (APP:1688-1692, :1711-1717). A cancelled dense job keeps its thread and memory until the solve returns. After KF2 the dense factor is the long step (65–188 s at 1,000 members).
+  - **Recorded for the owner:** the dense route observes cancellation only before the solve and before publication (APP:1688-1692, :1711-1717). A cancelled dense job keeps its thread and memory until the solve returns. After KF2 the dense factor is the long step (65–188 s at 1,000 members). [Correction (ROOT, 2026-09-30, RV25-N3): 65–86 s at 1,000 members; 166–188 s at K6's 1,364-member ceiling (B3).]
   - Routed as an observation to T6 and T9; it is not T3 scope.
 - **Q5: the site-table row is authorized:** `("FK/structural.rs", "negative_pair_witness_counted", 6, …)`, one declared, additive row.
 - **Q6: yes.** SD's suite is added at A (SD:37 and `k1_tests.rs:371` call the witness).
@@ -2803,7 +2803,7 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - **Routed:** a D1 design question: re-splitting λ between (b) and (d), and whether (b) can be sharpened on tree roots. It is not KF3's, and not a T3-close blocker.
   - **Owner-facing:** W1a publishes no retained-precision result for R1's large trees at about 3,000 members and more. The binary64 route publishes them with its ordinary class, as today. This joins THIN on the owner's availability list, beside the PHYS-R4 question.
 - **KF3-B2 (heap above E_max) is a K6b omission, not KF3-induced.**
-  - Against K6b's final formula, the peak inside `nl_pass` on the shifted factor at 1024 (bound.rs:1040) exceeds E_max by 19.5 MB (AX) and 19.4 MB (ROT).
+  - Against K6b's final formula, the peak inside `nl_pass` on the shifted factor at 1024 (bound.rs:1040) exceeds E_max by 19.5 MB (AX) and 19.4 MB (ROT). [Correction (ROOT, 2026-09-30, RV25-S1): that comparison is not like for like. It sets `vk_scale`'s measured peak against K6b's E_max with `k6_observe`'s fixed term. On `vk_scale`'s own fixed term, K6b's final formula **bounds** both measured peaks, by 7.0 and 7.5 MB (KF3 RETURN §13); that fixed term is itself an estimate. KF3-B2 stands on the code derivation alone: H's pass term under-counts the 1024 shift by a net 10,799,688 B (`at`/`bt`/`ct` omitted, `work` counted after it is freed, `OPTION_EXTRA` over-counted), so E_max is not yet shown to bound that phase. On main the call is at `bound.rs:1059`. The routing to K6c is unchanged.]
     - H's pass term leaves out `at`, `bt` and `ct` (3·nf·w).
     - It counts `work`, which is freed before `nl_pass`.
     - It over-counts `Option<Wide>` by 8 B per entry.
@@ -2838,7 +2838,7 @@ RV22 (`REVIEW/K6B_REVIEW.md`; records `REVIEW/_run_records/k6b_review/`) reviewe
   - RV22's C-N1 if it fits.
 - **I21 is spawned after KF3 merges.** Its base must carry KF3's kernel.
 - **V-K's routed V3 re-run** ("V-K merged", Routed) **is satisfied by KF3's B.** B ran V-K's runner and `vk_scale`, unedited, on `e114b23c1`, whose FK equals KF3's final head `b8c55c92e`'s. It covers V1 to V3, outcomes and R1 honesty (`KF3/_run_records/b/`).
-  - The E_max column in those records comes from VR's stale port. It is superseded by K6c's corrected estimate. K6c re-checks B's admission decisions against the corrected estimate; ROOT has not verified them.
+  - The E_max column in those records comes from VR's stale port. It is superseded by K6c's corrected estimate. K6c re-checks B's admission decisions against the corrected estimate; ROOT has not verified them. [Correction (ROOT, 2026-09-30, RV25-N2): as first written (`e48774292`), the previous sentence ended "…, and no admission decision there relied on it at the margin". That was an unverified claim, replaced in place 12 s later (`ffc489f52`) with no bracket. The bracket is added here.]
 - **ROOT's W1 limits wait for K6c's merge** (the corrected E_max and the post-KF3 W1-T4).
 
 ## KF2: checkpoint A accepted; B granted (ROOT, 2026-09-30)
@@ -3001,3 +3001,35 @@ RV24 (`REVIEW/KF2_REVIEW.md`, sha256 `6785aa13…`; records `REVIEW/_run_records
   - DEC-025 was clean: the only change is frame_kernel 417 → 432 plus 1 ignored, exactly KF2's added tests;
   - GEN-8 passed.
 - **Routed:** the dense-screen slice (with RV24-N4's notes), and the dense cancellation note to T6 and T9.
+
+## Records PR #1062: rulings on RV25's review (ROOT, 2026-09-30)
+
+RV25 (`REVIEW/RECORDS_PR1062_REVIEW.md`, sha256 `45b27642…`; records `REVIEW/_run_records/records_pr1062_review/`) reviewed head `b0e357985`: **PASS**, with 0 BLOCKING, 2 SHOULD-FIX and 10 NOTEs.
+- **What held:**
+  - **Scope:** 1,031 paths, all under `_Coordination/`; the remerge diff is empty.
+  - **Append-only:** one insert-only "[Superseded …]" bracket; every other change appends.
+  - **Hashes:** all 25 SHA256SUMS files verify.
+  - **Leaks:** GEN-8 passes.
+  - **The nine merge records** match GitHub and Git exactly, KF3's disclosed slip included.
+  - **Figures:** 25 sha256 prefixes and more than 90 figures match their sources.
+
+**Both SHOULD-FIX findings are fixed before merge, as for PR #1049. Each is a ROOT figure error:**
+- **RV25-S1:** KF3-B2 was stated as a measured excess of 19.5/19.4 MB over K6b's E_max. That comparison is not like for like. On `vk_scale`'s own fixed term, K6b's formula bounds both peaks by 7.0 and 7.5 MB (KF3 RETURN §13). The finding stands on the code derivation of a net 10,799,688 B under-count at the 1024 shift.
+  - **Corrected in place with brackets:** the KF3-B2 lines in "KF3: checkpoint B accepted" and "KF3: D accepted"; K6c's brief (its premise, and a like-for-like bar); the work graph's state paragraph; and the handoff §8.1.
+  - `bound.rs:1040` is noted as `:1059` on main.
+- **RV25-S2:** V-K B's "0.82 GB" and "2.7 GB" were MiB/1,000. They are bracketed with VK RETURN §14.3's figures.
+
+**The NOTEs:**
+- **Fixed:**
+  - N2: a bracket at the admissions sentence, and handoff §7.2 rewritten; the count is now seven;
+  - N3: the dense factor's time, bracketed;
+  - N4: "before `uc`", bracketed;
+  - N5: the `REVIEW/_run_records/SHA256SUMS` exception added to handoff §6;
+  - N6: the handoff's THIN credit, the line count and the §1.4 list;
+  - N7: `sweep_kf2` is kept as the Mac baseline, and the handoff overrides KF2_MERGE's prune list;
+  - N8: "APP" is replaced by `P/apps/desktop/src-tauri/src/lib.rs` in the work graph and the handoff.
+- **Disclosed in the PR body:**
+  - N1: the work graph's :62 carries RV16-D1's one-clause rewording, and the rulings append starts at "K6: rulings on I15's checkpoint-0 plan";
+  - N9: whitespace in raw logs and 3 lines of `KF2_REVIEW.md`, and executable `.sh.txt` copies. The latter are already common on main, so they are left as they are.
+- **N10, recorded here:** `K5_MERGE/RECORD.md` says its baseline's piping tree equals main `b37331092`'s. It differs by 741 records-only `_Coordination/` paths, and no product or test path, so the suites are unaffected. The hash-bound record is not edited.
+- **Then:** RV25's delta check of the fix commit, then the merge.

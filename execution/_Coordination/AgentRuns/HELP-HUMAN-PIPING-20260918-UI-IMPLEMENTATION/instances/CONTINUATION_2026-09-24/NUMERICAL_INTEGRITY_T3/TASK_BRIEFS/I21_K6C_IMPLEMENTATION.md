@@ -17,7 +17,7 @@
 ## Purpose
 
 ROOT's W1 limits rest on K6b's E_max being an upper bound on W1's heap in every phase, derived from the code ("K6b: A1 accepted"; the ruling on RV22-2). KF3's scale run found that it is not ("KF3: checkpoint B accepted; two findings for D", KF3-B2; "KF3: D accepted; KF3-B1 and KF3-B2 routed; PR to review"):
-- **The measurement:** on RF-LARGE-TREE-n10000-AX and -ROT, the heap peaks inside `nl_pass` on the shifted factor in the 1024 verification (`K4R/bound.rs:1040` at KF3's head). The peak exceeds K6b's final E_max by 19.5 MB and 19.4 MB.
+- **The measurement:** on RF-LARGE-TREE-n10000-AX and -ROT, the heap peaks inside `nl_pass` on the shifted factor in the 1024 verification (`K4R/bound.rs:1040` at KF3's head). The peak exceeds K6b's final E_max by 19.5 MB and 19.4 MB. **[Correction (ROOT, 2026-09-30, RV25-S1): this comparison is not like for like. It uses `k6_observe`'s fixed term against `vk_scale`'s measured peak. On `vk_scale`'s own fixed term, K6b's final formula bounds both peaks, by 7.0 and 7.5 MB (KF3 RETURN §13). The finding rests on the code derivation below (a net under-count of 10,799,688 B at the 1024 shift), not on a measured excess. So E_max is not yet *shown* to bound that phase; it has not been shown to fail it either. On K6c's base (main), the `nl_pass` call in `shift_schedule` is at `K4R/bound.rs:1059`.]**
 - **I19's derivation** (`T3/IMPLEMENTATION/KF3/RETURN.md` §13; `_run_records/d/b2_emax.{py,txt}`):
   - H's pass term leaves out `nl_pass`'s `at`, `bt` and `ct` (3·n_f·w);
   - it counts `work`, which is freed before `nl_pass` runs;
@@ -34,7 +34,7 @@ ROOT's W1 limits rest on K6b's E_max being an upper bound on W1's heap in every 
    - For every phase K6b's `estimate` models, and any phase KF3 made reachable (the shifted factorization at every precision, and each refusal's per-block slots), list what is alive at the phase's peak, with file:line in K4R at the base.
    - Include the overlap question (`uc_bounds`' `c` with `at`, `bt` and `ct`, against the transient term).
    - State the corrected formula and its change per phase, at 10, 100, 1,000 and 10,000 members.
-   - **The bar:** E_max is at least the measured heap peak on every recorded W1 run, KF3's B included, and the derivation shows why for runs not measured.
+   - **The bar:** E_max is at least the measured heap peak on every recorded W1 run, KF3's B included, and the derivation shows why for runs not measured. **Compare like for like:** use the fixed term of the binary that measured the peak (`k6_observe` or `vk_scale`), and say how that fixed term is derived (RV25-S1).
 2. **Implement the corrected estimate** in `H/src/k6/w1/counts.rs`.
    - Regenerate `H/observations/k6b/counts.jsonl`, and keep RV22-3's tests binding the committed lines to the code.
    - Add a test that fails on each omitted term I19 found, and one that asserts the `Option` size claim, if it can be asserted from H. Otherwise, show where it is asserted.

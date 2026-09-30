@@ -1,0 +1,13 @@
+# GEN-8: set -o pipefail; <VENV>/bin/python -m pytest -q tools/practitioner_harness/test_live_baseline.py -k gen8
+# run from <wt>/numerics (branch codex/piping-numerical-integrity-20260926 = PR head)
+run 1: this review's files moved aside
+HEAD b0e3579856fbf7bb4c6a68e8b2c46a060231e037
+git status --short --untracked-files=all lines: 0
+1 passed, 10 deselected in 32.05s
+exit 0
+
+run 2: this review's files present (untracked)
+HEAD b0e3579856fbf7bb4c6a68e8b2c46a060231e037
+untracked files: 20
+1 passed, 10 deselected in 29.25s
+exit 0

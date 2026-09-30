@@ -1,0 +1,116 @@
+== F1B: PR #1052 (codex/piping-f1b-20260928)
+   merge sha: record 59cb200730ee github 59cb200730ee OK
+   merged at: record 2026-09-29T05:31:23Z github 2026-09-29T05:31:23Z OK; by sgttomas; state MERGED
+   head: record 6fa42297926e github 6fa42297926e OK; match-head 6fa422979 OK
+   merge parents: ['1cdeae2c1de3', '6fa42297926e']; second parent is head: True
+   'Main was' 1cdeae2c1: equals first parent: True; ancestor of head: True
+   run 36520867670: Piping Desktop E2E / pull_request / head 6fa42297926e (=head) / success / 2026-09-29T04:16:05Z
+   run 36520867714: pec-tests / pull_request / head 6fa42297926e (=head) / success / 2026-09-29T04:16:05Z
+   run 36520867770: governance-harness / pull_request / head 6fa42297926e (=head) / success / 2026-09-29T04:16:05Z
+   run 36520867805: Harness Pre-merge Validation / pull_request / head 6fa42297926e (=head) / success / 2026-09-29T04:16:05Z
+   run 36524065976: Piping Desktop E2E / workflow_dispatch / head 6fa42297926e (=head) / success / 2026-09-29T04:59:19Z
+      target_base in log 1cdeae2c1de3; record 1cdeae2c1de3 OK; ancestor of run head: True; equals merge first parent: True
+== K5: PR #1044 (codex/piping-k5-20260928)
+   merge sha: record 1cdeae2c1de3 github 1cdeae2c1de3 OK
+   merged at: record 2026-09-29T03:18:22Z github 2026-09-29T03:18:22Z OK; by sgttomas; state MERGED
+   head: record babcf5e65870 github babcf5e65870 OK; match-head babcf5e65 OK
+   merge parents: ['b37331092a77', 'babcf5e65870']; second parent is head: True
+   'Main was' b37331092: equals first parent: True; ancestor of head: True
+   run 36511678387: Piping Desktop E2E / workflow_dispatch / head babcf5e65870 (=head) / success / 2026-09-29T02:14:42Z
+      target_base in log b37331092a77; record b37331092a77 OK; ancestor of run head: True; equals merge first parent: True
+   run 36511682318: pec-tests / pull_request / head babcf5e65870 (=head) / success / 2026-09-29T02:14:45Z
+   run 36511682393: Harness Pre-merge Validation / pull_request / head babcf5e65870 (=head) / success / 2026-09-29T02:14:45Z
+   run 36511682439: governance-harness / pull_request / head babcf5e65870 (=head) / success / 2026-09-29T02:14:45Z
+   run 36511682533: Piping Desktop E2E / pull_request / head babcf5e65870 (=head) / success / 2026-09-29T02:14:45Z
+== K6: PR #1053 (codex/piping-k6-20260928)
+   merge sha: record 7ac7b1c377b6 github 7ac7b1c377b6 OK
+   merged at: record 2026-09-29T09:52:09Z github 2026-09-29T09:52:09Z OK; by sgttomas; state MERGED
+   head: record cd325c1fe8e5 github cd325c1fe8e5 OK; match-head cd325c1fe OK
+   merge parents: ['59cb200730ee', 'cd325c1fe8e5']; second parent is head: True
+   'Main was' 59cb20073: equals first parent: True; ancestor of head: True
+   run 36546533788: pec-tests / pull_request / head cd325c1fe8e5 (=head) / success / 2026-09-29T09:02:12Z
+   run 36546533793: Piping Desktop E2E / pull_request / head cd325c1fe8e5 (=head) / success / 2026-09-29T09:02:12Z
+   run 36546533809: governance-harness / pull_request / head cd325c1fe8e5 (=head) / success / 2026-09-29T09:02:12Z
+   run 36546533839: Harness Pre-merge Validation / pull_request / head cd325c1fe8e5 (=head) / success / 2026-09-29T09:02:12Z
+   run 36548351414: Piping Desktop E2E / workflow_dispatch / head cd325c1fe8e5 (=head) / success / 2026-09-29T09:18:49Z
+      target_base in log 59cb200730ee; record 59cb200730ee OK; ancestor of run head: True; equals merge first parent: True
+== K4: PR #1054 (codex/piping-k4-20260928)
+   merge sha: record ab02ee3a68a7 github ab02ee3a68a7 OK
+   merged at: record 2026-09-29T16:25:25Z github 2026-09-29T16:25:25Z OK; by sgttomas; state MERGED
+   head: record 5a46a6278af3 github 5a46a6278af3 OK; match-head 5a46a6278 OK
+   merge parents: ['7ac7b1c377b6', '5a46a6278af3']; second parent is head: True
+   'Main was' 7ac7b1c37: equals first parent: True; ancestor of head: True
+   run 36548351414: Piping Desktop E2E / workflow_dispatch / head cd325c1fe8e5 (NOT this head) / success / 2026-09-29T09:18:49Z
+      target_base in log 59cb200730ee; record (not stated with this run) ; ancestor of run head: True; equals merge first parent: False
+   run 36570042397: Piping Desktop E2E / workflow_dispatch / head 7d8fa9c0e397 (NOT this head) / success / 2026-09-29T12:43:35Z
+      target_base in log 7ac7b1c377b6; record (not stated with this run) ; ancestor of run head: True; equals merge first parent: True
+   run 36584771469: Piping Desktop E2E / workflow_dispatch / head a5fa0eaf7c26 (NOT this head) / success / 2026-09-29T14:43:15Z
+      target_base in log 7ac7b1c377b6; record (not stated with this run) ; ancestor of run head: True; equals merge first parent: True
+   run 36593106169: Piping Desktop E2E / workflow_dispatch / head 5a46a6278af3 (=head) / success / 2026-09-29T15:49:18Z
+      target_base in log 7ac7b1c377b6; record 7ac7b1c377b6 OK; ancestor of run head: True; equals merge first parent: True
+   run 36593109220: Harness Pre-merge Validation / pull_request / head 5a46a6278af3 (=head) / success / 2026-09-29T15:49:20Z
+   run 36593109243: Piping Desktop E2E / pull_request / head 5a46a6278af3 (=head) / success / 2026-09-29T15:49:20Z
+   run 36593109318: pec-tests / pull_request / head 5a46a6278af3 (=head) / success / 2026-09-29T15:49:20Z
+   run 36593109362: governance-harness / pull_request / head 5a46a6278af3 (=head) / success / 2026-09-29T15:49:20Z
+== KF1: PR #1056 (codex/piping-kf1-20260929)
+   merge sha: record 0f5d8c7b4657 github 0f5d8c7b4657 OK
+   merged at: record 2026-09-29T21:34:25Z github 2026-09-29T21:34:25Z OK; by sgttomas; state MERGED
+   head: record 66adfede42de github 66adfede42de OK; match-head 66adfede4 OK
+   merge parents: ['8cca91701d55', '66adfede42de']; second parent is head: True
+   'Main was' 8cca91701: equals first parent: True; ancestor of head: True
+   run 36621651732: Piping Desktop E2E / workflow_dispatch / head 1854911d16d7 (NOT this head) / success / 2026-09-29T19:46:47Z
+      target_base in log 8cca91701d55; record (not stated with this run) ; ancestor of run head: True; equals merge first parent: True
+   run 36628173972: Piping Desktop E2E / workflow_dispatch / head 66adfede42de (=head) / success / 2026-09-29T20:41:53Z
+      target_base in log 8cca91701d55; record 8cca91701d55 OK; ancestor of run head: True; equals merge first parent: True
+   run 36628177857: governance-harness / pull_request / head 66adfede42de (=head) / success / 2026-09-29T20:41:55Z
+   run 36628177872: pec-tests / pull_request / head 66adfede42de (=head) / success / 2026-09-29T20:41:55Z
+   run 36628177877: Piping Desktop E2E / pull_request / head 66adfede42de (=head) / success / 2026-09-29T20:41:55Z
+   run 36628178388: Harness Pre-merge Validation / pull_request / head 66adfede42de (=head) / success / 2026-09-29T20:41:55Z
+== VK: PR #1057 (codex/piping-vk-20260929)
+   merge sha: record f8400d29059b github f8400d29059b OK
+   merged at: record 2026-09-30T00:26:51Z github 2026-09-30T00:26:51Z OK; by sgttomas; state MERGED
+   head: record 5f0d39426251 github 5f0d39426251 OK; match-head 5f0d39426 OK
+   merge parents: ['0f5d8c7b4657', '5f0d39426251']; second parent is head: True
+   'Main was' 0f5d8c7b4: equals first parent: True; ancestor of head: True
+   run 36646861753: Piping Desktop E2E / workflow_dispatch / head 5f0d39426251 (=head) / success / 2026-09-29T23:45:19Z
+      target_base in log 0f5d8c7b4657; record 0f5d8c7b4657 OK; ancestor of run head: True; equals merge first parent: True
+   run 36646865424: Harness Pre-merge Validation / pull_request / head 5f0d39426251 (=head) / success / 2026-09-29T23:45:22Z
+   run 36646865501: Piping Desktop E2E / pull_request / head 5f0d39426251 (=head) / success / 2026-09-29T23:45:22Z
+   run 36646865507: pec-tests / pull_request / head 5f0d39426251 (=head) / success / 2026-09-29T23:45:22Z
+   run 36646865511: governance-harness / pull_request / head 5f0d39426251 (=head) / success / 2026-09-29T23:45:22Z
+== K6B: PR #1058 (codex/piping-k6b-20260929)
+   merge sha: record 78f55f927db4 github 78f55f927db4 OK
+   merged at: record 2026-09-30T01:08:38Z github 2026-09-30T01:08:38Z OK; by sgttomas; state MERGED
+   head: record 597c81ba4b3d github 597c81ba4b3d OK; match-head 597c81ba4 OK
+   merge parents: ['f8400d29059b', '597c81ba4b3d']; second parent is head: True
+   'Main was' f8400d290: equals first parent: True; ancestor of head: True
+   run 36650521163: governance-harness / pull_request / head 597c81ba4b3d (=head) / success / 2026-09-30T00:28:40Z
+   run 36650521165: Harness Pre-merge Validation / pull_request / head 597c81ba4b3d (=head) / success / 2026-09-30T00:28:40Z
+   run 36650521260: pec-tests / pull_request / head 597c81ba4b3d (=head) / success / 2026-09-30T00:28:41Z
+   run 36650521264: Piping Desktop E2E / pull_request / head 597c81ba4b3d (=head) / success / 2026-09-30T00:28:41Z
+   run 36650532005: Piping Desktop E2E / workflow_dispatch / head 597c81ba4b3d (=head) / success / 2026-09-30T00:28:48Z
+      target_base in log f8400d29059b; record f8400d29059b OK; ancestor of run head: True; equals merge first parent: True
+== KF3: PR #1059 (codex/piping-kf3-20260929)
+   merge sha: record dd61120ff271 github dd61120ff271 OK
+   merged at: record 2026-09-30T05:28:58Z github 2026-09-30T05:28:58Z OK; by sgttomas; state MERGED
+   head: record aa83f67969c2 github aa83f67969c2 OK; match-head aa83f6796 OK
+   merge parents: ['45ffd91d198f', 'aa83f67969c2']; second parent is head: True
+   no 'Main was' line; first parent 45ffd91d198f ancestor of head: False
+   run 36669370536: Piping Desktop E2E / workflow_dispatch / head aa83f67969c2 (=head) / success / 2026-09-30T04:33:22Z
+      target_base in log 78f55f927db4; record 78f55f927db4 OK; ancestor of run head: True; equals merge first parent: False
+   run 36669372845: Piping Desktop E2E / pull_request / head aa83f67969c2 (=head) / success / 2026-09-30T04:33:24Z
+   run 36669372847: Harness Pre-merge Validation / pull_request / head aa83f67969c2 (=head) / success / 2026-09-30T04:33:24Z
+   run 36669372872: governance-harness / pull_request / head aa83f67969c2 (=head) / success / 2026-09-30T04:33:24Z
+   run 36669372875: pec-tests / pull_request / head aa83f67969c2 (=head) / success / 2026-09-30T04:33:24Z
+== KF2: PR #1060 (codex/piping-kf2-20260930)
+   merge sha: record 7ad3a9adf479 github 7ad3a9adf479 OK
+   merged at: record 2026-09-30T06:08:13Z github 2026-09-30T06:08:13Z OK; by sgttomas; state MERGED
+   head: record 522167ac62f2 github 522167ac62f2 OK; match-head 522167ac6 OK
+   merge parents: ['dd61120ff271', '522167ac62f2']; second parent is head: True
+   'Main was' dd61120ff: equals first parent: True; ancestor of head: True
+   run 36673660523: Piping Desktop E2E / workflow_dispatch / head 522167ac62f2 (=head) / success / 2026-09-30T05:29:45Z
+      target_base in log dd61120ff271; record dd61120ff271 OK; ancestor of run head: True; equals merge first parent: True
+   run 36673665543: pec-tests / pull_request / head 522167ac62f2 (=head) / success / 2026-09-30T05:29:49Z
+   run 36673665575: Harness Pre-merge Validation / pull_request / head 522167ac62f2 (=head) / success / 2026-09-30T05:29:49Z
+   run 36673665617: governance-harness / pull_request / head 522167ac62f2 (=head) / success / 2026-09-30T05:29:49Z
+   run 36673665663: Piping Desktop E2E / pull_request / head 522167ac62f2 (=head) / success / 2026-09-30T05:29:49Z

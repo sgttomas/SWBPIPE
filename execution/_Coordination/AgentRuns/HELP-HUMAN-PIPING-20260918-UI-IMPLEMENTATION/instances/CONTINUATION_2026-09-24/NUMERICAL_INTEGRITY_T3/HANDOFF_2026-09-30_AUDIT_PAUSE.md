@@ -53,7 +53,7 @@ Each slice has `IMPLEMENTATION/<SLICE>_MERGE/RECORD.md`, with its gates and a sa
 
 ### 1.4 No agent is running at the pause
 
-The TASKs of 2026-09-29 and 30 (I16 to I20, and RV19 to RV24) have all finished. ROOT dispatched every TASK directly as a background subagent (host-native, D-GOV-35), and no T3 manager (WORKING_ITEMS) was used on the Mac: ROOT verified and committed every TASK's work. A resumed session has none of these subagents; start fresh ones from their briefs and the records.
+Every TASK dispatched in this session has finished (on 2026-09-29 and 30 these included I12 to I20, RV17 to RV25, V4 and DS1). ROOT dispatched every TASK directly as a background subagent (host-native, D-GOV-35), and no T3 manager (WORKING_ITEMS) was used on the Mac: ROOT verified and committed every TASK's work. A resumed session has none of these subagents; start fresh ones from their briefs and the records.
 
 ## 2. Remaining T3 order
 
@@ -77,9 +77,9 @@ The work graph's T3 row governs where it differs.
   - **THIN-A and THIN-B:** W1a's design limit, κ ≈ 2^507 ("V-K: THIN confirmed by GEN");
   - **R1's large trees:** no retained-precision result at about 3,000 members and above (KF3-B1). The ordinary binary64 route still publishes them with its ordinary class.
 - **The observation-lane framing** (F1b).
-- **Noted for T6 and T9, not T3's:** a cancelled dense-scrutiny job keeps its thread and memory until the solve returns (APP:1688-1692 and :1711-1717). After KF2 that is minutes (the dense factor), not weeks.
+- **Noted for T6 and T9, not T3's:** a cancelled dense-scrutiny job keeps its thread and memory until the solve returns (`P/apps/desktop/src-tauri/src/lib.rs:1688-1692` and `:1711-1717`). After KF2 that is minutes (the dense factor), not weeks.
 
-## 4. Navigating `ROOT_RULINGS_V1.md` (about 2,850 lines)
+## 4. Navigating `ROOT_RULINGS_V1.md` (about 3,000 lines)
 
 Sections are appended in time order, each headed "(ROOT, date)". A later section supersedes an earlier one only where it says so; corrections are in-place brackets `[Correction …]`. For the Mac-era slices, search these headings:
 
@@ -151,7 +151,7 @@ The rules are in `_COMMON.md`, `I8R_K1_RESUME.md:24-50` (the Mac host) and `OWNE
 ## 6. Records conventions (additions since 2026-09-28)
 
 - **Hash-bound records are never edited.** A later addendum goes in a new folder (for example K6c's RETURN is K6b's addendum 1, in `IMPLEMENTATION/K6C/`).
-- **`shasum -a 256 -c SHA256SUMS` must run from the folder that holds it.** Run from elsewhere, it reports false failures.
+- **`shasum -a 256 -c SHA256SUMS` must run from the folder that holds it.** Run from elsewhere, it reports false failures. The one exception on main is `REVIEW/_run_records/SHA256SUMS`, whose paths are relative to `REVIEW/`, so it is run from there (RV25-N5).
 - **Machine-path scans** (`/Users/`, `/private/`, `/var/folders`) can match a record that describes the patterns themselves. Read the hit before treating it as a leak.
 - **Rulings cite RETURN sections for figures.** Where ROOT restates a figure, compute it from the record in the same turn (§7.2).
 
@@ -159,7 +159,7 @@ The rules are in `_COMMON.md`, `I8R_K1_RESUME.md:24-50` (the Mac host) and `OWNE
 
 ### 7.1 Patterns worth keeping
 
-1. **Checkpoint 0 (the plan before code), with ROOT ruling on numbered questions.** It caught the scope of KF3's amendment A2, split KF2's screen change out before any code, and surfaced THIN in V-K before B.
+1. **Checkpoint 0 (the plan before code), with ROOT ruling on numbered questions.** It caught the scope of KF3's amendment A2, and split KF2's screen change out before any code.
 2. **Stop conditions produce the best findings:**
    - K6b's backstop stop, which fixed a runner/binary disagreement;
    - K6b's K6B-S3 parity stop, which exposed K4's missing partial-stage accounting (fixed in KF3);
@@ -177,11 +177,16 @@ The rules are in `_COMMON.md`, `I8R_K1_RESUME.md:24-50` (the Mac host) and `OWNE
 
 ### 7.2 Patterns that hurt, and the fix
 
-1. **ROOT's restated numbers were wrong four times in two days.** Each is recorded as a bracketed correction:
+1. **ROOT's restated numbers or claims were wrong at least seven times in two days.** Each now carries a bracketed correction in `ROOT_RULINGS_V1.md`:
    - KF1's work increase: "+15% of the stop rule" should be +21–159%;
    - E_adm: MiB divided by 1,000;
    - the E_max change at 1,000 members;
-   - on 2026-09-30, a claim about admissions ROOT had not checked.
+   - on 2026-09-30, a claim about admissions ROOT had not checked. It was replaced in place without a bracket at first; the bracket was added after RV25-N2;
+   - V-K B's heap and E_max in GB that were MiB/1,000, the same slip again (RV25-S2);
+   - KF3-B2 stated as a measured excess of 19.5 MB, when the like-for-like comparison is within the bound. It spread into K6c's brief and the work graph before RV25 caught it (RV25-S1);
+   - the dense factor's time given as "65–188 s at 1,000 members", when 188 s is the 1,364-member ceiling (RV25-N3).
+
+   Most came from compressing a RETURN's table into one sentence, which drops its qualifiers: units, the basis of a comparison, which size a range belongs to.
 
    **Fix:** don't restate figures; cite the RETURN section. When a figure must appear, compute it from the record in the same turn. Never state a "nothing relied on it" claim without checking.
 2. **ROOT told agents to run `git merge --no-commit`,** an index operation their rules forbid. It was caught and corrected. ROOT does merges.
@@ -201,7 +206,7 @@ The auditor is a colleague looking for issues early. Findings are welcome, and s
 1. **D1 revision 5a.3's amendments A1 and A2.** ROOT made both by ruling (§4). The base design (R7) had an independent design verifier (V4); A1 and A2 were checked only by slice reviewers (RV19 for A1, RV23 for A2). A design-level check of each honesty argument against R7's §5 text is the most valuable audit item. A2's claim is that B_c enters the guarantee only through B_c ≥ ‖K̃_c⁻¹‖₁, so a minimum over the formed, certified bounds preserves every step.
 2. **ROOT's rulings' figures** (§7.2 item 1): sample the figures in the 2026-09-29 and 2026-09-30 sections against their source records (RETURNs, `_run_records/`, reviews).
 3. **Merge records against reality,** for K4, KF1, V-K, K6b, KF3 and KF2 (and KF3's disclosed merge-order slip): heads, CI run IDs, target_base, DEC-025 comparisons, GEN-8 and the review verdicts.
-4. **E_max:** it is known not to be an upper bound yet (KF3-B2; K6c's job). Check whether anything besides the harness's own admission relied on it.
+4. **E_max:** by code derivation its 1024 shift term under-counts by a net 10.8 MB at 10,000 members (KF3-B2; K6c's job). Like for like, the measured peaks were still within it by 7.0–7.5 MB (RV25-S1), so it is not yet *shown* to bound that phase. Check whether anything besides the harness's own admission relied on it.
 5. **The open design questions,** which the audit may investigate but not decide:
    - KF3-B1 (estimate (b), the λ split);
    - the dense-screen proposal (KF2 plan §7).
@@ -225,7 +230,7 @@ The auditor is a colleague looking for issues early. Findings are welcome, and s
 `<wt>` holds about 130 GB. The records keep every hash, so the items below are regenerable. Prune only with the owner's word:
 - **worktrees of merged slices:** `f1b`, `k1`, `k2b`, `k3`, `k4`, `k5`, `k6`, `k6b`, `kf1`, `kf2`, `kf3`, `vk`, `skewpin` and `sweep-k1`, about 2.2 GB each (sweep-k1 5 GB);
 - **targets:** `k1-target`, `k4-b-target`, `k4-b`, `f1b-target`, `tauri-f1b-target`, `rv7-target`, `rv11-target`, `k6b-target`, `kf3-target` and `kf2-target`, about 24 GB. `root-target` (6.4 GB) is of unrecorded origin; check before removing;
-- **scratch** (about 70 GB): the largest are `i13` (27 GB), `rv11` (12 GB), `i20` (about 12 GB, including KF2's uncommitted gate `runs.jsonl` files, whose sha256 is recorded), `calib`, the two `gate_base_e7d930d49*` folders, `i14` and `tauri_f1b`. The merged slices' sweep folders (`sweep_k4` to `sweep_kf2`) are small.
+- **scratch** (about 70 GB): the largest are `i13` (27 GB), `rv11` (12 GB), `i20` (about 12 GB, including KF2's uncommitted gate `runs.jsonl` files, whose sha256 is recorded), `calib`, the two `gate_base_e7d930d49*` folders, `i14` and `tauri_f1b`. The merged slices' sweep folders (`sweep_k4` to `sweep_kf3`) are small. `sweep_kf2` is kept as the current Mac baseline, which overrides the prune list in `KF2_MERGE/RECORD.md` (RV25-N7).
 - **Keep:**
   - `numerics` and `sweep-skewpin` (the DEC-025 worktree);
   - `scratch/sweep_skewpin` (the driver), `scratch/sweep_kf2` (the latest Mac baseline; its piping source equals main `7ad3a9adf`'s) and `scratch/calib` (the platform calibration);
