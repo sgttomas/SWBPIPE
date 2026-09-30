@@ -519,3 +519,135 @@ fn kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work() {
     assert_eq!(s.stages.total(), s.total);
     assert!(s.stages.uc > 0 && s.stages.uc < full.stages.uc);
 }
+
+// ---------------------------------------------------------------- RV23-1 and RV23-N1
+
+/// The case work charged before the 256 verification's shared build: 128's
+/// and 256's shared builds and own solves (H's `segments`, K6b; RV23's probe).
+fn before_verify_shared_256(attempts: &[AttemptRecord]) -> u64 {
+    attempts[..2]
+        .iter()
+        .map(|a| a.shared_work + own_total(a) - a.verification_work - a.stop_rule_work)
+        .sum()
+}
+
+#[test]
+fn kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence() {
+    // RV23-1 (ROOT's ruling on RV23's review), the verification's shared
+    // build, as RV23's probe: the case limit leaves the 256 verification's
+    // shared build 1 or 100 LME short, so the build does all its work, the
+    // Uc_c refusal included, and stops at a later guard check.
+    let m = kf3_model("KF3-UC-SPAN");
+    let out = solve(&m);
+    let CaseOutcome::Selected(s) = out else {
+        panic!("KF3-UC-SPAN: {out:?}")
+    };
+    let full = &s.evidence().attempts;
+    let v = &full[1];
+    assert_eq!((v.precision, v.bound_refusals.len()), (256, 1));
+    let start = before_verify_shared_256(full);
+    for delta in [1u64, 100] {
+        let limit = start + v.verification_shared_work - delta;
+        let mut meter = InvocationMeter::new(u64::MAX);
+        let out = solve_case(m.source(), CaseLimit::new(limit), &mut meter);
+        let CaseOutcome::Unresolved { attempts, .. } = out else {
+            panic!("{delta}: {out:?}")
+        };
+        let a = &attempts[1];
+        assert_eq!(
+            a.outcome,
+            AttemptOutcome::Failed(AttemptReason::Stop(AttemptStop::Budget(BudgetScope::Case))),
+            "{delta}"
+        );
+        // The build did all its work, the refusal included ...
+        assert_eq!(
+            (a.verification_shared_work, a.shared_stages.uc),
+            (v.verification_shared_work, v.shared_stages.uc),
+            "{delta}"
+        );
+        // ... and its refusal reaches the evidence, as on the completed build.
+        assert_eq!(a.bound_refusals, v.bound_refusals, "{delta}");
+        assert_stage_identity(&format!("KF3-UC-SPAN, {delta} LME short"), &attempts);
+    }
+}
+
+/// KF3-UC-SPAN with a second body: one member along x, fixed at its first
+/// node and loaded at its second (its own block, with data).
+fn kf3_with_a_second_body() -> models::Model {
+    let text: String = KF3
+        .lines()
+        .skip_while(|l| *l != "model KF3-UC-SPAN")
+        .take_while(|l| *l != "end")
+        .filter(|l| !l.starts_with("expect "))
+        .map(|l| format!("{l}\n"))
+        .collect();
+    let member = text.lines().find(|l| l.starts_with("member 1 ")).unwrap();
+    let section: Vec<&str> = member.split_whitespace().skip(4).take(6).collect();
+    let hex = |x: f64| format!("{:016x}", x.to_bits());
+    let mut extra = format!(
+        "node {} {} {}\nnode {} {} {}\nmember 391 391 392 {} {} {} {}\n",
+        hex(1000.0),
+        hex(0.0),
+        hex(0.0),
+        hex(1017.0),
+        hex(0.0),
+        hex(0.0),
+        section.join(" "),
+        hex(0.0),
+        hex(1.0),
+        hex(0.0)
+    );
+    for c in 0..6 {
+        extra.push_str(&format!("constraint 391 {c} {}\n", hex(0.0)));
+    }
+    extra.push_str(&format!("load 392 1 {} l3\n", hex(0.0625)));
+    models::parse_models(&format!("{text}{extra}end\n"))
+        .into_iter()
+        .next()
+        .unwrap()
+}
+
+#[test]
+fn kf3_in_verify_state_a_refusal_stop_outranks_uc() {
+    // RV23-N1 (ROOT's ruling on RV23's review): 7d's precedence as
+    // `verify_state` composes it (ROOT's rulings 1 and 2 on I19's plan). Two
+    // blocks with data and no S (the hook: every est_c 0). The chain's Uc_c is
+    // refused; the second body's is made missing, t_c ≥ 1 with no refusal
+    // (7b's `uc` case). The refusal stops the pass.
+    let m = kf3_with_a_second_body();
+    let prep = CasePrep::new(m.source()).unwrap();
+    let group = prepare_group(&prep.source).unwrap();
+    assert_eq!(group.blocks.len(), 2);
+    let g = StageGuard::unlimited();
+    let shared = build_shared::<4, 8>(256, 320, &prep.source, &group, g)
+        .result
+        .unwrap();
+    let state = solve_case_at::<4, 8>(&shared, &prep, &group, g)
+        .result
+        .unwrap();
+    let mut vs = build_verify_shared::<4, 8, 8>(&shared, &prep.source, &group, g)
+        .result
+        .unwrap();
+    let chain = vs
+        .uc
+        .iter()
+        .position(|b| b.refused.is_some())
+        .expect("the chain's Uc_c is refused");
+    let other = 1 - chain;
+    assert!(vs.uc[other].refused.is_none() && vs.uc[other].uc.is_some());
+    let refusal = vs.uc[chain].refused.unwrap();
+    vs.uc[other].t = Wide::<4>::ONE;
+    vs.uc[other].uc = None;
+    let _hook = NoShift::new();
+    let r = verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, g);
+    assert_eq!(r.result.as_ref().err(), Some(&refusal.stop()));
+    // Control: with the chain's bound formed instead (any positive value), the
+    // same pass reports `uc` on the second body, so both branches are live.
+    vs.uc[chain].refused = None;
+    vs.uc[chain].uc = Some(Wide::<4>::ONE.mul_pow2(64).unwrap());
+    let r = verify_state::<4, 8, 8>(&shared, &vs, &prep, &group, &state, g);
+    assert_eq!(
+        r.result.as_ref().map(|rep| rep.uc_missing).ok(),
+        Some(Some(other))
+    );
+}

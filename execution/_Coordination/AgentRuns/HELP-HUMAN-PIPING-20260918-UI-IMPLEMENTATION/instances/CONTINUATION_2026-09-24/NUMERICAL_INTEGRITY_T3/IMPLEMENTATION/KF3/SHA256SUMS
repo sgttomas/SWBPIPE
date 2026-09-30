@@ -1,7 +1,7 @@
-b9fca3a6e1e84039142712815b7831c8b4fb8e601f530b9a199c9111afecdffa  ./CHANGE_RECORD.md
+f568eed5cc6e74370418d41057d1b23ac04c9d42e5ba3ee41f4eb219fb7a497f  ./CHANGE_RECORD.md
 be68a4e567e674ff9d55a03458ef4f1321f09b41d10f8749d72014db977d43a0  ./CHECKPOINT_A.md
 721fc2d65e0528f2fc48e2c8b2a9ec2381a8f837ef80c54fc936e01c69fb1c3b  ./PLAN_CHECKPOINT0.md
-a582135f96a66f3f68f44072716ded42aa5ebc9e9ea1770b3875ac4c259f35d7  ./RETURN.md
+0078790cb65fe4a485a82cfc5d59bb137922d36971f967c43226cdc39e08cd84  ./RETURN.md
 02605d1f099353eb4ee0252e0e2d2565b9f9fb2f342854e5e3a158def746e52e  ./_run_records/a/before_main_0f5d8c7b4.txt
 2659dffda3dd1204bdc1ee98ce1ddfd2d7d6c1cce82e792945ea3477661f679c  ./_run_records/a/fk_suite.txt
 e6074d81a1858d354a0ca1d7e2bdd3c528767cdefed1f69387048d969e301350  ./_run_records/a/gen_check.txt
@@ -112,4 +112,16 @@ f6f19d43aacf14dbd44b9fc253fc972e1008b135fff8b200f9e64f7e801af8fb  ./_run_records
 3f8f770c68435540ddeb4e979a299c10c48bdc9c318f379251302d9ef8ad6741  ./_run_records/merge/fk_suite.txt
 c2c6f7a868908c8f448d2c538d37f6dcfff313e0b42a51a2ac0a0c82035defc5  ./_run_records/merge/vk_records_write.out
 6039809bada15ca94caa33ad1258f53feaa4859abe75cb31ad93a516c1c8b50a  ./_run_records/merge/vr_suite.txt
+70b35462a990f88eb7f90a789a774b0a6bcc32bbbc8f8d3300b1189a27682d62  ./_run_records/rv23/fk_suite.txt
+9fbac8b281719b725021be9a65cf855db8ea8874644e1755b9c68adcccacd4ef  ./_run_records/rv23/gen_check.txt
+5484d0c895508195ff2f90035ab65533db10bda4c386b1b494d11a183f94d08e  ./_run_records/rv23/mutants/NONE.txt
+1d84f41256e038aefca12a999569f9565118f2f7c5fb1a231beafb5c40bcb5b9  ./_run_records/rv23/mutants/RV23-1-M1-uc-refusals-dropped-in-verify-precision.txt
+2dc2723a0076484bf867ffefeabc8d8cb41c7a2eea6a65ba32cd829c5e2ff92d  ./_run_records/rv23/mutants/RV23-1-M2-uc-refusals-dropped-in-build-verify-shared.txt
+9c1a75e5b81fa89ca2edba4e8a1b974048b24a30e6431aafc44a5f8e395ff6fb  ./_run_records/rv23/mutants/RV23-1-M3-s-refusals-dropped-in-shift-schedule.txt
+f9c2cf1adf0e5787334e44c49099bab139edd27e4d9045f21a441ce242fe34c7  ./_run_records/rv23/mutants/RV23-1-M3a-kept-results-refusals-dropped.txt
+4a4454162520500f2ea7d0aca623314dd33227a026b2704554801bcc2b64b216  ./_run_records/rv23/mutants/RV23-1-M3b-in-flight-refusals-dropped.txt
+ee5704b92c605a8206840ade40e0f9d154770cafbca833cd8bcd92a9b8fbeaf4  ./_run_records/rv23/mutants/RV23-M4b-precedence-swapped-in-verify-state.txt
+6558aa07c8d01fb90c221de68ebe21be40edac4714e40430f99e8b1deb63b285  ./_run_records/rv23/mutants/mutants.jsonl
+4e1183b4dec54e59ce34a00629a41be8b8c8d3b1063e1a200b057a7774e80f9d  ./_run_records/rv23/mutants/rv23_mut.py.txt
+778b48ddb5a14fd93b40d847179f3f3171c61db5932adcc09d6ddece1e665489  ./_run_records/rv23/new_tests.txt
 4595e22f98e30f16567d7cc2d69947debefcab0a531c87f904c26273b91f97f6  ./_run_records/toolchain.txt

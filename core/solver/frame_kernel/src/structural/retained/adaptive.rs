@@ -2518,7 +2518,8 @@ pub struct AttemptRecord {
     pub verification_shared_built_here: bool,
     /// T3 KF3 (D1 revision 5a.3 amendment A2; ROOT's ruling 3 on I19's plan):
     /// on a verification attempt, every block's Uc_c refusal (from the shared
-    /// build) and every S_c refusal of this pass, on every path.
+    /// build) and every S_c refusal of this pass, on every path, a build that
+    /// stops after a refusal included (RV23-1).
     pub bound_refusals: Vec<BlockRefusal>,
 }
 
@@ -2751,6 +2752,10 @@ pub enum CaseOutcome {
 /// budget decisions equal a separate solve's).
 type Slot<S> = Option<Result<Arc<S>, (AttemptStop, u64, StageWork)>>;
 
+/// A cached verification shared build, as `Slot`; a failure also keeps the
+/// Uc_c refusals recorded before it (RV23-1).
+type VerifySlot<S> = Option<Result<Arc<S>, (AttemptStop, u64, StageWork, Vec<BlockRefusal>)>>;
+
 /// The shared stages of one stiffness identity, per precision.
 #[derive(Debug, Default, Clone)]
 pub(crate) struct GroupCache {
@@ -2760,9 +2765,9 @@ pub(crate) struct GroupCache {
     s1024: Slot<Shared<16, 16>>,
     // D1 revision 5a.3: the verification's shared data per precision (q_W =
     // 448, 832 and 1024).
-    v256: Slot<VerifyShared<4, 8>>,
-    v512: Slot<VerifyShared<8, 16>>,
-    v1024: Slot<VerifyShared<16, 16>>,
+    v256: VerifySlot<VerifyShared<4, 8>>,
+    v512: VerifySlot<VerifyShared<8, 16>>,
+    v1024: VerifySlot<VerifyShared<16, 16>>,
 }
 
 /// The work already counted against a case.
@@ -2951,9 +2956,11 @@ fn rejection_reason(
 }
 
 /// The verification's shared data at a precision: reused from the cache, or
-/// built (and cached) here; as `obtain`.
+/// built (and cached) here; as `obtain`. The last item is a failed build's
+/// Uc_c refusals (RV23-1; empty on success, whose are in `uc`).
+#[allow(clippy::type_complexity)]
 fn obtain_verify<const L: usize, const R: usize, const W: usize>(
-    slot: &mut Slot<VerifyShared<L, W>>,
+    slot: &mut VerifySlot<VerifyShared<L, W>>,
     shared: &Shared<L, R>,
     source: &PrimitiveSource,
     group: &GroupPrep,
@@ -2963,6 +2970,7 @@ fn obtain_verify<const L: usize, const R: usize, const W: usize>(
     u64,
     bool,
     StageWork,
+    Vec<BlockRefusal>,
 )
 where
     Wide<L>: SupportedWidth,
@@ -2971,8 +2979,14 @@ where
 {
     if let Some(cached) = slot {
         return match cached {
-            Ok(v) => (Ok(v.clone()), v.total, false, v.stages.clone()),
-            Err((stop, total, stages)) => (Err(stop.clone()), *total, false, stages.clone()),
+            Ok(v) => (Ok(v.clone()), v.total, false, v.stages.clone(), Vec::new()),
+            Err((stop, total, stages, refusals)) => (
+                Err(stop.clone()),
+                *total,
+                false,
+                stages.clone(),
+                refusals.clone(),
+            ),
         };
     }
     let spent = build_verify_shared::<L, R, W>(shared, source, group, guard);
@@ -2980,13 +2994,18 @@ where
         Ok(v) => {
             let v = Arc::new(v);
             *slot = Some(Ok(v.clone()));
-            (Ok(v), spent.total, true, spent.stages)
+            (Ok(v), spent.total, true, spent.stages, Vec::new())
         }
         Err(stop) => {
             if !matches!(stop, AttemptStop::Budget(_)) {
-                *slot = Some(Err((stop.clone(), spent.total, spent.stages.clone())));
+                *slot = Some(Err((
+                    stop.clone(),
+                    spent.total,
+                    spent.stages.clone(),
+                    spent.refusals.clone(),
+                )));
             }
-            (Err(stop), spent.total, true, spent.stages)
+            (Err(stop), spent.total, true, spent.stages, spent.refusals)
         }
     }
 }
@@ -3017,7 +3036,7 @@ fn verify_precision(
                 Some(Ok(shared)) => shared.clone(),
                 _ => unreachable!("a solved state's shared stages are cached"),
             };
-            let (vs, vs_total, built, vs_stages) =
+            let (vs, vs_total, built, vs_stages, vs_refusals) =
                 obtain_verify::<$L, $R, $W>($vslot, &shared, &prep.source, group, guard);
             record.verification_shared_work = vs_total;
             record.verification_shared_built_here = built;
@@ -3025,6 +3044,11 @@ fn verify_precision(
             let invocation_spent = if built { vs_total } else { 0 };
             budget.used = budget.used.saturating_add(vs_total);
             meter.charge(invocation_spent);
+            // RV23-1: a stopped shared build's Uc_c refusals reach the record
+            // before its stop propagates.
+            if vs.is_err() {
+                record.bound_refusals = vs_refusals;
+            }
             let vs = vs?;
             // Amendment A2: the shared build's Uc_c refusals, per block.
             record.bound_refusals = block_refusals(&vs.uc, &[]);

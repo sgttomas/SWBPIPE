@@ -81,7 +81,7 @@ where
     let profile = ScaledProfile::from_rows(pr.first.clone(), rows, vec![0; pr.n]);
     let gamma = gamma_m(&mut ctx, &mut sum, pr.n).unwrap();
     // The unshifted factor (the loop with no shift): Uc when every pivot passes.
-    let f = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None]).unwrap();
+    let f = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None], &mut [None]).unwrap();
     if pr.uc[0] == "fail" {
         assert!(f.failed[0], "{}", pr.tag);
     } else {
@@ -92,7 +92,7 @@ where
             &guard,
             &f,
             profile.block_of_row(),
-            1,
+            &mut [None],
             &gamma,
         )
         .unwrap()[0];
@@ -116,6 +116,7 @@ where
             &profile,
             &gamma,
             &[(0, sigma, pr.n)],
+            &mut [None],
         )
         .unwrap();
         let r = &res[0].1;
@@ -347,9 +348,26 @@ fn kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s() {
     let guard = StageGuard::unlimited();
     let profile = ScaledProfile::from_rows(first.clone(), wide_rows::<4>(&rows), blk.clone());
     let gamma = gamma_m(&mut ctx, &mut sum, rows.len()).unwrap();
-    let f = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None, None]).unwrap();
+    let f = shifted_factor(
+        &mut ctx,
+        &sum,
+        &guard,
+        &profile,
+        &[None, None],
+        &mut [None, None],
+    )
+    .unwrap();
     assert_eq!(f.failed, vec![false, false]);
-    let bounds = uc_bounds(&mut ctx, &mut sum, &guard, &f, &blk, 2, &gamma).unwrap();
+    let bounds = uc_bounds(
+        &mut ctx,
+        &mut sum,
+        &guard,
+        &f,
+        &blk,
+        &mut [None, None],
+        &gamma,
+    )
+    .unwrap();
     // Block 0: refused (a backward sum spans more than 8,128 bits), not a stop.
     let r = bounds[0].refused.expect("block 0 refused");
     assert_eq!((r.kind, r.pass), (RefusalKind::Span, BoundPass::Backward));
@@ -362,14 +380,14 @@ fn kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s() {
         rows[n0..].to_vec(),
     );
     let alone = ScaledProfile::from_rows(f1, wide_rows::<4>(&r1), vec![0; r1.len()]);
-    let fa = shifted_factor(&mut ctx, &sum, &guard, &alone, &[None]).unwrap();
+    let fa = shifted_factor(&mut ctx, &sum, &guard, &alone, &[None], &mut [None]).unwrap();
     let ba = uc_bounds(
         &mut ctx,
         &mut sum,
         &guard,
         &fa,
         alone.block_of_row(),
-        1,
+        &mut [None],
         &gamma,
     )
     .unwrap();
@@ -384,6 +402,7 @@ fn kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s() {
         &profile,
         &gamma,
         &[(0, sigma, n0)],
+        &mut [None, None],
     )
     .unwrap();
     assert_eq!(count, 1);
@@ -415,7 +434,16 @@ fn kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s() {
     )
     .unwrap();
     assert_eq!(start.iter().map(|s| s.0).collect::<Vec<_>>(), vec![0]);
-    let (shifts, _) = shift_schedule(&mut ctx, &mut sum, &guard, &profile, &gamma, &start).unwrap();
+    let (shifts, _) = shift_schedule(
+        &mut ctx,
+        &mut sum,
+        &guard,
+        &profile,
+        &gamma,
+        &start,
+        &mut [None, None],
+    )
+    .unwrap();
     let (certs, uc_missing, stop) =
         certificates(&blocks, &bounds, &est, &[true, true], &shifts, &s_refused);
     assert_eq!((uc_missing, stop), (None, None));
@@ -431,6 +459,7 @@ fn kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s() {
         &profile,
         &gamma,
         &[(1, one, rows.len() - n0)],
+        &mut [None, None],
     )
     .unwrap();
     let s1 = both[0].1.s.expect("S_c of block 1");
@@ -460,8 +489,17 @@ fn kf3_neither_bound_stops_a_block_with_data_and_not_one_without() {
     let guard = StageGuard::unlimited();
     let profile = ScaledProfile::from_rows(first, wide_rows::<4>(&rows), vec![0; n]);
     let gamma = gamma_m(&mut ctx, &mut sum, n).unwrap();
-    let f = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None]).unwrap();
-    let bounds = uc_bounds(&mut ctx, &mut sum, &guard, &f, &vec![0; n], 1, &gamma).unwrap();
+    let f = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None], &mut [None]).unwrap();
+    let bounds = uc_bounds(
+        &mut ctx,
+        &mut sum,
+        &guard,
+        &f,
+        &vec![0; n],
+        &mut [None],
+        &gamma,
+    )
+    .unwrap();
     let r = bounds[0].refused.expect("refused");
     let blocks = FreeBlocks {
         of: vec![0; n],
@@ -510,10 +548,26 @@ fn kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal() {
     let mut sum = ExactWideSum::new();
     let profile = ScaledProfile::from_rows(first, wide_rows::<4>(&rows), vec![0; n]);
     let gamma = gamma_m(&mut ctx, &mut sum, n).unwrap();
-    let f = shifted_factor(&mut ctx, &sum, &StageGuard::unlimited(), &profile, &[None]).unwrap();
+    let f = shifted_factor(
+        &mut ctx,
+        &sum,
+        &StageGuard::unlimited(),
+        &profile,
+        &[None],
+        &mut [None],
+    )
+    .unwrap();
     let before = super::super::adaptive::lme(&ctx) + sum.work().limb_multiply_equivalents();
     let guard = StageGuard::with_case_room(before + 2_000);
-    let got = uc_bounds(&mut ctx, &mut sum, &guard, &f, &vec![0; n], 1, &gamma);
+    let got = uc_bounds(
+        &mut ctx,
+        &mut sum,
+        &guard,
+        &f,
+        &vec![0; n],
+        &mut [None],
+        &gamma,
+    );
     assert_eq!(
         got,
         Err(AttemptStop::Budget(
@@ -568,8 +622,8 @@ fn kf3_a_refused_s_is_unavailable_and_b_is_uc() {
     let guard = StageGuard::unlimited();
     let profile = ScaledProfile::from_rows(first, wide_rows::<4>(&rows), blk.clone());
     let gamma = gamma_m(&mut ctx, &mut sum, n).unwrap();
-    let f = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None]).unwrap();
-    let bounds = uc_bounds(&mut ctx, &mut sum, &guard, &f, &blk, 1, &gamma).unwrap();
+    let f = shifted_factor(&mut ctx, &sum, &guard, &profile, &[None], &mut [None]).unwrap();
+    let bounds = uc_bounds(&mut ctx, &mut sum, &guard, &f, &blk, &mut [None], &gamma).unwrap();
     let uc = bounds[0].uc.expect("Uc_c exists");
     let sigma = Wide::<4>::ONE.mul_pow2(-9000).unwrap();
     let (shifts, count) = shift_schedule(
@@ -579,6 +633,7 @@ fn kf3_a_refused_s_is_unavailable_and_b_is_uc() {
         &profile,
         &gamma,
         &[(0, sigma, n)],
+        &mut [None],
     )
     .unwrap();
     let r = &shifts[0].1;
@@ -599,4 +654,111 @@ fn kf3_a_refused_s_is_unavailable_and_b_is_uc() {
     )
     .unwrap();
     assert_eq!(two, Wide::<4>::from_f64(2.0).unwrap());
+}
+
+#[test]
+fn kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence() {
+    // RV23-1 (ROOT's ruling on RV23's review), 7c: a refusal recorded in the
+    // schedule reaches `s_refused` when a later stop ends the schedule.
+    // - Block 0, K̃ = [[1, x], [x, 3x²]] with x = 2^8200: N′_L's column sum
+    //   1 + |l| spans more than 8,128 bits (`NlColumn`, in the factorization
+    //   in progress).
+    // - Block 1, tridiagonal (4, −1) at σ = 2^-9000: σ′ is refused
+    //   (`ShiftForm`) and kept in the results.
+    // - Block 2, tridiagonal (4, −1) at σ = 8: it fails at 8 and 4 and passes
+    //   at 2 (λ_min > 2), so the schedule takes three factorizations.
+    let p = 256;
+    let mut first = vec![0usize, 0];
+    let mut rows = vec![vec![1.0], vec![0.0, 0.0]];
+    let mut blk = vec![0u32, 0];
+    with_tridiagonal(&mut first, &mut rows, &mut blk, 12);
+    with_tridiagonal(&mut first, &mut rows, &mut blk, 12);
+    let n = rows.len();
+    let mut wide = wide_rows::<4>(&rows);
+    let x = Wide::<4>::ONE.mul_pow2(8200).unwrap();
+    let three_x2 = Wide::<4>::from_f64(3.0).unwrap().mul_pow2(16400).unwrap();
+    wide[1] = vec![x, three_x2];
+    let profile = ScaledProfile::from_rows(first, wide, blk);
+    let gamma = {
+        let mut ctx = WideContext::<4>::new(p).unwrap();
+        gamma_m(&mut ctx, &mut ExactWideSum::new(), n).unwrap()
+    };
+    let start = [
+        (0, Wide::<4>::ONE.mul_pow2(-10).unwrap(), 2),
+        (1, Wide::<4>::ONE.mul_pow2(-9000).unwrap(), 12),
+        (2, Wide::<4>::from_f64(8.0).unwrap(), 12),
+    ];
+    let run = |guard: StageGuard| {
+        let mut ctx = WideContext::<4>::new(p).unwrap();
+        let mut sum = ExactWideSum::new();
+        let mut s_refused = vec![None; 3];
+        let got = shift_schedule(
+            &mut ctx,
+            &mut sum,
+            &guard,
+            &profile,
+            &gamma,
+            &start,
+            &mut s_refused,
+        );
+        let used = super::super::adaptive::lme(&ctx) + sum.work().limb_multiply_equivalents();
+        (got, s_refused, used)
+    };
+    // Unlimited: the results carry both refusals; `s_refused` is the caller's.
+    let (got, untouched, total) = run(StageGuard::unlimited());
+    let (res, count) = got.unwrap();
+    assert_eq!(count, 3);
+    assert_eq!(untouched, vec![None; 3]);
+    let want: Vec<Option<BoundRefusal>> = res.iter().map(|r| r.1.refused).collect();
+    assert_eq!(
+        want[0],
+        Some(BoundRefusal {
+            kind: RefusalKind::Span,
+            pass: BoundPass::NlColumn,
+            row: 0
+        })
+    );
+    assert_eq!(
+        want[1].map(|r| (r.kind, r.pass)),
+        Some((RefusalKind::Span, BoundPass::ShiftForm))
+    );
+    assert!(want[2].is_none() && res[2].1.s.is_some());
+    // Every case room: a budget stop keeps exactly the refusals recorded
+    // before it, never another, and they only grow with the room. Both the
+    // factorization in progress's (block 0 alone) and the results' (blocks 0
+    // and 1) are carried out.
+    let (mut in_flight, mut kept, mut last) = (0, 0, 0);
+    let step = (total / 6_000).max(1);
+    let mut room = 0;
+    while room < total {
+        let (got, s, _) = run(StageGuard::with_case_room(room));
+        let level = match got {
+            // Past the schedule's last guard check: it completes, and
+            // `s_refused` is the caller's.
+            Ok(_) => {
+                assert_eq!(s, vec![None; 3], "room {room}");
+                3
+            }
+            Err(stop) => {
+                assert_eq!(
+                    stop,
+                    AttemptStop::Budget(super::super::adaptive::BudgetScope::Case),
+                    "room {room}"
+                );
+                match (s[0], s[1], s[2]) {
+                    (None, None, None) => 0,
+                    (Some(a), None, None) if Some(a) == want[0] => 1,
+                    (Some(a), Some(b), None) if Some(a) == want[0] && Some(b) == want[1] => 2,
+                    other => panic!("room {room}: {other:?}"),
+                }
+            }
+        };
+        assert!(level >= last, "room {room}: {level} after {last}");
+        last = level;
+        in_flight += usize::from(level == 1);
+        kept += usize::from(level == 2);
+        room += step;
+    }
+    println!("RV23-1 (S): total {total} LME, step {step}: {in_flight} stops in flight, {kept} after the results kept both");
+    assert!(in_flight > 0 && kept > 0, "{in_flight} {kept}");
 }

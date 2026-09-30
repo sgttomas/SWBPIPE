@@ -307,7 +307,7 @@ where
         &guard,
         factor,
         &rows,
-        blocks.len(),
+        &mut vec![None; blocks.len()],
         &gamma,
     )
     .unwrap();
@@ -336,8 +336,16 @@ where
             )
         })
         .collect();
-    let (shifts, count) =
-        shift_schedule(&mut ctx, &mut sum, &guard, &profile, &gamma, &start).unwrap();
+    let (shifts, count) = shift_schedule(
+        &mut ctx,
+        &mut sum,
+        &guard,
+        &profile,
+        &gamma,
+        &start,
+        &mut vec![None; blocks.len()],
+    )
+    .unwrap();
     let mut norms = Vec::new();
     let (mut exact_checked, mut shifted) = (0, 0);
     for f in &recs[1..] {
@@ -548,8 +556,15 @@ where
         factor.scale(),
     )
     .unwrap();
-    let unshifted =
-        shifted_factor(&mut ctx, &sum, &guard, &profile, &vec![None; blocks.len()]).unwrap();
+    let unshifted = shifted_factor(
+        &mut ctx,
+        &sum,
+        &guard,
+        &profile,
+        &vec![None; blocks.len()],
+        &mut vec![None; blocks.len()],
+    )
+    .unwrap();
     assert!(unshifted.failed.iter().all(|f| !f), "{name} {p}");
     for i in 0..nf {
         for j in factor.first_of(i)..=i {

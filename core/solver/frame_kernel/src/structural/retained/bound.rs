@@ -663,22 +663,25 @@ where
 }
 
 /// 7b per block, from a factor whose rows' blocks are `block_of_row`.
+/// `refused` holds one slot per block (all `None` on entry). The caller owns
+/// it, so a refusal recorded before a later stop in the same build survives
+/// that stop and reaches the evidence (RV23-1).
 pub(crate) fn uc_bounds<const L: usize, F: ProfileLdl<L>>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
     guard: &StageGuard,
     f: &F,
     block_of_row: &[u32],
-    blocks: usize,
+    refused: &mut [Option<BoundRefusal>],
     gamma: &Wide<L>,
 ) -> Result<Vec<BlockBound<L>>, AttemptStop>
 where
     Wide<L>: SupportedWidth,
 {
     // Amendment A2: a refusal makes only its own block's Uc_c unavailable.
-    let mut refused = vec![None; blocks];
-    let c = u_pass(ctx, sum, guard, f, block_of_row, &mut refused)?;
-    let ct = nl_pass(ctx, sum, guard, f, block_of_row, &mut refused)?;
+    let blocks = refused.len();
+    let c = u_pass(ctx, sum, guard, f, block_of_row, refused)?;
+    let ct = nl_pass(ctx, sum, guard, f, block_of_row, refused)?;
     let u = block_max(&c, block_of_row, blocks);
     let n_l = block_max(&ct, block_of_row, blocks);
     let mut out = Vec::with_capacity(blocks);
@@ -796,10 +799,6 @@ where
     pub(crate) failed: Vec<bool>,
     /// d̃_i for each row of a shifted block.
     pub(crate) shifted: Vec<Option<Wide<L>>>,
-    /// Per block: the first refusal of its shifted factorization (A2; only an
-    /// exponent refusal can occur in the context's operations). A refused
-    /// block's later rows are not formed.
-    pub(crate) refused: Vec<Option<BoundRefusal>>,
 }
 
 impl<const L: usize> ProfileLdl<L> for ShiftedFactor<L>
@@ -825,12 +824,18 @@ where
 /// in every block with a σ_c, and the pivot test d′_i > 0 (module
 /// documentation). With no block shifted it forms `factor()`'s L and D bit for
 /// bit wherever `factor()`'s pivot screen passes (the loop-parity test).
+///
+/// `refused` holds one slot per block (all `None` on entry): each block's
+/// first refusal of this factorization (A2; only an exponent refusal can occur
+/// in the context's operations). A refused block's later rows are not formed.
+/// The caller owns the slots, so a refusal survives a later stop (RV23-1).
 pub(crate) fn shifted_factor<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &ExactWideSum,
     guard: &StageGuard,
     profile: &ScaledProfile<L>,
     sigma: &[Option<Wide<L>>],
+    refused: &mut [Option<BoundRefusal>],
 ) -> Result<ShiftedFactor<L>, AttemptStop>
 where
     Wide<L>: SupportedWidth,
@@ -839,7 +844,6 @@ where
     let first = profile.first.clone();
     let mut rows = profile.rows.clone();
     let mut shifted = vec![None; n];
-    let mut refused: Vec<Option<BoundRefusal>> = vec![None; profile.blocks];
     for i in 0..n {
         let b = profile.block_of_row[i] as usize;
         if let Some(s) = &sigma[b] {
@@ -916,7 +920,6 @@ where
         rows,
         failed,
         shifted,
-        refused,
     })
 }
 
@@ -998,6 +1001,13 @@ where
 /// shifted factorizations in all, each over the whole matrix with the blocks
 /// still failing shifted (their σ halved exactly after a failure). Returns each
 /// block's result and the number of factorizations.
+///
+/// RV23-1: when the schedule stops (a budget stop, say) after a refusal, each
+/// started block's refusal so far is recorded in `s_refused` before the stop
+/// propagates: those kept in the results of earlier factorizations, and those
+/// of the factorization in progress for the blocks it shifts. They are the
+/// refusals the results would have carried had it run on. On success
+/// `s_refused` is left to the caller, which records the results' refusals.
 pub(crate) fn shift_schedule<const L: usize>(
     ctx: &mut WideContext<L>,
     sum: &mut ExactWideSum,
@@ -1005,6 +1015,7 @@ pub(crate) fn shift_schedule<const L: usize>(
     profile: &ScaledProfile<L>,
     gamma: &Wide<L>,
     start: &[(usize, Wide<L>, usize)],
+    s_refused: &mut [Option<BoundRefusal>],
 ) -> Result<(Vec<(usize, ShiftResult<L>)>, u8), AttemptStop>
 where
     Wide<L>: SupportedWidth,
@@ -1026,87 +1037,111 @@ where
             )
         })
         .collect();
-    let mut current: Vec<(usize, Wide<L>, usize)> = start.to_vec();
-    let mut factorizations = 0u8;
-    while !current.is_empty() && factorizations < 3 {
-        let mut sigma = vec![None; profile.blocks];
-        for (b, s, _) in &current {
-            sigma[*b] = Some(*s);
-        }
-        let f = shifted_factor(ctx, sum, guard, profile, &sigma)?;
-        factorizations += 1;
-        // A2: N′_L per block, a refusal of the factorization carried over.
-        let mut refused = f.refused.clone();
-        let ct = nl_pass(ctx, sum, guard, &f, &profile.block_of_row, &mut refused)?;
-        let n_l = block_max(&ct, &profile.block_of_row, profile.blocks);
-        let mut next = Vec::new();
-        for (b, s, n_c) in current {
-            let r = &mut results
-                .iter_mut()
-                .find(|r| r.0 == b)
-                .expect("a started block")
-                .1;
-            r.tries += 1;
-            r.sigma = s;
-            if let Some(refusal) = refused[b] {
-                // S_c is unavailable; a refusal is not retried (A2).
-                r.refused = Some(refusal);
-                continue;
+    // RV23-1: the factorization in progress's shifted blocks and refusals,
+    // held here so that a stop after a refusal keeps it.
+    let mut in_flight: Vec<usize> = Vec::new();
+    let mut refused: Vec<Option<BoundRefusal>> = vec![None; profile.blocks];
+    // The factorizations (a closure, so the stop comes back here).
+    let mut steps = || -> Result<u8, AttemptStop> {
+        let mut current: Vec<(usize, Wide<L>, usize)> = start.to_vec();
+        let mut factorizations = 0u8;
+        while !current.is_empty() && factorizations < 3 {
+            let mut sigma = vec![None; profile.blocks];
+            for (b, s, _) in &current {
+                sigma[*b] = Some(*s);
             }
-            if f.failed[b] {
-                match s.mul_pow2(-1) {
-                    Ok(half) => next.push((b, half, n_c)),
-                    Err(e) => record(
-                        &mut r.refused,
-                        refusal_kind(e.into())?,
-                        BoundPass::ShiftForm,
-                        usize::MAX,
-                    ),
+            in_flight.clear();
+            in_flight.extend(current.iter().map(|c| c.0));
+            refused.fill(None);
+            let f = shifted_factor(ctx, sum, guard, profile, &sigma, &mut refused)?;
+            factorizations += 1;
+            // A2: N′_L per block, a refusal of the factorization carried over.
+            let ct = nl_pass(ctx, sum, guard, &f, &profile.block_of_row, &mut refused)?;
+            let n_l = block_max(&ct, &profile.block_of_row, profile.blocks);
+            let mut next = Vec::new();
+            for (b, s, n_c) in current {
+                let r = &mut results
+                    .iter_mut()
+                    .find(|r| r.0 == b)
+                    .expect("a started block")
+                    .1;
+                r.tries += 1;
+                r.sigma = s;
+                if let Some(refusal) = refused[b] {
+                    // S_c is unavailable; a refusal is not retried (A2).
+                    r.refused = Some(refusal);
+                    continue;
                 }
-                continue;
-            }
-            // δ_c = 2^(1−P)·max_{i∈c}|d̃_i|, exact.
-            let mut top = Wide::<L>::ZERO;
-            for (i, d) in f.shifted.iter().enumerate() {
-                if profile.block_of_row[i] as usize == b {
-                    if let Some(d) = d {
-                        if d.abs().cmp_value(&top) == CmpOrdering::Greater {
-                            top = d.abs();
+                if f.failed[b] {
+                    match s.mul_pow2(-1) {
+                        Ok(half) => next.push((b, half, n_c)),
+                        Err(e) => record(
+                            &mut r.refused,
+                            refusal_kind(e.into())?,
+                            BoundPass::ShiftForm,
+                            usize::MAX,
+                        ),
+                    }
+                    continue;
+                }
+                // δ_c = 2^(1−P)·max_{i∈c}|d̃_i|, exact.
+                let mut top = Wide::<L>::ZERO;
+                for (i, d) in f.shifted.iter().enumerate() {
+                    if profile.block_of_row[i] as usize == b {
+                        if let Some(d) = d {
+                            if d.abs().cmp_value(&top) == CmpOrdering::Greater {
+                                top = d.abs();
+                            }
                         }
                     }
                 }
-            }
-            let form = |ctx: &mut WideContext<L>,
-                        sum: &mut ExactWideSum|
-             -> Result<(Wide<L>, Wide<L>, Option<Wide<L>>), AttemptStop> {
-                let delta = top.mul_pow2(1 - i64::from(ctx.precision()))?;
-                let gn = mul_toward(ctx, sum, gamma, &n_l[b], Toward::Up)?;
-                let e = add_toward(ctx, sum, &gn, &delta, Toward::Up)?;
-                let sp = sub_toward(ctx, sum, &s, &e, Toward::Down)?;
-                let sv = if !sp.is_zero() && !sp.is_sign_negative() {
-                    let root = Wide::<L>::from_f64(ceil_sqrt(n_c) as f64)?;
-                    Some(div_toward(ctx, sum, &root, &sp, Toward::Up)?)
-                } else {
-                    None
+                let form = |ctx: &mut WideContext<L>,
+                            sum: &mut ExactWideSum|
+                 -> Result<(Wide<L>, Wide<L>, Option<Wide<L>>), AttemptStop> {
+                    let delta = top.mul_pow2(1 - i64::from(ctx.precision()))?;
+                    let gn = mul_toward(ctx, sum, gamma, &n_l[b], Toward::Up)?;
+                    let e = add_toward(ctx, sum, &gn, &delta, Toward::Up)?;
+                    let sp = sub_toward(ctx, sum, &s, &e, Toward::Down)?;
+                    let sv = if !sp.is_zero() && !sp.is_sign_negative() {
+                        let root = Wide::<L>::from_f64(ceil_sqrt(n_c) as f64)?;
+                        Some(div_toward(ctx, sum, &root, &sp, Toward::Up)?)
+                    } else {
+                        None
+                    };
+                    Ok((delta, sp, sv))
                 };
-                Ok((delta, sp, sv))
-            };
-            let formed = form(ctx, sum);
-            if let Some((delta, sp, sv)) = refusable(
-                formed,
-                sum,
-                &mut r.refused,
-                BoundPass::ShiftForm,
-                usize::MAX,
-            )? {
-                r.n_l = Some(n_l[b]);
-                r.delta = Some(delta);
-                r.sigma_prime = Some(sp);
-                r.s = sv;
+                let formed = form(ctx, sum);
+                if let Some((delta, sp, sv)) = refusable(
+                    formed,
+                    sum,
+                    &mut r.refused,
+                    BoundPass::ShiftForm,
+                    usize::MAX,
+                )? {
+                    r.n_l = Some(n_l[b]);
+                    r.delta = Some(delta);
+                    r.sigma_prime = Some(sp);
+                    r.s = sv;
+                }
+            }
+            current = next;
+        }
+        Ok(factorizations)
+    };
+    let steps = steps();
+    if steps.is_err() {
+        for (b, r) in &results {
+            if let Some(x) = r.refused {
+                record(&mut s_refused[*b], x.kind, x.pass, x.row);
             }
         }
-        current = next;
+        for &b in &in_flight {
+            if let Some(x) = refused[b] {
+                record(&mut s_refused[b], x.kind, x.pass, x.row);
+            }
+        }
     }
+    let factorizations = steps?;
     Ok((results, factorizations))
 }
 
@@ -1222,7 +1257,7 @@ where
             return Ok((Vec::new(), 0));
         }
     };
-    let (shifts, count) = shift_schedule(ctx, sum, guard, &profile, gamma, start)?;
+    let (shifts, count) = shift_schedule(ctx, sum, guard, &profile, gamma, start, s_refused)?;
     for (b, r) in &shifts {
         if let Some(refusal) = r.refused {
             record(&mut s_refused[*b], refusal.kind, refusal.pass, refusal.row);
@@ -1279,6 +1314,22 @@ where
         });
     }
     (out, uc_missing, stop)
+}
+
+/// The Uc_c refusals held in a stopped shared build's slots (RV23-1), in
+/// block order, as `block_refusals` lists a completed build's from `uc`.
+pub(crate) fn uc_refusals(slots: &[Option<BoundRefusal>]) -> Vec<BlockRefusal> {
+    slots
+        .iter()
+        .enumerate()
+        .filter_map(|(b, r)| {
+            r.map(|refusal| BlockRefusal {
+                block: b as u32,
+                bound: CertifiedBound::Uc,
+                refusal,
+            })
+        })
+        .collect()
 }
 
 /// The evidence of a verification's refusals, per block (A2; ROOT's ruling 3:

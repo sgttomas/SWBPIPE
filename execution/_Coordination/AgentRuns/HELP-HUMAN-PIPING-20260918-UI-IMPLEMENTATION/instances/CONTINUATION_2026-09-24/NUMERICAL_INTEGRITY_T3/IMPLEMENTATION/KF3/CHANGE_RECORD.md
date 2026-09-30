@@ -2,6 +2,8 @@
 
 This is the draft PR record for slice KF3 of T3 (numerical integrity), following `.agents/skills/chirality-change/SKILL.md`. I19, a TASK, implemented it. The details are in `RETURN.md`.
 
+> **RV23's review (PASS) and its fix are addendum 1.** RV23-1 is fixed there, so "filled on every path" below holds as written.
+
 - **Branch:** `codex/piping-kf3-20260929`, from main `0f5d8c7b4` (K4 and KF1).
 - **Commits (made by ROOT):**
   - `75a1222a6`: checkpoint 0, the plan;
@@ -119,3 +121,40 @@ This is the draft PR record for slice KF3 of T3 (numerical integrity), following
   - `src/scale.rs` ports K6b's E_max at `082990c8d`, before RV22's review, and the runner admits with it. Its kernel terms are 153 MB below K6b's final formula on the TREE frames.
   - At 10,000 members, three frames are now selected and two end `Unresolved(Ceiling)`. How the TREE frames are listed follows ROOT's KF3-B1 ruling.
 - **W1 limits (ROOT):** they wait for E_max to bound every phase at 10,000 members (ROOT's B ruling).
+
+## Addendum 1: RV23's review (PASS) and its fix
+
+- **Review:** RV23 reviewed head `b8c55c92e`: PASS, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs.
+  - The report is `T3/REVIEW/KF3_REVIEW.md` (sha256 `96060f9e…`).
+  - ROOT's rulings are "KF3: rulings on RV23's review" (numerics `24ef16301`): fix RV23-1 before merge, add RV23-N1's test, correct RETURN §12's wording, and record N2 to N5.
+- **RV23-1, fixed, evidence only.**
+  - **The defect:** a refusal recorded in the verification's shared build (`uc_bounds`), or in 7c's schedule (`shift_schedule`), was dropped from `AttemptRecord.bound_refusals` when a later stop, a budget stop say, ended the same build.
+  - **The fix:** the caller owns the refusal slots.
+    - `uc_bounds` and `shifted_factor` take them, and `ShiftedFactor.refused` is removed.
+    - `build_verify_shared` returns a stopped build's Uc_c refusals in `VerifySpent.refusals`. The verification cache keeps them with a cached non-budget failure, and `verify_precision` records them before `vs?`.
+    - When it stops, `shift_schedule` records in the attempt's `s_refused` the refusals kept in its results and those of the factorization in progress for the blocks it shifts. Its factorizations run in a closure, which keeps the S11 site table unchanged.
+  - **Unchanged:** every operation, its order and every formed value on every path; the public API; the site table.
+  - No code outside FK reads `bound_refusals`.
+- **Tests (RETURN A1.1):**
+  - RV23's probe at the shared build: KF3-UC-SPAN 1 and 100 LME short. The `Failed(Stop(Budget(Case)))` attempt carries `refused:span:backward:66`.
+  - A three-block schedule swept over every case room (step 19 of 114,530 LME). 327 stops fall in the factorization in progress, and 4,011 after the results kept both refusals.
+  - RV23-N1's `verify_state` precedence test: a refused block and a `uc` block, and the refusal stop wins. Its control shows that the `uc` branch is live.
+- **Size (against `b8c55c92e`):**
+  - `K4R/bound.rs` +134 −83, mostly the loop re-indented;
+  - `K4R/adaptive.rs` +36 −12;
+  - `K4R/verify.rs` +14 −4;
+  - `K4T/bound_tests.rs` +175 −13;
+  - `K4T/kf3_tests.rs` +132;
+  - `K4T/scale_tests.rs` +20 −5.
+- **Mutants:** NONE passes 14 of 14. All six are killed:
+  - RV23-1-M1 and M2 (the shared build's refusals dropped, in `verify_precision` or `build_verify_shared`);
+  - RV23-1-M3, M3a and M3b (the schedule's carry dropped whole, for the results, or for the factorization in progress);
+  - RV23's M4b.
+  - Every anchor of RV23's other mutants still matches.
+- **Suites:**
+  - FK's full suite: 351 lib tests, 7 integration files (S11 3 of 3) and 6 doc-tests, with no warnings;
+  - `gen_k4_vectors.py --check`: 24 of 24 OK;
+  - rustfmt clean.
+  - No outcome, row, class, bound or work count moves.
+- **Records:** RETURN addendum 1 (with RETURN §12's wording corrected and N2 to N5 recorded), `_run_records/rv23/` and SHA256SUMS, refreshed.
+- **Next (ROOT's ruling):** RV23 confirms the new head. Then come CI with the dispatch, DEC-025, GEN-8 and the merge.

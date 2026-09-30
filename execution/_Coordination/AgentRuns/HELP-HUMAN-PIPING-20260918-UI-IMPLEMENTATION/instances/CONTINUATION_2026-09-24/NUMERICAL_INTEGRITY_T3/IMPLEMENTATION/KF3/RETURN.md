@@ -515,3 +515,154 @@ D changed no code, so these hashes are those of `ae831ca51`. The records are in 
   - Its models are GEN-adapter trees, not VR's committed files.
   - It did not print C_q, which a re-split of (b) and (d) would need.
 - **KF3-B2:** no `k6_observe` run of the TREE frames exists on H's own harness. The phase breakdown is derived from the code, not measured.
+
+## Addendum 1: RV23's review (PASS) and ROOT's rulings
+
+**The review.** RV23 reviewed head `b8c55c92e`: **PASS**, with 0 BLOCKING, 1 SHOULD-FIX and 5 NOTEs.
+- The report is `T3/REVIEW/KF3_REVIEW.md` on the T3 records branch (sha256 `96060f9e…`), with its records in `REVIEW/_run_records/kf3_review/`.
+- ROOT's rulings are "KF3: rulings on RV23's review" (numerics `24ef16301`).
+- **ROOT's instruction to I19:**
+  - fix RV23-1, with a test and a mutant at each of its two sites;
+  - add RV23-N1's test;
+  - correct RETURN §12's wording;
+  - record N2 to N5.
+- The sections above are left as written; this addendum amends them where it says so.
+
+### A1.1 RV23-1: a refusal reaches the evidence when a later stop ends its build
+
+**The defect.**
+- **The situation:** a refusal recorded in the verification's shared build (`uc_bounds`), or in 7c's schedule (`shift_schedule`), is followed by a stop in the same build, such as a budget stop at a later guard check.
+- **What happened:** the refusal was dropped from `AttemptRecord::bound_refusals`.
+  - In `uc_bounds` the slots were a local, lost on `?`.
+  - In `shift_schedule` the slots and results were locals lost on `?`, and `shift_run` recorded the results only on success.
+  - `verify_precision` then assigned the evidence only after `vs?`.
+- **The effect:** honesty was unaffected, because a stopped attempt publishes nothing. But the ruled evidence did not hold on that path: "every refusal is recorded". Nor did the doc's "on every path" (§3.1, CHANGE_RECORD).
+
+**The fix: evidence only. The caller owns the refusal slots.**
+- **`K4R/bound.rs`:**
+  - `uc_bounds` takes the per-block slots from its caller in place of the block count.
+  - `shifted_factor` does too, so `ShiftedFactor.refused` is gone.
+  - `shift_schedule` takes the attempt's `s_refused`. Its factorizations now run in a closure; the helper function I first used changed the S11 site table's function key, which is outside my write set.
+  - When the schedule stops, `shift_schedule` records in `s_refused`:
+    - each started block's refusal kept in the results of earlier factorizations;
+    - the refusals of the factorization in progress, for the blocks it shifts.
+  - These are exactly the refusals the results would have carried had the schedule run on. On success `s_refused` is left to `shift_run`, which records the results as before.
+  - A new helper, `uc_refusals`, lists a stopped build's Uc_c slots in block order, as `block_refusals` lists a completed build's.
+- **`K4R/verify.rs`:**
+  - `build_verify_shared` holds the Uc_c slots outside its build closure.
+  - When it stops, it returns their refusals in `VerifySpent.refusals`. A completed build's refusals stay in `uc`, as before.
+  - `verify_state` already took `s_refused` on every path, before `shifted?`.
+- **`K4R/adaptive.rs`:**
+  - `obtain_verify` returns a failed build's refusals. The verification cache keeps them with a cached non-budget failure (`VerifySlot`), so a case that meets the cached failure records them too.
+  - `verify_precision` records them before `vs?`.
+  - The `AttemptRecord.bound_refusals` doc now says "on every path, a build that stops after a refusal included".
+- **Unchanged:**
+  - every operation, its order and every formed value on every path;
+  - the S11 site table;
+  - the public API.
+  - No product, harness or validation code reads `bound_refusals` (a search over the piping tree), so no committed record changes.
+- **"On every path"** in the `AttemptRecord` doc, §3.1 and CHANGE_RECORD now holds as written.
+
+**The tests:**
+- **`kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence`** (`K4T/kf3_tests.rs`; 33 s in debug). It reproduces RV23's probe: KF3-UC-SPAN with the case limit 1 and 100 LME short of the 256 verification's shared build.
+  - The 256 attempt ends `Failed(Stop(Budget(Case)))`.
+  - The build did all its work: verification-shared and `uc` stage equal the completed build's.
+  - `bound_refusals` equals the completed attempt's (`refused:span:backward:66` on block 0, Uc).
+  - The stage identity holds.
+- **`kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence`** (`K4T/bound_tests.rs`; 7 s). It uses a three-block profile:
+  - block 0: K̃ = [[1, x], [x, 3x²]] with x = 2^8200. N′_L's column sum is refused, `NlColumn`, in the factorization in progress.
+  - block 1: tridiagonal at σ = 2^-9000. Its `ShiftForm` refusal is kept in the results.
+  - block 2: fails at σ = 8 and 4 and passes at 2, so the schedule takes three factorizations.
+  - The schedule runs unlimited, then with every case room from 0 to its 114,530 LME in steps of 19.
+  - Each budget stop records exactly the refusals made before it, never another, and they only grow with the room.
+  - 327 stops fall inside factorization 1's N′_L pass, which carries block 0's refusal alone. 4,011 fall after the results kept both refusals.
+  - Past the schedule's last guard check it completes, and `s_refused` is the caller's.
+- **`kf3_in_verify_state_a_refusal_stop_outranks_uc`** (RV23-N1; `K4T/kf3_tests.rs`; 9 s). It uses KF3-UC-SPAN with a second body: one member, fixed at one end and loaded at the other, forming its own block with data.
+  - The test builds the 256 verification. It makes the second body's Uc_c missing (t_c = 1, no refusal: 7b's `uc` case), and uses the test-only hook to remove S.
+  - `verify_state` returns the chain's refusal stop (`Span`).
+  - **The control:** with the chain's bound formed instead, the same pass reports `uc_missing` on the second body, so both branches are live.
+  - This kills RV23-M4b.
+- **Existing tests:** those that call `uc_bounds`, `shifted_factor` or `shift_schedule` directly (`bound_tests.rs`, `scale_tests.rs`) pass the slots, unchanged in substance.
+
+### A1.2 Mutants (`_run_records/rv23/mutants/`)
+
+Each mutant is one substitution on a clean copy of FK. The copy is `git archive` of `b8c55c92e` plus the fix's diff. It has its own target, and it runs in debug with the filter `kf3` (14 tests). The driver is `_run_records/rv23/mutants/rv23_mut.py.txt`, and the results are in `mutants.jsonl` with one log per mutant.
+
+| Mutant | Change | Result | Killed by |
+|---|---|---|---|
+| NONE | the fix as it stands | 14 of 14 pass | – |
+| RV23-1-M1 | `verify_precision` drops a stopped shared build's refusals | killed | the Uc test (`bound_refusals` `[]`) |
+| RV23-1-M2 | `build_verify_shared` returns no refusals when it stops | killed | the Uc test |
+| RV23-1-M3 | `shift_schedule` carries nothing out when it stops | killed | the S test (no stop keeps a refusal) |
+| RV23-1-M3a | only the results' refusals dropped | killed | the S test (room 36,651: a refusal lost after it was kept) |
+| RV23-1-M3b | only the factorization in progress's dropped | killed | the S test (no stop in flight keeps block 0's) |
+| RV23-M4b | RV23's: `verify_state` honours the stop only when no block is `uc` | killed | the RV23-N1 test (no `Span`) |
+
+Every anchor of RV23's other mutants still matches the fixed code (checked against RV23's driver, `scripts/rv23_mut.py.txt`), so its matrix can be re-run as it stands.
+
+### A1.3 Suites
+
+- **FK's full suite** (debug, one cargo job, `RUST_TEST_THREADS=2`) passes, in 13:12, with no warnings:
+  - 351 lib tests: the 348 before and the three above, including the goldens and every control token-equal to GEN;
+  - 7 integration files, the S11 site table 3 of 3 among them;
+  - 6 doc-tests.
+- **No outcome, row, class, bound or work count changes:** the goldens, the token equality and the profile vectors pass unchanged.
+- **`gen_k4_vectors.py --check`:** all 24 files OK, in 15:33. No vector file changed.
+- rustfmt (stable) is clean on the changed files.
+- **Not re-run, since not asked:**
+  - H and VR, which use only the public API, and that is unchanged;
+  - the B runs, because the fix changes evidence on stopped builds only.
+
+### A1.4 RETURN §12, corrected (RV23's routing check)
+
+- §12's "c is a property of the model" holds only where (b) binds.
+  - **On the TREE-AX family**, whose worst row is systematic, the ratio is P-independent: to 5·10⁻⁵ at 100 members (RV23) and to nine digits at 4,000 (my probe). There c = Ŵ_q·2^P/ê is the model's.
+  - **On other models**, (b)'s worst ratio is rounding noise, 10⁻⁵ to 10⁻² of its threshold, and it varies by up to 10× with P.
+- The classification and the routing are unchanged: they concern only rows where (b) binds.
+
+### A1.5 RV23's NOTEs N2 to N5, recorded (no change)
+
+- **N2: "as before" holds for the outcome, not the order.**
+  - A refusal stop is now decided at 7d, after the pass's scale, estimate and charge stages, because 7d needs the state's data flags.
+  - So another stop in those stages (`ResolutionScale`, or a budget stop) pre-empts `Span`. W2's attempt is charged its scale, estimate and charge work first, as its test asserts.
+  - §3.1's "stops the attempt with that refusal's stop … as before A2" should be read as "stops with the refusal at 7d, after the pass's earlier stages". This is design-conformant, and honesty is unaffected.
+- **N3: a refusal in N′_L's pass on a failed block's rows ends that block's retries.** `shift_schedule` checks a refusal before a failure, so S_c becomes unavailable instead of σ being halved. This is availability only and conservative (before KF3 the path stopped the attempt), and practically unreachable: it needs an entry near 2^8127. The order is unchanged by the fix.
+- **N4: RV23-M7 and RV23-M5c survive and are equivalent on every reachable path.**
+  - M7 removes the accumulator reset. The span check refuses before any write, and every directed operation begins with `clear`, so the reset is the ruled defence in depth (decision 7).
+  - M5c drops the stage marker after `t5`. No guard check lies between `t5` and `t6`.
+- **N5:** the doc comment in `H/src/bin/k6_observe/w1.rs:6-10` is stale (§3.4, §14 item 5). ROOT routed it to K6c.
+
+### A1.6 Files (sha256)
+
+D's code hashes (§15) change for these files. Every other file there is unchanged.
+
+| File | sha256 |
+|---|---|
+| `K4R/adaptive.rs` | `472bafb8281c7d311a81dcd5da042dd0f8db998bd81cf4902e6b55409eb5a563` |
+| `K4R/bound.rs` | `b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100` |
+| `K4R/verify.rs` | `31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987` |
+| `K4T/bound_tests.rs` | `4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9` |
+| `K4T/kf3_tests.rs` | `1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f` |
+| `K4T/scale_tests.rs` | `daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554` |
+
+**Size against `b8c55c92e`:**
+- `bound.rs` +134 −83, most of it the schedule's loop re-indented into the closure;
+- `adaptive.rs` +36 −12;
+- `verify.rs` +14 −4;
+- `bound_tests.rs` +175 −13;
+- `kf3_tests.rs` +132;
+- `scale_tests.rs` +20 −5.
+
+**Records:** `_run_records/rv23/`:
+- `fk_suite.txt`;
+- `gen_check.txt`;
+- `new_tests.txt`;
+- `mutants/`.
+
+`SHA256SUMS` is refreshed.
+
+**Host:**
+- One cargo job at `-j 4`, `RUST_TEST_THREADS=2`, targets `<wt>/kf3-target` and, for the mutants, `<wt>/kf3-mut-target`.
+- The memory guard ran throughout.
+- RV24's FK suite ran alongside my first build.
+- No Git writes or index operations: the mutant copy came from `git archive` of the head plus my working-tree diff, applied with `patch`.

@@ -34,7 +34,7 @@ use super::assemble::{
 };
 use super::bound::{
     block_of_rows, block_refusals, certificates, data_blocks, gamma_m, shift_run, shift_start,
-    uc_bounds, BlockBound, BlockCertificate, BlockRefusal,
+    uc_bounds, uc_refusals, BlockBound, BlockCertificate, BlockRefusal, BoundRefusal,
 };
 use super::directed::{add_toward, binary64_up, mul_toward, round_toward, Toward};
 use super::factor::Ordering;
@@ -411,7 +411,8 @@ pub(crate) struct VerifySpent<T> {
     pub(crate) stages: StageWork,
     pub(crate) total: u64,
     /// T3 KF3 (amendment A2): the pass's S_c refusals, per block, on every
-    /// path (empty for the shared build, whose Uc_c refusals are in `uc`).
+    /// path. For the shared build, its Uc_c refusals when it stops (RV23-1);
+    /// a completed shared build's are in `uc`, and this is empty.
     pub(crate) refusals: Vec<BlockRefusal>,
 }
 
@@ -435,6 +436,9 @@ where
     let mut stages = StageWork::default();
     // T3 KF3: the stage in progress, for a stopped build's unstaged work.
     let mut current = Stage::BoundedFormation;
+    // RV23-1: the Uc_c refusal slots, one per block, held outside the build so
+    // that a stop after a refusal keeps it in the evidence.
+    let mut uc_refused: Vec<Option<BoundRefusal>> = vec![None; group.blocks.len()];
     let mut run = || -> Result<VerifyShared<L, W>, AttemptStop> {
         let spent = |ctx: &WideContext<L>, ctx_w: &WideContext<W>, sum: &ExactWideSum| {
             lme(ctx) + lme(ctx_w) + sum.work().limb_multiply_equivalents()
@@ -492,7 +496,7 @@ where
             &gu,
             &shared.factor,
             &rows,
-            group.blocks.len(),
+            &mut uc_refused,
             &gamma,
         )?;
         let t3 = spent(&ctx, &ctx_w, &sum);
@@ -517,6 +521,12 @@ where
     let sum_work = sum.work();
     let total = work.limb_multiply_equivalents() + sum_work.limb_multiply_equivalents();
     stages.close_stopped(&result, current, total);
+    // RV23-1: a stopped build's Uc_c refusals (a completed build's are in `uc`).
+    let refusals = if result.is_err() {
+        uc_refusals(&uc_refused)
+    } else {
+        Vec::new()
+    };
     let result = result.map(|mut v| {
         v.work = work;
         v.sum_work = sum_work;
@@ -530,7 +540,7 @@ where
         sum_work,
         stages,
         total,
-        refusals: Vec::new(),
+        refusals,
     }
 }
 
