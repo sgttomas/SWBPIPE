@@ -1,0 +1,5 @@
+override: CONDITIONAL_TIERS emptied for W1-T4 (ROOT approval)
+baseline (no-op) peak RSS 1851392 bytes, footprint 1179960 bytes
+247_RF-LARGE-CHAIN-n10000-AX_w1a RF-LARGE-CHAIN-n10000-AX w1a: ok 30.4s rss=1031290880
+STOP: parity: w1_stages_equal_totals
+{"stop": ["parity: w1_stages_equal_totals"], "stop_after_tier": []}

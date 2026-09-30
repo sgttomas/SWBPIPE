@@ -1,0 +1,17 @@
+$ <home>/.local/share/mise/installs/python/3.13/bin/python3 -m unittest test_k6_runner
+..F..........................................
+======================================================================
+FAIL: test_w1_figures (test_k6_runner.Aggregation.test_w1_figures)
+K6b: seconds per LME divides the median w1_solve time by the meter's charged work; the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/k6b-mut/M11/src/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 335, in test_w1_figures
+    self.assertEqual(f['s_per_lme_median'], 2.0 / 1_000_000)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 2e-06
+
+----------------------------------------------------------------------
+Ran 45 tests in 7.932s
+
+FAILED (failures=1)
+

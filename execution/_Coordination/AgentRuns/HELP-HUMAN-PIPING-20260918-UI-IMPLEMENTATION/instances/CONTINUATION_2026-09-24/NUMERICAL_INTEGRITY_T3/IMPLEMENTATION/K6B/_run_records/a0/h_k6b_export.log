@@ -1,0 +1,10 @@
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/k6b/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.20s
+     Running tests/k6b_export.rs (<wt>/k6b-target/debug/deps/k6b_export-8298f1eb6c851790)
+
+running 1 test
+test a_source_built_outside_fk_is_solved_and_read_through_the_public_path ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+cargo test --offline --locked -j 4 --test k6b_export  0.32s user 0.10s system 54% cpu 0.775 total

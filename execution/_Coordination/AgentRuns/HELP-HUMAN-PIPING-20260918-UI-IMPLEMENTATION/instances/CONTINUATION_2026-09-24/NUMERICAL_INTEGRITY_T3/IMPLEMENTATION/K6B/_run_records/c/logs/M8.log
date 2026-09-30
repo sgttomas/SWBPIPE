@@ -1,0 +1,20 @@
+$ cargo test --offline --locked -j 4 --test k6b_adapter --test k6b_w1 --test k6b_bin --test k6b_export
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (<wt>/k6b-mut/M8/src/projects/chirality-piping/core/solver/performance_harness)
+error[E0432]: unresolved import `open_pipe_stress_frame_kernel::structural::retained_api::StageWork`
+  --> src/k6/w1/staged.rs:24:18
+   |
+24 |     SourceError, StageWork,
+   |                  ^^^^^^^^^ no `StageWork` in `structural::retained_api`
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `open_pipe_stress_solver_performance_harness` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+

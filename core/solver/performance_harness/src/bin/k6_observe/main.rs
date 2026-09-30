@@ -7,8 +7,10 @@
 //! aborts (SIGABRT) after the allocator's marker.
 
 mod alloc;
+mod w1;
 
 use open_pipe_stress_frame_kernel::assemble_global_stiffness;
+use open_pipe_stress_frame_kernel::structural::retained_api::AttemptRecord;
 use open_pipe_stress_frame_kernel::structural::{
     assemble_sparse_stiffness, SparseAssemblyOptions, StructuralError, StructuralSolution,
 };
@@ -22,6 +24,14 @@ use open_pipe_stress_solver_performance_harness::k6::parity::bitwise_k;
 use open_pipe_stress_solver_performance_harness::k6::staged::{
     entry, lane_id, lane_lu, outcome_class, recovery, setup, short_error, staged_solve, Stage,
     StageObserver,
+};
+use open_pipe_stress_solver_performance_harness::k6::w1::adapter as w1_adapter;
+use open_pipe_stress_solver_performance_harness::k6::w1::counts::{
+    compute as w1_compute, estimate as w1_estimate, storage_bytes, wide_bytes, W1SizeFacts,
+    LIMBS_PER_ENTRY,
+};
+use open_pipe_stress_solver_performance_harness::k6::w1::staged::{
+    attempts_of, prefix_limits, w1_solve, w1_source, W1Limits,
 };
 use open_pipe_stress_solver_performance_harness::k6::{
     canonical, debug_digest, Fnv64, Mode, N2_REFUSAL_MEMBERS,
@@ -108,6 +118,19 @@ impl Line {
     fn hex(self, key: &str, value: u64) -> Self {
         self.s(key, &format!("{value:016x}"))
     }
+    /// A binary64 in exponent form (the shortest round-trip digits), `null`
+    /// when absent, and a string for a non-finite value (not a JSON number).
+    fn f(mut self, key: &str, value: Option<f64>) -> Self {
+        match value {
+            None => self.null(key),
+            Some(x) if x.is_finite() => {
+                self.key(key);
+                self.0.push_str(&format!("{x:e}"));
+                self
+            }
+            Some(x) => self.s(key, &format!("{x}")),
+        }
+    }
     fn emit(mut self) {
         self.0.push('}');
         self.0.push('\n');
@@ -136,6 +159,12 @@ struct Args {
     counts_only: bool,
     noop: bool,
     list_models: bool,
+    // K6b (the `w1a` mode).
+    case_limit: u64,
+    invocation_limit: u64,
+    w1_prefixes: bool,
+    dump_published: Option<String>,
+    emit_source: bool,
 }
 
 fn usage(message: &str) -> ! {
@@ -147,7 +176,11 @@ fn usage(message: &str) -> ! {
          k6_observe --emit-model --model <id>\n       \
          k6_observe --counts-only (--model <id> | --model-file <path>) --heap-cap-bytes <n> [--dump-pattern <path>]\n       \
          k6_observe --noop --heap-cap-bytes <n>\n       \
-         k6_observe --list-models"
+         k6_observe --list-models\n       \
+         k6_observe (--model <id> | --model-file <path>) --mode w1a --heap-cap-bytes <n> [--repeats 5] \
+         [--case-limit <u64>] [--invocation-limit <u64>] [--w1-prefixes] [--dump-published <path>] \
+         [--counts-file <path>] [--time-budget-s <s>] [--first-repeat-limit-s 600]\n       \
+         k6_observe --emit-source (--model <id> | --model-file <path>)"
     );
     std::process::exit(2)
 }
@@ -170,6 +203,11 @@ fn parse_args() -> Args {
         counts_only: false,
         noop: false,
         list_models: false,
+        case_limit: u64::MAX,
+        invocation_limit: u64::MAX,
+        w1_prefixes: false,
+        dump_published: None,
+        emit_source: false,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -203,6 +241,11 @@ fn parse_args() -> Args {
             "--counts-only" => args.counts_only = true,
             "--noop" => args.noop = true,
             "--list-models" => args.list_models = true,
+            "--case-limit" => args.case_limit = number(value()),
+            "--invocation-limit" => args.invocation_limit = number(value()),
+            "--w1-prefixes" => args.w1_prefixes = true,
+            "--dump-published" => args.dump_published = Some(value()),
+            "--emit-source" => args.emit_source = true,
             other => usage(&format!("unknown argument {other}")),
         }
     }
@@ -301,6 +344,7 @@ fn counts_line(
     c: &K6Counts,
     source: &str,
     phase: Option<(u128, usize, usize)>,
+    w1_error: Option<&str>,
 ) {
     let sizes = SizeFacts::of_this_build();
     let (canonical_len, canonical_fnv) = canonical_digest(model);
@@ -336,6 +380,55 @@ fn counts_line(
                 &format!("estimate_adm_bytes_{}", m.as_str().replace('-', "_")),
                 admission_estimate_bytes(m, c, &sizes),
             );
+    }
+    // K6b: W1's counts, storage and estimate (plan §3.4, §3.5), when the
+    // counts carry them.
+    if let Some(w) = &c.w1 {
+        let e = w1_estimate(w, &W1SizeFacts::of_this_build());
+        line = line
+            .null("estimate_f1b_bytes_w1a")
+            .n("estimate_adm_bytes_w1a", e.max)
+            .n("estimate_w1_sel128_bytes", e.sel128)
+            .n("estimate_w1_fixed_bytes", e.fixed)
+            .n("estimate_w1_decide_bytes", e.decide);
+        for (k, &(p, _)) in LIMBS_PER_ENTRY.iter().enumerate() {
+            line = line
+                .n(&format!("estimate_w1_shared_{p}"), e.shared[k])
+                .n(&format!("estimate_w1_state_{p}"), e.state[k])
+                .n(&format!("estimate_w1_solve_{p}"), e.solve[k]);
+        }
+        for (k, p) in [256, 512, 1024].iter().enumerate() {
+            line = line
+                .n(&format!("estimate_w1_verify_{p}"), e.verify[k])
+                .n(&format!("estimate_w1_pass_{p}"), e.pass[k]);
+        }
+        line = line
+            .b("w1_source_ok", w.source_ok)
+            .opt_s("w1_source_error", w1_error)
+            .n("w1_nodes", w.nodes)
+            .n("w1_members", w.members)
+            .n("w1_stations", w.stations)
+            .n("w1_constraints", w.constraints)
+            .n("w1_loads", w.loads)
+            .n("w1_dofs", w.dofs)
+            .n("w1_free_dofs", w.free_dofs)
+            .n("w1_bodies", w.bodies)
+            .n("w1_pattern_entries", w.pattern_entries)
+            .n("w1_profile_entries", w.profile_entries)
+            .n("w1_half_bandwidth", w.half_bandwidth)
+            .n("w1_blocks", w.blocks)
+            .n("w1_rows", w.rows);
+        for &(p, limbs) in &LIMBS_PER_ENTRY {
+            line = line
+                .n(&format!("w1_limbs_per_entry_{p}"), limbs)
+                .n(&format!("w1_storage_bytes_{p}"), storage_bytes(w, p));
+        }
+        for limbs in [4u128, 8, 16] {
+            line = line.n(&format!("w1_wide_bytes_{limbs}"), wide_bytes(limbs));
+        }
+        line = line
+            .n("w1_source_encoding_len", w.source_encoding_len)
+            .hex("w1_source_encoding_fnv64", w.source_encoding_fnv64);
     }
     line.opt_s("mode", mode.map(Mode::as_str))
         .n("size_stiffness_contribution", sizes.stiffness_contribution)
@@ -391,6 +484,25 @@ fn main() {
         print!("{}", canonical::serialize(&model));
         return;
     }
+    if args.emit_source {
+        // K6b (Q6): the adapter's K4SRC bytes, in hex, for the independent check.
+        let model = load_model(&args);
+        match w1_adapter::source(&model) {
+            Ok(source) => {
+                let hex: String = source
+                    .encoding()
+                    .iter()
+                    .map(|b| format!("{b:02x}"))
+                    .collect();
+                println!("{hex}");
+                return;
+            }
+            Err(e) => {
+                eprintln!("k6_observe: the source is refused: {e:?}");
+                std::process::exit(3)
+            }
+        }
+    }
     let cap = args
         .heap_cap
         .unwrap_or_else(|| usage("--heap-cap-bytes is required"));
@@ -421,7 +533,7 @@ fn main() {
         Some(args.mode.unwrap_or_else(|| usage("--mode is required")))
     };
     let entry_repeats = args.entry_repeats.unwrap_or(args.repeats);
-    Line::new("start")
+    let start = Line::new("start")
         .s("schema", SCHEMA)
         .n("pid", std::process::id())
         .opt_s("model", args.model.as_deref())
@@ -433,8 +545,17 @@ fn main() {
         .n("heap_cap_bytes", cap)
         .opt_n("time_budget_s", args.time_budget_s)
         .n("first_repeat_limit_s", args.first_repeat_limit_s)
-        .b("allow_over_estimate", args.allow_over_estimate)
-        .emit();
+        .b("allow_over_estimate", args.allow_over_estimate);
+    let start = if mode == Some(Mode::W1a) {
+        start
+            .n("case_limit", args.case_limit)
+            .n("invocation_limit", args.invocation_limit)
+            .b("w1_prefixes", args.w1_prefixes)
+            .b("dump_published", args.dump_published.is_some())
+    } else {
+        start
+    };
+    start.emit();
     let model = load_model(&args);
 
     // The refusals by name (host rule; ROOT's rulings Q12 and on RV16-N4),
@@ -476,7 +597,10 @@ fn main() {
             if found.2 != canonical_fnv {
                 usage("the counts line's model digest differs from this model's canonical bytes");
             }
-            counts_line(&model, mode, &found.1, "file", None);
+            if mode == Some(Mode::W1a) && found.1.w1.is_none() {
+                usage("the counts line carries no W1 counts (run --counts-only on this binary)");
+            }
+            counts_line(&model, mode, &found.1, "file", None, None);
             (found.1, None)
         }
         _ => {
@@ -489,10 +613,17 @@ fn main() {
                 }))
             });
             let sink = file.as_mut().map(|f| f as &mut dyn Write);
-            let counts = compute(&model, &frames, sink).unwrap_or_else(|e| {
+            let mut counts = compute(&model, &frames, sink).unwrap_or_else(|e| {
                 eprintln!("k6_observe: counts failed: {e}");
                 std::process::exit(4)
             });
+            // K6b: W1's counts in the counts-only record and the w1a mode.
+            let mut w1_error = None;
+            if args.counts_only || mode == Some(Mode::W1a) {
+                let (w1, error) = w1_compute(&model);
+                counts.w1 = Some(w1);
+                w1_error = error;
+            }
             if let Some(f) = file.as_mut() {
                 let _ = f.flush();
             }
@@ -502,7 +633,14 @@ fn main() {
                 alloc::stage_peak(),
                 alloc::stage_peak_move(),
             );
-            counts_line(&model, mode, &counts, "computed", Some(phase));
+            counts_line(
+                &model,
+                mode,
+                &counts,
+                "computed",
+                Some(phase),
+                w1_error.as_deref(),
+            );
             (counts, Some(phase))
         }
     };
@@ -538,6 +676,14 @@ fn main() {
     let mut determinism = true;
     let mut repeat0_solution: Option<Vec<f64>> = None;
     let mut internal_error = false;
+    // K6b: the limits (ROOT's Q3 ruling: u64::MAX, recorded in `start`), the
+    // last full call's attempts (for the prefixes) and a source refusal.
+    let w1_limits = W1Limits {
+        case: args.case_limit,
+        invocation: args.invocation_limit,
+    };
+    let mut w1_last_attempts: Option<Vec<AttemptRecord>> = None;
+    let mut source_refused = false;
     for repeat in 0..args.repeats {
         observer.repeat = repeat;
         let repeat_started = Instant::now();
@@ -701,6 +847,33 @@ fn main() {
                     }
                 }
             }
+            Mode::W1a => {
+                let w1_counts = counts.w1.as_ref().expect("the w1a mode carries W1 counts");
+                match w1_source(&model, &mut observer) {
+                    Err(error) => {
+                        Line::new("outcome")
+                            .n("repeat", repeat)
+                            .s("class", "SourceRefused")
+                            .s("reason", &format!("{error:?}"))
+                            .emit();
+                        source_refused = true;
+                        (0, 0)
+                    }
+                    Ok(source) => {
+                        let solve = w1_solve(source, w1_limits, Stage::W1Solve, &mut observer);
+                        w1::outcome_line(repeat, &solve);
+                        w1::attempt_lines(repeat, attempts_of(&solve.outcome));
+                        if repeat == 0 {
+                            w1::parity_lines(repeat, w1_counts, &solve);
+                            if let Some(path) = &args.dump_published {
+                                w1::dump_rows(path, &model.id, &solve);
+                            }
+                        }
+                        w1_last_attempts = Some(attempts_of(&solve.outcome).to_vec());
+                        w1::repeat_digest(&solve)
+                    }
+                }
+            }
         };
         repeats_completed += 1;
         match first_digest {
@@ -709,6 +882,10 @@ fn main() {
         }
         if internal_error {
             stop_reason = Some("setup_error");
+            break;
+        }
+        if source_refused {
+            stop_reason = Some("source_refused");
             break;
         }
         let repeat_elapsed = repeat_started.elapsed();
@@ -765,7 +942,36 @@ fn main() {
     if let (Some(path), Some(values)) = (&args.dump_solution, &repeat0_solution) {
         write_solution(path, values);
     }
-    Line::new("summary")
+
+    // K6b (Q1(c)): the budget-truncated prefixes, after the timed repeats and
+    // outside the repeats' peak. Each prefix re-runs `solve_case` under the
+    // case work charged through one segment of the last full call.
+    let mut prefix_peak = None;
+    if mode == Mode::W1a && args.w1_prefixes {
+        if let Some(full) = &w1_last_attempts {
+            let saved = (observer.max_stage_peak, observer.max_stage_peak_move);
+            observer.repeat = repeats_completed;
+            let (mut peak, mut peak_move) = (0, 0);
+            for (j, (label, limit)) in prefix_limits(full).iter().enumerate() {
+                let Ok(source) = w1_adapter::source(&model) else {
+                    break;
+                };
+                let limits = W1Limits {
+                    case: *limit,
+                    invocation: args.invocation_limit,
+                };
+                let stage = Stage::W1Prefix(u8::try_from(j + 1).unwrap_or(u8::MAX));
+                let solve = w1_solve(source, limits, stage, &mut observer);
+                peak = peak.max(alloc::stage_peak());
+                peak_move = peak_move.max(alloc::stage_peak_move());
+                w1::prefix_line(j + 1, label, *limit, full, &solve);
+            }
+            observer.max_stage_peak = saved.0;
+            observer.max_stage_peak_move = saved.1;
+            prefix_peak = Some((peak, peak_move));
+        }
+    }
+    let summary = Line::new("summary")
         .n("repeats_completed", repeats_completed)
         .opt_s("stop_reason", stop_reason)
         .n("repeats_heap_peak", observer.max_stage_peak)
@@ -776,8 +982,15 @@ fn main() {
         .opt_n("parity_phase_heap_peak_move", parity_peak.map(|p| p.1))
         .n("heap_peak", alloc::peak())
         .n("heap_peak_move", alloc::peak_move())
-        .n("elapsed_ns", run_started.elapsed().as_nanos())
-        .emit();
+        .n("elapsed_ns", run_started.elapsed().as_nanos());
+    let summary = if mode == Mode::W1a {
+        summary
+            .opt_n("prefix_phase_heap_peak", prefix_peak.map(|p| p.0))
+            .opt_n("prefix_phase_heap_peak_move", prefix_peak.map(|p| p.1))
+    } else {
+        summary
+    };
+    summary.emit();
     if internal_error {
         std::process::exit(4);
     }

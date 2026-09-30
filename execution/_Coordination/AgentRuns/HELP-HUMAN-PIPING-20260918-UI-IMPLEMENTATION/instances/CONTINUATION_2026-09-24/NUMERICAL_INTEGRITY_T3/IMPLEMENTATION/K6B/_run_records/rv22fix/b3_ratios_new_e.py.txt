@@ -1,0 +1,22 @@
+"""K6b RV22-2: b3's pass-1 w1a heap move and footprint ratio against the regenerated E_max and E_sel128.
+Usage: python3 b3_ratios_new_e.py <runner dir> <b3 records> <counts.jsonl>. Standard library."""
+import json
+import sys
+sys.dont_write_bytecode = True
+sys.path.insert(0, sys.argv[1])
+import k6_runner as r  # noqa: E402
+
+new = {json.loads(l)['model']: json.loads(l) for l in open(sys.argv[3])}
+runs = [x for x in r.run_entries(r.read_records(sys.argv[2])) if x['mode'] == 'w1a' and x['pass'] == 1]
+print('# b3 (pass 1, w1a): heap move and footprint against the new E_max (RV22-2) and against E_sel128')
+groups = {}
+for x in runs:
+    e = new[x['model']]['estimate_adm_bytes_w1a']
+    e128 = new[x['model']]['estimate_w1_sel128_bytes']
+    rho = r.measured_footprint_ratio(dict(x, estimate_adm_bytes=e), x.get('baseline_footprint_bytes'))
+    size = 'DEC053' if x['model'].startswith('DEC053') else str(x['members'])
+    groups.setdefault(size, []).append((rho, x['repeats_heap_peak_move'] / e, x['repeats_heap_peak_move'] / e128))
+for size, v in groups.items():
+    print('%-7s n=%d rho_fp %.3f-%.3f heap_move/E_max %.3f-%.3f heap_move/E_sel128 %.3f-%.3f' % (
+        size, len(v), min(t[0] for t in v), max(t[0] for t in v), min(t[1] for t in v), max(t[1] for t in v),
+        min(t[2] for t in v), max(t[2] for t in v)))

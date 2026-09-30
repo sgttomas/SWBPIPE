@@ -291,7 +291,16 @@ FIRST_REPEAT_LIMIT = 600
 POLL_S = 0.1                 # the watchdog's 100 ms (DESIGN.md:826)
 MEMORYSTATUS_FLOOR = 80      # ROOT's K6 ruling N18
 LOAD_HIGH, LOAD_RESUME = 8.0, 6.0   # ROOT's B1 grant: above 8, wait until below 6 (the gate's rule)
-MODES = ('sparse', 'dense', 'lane-id', 'lane-lu')
+# K6's four modes, frozen: K6's tiers use this tuple, so K6's 138 rows keep their order and ids.
+K6_MODES = ('sparse', 'dense', 'lane-id', 'lane-lu')
+# K6b adds W1a (ROOT's rulings on I16's plan, Q2): never an n² mode, never refused by name.
+MODES = K6_MODES + ('w1a',)
+# K6b's interleaving (plan Q5): per model, W1 and K6's sparse mode alternate A, B, A, B;
+# rotate() gives ABAB for an even model index in its tier and BABA for an odd one.
+W1_PAIR = ('w1a', 'sparse', 'w1a', 'sparse')
+# W1-T4 (10,000 members) runs only as ROOT approves, after W1-T3's prefixes at 1,000 members
+# (ROOT's ruling "K6b: A1 accepted"); every row is deferred by name until then.
+CONDITIONAL_TIERS = {'W1-T4': 'deferred:w1_t4_needs_root_approval_after_w1_t3_prefixes'}
 N2_MODES = ('dense', 'lane-lu')
 N2_REFUSAL_MEMBERS = 10000
 RHO_DEFAULT = 2.0
@@ -345,13 +354,18 @@ def rf_ids(n):
 
 
 TIERS = (
-    ('T1', 'B1', rf_ids(10) + ['DEC053:' + dec053_fixture_id(s) for s in DEC053], MODES),
-    ('T2', 'B1', rf_ids(100), MODES),
+    ('T1', 'B1', rf_ids(10) + ['DEC053:' + dec053_fixture_id(s) for s in DEC053], K6_MODES),
+    ('T2', 'B1', rf_ids(100), K6_MODES),
     ('T3a', 'B1', rf_ids(1000), ('sparse', 'lane-id')),
     ('T3b', 'B2', rf_ids(1000), ('dense', 'lane-lu')),
-    ('T4', 'B1', rf_ids(10000), MODES),
+    ('T4', 'B1', rf_ids(10000), K6_MODES),
     ('T5', 'B1', ['K6-GRID-%dx%d' % (s, s) for s in Q5_GRID_SIDES], ('sparse',)),
     ('T6', 'B3', ['K6-CEIL-CHAIN-n%05d-AX' % CEILING_CHAIN_MEMBERS], ('dense',)),
+    # K6b's W1 tiers (plan section 5; ROOT's rulings on I16's plan and at A1).
+    ('W1-T1', 'K6B-S1', rf_ids(10) + ['DEC053:' + dec053_fixture_id(s) for s in DEC053], W1_PAIR),
+    ('W1-T2', 'K6B-S1', rf_ids(100), W1_PAIR),
+    ('W1-T3', 'K6B-S2', rf_ids(1000), W1_PAIR),
+    ('W1-T4', 'K6B-S3', rf_ids(10000), W1_PAIR),
 )
 
 
@@ -399,10 +413,14 @@ def schedule():
     for tier, slot, ids, modes in TIERS:
         for index, model_id in enumerate(ids):
             members = members_of(model_id)
+            passes = {}
             for mode in rotate(modes, index):
+                passes[mode] = passes.get(mode, 0) + 1
                 run = {'order': len(runs) + 1, 'tier': tier, 'slot': slot, 'model': model_id, 'mode': mode,
-                       'family': family_of(model_id), 'members': members,
-                       'conditional': model_id in CONDITIONAL_MODELS}
+                       'family': family_of(model_id), 'members': members, 'pass': passes[mode],
+                       'conditional': model_id in CONDITIONAL_MODELS or tier in CONDITIONAL_TIERS}
+                if tier in CONDITIONAL_TIERS:
+                    run['conditional_reason'] = CONDITIONAL_TIERS[tier]
                 run.update(run_parameters(model_id, mode, members))
                 run['run_id'] = '%03d_%s_%s' % (run['order'], model_id.replace(':', '_'), mode)
                 runs.append(run)
@@ -497,7 +515,11 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
     if line is None:
         out.update(decision='deferred', reason='deferred:no_counts_line')
         return out
-    estimate = line[estimate_key(mode)]
+    estimate = line.get(estimate_key(mode))
+    if estimate is None:
+        # K6's own counts lines carry no W1 estimate (K6b).
+        out.update(decision='deferred', reason='deferred:no_estimate_for_mode_in_counts_line')
+        return out
     out['estimate_adm_bytes'] = estimate
     previous = previous_size(model_id)
     if require_ascent and previous is not None:
@@ -533,6 +555,14 @@ def admission(run, counts, measured, baseline_rss_bytes, *, require_ascent=True,
         return out
     projected = int(footprint_estimate * rf)
     out.update(footprint_estimate_bytes=footprint_estimate, projected_rss_bytes=projected)
+    # The binary's own backstop (k6_observe, 'estimate_exceeds_half_cap'): it refuses a run whose
+    # admission estimate exceeds half the heap cap, independently of the runner. A row the runner
+    # would admit but the binary would refuse is deferred by name here (ROOT's ruling after
+    # W1-T4's stop), so every admitted row is one the binary also admits.
+    if estimate > run['heap_cap_bytes'] // 2:
+        out.update(decision='deferred', reason='deferred:binary_backstop_refuses (estimate %d B > heap cap / 2 = %d B)'
+                   % (estimate, run['heap_cap_bytes'] // 2))
+        return out
     if projected > out['projected_rss_limit_bytes']:
         out.update(decision='deferred', reason='deferred:projected_rss_exceeds_0.8C (%d B x %.3f = %d B > %d B)'
                    % (footprint_estimate, rf, projected, out['projected_rss_limit_bytes']))
@@ -1037,6 +1067,10 @@ def binary_argv(binary, run, counts_path, record_dir):
         argv += ['--counts-file', counts_path]
     if run['mode'] in ('sparse', 'dense') and run['members'] <= LARGE_MEMBERS:
         argv += ['--dump-solution', os.path.join(record_dir, run['run_id'] + '.u')]
+    if run['mode'] == 'w1a' and run.get('pass') == 1:
+        # K6b: the first W1 process of each model dumps its rows (the R1 comparison) and runs the
+        # budget-truncated prefixes (plan Q1(c)) after its timed repeats.
+        argv += ['--dump-published', os.path.join(record_dir, run['run_id'] + '.rows'), '--w1-prefixes']
     return argv
 
 
@@ -1148,7 +1182,8 @@ def run_tier(tier, binary, counts_path, record_dir, source_commit, source_tree, 
         if decision['decision'] != 'admitted' or run['conditional']:
             if run['conditional'] and decision['decision'] == 'admitted':
                 decision = dict(decision, decision='deferred',
-                                reason='deferred:conditional_run_needs_rulings_on_projection (N14)')
+                                reason=run.get('conditional_reason')
+                                or 'deferred:conditional_run_needs_rulings_on_projection (N14)')
                 entry['admission'] = decision
             entry.update(classification='not_run', run_id=run['run_id'])
             append_record(record_dir, entry)

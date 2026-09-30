@@ -1,0 +1,20 @@
+$ <home>/.local/share/mise/installs/python/3.13/bin/python3 -m unittest test_k6_runner
+........................F......................
+======================================================================
+FAIL: test_every_admitted_row_passes_the_binarys_backstop (test_k6_runner.PlanAdmission.test_every_admitted_row_passes_the_binarys_backstop)
+ROOT's ruling after W1-T4's stop: for every row the runner admits, the binary's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<wt>/k6b-mut/rv22/RV22-M7/src/projects/chirality-piping/core/solver/performance_harness/runner/test_k6_runner.py", line 748, in test_every_admitted_row_passes_the_binarys_backstop
+    self.assertEqual(decision['decision'], 'deferred')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'admitted' != 'deferred'
+- admitted
++ deferred
+
+
+----------------------------------------------------------------------
+Ran 47 tests in 7.902s
+
+FAILED (failures=1)
+

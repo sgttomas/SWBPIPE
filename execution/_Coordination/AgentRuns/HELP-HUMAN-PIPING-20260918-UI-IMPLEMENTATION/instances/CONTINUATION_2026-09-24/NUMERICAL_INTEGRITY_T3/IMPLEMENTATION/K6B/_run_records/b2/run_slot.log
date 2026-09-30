@@ -1,0 +1,13 @@
+=== W1-T1 16:05:55 load={ 3.71 4.26 4.85 }
+{"stop": [], "stop_after_tier": []}
+=== W1-T1 rc=0 16:06:09
+=== W1-T2 16:06:09 load={ 3.40 4.17 4.81 }
+{"stop": [], "stop_after_tier": []}
+=== W1-T2 rc=0 16:06:22
+=== W1-T3 16:06:22 load={ 3.41 4.15 4.79 }
+{"stop": [], "stop_after_tier": []}
+=== W1-T3 rc=0 16:08:01
+=== W1-T4 16:08:01 load={ 4.16 4.21 4.74 }
+{"stop": ["parity: w1_stages_equal_totals"], "stop_after_tier": []}
+=== W1-T4 rc=1 16:08:32
+STOPPED
