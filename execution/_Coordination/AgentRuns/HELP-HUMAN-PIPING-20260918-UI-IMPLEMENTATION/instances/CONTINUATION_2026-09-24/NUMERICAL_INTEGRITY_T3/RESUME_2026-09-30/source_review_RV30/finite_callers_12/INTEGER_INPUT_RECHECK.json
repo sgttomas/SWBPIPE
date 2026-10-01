@@ -1,0 +1,1311 @@
+{
+  "counts": {
+    "cases": 213,
+    "members": 68977,
+    "groups": 373,
+    "open_rows": 138,
+    "open_cases": 18,
+    "large_cases": 24,
+    "full_cases": 12
+  },
+  "summary": {
+    "body_span_exponents": [
+      -239,
+      244
+    ],
+    "member_chord_exponents": [
+      -240,
+      241
+    ],
+    "coefficient_lower_min": -1021,
+    "coefficient_upper_max": 991,
+    "row_coupled_upper_max": 993,
+    "row_member_floor_upper_max": 996,
+    "full_coupled_upper_max": 24,
+    "member_identities": 68977,
+    "member_groups": 373
+  },
+  "all_member_facts_equal": true,
+  "all_row_gap_identities_equal": true,
+  "cases": [
+    {
+      "id": "RF-CHAIN-T-n03-r1e-04",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-06",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-08",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-10",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n03-r1e-12",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-04",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-06",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-08",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-10",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n05-r1e-12",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-04",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-06",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-08",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-10",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-T-n10-r1e-12",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-04",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-06",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-08",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-10",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n03-r1e-12",
+      "members": 3,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-04",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-06",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-08",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-10",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n05-r1e-12",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-04",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-06",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-08",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-10",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CHAIN-A-n10-r1e-12",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-345-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-AX-122-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-345-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-PIN-OFF-122-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-345-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-AX-122-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-345-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-T-CANT-OFF-122-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-345-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-AX-122-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-345-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-04",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-08",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-SKEW-A-CANT-OFF-122-r1e-12",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-04",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-08",
+      "members": 5,
+      "full": false,
+      "open_rows": 1
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-12",
+      "members": 5,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-04",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-08",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-WEAK-W-L-r1e-12",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-04",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-08",
+      "members": 5,
+      "full": false,
+      "open_rows": 1
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-12",
+      "members": 5,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "members": 1000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "members": 1000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "members": 1000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "members": 1000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "members": 1000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "members": 1000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "members": 10000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "members": 10000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "members": 10000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "members": 10000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "members": 10000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "members": 10000,
+      "full": true,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-BASE",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q3",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q9",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e3",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e6",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-RELABEL",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-UNITS-mm",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-BASE",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q3",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q9",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e3",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e6",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-RELABEL",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-UNITS-mm",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-BASE",
+      "members": 8,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q3",
+      "members": 8,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q9",
+      "members": 8,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e3",
+      "members": 8,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e6",
+      "members": 8,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-RELABEL",
+      "members": 8,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-UNITS-mm",
+      "members": 8,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-BASE",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e3",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e6",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-RELABEL",
+      "members": 100,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L-240",
+      "members": 5,
+      "full": false,
+      "open_rows": 10
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L+240",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E-1000",
+      "members": 5,
+      "full": false,
+      "open_rows": 10
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E+960",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CHAIN-F-960",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CHAIN-F+960",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-small",
+      "members": 5,
+      "full": false,
+      "open_rows": 10
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-large",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-a",
+      "members": 5,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-b",
+      "members": 5,
+      "full": false,
+      "open_rows": 10
+    },
+    {
+      "id": "RF-RANGE-SKEW-L-240",
+      "members": 1,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-RANGE-SKEW-L+240",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-SKEW-E-1000",
+      "members": 1,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-RANGE-SKEW-E+960",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-SKEW-F-960",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-SKEW-F+960",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-small",
+      "members": 1,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-large",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-a",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-b",
+      "members": 1,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-RANGE-CONT-L-240",
+      "members": 10,
+      "full": false,
+      "open_rows": 20
+    },
+    {
+      "id": "RF-RANGE-CONT-L+240",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CONT-E-1000",
+      "members": 10,
+      "full": false,
+      "open_rows": 20
+    },
+    {
+      "id": "RF-RANGE-CONT-E+960",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CONT-F-960",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CONT-F+960",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-small",
+      "members": 10,
+      "full": false,
+      "open_rows": 20
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-large",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-a",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-b",
+      "members": 10,
+      "full": false,
+      "open_rows": 20
+    },
+    {
+      "id": "RF-RANGE-THIN-A",
+      "members": 1,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "members": 1,
+      "full": false,
+      "open_rows": 2
+    },
+    {
+      "id": "RF-ZERO-SYM",
+      "members": 4,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-ZERO-TORSION",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-ZERO-PLANAR",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-ZERO-TINY",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O0",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e3",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-FINITE-THIRDS-O1e6",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-FINITE-TENTHS-O1e6",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-FINITE-THIRTIETHS-O1e6",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-FINITE-ROT-Q9-NONMULT",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-LINE122-TORQUE",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-LINE122-PERP",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-LINE122-UNLOADED",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-LINE345-RZ",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-K0",
+      "members": 10,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100",
+      "members": 103,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-DISC-CHAIN100-SPRING",
+      "members": 103,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-LINE-IN-CHAIN1000",
+      "members": 1005,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-MECH-LINE345-RX-COMPANION",
+      "members": 1,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e5-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e6-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e7-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-ORTHO",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e8-GnG-INPLANE",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-ORTHO",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-F-G1e80-GnG-INPLANE",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e5-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e6-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e7-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-ORTHO",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e8-GnG-INPLANE",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GGn",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-nGG",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-ORTHO",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    },
+    {
+      "id": "RF-CANCEL-M-G1e80-GnG-INPLANE",
+      "members": 2,
+      "full": false,
+      "open_rows": 0
+    }
+  ],
+  "method": "independent Fraction/integer decoding of stored bits and decimal strings; no floating arithmetic/norm/coefficient/floor/solver evaluation"
+}

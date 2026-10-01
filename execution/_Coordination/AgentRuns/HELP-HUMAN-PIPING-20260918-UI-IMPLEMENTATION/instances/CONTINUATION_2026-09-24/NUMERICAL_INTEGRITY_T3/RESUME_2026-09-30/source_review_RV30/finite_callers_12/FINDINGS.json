@@ -1,0 +1,17 @@
+{
+  "blocking_defects": [],
+  "closed_for_bound_inputs": [
+    "floor finiteness all213",
+    "all12 s_full floor paths",
+    "direct/magnitude production payload finiteness",
+    "actual24 RF-LARGE from_f64 premise"
+  ],
+  "remaining": {
+    "broader_lane_open_rows": 138,
+    "broader_lane_open_cases": 18,
+    "missing": "actual selected published numerator bound or separately bounded assertion/runtime path"
+  },
+  "large_twist_extension_rows": 1600,
+  "current_adaptive_changed_not_reviewed": true,
+  "full_Emax_or_admission": false
+}

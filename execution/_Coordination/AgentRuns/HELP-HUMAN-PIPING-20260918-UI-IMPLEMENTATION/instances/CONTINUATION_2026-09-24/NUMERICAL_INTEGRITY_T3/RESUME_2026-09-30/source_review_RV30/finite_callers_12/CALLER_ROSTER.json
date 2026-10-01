@@ -1,0 +1,35 @@
+{
+  "key_prefix_and_class_match_for_all_rows": true,
+  "counts": {
+    "twist": 1856,
+    "extension": 1856,
+    "large_twist": 800,
+    "large_extension": 800
+  },
+  "actual_load_family_RF_LARGE_ids": [
+    "RF-LARGE-CHAIN-n00010-AX",
+    "RF-LARGE-CHAIN-n00010-ROT",
+    "RF-LARGE-TREE-n00010-AX",
+    "RF-LARGE-TREE-n00010-ROT",
+    "RF-LARGE-CONT-n00010-AX",
+    "RF-LARGE-CONT-n00010-ROT",
+    "RF-LARGE-CHAIN-n00100-AX",
+    "RF-LARGE-CHAIN-n00100-ROT",
+    "RF-LARGE-TREE-n00100-AX",
+    "RF-LARGE-TREE-n00100-ROT",
+    "RF-LARGE-CONT-n00100-AX",
+    "RF-LARGE-CONT-n00100-ROT",
+    "RF-LARGE-CHAIN-n01000-AX",
+    "RF-LARGE-CHAIN-n01000-ROT",
+    "RF-LARGE-TREE-n01000-AX",
+    "RF-LARGE-TREE-n01000-ROT",
+    "RF-LARGE-CONT-n01000-AX",
+    "RF-LARGE-CONT-n01000-ROT",
+    "RF-LARGE-CHAIN-n10000-AX",
+    "RF-LARGE-CHAIN-n10000-ROT",
+    "RF-LARGE-TREE-n10000-AX",
+    "RF-LARGE-TREE-n10000-ROT",
+    "RF-LARGE-CONT-n10000-AX",
+    "RF-LARGE-CONT-n10000-ROT"
+  ]
+}
