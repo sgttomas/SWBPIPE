@@ -1,0 +1,37 @@
+{
+  "rows": 24,
+  "ids_unique": true,
+  "members": [
+    10,
+    100,
+    1000,
+    10000
+  ],
+  "all_nonnegative_integer_terms": true,
+  "all_move_gte_requested": true,
+  "kernel_slots_per_row": 5,
+  "unbound_expected_parser_slot_retained": false,
+  "all_24_launch_byte_plans_match_root_choice": true,
+  "external_model_argv_count": 12,
+  "bounded_arithmetic_evaluator_sha256": "806e227fb19ae4640ef0454aba9f2e5ef702fe38adbcf1f8832b02d70a76f5c7",
+  "expected_parser_closed_by_review": true,
+  "all_24_numeric_caller_rows_complete_within_scope": true,
+  "Kernel_phi_still_unjoined": true,
+  "caller_max_requested": 29394825566,
+  "caller_max_moving": 43795065566,
+  "explicit_noop_branch": {
+    "requested_and_move_source_upper": 2473,
+    "scoped_route": "ordinary direct entry with exact noop argv; normal/handled-I/O qualification",
+    "argv_bytes": [
+      126,
+      6,
+      16,
+      10
+    ],
+    "kernel_allocations": false,
+    "not_an_observed_baseline": true
+  },
+  "arithmetic_evaluator_sha256": "72caaa70da1782f49c5d44e17a6f446f81ea330711fa21a9807ff2bef1902f10",
+  "checked_integer_term_count": 960,
+  "all_nondecreasing_move_bounds": true
+}

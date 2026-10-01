@@ -1,0 +1,12 @@
+{
+  "brief_read_utc": "2026-10-01 19:58:51 UTC",
+  "origin": "<NUM> git bd7878c55f9ca41879c3f017272c81be7f2b5646:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/K6C_VR_CALLER_NUMBERS.md",
+  "sha256": "3b7f7af3a8bc4445083049ffb781554dc8c70038145deaba8ee997c77ed3796a",
+  "argv": [
+    "git",
+    "show",
+    "bd7878c55f9ca41879c3f017272c81be7f2b5646:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/K6C_VR_CALLER_NUMBERS.md"
+  ],
+  "GIT_OPTIONAL_LOCKS": "0",
+  "status": "brief stored; timed work has not begun; awaiting static_pools_20 sealed no-unresolved-finding gate"
+}

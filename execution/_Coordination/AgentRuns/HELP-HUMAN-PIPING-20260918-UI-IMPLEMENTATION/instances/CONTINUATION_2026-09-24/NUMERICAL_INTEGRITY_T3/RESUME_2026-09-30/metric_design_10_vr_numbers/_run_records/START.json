@@ -1,0 +1,14 @@
+{
+  "actual_start_utc": "2026-10-01 20:00:34 UTC",
+  "deadline_utc": "2026-10-01 20:30:34 UTC",
+  "gate_review": "source_review_RV30/static_pools_20/RETURN.md",
+  "gate_seal": "3c01794daa299fbca67e637bc3a2c0b373c6bb32462f5567b992ecf49daa8860",
+  "gate_status": "full sealed review read; no unresolved finding within its actual-route scope",
+  "launch_origin": "ROOT in-turn20:02 authorization of proposed final strings only",
+  "archive": "<WT>/scratch/k6c_final",
+  "target": "<WT>/k6c-final-target",
+  "executable": "<WT>/k6c-final-target/release/examples/vk_scale",
+  "cwd": "<WT>/scratch/k6c_final",
+  "CARGO_MANIFEST_DIR": "<WT>/scratch/k6c_final/projects/chirality-piping/validation/benchmarks/numerical_robustness",
+  "runtime_authorized": false
+}

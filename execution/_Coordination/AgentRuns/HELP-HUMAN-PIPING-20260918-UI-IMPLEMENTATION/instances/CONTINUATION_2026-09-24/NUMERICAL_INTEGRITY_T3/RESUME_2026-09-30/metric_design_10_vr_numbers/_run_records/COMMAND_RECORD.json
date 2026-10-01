@@ -1,0 +1,28 @@
+{
+  "runtime_or_production_source_algorithm_execution": false,
+  "proof_programmes_restarted": false,
+  "read_only_Git_env": "GIT_OPTIONAL_LOCKS=0",
+  "public_rows_checked": 9,
+  "seals_checked": 14,
+  "ordinary_metadata_only": true,
+  "source_arithmetic_attempts": [
+    {
+      "kind": "syntax preflight",
+      "result": "unmatched parenthesis in initial one-off record; corrected before arithmetic run"
+    },
+    {
+      "kind": "initial arithmetic",
+      "result": "stopped at deliberate unescaped-input assertion for expected_unresolved.json; family/external fixed inputs were unchanged"
+    },
+    {
+      "kind": "subsequent arithmetic",
+      "result": "24 tables emitted with an explicit ExpectedListParseScratch slot; no zero substitution"
+    },
+    {
+      "kind": "literal-format correction",
+      "result": "removed invalid escape warning from one-off literal-length expression; no product source affected"
+    }
+  ],
+  "missing_filename_read": "attempted vr_prefix_correction_03/REVIEW.md absent; actual BACKCHECK.md read in full",
+  "scope": "these are evidence assembly attempts, not model/solver/parser runs or required product tests"
+}

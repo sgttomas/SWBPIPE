@@ -1,0 +1,13 @@
+{
+  "actual_start_utc": "2026-10-01 20:00:34 UTC",
+  "deadline_utc": "2026-10-01 20:30:34 UTC",
+  "actual_end_utc": "2026-10-01T20:28:28.913034+00:00",
+  "agent": "/root/k6c_metric_design",
+  "parent": "/root",
+  "role": "HELPS_HUMANS",
+  "status": "VR24 caller arithmetic complete within scoped supplied facts; Kernel_phi unjoined; no full Emax",
+  "scope": "only metric_design_10_vr_numbers with raw provenance _run_records",
+  "runtime_build_model_graph_solver_execution": false,
+  "final_ordinary_production_correspondence": "required",
+  "independent_numeric_union_review": "required"
+}
