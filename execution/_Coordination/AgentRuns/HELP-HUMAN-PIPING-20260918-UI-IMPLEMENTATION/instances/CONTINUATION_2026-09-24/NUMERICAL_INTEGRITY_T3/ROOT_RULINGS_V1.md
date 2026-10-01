@@ -3936,3 +3936,19 @@ not a runtime kill. This changes no protected numerical criterion and imports
 none of the F17 amendment. P33 remains an unqualified survivor. The separate
 BRIEFS/A1_VK_S1_RETARGET.md grant permits only its actual P34 return and controlled
 replacement triplet; later calls and A1 acceptance remain held pending results.
+
+
+## S1 corrected VALUE witness qualified (ROOT, 2026-10-01)
+
+ROOT read the complete RV29 vk_s1_result_39/REVIEW.md and verified seal
+baee8b1fceccaad51c7ee7a322df4dabc096328ccb9ac6f459b6a95b54f3f6d5
+and every payload. Accept the separately controlled rf_skew S1 observation
+under its unchanged original numerical VALUE criterion. The report's “Every
+witness checked” supplies exact counts, case/key/reference attribution and
+source linkage. P34 and both new normal controls restore every original check.
+
+P33 remains a zero-credit survivor caused by our earlier spring-free mapping;
+no source/test/oracle/criterion or frozen historical record changed. No F17 or
+nonpublication substitute is used. Close the S1 retarget window and release
+only original P35-P53 under the fresh BRIEFS/A1_VK_REMAINDER_08.md grant.
+Complete V-K/A1 and all final-head gates remain open.
