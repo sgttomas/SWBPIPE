@@ -56,6 +56,16 @@ part of this slice.
   confirmation, full-SHA hosted dispatch, exact-final-head Mac DEC-025 and GEN-8
   remain required. This record is not a passing final-gate claim.
 
+ROOT's static registry reconciliation on2026-10-01 keys each entry by its
+original group and ID: G1 assigns66 registrations, G2 eight, G3 fifty-two and
+G4 three, with no overlap or entry outside I23/protected_01/INVENTORY.json.
+The remaining13 entries are six baseline controls and seven existing
+guard/equivalent/optional dispositions retained by RV29 remaining_08. This
+accounts for all142 source-control entries; it does not claim runtime coverage.
+R7-M14's derived and R7-M19's retired dispositions remain separate as in the
+original register. The15 V-K seeded faults and new-publication variants have
+their own registries and are not added to this source-control denominator.
+
 The reviewed caller reach is H/validation; product entry gates become required
 if that reach changes. AUD-T3-01 remains BLOCKING pending closure, F2a stays held,
 and K6c's complete E_max and ROOT's W1 limits remain separate unaccepted work.
