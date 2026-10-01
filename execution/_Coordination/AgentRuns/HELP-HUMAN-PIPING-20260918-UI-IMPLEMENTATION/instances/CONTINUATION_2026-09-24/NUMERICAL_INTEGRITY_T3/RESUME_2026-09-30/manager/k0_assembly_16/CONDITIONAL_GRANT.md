@@ -1,0 +1,5 @@
+# Canonical K0 assembly — conditional, not dispatched
+
+ROOT NUM5980f0f91631674f2d9fca2f9c9bc8ad8455a658 R/BRIEFS/I21_K0_CANONICAL_ASSEMBLY.md fully read, SHA8734a953098c2ad454a3de5a30717e0a9708a4dc15c532c234c12900382e54bc. One30-minute existing-I21 source-only assembly only after source15 review and sparse correction backcheck are sealed without unresolved findings. Selected-numerator RV28 verification scope/premises must be read. No task launched by this record.
+
+ROOT selects one checked kernel-envelope seam in H's existing library, VR dependency on it, separate H/VR caller terms and unchanged contract/admission/domain. Return owner/phase union, capacities/active-old, proved substitutions at10/100/1000/10000 with explicit subtotal gaps/shift correction, planned descriptors/records/tests/mutants/W1-T4 replay, exact API/module/Cargo paths and acyclic dependency check, blocking-cell impact and bounded completion proposals. No new library programme or executed follow-on. Immutable40129 versus older K6C checkout/final-build binding distinguished. No Rust/runtime/probe/generation/implementation/Git/index/delegation. H staged and VR global windows remain separate.

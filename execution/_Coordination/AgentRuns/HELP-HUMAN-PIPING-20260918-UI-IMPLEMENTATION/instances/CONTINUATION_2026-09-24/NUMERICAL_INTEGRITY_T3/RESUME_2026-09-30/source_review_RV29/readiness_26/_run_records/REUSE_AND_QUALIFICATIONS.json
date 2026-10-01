@@ -1,0 +1,144 @@
+{
+  "review_seals": [
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/backcheck_04/",
+      "seal": "60ef65178e99ce641f159910ccbce8a0f8484ad5a95a8c817f25b419eedf2423",
+      "payloads_verified": 7
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vr_records_05/",
+      "seal": "f6c8cc9e3507643bc96ba2cdfab02d4460d82483dd3855eb3a418d2f430197c0",
+      "payloads_verified": 4
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/runtime_07/",
+      "seal": "abf0c03a6142d6924db0ff901f719441c5db640b2c76b6278de54838a7ccbdf5",
+      "payloads_verified": 7
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g1_final_12/",
+      "seal": "680eff7b2797d98915f482b18ebaa524197fce3c0598b044a56c36bd6c994b2e",
+      "payloads_verified": 9
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g2_runtime_13/",
+      "seal": "7d7f42ed9a3d304561d8c144ceec1ea06b1f4b2e8e11934761f466eea8d5ef65",
+      "payloads_verified": 7
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g4_runtime_14/",
+      "seal": "53aea54c352e64fef4068856c38814435c20ae3e10176120fc03d6320aa4f426",
+      "payloads_verified": 8
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g3_final_25/",
+      "seal": "ea44ed6892482a455382ed9337697e92a3d553baa6c270bf014d66f24022ae08",
+      "payloads_verified": 12
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vk_prep_10/",
+      "seal": "cf2afbcd8e3ff9b697978ec369d9b3d5b3be604e78daca4729730d023059132d",
+      "payloads_verified": 6
+    }
+  ],
+  "historical_nonkill_entries": [
+    {
+      "group": "R7_K4",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M17",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "ff0f44b10bf12c3252198ffaa0c5fae03c65223722be67343b2f640ed14ddd7e"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M21",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "883b2505953d54884fce950ffbe9a236aa81f15a01aaea9efb87a31ded9e2368"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M24",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "ed93d2de7a05a8aae09a0cfab2a7196f03a77a41614966c9df5a1574190c58bc"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M27",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "3dadaf47a167c390e79a69aa52ba48c37328de5fb1c173a6091f4efa0795befe"
+    },
+    {
+      "group": "R7_K4",
+      "id": "NONE-S11",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV19",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV23",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M5c-partial-stage-to-the-wrong-stage-verify-state",
+      "registered_disposition": "historical_reachable_path_equivalent_survivor",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "8d9134d248e3ef400a3b2fe680ef0eeac4b795a5912c24d92b9710a4d19b7d44"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M7-reset-removed",
+      "registered_disposition": "historical_reachable_path_equivalent_survivor",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "88f5c84a6e6a2dc8838fe276b88a45e5184eb40c6007e80d323158cc56b49587"
+    },
+    {
+      "group": "RV23_1",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV23C",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23C-M1-cached-failure-drops-its-refusals",
+      "registered_disposition": "historical_suite_survivor_optional_forced_probe",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "e193ed785a0e8679a0b3c0d06b33c8708737b5b8f144105828e4b2b6d4c6b991"
+    }
+  ],
+  "separate_dispositions": {
+    "R7-M14": "derived, not an executed kill",
+    "R7-M19": "retired, original disposition retained",
+    "RV23C-N1": "optional cached-failure probe; source-continuity carry, not mandatory new runtime",
+    "RV23-N4": "reachable-path qualification retained"
+  },
+  "open": "V-K execution/independent review and exact-final-candidate gates; active V-K outputs not accessed"
+}

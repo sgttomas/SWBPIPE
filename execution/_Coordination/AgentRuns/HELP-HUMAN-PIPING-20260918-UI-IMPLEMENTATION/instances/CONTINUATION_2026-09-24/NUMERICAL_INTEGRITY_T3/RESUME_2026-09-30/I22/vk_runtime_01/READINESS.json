@@ -1,0 +1,166 @@
+{
+  "start_utc": "2026-10-01T17:53:50Z",
+  "end_utc": "2026-10-01T18:38:50Z",
+  "basis": "942572ede4c15aca87b4660c7d570343e14e679e",
+  "numerical_basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "files_verified": 189,
+  "independent_single_link_inodes": 189,
+  "archive": "<wt>/scratch/i23/vk_prep/archive",
+  "target": "<wt>/a1-vk-target",
+  "logs": "<wt>/scratch/i23/vk_prep/logs",
+  "target_empty": true,
+  "all_planned_logs_unused": true,
+  "seals": [
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vk_prep_05/SHA256SUMS",
+      "sha256": "b4098244993a68ed811bf8f6847a72e4a9117133b1667bf922fb02780f1ef397",
+      "entries": 13
+    },
+    {
+      "path": "<wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/vk_prep_10/SHA256SUMS",
+      "sha256": "cf2afbcd8e3ff9b697978ec369d9b3d5b3be604e78daca4729730d023059132d",
+      "entries": 6
+    }
+  ],
+  "source_manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+  "command_schedule_sha256": "2bb936decaba11d00afafa71e42e12b1c0e0ca2007b39b99c036827f38ca6289",
+  "maps_sha256": "27e9f300f0a80c34cc08091ab50adfbcedc9d6cf935c0bbefcb2ea4c6de28029",
+  "frozen_fields_sha256": "821812844a705a85761a48096146fa77afe81af4e020b60ebb3e0762036af2ba",
+  "case_scope_sha256": "3b978dbef70975a81dddb1d1458509641b1e2648e1006e29fa624a147b3db8ae",
+  "source_difference_proof_sha256": "e037c5de1e2e4634b977b7067eb99841df62f6354b93b57bda426630bf194c77",
+  "budget_scope": {
+    "prospective_direct_processes": 53,
+    "build_commands_separate": 2,
+    "phase_counts": {
+      "INITIAL_NONE_TEST": 8,
+      "FAULT_TEST": 14,
+      "RETURNED_NONE_TEST": 14,
+      "UNKNOWN_SANITY": 1,
+      "RETURNED_NONE_UNKNOWN": 1,
+      "INITIAL_NONE_EXAMPLE": 5,
+      "FAULT_EXAMPLE": 5,
+      "RETURNED_NONE_EXAMPLE": 5
+    },
+    "test_filters": {
+      "unique_initial_NONE": 8,
+      "fault_calls": 14,
+      "returned_NONE": 14,
+      "UNKNOWN": 1,
+      "UNKNOWN_return": 1
+    },
+    "example_calls": {
+      "initial_NONE": 5,
+      "fault": 5,
+      "returned_NONE": 5
+    },
+    "registered_faults": [
+      "VK-F01",
+      "VK-F02",
+      "VK-F03",
+      "VK-F04",
+      "VK-F05",
+      "VK-F06",
+      "VK-F07",
+      "VK-F08",
+      "VK-F10",
+      "VK-F13",
+      "VK-F17",
+      "VK-R02",
+      "VK-R28",
+      "VK-S1",
+      "VK-S2"
+    ],
+    "all_prior_semantic_fields_preserved": true,
+    "all_commands_fresh_process": true,
+    "env_and_profiles_checked": true,
+    "build_profiles": [
+      "debug test harness adapter/lane/parity",
+      "normal release vk_records"
+    ],
+    "binary_pins": "Future build required; no binary presently claimed.",
+    "logs_unique_and_outside_archive": 106,
+    "five_example_projections_checked_across_triplets": 45,
+    "family_scope": [
+      {
+        "family": "RF-CHAIN",
+        "cases": 30,
+        "max_members": 10,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-SKEW",
+        "cases": 36,
+        "max_members": 1,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-WEAK",
+        "cases": 9,
+        "max_members": 5,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-LARGE",
+        "cases": 12,
+        "max_members": 100,
+        "excluded_model_none": 12
+      },
+      {
+        "family": "RF-INVARIANCE",
+        "cases": 25,
+        "max_members": 100,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-RANGE",
+        "cases": 32,
+        "max_members": 10,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-ZERO",
+        "cases": 4,
+        "max_members": 4,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-FINITE",
+        "cases": 6,
+        "max_members": 10,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-MECH",
+        "cases": 9,
+        "max_members": 1005,
+        "excluded_model_none": 0
+      },
+      {
+        "family": "RF-CANCEL",
+        "cases": 38,
+        "max_members": 2,
+        "excluded_model_none": 0
+      }
+    ],
+    "example_only_planned_work": {
+      "run_case": 291,
+      "sparse": 99,
+      "dense": 96
+    },
+    "all53_selected_loop_planned_work": {
+      "run_case": 1123,
+      "sparse": 135,
+      "dense": 132
+    },
+    "whole_family_even_when_show_selects_printing": true,
+    "RF_MECH_sparse_only_case": "RF-MECH-LINE-IN-CHAIN1000,1005 members",
+    "RF_MECH_dense_max_members": 103,
+    "scope_counts_are_not_completed_runtime": true,
+    "no_write_or_new_collector": true,
+    "disposition": "Prepared source/metadata is coherent; ROOT must budget actual whole-family/parity cost and separately release future builds/binary pins/runtime."
+  },
+  "guard": "5387     1 03-16:19:57 /bin/bash <wt>/guard/memguard.sh",
+  "builds": "both UNRUN awaiting separate manager releases",
+  "schedule": "53 UNRUN awaiting later manager schedule release",
+  "no_source_changes": true
+}
