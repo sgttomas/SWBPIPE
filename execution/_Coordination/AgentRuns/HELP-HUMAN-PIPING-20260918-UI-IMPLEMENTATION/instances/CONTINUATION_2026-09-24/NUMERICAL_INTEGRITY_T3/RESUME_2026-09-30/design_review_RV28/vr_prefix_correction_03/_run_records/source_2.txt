@@ -1,0 +1,25 @@
+97: /// The published set in canonical order: displacements (all DOFs), node
+98: /// displacement magnitudes, end actions (by member id, end, component), station
+99: /// actions, spring actions, directional spring actions, reactions (constrained
+100: /// DOFs), support magnitudes.
+101: pub fn layout(source: &PrimitiveSource) -> Vec<QuantityMeta> {
+102:     let mut out = Vec::new();
+103:     let body = |node: u32| source.body_of_node(node);
+104:     for g in 0..source.dof_count() {
+105:         let dof = Dof::from_global(g);
+106:         out.push(QuantityMeta {
+107:             id: QuantityId::Displacement(dof),
+108:             kind: component_kind(dof.component, true),
+109:             body: body(dof.node),
+110:             input_derived: source.constraint(g).is_some(),
+111:         });
+112:     }
+113:     for node in 0..source.node_count() as u32 {
+114:         out.push(QuantityMeta {
+115:             id: QuantityId::DisplacementMagnitude(node),
+116:             kind: Kind::Translation,
+117:             body: body(node),
+118:             input_derived: false,
+119:         });
+120:     }
+121:     for m in source.members() {

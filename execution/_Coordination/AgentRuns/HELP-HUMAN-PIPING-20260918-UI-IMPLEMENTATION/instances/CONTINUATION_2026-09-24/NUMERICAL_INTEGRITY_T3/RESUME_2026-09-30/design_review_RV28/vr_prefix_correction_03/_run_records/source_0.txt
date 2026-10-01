@@ -1,0 +1,22 @@
+133: 
+134: /// The counts of `model` and its source, with no solve.
+135: pub fn counts(model: &Model, source: &PrimitiveSource) -> Counts {
+136:     let (profile_entries, half_bandwidth, blocks) = profile(&free_adjacency(model));
+137:     Counts {
+138:         nodes: source.node_count(),
+139:         members: source.members().len(),
+140:         springs: model.springs.len(),
+141:         stations: source.stations().len(),
+142:         constraints: source.constraints().len(),
+143:         loads: source.loads().len(),
+144:         dofs: source.dof_count(),
+145:         free_dofs: source.free_dofs().len(),
+146:         bodies: source.body_count() as usize,
+147:         pattern_entries: pattern_entries(model),
+148:         profile_entries,
+149:         half_bandwidth,
+150:         blocks,
+151:         rows: layout(source).len(),
+152:         source_encoding_len: source.encoding().len(),
+153:     }
+154: }

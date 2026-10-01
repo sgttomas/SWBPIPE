@@ -1,0 +1,499 @@
+origin=projects/chirality-piping/core/solver/frame_kernel/src/lib.rs
+commit=40129a225d73860ac2a53da9a2fa73869df668f3
+319: pub enum FrameKernelError {
+320:     NonFiniteInput {
+321:         name: &'static str,
+322:         value: f64,
+323:     },
+324:     NonPositiveInput {
+325:         name: &'static str,
+326:         value: f64,
+327:     },
+328:     DegenerateAxis {
+329:         detail: &'static str,
+330:     },
+331:     InvalidOrientation {
+332:         detail: &'static str,
+333:     },
+334:     InvalidNodeIndex {
+335:         node_index: usize,
+336:         node_count: usize,
+337:     },
+338:     RepeatedElementNodeIndex {
+339:         node_index: usize,
+340:     },
+341:     InvalidMatrixDimensions {
+342:         rows: usize,
+343:         cols: usize,
+344:     },
+345:     InvalidVectorLength {
+346:         expected: usize,
+347:         actual: usize,
+348:     },
+349:     RepeatedRestrainedDof {
+350:         dof: usize,
+351:     },
+352:     RestrainedDofOutOfRange {
+353:         dof: usize,
+354:         total_dofs: usize,
+355:     },
+356:     RepeatedPrescribedDof {
+357:         dof: usize,
+358:     },
+359:     PrescribedDofOutOfRange {
+360:         dof: usize,
+361:         total_dofs: usize,
+362:     },
+363:     SingularSystem {
+364:         pivot: usize,
+365:     },
+366:     /// K2a (T3 D1 revision 5a.2 section 4.7, formation range, step 1): an
+367:     /// intermediate product or quotient of `local_stiffness`, formed from
+368:     /// nonzero finite operands, is zero, subnormal or non-finite in binary64.
+369:     /// `name` names the coefficient and the intermediate. The formation is
+370:     /// refused; it is never published as a zero or imprecise coefficient.
+371:     NumericalRange {
+372:         name: &'static str,
+373:     },
+374: }
+435:     pub fn new(index: usize, coordinates: [f64; 3]) -> Result<Self, FrameKernelError> {
+436:         validate_finite_vector("coordinates", coordinates)?;
+437:         Ok(Self { index, coordinates })
+438:     }
+439: }
+440: 
+441: #[derive(Debug, Clone, Copy, PartialEq)]
+442: pub struct FrameSection {
+443:     pub elastic_modulus: f64,
+444:     pub shear_modulus: f64,
+445:     pub area: f64,
+446:     pub second_moment_y: f64,
+447:     pub second_moment_z: f64,
+448:     pub torsion_constant: f64,
+449: }
+450: 
+451: impl FrameSection {
+452:     pub fn new(
+453:         elastic_modulus: f64,
+454:         shear_modulus: f64,
+455:         area: f64,
+456:         second_moment_y: f64,
+457:         second_moment_z: f64,
+458:         torsion_constant: f64,
+459:     ) -> Result<Self, FrameKernelError> {
+460:         validate_positive_finite("elastic_modulus", elastic_modulus)?;
+461:         validate_positive_finite("shear_modulus", shear_modulus)?;
+462:         validate_positive_finite("area", area)?;
+463:         validate_positive_finite("second_moment_y", second_moment_y)?;
+464:         validate_positive_finite("second_moment_z", second_moment_z)?;
+465:         validate_positive_finite("torsion_constant", torsion_constant)?;
+466: 
+467:         Ok(Self {
+468:             elastic_modulus,
+469:             shear_modulus,
+470:             area,
+471:             second_moment_y,
+472:             second_moment_z,
+473:             torsion_constant,
+474:         })
+475:     }
+476: }
+477: 
+478: #[derive(Debug, Clone, Copy, PartialEq)]
+479: pub struct FrameProperties {
+480:     pub section: FrameSection,
+481:     pub length: f64,
+482: }
+483: 
+484: impl FrameProperties {
+485:     pub fn new(section: FrameSection, length: f64) -> Result<Self, FrameKernelError> {
+486:         validate_positive_finite("length", length)?;
+487:         Ok(Self { section, length })
+488:     }
+489: }
+490: 
+491: #[derive(Debug, Clone, Copy, PartialEq)]
+492: pub struct FrameOrientation {
+493:     /// Rows are local unit axes expressed in global coordinates: x, y, z.
+494:     pub local_axes: Matrix3,
+495: }
+496: 
+497: impl FrameOrientation {
+498:     pub fn new(local_axes: Matrix3) -> Result<Self, FrameKernelError> {
+499:         for axis in local_axes {
+500:             validate_finite_vector("local_axes", axis)?;
+501:         }
+502:         validate_unit_axis(local_axes[0])?;
+503:         validate_unit_axis(local_axes[1])?;
+504:         validate_unit_axis(local_axes[2])?;
+505: 
+506:         if dot(local_axes[0], local_axes[1]).abs() > AXIS_TOLERANCE
+507:             || dot(local_axes[0], local_axes[2]).abs() > AXIS_TOLERANCE
+508:             || dot(local_axes[1], local_axes[2]).abs() > AXIS_TOLERANCE
+509:         {
+510:             return Err(FrameKernelError::InvalidOrientation {
+511:                 detail: "local axes must be mutually orthogonal",
+512:             });
+513:         }
+514: 
+515:         let right_handed_z = cross(local_axes[0], local_axes[1]);
+516:         if max_abs_component(subtract(right_handed_z, local_axes[2])) > AXIS_TOLERANCE {
+517:             return Err(FrameKernelError::InvalidOrientation {
+518:                 detail: "local axes must form a right-handed basis",
+519:             });
+520:         }
+521: 
+522:         Ok(Self { local_axes })
+523:     }
+524: 
+525:     pub fn from_x_axis_and_y_reference(
+526:         local_x_axis: [f64; 3],
+527:         y_reference: [f64; 3],
+528:     ) -> Result<Self, FrameKernelError> {
+529:         validate_finite_vector("local_x_axis", local_x_axis)?;
+530:         validate_finite_vector("y_reference", y_reference)?;
+531: 
+532:         let x_axis = normalize(local_x_axis, "local x axis")?;
+533:         let projection = dot(y_reference, x_axis);
+534:         let y_candidate = subtract(y_reference, scale(x_axis, projection));
+535:         let y_axis = normalize(y_candidate, "y reference parallel to local x axis")?;
+536:         let z_axis = normalize(cross(x_axis, y_axis), "local z axis")?;
+537: 
+538:         Self::new([x_axis, y_axis, z_axis])
+539:     }
+540: 
+541:     pub fn transformation_matrix(&self) -> Matrix12 {
+542:         let mut transform = [[0.0; ELEMENT_DOF]; ELEMENT_DOF];
+543: 
+544:         for node in 0..NODES_PER_ELEMENT {
+545:             let base = node * DOF_PER_NODE;
+546:             copy_rotation_block(&mut transform, base, base, self.local_axes);
+547:             copy_rotation_block(&mut transform, base + RX, base + RX, self.local_axes);
+548:         }
+549: 
+550:         transform
+551:     }
+552: }
+553: 
+554: #[derive(Debug, Clone, Copy, PartialEq)]
+555: pub struct FrameElement {
+556:     pub node_i: FrameNode,
+557:     pub node_j: FrameNode,
+558:     pub section: FrameSection,
+559:     pub y_reference: [f64; 3],
+560: }
+561: 
+562: impl FrameElement {
+563:     pub fn new(
+564:         node_i: FrameNode,
+565:         node_j: FrameNode,
+566:         section: FrameSection,
+567:         y_reference: [f64; 3],
+568:     ) -> Result<Self, FrameKernelError> {
+569:         if node_i.index == node_j.index {
+570:             return Err(FrameKernelError::RepeatedElementNodeIndex {
+571:                 node_index: node_i.index,
+572:             });
+573:         }
+574:         validate_finite_vector("y_reference", y_reference)?;
+575:         let element = Self {
+576:             node_i,
+577:             node_j,
+578:             section,
+579:             y_reference,
+580:         };
+581:         element.properties()?;
+582:         element.orientation()?;
+583:         Ok(element)
+584:     }
+585: 
+586:     pub fn length(&self) -> Result<f64, FrameKernelError> {
+587:         let delta = subtract(self.node_j.coordinates, self.node_i.coordinates);
+588:         normalize(delta, "element length")?;
+589:         Ok(norm(delta))
+590:     }
+591: 
+592:     pub fn local_x_axis(&self) -> Result<[f64; 3], FrameKernelError> {
+593:         normalize(
+594:             subtract(self.node_j.coordinates, self.node_i.coordinates),
+595:             "element length",
+596:         )
+597:     }
+598: 
+599:     pub fn properties(&self) -> Result<FrameProperties, FrameKernelError> {
+600:         FrameProperties::new(self.section, self.length()?)
+601:     }
+602: 
+603:     pub fn orientation(&self) -> Result<FrameOrientation, FrameKernelError> {
+604:         FrameOrientation::from_x_axis_and_y_reference(self.local_x_axis()?, self.y_reference)
+605:     }
+606: 
+607:     pub fn local_stiffness(&self) -> Result<Matrix12, FrameKernelError> {
+608:         local_stiffness(self.properties()?)
+609:     }
+610: 
+611:     pub fn global_stiffness(&self) -> Result<Matrix12, FrameKernelError> {
+612:         let local = self.local_stiffness()?;
+613:         let orientation = self.orientation()?;
+614:         let global = transform_global_stiffness(&local, &orientation);
+615:         for row in &global {
+616:             validate_named_finite_slice("computed global stiffness", row)?;
+617:         }
+618:         Ok(global)
+619:     }
+620: }
+711: pub fn local_stiffness(properties: FrameProperties) -> Result<Matrix12, FrameKernelError> {
+712:     let section = properties.section;
+713:     validate_positive_finite("elastic_modulus", section.elastic_modulus)?;
+714:     validate_positive_finite("shear_modulus", section.shear_modulus)?;
+715:     validate_positive_finite("area", section.area)?;
+716:     validate_positive_finite("second_moment_y", section.second_moment_y)?;
+717:     validate_positive_finite("second_moment_z", section.second_moment_z)?;
+718:     validate_positive_finite("torsion_constant", section.torsion_constant)?;
+719:     validate_positive_finite("length", properties.length)?;
+720: 
+721:     let e = section.elastic_modulus;
+722:     let g = section.shear_modulus;
+723:     let area = section.area;
+724:     let iy = section.second_moment_y;
+725:     let iz = section.second_moment_z;
+726:     let j = section.torsion_constant;
+727:     let length = properties.length;
+728: 
+729:     // K2a (T3 D1 revision 5a.2 section 4.7, formation range, step 1): each
+730:     // coefficient is formed with the same binary64 operations, in the same
+731:     // order, as before (`12.0 * e * iy / length3` is ((12*E)*Iy)/L^3), and
+732:     // every intermediate product and quotient is checked, not only the final
+733:     // coefficient. A zero, subnormal or non-finite intermediate of nonzero
+734:     // finite operands is refused with `NumericalRange`; an accepted
+735:     // coefficient has exactly the unchecked bits. k*E is formed once and
+736:     // shared by the y and z coefficients (the same operation on the same
+737:     // operands, so the same bits). Until formation-time scaling (K2b, F1)
+738:     // lands, such a formation is refused, never scaled.
+739:     let length2 = checked_formation_product("L^2 (for 6EI/L^2 and 12EI/L^3): L*L", length, length)?;
+740:     let length3 = checked_formation_product("L^3 (for 12EI/L^3): L^2*L", length2, length)?;
+741: 
+742:     let axial = checked_formation_quotient(
+743:         "EA/L: (E*A)/L",
+744:         checked_formation_product("EA/L: E*A", e, area)?,
+745:         length,
+746:     )?;
+747:     let torsion = checked_formation_quotient(
+748:         "GJ/L: (G*J)/L",
+749:         checked_formation_product("GJ/L: G*J", g, j)?,
+750:         length,
+751:     )?;
+752: 
+753:     let twelve_e = checked_formation_product("12EIy/L^3 and 12EIz/L^3: 12*E", 12.0, e)?;
+754:     let bend_y_12 = checked_formation_quotient(
+755:         "12EIy/L^3: (12*E*Iy)/L^3",
+756:         checked_formation_product("12EIy/L^3: (12*E)*Iy", twelve_e, iy)?,
+757:         length3,
+758:     )?;
+759:     let six_e = checked_formation_product("6EIy/L^2 and 6EIz/L^2: 6*E", 6.0, e)?;
+760:     let bend_y_6 = checked_formation_quotient(
+761:         "6EIy/L^2: (6*E*Iy)/L^2",
+762:         checked_formation_product("6EIy/L^2: (6*E)*Iy", six_e, iy)?,
+763:         length2,
+764:     )?;
+765:     let four_e = checked_formation_product("4EIy/L and 4EIz/L: 4*E", 4.0, e)?;
+766:     let bend_y_4 = checked_formation_quotient(
+767:         "4EIy/L: (4*E*Iy)/L",
+768:         checked_formation_product("4EIy/L: (4*E)*Iy", four_e, iy)?,
+769:         length,
+770:     )?;
+771:     let two_e = checked_formation_product("2EIy/L and 2EIz/L: 2*E", 2.0, e)?;
+772:     let bend_y_2 = checked_formation_quotient(
+773:         "2EIy/L: (2*E*Iy)/L",
+774:         checked_formation_product("2EIy/L: (2*E)*Iy", two_e, iy)?,
+775:         length,
+776:     )?;
+777:     let bend_z_12 = checked_formation_quotient(
+778:         "12EIz/L^3: (12*E*Iz)/L^3",
+779:         checked_formation_product("12EIz/L^3: (12*E)*Iz", twelve_e, iz)?,
+780:         length3,
+781:     )?;
+782:     let bend_z_6 = checked_formation_quotient(
+783:         "6EIz/L^2: (6*E*Iz)/L^2",
+784:         checked_formation_product("6EIz/L^2: (6*E)*Iz", six_e, iz)?,
+785:         length2,
+786:     )?;
+787:     let bend_z_4 = checked_formation_quotient(
+788:         "4EIz/L: (4*E*Iz)/L",
+789:         checked_formation_product("4EIz/L: (4*E)*Iz", four_e, iz)?,
+790:         length,
+791:     )?;
+792:     let bend_z_2 = checked_formation_quotient(
+793:         "2EIz/L: (2*E*Iz)/L",
+794:         checked_formation_product("2EIz/L: (2*E)*Iz", two_e, iz)?,
+795:         length,
+796:     )?;
+797: 
+798:     let mut stiffness = [[0.0; ELEMENT_DOF]; ELEMENT_DOF];
+799: 
+800:     set_symmetric(&mut stiffness, UX, UX + DOF_PER_NODE, -axial);
+801:     stiffness[UX][UX] = axial;
+802:     stiffness[UX + DOF_PER_NODE][UX + DOF_PER_NODE] = axial;
+803: 
+804:     set_symmetric(&mut stiffness, RX, RX + DOF_PER_NODE, -torsion);
+805:     stiffness[RX][RX] = torsion;
+806:     stiffness[RX + DOF_PER_NODE][RX + DOF_PER_NODE] = torsion;
+807: 
+808:     add_bending_z(&mut stiffness, bend_z_12, bend_z_6, bend_z_4, bend_z_2);
+809:     add_bending_y(&mut stiffness, bend_y_12, bend_y_6, bend_y_4, bend_y_2);
+810: 
+811:     for row in &stiffness {
+812:         validate_named_finite_slice("computed local stiffness", row)?;
+813:     }
+814:     Ok(stiffness)
+815: }
+816: 
+817: /// K2a: one checked binary64 product of `local_stiffness` (see
+818: /// `checked_formation_value`).
+819: fn checked_formation_product(
+820:     name: &'static str,
+821:     left: f64,
+822:     right: f64,
+823: ) -> Result<f64, FrameKernelError> {
+824:     checked_formation_value(name, left, right, left * right)
+825: }
+826: 
+827: /// K2a: one checked binary64 quotient of `local_stiffness` (see
+828: /// `checked_formation_value`).
+829: fn checked_formation_quotient(
+830:     name: &'static str,
+831:     numerator: f64,
+832:     denominator: f64,
+833: ) -> Result<f64, FrameKernelError> {
+834:     checked_formation_value(name, numerator, denominator, numerator / denominator)
+835: }
+836: 
+837: /// K2a: returns `value`, the unchecked binary64 result, bit for bit, unless
+838: /// both operands are nonzero and finite and `value` is zero, subnormal or
+839: /// non-finite, which is `NumericalRange { name }`. An exactly zero (or a
+840: /// non-finite) operand is not a range error: such inputs keep their existing
+841: /// handling (`validate_positive_finite` refuses them before formation).
+842: fn checked_formation_value(
+843:     name: &'static str,
+844:     left: f64,
+845:     right: f64,
+846:     value: f64,
+847: ) -> Result<f64, FrameKernelError> {
+848:     let operands_in_range = left != 0.0 && right != 0.0 && left.is_finite() && right.is_finite();
+849:     if operands_in_range && !value.is_normal() {
+850:         return Err(FrameKernelError::NumericalRange { name });
+851:     }
+852:     Ok(value)
+853: }
+1278: pub fn transform_global_stiffness(
+1279:     local_stiffness: &Matrix12,
+1280:     orientation: &FrameOrientation,
+1281: ) -> Matrix12 {
+1282:     let transform = orientation.transformation_matrix();
+1283:     multiply_transpose_left(local_stiffness, &transform)
+1284: }
+1285: 
+1286: pub fn assemble_global_stiffness(
+1287:     node_count: usize,
+1288:     elements: &[FrameElement],
+1289: ) -> Result<DenseMatrix, FrameKernelError> {
+1290:     assemble_global_stiffness_with_user_elements(node_count, elements, &[])
+1291: }
+1292: 
+1293: pub fn assemble_global_stiffness_with_user_elements(
+1294:     node_count: usize,
+1295:     elements: &[FrameElement],
+1296:     user_stiffness_elements: &[UserStiffnessElement],
+1297: ) -> Result<DenseMatrix, FrameKernelError> {
+1298:     let total_dofs = node_count * DOF_PER_NODE;
+1299:     let mut global = vec![vec![0.0; total_dofs]; total_dofs];
+1300: 
+1301:     for element in elements {
+1302:         validate_node_index(element.node_i.index, node_count)?;
+1303:         validate_node_index(element.node_j.index, node_count)?;
+1304: 
+1305:         let element_stiffness = element.global_stiffness()?;
+1306:         assemble_element_contribution(
+1307:             &mut global,
+1308:             element.node_i.index,
+1309:             element.node_j.index,
+1310:             &element_stiffness,
+1311:         );
+1312:     }
+1313: 
+1314:     for element in user_stiffness_elements {
+1315:         validate_node_index(element.node_i.index, node_count)?;
+1316:         validate_node_index(element.node_j.index, node_count)?;
+1317: 
+1318:         let element_stiffness = element.global_stiffness()?;
+1319:         assemble_element_contribution(
+1320:             &mut global,
+1321:             element.node_i.index,
+1322:             element.node_j.index,
+1323:             &element_stiffness,
+1324:         );
+1325:     }
+1326: 
+1327:     for row in &global {
+1328:         validate_named_finite_slice("assembled stiffness", row)?;
+1329:     }
+1330:     Ok(global)
+1331: }
+1822: fn validate_node_index(node_index: usize, node_count: usize) -> Result<(), FrameKernelError> {
+1823:     if node_index >= node_count {
+1824:         return Err(FrameKernelError::InvalidNodeIndex {
+1825:             node_index,
+1826:             node_count,
+1827:         });
+1828:     }
+1829:     Ok(())
+1830: }
+1831: 
+1832: fn validate_positive_finite(name: &'static str, value: f64) -> Result<(), FrameKernelError> {
+1833:     if !value.is_finite() {
+1834:         return Err(FrameKernelError::NonFiniteInput { name, value });
+1835:     }
+1836:     if value <= 0.0 {
+1837:         return Err(FrameKernelError::NonPositiveInput { name, value });
+1838:     }
+1839:     Ok(())
+1840: }
+1841: 
+1842: fn validate_finite_vector(name: &'static str, vector: [f64; 3]) -> Result<(), FrameKernelError> {
+1843:     for value in vector {
+1844:         if !value.is_finite() {
+1845:             return Err(FrameKernelError::NonFiniteInput { name, value });
+1846:         }
+1847:     }
+1848:     Ok(())
+1849: }
+1850: 
+1851: fn validate_finite_slice(values: &[f64]) -> Result<(), FrameKernelError> {
+1852:     validate_named_finite_slice("matrix/vector entry", values)
+1853: }
+1854: 
+1855: fn validate_named_finite_slice(name: &'static str, values: &[f64]) -> Result<(), FrameKernelError> {
+1856:     for &value in values {
+1857:         if !value.is_finite() {
+1858:             return Err(FrameKernelError::NonFiniteInput { name, value });
+1859:         }
+1860:     }
+1861:     Ok(())
+1862: }
+1863: 
+1864: fn normalize(vector: [f64; 3], detail: &'static str) -> Result<[f64; 3], FrameKernelError> {
+1865:     let magnitude = norm(vector);
+1866:     if magnitude <= AXIS_TOLERANCE {
+1867:         return Err(FrameKernelError::DegenerateAxis { detail });
+1868:     }
+1869:     Ok(scale(vector, 1.0 / magnitude))
+1870: }
+1871: 
+1872: fn validate_unit_axis(axis: [f64; 3]) -> Result<(), FrameKernelError> {
+1873:     if (norm(axis) - 1.0).abs() > AXIS_TOLERANCE {
+1874:         return Err(FrameKernelError::InvalidOrientation {
+1875:             detail: "local axes must be unit length",
+1876:         });
+1877:     }
+1878:     Ok(())
+1879: }
