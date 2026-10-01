@@ -1,0 +1,60 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>:
+10003c8c0: b4000682    	cbz	x2, 0x10003c990 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xd0>
+10003c8c4: a9bc5ff8    	stp	x24, x23, [sp, #-0x40]!
+10003c8c8: a90157f6    	stp	x22, x21, [sp, #0x10]
+10003c8cc: a9024ff4    	stp	x20, x19, [sp, #0x20]
+10003c8d0: a9037bfd    	stp	x29, x30, [sp, #0x30]
+10003c8d4: 9100c3fd    	add	x29, sp, #0x30
+10003c8d8: aa0203f3    	mov	x19, x2
+10003c8dc: aa0103f4    	mov	x20, x1
+10003c8e0: f9400015    	ldr	x21, [x0]
+10003c8e4: aa1503e0    	mov	x0, x21
+10003c8e8: 94058e1a    	bl	0x1001a0150 <<core::fmt::Formatter as core::fmt::Write>::write_str>
+10003c8ec: 34000460    	cbz	w0, 0x10003c978 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xb8>
+10003c8f0: b0000c36    	adrp	x22, 0x1001c1000 <_anon.aebe9a61a251c9f3dd7535842ffc35f4.9+0x68>
+10003c8f4: 912492d6    	add	x22, x22, #0x924
+10003c8f8: 52801ff7    	mov	w23, #0xff              ; =255
+10003c8fc: 1400000d    	b	0x10003c930 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x70>
+10003c900: d3609c08    	ubfx	x8, x0, #32, #8
+10003c904: d361fc09    	lsr	x9, x0, #33
+10003c908: f100553f    	cmp	x9, #0x15
+10003c90c: 1a973108    	csel	w8, w8, w23, lo
+10003c910: 71008d1f    	cmp	w8, #0x23
+10003c914: 54000341    	b.ne	0x10003c97c <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xbc>
+10003c918: 97fffc45    	bl	0x10003ba2c <core::ptr::drop_glue::<std::io::error::Error>>
+10003c91c: aa1503e0    	mov	x0, x21
+10003c920: aa1403e1    	mov	x1, x20
+10003c924: aa1303e2    	mov	x2, x19
+10003c928: 94058e0a    	bl	0x1001a0150 <<core::fmt::Formatter as core::fmt::Write>::write_str>
+10003c92c: 36000260    	tbz	w0, #0x0, 0x10003c978 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xb8>
+10003c930: 52800500    	mov	w0, #0x28               ; =40
+10003c934: aa1603e1    	mov	x1, x22
+10003c938: 52800122    	mov	w2, #0x9                ; =9
+10003c93c: 9404cc4a    	bl	0x10016fa64 <<std::io::error::Error>::new::<&str>>
+10003c940: 92400408    	and	x8, x0, #0x3
+10003c944: f100051f    	cmp	x8, #0x1
+10003c948: 5400008c    	b.gt	0x10003c958 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x98>
+10003c94c: b5000128    	cbnz	x8, 0x10003c970 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xb0>
+10003c950: 39404008    	ldrb	w8, [x0, #0x10]
+10003c954: 17ffffef    	b	0x10003c910 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x50>
+10003c958: f100091f    	cmp	x8, #0x2
+10003c95c: 54fffd21    	b.ne	0x10003c900 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x40>
+10003c960: d360fc08    	lsr	x8, x0, #32
+10003c964: f100111f    	cmp	x8, #0x4
+10003c968: 54fffd80    	b.eq	0x10003c918 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x58>
+10003c96c: 14000004    	b	0x10003c97c <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0xbc>
+10003c970: 39403c08    	ldrb	w8, [x0, #0xf]
+10003c974: 17ffffe7    	b	0x10003c910 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all+0x50>
+10003c978: d2800000    	mov	x0, #0x0                ; =0
+10003c97c: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+10003c980: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+10003c984: a94157f6    	ldp	x22, x21, [sp, #0x10]
+10003c988: a8c45ff8    	ldp	x24, x23, [sp], #0x40
+10003c98c: d65f03c0    	ret
+10003c990: d2800000    	mov	x0, #0x0                ; =0
+10003c994: d65f03c0    	ret

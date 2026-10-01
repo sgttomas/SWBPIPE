@@ -1,0 +1,32 @@
+{
+  "finding": "RV28-PREFIX-1",
+  "preservation": [
+    {
+      "packet": "metric_design_08_vr_prefix",
+      "seal_sha256": "ab75fce30ff4be0716f2fbc35af17079294bde6f6c81f5c3e7245e918a7492a7",
+      "payloads_unchanged": 35
+    },
+    {
+      "packet": "design_review_RV28/vr_prefix_02",
+      "seal_sha256": "d4748c38bce84b209523ed9d4def64bc9181a74f37bbd5467f2c29447b10c5fd",
+      "payloads_unchanged": 13
+    },
+    {
+      "packet": "I21/source_12",
+      "seal_sha256": "024339a4e87285bb001c0fe44fe3a4051c0e89165cf0cd38b54d01a2dd42f87c",
+      "payloads_unchanged": 47
+    },
+    {
+      "packet": "source_review_RV30/h_request_bindings_10",
+      "seal_sha256": "454142b93e83808c808ce9408d9c49e2a6ad593ff9fdc411a5e6fc9346a24cf3",
+      "payloads_unchanged": 14
+    }
+  ],
+  "RFree_f60000_conditional_component_bytes": 524288,
+  "not_a_final_Emax_delta": true,
+  "cut_survivor_union_unchanged": true,
+  "runtime_entry_status": "existing successful direct-entry source warrant reused; final VR correspondence and failure/foreign/panic qualifications remain",
+  "other_node_format_terms": "separately owned; not accepted or rederived here",
+  "runtime_or_source_algorithm_execution": false,
+  "review_status": "correction supplied; same RV28 backcheck required"
+}

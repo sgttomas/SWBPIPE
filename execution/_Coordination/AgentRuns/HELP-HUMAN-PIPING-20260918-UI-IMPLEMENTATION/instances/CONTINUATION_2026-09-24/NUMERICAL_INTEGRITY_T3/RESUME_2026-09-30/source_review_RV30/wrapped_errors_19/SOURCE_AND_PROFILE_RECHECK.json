@@ -1,0 +1,88 @@
+{
+  "source_pages": [
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/boxed/convert.rs.html",
+      "sha256": "0239fc72eb170e1a5c3600fc679b0065a9693dd271636859b841f0b3e2d14edb"
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/std/io/error.rs.html",
+      "sha256": "7bfc905735929092cbd205a011ece4109b09eae40b34fc44307ef62be5c9c2cb"
+    },
+    {
+      "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/alloc.rs.html",
+      "sha256": "5d6e77e2da23fb76f22e57af724fd61bf8ccdfbee55e916a6eccac2eb686b858"
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/error.rs",
+      "sha256": "a13add05a63adf53d89e37effa03221d897a60486cfe360a5a958c0dd2a7e90d"
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/value/mod.rs",
+      "sha256": "6331d59ea362a74b6cd3d302d08114a63a73a384ff56fef737de29edea2f8d91"
+    }
+  ],
+  "current_fingerprints": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+      "sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/.fingerprint/open_pipe_stress_frame_kernel-2986612637137eef/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "fa1936ccb5617c096e536e2c7a74d79170a79362e50127868681f939b3d44a11"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/.fingerprint/piping_numerical_robustness-746b6873c6bcede9/lib-piping_numerical_robustness.json",
+      "sha256": "b756ef2d9c5ae7c5dc3adab0b416eeb0ba5d6d3a572c5affb530cb32d9582a5e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/.fingerprint/open_pipe_stress_sparse_direct-f9901e17afef369c/lib-open_pipe_stress_sparse_direct.json",
+      "sha256": "6d42cb94aeed88282cc014beb28d6f697b17a9842b52381bfa27573d5f4a7261"
+    }
+  ],
+  "forwarding_excerpts": [
+    "10003cca8: f9400020    \tldr\tx0, [x1]",
+    "10003ccac: f0000c01    \tadrp\tx1, 0x1001bf000 <_anon.adcdcdcbbd7bd5f7680cecc09353bff9.6+0x1588>",
+    "10003ccb0: 912af021    \tadd\tx1, x1, #0xabc",
+    "10003ccb4: 52800082    \tmov\tw2, #0x4                ; =4",
+    "10003ccb8: 97ffff02    \tbl\t0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>",
+    "10003ccbc: b4000e40    \tcbz\tx0, 0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>",
+    "10003ccc0: 14000020    \tb\t0x10003cd40 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x110>",
+    "10003ccc4: a9410c02    \tldp\tx2, x3, [x0, #0x10]",
+    "10003cd40: a9437bfd    \tldp\tx29, x30, [sp, #0x30]",
+    "10003cd44: a9424ff4    \tldp\tx20, x19, [sp, #0x20]",
+    "10003cd48: a94157f6    \tldp\tx22, x21, [sp, #0x10]",
+    "10003cd4c: 910103ff    \tadd\tsp, sp, #0x40",
+    "10003cd50: 1405b11e    \tb\t0x1001a91c8 <<serde_json::error::Error>::io>",
+    "10003ce68: 9128f821    \tadd\tx1, x1, #0xa3e",
+    "10003ce6c: 52800022    \tmov\tw2, #0x1                ; =1",
+    "10003ce70: 97fffe94    \tbl\t0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>",
+    "10003ce74: b4000080    \tcbz\tx0, 0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>",
+    "10003ce78: 9405b0d4    \tbl\t0x1001a91c8 <<serde_json::error::Error>::io>",
+    "10003ce7c: 14000002    \tb\t0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>",
+    "10003cb10: b0000c21    \tadrp\tx1, 0x1001c1000 <_anon.aebe9a61a251c9f3dd7535842ffc35f4.9+0x68>",
+    "10003cb14: 91291821    \tadd\tx1, x1, #0xa46",
+    "10003cb18: aa1303e0    \tmov\tx0, x19",
+    "10003cb1c: 52800022    \tmov\tw2, #0x1                ; =1",
+    "10003cb20: 97ffff68    \tbl\t0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>",
+    "10003cb24: b5000760    \tcbnz\tx0, 0x10003cc10 <serde_json::ser::format_escaped_str::<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter, serde_json::ser::CompactFormatter>+0x12c>",
+    "10003cb28: b0000c36    \tadrp\tx22, 0x1001c1000 <_anon.aebe9a61a251c9f3dd7535842ffc35f4.9+0x68>",
+    "10003cc04: aa1303e0    \tmov\tx0, x19",
+    "10003cc08: 52800022    \tmov\tw2, #0x1                ; =1",
+    "10003cc0c: 97ffff2d    \tbl\t0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>",
+    "10003cc10: a9477bfd    \tldp\tx29, x30, [sp, #0x70]",
+    "10003cc14: a9464ff4    \tldp\tx20, x19, [sp, #0x60]",
+    "10003cc18: a94557f6    \tldp\tx22, x21, [sp, #0x50]",
+    "10003cc1c: a9445ff8    \tldp\tx24, x23, [sp, #0x40]",
+    "10003cc20: a94367fa    \tldp\tx26, x25, [sp, #0x30]"
+  ],
+  "format_topology_seal": "dd5de94dc36355738189f8cda2e89eb1c3024ebfe4eaa8dc59a084762e583d0d",
+  "numeric_substitution_only": {
+    "message": 9,
+    "StringError": 24,
+    "IOCustom": 24,
+    "JSONErrorImpl": 40,
+    "sum": 97,
+    "active_old": 0
+  },
+  "scope": "exact inspected release artifact plus separately reviewed topology; final ordinary production transfer unbound"
+}

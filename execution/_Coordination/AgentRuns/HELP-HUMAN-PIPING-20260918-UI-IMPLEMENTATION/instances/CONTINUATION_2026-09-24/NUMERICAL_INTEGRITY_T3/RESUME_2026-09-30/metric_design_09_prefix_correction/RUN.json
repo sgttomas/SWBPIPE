@@ -1,0 +1,14 @@
+{
+  "actual_start_utc": "2026-10-01 19:46:46 UTC",
+  "deadline_utc": "2026-10-01 19:56:46 UTC",
+  "content_completed_utc": "2026-10-01T19:49:28.762925+00:00",
+  "agent": "/root/k6c_metric_design",
+  "parent": "/root",
+  "role": "HELPS_HUMANS",
+  "source_basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "grant_basis": "38360301a1a2074d0c206f1d02f9ed016d96a7d6",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_09_prefix_correction",
+  "status": "additive correction and existing entry-warrant clarification; awaiting RV28 backcheck",
+  "actual_end_utc": "2026-10-01T19:49:57.189936+00:00",
+  "final_checks": "corrected phase terms, unchanged cut union and qualification, source/seal preservation, raw provenance and full payload hash verification"
+}

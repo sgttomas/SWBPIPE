@@ -1,0 +1,168 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010003cc30 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>>:
+10003cc30: d10103ff    	sub	sp, sp, #0x40
+10003cc34: a90157f6    	stp	x22, x21, [sp, #0x10]
+10003cc38: a9024ff4    	stp	x20, x19, [sp, #0x20]
+10003cc3c: a9037bfd    	stp	x29, x30, [sp, #0x30]
+10003cc40: 9100c3fd    	add	x29, sp, #0x30
+10003cc44: 39400008    	ldrb	w8, [x0]
+10003cc48: 7100091f    	cmp	w8, #0x2
+10003cc4c: 5400016c    	b.gt	0x10003cc78 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x48>
+10003cc50: 340002c8    	cbz	w8, 0x10003cca8 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x78>
+10003cc54: 7100051f    	cmp	w8, #0x1
+10003cc58: 54000401    	b.ne	0x10003ccd8 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0xa8>
+10003cc5c: 39400408    	ldrb	w8, [x0, #0x1]
+10003cc60: f9400020    	ldr	x0, [x1]
+10003cc64: 36000648    	tbz	w8, #0x0, 0x10003cd2c <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0xfc>
+10003cc68: f0000c01    	adrp	x1, 0x1001bf000 <_anon.adcdcdcbbd7bd5f7680cecc09353bff9.6+0x1588>
+10003cc6c: 912ae021    	add	x1, x1, #0xab8
+10003cc70: 52800082    	mov	w2, #0x4                ; =4
+10003cc74: 14000031    	b	0x10003cd38 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x108>
+10003cc78: 71000d1f    	cmp	w8, #0x3
+10003cc7c: 54000240    	b.eq	0x10003ccc4 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x94>
+10003cc80: 7100111f    	cmp	w8, #0x4
+10003cc84: 54000361    	b.ne	0x10003ccf0 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0xc0>
+10003cc88: aa0103e8    	mov	x8, x1
+10003cc8c: 91002001    	add	x1, x0, #0x8
+10003cc90: aa0803e0    	mov	x0, x8
+10003cc94: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+10003cc98: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+10003cc9c: a94157f6    	ldp	x22, x21, [sp, #0x10]
+10003cca0: 910103ff    	add	sp, sp, #0x40
+10003cca4: 140001b9    	b	0x10003d388 <<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter> as serde_core::ser::Serializer>::collect_seq::<&alloc::vec::Vec<serde_json::value::Value>>>
+10003cca8: f9400020    	ldr	x0, [x1]
+10003ccac: f0000c01    	adrp	x1, 0x1001bf000 <_anon.adcdcdcbbd7bd5f7680cecc09353bff9.6+0x1588>
+10003ccb0: 912af021    	add	x1, x1, #0xabc
+10003ccb4: 52800082    	mov	w2, #0x4                ; =4
+10003ccb8: 97ffff02    	bl	0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>
+10003ccbc: b4000e40    	cbz	x0, 0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>
+10003ccc0: 14000020    	b	0x10003cd40 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x110>
+10003ccc4: a9410c02    	ldp	x2, x3, [x0, #0x10]
+10003ccc8: aa0103e0    	mov	x0, x1
+10003cccc: 97ffff86    	bl	0x10003cae4 <serde_json::ser::format_escaped_str::<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter, serde_json::ser::CompactFormatter>>
+10003ccd0: b4000da0    	cbz	x0, 0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>
+10003ccd4: 1400001b    	b	0x10003cd40 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x110>
+10003ccd8: 91002000    	add	x0, x0, #0x8
+10003ccdc: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+10003cce0: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+10003cce4: a94157f6    	ldp	x22, x21, [sp, #0x10]
+10003cce8: 910103ff    	add	sp, sp, #0x40
+10003ccec: 14001338    	b	0x1000419cc <<serde_json::number::Number as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>>
+10003ccf0: aa0003f5    	mov	x21, x0
+10003ccf4: f9400c14    	ldr	x20, [x0, #0x18]
+10003ccf8: aa0103f6    	mov	x22, x1
+10003ccfc: f9400033    	ldr	x19, [x1]
+10003cd00: b0000c21    	adrp	x1, 0x1001c1000 <_anon.aebe9a61a251c9f3dd7535842ffc35f4.9+0x68>
+10003cd04: 91290021    	add	x1, x1, #0xa40
+10003cd08: aa1303e0    	mov	x0, x19
+10003cd0c: 52800022    	mov	w2, #0x1                ; =1
+10003cd10: 97fffeec    	bl	0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>
+10003cd14: b5000b20    	cbnz	x0, 0x10003ce78 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x248>
+10003cd18: b40001f4    	cbz	x20, 0x10003cd54 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x124>
+10003cd1c: aa1603e9    	mov	x9, x22
+10003cd20: aa1503e8    	mov	x8, x21
+10003cd24: 5280002a    	mov	w10, #0x1               ; =1
+10003cd28: 14000014    	b	0x10003cd78 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x148>
+10003cd2c: b0000c21    	adrp	x1, 0x1001c1000 <_anon.aebe9a61a251c9f3dd7535842ffc35f4.9+0x68>
+10003cd30: 91291c21    	add	x1, x1, #0xa47
+10003cd34: 528000a2    	mov	w2, #0x5                ; =5
+10003cd38: 97fffee2    	bl	0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>
+10003cd3c: b4000a40    	cbz	x0, 0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>
+10003cd40: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+10003cd44: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+10003cd48: a94157f6    	ldp	x22, x21, [sp, #0x10]
+10003cd4c: 910103ff    	add	sp, sp, #0x40
+10003cd50: 1405b11e    	b	0x1001a91c8 <<serde_json::error::Error>::io>
+10003cd54: b0000c21    	adrp	x1, 0x1001c1000 <_anon.aebe9a61a251c9f3dd7535842ffc35f4.9+0x68>
+10003cd58: 9128f821    	add	x1, x1, #0xa3e
+10003cd5c: aa1303e0    	mov	x0, x19
+10003cd60: 52800022    	mov	w2, #0x1                ; =1
+10003cd64: 97fffed7    	bl	0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>
+10003cd68: b5000880    	cbnz	x0, 0x10003ce78 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x248>
+10003cd6c: 5280000a    	mov	w10, #0x0               ; =0
+10003cd70: aa1603e9    	mov	x9, x22
+10003cd74: aa1503e8    	mov	x8, x21
+10003cd78: d2800015    	mov	x21, #0x0               ; =0
+10003cd7c: f90003e9    	str	x9, [sp]
+10003cd80: 390023ea    	strb	w10, [sp, #0x8]
+10003cd84: a940a109    	ldp	x9, x8, [x8, #0x8]
+10003cd88: f100013f    	cmp	x9, #0x0
+10003cd8c: 9a9f1293    	csel	x19, x20, xzr, ne
+10003cd90: 1a9f07ea    	cset	w10, ne
+10003cd94: 52800314    	mov	w20, #0x18              ; =24
+10003cd98: 1400000d    	b	0x10003cdcc <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x19c>
+10003cd9c: 91000516    	add	x22, x8, #0x1
+10003cda0: aa0a03f5    	mov	x21, x10
+10003cda4: d1000673    	sub	x19, x19, #0x1
+10003cda8: 9b142909    	madd	x9, x8, x20, x10
+10003cdac: 8b081542    	add	x2, x10, x8, lsl #5
+10003cdb0: 910003e0    	mov	x0, sp
+10003cdb4: 9105a121    	add	x1, x9, #0x168
+10003cdb8: 94000148    	bl	0x10003d2d8 <<serde_json::ser::Compound<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter, serde_json::ser::CompactFormatter> as serde_core::ser::SerializeMap>::serialize_entry::<alloc::string::String, serde_json::value::Value>>
+10003cdbc: d2800009    	mov	x9, #0x0                ; =0
+10003cdc0: 5280002a    	mov	w10, #0x1               ; =1
+10003cdc4: aa1603e8    	mov	x8, x22
+10003cdc8: b50005e0    	cbnz	x0, 0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>
+10003cdcc: b4000453    	cbz	x19, 0x10003ce54 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x224>
+10003cdd0: 360006ca    	tbz	w10, #0x0, 0x10003cea8 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x278>
+10003cdd4: b40000d5    	cbz	x21, 0x10003cdec <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x1bc>
+10003cdd8: 7944e6aa    	ldrh	w10, [x21, #0x272]
+10003cddc: eb0a011f    	cmp	x8, x10
+10003cde0: 54000182    	b.hs	0x10003ce10 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x1e0>
+10003cde4: aa1503ea    	mov	x10, x21
+10003cde8: 14000012    	b	0x10003ce30 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x200>
+10003cdec: aa0903f5    	mov	x21, x9
+10003cdf0: b4000088    	cbz	x8, 0x10003ce00 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x1d0>
+10003cdf4: f9413eb5    	ldr	x21, [x21, #0x278]
+10003cdf8: f1000508    	subs	x8, x8, #0x1
+10003cdfc: 54ffffc1    	b.ne	0x10003cdf4 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x1c4>
+10003ce00: d2800009    	mov	x9, #0x0                ; =0
+10003ce04: 7944e6aa    	ldrh	w10, [x21, #0x272]
+10003ce08: eb0a011f    	cmp	x8, x10
+10003ce0c: 54fffec3    	b.lo	0x10003cde4 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x1b4>
+10003ce10: f940b2aa    	ldr	x10, [x21, #0x160]
+10003ce14: b400042a    	cbz	x10, 0x10003ce98 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x268>
+10003ce18: 91000529    	add	x9, x9, #0x1
+10003ce1c: 7944e2a8    	ldrh	w8, [x21, #0x270]
+10003ce20: 7944e54b    	ldrh	w11, [x10, #0x272]
+10003ce24: aa0a03f5    	mov	x21, x10
+10003ce28: 6b0b011f    	cmp	w8, w11
+10003ce2c: 54ffff22    	b.hs	0x10003ce10 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x1e0>
+10003ce30: b4fffb69    	cbz	x9, 0x10003cd9c <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x16c>
+10003ce34: 8b080d4b    	add	x11, x10, x8, lsl #3
+10003ce38: 910a016b    	add	x11, x11, #0x280
+10003ce3c: f9400175    	ldr	x21, [x11]
+10003ce40: 9109e2ab    	add	x11, x21, #0x278
+10003ce44: f1000529    	subs	x9, x9, #0x1
+10003ce48: 54ffffa1    	b.ne	0x10003ce3c <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x20c>
+10003ce4c: d2800016    	mov	x22, #0x0               ; =0
+10003ce50: 17ffffd5    	b	0x10003cda4 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x174>
+10003ce54: 394023e8    	ldrb	w8, [sp, #0x8]
+10003ce58: 34000148    	cbz	w8, 0x10003ce80 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x250>
+10003ce5c: f94003e8    	ldr	x8, [sp]
+10003ce60: f9400100    	ldr	x0, [x8]
+10003ce64: b0000c21    	adrp	x1, 0x1001c1000 <_anon.aebe9a61a251c9f3dd7535842ffc35f4.9+0x68>
+10003ce68: 9128f821    	add	x1, x1, #0xa3e
+10003ce6c: 52800022    	mov	w2, #0x1                ; =1
+10003ce70: 97fffe94    	bl	0x10003c8c0 <<<serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter as std::io::Write>::write_all>
+10003ce74: b4000080    	cbz	x0, 0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>
+10003ce78: 9405b0d4    	bl	0x1001a91c8 <<serde_json::error::Error>::io>
+10003ce7c: 14000002    	b	0x10003ce84 <<serde_json::value::Value as serde_core::ser::Serialize>::serialize::<&mut serde_json::ser::Serializer<&mut <serde_json::value::Value as core::fmt::Display>::fmt::WriterFormatter>>+0x254>
+10003ce80: d2800000    	mov	x0, #0x0                ; =0
+10003ce84: a9437bfd    	ldp	x29, x30, [sp, #0x30]
+10003ce88: a9424ff4    	ldp	x20, x19, [sp, #0x20]
+10003ce8c: a94157f6    	ldp	x22, x21, [sp, #0x10]
+10003ce90: 910103ff    	add	sp, sp, #0x40
+10003ce94: d65f03c0    	ret
+10003ce98: d0000de0    	adrp	x0, 0x1001fa000 <_anon.2da2d5047f26886fcfe9b82969aeb002.1+0x8>
+10003ce9c: 9100a000    	add	x0, x0, #0x28
+10003cea0: 9405cea7    	bl	0x1001b093c <core::option::unwrap_failed>
+10003cea4: d4200020    	brk	#0x1
+10003cea8: d0000de0    	adrp	x0, 0x1001fa000 <_anon.2da2d5047f26886fcfe9b82969aeb002.1+0x8>
+10003ceac: 91066000    	add	x0, x0, #0x198
+10003ceb0: 9405cea3    	bl	0x1001b093c <core::option::unwrap_failed>
+10003ceb4: d4200020    	brk	#0x1

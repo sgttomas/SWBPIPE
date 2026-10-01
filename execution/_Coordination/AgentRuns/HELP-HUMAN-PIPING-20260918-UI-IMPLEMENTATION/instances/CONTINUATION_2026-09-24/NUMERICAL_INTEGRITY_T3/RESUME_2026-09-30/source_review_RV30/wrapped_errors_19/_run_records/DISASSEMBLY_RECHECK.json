@@ -1,0 +1,77 @@
+{
+  "binary_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records",
+  "binary_sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/objdump",
+        "--disassemble",
+        "--demangle",
+        "--start-address=0x10016fa64",
+        "--stop-address=0x10016fb84",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+      ],
+      "exit": 0,
+      "stdout_sha256": "1e063bd5c7f89dc3fae9249303f01b3bcfce1e76a309a4fa8ebbc88b9ee9fe3f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical_to_proposal": true
+    },
+    {
+      "argv": [
+        "/usr/bin/objdump",
+        "--disassemble",
+        "--demangle",
+        "--start-address=0x1001a91c8",
+        "--stop-address=0x1001a9244",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+      ],
+      "exit": 0,
+      "stdout_sha256": "becfb87c1cdb3cee4b1463df08fde94f8cac2e7ba4b0626e8a6b1c28482339fb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical_to_proposal": true
+    },
+    {
+      "argv": [
+        "/usr/bin/objdump",
+        "--disassemble",
+        "--demangle",
+        "--start-address=0x10003c8c0",
+        "--stop-address=0x10003c998",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+      ],
+      "exit": 0,
+      "stdout_sha256": "73a5054486289e9919371e68dd2b6e915bff64f2a09722cec19f4098c7e4c2a7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical_to_proposal": true
+    },
+    {
+      "argv": [
+        "/usr/bin/objdump",
+        "--disassemble",
+        "--demangle",
+        "--start-address=0x10003cae4",
+        "--stop-address=0x10003cc30",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+      ],
+      "exit": 0,
+      "stdout_sha256": "7c829240716f3e2d7a5391abeb100a9202dcd481ddf322bc0888f1af4c899361",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical_to_proposal": true
+    },
+    {
+      "argv": [
+        "/usr/bin/objdump",
+        "--disassemble",
+        "--demangle",
+        "--start-address=0x10003cc30",
+        "--stop-address=0x10003ceb8",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+      ],
+      "exit": 0,
+      "stdout_sha256": "dfafe492ea1f224aef5f95dd91695ceac9ad7500f3a430932c8894052183fa0f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identical_to_proposal": true
+    }
+  ],
+  "binary_executed": false
+}

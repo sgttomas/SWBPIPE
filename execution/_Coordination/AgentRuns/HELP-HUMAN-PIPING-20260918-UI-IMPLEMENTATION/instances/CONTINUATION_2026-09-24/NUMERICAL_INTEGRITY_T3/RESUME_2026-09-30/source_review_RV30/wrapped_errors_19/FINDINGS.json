@@ -1,0 +1,30 @@
+{
+  "blocking_findings": [],
+  "artifact_requests": {
+    "StringError": [
+      24,
+      8
+    ],
+    "IOCustom": [
+      24,
+      8
+    ],
+    "JSONErrorImpl": [
+      40,
+      8
+    ]
+  },
+  "combined_with_prior_topology_only": {
+    "registered_extra": 97,
+    "active_old": 0,
+    "scope": "exact artifact plus separately proved successful-construction topology"
+  },
+  "normal_production_final_vk_scale_transfer": false,
+  "remaining": [
+    "two source-routed static-message pools",
+    "final executable/source/cfg/profile/compiler/library/target/allocator correspondence",
+    "precut/global owner union and checked integration",
+    "general fatal/allocation-failure/panic qualifications"
+  ],
+  "full_Emax_K0_admission": false
+}
