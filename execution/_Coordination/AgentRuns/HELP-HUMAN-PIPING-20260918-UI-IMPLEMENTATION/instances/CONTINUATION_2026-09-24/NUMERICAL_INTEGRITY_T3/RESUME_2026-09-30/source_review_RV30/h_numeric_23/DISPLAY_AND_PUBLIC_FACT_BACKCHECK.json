@@ -1,0 +1,107 @@
+{
+  "MiB_display": [
+    {
+      "family": "CHAIN",
+      "members": 10,
+      "bytes": 22744303,
+      "displayed_mib": "21.690657",
+      "integer_floor_at_six_decimals": "21.690657"
+    },
+    {
+      "family": "CHAIN",
+      "members": 100,
+      "bytes": 48275161,
+      "displayed_mib": "46.038781",
+      "integer_floor_at_six_decimals": "46.038781"
+    },
+    {
+      "family": "CHAIN",
+      "members": 1000,
+      "bytes": 347434504,
+      "displayed_mib": "331.339363",
+      "integer_floor_at_six_decimals": "331.339363"
+    },
+    {
+      "family": "CHAIN",
+      "members": 10000,
+      "bytes": 3266456240,
+      "displayed_mib": "3115.135421",
+      "integer_floor_at_six_decimals": "3115.135421"
+    },
+    {
+      "family": "TREE",
+      "members": 10,
+      "bytes": 22748820,
+      "displayed_mib": "21.694965",
+      "integer_floor_at_six_decimals": "21.694965"
+    },
+    {
+      "family": "TREE",
+      "members": 100,
+      "bytes": 48369672,
+      "displayed_mib": "46.128913",
+      "integer_floor_at_six_decimals": "46.128913"
+    },
+    {
+      "family": "TREE",
+      "members": 1000,
+      "bytes": 348414247,
+      "displayed_mib": "332.273718",
+      "integer_floor_at_six_decimals": "332.273718"
+    },
+    {
+      "family": "TREE",
+      "members": 10000,
+      "bytes": 3276306817,
+      "displayed_mib": "3124.529664",
+      "integer_floor_at_six_decimals": "3124.529664"
+    },
+    {
+      "family": "CONT",
+      "members": 10,
+      "bytes": 22679747,
+      "displayed_mib": "21.629092",
+      "integer_floor_at_six_decimals": "21.629092"
+    },
+    {
+      "family": "CONT",
+      "members": 100,
+      "bytes": 47532598,
+      "displayed_mib": "45.330617",
+      "integer_floor_at_six_decimals": "45.330617"
+    },
+    {
+      "family": "CONT",
+      "members": 1000,
+      "bytes": 337637561,
+      "displayed_mib": "321.996270",
+      "integer_floor_at_six_decimals": "321.996270"
+    },
+    {
+      "family": "CONT",
+      "members": 10000,
+      "bytes": 3173807423,
+      "displayed_mib": "3026.778624",
+      "integer_floor_at_six_decimals": "3026.778624"
+    }
+  ],
+  "public_facts_seals": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20/SHA256SUMS",
+      "seal": "4d2109001120525597278a940a4636b2f8ca790159076969d50ebbfa3a098141",
+      "payloads": 10
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_result_22/SHA256SUMS",
+      "seal": "3a29bb519d7094d577e4965d1926e833e7147cbb80c0a6603f3bde561007da82",
+      "payloads": 8
+    }
+  ],
+  "consumed": {
+    "label": "H.coordinates_item",
+    "actual_type": "core::option::Option<[f64; 3]>",
+    "size_bytes": 32,
+    "alignment_bytes": 8
+  },
+  "role": "32-byte size is used only in DEC delta=max(0,32N-G48N); alignment fact is retained but no private-node alignment is inferred."
+}

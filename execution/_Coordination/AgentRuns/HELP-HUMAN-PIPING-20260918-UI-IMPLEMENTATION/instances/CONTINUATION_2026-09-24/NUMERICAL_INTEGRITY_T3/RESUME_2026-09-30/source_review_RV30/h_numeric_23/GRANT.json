@@ -1,0 +1,25 @@
+{
+  "role": "TASK Type2 RV30",
+  "native_task": "/root/rv30_k6c_kernel",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "Existing delegated-harness-native child, direct ROOT assignment; no descendants",
+  "actual_start_utc": "2026-10-01 20:27:11 UTC",
+  "deadline_utc": "2026-10-01 20:57:11 UTC",
+  "source_basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "candidate_commit_reported_by_ROOT": "e4955ff5477782ff481f9a441e1eb236e067b831",
+  "candidate_seal": "c31d1513c1fac6e73b3ea8672733de10f677b809cd852c58058f77931e017888",
+  "instruction_binding": {
+    "path": "../kernel_01/INSTRUCTION_BINDING.json",
+    "sha256": "73add1e67bb2631831aec3d3afbc0ee4e33eed8af8e223086096deb4c08801ea",
+    "effective_sources": "Inherited Root/TASK/Piping/COMMON and software-code-review skill; current user Root AGENTS supplied again. No replacement role or new workflow."
+  },
+  "skill": {
+    "path": "<CURRENT_APP_WT>/.agents/skills/software-code-review/SKILL.md",
+    "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+    "status": "Previously selected/read in this continuing review task; no new skill"
+  },
+  "write_fence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_numeric_23",
+  "raw_provenance": "_run_records",
+  "enforcement": "Prompt-only fence on unrestricted shared filesystem; not an OS sandbox",
+  "grant": "Complete conditional H numeric candidate has sealed at K6C I21/h_numeric_19 (read actual SHA256SUMS; ROOT sees sealed return now), source40129, no maintained implementation. One30-minute independent owner/numeric review: read full FORMULAS/PHASES/SUMMARY/legacy mapping and actual33 fixed count/66launch/history bindings, reuse closed component proofs only within scope. Independently rederive complete max/sum/alias/growth choices and check numerical tables, not merely author script replay. Verify full/selected128 and inner-versus-outer H windows, all refusal/constructor/tracker/shift/certificate/saved/emit terms, conditional type/artifact facts, historical same-window comparisons. Identify any missing source term or unproved padding; measurement coverage alone proves nothing. No fullEmax/admission/implementation acceptance until ROOT disposition, no runtime/build/model/graph/solver/libraryprogramme/Git/index/delegation. Write K6C source_review_RV30/h_numeric_23, raw provenance _run_records. Manager is finishing its separate handback; do not require final review to assume it. Return within30min with exact scope/findings."
+}

@@ -1,0 +1,53 @@
+{
+  "checks": 1278,
+  "history_rows": 66,
+  "shift_rows": 99,
+  "admission_rows": 33,
+  "summary_model_rows": 33,
+  "summary_family_rows": 12,
+  "default_rho_failures": [
+    "RF-LARGE-CHAIN-n10000-AX",
+    "RF-LARGE-CHAIN-n10000-ROT",
+    "RF-LARGE-TREE-n10000-AX",
+    "RF-LARGE-TREE-n10000-ROT",
+    "RF-LARGE-CONT-n10000-AX",
+    "RF-LARGE-CONT-n10000-ROT"
+  ],
+  "max_full": [
+    3276306817,
+    "RF-LARGE-TREE-n10000-ROT"
+  ],
+  "errors": [
+    [
+      "CHAIN/10/MiB",
+      "21.690658",
+      "21.690657"
+    ],
+    [
+      "CHAIN/10000/MiB",
+      "3115.135422",
+      "3115.135421"
+    ],
+    [
+      "TREE/100/MiB",
+      "46.128914",
+      "46.128913"
+    ],
+    [
+      "TREE/1000/MiB",
+      "332.273719",
+      "332.273718"
+    ],
+    [
+      "CONT/100/MiB",
+      "45.330618",
+      "45.330617"
+    ],
+    [
+      "CONT/10000/MiB",
+      "3026.778625",
+      "3026.778624"
+    ]
+  ],
+  "scope": "Exact joins and integer comparisons only; historical observations never feed a bound. No admission replay or runtime."
+}

@@ -1,0 +1,9 @@
+{
+  "method": "Independent inline integer substitution from source05/source06 owner equations and corrected source07 queue. Author script read as data, never executed or imported. No graph/model/solver run. Different algebraic grouping and iterative power-of-two operator.",
+  "rows": 33,
+  "schedules": 66,
+  "phase_pairs_recomputed": 4224,
+  "R7_detail_cells_recomputed": 528,
+  "total_equality_checks": 6138,
+  "errors": []
+}
