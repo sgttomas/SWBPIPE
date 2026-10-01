@@ -1,0 +1,32 @@
+{
+  "record": "Additive recovery follow-up",
+  "observed_at_utc": "2026-10-01 05:04:11 UTC",
+  "mechanism": "collaboration.followup_task",
+  "manager": "/root/t3_recovery_manager",
+  "manager_parent": "/root",
+  "child": "/root/t3_recovery_manager/i21_k6c",
+  "new_child": false,
+  "role": "TASK",
+  "grant_commit": "d2c73c3217dd3c483a22e4e26e5e07a9f6ffb47d",
+  "grant_path": "<COORD>/<R>/BRIEFS/I21_SOURCE_CONTINUATION.md",
+  "grant_sha256": "e2eace4db324d7bbf9965b0c682b30e24ed06a6ae0e73b5208149c5432a1e40c",
+  "full_normalized_prompt": "FOLLOWUP.txt",
+  "raw_transport_prompt_sha256": "571c967dc60c703a16a4dc321dd348d9727707170654330edf47170ec4624109",
+  "scope": [
+    "<K6C_WT>/<R>/I21/source_01/**",
+    "<wt>/scratch/i21-resume/**"
+  ],
+  "start_evidence": [
+    "followup_task returned",
+    "child explicitly acknowledged role and grant"
+  ],
+  "status": "completed; finite U3-U7 continuation, numeric E_max blocked",
+  "return": {
+    "path": "<K6C_WT>/<R>/I21/source_01/RETURN.md",
+    "sha256": "ec832069502d68762749ae121062de4155b73b85c795c037c0274ec77b2ef667",
+    "manifest_sha256": "19bfa563eed616796260cfbc5dd423d0c1072ac38c4c048199f67719732384db",
+    "manager_verified_entries": 7,
+    "no_running_job": true
+  },
+  "interpreter_binding": "No interpreter/compiled witness grant."
+}

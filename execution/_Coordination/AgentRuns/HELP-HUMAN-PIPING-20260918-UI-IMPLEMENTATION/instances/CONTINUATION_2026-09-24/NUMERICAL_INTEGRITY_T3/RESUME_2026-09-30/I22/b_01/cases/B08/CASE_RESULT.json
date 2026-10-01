@@ -1,0 +1,121 @@
+{
+  "case": "B08",
+  "launch_utc": "2026-10-01T05:06:48.641Z",
+  "mkdir": {
+    "cmd": "mkdir -p <WT>/scratch/i22/b_01/B08 <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B08",
+    "chunk_id": "af5087",
+    "wall_time_seconds": 0.000006042,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "guard_before": {
+    "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+    "chunk_id": "12d514",
+    "wall_time_seconds": 0.000006833,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-03:30:29 /bin/bash <WT>/guard/memguard.sh\n"
+  },
+  "run": {
+    "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<WT>/scratch/i22/target <WT>/scratch/i22/target/debug/a1_public_probe B08 100000000 100000000 B > <WT>/scratch/i22/b_01/B08/stdout.tsv 2> <WT>/scratch/i22/b_01/B08/stderr.txt",
+    "chunk_id": "ed5269",
+    "wall_time_seconds": 0.000007625,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "guard_after": {
+    "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+    "chunk_id": "1c693a",
+    "wall_time_seconds": 0.000007,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-03:30:29 /bin/bash <WT>/guard/memguard.sh\n"
+  },
+  "compare": {
+    "cmd": "<VENV>/bin/python -B <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_01/validate_compare.py <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh <WT>/scratch/i22/b_01/B08/stdout.tsv <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B08/COMPARISON.json > <WT>/scratch/i22/b_01/B08/comparison.stdout 2> <WT>/scratch/i22/b_01/B08/comparison.stderr",
+    "chunk_id": "5fe5dc",
+    "wall_time_seconds": 0.000006916,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "resource_and_compare_output": "        0.02 real         0.02 user         0.00 sys\n             4423680  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 604  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                   7  involuntary context switches\n           328067315  instructions retired\n            70524254  cycles elapsed\n             2392400  peak memory footprint\n{\"case\": \"B08\", \"status\": \"Selected\", \"failures\": [], \"compared_rows\": 37}\n",
+  "identity": {
+    "format": true,
+    "case": true,
+    "source": true,
+    "limits": true,
+    "source_selected_equal": true
+  },
+  "review": "B08 passes all checks; p256/P512, 2015198 LME, zero correction after p128 force rejection. Rotation S_pub exactly 2^-988; branch-boundary control produces honest 37-row output. Advance.",
+  "summary": {
+    "case": "B08",
+    "status": "Selected",
+    "selection": [
+      "256",
+      "512"
+    ],
+    "lme": "2015198",
+    "corrections": "0",
+    "rows": 37,
+    "classes": {
+      "InputDerived": 11,
+      "AbsoluteVerified": 26
+    },
+    "nonzero_error_rows": [
+      "D:6",
+      "M:1"
+    ],
+    "zero_bound_rows": [
+      "E:1:I:3",
+      "E:1:I:4",
+      "E:1:I:5",
+      "E:1:J:3",
+      "E:1:J:4",
+      "E:1:J:5",
+      "R:3",
+      "R:4",
+      "R:5",
+      "R:9",
+      "R:10",
+      "R:11"
+    ],
+    "stdout_sha256": "96aec113b5f1231738957edbfd630c789d13fbd0be9d895592abaf53400dcf8d",
+    "scales": [
+      [
+        "Translation",
+        "0000000000000001"
+      ],
+      [
+        "Rotation",
+        "0230000000000000"
+      ],
+      [
+        "Force",
+        "0000000000000005"
+      ],
+      [
+        "Moment",
+        "0000000000000000"
+      ]
+    ],
+    "run_exit": 0,
+    "compare_exit": 0,
+    "guard_before": 0,
+    "guard_after": 0,
+    "identity": {
+      "format": true,
+      "case": true,
+      "source": true,
+      "limits": true,
+      "source_selected_equal": true
+    }
+  },
+  "comparison_path": "cases/B08/COMPARISON.json",
+  "raw_stdout_path": "cases/B08/stdout.tsv",
+  "timestamp_scope": "launch_utc is the per-case tool orchestration timestamp before mkdir/guard preflight; exact process start was not separately sampled.",
+  "supervision": "Tool exec_command tty=true; completed with exit 0 during initial 1000 ms yield, so no continuing session ID was returned. No interrupt/retry.",
+  "raw_io_binding": "Header, fixed argv/unchanged binary/probe hash, case ID/limits, complete output hash and source encoding before/after selection establish the observed binding. No independent source-encoding decoder or retained-state replay was run."
+}

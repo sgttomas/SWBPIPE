@@ -1,0 +1,71 @@
+{
+  "case": "C17",
+  "launch_utc": "2026-10-01T05:13:49.891Z",
+  "mkdir": {
+    "cmd": "mkdir -p <WT>/scratch/i22/c_01/C17 <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/c_01/cases/C17",
+    "chunk_id": "52a3d8",
+    "wall_time_seconds": 0.000013833,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "guard_before": {
+    "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+    "chunk_id": "9ce4e6",
+    "wall_time_seconds": 0.000008417,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-03:37:30 /bin/bash <WT>/guard/memguard.sh\n"
+  },
+  "run": {
+    "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=<WT>/scratch/i22/target <WT>/scratch/i22/target/debug/a1_public_probe C17 100000000 100000000 C > <WT>/scratch/i22/c_01/C17/stdout.tsv 2> <WT>/scratch/i22/c_01/C17/stderr.txt",
+    "chunk_id": "eafb8b",
+    "wall_time_seconds": 0.0000095,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "guard_after": {
+    "cmd": "/bin/ps -p 5387 -o pid=,ppid=,etime=,command=",
+    "chunk_id": "cf825d",
+    "wall_time_seconds": 0.000006917,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-03:37:31 /bin/bash <WT>/guard/memguard.sh\n"
+  },
+  "compare": {
+    "cmd": "<VENV>/bin/python -B <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_01/validate_compare.py <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh <WT>/scratch/i22/c_01/C17/stdout.tsv <WT>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/c_01/cases/C17/COMPARISON.json > <WT>/scratch/i22/c_01/C17/comparison.stdout 2> <WT>/scratch/i22/c_01/C17/comparison.stderr",
+    "chunk_id": "992762",
+    "wall_time_seconds": 0.000008166,
+    "exit_code": 1,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "resource_and_compare_output": "        0.02 real         0.01 user         0.00 sys\n             3997696  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 578  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                   6  involuntary context switches\n           183923607  instructions retired\n            44458154  cycles elapsed\n             1999184  peak memory footprint\n{\"case\": \"C17\", \"status\": \"Selected\", \"failures\": [\"exact-claim:D:0\", \"source-claim:D:0\", \"exact-claim:M:0\", \"source-claim:M:0\"], \"compared_rows\": 36}\n",
+  "identity": {
+    "format": true,
+    "case": true,
+    "source": true,
+    "limits": true,
+    "source_selected_equal": true
+  },
+  "read_path_error": {
+    "wrong_stdout": "b_01/C17/stdout.tsv",
+    "wrong_auxiliary": "b_01/C17/{stderr.txt,comparison.stdout,comparison.stderr}",
+    "meaning": "Read-only postprocessing typo after strict comparison, no run or output bytes altered",
+    "initial_false_identity": {
+      "format": false,
+      "case": false,
+      "source": false,
+      "limits": false,
+      "source_selected_equal": false
+    },
+    "initial_auxiliary_output": "cat: b_01/C17/stderr.txt: No such file or directory\ncat: b_01/C17/comparison.stdout: No such file or directory\ncat: b_01/C17/comparison.stderr: No such file or directory\n"
+  },
+  "review": "BLOCKING false absolute publication at D:0/M:0; C sequence stopped after first case. No retry or repair. Corrected read-only C raw-path inspection confirms valid header/provenance.",
+  "run_output": "stdout.tsv",
+  "full_comparison": "COMPARISON.json",
+  "completion": "All workload/compare processes exited within initial tool yields; no continuing PTY session ID. Workload exit0; comparator exit1 preserved.",
+  "timestamp_scope": "launch_utc is start of per-case tool orchestration before mkdir/guard preflight.",
+  "initial_read_path_correction": "Only read-only paths used to inspect already-produced C output were corrected; raw output and original comparison were never rerun, edited or normalized."
+}
