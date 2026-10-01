@@ -1,61 +1,31 @@
-# Owner decision proposed — F17 under A1 publication certification
+# Owner decision — F17 under A1 publication certification
 
-Status: PROPOSED; no owner acceptance. Independent diagnostic-result review
-and the actual P30 returned control are pending. A1 acceptance/merge stays held.
+Status: READY FOR OWNER DECISION; NOT ADOPTED. ROOT recommends approval of
+the scoped amendment below. All diagnostic evidence and the actual P30 control
+have completed independent review; A1 acceptance/merge remains held pending
+the owner decision and all remaining gates.
 
-## Recommendation
+Approve an A1-specific amendment to the F17 validation route, or retain the original CLASS-only route and hold the affected acceptance.
 
-For F17 only, add a narrowly defined certificate-prevention validation route
-alongside the original CLASS route. Keep every original normal-case numerical,
-class-correspondence, exception and stored-record check. Retain the original CLASS requirement on registered not-covered comparison
-rows outside prescribed InputDerived exceptions wherever their case publishes. Where the new A1 gate
-withholds publication first, require controlled, source-linked evidence of a
-named PublicRelative, SharperExact or SharperBinary64 predicate rejecting
-the forced relative draft after
-standing R7 acceptance, with full attempt records and successful normal controls.
+The proposed amendment keeps the complete original unmutated51-row class correspondence, the three prescribed InputDerived exceptions, all numerical references/tolerances and complete stored-record checks unchanged. Retain actual CLASS mismatch evidence on the originally registered not-covered comparison rows outside those exceptions whenever publication reaches the comparisons. Do not demand a mismatch from every unrelated published case or row.
 
-The already observed RF-SKEW route is the concrete application. The same rule
-may be used prospectively only for the remaining originally registered F17
-family after its own bounded run, source/case binding, controls and independent
-review. This gives no credit to an unrun case or family. It applies to no other
-fault and does not accept a generic Ceiling, budget/arithmetic/verification
-failure, AbsoluteBound, malformed certificate or absence of publication as a substitute.
+Where A1's new certificate withholds an F17-mutated case before those comparisons, permit a separately labeled **certificate-prevention observation** only after independent verification of the unchanged F17 source/case binding, fresh controlled fault run, full candidate/verification reason sequence and successful complete normal controls. The record must identify an actual PublicRelative, SharperExact or SharperBinary64 rejection in the reviewed relative branch after standing R7 acceptance and establish how that gate prevented the otherwise available publication. Retain and explain all other reasons; generic Ceiling, missing publication, FLOOR/work/record differences, AbsoluteBound, malformed certificate, budget/arithmetic/verification failure and unrelated faults receive no substitute credit. Unexplained attribution or control failure remains a hold.
 
-## Evidence and limits
+Apply this disposition to the completed RF-SKEW release observation: all36cases have108PublicRelative rejections at128/256/512 after R7; both complete NONE records restore exactly and P30's actual debug return passes. Keep P29 permanently unqualified with zero CLASS credit. In the two protected twist cases, an earlier member1/I/Ux force row prevents publication; neither protected member1/J/Rx twist-row class was observed. Label this case-level prevention, never CLASS or a per-row witness.
 
-Original debug P29 returned no CLASS witness and remains unqualified. The
-separate sealed existing-release diagnostic is at
-I22/vk_f17_diagnostic_01/RETURN.md, child seal
-d5b60c2048f745c4cb2614a625d30a020c7acc7a1da0675f50f6eb9146b55a00;
-manager confirmation is at manager/vk_f17_diagnostic_01/RETURN.md.
-Both normal controls reproduce the complete frozen RF-SKEW records.
-All fault cases produce named PublicRelative publication rejections through
-the candidate schedule after R7, followed by Ceiling. The diagnostic result
-review is still pending; source/criterion review35 establishes the causal
-control-flow distinction and the original protected criterion.
+Permit this same F17-only rule prospectively for the remaining originally registered RF-CANCEL family, against this unchanged A1 source basis, only after its own separately authorized bounded observation, full case/source bindings, controls and independent review. That prospective permission grants no unrun numerical or test credit and no runtime by itself. Preserve actual CLASS wherever reachable and disclose every withheld/unreached row. A different mechanism or source/corpus change requires reassessment; this is not a general unavailability exception for other faults.
 
-In the two protected twist cases, rejection occurs on a different, earlier
-force quantity. This proves a cause for whole-case withholding, not that either
-twist row's draft or published class was observed. The proposed alternative
-must be labeled certificate prevention, never CLASS or a per-row class witness.
-The original P30 debug return is a separate obligation and is pending.
+This decision changes a protected validation route and therefore requires the owner's explicit adoption. It changes no source/test/oracle/solver contract, authorizes no certificate bypass, and does not establish complete V-K/A1 acceptance, merge, W1 or F2a qualification. All remaining registered work and final gates remain.
 
-## What this decision changes
+Evidence: RV29 vk_f17_runtime_36/REVIEW.md, “Actual fault sequences”,
+“Protected row distinction”, “P30 limited independent backcheck” and
+“Owner proposal assessment”, in the A1 resumption records.
+Review seal: a779da2a62c1fce29c0005e6e945ce785f1f76ea6e56d0b1303436bc5c284070.
+Committed A1 evidence: 80c35e37466435e408268eb19e037e56f5a787cf.
+The proposal above is the independently reviewed OWNER_DECISION_TEXT wording.
 
-It changes the accepted F17 validation route where the new certificate makes
-the original published-class witness unreachable in the observed schedule.
-It changes no solver contract, tolerance, reference value, original input,
-normal-case class check, prescribed exception or stored numerical record.
-It does not remove F17, bypass the certificate, retire the remaining test
-matrix, or establish A1 acceptance. All remaining tests and final gates apply.
-
-Alternative: keep the original CLASS-only route and the affected A1 acceptance
-held while a separately designed validation route is prepared. ROOT recommends
-the explicit scoped alternative above because it records the new gate's actual
-behavior without relabeling the missing witness or weakening normal accuracy.
-
-Authority: projects/chirality-piping/AGENTS.md, Software checks, requires:
+Decision authority: projects/chirality-piping/AGENTS.md, Software checks:
 “Never weaken a protected test, tolerance, oracle or limit to obtain a pass.”
-It further requires bringing a measured conflict with a protected criterion
-to the owner and blocking affected acceptance while independent work continues.
-This proposal is an owning-decision request, not automatic agent acceptance.
+It requires bringing a measured conflict with a protected criterion to the
+owner and blocking affected acceptance while independent work continues.
+No response or elapsed time constitutes approval.
