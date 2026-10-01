@@ -1,0 +1,276 @@
+{
+  "candidate": "729e80b5c2a33b278623a850d9c75c25372b688c",
+  "actual_head": "729e80b5c2a33b278623a850d9c75c25372b688c",
+  "candidate_status": "",
+  "sweep_head": "729e80b5c2a33b278623a850d9c75c25372b688c",
+  "sweep_tracked_diff": "",
+  "sweep_status": "?? projects/chirality-piping/validation/evidence/sweeps/SWEEP_20261001T052810Z_729e80b5c2a3.json\n",
+  "base_suite_keys": 40,
+  "candidate_suite_keys": 40,
+  "original_keyed_delta": [
+    {
+      "manifest_key": "core_loads_self_weight_wasm_Cargo.toml.log",
+      "base": {
+        "counts": [
+          14,
+          0,
+          0
+        ],
+        "failures": []
+      },
+      "candidate": {
+        "counts": null,
+        "failures": []
+      }
+    }
+  ],
+  "isolated_counts": {
+    "counts": [
+      14,
+      0,
+      0
+    ],
+    "failures": []
+  },
+  "effective_keyed_delta": [],
+  "candidate_failures": {
+    "core_product_physics_Cargo.toml.log": [
+      "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+    ],
+    "core_runner_headless_Cargo.toml.log": [
+      "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+      "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes"
+    ]
+  },
+  "baseline_failures": {
+    "core_product_physics_Cargo.toml.log": [
+      "s11g_tests::t13_committed_fallback_uz_is_byte_identical"
+    ],
+    "core_runner_headless_Cargo.toml.log": [
+      "cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route",
+      "load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes"
+    ]
+  },
+  "stored_comparison": "baseline: KF2_mac_final\ncandidate: 729e80b5_records\nkeys: manifest path (the positional index is dropped)\n\nCHANGED core_loads_self_weight_wasm_Cargo.toml.log: base (14, 0, 0) -> cand None; base fails []; cand fails []\n\ncandidate failing: [('core_product_physics_Cargo.toml.log', ['s11g_tests::t13_committed_fallback_uz_is_byte_identical']), ('core_runner_headless_Cargo.toml.log', ['cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route', 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes'])]\nbaseline failing: [('core_product_physics_Cargo.toml.log', ['s11g_tests::t13_committed_fallback_uz_is_byte_identical']), ('core_runner_headless_Cargo.toml.log', ['cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route', 'load_reference_route_tests::load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes'])]\nmanifests: 40 40\n",
+  "disposition": {
+    "candidate": "729e80b5c2a33b278623a850d9c75c25372b688c",
+    "baseline": "KF2 final Mac sweep",
+    "original_comparison_changes": [
+      "CHANGED core_loads_self_weight_wasm_Cargo.toml.log: base (14, 0, 0) -> cand None; base fails []; cand fails []"
+    ],
+    "isolated_same_head_counts": [
+      14,
+      0,
+      0
+    ],
+    "cargo_tree_serde_json_versions": [
+      "1.0.151"
+    ],
+    "original_failure": "shared-target compiler artifact expected serde_json 1.0.150 while locked crate used 1.0.151; no tests ran in that original entry",
+    "disposition": "Existing shared-target artifact limitation, already routed to T9. Isolated unchanged-source/locked same-toolchain target supplies the missing suite check. No source/tool repair or test change claimed.",
+    "effective_changes_after_named_isolated_check": [],
+    "known_platform_failures_unchanged": true,
+    "log_sha256": "62e66b63941bca893238bdea99b738b827abb7de1485ca6c15582c5f530b395a"
+  },
+  "disposition_log_hash_matches": true,
+  "tree_serde_versions": [
+    "1.0.151"
+  ],
+  "original_compiler_versions": [
+    "1.0.150",
+    "1.0.151"
+  ],
+  "original_tests_executed": false,
+  "original_compile_failed": true,
+  "sweep_summary": {
+    "artifact": "openpipestress.evidence_sweep_summary",
+    "schema_version": 3,
+    "decision_basis": [
+      "DEC-025",
+      "DEC-093"
+    ],
+    "boundary_note": "Commit-bound development evidence; the tool performs no network lookup. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+    "git": {
+      "commit_hash": "729e80b5c2a33b278623a850d9c75c25372b688c",
+      "branch": "HEAD",
+      "status_capture_failed": false,
+      "working_tree_dirty": false,
+      "dirty_paths": []
+    },
+    "runtime": {
+      "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+      "python": "3.13.14",
+      "node": "v24.18.0",
+      "npm": "11.16.0",
+      "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+      "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    "started_utc": "2026-10-01T05:28:10+00:00",
+    "finished_utc": "2026-10-01T05:29:11+00:00",
+    "duration_seconds": 60.756,
+    "surfaces": [
+      {
+        "order": 1,
+        "surface_id": "cargo_crate_sweep",
+        "description": "Rust crate tests across all discovered crate manifests.",
+        "execution_capability": "sandboxed",
+        "commands": [
+          {
+            "argv": [
+              "<VENV>/bin/python",
+              "tools/release/check_release_readiness.py",
+              "--profile",
+              "cargo",
+              "--execute"
+            ],
+            "exit_code": 101,
+            "duration_seconds": 60.756
+          }
+        ],
+        "status": "fail"
+      },
+      {
+        "order": 2,
+        "surface_id": "python_pytest",
+        "description": "Repository Python contract, governance, and validation tests.",
+        "execution_capability": "sandboxed",
+        "commands": [],
+        "status": "not_run"
+      },
+      {
+        "order": 3,
+        "surface_id": "desktop_vitest",
+        "description": "Desktop unit/contract tests; wasm engine built first.",
+        "execution_capability": "sandboxed",
+        "commands": [],
+        "status": "not_run"
+      },
+      {
+        "order": 4,
+        "surface_id": "desktop_production_build",
+        "description": "Desktop production build (tsc -b && vite build).",
+        "execution_capability": "sandboxed",
+        "commands": [],
+        "status": "not_run"
+      }
+    ],
+    "overall_status": "fail",
+    "surface_selection": {
+      "only_capability": "sandboxed",
+      "complete_dec025_sweep": false
+    }
+  },
+  "surfaces": "== python_pytest: <home>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/projects/chirality-piping/.venv/bin/python -m pytest -q tests (05:48:07Z)\n   exit 0 (06:06:20Z)\n== desktop_vitest_build_wasm: npm run build:wasm:desktop (06:06:20Z)\n   exit 0 (06:07:05Z)\n== desktop_vitest: npm run test:desktop (06:07:05Z)\n   exit 0 (06:09:02Z)\n== desktop_production_build: npm run build:desktop (06:09:02Z)\n   exit 0 (06:09:11Z)\n",
+  "surface_exits": [
+    "0",
+    "0",
+    "0",
+    "0"
+  ],
+  "meta": "start 2026-10-01T05:28:07Z head 729e80b5c2a33b278623a850d9c75c25372b688c\nsweep exit 1 2026-10-01T05:29:11Z\nsuites done 2026-10-01T05:48:07Z\nALL-DONE 2026-10-01T06:09:11Z\n",
+  "python_pytest.log_summary": [
+    "3070 passed, 32 skipped, 130 subtests passed in 1092.65s (0:18:12)"
+  ],
+  "desktop_vitest_build_wasm.log_summary": [
+    "[build-wasm-engine] OK \u2014 wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)",
+    "[build-wasm-engine] OK \u2014 wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)"
+  ],
+  "desktop_vitest.log_summary": [
+    " Test Files  134 passed (134)",
+    "      Tests  2822 passed (2822)"
+  ],
+  "desktop_production_build.log_summary": [
+    "\u2713 built in 2.20s"
+  ],
+  "practitioner_summary": "419 passed in 69.04s (0:01:09)",
+  "invocation_disposition": {
+    "candidate": "729e80b5c2a33b278623a850d9c75c25372b688c",
+    "driver_origin": "<wt>/scratch/sweep_skewpin/dec025_mac.sh",
+    "driver_original_sha256": "9e34865b8a3fc49bbbb45bcbd457d1a4be76bd2aec7cac764662831e11afd133",
+    "helper_origin": "<wt>/scratch/calib/run_suites_nff.sh",
+    "helper_original_sha256": "260708f9578860d5d1c50855dca4fc42a9c40c6530f19d6159336db17e2b22a8",
+    "invocation_adjustments": [
+      "Existing runner copies use owner-required CARGO_BUILD_JOBS=4 and RUST_TEST_THREADS=2 instead of historical 8/4.",
+      "Driver points to that parameter-adjusted helper and a new empty target, avoiding deletion of prior targets.",
+      "CARGO_NET_OFFLINE=true supplied to entire invocation, including helper fetch; no installs/downloads."
+    ],
+    "no_logic_change": "No surface, manifest selection, test, tolerance, guard, user configuration or reusable tool changed."
+  },
+  "ci": {
+    "conclusion": "success",
+    "event": "workflow_dispatch",
+    "headSha": "729e80b5c2a33b278623a850d9c75c25372b688c",
+    "status": "completed",
+    "workflowName": "Piping Desktop E2E"
+  },
+  "ci_jobs": [
+    {
+      "name": "Select source coverage",
+      "conclusion": "success"
+    },
+    {
+      "name": "Numerical cargo suite",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (4/4)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (2/4)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (3/4)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (1/4)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Accessibility barrier and selected coverage",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Desktop E2E (source mode)",
+      "conclusion": "success"
+    }
+  ],
+  "ci_plan": {
+    "artifact": 11142633927,
+    "archive_sha256": "fe7a679c74749193aad180a4860310b17df7f84b6f94e0e221901fdfd082a1a1",
+    "plan_sha256": "1e8fdaec4f5d9c451b28f5d37818ff267517657c75cb4859c3fb8d69efaba9f5",
+    "local_bytes_match_download": true,
+    "mode": "full",
+    "coverage_full": true,
+    "numerical_required": true,
+    "head": "729e80b5c2a33b278623a850d9c75c25372b688c",
+    "base": "a38617d08bfbff6ea0a15b1cb129a16cbc82b2fc",
+    "target_base": "a38617d08bfbff6ea0a15b1cb129a16cbc82b2fc",
+    "selected_equals_inventory": true
+  },
+  "isolated_binding_metadata": {
+    "origin": "<wt>/scratch/sweep_resume_records_729e80b5/self_weight_wasm_isolated/EXECUTION_BINDING.json",
+    "sha256": "2965aeea2ccd4473a9d02b58a7637721ba2f3daf1f565f1ad08580983401ae9e",
+    "verified_argv_locked_offline": true,
+    "verified_target_distinct": true,
+    "environment": {
+      "RUSTUP_TOOLCHAIN": "1.97.1",
+      "RUSTUP_AUTO_INSTALL": "0",
+      "CARGO_INCREMENTAL": "0",
+      "CARGO_NET_OFFLINE": "true",
+      "CARGO_BUILD_JOBS": "4",
+      "RUST_TEST_THREADS": "2",
+      "CARGO_TARGET_DIR": "<wt>/resume-records-selfweight-729e80b5-target"
+    },
+    "head_limits": {
+      "before": "sweep checkout set to exact candidate before full sweep; meta.txt records that head; no intervening checkout or tracked-source edit in ROOT execution history",
+      "immediate_pre_isolated_head_status_sample": "not separately captured; not presented as such",
+      "after_head": "729e80b5c2a33b278623a850d9c75c25372b688c",
+      "after_status": "?? projects/chirality-piping/validation/evidence/sweeps/SWEEP_20261001T052810Z_729e80b5c2a3.json\n",
+      "tracked_source_diff": "empty"
+    },
+    "record_kind": "ROOT transcription of actual tool invocation plus current postcheck"
+  }
+}

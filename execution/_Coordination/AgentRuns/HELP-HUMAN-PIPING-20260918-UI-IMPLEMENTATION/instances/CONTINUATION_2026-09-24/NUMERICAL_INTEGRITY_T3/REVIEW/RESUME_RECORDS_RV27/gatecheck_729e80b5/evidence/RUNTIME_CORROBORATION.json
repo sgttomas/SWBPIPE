@@ -1,0 +1,11 @@
+{
+  "runtime_cache_origin": "<wt>/resume-records-selfweight-729e80b5-target/.rustc_info.json",
+  "runtime_cache_sha256": "90d946ee78539c708e866e93b975a652047ac41e2f0a7a3674c3660ea121cce4",
+  "version_outputs": [
+    "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6\n"
+  ],
+  "lock_path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+  "lock_sha256": "fdfc7cfa5aff221e6d7da145add93bcc351816f8be5139e84337489d9a28f205",
+  "lock_matches_final_head": true,
+  "limit": "Read-only corroboration of current target metadata and unchanged source lock; actual launch metadata is separately requested."
+}

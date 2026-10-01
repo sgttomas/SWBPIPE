@@ -3265,3 +3265,125 @@ by this escalation. K6c stays unaccepted and tied to the settled A1 kernel.
   blocking escalation before merge; earlier review confirmations cover their
   named historical candidates only. A fresh design agent is executing the
   committed bounded brief; no repair or design alternative is accepted.
+
+## A1 certificate correction selected for bounded implementation (ROOT, 2026-10-01)
+
+ROOT selects the sealed independent design and additive correction, after
+RV28's independent re-derivation and VERIFIED backcheck. Source-qualified
+identities/hashes are in RESUME_2026-09-30/BRIEFS/I22_IMPLEMENTATION_A.md.
+RV28-1 is closed at specification level; its conversion-work note remains an
+implementation/review obligation. This satisfies independent design checking
+before reliance; it does not accept unimplemented code.
+
+The selected correction certifies H=|actual published x-verification v|+E using
+the complete existing R7 error formulas and prerequisites. Absolute rows require
+H<=the unchanged b. Relative rows require the public decimal predicate and both
+the exact and current binary64 tighter allowances. An uncertifiable candidate
+escalates or refuses by name. Existing scale/class/bound bits and source domain
+are not widened. [Correction (ROOT, 2026-10-01): the unchanged
+quantity is the construction at the same selected candidate/floor, not equality
+of old and new output bits. Escalation can activate the existing p512 floor and
+change scales/bounds. ROOT_REPAIRED_B_FIELD_COMPARISON.json under
+RESUME_2026-09-30/verification binds that effect to the old/new raw hashes;
+values/ranges/classes remain equal for these B cases. No new public formula or
+source-domain cutoff is selected.] Private upward binary64 radii accompany the identical certified
+publication; they are not a new public receipt radius. The addendum pins SI
+normalization/binding and later facade obligations.
+
+This bare-b choice implements the owner's already accepted conservative-refusal
+direction. Qualified intervals, outward public bounds/scales, input cutoffs and
+reversal of protected availability remain unselected decisions. No fresh owner
+approval is created for faithful implementation of this choice.
+
+ROOT reserves M03-INTEGRITY-MP-v2 in the current kernel policy mechanism, keeping
+the method token. Historical v1 records are not retroactively certified.
+F2a/D2 recognition, final-row/unit/derived certification and runtime qualification
+remain required before product reliance.
+
+I22 may author only the four maintained files in the committed A grant, with
+additive evidence. No build/test/solver/mutant or snapshot refresh is yet granted.
+The source branch now carries current main at 0ce33d7e89a306cfc01f3ce29f421f4dbd02e716.
+ROOT will verify the core diff/hashes, commission a fresh source reviewer and
+run every required gate on the actual candidate before merge. A1 is still
+BLOCKING, K6c unaccepted and F2a held.
+
+
+## Audit resumption records merged (ROOT, 2026-10-01)
+
+PR1068 merged at 2026-10-01T06:38:11Z as
+546e05a159a58f5ceffe1d315373bc2f31982ea8, exact candidate
+729e80b5c2a33b278623a850d9c75c25372b688c. ROOT checked main a38617d
+immediately before the guarded merge. RV27's final independent confirmation,
+full-SHA CI, exact-head Mac DEC-025 comparison (including the disclosed isolated
+missing-suite recovery), and GEN-8 are recorded in
+IMPLEMENTATION/RESUME_RECORDS_MERGE/RECORD.md. No numerical repair is accepted.
+AUD-T3-01 remains BLOCKING, F2a held and K6c unaccepted. Original raw evidence
+remains preserved; no pruning is authorized. The owner stopped the response drift.
+
+## A1 first compile: bounded matcher repair (ROOT, 2026-10-01)
+
+The B compile stopped before tests on two new-test type-inference errors and
+one exhaustive existing test matcher. ROOT grants only the diagnostic
+PublicationEnclosure arm in FK/tests/retained_k4/method_tests.rs as a fifth
+maintained path, plus explicit Wide::<4> in the new tests. Existing expected
+tokens/fixtures/assertions remain protected. The committed B compile addendum
+sets the exact scope; this is no availability or numerical acceptance.
+
+## A1 compiled-source checkpoint and reach (ROOT, 2026-10-01)
+
+ROOT froze the exact compiler repair at dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1.
+I22 implementation_b_fix_01 records the preceding successful focused tests on
+3cf296e plus that exact patch; they are not falsely rebound to a later launch.
+Full numerical/runtime/mutant acceptance is still pending. The C brief grants
+finite source-control and new-test work, plus RV29's independent fixed-head FK
+suite. No old expected outcome or protected availability is changed.
+
+The actual caller trace, independently checked in RV29 candidate_01, reaches
+H/validation only. The legacy product solver uses unchanged retained arithmetic
+and seeded hooks, not the changed adaptive route. Accordingly T9/both-entry
+are not triggered by this slice alone; all other standing exact-candidate gates
+remain. Reassess if the source/write set gains product reach.
+
+## Independent ledger span correction (ROOT, 2026-10-01)
+
+RV29's candidate ledger understated the successful b=2 algebra route's aggregate
+max_span_bits by one. ROOT and the manager independently checked the frozen
+source: the comparison term span is 1-(-1074)+1=1076, while H alone spans1075.
+The priced work and budgets do not change. The original sealed ledger stays
+unchanged; RV29 provides an additive correction. The C span brief permits only
+the warranted new-test expectation/rationale repair before the next bounded
+run. This is no production defect closure or blanket permission to rebaseline.
+
+## A1 S11 inventory: declare the added integer site (ROOT, 2026-10-01)
+
+The full fixed-head FK suite found one source-inventory mismatch in addition
+to the two legacy work-golden assertions. ROOT and RV29 classified the added
+run_schedule c+=1 as the existing integer precision-schedule index advancing
+after certificate rejection. The exact S11 inventory row may change5 to6 with
+that annotation; all scanner rules/other rows remain. The dedicated committed
+brief bounds the edit/check and same-reviewer backcheck. No floating summation
+site or protected numerical criterion is excused.
+
+## A1 checkpoint D: preserve old work oracles and close test gaps (ROOT, 2026-10-01)
+
+The complete source-run/review evidence now warrants the exact test-only D grant
+in RESUME_2026-09-30/BRIEFS/A1_CHECKPOINT_D.md. I22 may isolate the new certificate
+component in the two named existing work-golden tests while keeping every old
+numerical literal and unrelated criterion. This supersedes the earlier optional
+evidence-patch-only step; the actual diff and same-reviewer backcheck remain
+required. The independently checked relative-control fixture is accepted as
+unit-level arithmetic truth, not a source-model result. No production change,
+old fixture rewrite, new public formula or availability relaxation is selected.
+A1 and K6c retain their separate closure boundaries under the owner's sequence.
+
+## A1 VR records: include certificate work (ROOT, 2026-10-01)
+
+The unchanged kernel-lane generator on immutable40129 produces only the five
+accounting-field deltas documented in RESUME_2026-09-30/verification/
+vr_record_refresh_01/FIELD_DIFF.json on A1. ROOT checked all field comparisons
+and charge closure. Accuracy, outcomes, precision, classes, controls and
+not-covered expectations stay fixed; invariance/parity records are identical.
+The ten generated family JSONs and kernel_lane/SHA256SUMS may be refreshed to
+include the new certificate work. No other observation or criterion is granted.
+The failed preflight and original hashes remain evidence. Same-reviewer
+backcheck and an affected-suite rerun are required; this is not A1 closure.

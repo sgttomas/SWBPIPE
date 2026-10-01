@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "mode": "full",
+  "coverage_full": true,
+  "event": "workflow_dispatch",
+  "pr": "",
+  "base": "a38617d08bfbff6ea0a15b1cb129a16cbc82b2fc",
+  "target_base": "a38617d08bfbff6ea0a15b1cb129a16cbc82b2fc",
+  "head": "729e80b5c2a33b278623a850d9c75c25372b688c",
+  "changed_paths": [],
+  "projects": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "inventory": [
+    "e2e/b3-accessibility.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "e2e/b3b-project-persistence.spec.ts",
+    "e2e/b4-sections.spec.ts",
+    "e2e/b4-table-editing.spec.ts",
+    "e2e/c3-viewport-visibility.spec.ts",
+    "e2e/gui-workflow-validation.spec.ts",
+    "e2e/linear-authoring.spec.ts",
+    "e2e/load-state-inputs.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/result-compatibility.spec.ts",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/ui-foundation/causal-method-contract.spec.ts",
+    "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+    "e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "e2e/ui-foundation/performance-targets.spec.ts",
+    "e2e/workspace-layout.spec.ts"
+  ],
+  "selected_specs": [
+    "e2e/b3-accessibility.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "e2e/b3b-project-persistence.spec.ts",
+    "e2e/b4-sections.spec.ts",
+    "e2e/b4-table-editing.spec.ts",
+    "e2e/c3-viewport-visibility.spec.ts",
+    "e2e/gui-workflow-validation.spec.ts",
+    "e2e/linear-authoring.spec.ts",
+    "e2e/load-state-inputs.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/result-compatibility.spec.ts",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/ui-foundation/causal-method-contract.spec.ts",
+    "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+    "e2e/ui-foundation/full-cohort-controller.spec.ts",
+    "e2e/ui-foundation/performance-targets.spec.ts",
+    "e2e/workspace-layout.spec.ts"
+  ],
+  "selected_titles": {},
+  "numerical_required": true,
+  "appearance": false,
+  "ownership": {},
+  "reasons": [
+    "Deliberate manual full integration milestone or unknown event"
+  ],
+  "coverage_note": "Full deduplicated source coverage requires four exact partitions (accessibility included) to succeed."
+}

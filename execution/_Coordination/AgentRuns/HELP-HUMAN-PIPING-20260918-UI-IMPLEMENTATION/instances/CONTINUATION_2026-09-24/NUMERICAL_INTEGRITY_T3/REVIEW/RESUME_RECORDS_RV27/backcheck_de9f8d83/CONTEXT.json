@@ -1,0 +1,33 @@
+{
+  "role": "TASK RV27, same independent reviewer",
+  "parent": "/root",
+  "task": "/root/rv27_records",
+  "candidate": "de9f8d83bdaab01b2bb988b78791f608adda61e6",
+  "delta_base": "90b6bcbbf64b13975211038bf3f33bb87273e646",
+  "prior_context": "../CONTEXT.json",
+  "prior_review_sha256": "8bb6773bfb27f2e11a3b4f2a2dd1e740cc92fcb8f1a74fcc4ca0792a619658f6",
+  "selected_skill": ".agents/skills/software-code-review/SKILL.md",
+  "new_instruction_scope": "ROOT requested bounded two-file delta review, preservation/old-seal check, exact-head GEN-8, additive backcheck only. No later numerical grant imported.",
+  "origins": [
+    {
+      "origin": "de9f8d83bdaab01b2bb988b78791f608adda61e6:.agents/skills/software-code-review/SKILL.md",
+      "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca"
+    },
+    {
+      "origin": "de9f8d83bdaab01b2bb988b78791f608adda61e6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+      "sha256": "a9854ce572333edb04ff38bd5b0539e7e21e29de2db3850f71420ef9076527c2"
+    },
+    {
+      "origin": "de9f8d83bdaab01b2bb988b78791f608adda61e6:projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "4ed887a2e6d4f5176cce67ac95172df3a1b755ddd856548ebda2211d7465a58a"
+    },
+    {
+      "origin": "de9f8d83bdaab01b2bb988b78791f608adda61e6:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_G0_BUILD.md",
+      "sha256": "2c1c6e0afdd5bd1a0a96623ca75e2c7084dc8503ab0f5318e23a244e9cc8706b"
+    },
+    {
+      "origin": "de9f8d83bdaab01b2bb988b78791f608adda61e6:tools/practitioner_harness/test_live_baseline.py",
+      "sha256": "8dbb3ff34ca275aa8d613425ec9ea86f6938cad9fb15260857a1a2d829c30e94"
+    }
+  ]
+}
