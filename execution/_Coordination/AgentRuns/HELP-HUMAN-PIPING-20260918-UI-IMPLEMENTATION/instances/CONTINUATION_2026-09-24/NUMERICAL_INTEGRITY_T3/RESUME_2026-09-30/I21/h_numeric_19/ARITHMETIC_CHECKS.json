@@ -1,0 +1,14 @@
+{
+  "shared_state_rows": 132,
+  "verify_report_rows": 99,
+  "shift_rows": 99,
+  "phase_metric_monotonicity": 4224,
+  "total_models": 33,
+  "kernel_schedules": 66,
+  "launch_byte_checks": 66,
+  "public_size_substitution_rows": 9,
+  "public_size_value": 32,
+  "public_size_all_delta_zero": true,
+  "conditional_numeric_models": 33,
+  "public_size_status": "Independently reviewed by RV30 public_layout_result_22; usable conditional source arithmetic; final ordinary-production source/type/compiler/library/target/cfg/profile correspondence remains"
+}

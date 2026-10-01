@@ -1,0 +1,992 @@
+[
+  {
+    "model": "RF-LARGE-CHAIN-n00010-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 105768,
+    "corrected_principal_bytes": 104736,
+    "principal_delta_bytes": -1032,
+    "complete_padded_kernel_shift_requested_bytes": 2790498,
+    "complete_padded_kernel_shift_moving_bytes": 2790514,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00010-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 169032,
+    "corrected_principal_bytes": 171840,
+    "principal_delta_bytes": 2808,
+    "complete_padded_kernel_shift_requested_bytes": 2890210,
+    "complete_padded_kernel_shift_moving_bytes": 2890226,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00010-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 295560,
+    "corrected_principal_bytes": 306048,
+    "principal_delta_bytes": 10488,
+    "complete_padded_kernel_shift_requested_bytes": 3089634,
+    "complete_padded_kernel_shift_moving_bytes": 3089650,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00010-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 105768,
+    "corrected_principal_bytes": 104736,
+    "principal_delta_bytes": -1032,
+    "complete_padded_kernel_shift_requested_bytes": 2790498,
+    "complete_padded_kernel_shift_moving_bytes": 2790514,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00010-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 169032,
+    "corrected_principal_bytes": 171840,
+    "principal_delta_bytes": 2808,
+    "complete_padded_kernel_shift_requested_bytes": 2890210,
+    "complete_padded_kernel_shift_moving_bytes": 2890226,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00010-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 295560,
+    "corrected_principal_bytes": 306048,
+    "principal_delta_bytes": 10488,
+    "complete_padded_kernel_shift_requested_bytes": 3089634,
+    "complete_padded_kernel_shift_moving_bytes": 3089650,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00100-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 1069128,
+    "corrected_principal_bytes": 1061616,
+    "principal_delta_bytes": -7512,
+    "complete_padded_kernel_shift_requested_bytes": 27439528,
+    "complete_padded_kernel_shift_moving_bytes": 27439544,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00100-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 1711272,
+    "corrected_principal_bytes": 1742160,
+    "principal_delta_bytes": 30888,
+    "complete_padded_kernel_shift_requested_bytes": 28445480,
+    "complete_padded_kernel_shift_moving_bytes": 28445496,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00100-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 2995560,
+    "corrected_principal_bytes": 3103248,
+    "principal_delta_bytes": 107688,
+    "complete_padded_kernel_shift_requested_bytes": 30457384,
+    "complete_padded_kernel_shift_moving_bytes": 30457400,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00100-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 1069128,
+    "corrected_principal_bytes": 1061616,
+    "principal_delta_bytes": -7512,
+    "complete_padded_kernel_shift_requested_bytes": 27439528,
+    "complete_padded_kernel_shift_moving_bytes": 27439544,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00100-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 1711272,
+    "corrected_principal_bytes": 1742160,
+    "principal_delta_bytes": 30888,
+    "complete_padded_kernel_shift_requested_bytes": 28445480,
+    "complete_padded_kernel_shift_moving_bytes": 28445496,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n00100-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 2995560,
+    "corrected_principal_bytes": 3103248,
+    "principal_delta_bytes": 107688,
+    "complete_padded_kernel_shift_requested_bytes": 30457384,
+    "complete_padded_kernel_shift_moving_bytes": 30457400,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 10702728,
+    "corrected_principal_bytes": 10630416,
+    "principal_delta_bytes": -72312,
+    "complete_padded_kernel_shift_requested_bytes": 273650006,
+    "complete_padded_kernel_shift_moving_bytes": 273650022,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 17133672,
+    "corrected_principal_bytes": 17445360,
+    "principal_delta_bytes": 311688,
+    "complete_padded_kernel_shift_requested_bytes": 283640534,
+    "complete_padded_kernel_shift_moving_bytes": 283640550,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n01000-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 29995560,
+    "corrected_principal_bytes": 31075248,
+    "principal_delta_bytes": 1079688,
+    "complete_padded_kernel_shift_requested_bytes": 303621590,
+    "complete_padded_kernel_shift_moving_bytes": 303621606,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 10702728,
+    "corrected_principal_bytes": 10630416,
+    "principal_delta_bytes": -72312,
+    "complete_padded_kernel_shift_requested_bytes": 273650006,
+    "complete_padded_kernel_shift_moving_bytes": 273650022,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 17133672,
+    "corrected_principal_bytes": 17445360,
+    "principal_delta_bytes": 311688,
+    "complete_padded_kernel_shift_requested_bytes": 283640534,
+    "complete_padded_kernel_shift_moving_bytes": 283640550,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n01000-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 29995560,
+    "corrected_principal_bytes": 31075248,
+    "principal_delta_bytes": 1079688,
+    "complete_padded_kernel_shift_requested_bytes": 303621590,
+    "complete_padded_kernel_shift_moving_bytes": 303621606,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 107038728,
+    "corrected_principal_bytes": 106318416,
+    "principal_delta_bytes": -720312,
+    "complete_padded_kernel_shift_requested_bytes": 2733804820,
+    "complete_padded_kernel_shift_moving_bytes": 2733804836,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 171357672,
+    "corrected_principal_bytes": 174477360,
+    "principal_delta_bytes": 3119688,
+    "complete_padded_kernel_shift_requested_bytes": 2833182356,
+    "complete_padded_kernel_shift_moving_bytes": 2833182372,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n10000-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 299995560,
+    "corrected_principal_bytes": 310795248,
+    "principal_delta_bytes": 10799688,
+    "complete_padded_kernel_shift_requested_bytes": 3031937428,
+    "complete_padded_kernel_shift_moving_bytes": 3031937444,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 107038728,
+    "corrected_principal_bytes": 106318416,
+    "principal_delta_bytes": -720312,
+    "complete_padded_kernel_shift_requested_bytes": 2733804820,
+    "complete_padded_kernel_shift_moving_bytes": 2733804836,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 171357672,
+    "corrected_principal_bytes": 174477360,
+    "principal_delta_bytes": 3119688,
+    "complete_padded_kernel_shift_requested_bytes": 2833182356,
+    "complete_padded_kernel_shift_moving_bytes": 2833182372,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CHAIN-n10000-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 299995560,
+    "corrected_principal_bytes": 310795248,
+    "principal_delta_bytes": 10799688,
+    "complete_padded_kernel_shift_requested_bytes": 3031937428,
+    "complete_padded_kernel_shift_moving_bytes": 3031937444,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00010-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 105768,
+    "corrected_principal_bytes": 104736,
+    "principal_delta_bytes": -1032,
+    "complete_padded_kernel_shift_requested_bytes": 2789034,
+    "complete_padded_kernel_shift_moving_bytes": 2789050,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00010-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 169032,
+    "corrected_principal_bytes": 171840,
+    "principal_delta_bytes": 2808,
+    "complete_padded_kernel_shift_requested_bytes": 2888746,
+    "complete_padded_kernel_shift_moving_bytes": 2888762,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00010-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 295560,
+    "corrected_principal_bytes": 306048,
+    "principal_delta_bytes": 10488,
+    "complete_padded_kernel_shift_requested_bytes": 3088170,
+    "complete_padded_kernel_shift_moving_bytes": 3088186,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00010-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 105768,
+    "corrected_principal_bytes": 104736,
+    "principal_delta_bytes": -1032,
+    "complete_padded_kernel_shift_requested_bytes": 2794890,
+    "complete_padded_kernel_shift_moving_bytes": 2794906,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00010-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 169032,
+    "corrected_principal_bytes": 171840,
+    "principal_delta_bytes": 2808,
+    "complete_padded_kernel_shift_requested_bytes": 2894602,
+    "complete_padded_kernel_shift_moving_bytes": 2894618,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00010-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 295560,
+    "corrected_principal_bytes": 306048,
+    "principal_delta_bytes": 10488,
+    "complete_padded_kernel_shift_requested_bytes": 3094026,
+    "complete_padded_kernel_shift_moving_bytes": 3094042,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00100-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 1069128,
+    "corrected_principal_bytes": 1061616,
+    "principal_delta_bytes": -7512,
+    "complete_padded_kernel_shift_requested_bytes": 27466762,
+    "complete_padded_kernel_shift_moving_bytes": 27466778,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00100-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 1711272,
+    "corrected_principal_bytes": 1742160,
+    "principal_delta_bytes": 30888,
+    "complete_padded_kernel_shift_requested_bytes": 28472714,
+    "complete_padded_kernel_shift_moving_bytes": 28472730,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00100-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 2995560,
+    "corrected_principal_bytes": 3103248,
+    "principal_delta_bytes": 107688,
+    "complete_padded_kernel_shift_requested_bytes": 30484618,
+    "complete_padded_kernel_shift_moving_bytes": 30484634,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00100-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 1069128,
+    "corrected_principal_bytes": 1061616,
+    "principal_delta_bytes": -7512,
+    "complete_padded_kernel_shift_requested_bytes": 27530074,
+    "complete_padded_kernel_shift_moving_bytes": 27530090,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00100-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 1711272,
+    "corrected_principal_bytes": 1742160,
+    "principal_delta_bytes": 30888,
+    "complete_padded_kernel_shift_requested_bytes": 28536026,
+    "complete_padded_kernel_shift_moving_bytes": 28536042,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n00100-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 2995560,
+    "corrected_principal_bytes": 3103248,
+    "principal_delta_bytes": 107688,
+    "complete_padded_kernel_shift_requested_bytes": 30547930,
+    "complete_padded_kernel_shift_moving_bytes": 30547946,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 10702728,
+    "corrected_principal_bytes": 10630416,
+    "principal_delta_bytes": -72312,
+    "complete_padded_kernel_shift_requested_bytes": 273962740,
+    "complete_padded_kernel_shift_moving_bytes": 273962756,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 17133672,
+    "corrected_principal_bytes": 17445360,
+    "principal_delta_bytes": 311688,
+    "complete_padded_kernel_shift_requested_bytes": 283953268,
+    "complete_padded_kernel_shift_moving_bytes": 283953284,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n01000-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 29995560,
+    "corrected_principal_bytes": 31075248,
+    "principal_delta_bytes": 1079688,
+    "complete_padded_kernel_shift_requested_bytes": 303934324,
+    "complete_padded_kernel_shift_moving_bytes": 303934340,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 10702728,
+    "corrected_principal_bytes": 10630416,
+    "principal_delta_bytes": -72312,
+    "complete_padded_kernel_shift_requested_bytes": 274597112,
+    "complete_padded_kernel_shift_moving_bytes": 274597128,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 17133672,
+    "corrected_principal_bytes": 17445360,
+    "principal_delta_bytes": 311688,
+    "complete_padded_kernel_shift_requested_bytes": 284587640,
+    "complete_padded_kernel_shift_moving_bytes": 284587656,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n01000-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 29995560,
+    "corrected_principal_bytes": 31075248,
+    "principal_delta_bytes": 1079688,
+    "complete_padded_kernel_shift_requested_bytes": 304568696,
+    "complete_padded_kernel_shift_moving_bytes": 304568712,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n10000-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 107038728,
+    "corrected_principal_bytes": 106318416,
+    "principal_delta_bytes": -720312,
+    "complete_padded_kernel_shift_requested_bytes": 2736998020,
+    "complete_padded_kernel_shift_moving_bytes": 2736998036,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n10000-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 171357672,
+    "corrected_principal_bytes": 174477360,
+    "principal_delta_bytes": 3119688,
+    "complete_padded_kernel_shift_requested_bytes": 2836375556,
+    "complete_padded_kernel_shift_moving_bytes": 2836375572,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n10000-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 299995560,
+    "corrected_principal_bytes": 310795248,
+    "principal_delta_bytes": 10799688,
+    "complete_padded_kernel_shift_requested_bytes": 3035130628,
+    "complete_padded_kernel_shift_moving_bytes": 3035130644,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n10000-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 107038728,
+    "corrected_principal_bytes": 106318416,
+    "principal_delta_bytes": -720312,
+    "complete_padded_kernel_shift_requested_bytes": 2743393384,
+    "complete_padded_kernel_shift_moving_bytes": 2743393400,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n10000-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 171357672,
+    "corrected_principal_bytes": 174477360,
+    "principal_delta_bytes": 3119688,
+    "complete_padded_kernel_shift_requested_bytes": 2842770920,
+    "complete_padded_kernel_shift_moving_bytes": 2842770936,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-TREE-n10000-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 299995560,
+    "corrected_principal_bytes": 310795248,
+    "principal_delta_bytes": 10799688,
+    "complete_padded_kernel_shift_requested_bytes": 3041525992,
+    "complete_padded_kernel_shift_moving_bytes": 3041526008,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00010-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 82956,
+    "corrected_principal_bytes": 80244,
+    "principal_delta_bytes": -2712,
+    "complete_padded_kernel_shift_requested_bytes": 2679498,
+    "complete_padded_kernel_shift_moving_bytes": 2679514,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00010-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 131532,
+    "corrected_principal_bytes": 131700,
+    "principal_delta_bytes": 168,
+    "complete_padded_kernel_shift_requested_bytes": 2760682,
+    "complete_padded_kernel_shift_moving_bytes": 2760698,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00010-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 228684,
+    "corrected_principal_bytes": 234612,
+    "principal_delta_bytes": 5928,
+    "complete_padded_kernel_shift_requested_bytes": 2923050,
+    "complete_padded_kernel_shift_moving_bytes": 2923066,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00010-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 82956,
+    "corrected_principal_bytes": 80244,
+    "principal_delta_bytes": -2712,
+    "complete_padded_kernel_shift_requested_bytes": 2684622,
+    "complete_padded_kernel_shift_moving_bytes": 2684638,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00010-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 131532,
+    "corrected_principal_bytes": 131700,
+    "principal_delta_bytes": 168,
+    "complete_padded_kernel_shift_requested_bytes": 2765806,
+    "complete_padded_kernel_shift_moving_bytes": 2765822,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00010-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 228684,
+    "corrected_principal_bytes": 234612,
+    "principal_delta_bytes": 5928,
+    "complete_padded_kernel_shift_requested_bytes": 2928174,
+    "complete_padded_kernel_shift_moving_bytes": 2928190,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00100-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 825456,
+    "corrected_principal_bytes": 801144,
+    "principal_delta_bytes": -24312,
+    "complete_padded_kernel_shift_requested_bytes": 26275523,
+    "complete_padded_kernel_shift_moving_bytes": 26275539,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00100-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 1310352,
+    "corrected_principal_bytes": 1314840,
+    "principal_delta_bytes": 4488,
+    "complete_padded_kernel_shift_requested_bytes": 27069443,
+    "complete_padded_kernel_shift_moving_bytes": 27069459,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00100-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 2280144,
+    "corrected_principal_bytes": 2342232,
+    "principal_delta_bytes": 62088,
+    "complete_padded_kernel_shift_requested_bytes": 28657283,
+    "complete_padded_kernel_shift_moving_bytes": 28657299,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00100-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 825456,
+    "corrected_principal_bytes": 801144,
+    "principal_delta_bytes": -24312,
+    "complete_padded_kernel_shift_requested_bytes": 26316058,
+    "complete_padded_kernel_shift_moving_bytes": 26316074,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00100-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 1310352,
+    "corrected_principal_bytes": 1314840,
+    "principal_delta_bytes": 4488,
+    "complete_padded_kernel_shift_requested_bytes": 27109978,
+    "complete_padded_kernel_shift_moving_bytes": 27109994,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n00100-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 2280144,
+    "corrected_principal_bytes": 2342232,
+    "principal_delta_bytes": 62088,
+    "complete_padded_kernel_shift_requested_bytes": 28697818,
+    "complete_padded_kernel_shift_moving_bytes": 28697834,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 8250456,
+    "corrected_principal_bytes": 8010144,
+    "principal_delta_bytes": -240312,
+    "complete_padded_kernel_shift_requested_bytes": 262274928,
+    "complete_padded_kernel_shift_moving_bytes": 262274944,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 13098552,
+    "corrected_principal_bytes": 13146240,
+    "principal_delta_bytes": 47688,
+    "complete_padded_kernel_shift_requested_bytes": 270298608,
+    "complete_padded_kernel_shift_moving_bytes": 270298624,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n01000-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 22794744,
+    "corrected_principal_bytes": 23418432,
+    "principal_delta_bytes": 623688,
+    "complete_padded_kernel_shift_requested_bytes": 286345968,
+    "complete_padded_kernel_shift_moving_bytes": 286345984,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 8250456,
+    "corrected_principal_bytes": 8010144,
+    "principal_delta_bytes": -240312,
+    "complete_padded_kernel_shift_requested_bytes": 262671898,
+    "complete_padded_kernel_shift_moving_bytes": 262671914,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 13098552,
+    "corrected_principal_bytes": 13146240,
+    "principal_delta_bytes": 47688,
+    "complete_padded_kernel_shift_requested_bytes": 270695578,
+    "complete_padded_kernel_shift_moving_bytes": 270695594,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n01000-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 22794744,
+    "corrected_principal_bytes": 23418432,
+    "principal_delta_bytes": 623688,
+    "complete_padded_kernel_shift_requested_bytes": 286742938,
+    "complete_padded_kernel_shift_moving_bytes": 286742954,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "verification_precision": 256,
+    "old_principal_bytes": 82500456,
+    "corrected_principal_bytes": 80100144,
+    "principal_delta_bytes": -2400312,
+    "complete_padded_kernel_shift_requested_bytes": 2625308457,
+    "complete_padded_kernel_shift_moving_bytes": 2625308473,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "verification_precision": 512,
+    "old_principal_bytes": 130980552,
+    "corrected_principal_bytes": 131460240,
+    "principal_delta_bytes": 479688,
+    "complete_padded_kernel_shift_requested_bytes": 2705007145,
+    "complete_padded_kernel_shift_moving_bytes": 2705007161,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-AX",
+    "verification_precision": 1024,
+    "old_principal_bytes": 227940744,
+    "corrected_principal_bytes": 234180432,
+    "principal_delta_bytes": 6239688,
+    "complete_padded_kernel_shift_requested_bytes": 2864404521,
+    "complete_padded_kernel_shift_moving_bytes": 2864404537,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "verification_precision": 256,
+    "old_principal_bytes": 82500456,
+    "corrected_principal_bytes": 80100144,
+    "principal_delta_bytes": -2400312,
+    "complete_padded_kernel_shift_requested_bytes": 2629293702,
+    "complete_padded_kernel_shift_moving_bytes": 2629293718,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "verification_precision": 512,
+    "old_principal_bytes": 130980552,
+    "corrected_principal_bytes": 131460240,
+    "principal_delta_bytes": 479688,
+    "complete_padded_kernel_shift_requested_bytes": 2708992390,
+    "complete_padded_kernel_shift_moving_bytes": 2708992406,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "RF-LARGE-CONT-n10000-ROT",
+    "verification_precision": 1024,
+    "old_principal_bytes": 227940744,
+    "corrected_principal_bytes": 234180432,
+    "principal_delta_bytes": 6239688,
+    "complete_padded_kernel_shift_requested_bytes": 2868389766,
+    "complete_padded_kernel_shift_moving_bytes": 2868389782,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-8",
+    "verification_precision": 256,
+    "old_principal_bytes": 84360,
+    "corrected_principal_bytes": 83472,
+    "principal_delta_bytes": -888,
+    "complete_padded_kernel_shift_requested_bytes": 2236750,
+    "complete_padded_kernel_shift_moving_bytes": 2236766,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-8",
+    "verification_precision": 512,
+    "old_principal_bytes": 134760,
+    "corrected_principal_bytes": 136944,
+    "principal_delta_bytes": 2184,
+    "complete_padded_kernel_shift_requested_bytes": 2317006,
+    "complete_padded_kernel_shift_moving_bytes": 2317022,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-8",
+    "verification_precision": 1024,
+    "old_principal_bytes": 235560,
+    "corrected_principal_bytes": 243888,
+    "principal_delta_bytes": 8328,
+    "complete_padded_kernel_shift_requested_bytes": 2477518,
+    "complete_padded_kernel_shift_moving_bytes": 2477534,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-24",
+    "verification_precision": 256,
+    "old_principal_bytes": 255624,
+    "corrected_principal_bytes": 253584,
+    "principal_delta_bytes": -2040,
+    "complete_padded_kernel_shift_requested_bytes": 6622611,
+    "complete_padded_kernel_shift_moving_bytes": 6622627,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-24",
+    "verification_precision": 512,
+    "old_principal_bytes": 408936,
+    "corrected_principal_bytes": 416112,
+    "principal_delta_bytes": 7176,
+    "complete_padded_kernel_shift_requested_bytes": 6864659,
+    "complete_padded_kernel_shift_moving_bytes": 6864675,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-24",
+    "verification_precision": 1024,
+    "old_principal_bytes": 715560,
+    "corrected_principal_bytes": 741168,
+    "principal_delta_bytes": 25608,
+    "complete_padded_kernel_shift_requested_bytes": 7348755,
+    "complete_padded_kernel_shift_moving_bytes": 7348771,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-48",
+    "verification_precision": 256,
+    "old_principal_bytes": 512520,
+    "corrected_principal_bytes": 508752,
+    "principal_delta_bytes": -3768,
+    "complete_padded_kernel_shift_requested_bytes": 13197043,
+    "complete_padded_kernel_shift_moving_bytes": 13197059,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-48",
+    "verification_precision": 512,
+    "old_principal_bytes": 820200,
+    "corrected_principal_bytes": 834864,
+    "principal_delta_bytes": 14664,
+    "complete_padded_kernel_shift_requested_bytes": 13680755,
+    "complete_padded_kernel_shift_moving_bytes": 13680771,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-48",
+    "verification_precision": 1024,
+    "old_principal_bytes": 1435560,
+    "corrected_principal_bytes": 1487088,
+    "principal_delta_bytes": 51528,
+    "complete_padded_kernel_shift_requested_bytes": 14648179,
+    "complete_padded_kernel_shift_moving_bytes": 14648195,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-4x3",
+    "verification_precision": 256,
+    "old_principal_bytes": 138864,
+    "corrected_principal_bytes": 133152,
+    "principal_delta_bytes": -5712,
+    "complete_padded_kernel_shift_requested_bytes": 4233186,
+    "complete_padded_kernel_shift_moving_bytes": 4233202,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-4x3",
+    "verification_precision": 512,
+    "old_principal_bytes": 222384,
+    "corrected_principal_bytes": 219744,
+    "principal_delta_bytes": -2640,
+    "complete_padded_kernel_shift_requested_bytes": 4356450,
+    "complete_padded_kernel_shift_moving_bytes": 4356466,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-4x3",
+    "verification_precision": 1024,
+    "old_principal_bytes": 389424,
+    "corrected_principal_bytes": 392928,
+    "principal_delta_bytes": 3504,
+    "complete_padded_kernel_shift_requested_bytes": 4602978,
+    "complete_padded_kernel_shift_moving_bytes": 4602994,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-6x8",
+    "verification_precision": 256,
+    "old_principal_bytes": 1098576,
+    "corrected_principal_bytes": 1076400,
+    "principal_delta_bytes": -22176,
+    "complete_padded_kernel_shift_requested_bytes": 21842103,
+    "complete_padded_kernel_shift_moving_bytes": 21842119,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-6x8",
+    "verification_precision": 512,
+    "old_principal_bytes": 1788624,
+    "corrected_principal_bytes": 1782576,
+    "principal_delta_bytes": -6048,
+    "complete_padded_kernel_shift_requested_bytes": 22715895,
+    "complete_padded_kernel_shift_moving_bytes": 22715911,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-6x8",
+    "verification_precision": 1024,
+    "old_principal_bytes": 3168720,
+    "corrected_principal_bytes": 3194928,
+    "principal_delta_bytes": 26208,
+    "complete_padded_kernel_shift_requested_bytes": 24463479,
+    "complete_padded_kernel_shift_moving_bytes": 24463495,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-7x8",
+    "verification_precision": 256,
+    "old_principal_bytes": 1362312,
+    "corrected_principal_bytes": 1335864,
+    "principal_delta_bytes": -26448,
+    "complete_padded_kernel_shift_requested_bytes": 26118239,
+    "complete_padded_kernel_shift_moving_bytes": 26118255,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-7x8",
+    "verification_precision": 512,
+    "old_principal_bytes": 2220744,
+    "corrected_principal_bytes": 2213112,
+    "principal_delta_bytes": -7632,
+    "complete_padded_kernel_shift_requested_bytes": 27198815,
+    "complete_padded_kernel_shift_moving_bytes": 27198831,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-7x8",
+    "verification_precision": 1024,
+    "old_principal_bytes": 3937608,
+    "corrected_principal_bytes": 3967608,
+    "principal_delta_bytes": 30000,
+    "complete_padded_kernel_shift_requested_bytes": 29359967,
+    "complete_padded_kernel_shift_moving_bytes": 29359983,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-5x5",
+    "verification_precision": 256,
+    "old_principal_bytes": 441000,
+    "corrected_principal_bytes": 429360,
+    "principal_delta_bytes": -11640,
+    "complete_padded_kernel_shift_requested_bytes": 10310899,
+    "complete_padded_kernel_shift_moving_bytes": 10310915,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-5x5",
+    "verification_precision": 512,
+    "old_principal_bytes": 714120,
+    "corrected_principal_bytes": 710160,
+    "principal_delta_bytes": -3960,
+    "complete_padded_kernel_shift_requested_bytes": 10674803,
+    "complete_padded_kernel_shift_moving_bytes": 10674819,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-5x5",
+    "verification_precision": 1024,
+    "old_principal_bytes": 1260360,
+    "corrected_principal_bytes": 1271760,
+    "principal_delta_bytes": 11400,
+    "complete_padded_kernel_shift_requested_bytes": 11402611,
+    "complete_padded_kernel_shift_moving_bytes": 11402627,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-32",
+    "verification_precision": 256,
+    "old_principal_bytes": 341256,
+    "corrected_principal_bytes": 338640,
+    "principal_delta_bytes": -2616,
+    "complete_padded_kernel_shift_requested_bytes": 8802483,
+    "complete_padded_kernel_shift_moving_bytes": 8802499,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-32",
+    "verification_precision": 512,
+    "old_principal_bytes": 546024,
+    "corrected_principal_bytes": 555696,
+    "principal_delta_bytes": 9672,
+    "complete_padded_kernel_shift_requested_bytes": 9122355,
+    "complete_padded_kernel_shift_moving_bytes": 9122371,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-cantilever-chain-32",
+    "verification_precision": 1024,
+    "old_principal_bytes": 955560,
+    "corrected_principal_bytes": 989808,
+    "principal_delta_bytes": 34248,
+    "complete_padded_kernel_shift_requested_bytes": 9762099,
+    "complete_padded_kernel_shift_moving_bytes": 9762115,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-5x6",
+    "verification_precision": 256,
+    "old_principal_bytes": 575736,
+    "corrected_principal_bytes": 562008,
+    "principal_delta_bytes": -13728,
+    "complete_padded_kernel_shift_requested_bytes": 12781095,
+    "complete_padded_kernel_shift_moving_bytes": 12781111,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-5x6",
+    "verification_precision": 512,
+    "old_principal_bytes": 934008,
+    "corrected_principal_bytes": 929880,
+    "principal_delta_bytes": -4128,
+    "complete_padded_kernel_shift_requested_bytes": 13253799,
+    "complete_padded_kernel_shift_moving_bytes": 13253815,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  },
+  {
+    "model": "DEC053:invented-grid-frame-5x6",
+    "verification_precision": 1024,
+    "old_principal_bytes": 1650552,
+    "corrected_principal_bytes": 1665624,
+    "principal_delta_bytes": 15072,
+    "complete_padded_kernel_shift_requested_bytes": 14199207,
+    "complete_padded_kernel_shift_moving_bytes": 14199223,
+    "scope": "Old/new principal compare identical limited terms; complete new shift also includes Kpad/Pass/controls/construction, with H caller added separately."
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20",
+  "manifest_sha256": "4d2109001120525597278a940a4636b2f8ca790159076969d50ebbfa3a098141",
+  "verified_payloads": 10,
+  "values_sha256": "bdb9d138c58942a1b0bc4f77723c149b4de650c1be43aa8da4e66ca272916e6c",
+  "execution_sha256": "6b6e9f23371ea8919644cf24bf8fbb8b5816330cd31ea3e480e9065628eeecc4",
+  "consumed_only": {
+    "label": "H.coordinates_item",
+    "actual_type": "core::option::Option<[f64; 3]>",
+    "size_bytes": 32,
+    "alignment_bytes": 8
+  },
+  "status": "Independently reviewed by RV30 public_layout_result_22; usable conditional source arithmetic; final ordinary-production source/type/compiler/library/target/cfg/profile correspondence remains",
+  "I21_execution": "Read/hash only; no diagnostic or compiler run",
+  "review": {
+    "commit": "2afbbfd3e404fe27a1f1b3741c8b1b3f5923a907",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_result_22",
+    "seal_sha256": "3a29bb519d7094d577e4965d1926e833e7147cbb80c0a6603f3bde561007da82",
+    "payloads_verified": 8,
+    "return_sha256": "56bc231142be19f20d01d9665f8678755af1eaa08f3df6b5fb2c987dd8ec2824"
+  }
+}
