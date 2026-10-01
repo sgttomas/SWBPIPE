@@ -1,0 +1,84 @@
+{
+  "receipt_start": "2026-10-01T23:29:20Z",
+  "child_continuation": "2026-10-01T23:31:09Z",
+  "hard_end": "2026-10-01T23:49:20Z",
+  "grant_ref": "a57fa5888361710e9872c1d56cee06cfae415f9b:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_VK_REMAINDER_09.md",
+  "grant_sha256": "20e09587b7ecf1387ee0b7e8b2528a5c54e4e72451e0d8ca76d2dfecf4c2480a",
+  "source_files_verified": 189,
+  "source_manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+  "schedule_sha256": "2bb936decaba11d00afafa71e42e12b1c0e0ca2007b39b99c036827f38ca6289",
+  "frozenfields_sha256": "821812844a705a85761a48096146fa77afe81af4e020b60ebb3e0762036af2ba",
+  "artifacts": {
+    "parity": {
+      "key": "parity",
+      "path": "<wt>/a1-vk-target/debug/deps/parity-ce8cf2272dfb2c0a",
+      "sha256": "646e4276acbba7cdb039ca9a1f93eb161977570f9adb6fd8657d32cec9ac6b65",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-ce8cf2272dfb2c0a/test-integration-test-parity.json",
+      "fingerprint_sha256": "11cd0f0a4405b01e12154ed660ac34700cec0b09dad3775ea397f2f8b1e46bb1"
+    },
+    "lane": {
+      "key": "lane",
+      "path": "<wt>/a1-vk-target/debug/deps/lane-e92cc40dfc38d6a5",
+      "sha256": "8123dcc33755dce7c4e70853d7da4fbf4ffc0e0794aaaa8b523bb38ae729bc18",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-e92cc40dfc38d6a5/test-integration-test-lane.json",
+      "fingerprint_sha256": "d99c38da7bdd331abf01d234e9cf9afcf0d2465a0d76bdeef9d2da95f48e3169"
+    },
+    "adapter": {
+      "key": "adapter",
+      "path": "<wt>/a1-vk-target/debug/deps/adapter-9707c21df3a9f00d",
+      "sha256": "dfd771acb65db91b7358f9c101b3c175dc8dd11594be4d9ab45b610a420d7b1f",
+      "profile": {
+        "opt_level": "0",
+        "debuginfo": 2,
+        "debug_assertions": true,
+        "overflow_checks": true,
+        "test": true
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/debug/.fingerprint/piping_numerical_robustness-9707c21df3a9f00d/test-integration-test-adapter.json",
+      "fingerprint_sha256": "3db748e52330d5605951c5d28588eb1d681d8270bc7fa5fac04320a144db59f2"
+    },
+    "vk_records": {
+      "key": "vk_records",
+      "path": "<wt>/a1-vk-target/release/examples/vk_records",
+      "sha256": "7c477a6bd129a1e2d5dd70c4f7557984615337a155ba8f4b0f0a91f08ddc861e",
+      "profile": {
+        "opt_level": "3",
+        "debuginfo": 0,
+        "debug_assertions": false,
+        "overflow_checks": false,
+        "test": false
+      },
+      "cargo_features": [
+        "seeded-faults"
+      ],
+      "fingerprint_path": "<wt>/a1-vk-target/release/.fingerprint/piping_numerical_robustness-404ef66271bb2a87/example-vk_records.json",
+      "fingerprint_sha256": "ae02d1f25427d3021fc2ce1f7fabe58eedfed4df11808abb042949ef0011c526"
+    }
+  },
+  "all22paths_unused": true,
+  "guard": "5387     1 03-21:55:46 /bin/bash <wt>/guard/memguard.sh",
+  "builds": 0
+}
