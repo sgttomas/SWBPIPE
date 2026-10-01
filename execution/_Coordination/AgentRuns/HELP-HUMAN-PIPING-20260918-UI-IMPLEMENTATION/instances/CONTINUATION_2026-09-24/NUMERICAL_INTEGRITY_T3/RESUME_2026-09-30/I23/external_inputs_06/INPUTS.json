@@ -1,0 +1,1550 @@
+{
+  "scope": "exact12 external source_09 VR rows",
+  "source_basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "source09_fixture_hash": "fd7aed3c52089362fd6e84fb23c9fc056a2864b873371ec43fc5d68d77147a26",
+  "manifest": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+    "sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+    "columns": [
+      "raw_model_file_sha256",
+      "canonical_K4SRC_sha256",
+      "case_id"
+    ]
+  },
+  "method": "Read existing raw bytes; SHA256 direct; exact JSON integer/string metadata parsing; no numeric solver, model construction, reserialization or new canonical encoder. Populations/string lengths may feed only the separately reviewed descriptor contract.",
+  "entries": [
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-AX.json",
+      "expected": {
+        "model_sha256": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+        "k4src_sha256": "c001e860eacd4fae9317ad4e557a6827693981995788979be3adf6bd24fe15b0",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 1
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-AX.json",
+        "bytes": 286643,
+        "sha256": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+        "device": 16777231,
+        "inode": 123496182,
+        "mtime_ns": 1790720612455432262,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 6,
+        "t": 1000,
+        "u": 0,
+        "n": 6006,
+        "f_if_source_valid": 6000,
+        "v_loaded_dofs": 6,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 6
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 12,
+        "sum_source_id_bytes": 12,
+        "max_source_id_len": 2,
+        "source_id_lengths_histogram": {
+          "2": 6
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 7800,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 1001,
+            "utf8_bytes": 3895,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 1
+            }
+          },
+          "member_names": {
+            "count": 1000,
+            "utf8_bytes": 3893,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 9,
+              "3": 90,
+              "4": 900,
+              "5": 1
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 6,
+            "utf8_bytes": 12,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 2,
+            "length_histogram": {
+              "2": 6
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 25013,
+        "U_if_source_valid": 78000,
+        "raw_contribution_count_if_source_valid": 144000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CHAIN-n01000-AX.jsonl",
+        "sha256": "b8dfa7a91aeed392aa963a74595e4ab08f6afe36fca705a6886b1f9bb47a4bce",
+        "historical_raw_model_sha256": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+        "historical_k4src_sha256": "c001e860eacd4fae9317ad4e557a6827693981995788979be3adf6bd24fe15b0",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-ROT.json",
+      "expected": {
+        "model_sha256": "27d23bb9770c724e6d2879012e934c233c424b16846b1b52337b0f8fac6b395f",
+        "k4src_sha256": "7266fbd824ff4694d3721ce51b67daf43c818cc9b6cbbb2af06bce9e6825659e",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 2
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-ROT.json",
+        "bytes": 286643,
+        "sha256": "27d23bb9770c724e6d2879012e934c233c424b16846b1b52337b0f8fac6b395f",
+        "device": 16777231,
+        "inode": 123496183,
+        "mtime_ns": 1790720612455542513,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 6,
+        "t": 1000,
+        "u": 0,
+        "n": 6006,
+        "f_if_source_valid": 6000,
+        "v_loaded_dofs": 6,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 6
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 12,
+        "sum_source_id_bytes": 12,
+        "max_source_id_len": 2,
+        "source_id_lengths_histogram": {
+          "2": 6
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 7800,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 1001,
+            "utf8_bytes": 3895,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 1
+            }
+          },
+          "member_names": {
+            "count": 1000,
+            "utf8_bytes": 3893,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 9,
+              "3": 90,
+              "4": 900,
+              "5": 1
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 6,
+            "utf8_bytes": 12,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 2,
+            "length_histogram": {
+              "2": 6
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 25013,
+        "U_if_source_valid": 78000,
+        "raw_contribution_count_if_source_valid": 144000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CHAIN-n01000-ROT.jsonl",
+        "sha256": "45630d74a5071c6706612e5f8e4fa5400c9c5e4cec655a233edbd4c4095b03cb",
+        "historical_raw_model_sha256": "27d23bb9770c724e6d2879012e934c233c424b16846b1b52337b0f8fac6b395f",
+        "historical_k4src_sha256": "7266fbd824ff4694d3721ce51b67daf43c818cc9b6cbbb2af06bce9e6825659e",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-AX.json",
+      "expected": {
+        "model_sha256": "8035f34456d150de931797b44cfc9e2ba016fc8bae5d78bff1a5f918c6852115",
+        "k4src_sha256": "20ea188892316e3d21b1965ef07e0d70c81d959dc19e25a4c98c40fb1d151b40",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 3
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-AX.json",
+        "bytes": 300622,
+        "sha256": "8035f34456d150de931797b44cfc9e2ba016fc8bae5d78bff1a5f918c6852115",
+        "device": 16777231,
+        "inode": 123496184,
+        "mtime_ns": 1790720612455652847,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 428,
+        "t": 1000,
+        "u": 0,
+        "n": 6006,
+        "f_if_source_valid": 6000,
+        "v_loaded_dofs": 428,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 428
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 1602,
+        "sum_source_id_bytes": 1602,
+        "max_source_id_len": 4,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 328
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 9172,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 1001,
+            "utf8_bytes": 3786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "member_names": {
+            "count": 1000,
+            "utf8_bytes": 3784,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 428,
+            "utf8_bytes": 1602,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 328
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 25013,
+        "U_if_source_valid": 78000,
+        "raw_contribution_count_if_source_valid": 144000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-TREE-n01000-AX.jsonl",
+        "sha256": "6ff903acf9a95ffda684ec72e85f64009c193d1c7cbaae4d30966f7f1ccd864c",
+        "historical_raw_model_sha256": "8035f34456d150de931797b44cfc9e2ba016fc8bae5d78bff1a5f918c6852115",
+        "historical_k4src_sha256": "20ea188892316e3d21b1965ef07e0d70c81d959dc19e25a4c98c40fb1d151b40",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-ROT.json",
+      "expected": {
+        "model_sha256": "df1e956484195236b452584f3cdc450953357784bc73bafa8b6a4a036ac4777d",
+        "k4src_sha256": "04759b177e9b40ad3228a9144d4946f62dbfea6d9087ebcfb0617fd6445b7d0d",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 4
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-ROT.json",
+        "bytes": 329920,
+        "sha256": "df1e956484195236b452584f3cdc450953357784bc73bafa8b6a4a036ac4777d",
+        "device": 16777231,
+        "inode": 123496185,
+        "mtime_ns": 1790720612455757681,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 1284,
+        "t": 1000,
+        "u": 0,
+        "n": 6006,
+        "f_if_source_valid": 6000,
+        "v_loaded_dofs": 1284,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 1284
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 5310,
+        "sum_source_id_bytes": 5310,
+        "max_source_id_len": 5,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 900,
+          "5": 284
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 12880,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 1001,
+            "utf8_bytes": 3786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "member_names": {
+            "count": 1000,
+            "utf8_bytes": 3784,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 1284,
+            "utf8_bytes": 5310,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 284
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 25013,
+        "U_if_source_valid": 78000,
+        "raw_contribution_count_if_source_valid": 144000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-TREE-n01000-ROT.jsonl",
+        "sha256": "ae12511108bb904ea4ef1fb9f6e56f9df8022c97d8f455a3e05a24fd201a5f93",
+        "historical_raw_model_sha256": "df1e956484195236b452584f3cdc450953357784bc73bafa8b6a4a036ac4777d",
+        "historical_k4src_sha256": "04759b177e9b40ad3228a9144d4946f62dbfea6d9087ebcfb0617fd6445b7d0d",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-AX.json",
+      "expected": {
+        "model_sha256": "32ecf3e4dc9725cf33f7374e6b075c826197a98047d9b0d0082e51bf6497bc98",
+        "k4src_sha256": "3e8ee160ae27dcb148fcff77bc2752c79ba02a170cead8b78bcad4dc0aec92ee",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 5
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-AX.json",
+        "bytes": 322718,
+        "sha256": "32ecf3e4dc9725cf33f7374e6b075c826197a98047d9b0d0082e51bf6497bc98",
+        "device": 16777231,
+        "inode": 123496186,
+        "mtime_ns": 1790720612455882515,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "r": 1506,
+        "r_unique": 1506,
+        "l": 733,
+        "t": 1000,
+        "u": 0,
+        "n": 6006,
+        "f_if_source_valid": 4500,
+        "v_loaded_dofs": 733,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 733
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 2822,
+        "sum_source_id_bytes": 2822,
+        "max_source_id_len": 4,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 633
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 10392,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 1001,
+            "utf8_bytes": 3786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "member_names": {
+            "count": 1000,
+            "utf8_bytes": 3784,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 733,
+            "utf8_bytes": 2822,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 633
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 26513,
+        "U_if_source_valid": 78000,
+        "raw_contribution_count_if_source_valid": 144000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CONT-n01000-AX.jsonl",
+        "sha256": "f5e997d28f9a3fad43b339ae84b4eeb72a77637b2712086d4042a1e6ad11c92e",
+        "historical_raw_model_sha256": "32ecf3e4dc9725cf33f7374e6b075c826197a98047d9b0d0082e51bf6497bc98",
+        "historical_k4src_sha256": "3e8ee160ae27dcb148fcff77bc2752c79ba02a170cead8b78bcad4dc0aec92ee",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-ROT.json",
+      "expected": {
+        "model_sha256": "4f505009dde44025289b4c08731dc1c4b275403140a87f86a7a4dce75816a61d",
+        "k4src_sha256": "dd00d926bb04d42a7bd24eb1c63b60efd3f073d7530045d2634134d46e5aa0bd",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 6
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-ROT.json",
+        "bytes": 341177,
+        "sha256": "4f505009dde44025289b4c08731dc1c4b275403140a87f86a7a4dce75816a61d",
+        "device": 16777231,
+        "inode": 123496187,
+        "mtime_ns": 1790720612455990140,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 1001,
+        "m": 1000,
+        "s": 0,
+        "d": 0,
+        "r": 1506,
+        "r_unique": 1506,
+        "l": 1268,
+        "t": 1000,
+        "u": 0,
+        "n": 6006,
+        "f_if_source_valid": 4500,
+        "v_loaded_dofs": 1268,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 1268
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 5230,
+        "sum_source_id_bytes": 5230,
+        "max_source_id_len": 5,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 900,
+          "5": 268
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 12800,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 1001,
+            "utf8_bytes": 3786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "member_names": {
+            "count": 1000,
+            "utf8_bytes": 3784,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 4,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 802
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 1268,
+            "utf8_bytes": 5230,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 268
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 26513,
+        "U_if_source_valid": 78000,
+        "raw_contribution_count_if_source_valid": 144000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CONT-n01000-ROT.jsonl",
+        "sha256": "f86432127927de6397b9078c28a6a2a61c703a56a9ffef49595fee488c13b43f",
+        "historical_raw_model_sha256": "4f505009dde44025289b4c08731dc1c4b275403140a87f86a7a4dce75816a61d",
+        "historical_k4src_sha256": "dd00d926bb04d42a7bd24eb1c63b60efd3f073d7530045d2634134d46e5aa0bd",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-AX.json",
+      "expected": {
+        "model_sha256": "239ccb63dfd1584d9056f3f2ce86d79056f9fef1c2589317797ded2e6c790d40",
+        "k4src_sha256": "d073d6660ff785616753842985d4a3316f5324119fe33c5db9333f960fc4767d",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 7
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-AX.json",
+        "bytes": 2932655,
+        "sha256": "239ccb63dfd1584d9056f3f2ce86d79056f9fef1c2589317797ded2e6c790d40",
+        "device": 16777231,
+        "inode": 123496188,
+        "mtime_ns": 1790720612457314937,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 6,
+        "t": 10000,
+        "u": 0,
+        "n": 60006,
+        "f_if_source_valid": 60000,
+        "v_loaded_dofs": 6,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 6
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 12,
+        "sum_source_id_bytes": 12,
+        "max_source_id_len": 2,
+        "source_id_lengths_histogram": {
+          "2": 6
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 97802,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 10001,
+            "utf8_bytes": 48896,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 6,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 9000,
+              "6": 1
+            }
+          },
+          "member_names": {
+            "count": 10000,
+            "utf8_bytes": 48894,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 6,
+            "length_histogram": {
+              "2": 9,
+              "3": 90,
+              "4": 900,
+              "5": 9000,
+              "6": 1
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 6,
+            "utf8_bytes": 12,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 2,
+            "length_histogram": {
+              "2": 6
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 250013,
+        "U_if_source_valid": 780000,
+        "raw_contribution_count_if_source_valid": 1440000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CHAIN-n10000-AX.jsonl",
+        "sha256": "6751cf92593aef4229873e6a63a50b7eb6f30d0bc1d90bc467d0b7abc422a467",
+        "historical_raw_model_sha256": "239ccb63dfd1584d9056f3f2ce86d79056f9fef1c2589317797ded2e6c790d40",
+        "historical_k4src_sha256": "d073d6660ff785616753842985d4a3316f5324119fe33c5db9333f960fc4767d",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-ROT.json",
+      "expected": {
+        "model_sha256": "0c79de8dffe4044889be6b80a8bdbe430c88fd23800227568d900d61a580bf66",
+        "k4src_sha256": "75c3e903b40b2e1dbb7f49099436df27ff00a0eab249e8a0248e719919c91112",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 8
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-ROT.json",
+        "bytes": 2932655,
+        "sha256": "0c79de8dffe4044889be6b80a8bdbe430c88fd23800227568d900d61a580bf66",
+        "device": 16777231,
+        "inode": 123496189,
+        "mtime_ns": 1790720612457723605,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 6,
+        "t": 10000,
+        "u": 0,
+        "n": 60006,
+        "f_if_source_valid": 60000,
+        "v_loaded_dofs": 6,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 6
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 12,
+        "sum_source_id_bytes": 12,
+        "max_source_id_len": 2,
+        "source_id_lengths_histogram": {
+          "2": 6
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 97802,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 10001,
+            "utf8_bytes": 48896,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 6,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 9000,
+              "6": 1
+            }
+          },
+          "member_names": {
+            "count": 10000,
+            "utf8_bytes": 48894,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 6,
+            "length_histogram": {
+              "2": 9,
+              "3": 90,
+              "4": 900,
+              "5": 9000,
+              "6": 1
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 6,
+            "utf8_bytes": 12,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 2,
+            "length_histogram": {
+              "2": 6
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 250013,
+        "U_if_source_valid": 780000,
+        "raw_contribution_count_if_source_valid": 1440000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CHAIN-n10000-ROT.jsonl",
+        "sha256": "9fb03146e30fb3f5f5fb1356ab5a849571d699d4a5294540f59c57977041d460",
+        "historical_raw_model_sha256": "0c79de8dffe4044889be6b80a8bdbe430c88fd23800227568d900d61a580bf66",
+        "historical_k4src_sha256": "75c3e903b40b2e1dbb7f49099436df27ff00a0eab249e8a0248e719919c91112",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-AX.json",
+      "expected": {
+        "model_sha256": "ff4cb28dd53b7a66b4c0364b2d9af7ab7abaa67f33f4ad2e8c8d8528c37a9319",
+        "k4src_sha256": "964dada652548b81e1e0347b09bb09c62c43c3776ff68e56102e10b5f0172056",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 9
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-AX.json",
+        "bytes": 3082946,
+        "sha256": "ff4cb28dd53b7a66b4c0364b2d9af7ab7abaa67f33f4ad2e8c8d8528c37a9319",
+        "device": 16777231,
+        "inode": 123496190,
+        "mtime_ns": 1790720612458152941,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 4286,
+        "t": 10000,
+        "u": 0,
+        "n": 60006,
+        "f_if_source_valid": 60000,
+        "v_loaded_dofs": 4286,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 4286
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 20320,
+        "sum_source_id_bytes": 20320,
+        "max_source_id_len": 5,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 900,
+          "5": 3286
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 115894,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 10001,
+            "utf8_bytes": 47788,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "member_names": {
+            "count": 10000,
+            "utf8_bytes": 47786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 4286,
+            "utf8_bytes": 20320,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 3286
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 250013,
+        "U_if_source_valid": 780000,
+        "raw_contribution_count_if_source_valid": 1440000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-TREE-n10000-AX.jsonl",
+        "sha256": "b4e294219d970f3e3de3c008a46408170ad7d6a33ae8fd50fb5638610a252d35",
+        "historical_raw_model_sha256": "ff4cb28dd53b7a66b4c0364b2d9af7ab7abaa67f33f4ad2e8c8d8528c37a9319",
+        "historical_k4src_sha256": "964dada652548b81e1e0347b09bb09c62c43c3776ff68e56102e10b5f0172056",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-ROT.json",
+      "expected": {
+        "model_sha256": "2179d5d397ec15668fba52528fdd8c888dc4b51cf2db972c9d8702c199c20818",
+        "k4src_sha256": "f6086c7f8483837955751851ef1abcbfa098d4c6a9b1fd2b7ef63995e5e6dd0c",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 10
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-ROT.json",
+        "bytes": 3393452,
+        "sha256": "2179d5d397ec15668fba52528fdd8c888dc4b51cf2db972c9d8702c199c20818",
+        "device": 16777231,
+        "inode": 123496191,
+        "mtime_ns": 1790720612458586276,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "r": 6,
+        "r_unique": 6,
+        "l": 12858,
+        "t": 10000,
+        "u": 0,
+        "n": 60006,
+        "f_if_source_valid": 60000,
+        "v_loaded_dofs": 12858,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 12858
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 66038,
+        "sum_source_id_bytes": 66038,
+        "max_source_id_len": 6,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 900,
+          "5": 9000,
+          "6": 2858
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 161612,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 10001,
+            "utf8_bytes": 47788,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "member_names": {
+            "count": 10000,
+            "utf8_bytes": 47786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 12858,
+            "utf8_bytes": 66038,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 6,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 9000,
+              "6": 2858
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 250013,
+        "U_if_source_valid": 780000,
+        "raw_contribution_count_if_source_valid": 1440000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-TREE-n10000-ROT.jsonl",
+        "sha256": "6f9ecd9cac6aba05c411732efa7fd535d276eb2c27f3d89a0d9c747d1af10173",
+        "historical_raw_model_sha256": "2179d5d397ec15668fba52528fdd8c888dc4b51cf2db972c9d8702c199c20818",
+        "historical_k4src_sha256": "f6086c7f8483837955751851ef1abcbfa098d4c6a9b1fd2b7ef63995e5e6dd0c",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-AX.json",
+      "expected": {
+        "model_sha256": "1fc2b76151557f23404b95262fe461b067a19e8254eb25cd7a14974cb82df083",
+        "k4src_sha256": "8dae9039e0b5721ea00dfa7b6dd59aa513fc4b1e0ae81aadaa35a7c419cb6ca3",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 11
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-AX.json",
+        "bytes": 3324795,
+        "sha256": "1fc2b76151557f23404b95262fe461b067a19e8254eb25cd7a14974cb82df083",
+        "device": 16777231,
+        "inode": 123496192,
+        "mtime_ns": 1790720612458997403,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "r": 15006,
+        "r_unique": 15006,
+        "l": 7333,
+        "t": 10000,
+        "u": 0,
+        "n": 60006,
+        "f_if_source_valid": 45000,
+        "v_loaded_dofs": 7333,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 7333
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 35555,
+        "sum_source_id_bytes": 35555,
+        "max_source_id_len": 5,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 900,
+          "5": 6333
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 131129,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 10001,
+            "utf8_bytes": 47788,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "member_names": {
+            "count": 10000,
+            "utf8_bytes": 47786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 7333,
+            "utf8_bytes": 35555,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 6333
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 265013,
+        "U_if_source_valid": 780000,
+        "raw_contribution_count_if_source_valid": 1440000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CONT-n10000-AX.jsonl",
+        "sha256": "9c430bb3926f373a592c17cf8c6c43b30c2695d936b6090bee29e2335aa8b579",
+        "historical_raw_model_sha256": "1fc2b76151557f23404b95262fe461b067a19e8254eb25cd7a14974cb82df083",
+        "historical_k4src_sha256": "8dae9039e0b5721ea00dfa7b6dd59aa513fc4b1e0ae81aadaa35a7c419cb6ca3",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "family": "RF-LARGE",
+      "embedded_model": false,
+      "raw_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-ROT.json",
+      "expected": {
+        "model_sha256": "c7d027f0fd5bdfb26f0a58a721e47c92dc4fb7185285e22359373a7ae4d78ff9",
+        "k4src_sha256": "355024e881a298db89229dd5d9c86ab977b3868b78541a4aa1fb5cb542798537",
+        "manifest_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/large_models.sha256",
+        "manifest_sha256": "7a1161b83e23b746f274387e60378ba238ae23ee0da91258844fd69718aec39d",
+        "manifest_line": 12
+      },
+      "descriptor_basis": "existing bytes and exact array/string metadata; no solver, graph/RCM/model builder or generated expectation",
+      "actual": {
+        "resolved_path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-ROT.json",
+        "bytes": 3519524,
+        "sha256": "c7d027f0fd5bdfb26f0a58a721e47c92dc4fb7185285e22359373a7ae4d78ff9",
+        "device": 16777231,
+        "inode": 123496193,
+        "mtime_ns": 1790720612459441696,
+        "is_symlink": false,
+        "utf8_valid": true,
+        "ends_with_newline": true
+      },
+      "raw_hash_matches_expected": true,
+      "status": "RAW_FILE_AND_INPUT_DESCRIPTOR_BOUND",
+      "model_sha256_semantics": "SHA256 of actual UTF-8 file bytes (producer dumps(adapted)+newline, consumer read_to_string.as_bytes); equality verified without reserialization",
+      "k4src_sha256_semantics": "Separate canonical PrimitiveSource::encoding digest, not raw JSON. Manifest expected value retained; historical consumer witness bound below, no fresh builder/encoding run.",
+      "descriptor": {
+        "N": 10001,
+        "m": 10000,
+        "s": 0,
+        "d": 0,
+        "r": 15006,
+        "r_unique": 15006,
+        "l": 12668,
+        "t": 10000,
+        "u": 0,
+        "n": 60006,
+        "f_if_source_valid": 45000,
+        "v_loaded_dofs": 12668,
+        "load_terms_per_dof_max": 1,
+        "load_terms_per_dof_multiplicity_histogram": {
+          "1": 12668
+        },
+        "zero_load_terms": 0,
+        "source_id_bytes": 64898,
+        "sum_source_id_bytes": 64898,
+        "max_source_id_len": 6,
+        "source_id_lengths_histogram": {
+          "2": 10,
+          "3": 90,
+          "4": 900,
+          "5": 9000,
+          "6": 2668
+        },
+        "omitted_spring_keys": [],
+        "model_string_bytes": 160472,
+        "typed_model_string_children": {
+          "node_names": {
+            "count": 10001,
+            "utf8_bytes": 47788,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 19,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "member_names": {
+            "count": 10000,
+            "utf8_bytes": 47786,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 5,
+            "length_histogram": {
+              "2": 18,
+              "3": 180,
+              "4": 1800,
+              "5": 8002
+            }
+          },
+          "spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "omitted_spring_keys": {
+            "count": 0,
+            "utf8_bytes": 0,
+            "min_utf8_bytes": 0,
+            "max_utf8_bytes": 0,
+            "length_histogram": {}
+          },
+          "load_source_ids": {
+            "count": 12668,
+            "utf8_bytes": 64898,
+            "min_utf8_bytes": 2,
+            "max_utf8_bytes": 6,
+            "length_histogram": {
+              "2": 10,
+              "3": 90,
+              "4": 900,
+              "5": 9000,
+              "6": 2668
+            }
+          }
+        },
+        "support_axis_id_lengths": [],
+        "support_directional_id_lengths": [],
+        "q_if_source_valid": 265013,
+        "U_if_source_valid": 780000,
+        "raw_contribution_count_if_source_valid": 1440000,
+        "graph_counts": "B/b/z/h and histograms not computed; no graph/RCM pass performed",
+        "source_capacity": "Lengths/populations only; no measured/requested heap capacity or E_max conclusion"
+      },
+      "canonical_binding": {
+        "status": "HISTORICAL_CONSUMER_MATCH_PRESERVED_NOT_RERUN",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/VK/_run_records/b/setup/counts_runs/counts_RF-LARGE-CONT-n10000-ROT.jsonl",
+        "sha256": "e5e347aa12a2c8cd20ab71cb45a30b5d982d5edc97188ae077d8f258773a14ed",
+        "historical_raw_model_sha256": "c7d027f0fd5bdfb26f0a58a721e47c92dc4fb7185285e22359373a7ae4d78ff9",
+        "historical_k4src_sha256": "355024e881a298db89229dd5d9c86ab977b3868b78541a4aa1fb5cb542798537",
+        "current_raw_model_hash_same_as_historical": true,
+        "descriptor_populations_match_historical_count_fields": true,
+        "fresh_K4SRC_recomputation": false,
+        "measurement_fields_excluded": "heap/time/estimate fields were not copied into descriptors or used as evidence bounds"
+      }
+    }
+  ],
+  "summary": {
+    "required": 12,
+    "present": 12,
+    "raw_hash_matches": 12,
+    "raw_bytes_total": 21053750,
+    "descriptor_rows": 12,
+    "historical_canonical_witnesses": 12
+  },
+  "missing_inputs": [],
+  "raw_hash_mismatches": [],
+  "unavailable_historical_canonical_bindings": [],
+  "fresh_canonical_verification": "Not performed; no Rust/PrimitiveSource builder or replacement serializer authorized. Raw identity and historical canonical witness are distinguished.",
+  "E_max_or_numerical_measurement_claim": false
+}
