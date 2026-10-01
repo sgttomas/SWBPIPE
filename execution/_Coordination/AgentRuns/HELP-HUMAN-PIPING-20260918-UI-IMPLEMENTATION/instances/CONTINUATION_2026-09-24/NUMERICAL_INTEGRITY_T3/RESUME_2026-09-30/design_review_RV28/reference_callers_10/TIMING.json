@@ -1,0 +1,13 @@
+{
+  "actual_start_utc": "2026-10-01 23:26:09 UTC",
+  "deadline_utc": "2026-10-01 23:46:09 UTC",
+  "completed_utc": "2026-10-01 23:44:00 UTC",
+  "within_twenty_minutes": true,
+  "status": "VERIFIED_CONDITIONAL_CALLER14",
+  "reference_cases": 193,
+  "metric_rows": 386,
+  "families": 10,
+  "CLI24_preserved": true,
+  "kernel_numeric_joined": false,
+  "full_Emax_accepted": false
+}

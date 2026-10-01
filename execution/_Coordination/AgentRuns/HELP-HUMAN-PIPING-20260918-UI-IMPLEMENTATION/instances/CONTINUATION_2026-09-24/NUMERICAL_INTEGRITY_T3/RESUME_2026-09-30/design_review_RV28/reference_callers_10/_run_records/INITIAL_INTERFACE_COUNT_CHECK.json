@@ -1,0 +1,17 @@
+{
+  "status": "MISMATCH",
+  "checks": 47661,
+  "mismatch_count": 2,
+  "mismatches": [
+    {
+      "check": "join interface rows",
+      "actual": 193,
+      "expected": 217
+    },
+    {
+      "check": "unique context/ID",
+      "actual": 193,
+      "expected": 217
+    }
+  ]
+}

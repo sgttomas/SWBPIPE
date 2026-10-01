@@ -1,0 +1,1 @@
+{"checks": 47661, "mismatch_count": 2, "first_mismatches": [{"check": "join interface rows", "actual": 193, "expected": 217}, {"check": "unique context/ID", "actual": 193, "expected": 217}], "reference_cases": 193, "metric_rows": 386, "caller_max_requested": 10063716, "caller_max_moving": 10542126}
