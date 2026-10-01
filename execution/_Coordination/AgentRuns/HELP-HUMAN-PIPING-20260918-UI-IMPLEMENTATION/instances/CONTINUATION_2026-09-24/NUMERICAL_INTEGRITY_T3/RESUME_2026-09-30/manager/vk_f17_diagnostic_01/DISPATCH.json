@@ -1,0 +1,13 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/t3_recovery_manager",
+  "existing_child": "/root/t3_recovery_manager/i22_a1",
+  "actual_followup_sent_utc": "2026-10-01T20:47:31.032679+00:00",
+  "receipt_start_utc": "2026-10-01 20:46:11 UTC",
+  "hard_end_utc": "2026-10-01 20:56:11 UTC",
+  "scope": "exact sealed F17 diagnostic D01 NONE/D02 VK-F17/D03 NONE only",
+  "release_basis": "PRELAUNCH.json",
+  "new_children": 0,
+  "child_actual_acknowledgement_utc": "2026-10-01 20:47:34 UTC",
+  "child_confirmed_scope_and_inherited_end": true
+}

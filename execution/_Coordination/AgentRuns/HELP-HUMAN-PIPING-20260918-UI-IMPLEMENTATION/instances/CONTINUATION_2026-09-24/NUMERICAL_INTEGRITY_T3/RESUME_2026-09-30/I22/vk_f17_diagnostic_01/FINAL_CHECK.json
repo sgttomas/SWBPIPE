@@ -1,0 +1,16 @@
+{
+  "checked_utc": "2026-10-01T20:52:19.253410+00:00",
+  "source_files_verified": 189,
+  "all_source_modes_bytes_unchanged": true,
+  "binary_and_fingerprint_unchanged": true,
+  "three_dependency_fingerprints_unchanged": true,
+  "runtime05_seal_all13payloads_unchanged": "566d5bdfd7416f4af9df1979b558007bfec8ac2897e0edfb1ad3e5daa1a2813a",
+  "guard": "5387     1 03-19:16:00 /bin/bash <wt>/guard/memguard.sh",
+  "guard_source_unchanged": true,
+  "no_owned_process": true,
+  "grant_git_ref": "79428ed6d56fbd54953155540a72c65fb004e0ea:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_VK_F17_DIAGNOSTIC.md",
+  "grant_sha256": "97595107becde84f243e2fbbdaa36303477109d2013fcdc9fb824d6630601900",
+  "builds": 0,
+  "direct_processes": 3,
+  "CLASS_credit": false
+}
