@@ -1,0 +1,37 @@
+{
+  "actual_start_utc": "2026-10-01 17:51:15 UTC",
+  "deadline_utc": "2026-10-01 18:21:15 UTC",
+  "completion_utc": "2026-10-01T18:19:14.403958+00:00",
+  "scope": "One canonical source-only integration, no restarted theorem or commissioned follow-on",
+  "six_item_return": {
+    "owner_union": "Candidate phase/identity ledger with mandatory corrections and explicit residuals",
+    "substitutions": "33 H rows/3 verification widths;10/100/1000/10000 principal/helper/retained subtotals. Complete totals unavailable, explicitly not claimed.",
+    "launch_history": "33 models/66 W1 planned rows;66+18+18 historical rows; coarse six10000 VR deferrals per dataset. Complete chronological admission replay blocked.",
+    "shared_seam": "VR->existing H library, exact proposed fields/adapters/module/Cargo paths; metadata closure acyclic,7 existing local lock additions",
+    "validation_plan": "Tests/mutant patches/NONE/counts mapping/history replay/original W1-T4 frozen as plans, not executed",
+    "blocking_cells": "Missing fact/phase/numeric impact/evidence/owner-held completion separated from final-build binding"
+  },
+  "checks": [
+    "34 sealed input packets/365 payloads verified",
+    "mandatory serializer/sparse/RV28 review seals match",
+    "integer shift/capacity/subtotal identities",
+    "exact planned row counts and path-byte descriptors",
+    "same-binary historical metric labels",
+    "acyclic local dependency metadata",
+    "JSON syntax and portable artifact paths",
+    "complete write inventory"
+  ],
+  "acceptance": {
+    "checkpoint0": false,
+    "implementation": false,
+    "complete_Emax": false,
+    "admission_replay_complete": false,
+    "W1_F2a": false
+  },
+  "no_running_experiment": true,
+  "new_rust_build_test_probe_solver_model_numerical_graph_jobs": 0,
+  "scratch_writes": 0,
+  "write_fence": "K6C R/I21/k0_assembly_16 only",
+  "git": "All reads explicitly GIT_OPTIONAL_LOCKS=0; no Git/index mutation",
+  "source_basis": "Immutable40129; current older K6C product and future final-A1 candidate are distinct"
+}

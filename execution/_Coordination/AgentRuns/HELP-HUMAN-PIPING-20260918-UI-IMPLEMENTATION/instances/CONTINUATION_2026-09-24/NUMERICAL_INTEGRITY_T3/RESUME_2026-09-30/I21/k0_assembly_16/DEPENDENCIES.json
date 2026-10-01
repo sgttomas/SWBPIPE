@@ -1,0 +1,237 @@
+{
+  "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "existing_packages": [
+    {
+      "name": "open_pipe_stress_solver_performance_harness",
+      "manifest": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "sha256": "ba730845fa377a8f2b0f4d910b317a1c1bbc5000881a8a433a2ca0e10f4f7c8a",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/frame_kernel",
+        "projects/chirality-piping/core/solver/nonlinear_integration",
+        "projects/chirality-piping/core/solver/diagnostics",
+        "projects/chirality-piping/core/solver/sparse_direct"
+      ]
+    },
+    {
+      "name": "open_pipe_stress_frame_kernel",
+      "manifest": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc",
+      "local_dependencies": []
+    },
+    {
+      "name": "open_pipe_stress_nonlinear_integration",
+      "manifest": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "sha256": "6b6760eafdb97092345cb28aebac456cfccc9381542dcf0ec28bdcd3771587ea",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/curved_bend",
+        "projects/chirality-piping/core/solver/frame_kernel",
+        "projects/chirality-piping/core/solver/nonlinear_supports",
+        "projects/chirality-piping/core/solver/diagnostics",
+        "projects/chirality-piping/core/solver/sparse_direct"
+      ]
+    },
+    {
+      "name": "open_pipe_stress_curved_bend",
+      "manifest": "projects/chirality-piping/core/solver/curved_bend/Cargo.toml",
+      "sha256": "49e42be72ad63f6f7c215f2fb39592d4134f37533f876b5161591c9004f1f239",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/frame_kernel"
+      ]
+    },
+    {
+      "name": "open_pipe_stress_nonlinear_supports",
+      "manifest": "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+      "sha256": "328a321c2d77b620665f449dbdb58246953299cacffcaae25bb542e7339f3b64",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/linear_supports",
+        "projects/chirality-piping/core/solver/diagnostics"
+      ]
+    },
+    {
+      "name": "open_pipe_stress_linear_supports",
+      "manifest": "projects/chirality-piping/core/solver/linear_supports/Cargo.toml",
+      "sha256": "db634677878b548ca51ad7b14d0532540b0471a439ac7e8d7e28a405b32e5b08",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/frame_kernel"
+      ]
+    },
+    {
+      "name": "open_pipe_stress_solver_diagnostics",
+      "manifest": "projects/chirality-piping/core/solver/diagnostics/Cargo.toml",
+      "sha256": "b97f1331ea132a493008eb94d985b6afd26c8ea13476e56c1fa2a098f34244b6",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/frame_kernel",
+        "projects/chirality-piping/core/solver/linear_supports",
+        "projects/chirality-piping/core/loads/primitive_loads",
+        "projects/chirality-piping/core/solver/sparse_direct"
+      ]
+    },
+    {
+      "name": "open_pipe_stress_primitive_loads",
+      "manifest": "projects/chirality-piping/core/loads/primitive_loads/Cargo.toml",
+      "sha256": "97959fbf7124f55b39ea51a33ae1da1f1abcc9fc1b969f7d42d9ea0fcab894a0",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/frame_kernel",
+        "projects/chirality-piping/core/solver/linear_supports"
+      ]
+    },
+    {
+      "name": "open_pipe_stress_sparse_direct",
+      "manifest": "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml",
+      "sha256": "846dc2270a785df06aaa8ad9be205e6d6bef104f58c77b6aaf4b1f8a78feef88",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/frame_kernel"
+      ]
+    },
+    {
+      "name": "piping_numerical_robustness",
+      "manifest": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "sha256": "a732e02ee75c5069a4a85e3732d317ce360c23f413573df026eee9c350c27f11",
+      "local_dependencies": [
+        "projects/chirality-piping/core/solver/frame_kernel",
+        "projects/chirality-piping/core/solver/sparse_direct"
+      ]
+    }
+  ],
+  "proposed_edge": {
+    "from": "projects/chirality-piping/validation/benchmarks/numerical_robustness",
+    "to": "projects/chirality-piping/core/solver/performance_harness",
+    "cargo_dependency": "open_pipe_stress_solver_performance_harness = { path = \"../../../core/solver/performance_harness\" }"
+  },
+  "acyclic_with_proposed_edge": true,
+  "locks": {
+    "projects/chirality-piping/core/solver/performance_harness": {
+      "sha256": "7b689c8c109f17220157d0bdb934642b06881a4f7c0f6c8154e8df5edd56572e",
+      "packages": [
+        [
+          "open_pipe_stress_curved_bend",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_frame_kernel",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_linear_supports",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_nonlinear_integration",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_nonlinear_supports",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_primitive_loads",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_solver_diagnostics",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_solver_performance_harness",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_sparse_direct",
+          "0.1.0"
+        ]
+      ]
+    },
+    "projects/chirality-piping/validation/benchmarks/numerical_robustness": {
+      "sha256": "b81994dca343ddca6eac599ed6586a6154c693ba07cfa73f731ed1af978a831b",
+      "packages": [
+        [
+          "itoa",
+          "1.0.18"
+        ],
+        [
+          "memchr",
+          "2.8.3"
+        ],
+        [
+          "open_pipe_stress_frame_kernel",
+          "0.1.0"
+        ],
+        [
+          "open_pipe_stress_sparse_direct",
+          "0.1.0"
+        ],
+        [
+          "piping_numerical_robustness",
+          "0.1.0"
+        ],
+        [
+          "proc-macro2",
+          "1.0.107"
+        ],
+        [
+          "quote",
+          "1.0.47"
+        ],
+        [
+          "serde",
+          "1.0.229"
+        ],
+        [
+          "serde_core",
+          "1.0.229"
+        ],
+        [
+          "serde_derive",
+          "1.0.229"
+        ],
+        [
+          "serde_json",
+          "1.0.151"
+        ],
+        [
+          "syn",
+          "3.0.6"
+        ],
+        [
+          "unicode-ident",
+          "1.0.26"
+        ],
+        [
+          "zmij",
+          "1.0.23"
+        ]
+      ]
+    }
+  },
+  "additional_locked_packages_if_union_unchanged": [
+    [
+      "open_pipe_stress_curved_bend",
+      "0.1.0"
+    ],
+    [
+      "open_pipe_stress_linear_supports",
+      "0.1.0"
+    ],
+    [
+      "open_pipe_stress_nonlinear_integration",
+      "0.1.0"
+    ],
+    [
+      "open_pipe_stress_nonlinear_supports",
+      "0.1.0"
+    ],
+    [
+      "open_pipe_stress_primitive_loads",
+      "0.1.0"
+    ],
+    [
+      "open_pipe_stress_solver_diagnostics",
+      "0.1.0"
+    ],
+    [
+      "open_pipe_stress_solver_performance_harness",
+      "0.1.0"
+    ]
+  ],
+  "scope": "Read-only manifest/lock metadata; no Cargo, lock generation, runtime or numerical graph construction"
+}
