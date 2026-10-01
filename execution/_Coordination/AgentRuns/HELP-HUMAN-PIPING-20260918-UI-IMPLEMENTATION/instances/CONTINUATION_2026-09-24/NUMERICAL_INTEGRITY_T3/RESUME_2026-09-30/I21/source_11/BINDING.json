@@ -1,0 +1,216 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "source_blobs": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+      "bytes": 18488,
+      "git_blob": "9c672f4cf782e73fc9aef3396a9ce2c73bd1203d"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+      "bytes": 14774,
+      "git_blob": "9025c389d2e64cc6829e7afbf7b48335fda456c7"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+      "sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c",
+      "bytes": 5852,
+      "git_blob": "aa1b1c5760ff7fd68877ad57300a506227da5e1b"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs",
+      "sha256": "882f0047fb9e3474703b7fb2fa723ffc4544066a3b0919a3cd5e42b68742f9aa",
+      "bytes": 6811,
+      "git_blob": "540458fe748ff538afa5ed0691155a038876140b"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+      "sha256": "525e6993e37df919535004dc418439a6b919036b7ca4fe588d51a514a393fe01",
+      "bytes": 10913,
+      "git_blob": "9504a5ccb3c66937a4cf51d4e4bfd049eefb1e56"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs",
+      "sha256": "54843240c5f1f3cb2894e67f05bfae84a31ef8d3e96b3d7b1895591b163680e4",
+      "bytes": 5517,
+      "git_blob": "d0984f12c64501ab92c35a3ddfa79577e2d1743f"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs",
+      "sha256": "a336e9c787dd1a2a0c99e7065c6822a398ebeed0eddb9af2e1cdae476165b855",
+      "bytes": 22279,
+      "git_blob": "b642981217e2772d76e94fc516e2cd9c2e31924f"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "bytes": 18171,
+      "git_blob": "5decbe99d5996f896929383ab1daa5b2e1a2cddf"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/rcm.rs",
+      "sha256": "313ad702a84d4ea97f22c31b6213698d7ad035db09a92b3ed619fe78a9415d0e",
+      "bytes": 2288,
+      "git_blob": "56d089db027a7f40043839da14ebe2d8e174852f"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/sha256.rs",
+      "sha256": "21c33f4a5215ebad7406c4a046ae3dc27304d687025d1748e8a229e84d6ad937",
+      "bytes": 3783,
+      "git_blob": "da2edf3d029eb2292fbd73ad815dc57401ac97c8"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "sha256": "a732e02ee75c5069a4a85e3732d317ce360c23f413573df026eee9c350c27f11",
+      "bytes": 697,
+      "git_blob": "1be719afcdc960451f23cabfe6933121e3191021"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.lock",
+      "sha256": "b81994dca343ddca6eac599ed6586a6154c693ba07cfa73f731ed1af978a831b",
+      "bytes": 2920,
+      "git_blob": "7d9b4dff7c462b9d61741c97d5775f71be16ad82"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/expected_unresolved.json",
+      "sha256": "2e5d0975a90c69e5d198d61760cc7734d42615461710da1fe226f60b4a46f2c9",
+      "bytes": 1357,
+      "git_blob": "8957ffd7e96c2f64367117670b61b429ab11bc7e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "sha256": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+      "bytes": 45604,
+      "git_blob": "0c690766bebb4bfa2bdc149c58a661d7ea985ae3"
+    }
+  ],
+  "library_files": [
+    {
+      "path": "<SERDE_JSON>/.cargo-checksum.json",
+      "present": false,
+      "package_checksum": null,
+      "binding_gap": "No registry checksum manifest; local page hashes alone do not authenticate package source"
+    },
+    {
+      "path": "<SERDE_JSON>/Cargo.toml",
+      "sha256": "00b920255c320a278bf25b962b491263a19d8c90e12e4a91c1d823db71eabb2f",
+      "bytes": 3118,
+      "registry_manifest_sha256": null,
+      "matches_registry_manifest": null
+    },
+    {
+      "path": "<SERDE_JSON>/src/macros.rs",
+      "sha256": "94dda91c847e819a95e64d655eb066dfa44ed69712064016c3fe862c34ef92e6",
+      "bytes": 10361,
+      "registry_manifest_sha256": null,
+      "matches_registry_manifest": null
+    },
+    {
+      "path": "<SERDE_JSON>/src/map.rs",
+      "sha256": "b5a2fd1ee865e6cfd83ef2da0a2e1057f892465ac7ede8a78a11354a60526f33",
+      "bytes": 35057,
+      "registry_manifest_sha256": null,
+      "matches_registry_manifest": null
+    },
+    {
+      "path": "<SERDE_JSON>/src/value/mod.rs",
+      "sha256": "6331d59ea362a74b6cd3d302d08114a63a73a384ff56fef737de29edea2f8d91",
+      "bytes": 30963,
+      "registry_manifest_sha256": null,
+      "matches_registry_manifest": null
+    },
+    {
+      "path": "<SERDE_JSON>/src/value/ser.rs",
+      "sha256": "11f2b7daa1eba826d4086d5497f73729478dd7647bff77deccde5e47b0f126f2",
+      "bytes": 28223,
+      "registry_manifest_sha256": null,
+      "matches_registry_manifest": null
+    },
+    {
+      "path": "<SERDE_CORE>/.cargo-checksum.json",
+      "present": false,
+      "package_checksum": null,
+      "binding_gap": "No registry checksum manifest; local page hashes alone do not authenticate package source"
+    },
+    {
+      "path": "<SERDE_CORE>/src/ser/impls.rs",
+      "sha256": "5ee7efc439345e8665da0bd79bc06c02a0506e5fd0f3a4cf11af0c7197eaa643",
+      "bytes": 29535,
+      "registry_manifest_sha256": null,
+      "matches_registry_manifest": null
+    },
+    {
+      "path": "<SERDE_CORE>/src/ser/mod.rs",
+      "sha256": "ec097d92c8545356961e977a4c9650361cadd1d3a243d805ae7b0e0e589ae803",
+      "bytes": 65231,
+      "registry_manifest_sha256": null,
+      "matches_registry_manifest": null
+    }
+  ],
+  "prior_manifests": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_01/SHA256SUMS",
+      "sha256": "19bfa563eed616796260cfbc5dd423d0c1072ac38c4c048199f67719732384db"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/SHA256SUMS",
+      "sha256": "1d75c56c26e0167b36d161e887fd8a709c6ef408523c43c7d4c5df2d86b63c92"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/SHA256SUMS",
+      "sha256": "948978b8eaad1feacfb0fa1165d8418f0fa78cb52d308796bde7e6b4723cdf7a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_06/SHA256SUMS",
+      "sha256": "7d7d84cca83fc019a51134458cd5f5cee32708039657a5b8d92b60b4ff1ee255"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_07/SHA256SUMS",
+      "sha256": "1b23b5cea2d6beb42fc608afb50fd802f118f9d497ccfa40e8593d2b8dc7b1a7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/SHA256SUMS",
+      "sha256": "6d2d3dae877a3cf756cd32697732aa72a3f9bca33de243d4dda7e9d8410a9195"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/SHA256SUMS",
+      "sha256": "c2e198a9b71fb573e356dadb0b646b99487f23bcd8b69e82b5af2a3d74ea0103"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/SHA256SUMS",
+      "sha256": "0f2b007052f9cd2d1300b9df3135e22d9ef201aa076257ca41db6a2e87f7d8c2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_10/SHA256SUMS",
+      "sha256": "4654cec41603ef0ded7c4a057ece046630b6b72313e156b04543cd36f53e7650"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/layout08_03/backcheck_run/SHA256SUMS",
+      "sha256": "ef796a0a53ce403ce99a4132b14487ed53156bebb0e2046ee0ba50b642107693"
+    }
+  ],
+  "brief": {
+    "commit": "3fbf9157b677170bc6954db0422f12a93e32516a",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_SOURCE_11_VR_CALLER.md",
+    "sha256": "61f05e63e3af46e374e48ad63ba6646e078126868168110410528d85aa97fade",
+    "bytes": 2231
+  },
+  "metric_design": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_01/PROPOSAL.md",
+    "sha256": "49113814f4d8aabd6f2deed50f6ac8423c67f4dfba8f0ef6d99efccd1794a95c"
+  },
+  "commands": [
+    "GIT_OPTIONAL_LOCKS=0 git -C <COORD> show <commit>:<listed path>",
+    "GIT_OPTIONAL_LOCKS=0 git -C <COORD> rev-parse <commit>:<listed path>",
+    "read_bytes / sha256 listed local library pages and registry checksum manifest; no source execution"
+  ],
+  "locked_packages": {
+    "serde_json": "1.0.151",
+    "serde_json_checksum": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+    "serde_core": "1.0.229",
+    "serde_core_checksum": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48"
+  },
+  "locked_packages_note": "These Cargo.lock package checksums are not verified hashes of the local source tree; absent registry source checksum manifests remain V-LIB."
+}

@@ -1,0 +1,76 @@
+{
+  "kind": "source-text and integer arithmetic only; no product/model execution",
+  "expected_names": [
+    "RF-RANGE-THIN-A",
+    "RF-RANGE-THIN-B"
+  ],
+  "expected_name_bytes": [
+    15,
+    15
+  ],
+  "expected_final_heap_conditional": 78,
+  "stage_fields": [
+    "formation",
+    "assembly",
+    "residual_formation",
+    "factor",
+    "condition",
+    "rhs",
+    "solve",
+    "refinement",
+    "recovery",
+    "stop_rule",
+    "bounded_gate",
+    "scale",
+    "estimate",
+    "charge",
+    "bound",
+    "shift",
+    "bounded_formation",
+    "wide_formation",
+    "uc"
+  ],
+  "stage_field_count": 19,
+  "report_fields": [
+    "rows",
+    "pass",
+    "pass_absolute_range",
+    "not_covered",
+    "structural_zero",
+    "expected_unresolved",
+    "fail"
+  ],
+  "report_field_count": 7,
+  "attempt_root_explicit_field_list": [
+    "precision",
+    "role",
+    "outcome",
+    "residual_basis",
+    "corrections",
+    "gate",
+    "own_work",
+    "exact_sum_work",
+    "stages",
+    "shared_work",
+    "shared_stages",
+    "shared_built_here",
+    "stop_rule_work",
+    "verification_work",
+    "verification_shared_work",
+    "verification_shared_built_here",
+    "storage",
+    "verification"
+  ],
+  "attempt_root_count": 18,
+  "selected_record_root": 16,
+  "other_record_root": 9,
+  "summary_first_prefix_key_value_bytes": 32,
+  "summary_second_prefix_key_value_bytes": 54,
+  "checked_arithmetic_obligations": [
+    "all source descriptor additions/multiplications before usize/u64 conversion",
+    "D=64*ceil((L+9)/64): checked L+9, quotient rounding and multiplication",
+    "s*k, per-child sums, tree node products, f*(f+1)/2 and 144*m+s checked",
+    "capacity ceiling and isize layout limits from source02; overflow remains refusal/undefined-estimate gap, not a saturated acceptance"
+  ],
+  "external_12": "Pending independent ROOT/I23 sealed return; not read/recovered/generated here"
+}

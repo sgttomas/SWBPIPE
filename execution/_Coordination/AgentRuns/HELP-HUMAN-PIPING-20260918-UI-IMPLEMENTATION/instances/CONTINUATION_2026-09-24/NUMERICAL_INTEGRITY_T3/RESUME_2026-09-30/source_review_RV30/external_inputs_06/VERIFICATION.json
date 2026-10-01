@@ -1,0 +1,38 @@
+{
+  "status": "raw_input_and_metadata_binding_usable_historical_K4SRC_witnesses_qualified_not_replayed",
+  "actual_start_utc": "2026-10-01T15:01:02+00:00",
+  "deadline_utc": "2026-10-01T15:11:02+00:00",
+  "actual_completion_utc": "2026-10-01T15:03:36.849410+00:00",
+  "elapsed_seconds": 154.84941,
+  "blocking_findings": 0,
+  "checked": {
+    "packet_payloads": 5,
+    "bound_source_history_origins": 25,
+    "raw_files": 12,
+    "raw_total_bytes": 21053750,
+    "descriptor_records": 12,
+    "historical_K4SRC_witnesses": 12,
+    "current_canonical_replays": 0
+  },
+  "limits": [
+    "Raw identity is not fresh constructor/canonical validation",
+    "Metadata is not capacity/graph/heap evidence",
+    "Historical witnesses retain historical source/run basis",
+    "FinalA1/fullEmax/admission/caller composition remain separate"
+  ],
+  "not_performed": [
+    "Ruby/Rust/build/test/solver/model/generator",
+    "new canonical serializer",
+    "Git/index",
+    "network/install",
+    "new tooling",
+    "delegation"
+  ],
+  "write_fence": "<K6C>/<R>/source_review_RV30/external_inputs_06",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "executable": "<VENV>/bin/python"
+  }
+}
