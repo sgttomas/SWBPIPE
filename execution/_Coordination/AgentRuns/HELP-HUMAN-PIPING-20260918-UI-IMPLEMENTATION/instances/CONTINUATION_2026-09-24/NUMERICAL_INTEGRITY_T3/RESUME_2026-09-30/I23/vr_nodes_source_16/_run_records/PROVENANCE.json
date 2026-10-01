@@ -1,0 +1,69 @@
+{
+  "agent": "/root/i23_protected_prep",
+  "role": "TASK Type 2 I23",
+  "parent": "/root HELP_HUMAN Agent0",
+  "actual_delegation": "Existing native Codex collaboration child; new bounded task by direct parent message; no subdelegation",
+  "start_utc": "2026-10-01T18:51:24Z",
+  "deadline_utc": "2026-10-01T19:11:24Z",
+  "prior_supplied_instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_PROTECTED_PREP.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "09ff7d95a7b3273d250b317ee502ba7dc71f46b4d0dfb071d69590840420532f"
+    }
+  ],
+  "new_brief_sha256": "3dd410b79d313d7f9ac0bf111b159b80287e31f606c50b9f400c632543852f4e",
+  "new_skills_or_workflows": [],
+  "actual_origins": {
+    "WT": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3",
+    "K6C": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "NUM": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "TOOLCHAIN": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin",
+    "SERDE_JSON": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151",
+    "read_archive": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i23/vk_prep/archive",
+    "write_packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vr_nodes_source_16"
+  },
+  "operations": [
+    "Read full local brief and selected existing source02/layout04/source15/k0 records.",
+    "Read exact seven consumer type sites; verify those frozen source hashes.",
+    "Read original pinned rustdoc node/set/map and allocation/representation pages; strip only source line anchors in one-off Python stdlib HTMLParser for evidence inspection. No parser tool or reusable script file was created.",
+    "Verify selected prior seals, source02 original/decoded page identities, toolchain metadata and authenticated serde map member hash.",
+    "Create this additive evidence packet and seal only."
+  ],
+  "lookup_notes": [
+    "The guessed VR source locator ordering.rs was absent; a bounded search identified rcm.rs for the assigned adjacency specialization. No missing file blocked the representation conclusion.",
+    "Broad command output during initial record reads was truncated; decisive exact source, field facts and premises were then read through bounded ranges/selected JSON entries and are preserved here."
+  ],
+  "restrictions_observed": {
+    "runtime_build_probe_solver": false,
+    "network_install": false,
+    "tool_development": false,
+    "source_or_maintained_edit": false,
+    "patch_or_copy_preparation": false,
+    "Git_or_index_command": false,
+    "delegation": false
+  },
+  "enforcement": "Prompt-scoped restrictions on shared filesystem; no claim of OS isolation. Writes only this new K6C evidence packet.",
+  "source_decode_rule": "HTMLParser(convert_charrefs=True); text inside pre.rust only; omit data-nosnippet anchor text; preserve source whitespace. Contiguous source line anchors checked. Original pages untouched.",
+  "actual_end_utc": "2026-10-01T18:57:59Z"
+}

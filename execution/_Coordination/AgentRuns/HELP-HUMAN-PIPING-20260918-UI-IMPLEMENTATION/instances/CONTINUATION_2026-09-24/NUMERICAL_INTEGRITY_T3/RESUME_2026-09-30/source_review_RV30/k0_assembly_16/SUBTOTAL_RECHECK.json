@@ -1,0 +1,23 @@
+{
+  "counts_sha256": "fab0466a846ef26b1c530a261a6f1d134fc32ba1d70f57682010877a52373c05",
+  "count_rows": 33,
+  "all_verification_rows_equal": 99,
+  "all_shared_state_rows_equal": 132,
+  "TREE10000_shift_new": 310795248,
+  "TREE10000_shift_old": 299995560,
+  "TREE10000_delta": 10799688,
+  "runtime_artifact_conditional_sum": 1700,
+  "RES_B1": [
+    64,
+    16,
+    48
+  ],
+  "RES_B5": [
+    128,
+    80,
+    48
+  ],
+  "exact_subtotals_only": true,
+  "old_facts_not_full_Emax_differences": true,
+  "no_source_algorithm_or_solver_execution": true
+}

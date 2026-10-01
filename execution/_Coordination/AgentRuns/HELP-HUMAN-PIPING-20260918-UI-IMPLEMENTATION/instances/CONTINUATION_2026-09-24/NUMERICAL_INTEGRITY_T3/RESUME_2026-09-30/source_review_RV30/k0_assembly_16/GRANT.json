@@ -1,0 +1,74 @@
+{
+  "role": "TASK Type2 RV30",
+  "native_task": "/root/rv30_k6c_kernel",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "existing direct native child continuation; no descendants",
+  "actual_start_utc": "2026-10-01T18:25:10Z",
+  "deadline_utc": "2026-10-01T18:45:10Z",
+  "grant_text": "Review the sealed canonical K0 candidate as a plan, bounded20minutes: K6C R/I21/k0_assembly_16, seal e5378abed2c7cf21495c4ebe15e0995370169b42fe75914af8db4ae135def264. The manager is completing its read/verification; do not assume checkpoint0 is closed. Check owner unions and corrected numerical subtotals, H staged versus VR global boundaries, shared H-library seam, planned inputs/schedules and the exact residual-cell table. Distinguish source/proof gaps from later final-build binding and implementation. Assess whether any allegedly open cell is already supplied by earlier accepted evidence, without starting new library research or repeating closed proofs. No runtime, new proof programme, maintained edit, Git/index or delegation. Write only K6C R/source_review_RV30/k0_assembly_16, raw provenance in _run_records. Return precise findings and the minimum outstanding obligations; no full E_max/admission acceptance.",
+  "grant_sha256": "c98c3e3a3fa841a4a71a0ce5cb21d3a064454192b02bf37aea065d3444caf5f5",
+  "instruction_binding": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/kernel_01/INSTRUCTION_BINDING.json",
+    "sha256": "73add1e67bb2631831aec3d3afbc0ee4e33eed8af8e223086096deb4c08801ea",
+    "instructions": [
+      {
+        "origin": "<NUM>:AGENTS.md",
+        "basis": "1c306f90f9aaaee1505034b625d83f262eb556b9",
+        "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+        "bytes": 14200
+      },
+      {
+        "origin": "<NUM>:agents/AGENT_TASK.md",
+        "basis": "1c306f90f9aaaee1505034b625d83f262eb556b9",
+        "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+        "bytes": 1499
+      },
+      {
+        "origin": "<NUM>:projects/chirality-piping/AGENTS.md",
+        "basis": "1c306f90f9aaaee1505034b625d83f262eb556b9",
+        "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+        "bytes": 9016
+      },
+      {
+        "origin": "<NUM>:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+        "basis": "1c306f90f9aaaee1505034b625d83f262eb556b9",
+        "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0",
+        "bytes": 3126
+      },
+      {
+        "origin": "<NUM>:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV30_K6C_KERNEL.md",
+        "basis": "1c306f90f9aaaee1505034b625d83f262eb556b9",
+        "sha256": "3c4430eb9c3d9e23128bf1d79de880abfbf44cc5af0f7493621e9eaf9ab90902",
+        "bytes": 2248
+      },
+      {
+        "origin": "<NUM>:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/TASK_BRIEFS/I21_K6C_IMPLEMENTATION.md",
+        "basis": "1c306f90f9aaaee1505034b625d83f262eb556b9",
+        "sha256": "d0ae59f52fc5812b50350a8ea7b9736b5d3d61c4deecb4f1b936ec0c5a2c0b7f",
+        "bytes": 9059
+      },
+      {
+        "origin": "<CURRENT_APP_WT>/.agents/skills/software-code-review/SKILL.md",
+        "basis": "actual filesystem bytes read",
+        "sha256": "ee085d589c44f912d11a59eead8edac214f0343761d26b0d33e886a979888bca",
+        "bytes": 1411
+      },
+      {
+        "origin": "<PARENT_CHECKOUT>/AGENTS.md",
+        "basis": "actual filesystem bytes read",
+        "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+        "bytes": 14200
+      },
+      {
+        "origin": "<PARENT_CHECKOUT>/agents/AGENT_TASK.md",
+        "basis": "actual filesystem bytes read",
+        "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+        "bytes": 1499
+      }
+    ]
+  },
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/k0_assembly_16",
+  "raw_provenance": "_run_records",
+  "enforcement": "prompt/role fence on unrestricted shared host",
+  "scope": "plan integration review; no checkpoint0 acceptance"
+}

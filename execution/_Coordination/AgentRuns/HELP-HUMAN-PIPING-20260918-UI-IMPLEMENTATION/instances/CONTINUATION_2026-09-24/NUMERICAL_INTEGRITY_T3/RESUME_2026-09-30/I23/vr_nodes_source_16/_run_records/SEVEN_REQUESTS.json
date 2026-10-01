@@ -1,0 +1,279 @@
+{
+  "cell": "VR-NODES-7",
+  "specialization_count": 7,
+  "scope_source": "I21/source_15/SERIALIZER_ENVELOPE.md:151; I21/k0_assembly_16/BLOCKING_CELLS.md:VR-NODES-7",
+  "pairs": [
+    {
+      "id": "VR-JSON",
+      "application_site": "JSON object MapImpl; serde_json/src/map.rs23-34",
+      "key": {
+        "label": "STD.String",
+        "actual_type": "alloc::string::String",
+        "size": 24,
+        "align": 8
+      },
+      "value": {
+        "label": "STD.JsonValue",
+        "actual_type": "serde_json::value::Value",
+        "size": 32,
+        "align": 8
+      },
+      "actual_leaf_type": "alloc::collections::btree::node::LeafNode<String, serde_json::Value>",
+      "actual_internal_type": "alloc::collections::btree::node::InternalNode<String, serde_json::Value>",
+      "private_symbols": {
+        "leaf_size": "L_JSON",
+        "leaf_align": "A_JSON"
+      },
+      "leaf_request": {
+        "size": "L_JSON",
+        "align": "A_JSON"
+      },
+      "internal_request_general": {
+        "size": "align_up(align_up(L_JSON, A_ptr) + 12*S_ptr, max(A_JSON, A_ptr))",
+        "align": "max(A_JSON, A_ptr)"
+      },
+      "internal_request_on_bound_target": {
+        "size": "align_up(L_JSON + 96, A_JSON)",
+        "align": "A_JSON",
+        "premises": "S_ptr=A_ptr=8; leaf contains Option<NonNull<InternalNode>>, hence A_leaf>=8; size is a multiple of A_leaf. All adds/products/rounding checked."
+      },
+      "status": "MISSING_ACTUAL_PRIVATE_LEAF_SIZE_ALIGNMENT",
+      "missing_fact": "Actual size_of/align_of (or exact allocation-request size/alignment) for this selected real LeafNode<String, serde_json::Value> on the final bound compiler/target/source/cfg. Public component facts alone do not fix it.",
+      "numeric_request_claim": false
+    },
+    {
+      "id": "VR-CONTROLS",
+      "application_site": "VR/src/lane.rs49-51",
+      "key": {
+        "label": "STD.StrRef",
+        "actual_type": "&str",
+        "size": 16,
+        "align": 8
+      },
+      "value": {
+        "label": "VR.BorrowedRowReference",
+        "actual_type": "&piping_numerical_robustness::cases::Row",
+        "size": 8,
+        "align": 8
+      },
+      "actual_leaf_type": "alloc::collections::btree::node::LeafNode<&str, &piping_numerical_robustness::cases::Row>",
+      "actual_internal_type": "alloc::collections::btree::node::InternalNode<&str, &piping_numerical_robustness::cases::Row>",
+      "private_symbols": {
+        "leaf_size": "L_CONTROLS",
+        "leaf_align": "A_CONTROLS"
+      },
+      "leaf_request": {
+        "size": "L_CONTROLS",
+        "align": "A_CONTROLS"
+      },
+      "internal_request_general": {
+        "size": "align_up(align_up(L_CONTROLS, A_ptr) + 12*S_ptr, max(A_CONTROLS, A_ptr))",
+        "align": "max(A_CONTROLS, A_ptr)"
+      },
+      "internal_request_on_bound_target": {
+        "size": "align_up(L_CONTROLS + 96, A_CONTROLS)",
+        "align": "A_CONTROLS",
+        "premises": "S_ptr=A_ptr=8; leaf contains Option<NonNull<InternalNode>>, hence A_leaf>=8; size is a multiple of A_leaf. All adds/products/rounding checked."
+      },
+      "status": "MISSING_ACTUAL_PRIVATE_LEAF_SIZE_ALIGNMENT",
+      "missing_fact": "Actual size_of/align_of (or exact allocation-request size/alignment) for this selected real LeafNode<&str, &piping_numerical_robustness::cases::Row> on the final bound compiler/target/source/cfg. Public component facts alone do not fix it.",
+      "numeric_request_claim": false
+    },
+    {
+      "id": "VR-PUBLICATION",
+      "application_site": "VR/src/lane.rs43,195,266-269",
+      "key": {
+        "label": "FK.QuantityId",
+        "actual_type": "open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId",
+        "size": 12,
+        "align": 4
+      },
+      "value": {
+        "label": "FK.PublishedRow",
+        "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow",
+        "size": 64,
+        "align": 8
+      },
+      "actual_leaf_type": "alloc::collections::btree::node::LeafNode<QuantityId, PublishedRow>",
+      "actual_internal_type": "alloc::collections::btree::node::InternalNode<QuantityId, PublishedRow>",
+      "private_symbols": {
+        "leaf_size": "L_PUBLICATION",
+        "leaf_align": "A_PUBLICATION"
+      },
+      "leaf_request": {
+        "size": "L_PUBLICATION",
+        "align": "A_PUBLICATION"
+      },
+      "internal_request_general": {
+        "size": "align_up(align_up(L_PUBLICATION, A_ptr) + 12*S_ptr, max(A_PUBLICATION, A_ptr))",
+        "align": "max(A_PUBLICATION, A_ptr)"
+      },
+      "internal_request_on_bound_target": {
+        "size": "align_up(L_PUBLICATION + 96, A_PUBLICATION)",
+        "align": "A_PUBLICATION",
+        "premises": "S_ptr=A_ptr=8; leaf contains Option<NonNull<InternalNode>>, hence A_leaf>=8; size is a multiple of A_leaf. All adds/products/rounding checked."
+      },
+      "status": "MISSING_ACTUAL_PRIVATE_LEAF_SIZE_ALIGNMENT",
+      "missing_fact": "Actual size_of/align_of (or exact allocation-request size/alignment) for this selected real LeafNode<QuantityId, PublishedRow> on the final bound compiler/target/source/cfg. Public component facts alone do not fix it.",
+      "numeric_request_claim": false
+    },
+    {
+      "id": "VR-FLOOR",
+      "application_site": "VR/src/floor.rs96",
+      "key": {
+        "label": "STD.String",
+        "actual_type": "alloc::string::String",
+        "size": 24,
+        "align": 8
+      },
+      "value": {
+        "label": "STD.F64Pair",
+        "actual_type": "(f64, f64)",
+        "size": 16,
+        "align": 8
+      },
+      "actual_leaf_type": "alloc::collections::btree::node::LeafNode<String, (f64,f64)>",
+      "actual_internal_type": "alloc::collections::btree::node::InternalNode<String, (f64,f64)>",
+      "private_symbols": {
+        "leaf_size": "L_FLOOR",
+        "leaf_align": "A_FLOOR"
+      },
+      "leaf_request": {
+        "size": "L_FLOOR",
+        "align": "A_FLOOR"
+      },
+      "internal_request_general": {
+        "size": "align_up(align_up(L_FLOOR, A_ptr) + 12*S_ptr, max(A_FLOOR, A_ptr))",
+        "align": "max(A_FLOOR, A_ptr)"
+      },
+      "internal_request_on_bound_target": {
+        "size": "align_up(L_FLOOR + 96, A_FLOOR)",
+        "align": "A_FLOOR",
+        "premises": "S_ptr=A_ptr=8; leaf contains Option<NonNull<InternalNode>>, hence A_leaf>=8; size is a multiple of A_leaf. All adds/products/rounding checked."
+      },
+      "status": "MISSING_ACTUAL_PRIVATE_LEAF_SIZE_ALIGNMENT",
+      "missing_fact": "Actual size_of/align_of (or exact allocation-request size/alignment) for this selected real LeafNode<String, (f64,f64)> on the final bound compiler/target/source/cfg. Public component facts alone do not fix it.",
+      "numeric_request_claim": false
+    },
+    {
+      "id": "VR-ADJACENCY",
+      "application_site": "VR/src/rcm.rs27; alloc/btree/set.rs82",
+      "key": {
+        "label": "STD.usize",
+        "actual_type": "usize",
+        "size": 8,
+        "align": 8
+      },
+      "value": {
+        "type": "actual SetValZST",
+        "source_definition": "fieldless pub(super) struct SetValZST; actual source describes it as a ZST",
+        "size_align_compiler_fact": null,
+        "unit_substitution_allowed": false,
+        "note": "No private marker alignment is guessed; binding actual LeafNode size/alignment subsumes this field."
+      },
+      "actual_leaf_type": "alloc::collections::btree::node::LeafNode<usize, alloc::collections::btree::set_val::SetValZST>",
+      "actual_internal_type": "alloc::collections::btree::node::InternalNode<usize, alloc::collections::btree::set_val::SetValZST>",
+      "private_symbols": {
+        "leaf_size": "L_ADJACENCY",
+        "leaf_align": "A_ADJACENCY"
+      },
+      "leaf_request": {
+        "size": "L_ADJACENCY",
+        "align": "A_ADJACENCY"
+      },
+      "internal_request_general": {
+        "size": "align_up(align_up(L_ADJACENCY, A_ptr) + 12*S_ptr, max(A_ADJACENCY, A_ptr))",
+        "align": "max(A_ADJACENCY, A_ptr)"
+      },
+      "internal_request_on_bound_target": {
+        "size": "align_up(L_ADJACENCY + 96, A_ADJACENCY)",
+        "align": "A_ADJACENCY",
+        "premises": "S_ptr=A_ptr=8; leaf contains Option<NonNull<InternalNode>>, hence A_leaf>=8; size is a multiple of A_leaf. All adds/products/rounding checked."
+      },
+      "status": "MISSING_ACTUAL_PRIVATE_LEAF_SIZE_ALIGNMENT",
+      "missing_fact": "Actual size_of/align_of (or exact allocation-request size/alignment) for this selected real LeafNode<usize, alloc::collections::btree::set_val::SetValZST> on the final bound compiler/target/source/cfg. Public component facts alone do not fix it.",
+      "numeric_request_claim": false
+    },
+    {
+      "id": "VR-ALLOWANCE",
+      "application_site": "VR/src/parity.rs137-138,155",
+      "key": {
+        "label": "STD.UsizePair",
+        "actual_type": "(usize, usize)",
+        "size": 16,
+        "align": 8
+      },
+      "value": {
+        "label": "STD.F64UsizePair",
+        "actual_type": "(f64, usize)",
+        "size": 16,
+        "align": 8
+      },
+      "actual_leaf_type": "alloc::collections::btree::node::LeafNode<(usize,usize), (f64,usize)>",
+      "actual_internal_type": "alloc::collections::btree::node::InternalNode<(usize,usize), (f64,usize)>",
+      "private_symbols": {
+        "leaf_size": "L_ALLOWANCE",
+        "leaf_align": "A_ALLOWANCE"
+      },
+      "leaf_request": {
+        "size": "L_ALLOWANCE",
+        "align": "A_ALLOWANCE"
+      },
+      "internal_request_general": {
+        "size": "align_up(align_up(L_ALLOWANCE, A_ptr) + 12*S_ptr, max(A_ALLOWANCE, A_ptr))",
+        "align": "max(A_ALLOWANCE, A_ptr)"
+      },
+      "internal_request_on_bound_target": {
+        "size": "align_up(L_ALLOWANCE + 96, A_ALLOWANCE)",
+        "align": "A_ALLOWANCE",
+        "premises": "S_ptr=A_ptr=8; leaf contains Option<NonNull<InternalNode>>, hence A_leaf>=8; size is a multiple of A_leaf. All adds/products/rounding checked."
+      },
+      "status": "MISSING_ACTUAL_PRIVATE_LEAF_SIZE_ALIGNMENT",
+      "missing_fact": "Actual size_of/align_of (or exact allocation-request size/alignment) for this selected real LeafNode<(usize,usize), (f64,usize)> on the final bound compiler/target/source/cfg. Public component facts alone do not fix it.",
+      "numeric_request_claim": false
+    },
+    {
+      "id": "VR-CASE-STRINGS",
+      "application_site": "VR/src/cases.rs126,132,256",
+      "key": {
+        "label": "STD.String",
+        "actual_type": "alloc::string::String",
+        "size": 24,
+        "align": 8
+      },
+      "value": {
+        "label": "STD.String",
+        "actual_type": "alloc::string::String",
+        "size": 24,
+        "align": 8
+      },
+      "actual_leaf_type": "alloc::collections::btree::node::LeafNode<String, String>",
+      "actual_internal_type": "alloc::collections::btree::node::InternalNode<String, String>",
+      "private_symbols": {
+        "leaf_size": "L_CASE",
+        "leaf_align": "A_CASE"
+      },
+      "leaf_request": {
+        "size": "L_CASE",
+        "align": "A_CASE"
+      },
+      "internal_request_general": {
+        "size": "align_up(align_up(L_CASE, A_ptr) + 12*S_ptr, max(A_CASE, A_ptr))",
+        "align": "max(A_CASE, A_ptr)"
+      },
+      "internal_request_on_bound_target": {
+        "size": "align_up(L_CASE + 96, A_CASE)",
+        "align": "A_CASE",
+        "premises": "S_ptr=A_ptr=8; leaf contains Option<NonNull<InternalNode>>, hence A_leaf>=8; size is a multiple of A_leaf. All adds/products/rounding checked."
+      },
+      "status": "MISSING_ACTUAL_PRIVATE_LEAF_SIZE_ALIGNMENT",
+      "missing_fact": "Actual size_of/align_of (or exact allocation-request size/alignment) for this selected real LeafNode<String, String> on the final bound compiler/target/source/cfg. Public component facts alone do not fix it.",
+      "numeric_request_claim": false
+    }
+  ],
+  "all_leaf_definitions": "Pinned LeafNode has no repr attribute: default Rust representation. InternalNode alone is repr(C).",
+  "construction_contracts_preserved": "source02 TI/TB node-count/clone/split/live-owner contracts unchanged. These request pairs account for node blocks only; key/value child heaps are separate.",
+  "no_private_layout_guess": true,
+  "no_generic_kernel_node_substitution": true,
+  "no_full_E_max_claim": true
+}

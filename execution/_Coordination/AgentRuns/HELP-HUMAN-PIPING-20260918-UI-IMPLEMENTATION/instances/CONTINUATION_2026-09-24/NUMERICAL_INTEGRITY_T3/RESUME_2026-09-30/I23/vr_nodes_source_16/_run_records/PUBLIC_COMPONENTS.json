@@ -1,0 +1,198 @@
+{
+  "basis": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+  "target": "aarch64-apple-darwin",
+  "profile": "release",
+  "compiler": "rustc 1.97.1 (8bab26f4f68e0e26f0bb7960be334d5b520ea452)",
+  "source_record": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/LAYOUTS.json",
+  "source_sha256": "a5ef6a472856c31f99c10b9e0ec213bb33fbc90e899fe484f2af854cabb05082",
+  "rows": [
+    {
+      "label": "FK.PublishedRow",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow",
+      "size": 64,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.PublishedRow",
+        "type": "PublishedRow",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "anchor": "pub struct PublishedRow",
+        "purpose": "publication Vec and map value",
+        "report_group": "adaptive",
+        "source_line": 2634,
+        "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+      }
+    },
+    {
+      "label": "FK.QuantityId",
+      "actual_type": "open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId",
+      "size": 12,
+      "align": 4,
+      "package_run": "VR",
+      "source_map": {
+        "label": "FK.QuantityId",
+        "type": "recover::QuantityId",
+        "origin": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+        "anchor": "enum QuantityId",
+        "purpose": "actual input/array/tree component",
+        "report_group": "root",
+        "source_line": 53,
+        "source_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+      }
+    },
+    {
+      "label": "VR.BorrowedRowReference",
+      "actual_type": "&piping_numerical_robustness::cases::Row",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "VR.BorrowedRowReference",
+        "type": "&'static vr::cases::Row",
+        "origin": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+        "anchor": "BTreeMap<&str, &crate::cases::Row>",
+        "purpose": "actual borrowed map value reference, lifetime does not change layout",
+        "report_group": "consumer",
+        "source_line": 49,
+        "source_sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990"
+      }
+    },
+    {
+      "label": "STD.usize",
+      "actual_type": "usize",
+      "size": 8,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.usize",
+        "type": "usize",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "primitive/pointer-size component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.u32",
+      "actual_type": "u32",
+      "size": 4,
+      "align": 4,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.u32",
+        "type": "u32",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "primitive component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.String",
+      "actual_type": "alloc::string::String",
+      "size": 24,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.String",
+        "type": "String",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual key/value and Vec element",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.StrRef",
+      "actual_type": "&str",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.StrRef",
+        "type": "&'static str",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "borrowed map key",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.UsizePair",
+      "actual_type": "(usize, usize)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.UsizePair",
+        "type": "(usize, usize)",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "sparse map key and index Vec element",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.F64UsizePair",
+      "actual_type": "(f64, usize)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.F64UsizePair",
+        "type": "(f64, usize)",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "sparse map value",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.F64Pair",
+      "actual_type": "(f64, f64)",
+      "size": 16,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.F64Pair",
+        "type": "(f64, f64)",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "floor map value/prescribed term",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    },
+    {
+      "label": "STD.JsonValue",
+      "actual_type": "serde_json::value::Value",
+      "size": 32,
+      "align": 8,
+      "package_run": "VR",
+      "source_map": {
+        "label": "STD.JsonValue",
+        "type": "serde_json::Value",
+        "origin": "Rust 1.97.1 / existing locked serde_json 1.0.151",
+        "anchor": null,
+        "purpose": "actual JSON array/map value component",
+        "report_group": "consumer",
+        "source_line": null,
+        "source_sha256": null
+      }
+    }
+  ],
+  "limit": "Prior actual public-type diagnostic facts. They neither determine private LeafNode Rust layout nor establish final A1 build/source correspondence. Final public sizeof/alignof checks are distinct from the private leaf-pair gap."
+}
