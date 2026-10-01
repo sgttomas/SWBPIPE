@@ -7,8 +7,8 @@ and the actual P30 returned control are pending. A1 acceptance/merge stays held.
 
 For F17 only, add a narrowly defined certificate-prevention validation route
 alongside the original CLASS route. Keep every original normal-case numerical,
-class-correspondence, exception and stored-record check. Require actual CLASS
-mismatch evidence whenever a mutated case publishes. Where the new A1 gate
+class-correspondence, exception and stored-record check. Retain the original CLASS requirement on registered not-covered comparison
+rows outside prescribed InputDerived exceptions wherever their case publishes. Where the new A1 gate
 withholds publication first, require controlled, source-linked evidence of a
 named relative-publication predicate rejecting the forced relative draft after
 standing R7 acceptance, with full attempt records and successful normal controls.
