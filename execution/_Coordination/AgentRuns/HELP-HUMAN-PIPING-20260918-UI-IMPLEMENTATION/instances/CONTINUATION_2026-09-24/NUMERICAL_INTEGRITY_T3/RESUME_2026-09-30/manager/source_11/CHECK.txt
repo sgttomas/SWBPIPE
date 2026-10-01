@@ -1,0 +1,3 @@
+PASS:14 frozenproduct source blobs rehashed; conditional expected-list bytes78 and finite19/7/18 field counts,32/54 summaryprefix arithmetic recomputed.
+Manager read completeVR_ENVELOPE/FORMULAS_AND_GAPS andexactV-*cells. Serializerdependentclaims remain conditional on localpackage-sourceauthentication; missingchecksum not repaired. No globalsourcebound/admission acceptance.
+External12I23packet arrived afterchildseal andwasnotconsumed; final78corrects earlierdraft76, no sealedearlierexpectation changed.

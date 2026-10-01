@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale ... FAILED
+
+failures:
+
+failures:
+    structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 396 filtered out; finished in 0.18s
+

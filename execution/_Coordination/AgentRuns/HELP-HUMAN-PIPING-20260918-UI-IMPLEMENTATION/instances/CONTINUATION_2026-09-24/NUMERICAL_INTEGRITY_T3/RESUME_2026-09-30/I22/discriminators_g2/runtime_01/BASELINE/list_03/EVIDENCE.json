@@ -1,0 +1,62 @@
+{
+  "kind": "list",
+  "id": "BASELINE",
+  "index": 2,
+  "name": "list_03",
+  "filter": "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+  "argv": [
+    "<wt>/a1-diagnostic-target/g2/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "--list",
+    "--exact",
+    "structural::retained::adaptive::method_tests::i23_r7_g_scope"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/g2/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--list' '--exact' 'structural::retained::adaptive::method_tests::i23_r7_g_scope' > '<wt>/scratch/i23/discriminators_g2/runtime_01/logs/BASELINE/list_03.stdout' 2> '<wt>/scratch/i23/discriminators_g2/runtime_01/logs/BASELINE/list_03.stderr'",
+  "workdir": "<wt>/scratch/i23/discriminators_g2/sources/BASELINE/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i23/discriminators_g2/runtime_01/logs/BASELINE/list_03",
+  "launch_utc": "2026-10-01T14:48:02.142Z",
+  "guard_before": {
+    "chunk_id": "34596c",
+    "wall_time_seconds": 9.959e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-13:11:43 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "tool_initial": {
+    "chunk_id": "3dcb8c",
+    "wall_time_seconds": 1.1791e-05,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "3dcb8c",
+    "wall_time_seconds": 1.1791e-05,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "structural::retained::adaptive::method_tests::i23_r7_g_scope: test\n\n1 test, 0 benchmarks\n",
+    "stderr": "        0.00 real         0.00 user         0.00 sys\n             2768896  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 525  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                   6  involuntary context switches\n            29118933  instructions retired\n             9421962  cycles elapsed\n             1655144  peak memory footprint\n",
+    "stdout_sha256": "d3f136dc3218e98b2838e951dca0924d3295826b198eb87d58aad7e8bbe98e7b",
+    "stderr_raw_sha256": "d7aebdaa831daab72e02ca64ff042183e3d7ecf688ac84c5ef48279f63298cb5",
+    "source_id": "BASELINE",
+    "source_manifest_sha256": "17e2ec926c1b59db4f2a7bf5da752b9bab5df3f6cbb0e3d2ef6ad2febda8221e",
+    "complete_source_hashes_match": true,
+    "affected_images": [],
+    "test_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-diagnostic-target/g2/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "19651597da997437ca1654dcc26462356d29f802cb65202212b38e5c6630c855"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-diagnostic-target/g2/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-13:11:43 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

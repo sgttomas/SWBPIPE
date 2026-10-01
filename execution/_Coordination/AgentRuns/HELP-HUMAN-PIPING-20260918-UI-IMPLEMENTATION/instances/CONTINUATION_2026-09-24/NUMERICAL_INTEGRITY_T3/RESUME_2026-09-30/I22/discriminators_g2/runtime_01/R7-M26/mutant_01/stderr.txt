@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::method_tests::i23_r7_bound_choice' (25759977) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2043:13:
+assertion `left == right` failed: I23:B_CHOICE:CHARGE-SLENDER:0
+  left: Some(+c000000000000000000000000000000000000000000000000000000000000000p18)
+ right: Some(+c00000000000000000000000000000000000000000000000000000000000011ep2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.19 real         0.18 user         0.00 sys
+            19349504  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                1537  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  13  involuntary context switches
+          2144843549  instructions retired
+           559249304  cycles elapsed
+             9896320  peak memory footprint

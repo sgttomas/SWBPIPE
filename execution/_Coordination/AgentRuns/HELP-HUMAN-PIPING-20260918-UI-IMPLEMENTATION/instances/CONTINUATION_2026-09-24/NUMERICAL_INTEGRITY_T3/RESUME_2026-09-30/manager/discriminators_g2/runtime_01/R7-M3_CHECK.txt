@@ -1,0 +1,4 @@
+PASS R7-M3 complete116files=frozenpreparedoverlay+exactfault; protectedtests/lock/corpora, patchhash/basebinary, containedsource/emptytarget/writablesiblinglogs, nlink1/no symlinks andguard5387.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "b1175ee9162cf042719a37f47652f04adb8835097cafd1b10981a13725f70e92"}
+filters ["structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024"]
+semantic_bindings [{"filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024", "assertion_messages": ["I23:NO_EARLY_PHI:256", "I23:NO_EARLY_PHI:512", "I23:PHI_AT_CEILING"], "expected": "floor=None at verification 256 and 512; floor=Some([[2^-438,2^-438]]) at 1024.", "nonkill_shape_checks": []}]

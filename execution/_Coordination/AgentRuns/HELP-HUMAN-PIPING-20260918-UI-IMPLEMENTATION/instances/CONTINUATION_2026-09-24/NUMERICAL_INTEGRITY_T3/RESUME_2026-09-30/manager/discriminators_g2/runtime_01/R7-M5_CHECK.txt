@@ -1,0 +1,4 @@
+PASS R7-M5 complete116files=frozenpreparedoverlay+exactfault; protectedtests/lock/corpora, patchhash/basebinary, containedsource/emptytarget/writablesiblinglogs, nlink1/no symlinks andguard5387.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "fdae9488f827106e1594bfd359a9429c9c73cda1ace901a64add0f35c8380347"}
+filters ["structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale"]
+semantic_bindings [{"filter": "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale", "assertion_messages": ["I23:R7M5_E_ROW", "I23:R7M5_RESOLUTION"], "expected": "verify_state E rows 21..53 equal all 33 explicit SCALE tokens; resolution body 0 bits equal [0x4120facb09949713,0x40e2318280966d4e].", "nonkill_shape_checks": ["I23:R7M5_E_ROW_COVERAGE"]}]

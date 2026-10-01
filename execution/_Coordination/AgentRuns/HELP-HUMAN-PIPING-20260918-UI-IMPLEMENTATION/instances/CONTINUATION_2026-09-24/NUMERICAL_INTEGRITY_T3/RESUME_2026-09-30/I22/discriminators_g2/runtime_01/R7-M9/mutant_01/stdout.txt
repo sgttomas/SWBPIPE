@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024 ... FAILED
+
+failures:
+
+failures:
+    structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 396 filtered out; finished in 0.00s
+
