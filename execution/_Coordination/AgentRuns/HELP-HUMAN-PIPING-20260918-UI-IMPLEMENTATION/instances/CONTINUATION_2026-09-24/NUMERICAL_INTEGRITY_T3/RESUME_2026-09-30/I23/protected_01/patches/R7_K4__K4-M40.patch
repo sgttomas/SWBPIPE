@@ -1,0 +1,20 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+@@ -836,7 +836,7 @@
+                 ordering,
+                 g,
+                 &u_free,
+-                Some(&terms_w),
++                None,
+             )?;
+             let mut rr = r.clone();
+             r_hat[a] = r.round(&mut ctx)?;
+@@ -893,7 +893,7 @@
+                 ordering,
+                 g,
+                 &u_free,
+-                Some(&terms_w),
++                None,
+             )?;
+             contribution_products(
+                 &mut ctx_w,

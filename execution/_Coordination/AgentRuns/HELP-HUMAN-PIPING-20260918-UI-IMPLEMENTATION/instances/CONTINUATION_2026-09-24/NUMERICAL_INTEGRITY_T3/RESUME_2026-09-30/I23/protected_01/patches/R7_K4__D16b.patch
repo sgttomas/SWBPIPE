@@ -1,0 +1,18 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs
+@@ -283,11 +283,12 @@
+         let mut d = [zero; 12];
+         for block in 0..4 {
+             for r in 0..3 {
+-                sum.clear();
++                let mut acc = zero;
+                 for c in 0..3 {
+-                    sum.add_product(ctx, &m.axes[r][c], &u[dofs[3 * block + c]], false)?;
++                    let t = ctx.mul(&m.axes[r][c], &u[dofs[3 * block + c]])?;
++                    acc = ctx.add(&acc, &t)?;
+                 }
+-                d[3 * block + r] = sum.round(ctx)?;
++                d[3 * block + r] = acc;
+             }
+         }
+         let inv = &m.inv_length;

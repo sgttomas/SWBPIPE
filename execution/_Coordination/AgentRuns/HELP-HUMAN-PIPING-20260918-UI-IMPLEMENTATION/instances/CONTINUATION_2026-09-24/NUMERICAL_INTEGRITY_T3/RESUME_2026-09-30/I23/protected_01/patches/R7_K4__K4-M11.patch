@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3735,9 +3735,9 @@
+         }};
+     }
+     match p {
+-        128 => run!(&mut cache.s128, 4, 4, 192, P128),
+-        256 => run!(&mut cache.s256, 4, 8, 320, P256),
+-        512 => run!(&mut cache.s512, 8, 16, 576, P512),
++        128 => run!(&mut cache.s128, 4, 4, 128, P128),
++        256 => run!(&mut cache.s256, 4, 8, 256, P256),
++        512 => run!(&mut cache.s512, 8, 16, 512, P512),
+         _ => run!(&mut cache.s1024, 16, 16, 1024, P1024),
+     }
+ }

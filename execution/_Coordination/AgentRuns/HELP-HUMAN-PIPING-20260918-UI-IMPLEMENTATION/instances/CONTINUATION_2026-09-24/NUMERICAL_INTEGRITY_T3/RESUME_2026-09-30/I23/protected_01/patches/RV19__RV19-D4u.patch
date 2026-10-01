@@ -1,0 +1,20 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2088,7 +2088,16 @@
+         // honesty. The skipped rows themselves still meet (a).
+         let skip: Vec<bool> = candidate
+             .iter()
+-            .map(|q| !q.is_zero() && q.to_binary64().value().is_none())
++            .zip(verification.iter())
++            .map(|(q, v)| {
++                if matches!(q.to_binary64(), Binary64Outcome::Underflow { .. })
++                    || matches!(v.to_binary64(), Binary64Outcome::Underflow { .. })
++                {
++                    !v.is_zero() && v.to_binary64().value().is_none()
++                } else {
++                    !q.is_zero() && q.to_binary64().value().is_none()
++                }
++            })
+             .collect();
+         let mut scales = scales_at(&mut ctx, layout, verification, extents, &skip)?;
+         // ê per body (item 6a), and the floor at p = 512 only.

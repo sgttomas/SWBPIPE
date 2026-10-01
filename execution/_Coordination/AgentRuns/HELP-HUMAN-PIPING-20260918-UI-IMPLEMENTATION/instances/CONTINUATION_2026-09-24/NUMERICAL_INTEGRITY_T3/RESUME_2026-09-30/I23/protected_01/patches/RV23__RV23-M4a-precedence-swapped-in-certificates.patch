@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -1313,6 +1313,7 @@
+             b: bound,
+         });
+     }
++    let stop = if uc_missing.is_some() { None } else { stop };
+     (out, uc_missing, stop)
+ }
+ 

@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
+@@ -716,7 +716,7 @@
+             for index in structure.pattern.row_range(g) {
+                 let b = ordering.position[structure.pattern.column(index)];
+                 if b != usize::MAX {
+-                    sum.add_wide_scaled(&k[index].abs(), false, 1, self.scale[a] + self.scale[b])?;
++                    sum.add_wide_scaled(&k[index].abs(), false, 1, 0)?;
+                 }
+             }
+             let column = sum.round(ctx)?;

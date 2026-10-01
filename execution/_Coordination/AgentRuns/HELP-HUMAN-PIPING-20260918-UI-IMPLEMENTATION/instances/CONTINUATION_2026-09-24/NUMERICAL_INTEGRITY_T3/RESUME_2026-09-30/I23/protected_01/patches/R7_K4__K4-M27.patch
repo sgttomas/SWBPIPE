@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs
+@@ -375,7 +375,7 @@
+         let index = source.member_index(s.member).unwrap();
+         let q = &q_all[index];
+         let actions = &end_actions[index];
+-        let t = lift::<L>(s.fraction)?;
++        let t = lift::<L>(1.0 - s.fraction)?;
+         let moment = |ctx: &mut WideContext<L>,
+                       sum: &mut ExactWideSum,
+                       at_j: &Wide<L>,

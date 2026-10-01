@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs
+@@ -379,7 +379,7 @@
+ /// §4.1.6.3 item 1): 448 at 256, 832 at 512, 1024 at 1024 (Q4: the state's own
+ /// entries).
+ pub(crate) fn q_w_of(verification_precision: u32) -> u32 {
+-    (3 * (verification_precision / 2) + 64).min(1024)
++    (verification_precision + 64).min(1024)
+ }
+ 
+ /// Precision-shared verification data: Ā at P, K_e and the directional blocks

@@ -1,0 +1,98 @@
+{
+  "status": "PREPARATION_COMPLETE_WITH_EXPLICIT_RUNTIME_AND_DISCRIMINATOR_GAPS",
+  "start_utc": "2026-10-01T09:13:58Z",
+  "return_boundary_utc": "2026-10-01T09:31:00Z",
+  "elapsed_seconds": 1022.2,
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "entries": 142,
+  "patches": 136,
+  "mechanical_validation": "136/136 exact application, postimage hashes, reversibility, maintained preimages unchanged",
+  "known_stale_entries_adapted": 17,
+  "extra_matched_anchor_adaptation": "D15",
+  "v_k_existing_faults_mapped": 15,
+  "semantic_status_counts": {
+    "BASELINE_CONTROL": 6,
+    "FOCUSED_MAP_PROPOSED": 115,
+    "INCOMPLETE_DISCRIMINATOR": 13,
+    "DERIVATION_DISPOSITION_PRESERVED": 4,
+    "STATIC_POLICY_MAP_PROPOSED": 1,
+    "HISTORICAL_DISPOSITION_PRESERVED": 2,
+    "INCOMPLETE_FORCED_CACHE_PROBE": 1
+  },
+  "gaps": [
+    {
+      "group": "R7_K4",
+      "id": "R7-M3",
+      "gap": "Additive diagnostic must be separately reviewed/granted, compiled and baseline-validated."
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M4",
+      "gap": "Additive diagnostic must be separately reviewed/granted, compiled and baseline-validated."
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M9",
+      "gap": "Additive diagnostic must be separately reviewed/granted, compiled and baseline-validated."
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M12",
+      "gap": "Existing registered control function covers many cases; a finite prepublication bounded-fallback control assertion must be isolated and reviewed."
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M25",
+      "gap": "Additive diagnostic must be separately reviewed/granted, compiled and baseline-validated."
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M26",
+      "gap": "Additive diagnostic must be separately reviewed/granted, compiled and baseline-validated."
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M28",
+      "gap": "Additive diagnostic must be separately reviewed/granted, compiled and baseline-validated."
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M29",
+      "gap": "Additive diagnostic must be separately reviewed/granted, compiled and baseline-validated."
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M37",
+      "gap": "Pure classification helper does not cover the mutated production floor argument. Need a ceiling prepublication call-path discriminator, not a certificate failure."
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M24",
+      "gap": "The two focused combination tests do not discriminate tying acceptance at operand precision. Isolate CEIL5A3 and assert its own rejected decision before finish_selected; certificate masking must not count."
+    },
+    {
+      "group": "R7_K4",
+      "id": "D2",
+      "gap": "The existing N06 test does reach solve_case_at, but requires publication before its torque/spring assertions. If the new certificate masks the fault, no kill may be credited; a direct prepublication solve-to-recovery discriminator is still needed."
+    },
+    {
+      "group": "R7_K4",
+      "id": "D10",
+      "gap": "Helper-only RCM equality is insufficient for order_free mutation. Need exact order_free output on a frozen nontrivial graph; retain historical all-control tests only as provenance."
+    },
+    {
+      "group": "R7_K4",
+      "id": "D15",
+      "gap": "Historical direct finish_selected insertion is invalid under the new certificate contract. Current patch forces the old decision true for combinations, leaving the certificate active. Need a focused pre-certificate verdict discriminator; certificate rejection or changed records alone cannot kill it."
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23C-M1-cached-failure-drops-its-refusals",
+      "gap": "Budget failures are not cached (adaptive.rs obtain_verify), so the ordinary budget filter cannot cover this patch. A separately granted finite non-budget probe adaptation is required; see CACHE_PROBE_GAP.md."
+    }
+  ],
+  "runtime": "NONE; all builds/tests/solver jobs UNRUN",
+  "test_edits": 0,
+  "git_index_writes": 0,
+  "seal": "SHA256SUMS"
+}

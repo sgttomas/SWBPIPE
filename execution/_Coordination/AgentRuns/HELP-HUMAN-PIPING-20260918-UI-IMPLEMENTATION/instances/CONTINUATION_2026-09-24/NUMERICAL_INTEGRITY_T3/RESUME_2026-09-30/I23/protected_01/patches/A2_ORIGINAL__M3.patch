@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -1298,7 +1298,7 @@
+         };
+         if data[b] && bound.is_none() {
+             match bounds[b].refused.or(s_refused[b]) {
+-                Some(refusal) if stop.is_none() => stop = Some((b, refusal)),
++                Some(_refusal) if stop.is_none() => {}
+                 Some(_) => {}
+                 None if uc_missing.is_none() => uc_missing = Some(b),
+                 None => {}

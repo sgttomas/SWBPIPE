@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3823,7 +3823,7 @@
+                     stop.clone(),
+                     spent.total,
+                     spent.stages.clone(),
+-                    spent.refusals.clone(),
++                    Vec::new(),
+                 )));
+             }
+             (Err(stop), spent.total, true, spent.stages, spent.refusals)

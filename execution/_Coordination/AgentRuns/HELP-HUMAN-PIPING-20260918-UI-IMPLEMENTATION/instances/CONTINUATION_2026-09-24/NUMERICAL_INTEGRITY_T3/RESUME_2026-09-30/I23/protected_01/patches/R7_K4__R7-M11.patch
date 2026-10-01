@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2199,8 +2199,7 @@
+             sum.add_wide_scaled(&e, false, 1, 6 - big_p)?;
+             sum.add_wide(w, true)?;
+             if sum.signum() < 0 {
+-                rejection = Some(Rejection::VerificationEstimate { index });
+-                return Ok(false);
++                let _ = index; // R7-M11
+             }
+             if !e.is_zero() {
+                 let mut num = ExactWideSum::new();

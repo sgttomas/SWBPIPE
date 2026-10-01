@@ -1,0 +1,14 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs
+@@ -85,6 +85,11 @@
+ /// det[a, b, c] ≠ 0, decided exactly (triple products through two exact
+ /// products at p = 128 and 192).
+ fn determinant_nonzero(a: [f64; 3], b: [f64; 3], c: [f64; 3]) -> Option<bool> {
++    if a[0] == a[0] {
++        let det = a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0])
++            + a[2] * (b[0] * c[1] - b[1] * c[0]);
++        return Some(det != 0.0);
++    }
+     let mut c128 = WideContext::<4>::new(128).ok()?;
+     let mut c192 = WideContext::<4>::new(192).ok()?;
+     let mut sum = ExactWideSum::new();

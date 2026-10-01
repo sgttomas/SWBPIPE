@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -315,6 +315,7 @@
+     match stop {
+         AttemptStop::Span => Ok(RefusalKind::Span),
+         AttemptStop::Exponent => Ok(RefusalKind::Exponent),
++        AttemptStop::Budget(_) => Ok(RefusalKind::Span),
+         other => Err(other),
+     }
+ }

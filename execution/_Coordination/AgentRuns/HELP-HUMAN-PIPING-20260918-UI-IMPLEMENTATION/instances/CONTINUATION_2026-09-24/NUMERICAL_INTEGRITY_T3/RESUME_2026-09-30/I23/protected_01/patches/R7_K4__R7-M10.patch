@@ -1,0 +1,12 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs
+@@ -396,7 +396,8 @@
+             sum.add_product(ctx, &yr[c], &yr[c], true)?;
+         }
+         if sum.signum() >= 0 {
+-            return u32::try_from(k).map_err(|_| AttemptStop::Exponent);
++            let _ = u32::try_from(k).map_err(|_| AttemptStop::Exponent);
++            return Ok(0);
+         }
+         k += 1;
+     }

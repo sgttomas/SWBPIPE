@@ -1,0 +1,11 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2146,7 +2146,7 @@
+                 match meta.kind {
+                     Kind::Force | Kind::Moment => {
+                         let e = Wide::<M>::from_f64(hat(meta.body, meta.kind))?;
+-                        difference.add_wide_scaled(&e, false, 1, 8 - big_p)?;
++                        let _ = e; // R7-M1
+                     }
+                     _ if !meta.input_derived => {
+                         if let Some(wp) = &r.w_plus[index] {

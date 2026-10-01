@@ -1,0 +1,28 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -1475,6 +1475,11 @@
+                 d.add_integer(false, &net.magnitude, net.exponent)?;
+             }
+         }
++        let mut folded = {
++            let mut t = ExactWideSum::new();
++            ledger.add_to(i, &mut t, false)?;
++            t.round(ctx_q)?
++        };
+         let mut count = 0u64;
+         for index in structure.pattern.row_range(i) {
+             let j = structure.pattern.column(index);
+@@ -1485,9 +1490,13 @@
+             }
+             count += 1;
+             r.add_product(ctx_q, kij, &uj, true)?;
++            let prod = ctx_q.mul(kij, &uj)?;
++            folded = ctx_q.sub(&folded, &prod)?;
+             let negative = kij.is_sign_negative() != uj.is_sign_negative();
+             d.add_product(ctx_q, kij, &uj, negative)?;
+         }
++        r.clear();
++        r.add_wide(&folded, false)?;
+         let m = 2 * count + 2;
+         let mut absolute = r.clone();
+         absolute.make_absolute();

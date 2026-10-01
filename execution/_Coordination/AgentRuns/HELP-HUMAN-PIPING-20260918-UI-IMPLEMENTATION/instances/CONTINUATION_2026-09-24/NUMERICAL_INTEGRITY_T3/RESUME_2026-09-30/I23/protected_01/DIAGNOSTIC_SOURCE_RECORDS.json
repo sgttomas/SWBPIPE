@@ -1,0 +1,152 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 673,
+    "text": "chg CHARGE-SLENDER 256 ok 448 - -"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 675,
+    "text": "chgblk CHARGE-SLENDER 256 0 1 +c00000000000000000000000000000000000000000000000000000000000011ep2 +c0000000000000000000003000000000000000000001b000000000000000012p-68 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000000000000000000000000080000000000000000001p268 +8p-166 +8p-423 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 677,
+    "text": "chgcount CHARGE-SLENDER 256 0 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 772,
+    "text": "chg HH-SLENDER-m40 256 ok 448 - -"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 774,
+    "text": "chgblk HH-SLENDER-m40 256 0 0 - - +87c3b667002caccce1f4c46d15541e58d16b411298f36e069cf0141429a7129dp3 +87c3b667002caccce1f4c46d15541e58d16b411298f36e069cf0141429a7129dp3 Z+ Z+ Z+ Z+ 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 775,
+    "text": "chgblk HH-SLENDER-m40 256 1 0 - - +97p5 +97p5 Z+ Z+ Z+ Z+ 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 776,
+    "text": "chgblk HH-SLENDER-m40 256 2 1 +c000000000000000000000000000000000000000000000000000000000000304p2 +c0000000000000000000003000000000000000000001b0000000000000000306p-68 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000200000000000000000000120000000000000000001p179 +8000000000000000000000000000000000000000000080000000000000000001p268 +8p-166 +8p-423 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 780,
+    "text": "chgcount HH-SLENDER-m40 256 0 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 799,
+    "text": "chg THETA-ZERO-BODY 256 ok 448 - -"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 801,
+    "text": "chgblk THETA-ZERO-BODY 256 0 1 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3cef38b98473p34 +cbbd7471545a1b417493a423336880e01986304c857be2189f190861386710d1p-207 +a6e7631374d21cb86f0d4ep8 +a6e7631374d21cb86f0d4ep8 +e5956b035addc903eb53a26e869677907a407d57406b2119d94f2eb58e11b2bep1 +a026cf88bed7e25d06037p-260 +96c0ac2b6b497175217898p-518 +db8d71a6c8fcc5e9db938c11f7249475c68051f695af594e8ce4f8831e7f9cc1p-261 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 802,
+    "text": "chgblk THETA-ZERO-BODY 256 1 0 - - +8000000000000000000000000000000000000000000000000080000000000001p399 +8000000000000000000000000000000000000000000000000080000000000001p399 Z+ Z+ Z+ Z+ 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 805,
+    "text": "chgcount THETA-ZERO-BODY 256 0 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 820,
+    "text": "chg G-FIXED-MEMBER 256 ok 448 - -"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 822,
+    "text": "chgblk G-FIXED-MEMBER 256 0 1 +9c4000000f875d36c6c916d2d404b00459725b0f9e48a376f8b3ce5255e0337p34 +cbbd7471545a1b417493a423336880e01986304c857be2189f19078f03509cf3p-207 +a6e7631374d21cb86f0d4ep8 +a6e7631374d21cb86f0d4ep8 +e5956b035addc903eb53a26e869677907a407d57406b2119d94f2eb58e11b2bep1 +a026cf88bed7e25d06037p-260 +96c0ac2b6b497175217898p-518 +db8d71a6c8fcc5e9db938c11f7249475c68051f695af594e8ce4f8831e7f9cc1p-261 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 825,
+    "text": "chgcount G-FIXED-MEMBER 256 0 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 838,
+    "text": "chg THETA-STUB 256 ok 448 - -"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 840,
+    "text": "chgblk THETA-STUB 256 0 1 +c000000000000000000000000000000000000000000000000000000000000146p2 +de00000000000000000000000000000000000000000000000000000000000179p-241 +94p6 +94p6 +e555555555555555555555555555555555555555555555555555555555555556p3 +8p-256 +8p-513 +aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-258 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 841,
+    "text": "chgblk THETA-STUB 256 1 0 - - +800000000000000000000000000000000000000000000000000000000000003p252 +800000000000000000000000000000000000000000000000000000000000003p252 Z+ Z+ Z+ Z+ 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 843,
+    "text": "chgcount THETA-STUB 256 0 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 1843,
+    "text": "chg RF-LARGE-CHAIN-n00100-AX 256 ok 448 - -"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 1845,
+    "text": "chgblk RF-LARGE-CHAIN-n00100-AX 256 0 1 +c25ddc9e5b10ed5538c18c8abc41900e651ccd8249bdd1d5acb88ee828cecba2p33 +e90933c80242504ae184740d01010717c69d77edcfbf1f36a7903eeb6c2718fep-206 +997733e6a312af1afd3d1p10 +997733e6a312af1afd3d1p10 +d53955b0a561e527da2aa02471e3afd55e248d522caad41de771bd6ed2f8179ap13 +a4dae122bced5659e7dp-251 +a4dae122bced5659e7dp-491 +a2e8559fed23bb5342462e06eaa27d91e208b3b5424f44e3a03a6bdd0abdd9a2p-236 1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 1847,
+    "text": "chgcount RF-LARGE-CHAIN-n00100-AX 256 1 0"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 1853,
+    "text": "chg RF-LARGE-TREE-n00100-AX 256 ok 448 - -"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 1855,
+    "text": "chgblk RF-LARGE-TREE-n00100-AX 256 0 1 +e15ff78caef2420e1988de44a5c29c694c138e6ce25d3b4e6b364c32787e6c48p35 +e8795fa8f2459c393682c35208923176c212c9aa44c31548222b278c52412beap-204 +84082ec8ffa96c233d2338p10 +84082ec8ffa96c233d2338p10 +bdce1487646b81241a6ddf0d2fb102c30d25e2b3695b5eb353f4a52de810df65p13 +8436caaf2c251850faba00ffffffffffffffffffffffffffffffeef78371b28p-248 +fd9eb72a6457f8d85f79bd4ab43e3aad765f4509c99259a6b615d788905bc86ap-478 +9f4c03f746176bc1c2881a9001e34cc0d18da3344cf312dbc83261cde363bab5p-222 1"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+    "line": 1857,
+    "text": "chgcount RF-LARGE-TREE-n00100-AX 256 1 0"
+  }
+]

@@ -1,0 +1,10 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs
+@@ -303,7 +303,6 @@
+         Ok(v) => Ok(Some(v)),
+         Err(stop) => {
+             let kind = refusal_kind(stop)?;
+-            sum.reset();
+             record(slot, kind, pass, row);
+             Ok(None)
+         }
