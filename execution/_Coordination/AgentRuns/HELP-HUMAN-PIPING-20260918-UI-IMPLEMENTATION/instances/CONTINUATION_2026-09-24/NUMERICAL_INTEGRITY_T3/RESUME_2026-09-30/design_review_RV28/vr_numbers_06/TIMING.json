@@ -1,0 +1,9 @@
+{
+  "actual_start_utc": "2026-10-01 20:30:12 UTC",
+  "deadline_utc": "2026-10-01 21:00:12 UTC",
+  "completed_utc": "2026-10-01 20:47:20 UTC",
+  "within_30_minutes": true,
+  "status": "NOT_VERIFIED_NAMED_ADDENDS_REQUIRE_TWO_OWNER_CORRECTIONS",
+  "arithmetic": "48 rows independently match; corrected amounts dominated in complete same-outcome maximum",
+  "full_Emax_accepted": false
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs"
+    ],
+    "exit": 0,
+    "GIT_OPTIONAL_LOCKS": "0",
+    "stdout_sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+    "stderr": ""
+  },
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs"
+    ],
+    "exit": 0,
+    "GIT_OPTIONAL_LOCKS": "0",
+    "stdout_sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+    "stderr": ""
+  },
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs"
+    ],
+    "exit": 0,
+    "GIT_OPTIONAL_LOCKS": "0",
+    "stdout_sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c",
+    "stderr": ""
+  },
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs"
+    ],
+    "exit": 0,
+    "GIT_OPTIONAL_LOCKS": "0",
+    "stdout_sha256": "54843240c5f1f3cb2894e67f05bfae84a31ef8d3e96b3d7b1895591b163680e4",
+    "stderr": ""
+  },
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs"
+    ],
+    "exit": 0,
+    "GIT_OPTIONAL_LOCKS": "0",
+    "stdout_sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+    "stderr": ""
+  },
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl"
+    ],
+    "exit": 0,
+    "GIT_OPTIONAL_LOCKS": "0",
+    "stdout_sha256": "16357afa5efeaaac3ab5798bb6f632104bec1e2dfada288f5b0936bfe6188759",
+    "stderr": ""
+  },
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/expected_unresolved.json"
+    ],
+    "exit": 0,
+    "GIT_OPTIONAL_LOCKS": "0",
+    "stdout_sha256": "2e5d0975a90c69e5d198d61760cc7734d42615461710da1fe226f60b4a46f2c9",
+    "stderr": ""
+  }
+]
