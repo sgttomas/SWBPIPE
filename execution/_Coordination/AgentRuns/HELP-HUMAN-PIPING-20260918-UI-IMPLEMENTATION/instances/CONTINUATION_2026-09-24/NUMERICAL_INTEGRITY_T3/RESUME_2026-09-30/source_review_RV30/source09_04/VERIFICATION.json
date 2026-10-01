@@ -1,0 +1,43 @@
+{
+  "status": "conditional_source_side_descriptor_proposal_usable_no_blocking_findings",
+  "actual_start_utc": "2026-10-01T13:56:28+00:00",
+  "deadline_utc": "2026-10-01T14:16:28+00:00",
+  "actual_completion_utc": "2026-10-01T14:03:01.981099+00:00",
+  "elapsed_seconds": 393.981099,
+  "blocking_findings": 0,
+  "checked": {
+    "source09_seal": "all payloads",
+    "referenced_inputs": 28,
+    "H_structural_rows": 33,
+    "VR_identities": 213,
+    "VR_embedded_metadata": 201,
+    "arithmetic_rows": 234,
+    "pinned_String_pages": 4,
+    "layout04_stride_rows": 11,
+    "external_hash_pairs": 12
+  },
+  "source_side_descriptors_can_feed_conditional_kernel": true,
+  "accessible_size_cells": "Use exact std::mem::size_of expressions in future same-target/config implementation; no standalone measurement tranche required",
+  "remaining": [
+    "external12 actual files/prelaunch hash binding",
+    "checked estimator implementation",
+    "finalA1 reconciliation",
+    "full H/VR caller/global/runtime/format/serde/IO composition",
+    "fullEmax/admission review",
+    "private BTree alignment"
+  ],
+  "not_performed": [
+    "Rust/build/probe",
+    "model/builder/generator/graph/solver execution",
+    "Git/index operations",
+    "network/install",
+    "delegation"
+  ],
+  "write_fence": "<K6C>/<R>/source_review_RV30/source09_04",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "executable": "<VENV>/bin/python"
+  }
+}

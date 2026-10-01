@@ -1,0 +1,29 @@
+{
+  "pages": [
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/alloc/fmt.rs.html",
+      "html_sha256": "706bc307d3012c7399878ecba993c6f401b3e55d761ced3bff4a88283e888e24",
+      "decoded_sha256": "5787ee1ac366050193db15b5ac46d74fde2bdcc0ce096e9962b2bf39c5d49510",
+      "matched": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/core/fmt/mod.rs.html",
+      "html_sha256": "8a8523c5f69288b9ae43153fac6003998cc8588e50abd45c1b41b1003bab5daf",
+      "decoded_sha256": "0b01f8c3ef1a7c1a75eaf468456a2fc10a608d9f9191b56e1793f8b9bfb29b23",
+      "matched": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/alloc/string.rs.html",
+      "html_sha256": "1503955efcdc8b2c1cc4bf8e69e0c19b2272b4e0569f8cf9b38717cc5517b154",
+      "decoded_sha256": "68d7464cc83b0064bac9b600b72b4feb7c90eb5efc92def549b7eb586c6537ed",
+      "matched": true
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/alloc/str.rs.html",
+      "html_sha256": "829d6b32b7d885acbab164ae4368eb1db81ba2eeeb53171b1d468827b74d0b99",
+      "decoded_sha256": "ef6974342cf6a89eb7ce00d32a7fa49bfa88a4e9058bbfe4ca6bee2436bad8bf",
+      "matched": true
+    }
+  ],
+  "interpretation": "Fixed-template retained capacity upper only; String clones exact logical bytes; not arbitrary formatting or serde envelope"
+}
