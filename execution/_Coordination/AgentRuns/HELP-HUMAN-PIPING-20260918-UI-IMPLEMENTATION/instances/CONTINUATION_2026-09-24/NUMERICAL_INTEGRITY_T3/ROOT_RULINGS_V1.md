@@ -3089,3 +3089,89 @@ RV26 (`REVIEW/RECORDS_PR1063_REVIEW.md`, sha256 `60813369…`; records `REVIEW/_
   - RV26's last confirmation section is committed here, after the merge.
 - **Hosted CI:** 7 passed and 6 were skipped, as selected for a records-only change. GEN-8 passed at each head.
 - **Main now carries `OPERATING_NOTES_2026-09-30.md`** beside the handoff. T3 stays paused for the owner's audit.
+
+
+## Audit accepted; bounded numerical recovery authorized (ROOT, 2026-09-30)
+
+The owner reviewed ROOT's verification and recommendation, asked for the work-graph
+account and Agent 0 orchestration plan, then directed: "Proceed accordingly."
+The accepted plan and initial briefs are in RESUME_2026-09-30/. These are execution
+briefs, not reusable instructions or acceptance of a new numerical design.
+
+- **AUD-T3-01: accepted as SHOULD-FIX; open.** Subnormal row rounding before
+  multiplication by L or division by L refutes the scale-transfer premise.
+  ROOT reran the arithmetic and checked it by hand (verification/arithmetic.json).
+  No unmutated false solver publication is established by the audit or preserved
+  B01/B02 evidence. Such a witness makes this BLOCKING.
+- **Explicit reliance hold:** F2a must not rely on the published-bound guarantee
+  until the complete coupling argument, realized-source/control investigation and
+  independently reviewed correction or proved exclusion close the finding.
+  An amendment by ruling receives independent design-level re-derivation before
+  reliance; the original A1 ruling does not discharge the missing premise.
+- **Owner-selected direction:** bounded diagnosis and a conservative valid
+  publication guarantee, with named refusal wherever it cannot be established.
+  Extreme-model solvability is not the objective. No physical cutoff, new bound
+  formula, D2 contract or availability change is selected here. Concrete changes
+  to the published contract or supported domain return to the owner.
+- **A2:** the audit and post-merge review sustain its conditional minimum-of-
+  formed-certified-bounds argument. This is not universal runtime qualification,
+  A1 closure or a memory-bound proof.
+- **AUD-T3-02: adopt the replay erratum.** Original SHA256SUMS use their containing
+  directory except REVIEW, DESIGN_NUMERICS, DESIGN_STANDING, REFERENCES and
+  REFERENCES_ELOAD: each _run_records/SHA256SUMS uses its named parent.
+  Preserve the original manifests.
+- **AUD-T3-03: adopt the exception ledger.** S11-K, K2b and K6 disclosed
+  intent-to-add/reset pairs; K6b disclosed fetch; S11-K's separate fast-forward
+  was expressly authorized by its fix brief. Reported nil net effect does not
+  establish no transient write or complete command-history compliance. ROOT
+  owns every current Git/index mutation, including fetch and staging.
+- **AUD-T3-04: accepted NOTE; preservation open.** Original Mac suite logs and
+  KF2 gate JSONL are available; ROOT matched the latter to their original hash
+  record. Preserve originals and sanitized recoverable copies before pruning.
+  Local availability alone is not completed custody. K4's dated-generator-input
+  and sparse-checkout limitation remains disclosed; no tooling repair is granted.
+- **AUD-REV-N1: adopt input binding.** A script's constant BASE is not proof of
+  its working inputs. ROOT's verification identifies the actual checkout, original
+  script and principal input hashes, matched before replay. Preserve historical
+  audit files and label changed-input analyses as new evidence.
+- **PR #1064:** merged at 3bddc2b05f6106e969c7cf43373b230845c7cc66 before independent
+  review. The later Response/instances/AUDIT-REVIEW/REVIEW.md at
+  520d7dfb790bcedabc03e92b9692884ce295be54 confirms the defect, qualified as to
+  reachability, with no blocking or SHOULD-FIX review finding. Its timing does
+  not become pre-merge coverage or a future review waiver.
+- **PR #1066 disposition authorized:** close unmerged, retain its branch and head
+  520d7dfb790bcedabc03e92b9692884ce295be54. Its records are incomplete inputs,
+  not numerical remediation or accepted design. Record actual closure after
+  success. No guard development is carried forward.
+- **Attribution correction:** the owner identified the supporting-tool drift and
+  stopped the response. Its "ROOT's scope correction" wording must not obscure
+  the owner's intervention. Old hash-bound records stay unchanged.
+- **K6c remains required:** original I21 brief, full phase derivation, H/VR
+  deduplication, final admissions and W1-T4 against the settled kernel. Sensitivity
+  replay is not E_max proof; unsealed source_finish_01 is input only.
+  ROOT's W1 limits wait for closure.
+
+Response means the HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE run under the
+project coordination AgentRuns directory. Its REPLAY_AND_PROCESS_ERRATA.md
+supplies the adopted errata with original evidence pointers.
+
+ROOT retains Git, rulings, graph and host scheduling. A fresh WORKING_ITEMS manager
+integrates I22/I21; the independent oracle and fresh reviewers report to ROOT.
+TASKs make no Git/index writes or delegations. Initial grants are source-only;
+actual parentage and scope are recorded at dispatch. Use the existing M5 guard.
+A tooling blocker returns to ROOT and the owner.
+
+After A1/K6c and W1 limits: F2a/S-G1, S-I, S-J where required, F2b per domain,
+F3/S-G2/S-E1, V-P and join, plus T3-close obligations. Owner choices on ceilings,
+PHYS-R4/availability, observation framing, KF3-B1 and KF2 dense screen stay open.
+Every PR, records included, retains exact-final-head gates and fresh independent
+review under the owner's current resumption direction.
+
+## PR #1066 closed unmerged (ROOT, 2026-09-30)
+
+ROOT closed PR #1066 under the owner's accepted disposition. GitHub reports CLOSED,
+closedAt 2026-10-01T04:44:25Z, with head
+520d7dfb790bcedabc03e92b9692884ce295be54. A fresh git ls-remote confirms the
+response branch still points to that head. Nothing was merged or deleted.
+Its numerical results, conditional designs, guard and unfinished K6c packet
+retain the limits stated in the preceding ruling and scope handoff.
