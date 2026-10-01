@@ -3648,3 +3648,24 @@ A1 at ab2d4ce9522d317a2310ca5545a719a8f8423367.
 
 V-K remains active under its own bounded grant. This ruling supplies no final
 A1, F2a, E_max or W1 acceptance; exact-candidate review and all final gates remain.
+
+
+## Session-limit recovery checkpoint (ROOT, 2026-10-01)
+
+The owner warned of an imminent session limit. ROOT is preserving the ongoing
+authorized work and quiescent handbacks; this is not completion or a new owner-
+approval hold. RESUME_2026-09-30/SESSION_LIMIT_HANDOFF_2026-10-01.md records exact
+source/evidence reuse, branch/host recovery, open F03 contribution attribution,
+remaining V-K/final A1 gates and unreviewed K6c proposals. No new experiment is
+launched by this checkpoint. All prior numerical and acceptance holds remain.
+
+ROOT read and verified RV29 vk_f01_runtime_28. Accept its separate release F01
+numerical-unavailability witness within the stated scope; original debugP09
+remains unqualified. P10's later control and F02 evidence await their own review.
+F03's complete two-family observation restores controls but returns an explicit
+contribution-attribution gap; it receives no fault credit at this checkpoint.
+No generic Ceiling, Pivot location or seed name substitutes for its criterion.
+
+K6c's latest prefix, formatting and eight artifact-specific node-pair returns
+are preserved as proposals awaiting independent review. No complete E_max,
+checkpoint0, implementation, admission, W1 or F2a acceptance is granted.
