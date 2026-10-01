@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection stdout ----
+
+thread 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' (24785931) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:575:5:
+assertion `left == right` failed
+  left: 17749
+ right: 18103
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

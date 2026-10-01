@@ -1,0 +1,37 @@
+{
+  "scope": "source-only mechanical and warrant checks; not compilation",
+  "patch_application": "PASS",
+  "original_source_retained_as_exact_prefix": true,
+  "hunks": 1,
+  "added_lines": 147,
+  "removed_lines": 0,
+  "test_definitions_found": 6,
+  "mutant_patches_bound_to_existing_seal": 8,
+  "mutant_overlay_target_conflicts": 0,
+  "source_postimage_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "prior_packet_seals_unchanged": {
+    "protected_01": "026823c7ad17e0415f679c37ef5dd854a05086e963e82c2aa3bd752b083e497e",
+    "ADDENDUM_01": "09203f4fcfaf1a0a11b17d54a16d49f94f30c7aa671da63e0cbcdded6bee9c5d"
+  },
+  "rust_builds": 0,
+  "solver_runs": 0,
+  "generator_runs": 0,
+  "tests_run": 0,
+  "mutant_kills_claimed": 0,
+  "fixed_corpus_hash_matches": 5,
+  "source_level_type_checks": [
+    "existing cfg(test) method_tests module and imports",
+    "report/helper generic SupportedWidth bounds for L=4/8/16",
+    "P=256/512/1024 fit 64L; q=320 and q_w=448 fit 8 limbs",
+    "VerificationReport fields and BlockCertificate/ShiftResult option types",
+    "Wide values Copy/PartialEq; fixed token parser supports Wide<4>",
+    "fixed CHARGE field positions and block counts",
+    "fixed SCALE 33 rows and body resolution field positions",
+    "BOUNDS forced shift coincides with actual scheduled shift for the two one-block need=1 cases"
+  ],
+  "unverified": [
+    "Rust compiler acceptance",
+    "unmutated diagnostic baseline",
+    "actual assertion-level discrimination under each mutant"
+  ]
+}

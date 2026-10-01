@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption stdout ----
+
+thread 'structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption' (24738343) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:144:5:
+assertion `left == right` failed
+  left: None
+ right: Some(AbsoluteBound)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

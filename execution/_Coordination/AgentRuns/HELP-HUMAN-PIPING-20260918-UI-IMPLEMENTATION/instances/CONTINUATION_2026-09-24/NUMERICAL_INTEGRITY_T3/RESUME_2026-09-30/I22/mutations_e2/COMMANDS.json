@@ -1,0 +1,2909 @@
+{
+  "schema": "a1-e2-commands-v1",
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "records_commit": "60d7d0d7f158eec40d04c7d849c30feb31c7da30",
+  "grant": {
+    "cmd": "GIT_OPTIONAL_LOCKS=0 git show f8f102cbd67de3e3dce8798246f295ec1320f52f:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_E2_RUNTIME.md",
+    "chunk_id": "51c5b3",
+    "wall_time_seconds": 0.000007333,
+    "exit_code": 0,
+    "original_token_count": 720,
+    "output": "# A1 E2 — corrected PM03 and frozen remainder\n\nROOT read the whole corrected PM03 patch/delta and its exact constructor/scaled\nsum rationale, verified child/manager seals and committed them at A1\n60d7d0d7f158eec40d04c7d849c30feb31c7da30. RV29 independently confirmed the\nexact bytes and in-memory postimage in its native return to ROOT: one\nWide::<4> to Wide::<L> change, identical numerical surrogate and discriminator.\nCompilation remains unverified. Source-width work follows L; no counter\nidentity to the uncompilable patch is asserted.\n\nPatch b689954d60c7640ef2ddd5670a8a1e2949f28d44e85813889236e76c5219f38b;\noverride f5cb93bb3630448d4a773e0027c569eb6c016bfef21fa73cf5c5ed030cb5d741;\ncorrected source7d1c6750677afa21a161c95bbbb987f138e983bccf3408f06658462223b19225.\nAll other patches/source/tests remain those frozen in mutations_e at40129.\nE1's PM03 failure stays a compiler failure, never a kill.\n\nExisting I22 via manager may continue within the ORIGINAL10:06:30UTC boundary.\nFirst reverify untouched baseline source/test/lock/binary and run PM03's primary\nbaseline filter once. Its prior14 baseline results remain bound to these same\nidentities. Materialize ONE fresh independent immutable40129 copy for corrected\nPM03 under <wt>/scratch/i22/mutations_e2/PM03 and a fresh target\n<wt>/a1-pm-target/PM03_r1. Manager verifies resolved containment, no symlinks/\nhardlinks/maintained aliases and complete original-byte equality before release.\nApply only the frozen override using the existing checked applicator.\n\nThen execute corrected PM03 and the untouched PM04–PM18b variants in the original\nmanifest order/filters, followed by each prescribed returned-baseline control.\nReuse E1's independently prepared untouched copies/targets for those later IDs\nafter rechecking their source/test/lock and exact containment bindings.\nThis is38 remaining mutant-filter invocations,33 baseline-return controls,\nplus the one first baseline check. No PM01/PM02 repeat, no new tests/cases,\nno full suite, old-registry runtime or observations.\n\nE1's exact environment/guard/one-Cargo/-j4/testthreads2/5-minute-command\ncheckpoints and semantic stop rules apply unchanged. A compile error, unrelated\nfailure, missing test, required survivor or provenance/guard problem stops\nbefore later variants; no repair/search/automatic extension within this grant.\nPM16c PC42 remains the predeclared passing negative control. Real completed\nresults alone receive verdicts; incomplete entries remain explicit.\n\nROOT's VR rerun is complete; slot is free. Preserve ALL original failed/mutated\ncopies/logs/binaries and new ones; any inherited manifest discard wording is\nsuperseded. No Git/index operations or maintained edits. Write only additive\nR/I22/mutations_e2 and R/manager/mutations_e2 plus granted owned scratch/targets.\nReturn concise semantic results and gaps. Do not rewrite E/E1 seals.\n\n"
+  },
+  "count_correction": {
+    "attribution": "ROOT arithmetic error; manager detected conflict; ROOT's explicit additive correction read before count affected execution",
+    "commit": "808f8e6ef02af05836d3bc1d8b8091aa1ab61ceb",
+    "sha256": "6d2654d230cfe4b626f15277a9cd3e12cd235cb8ad6727c5b0635129a26f61b1",
+    "read": {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "a72d6e",
+        "wall_time_seconds": 0.000007458,
+        "exit_code": 0,
+        "original_token_count": 229,
+        "output": "# E2 count correction — exact sequence unchanged\n\n[Correction (ROOT, 2026-10-01): A1_E2_RUNTIME.md's38 remaining mutant-filter\ninvocations was ROOT's arithmetic error. The original frozen manifest has41:\nPM01 and PM02 account for2, leaving39 including corrected PM03. PM04–PM18b\nalone account for38. E2 therefore has33 variants,39 mutant-filter invocations,\n33 returned-baseline controls and one initial baseline:73 Cargo invocations\nif fully completed. PM03's original compiler failure did not execute its test.]\n\nThe manager identified the conflict and ROOT confirmed it before either count\ncould affect execution. The exact already named sequence governs. No patch,\nfilter, assertion, case or deadline changes; no additional fault is introduced.\nThe original10:06:30UTC boundary and stop rules remain. Earlier grant/failed\nevidence remains preserved; this addendum is the explicit prospective correction.\n\n"
+      }
+    }
+  },
+  "start_utc": "2026-10-01T09:25:31.884Z",
+  "boundary_utc": "2026-10-01T10:06:30Z",
+  "completed_utc": "2026-10-01T09:51:15Z",
+  "containment_release": "Manager explicit containment/batch release 2026-10-01T09:27:49Z.",
+  "source_target_bindings": {
+    "base": {
+      "source": "<E1_S>/base",
+      "target": "<PM_TARGET>/base"
+    },
+    "PM03": {
+      "source": "<E2_S>/PM03",
+      "target": "<PM_TARGET>/PM03_r1"
+    },
+    "PM04": {
+      "source": "<E1_S>/PM04",
+      "target": "<PM_TARGET>/PM04"
+    },
+    "PM05": {
+      "source": "<E1_S>/PM05",
+      "target": "<PM_TARGET>/PM05"
+    },
+    "PM06": {
+      "source": "<E1_S>/PM06",
+      "target": "<PM_TARGET>/PM06"
+    },
+    "PM07": {
+      "source": "<E1_S>/PM07",
+      "target": "<PM_TARGET>/PM07"
+    },
+    "PM08": {
+      "source": "<E1_S>/PM08",
+      "target": "<PM_TARGET>/PM08"
+    },
+    "PM09": {
+      "source": "<E1_S>/PM09",
+      "target": "<PM_TARGET>/PM09"
+    },
+    "PM10a": {
+      "source": "<E1_S>/PM10a",
+      "target": "<PM_TARGET>/PM10a"
+    },
+    "PM10b": {
+      "source": "<E1_S>/PM10b",
+      "target": "<PM_TARGET>/PM10b"
+    },
+    "PM11": {
+      "source": "<E1_S>/PM11",
+      "target": "<PM_TARGET>/PM11"
+    },
+    "PM12a": {
+      "source": "<E1_S>/PM12a",
+      "target": "<PM_TARGET>/PM12a"
+    },
+    "PM12b": {
+      "source": "<E1_S>/PM12b",
+      "target": "<PM_TARGET>/PM12b"
+    },
+    "PM12c": {
+      "source": "<E1_S>/PM12c",
+      "target": "<PM_TARGET>/PM12c"
+    },
+    "PM13a": {
+      "source": "<E1_S>/PM13a",
+      "target": "<PM_TARGET>/PM13a"
+    },
+    "PM13b": {
+      "source": "<E1_S>/PM13b",
+      "target": "<PM_TARGET>/PM13b"
+    },
+    "PM14a": {
+      "source": "<E1_S>/PM14a",
+      "target": "<PM_TARGET>/PM14a"
+    },
+    "PM14b": {
+      "source": "<E1_S>/PM14b",
+      "target": "<PM_TARGET>/PM14b"
+    },
+    "PM14c": {
+      "source": "<E1_S>/PM14c",
+      "target": "<PM_TARGET>/PM14c"
+    },
+    "PM15a": {
+      "source": "<E1_S>/PM15a",
+      "target": "<PM_TARGET>/PM15a"
+    },
+    "PM15b": {
+      "source": "<E1_S>/PM15b",
+      "target": "<PM_TARGET>/PM15b"
+    },
+    "PM15c": {
+      "source": "<E1_S>/PM15c",
+      "target": "<PM_TARGET>/PM15c"
+    },
+    "PM15d": {
+      "source": "<E1_S>/PM15d",
+      "target": "<PM_TARGET>/PM15d"
+    },
+    "PM15e-class": {
+      "source": "<E1_S>/PM15e-class",
+      "target": "<PM_TARGET>/PM15e-class"
+    },
+    "PM15e-bound": {
+      "source": "<E1_S>/PM15e-bound",
+      "target": "<PM_TARGET>/PM15e-bound"
+    },
+    "PM15f": {
+      "source": "<E1_S>/PM15f",
+      "target": "<PM_TARGET>/PM15f"
+    },
+    "PM15g-accessor": {
+      "source": "<E1_S>/PM15g-accessor",
+      "target": "<PM_TARGET>/PM15g-accessor"
+    },
+    "PM16a": {
+      "source": "<E1_S>/PM16a",
+      "target": "<PM_TARGET>/PM16a"
+    },
+    "PM16b": {
+      "source": "<E1_S>/PM16b",
+      "target": "<PM_TARGET>/PM16b"
+    },
+    "PM16c": {
+      "source": "<E1_S>/PM16c",
+      "target": "<PM_TARGET>/PM16c"
+    },
+    "PM17a": {
+      "source": "<E1_S>/PM17a",
+      "target": "<PM_TARGET>/PM17a"
+    },
+    "PM17b": {
+      "source": "<E1_S>/PM17b",
+      "target": "<PM_TARGET>/PM17b"
+    },
+    "PM18a": {
+      "source": "<E1_S>/PM18a",
+      "target": "<PM_TARGET>/PM18a"
+    },
+    "PM18b": {
+      "source": "<E1_S>/PM18b",
+      "target": "<PM_TARGET>/PM18b"
+    }
+  },
+  "patch_applications": [
+    {
+      "id": "PM03",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E1_E>/pm03_correction_01/OVERRIDE.json' 'PM03' '<E2_S>/PM03' --apply",
+      "chunk_id": "762422",
+      "wall_time_seconds": 0.000013083,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM03\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"7d1c6750677afa21a161c95bbbb987f138e983bccf3408f06658462223b19225\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM04",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM04' '<E1_S>/PM04' --apply",
+      "chunk_id": "329fa1",
+      "wall_time_seconds": 0.000007917,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM04\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"fed753682e133d0ccb0ce8acfab5578a646c8dabae7d9bb17eb43667964d1a4d\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM05",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM05' '<E1_S>/PM05' --apply",
+      "chunk_id": "9df7bf",
+      "wall_time_seconds": 0.000006833,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM05\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"f0615e7a5c11caf9019f2c2d9f1dfea8597b5b63326889d9440f6da78472dc7f\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM06",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM06' '<E1_S>/PM06' --apply",
+      "chunk_id": "da21f5",
+      "wall_time_seconds": 0.000009,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM06\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"89bc9491e1f4e469d3d8520776647ccb34f970a94f7a8bcea2c86777c1ee7016\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM07",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM07' '<E1_S>/PM07' --apply",
+      "chunk_id": "a25b28",
+      "wall_time_seconds": 0.000009208,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM07\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"6b725a62a40521de525bdfb41fc2b85882d0a8acc2f958122e0f4cb13635dc26\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM08",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM08' '<E1_S>/PM08' --apply",
+      "chunk_id": "094c47",
+      "wall_time_seconds": 0.000009125,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM08\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"58c9869b2ccc404580c2d67e78e668996383b269aefd590d020d40bc68e9ab00\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM09",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM09' '<E1_S>/PM09' --apply",
+      "chunk_id": "43f802",
+      "wall_time_seconds": 0.00000825,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM09\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"e73c984fe90b7fac00eac24295e61e22e9f5a67abaf87f80689b3225f21fc197\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM10a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM10a' '<E1_S>/PM10a' --apply",
+      "chunk_id": "5eabe3",
+      "wall_time_seconds": 0.000007458,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM10a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"4220e2af49517bea8535cc4e44b580ca8c0ad10485734ec13f081a82927a0d02\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM10b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM10b' '<E1_S>/PM10b' --apply",
+      "chunk_id": "0ec95b",
+      "wall_time_seconds": 0.0000065,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM10b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"c396bb49aa10fe96044b5171931ff16aec3eb24cac6366c8fbbf802eee939a57\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM11",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM11' '<E1_S>/PM11' --apply",
+      "chunk_id": "49caf6",
+      "wall_time_seconds": 0.000006875,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM11\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"cdef37db54e3adbe290794cf8e13fe708633ac2f9ff0504c7cda12f0400f2eaf\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM12a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM12a' '<E1_S>/PM12a' --apply",
+      "chunk_id": "6d5d1c",
+      "wall_time_seconds": 0.0000075,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM12a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"b11f7ddefd5df2f0f2b9db9501f89ca2f33101ae9e3ff07bdc738d2c887cc8ba\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM12b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM12b' '<E1_S>/PM12b' --apply",
+      "chunk_id": "200c54",
+      "wall_time_seconds": 0.000006916,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM12b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"a62020f4b4c6eb4740c579cdf89747c1c654381836eb1531f009cdcc59674725\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM12c",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM12c' '<E1_S>/PM12c' --apply",
+      "chunk_id": "1ce0a0",
+      "wall_time_seconds": 0.000008625,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM12c\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"73651605aa622290a9089f9f64dbadb3f3115b0cde24b1a9aa3bcda065e4ff8a\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM13a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM13a' '<E1_S>/PM13a' --apply",
+      "chunk_id": "39eae4",
+      "wall_time_seconds": 0.000007458,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM13a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"9f9bdc785d57d96f918e451b691efdaa9eac04f03229b36cd9238ac852804919\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM13b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM13b' '<E1_S>/PM13b' --apply",
+      "chunk_id": "a399a5",
+      "wall_time_seconds": 0.000008917,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM13b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"26afd97c60cd126e031d44a5d36ca6dd036efecd0404003e5a68a169f5372415\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM14a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM14a' '<E1_S>/PM14a' --apply",
+      "chunk_id": "3d2f83",
+      "wall_time_seconds": 0.000008166,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM14a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"c61df464395cb0f01f91ca50fbd700a715edee0662fce32159d190e500df4c9a\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM14b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM14b' '<E1_S>/PM14b' --apply",
+      "chunk_id": "a18c70",
+      "wall_time_seconds": 0.000006792,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM14b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"671a6eaa8ead9d3c9087d05d6a73924ca890ea416fdff24bd7bdb8191df51fe3\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM14c",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM14c' '<E1_S>/PM14c' --apply",
+      "chunk_id": "566ec1",
+      "wall_time_seconds": 0.000007791,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM14c\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"d8babac95c54da81fb6c7b129ed055f0f9bcbf0573615a1f72243d80573272fa\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15a' '<E1_S>/PM15a' --apply",
+      "chunk_id": "1b949b",
+      "wall_time_seconds": 0.000007666,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM15a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"acb2037d9cfa4d0e070a22c42e0d0a2fa7dd6dcb8912c1725e6b6e7b1ec7f162\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15b' '<E1_S>/PM15b' --apply",
+      "chunk_id": "9bdef2",
+      "wall_time_seconds": 0.0000095,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM15b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"0eab899fa90159d09526ae9a43e9ae63959c8bfe2600acf64da26f11fb73937f\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15c",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15c' '<E1_S>/PM15c' --apply",
+      "chunk_id": "6f6281",
+      "wall_time_seconds": 0.00000725,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM15c\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"55a75c2b229e31344a0a3592c7c83ca7bd5d992f1f6a97e722003ffe8cf2650e\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15d",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15d' '<E1_S>/PM15d' --apply",
+      "chunk_id": "03e804",
+      "wall_time_seconds": 0.000008625,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM15d\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"6261640d282a127b5737ede684ed15114c2db6be2d87109af8610b0d5ac00189\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15e-class",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15e-class' '<E1_S>/PM15e-class' --apply",
+      "chunk_id": "4adfbf",
+      "wall_time_seconds": 0.000007833,
+      "exit_code": 0,
+      "original_token_count": 58,
+      "output": "{\"id\": \"PM15e-class\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"e70606e215f315c13f753a1b49d97ba6aa71be1bce51fd70cb48440ab6c025d4\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15e-bound",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15e-bound' '<E1_S>/PM15e-bound' --apply",
+      "chunk_id": "1f4468",
+      "wall_time_seconds": 0.000006334,
+      "exit_code": 0,
+      "original_token_count": 58,
+      "output": "{\"id\": \"PM15e-bound\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"4b3896c4b57b7dc8e1774d2a952aa43a813a018364bce39dfe6c5dddd09467a1\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15f",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15f' '<E1_S>/PM15f' --apply",
+      "chunk_id": "0c6e3f",
+      "wall_time_seconds": 0.000006542,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM15f\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"8915ee55d48503fb0c0c8e8933ec54d6af74e3ce7c8d1825457a8914f89834c0\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM15g-accessor",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM15g-accessor' '<E1_S>/PM15g-accessor' --apply",
+      "chunk_id": "241755",
+      "wall_time_seconds": 0.000007333,
+      "exit_code": 0,
+      "original_token_count": 59,
+      "output": "{\"id\": \"PM15g-accessor\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"8e66ff138454d6a3bcf8c35b8bccb75647f8b827053e38782a51ea9c1d3c044e\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM16a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM16a' '<E1_S>/PM16a' --apply",
+      "chunk_id": "c1e3b9",
+      "wall_time_seconds": 0.000007292,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM16a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"d1661adba9ef736d31c3d39cd7aa7008cca65aa822871ec7c13bd3d3809e508a\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM16b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM16b' '<E1_S>/PM16b' --apply",
+      "chunk_id": "e21019",
+      "wall_time_seconds": 0.000008875,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM16b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"0e76fe7ac19799b44506f377612db7c2af932119186309767cfdd94f296b72e8\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM16c",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM16c' '<E1_S>/PM16c' --apply",
+      "chunk_id": "c264c2",
+      "wall_time_seconds": 0.000009125,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM16c\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"5c1c6f1994b1be7fa353e53f22cbd6f0e80ac38e162780cbbaea13cbd581727a\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM17a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM17a' '<E1_S>/PM17a' --apply",
+      "chunk_id": "bcd40d",
+      "wall_time_seconds": 0.000008833,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM17a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"12c2db05f495c0dc5b682bd676426ba7bd6f2cc2ecc39cc644c630b73b07e33a\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM17b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM17b' '<E1_S>/PM17b' --apply",
+      "chunk_id": "78caac",
+      "wall_time_seconds": 0.000007458,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM17b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"83f89a8ba16fecccd80db8b0f072041bd7924e507007eddec2abbca08d4c0dca\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM18a",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM18a' '<E1_S>/PM18a' --apply",
+      "chunk_id": "e16654",
+      "wall_time_seconds": 0.000009375,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM18a\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"e7c6686007f382404ddfcb6de1b289f925e0f60543a7aeceadcfa37ba8b56e85\", \"source_write\": true}\n"
+    },
+    {
+      "id": "PM18b",
+      "cmd": "'<VENV>/bin/python' -B '<E>/apply_frozen_patch.py' '<E>/MANIFEST.json' 'PM18b' '<E1_S>/PM18b' --apply",
+      "chunk_id": "0c1ab3",
+      "wall_time_seconds": 0.000008583,
+      "exit_code": 0,
+      "original_token_count": 56,
+      "output": "{\"id\": \"PM18b\", \"mode\": \"apply\", \"before_sha256\": \"4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9\", \"after_sha256\": \"95b99cc8a22a42bed93179a06a17ffdf357e07bb419267b67765a213dfe2d92a\", \"source_write\": true}\n"
+    }
+  ],
+  "runs": [
+    {
+      "kind": "baseline",
+      "id": "PM03",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/baseline/PM03.stdout' 2> '<E2_S>/logs/baseline/PM03.stderr'",
+      "launch_utc": "2026-10-01T09:28:29.867Z",
+      "guard_before": {
+        "chunk_id": "637cbb",
+        "wall_time_seconds": 0.000011875,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:52:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "2dec70",
+        "wall_time_seconds": 0.000011333,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:28:30.242Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "baseline/PM03/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM03-00",
+      "source_id": "PM03",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM03_r1' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM03-00.stdout' 2> '<E2_S>/logs/mutant/PM03-00.stderr'",
+      "launch_utc": "2026-10-01T09:28:30.454Z",
+      "guard_before": {
+        "chunk_id": "0d1715",
+        "wall_time_seconds": 0.00000825,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:52:11 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "89f211",
+        "wall_time_seconds": 1.001611709,
+        "session_id": 20795,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "3402df",
+        "wall_time_seconds": 0.000007833,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:29:04.007Z",
+      "review": "Compiled corrected patch; exactly the fixed positive target-radius assertion failed at line1623: observed 3bf0000000000401 (epsilon*S surrogate) instead of independent 3ca0020000100402. This is the predeclared PM03 numerical discriminator, not work or snapshot drift.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E2_S>/PM03/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM03-00/EVIDENCE.json",
+      "binary_sha256": "e365d5db27a10adc718537729c32d91fee37573542a55f08974ed42643079c06",
+      "source_sha256": "7d1c6750677afa21a161c95bbbb987f138e983bccf3408f06658462223b19225",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM03",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM03.stdout' 2> '<E2_S>/logs/control/PM03.stderr'",
+      "launch_utc": "2026-10-01T09:29:23.405Z",
+      "guard_before": {
+        "chunk_id": "cdff8a",
+        "wall_time_seconds": 0.000008167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:53:04 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "10d868",
+        "wall_time_seconds": 0.000008917,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:29:23.666Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM03/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM04-00",
+      "source_id": "PM04",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM04' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/mutant/PM04-00.stdout' 2> '<E2_S>/logs/mutant/PM04-00.stderr'",
+      "launch_utc": "2026-10-01T09:29:23.878Z",
+      "guard_before": {
+        "chunk_id": "02d886",
+        "wall_time_seconds": 0.000012917,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:53:04 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "1b480f",
+        "wall_time_seconds": 1.000978667,
+        "session_id": 76191,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "c3570a",
+        "wall_time_seconds": 0.000013125,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:30:00.276Z",
+      "review": "Compilation succeeded; the full-family independent exact-H equality fails with a negative difference when nonzero W_plus is omitted. Exactly the assigned PC01-03 test failed; no unrelated work/golden failure.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM04/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM04-00/EVIDENCE.json",
+      "binary_sha256": "83ba61bda3e5cb2501825fd8ef8e5c1acd484891ecf7d779e944cdb17210b2a8",
+      "source_sha256": "fed753682e133d0ccb0ce8acfab5578a646c8dabae7d9bb17eb43667964d1a4d",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM04",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/control/PM04.stdout' 2> '<E2_S>/logs/control/PM04.stderr'",
+      "launch_utc": "2026-10-01T09:30:05.619Z",
+      "guard_before": {
+        "chunk_id": "fcec25",
+        "wall_time_seconds": 0.000010417,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:53:46 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "445e4c",
+        "wall_time_seconds": 0.0000085,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:30:05.942Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM04/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM05-00",
+      "source_id": "PM05",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM05' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/mutant/PM05-00.stdout' 2> '<E2_S>/logs/mutant/PM05-00.stderr'",
+      "launch_utc": "2026-10-01T09:30:06.164Z",
+      "guard_before": {
+        "chunk_id": "095129",
+        "wall_time_seconds": 0.000006208,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:53:47 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "418d01",
+        "wall_time_seconds": 1.001017,
+        "session_id": 14917,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "62c9f9",
+        "wall_time_seconds": 0.000008875,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:30:40.206Z",
+      "review": "Compiled; omission of the displacement-magnitude 2^(1-P)|v| term makes the assigned full-family exact-H equality negative. Exactly PC01-03 fails at its mathematical equality, as mapped.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM05/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM05-00/EVIDENCE.json",
+      "binary_sha256": "790d34c1bc9765a9ae92e60421cac9960eaf4003085e63e78111a61bb65fc3ce",
+      "source_sha256": "f0615e7a5c11caf9019f2c2d9f1dfea8597b5b63326889d9440f6da78472dc7f",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM05",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/control/PM05.stdout' 2> '<E2_S>/logs/control/PM05.stderr'",
+      "launch_utc": "2026-10-01T09:30:51.413Z",
+      "guard_before": {
+        "chunk_id": "e32d1d",
+        "wall_time_seconds": 0.00000775,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:54:32 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "cc0cb8",
+        "wall_time_seconds": 0.000010042,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:30:51.664Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM05/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM06-00",
+      "source_id": "PM06",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM06' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/mutant/PM06-00.stdout' 2> '<E2_S>/logs/mutant/PM06-00.stderr'",
+      "launch_utc": "2026-10-01T09:30:51.879Z",
+      "guard_before": {
+        "chunk_id": "5b9958",
+        "wall_time_seconds": 0.000008,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:54:32 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "b3e0b7",
+        "wall_time_seconds": 1.001599375,
+        "session_id": 78705,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "2f2c3b",
+        "wall_time_seconds": 0.000013,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:31:15.697Z",
+      "review": "Compiled; removing 69*2^-P*E_q produces the intended negative difference in the independent force/moment full-family exact-H equality. One assigned test failed, with no compile or unrelated assertion failure.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM06/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM06-00/EVIDENCE.json",
+      "binary_sha256": "87844f8563636e83dab0e152429c98747d2a4ec2795e1d5ee593c19148addc30",
+      "source_sha256": "89bc9491e1f4e469d3d8520776647ccb34f970a94f7a8bcea2c86777c1ee7016",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM06",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/control/PM06.stdout' 2> '<E2_S>/logs/control/PM06.stderr'",
+      "launch_utc": "2026-10-01T09:31:25.511Z",
+      "guard_before": {
+        "chunk_id": "065986",
+        "wall_time_seconds": 0.000013,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:55:06 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "d5a322",
+        "wall_time_seconds": 0.00000925,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:31:25.772Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM06/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM07-00",
+      "source_id": "PM07",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM07' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/mutant/PM07-00.stdout' 2> '<E2_S>/logs/mutant/PM07-00.stderr'",
+      "launch_utc": "2026-10-01T09:31:25.987Z",
+      "guard_before": {
+        "chunk_id": "fee589",
+        "wall_time_seconds": 0.000008125,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:55:06 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "c56892",
+        "wall_time_seconds": 1.0007065,
+        "session_id": 55221,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "10d728",
+        "wall_time_seconds": 0.000010917,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:31:37.817Z",
+      "review": "Compiled; omitting the unscaled W term gives a negative exact-H difference in the assigned independent full-family test. Scaled W remains present per frozen single-site patch; intended semantic equality fails.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM07/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM07-00/EVIDENCE.json",
+      "binary_sha256": "02f123c399d64658e5ca77d7e48baadc415590a19ebc2cef9628eee65162aabd",
+      "source_sha256": "6b725a62a40521de525bdfb41fc2b85882d0a8acc2f958122e0f4cb13635dc26",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM07",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/control/PM07.stdout' 2> '<E2_S>/logs/control/PM07.stderr'",
+      "launch_utc": "2026-10-01T09:31:43.092Z",
+      "guard_before": {
+        "chunk_id": "ea880f",
+        "wall_time_seconds": 0.000006792,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:55:24 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "eb2235",
+        "wall_time_seconds": 0.000010792,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:31:43.348Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM07/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM08-00",
+      "source_id": "PM08",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM08' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/mutant/PM08-00.stdout' 2> '<E2_S>/logs/mutant/PM08-00.stderr'",
+      "launch_utc": "2026-10-01T09:31:43.565Z",
+      "guard_before": {
+        "chunk_id": "3049f5",
+        "wall_time_seconds": 0.000009417,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:55:24 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "119b23",
+        "wall_time_seconds": 1.003245292,
+        "session_id": 50753,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "d4f2da",
+        "wall_time_seconds": 0.000007959,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:32:09.661Z",
+      "review": "Compiled; omission of W*2^-P, while retaining unscaled W, fails the assigned independent exact-H equality with negative difference. The actual failure is the mapped arithmetic assertion.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM08/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM08-00/EVIDENCE.json",
+      "binary_sha256": "c259f6a696d12ec08990eae5da69b315edd1d51471cf32b7706d3fbf4067590e",
+      "source_sha256": "58c9869b2ccc404580c2d67e78e668996383b269aefd590d020d40bc68e9ab00",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM08",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/control/PM08.stdout' 2> '<E2_S>/logs/control/PM08.stderr'",
+      "launch_utc": "2026-10-01T09:32:13.528Z",
+      "guard_before": {
+        "chunk_id": "7dbb29",
+        "wall_time_seconds": 0.000006375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:55:54 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "b0db24",
+        "wall_time_seconds": 0.000009208,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:32:13.783Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM08/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM09-00",
+      "source_id": "PM09",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM09' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/mutant/PM09-00.stdout' 2> '<E2_S>/logs/mutant/PM09-00.stderr'",
+      "launch_utc": "2026-10-01T09:32:14.006Z",
+      "guard_before": {
+        "chunk_id": "bf7fdb",
+        "wall_time_seconds": 0.000013542,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:55:54 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "f46878",
+        "wall_time_seconds": 1.001465417,
+        "session_id": 95781,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "1b4ced",
+        "wall_time_seconds": 0.000013958,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:32:28.775Z",
+      "review": "Compiled; removing the positive charge term fails the independent force/moment exact-H equality in PC01-03. Exactly the mapped test fails; no unrelated runtime or work snapshot failure.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM09/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM09-00/EVIDENCE.json",
+      "binary_sha256": "662bdf711a7c08fbe584d419c3a7f3153efbfc57321856b448e5b64d8bde8ccf",
+      "source_sha256": "e73c984fe90b7fac00eac24295e61e22e9f5a67abaf87f80689b3225f21fc197",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM09",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' -- --exact > '<E2_S>/logs/control/PM09.stdout' 2> '<E2_S>/logs/control/PM09.stderr'",
+      "launch_utc": "2026-10-01T09:32:33.653Z",
+      "guard_before": {
+        "chunk_id": "97a62d",
+        "wall_time_seconds": 0.000007167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:56:14 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "508824",
+        "wall_time_seconds": 0.000008208,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:32:33.911Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM09/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM10a-00",
+      "source_id": "PM10a",
+      "filter": "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM10a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption' -- --exact > '<E2_S>/logs/mutant/PM10a-00.stdout' 2> '<E2_S>/logs/mutant/PM10a-00.stderr'",
+      "launch_utc": "2026-10-01T09:32:34.122Z",
+      "guard_before": {
+        "chunk_id": "a5041a",
+        "wall_time_seconds": 0.000006958,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:56:15 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "179ba6",
+        "wall_time_seconds": 1.001927542,
+        "session_id": 64179,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "b17933",
+        "wall_time_seconds": 0.000005542,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:33:25.417Z",
+      "review": "Compiled; at x=0 the just-above-b row is falsely admitted (verdict.is_none true, expected false, line137). This directly detects the observed-zero exemption in the predicate, before any radius check.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM10a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM10a-00/EVIDENCE.json",
+      "binary_sha256": "c922c30ebd1a2a3fac5ab564235ccbd7834b8890fe44b22c1a7e83fcd417e458",
+      "source_sha256": "4220e2af49517bea8535cc4e44b580ca8c0ad10485734ec13f081a82927a0d02",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM10a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption' -- --exact > '<E2_S>/logs/control/PM10a.stdout' 2> '<E2_S>/logs/control/PM10a.stderr'",
+      "launch_utc": "2026-10-01T09:33:30.970Z",
+      "guard_before": {
+        "chunk_id": "bdff21",
+        "wall_time_seconds": 0.000007458,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:57:11 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "40cb44",
+        "wall_time_seconds": 0.000008041,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:33:31.226Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM10a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM10b-00",
+      "source_id": "PM10b",
+      "filter": "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM10b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption' -- --exact > '<E2_S>/logs/mutant/PM10b-00.stdout' 2> '<E2_S>/logs/mutant/PM10b-00.stderr'",
+      "launch_utc": "2026-10-01T09:33:31.443Z",
+      "guard_before": {
+        "chunk_id": "fd1fc7",
+        "wall_time_seconds": 0.000007167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:57:12 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "f9e434",
+        "wall_time_seconds": 1.000725916,
+        "session_id": 34927,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "44c985",
+        "wall_time_seconds": 0.000008833,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:34:01.806Z",
+      "review": "Compiled; positive H with b=0 returns None instead of Some(AbsoluteBound) at line144. This is the exact zero-bound exemption discriminator, not later radius validation.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM10b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM10b-00/EVIDENCE.json",
+      "binary_sha256": "cb44aa4a56e03341803bfbfa96ad690e70c32788dd881f2bad4b3c011b017d55",
+      "source_sha256": "c396bb49aa10fe96044b5171931ff16aec3eb24cac6366c8fbbf802eee939a57",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM10b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption' -- --exact > '<E2_S>/logs/control/PM10b.stdout' 2> '<E2_S>/logs/control/PM10b.stderr'",
+      "launch_utc": "2026-10-01T09:34:05.437Z",
+      "guard_before": {
+        "chunk_id": "b387c6",
+        "wall_time_seconds": 0.0000065,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:57:46 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "8e8a14",
+        "wall_time_seconds": 0.000008083,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:34:05.690Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM10b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM11-00",
+      "source_id": "PM11",
+      "filter": "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM11' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption' -- --exact > '<E2_S>/logs/mutant/PM11-00.stdout' 2> '<E2_S>/logs/mutant/PM11-00.stderr'",
+      "launch_utc": "2026-10-01T09:34:05.912Z",
+      "guard_before": {
+        "chunk_id": "6bfc5f",
+        "wall_time_seconds": 0.000007375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:57:46 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "49aca6",
+        "wall_time_seconds": 1.002300625,
+        "session_id": 10309,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "c33ed9",
+        "wall_time_seconds": 0.000013167,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:34:29.747Z",
+      "review": "Compiled; replacing bare b by b*(1+2^-22) falsely admits the first just-above-b control at line137 (true versus false). This is the intended bare-bound violation; the later between-b-and-qualified-b assertion was not needed/reached.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM11/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM11-00/EVIDENCE.json",
+      "binary_sha256": "a4b246faf2bc473af0a0b238aa3158ef06264eda9feab5ba086f5d23f584294e",
+      "source_sha256": "cdef37db54e3adbe290794cf8e13fe708633ac2f9ff0504c7cda12f0400f2eaf",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM11",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::bare_bound_including_zero_has_no_observed_zero_exemption' -- --exact > '<E2_S>/logs/control/PM11.stdout' 2> '<E2_S>/logs/control/PM11.stderr'",
+      "launch_utc": "2026-10-01T09:34:34.779Z",
+      "guard_before": {
+        "chunk_id": "a2cdf9",
+        "wall_time_seconds": 0.000006375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:58:15 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "3a23e0",
+        "wall_time_seconds": 0.000012458,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:34:35.030Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM11/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM12a-00",
+      "source_id": "PM12a",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM12a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/mutant/PM12a-00.stdout' 2> '<E2_S>/logs/mutant/PM12a-00.stderr'",
+      "launch_utc": "2026-10-01T09:34:35.250Z",
+      "guard_before": {
+        "chunk_id": "87f930",
+        "wall_time_seconds": 0.000006833,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:58:16 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "e96e38",
+        "wall_time_seconds": 1.003338667,
+        "session_id": 84543,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "78a941",
+        "wall_time_seconds": 0.000012042,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:34:58.193Z",
+      "review": "Compiled; the exact decimal above-boundary control returns None instead of Some(PublicRelative) at line719. The public-relative comparison omission is directly exposed while the sharper checks remain.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM12a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM12a-00/EVIDENCE.json",
+      "binary_sha256": "0d8b6bf9f1fdb025d07108f03b282a3003cc0f6149abd45e4e81d608f988bae8",
+      "source_sha256": "b11f7ddefd5df2f0f2b9db9501f89ca2f33101ae9e3ff07bdc738d2c887cc8ba",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM12a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/control/PM12a.stdout' 2> '<E2_S>/logs/control/PM12a.stderr'",
+      "launch_utc": "2026-10-01T09:35:02.997Z",
+      "guard_before": {
+        "chunk_id": "6799a9",
+        "wall_time_seconds": 0.000006458,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:58:43 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "334dc5",
+        "wall_time_seconds": 0.000009625,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:35:03.253Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM12a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM12b-00",
+      "source_id": "PM12b",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM12b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/mutant/PM12b-00.stdout' 2> '<E2_S>/logs/mutant/PM12b-00.stderr'",
+      "launch_utc": "2026-10-01T09:35:03.470Z",
+      "guard_before": {
+        "chunk_id": "2a21df",
+        "wall_time_seconds": 0.000008167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:58:44 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "3e0db0",
+        "wall_time_seconds": 1.002078834,
+        "session_id": 79896,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "09e9f4",
+        "wall_time_seconds": 0.00001075,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:35:29.628Z",
+      "review": "Compiled; frozen A_exact<A_f64 intermediate control returns None instead of Some(SharperExact) at line702. This is the mapped exact-sharper arithmetic discriminator, with no source-reachability claim.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM12b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM12b-00/EVIDENCE.json",
+      "binary_sha256": "9d6627b47c5c9e920e34f164c74302880c2e077ac17ec706daf42ded79a29c8d",
+      "source_sha256": "a62020f4b4c6eb4740c579cdf89747c1c654381836eb1531f009cdcc59674725",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM12b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/control/PM12b.stdout' 2> '<E2_S>/logs/control/PM12b.stderr'",
+      "launch_utc": "2026-10-01T09:35:34.790Z",
+      "guard_before": {
+        "chunk_id": "c0787d",
+        "wall_time_seconds": 0.000008084,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:59:15 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "83d960",
+        "wall_time_seconds": 0.000008584,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:35:35.038Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM12b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM12c-00",
+      "source_id": "PM12c",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM12c' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/mutant/PM12c-00.stdout' 2> '<E2_S>/logs/mutant/PM12c-00.stderr'",
+      "launch_utc": "2026-10-01T09:35:35.254Z",
+      "guard_before": {
+        "chunk_id": "639b49",
+        "wall_time_seconds": 0.000006625,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:59:16 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "aed5cc",
+        "wall_time_seconds": 1.001322917,
+        "session_id": 11858,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "a228f6",
+        "wall_time_seconds": 0.000012416,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:36:04.947Z",
+      "review": "Compiled; frozen A_f64<A_exact intermediate returns None rather than Some(SharperBinary64) at line686. The specific decoded-binary64-sharper check is necessary, as mapped.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM12c/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM12c-00/EVIDENCE.json",
+      "binary_sha256": "b4545f3ec8a25dedeffa82163c1dee31b53a0e157b365bc4e1b2c11b7d6aa800",
+      "source_sha256": "73651605aa622290a9089f9f64dbadb3f3115b0cde24b1a9aa3bcda065e4ff8a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM12c",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/control/PM12c.stdout' 2> '<E2_S>/logs/control/PM12c.stderr'",
+      "launch_utc": "2026-10-01T09:36:07.978Z",
+      "guard_before": {
+        "chunk_id": "d8095a",
+        "wall_time_seconds": 0.000007209,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:59:48 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "6422d6",
+        "wall_time_seconds": 0.000008,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:36:08.242Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM12c/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM13a-00",
+      "source_id": "PM13a",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM13a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/mutant/PM13a-00.stdout' 2> '<E2_S>/logs/mutant/PM13a-00.stderr'",
+      "launch_utc": "2026-10-01T09:36:08.460Z",
+      "guard_before": {
+        "chunk_id": "6128cd",
+        "wall_time_seconds": 0.00000675,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-07:59:49 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "fbe2f4",
+        "wall_time_seconds": 1.001512416,
+        "session_id": 26262,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "6c0c20",
+        "wall_time_seconds": 0.000008625,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:36:37.127Z",
+      "review": "Compiled; rounding H to binary64 before admission erases the h/2 excess over A_f64. The mapped intermediate control returns None instead of Some(SharperBinary64), line686.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM13a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM13a-00/EVIDENCE.json",
+      "binary_sha256": "ad0c6453258a4e64fedc15399ac4fadda20cb125698447dc3f44fb525ed47305",
+      "source_sha256": "9f9bdc785d57d96f918e451b691efdaa9eac04f03229b36cd9238ac852804919",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM13a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc09_12_both_independent_rounding_directions_and_decimal_boundary' -- --exact > '<E2_S>/logs/control/PM13a.stdout' 2> '<E2_S>/logs/control/PM13a.stderr'",
+      "launch_utc": "2026-10-01T09:36:40.956Z",
+      "guard_before": {
+        "chunk_id": "080ee1",
+        "wall_time_seconds": 0.000009125,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:00:21 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "4e3e7f",
+        "wall_time_seconds": 0.000008625,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:36:41.212Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM13a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM13b-00",
+      "source_id": "PM13b",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM13b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM13b-00.stdout' 2> '<E2_S>/logs/mutant/PM13b-00.stderr'",
+      "launch_utc": "2026-10-01T09:36:41.431Z",
+      "guard_before": {
+        "chunk_id": "b8a6ce",
+        "wall_time_seconds": 0.000007875,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:00:22 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "4fa9a6",
+        "wall_time_seconds": 1.002469333,
+        "session_id": 51874,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "c60318",
+        "wall_time_seconds": 0.000011,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:37:12.467Z",
+      "review": "Compiled; replacing exact H by RU64(H) causes the independently admitted relative fixture to be rejected, triggering 'exact H admits' at line1621. This is the declared exact-admission-versus-stored-radius discriminator.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM13b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM13b-00/EVIDENCE.json",
+      "binary_sha256": "ca3744d03e014a4bd9984c5b080365cb7f7835bad14012143bcb27fabfab2a2d",
+      "source_sha256": "26afd97c60cd126e031d44a5d36ca6dd036efecd0404003e5a68a169f5372415",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM13b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM13b.stdout' 2> '<E2_S>/logs/control/PM13b.stderr'",
+      "launch_utc": "2026-10-01T09:37:16.167Z",
+      "guard_before": {
+        "chunk_id": "d47dce",
+        "wall_time_seconds": 0.000007166,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:00:57 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "ff33f7",
+        "wall_time_seconds": 0.000008625,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:37:16.428Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM13b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM14a-00",
+      "source_id": "PM14a",
+      "filter": "structural::retained::adaptive::publication_tests::upward_radius_is_not_nearest_or_underflowed_zero",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM14a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::upward_radius_is_not_nearest_or_underflowed_zero' -- --exact > '<E2_S>/logs/mutant/PM14a-00.stdout' 2> '<E2_S>/logs/mutant/PM14a-00.stderr'",
+      "launch_utc": "2026-10-01T09:37:16.649Z",
+      "guard_before": {
+        "chunk_id": "feb0e1",
+        "wall_time_seconds": 0.000007083,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:00:57 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "72f183",
+        "wall_time_seconds": 1.001727,
+        "session_id": 67273,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "b66ec6",
+        "wall_time_seconds": 0.000013875,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:37:55.224Z",
+      "review": "Compiled; nearest-only conversion returns radius bits0 instead of upward bit1 for positive H below h, line193. This is the required underflow-to-zero radius discriminator.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM14a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM14a-00/EVIDENCE.json",
+      "binary_sha256": "8be30190b3332b3ab7a5f9fe1d8259c1db207876988fa53afa3c635b68b58f98",
+      "source_sha256": "c61df464395cb0f01f91ca50fbd700a715edee0662fce32159d190e500df4c9a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM14a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::upward_radius_is_not_nearest_or_underflowed_zero",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::upward_radius_is_not_nearest_or_underflowed_zero' -- --exact > '<E2_S>/logs/control/PM14a.stdout' 2> '<E2_S>/logs/control/PM14a.stderr'",
+      "launch_utc": "2026-10-01T09:38:00.995Z",
+      "guard_before": {
+        "chunk_id": "6d559f",
+        "wall_time_seconds": 0.000006916,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:01:41 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "2c16ac",
+        "wall_time_seconds": 0.000008459,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:38:01.251Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM14a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM14b-00",
+      "source_id": "PM14b",
+      "filter": "structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM14b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity' -- --exact > '<E2_S>/logs/mutant/PM14b-00.stdout' 2> '<E2_S>/logs/mutant/PM14b-00.stderr'",
+      "launch_utc": "2026-10-01T09:38:01.474Z",
+      "guard_before": {
+        "chunk_id": "db3a31",
+        "wall_time_seconds": 0.000007333,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:01:42 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "1b13ae",
+        "wall_time_seconds": 1.002981458,
+        "session_id": 38931,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "c14030",
+        "wall_time_seconds": 0.0000055,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:38:22.760Z",
+      "review": "Compiled; the eligible-row ABSENT_RADIUS_BITS corruption is incorrectly accepted as present zero, violating publication_radius(...).is_err() at line1061. This is the mapped sentinel/tag semantic failure.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM14b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM14b-00/EVIDENCE.json",
+      "binary_sha256": "d829d5c025cd6066d3805e0835236188c7eb2906c8325b80459707cd64a426d1",
+      "source_sha256": "671a6eaa8ead9d3c9087d05d6a73924ca890ea416fdff24bd7bdb8191df51fe3",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM14b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity' -- --exact > '<E2_S>/logs/control/PM14b.stdout' 2> '<E2_S>/logs/control/PM14b.stderr'",
+      "launch_utc": "2026-10-01T09:38:29.347Z",
+      "guard_before": {
+        "chunk_id": "04fc48",
+        "wall_time_seconds": 0.000007291,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:02:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "692579",
+        "wall_time_seconds": 0.000007916,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:38:29.613Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM14b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM14c-00",
+      "source_id": "PM14c",
+      "filter": "structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM14c' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity' -- --exact > '<E2_S>/logs/mutant/PM14c-00.stdout' 2> '<E2_S>/logs/mutant/PM14c-00.stderr'",
+      "launch_utc": "2026-10-01T09:38:29.838Z",
+      "guard_before": {
+        "chunk_id": "df4064",
+        "wall_time_seconds": 0.00000675,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:02:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "73d437",
+        "wall_time_seconds": 1.001824708,
+        "session_id": 40230,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "689407",
+        "wall_time_seconds": 0.000006292,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:39:01.176Z",
+      "review": "Compiled; normalizing a corrupted negative-zero private radius to +0 violates the eligible-row accessor error assertion at line1061. The absent-sentinel check stays intact; this is the separate negative-zero fault.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM14c/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM14c-00/EVIDENCE.json",
+      "binary_sha256": "2dc4a4b6d82e463b01ef611d394f0fa1f163ca5153e4a5f570df950b6d6f58e6",
+      "source_sha256": "d8babac95c54da81fb6c7b129ed055f0f9bcbf0573615a1f72243d80573272fa",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM14c",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc36_39_final_draft_move_drop_and_radius_identity' -- --exact > '<E2_S>/logs/control/PM14c.stdout' 2> '<E2_S>/logs/control/PM14c.stderr'",
+      "launch_utc": "2026-10-01T09:39:04.857Z",
+      "guard_before": {
+        "chunk_id": "a62cdd",
+        "wall_time_seconds": 0.000008792,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:02:45 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "a4f25d",
+        "wall_time_seconds": 0.000009083,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:39:05.115Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM14c/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15a-00",
+      "source_id": "PM15a",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15a-00.stdout' 2> '<E2_S>/logs/mutant/PM15a-00.stderr'",
+      "launch_utc": "2026-10-01T09:39:05.330Z",
+      "guard_before": {
+        "chunk_id": "802b93",
+        "wall_time_seconds": 0.000008708,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:02:46 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "87a615",
+        "wall_time_seconds": 1.001389875,
+        "session_id": 39596,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "682abb",
+        "wall_time_seconds": 0.00001375,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:39:27.489Z",
+      "review": "Compiled; final Box equality at line1715 shows eligible D:6 radius changed from fixed 4368493837573686274 (3ca0020000100402) to0, while absent sentinels and companion remain. This is positive-radius zeroing, not sentinel corruption.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15a-00/EVIDENCE.json",
+      "binary_sha256": "60783f7d24c349a4941260b5abe6315ea2a1f0f5b8a7cd4eaa1f10927f22c645",
+      "source_sha256": "acb2037d9cfa4d0e070a22c42e0d0a2fa7dd6dcb8912c1725e6b6e7b1ec7f162",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15a.stdout' 2> '<E2_S>/logs/control/PM15a.stderr'",
+      "launch_utc": "2026-10-01T09:39:33.491Z",
+      "guard_before": {
+        "chunk_id": "077a0f",
+        "wall_time_seconds": 0.000008167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:03:14 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "341ac5",
+        "wall_time_seconds": 0.000009083,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:39:33.745Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15b-00",
+      "source_id": "PM15b",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15b-00.stdout' 2> '<E2_S>/logs/mutant/PM15b-00.stderr'",
+      "launch_utc": "2026-10-01T09:39:33.964Z",
+      "guard_before": {
+        "chunk_id": "68591f",
+        "wall_time_seconds": 0.000009041,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:03:14 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "b263c5",
+        "wall_time_seconds": 1.002795417,
+        "session_id": 84405,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "ce163e",
+        "wall_time_seconds": 0.000005792,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:39:55.833Z",
+      "review": "Compiled; final Box equality at line1715 shows the two distinct positive D:6/M:1 radii swapped, with absence sentinels untouched. This is the intended pairing/permutation discriminator.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15b-00/EVIDENCE.json",
+      "binary_sha256": "17e3bc212cd8fad31028ea39213e1d8103bd3a70314c2c463c49187b15ef5b2e",
+      "source_sha256": "0eab899fa90159d09526ae9a43e9ae63959c8bfe2600acf64da26f11fb73937f",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15b.stdout' 2> '<E2_S>/logs/control/PM15b.stderr'",
+      "launch_utc": "2026-10-01T09:40:01.735Z",
+      "guard_before": {
+        "chunk_id": "686119",
+        "wall_time_seconds": 0.000007083,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:03:42 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "4ec1d1",
+        "wall_time_seconds": 0.00001,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:40:02.003Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15c-00",
+      "source_id": "PM15c",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15c' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15c-00.stdout' 2> '<E2_S>/logs/mutant/PM15c-00.stderr'",
+      "launch_utc": "2026-10-01T09:40:02.216Z",
+      "guard_before": {
+        "chunk_id": "d203ab",
+        "wall_time_seconds": 0.000009042,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:03:43 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "213662",
+        "wall_time_seconds": 1.001995,
+        "session_id": 61777,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "30d4dc",
+        "wall_time_seconds": 0.000010583,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:40:56.262Z",
+      "review": "Compiled; raw final-publication identity fails at line1714 solely because D:0 Normal value bits become 9223372036854775808 (-0) instead of0 (+0). Remaining debug identity text is identical. This demonstrates the signed-zero discriminator beyond float PartialEq.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15c/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15c-00/EVIDENCE.json",
+      "binary_sha256": "fdb844a03355242b781e3c473c44205cc28f8ab3c8aaf6532bcc774b7af40dcc",
+      "source_sha256": "55a75c2b229e31344a0a3592c7c83ca7bd5d992f1f6a97e722003ffe8cf2650e",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15c",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15c.stdout' 2> '<E2_S>/logs/control/PM15c.stderr'",
+      "launch_utc": "2026-10-01T09:41:06.270Z",
+      "guard_before": {
+        "chunk_id": "1c5f7f",
+        "wall_time_seconds": 0.000007917,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:04:47 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "906d2f",
+        "wall_time_seconds": 0.0000075,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:41:06.529Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15c/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15d-00",
+      "source_id": "PM15d",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15d' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15d-00.stdout' 2> '<E2_S>/logs/mutant/PM15d-00.stderr'",
+      "launch_utc": "2026-10-01T09:41:06.740Z",
+      "guard_before": {
+        "chunk_id": "5b0c93",
+        "wall_time_seconds": 0.000012916,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:04:47 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "3e4a85",
+        "wall_time_seconds": 1.001239791,
+        "session_id": 40980,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "bd5f39",
+        "wall_time_seconds": 0.00001125,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:41:48.928Z",
+      "review": "Compiled; line1714 raw publication identity shows D:6 outcome tag changed from Normal0 with fixed value bits4607182418800018433 to Underflow2. All remaining identity text agrees. This is the declared post-certificate outcome corruption.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15d/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15d-00/EVIDENCE.json",
+      "binary_sha256": "00fd0da77d699635c3a194705fbe6df0d122be398869782965313246099e170a",
+      "source_sha256": "6261640d282a127b5737ede684ed15114c2db6be2d87109af8610b0d5ac00189",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15d",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15d.stdout' 2> '<E2_S>/logs/control/PM15d.stderr'",
+      "launch_utc": "2026-10-01T09:41:52.869Z",
+      "guard_before": {
+        "chunk_id": "5f4e7a",
+        "wall_time_seconds": 0.000007375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:05:33 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "b621ef",
+        "wall_time_seconds": 0.000008583,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:41:53.141Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15d/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15e-class-00",
+      "source_id": "PM15e-class",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15e-class' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15e-class-00.stdout' 2> '<E2_S>/logs/mutant/PM15e-class-00.stderr'",
+      "launch_utc": "2026-10-01T09:41:53.362Z",
+      "guard_before": {
+        "chunk_id": "3ecd74",
+        "wall_time_seconds": 0.000007125,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:05:34 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "8796b3",
+        "wall_time_seconds": 1.003130375,
+        "session_id": 81640,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "f9dbde",
+        "wall_time_seconds": 0.000013375,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:42:21.703Z",
+      "review": "Compiled; raw final publication equality at line1714 shows D:6 changed from RelativeVerified to AbsoluteVerified{bound_bits:1}, with all other identity text unchanged. Exact class/bound pairing assertion catches the declared final-class corruption.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15e-class/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15e-class-00/EVIDENCE.json",
+      "binary_sha256": "361835ba9b20ce02353620a84afba4ace07b644a898d194ea3f0c900f2b47419",
+      "source_sha256": "e70606e215f315c13f753a1b49d97ba6aa71be1bce51fd70cb48440ab6c025d4",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15e-class",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15e-class.stdout' 2> '<E2_S>/logs/control/PM15e-class.stderr'",
+      "launch_utc": "2026-10-01T09:42:25.699Z",
+      "guard_before": {
+        "chunk_id": "18fae3",
+        "wall_time_seconds": 0.000006875,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:06:06 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "c0db22",
+        "wall_time_seconds": 0.000007583,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:42:25.957Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15e-class/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15e-bound-00",
+      "source_id": "PM15e-bound",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15e-bound' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15e-bound-00.stdout' 2> '<E2_S>/logs/mutant/PM15e-bound-00.stderr'",
+      "launch_utc": "2026-10-01T09:42:26.170Z",
+      "guard_before": {
+        "chunk_id": "01b6d8",
+        "wall_time_seconds": 0.00000675,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:06:07 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "317937",
+        "wall_time_seconds": 1.002662208,
+        "session_id": 74045,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "86046f",
+        "wall_time_seconds": 0.0000105,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:42:48.479Z",
+      "review": "Compiled; raw final equality at line1714 detects M:0 bound bits4318952042648306688 instead of4318952042648306689 while its AbsoluteVerified class and all other identity text stay unchanged. This is the separate bound-bit corruption.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15e-bound/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15e-bound-00/EVIDENCE.json",
+      "binary_sha256": "fd07fedff195c2bbb77549e2d51a6bf920f72ab1285b2aa8cd9095b19632abd1",
+      "source_sha256": "4b3896c4b57b7dc8e1774d2a952aa43a813a018364bce39dfe6c5dddd09467a1",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15e-bound",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15e-bound.stdout' 2> '<E2_S>/logs/control/PM15e-bound.stderr'",
+      "launch_utc": "2026-10-01T09:42:53.677Z",
+      "guard_before": {
+        "chunk_id": "7b5f27",
+        "wall_time_seconds": 0.000006166,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:06:34 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "5560bf",
+        "wall_time_seconds": 0.000009083,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:42:53.934Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15e-bound/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15f-00",
+      "source_id": "PM15f",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15f' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15f-00.stdout' 2> '<E2_S>/logs/mutant/PM15f-00.stderr'",
+      "launch_utc": "2026-10-01T09:42:54.157Z",
+      "guard_before": {
+        "chunk_id": "511d3b",
+        "wall_time_seconds": 0.000007375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:06:35 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "b68551",
+        "wall_time_seconds": 1.002166958,
+        "session_id": 78410,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "027c2d",
+        "wall_time_seconds": 0.000011209,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:43:49.955Z",
+      "review": "Compiled; line1714 raw publication equality differs only in Translation scale bits4607182418800018432 versus fixed4607182418800018433. The mapped post-certificate scale corruption is detected.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15f/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15f-00/EVIDENCE.json",
+      "binary_sha256": "3245a6d0375a72694ff922a8fcef70b49e5fb06e5480fcb034b9ef2580f62baf",
+      "source_sha256": "8915ee55d48503fb0c0c8e8933ec54d6af74e3ce7c8d1825457a8914f89834c0",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15f",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15f.stdout' 2> '<E2_S>/logs/control/PM15f.stderr'",
+      "launch_utc": "2026-10-01T09:43:53.692Z",
+      "guard_before": {
+        "chunk_id": "3ccb68",
+        "wall_time_seconds": 0.000008542,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:07:34 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "a97836",
+        "wall_time_seconds": 0.009900667,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:43:54.028Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15f/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM15g-accessor-00",
+      "source_id": "PM15g-accessor",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM15g-accessor' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/mutant/PM15g-accessor-00.stdout' 2> '<E2_S>/logs/mutant/PM15g-accessor-00.stderr'",
+      "launch_utc": "2026-10-01T09:43:54.241Z",
+      "guard_before": {
+        "chunk_id": "cdffb5",
+        "wall_time_seconds": 0.000008333,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:07:35 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "cef942",
+        "wall_time_seconds": 1.000711208,
+        "session_id": 6741,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "4a52f9",
+        "wall_time_seconds": 0.000012791,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:44:24.545Z",
+      "review": "Compiled; the explicit M:1 accessor tuple at line1745 returns D:6 radius4368493837573686274 rather than its independent3458764513820541953, while id/body/kind match. Earlier stored-array and final-publication assertions passed. This isolates wrong-index access despite correct storage.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM15g-accessor/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM15g-accessor-00/EVIDENCE.json",
+      "binary_sha256": "37c8f4368eadddb21ddc539be11ef988e6dc7fd916ecbf6d0494e8f8dbb5b530",
+      "source_sha256": "8e66ff138454d6a3bcf8c35b8bccb75647f8b827053e38782a51ea9c1d3c044e",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM15g-accessor",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' -- --exact > '<E2_S>/logs/control/PM15g-accessor.stdout' 2> '<E2_S>/logs/control/PM15g-accessor.stderr'",
+      "launch_utc": "2026-10-01T09:44:29.048Z",
+      "guard_before": {
+        "chunk_id": "baec1e",
+        "wall_time_seconds": 0.000008208,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:08:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "b79820",
+        "wall_time_seconds": 0.000007708,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:44:29.326Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM15g-accessor/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16a-00",
+      "source_id": "PM16a",
+      "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' -- --exact > '<E2_S>/logs/mutant/PM16a-00.stdout' 2> '<E2_S>/logs/mutant/PM16a-00.stderr'",
+      "launch_utc": "2026-10-01T09:44:29.550Z",
+      "guard_before": {
+        "chunk_id": "758a87",
+        "wall_time_seconds": 0.000008875,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:08:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "b66dbb",
+        "wall_time_seconds": 1.001792,
+        "session_id": 84199,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "260ea0",
+        "wall_time_seconds": 0.000010125,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:44:54.146Z",
+      "review": "Compiled; clone-only omission preserves the preceding expected H/radius result, then charges18021 instead of frozen independent18103 at PC40 line575. This is the actual single-site clone-accounting discrepancy, not a hypothetical compound price.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16a-00/EVIDENCE.json",
+      "binary_sha256": "6d8d0e32fc3f7f605d3e90d78b2b5e98a7b48eb77b1366103770c498ce05633d",
+      "source_sha256": "d1661adba9ef736d31c3d39cd7aa7008cca65aa822871ec7c13bd3d3809e508a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16a-01",
+      "source_id": "PM16a",
+      "filter": "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes' -- --exact > '<E2_S>/logs/mutant/PM16a-01.stdout' 2> '<E2_S>/logs/mutant/PM16a-01.stderr'",
+      "launch_utc": "2026-10-01T09:45:11.492Z",
+      "guard_before": {
+        "chunk_id": "3bb86b",
+        "wall_time_seconds": 0.000008708,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:08:52 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "46345e",
+        "wall_time_seconds": 0.000009958,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:45:11.745Z",
+      "review": "PC41's fixed checkpoint progression fails at line624: observed charged stop191 versus independent next checkpoint178. This exposes omitted clone work on a stopped path; no budget was recalibrated from the mutant.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16a-01/EVIDENCE.json",
+      "binary_sha256": "6d8d0e32fc3f7f605d3e90d78b2b5e98a7b48eb77b1366103770c498ce05633d",
+      "source_sha256": "d1661adba9ef736d31c3d39cd7aa7008cca65aa822871ec7c13bd3d3809e508a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16a-02",
+      "source_id": "PM16a",
+      "filter": "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence' -- --exact > '<E2_S>/logs/mutant/PM16a-02.stdout' 2> '<E2_S>/logs/mutant/PM16a-02.stderr'",
+      "launch_utc": "2026-10-01T09:45:29.444Z",
+      "guard_before": {
+        "chunk_id": "9b28aa",
+        "wall_time_seconds": 0.000006708,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:09:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "618ad0",
+        "wall_time_seconds": 0.000008916,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:45:29.695Z",
+      "review": "PC42 fails the fixed terminal/budget ordering at line670: omitted clone charging lets Exponent occur where the independent fixture requires Budget(Case). All three PM16a failures are the predeclared accounting/stop discriminators.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16a-02/EVIDENCE.json",
+      "binary_sha256": "6d8d0e32fc3f7f605d3e90d78b2b5e98a7b48eb77b1366103770c498ce05633d",
+      "source_sha256": "d1661adba9ef736d31c3d39cd7aa7008cca65aa822871ec7c13bd3d3809e508a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM16a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' -- --exact > '<E2_S>/logs/control/PM16a.stdout' 2> '<E2_S>/logs/control/PM16a.stderr'",
+      "launch_utc": "2026-10-01T09:45:33.198Z",
+      "guard_before": {
+        "chunk_id": "20a119",
+        "wall_time_seconds": 0.000008375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:09:14 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "f9e741",
+        "wall_time_seconds": 0.000009542,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:45:33.445Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM16a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16b-00",
+      "source_id": "PM16b",
+      "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' -- --exact > '<E2_S>/logs/mutant/PM16b-00.stdout' 2> '<E2_S>/logs/mutant/PM16b-00.stderr'",
+      "launch_utc": "2026-10-01T09:45:33.662Z",
+      "guard_before": {
+        "chunk_id": "70daec",
+        "wall_time_seconds": 0.000008792,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:09:14 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "f69cd6",
+        "wall_time_seconds": 1.001262125,
+        "session_id": 51206,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "cbf8fb",
+        "wall_time_seconds": 0.000008542,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:46:17.438Z",
+      "review": "Compiled; whole-clone-counter merging preserves the preceding expected numerical result but charges18212 instead of frozen18103 at PC40 line575. This is independently detected inherited-counter duplication.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16b-00/EVIDENCE.json",
+      "binary_sha256": "df4b9bc29e5a181579565ca6c5ea2dc10d522323823a974e2dc95cc9ec5829cb",
+      "source_sha256": "0e76fe7ac19799b44506f377612db7c2af932119186309767cfdd94f296b72e8",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16b-01",
+      "source_id": "PM16b",
+      "filter": "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes' -- --exact > '<E2_S>/logs/mutant/PM16b-01.stdout' 2> '<E2_S>/logs/mutant/PM16b-01.stderr'",
+      "launch_utc": "2026-10-01T09:46:23.187Z",
+      "guard_before": {
+        "chunk_id": "a16c3a",
+        "wall_time_seconds": 0.000007958,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:10:04 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "3d483b",
+        "wall_time_seconds": 0.000009959,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:46:23.437Z",
+      "review": "PC41's fixed stopped-work checkpoint fails at line624:222 charged instead of independent178. The whole-counter fault is caught on the prescribed checkpoint path, not through a changed budget.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16b-01/EVIDENCE.json",
+      "binary_sha256": "df4b9bc29e5a181579565ca6c5ea2dc10d522323823a974e2dc95cc9ec5829cb",
+      "source_sha256": "0e76fe7ac19799b44506f377612db7c2af932119186309767cfdd94f296b72e8",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16b-02",
+      "source_id": "PM16b",
+      "filter": "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence' -- --exact > '<E2_S>/logs/mutant/PM16b-02.stdout' 2> '<E2_S>/logs/mutant/PM16b-02.stderr'",
+      "launch_utc": "2026-10-01T09:46:32.025Z",
+      "guard_before": {
+        "chunk_id": "481987",
+        "wall_time_seconds": 0.000006875,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:10:13 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "ca1b4f",
+        "wall_time_seconds": 0.000009333,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:46:32.280Z",
+      "review": "PC42 retains the expected stop type but charges6 instead of frozen4 at line671. This independently detects whole-clone inherited-counter duplication on the terminal/budget fixture.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16b-02/EVIDENCE.json",
+      "binary_sha256": "df4b9bc29e5a181579565ca6c5ea2dc10d522323823a974e2dc95cc9ec5829cb",
+      "source_sha256": "0e76fe7ac19799b44506f377612db7c2af932119186309767cfdd94f296b72e8",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM16b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' -- --exact > '<E2_S>/logs/control/PM16b.stdout' 2> '<E2_S>/logs/control/PM16b.stderr'",
+      "launch_utc": "2026-10-01T09:46:36.520Z",
+      "guard_before": {
+        "chunk_id": "75eb14",
+        "wall_time_seconds": 0.000008584,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:10:17 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "854435",
+        "wall_time_seconds": 0.000010875,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:46:36.767Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM16b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16c-00",
+      "source_id": "PM16c",
+      "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16c' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' -- --exact > '<E2_S>/logs/mutant/PM16c-00.stdout' 2> '<E2_S>/logs/mutant/PM16c-00.stderr'",
+      "launch_utc": "2026-10-01T09:46:36.987Z",
+      "guard_before": {
+        "chunk_id": "3c397f",
+        "wall_time_seconds": 0.000007209,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:10:17 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "ad450b",
+        "wall_time_seconds": 1.002527584,
+        "session_id": 11591,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "28ff44",
+        "wall_time_seconds": 0.000014709,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:47:24.699Z",
+      "review": "Compiled; reaches-scratch-only omission leaves numerical H/radius result correct but charges17749 versus frozen18103 at PC40 line575. Clone/H/predicate/denominator collection remains unchanged per exact single-site patch; no compound omission price is used.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16c/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16c-00/EVIDENCE.json",
+      "binary_sha256": "8a8ad601b747d0809f7c2838eccb8bd28e5faaa08c7f6f06c262758c5f96a745",
+      "source_sha256": "5c1c6f1994b1be7fa353e53f22cbd6f0e80ac38e162780cbbaea13cbd581727a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16c-01",
+      "source_id": "PM16c",
+      "filter": "structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16c' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc41_independent_successful_checkpoints_and_both_budget_scopes' -- --exact > '<E2_S>/logs/mutant/PM16c-01.stdout' 2> '<E2_S>/logs/mutant/PM16c-01.stderr'",
+      "launch_utc": "2026-10-01T09:47:34.640Z",
+      "guard_before": {
+        "chunk_id": "d5035a",
+        "wall_time_seconds": 0.000008333,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:11:15 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "85ff03",
+        "wall_time_seconds": 0.000010208,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:47:34.898Z",
+      "review": "PC41's unchanged independent budget fixture wrongly completes with Ok(Some(1.0000000000000002)) instead of Budget(Case), line623. This directly detects the uncharged reaches scratch on a stopped-path boundary.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM16c/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16c-01/EVIDENCE.json",
+      "binary_sha256": "8a8ad601b747d0809f7c2838eccb8bd28e5faaa08c7f6f06c262758c5f96a745",
+      "source_sha256": "5c1c6f1994b1be7fa353e53f22cbd6f0e80ac38e162780cbbaea13cbd581727a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM16c-02",
+      "source_id": "PM16c",
+      "filter": "structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM16c' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc42_independent_terminal_work_and_precedence' -- --exact > '<E2_S>/logs/mutant/PM16c-02.stdout' 2> '<E2_S>/logs/mutant/PM16c-02.stderr'",
+      "launch_utc": "2026-10-01T09:47:53.707Z",
+      "guard_before": {
+        "chunk_id": "0b21e7",
+        "wall_time_seconds": 0.000008334,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:11:34 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "e264d9",
+        "wall_time_seconds": 0.000010584,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:47:53.956Z",
+      "review": "PC42 passes exactly as frozen: its Span/Exponent terminal paths do not reach reaches. This passing negative control is expected; PM16c was independently killed by its required PC40 and PC41 accounting assertions.",
+      "verdict": "EXPECTED_PASS",
+      "workdir": "<E1_S>/PM16c/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM16c-02/EVIDENCE.json",
+      "binary_sha256": "8a8ad601b747d0809f7c2838eccb8bd28e5faaa08c7f6f06c262758c5f96a745",
+      "source_sha256": "5c1c6f1994b1be7fa353e53f22cbd6f0e80ac38e162780cbbaea13cbd581727a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM16c",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc40_independent_absolute_work_ledgers_success_and_numeric_rejection' -- --exact > '<E2_S>/logs/control/PM16c.stdout' 2> '<E2_S>/logs/control/PM16c.stderr'",
+      "launch_utc": "2026-10-01T09:47:57.848Z",
+      "guard_before": {
+        "chunk_id": "0068d6",
+        "wall_time_seconds": 0.000008792,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:11:38 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "30dddc",
+        "wall_time_seconds": 0.000009833,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:47:58.096Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM16c/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM17a-00",
+      "source_id": "PM17a",
+      "filter": "structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM17a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling' -- --exact > '<E2_S>/logs/mutant/PM17a-00.stdout' 2> '<E2_S>/logs/mutant/PM17a-00.stderr'",
+      "launch_utc": "2026-10-01T09:47:58.316Z",
+      "guard_before": {
+        "chunk_id": "4db156",
+        "wall_time_seconds": 0.000008042,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:11:39 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "4fab62",
+        "wall_time_seconds": 1.00107125,
+        "session_id": 8600,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "557809",
+        "wall_time_seconds": 0.000008625,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:48:53.189Z",
+      "review": "Compiled; the fixed prescribed-dominant fixture's Translation scale becomes1e100 bits6103021453049119613 instead of h bits1 at line768. This directly detects improper input-derived maximum membership.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM17a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM17a-00/EVIDENCE.json",
+      "binary_sha256": "5e479d4dc0c00d1cf5ab4fa5c0fae63c6fba05caaf64e4716917454a761cdf61",
+      "source_sha256": "12c2db05f495c0dc5b682bd676426ba7bd6f2cc2ecc39cc644c630b73b07e33a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM17a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling' -- --exact > '<E2_S>/logs/control/PM17a.stdout' 2> '<E2_S>/logs/control/PM17a.stderr'",
+      "launch_utc": "2026-10-01T09:49:10.385Z",
+      "guard_before": {
+        "chunk_id": "3e3335",
+        "wall_time_seconds": 0.000007167,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:12:51 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "daccb5",
+        "wall_time_seconds": 0.000009042,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:49:10.644Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM17a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM17b-00",
+      "source_id": "PM17b",
+      "filter": "structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM17b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling' -- --exact > '<E2_S>/logs/mutant/PM17b-00.stdout' 2> '<E2_S>/logs/mutant/PM17b-00.stderr'",
+      "launch_utc": "2026-10-01T09:49:10.863Z",
+      "guard_before": {
+        "chunk_id": "5fae46",
+        "wall_time_seconds": 0.0000075,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:12:51 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "050f91",
+        "wall_time_seconds": 1.003307042,
+        "session_id": 14824,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "42cc76",
+        "wall_time_seconds": 0.000007541,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:49:55.541Z",
+      "review": "Compiled; the fixed Overflow/h control acquires spurious unit Translation-scale bits4607182418800017408 instead of h bits1 at line778. This is the exact O9 absent-value maximum-membership discriminator.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM17b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM17b-00/EVIDENCE.json",
+      "binary_sha256": "e6527919442fcc32d122959a1104a1082924ff07f4b571925b2ea291013e05e1",
+      "source_sha256": "83f89a8ba16fecccd80db8b0f072041bd7924e507007eddec2abbca08d4c0dca",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM17b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc13_16_thresholds_membership_and_original_operand_coupling' -- --exact > '<E2_S>/logs/control/PM17b.stdout' 2> '<E2_S>/logs/control/PM17b.stderr'",
+      "launch_utc": "2026-10-01T09:49:59.669Z",
+      "guard_before": {
+        "chunk_id": "3a6ab8",
+        "wall_time_seconds": 0.000007292,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:13:40 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "083906",
+        "wall_time_seconds": 0.000008959,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:49:59.921Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM17b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM18a-00",
+      "source_id": "PM18a",
+      "filter": "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM18a' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling' -- --exact > '<E2_S>/logs/mutant/PM18a-00.stdout' 2> '<E2_S>/logs/mutant/PM18a-00.stderr'",
+      "launch_utc": "2026-10-01T09:50:00.138Z",
+      "guard_before": {
+        "chunk_id": "ce1d6c",
+        "wall_time_seconds": 0.000012042,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:13:41 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "ba1ac4",
+        "wall_time_seconds": 1.002835375,
+        "session_id": 71229,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "fb062c",
+        "wall_time_seconds": 0.000008333,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:50:25.265Z",
+      "review": "Compiled; Translation scale incorrectly receives the Force floor h (bits1 rather than0) at PC21-24 line980. This is the predeclared wrong-kind p512-floor assertion.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM18a/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM18a-00/EVIDENCE.json",
+      "binary_sha256": "9d1233680b20383bf87560771790321974bffac5a80b9393a74ff60091ab4eaf",
+      "source_sha256": "e7c6686007f382404ddfcb6de1b289f925e0f60543a7aeceadcfa37ba8b56e85",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM18a",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling' -- --exact > '<E2_S>/logs/control/PM18a.stdout' 2> '<E2_S>/logs/control/PM18a.stderr'",
+      "launch_utc": "2026-10-01T09:50:29.148Z",
+      "guard_before": {
+        "chunk_id": "9a2168",
+        "wall_time_seconds": 0.000007791,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:14:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "c63e48",
+        "wall_time_seconds": 0.000010167,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:50:29.425Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM18a/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "mutant",
+      "id": "PM18b-00",
+      "source_id": "PM18b",
+      "filter": "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/PM18b' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit' -- --exact > '<E2_S>/logs/mutant/PM18b-00.stdout' 2> '<E2_S>/logs/mutant/PM18b-00.stderr'",
+      "launch_utc": "2026-10-01T09:50:29.643Z",
+      "guard_before": {
+        "chunk_id": "b7c173",
+        "wall_time_seconds": 0.000013375,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:14:10 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "46af85",
+        "wall_time_seconds": 1.002693375,
+        "session_id": 76588,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "tool_completion": {
+        "chunk_id": "d88cc7",
+        "wall_time_seconds": 0.000015209,
+        "exit_code": 101,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:51:02.882Z",
+      "review": "Compiled; independent classification corpus set3 differs only in Moment scale bits5831479772063391334 versus frozen5831479772063391333 at classification_tests.rs:97. This is the intended extra-rounding/updated-operand coupling error, not an unrelated snapshot.",
+      "verdict": "EXPECTED_SEMANTIC_FAILURE",
+      "workdir": "<E1_S>/PM18b/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "mutant/PM18b-00/EVIDENCE.json",
+      "binary_sha256": "cf9c28f88ec523d3dc777ce3e2479f7e4e41a8401396f6ba6ca39d860a237a1c",
+      "source_sha256": "95b99cc8a22a42bed93179a06a17ffdf357e07bb419267b67765a213dfe2d92a",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "kind": "control",
+      "id": "PM18b",
+      "source_id": "base",
+      "filter": "structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit",
+      "cmd": "/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true CARGO_TARGET_DIR='<PM_TARGET>/base' \"$HOME/.cargo/bin/cargo\" test --offline --locked -j 4 --lib 'structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit' -- --exact > '<E2_S>/logs/control/PM18b.stdout' 2> '<E2_S>/logs/control/PM18b.stderr'",
+      "launch_utc": "2026-10-01T09:51:15.424Z",
+      "guard_before": {
+        "chunk_id": "e6be40",
+        "wall_time_seconds": 0.000006792,
+        "exit_code": 0,
+        "original_token_count": 34,
+        "output": " 5387     1 03-08:14:56 /bin/bash <T3_HOST>/guard/memguard.sh\n"
+      },
+      "tool_initial": {
+        "chunk_id": "993b87",
+        "wall_time_seconds": 0.000010709,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      },
+      "completed_utc": "2026-10-01T09:51:15.709Z",
+      "workdir": "<E1_S>/base/projects/chirality-piping/core/solver/frame_kernel",
+      "evidence": "control/PM18b/EVIDENCE.json",
+      "binary_sha256": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+      "source_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "test_sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    }
+  ],
+  "counts": {
+    "cargo_invocations": 73,
+    "initial_baseline_passes": 1,
+    "mutant_filters": 39,
+    "intended_semantic_failures": 38,
+    "expected_negative_control_passes": 1,
+    "variants_killed": 33,
+    "returned_baseline_controls_passed": 33,
+    "compile_errors": 0,
+    "unrun_in_E2": 0
+  },
+  "owned_jobs_running": 0
+}

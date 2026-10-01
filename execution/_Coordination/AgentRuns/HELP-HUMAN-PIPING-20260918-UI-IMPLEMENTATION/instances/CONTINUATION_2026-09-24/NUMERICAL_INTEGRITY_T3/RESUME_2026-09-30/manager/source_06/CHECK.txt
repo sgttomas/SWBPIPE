@@ -1,0 +1,3 @@
+PASS:24 source arithmetic rows independently recomputed using integer next-power-of-two and sealed width/body coefficients.
+B1 andB5 each correct the retained resolution owner by48 bytes; first allocation has no old-buffer charge, B5 active old is64.
+Manager read complete correction, direct helper alternatives, finite roster and summary alias. Same-reviewer backcheck remains pending; no full conditional ledger/E_max acceptance is inferred.

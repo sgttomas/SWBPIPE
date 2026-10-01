@@ -1,0 +1,47 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+warning: unreachable statement
+    --> src/structural/retained/adaptive.rs:2881:9
+     |
+2880 |           return Ok(c); // PM14a: nearest only
+     |           ------------ any code following this expression is unreachable
+2881 | /         while !self.reaches(c, &den, num)? {
+2882 | |             if c == f64::MAX {
+2883 | |                 return Ok(f64::INFINITY);
+...    |
+2886 | |         }
+     | |_________^ unreachable statement
+     |
+     = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/structural/retained/adaptive.rs:2874:13
+     |
+2874 |         let mut c = match quotient.to_binary64() {
+     |             ----^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 2 warnings (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.66s
+     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`
+        8.50 real        13.26 user         0.40 sys
+          1281982464  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              164427  page reclaims
+                 118  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                 132  voluntary context switches
+                2134  involuntary context switches
+           208152629  instructions retired
+            74862209  cycles elapsed
+             6226400  peak memory footprint

@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families stdout ----
+
+thread 'structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families' (24733792) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:65:5:
+assertion `left == right` failed
+  left: -1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::publication_tests::pc01_03_complete_closed_kernel_row_error_families
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

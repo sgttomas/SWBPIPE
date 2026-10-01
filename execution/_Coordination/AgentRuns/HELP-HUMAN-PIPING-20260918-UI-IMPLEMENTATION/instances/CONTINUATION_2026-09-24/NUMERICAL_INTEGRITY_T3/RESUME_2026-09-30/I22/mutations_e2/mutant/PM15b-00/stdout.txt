@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft stdout ----
+
+thread 'structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft' (24759777) panicked at src/structural/retained/../../../tests/retained_k4/publication_tests.rs:1715:5:
+assertion `left == right` failed
+  left: [9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 3458764513820541953, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 0, 4368493837573686274, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ right: [9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 4368493837573686274, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 9218868437227405312, 0, 3458764513820541953, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::publication_tests::pc31_39_exact_relative_admission_positive_radii_and_partial_draft
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.01s
+
