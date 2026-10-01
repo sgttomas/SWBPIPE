@@ -1,0 +1,24 @@
+
+thread 'structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988' (26242595) panicked at src/structural/retained/../../../tests/retained_k4/classification_tests.rs:153:5:
+assertion `left == right` failed
+  left: 67141632
+ right: 67141633
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.00 real         0.00 user         0.00 sys
+             4227072  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 615  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  10  involuntary context switches
+            36054859  instructions retired
+            14567741  cycles elapsed
+             1720680  peak memory footprint

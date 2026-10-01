@@ -1,0 +1,79 @@
+{
+  "kind": "build",
+  "id": "R39",
+  "registration": "R7_K4::D16b",
+  "index": 0,
+  "name": "build",
+  "source_id": "R39",
+  "binary_id": "R39",
+  "filter": null,
+  "argv": [
+    "<CARGO>",
+    "test",
+    "--offline",
+    "--locked",
+    "-j",
+    "4",
+    "--manifest-path",
+    "<wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+    "--target-dir",
+    "<wt>/a1-protected-target/g3/R39",
+    "--lib",
+    "--no-run"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE \"$HOME/.cargo/bin/cargo\" 'test' '--offline' '--locked' '-j' '4' '--manifest-path' '<wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel/Cargo.toml' '--target-dir' '<wt>/a1-protected-target/g3/R39' '--lib' '--no-run' > '<wt>/scratch/i22/protected_g3/logs/R39/build.stdout' 2> '<wt>/scratch/i22/protected_g3/logs/R39/build.stderr'",
+  "workdir": "<wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i22/protected_g3/logs/R39/build",
+  "guard_before": {
+    "chunk_id": "7bd1ea",
+    "wall_time_seconds": 8.333e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-15:42:15 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "launch_utc": "2026-10-01T17:18:34.772Z",
+  "tool_initial": {
+    "chunk_id": "a16c13",
+    "wall_time_seconds": 1.001829958,
+    "session_id": 26822,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "8e3374",
+    "wall_time_seconds": 6.755107958,
+    "exit_code": 0,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "",
+    "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.85s\n  Executable unittests src/lib.rs (<wt>/a1-protected-target/g3/R39/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\n        7.87 real        13.59 user         0.39 sys\n          1260584960  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              163389  page reclaims\n                  99  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                  59  voluntary context switches\n                1716  involuntary context switches\n           202437330  instructions retired\n            74026655  cycles elapsed\n             6242784  peak memory footprint\n",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_raw_sha256": "9598ef25f060949f273da4b8e4399089840383f6aee536fe7b696335f83521c9",
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_role": "executed source binding",
+    "complete_source_hashes_match": true,
+    "source_manifest_sha256": "bb8e649fa4a7c3992c22c8f132417324865e93d89a4a6757247babf811ba7d8b",
+    "affected_images": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+        "before_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+        "after_sha256": "f9ac982ae25d60e1b882acf9a5579e300b1b69c1436cc5c33b46617652ac61f4"
+      }
+    ],
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-protected-target/g3/R39/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "24b51788dee73038b44fab6333ee9eb9f29d87ede6103b8a4b791f2a1c854951"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-protected-target/g3/R39/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-15:42:23 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

@@ -1,0 +1,3 @@
+structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them: test
+
+1 test, 0 benchmarks

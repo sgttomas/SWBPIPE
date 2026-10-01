@@ -1,0 +1,3 @@
+structural::retained::adaptive::tests::a_ceiling_case_is_unresolved_with_its_attempts: test
+
+1 test, 0 benchmarks
