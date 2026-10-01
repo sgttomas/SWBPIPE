@@ -1,0 +1,73 @@
+{
+  "role": "TASK Type2",
+  "parent": "/root/t3_recovery_manager",
+  "start": {
+    "current_time": "2026-10-01 09:50:57 UTC"
+  },
+  "deadline_utc": "2026-10-01 10:10:57 UTC",
+  "grant_commit": "da04ff7056d77a78d669bc3db780b266d532925a",
+  "source_commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "actual_checks": {
+    "inputs": [
+      {
+        "basis": "da04ff7056d77a78d669bc3db780b266d532925a",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_SOURCE_06.md",
+        "sha256": "14197baf963f2f0d13920f8bbf7b56927ac86dfd3401e35e0ce870dd2bd81dec",
+        "bytes": 1898
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "bytes": 160870
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+        "bytes": 47344
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/kernel_01/RETURN.md",
+        "sha256": "f7405fc511307b1f6066524c0822002d21a7d960c7d69e7bedb29dd423f3dfbc",
+        "bytes": 15628
+      }
+    ],
+    "prior_seals": [
+      {
+        "packet": "source_review_RV30/kernel_01",
+        "seal_sha256": "0b9429425b01011321d644d32a397845783217c358a8dcf2cb25662a624d64bb",
+        "payload_count": 8,
+        "mismatches": []
+      },
+      {
+        "packet": "I21/source_02",
+        "seal_sha256": "1d75c56c26e0167b36d161e887fd8a709c6ef408523c43c7d4c5df2d86b63c92",
+        "payload_count": 29,
+        "mismatches": []
+      },
+      {
+        "packet": "I21/source_03",
+        "seal_sha256": "01dc0ff6ff1bab8ca6a3f74f236e6381bbb347db4902dd7a808fb95b8b694d46",
+        "payload_count": 7,
+        "mismatches": []
+      },
+      {
+        "packet": "I21/layout_04",
+        "seal_sha256": "c2e198a9b71fb573e356dadb0b646b99487f23bcd8b69e82b5af2a3d74ea0103",
+        "payload_count": 23,
+        "mismatches": []
+      },
+      {
+        "packet": "I21/source_05",
+        "seal_sha256": "948978b8eaad1feacfb0fa1165d8418f0fa78cb52d308796bde7e6b4723cdf7a",
+        "payload_count": 7,
+        "mismatches": []
+      }
+    ]
+  },
+  "inherited_basis": "Unchanged Root/TASK/project/COMMON/original I21 instructions and source-qualified source_01..source_05 packets; instruction origins/hashes remain in prior SOURCE_BINDING and CHECKPOINT_0 evidence. No new skill/workflow selected.",
+  "write_fence": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_06/**",
+  "authority": "Source-only correction; no host slot; no acceptance or permission expansion"
+}
+
