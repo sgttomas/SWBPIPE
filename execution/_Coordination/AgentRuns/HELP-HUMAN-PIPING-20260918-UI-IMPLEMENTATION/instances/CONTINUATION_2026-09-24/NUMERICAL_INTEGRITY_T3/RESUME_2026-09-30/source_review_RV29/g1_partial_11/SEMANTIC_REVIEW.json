@@ -1,0 +1,127 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "G02": {
+    "registration": "R7_K4::K4-M34",
+    "status": "QUALIFIED_SEMANTIC_FAILURE",
+    "assertion": "bound_tests.rs100",
+    "fixed_profile": "F2-m110-p128",
+    "tuple_fields": [
+      "U",
+      "N_L",
+      "t",
+      "Uc"
+    ],
+    "expected_tuple": [
+      "+fffffffffffffffffffffffffff40007p107",
+      "+8aaaaaaaaaaaaaaaaaaaaaaaaaa8471ep3",
+      "+935555555555555555555555554be3a9p-12",
+      "+800935fef7c252e576ac9eeb1963bdafp108"
+    ],
+    "observed_tuple": [
+      "+fffffffffffffffffffffffffff40004p107",
+      "+8aaaaaaaaaaaaaaaaaaaaaaaaaa8471ep3",
+      "+935555555555555555555555554be3a8p-12",
+      "+800935fef7c252e576ac9eeb1963bdaep108"
+    ],
+    "changed_fields": [
+      "U",
+      "t",
+      "Uc"
+    ],
+    "unchanged_field": "N_L",
+    "scope_limit": "No claim that the later exact-norm inequality was reached or failed."
+  },
+  "G03": {
+    "registration": "R7_K4::K4-M35",
+    "status": "QUALIFIED_SEMANTIC_FAILURE",
+    "assertion": "scale_tests.rs571",
+    "case": "SKEW-K1E-28",
+    "precision": 256,
+    "entry": [
+      8,
+      3
+    ],
+    "observed_shifted_factor": "-8000000000000000000000000000000000000000000000000000000000000001p1",
+    "unchanged_factor": "-8p1",
+    "scope_limit": "Direct entry parity assertion, not digest-only or unrelated failure."
+  },
+  "G04": {
+    "registration": "R7_K4::K4-M24",
+    "status": "QUALIFIED_SEMANTIC_FAILURE",
+    "assertion": "method_tests.rs269",
+    "case": "CEIL5A3",
+    "expected": [
+      "-",
+      [
+        "128:failed:Pivot",
+        "256:rejected:verification_estimate:37",
+        "512:rejected:stop_rule:37"
+      ]
+    ],
+    "observed": [
+      "-",
+      [
+        "128:failed:Pivot",
+        "256:rejected:verification_estimate:37",
+        "512:rejected:publication_enclosure:37:AbsoluteBound"
+      ]
+    ],
+    "qualifying": "Specifically required p512 R7 StopRule index37 was removed; p128 Pivot and p256 VerificationEstimate index37 remain.",
+    "scope_limit": "Both final outcomes are still Ceiling/unselected; generic certificate rejection or final outcome alone would not qualify."
+  },
+  "G02_runtime02": {
+    "status": "PRELAUNCH_OPERATIONAL_FAILURE",
+    "test_count": 0,
+    "kill": false,
+    "reason": "Read-only archive log mkdir failed, masked by later ps exit0; redirection failed before time/env/Cargo."
+  },
+  "G05_runtime03": {
+    "status": "INVALID_POSTIMAGE_AND_PRELAUNCH_GATE_BREACH",
+    "actual_function": "build_shared",
+    "intended_function": "solve_case_at",
+    "actual_original_line": 1424,
+    "intended_original_line": 1873,
+    "test_count": 0,
+    "kill": false,
+    "preserved": "Wrong source, wrong diff, compile launch, Ctrl-C termination and raw output remain separate from future correction."
+  },
+  "repair_brief": {
+    "origin": "NUM@e4b5902e41122037d76437b30e69b54887e64739:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_G1_POSTIMAGE_GATE_REPAIR.md",
+    "sha256": "d5248e2419b7d50162e81e22f6de2104ccc5ece16021b92159dbb404bd856706",
+    "read_full": true,
+    "requirement": "Independent manager full postimage/test/lock/path/guard verification and explicit one-group release before every later Cargo; logs outside source; fresh G05_r1 preserves old wrong copy.",
+    "runtime04_not_verified": true
+  },
+  "source_receipts": [
+    {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt",
+      "sha256": "15cbbe044dc82bafd6856d5411b2718dfed016732360a43b0417be48cd8793cb"
+    },
+    {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+      "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9"
+    },
+    {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554"
+    },
+    {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+      "sha256": "53f7176da76546eca377d1da96d4698ec5d71a624412ecadde7ffd464b2be037"
+    },
+    {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea"
+    },
+    {
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+    }
+  ]
+}
