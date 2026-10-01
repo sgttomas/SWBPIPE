@@ -3873,3 +3873,48 @@ Close the stopped runtime06 and diagnostic windows. Release the remaining
 original P33-P53 schedule only under BRIEFS/A1_VK_REMAINDER_07.md's fresh bound.
 Final full candidate review and exact-head CI/dispatch/DEC-025/GEN-8 still apply;
 AUD-T3-01 and F2a reliance remain held until actual A1 closure.
+
+
+## Conditional VR composition and reference-profile interface (ROOT, 2026-10-01)
+
+ROOT read the complete RV30 vr_join_25/RETURN.md, verified all payloads and
+accepts the fixed-roster VR source/owner/numeric composition conditionally on
+its stated profile, input and launch premises. The report's “Numerical and
+historical result” supplies exact figures, units, comparison windows and
+artifact qualifications. No observed peak supplies an arithmetic term. This
+completes the conditional H/VR numeric candidates for their selected rosters,
+not final E_max, implementation, artifact qualification or admission replay.
+
+ROOT also read and verified the full metric_design_12_profile_binding proposal
+and independent RV28 profile_binding_08 review. Select named immutable
+ReferenceKernel/H/VRProfile premises with the existing external exact archive/
+build/launch qualification. The earlier Verified-current-build factory was an
+unaccepted sketch, not an adopted universal direct-CLI refusal policy. This
+selection changes no protected test, ordinary CLI/CI behavior, admission
+predicate, metric/window or solver contract and introduces no host tool.
+Reference identities index conditional premises; they do not attest a current
+executable or transfer M5/debug/seeded facts to Linux or ordinary production.
+Unknown/mismatched artifacts receive no qualified reliance or measurement grant
+at the external gate. No automatic in-process enforcement is claimed.
+
+Implementation must keep each fact bundle and kernel/caller composition
+coherent, reject missing/invalid descriptors rather than fill them with zero,
+and preserve all existing executable, allocator and public-type checks.
+ROOT's source read confirms VR's original scale test requires storage identities
+and estimate ordering on its complete factored CI roster. Before implementation
+release, a bounded adapter compatibility check will establish how the full
+existing interface obtains its required descriptors without silently extending
+the fixed-roster proof, keeping a stale estimate port or weakening that test.
+The remaining qualification, checked implementation, admission and measurement
+obligations are unchanged; no K0 implementation release is implied here.
+
+## Required S1 survivor in the remaining A1 matrix (ROOT, 2026-10-01)
+
+ROOT read and verified runtime07 child/manager returns. P33's exact VK-S1
+rf_finite test survived and supplies no registered numerical witness. P34-P53
+are unrun. The old runtime window is closed; no automatic retry, alternate
+filter or later call follows. The F17 decision supplies no S1 substitute.
+I23 has a bounded source-only diagnosis under the selected software-defect-
+diagnosis skill; its return and independent review precede further action.
+A1 acceptance/merge and F2a reliance remain held. No production fault is inferred
+merely from the surviving test.
