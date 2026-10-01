@@ -1,0 +1,22 @@
+{
+  "start_utc": "2026-10-01T20:48:27Z",
+  "hard_end_utc": "2026-10-01T20:58:27Z",
+  "arithmetic_completed_utc": "2026-10-01T20:52:42.039015+00:00",
+  "mechanism": "inline VENV Python -B exact integer metadata arithmetic, sha256 reads and GIT_OPTIONAL_LOCKS=0 git show; no author/reviewer calculator imported or executed",
+  "writes": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_11_vr_correction",
+  "authority": "ROOT bounded task and immutable NUM brief; no workflow or skill selected",
+  "parent": "/root",
+  "agent": "/root/k6c_metric_design",
+  "role": "HELPS_HUMANS Type 1",
+  "prohibitions_observed": [
+    "no runtime/Rust/build/probe",
+    "no model/graph/source algorithm execution",
+    "no new tool",
+    "no maintained edit",
+    "no Git/index mutation",
+    "no delegation",
+    "no edits to existing sealed packets"
+  ],
+  "enforcement": "prompt scope restrictions; filesystem host is not an OS write fence",
+  "instruction_provenance": "Inherited supplied instructions retained in conversation; actual original repository/role origins and hashes remain in metric_design_01/SOURCES.json; no role body rebound in this leg."
+}

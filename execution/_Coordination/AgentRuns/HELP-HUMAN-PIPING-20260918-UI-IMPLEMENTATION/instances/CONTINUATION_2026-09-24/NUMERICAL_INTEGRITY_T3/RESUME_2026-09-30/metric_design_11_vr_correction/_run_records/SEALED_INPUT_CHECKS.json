@@ -1,0 +1,160 @@
+[
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_10_vr_numbers",
+    "manifest_sha256": "a5390504ba0198ebe280877b75d8b374a38c266e780a7e3dc0d7a280f1fb9a9c",
+    "payloads": [
+      {
+        "path": "LAUNCHES.json",
+        "sha256": "c074aca5e8016b274fe779e9e1f36087537da5ae408c8d0ec12091d02f0a12bb"
+      },
+      {
+        "path": "METHOD_AND_JOIN.md",
+        "sha256": "5ec062bb35a1a6284e22bbf2b73a403009d16ea2062c75a9f439dad5e85b3b35"
+      },
+      {
+        "path": "NOOP_BRANCH.json",
+        "sha256": "4a8f7a2839e5edc5f80851426786efc0433b00f784585d72cbf043bda0207198"
+      },
+      {
+        "path": "RETURN.md",
+        "sha256": "0b8060d6880cdf6b4b5200a27433b8bb0ae0d418db4eeb313b4cd8fe057e2a6f"
+      },
+      {
+        "path": "RUN.json",
+        "sha256": "08d72c82667136f329836c65a22e0bf8f490c0ff76b6abf84afdf251fcd8127a"
+      },
+      {
+        "path": "SUMMARY.md",
+        "sha256": "df2209cfc35fe30ab591d44d90d41f0d65bbf4081a63d35ccc662f212d84214f"
+      },
+      {
+        "path": "VR_CALLER_TABLE.json",
+        "sha256": "bb826225e161882b656a33b4c63f55fc07049a9c7484590f07b5feccb94eb102"
+      },
+      {
+        "path": "_run_records/BRIEF.txt",
+        "sha256": "3b7f7af3a8bc4445083049ffb781554dc8c70038145deaba8ee997c77ed3796a"
+      },
+      {
+        "path": "_run_records/COMMAND_RECORD.json",
+        "sha256": "7affb328cb2237396ab9b2b81cd1f5f62e2cd7aa7951e9be4a42132f2c38284e"
+      },
+      {
+        "path": "_run_records/EXPECTED_PARSE_BOUND.json",
+        "sha256": "93474a2a722fed5ef20150f83a41d4e7ff430fad018865d5cb19f68dcef5f0c2"
+      },
+      {
+        "path": "_run_records/FINAL_ARITHMETIC_RUN.json",
+        "sha256": "50f854300638ce4e21dce921c4fbc40d990ac10fb80b43f52a886e96eafea004"
+      },
+      {
+        "path": "_run_records/INPUT_HASHES.json",
+        "sha256": "819db14f854f1aebe600961742ff7840a91aba0a4b5dc122ccbefee11cde14bb"
+      },
+      {
+        "path": "_run_records/INPUT_SHAPES.json",
+        "sha256": "500d575d8ed54bee56756dc1fc93cab04a0a79e08f1d537c3593b9c9d5a3c3fe"
+      },
+      {
+        "path": "_run_records/LAUNCH_CHOICE.json",
+        "sha256": "b93f266037ca9bca400d82e2949b51a59341c33ebb18fe85b17668354baa53d5"
+      },
+      {
+        "path": "_run_records/NUMERIC_CHECKS.json",
+        "sha256": "8c8e34c41884724440a52b065907853d68f0c0374c6ba24b44187b6c0ba32081"
+      },
+      {
+        "path": "_run_records/PREFLIGHT.json",
+        "sha256": "a0c9a6173c55e4ccafbdc9d71aacd20ca09853348c167178b8b057fd96ccc9f2"
+      },
+      {
+        "path": "_run_records/PUBLIC_SIZES.json",
+        "sha256": "eede8faec788481cbdb6f72cb667751a10df3b2da44b2553bc8146cebe748a85"
+      },
+      {
+        "path": "_run_records/SEALED_INPUT_CHECKS.json",
+        "sha256": "b721445ebad1a681708a7f2ed3e1fd6ccf413c8b42b574929d64f9129a03ffff"
+      },
+      {
+        "path": "_run_records/SOURCE_BINDING.json",
+        "sha256": "a9e52377bbdf1ed6347955188676bdb3099ba0d1c571e3fa4d930debbc2d639c"
+      },
+      {
+        "path": "_run_records/START.json",
+        "sha256": "53701508c48c8a1122ea226f121d4957ebdf7c4122c2133723194dcdc43b9fd2"
+      },
+      {
+        "path": "_run_records/assemble.py",
+        "sha256": "72caaa70da1782f49c5d44e17a6f446f81ea330711fa21a9807ff2bef1902f10"
+      }
+    ],
+    "verified": true
+  },
+  {
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/vr_numbers_06",
+    "manifest_sha256": "cd7e0f6108c88245d8bb729c381528644bcfba0cbb292aca225176a74fcda626",
+    "payloads": [
+      {
+        "path": "EXECUTION.md",
+        "sha256": "57c167fe6ffe2f0986eefc8ef2b891c9a24555b191253dc42722c4312db63195"
+      },
+      {
+        "path": "REVIEW.md",
+        "sha256": "761ba334de8591a55fc5fbc53b572239d58e18731d7b9f7ce8a048a916bce299"
+      },
+      {
+        "path": "TIMING.json",
+        "sha256": "771c7034d0144f7a9e257e2a0473fb71ed6e20e0bbe42e81485969cbbdc0cbb2"
+      },
+      {
+        "path": "_run_records/BASIS.json",
+        "sha256": "51cab4260e3b2f0aa35275694bc09443f53b736428f315b2ed75952b278ea994"
+      },
+      {
+        "path": "_run_records/CHECKS.json",
+        "sha256": "45e140766e650267708338664dd5d36dd36189ef9c38f1b167ec72e702be0c07"
+      },
+      {
+        "path": "_run_records/COMMANDS.json",
+        "sha256": "fe75c03fce8386f5fc8e1e83ae7ef06a0a001740aa8bc89dfba95736ca49ff18"
+      },
+      {
+        "path": "_run_records/DOMINANCE_AND_SUMMARY.json",
+        "sha256": "2bb37114b7632a8e93bf50369e0defd857b5ad603b67d70175d24adf870c91a9"
+      },
+      {
+        "path": "_run_records/RECOMPUTED.json",
+        "sha256": "85afea4b167a5067eb8c2ace75e311b51efe939ca81a0bdad9d8a3f4bec2b636"
+      },
+      {
+        "path": "_run_records/RUN.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "_run_records/RUN.stdout.json",
+        "sha256": "b116ec4f83ba891befafa222c20f0bbbb6bf393fe6d18fe55c7b6640df9a0733"
+      },
+      {
+        "path": "_run_records/SUPPLEMENT.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "_run_records/SUPPLEMENT.stdout.json",
+        "sha256": "edb1d51a10e72c4f369a4c58ccf885ba645d0d2834b2ba24ce2445488b2c8007"
+      },
+      {
+        "path": "_run_records/SUPPLEMENTAL_CHECKS.json",
+        "sha256": "970e89e2daa01bef1d98dbb9d8ea6f36d5835c26805667a36d4181232f911676"
+      },
+      {
+        "path": "_run_records/metadata_backcheck.py",
+        "sha256": "b2319638777185551b15ae0ae63a47a2da490ef4cddc634a803d65e4a695c085"
+      },
+      {
+        "path": "_run_records/rederive.py",
+        "sha256": "1b962cdffa482f9314869b5bc6c929dbfa7f0988f7f0d8fada65a343187367c3"
+      }
+    ],
+    "verified": true
+  }
+]

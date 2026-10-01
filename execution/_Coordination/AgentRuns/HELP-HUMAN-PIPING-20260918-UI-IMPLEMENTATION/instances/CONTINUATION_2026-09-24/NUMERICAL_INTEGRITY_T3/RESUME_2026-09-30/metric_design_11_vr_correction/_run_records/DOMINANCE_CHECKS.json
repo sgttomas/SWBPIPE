@@ -1,0 +1,502 @@
+{
+  "summary": {
+    "cases": 24,
+    "metrics": 2,
+    "replacements": 96,
+    "common_outcome_max_unchanged_rows": 48,
+    "all_match_sealed_reviewer": true,
+    "minimum_expected_margin": 272896,
+    "minimum_nonselected_margin": 99241,
+    "minimum_comparison_vs_expected_margin": 228723,
+    "prior_failures_range": [
+      1592,
+      1608
+    ],
+    "caller_only_max_unchanged": {
+      "requested": 29394825566,
+      "moving": 43795065566
+    }
+  },
+  "checks": [
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 320964,
+      "new_common_outcome_max": 320964,
+      "expected_margin": 275708,
+      "nonselected_margin": 99430,
+      "comparison_vs_expected_margin": 231301,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 320964,
+      "new_common_outcome_max": 320964,
+      "expected_margin": 275467,
+      "nonselected_margin": 99242,
+      "comparison_vs_expected_margin": 232156,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 323128,
+      "new_common_outcome_max": 323128,
+      "expected_margin": 277130,
+      "nonselected_margin": 99430,
+      "comparison_vs_expected_margin": 232713,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 323128,
+      "new_common_outcome_max": 323128,
+      "expected_margin": 276889,
+      "nonselected_margin": 99241,
+      "comparison_vs_expected_margin": 233576,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 316207,
+      "new_common_outcome_max": 316207,
+      "expected_margin": 273137,
+      "nonselected_margin": 99430,
+      "comparison_vs_expected_margin": 228723,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 316207,
+      "new_common_outcome_max": 316207,
+      "expected_margin": 272896,
+      "nonselected_margin": 99243,
+      "comparison_vs_expected_margin": 229586,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 319176,
+      "new_common_outcome_max": 319176,
+      "expected_margin": 274559,
+      "nonselected_margin": 99430,
+      "comparison_vs_expected_margin": 230143,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 319176,
+      "new_common_outcome_max": 319176,
+      "expected_margin": 274318,
+      "nonselected_margin": 99242,
+      "comparison_vs_expected_margin": 231006,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 338959,
+      "new_common_outcome_max": 338959,
+      "expected_margin": 291104,
+      "nonselected_margin": 102262,
+      "comparison_vs_expected_margin": 246690,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 338959,
+      "new_common_outcome_max": 338959,
+      "expected_margin": 290863,
+      "nonselected_margin": 102075,
+      "comparison_vs_expected_margin": 247553,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 341392,
+      "new_common_outcome_max": 341392,
+      "expected_margin": 292676,
+      "nonselected_margin": 102262,
+      "comparison_vs_expected_margin": 248260,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 341392,
+      "new_common_outcome_max": 341392,
+      "expected_margin": 292435,
+      "nonselected_margin": 102074,
+      "comparison_vs_expected_margin": 249123,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 2455228,
+      "new_common_outcome_max": 2455228,
+      "expected_margin": 2171465,
+      "nonselected_margin": 524230,
+      "comparison_vs_expected_margin": 2138297,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 2466140,
+      "new_common_outcome_max": 2466140,
+      "expected_margin": 2182136,
+      "nonselected_margin": 534954,
+      "comparison_vs_expected_margin": 2182136,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 2468880,
+      "new_common_outcome_max": 2468880,
+      "expected_margin": 2184587,
+      "nonselected_margin": 524230,
+      "comparison_vs_expected_margin": 2151385,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 2479790,
+      "new_common_outcome_max": 2479790,
+      "expected_margin": 2195256,
+      "nonselected_margin": 534951,
+      "comparison_vs_expected_margin": 2195256,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 2417806,
+      "new_common_outcome_max": 2417806,
+      "expected_margin": 2147717,
+      "nonselected_margin": 524230,
+      "comparison_vs_expected_margin": 2114509,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 2428710,
+      "new_common_outcome_max": 2428710,
+      "expected_margin": 2158380,
+      "nonselected_margin": 534947,
+      "comparison_vs_expected_margin": 2158380,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 2446143,
+      "new_common_outcome_max": 2446143,
+      "expected_margin": 2160839,
+      "nonselected_margin": 524230,
+      "comparison_vs_expected_margin": 2127629,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 2457045,
+      "new_common_outcome_max": 2457045,
+      "expected_margin": 2171500,
+      "nonselected_margin": 534944,
+      "comparison_vs_expected_margin": 2171500,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 2625079,
+      "new_common_outcome_max": 2625079,
+      "expected_margin": 2328710,
+      "nonselected_margin": 552550,
+      "comparison_vs_expected_margin": 2295630,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 2635983,
+      "new_common_outcome_max": 2635983,
+      "expected_margin": 2339373,
+      "nonselected_margin": 563267,
+      "comparison_vs_expected_margin": 2339373,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 2653913,
+      "new_common_outcome_max": 2653913,
+      "expected_margin": 2343332,
+      "nonselected_margin": 552550,
+      "comparison_vs_expected_margin": 2310170,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 2664815,
+      "new_common_outcome_max": 2664815,
+      "expected_margin": 2353993,
+      "nonselected_margin": 563264,
+      "comparison_vs_expected_margin": 2353993,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 5431931,
+      "new_common_outcome_max": 5431931,
+      "expected_margin": 4965214,
+      "nonselected_margin": 4845631,
+      "comparison_vs_expected_margin": 4965214,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 5433031,
+      "new_common_outcome_max": 5433031,
+      "expected_margin": 4966073,
+      "nonselected_margin": 4846543,
+      "comparison_vs_expected_margin": 4966073,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 5433662,
+      "new_common_outcome_max": 5433662,
+      "expected_margin": 4966204,
+      "nonselected_margin": 4845589,
+      "comparison_vs_expected_margin": 4966204,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 5434754,
+      "new_common_outcome_max": 5434754,
+      "expected_margin": 4967055,
+      "nonselected_margin": 4846492,
+      "comparison_vs_expected_margin": 4967055,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 5592792,
+      "new_common_outcome_max": 5592792,
+      "expected_margin": 5075015,
+      "nonselected_margin": 4845492,
+      "comparison_vs_expected_margin": 5075015,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 5593888,
+      "new_common_outcome_max": 5593888,
+      "expected_margin": 5075870,
+      "nonselected_margin": 4846401,
+      "comparison_vs_expected_margin": 5075870,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 5676401,
+      "new_common_outcome_max": 5676401,
+      "expected_margin": 5076947,
+      "nonselected_margin": 4845482,
+      "comparison_vs_expected_margin": 5076947,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 5677505,
+      "new_common_outcome_max": 5677505,
+      "expected_margin": 5077810,
+      "nonselected_margin": 4846398,
+      "comparison_vs_expected_margin": 5077810,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 5995785,
+      "new_common_outcome_max": 5995785,
+      "expected_margin": 5382146,
+      "nonselected_margin": 5131068,
+      "comparison_vs_expected_margin": 5382146,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 5996697,
+      "new_common_outcome_max": 5996697,
+      "expected_margin": 5382817,
+      "nonselected_margin": 5131793,
+      "comparison_vs_expected_margin": 5382817,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 6046825,
+      "new_common_outcome_max": 6046825,
+      "expected_margin": 5382232,
+      "nonselected_margin": 5129002,
+      "comparison_vs_expected_margin": 5382232,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 6047981,
+      "new_common_outcome_max": 6047981,
+      "expected_margin": 5383147,
+      "nonselected_margin": 5129970,
+      "comparison_vs_expected_margin": 5383147,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 53198806,
+      "new_common_outcome_max": 53198806,
+      "expected_margin": 48520704,
+      "nonselected_margin": 48400232,
+      "comparison_vs_expected_margin": 48520704,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 53199906,
+      "new_common_outcome_max": 53199906,
+      "expected_margin": 48521563,
+      "nonselected_margin": 48401144,
+      "comparison_vs_expected_margin": 48521563,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 53200579,
+      "new_common_outcome_max": 53200579,
+      "expected_margin": 48521702,
+      "nonselected_margin": 48400198,
+      "comparison_vs_expected_margin": 48521702,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 53201675,
+      "new_common_outcome_max": 53201675,
+      "expected_margin": 48522557,
+      "nonselected_margin": 48401105,
+      "comparison_vs_expected_margin": 48522557,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 53730301,
+      "new_common_outcome_max": 53730301,
+      "expected_margin": 48630323,
+      "nonselected_margin": 48399118,
+      "comparison_vs_expected_margin": 48630323,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 53731397,
+      "new_common_outcome_max": 53731397,
+      "expected_margin": 48631178,
+      "nonselected_margin": 48400027,
+      "comparison_vs_expected_margin": 48631178,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 54572648,
+      "new_common_outcome_max": 54572648,
+      "expected_margin": 48632263,
+      "nonselected_margin": 48399116,
+      "comparison_vs_expected_margin": 48632263,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 54573744,
+      "new_common_outcome_max": 54573744,
+      "expected_margin": 48633118,
+      "nonselected_margin": 48400024,
+      "comparison_vs_expected_margin": 48633118,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "metric": "requested",
+      "old_common_outcome_max": 57544267,
+      "new_common_outcome_max": 57544267,
+      "expected_margin": 51514725,
+      "nonselected_margin": 51261782,
+      "comparison_vs_expected_margin": 51514725,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "metric": "moving",
+      "old_common_outcome_max": 57550327,
+      "new_common_outcome_max": 57550327,
+      "expected_margin": 51520544,
+      "nonselected_margin": 51267655,
+      "comparison_vs_expected_margin": 51520544,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "metric": "requested",
+      "old_common_outcome_max": 58048168,
+      "new_common_outcome_max": 58048168,
+      "expected_margin": 51493283,
+      "nonselected_margin": 51238188,
+      "comparison_vs_expected_margin": 51493283,
+      "matches_sealed_reviewer": true
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "metric": "moving",
+      "old_common_outcome_max": 58049940,
+      "new_common_outcome_max": 58049940,
+      "expected_margin": 51494814,
+      "nonselected_margin": 51239772,
+      "comparison_vs_expected_margin": 51494814,
+      "matches_sealed_reviewer": true
+    }
+  ]
+}

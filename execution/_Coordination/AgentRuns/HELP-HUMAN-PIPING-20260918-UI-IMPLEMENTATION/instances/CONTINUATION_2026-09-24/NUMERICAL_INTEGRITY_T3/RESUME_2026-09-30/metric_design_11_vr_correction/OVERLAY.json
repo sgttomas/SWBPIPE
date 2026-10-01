@@ -1,0 +1,947 @@
+{
+  "status": "conditional additive correction candidate; requires same-reviewer backcheck",
+  "candidate_seal": "a5390504ba0198ebe280877b75d8b374a38c266e780a7e3dc0d7a280f1fb9a9c",
+  "candidate_table_sha256": "bb826225e161882b656a33b4c63f55fc07049a9c7484590f07b5feccb94eb102",
+  "review_seal": "cd7e0f6108c88245d8bb729c381528644bcfba0cbb292aca225176a74fcda626",
+  "path_template": "rows[id].<metric>.kernel_phase_addends.<name>",
+  "application": "replacement of exact old values, keyed by unique case id; do not accumulate delta; skip exact new values only for a previously authenticated application; reject any other value or roster; preserve all remaining bytes/fields semantically",
+  "unchanged_kernel_interface": "all four post-solve arms use the same Kernel_outcome_retained; solve_max unchanged",
+  "rows": [
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 43656,
+              "delta": 1600,
+              "new": 45256
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 221456,
+              "delta": 78,
+              "new": 221534
+            }
+          },
+          "common_outcome_max_old": 320964,
+          "common_outcome_max_new": 320964
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 43897,
+              "delta": 1600,
+              "new": 45497
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 221644,
+              "delta": 78,
+              "new": 221722
+            }
+          },
+          "common_outcome_max_old": 320964,
+          "common_outcome_max_new": 320964
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "Dfail": 189,
+      "PriorFailures": 1608,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 44390,
+              "delta": 1608,
+              "new": 45998
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 223620,
+              "delta": 78,
+              "new": 223698
+            }
+          },
+          "common_outcome_max_old": 323128,
+          "common_outcome_max_new": 323128
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 44631,
+              "delta": 1608,
+              "new": 46239
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 223809,
+              "delta": 78,
+              "new": 223887
+            }
+          },
+          "common_outcome_max_old": 323128,
+          "common_outcome_max_new": 323128
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 41478,
+              "delta": 1592,
+              "new": 43070
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 216699,
+              "delta": 78,
+              "new": 216777
+            }
+          },
+          "common_outcome_max_old": 316207,
+          "common_outcome_max_new": 316207
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 41719,
+              "delta": 1592,
+              "new": 43311
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 216886,
+              "delta": 78,
+              "new": 216964
+            }
+          },
+          "common_outcome_max_old": 316207,
+          "common_outcome_max_new": 316207
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 43017,
+              "delta": 1600,
+              "new": 44617
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 219668,
+              "delta": 78,
+              "new": 219746
+            }
+          },
+          "common_outcome_max_old": 319176,
+          "common_outcome_max_new": 319176
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 43258,
+              "delta": 1600,
+              "new": 44858
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 219856,
+              "delta": 78,
+              "new": 219934
+            }
+          },
+          "common_outcome_max_old": 319176,
+          "common_outcome_max_new": 319176
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 46263,
+              "delta": 1592,
+              "new": 47855
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 236619,
+              "delta": 78,
+              "new": 236697
+            }
+          },
+          "common_outcome_max_old": 338959,
+          "common_outcome_max_new": 338959
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 46504,
+              "delta": 1592,
+              "new": 48096
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 236806,
+              "delta": 78,
+              "new": 236884
+            }
+          },
+          "common_outcome_max_old": 338959,
+          "common_outcome_max_new": 338959
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 47116,
+              "delta": 1600,
+              "new": 48716
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 239052,
+              "delta": 78,
+              "new": 239130
+            }
+          },
+          "common_outcome_max_old": 341392,
+          "common_outcome_max_new": 341392
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 47357,
+              "delta": 1600,
+              "new": 48957
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 239240,
+              "delta": 78,
+              "new": 239318
+            }
+          },
+          "common_outcome_max_old": 341392,
+          "common_outcome_max_new": 341392
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 282163,
+              "delta": 1600,
+              "new": 283763
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1930920,
+              "delta": 78,
+              "new": 1930998
+            }
+          },
+          "common_outcome_max_old": 2455228,
+          "common_outcome_max_new": 2455228
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 282404,
+              "delta": 1600,
+              "new": 284004
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1931108,
+              "delta": 78,
+              "new": 1931186
+            }
+          },
+          "common_outcome_max_old": 2466140,
+          "common_outcome_max_new": 2466140
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "Dfail": 189,
+      "PriorFailures": 1608,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 282685,
+              "delta": 1608,
+              "new": 284293
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1944572,
+              "delta": 78,
+              "new": 1944650
+            }
+          },
+          "common_outcome_max_old": 2468880,
+          "common_outcome_max_new": 2468880
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 282926,
+              "delta": 1608,
+              "new": 284534
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1944761,
+              "delta": 78,
+              "new": 1944839
+            }
+          },
+          "common_outcome_max_old": 2479790,
+          "common_outcome_max_new": 2479790
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 268497,
+              "delta": 1592,
+              "new": 270089
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1893498,
+              "delta": 78,
+              "new": 1893576
+            }
+          },
+          "common_outcome_max_old": 2417806,
+          "common_outcome_max_new": 2417806
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 268738,
+              "delta": 1592,
+              "new": 270330
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1893685,
+              "delta": 78,
+              "new": 1893763
+            }
+          },
+          "common_outcome_max_old": 2428710,
+          "common_outcome_max_new": 2428710
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 283704,
+              "delta": 1600,
+              "new": 285304
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1921835,
+              "delta": 78,
+              "new": 1921913
+            }
+          },
+          "common_outcome_max_old": 2446143,
+          "common_outcome_max_new": 2446143
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 283945,
+              "delta": 1600,
+              "new": 285545
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 1922023,
+              "delta": 78,
+              "new": 1922101
+            }
+          },
+          "common_outcome_max_old": 2457045,
+          "common_outcome_max_new": 2457045
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 294777,
+              "delta": 1592,
+              "new": 296369
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 2072451,
+              "delta": 78,
+              "new": 2072529
+            }
+          },
+          "common_outcome_max_old": 2625079,
+          "common_outcome_max_new": 2625079
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 295018,
+              "delta": 1592,
+              "new": 296610
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 2072638,
+              "delta": 78,
+              "new": 2072716
+            }
+          },
+          "common_outcome_max_old": 2635983,
+          "common_outcome_max_new": 2635983
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 308981,
+              "delta": 1600,
+              "new": 310581
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 2101285,
+              "delta": 78,
+              "new": 2101363
+            }
+          },
+          "common_outcome_max_old": 2653913,
+          "common_outcome_max_new": 2653913
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 309222,
+              "delta": 1600,
+              "new": 310822
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 2101473,
+              "delta": 78,
+              "new": 2101551
+            }
+          },
+          "common_outcome_max_old": 2664815,
+          "common_outcome_max_new": 2664815
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 465117,
+              "delta": 1600,
+              "new": 466717
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 586222,
+              "delta": 78,
+              "new": 586300
+            }
+          },
+          "common_outcome_max_old": 5431931,
+          "common_outcome_max_new": 5431931
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 465358,
+              "delta": 1600,
+              "new": 466958
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 586410,
+              "delta": 78,
+              "new": 586488
+            }
+          },
+          "common_outcome_max_old": 5433031,
+          "common_outcome_max_new": 5433031
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "Dfail": 189,
+      "PriorFailures": 1608,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 465850,
+              "delta": 1608,
+              "new": 467458
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 587995,
+              "delta": 78,
+              "new": 588073
+            }
+          },
+          "common_outcome_max_old": 5433662,
+          "common_outcome_max_new": 5433662
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 466091,
+              "delta": 1608,
+              "new": 467699
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 588184,
+              "delta": 78,
+              "new": 588262
+            }
+          },
+          "common_outcome_max_old": 5434754,
+          "common_outcome_max_new": 5434754
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 516185,
+              "delta": 1592,
+              "new": 517777
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 747222,
+              "delta": 78,
+              "new": 747300
+            }
+          },
+          "common_outcome_max_old": 5592792,
+          "common_outcome_max_new": 5592792
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 516426,
+              "delta": 1592,
+              "new": 518018
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 747409,
+              "delta": 78,
+              "new": 747487
+            }
+          },
+          "common_outcome_max_old": 5593888,
+          "common_outcome_max_new": 5593888
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 597854,
+              "delta": 1600,
+              "new": 599454
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 830841,
+              "delta": 78,
+              "new": 830919
+            }
+          },
+          "common_outcome_max_old": 5676401,
+          "common_outcome_max_new": 5676401
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 598095,
+              "delta": 1600,
+              "new": 599695
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 831029,
+              "delta": 78,
+              "new": 831107
+            }
+          },
+          "common_outcome_max_old": 5677505,
+          "common_outcome_max_new": 5677505
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 612047,
+              "delta": 1592,
+              "new": 613639
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 864639,
+              "delta": 78,
+              "new": 864717
+            }
+          },
+          "common_outcome_max_old": 5995785,
+          "common_outcome_max_new": 5995785
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 612288,
+              "delta": 1592,
+              "new": 613880
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 864826,
+              "delta": 78,
+              "new": 864904
+            }
+          },
+          "common_outcome_max_old": 5996697,
+          "common_outcome_max_new": 5996697
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 662993,
+              "delta": 1600,
+              "new": 664593
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 917745,
+              "delta": 78,
+              "new": 917823
+            }
+          },
+          "common_outcome_max_old": 6046825,
+          "common_outcome_max_new": 6046825
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 663234,
+              "delta": 1600,
+              "new": 664834
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 917933,
+              "delta": 78,
+              "new": 918011
+            }
+          },
+          "common_outcome_max_old": 6047981,
+          "common_outcome_max_new": 6047981
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 4676502,
+              "delta": 1600,
+              "new": 4678102
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 4798496,
+              "delta": 78,
+              "new": 4798574
+            }
+          },
+          "common_outcome_max_old": 53198806,
+          "common_outcome_max_new": 53198806
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 4676743,
+              "delta": 1600,
+              "new": 4678343
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 4798684,
+              "delta": 78,
+              "new": 4798762
+            }
+          },
+          "common_outcome_max_old": 53199906,
+          "common_outcome_max_new": 53199906
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "Dfail": 189,
+      "PriorFailures": 1608,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 4677269,
+              "delta": 1608,
+              "new": 4678877
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 4800303,
+              "delta": 78,
+              "new": 4800381
+            }
+          },
+          "common_outcome_max_old": 53200579,
+          "common_outcome_max_new": 53200579
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 4677510,
+              "delta": 1608,
+              "new": 4679118
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 4800492,
+              "delta": 78,
+              "new": 4800570
+            }
+          },
+          "common_outcome_max_old": 53201675,
+          "common_outcome_max_new": 53201675
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 5098386,
+              "delta": 1592,
+              "new": 5099978
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 5331105,
+              "delta": 78,
+              "new": 5331183
+            }
+          },
+          "common_outcome_max_old": 53730301,
+          "common_outcome_max_new": 53730301
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 5098627,
+              "delta": 1592,
+              "new": 5100219
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 5331292,
+              "delta": 78,
+              "new": 5331370
+            }
+          },
+          "common_outcome_max_old": 53731397,
+          "common_outcome_max_new": 53731397
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 5938785,
+              "delta": 1600,
+              "new": 5940385
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 6173454,
+              "delta": 78,
+              "new": 6173532
+            }
+          },
+          "common_outcome_max_old": 54572648,
+          "common_outcome_max_new": 54572648
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 5939026,
+              "delta": 1600,
+              "new": 5940626
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 6173642,
+              "delta": 78,
+              "new": 6173720
+            }
+          },
+          "common_outcome_max_old": 54573744,
+          "common_outcome_max_new": 54573744
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "Dfail": 187,
+      "PriorFailures": 1592,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 6027950,
+              "delta": 1592,
+              "new": 6029542
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 6282407,
+              "delta": 78,
+              "new": 6282485
+            }
+          },
+          "common_outcome_max_old": 57544267,
+          "common_outcome_max_new": 57544267
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 6028191,
+              "delta": 1592,
+              "new": 6029783
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 6282594,
+              "delta": 78,
+              "new": 6282672
+            }
+          },
+          "common_outcome_max_old": 57550327,
+          "common_outcome_max_new": 57550327
+        }
+      }
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "Dfail": 188,
+      "PriorFailures": 1600,
+      "metrics": {
+        "requested": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 6553285,
+              "delta": 1600,
+              "new": 6554885
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 6809902,
+              "delta": 78,
+              "new": 6809980
+            }
+          },
+          "common_outcome_max_old": 58048168,
+          "common_outcome_max_new": 58048168
+        },
+        "moving": {
+          "replacements": {
+            "expected_list_initialization_while_outcome_alive": {
+              "old": 6553526,
+              "delta": 1600,
+              "new": 6555126
+            },
+            "nonselected_diagnostic_while_outcome_alive": {
+              "old": 6810090,
+              "delta": 78,
+              "new": 6810168
+            }
+          },
+          "common_outcome_max_old": 58049940,
+          "common_outcome_max_new": 58049940
+        }
+      }
+    }
+  ]
+}
