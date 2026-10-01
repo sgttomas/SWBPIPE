@@ -1,0 +1,12 @@
+
+running 1 test
+M-AX worst |K_e r|_a / (2^-p A_a): [(128, 0.0), (192, 0.0), (256, 0.0), (320, 0.0), (512, 0.0), (576, 0.0), (1024, 0.0)]
+test structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p ... FAILED
+
+failures:
+
+failures:
+    structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.03s
+

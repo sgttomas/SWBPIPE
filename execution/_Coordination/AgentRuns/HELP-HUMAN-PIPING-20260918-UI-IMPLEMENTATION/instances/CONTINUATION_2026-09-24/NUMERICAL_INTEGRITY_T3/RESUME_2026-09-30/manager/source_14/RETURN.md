@@ -1,0 +1,11 @@
+# Source14 manager return
+
+Existing I21 started2026-10-01 16:49:20 UTC, fixed deadline17:09:20; sealed17:04:40.748523 and is idle. Child sealcc1d424a102334cafb891945566ad9180301154734d81de101592eed6154c4bf (10 unique payloads), RETURN8ced7c8b0d2b0aefe7a15c029bb00ec6928500395f9c34838b53dea346ac9eb2; FINITE_CALLERS15dc82b83bdbbf87d320b4cf404f6ff085dcbb41f22868661a9332ed2fe044bf.
+
+Manager read full proof/return and verified all10 payloads, six prior seals/97 payloads unchanged, ten frozen40129 source blobs, ten fixed family files and12 exact external raw hashes/bytes. All Git reads explicitly used GIT_OPTIONAL_LOCKS=0. Checked213 unique cases,373 groups preserving68977 member identities, stated integer coefficient interval formulas/normal bounds, and138 open rows in18 cases. This is binding/cardinality/record consistency verification, not independent acceptance of the complete arithmetic/caller proof; RV30 review remains required.
+
+The proposal source-bounds direct/magnitude production tags and fixed coordinate/coefficient/coupled/member floors for all213 cases plus12 full-maxima paths. All24 actual vk_scale RF-LARGE cases satisfy the sufficient observed-division coefficient bound. No runtime or old passing observations support those claims.
+
+The exact residual premise is a selected published torque/axial numerator bound for138 twist/extension rows in18 other lane cases with coefficient below1. A finite tag alone is insufficient; MAX/k is a possible tag-level overflow condition, not a demonstrated certified solver value. NotCovered still calls holds; expected-unresolved mismatch recording does not remove selected comparisons. A nonfinite quotient asserts in Exact::from_f64 before that operand's Nat allocation while previous caller/Exact owners remain live. No panic/runtime envelope is assigned. ROOT must dispose the missing numerical bound or separately scoped nonfinite-path treatment; no fixture/criterion/API/admission change is accepted.
+
+Writes: child only <K6C_WT>/R/I21/source_14, manager only this directory. No scratch, Rust/runtime/solver/model/probe/test/measurement/tool work, maintained or Git/index mutations, or delegation. Other H/VR/private-layout/final-source obligations remain; no complete E_max/W1/F2a/admission acceptance.

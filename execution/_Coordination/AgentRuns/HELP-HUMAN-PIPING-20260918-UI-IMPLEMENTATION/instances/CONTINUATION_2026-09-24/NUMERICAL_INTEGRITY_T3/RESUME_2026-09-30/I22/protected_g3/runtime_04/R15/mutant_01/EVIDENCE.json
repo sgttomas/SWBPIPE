@@ -1,0 +1,72 @@
+{
+  "kind": "mutant",
+  "id": "R15",
+  "registration": "R7_K4::D13",
+  "index": 0,
+  "name": "mutant_01",
+  "source_id": "R15",
+  "binary_id": "R15",
+  "filter": "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie",
+  "argv": [
+    "<wt>/a1-protected-target/g3/R15/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "--exact",
+    "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-protected-target/g3/R15/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie' '--test-threads=2' '--nocapture' > '<wt>/scratch/i22/protected_g3/logs/R15/mutant_01.stdout' 2> '<wt>/scratch/i22/protected_g3/logs/R15/mutant_01.stderr'",
+  "workdir": "<wt>/scratch/i22/protected_g3/R15/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i22/protected_g3/logs/R15/mutant_01",
+  "guard_before": {
+    "chunk_id": "830800",
+    "wall_time_seconds": 7.75e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-15:09:56 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "launch_utc": "2026-10-01T16:46:15.555Z",
+  "tool_initial": {
+    "chunk_id": "7bd50d",
+    "wall_time_seconds": 8.875e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "7bd50d",
+    "wall_time_seconds": 8.875e-06,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "\nrunning 1 test\ntest structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie ... FAILED\n\nfailures:\n\nfailures:\n    structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s\n\n",
+    "stderr": "\nthread 'structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie' (26113295) panicked at src/structural/retained/../../../tests/retained_k4/ledger_tests.rs:292:5:\nassertion `left == right` failed\n  left: \"+8p0\"\n right: \"+80000000000000000000000000000001p0\"\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n        0.00 real         0.00 user         0.00 sys\n             6209536  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 736  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                  20  involuntary context switches\n            50217496  instructions retired\n            21715914  cycles elapsed\n             1835368  peak memory footprint\n",
+    "stdout_sha256": "b127efad42514182ef17995983b2e69be3c2d2c84c5548be9d060002dd87553b",
+    "stderr_raw_sha256": "15bad17f6ac723ef4937789d1cbbfccab264679f52d73b0ef6062dbdb42501ef",
+    "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+    "source_role": "executed source binding",
+    "complete_source_hashes_match": true,
+    "source_manifest_sha256": "bb8e649fa4a7c3992c22c8f132417324865e93d89a4a6757247babf811ba7d8b",
+    "affected_images": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+        "after_sha256": "a236cc5b515ec5debbcdffb711cc9172dec6ef796a333d4bb3df20ea53dab433"
+      }
+    ],
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-protected-target/g3/R15/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "325f8791d5943ea4abf5a8413376128ba646706319f9bf817a4a3e025b2fb939"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-protected-target/g3/R15/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-15:09:56 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

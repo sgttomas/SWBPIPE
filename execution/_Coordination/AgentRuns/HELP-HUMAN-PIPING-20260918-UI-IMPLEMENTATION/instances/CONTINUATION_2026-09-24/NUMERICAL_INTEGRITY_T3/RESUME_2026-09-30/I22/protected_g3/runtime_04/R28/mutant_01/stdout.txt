@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly ... FAILED
+
+failures:
+
+failures:
+    structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

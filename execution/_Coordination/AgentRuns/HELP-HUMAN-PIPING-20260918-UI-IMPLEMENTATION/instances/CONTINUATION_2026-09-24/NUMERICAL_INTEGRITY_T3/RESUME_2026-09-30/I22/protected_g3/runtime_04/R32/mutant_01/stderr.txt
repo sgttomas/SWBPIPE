@@ -1,0 +1,24 @@
+
+thread 'structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once' (26158836) panicked at src/structural/retained/../../../tests/retained_k4/combine_tests.rs:462:5:
+assertion `left == right` failed: 1 + 2^-52
+  left: Normal(1.0)
+ right: Normal(1.0000000000000002)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.13 real         0.12 user         0.00 sys
+            10895360  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                1022  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                   9  involuntary context switches
+          1544326213  instructions retired
+           369819359  cycles elapsed
+             4112744  peak memory footprint

@@ -1,0 +1,36 @@
+{
+  "start": "2026-10-01T16:43:57Z",
+  "end": "2026-10-01T17:43:57.000Z",
+  "baseline": {
+    "binary": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    }
+  },
+  "s11": {
+    "binary": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/s11_site_table-c8ba14d9f767e011",
+      "sha256": "ffed9c0f948b771acfd3de71242f38a41dda478839afe7d54de2020f21f9165a"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-c8ba14d9f767e011/test-integration-test-s11_site_table.json",
+      "sha256": "44a3ed71f8bd5520b9ae8e8f1b5d39354371baa4c286422e618b56e9dea1dfb0",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    }
+  },
+  "cwd": "<wt>/scratch/i22/mutations_e1/base/projects/chirality-piping/core/solver/frame_kernel",
+  "helper_sha256": "b6313acb720917b3bfb549a049aacfe9097bf95f224ec7c001afc794164c1029",
+  "checker_sha256": "fb78e41a07d518f9e709af48c8fccfcda10fad1d7dde281457d9aad91101e9d5",
+  "state": "AWAITING_EXPLICIT_MANAGER_RELEASE_ARTIFACT",
+  "no_sources_repatched": true,
+  "Rust_started": false
+}

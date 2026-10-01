@@ -1,0 +1,504 @@
+{
+  "status": "STOPPED_R33_UNEXPECTED_CASE",
+  "start": "2026-10-01T16:43:57Z",
+  "end": "2026-10-01T17:43:57.000Z",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "prior_completed_groups": "R01-R08 and R11-R14 remain complete in prior packets; no repeats",
+  "tail_witnesses": {
+    "packet": "R/I22/tail_runtime_01",
+    "seal": "e8d7d7cbaca32b31c798c2267568d1f127c4a7a008426f1f614ece9ce7ac26ef",
+    "status": "required R09/R10 exact witnesses completed separately; original whole-loop stops remain uncredited"
+  },
+  "groups": [
+    {
+      "id": "R15",
+      "registration": "R7_K4::D13",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "ledger_tests.rs:292 direct reduced_rhs actual1 (+8p0) versus required1+2^-127 after sequential source-load fold; fixed coupled-tail criterion reached."
+        }
+      ]
+    },
+    {
+      "id": "R16",
+      "registration": "R7_K4::D13b",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "ledger_tests.rs:292 direct reduced_rhs actual1 versus required1+2^-127 after early binary64 ledger fold in from_source. Exact registered preserved-tail criterion reached; no setup credit."
+        }
+      ]
+    },
+    {
+      "id": "R17",
+      "registration": "R7_K4::K4-M12",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "scale_tests.rs:185 GS-TRANS-y345 p128 exact E-row digest6f248a… versus fixed7ec6da…. Successful direct solve/recovery reached the registered numerical E-row comparison after sequential residual fold; no setup/work-drift credit."
+        }
+      ]
+    },
+    {
+      "id": "R18",
+      "registration": "R7_K4::K4-M13",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "scale_tests.rs:183 N09-B p256 Ā digest da8ad1… versus fixed43eb8c…; actual same-p bounded operator differs after formation forced to128. Exact registered p>128 A-bar identity, no work-record/precondition credit."
+        }
+      ]
+    },
+    {
+      "id": "R19",
+      "registration": "R7_K4::K4-M15",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "method_tests.rs:1670 second underflow straddle actualStopRule{index:1} versus requiredNone. Earlier overflow/first-underflow checks passed; removing extent coupling loses required rotational allowance2^-1079 for delta2^-1080. Exact registered second-straddle criterion."
+        }
+      ]
+    },
+    {
+      "id": "R20",
+      "registration": "R7_K4::K4-M16",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "adaptive_tests.rs:309 Reaction(node0,Ux) perturbation: actual(Ok(true),None) versus required(Ok(false),Some(33)). Exact omitted-reaction StopRule criterion reached."
+        }
+      ]
+    },
+    {
+      "id": "R21",
+      "registration": "R7_K4::K4-M18",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "adaptive_tests.rs:423 exact rounded-limb charge assertion reports0 rather than protected17..20 range for fixed wide net. Reached specifically omitted rounded_limbs increment criterion."
+        }
+      ]
+    },
+    {
+      "id": "R22",
+      "registration": "R7_K4::K4-M20",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "adaptive_tests.rs:364 N05 needed-1 Case-limit branch returnsSelected instead of requiredUnresolved Budget(Case), after unlimited/equal-limit setup passed. Exact budget-enforcement criterion; later Invocation-budget assertion not claimed reached. Full Selected debug output preserved."
+        }
+      ]
+    },
+    {
+      "id": "R23",
+      "registration": "R7_K4::K4-M21",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "factor_tests.rs:252 namedN02 yields Unresolved(Ceiling) with numerical Pivot(global_dof3) attempts at128/256/512 instead of requiredRefused(MechanismWitnessed) before any attempt. This is the registered geometry-first refusal mismatch; no certificate failure."
+        }
+      ]
+    },
+    {
+      "id": "R24",
+      "registration": "R7_K4::D7",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "factor_tests.rs:252 N02 Unresolved(Ceiling) with Pivot(global_dof3) attempts128/256/512 replaces required pre-attempt MechanismWitnessed refusal after geometry errors are swallowed. Exact named geometry-first criterion; subsequent fixtures not claimed reached."
+        }
+      ]
+    },
+    {
+      "id": "R25",
+      "registration": "R7_K4::K4-M22",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "assemble_tests.rs:214 member1 p128 row2 named rigid rotation violates exact 64*2^-p*A bound:3.9183475670506106e28 >2.6551755929413018e8. The actual rigid-mode numeric inequality detects binary64 frame construction; M-AX preceding checks passed."
+        }
+      ]
+    },
+    {
+      "id": "R26",
+      "registration": "R7_K4::D4",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "assemble_tests.rs:214 member1 p128 row0 exact rigid translation violates bound4.062308619446874e47 >7.640353340646011e10 after sign error in B. Exact mapped rigid-motion numeric inequality."
+        }
+      ]
+    },
+    {
+      "id": "R27",
+      "registration": "R7_K4::K4-M23",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "assemble_tests.rs:107 fixed DIRECTIONAL-SPAN p53 K entry(4,5): actual+f4240000000008p19 versus fraction-emulated+f424p19 after binary64 direction normalization. Exact registered formation-token comparison."
+        }
+      ]
+    },
+    {
+      "id": "R28",
+      "registration": "R7_K4::K4-M25a",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "classification_tests.rs:140 absolute_bound(minimum subnormal) actual0 versus requiredminimum subnormal5e-324. Exact upward-rounding criterion; preceding absolute_bound(1) assertion passed."
+        }
+      ]
+    },
+    {
+      "id": "R29",
+      "registration": "R7_K4::K4-M26",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::factor::tests::the_span_decision_is_exact",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "factor_tests.rs:279 fixed a,b,c with exact determinant2^-104 fails required spans_space assertion when determinant is evaluated in binary64. Exact named span decision criterion."
+        }
+      ]
+    },
+    {
+      "id": "R30",
+      "registration": "R7_K4::K4-M27",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "combine_tests.rs:567 final same-source doubled quarter-station st.1.4 actualSome(0.5) versus requiredSome(1.5). Earlier station/support withholding setup passed; exact station-interpolation numerical criterion."
+        }
+      ]
+    },
+    {
+      "id": "R31",
+      "registration": "R7_K4::K4-M28",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "factor_tests.rs:56 first pinned four-node path graph actualRCM[0,1,2,3] versus required[3,2,1,0]. Exact sparse_direct order criterion detects reversed index tie-break; later graphs not claimed reached."
+        }
+      ]
+    },
+    {
+      "id": "R32",
+      "registration": "R7_K4::K4-M33",
+      "status": "KILLED_WITH_CONTROLS",
+      "filters": [
+        {
+          "filter": "structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once",
+          "status": "KILLED",
+          "control": "PASS",
+          "review": "combine_tests.rs:462 input-derived u.2.1 actualNormal(1.0) versus fixedNormal(1+2^-52), bits0x3ff0000000000001. Selection128 and InputDerived class checks passed; exact prescribed publication criterion."
+        }
+      ]
+    },
+    {
+      "id": "R33",
+      "registration": "R7_K4::D2",
+      "status": "NO_KILL_UNEXPECTED_CASE",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+          "status": "NO_KILL_UNEXPECTED_CASE",
+          "control": "UNRUN",
+          "review": "scale_tests.rs:185 first failure is N01 p128 E rows (139fe99a… versus c11236a4…). Frozen R33/D2 semantic binding names N05/N06 at p128/256. Those named witnesses were not reached. Related E-row failure is preserved but not substituted or credited; no control/later launch."
+        }
+      ]
+    },
+    {
+      "id": "R34",
+      "registration": "R7_K4::D3",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::assemble::tests::the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R35",
+      "registration": "R7_K4::D5",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::tests::a_ceiling_case_is_unresolved_with_its_attempts",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R36",
+      "registration": "R7_K4::D6",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R37",
+      "registration": "R7_K4::D10",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R38",
+      "registration": "R7_K4::D14",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R39",
+      "registration": "R7_K4::D16b",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::recover::tests::a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R40",
+      "registration": "R7_K4::D20",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R41",
+      "registration": "R7_K4::D25",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R42",
+      "registration": "RV19::RV19-1R",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R43",
+      "registration": "RV19::RV19-D4",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R44",
+      "registration": "RV19::A1R",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R45",
+      "registration": "RV19::RV19-D1",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R46",
+      "registration": "RV19::RV19-D2",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R47",
+      "registration": "RV19::RV19-D3",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R48",
+      "registration": "RV19::RV19-M2",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R49",
+      "registration": "RV19::RV19-M6",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R50",
+      "registration": "R7_K4::K4-M31",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "site_table_is_exactly_the_accumulations_of_the_scanned_files",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R51",
+      "registration": "R7_K4::R7-M12",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    },
+    {
+      "id": "R52",
+      "registration": "R7_K4::K4-M37",
+      "status": "UNRUN",
+      "filters": [
+        {
+          "filter": "structural::retained::adaptive::classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        },
+        {
+          "filter": "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling",
+          "status": "UNRUN",
+          "control": "UNRUN"
+        }
+      ]
+    }
+  ],
+  "owned_job_running": false,
+  "release_artifact_sha256": "ca712dc4ed2f2dccd70b36155dab562b4234548d72b4073131deb7a5b4f9fcf1",
+  "stopped_utc": "2026-10-01T17:01:26.600Z",
+  "remaining": {
+    "R33_control": "UNRUN",
+    "later_groups": "R34-R52 PREPARED_APPLIED_UNRUN",
+    "remaining_mutant_filters": 20,
+    "remaining_controls": 21,
+    "conditional_releases": "Further advance conditions are unsatisfied until ROOT disposition"
+  }
+}

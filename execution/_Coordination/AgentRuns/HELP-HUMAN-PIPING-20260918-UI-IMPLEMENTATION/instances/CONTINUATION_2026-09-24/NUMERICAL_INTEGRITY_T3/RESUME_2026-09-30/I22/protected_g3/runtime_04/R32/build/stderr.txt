@@ -1,0 +1,30 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<wt>/scratch/i22/protected_g3/R32/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused variable: `value`
+   --> src/structural/retained/adaptive.rs:984:20
+    |
+984 |         for (meta, value) in self.layout.iter().zip(values.iter_mut()) {
+    |                    ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.83s
+  Executable unittests src/lib.rs (<wt>/a1-protected-target/g3/R32/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+        7.85 real        13.29 user         0.39 sys
+          1257881600  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              164024  page reclaims
+                 119  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                  16  voluntary context switches
+                1589  involuntary context switches
+           204355141  instructions retired
+            74784771  cycles elapsed
+             6308320  peak memory footprint

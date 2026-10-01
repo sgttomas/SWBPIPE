@@ -1,0 +1,11 @@
+
+running 1 test
+test structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit ... FAILED
+
+failures:
+
+failures:
+    structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.21s
+

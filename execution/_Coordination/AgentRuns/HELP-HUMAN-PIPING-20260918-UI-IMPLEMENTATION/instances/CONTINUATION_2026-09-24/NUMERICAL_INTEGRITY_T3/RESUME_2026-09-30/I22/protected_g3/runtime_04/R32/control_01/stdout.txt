@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.12s
+
