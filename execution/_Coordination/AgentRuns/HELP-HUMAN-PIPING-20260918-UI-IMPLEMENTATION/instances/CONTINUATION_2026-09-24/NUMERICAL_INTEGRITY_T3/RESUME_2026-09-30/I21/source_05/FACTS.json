@@ -1,0 +1,952 @@
+{
+  "layouts": [
+    {
+      "label": "FK.CasePrep",
+      "size": 416,
+      "align": 8
+    },
+    {
+      "label": "FK.GroupPrep",
+      "size": 352,
+      "align": 8
+    },
+    {
+      "label": "FK.GroupEntry",
+      "size": 1464,
+      "align": 8
+    },
+    {
+      "label": "FK.GroupCache",
+      "size": 1360,
+      "align": 8
+    },
+    {
+      "label": "FK.AttemptStop",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.AttemptReason",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "FK.AttemptOutcome",
+      "size": 40,
+      "align": 8
+    },
+    {
+      "label": "FK.AttemptRecord",
+      "size": 832,
+      "align": 8
+    },
+    {
+      "label": "FK.UnresolvedReason",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.CaseOutcome",
+      "size": 80,
+      "align": 8
+    },
+    {
+      "label": "FK.RetainedSolve",
+      "size": 1976,
+      "align": 8
+    },
+    {
+      "label": "FK.PublishedRow",
+      "size": 64,
+      "align": 8
+    },
+    {
+      "label": "FK.PrecisionState",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.BoundedExtremeTracker",
+      "size": 88,
+      "align": 8
+    },
+    {
+      "label": "FK.Evaluated",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "FK.TrackerTableEntry",
+      "size": 40,
+      "align": 8
+    },
+    {
+      "label": "FK.TrackerKey",
+      "size": 8,
+      "align": 4
+    },
+    {
+      "label": "FK.LazyRow",
+      "size": 4304,
+      "align": 16
+    },
+    {
+      "label": "FK.FallbackRow",
+      "size": 4304,
+      "align": 16
+    },
+    {
+      "label": "FK.WorstGateOption",
+      "size": 4288,
+      "align": 16
+    },
+    {
+      "label": "FK.FallbackTrackerOption",
+      "size": 96,
+      "align": 8
+    },
+    {
+      "label": "FK.Shared_L4_R4",
+      "size": 704,
+      "align": 8
+    },
+    {
+      "label": "FK.Shared_L4_R8",
+      "size": 704,
+      "align": 8
+    },
+    {
+      "label": "FK.Shared_L8_R16",
+      "size": 704,
+      "align": 8
+    },
+    {
+      "label": "FK.Shared_L16_R16",
+      "size": 704,
+      "align": 8
+    },
+    {
+      "label": "FK.Solved_L4",
+      "size": 88,
+      "align": 8
+    },
+    {
+      "label": "FK.Solved_L8",
+      "size": 88,
+      "align": 8
+    },
+    {
+      "label": "FK.Solved_L16",
+      "size": 88,
+      "align": 8
+    },
+    {
+      "label": "FK.Wide_L4",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "FK.OptionWide_L4",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "FK.MemberOperators_L4",
+      "size": 7888,
+      "align": 8
+    },
+    {
+      "label": "FK.BoundedCoefficients_L4",
+      "size": 248,
+      "align": 8
+    },
+    {
+      "label": "FK.DirectionalBlock_L4",
+      "size": 440,
+      "align": 8
+    },
+    {
+      "label": "FK.PivotScreen_L4",
+      "size": 104,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockBound_L4",
+      "size": 208,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftResult_L4",
+      "size": 264,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockCertificate_L4",
+      "size": 592,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockNorms_L4",
+      "size": 336,
+      "align": 8
+    },
+    {
+      "label": "FK.BodyReport_L4",
+      "size": 624,
+      "align": 8
+    },
+    {
+      "label": "FK.VerificationReport_L4",
+      "size": 328,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftStart_L4",
+      "size": 64,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftResultTuple_L4",
+      "size": 272,
+      "align": 8
+    },
+    {
+      "label": "FK.ResidualTuple_L4",
+      "size": 64,
+      "align": 8
+    },
+    {
+      "label": "FK.Wide_L8",
+      "size": 80,
+      "align": 8
+    },
+    {
+      "label": "FK.OptionWide_L8",
+      "size": 80,
+      "align": 8
+    },
+    {
+      "label": "FK.MemberOperators_L8",
+      "size": 13136,
+      "align": 8
+    },
+    {
+      "label": "FK.BoundedCoefficients_L8",
+      "size": 408,
+      "align": 8
+    },
+    {
+      "label": "FK.DirectionalBlock_L8",
+      "size": 728,
+      "align": 8
+    },
+    {
+      "label": "FK.PivotScreen_L8",
+      "size": 168,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockBound_L8",
+      "size": 336,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftResult_L8",
+      "size": 424,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockCertificate_L8",
+      "size": 944,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockNorms_L8",
+      "size": 560,
+      "align": 8
+    },
+    {
+      "label": "FK.BodyReport_L8",
+      "size": 1040,
+      "align": 8
+    },
+    {
+      "label": "FK.VerificationReport_L8",
+      "size": 328,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftStart_L8",
+      "size": 96,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftResultTuple_L8",
+      "size": 432,
+      "align": 8
+    },
+    {
+      "label": "FK.ResidualTuple_L8",
+      "size": 96,
+      "align": 8
+    },
+    {
+      "label": "FK.Wide_L16",
+      "size": 144,
+      "align": 8
+    },
+    {
+      "label": "FK.OptionWide_L16",
+      "size": 144,
+      "align": 8
+    },
+    {
+      "label": "FK.MemberOperators_L16",
+      "size": 23632,
+      "align": 8
+    },
+    {
+      "label": "FK.BoundedCoefficients_L16",
+      "size": 728,
+      "align": 8
+    },
+    {
+      "label": "FK.DirectionalBlock_L16",
+      "size": 1304,
+      "align": 8
+    },
+    {
+      "label": "FK.PivotScreen_L16",
+      "size": 296,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockBound_L16",
+      "size": 592,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftResult_L16",
+      "size": 744,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockCertificate_L16",
+      "size": 1648,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockNorms_L16",
+      "size": 1008,
+      "align": 8
+    },
+    {
+      "label": "FK.BodyReport_L16",
+      "size": 1872,
+      "align": 8
+    },
+    {
+      "label": "FK.VerificationReport_L16",
+      "size": 328,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftStart_L16",
+      "size": 160,
+      "align": 8
+    },
+    {
+      "label": "FK.ShiftResultTuple_L16",
+      "size": 752,
+      "align": 8
+    },
+    {
+      "label": "FK.ResidualTuple_L16",
+      "size": 160,
+      "align": 8
+    },
+    {
+      "label": "FK.VerifyShared_L4_W8",
+      "size": 544,
+      "align": 8
+    },
+    {
+      "label": "FK.VerifyShared_L8_W16",
+      "size": 576,
+      "align": 8
+    },
+    {
+      "label": "FK.VerifyShared_L16_W16",
+      "size": 640,
+      "align": 8
+    },
+    {
+      "label": "FK.Contribution",
+      "size": 8,
+      "align": 4
+    },
+    {
+      "label": "FK.LedgerNet",
+      "size": 40,
+      "align": 8
+    },
+    {
+      "label": "FK.BodyGeometry",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.QuantityMeta",
+      "size": 20,
+      "align": 4
+    },
+    {
+      "label": "FK.QuantityId",
+      "size": 12,
+      "align": 4
+    },
+    {
+      "label": "FK.Kind",
+      "size": 1,
+      "align": 1
+    },
+    {
+      "label": "FK.BoundRefusal",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.BlockRefusal",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.StraightMember",
+      "size": 88,
+      "align": 8
+    },
+    {
+      "label": "FK.Spring",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.DirectionalSpring",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "FK.Constraint",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.NodalLoad",
+      "size": 40,
+      "align": 8
+    },
+    {
+      "label": "FK.Station",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.SupportGroup",
+      "size": 64,
+      "align": 8
+    },
+    {
+      "label": "FK.OptionBoundRefusal",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.TaggedContribution",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.LedgerEntry",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "FK.LedgerBuildingEntry",
+      "size": 1104,
+      "align": 8
+    },
+    {
+      "label": "FK.ExactWideSum",
+      "size": 2144,
+      "align": 16
+    },
+    {
+      "label": "FK.ExactAccumulator",
+      "size": 1088,
+      "align": 8
+    },
+    {
+      "label": "FK.Expansion",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "FK.ExpansionArray6",
+      "size": 192,
+      "align": 8
+    },
+    {
+      "label": "FK.BodyScaleRow",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.SummaryRow",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "FK.QuantityBitsRow",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.UnpublishableRow",
+      "size": 40,
+      "align": 8
+    },
+    {
+      "label": "FK.Binary64Outcome",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.PrescribedEntry",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "VR.Row",
+      "size": 96,
+      "align": 8
+    },
+    {
+      "label": "VR.Control",
+      "size": 64,
+      "align": 8
+    },
+    {
+      "label": "VR.ControlKind",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "VR.Member",
+      "size": 112,
+      "align": 8
+    },
+    {
+      "label": "VR.SpringSpec",
+      "size": 88,
+      "align": 8
+    },
+    {
+      "label": "VR.Model",
+      "size": 192,
+      "align": 8
+    },
+    {
+      "label": "VR.Case",
+      "size": 472,
+      "align": 8
+    },
+    {
+      "label": "VR.CaseRun",
+      "size": 352,
+      "align": 8
+    },
+    {
+      "label": "VR.ControlTally",
+      "size": 64,
+      "align": 8
+    },
+    {
+      "label": "FK.Binary64.StiffnessContribution",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.Binary64.PivotEvidence",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "FK.Binary64.ResidualRow",
+      "size": 104,
+      "align": 8
+    },
+    {
+      "label": "FK.Binary64.ContributionRounding",
+      "size": 96,
+      "align": 8
+    },
+    {
+      "label": "FK.FrameNode",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "FK.FrameElement",
+      "size": 136,
+      "align": 8
+    },
+    {
+      "label": "SD.SymmetricMatrixEntry",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "H.Tuple.NodeFloat",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "H.Tuple.NodeInteger",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "H.Tuple.Member",
+      "size": 64,
+      "align": 8
+    },
+    {
+      "label": "H.Tuple.BuilderMember",
+      "size": 40,
+      "align": 8
+    },
+    {
+      "label": "H.Tuple.Restraint",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "H.Tuple.Load",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "H.Tuple.PrefixLimit",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "VR.LoadTuple",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "VR.StationTuple",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "VR.BorrowedRowReference",
+      "size": 8,
+      "align": 8
+    },
+    {
+      "label": "STD.usize",
+      "size": 8,
+      "align": 8
+    },
+    {
+      "label": "STD.u32",
+      "size": 4,
+      "align": 4
+    },
+    {
+      "label": "STD.u64",
+      "size": 8,
+      "align": 8
+    },
+    {
+      "label": "STD.f64",
+      "size": 8,
+      "align": 8
+    },
+    {
+      "label": "STD.bool",
+      "size": 1,
+      "align": 1
+    },
+    {
+      "label": "STD.OptionF64",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.OptionUsize",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.String",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "STD.StrRef",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.VecUsize",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "STD.BoxU64Slice",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.AtomicUsize",
+      "size": 8,
+      "align": 8
+    },
+    {
+      "label": "STD.ThinPointer",
+      "size": 8,
+      "align": 8
+    },
+    {
+      "label": "STD.UsizePair",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.F64UsizePair",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.F64Pair",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.StringPair",
+      "size": 48,
+      "align": 8
+    },
+    {
+      "label": "STD.JsonValue",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "STD.JsonNumber",
+      "size": 16,
+      "align": 8
+    },
+    {
+      "label": "STD.JsonMap",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "H.K6Model",
+      "size": 200,
+      "align": 8
+    },
+    {
+      "label": "H.Family",
+      "size": 1,
+      "align": 1
+    },
+    {
+      "label": "H.PrecisionWork",
+      "size": 336,
+      "align": 8
+    },
+    {
+      "label": "H.Segment",
+      "size": 32,
+      "align": 8
+    },
+    {
+      "label": "STD.OsString",
+      "size": 24,
+      "align": 8
+    },
+    {
+      "label": "FK.Crosscheck.RetainedSolve",
+      "size": 1976,
+      "align": 8
+    },
+    {
+      "label": "FK.Crosscheck.AttemptRecord",
+      "size": 832,
+      "align": 8
+    },
+    {
+      "label": "FK.Crosscheck.PublishedRow",
+      "size": 64,
+      "align": 8
+    }
+  ],
+  "arcs": [
+    {
+      "label": "FK.CasePrep",
+      "payload_size_measured": 416,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 432,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.GroupPrep",
+      "payload_size_measured": 352,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 368,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.Shared_L4_R4",
+      "payload_size_measured": 704,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 720,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.Shared_L4_R8",
+      "payload_size_measured": 704,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 720,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.Shared_L8_R16",
+      "payload_size_measured": 704,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 720,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.Shared_L16_R16",
+      "payload_size_measured": 704,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 720,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.Solved_L4",
+      "payload_size_measured": 88,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 104,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.Solved_L8",
+      "payload_size_measured": 88,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 104,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.Solved_L16",
+      "payload_size_measured": 88,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 104,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.VerificationReport_L4",
+      "payload_size_measured": 328,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 344,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.VerificationReport_L8",
+      "payload_size_measured": 328,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 344,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.VerificationReport_L16",
+      "payload_size_measured": 328,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 344,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.VerifyShared_L4_W8",
+      "payload_size_measured": 544,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 560,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.VerifyShared_L8_W16",
+      "payload_size_measured": 576,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 592,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    },
+    {
+      "label": "FK.VerifyShared_L16_W16",
+      "payload_size_measured": 640,
+      "payload_align_measured": 8,
+      "strong_weak_component": "STD.AtomicUsize measured",
+      "data_offset_derived": 16,
+      "arc_request_size_derived": 656,
+      "arc_align_derived": 8,
+      "classification": "derived repr(C,align(2)) formula; ArcInner not directly measured"
+    }
+  ]
+}
+

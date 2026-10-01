@@ -1,0 +1,140 @@
+{
+  "source_read_mode": "GIT_OPTIONAL_LOCKS=0 on every Git read; immutable git show; no Git/index writes",
+  "role": "TASK Type 2; no delegation",
+  "parent": "/root/t3_recovery_manager",
+  "grant_commit": "bc606b147221c204d8f511f24c45e3554be1c549",
+  "production_commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "layout_commit": "cb13fcf3ea560c0d07ad9ac02dac78e9d2e06e00",
+  "preserved_packet_commit": "66f046b8d71601c883a3f5299ab2cfe9ec7c75a4",
+  "retained_diff": "empty, source_05 s05read1[1]",
+  "source_and_seal_checks": {
+    "sources": [
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "AGENTS.md",
+        "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+        "bytes": 14200
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "agents/AGENT_TASK.md",
+        "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+        "bytes": 1499
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/AGENTS.md",
+        "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+        "bytes": 9016
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+        "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+        "bytes": 160870
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+        "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+        "bytes": 24432
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+        "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+        "bytes": 29280
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+        "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+        "bytes": 29088
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+        "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+        "bytes": 46099
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+        "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+        "bytes": 47344
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+        "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+        "bytes": 17973
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+        "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+        "bytes": 8977
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+        "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+        "bytes": 6203
+      },
+      {
+        "basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+        "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b",
+        "bytes": 51441
+      },
+      {
+        "basis": "bc606b147221c204d8f511f24c45e3554be1c549",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+        "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0",
+        "bytes": 3126
+      },
+      {
+        "basis": "bc606b147221c204d8f511f24c45e3554be1c549",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_SOURCE_05.md",
+        "sha256": "fc20c9c3959e78a726faf59272721048e246818c917329c12618760f3dbf7f27",
+        "bytes": 1839
+      }
+    ],
+    "prior_seals": [
+      {
+        "packet": "source_01",
+        "seal_sha256": "19bfa563eed616796260cfbc5dd423d0c1072ac38c4c048199f67719732384db",
+        "payload_count": 7,
+        "mismatches": []
+      },
+      {
+        "packet": "source_02",
+        "seal_sha256": "1d75c56c26e0167b36d161e887fd8a709c6ef408523c43c7d4c5df2d86b63c92",
+        "payload_count": 29,
+        "mismatches": []
+      },
+      {
+        "packet": "source_03",
+        "seal_sha256": "01dc0ff6ff1bab8ca6a3f74f236e6381bbb347db4902dd7a808fb95b8b694d46",
+        "payload_count": 7,
+        "mismatches": []
+      },
+      {
+        "packet": "layout_04",
+        "seal_sha256": "c2e198a9b71fb573e356dadb0b646b99487f23bcd8b69e82b5af2a3d74ea0103",
+        "payload_count": 23,
+        "mismatches": []
+      }
+    ]
+  },
+  "library_basis": "source_02 Rust 1.97.1, commit8bab26f4f68e0e26f0bb7960be334d5b520ea452; implementation contracts distinct from APIs",
+  "layout_basis": "layout_04 normal-production release aarch64-apple-darwin, actual types; Arc requests derived, private tree leaves not measured",
+  "initial_time": "2026-10-01 09:13:46 UTC",
+  "deadline": "2026-10-01 09:43:46 UTC",
+  "write_fence": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/**",
+  "notes": [
+    "Two read-only hash attempts used wrong rigid_body.rs path and returned128 before producing source JSON; corrected via git ls-tree, successful third hash read. No file mutation from those failed reads.",
+    "All application formulas are final-A1-sensitive. Prior seals unchanged; no Rust/build/measurement/tool development."
+  ]
+}
+
