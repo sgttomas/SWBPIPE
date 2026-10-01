@@ -1,0 +1,121 @@
+{
+  "seals": [
+    {
+      "origin": "<K6C>/<R>/I21/source_06",
+      "seal_sha256": "7d7d84cca83fc019a51134458cd5f5cee32708039657a5b8d92b60b4ff1ee255",
+      "payloads": 6,
+      "mismatches": []
+    },
+    {
+      "origin": "<A1>/<R>/manager/source_06",
+      "seal_sha256": "2dd493d530a2df601b5e060d3b2941ed11d4a5e77761b6e930c5e6ad0d0556f6",
+      "payloads": 4,
+      "mismatches": []
+    },
+    {
+      "origin": "<K6C>/<R>/source_review_RV30/kernel_01",
+      "seal_sha256": "0b9429425b01011321d644d32a397845783217c358a8dcf2cb25662a624d64bb",
+      "payloads": 8,
+      "mismatches": []
+    },
+    {
+      "origin": "<K6C>/<R>/I21/source_05",
+      "seal_sha256": "948978b8eaad1feacfb0fa1165d8418f0fa78cb52d308796bde7e6b4723cdf7a",
+      "payloads": 7,
+      "mismatches": []
+    }
+  ],
+  "correction_sha256": "e224a53327dd3b0a3ecbcc74ff938b06d3895b400274628aeb8c77df681b2a07",
+  "source": [
+    {
+      "command": [
+        "git",
+        "-C",
+        "<WT>/a1",
+        "show",
+        "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs"
+      ],
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "bytes": 47344,
+      "checked_ranges": [
+        [
+          289,
+          317
+        ],
+        [
+          340,
+          361
+        ],
+        [
+          761,
+          800
+        ],
+        [
+          1190,
+          1225
+        ]
+      ]
+    },
+    {
+      "command": [
+        "git",
+        "-C",
+        "<WT>/a1",
+        "show",
+        "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs"
+      ],
+      "environment": {
+        "GIT_OPTIONAL_LOCKS": "0"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870,
+      "checked_ranges": [
+        [
+          2093,
+          2118
+        ],
+        [
+          2394,
+          2416
+        ],
+        [
+          3571,
+          3592
+        ],
+        [
+          3783,
+          3832
+        ],
+        [
+          3860,
+          3898
+        ],
+        [
+          3936,
+          4021
+        ],
+        [
+          4074,
+          4165
+        ],
+        [
+          4184,
+          4306
+        ],
+        [
+          4310,
+          4409
+        ]
+      ]
+    }
+  ],
+  "inherited_instructions": "../INSTRUCTION_BINDING.json; same TASK and software-code-review skill, unchanged origins/hashes; direct parent chat grant supplies this additive fifteen-minute scope",
+  "execution_note": "First inline verification command had a Python syntax error (else8 instead of else 8), before any execution or writes. Corrected command completed; no new tool or script file created."
+}
