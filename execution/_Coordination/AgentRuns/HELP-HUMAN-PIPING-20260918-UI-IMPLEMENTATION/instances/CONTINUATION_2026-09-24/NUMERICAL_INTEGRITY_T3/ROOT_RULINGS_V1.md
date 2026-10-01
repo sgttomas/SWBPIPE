@@ -3363,3 +3363,15 @@ after certificate rejection. The exact S11 inventory row may change5 to6 with
 that annotation; all scanner rules/other rows remain. The dedicated committed
 brief bounds the edit/check and same-reviewer backcheck. No floating summation
 site or protected numerical criterion is excused.
+
+## A1 checkpoint D: preserve old work oracles and close test gaps (ROOT, 2026-10-01)
+
+The complete source-run/review evidence now warrants the exact test-only D grant
+in RESUME_2026-09-30/BRIEFS/A1_CHECKPOINT_D.md. I22 may isolate the new certificate
+component in the two named existing work-golden tests while keeping every old
+numerical literal and unrelated criterion. This supersedes the earlier optional
+evidence-patch-only step; the actual diff and same-reviewer backcheck remain
+required. The independently checked relative-control fixture is accepted as
+unit-level arithmetic truth, not a source-model result. No production change,
+old fixture rewrite, new public formula or availability relaxation is selected.
+A1 and K6c retain their separate closure boundaries under the owner's sequence.
