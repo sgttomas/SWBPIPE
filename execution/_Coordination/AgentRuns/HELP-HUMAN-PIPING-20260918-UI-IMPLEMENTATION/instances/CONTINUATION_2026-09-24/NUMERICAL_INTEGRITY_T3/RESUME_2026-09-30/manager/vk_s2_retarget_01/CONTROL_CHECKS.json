@@ -1,0 +1,17 @@
+[
+  {
+    "process": "P36",
+    "raw_stdout": "\nrunning 1 test\nRF-CHAIN: rows 2760: passes 2700, absolute-range passes 0, not covered 0 | structural zeros 60, expected unresolved 0, failures 0\nRF-CHAIN: outcomes {\"selected\": 30}\nRF-CHAIN: controls discriminated 82, non-discriminating 38\ntest rf_chain ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 3.57s\n\n",
+    "full_original_assertions_pass": true
+  },
+  {
+    "process": "D01_NONE_BEFORE",
+    "raw_stdout": "\nrunning 1 test\nRF-FINITE: rows 748: passes 748, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0\nRF-FINITE: outcomes {\"selected\": 6}\nRF-FINITE: controls discriminated 6, non-discriminating 6\ntest rf_finite ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.18s\n\n",
+    "full_original_assertions_pass": true
+  },
+  {
+    "process": "D03_NONE_RETURN",
+    "raw_stdout": "\nrunning 1 test\nRF-FINITE: rows 748: passes 748, absolute-range passes 0, not covered 0 | structural zeros 0, expected unresolved 0, failures 0\nRF-FINITE: outcomes {\"selected\": 6}\nRF-FINITE: controls discriminated 6, non-discriminating 6\ntest rf_finite ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.17s\n\n",
+    "full_original_assertions_pass": true
+  }
+]
