@@ -3559,3 +3559,45 @@ with no working-tree modification. Its difference from the explicitly frozen
 A1 basis is the not-yet-integrated A1 correction, not an unexpected source edit.
 RV30 correctly reviewed the separately preserved full-hash-matched40129 bytes.
 Final A1/build reconciliation remains required before implementation reliance.
+
+
+## R46 historical-filter correction (ROOT, 2026-10-01)
+
+ROOT read the original K4 review D.4, its RV19-D2 delta log and current source,
+then I23 r46_diagnosis_14 and RV29 r46_diagnosis_22. The frozen fault is correct,
+active and non-equivalent. ROOT's recovered focused-filter selection was wrong:
+that focused unit test also passed in the historical run. The actual historical
+kill was the unchanged classification-vector test's set19 equality. Restore
+that existing discriminator under BRIEFS/A1_R46_MAPPING_DISPOSITION.md; no new
+input, source, expected value or test is selected. The original survivor and
+RV29's earlier mapping endorsement remain sealed; the diagnosis supersedes
+only that endorsement. No kill is credited until the corrected run and controls
+are independently checked. This is a recovery-mapping error, not evidence of
+a new production accuracy defect. R33's separate named diagnostic may proceed
+under its bounded grant; final G3/V-K/A1 acceptance remains open.
+
+## K6c bounded numerator consequence and sparse correction (ROOT, 2026-10-01)
+
+ROOT read the complete selected-numerator derivation and RV28's independent
+selected_numerators_01/REVIEW.md, then verified both seals. Accept the bounded
+source consequence on its exact fixed roster, immutable40129 source and inherited
+accepted R7 premises. The review's sections “Full retained T/R implication” and
+“Actual J-end recovery and rounded quotient” supply the warrant; “Every-row
+result” supplies the exact arithmetic and figure basis. No successful selection
+is promised. This closes the named remaining observation-finiteness premise;
+changed inputs, recovery, row mapping or gates require reassessment.
+
+ROOT also read sparse_13, metric_design_07_sparse_correction and RV30's
+sparse_correction_14 return and verified their seals. SP13-F1 is closed by the
+additive HFactor validation-owner correction. Reuse the original sparse proposal
+only together with that correction and its review. The review demonstrates no
+fixed-roster or composed-envelope undercount; its remaining private-node,
+profile, formatting/runtime and final-build cells remain open.
+
+These records are preserved on K6c at a900bcc69bbbc949214ff0be23bc073941332089.
+They grant no complete E_max, implementation, admission, W1 or F2a acceptance.
+ROOT selected one bounded canonical K0 assembly after the active serializer
+review, through H's existing library and distinct H/VR caller terms. No contract
+alternative from metric_design_06_closure_assessment is selected. The assembly
+must expose exact residual cells and their numerical impact before any further
+proof work is commissioned; BRIEFS/I21_K0_CANONICAL_ASSEMBLY.md governs.
