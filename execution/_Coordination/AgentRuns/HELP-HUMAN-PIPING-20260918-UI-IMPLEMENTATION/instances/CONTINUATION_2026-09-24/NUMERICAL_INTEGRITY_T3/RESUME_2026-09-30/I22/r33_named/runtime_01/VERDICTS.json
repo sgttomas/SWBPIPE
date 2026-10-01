@@ -1,0 +1,14 @@
+{
+  "start": "2026-10-01T17:30:06Z",
+  "end": "2026-10-01T17:45:06Z",
+  "filter": "structural::retained::adaptive::scale_tests::i23_r33_n05_p128_e_rows_match_fixed_scale",
+  "baseline": "PASS exactly1, including coverage1",
+  "mutant": "KILLED_REQUIRED_N05_P128_E_ROWS",
+  "returned_control": "PASS exactly1 including coverage1",
+  "eligible": "original N05 p128 E-row185 or208 only",
+  "old_N01_stop": "preserved uncredited",
+  "review": "Original scale_tests.rs:185 reached exactly N05 p128 E rows; actual9b17bdf22dba9892165702f05502429745e814a39988d05b3a213bbe102c2654 versus unchanged independently bound SCALE b88b19d13da180293e8c6788a98eca8bf77eb7801e5ffb6eaba7973105e0a30a. Setup/corrections/g/A-bar checks passed; later explicit E-row208 and coverage assertion not claimed reached in mutant.",
+  "status": "COMPLETE",
+  "completed_utc": "2026-10-01T17:34:23.618Z",
+  "owned_job_running": false
+}

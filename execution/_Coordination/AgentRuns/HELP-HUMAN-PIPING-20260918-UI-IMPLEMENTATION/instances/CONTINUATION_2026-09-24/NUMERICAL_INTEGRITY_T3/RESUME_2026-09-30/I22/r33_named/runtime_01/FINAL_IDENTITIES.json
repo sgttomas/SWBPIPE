@@ -1,0 +1,57 @@
+{
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "overlay": {
+    "path": "n05_p128_overlay.patch",
+    "sha256": "ba2594c8d37c261dfa877f571424956b022f2ea8a3ba4049e50e3167f470c9e6",
+    "target": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+    "before_sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+    "after_sha256": "d808bbc60e3a534606906179fde4769c1a0eb7a9c79926ca6f67b5d592289299",
+    "append_only": true,
+    "new_tests": 1
+  },
+  "frozen_fault_pre_post": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "after_sha256": "80fe217b2ba601f7dc6e98e232c824ff864fd5ddbfa94d4cef275ed50a69c2f4"
+    }
+  ],
+  "copies": [
+    {
+      "id": "BASELINE",
+      "files_verified": 116,
+      "production_fault_applied": false,
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "da7276132fbf68cb3a099cfa16e09d29d4fb74ad3e2b103f908df5481aa3b2c7"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-diagnostic-target/r33_e_row/BASELINE/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    },
+    {
+      "id": "D2",
+      "files_verified": 116,
+      "production_fault_applied": true,
+      "binary": {
+        "binary": {
+          "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+          "sha256": "220972c56b692694b827ead08ed4a8a3e54a95dd0b4ce3e7f539dc8a63321e15"
+        },
+        "fingerprint": {
+          "path": "<wt>/a1-diagnostic-target/r33_e_row/D2/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+          "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+          "raw_json_preserved": true,
+          "features": "[]",
+          "rustflags": []
+        }
+      }
+    }
+  ]
+}
