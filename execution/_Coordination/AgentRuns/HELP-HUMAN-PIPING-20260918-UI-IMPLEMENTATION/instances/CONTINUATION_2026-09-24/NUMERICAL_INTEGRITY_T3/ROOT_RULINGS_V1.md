@@ -3601,3 +3601,34 @@ review, through H's existing library and distinct H/VR caller terms. No contract
 alternative from metric_design_06_closure_assessment is selected. The assembly
 must expose exact residual cells and their numerical impact before any further
 proof work is commissioned; BRIEFS/I21_K0_CANONICAL_ASSEMBLY.md governs.
+
+
+## G3 execution complete; portable evidence placement (ROOT, 2026-10-01)
+
+ROOT read and verified the runtime06 child/manager returns. Every remaining
+G3 registration now has its required runtime evidence; independent aggregate
+review is still pending. The earlier R33 and R09/R10 wrong-witness attempts
+and focused R46 survivor retain no credit. Runtime06 preserves the original
+window and ROOT's explicit prospective bounded continuation; no automatic
+extension is inferred. R51's original named witness qualified, so its prepared
+contingency remains unrun. V-K proceeds under its separate conditional grant.
+
+The hosted interim head4972f4ef failed GEN-8 on machine-path provenance in
+unclassified review JSON. ROOT read the failure, existing classifier and prior
+relocation precedent; I23 independently diagnosed the records-placement cause.
+Thirteen complete sealed review packets moved into source_review_RV29/
+_run_records with every payload and manifest byte unchanged, recorded in
+R/REVIEW_EVIDENCE_RELOCATION_2026-10-01.json on A1 at9ef9508dea.
+[Correction to physical-path references in earlier records: apply that ledger's
+old/new packet-prefix map for current replay. Pinned historical commits retain
+original locations; internal packet-relative manifests remain unchanged.]
+No checker, policy, source, oracle or numerical criterion changed. The unchanged
+check passes on clean9ef9508dea; verification/gen8_portability_04 preserves the
+result. Final-head GEN-8 and all other merge gates remain required.
+
+ROOT read RV30 serializer_15 and verified its seal. Its finite schema/owner
+recurrences are usable only with the named unresolved terms and the review's
+refusal-argument/Phase.fields clarifications. The single K0 assembly actually
+started17:51:15 UTC with a fixed18:21:15 end; manager/k0_assembly_16 records the
+native dispatch. No further proof programme, estimator implementation, contract
+alternative, E_max, admission or W1 acceptance is granted by that assignment.
