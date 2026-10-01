@@ -3245,3 +3245,38 @@ A fresh HELPS_HUMANS design assignment now independently derives a warranted
 correction and its contract/availability effects. A fresh design reviewer must
 re-derive it before reliance. No new bound, cutoff or implementation is selected
 by this escalation. K6c stays unaccepted and tied to the settled A1 kernel.
+
+## A1 certificate correction selected for bounded implementation (ROOT, 2026-10-01)
+
+ROOT selects the sealed independent design and additive correction, after
+RV28's independent re-derivation and VERIFIED backcheck. Source-qualified
+identities/hashes are in RESUME_2026-09-30/BRIEFS/I22_IMPLEMENTATION_A.md.
+RV28-1 is closed at specification level; its conversion-work note remains an
+implementation/review obligation. This satisfies independent design checking
+before reliance; it does not accept unimplemented code.
+
+The selected correction certifies H=|actual published x-verification v|+E using
+the complete existing R7 error formulas and prerequisites. Absolute rows require
+H<=the unchanged b. Relative rows require the public decimal predicate and both
+the exact and current binary64 tighter allowances. An uncertifiable candidate
+escalates or refuses by name. Existing scale/class/bound bits and source domain
+are not widened. Private upward binary64 radii accompany the identical certified
+publication; they are not a new public receipt radius. The addendum pins SI
+normalization/binding and later facade obligations.
+
+This bare-b choice implements the owner's already accepted conservative-refusal
+direction. Qualified intervals, outward public bounds/scales, input cutoffs and
+reversal of protected availability remain unselected decisions. No fresh owner
+approval is created for faithful implementation of this choice.
+
+ROOT reserves M03-INTEGRITY-MP-v2 in the current kernel policy mechanism, keeping
+the method token. Historical v1 records are not retroactively certified.
+F2a/D2 recognition, final-row/unit/derived certification and runtime qualification
+remain required before product reliance.
+
+I22 may author only the four maintained files in the committed A grant, with
+additive evidence. No build/test/solver/mutant or snapshot refresh is yet granted.
+The source branch now carries current main at 0ce33d7e89a306cfc01f3ce29f421f4dbd02e716.
+ROOT will verify the core diff/hashes, commission a fresh source reviewer and
+run every required gate on the actual candidate before merge. A1 is still
+BLOCKING, K6c unaccepted and F2a held.
