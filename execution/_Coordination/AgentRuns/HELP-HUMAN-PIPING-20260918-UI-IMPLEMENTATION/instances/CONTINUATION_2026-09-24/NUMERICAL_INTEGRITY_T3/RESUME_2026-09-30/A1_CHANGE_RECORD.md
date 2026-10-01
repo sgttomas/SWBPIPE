@@ -58,8 +58,13 @@ part of this slice.
   actual full-core S11 check and both corrected R52 filters. Earlier wrong-
   witness stops and the focused R46 survivor remain uncredited. The R46 issue
   was a recovered filter-mapping error; the original historical vector test
-  remains unchanged. RV29 g3_final_25 closes the complete G3 aggregate. V-K's frozen
-  seeded-fault replay is active under its separate bounded grant.
+  remains unchanged. RV29 g3_final_25 closes the complete G3 aggregate. V-K is stopped at
+  F03 attribution. F01's separate release witness is independently qualified;
+  original debug P09 remains unqualified, P10 passed, and F02 has a numerical
+  witness/control pending independent review. F03's two-family release triplet
+  restores all66 controls but leaves deleted-contribution/soft-root attribution
+  open; P14–P53 remain unrun. All children are idle at the session-limit
+  checkpoint. SESSION_LIMIT_HANDOFF_2026-10-01.md gives the exact resume state.
 - The interim hosted GEN-8 failure on4972f4ef was a records-placement issue.
   Thirteen complete sealed review packets moved under source_review_RV29/
   _run_records without payload or manifest changes; use the portable prefix
