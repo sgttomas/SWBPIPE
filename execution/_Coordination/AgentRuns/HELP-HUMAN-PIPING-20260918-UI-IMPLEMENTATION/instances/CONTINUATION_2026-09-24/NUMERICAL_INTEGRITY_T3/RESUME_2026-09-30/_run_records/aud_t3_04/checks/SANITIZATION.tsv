@@ -1,0 +1,4 @@
+sanitization_scan	pattern	result
+suites_and_provenance	host_home_temp_roots_and_literal_ESC	PASS
+gate_part1_base	host_home_temp_roots_literal_ESC_and_JSON_escaped_ESC_CSI	PASS
+gate_part1_cand	host_home_temp_roots_literal_ESC_and_JSON_escaped_ESC_CSI	PASS

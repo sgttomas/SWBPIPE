@@ -360,3 +360,10 @@ D1 is my own error carried forward. My N7 said DEC-025 on the exact head "is wha
 | C2 | NOTE | `ON:122` ("The reviewer prompts for RV19 to RV26 were given inline, and not committed") | RV14 to RV18's prompts are not committed either. `TASK_BRIEFS/` holds RV briefs only up to RV13. | Optional: "RV14 to RV26". |
 
 - **Writes:** this appended section and `delta_2a6f87562/` (7 files). SHA256SUMS is extended by appending their entries; its 18 existing lines are unchanged. All are uncommitted. No Git writes.
+
+## Confirmation at a2768ce49
+
+**Verdict: PASS**, with no new finding.
+- **The head:** `a2768ce4906a50c9a84233625d8e82ba8b4e46f9`, one parent `2a6f87562`. It changes only ON:5 and ON:122, one appended line in `V1`, and my confirmation files, which are byte-identical to what I returned (review `94681092…`, SHA256SUMS `0704de5e…`).
+- **C1 matches the records:** `M03_SKEW_PIN_MERGE/RECORD.md:40` (records only), `K3_MERGE/RECORD.md:45` (FK tests and records, FK's suite at the head), and `OPERATING_NOTES_FOR_LOCAL_ROOT.md:21` (the rule covers a main merge). **C2 matches `TASK_BRIEFS/`,** whose reviewer briefs end at RV13.
+- **Checks:** SHA256SUMS verify from their folders: mine 25/25, RV25's 34/34, and `REVIEW/_run_records/` 76/76. GEN-8 passes at the head, run on a clean tree and again with this section present (1 passed, 10 deselected). No script beyond these was run, so there is no records folder.

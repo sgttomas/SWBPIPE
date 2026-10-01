@@ -1,0 +1,341 @@
+{
+  "b1_coefficients": [
+    {
+      "c": 20.513353995755814,
+      "candidate_p": 128,
+      "members": 1000,
+      "ratio": 0.3205211561836846,
+      "verification_P": 256
+    },
+    {
+      "c": 25.260696309772317,
+      "candidate_p": 128,
+      "members": 2000,
+      "ratio": 0.39469837984019246,
+      "verification_P": 256
+    },
+    {
+      "c": 74.13391473489112,
+      "candidate_p": 128,
+      "members": 3000,
+      "ratio": 1.1583424177326738,
+      "verification_P": 256
+    },
+    {
+      "c": 64.80124833710981,
+      "candidate_p": 128,
+      "members": 4000,
+      "ratio": 1.0125195052673408,
+      "verification_P": 256
+    },
+    {
+      "c": 64.80124834662928,
+      "candidate_p": 256,
+      "members": 4000,
+      "ratio": 1.0125195054160825,
+      "verification_P": 512
+    },
+    {
+      "c": 64.80124846967604,
+      "candidate_p": 512,
+      "members": 4000,
+      "ratio": 1.0125195073386881,
+      "verification_P": 1024
+    },
+    {
+      "c": 142.92643957373585,
+      "candidate_p": 128,
+      "members": 6000,
+      "ratio": 2.2332256183396226,
+      "verification_P": 256
+    },
+    {
+      "c": 177.10458074540182,
+      "candidate_p": 128,
+      "members": 8000,
+      "ratio": 2.7672590741469034,
+      "verification_P": 256
+    }
+  ],
+  "basis": "74b3c7313491f27f71c4361d5e1657ee4a39e2f1",
+  "memory": [
+    {
+      "h_estimate": 3010765802,
+      "h_kernel_plus_vr_fixed": 3037239854,
+      "h_plus_known_shift": 3021565490,
+      "known_shift_undercount": 10799688,
+      "like_for_like_margin": 6970722,
+      "measured_heap": 3030269132,
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "unit": "bytes",
+      "vr_stale_estimate": 2883922498
+    },
+    {
+      "h_estimate": 3012624342,
+      "h_kernel_plus_vr_fixed": 3039488576,
+      "h_plus_known_shift": 3023424030,
+      "known_shift_undercount": 10799688,
+      "like_for_like_margin": 7511329,
+      "measured_heap": 3031977247,
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "unit": "bytes",
+      "vr_stale_estimate": 2886171220
+    }
+  ],
+  "qualification": "B1 is the scaled-load K4-adapter probe, not the VR committed model. 10000-member B1 classification remains extrapolation; no design option is selected.",
+  "scale_10000": [
+    {
+      "invocation_charged": 6748463283,
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "repeats_heap_peak": 872783268,
+      "selected_precision": null,
+      "slice": "VK",
+      "wall_s": 6.103
+    },
+    {
+      "invocation_charged": 8298748753,
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "repeats_heap_peak": 872784035,
+      "selected_precision": null,
+      "slice": "VK",
+      "wall_s": 11.2327
+    },
+    {
+      "invocation_charged": 6638680109,
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "repeats_heap_peak": 873802158,
+      "selected_precision": null,
+      "slice": "VK",
+      "wall_s": 6.711
+    },
+    {
+      "invocation_charged": 8107365201,
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "repeats_heap_peak": 875510273,
+      "selected_precision": null,
+      "slice": "VK",
+      "wall_s": 10.7424
+    },
+    {
+      "invocation_charged": 8135131015,
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "outcome": "Selected at 128",
+      "repeats_heap_peak": 856125957,
+      "selected_precision": 128,
+      "slice": "VK",
+      "wall_s": 7.3923
+    },
+    {
+      "invocation_charged": 6796381150,
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "outcome": "Unresolved ExactSumSpan [Restrained]",
+      "repeats_heap_peak": 857315151,
+      "selected_precision": null,
+      "slice": "VK",
+      "wall_s": 9.5834
+    },
+    {
+      "invocation_charged": 10121160213,
+      "model": "RF-LARGE-CHAIN-n10000-AX",
+      "outcome": "Selected at 128",
+      "repeats_heap_peak": 895090914,
+      "selected_precision": 128,
+      "slice": "KF3",
+      "wall_s": 8.7981
+    },
+    {
+      "invocation_charged": 12078838685,
+      "model": "RF-LARGE-CHAIN-n10000-ROT",
+      "outcome": "Selected at 128",
+      "repeats_heap_peak": 895091681,
+      "selected_precision": 128,
+      "slice": "KF3",
+      "wall_s": 15.839
+    },
+    {
+      "invocation_charged": 65322991628,
+      "model": "RF-LARGE-TREE-n10000-AX",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "repeats_heap_peak": 3030269132,
+      "selected_precision": null,
+      "slice": "KF3",
+      "wall_s": 41.218
+    },
+    {
+      "invocation_charged": 74170326450,
+      "model": "RF-LARGE-TREE-n10000-ROT",
+      "outcome": "Unresolved Ceiling [Restrained]",
+      "repeats_heap_peak": 3031977247,
+      "selected_precision": null,
+      "slice": "KF3",
+      "wall_s": 64.9604
+    },
+    {
+      "invocation_charged": 8135131015,
+      "model": "RF-LARGE-CONT-n10000-AX",
+      "outcome": "Selected at 128",
+      "repeats_heap_peak": 856126053,
+      "selected_precision": 128,
+      "slice": "KF3",
+      "wall_s": 7.4198
+    },
+    {
+      "invocation_charged": 10422576949,
+      "model": "RF-LARGE-CONT-n10000-ROT",
+      "outcome": "Selected at 128",
+      "repeats_heap_peak": 857315247,
+      "selected_precision": 128,
+      "slice": "KF3",
+      "wall_s": 13.1638
+    }
+  ],
+  "suite_deltas": [
+    {
+      "baseline": "K6",
+      "delta": {
+        "core/model_operations/operation_applier/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            194,
+            0,
+            0
+          ],
+          "before_exit_pass_fail_ignore": [
+            101,
+            0,
+            0,
+            0
+          ]
+        },
+        "core/solver/frame_kernel/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            394,
+            0,
+            0
+          ],
+          "before_exit_pass_fail_ignore": [
+            0,
+            267,
+            0,
+            0
+          ]
+        }
+      },
+      "slice": "K4"
+    },
+    {
+      "baseline": "K4",
+      "delta": {
+        "core/solver/frame_kernel/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            402,
+            0,
+            0
+          ],
+          "before_exit_pass_fail_ignore": [
+            0,
+            394,
+            0,
+            0
+          ]
+        }
+      },
+      "slice": "KF1"
+    },
+    {
+      "baseline": "KF1",
+      "delta": {
+        "validation/benchmarks/numerical_robustness/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            47,
+            0,
+            0
+          ],
+          "before_exit_pass_fail_ignore": null
+        }
+      },
+      "slice": "VK"
+    },
+    {
+      "baseline": "VK",
+      "delta": {
+        "core/solver/performance_harness/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            74,
+            0,
+            0
+          ],
+          "before_exit_pass_fail_ignore": [
+            0,
+            54,
+            0,
+            0
+          ]
+        }
+      },
+      "slice": "K6B"
+    },
+    {
+      "baseline": "K6B",
+      "delta": {
+        "core/solver/frame_kernel/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            417,
+            0,
+            0
+          ],
+          "before_exit_pass_fail_ignore": [
+            0,
+            402,
+            0,
+            0
+          ]
+        },
+        "core/solver/performance_harness/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            75,
+            0,
+            0
+          ],
+          "before_exit_pass_fail_ignore": [
+            0,
+            74,
+            0,
+            0
+          ]
+        }
+      },
+      "slice": "KF3"
+    },
+    {
+      "baseline": "KF3",
+      "delta": {
+        "core/solver/frame_kernel/Cargo.toml": {
+          "after_exit_pass_fail_ignore": [
+            0,
+            432,
+            0,
+            1
+          ],
+          "before_exit_pass_fail_ignore": [
+            0,
+            417,
+            0,
+            0
+          ]
+        }
+      },
+      "slice": "KF2"
+    }
+  ]
+}
