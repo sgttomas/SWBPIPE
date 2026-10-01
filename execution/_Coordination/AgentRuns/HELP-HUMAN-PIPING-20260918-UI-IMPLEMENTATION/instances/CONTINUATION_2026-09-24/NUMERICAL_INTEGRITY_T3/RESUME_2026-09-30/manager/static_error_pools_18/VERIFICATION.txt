@@ -1,0 +1,7 @@
+PASS14 child payloads and prior9format17 payloads unchanged;5 immutable source blobs bound via explicit GIT_OPTIONAL_LOCKS=0 reads.
+PASS132 listed source occurrences/UTF8 bytes/site snippets;75structural+57frame,55+47unique literals,max77/41;variant maxima,quotedDebug and100/200/300,33072/66144/99216 integer arithmetic.
+Manager read full POOLS/RETURN routing closure and exclusions. Census has one nonliteral constructor search occurrence, the unresolved helper definition. This is binding/literal/arithmetic consistency review, not independent certification of every reachable producer path or whole format17/Emax acceptance.
+RETURN 4a9d4cfc2c222b61dfa5b531c1d7b75d9cee3cfe183b53523e1c6fa7e434e036
+POOLS 25a3d3403bccff99d20ed7d132268c11a12717f1d18df3f8dea7db36e78a6270
+LITERALS 2c2eac76bc12f61a67c1c905c15778ca52678ae18a3ede873ba38acc89ee6f04
+ARITHMETIC 2cd87596d29e1e0112b78796863364fdc39ccf4d3e0e887e2fa75ec8d736488b
