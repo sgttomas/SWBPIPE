@@ -1,0 +1,14 @@
+{
+  "manager": "/root/t3_recovery_manager",
+  "parent": "/root",
+  "child": "/root/t3_recovery_manager/i22_a1",
+  "mechanism": "collaboration.followup_task",
+  "new_child": false,
+  "authority": "ROOT native instruction after PM03 stop: smallest generic-type-only correction prep,10min after stopped packet; no runtime until ROOT/RV29 review and regrant",
+  "source_candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "stopped_seal": "5dedd6d3f864014d98f45961948b0b61136f9c1a7da20630e4d07ee189f36c2a",
+  "scope": "Full additive revised PM03 patch+hashes/one-line delta/additive override, only Wide::<4> to Wide::<L> in injected scale lift; same mutation/test semantics; text applicability only",
+  "write_fence": "<A1_WT>/<R>/I22/mutations_e1/pm03_correction_01/**",
+  "timebox_minutes": 10,
+  "status": "actual followup returned; child start acknowledgement pending; Rust prohibited"
+}
