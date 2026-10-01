@@ -1,0 +1,29 @@
+{
+  "checked_at_utc": "2026-10-01T13:51:47Z",
+  "status": "PASS_SOURCE_PREPARATION_ONLY",
+  "copies": 4,
+  "file_hash_checks": 464,
+  "files_per_copy": 116,
+  "unique_inode_pairs": 464,
+  "empty_targets": 4,
+  "empty_logs": 4,
+  "overlaid_copies": [
+    "BASELINE_SCALARS",
+    "K4-M9",
+    "K4-M32"
+  ],
+  "overlay_lines": 55,
+  "test_postimage": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+  "M11_entirely_unoverlaid": true,
+  "original_scalar_test_prefix_unchanged": true,
+  "all_other_original_files_unchanged": true,
+  "faults_applied": 0,
+  "maintained_links": 0,
+  "symlink_ancestors": 0,
+  "namespace_corrected_additively": "factor.rs819\u2013821",
+  "prior_seals_preserved": true,
+  "new_scalar_baseline_runtime": "UNRUN_REQUIRED",
+  "M11_baseline_linkage": "separate reviewed existing unoverlaid basis; not current I23 runtime",
+  "builds_tests_solver": 0,
+  "gaps": []
+}
