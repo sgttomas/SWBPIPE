@@ -1,0 +1,3 @@
+PASS P17: 415 exact frozen case/row/reference value predicates; unavailable 0. No genericunavailability credit.
+PASS P19: 360 exact frozen case/row/reference value predicates; unavailable 19. No genericunavailability credit.
+PASS5freshprocess/raw/portable/argv/env/exit bindings,4existing binaries/raw fingerprints,189source files;P15unrun/superseded,P20-P53unused. P19mixedhold/no finalcredit; no runtime by manager.

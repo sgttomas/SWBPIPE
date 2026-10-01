@@ -1,0 +1,831 @@
+{
+  "source_path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+  "source_sha256": "81094b99ebcf6054b925221c54b7ec5022348b69c4a36029715da7ea4328f082",
+  "method": "Exact Fraction primitive axis/projection algebra only, no solver/frame execution.",
+  "all_cases": [
+    {
+      "id": "RF-INVARIANCE-PINTOR-BASE",
+      "source_sha256": "007e9cae30a9dce15c4c2fbfa6fd45ddd5d6d86a90340f793806f7170a56c60c",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 5,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "18",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q3",
+      "source_sha256": "932b799a00f5e65bebe8153b242a0dcdca9421f388f1df496fd0922a8d5072f5",
+      "rotation_scope": true,
+      "proven_degenerate_member_count": 0,
+      "first_by_member_id": null
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-ROT-Q9",
+      "source_sha256": "113a659591fbf0085a6ded442aa133f22232340c6a52217ce4c670451fb86e23",
+      "rotation_scope": true,
+      "proven_degenerate_member_count": 0,
+      "first_by_member_id": null
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e3",
+      "source_sha256": "89d2ff8de2424f384717ae697fc19fef43804c3670b41b10851b30d9b02f7e29",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 5,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "18",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-OFF-1e6",
+      "source_sha256": "3b27b904a57f394c4f9ab17792202a26387548ff674be4910f1194fb3abf98ec",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 5,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "18",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-RELABEL",
+      "source_sha256": "8e6299340c80035e7f56f8c3f4024e27cce382d10b763f7d4ccfbe24b6b41a5c",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 5,
+      "first_by_member_id": {
+        "member_label": "E1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "-18",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "-1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "-1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "-1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-PINTOR-UNITS-mm",
+      "source_sha256": "8890a6189515d085c2ae46a3e0f65553498ff24d694c71de52d27ecb70e054b1",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 5,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "18000",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-BASE",
+      "source_sha256": "efcb3d668e7b5a28d63f21b4bd138d75d278bd33509828b484fcddef1d204985",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 2,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "9",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q3",
+      "source_sha256": "e00aa9da5ed1d5f334eb18b9faeddb73323ed4c268fa9dbd255c5ab72bea6070",
+      "rotation_scope": true,
+      "proven_degenerate_member_count": 0,
+      "first_by_member_id": null
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-ROT-Q9",
+      "source_sha256": "20702248a44c6ae166ce3a1f0cfd44e3ad82fe5339a633c4767503503ee6b80d",
+      "rotation_scope": true,
+      "proven_degenerate_member_count": 0,
+      "first_by_member_id": null
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e3",
+      "source_sha256": "ded066d3391c253fc848c32c5b1188535a634271be3b35166df8f90dfeab515c",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 2,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "9",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-OFF-1e6",
+      "source_sha256": "1e9672c5578ca334fdf4c5086c43db8d1e380f68e81f4f2db39d624fdcbaae75",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 2,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "9",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-RELABEL",
+      "source_sha256": "616324069ed001b32374c3ab3bac5080d6af1379e91c84e69dfde91a19c8d909",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 2,
+      "first_by_member_id": {
+        "member_label": "E1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "0",
+          "-9",
+          "0"
+        ],
+        "ex": [
+          "0",
+          "-1",
+          "0"
+        ],
+        "swapped_ex": [
+          "-1",
+          "0",
+          "0"
+        ],
+        "y_reference": [
+          "1",
+          "0",
+          "0"
+        ],
+        "projection": "-1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-LFRAME-UNITS-mm",
+      "source_sha256": "58792146c8f3f6c1af71df750306d20200f3374006fcc3fe6df0022597da99a2",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 2,
+      "first_by_member_id": {
+        "member_label": "M1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "9000",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-BASE",
+      "source_sha256": "072c67dd0135b840447f444e66f19d7791e23baeecf205e1efa7f7754d599e83",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 8,
+      "first_by_member_id": {
+        "member_label": "A1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          5
+        ],
+        "chord": [
+          "9",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q3",
+      "source_sha256": "415dd4e16ffa3cf8a304a034a6fbcb76e723b2c2d4ed9a54c8384eceb583ba2c",
+      "rotation_scope": true,
+      "proven_degenerate_member_count": 0,
+      "first_by_member_id": null
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-ROT-Q9",
+      "source_sha256": "86eb7f10d435bba12a84c2f26c99cda26b2b3d220ec837ea00b3f2e851732fd0",
+      "rotation_scope": true,
+      "proven_degenerate_member_count": 0,
+      "first_by_member_id": null
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e3",
+      "source_sha256": "2cff2d7e2d5dd54dfa95cd1f9f72d88cbc016b65935ed1a1b54821be508bbe82",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 8,
+      "first_by_member_id": {
+        "member_label": "A1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          5
+        ],
+        "chord": [
+          "9",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-OFF-1e6",
+      "source_sha256": "67d05e6011083db8d3223d4c4fe42186c495e1f6ce061d6cb89b342bfc7d8c42",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 8,
+      "first_by_member_id": {
+        "member_label": "A1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          5
+        ],
+        "chord": [
+          "9",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-RELABEL",
+      "source_sha256": "d02bbfcce80227b5062352ee72b1ee9e2289e80081e62b772c9de589677c2016",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 8,
+      "first_by_member_id": {
+        "member_label": "E1",
+        "member_id": 1,
+        "nodes": [
+          4,
+          0
+        ],
+        "chord": [
+          "-9",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "-1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "-1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "-1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-CONT4-UNITS-mm",
+      "source_sha256": "38fcc0138318727bb428fe3293ac4463f9eaa3ec3bf188b41ad607ad18c0e0d0",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 8,
+      "first_by_member_id": {
+        "member_label": "A1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          5
+        ],
+        "chord": [
+          "9000",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-BASE",
+      "source_sha256": "39e91477a5ef9fe0fdfbac40995d416b65d2718fc9e0a7ed8f38303a7f698489",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 75,
+      "first_by_member_id": {
+        "member_label": "S1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "3",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e3",
+      "source_sha256": "e8a40a0946df0c47c0f27dbc8790e3ab6a8a0cde9f11c07deaabefda2af27f0c",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 75,
+      "first_by_member_id": {
+        "member_label": "S1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "3",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-OFF-1e6",
+      "source_sha256": "b3d9c5f136b0628d7cf9463088dcd8f246b0f2e5c487cd22adfda3f46b7b2f3c",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 75,
+      "first_by_member_id": {
+        "member_label": "S1",
+        "member_id": 1,
+        "nodes": [
+          0,
+          1
+        ],
+        "chord": [
+          "3",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    },
+    {
+      "id": "RF-INVARIANCE-TREE100-RELABEL",
+      "source_sha256": "8720159c25c396309f1f194d7b5a37479fa6663ea7b636e71ce3c38cc7595223",
+      "rotation_scope": false,
+      "proven_degenerate_member_count": 75,
+      "first_by_member_id": {
+        "member_label": "E2",
+        "member_id": 2,
+        "nodes": [
+          1,
+          3
+        ],
+        "chord": [
+          "-3",
+          "0",
+          "0"
+        ],
+        "ex": [
+          "-1",
+          "0",
+          "0"
+        ],
+        "swapped_ex": [
+          "0",
+          "-1",
+          "0"
+        ],
+        "y_reference": [
+          "0",
+          "1",
+          "0"
+        ],
+        "projection": "-1",
+        "yc": [
+          "0",
+          "0",
+          "0"
+        ],
+        "formed_rounding": "All values involved0/\u00b11 and dyadic integer chord; normalization result and projection exactly representable. normalize(yc) divides0by0."
+      }
+    }
+  ],
+  "degenerate_nonROT_cases": 19,
+  "ROT_cases": 6,
+  "interpretation": "Source explains added DivisionByZero possibility under F04; these are never VALUE kill credit. Does not infer actual runtime until sealed records are read."
+}
