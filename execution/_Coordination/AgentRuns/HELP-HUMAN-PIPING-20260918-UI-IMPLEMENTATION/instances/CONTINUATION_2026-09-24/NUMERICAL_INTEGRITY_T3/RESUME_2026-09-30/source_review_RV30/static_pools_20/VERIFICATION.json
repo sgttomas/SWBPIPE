@@ -1,0 +1,43 @@
+{
+  "start_utc": "2026-10-01T19:54:00+00:00",
+  "completion_utc": "2026-10-01T19:59:35.572582+00:00",
+  "deadline_utc": "2026-10-01T20:09:00+00:00",
+  "elapsed_seconds": 335.572582,
+  "child_payloads": 14,
+  "manager_payloads": 3,
+  "frozen_source_files": 5,
+  "literal_occurrences": 132,
+  "complete_conservative_producer_union_checked": true,
+  "static_maxima": {
+    "structural": 77,
+    "frame": 41
+  },
+  "prior_seals_unchanged": [
+    {
+      "packet": "vr_nodes_17",
+      "seal": "409c7f91e02a239570767775d97552761c2f9b08f80e25bfa8a3132d47b59fb6",
+      "payloads_unchanged": true
+    },
+    {
+      "packet": "format_stream_18",
+      "seal": "dd5de94dc36355738189f8cda2e89eb1c3024ebfe4eaa8dc59a084762e583d0d",
+      "payloads_unchanged": true
+    },
+    {
+      "packet": "wrapped_errors_19",
+      "seal": "1ea8814af9e1d556d889ffafbcdfb78436b82b35e2dcc82523cd40278082a1a5",
+      "payloads_unchanged": true
+    }
+  ],
+  "no_blocking_findings": true,
+  "activity_counts": {
+    "runtime_Rust_build_test_probe": 0,
+    "product_algorithm_execution": 0,
+    "broader_library_or_panic_audit": 0,
+    "Git_index": 0,
+    "maintained_edit": 0,
+    "delegation": 0
+  },
+  "full_Emax_checkpoint0_admission_acceptance": false,
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/static_pools_20"
+}

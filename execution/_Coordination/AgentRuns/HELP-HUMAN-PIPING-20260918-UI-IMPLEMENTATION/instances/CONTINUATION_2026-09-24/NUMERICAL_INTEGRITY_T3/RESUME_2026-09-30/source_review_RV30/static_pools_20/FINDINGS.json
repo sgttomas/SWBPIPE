@@ -1,0 +1,36 @@
+{
+  "blocking_findings": [],
+  "source_cells_closed": {
+    "P_STATIC_STRUCTURAL": 77,
+    "P_STATIC_FRAME": 41
+  },
+  "literal_occurrences": {
+    "structural": 75,
+    "frame": 57
+  },
+  "unique_literals": {
+    "structural": 55,
+    "frame": 47
+  },
+  "derived_terms": {
+    "class_length": 100,
+    "class_request": 200,
+    "class_move": 300,
+    "frame_quoted_payload": 248,
+    "frame_Debug_length": 33072,
+    "frame_request": 66144,
+    "frame_move": 99216
+  },
+  "closure_scope": "actual pinned parity returned-error producers, sparse and original optional dense sibling; no arbitrary public/generic caller",
+  "prior_artifact_facts_preserved": [
+    "vr_nodes_17",
+    "wrapped_errors_19"
+  ],
+  "remaining": [
+    "final ordinary production correspondence",
+    "general fatal/allocation-failure/panic interfaces",
+    "precut/global caller union and checked integration",
+    "measurement/admission/full Emax"
+  ],
+  "full_Emax_checkpoint0_admission_acceptance": false
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/static_error_pools_18",
+    "seal": "71a7ff4186834e4164253f0dfe62b47f83baab62007a1c52ef14f832ce104f8d",
+    "payloads": [
+      {
+        "path": "ARITHMETIC.json",
+        "sha256": "2cd87596d29e1e0112b78796863364fdc39ccf4d3e0e887e2fa75ec8d736488b"
+      },
+      {
+        "path": "LITERALS.json",
+        "sha256": "2c2eac76bc12f61a67c1c905c15778ca52678ae18a3ede873ba38acc89ee6f04"
+      },
+      {
+        "path": "LITERAL_TABLE.md",
+        "sha256": "ac1153166f1b96ae1390cedfb5a150397655acb21db07f693e345a6a5141fcd2"
+      },
+      {
+        "path": "POOLS.md",
+        "sha256": "25a3d3403bccff99d20ed7d132268c11a12717f1d18df3f8dea7db36e78a6270"
+      },
+      {
+        "path": "RETURN.md",
+        "sha256": "4a9d4cfc2c222b61dfa5b531c1d7b75d9cee3cfe183b53523e1c6fa7e434e036"
+      },
+      {
+        "path": "VERIFICATION.json",
+        "sha256": "9fd11ab69f5240b9f07eb7261a25efb382896362d0cd139c968aa4f3fdf2fad1"
+      },
+      {
+        "path": "_run_records/BINDING.json",
+        "sha256": "3787f54c71d4e551b8c42104c9651cf71baf613ce354a0cdb41f73c4731f4dd6"
+      },
+      {
+        "path": "_run_records/RAW_COMMANDS.json",
+        "sha256": "fe2b5c42ccedf37ef8899f12695122325484353c9d6ed8c8a8faf4d17eb5e642"
+      },
+      {
+        "path": "_run_records/SOURCES.json",
+        "sha256": "28a05c339044c99262a114b331a91540db7bb748ced381e2d0e4f36da0eee7af"
+      },
+      {
+        "path": "_run_records/source_D.txt",
+        "sha256": "16cc95126915e1d511d868165416b115f13ed52ce649e601518ebc349c07198e"
+      },
+      {
+        "path": "_run_records/source_F.txt",
+        "sha256": "32b0dc429790469e634a8a4a950e7f0f274848c33e378a6041bfdf2b8860eafe"
+      },
+      {
+        "path": "_run_records/source_P.txt",
+        "sha256": "4b56447e5313a68f8779690ee67499863e37cee5ed77a8aca23cc122eedca1b0"
+      },
+      {
+        "path": "_run_records/source_Q.txt",
+        "sha256": "df754aa3d7a009580f967dca217aab8f20f717c20a42695efd117be20552e4ed"
+      },
+      {
+        "path": "_run_records/source_S.txt",
+        "sha256": "358000a46a7856765d32b17d048cb7917fc38e617b91bb480b2fc201a9494ab1"
+      }
+    ]
+  },
+  {
+    "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/static_error_pools_18",
+    "seal": "d14435ad9adcc417138206ce567a4fa33d6d2831edd3d569f8f0b42f32d8e78a",
+    "payloads": [
+      {
+        "path": "DISPATCH.md",
+        "sha256": "350effc750e0af0d8a58bd949db05aa903a54ce5c339d9181f24e61a4bb94930"
+      },
+      {
+        "path": "RETURN.md",
+        "sha256": "2e9db401d5a76ea2a503732e62aa84f3eef3cae4a18776f2691e69b9643a66c2"
+      },
+      {
+        "path": "VERIFICATION.txt",
+        "sha256": "b37e8bb4693e878cd47616d5a09d81a13e2e9ce9aaf0106d98710ddfa5bea15b"
+      }
+    ]
+  }
+]
