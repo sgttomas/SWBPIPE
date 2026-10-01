@@ -1,0 +1,5 @@
+# Additive M11 control cwd binding
+
+ROOT NUM49874f6b84b8a1f409d704e74416ba8a7b9f9778 R/BRIEFS/A1_G4_M11_CONTROL_CWD.md SHAefe99d9e8758f7ab88b0e1aeb227dab6e6d44c9f90a04ac9f39c8274e58e81f9 fullyread/relayed. Exactdirectreturnedcontrolcwd is <WT>/scratch/i22/mutations_e1/base/projects/chirality-piping/core/solver/frame_kernel, preservedunoverlaid40129. OriginalreviewedfullFKbinarycd5967f3... andexactM11filterunchanged. ROOTtracedtest/wrapper/compiledinclude_strparser:no runtimerelativefiledependency.
+
+Preparation'smissingcwdandchild'sunusedA1cwdproposalstayhistorical. No newinitialbaseline/build/overlay/maintainedwrite. Managercomplete116source/test/lock/oldbinary checkrequiredbeforeM11release. OriginalG4stops/deadlineunchanged; bindingalone notruntime release.

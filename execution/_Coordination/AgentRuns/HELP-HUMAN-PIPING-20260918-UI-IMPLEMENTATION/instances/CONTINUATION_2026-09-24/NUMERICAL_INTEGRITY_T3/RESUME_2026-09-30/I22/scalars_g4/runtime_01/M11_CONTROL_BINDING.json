@@ -1,0 +1,26 @@
+{
+  "grant": {
+    "commit": "49874f6b84b8a1f409d704e74416ba8a7b9f9778",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_G4_M11_CONTROL_CWD.md",
+    "sha256": "efe99d9e8758f7ab88b0e1aeb227dab6e6d44c9f90a04ac9f39c8274e58e81f9",
+    "cwd": "<wt>/scratch/i22/mutations_e1/base/projects/chirality-piping/core/solver/frame_kernel"
+  },
+  "original_preparation_cwd": "omitted; preserved in preparation and READINESS.json",
+  "original_A1_cwd_proposal": "read-only hashes verified; never used for runtime",
+  "resolved_cwd": "<wt>/scratch/i22/mutations_e1/base/projects/chirality-piping/core/solver/frame_kernel",
+  "control_binary": {
+    "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+  },
+  "control_fingerprint": {
+    "path": "<wt>/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+    "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+    "raw_json_preserved": true,
+    "features": "[]",
+    "rustflags": []
+  },
+  "initial_baseline_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/fk_baseline_03/FK.stdout:210",
+  "initial_baseline_exact_passes": 1,
+  "new_initial_baseline_or_build": false,
+  "full_original_source_file_hashes_checked": 116
+}

@@ -1,0 +1,2 @@
+PASS:17commands sequential/within20min/<5min each,4independentcopyreleases precededbuilds; exactexpectedexitcodes/explicitNONE.464finalcopy+116controlsource files match frozenexpectedstate.
+Independentpsshowed noCargo/rustc/kerneltest, child75entrysealverified; G3dependency now satisfied, subject alreadygranted scope.

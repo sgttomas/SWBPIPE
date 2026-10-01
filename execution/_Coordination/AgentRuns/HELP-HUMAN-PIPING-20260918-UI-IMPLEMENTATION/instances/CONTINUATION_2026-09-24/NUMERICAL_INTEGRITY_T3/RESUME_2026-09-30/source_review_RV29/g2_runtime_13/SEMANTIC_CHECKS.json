@@ -1,0 +1,220 @@
+{
+  "production_source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "reviewed_test_postimage_sha256": "ab271c7d7e50b15146953154d75b55be9d2d51e32b7e95ae4c54e6c203b78004",
+  "checks": [
+    {
+      "variant": "R7-M25",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+      "line": 2009,
+      "label": "I23:DATA_SCOPE:THETA-STUB",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2009:9:\nassertion `left == right` failed: I23:DATA_SCOPE:THETA-STUB\n  left: [true, true]\n right: [true, false]",
+      "independent_review": {
+        "basis": "Fixed CHARGE THETA-STUB block data flags1,0",
+        "meaning": "Unscoped/per-body data falsely includes the zero-data block",
+        "later_unreached": "THETA-ZERO-BODY/Theta assertions not claimed reached after this first failure"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M25",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_g_scope",
+      "line": 2021,
+      "label": "I23:G_SCOPE",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2021:5:\nassertion `left == right` failed: I23:G_SCOPE\n  left: 301\n right: 0",
+      "independent_review": {
+        "basis": "Fixed G-FIXED-MEMBER CHARGE g_max0",
+        "meaning": "Out-of-scope fixed member contributes g301",
+        "later_unreached": "g_violation equality not claimed reached"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M26",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+      "line": 2043,
+      "label": "I23:B_CHOICE:CHARGE-SLENDER:0",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2043:13:\nassertion `left == right` failed: I23:B_CHOICE:CHARGE-SLENDER:0\n  left: Some(+c000000000000000000000000000000000000000000000000000000000000000p18)\n right: Some(+c00000000000000000000000000000000000000000000000000000000000011ep2)",
+      "independent_review": {
+        "basis": "Immutable CHARGE B token +c00000000000000000000000000000000000000000000000000000000000011ep2",
+        "meaning": "F*estimate or global-Uc surrogate differs from specified per-block B; expected B never computed from live Uc/S",
+        "fixed_record": [
+          "chgblk",
+          "CHARGE-SLENDER",
+          "256",
+          "0",
+          "1",
+          "+c00000000000000000000000000000000000000000000000000000000000011ep2",
+          "+c0000000000000000000003000000000000000000001b000000000000000012p-68",
+          "+8000000000000000000000200000000000000000000120000000000000000001p179",
+          "+8000000000000000000000200000000000000000000120000000000000000001p179",
+          "+8000000000000000000000000000000000000000000080000000000000000001p268",
+          "+8p-166",
+          "+8p-423",
+          "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168",
+          "0"
+        ]
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M28",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+      "line": 2063,
+      "label": "I23:REQUIRED_SHIFT:RF-LARGE-CHAIN-n00100-AX",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2063:9:\nassertion `left == right` failed: I23:REQUIRED_SHIFT:RF-LARGE-CHAIN-n00100-AX\n  left: 0\n right: 1",
+      "independent_review": {
+        "basis": "Fixed CHARGE count1 and BOUNDS first-try formed S for named chain",
+        "meaning": "Required scheduled shift omitted",
+        "later_unreached": "Formed-S equality and TREE second-loop mutant checks not claimed reached",
+        "model_units": "100 members,101 nodes"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M29",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_data_scope",
+      "line": 2009,
+      "label": "I23:DATA_SCOPE:THETA-STUB",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2009:9:\nassertion `left == right` failed: I23:DATA_SCOPE:THETA-STUB\n  left: [true, true]\n right: [true, false]",
+      "independent_review": {
+        "basis": "Fixed CHARGE THETA-STUB block data flags1,0",
+        "meaning": "Unscoped/per-body data falsely includes the zero-data block",
+        "later_unreached": "THETA-ZERO-BODY/Theta assertions not claimed reached after this first failure"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M29",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_bound_choice",
+      "line": 2043,
+      "label": "I23:B_CHOICE:HH-SLENDER-m40:2",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2043:13:\nassertion `left == right` failed: I23:B_CHOICE:HH-SLENDER-m40:2\n  left: Some(+d68a9b7ff8bbb9806a100b7f5b9af4e281b36928ee7f980f51e334de75355f99p35)\n right: Some(+c000000000000000000000000000000000000000000000000000000000000304p2)",
+      "independent_review": {
+        "basis": "Immutable CHARGE B token +c000000000000000000000000000000000000000000000000000000000000304p2",
+        "meaning": "F*estimate or global-Uc surrogate differs from specified per-block B; expected B never computed from live Uc/S",
+        "fixed_record": [
+          "chgblk",
+          "HH-SLENDER-m40",
+          "256",
+          "2",
+          "1",
+          "+c000000000000000000000000000000000000000000000000000000000000304p2",
+          "+c0000000000000000000003000000000000000000001b0000000000000000306p-68",
+          "+8000000000000000000000200000000000000000000120000000000000000001p179",
+          "+8000000000000000000000200000000000000000000120000000000000000001p179",
+          "+8000000000000000000000000000000000000000000080000000000000000001p268",
+          "+8p-166",
+          "+8p-423",
+          "+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabp-168",
+          "0"
+        ]
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M29",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_required_shift",
+      "line": 2063,
+      "label": "I23:REQUIRED_SHIFT:RF-LARGE-CHAIN-n00100-AX",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2063:9:\nassertion `left == right` failed: I23:REQUIRED_SHIFT:RF-LARGE-CHAIN-n00100-AX\n  left: 0\n right: 1",
+      "independent_review": {
+        "basis": "Fixed CHARGE count1 and BOUNDS first-try formed S for named chain",
+        "meaning": "Required scheduled shift omitted",
+        "later_unreached": "Formed-S equality and TREE second-loop mutant checks not claimed reached",
+        "model_units": "100 members,101 nodes"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M3",
+      "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+      "line": 1996,
+      "label": "I23:NO_EARLY_PHI:256",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1996:13:\nassertion `left == right` failed: I23:NO_EARLY_PHI:256\n  left: Some([[1.4088407314736535e-132, 1.4088407314736535e-132]])\n right: None",
+      "independent_review": {
+        "basis": "Accepted floor absent at verification256/512, fixed2^-438 for e_hat1 only at1024",
+        "meaning": "early floor at256",
+        "independent_power_of_two": "1.4088407314736535e-132"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M4",
+      "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+      "line": 1994,
+      "label": "I23:PHI_AT_CEILING",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1994:13:\nassertion `left == right` failed: I23:PHI_AT_CEILING\n  left: None\n right: Some([[1.4088407314736535e-132, 1.4088407314736535e-132]])",
+      "independent_review": {
+        "basis": "Accepted floor absent at verification256/512, fixed2^-438 for e_hat1 only at1024",
+        "meaning": "missing ceiling floor",
+        "independent_power_of_two": "1.4088407314736535e-132"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M5",
+      "filter": "structural::retained::adaptive::method_tests::i23_r7_prescribed_e_matches_scale",
+      "line": 2091,
+      "label": "I23:R7M5_E_ROW:22",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:2091:9:\nassertion `left == right` failed: I23:R7M5_E_ROW:22\n  left: Some(+dbfb85b6c04d8061df9abfe01c983d334a800000000000000000000000000000p12)\n right: Some(+ec999293c0186bb2df84f47ff8cc44a2a5400000000000000000000000000000p13)",
+      "independent_review": {
+        "basis": "Immutable PRESCRIBED SCALE row22 +ec999293c0186bb2df84f47ff8cc44a2a54p13",
+        "meaning": "Prescribed |u| omitted from actual verify_state E producer",
+        "coverage": "The preceding complete33-row index assertion passed; it is not the credited failure",
+        "later_unreached": "Later E rows and resolution equality not claimed reached after row22"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    },
+    {
+      "variant": "R7-M9",
+      "filter": "structural::retained::adaptive::method_tests::i23_phi_floor_only_at_verification_1024",
+      "line": 1996,
+      "label": "I23:NO_EARLY_PHI:512",
+      "observed_failure": "panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1996:13:\nassertion `left == right` failed: I23:NO_EARLY_PHI:512\n  left: Some([[1.4088407314736535e-132, 1.4088407314736535e-132]])\n right: None",
+      "independent_review": {
+        "basis": "Accepted floor absent at verification256/512, fixed2^-438 for e_hat1 only at1024",
+        "meaning": "early floor at512",
+        "independent_power_of_two": "1.4088407314736535e-132"
+      },
+      "semantic_result": "QUALIFIED_NAMED_ASSERTION_FAILURE",
+      "same_filter_control": "VERIFIED_PASS"
+    }
+  ],
+  "fault_variants": 8,
+  "mapped_assertion_failures": 11,
+  "new_model_or_expected_value": false,
+  "corpus_source_receipts": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d"
+    }
+  ],
+  "limits": [
+    "No setup, shape, coverage, compiler or certificate error supplies credit.",
+    "One physical variant can have multiple required filters; eleven assertions are not eleven distinct variants.",
+    "G1 completed subset remains closed and is not repeated.",
+    "No final A1 acceptance."
+  ]
+}

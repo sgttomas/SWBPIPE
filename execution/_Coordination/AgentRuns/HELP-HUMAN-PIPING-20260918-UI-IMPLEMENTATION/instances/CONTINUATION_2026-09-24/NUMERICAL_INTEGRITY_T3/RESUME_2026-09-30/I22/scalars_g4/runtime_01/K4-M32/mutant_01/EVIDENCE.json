@@ -1,0 +1,71 @@
+{
+  "kind": "mutant",
+  "id": "K4-M32",
+  "index": 0,
+  "name": "mutant_01",
+  "source_id": "K4-M32",
+  "filter": "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+  "argv": [
+    "<wt>/a1-diagnostic-target/g4/K4-M32/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "--exact",
+    "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+    "--test-threads=2",
+    "--nocapture"
+  ],
+  "cmd": "/usr/bin/time -l env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER GIT_OPTIONAL_LOCKS=0 RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_NET_OFFLINE=true FK_SEEDED_FAULT=NONE '<wt>/a1-diagnostic-target/g4/K4-M32/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904' '--exact' 'structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm' '--test-threads=2' '--nocapture' > '<wt>/scratch/i23/scalars_g4/logs/K4-M32/mutant_01.stdout' 2> '<wt>/scratch/i23/scalars_g4/logs/K4-M32/mutant_01.stderr'",
+  "workdir": "<wt>/scratch/i23/scalars_g4/K4-M32/projects/chirality-piping/core/solver/frame_kernel",
+  "log": "<wt>/scratch/i23/scalars_g4/logs/K4-M32/mutant_01",
+  "guard_before": {
+    "chunk_id": "493e0c",
+    "wall_time_seconds": 7.25e-06,
+    "exit_code": 0,
+    "original_token_count": 34,
+    "output": " 5387     1 03-13:40:37 /bin/bash <wt>/guard/memguard.sh\n"
+  },
+  "launch_utc": "2026-10-01T15:16:56.748Z",
+  "tool_initial": {
+    "chunk_id": "b8fb27",
+    "wall_time_seconds": 1.0125e-05,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "tool_completion": {
+    "chunk_id": "b8fb27",
+    "wall_time_seconds": 1.0125e-05,
+    "exit_code": 101,
+    "original_token_count": 0,
+    "output": ""
+  },
+  "info": {
+    "stdout": "\nrunning 1 test\ntest structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm ... FAILED\n\nfailures:\n\nfailures:\n    structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 392 filtered out; finished in 0.01s\n\n",
+    "stderr": "\nthread 'structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm' (25836312) panicked at src/structural/retained/../../../tests/retained_k4/factor_tests.rs:486:5:\nassertion `left == right` failed: I23:K4M32_EQUILIBRATED_RCOND\n  left: Ok(+8000000000000000000000000000000000000000000000000000000000000000p-4)\n right: Ok(+8000000000000000000000000000000000000000000000000000000000000000p0)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n        0.01 real         0.01 user         0.00 sys\n             7864320  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 836  page reclaims\n                   1  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                   9  involuntary context switches\n           143963055  instructions retired\n            46007738  cycles elapsed\n             2457936  peak memory footprint\n",
+    "stdout_sha256": "d4faaae555b201d02f4a9e78ba9aa1b4fa346bcf6c9d01415dfac0d34e148106",
+    "stderr_raw_sha256": "665ae46549f0397afd53c3422c72a220bc343a6f6abfd1a41d60c8f0adb659d6",
+    "source_id": "K4-M32",
+    "source_manifest_sha256": "28441070e3f32fe1e3b7d9798497df9e664404f170dba28c57203b33cfbe747a",
+    "complete_source_hashes_match": true,
+    "affected_images": [
+      {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+        "before_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+        "after_sha256": "e6b478a51708afc4e1ed67f7a761623d443fb88ae1411de9efdc4f9012677f27"
+      }
+    ],
+    "overlay": true,
+    "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+    "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "binary": {
+      "path": "<wt>/a1-diagnostic-target/g4/K4-M32/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "02069df7c43fe59b5d5d488a9cd9da736433db70e84f8a15777e805ea8c08e41"
+    },
+    "fingerprint": {
+      "path": "<wt>/a1-diagnostic-target/g4/K4-M32/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_json_preserved": true,
+      "features": "[]",
+      "rustflags": []
+    },
+    "guard_after": "5387     1 03-13:40:37 /bin/bash <wt>/guard/memguard.sh"
+  }
+}

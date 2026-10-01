@@ -1,0 +1,3 @@
+PASS:40 originalinstalledHTML+decoded source hashes match;47entryseal separatelyverified. FullH_LEAVES fourleaf derivation and exactopenprivatecells read.
+PASS:explicit i16exponent overapprox and downstreamintegerbounds independently recomputed; nofloat/Rust execution. Zerohelperheapclaims remain sourceproofproposals forRV30, not manager-certified universalruntime.
+M_mutex/L_info exactprivate requests remainunbound; observed612/guessedlayout/fullEmax/admission not used.
