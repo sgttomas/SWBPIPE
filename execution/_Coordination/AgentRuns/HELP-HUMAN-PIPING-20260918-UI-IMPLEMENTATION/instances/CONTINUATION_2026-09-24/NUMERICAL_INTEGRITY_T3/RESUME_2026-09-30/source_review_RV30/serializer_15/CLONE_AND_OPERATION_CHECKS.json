@@ -1,0 +1,24 @@
+{
+  "BTree_source": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/decoded/alloc__collections__btree__map.rs",
+    "sha256": "f58ece50e59502b344616a4c7dcbb13987b5b5ef6b2c4038888ceefaac5635d1",
+    "read_ranges": [
+      "226-308",
+      "2558-2564"
+    ]
+  },
+  "checked": [
+    "known-length Vec serialization reserves exact length",
+    "String serialize_str copies exact bytes",
+    "Value fresh clone retains only final destination nodes and child clones",
+    "pending serialized key belongs to final destination",
+    "record stages/optional verification source and serialized copy overlap",
+    "direct nested literals/attempt Array/report insert move",
+    "source_refused report(t) expression serializes a copy",
+    "merge uses insertion Extend with moved keys/children and retained source nodes",
+    "emit schema value RHS11 precedes indexing key6",
+    "ordinary Display to_writer uses borrowed stream; no whole line String"
+  ],
+  "open_format_integration_condition": "H_format for outcome_text must cover construction of nested refusal_text argument. If decomposed after argument evaluation, retain max(H_refusal_text, F_refusal+H_outer_format, F_outer+D_outer). This is within the existing unbound formatting-helper obligation; no zero helper or standalone numeric bound is asserted.",
+  "new_runtime_or_library_programme": false
+}

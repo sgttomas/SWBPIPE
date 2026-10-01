@@ -1,0 +1,34 @@
+{
+  "start_utc": "2026-10-01T17:33:36+00:00",
+  "completion_utc": "2026-10-01T17:48:16.605493+00:00",
+  "deadline_utc": "2026-10-01T17:53:36+00:00",
+  "elapsed_seconds": 880.605493,
+  "source15_payloads": 6,
+  "manager_payloads": 3,
+  "frozen_product_files": 10,
+  "reached_serde_pages": 9,
+  "schema_sets_arithmetic_checked": 26,
+  "direct_source_key_groups": 24,
+  "composite_key_groups": 2,
+  "feature_log_lines": [
+    17,
+    18
+  ],
+  "feature_evidence_scope": "layout04 diagnostic; final build remains unbound",
+  "all_prior_RV30_payloads_still_match_their_seals": true,
+  "scope_complete": true,
+  "blocking_findings": 0,
+  "no_full_Emax_admission_implementation_acceptance": true,
+  "activity_counts": {
+    "Rust_build_test_probe_runtime": 0,
+    "production_serializer_formatter_execution": 0,
+    "Git_index": 0,
+    "maintained_edits": 0,
+    "model_generation": 0,
+    "new_tools": 0,
+    "network_install": 0,
+    "delegation": 0
+  },
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/serializer_15",
+  "scratch_writes": []
+}
