@@ -1,0 +1,72 @@
+{
+  "checked_at_utc": "2026-10-01 10:31:37 UTC",
+  "result": "Source/provenance checks passed; proposal remains unexecuted",
+  "latest_root_hold": "ROOT's G1 host-tool blocker holds all new host jobs and continuations. Only this already authorized source_07 source-only return finishes; the prospective command remains ungranted and I21 stops after sealing.",
+  "postcheck_note": "The embedded file inventory records the 10:31:37 inspection. QUEUE/PROPOSAL then received only explicit path aliases and a clearer no-Rust-runtime wording; final payload hashes are in SHA256SUMS and are verified during sealing.",
+  "actual_verification_command": "'<VENV>/bin/python' -B - <<'PY'\nimport pathlib,json,hashlib\np=pathlib.Path(\"<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_07\");docs=json.loads((p/'DOC_BINDING.json').read_text());rows=[]\nfor page in docs['pages']:\n b=(p/page['decoded_file']).read_bytes();assert hashlib.sha256(b).hexdigest()==page['decoded_sha256'];assert len(b.decode().splitlines())==page['decoded_lines']\nfor f in sorted(p.iterdir()):\n b=f.read_bytes();t=b.decode();assert chr(47)+'Users'+chr(47) not in t,f.name\n if f.suffix=='.json':json.loads(t)\n rows.append({'file':f.name,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})\nb=json.loads((p/'SOURCE_BINDING.json').read_text());assert all(not v['mismatches'] for v in b['prior_seals'])\nprint(json.dumps({'files':rows,'decoded_sources_verified':3,'prior_seal_mismatches':0,'absolute_host_paths_absent':True,'json_valid':True,'only_semantic_outputs':['QUEUE.md','PROPOSAL.md'],'prospective_node_values':'not measured; no compile or probe'},indent=2))\nPY",
+  "tool_result": {
+    "chunk_id": "940c31",
+    "wall_time_seconds": 0.000007417,
+    "exit_code": 0,
+    "original_token_count": 374,
+    "output": "{\n  \"files\": [\n    {\n      \"file\": \"DOC_BINDING.json\",\n      \"bytes\": 3991,\n      \"sha256\": \"02500b1438945c293a49cac68dc22241d6f2ab5ab9c35d9f635b6806a293394f\"\n    },\n    {\n      \"file\": \"PROPOSAL.md\",\n      \"bytes\": 10747,\n      \"sha256\": \"b14a6142b5108c8593123aa52524951989289b19ed46bb46a5d8fd0d315ba3b8\"\n    },\n    {\n      \"file\": \"QUEUE.md\",\n      \"bytes\": 5419,\n      \"sha256\": \"1dcb731beb53798eae90d62b475bdb234e5b6eb740221a416c6d72995d38bcc1\"\n    },\n    {\n      \"file\": \"RAW_COMMANDS.json\",\n      \"bytes\": 141893,\n      \"sha256\": \"fe425ab7235909a8616aae0146f6fde6a5d2606f967618a20d2eaba4390f9179\"\n    },\n    {\n      \"file\": \"SOURCE_BINDING.json\",\n      \"bytes\": 4321,\n      \"sha256\": \"09512ab00b36314e1d497ab4d93da2012ef125bff61864ad78259f94ed0a8d24\"\n    },\n    {\n      \"file\": \"btree.map.entry.rs.txt\",\n      \"bytes\": 19857,\n      \"sha256\": \"2a07121ec5b1a4d1aa822868b1064bbdae911ee02cda8b34f4dd53e53876f116\"\n    },\n    {\n      \"file\": \"btree.set_val.rs.txt\",\n      \"bytes\": 890,\n      \"sha256\": \"354ab9c955b7f068a9bb7727357aa66b104acc176170ccf37b01945d302d8ec1\"\n    },\n    {\n      \"file\": \"vec_deque.mod.rs.txt\",\n      \"bytes\": 139588,\n      \"sha256\": \"75b696f6b3b675b109626455104129724d4e5d59253f6aefa03eddedfa67c1d4\"\n    }\n  ],\n  \"decoded_sources_verified\": 3,\n  \"prior_seal_mismatches\": 0,\n  \"absolute_host_paths_absent\": true,\n  \"json_valid\": true,\n  \"only_semantic_outputs\": [\n    \"QUEUE.md\",\n    \"PROPOSAL.md\"\n  ],\n  \"prospective_node_values\": \"not measured; no compile or probe\"\n}\n"
+  },
+  "checks": {
+    "files": [
+      {
+        "file": "DOC_BINDING.json",
+        "bytes": 3991,
+        "sha256": "02500b1438945c293a49cac68dc22241d6f2ab5ab9c35d9f635b6806a293394f"
+      },
+      {
+        "file": "PROPOSAL.md",
+        "bytes": 10747,
+        "sha256": "b14a6142b5108c8593123aa52524951989289b19ed46bb46a5d8fd0d315ba3b8"
+      },
+      {
+        "file": "QUEUE.md",
+        "bytes": 5419,
+        "sha256": "1dcb731beb53798eae90d62b475bdb234e5b6eb740221a416c6d72995d38bcc1"
+      },
+      {
+        "file": "RAW_COMMANDS.json",
+        "bytes": 141893,
+        "sha256": "fe425ab7235909a8616aae0146f6fde6a5d2606f967618a20d2eaba4390f9179"
+      },
+      {
+        "file": "SOURCE_BINDING.json",
+        "bytes": 4321,
+        "sha256": "09512ab00b36314e1d497ab4d93da2012ef125bff61864ad78259f94ed0a8d24"
+      },
+      {
+        "file": "btree.map.entry.rs.txt",
+        "bytes": 19857,
+        "sha256": "2a07121ec5b1a4d1aa822868b1064bbdae911ee02cda8b34f4dd53e53876f116"
+      },
+      {
+        "file": "btree.set_val.rs.txt",
+        "bytes": 890,
+        "sha256": "354ab9c955b7f068a9bb7727357aa66b104acc176170ccf37b01945d302d8ec1"
+      },
+      {
+        "file": "vec_deque.mod.rs.txt",
+        "bytes": 139588,
+        "sha256": "75b696f6b3b675b109626455104129724d4e5d59253f6aefa03eddedfa67c1d4"
+      }
+    ],
+    "decoded_sources_verified": 3,
+    "prior_seal_mismatches": 0,
+    "absolute_host_paths_absent": true,
+    "json_valid": true,
+    "only_semantic_outputs": [
+      "QUEUE.md",
+      "PROPOSAL.md"
+    ],
+    "prospective_node_values": "not measured; no compile or probe"
+  },
+  "queue_subcell": "Pinned source derivation replaces Qdeque with 8*P8(max(1,f-1)) for f>0, zero for f=0; add only active old-request bound. No deque/source/model execution.",
+  "proposal_status": "No actual node request value, alignment or new five-type layout value measured. No prospective overlay applied. A later ROOT-reviewed concrete overlay and explicit runtime slot would be required.",
+  "remaining": "Input-capacity C1, T1/T2 actual witness, C2 descriptors, O2 final source, W1 H/VR consumer composition and integrating full-bound review remain.",
+  "execution_boundary": "No compiler/build/test/probe/solver/model or production/Rust-library execution, network/install, new tool/framework, maintained edit, Git/index write or delegation. No I21 experiment running; G1 host priority unchanged.",
+  "write_inventory": "SHA256SUMS lists nine payloads; it is the tenth owned file. Only source_07 was written, with two semantic outputs QUEUE.md and PROPOSAL.md plus provenance/source evidence. Owned scratch unused."
+}
