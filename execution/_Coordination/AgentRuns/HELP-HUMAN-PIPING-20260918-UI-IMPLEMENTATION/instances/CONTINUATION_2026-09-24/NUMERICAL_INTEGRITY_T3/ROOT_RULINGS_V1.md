@@ -3978,3 +3978,23 @@ caller/input composition and result mappings, and the reach-dependent triple-key
 set premise. No new host tool or generic library proof programme is commissioned.
 Unknown concrete facts must be returned by name; code translation and any added
 allocation costs still require their own explicit later grant and review.
+
+
+## S2 mapping corrected; remaining observability limits preserved (ROOT, 2026-10-01)
+
+ROOT read the complete I23 remaining-map audit and RV29 vk_s2_mapping_40 review,
+verified every payload, and accepts source readiness of the correction to
+existing rf_finite. The review's “S2 cause and original criterion” proves the
+zero-reference sign invariance and separate spring-action branch; its cited
+unchanged finite-family references establish eligibility, not a predicted kill.
+The error was our later frozen narrowing of the original reaction/VALUE register.
+P35 remains an unqualified survivor. The failed-to-dispatch P36 preparation is
+preserved as a manager timing overrun, not a test result or host-tool defect.
+
+The fresh BRIEFS/A1_VK_S2_RETARGET.md window includes the actual P36 control and
+controlled corrected witness. No protected criterion is weakened. Remaining
+F05/F06/F07/R28 mappings have their existing specific observables; R02's schema
+does not expose the numerical estimate/charge values. Only an attributable
+existing named R7/acceptance change could qualify that current observation;
+work-only or certificate-only drift cannot. A missing witness remains a stop,
+not permission for new instrumentation or a waiver. All final A1 gates remain.
