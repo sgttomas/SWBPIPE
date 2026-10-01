@@ -228,3 +228,22 @@ Immediately check main before guarded merge. Only then close AUD-T3-01/F2a's
 A1 dependency as warranted, and in the same pass write A1_MERGE record, merged
 ruling and graph update. Full K6c is not silently made an A1 gate, nor closed
 by an A1 merge. No force pushes or release/engineering availability claim.
+
+
+## Final quiescence confirmation
+
+At19:23:05 UTC the manager completed both remaining handbacks and verified no
+unsealed payload paths under R/manager or either current child packet. Native
+child statuses are completed/idle; no new work was dispatched after the owner
+warning. ROOT's19:21 process check likewise found only memguard5387. Recheck
+processes on continuation; no runtime lease is carried forward.
+
+- F03 manager seal:a2095430a71f8cdb4f9f819fcea56d15b89a2e759c2fe530add0c01572d49365
+  (5payloads), RETURN427b739b24cc3ae42862f4c5c0eb5703141bf8aabb01eb627081704a45c61236.
+- FORMAT17 manager seal:2319060db2c769cf74d41540cf38cbe164cf12c28c9c3afbb2d0079c18d9bbe7
+  (3payloads), RETURN248d555cf6a79b0624fba7e5d2b84154b72d2ee699b3b0335e6a0202a86d8b3b.
+
+ROOT read/verified and committed these final manager packets on A1. The three
+latest K6c proposal packets are committed at5e967db01cc370a9dfd596b782a0b6147a6932af;
+this preserves them for review and does not accept their derivations. Raw logs,
+all original evidence, binaries, targets and unused preparations remain intact.
