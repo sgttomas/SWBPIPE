@@ -1,0 +1,172 @@
+{
+  "prepared_plan_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20/PLAN.md",
+  "plan_md_sha256": "76601bd03739c5680da807e14e0b37b768216223da6545eac8e1ea6f7bc0524e",
+  "prepared_json_path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20/_run_records/PLAN.json",
+  "plan_json_sha256": "8faa6ba32c65be6a4afea3a40cf2987bc75052c4c648c493bba07f80ab0c984f",
+  "prepared_source": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/public_layout_20/_run_records/public_layout.rs",
+  "source_sha256": "7f4e0aa8a7a05f50bd325f015a81c1f70c291355ec09193010877f386a601dc6",
+  "ten_expressions": [
+    [
+      "Option<[f64; 3]>",
+      "H.coordinates_item"
+    ],
+    [
+      "(u32, usize)",
+      "VR.constraints_item"
+    ],
+    [
+      "BTreeSet<usize>",
+      "VR.adjacency_header"
+    ],
+    [
+      "(usize, usize, Matrix12)",
+      "VR.formed_item"
+    ],
+    [
+      "(&str, &Row)",
+      "VR.borrowed_control_pair"
+    ],
+    [
+      "(String, (f64, f64))",
+      "VR.floor_input_pair"
+    ],
+    [
+      "(usize, f64, f64)",
+      "VR.prescribed_coupling"
+    ],
+    [
+      "&[u8]",
+      "VR.decimal_chunk_view"
+    ],
+    [
+      "&String",
+      "VR.failure_head_pointer"
+    ],
+    [
+      "Vec<f64>",
+      "VR.skyline_row_header"
+    ]
+  ],
+  "libraries": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/deps/libpiping_numerical_robustness-746b6873c6bcede9.rlib",
+      "sha256": "6fc1bfe0cb9e61228356a235595bf8e96bb8daf3defca950987586cf60947d4c",
+      "bytes": 1282664
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/deps/libopen_pipe_stress_frame_kernel-2986612637137eef.rlib",
+      "sha256": "d480c00ac08d5f2deb4aada567e93d6be94e4a12df0fdc87b4582f9b4c6df6b2",
+      "bytes": 6967008
+    }
+  ],
+  "fingerprints": [
+    {
+      "package": "VR",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/.fingerprint/piping_numerical_robustness-746b6873c6bcede9/lib-piping_numerical_robustness.json",
+      "sha256": "b756ef2d9c5ae7c5dc3adab0b416eeb0ba5d6d3a572c5affb530cb32d9582a5e",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[\"seeded-faults\"]",
+        "declared_features": "[\"seeded-faults\"]",
+        "target": 13744871454275223915,
+        "profile": 2040997289075261528,
+        "path": 10763286916239946207,
+        "deps": [
+          [
+            5330460842384404171,
+            "serde_json",
+            false,
+            2580361210829931177
+          ],
+          [
+            10646818785860357717,
+            "open_pipe_stress_frame_kernel",
+            false,
+            5062268965860632565
+          ],
+          [
+            16605211322307622349,
+            "open_pipe_stress_sparse_direct",
+            false,
+            7238866118673815240
+          ]
+        ],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/piping_numerical_robustness-746b6873c6bcede9/dep-lib-piping_numerical_robustness",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    },
+    {
+      "package": "FK",
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/.fingerprint/open_pipe_stress_frame_kernel-2986612637137eef/lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "fa1936ccb5617c096e536e2c7a74d79170a79362e50127868681f939b3d44a11",
+      "content": {
+        "rustc": 11722972603611519644,
+        "features": "[\"mutation-controls\"]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 2040997289075261528,
+        "path": 11518048535950684959,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "release/.fingerprint/open_pipe_stress_frame_kernel-2986612637137eef/dep-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "public_anchors": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b",
+      "anchors": [
+        {
+          "line": 29,
+          "text": "pub type Matrix12 = [[f64; ELEMENT_DOF]; ELEMENT_DOF];"
+        }
+      ]
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "anchors": [
+        {
+          "line": 42,
+          "text": "pub struct Row {"
+        }
+      ]
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs",
+      "sha256": "2b608d590a6eab667ffdb9c873cd29de35fb867463f388aca8369632e61aabb4",
+      "anchors": [
+        {
+          "line": 20,
+          "text": "pub mod cases;"
+        }
+      ]
+    }
+  ],
+  "compiler": {
+    "path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/bin/rustc",
+    "sha256": "210df6794001b73ec3d453878707fa1e0bdcb63c427024a6e6574bbe5615a4da",
+    "source": "prior recorded1.97.1 hostaarch64 metadata; compiler not invoked"
+  },
+  "scratch_already_exists": false,
+  "no_compile_or_binary_run": true
+}

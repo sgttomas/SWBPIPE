@@ -1,0 +1,80 @@
+3: /// Helper methods to process immutable bytes.
+4: pub(crate) trait ByteSlice {
+5:     /// Reads 8 bytes as a 64-bit integer in little-endian order.
+6:     fn read_u64(&self) -> u64;
+7: 
+8:     /// Writes a 64-bit integer as 8 bytes in little-endian order.
+9:     fn write_u64(&mut self, value: u64);
+10: 
+11:     /// Calculate the difference in length between two slices.
+12:     fn offset_from(&self, other: &Self) -> isize;
+13: 
+14:     /// Iteratively parse and consume digits from bytes.
+15:     ///
+16:     /// Returns the same bytes with consumed digits being elided. Breaks on invalid digits.
+17:     fn parse_digits(&self, func: impl FnMut(u8)) -> &Self;
+18: }
+19: 
+20: impl ByteSlice for [u8] {
+21:     #[inline(always)] // inlining this is crucial to remove bound checks
+22:     fn read_u64(&self) -> u64 {
+23:         let mut tmp = [0; 8];
+24:         tmp.copy_from_slice(&self[..8]);
+25:         u64::from_le_bytes(tmp)
+26:     }
+27: 
+28:     #[inline(always)] // inlining this is crucial to remove bound checks
+29:     fn write_u64(&mut self, value: u64) {
+30:         self[..8].copy_from_slice(&value.to_le_bytes())
+31:     }
+32: 
+33:     #[inline]
+34:     fn offset_from(&self, other: &Self) -> isize {
+35:         other.len() as isize - self.len() as isize
+36:     }
+37: 
+38:     #[inline]
+39:     fn parse_digits(&self, mut func: impl FnMut(u8)) -> &Self {
+40:         let mut s = self;
+41: 
+42:         while let Some((c, rest)) = s.split_first() {
+43:             let c = c.wrapping_sub(b'0');
+44:             if c < 10 {
+45:                 func(c);
+46:                 s = rest;
+47:             } else {
+48:                 break;
+49:             }
+50:         }
+51: 
+52:         s
+53:     }
+54: }
+55: 
+56: /// Determine if all characters in an 8-byte byte string (represented as a `u64`) are all decimal
+57: /// digits.
+58: ///
+59: /// This does not care about the order in which the bytes were loaded.
+60: pub(crate) fn is_8digits(v: u64) -> bool {
+61:     let a = v.wrapping_add(0x4646_4646_4646_4646);
+62:     let b = v.wrapping_sub(0x3030_3030_3030_3030);
+63:     (a | b) & 0x8080_8080_8080_8080 == 0
+64: }
+65: 
+66: /// A custom 64-bit floating point type, representing `m * 2^p`.
+67: /// p is biased, so it be directly shifted into the exponent bits.
+68: #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
+69: pub struct BiasedFp {
+70:     /// The significant digits.
+71:     pub m: u64,
+72:     /// The biased, binary exponent.
+73:     pub p_biased: i32,
+74: }
+75: 
+76: impl BiasedFp {
+77:     /// Represent `0 ^ p`
+78:     #[inline]
+79:     pub const fn zero_pow2(p_biased: i32) -> Self {
+80:         Self { m: 0, p_biased }
+81:     }
+82: }

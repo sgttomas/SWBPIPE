@@ -1,0 +1,366 @@
+{
+  "stdlib_pages": [
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/str/mod.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/str/mod.rs.html",
+      "html_sha256": "251e6138fa02fb8b346993a61a60c3435406c73eb5b4341d95c945d84bd05ed7",
+      "html_bytes": 298235,
+      "decoded_sha256": "2c90ff097999f139148ef065c428c35a07807d8b38535ce5e2b43d65ad0deaae",
+      "decoded_lines": 3242,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          2763,
+          2767
+        ]
+      ],
+      "evidence_file": "core__str__mod.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/float_parse.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/float_parse.rs.html",
+      "html_sha256": "12b8ca378348ea4cca5ce0081022a9bb5369c711705f06e4d2b4edd07878cdaa",
+      "html_bytes": 14302,
+      "decoded_sha256": "150aebbd81fa537c5b8161de94ada7bdc436c7087bfaa070787bd2ebc05aface",
+      "decoded_lines": 133,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          8,
+          13
+        ],
+        [
+          61,
+          78
+        ],
+        [
+          109,
+          119
+        ]
+      ],
+      "evidence_file": "core__num__float_parse.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/mod.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/mod.rs.html",
+      "html_sha256": "cc6586be1d3aeb932b360827c3a2b4b13e00e87499601e53923851014c576ae8",
+      "html_bytes": 4492,
+      "decoded_sha256": "1d564bb2729c2b7fc7da52233db26ddca920af16ff752aa0895504b8b5416b6a",
+      "decoded_lines": 21,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          1,
+          21
+        ]
+      ],
+      "evidence_file": "core__num__imp__mod.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/traits.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/traits.rs.html",
+      "html_sha256": "517f972faf00aa923b1b39b9909f87b233be6ef15371f813039ad6437413c55d",
+      "html_bytes": 31381,
+      "decoded_sha256": "66a02c44d72dfcc3ddae7e34a290e390dabaf98c5911b283d2d97f2f0075a44e",
+      "decoded_lines": 295,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          160,
+          164
+        ],
+        [
+          264,
+          295
+        ]
+      ],
+      "evidence_file": "core__num__imp__traits.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/f64.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/f64.rs.html",
+      "html_sha256": "d2e2973bc8902746ca70e593ac58e7316567e929bb34c538a0d62593413500e5",
+      "html_bytes": 206030,
+      "decoded_sha256": "420f041339d971ec1d65a3ddb658c6e471820cdf97ad5d65e3a9f218af49fed0",
+      "decoded_lines": 2152,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          1265,
+          1272
+        ]
+      ],
+      "evidence_file": "core__num__f64.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/mod.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/mod.rs.html",
+      "html_sha256": "41342ec8793e10a43d9261f94e5a7c976e78a56ce7785cd599d9a30f28e2c968",
+      "html_bytes": 29322,
+      "decoded_sha256": "7198e238c554b692405537a446b3526ad66805ec2900cd0e299f10c51402a44a",
+      "decoded_lines": 256,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          90,
+          107
+        ],
+        [
+          174,
+          188
+        ],
+        [
+          190,
+          256
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__mod.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/parse.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/parse.rs.html",
+      "html_sha256": "53050c33f053aec98e43f4f5c742e3cf80e1e0e4577a48cb14c9baca80b35eae",
+      "html_bytes": 27053,
+      "decoded_sha256": "9daf21ab9445a84552535152f376eef8c30f3d5827296c0645f5952d3b22bbf1",
+      "decoded_lines": 242,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          18,
+          196
+        ],
+        [
+          198,
+          242
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__parse.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/decimal.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/decimal.rs.html",
+      "html_sha256": "b3fd22ae7314a0124608980f81e5da5ba471f829ee141ed4b76f2446676fd110",
+      "html_bytes": 11516,
+      "decoded_sha256": "3c164785e1bc3f3b48aa9c212dd6c4ab535fe828523af9fa584df4c7b1e60e0d",
+      "decoded_lines": 89,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          8,
+          89
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__decimal.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/common.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/common.rs.html",
+      "html_sha256": "cc5d8078fb9f5b62ded9e49c338ae1edf4f63bb092b0eda66ec690ea5f0eb852",
+      "html_bytes": 10868,
+      "decoded_sha256": "fc64094721ff23e08fcba013154d04dec3fe986cae5ffd73a20f86049980aace",
+      "decoded_lines": 82,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          3,
+          82
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__common.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/fpu.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/fpu.rs.html",
+      "html_sha256": "3d2443cb7286968d3ea807fba9da6e7a345d636420ec0df95efadf3dab8a9e6d",
+      "html_bytes": 12650,
+      "decoded_sha256": "16cf9ec154d477ab3d4184a01fb4b9ed7c59f0228cc55589d393c40a61b19d8f",
+      "decoded_lines": 100,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          95,
+          100
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__fpu.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/lemire.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/lemire.rs.html",
+      "html_sha256": "106358cdd86901c309a4ccceec778d61dfcd6ee34f186fef09b3633e7cfb73fa",
+      "html_bytes": 20051,
+      "decoded_sha256": "fee1397d264fe4c5af5fa27efae0af7c5ad453be7cff8389abc24b9b252aead1",
+      "decoded_lines": 167,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          26,
+          167
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__lemire.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/table.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/table.rs.html",
+      "html_sha256": "3a3818a2e9d9aba5be9c70e093de75834e97569e9da3519b5b69718b3a9d41ab",
+      "html_bytes": 123032,
+      "decoded_sha256": "6eb59023784bd84cb6fb074c70da8a99bef72bc2a2ea179b0da457ca1ee00abb",
+      "decoded_lines": 671,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          9,
+          19
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__table.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/slow.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/slow.rs.html",
+      "html_sha256": "941265054710a50c426d76eba85249920ff2f91ab42eb181fbfe0cc9a6442128",
+      "html_bytes": 14141,
+      "decoded_sha256": "43e7aba32d7431bbf0e1bbcb4c334eaffb23eb66891c7e45abe799c5235cc0d2",
+      "decoded_lines": 110,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          27,
+          110
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__slow.rs.txt"
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/core/num/imp/dec2flt/decimal_seq.rs.html",
+      "actual_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/num/imp/dec2flt/decimal_seq.rs.html",
+      "html_sha256": "c8d881ed4921939aef907b0af81253826b0b7a6ab1f7204dca980768973fb055",
+      "html_bytes": 82731,
+      "decoded_sha256": "c0c1c6028e3f57cefc3de7635a94788e9180f5ebcedc7a334ec8dbac786ec788",
+      "decoded_lines": 381,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "source_anchors_contiguous": true,
+      "captured_ranges": [
+        [
+          16,
+          33
+        ],
+        [
+          60,
+          75
+        ],
+        [
+          79,
+          218
+        ],
+        [
+          221,
+          313
+        ],
+        [
+          358,
+          381
+        ]
+      ],
+      "evidence_file": "core__num__imp__dec2flt__decimal_seq.rs.txt"
+    }
+  ],
+  "version_metadata": [
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/version_info.html",
+      "sha256": "b2fc08d52652fca5363f67bb547459ef4ce83daa51d6e1a0ff97f3100cc9a02e",
+      "matches_source02": true
+    },
+    {
+      "origin": "<TOOLCHAIN>/lib/rustlib/multirust-channel-manifest.toml",
+      "sha256": "09cbf0ad7b7e084e3bf1131c6bd970ad34c29c9fcdc8db1f7836463b7322e69a",
+      "matches_source02": true
+    },
+    {
+      "origin": "<TOOLCHAIN>/lib/rustlib/components",
+      "sha256": "3ac44ec4b9d0a31bfca13e7b4bd5fe7609816c05b37857307377d3d73c39263a",
+      "matches_source02": true
+    }
+  ],
+  "application_sites": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "882f0047fb9e3474703b7fb2fa723ffc4544066a3b0919a3cd5e42b68742f9aa",
+      "lines": [
+        130,
+        139
+      ],
+      "evidence_file": "src__floor.rs.txt"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+      "lines": [
+        313,
+        325
+      ],
+      "evidence_file": "examples__vk_scale.rs.txt"
+    }
+  ],
+  "application_manifest_sha256": "1209dd30446f2b09344590d33ad7bc05a46aecb3e9b07c5edd674bcb3c189a60",
+  "source_identity_limit": "Installed source docs identify Rust1.97.1(8bab26f4f 2026-07-14), full commit from preserved metadata. No final binary correspondence is claimed by this source-only tranche.",
+  "extraction": "One-off Python HTMLParser; retain pre.rust text, omit numeric anchors, preserve whitespace/entities. Original pages unchanged; no reusable tool created."
+}

@@ -1,0 +1,23 @@
+{
+  "archive_lib_export": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/scratch/i23/vk_prep/archive/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lib.rs",
+  "sha256": "2b608d590a6eab667ffdb9c873cd29de35fb867463f388aca8369632e61aabb4",
+  "toolchain_record": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_01/TOOLCHAIN.json",
+  "toolchain_sha256": "1c961a2b1291f3826eedc763e04626d3fb44e0f8c2ab7ec054a380ba93c76deb",
+  "toolchain": [
+    {
+      "chunk_id": "3f8e7b",
+      "wall_time_seconds": 0.002957333,
+      "exit_code": 0,
+      "original_token_count": 48,
+      "output": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6\n"
+    },
+    {
+      "chunk_id": "5be3f4",
+      "wall_time_seconds": 7e-06,
+      "exit_code": 0,
+      "original_token_count": 84,
+      "output": "cargo 1.97.1 (c980f4866 2026-06-30)\nrelease: 1.97.1\ncommit-hash: c980f4866141969fab6254a680546a277789d6f0\ncommit-date: 2026-06-30\nhost: aarch64-apple-darwin\nlibgit2: 1.9.2 (sys:0.20.4 vendored)\nlibcurl: 8.7.1 (sys:0.4.88+curl-8.20.0 system ssl:(SecureTransport) LibreSSL/3.3.6)\nssl: OpenSSL 3.6.2 7 Apr 2026\nos: Mac OS 26.6.2 [64-bit]\n"
+    }
+  ],
+  "compile_target_interpretation": "No --target argument in supplied template; explicit verified compiler defaults to recorded host aarch64-apple-darwin. Prefer resolved argv containing absolute compiler path and explicit target; no PATH/toolchain ambiguity permitted."
+}

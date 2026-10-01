@@ -1,0 +1,48 @@
+{
+  "agent": "/root/i23_protected_prep",
+  "role": "TASKType2",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "Existing native collaboration child; five-minute direct assignment; no delegation",
+  "start_utc": "2026-10-01T20:06:41Z",
+  "deadline_utc": "2026-10-01T20:11:41Z",
+  "assignment": "Parent native message: source-only successful finite f64 parsing heap warrant at floor.rs135 and vk_scale full_maxima; only installed route/direct helpers; no runtime/build/probe/library survey/Git/index/tool changes.",
+  "retained_instructions": [
+    {
+      "path": "AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I23_PROTECTED_PREP.md",
+      "revision": "4d8055a697553df73468255edf22f2ed94ad0799",
+      "sha256": "09ff7d95a7b3273d250b317ee502ba7dc71f46b4d0dfb071d69590840420532f"
+    }
+  ],
+  "new_skills_workflows": [],
+  "write_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/f64_parse_source_19",
+  "actual_source_root": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin",
+  "methods": "Read direct source-doc route and exact application sites, hash and capture numbered excerpts, inspect actual scalar/array/table/callback storage, write evidence only. No test values or parse execution.",
+  "lookup_limit": "Initial old-style core/num/dec2flt path absent; bounded files lookup under core/num found actual imp/dec2flt. No tool blocked the task.",
+  "operations_forbidden_executed": 0,
+  "runtime_parser_build_count": 0,
+  "source_edit_count": 0,
+  "Git_index_count": 0,
+  "delegation_count": 0,
+  "restriction_enforcement": "Prompt-scoped shared filesystem; writes confined to this evidence packet, raw origins under _run_records.",
+  "actual_end_utc": "2026-10-01T20:10:48Z"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "882f0047fb9e3474703b7fb2fa723ffc4544066a3b0919a3cd5e42b68742f9aa",
+    "stderr": ""
+  },
+  {
+    "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+    "stderr": ""
+  }
+]

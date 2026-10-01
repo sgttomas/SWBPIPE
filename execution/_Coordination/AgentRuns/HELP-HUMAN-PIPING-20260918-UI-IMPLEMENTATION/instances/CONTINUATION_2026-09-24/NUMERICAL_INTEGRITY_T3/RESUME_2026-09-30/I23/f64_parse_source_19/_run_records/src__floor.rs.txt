@@ -1,0 +1,10 @@
+130: /// S(kind) = the largest |fl(exp)| of each kind over `values`.
+131: pub fn maxima<'a>(values: impl Iterator<Item = (&'a str, &'a str)>) -> [f64; 4] {
+132:     let mut s = [0.0f64; 4];
+133:     for (kind, expected) in values {
+134:         if let Some(k) = kind_index(kind) {
+135:             let v: f64 = expected.parse().expect("decimal");
+136:             s[k] = s[k].max(v.abs());
+137:         }
+138:     }
+139:     s

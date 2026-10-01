@@ -1,0 +1,38 @@
+160: #[doc(hidden)]
+161: pub trait FloatExt: Float {
+162:     /// Performs a raw transmutation from an integer.
+163:     fn from_u64_bits(v: u64) -> Self;
+164: 
+
+264: impl Float for f64 {
+265:     type Int = u64;
+266: 
+267:     const INFINITY: Self = Self::INFINITY;
+268:     const NEG_INFINITY: Self = Self::NEG_INFINITY;
+269:     const NAN: Self = Self::NAN;
+270:     const NEG_NAN: Self = -Self::NAN;
+271: 
+272:     const BITS: u32 = 64;
+273:     const SIG_TOTAL_BITS: u32 = Self::MANTISSA_DIGITS;
+274:     const EXP_MASK: Self::Int = Self::EXPONENT_MASK;
+275:     const SIG_MASK: Self::Int = Self::MANTISSA_MASK;
+276: 
+277:     const MIN_EXPONENT_ROUND_TO_EVEN: i32 = -4;
+278:     const MAX_EXPONENT_ROUND_TO_EVEN: i32 = 23;
+279:     const SMALLEST_POWER_OF_TEN: i32 = -342;
+280: 
+281:     fn to_bits(self) -> Self::Int {
+282:         self.to_bits()
+283:     }
+284: 
+285:     fn classify(self) -> FpCategory {
+286:         self.classify()
+287:     }
+288: }
+289: 
+290: impl FloatExt for f64 {
+291:     #[inline]
+292:     fn from_u64_bits(v: u64) -> Self {
+293:         f64::from_bits(v)
+294:     }
+295: }

@@ -1,0 +1,17 @@
+{
+  "start_utc": "2026-10-01T20:09:08+00:00",
+  "completion_utc": "2026-10-01T20:12:18.947478+00:00",
+  "deadline_utc": "2026-10-01T20:14:08+00:00",
+  "elapsed_seconds": 190.947478,
+  "source_hash_match": true,
+  "exact_type_expressions": 10,
+  "rlibs_matched": 2,
+  "recorded_fingerprints_matched": 2,
+  "compiler_hash_matched": true,
+  "prepared_files_unchanged": true,
+  "status": "source/plan ready under exact resolved compiler/artifact/target specification",
+  "compiler_or_executable_run": false,
+  "Git_index_or_maintained_edits_or_delegation": false,
+  "numeric_facts_accepted": false,
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_plan_21"
+}

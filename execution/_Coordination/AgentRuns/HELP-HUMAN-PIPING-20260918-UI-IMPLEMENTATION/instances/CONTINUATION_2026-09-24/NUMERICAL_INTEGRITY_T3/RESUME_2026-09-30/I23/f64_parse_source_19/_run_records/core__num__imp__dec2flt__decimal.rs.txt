@@ -1,0 +1,82 @@
+8: const INT_POW10: [u64; 16] = [
+9:     1,
+10:     10,
+11:     100,
+12:     1000,
+13:     10000,
+14:     100000,
+15:     1000000,
+16:     10000000,
+17:     100000000,
+18:     1000000000,
+19:     10000000000,
+20:     100000000000,
+21:     1000000000000,
+22:     10000000000000,
+23:     100000000000000,
+24:     1000000000000000,
+25: ];
+26: 
+27: /// A floating point number with up to 64 bits of mantissa and an `i64` exponent.
+28: #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+29: pub struct Decimal {
+30:     pub exponent: i64,
+31:     pub mantissa: u64,
+32:     pub negative: bool,
+33:     pub many_digits: bool,
+34: }
+35: 
+36: impl Decimal {
+37:     /// Detect if the float can be accurately reconstructed from native floats.
+38:     #[inline]
+39:     fn can_use_fast_path<F: Lemire>(&self) -> bool {
+40:         F::MIN_EXPONENT_FAST_PATH <= self.exponent
+41:             && self.exponent <= F::MAX_EXPONENT_DISGUISED_FAST_PATH
+42:             && self.mantissa <= F::MAX_MANTISSA_FAST_PATH
+43:             && !self.many_digits
+44:     }
+45: 
+46:     /// Try turning the decimal into an exact float representation, using machine-sized integers
+47:     /// and floats.
+48:     ///
+49:     /// This is extracted into a separate function so that it can be attempted before constructing
+50:     /// a Decimal. This only works if both the mantissa and the exponent
+51:     /// can be exactly represented as a machine float, since IEE-754 guarantees
+52:     /// no rounding will occur.
+53:     ///
+54:     /// There is an exception: disguised fast-path cases, where we can shift
+55:     /// powers-of-10 from the exponent to the significant digits.
+56:     pub fn try_fast_path<F: Lemire>(&self) -> Option<F> {
+57:         // Here we need to work around <https://github.com/rust-lang/rust/issues/114479>.
+58:         // The fast path crucially depends on arithmetic being rounded to the correct number of bits
+59:         // without any intermediate rounding. On x86 (without SSE or SSE2) this requires the precision
+60:         // of the x87 FPU stack to be changed so that it directly rounds to 64/32 bit.
+61:         // The `set_precision` function takes care of setting the precision on architectures which
+62:         // require setting it by changing the global state (like the control word of the x87 FPU).
+63:         let _cw = set_precision::<F>();
+64: 
+65:         if !self.can_use_fast_path::<F>() {
+66:             return None;
+67:         }
+68: 
+69:         let value = if self.exponent <= F::MAX_EXPONENT_FAST_PATH {
+70:             // normal fast path
+71:             let value = F::from_u64(self.mantissa);
+72:             if self.exponent < 0 {
+73:                 value / F::pow10_fast_path((-self.exponent) as _)
+74:             } else {
+75:                 value * F::pow10_fast_path(self.exponent as _)
+76:             }
+77:         } else {
+78:             // disguised fast path
+79:             let shift = self.exponent - F::MAX_EXPONENT_FAST_PATH;
+80:             let mantissa = self.mantissa.checked_mul(INT_POW10[shift as usize])?;
+81:             if mantissa > F::MAX_MANTISSA_FAST_PATH {
+82:                 return None;
+83:             }
+84:             F::from_u64(mantissa) * F::pow10_fast_path(F::MAX_EXPONENT_FAST_PATH as _)
+85:         };
+86: 
+87:         if self.negative { Some(-value) } else { Some(value) }
+88:     }
+89: }

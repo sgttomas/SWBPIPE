@@ -1,0 +1,15 @@
+{
+  "directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/public_layout_plan_21",
+  "files": [
+    "BINDING_CHECK.json",
+    "FINDINGS.json",
+    "GRANT.json",
+    "RETURN.md",
+    "SHA256SUMS",
+    "VERIFICATION.json",
+    "WRITE_INVENTORY.json",
+    "_run_records/ADDITIONAL_BINDING.json",
+    "_run_records/COMMANDS_AND_RESULTS.json"
+  ],
+  "prepared_source_or_plan_changes": false
+}
