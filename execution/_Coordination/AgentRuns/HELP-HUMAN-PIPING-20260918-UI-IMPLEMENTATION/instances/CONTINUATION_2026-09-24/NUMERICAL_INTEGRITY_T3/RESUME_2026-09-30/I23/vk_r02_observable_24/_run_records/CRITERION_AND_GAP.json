@@ -1,0 +1,47 @@
+{
+  "original_register": {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_seeded_faults.py",
+    "line": 40,
+    "literal": [
+      "VK-R02",
+      "R7-M2",
+      "outcome or evidence",
+      "RF-LARGE-TREE-n00100-AX"
+    ]
+  },
+  "frozen_scoped_mapping": {
+    "id": "VK-R02",
+    "family": "RF-LARGE",
+    "cases": [
+      "RF-LARGE-TREE-n00100-AX"
+    ],
+    "qualifying_semantics": "TREE100-AX must retain128 Accepted and256 Verified; inspect changed named R7 estimate/charge or acceptance outcome caused by uncoupled e_hat, not work-only drift or a certificate-only precondition.",
+    "status": "FIELD_SPECIFIC_EVIDENCE_PLAN_READY_FOR_ROOT_RUNTIME_PREPARATION_NOT_A_TEST_KILL",
+    "existing_example_argv": [
+      "<PINNED_VK_RECORDS_BINARY>",
+      "RF-LARGE",
+      "--show=RF-LARGE-TREE-n00100-AX"
+    ],
+    "feature": "seeded-faults",
+    "environment": {
+      "FK_SEEDED_FAULT": "VK-R02"
+    },
+    "write_option": false,
+    "expected_fields": "VK_FROZEN_FIELDS.json",
+    "bounded_cost_note": "The existing example runs the entire selected family; RF-LARGE/RF-MECH additionally calculate parity. ROOT must include that actual scope/cost in a finite runtime grant. No new filtering or collector is implied.",
+    "exit_status_limit": "vk_records may exit0 even for the injected fault; qualifying exact shown-case fields, not exit status or generic family-record mismatch, decide this evidence experiment."
+  },
+  "frozen_map_sha256": "27e9f300f0a80c34cc08091ab50adfbcedc9d6cf935c0bbefcb2ea4c6de28029",
+  "record_observation_gap": "records.rs serializes attempts precision/role/outcome and a5fieldverification summary; it does not serialize numeric resolution, theta, bound or selected verification_estimate/verification_charge. stages.estimate/charge are workcounts. --show cannot recover omittedvalues.",
+  "existing_direct_witness_relation": "Found actuale_hat numerical coupling test suitable to diagnose the exactcurrentseedsite, with independently specified values. It is a complementary source-warranted diagnostic, not automatically a replacement for the named TREE100 outcome/evidence criterion. No criterion relaxed or P49 credited.",
+  "strict_original_target_result": "Additional existing FK literalTREE100 test found at finaltargetedsearch; see TREE100_EXISTING_CANDIDATE.json. It checks selected128 and actual public estimate<=0.25/charge<=1.0 via G5a. Inputcorrespondence with originalVRtarget remainsuncompleted; no stronger no-existing-test claim is made.",
+  "other_candidates": [
+    "verify_tests::an_e_hat_that_overflows_while_e_encodes_stops_as_e_does also reaches current e_hat via resolution_hats, but checks overflow/refusal; do not substitute it for the original numeric TREE100 criterion.",
+    "method_tests::figures and at helper call e_hat to calculate denominators/hats. Their use alone is not an independent expectation; their expected-side helper can be affected by the same seed.",
+    "Publication/classification scale coupling and historicalRV19-D4 map test anotherscale path; name coupling alone establishes no currentR02reach."
+  ],
+  "smallest_next_option": "No new test/code is warranted yet. Existing directe_hat scalar test is ready as complementaryseed-site diagnostic. Existing FK TREE100 test may expose the originalsemanticratios without newcollector; bind its R1_LARGE/models5a3 input identity to the originalVRtarget and qualify its actual failing assertion before anysubstitution. ROOT decides any nextboundedscope; no newindependentoracle is invented.",
+  "new_test_implementation_grant": false,
+  "new_collector_proposed": false,
+  "runtime": 0
+}
