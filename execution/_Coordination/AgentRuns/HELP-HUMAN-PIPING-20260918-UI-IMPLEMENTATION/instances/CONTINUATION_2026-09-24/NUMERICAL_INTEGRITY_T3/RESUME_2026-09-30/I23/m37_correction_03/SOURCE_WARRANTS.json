@@ -1,0 +1,97 @@
+{
+  "sources": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "source": "hash-bound immutable_40129_fk.tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "source": "hash-bound immutable_40129_fk.tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "source": "hash-bound immutable_40129_fk.tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc",
+      "source": "hash-bound immutable_40129_fk.tar"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "source": "hash-bound immutable_40129_fk.tar"
+    }
+  ],
+  "archive": {
+    "path": "<wt>/scratch/i23/discriminators_g2/immutable_40129_fk.tar",
+    "sha256": "25c4d1299803d4b60770ea9cc7487564f4e40c6bc93400c2bb607d5241a0aa95"
+  },
+  "witnesses": [
+    {
+      "id": "shared_producer",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "start_line": 2660,
+      "end_line": 2734,
+      "claim": "Both public floored classification and the metered certificate call this shared publication producer; fault suppresses only the max with Phi after original coupling.",
+      "text": "/// 6's coupling and before items 7 and 8.\npub fn classify_rows_floored(\n    layout: &[QuantityMeta],\n    values: &[Binary64Outcome],\n    extents: &[f64],\n    floor: Option<&[[f64; 2]]>,\n) -> Publication {\n    publication_with(layout, values, extents, floor, |x, s| Ok(classify(x, s)))\n        .expect(\"the public classification closure is infallible\")\n}\n\n/// One publication algorithm for both the public pure helper and the metered\n/// production gate. Shape and finite metadata are checked by the latter's caller.\nfn publication_with(\n    layout: &[QuantityMeta],\n    values: &[Binary64Outcome],\n    extents: &[f64],\n    floor: Option<&[[f64; 2]]>,\n    mut classify_row: impl FnMut(f64, f64) -> Result<RowClass, AttemptStop>,\n) -> Result<Publication, AttemptStop> {\n    let mut s = vec![[0.0f64; 4]; extents.len()];\n    for (meta, v) in layout.iter().zip(values) {\n        if meta.input_derived {\n            continue;\n        }\n        if let Some(x) = v.value() {\n            let slot = &mut s[meta.body as usize][meta.kind.index()];\n            *slot = slot.max(x.abs());\n        }\n    }\n    let scales: Vec<[f64; 4]> = s\n        .iter()\n        .zip(extents)\n        .enumerate()\n        .map(|(b, (&s, &e))| {\n            let mut c = coupled_scales(s, e);\n            if let Some(phi) = floor {\n                c[Kind::Force.index()] = c[Kind::Force.index()].max(phi[b][0]);\n                c[Kind::Moment.index()] = c[Kind::Moment.index()].max(phi[b][1]);\n            }\n            c\n        })\n        .collect();\n    let rows = layout\n        .iter()\n        .zip(values)\n        .map(|(meta, v)| {\n            let class = if meta.input_derived {\n                RowClass::InputDerived\n            } else if let Some(x) = v.value() {\n                classify_row(x, scales[meta.body as usize][meta.kind.index()])?\n            } else {\n                RowClass::Unpublishable\n            };\n            Ok(PublishedRow {\n                id: meta.id,\n                kind: meta.kind,\n                body: meta.body,\n                value: *v,\n                class,\n            })\n        })\n        .collect::<Result<Vec<_>, AttemptStop>>()?;\n    let body_scales = scales\n        .iter()\n        .enumerate()\n        .flat_map(|(b, s)| {\n            Kind::ALL\n                .iter()\n                .map(move |&k| (b as u32, k, s[k.index()].to_bits()))\n        })\n        .collect();\n    Ok(Publication { rows, body_scales })\n}\n\n"
+    },
+    {
+      "id": "shape_and_call",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "start_line": 3300,
+      "end_line": 3347,
+      "claim": "Certificate validates floor presence/shape/finiteness before publication_with. A valid p512 Some floor remains valid and transported intact.",
+      "text": "        precision,\n    })))\n}\n\nfn certify_publication(\n    prep: &Arc<CasePrep>,\n    candidate: &PrecisionState,\n    verification: &PrecisionState,\n    report: &BoundVerification,\n    floor: Option<&[[f64; 2]]>,\n    guard: StageGuard,\n) -> PublicationSpent {\n    let mut meter = CertificateMeter::new(guard);\n    let result = (|| {\n        validate_publication_pair(prep, candidate, verification, report)?;\n        if (candidate.precision() == 512) != floor.is_some()\n            || floor.is_some_and(|f| f.len() != prep.extents.len())\n        {\n            return Err(certificate_error(None, CertificateIssue::Shape));\n        }\n        for value in floor.into_iter().flatten().flatten() {\n            finite_nonnegative(*value).map_err(|e| certificate_error(None, e))?;\n        }\n        let mut values = candidate.published();\n        // ExactAccumulator is the inherited, explicitly unmetered legacy\n        // boundary. This happens once for each candidate reaching the new gate,\n        // including rejected candidates; finalization does not repeat it.\n        prep.publish_prescribed(&mut values);\n        let publication =\n            publication_with(&prep.layout, &values, &prep.extents, floor, |x, scale| {\n                finite_nonnegative(scale).map_err(|e| certificate_error(None, e))?;\n                if relative_class(x, scale) {\n                    Ok(RowClass::RelativeVerified)\n                } else {\n                    Ok(RowClass::AbsoluteVerified {\n                        bound_bits: meter.row_bound(x, scale)?.to_bits(),\n                    })\n                }\n            })?;\n        for &(_, _, bits) in &publication.body_scales {\n            finite_nonnegative(f64::from_bits(bits)).map_err(|e| certificate_error(None, e))?;\n        }\n        drop(values);\n        match (verification, &report.report) {\n            (PrecisionState::P256(v), VerificationState::V256(r)) => certify_rows(\n                prep,\n                candidate.precision(),\n                publication,\n"
+    },
+    {
+      "id": "stop_rule_floor",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "start_line": 2093,
+      "end_line": 2128,
+      "claim": "R7 rule still derives Phi and stores the stop-rule floor. These bytes are unchanged.",
+      "text": "        let mut scales = scales_at(&mut ctx, layout, verification, extents, &skip)?;\n        // \u00ea per body (item 6a), and the floor at p = 512 only.\n        let hats: Vec<[f64; 2]> = match report {\n            Some(r) => r\n                .resolution\n                .iter()\n                .zip(extents)\n                .map(|(e, &x)| e_hat(*e, x))\n                .collect(),\n            None => Vec::new(),\n        };\n        if report.is_some() && verification_precision == 1024 {\n            let mut phis = Vec::with_capacity(hats.len());\n            for (b, h) in hats.iter().enumerate() {\n                let phi = [phi_512(h[0]), phi_512(h[1])];\n                for (slot, value) in [(Kind::Force, phi[0]), (Kind::Moment, phi[1])] {\n                    let v = Wide::<M>::from_f64(value)?;\n                    let s = &mut scales[b][slot.index()];\n                    if v.cmp_value(s) == CmpOrdering::Greater {\n                        *s = v;\n                    }\n                }\n                phis.push(phi);\n            }\n            floor = Some(phis);\n        }\n        let hat = |body: u32, kind: Kind| -> f64 {\n            match kind {\n                Kind::Force => hats[body as usize][0],\n                _ => hats[body as usize][1],\n            }\n        };\n        let magnitude_of = |index: usize, meta: &QuantityMeta| -> Wide<M> {\n            let q2 = &verification[index];\n            let s_star = &scales[meta.body as usize][meta.kind.index()];\n            if q2.abs().cmp_value(s_star) == CmpOrdering::Greater {\n"
+    },
+    {
+      "id": "transport",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "start_line": 4060,
+      "end_line": 4084,
+      "claim": "The genuine decision.floor.as_deref() argument to certify_publication is unchanged.",
+      "text": "        budget.used = budget.used.saturating_add(decision.total);\n        meter.charge(decision.total);\n        match decision.result {\n            Err(stop) => {\n                attempts[candidate_index].outcome =\n                    AttemptOutcome::Failed(AttemptReason::Stop(stop.clone()));\n                return finish_terminal(&stop, attempts, geometry);\n            }\n            Ok(true) => {\n                let publication_guard = StageGuard {\n                    base: 0,\n                    case_room: budget.limit.saturating_sub(budget.used),\n                    invocation_room: meter.room(),\n                };\n                let certificate = certify_publication(\n                    &prep,\n                    &candidate,\n                    &verification,\n                    &report,\n                    decision.floor.as_deref(),\n                    publication_guard,\n                );\n                let record = &mut attempts[candidate_index];\n                record.stop_rule_work = record.stop_rule_work.saturating_add(certificate.total);\n                record.stages.stop_rule = record.stages.stop_rule.saturating_add(certificate.total);\n"
+    },
+    {
+      "id": "item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "line": 269,
+      "text": "fn item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else() {\n    use super::super::recover::{End, Kind, QuantityMeta};\n    use super::super::source::Component;\n    use super::super::verify::phi_512;\n    let row = |kind: Kind, component: Component| QuantityMeta {\n        id: QuantityId::EndAction {\n            member: 1,\n            end: End::I,\n            component,\n        },\n        kind,\n        body: 0,\n        input_derived: false,\n    };\n    let layout = vec![\n        row(Kind::Force, Component::Ux),\n        row(Kind::Moment, Component::Rx),\n    ];\n    let values = |f: f64, m: f64| vec![Binary64Outcome::Normal(f), Binary64Outcome::Normal(m)];\n    let extents = [0.0];\n    // \u03a6 binds on force (S* = 1e-200 < \u03a6_fo = 1e-150): the row becomes\n    // absolute_verified with b = fl\u2191(2^-64\u00b7\u03a6); moment is not floored (\u03a6_mo = 0).\n    let v = values(1e-200, 3.0);\n    let plain = classify_rows(&layout, &v, &extents);\n    let floored = classify_rows_floored(&layout, &v, &extents, Some(&[[1e-150, 0.0]]));\n    assert_eq!(plain.rows[0].class, RowClass::RelativeVerified);\n    assert_eq!(\n        floored.rows[0].class,\n        RowClass::AbsoluteVerified {\n            bound_bits: absolute_bound(1e-150).to_bits()\n        }\n    );\n    assert_eq!(floored.rows[1].class, plain.rows[1].class);\n    let scale = |p: &Publication, k: Kind| {\n        f64::from_bits(p.body_scales.iter().find(|s| s.1 == k).unwrap().2)\n    };\n    assert_eq!(scale(&floored, Kind::Force), 1e-150);\n    assert_eq!(scale(&floored, Kind::Moment), 3.0);\n    // \u03a6 does not bind (\u03a6 \u2264 S*): nothing moves.\n    let v = values(2.0, 3.0);\n    let plain = classify_rows(&layout, &v, &extents);\n    let floored = classify_rows_floored(&layout, &v, &extents, Some(&[[2.0, 3.0]]));\n    assert_eq!(plain, floored);\n    // \u00ea below 2^-584: \u03a6 is rounded up to a subnormal, and a zero row's bound is\n    // no longer 0: the least subnormal, plus amendment A1's 2^-1074 (the\n    // floored S* = \u03a6 lies below 2^-988).\n    let e = 1.75 * support::pow2(-600);\n    let phi = phi_512(e);\n    assert!(phi > 0.0 && phi < f64::MIN_POSITIVE);\n    let v = values(0.0, 0.0);\n    let plain = classify_rows(&layout, &v, &extents);\n    let floored = classify_rows_floored(&layout, &v, &extents, Some(&[[phi, phi]]));\n    assert_eq!(\n        plain.rows[0].class,\n        RowClass::AbsoluteVerified { bound_bits: 0 }\n    );\n    assert_eq!(\n        floored.rows[0].class,\n        RowClass::AbsoluteVerified {\n            bound_bits: f64::from_bits(2).to_bits()\n        }\n    );\n    // The fl\u2191 boundary: at \u00ea = 2^-584, \u03a6 = 2^-1022 exactly (verify_tests).\n    assert_eq!(phi_512(support::pow2(-584)), support::pow2(-1022));\n}"
+    },
+    {
+      "id": "pc21_24_floor_precision_kind_and_original_coupling",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "line": 931,
+      "text": "fn pc21_24_floor_precision_kind_and_original_coupling() {\n    let f = zero_pair(128);\n    assert!(matches!(\n        certify_publication(\n            &f.prep,\n            &f.candidate,\n            &f.verification,\n            &f.report,\n            Some(&[[0.0, 0.0]]),\n            StageGuard::unlimited()\n        )\n        .result,\n        Err(AttemptStop::PublicationCertificate {\n            issue: CertificateIssue::Shape,\n            ..\n        })\n    ));\n    let f = zero_pair(512);\n    assert!(matches!(\n        certify_publication(\n            &f.prep,\n            &f.candidate,\n            &f.verification,\n            &f.report,\n            None,\n            StageGuard::unlimited()\n        )\n        .result,\n        Err(AttemptStop::PublicationCertificate {\n            issue: CertificateIssue::Shape,\n            ..\n        })\n    ));\n    for floor in [\n        [0.0, 0.0],\n        [f64::from_bits(1), f64::from_bits(1)],\n        [8.0, 16.0],\n    ] {\n        let spent = certify_publication(\n            &f.prep,\n            &f.candidate,\n            &f.verification,\n            &f.report,\n            Some(&[floor]),\n            StageGuard::unlimited(),\n        );\n        let Ok(PublicationDecision::Accepted(d)) = spent.result else {\n            panic!(\"zero source with valid p512 floor\");\n        };\n        assert_eq!(d.publication.body_scales[0].2, 0);\n        assert_eq!(d.publication.body_scales[1].2, 0);\n        assert_eq!(d.publication.body_scales[2].2, floor[0].to_bits());\n        assert_eq!(d.publication.body_scales[3].2, floor[1].to_bits());\n    }\n    let metas = [meta(Kind::Force), meta(Kind::Moment)];\n    let values = [Binary64Outcome::Normal(2.0), Binary64Outcome::Normal(1.0)];\n    let pub_ = classify_rows_floored(&metas, &values, &[2.0], Some(&[[8.0, 0.0]]));\n    assert_eq!(pub_.body_scales[2].2, 8.0f64.to_bits());\n    assert_eq!(pub_.body_scales[3].2, 4.0f64.to_bits()); // not L*floor_force\n}"
+    }
+  ],
+  "original_registration_excerpt": "m('K4-M37', 'Phi in the stop rule but not in the classification',\n  [(AD, \"        decision.floor.as_deref(),\", \"        None,\", 1)], [CTRL])\nm('K4-M38', 'E rounded to nearest, not upward, to binary64',"
+}
