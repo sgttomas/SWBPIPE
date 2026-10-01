@@ -1,0 +1,19 @@
+{
+  "role": "HELPS_HUMANS Type1",
+  "agent": "/root/k6c_metric_design",
+  "parent": "/root",
+  "start_utc": "2026-10-01T22:17:12+00:00",
+  "end_utc": "2026-10-01T22:34:06.410767+00:00",
+  "deadline_utc": "2026-10-01T22:37:12+00:00",
+  "elapsed_seconds": 1014.410767,
+  "write_root": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_13_api_contract",
+  "mechanism": "native followup_task; source/design and exact metadata reads only",
+  "source_algorithms_or_runtime_executed": false,
+  "compiler_or_probe": false,
+  "git_index_or_maintained_mutations": false,
+  "delegation": false,
+  "new_host_tool": false,
+  "selected_skills_workflows": [],
+  "enforcement": "prompt scope restrictions, not OS-enforced fences",
+  "status": "proposal ready for independent design review; complete193 numeric instantiation remains named"
+}

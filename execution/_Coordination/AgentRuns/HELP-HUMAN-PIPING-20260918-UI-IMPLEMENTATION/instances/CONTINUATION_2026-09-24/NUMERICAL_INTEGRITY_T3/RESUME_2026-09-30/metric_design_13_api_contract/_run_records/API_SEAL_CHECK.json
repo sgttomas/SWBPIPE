@@ -1,0 +1,46 @@
+{
+  "seal": "f1431e2ae601e299263850b0bf6d115087cc0a98826e8eddd4d4bad8f1b53a5b",
+  "payloads": [
+    {
+      "path": "COMPATIBILITY.md",
+      "sha256": "cd90f3305eb48a690af7d3528b632bb5423578650c2bd6fbdb8695f6faf84825"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "93120b5ef75146d77482c3fe432d04e8e66896a535ca550b18cf28d119563298"
+    },
+    {
+      "path": "VERIFICATION.json",
+      "sha256": "064c3738dcf6c31fc6e46a2679067a25168750104ac2d2761ed331f833a3d252"
+    },
+    {
+      "path": "_run_records/BINDING.json",
+      "sha256": "019c4bdf44ad6b26db54b0d11f1eff310aca74ee7a34b36421d6743ef20a1768"
+    },
+    {
+      "path": "_run_records/RAW_COMMANDS.json",
+      "sha256": "da8ae498f93870eceb9f85799ccadcbca848648ccbe5ff0cf6d9421a384379fc"
+    },
+    {
+      "path": "_run_records/ROOT_SELECTION.txt",
+      "sha256": "2b75e6767e255158e04bc4382f221e82610329ed5133301ce5c1e8d92954221f"
+    },
+    {
+      "path": "_run_records/examples__vk_scale.rs",
+      "sha256": "d733ad5630eb47e2e129b62b87d5951b26998520dee1ea7362d5b158ab24d2af"
+    },
+    {
+      "path": "_run_records/src__cases.rs",
+      "sha256": "622a275618032b919130e162db495e3c7342ccf29dd25bc94f40463eb7bbf627"
+    },
+    {
+      "path": "_run_records/src__scale.rs",
+      "sha256": "f6e7b065eb7f79e0370f52ae0d0960c9413d6084f0763471f4788cb69178d95d"
+    },
+    {
+      "path": "_run_records/tests__scale.rs",
+      "sha256": "616b275e031a8191025836156b511eec894c2fec79d4a32b3734cfb08a27e0a5"
+    }
+  ],
+  "all_verified": true
+}

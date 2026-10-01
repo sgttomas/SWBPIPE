@@ -1,0 +1,218 @@
+[
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/numerics",
+    "revision": "4b359ce8c8fd0e1e78307dd08d2a4b6880f40688",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "sha256": "49a18b70f3aad3e86bc900df7a95f6ab97f6d1959dae395b40a1615148637811",
+    "bytes": 400012,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+    "sha256": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b",
+    "bytes": 15378,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+    "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+    "bytes": 18171,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+    "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+    "bytes": 14774,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/records.rs",
+    "sha256": "6f52fcb93d7d0c355139ca584a9abd0b3c1c59dd5a6f140340a0ec0282b5841c",
+    "bytes": 5852,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+    "sha256": "525e6993e37df919535004dc418439a6b919036b7ca4fe588d51a514a393fe01",
+    "bytes": 10913,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+    "sha256": "8df1d6de492de1ec8c16c47f2dc9aae22ca213757f98e89071e852f339fd1edb",
+    "bytes": 2824,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+    "sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+    "bytes": 18488,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+    "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+    "bytes": 24432,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_chain.json",
+    "sha256": "ec7a1bf2e47a186990a8c47e70a5bc6246453251d7796a66b0b2257549ec068b",
+    "bytes": 129633,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_skew.json",
+    "sha256": "55e756148f293b6ff3fe0b7dbdc337af944bc2a5f9bbe345e2a8922ae669203b",
+    "bytes": 155209,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_weak.json",
+    "sha256": "60e8da91026778fa59f90776c1f7256db4d3b4ce49a359a8164fc6fb96a30037",
+    "bytes": 38806,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+    "sha256": "a03f0a3079c4c9dc465319f402f9fde7f940240e26807000528d584b10611437",
+    "bytes": 52391,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_invariance.json",
+    "sha256": "3d66739b7e517538d3a8595653ff42bf5d27d9726f7d6ffb38a01e8367620705",
+    "bytes": 108543,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+    "sha256": "6c3717bed7b95833fc3403cfa7410bb70e79d9278e2942b87d043454aa95f185",
+    "bytes": 145843,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_zero.json",
+    "sha256": "2eaeed8a8ac999634350c39429151f8a62c54a8520ac4bafc8ca840371022a7a",
+    "bytes": 17174,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_finite.json",
+    "sha256": "a416a6742496bac0007dad03dc615e0a0c0d8389e74280c7ea8df5720e2bbf88",
+    "bytes": 26031,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+    "sha256": "22e5cade8dc0034aa89e6ecdc073f5ba33f9b1afc191c9a7876108920a6ed6a8",
+    "bytes": 8537,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_cancel.json",
+    "sha256": "4ddab57b4b64e53dfda60a81df2f4e439deef16493f17cd4fed96f2a5b1737ee",
+    "bytes": 163562,
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_06/CORRECTION.md",
+    "sha256": "e224a53327dd3b0a3ecbcc74ff938b06d3895b400274628aeb8c77df681b2a07",
+    "bytes": 15858,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/DESCRIPTOR_MAP.md",
+    "sha256": "e56fb9767188f161c96aaeac0c221b004a8ad065719248669bbb9907716d4c33",
+    "bytes": 20951,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/FIXTURE_INPUTS.json",
+    "sha256": "fd7aed3c52089362fd6e84fb23c9fc056a2864b873371ec43fc5d68d77147a26",
+    "bytes": 166532,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/STRING_CONTRACTS.json",
+    "sha256": "894aa3236f53ccba73c11ec797a3d8bcb6e548b1ba7b1b15a5135a8da0988b69",
+    "bytes": 13588,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/vr_join_20/JOIN_CONTRACT.md",
+    "sha256": "a60b748d206ab70314d79ad0144e79b7980c4f8ba3bb1bdc2fcc7cc6dc7dda2b",
+    "bytes": 12435,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/vr_join_20/CORRECTED_CALLER_TABLE.json",
+    "sha256": "244fde57a9a177a5a920e8f4ba607f5db16d5153d207b3985c8e09d8f92da22d",
+    "bytes": 116607,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/h_numeric_19/FORMULAS.md",
+    "sha256": "51fc5a84991d1e31eeed4ab67e4680b218b37db5b1ce6b3b90225dccb865410d",
+    "bytes": 17301,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vr_nodes_source_16/DERIVATION.md",
+    "sha256": "56c82c44e9ea11f7ca9fb18b345a18e0ef9d619e8ffb1e80c231cb533bbfcb00",
+    "bytes": 5512,
+    "method": "read-only sealed source/design context; consulted relevant described sections, not calculators"
+  },
+  {
+    "repository": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c",
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+    "sha256": "7bd83d7e356f4b94712617f9ebe41731e2eed001f20cd1eb6e157d4a8b02a6de",
+    "bytes": 17655,
+    "consultation": "binary_argv:119\u2013127",
+    "method": "GIT_OPTIONAL_LOCKS=0 git show"
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/FACTS.json",
+    "sha256": "ca6a1f859e5484b5bfbb117644847e5c93b1c73e228f9a394f44e544d5b55c07",
+    "bytes": 18939,
+    "consultation": "public VR type rows532\u2013563; existing SpringSpec88/8, not a new layout inquiry",
+    "method": "read-only existing source05 facts"
+  }
+]

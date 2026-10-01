@@ -1,0 +1,9 @@
+def binary_argv(binary, run, models_dir, counts_only=False, heap_cap=None):
+    argv = [binary, '--case', run['model'], '--heap-cap-bytes', str(heap_cap or run['heap_cap_bytes'])]
+    path = model_file(models_dir, run['model'], run['members'])
+    if path:
+        argv += ['--model-file', path]
+    if counts_only:
+        argv.append('--counts-only')
+    return argv
+
