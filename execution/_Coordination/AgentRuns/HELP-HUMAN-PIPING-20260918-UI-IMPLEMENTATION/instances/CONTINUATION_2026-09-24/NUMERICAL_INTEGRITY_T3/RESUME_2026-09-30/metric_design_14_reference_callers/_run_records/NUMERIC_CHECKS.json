@@ -1,0 +1,13 @@
+{
+  "checks": 6996,
+  "reference_rows": 193,
+  "metric_rows": 386,
+  "all_nonnegative_and_u64_bounded": true,
+  "moving_ge_requested": true,
+  "retained_result5_components_equal_between_metrics": true,
+  "comparison_margin_metric_specific": true,
+  "CLI24_original_phase_fields_identical": true,
+  "unresolved_triple_type_cells": 0,
+  "full_global_max_joined": false,
+  "check_correction": "initial equality assertion incorrectly included metric-specific comparison margin; corrected to compare retained owner fields only. No arithmetic/source repair was required by that checker correction."
+}

@@ -1,0 +1,71 @@
+{
+  "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_01/SOURCES.json",
+  "sha256": "9afc3b3e4f198e44ed9792afd98192eb9f2fecb8ff326eb5e09abfef122eb034",
+  "entries": [
+    {
+      "checkout_alias": "NUMERICS",
+      "revision": "417517e671a1f5ecc0c296d16dd80f719a3e9cbb",
+      "path": "AGENTS.md",
+      "git_blob": "3abfab6b99d1c02a02f06ae4c07a1b0d10257960",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "consulted_selection": "full",
+      "canonical_read_argv": [
+        "git",
+        "show",
+        "417517e671a1f5ecc0c296d16dd80f719a3e9cbb:AGENTS.md"
+      ],
+      "stdout_basis": "immutable Git blob; exact bytes recoverable with canonical_read_argv",
+      "exit_code": 0
+    },
+    {
+      "checkout_alias": "NUMERICS",
+      "revision": "417517e671a1f5ecc0c296d16dd80f719a3e9cbb",
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "git_blob": "03d0ac35a13d300c130f7ab77bf4114dfe527174",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "bytes": 2044,
+      "consulted_selection": "full",
+      "canonical_read_argv": [
+        "git",
+        "show",
+        "417517e671a1f5ecc0c296d16dd80f719a3e9cbb:agents/AGENT_HELPS_HUMANS.md"
+      ],
+      "stdout_basis": "immutable Git blob; exact bytes recoverable with canonical_read_argv",
+      "exit_code": 0
+    },
+    {
+      "checkout_alias": "NUMERICS",
+      "revision": "417517e671a1f5ecc0c296d16dd80f719a3e9cbb",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "git_blob": "91606231a1e218fdac671874f80fcce79638a9c6",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "consulted_selection": "full",
+      "canonical_read_argv": [
+        "git",
+        "show",
+        "417517e671a1f5ecc0c296d16dd80f719a3e9cbb:projects/chirality-piping/AGENTS.md"
+      ],
+      "stdout_basis": "immutable Git blob; exact bytes recoverable with canonical_read_argv",
+      "exit_code": 0
+    },
+    {
+      "checkout_alias": "NUMERICS",
+      "revision": "417517e671a1f5ecc0c296d16dd80f719a3e9cbb",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md",
+      "git_blob": "20b241f8148c8e0422d3ca2a94e6383cae6ae9ea",
+      "sha256": "871240f2ed90b1fd90e64a41d78b0414f332f7d75bb42b3b0de505c14c8faaa0",
+      "bytes": 3126,
+      "consulted_selection": "full",
+      "canonical_read_argv": [
+        "git",
+        "show",
+        "417517e671a1f5ecc0c296d16dd80f719a3e9cbb:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/COMMON.md"
+      ],
+      "stdout_basis": "immutable Git blob; exact bytes recoverable with canonical_read_argv",
+      "exit_code": 0
+    }
+  ],
+  "selection": "inherited original full Root/project/HELPS_HUMANS basis, not rebound"
+}
