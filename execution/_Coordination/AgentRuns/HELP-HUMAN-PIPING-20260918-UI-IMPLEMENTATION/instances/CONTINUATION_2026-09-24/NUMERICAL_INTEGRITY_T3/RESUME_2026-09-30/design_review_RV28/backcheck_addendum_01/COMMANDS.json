@@ -1,0 +1,74 @@
+[
+  {
+    "argv": [
+      "git",
+      "show",
+      "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs"
+    ],
+    "cwd": "<A1_WT>",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "472bafb8281c7d311a81dcd5da042dd0f8db998bd81cf4902e6b55409eb5a563",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs"
+    ],
+    "cwd": "<A1_WT>",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs"
+    ],
+    "cwd": "<A1_WT>",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs"
+    ],
+    "cwd": "<A1_WT>",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "5d2c92eb997b52f3e6985dda94fdd6f4dbcc11b1b2a12cddc2b9d32939613624",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_NUMERICS/DESIGN.md"
+    ],
+    "cwd": "<A1_WT>",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "fb62ef4a8282e53fd5875430e8903da80f1e0821c2dfba075dce5a97e5f27a74",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "show",
+      "d01ad98a754698631f927709d08284c272de85e8:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/DESIGN_STANDING/DESIGN.md"
+    ],
+    "cwd": "<A1_WT>",
+    "GIT_OPTIONAL_LOCKS": "0",
+    "exit": 0,
+    "stdout_sha256": "edc78f9c20db9848b2f4bad1250359e6ba06c2c3af053039099a147201f7b992",
+    "stderr": ""
+  }
+]
