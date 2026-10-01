@@ -1,0 +1,10 @@
+{
+  "actual_start_utc": "2026-10-01 22:39:07 UTC",
+  "deadline_utc": "2026-10-01 22:49:07 UTC",
+  "completed_utc": "2026-10-01 22:45:30 UTC",
+  "within_ten_minutes": true,
+  "status": "VERIFIED_CONDITIONAL_API_RESULT_CONTRACT",
+  "remaining_instantiation_cells": 6,
+  "full_adapter_release": false,
+  "full_Emax_or_artifact_acceptance": false
+}
