@@ -49,3 +49,15 @@ closed versus remaining cells, and updated formula implications. These facts
 cannot prove capacity/lifetime/consumer completeness or a universal E_max alone.
 A1's independent numerical closure remains the immediate priority; final K6c
 binding and heavy measurements reconcile against the eventual settled kernel.
+
+## ROOT existing-package clarification
+
+The manager reports that the unchanged VR dependency graph cannot name H-owned
+nominal types. Do not add a dependency or edit a lockfile to reach them. Within
+the SAME40-minute checkpoint, a second small layout example under H's own existing
+manifest is permitted if needed, with its original dependencies/lock/features
+and a distinct target subdirectory. Thus at most one VR and one H diagnostic
+build/run, sequentially in the single slot, each after the manager's overlay
+fence check; no third package or widened framework. The total two compiler-repair
+allowance stays unchanged. If time/dependencies do not permit it, return those
+H facts as unclosed. This clarifies existing-package use, not a tool-repair grant.
