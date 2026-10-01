@@ -1,0 +1,36 @@
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs
+index fc2ca336b2..c37618bd76 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs
+@@ -112,6 +112,9 @@ pub(super) fn tokens(attempts: &[AttemptRecord], layout: &[QuantityMeta]) -> Vec
+                         AttemptReason::Charge { quantity, .. } => {
+                             format!("charge:{}", index(quantity))
+                         }
++                        AttemptReason::PublicationEnclosure { quantity, predicate, .. } => {
++                            format!("publication_enclosure:{}:{predicate:?}", index(quantity))
++                        }
+                         AttemptReason::Stop(s) => panic!("{s:?}"),
+                     }
+                 ),
+diff --git a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs
+index 0481111c08..af969a581e 100644
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs
+@@ -6,7 +6,7 @@ use super::super::source::{Constraint, NodalLoad, SourceParts, Spring, StraightM
+ use super::*;
+ 
+ fn w(x: f64) -> Wide<4> {
+-    Wide::from_f64(x).unwrap()
++    Wide::<4>::from_f64(x).unwrap()
+ }
+ 
+ fn pow2(e: i32) -> f64 {
+@@ -79,7 +79,7 @@ fn row(x: f64, class: RowClass) -> PublishedRow {
+ fn h_uses_final_binary64_and_every_error_term() {
+     let h = f64::from_bits(1);
+     let mut r = report(256);
+-    r.w_plus[0] = Some(Wide::ZERO);
++    r.w_plus[0] = Some(Wide::<4>::ZERO);
+     let v = w(f64::from_bits(5)).mul_pow2(-2).unwrap();
+     let got = publication_h(0, &meta(Kind::Rotation), h, &v, &r, &mut meter()).unwrap();
+     equal_sum(&got, &exact_sum(&[(h, -2)]));
