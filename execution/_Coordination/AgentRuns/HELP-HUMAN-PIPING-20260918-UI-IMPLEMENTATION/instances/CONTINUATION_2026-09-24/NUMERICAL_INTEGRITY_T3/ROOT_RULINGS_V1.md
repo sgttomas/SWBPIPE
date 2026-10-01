@@ -3527,3 +3527,108 @@ under review. Complete caller composition, checked implementation, final A1,
 admission replay and measurements remain open; W1/F2a are not released.
 These K6c packets are preserved at branch commit
 8d80dbdb326514e167ccf16b8e173bd91c7441f4 under RESUME_2026-09-30.
+
+
+## A1 named-witness continuity and K6c finite callers (ROOT, 2026-10-01)
+
+ROOT read RV29 g3_prefix_tail_17 and the later preemption_18/r33_source_19
+reviews. G3's prefix and corrected tail diagnostics are independently closed
+as recorded in g3_prefix_tail_17; original earlier-case failures retain no
+named-witness credit. Runtime04's R33 failure occurs on N01 before its named
+N05/N06 witness, and remains uncredited. ROOT's runtime05 disposition permits
+its unchanged original control and the remaining original schedule while an
+additive N05/p128 diagnostic preserves the same helper and fixed oracle.
+The exact conditional runtime grant is BRIEFS/A1_R33_NAMED_RUNTIME.md.
+R51's source-only contingency is not an observed failure and stays unrun if
+its original test qualifies. No numerical criterion or source expectation is
+weakened; A1 remains open and F2a held until complete verification and merge.
+
+ROOT read I21 source14 and RV30 finite_callers_12 and verified their seals.
+The fixed-input floor inequalities and finite-from_f64 premise on the actual
+vk_scale caller roster are usable conditional facts, with scope and figures
+at finite_callers_12/RETURN.md sections “Actual basis and integer input check”
+and “Actual observation routes and remaining138 rows”. The broader lane's
+selected-numerator obligations remain open. A separate bounded numerical
+consequence derivation has been assigned; finite tags and old passing runs
+are not substitutes. No whole-process E_max or admission is accepted.
+
+The K6c proposal and review are preserved on its branch at
+4ee34724be3d4895016ba7ce9909f5e31a4770be. K6C's maintained adaptive.rs still
+matches its own older committed KF3 source (Git blob5448ca262ab0346c138052e39b9a205b82739842),
+with no working-tree modification. Its difference from the explicitly frozen
+A1 basis is the not-yet-integrated A1 correction, not an unexpected source edit.
+RV30 correctly reviewed the separately preserved full-hash-matched40129 bytes.
+Final A1/build reconciliation remains required before implementation reliance.
+
+
+## R46 historical-filter correction (ROOT, 2026-10-01)
+
+ROOT read the original K4 review D.4, its RV19-D2 delta log and current source,
+then I23 r46_diagnosis_14 and RV29 r46_diagnosis_22. The frozen fault is correct,
+active and non-equivalent. ROOT's recovered focused-filter selection was wrong:
+that focused unit test also passed in the historical run. The actual historical
+kill was the unchanged classification-vector test's set19 equality. Restore
+that existing discriminator under BRIEFS/A1_R46_MAPPING_DISPOSITION.md; no new
+input, source, expected value or test is selected. The original survivor and
+RV29's earlier mapping endorsement remain sealed; the diagnosis supersedes
+only that endorsement. No kill is credited until the corrected run and controls
+are independently checked. This is a recovery-mapping error, not evidence of
+a new production accuracy defect. R33's separate named diagnostic may proceed
+under its bounded grant; final G3/V-K/A1 acceptance remains open.
+
+## K6c bounded numerator consequence and sparse correction (ROOT, 2026-10-01)
+
+ROOT read the complete selected-numerator derivation and RV28's independent
+selected_numerators_01/REVIEW.md, then verified both seals. Accept the bounded
+source consequence on its exact fixed roster, immutable40129 source and inherited
+accepted R7 premises. The review's sections “Full retained T/R implication” and
+“Actual J-end recovery and rounded quotient” supply the warrant; “Every-row
+result” supplies the exact arithmetic and figure basis. No successful selection
+is promised. This closes the named remaining observation-finiteness premise;
+changed inputs, recovery, row mapping or gates require reassessment.
+
+ROOT also read sparse_13, metric_design_07_sparse_correction and RV30's
+sparse_correction_14 return and verified their seals. SP13-F1 is closed by the
+additive HFactor validation-owner correction. Reuse the original sparse proposal
+only together with that correction and its review. The review demonstrates no
+fixed-roster or composed-envelope undercount; its remaining private-node,
+profile, formatting/runtime and final-build cells remain open.
+
+These records are preserved on K6c at a900bcc69bbbc949214ff0be23bc073941332089.
+They grant no complete E_max, implementation, admission, W1 or F2a acceptance.
+ROOT selected one bounded canonical K0 assembly after the active serializer
+review, through H's existing library and distinct H/VR caller terms. No contract
+alternative from metric_design_06_closure_assessment is selected. The assembly
+must expose exact residual cells and their numerical impact before any further
+proof work is commissioned; BRIEFS/I21_K0_CANONICAL_ASSEMBLY.md governs.
+
+
+## G3 execution complete; portable evidence placement (ROOT, 2026-10-01)
+
+ROOT read and verified the runtime06 child/manager returns. Every remaining
+G3 registration now has its required runtime evidence; independent aggregate
+review is still pending. The earlier R33 and R09/R10 wrong-witness attempts
+and focused R46 survivor retain no credit. Runtime06 preserves the original
+window and ROOT's explicit prospective bounded continuation; no automatic
+extension is inferred. R51's original named witness qualified, so its prepared
+contingency remains unrun. V-K proceeds under its separate conditional grant.
+
+The hosted interim head4972f4ef failed GEN-8 on machine-path provenance in
+unclassified review JSON. ROOT read the failure, existing classifier and prior
+relocation precedent; I23 independently diagnosed the records-placement cause.
+Thirteen complete sealed review packets moved into source_review_RV29/
+_run_records with every payload and manifest byte unchanged, recorded in
+R/REVIEW_EVIDENCE_RELOCATION_2026-10-01.json on A1 at9ef9508dea.
+[Correction to physical-path references in earlier records: apply that ledger's
+old/new packet-prefix map for current replay. Pinned historical commits retain
+original locations; internal packet-relative manifests remain unchanged.]
+No checker, policy, source, oracle or numerical criterion changed. The unchanged
+check passes on clean9ef9508dea; verification/gen8_portability_04 preserves the
+result. Final-head GEN-8 and all other merge gates remain required.
+
+ROOT read RV30 serializer_15 and verified its seal. Its finite schema/owner
+recurrences are usable only with the named unresolved terms and the review's
+refusal-argument/Phase.fields clarifications. The single K0 assembly actually
+started17:51:15 UTC with a fixed18:21:15 end; manager/k0_assembly_16 records the
+native dispatch. No further proof programme, estimator implementation, contract
+alternative, E_max, admission or W1 acceptance is granted by that assignment.
