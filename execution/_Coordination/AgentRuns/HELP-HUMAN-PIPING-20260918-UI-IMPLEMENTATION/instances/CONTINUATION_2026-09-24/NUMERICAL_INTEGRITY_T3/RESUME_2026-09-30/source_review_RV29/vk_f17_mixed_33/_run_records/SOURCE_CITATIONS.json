@@ -1,0 +1,107 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+    "ranges": [
+      {
+        "start": 441,
+        "end": 459,
+        "text": "pub fn classify(value: f64, s_star: f64) -> RowClass {\n    if relative_class(value, s_star) {\n        RowClass::RelativeVerified\n    } else {\n        RowClass::AbsoluteVerified {\n            bound_bits: row_bound(value, s_star).to_bits(),\n        }\n    }\n}\n\nfn relative_class(value: f64, s_star: f64) -> bool {\n    // V-K seeded fault VK-F17 (\u00a77.3-17): every scaled row relative_verified.\n    #[cfg(any(test, feature = \"mutation-controls\"))]\n    if super::seeded::active(super::seeded::Fault::F17) {\n        return true;\n    }\n    let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988\n    !(s_star < small || value.abs() < threshold(s_star))\n}"
+      },
+      {
+        "start": 2703,
+        "end": 2713,
+        "text": "    let rows = layout\n        .iter()\n        .zip(values)\n        .map(|(meta, v)| {\n            let class = if meta.input_derived {\n                RowClass::InputDerived\n            } else if let Some(x) = v.value() {\n                classify_row(x, scales[meta.body as usize][meta.kind.index()])?\n            } else {\n                RowClass::Unpublishable\n            };"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+    "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+    "ranges": [
+      {
+        "start": 98,
+        "end": 130,
+        "text": "/// The published rows a target is formed from.\nfn sources(target: Target) -> Vec<QuantityId> {\n    match target {\n        Target::Displacement(d) => vec![QuantityId::Displacement(d)],\n        Target::Reaction(d) => vec![QuantityId::Reaction(d)],\n        Target::Spring { id, component } => vec![QuantityId::SpringAction {\n            spring: id,\n            component,\n        }],\n        Target::DirectionalSpring { id, component } => {\n            vec![QuantityId::DirectionalSpringAction {\n                spring: id,\n                component,\n            }]\n        }\n        Target::StructuralZero => vec![],\n        Target::Axial(m) | Target::Extension(m) => vec![end(m, true, Component::Ux)],\n        Target::Torque(m) | Target::Twist(m) => vec![end(m, true, Component::Rx)],\n        Target::BendingEnd { member, j_end } => vec![\n            end(member, j_end, Component::Ry),\n            end(member, j_end, Component::Rz),\n        ],\n        Target::BendingStation(s) => vec![\n            QuantityId::StationAction {\n                station: s,\n                component: Component::Ry,\n            },\n            QuantityId::StationAction {\n                station: s,\n                component: Component::Rz,\n            },\n        ],\n    }"
+      },
+      {
+        "start": 274,
+        "end": 324,
+        "text": "        let scales = floor::scales(case, model);\n        for row in &case.rows {\n            let exp = Exact::parse_decimal(&row.expected).unwrap();\n            let scale = Exact::parse_decimal(case.scale_of(row)).unwrap();\n            let covered = exact::covered(&exp, &scale, floor::row_scale(row, &scales));\n            let verdict = match model.resolve(&row.key) {\n                Ok(target) => {\n                    let v = judge(&observe(target, &published, model), &exp, &scale, covered);\n                    if !covered {\n                        not_covered.push(row.key.clone());\n                        for id in sources(target) {\n                            let restrained = matches!(id, QuantityId::Displacement(d)\n                                if model.constraints.contains(&(d.node, d.component.index())));\n                            match published.get(&id).map(|r| &r.class) {\n                                Some(RowClass::AbsoluteVerified { .. })\n                                | Some(RowClass::Unpublishable) => {}\n                                Some(RowClass::InputDerived) if restrained => {\n                                    input_derived_not_covered\n                                        .push(format!(\"{}:{}\", case.id, row.key))\n                                }\n                                other => class_mismatches.push(format!(\n                                    \"{}: {} ({id:?} is {other:?})\",\n                                    case.id, row.key\n                                )),\n                            }\n                        }\n                    }\n                    v\n                }\n                Err(e) => Verdict::Fail(e),\n            };\n            if let Verdict::Fail(why) = &verdict {\n                failures.push(format!(\"{}: {} ({}) {why}\", case.id, row.key, row.expected));\n            }\n            tally.add(&verdict);\n        }\n    } else if listed && matches!(outcome, CaseOutcome::Unresolved { .. }) {\n        for _row in &case.rows {\n            tally.add(&Verdict::ExpectedUnresolved);\n        }\n    } else {\n        for _row in &case.rows {\n            tally.add(&Verdict::Fail(format!(\"case {label}\")));\n        }\n        failures.push(format!(\n            \"{}: not selected: {}\",\n            case.id,\n            records::outcome_text(&outcome)\n        ));\n    }\n    let record = records::case_record(case, &outcome, &tally, &meter);"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+    "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794",
+    "ranges": [
+      {
+        "start": 49,
+        "end": 113,
+        "text": "    for case in &cases {\n        let run = run_case(case);\n        assert!(run.tally.accounted(), \"{}: row accounting\", case.id);\n        total.merge(&run.tally);\n        controls.merge(&run.controls);\n        failures.extend(run.failures.iter().cloned());\n        failures.extend(run.class_mismatches.iter().map(|m| format!(\"CLASS {m}\")));\n        if run.not_covered != case.not_covered {\n            failures.push(format!(\n                \"FLOOR {}: not covered {:?}, committed {:?}\",\n                case.id, run.not_covered, case.not_covered\n            ));\n        }\n        input_derived.extend(run.input_derived_not_covered.iter().cloned());\n        *outcomes.entry(run.outcome.clone()).or_default() += 1;\n        records.push(run.record);\n    }\n    println!(\"{family}: {total}\");\n    println!(\"{family}: outcomes {outcomes:?}\");\n    println!(\n        \"{family}: controls discriminated {}, non-discriminating {}\",\n        controls.discriminated, controls.non_discriminating\n    );\n    for f in &failures {\n        println!(\"{family}: FAILURE {f}\");\n    }\n    assert!(failures.is_empty(), \"{family}: {} failures\", failures.len());\n    assert_eq!(total, pin.tally, \"{family}: the report's counts\");\n    let count = |k: &str| outcomes.get(k).copied().unwrap_or(0);\n    assert_eq!(\n        (count(\"selected\"), count(\"refused\"), count(\"unresolved\")),\n        pin.outcomes,\n        \"{family}: outcomes\"\n    );\n    assert!(\n        controls.undiscriminated.is_empty(),\n        \"{family}: discriminating controls that pass: {:?}\",\n        controls.undiscriminated\n    );\n    assert!(\n        controls.unexpectedly_failing.is_empty(),\n        \"{family}: {:?}\",\n        controls.unexpectedly_failing\n    );\n    assert_eq!(\n        (controls.discriminated, controls.non_discriminating),\n        (pin.discriminated, pin.non_discriminating),\n        \"{family}: controls\"\n    );\n    assert_eq!(\n        input_derived, pin.input_derived_not_covered,\n        \"{family}: not-covered rows published as input-derived\"\n    );\n    let (_, file) = FAMILY_FILES.iter().find(|(f, _)| *f == family).unwrap();\n    let path = crate_dir()\n        .join(\"observations/kernel_lane\")\n        .join(file.replace(\".jsonl\", \".json\"));\n    let committed =\n        std::fs::read_to_string(&path).unwrap_or_else(|e| panic!(\"{}: {e}\", path.display()));\n    assert!(\n        committed == family_file(&records),\n        \"{family}: the per-case records differ from {} (regenerate only by decision: \\\n         cargo run --release --example vk_records -- --write {family})\",\n        path.display()\n    );"
+      },
+      {
+        "start": 146,
+        "end": 162,
+        "text": "#[test]\nfn rf_weak() {\n    lane(\n        \"RF-WEAK\",\n        Pin {\n            cases: 9,\n            tally: tally(618, 566, 46, 6),\n            outcomes: (9, 0, 0),\n            discriminated: 23,\n            non_discriminating: 13,\n            input_derived_not_covered: &[\n                \"RF-WEAK-W-AX-rho1e-12:u.N5.UX\",\n                \"RF-WEAK-W-AX-rho1e-12:u.N5.UY\",\n                \"RF-WEAK-W-AX-rho1e-12:u.N5.UZ\",\n            ],\n        },\n    );"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+    "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+    "ranges": [
+      {
+        "start": 444,
+        "end": 464,
+        "text": "            [\"N\", m] => Ok(Target::Axial(member(m)?)),\n            [\"T\", m] => Ok(Target::Torque(member(m)?)),\n            [\"Mb\", m, \"i\"] => Ok(Target::BendingEnd {\n                member: member(m)?,\n                j_end: false,\n            }),\n            [\"Mb\", m, \"j\"] => Ok(Target::BendingEnd {\n                member: member(m)?,\n                j_end: true,\n            }),\n            [\"Mb\", m, \"mid\"] => {\n                let id = member(m)?;\n                let station = self\n                    .stations\n                    .iter()\n                    .find(|s| s.1 == id && s.2 == 0.5)\n                    .ok_or_else(bad)?;\n                Ok(Target::BendingStation(station.0))\n            }\n            [\"tw\", m] => Ok(Target::Twist(member(m)?)),\n            [\"ext\", m] => Ok(Target::Extension(member(m)?)),"
+      }
+    ]
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+    "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+    "input_derived_lines": [
+      {
+        "line": 85,
+        "text": "pub struct QuantityMeta {\n    pub id: QuantityId,\n    pub kind: Kind,\n    pub body: u32,\n    /// Rule 2a: a displacement or rotation at a restrained or prescribed DOF.\n    pub input_derived: bool,\n}\n"
+      },
+      {
+        "line": 110,
+        "text": "        let dof = Dof::from_global(g);\n        out.push(QuantityMeta {\n            id: QuantityId::Displacement(dof),\n            kind: component_kind(dof.component, true),\n            body: body(dof.node),\n            input_derived: source.constraint(g).is_some(),\n        });\n    }"
+      },
+      {
+        "line": 118,
+        "text": "    for node in 0..source.node_count() as u32 {\n        out.push(QuantityMeta {\n            id: QuantityId::DisplacementMagnitude(node),\n            kind: Kind::Translation,\n            body: body(node),\n            input_derived: false,\n        });\n    }"
+      },
+      {
+        "line": 132,
+        "text": "                        end,\n                        component,\n                    },\n                    kind: component_kind(component, false),\n                    body: body(m.node_i),\n                    input_derived: false,\n                });\n            }"
+      },
+      {
+        "line": 147,
+        "text": "                    station: s.id,\n                    component,\n                },\n                kind: component_kind(component, false),\n                body: body(m.node_i),\n                input_derived: false,\n            });\n        }"
+      },
+      {
+        "line": 159,
+        "text": "                spring: s.id,\n                component: s.dof.component,\n            },\n            kind: component_kind(s.dof.component, false),\n            body: body(s.dof.node),\n            input_derived: false,\n        });\n    }"
+      },
+      {
+        "line": 172,
+        "text": "                    spring: s.id,\n                    component,\n                },\n                kind: component_kind(component, false),\n                body: body(s.node),\n                input_derived: false,\n            });\n        }"
+      },
+      {
+        "line": 181,
+        "text": "    for c in source.constraints() {\n        out.push(QuantityMeta {\n            id: QuantityId::Reaction(c.dof),\n            kind: component_kind(c.dof.component, false),\n            body: body(c.dof.node),\n            input_derived: false,\n        });\n    }"
+      },
+      {
+        "line": 189,
+        "text": "    for g in source.supports() {\n        out.push(QuantityMeta {\n            id: QuantityId::SupportForceMagnitude(g.id),\n            kind: Kind::Force,\n            body: body(g.node),\n            input_derived: false,\n        });\n        out.push(QuantityMeta {"
+      },
+      {
+        "line": 195,
+        "text": "        });\n        out.push(QuantityMeta {\n            id: QuantityId::SupportMomentMagnitude(g.id),\n            kind: Kind::Moment,\n            body: body(g.node),\n            input_derived: false,\n        });\n    }"
+      }
+    ]
+  }
+]
