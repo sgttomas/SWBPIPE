@@ -1,0 +1,16 @@
+{
+  "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+  "source_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+  "original_lines": [
+    824,
+    827
+  ],
+  "original_excerpt": "\n",
+  "actual_lines": [
+    819,
+    821
+  ],
+  "actual_excerpt": "#[cfg(test)]\n#[path = \"../../../tests/retained_k4/factor_tests.rs\"]\nmod tests;\n",
+  "actual_excerpt_sha256": "de6a634023030c5e52c12dad892a30c7a3c9ba7fc1e3594125168464c7f303e5",
+  "effect": "Citation only; independent actual source confirms test namespace."
+}
