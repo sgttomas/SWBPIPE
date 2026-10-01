@@ -1,0 +1,57 @@
+{
+  "grant": {
+    "commit": "871f985e2b70fdb257e51cf84d1e0b20c7a52b56",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_SOURCE_12_H_LEAVES.md",
+    "sha256": "4f128232aea8c05e95ecc25459cbe2e847426253325e5a1fafded0763164f0ac",
+    "bytes": 2810
+  },
+  "review": {
+    "commit": "79ab5428470ca747a484ea145ea979e5bb965c96",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_caller_05/RETURN.md",
+    "sha256": "33eb91967ed22ea3c0afa65dd262fbb8dcac8ff669b77ebc8b262d7867db824e",
+    "bytes": 14838
+  },
+  "product": [
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+      "sha256": "42d82fbfb3e21c11c647f6b2f83aaa21ee6ded6617601f14790e1c282f60b77d",
+      "bytes": 40216
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/alloc.rs",
+      "sha256": "0bb07a2346d0fedf9411ec9e93ab427b4fc4eafbb9de01c412067e3fbe7e4ba0",
+      "bytes": 7487
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/staged.rs",
+      "sha256": "fd3e00c06aff970c44cd147f255fe371b16729fe0a80b62b32a09bc0afddc337",
+      "bytes": 12815
+    }
+  ],
+  "prior_seals": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/SHA256SUMS",
+      "sha256": "1d75c56c26e0167b36d161e887fd8a709c6ef408523c43c7d4c5df2d86b63c92"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_10/SHA256SUMS",
+      "sha256": "4654cec41603ef0ded7c4a057ece046630b6b72313e156b04543cd36f53e7650"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_11/SHA256SUMS",
+      "sha256": "f006c022535cc1bfbc8e8e4dcea2a729a0887f5dae71ad2dd96b819408ac9907"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_caller_05/SHA256SUMS",
+      "sha256": "3eb8908561ef824d83907f92c2086596b2eaf07cf2af8e83226c27a298b4694a",
+      "payloads_verified": true
+    }
+  ],
+  "instructions": "Same TASK/Root/project/COMMON supplied basis inherited from prior sealed I21 packets; no new role/workflow/skill body selected.",
+  "mechanism": "Native TASK child /root/t3_recovery_manager/i21_k6c, parent WORKING_ITEMS /root/t3_recovery_manager; no delegation.",
+  "write_fence": "K6C R/I21/source_12 only; no scratch used",
+  "source11_not_amended": true
+}

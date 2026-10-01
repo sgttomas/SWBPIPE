@@ -1,0 +1,7 @@
+{
+  "origin": "Native followup_task from /root HELP_HUMAN Agent0",
+  "task": "/root/rv30_k6c_kernel TASK Type2 RV30",
+  "text": "Bounded package-binding backcheck, 10 minutes. ROOT read/verified I23 serde_binding_07, seal d96dcd35d1040843e9022b6dee08a23adddca25c24bf5c92fb296ef71ab1b85a. Verify existing two .crate archive hashes against frozen Cargo.lock, all116 packaged files and seven cited source11 pages against installed bytes; keep two .cargo-ok extras and absent checksum manifests distinct. This should address only V-LIB's package/local-byte identity. Actual enabled features/build/profile and allocation theorems remain separately pinned/conditional; do not infer them from package identity. If prior reviewed compiler evidence supplies a feature premise, cite its exact scope instead of starting a new build. Writes only K6C R/source_review_RV30/serde_binding_08 and own scratch. No Rust/Cargo/network/restoration/cache edit, broad dependency audit, Git/index or delegation. Active source12 untouched.",
+  "text_sha256": "dc0ab15afc9bf325fe400a8d8b110e7ffdc70124241850e3064ff7d6b62353c9",
+  "instruction_binding": "../kernel_01/INSTRUCTION_BINDING.json; unchanged origins/hashes/software-code-review skill"
+}

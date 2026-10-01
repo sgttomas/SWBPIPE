@@ -1,0 +1,39 @@
+{
+  "status": "V_LIB_package_and_local_byte_identity_bound_no_blocking_mismatch",
+  "actual_start_utc": "2026-10-01T15:17:23+00:00",
+  "deadline_utc": "2026-10-01T15:27:23+00:00",
+  "actual_completion_utc": "2026-10-01T15:19:59.671156+00:00",
+  "elapsed_seconds": 156.671156,
+  "blocking_findings": 0,
+  "checked": {
+    "locked_archive_checksums": 2,
+    "packaged_files": 116,
+    "cited_source11_pages": 7,
+    "outside_archive_cargo_ok_markers": 2,
+    "absent_checksum_manifests": 2,
+    "existing_feature_compile_rows": 2
+  },
+  "feature_scope": "Prior sealed layout04 VR diagnostic only: serde_core std; serde_json default,float_roundtrip,std. No feature/runtime inference from package hash.",
+  "remaining": [
+    "future actual build/source/features/profile binding",
+    "serializer/allocation/private-node theorems",
+    "VR global composition",
+    "full Emax/admission"
+  ],
+  "not_performed": [
+    "Rust/Cargo/build",
+    "network",
+    "restoration/cache edit",
+    "broad dependency audit",
+    "Git/index",
+    "delegation",
+    "source12 access"
+  ],
+  "write_fence": "<K6C>/<R>/source_review_RV30/serde_binding_08",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "executable": "<VENV>/bin/python"
+  }
+}
