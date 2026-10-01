@@ -1,0 +1,18 @@
+{
+  "completed_utc": "2026-10-01 19:13:22 UTC",
+  "start_utc": "2026-10-01 18:54:39 UTC",
+  "deadline_utc": "2026-10-01 19:14:39 UTC",
+  "json_parse": "PASS",
+  "portable_paths": "PASS",
+  "scope": "Source-only FORMAT/STREAM leaves; no Rust/runtime/build/probe/test/solver or Git/index mutation",
+  "remaining_cells": [
+    "S_StringError",
+    "S_IOCustom",
+    "S_JSONErrorImpl",
+    "P_STATIC_STRUCTURAL",
+    "P_STATIC_FRAME"
+  ],
+  "acceptance": "Conditional source return only; no complete E_max or admission acceptance",
+  "running_experiments": false,
+  "raw_provenance": "_run_records/RAW_COMMANDS.json"
+}

@@ -1,0 +1,86 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+00000001000308a0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>>:
+1000308a0: d102c3ff    	sub	sp, sp, #0xb0
+1000308a4: a90857f6    	stp	x22, x21, [sp, #0x80]
+1000308a8: a9094ff4    	stp	x20, x19, [sp, #0x90]
+1000308ac: a90a7bfd    	stp	x29, x30, [sp, #0xa0]
+1000308b0: 910283fd    	add	x29, sp, #0xa0
+1000308b4: aa0803f3    	mov	x19, x8
+1000308b8: 910003e8    	mov	x8, sp
+1000308bc: 97ff7951    	bl	0x10000ee00 <<alloc::vec::Vec<(alloc::string::String, (f64, f64))> as alloc::vec::spec_from_iter::SpecFromIter<(alloc::string::String, (f64, f64)), core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>>::from_iter>
+1000308c0: f9400be1    	ldr	x1, [sp, #0x10]
+1000308c4: b4000461    	cbz	x1, 0x100030950 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0xb0>
+1000308c8: f94007e0    	ldr	x0, [sp, #0x8]
+1000308cc: d10087a8    	sub	x8, x29, #0x21
+1000308d0: f9001be8    	str	x8, [sp, #0x30]
+1000308d4: f100043f    	cmp	x1, #0x1
+1000308d8: 54000561    	b.ne	0x100030984 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0xe4>
+1000308dc: a94057f4    	ldp	x20, x21, [sp]
+1000308e0: f9400bf6    	ldr	x22, [sp, #0x10]
+1000308e4: 97ff671d    	bl	0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+1000308e8: 52803900    	mov	w0, #0x1c8              ; =456
+1000308ec: 52800101    	mov	w1, #0x8                ; =8
+1000308f0: 97ff6716    	bl	0x10000a548 <__rustc::__rust_alloc>
+1000308f4: b4000540    	cbz	x0, 0x10003099c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0xfc>
+1000308f8: f900581f    	str	xzr, [x0, #0xb0]
+1000308fc: 7903841f    	strh	wzr, [x0, #0x1c2]
+100030900: a901ffe0    	stp	x0, xzr, [sp, #0x18]
+100030904: 52800508    	mov	w8, #0x28               ; =40
+100030908: 9b0856c8    	madd	x8, x22, x8, x21
+10003090c: 92800029    	mov	x9, #-0x2               ; =-2
+100030910: a902a7ff    	stp	xzr, x9, [sp, #0x28]
+100030914: a905d7f5    	stp	x21, x21, [sp, #0x58]
+100030918: a906a3f4    	stp	x20, x8, [sp, #0x68]
+10003091c: 910063e0    	add	x0, sp, #0x18
+100030920: 9100c3e1    	add	x1, sp, #0x30
+100030924: 9100a3e2    	add	x2, sp, #0x28
+100030928: 97ff68a4    	bl	0x10000abb8 <<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Owned, alloc::string::String, (f64, f64), alloc::collections::btree::node::marker::LeafOrInternal>>::bulk_push::<alloc::collections::btree::dedup_sorted_iter::DedupSortedIter<alloc::string::String, (f64, f64), alloc::vec::into_iter::IntoIter<(alloc::string::String, (f64, f64))>>, alloc::alloc::Global>>
+10003092c: a941a7e8    	ldp	x8, x9, [sp, #0x18]
+100030930: f94017ea    	ldr	x10, [sp, #0x28]
+100030934: a9002668    	stp	x8, x9, [x19]
+100030938: f9000a6a    	str	x10, [x19, #0x10]
+10003093c: a94a7bfd    	ldp	x29, x30, [sp, #0xa0]
+100030940: a9494ff4    	ldp	x20, x19, [sp, #0x90]
+100030944: a94857f6    	ldp	x22, x21, [sp, #0x80]
+100030948: 9102c3ff    	add	sp, sp, #0xb0
+10003094c: d65f03c0    	ret
+100030950: f900027f    	str	xzr, [x19]
+100030954: f9000a7f    	str	xzr, [x19, #0x10]
+100030958: f94003e8    	ldr	x8, [sp]
+10003095c: b4ffff08    	cbz	x8, 0x10003093c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0x9c>
+100030960: f94007e0    	ldr	x0, [sp, #0x8]
+100030964: 8b080908    	add	x8, x8, x8, lsl #2
+100030968: d37df101    	lsl	x1, x8, #3
+10003096c: 52800102    	mov	w2, #0x8                ; =8
+100030970: a94a7bfd    	ldp	x29, x30, [sp, #0xa0]
+100030974: a9494ff4    	ldp	x20, x19, [sp, #0x90]
+100030978: a94857f6    	ldp	x22, x21, [sp, #0x80]
+10003097c: 9102c3ff    	add	sp, sp, #0xb0
+100030980: 17ff66f3    	b	0x10000a54c <__rustc::__rust_dealloc>
+100030984: f100543f    	cmp	x1, #0x15
+100030988: 54000122    	b.hs	0x1000309ac <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0x10c>
+10003098c: 9100c3e3    	add	x3, sp, #0x30
+100030990: 52800022    	mov	w2, #0x1                ; =1
+100030994: 97ff9b73    	bl	0x100017760 <core::slice::sort::shared::smallsort::insertion_sort_shift_left::<(alloc::string::String, (f64, f64)), <[(alloc::string::String, (f64, f64))]>::sort_by<<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>::{closure#0}>::{closure#0}>>
+100030998: 17ffffd1    	b	0x1000308dc <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0x3c>
+10003099c: 52800100    	mov	w0, #0x8                ; =8
+1000309a0: 52803901    	mov	w1, #0x1c8              ; =456
+1000309a4: 9405ff99    	bl	0x1001b0808 <alloc::alloc::handle_alloc_error>
+1000309a8: d4200020    	brk	#0x1
+1000309ac: 9100c3e2    	add	x2, sp, #0x30
+1000309b0: 97ffd2b1    	bl	0x100025474 <core::slice::sort::stable::driftsort_main::<(alloc::string::String, (f64, f64)), <[(alloc::string::String, (f64, f64))]>::sort_by<<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>::{closure#0}>::{closure#0}, alloc::vec::Vec<(alloc::string::String, (f64, f64))>>>
+1000309b4: 17ffffca    	b	0x1000308dc <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0x3c>
+1000309b8: aa0003f3    	mov	x19, x0
+1000309bc: 910003e0    	mov	x0, sp
+1000309c0: 97fffaff    	bl	0x10002f5bc <core::ptr::drop_glue::<alloc::vec::Vec<(alloc::string::String, (f64, f64))>>>
+1000309c4: aa1303e0    	mov	x0, x19
+1000309c8: 940600ce    	bl	0x1001b0d00 <dyld_stub_binder+0x1001b0d00>
+1000309cc: aa0003f3    	mov	x19, x0
+1000309d0: 910003e0    	mov	x0, sp
+1000309d4: 97fffafa    	bl	0x10002f5bc <core::ptr::drop_glue::<alloc::vec::Vec<(alloc::string::String, (f64, f64))>>>
+1000309d8: aa1303e0    	mov	x0, x19
+1000309dc: 940600c9    	bl	0x1001b0d00 <dyld_stub_binder+0x1001b0d00>

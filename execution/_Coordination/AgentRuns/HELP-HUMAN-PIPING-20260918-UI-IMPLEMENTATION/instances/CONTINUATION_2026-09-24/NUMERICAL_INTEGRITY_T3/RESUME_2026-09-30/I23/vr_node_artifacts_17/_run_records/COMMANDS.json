@@ -1,0 +1,302 @@
+[
+  {
+    "argv": [
+      "/usr/bin/nm",
+      "-n",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "exit": 0,
+    "stdout": "vk_records_symbols.stdout",
+    "stderr": "vk_records_symbols.stderr",
+    "stdout_sha256": "d379941b14504540abf874cd9578a76183ef423ab877ee2255cb6f7805baa307",
+    "stdout_bytes": 439254,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "json_vacant",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x100008584",
+      "--stop-address=0x1000086b0",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "symbol": "__RNvMs4_NtNtNtNtCslJsSqIQKwiA_5alloc11collections5btree3map5entryINtB5_11VacantEntryNtNtBd_6string6StringNtNtCsczK73Jpc8Qh_10serde_json5value5ValueE12insert_entryCs7fhSmRR055r_10vk_records",
+    "range_bytes": 300,
+    "exit": 0,
+    "stdout": "json_vacant.stdout",
+    "stderr": "json_vacant.stderr",
+    "stdout_sha256": "8a18b6c9fb201fbe6dc56317ba66de3c150d4a282f1532c3597d9a1d85410ee2",
+    "stdout_bytes": 4763,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "publication_vacant",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x1000273d4",
+      "--stop-address=0x1000274d4",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "symbol": "__RNvMs4_NtNtNtNtCslJsSqIQKwiA_5alloc11collections5btree3map5entryINtB5_11VacantEntryNtNtNtNtCsrp3ze6OLl3_29open_pipe_stress_frame_kernel10structural8retained7recover10QuantityIdNtNtB1n_8adaptive12PublishedRowE12insert_entryCs9CBXGKchvZS_27piping_numerical_robustness",
+    "range_bytes": 256,
+    "exit": 0,
+    "stdout": "publication_vacant.stdout",
+    "stderr": "publication_vacant.stderr",
+    "stdout_sha256": "60687d16b7225e7a96dbb97337b5e4f84b8616603561c8747014a3b055881ae5",
+    "stdout_bytes": 4681,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "case_from_iter",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x100030750",
+      "--stop-address=0x1000308a0",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "symbol": "__RINvXs1o_NtNtNtCslJsSqIQKwiA_5alloc11collections5btree3mapINtB7_8BTreeMapNtNtBd_6string6StringB19_EINtNtNtNtCsgtPOCBgevO_4core4iter6traits7collect12FromIteratorTB19_B19_EE9from_iterINtNtNtB1G_8adapters3map3MapNtNtCsczK73Jpc8Qh_10serde_json3map4IterNCNCNCNvNtCs9CBXGKchvZS_27piping_numerical_robustness5cases10parse_cases0_000EEB48_",
+    "range_bytes": 336,
+    "exit": 0,
+    "stdout": "case_from_iter.stdout",
+    "stderr": "case_from_iter.stderr",
+    "stdout_sha256": "ff14f614c80c473cba1abecd5c987cfe5853a74ad00d106bc87ec6309f9c8c14",
+    "stdout_bytes": 9185,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "floor_from_iter",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x1000308a0",
+      "--stop-address=0x1000309e0",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "symbol": "__RINvXs1o_NtNtNtCslJsSqIQKwiA_5alloc11collections5btree3mapINtB7_8BTreeMapNtNtBd_6string6StringTddEEINtNtNtNtCsgtPOCBgevO_4core4iter6traits7collect12FromIteratorTB19_B1u_EE9from_iterINtNtNtB1G_8adapters3map3MapINtNtNtB1I_5slice4iter4IterNtNtCs9CBXGKchvZS_27piping_numerical_robustness5cases6MemberENCNvNtB3Q_5floor11scales_from0EEB3Q_",
+    "range_bytes": 320,
+    "exit": 0,
+    "stdout": "floor_from_iter.stdout",
+    "stderr": "floor_from_iter.stderr",
+    "stdout_sha256": "5228328b881a2986c167b3d4bd38572d27aa7125ab2c10497ac88800ee632877",
+    "stdout_bytes": 8564,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "controls_from_iter",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x1000309e0",
+      "--stop-address=0x100030bb4",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "symbol": "__RINvXs1o_NtNtNtCslJsSqIQKwiA_5alloc11collections5btree3mapINtB7_8BTreeMapReRNtNtCs9CBXGKchvZS_27piping_numerical_robustness5cases3RowEINtNtNtNtCsgtPOCBgevO_4core4iter6traits7collect12FromIteratorTB19_B1b_EE9from_iterINtNtNtB2f_8adapters3map3MapINtNtNtB2h_5slice4iter4IterB1c_ENCNvNtB1g_4lane14value_controls0EEB1g_",
+    "range_bytes": 468,
+    "exit": 0,
+    "stdout": "controls_from_iter.stdout",
+    "stderr": "controls_from_iter.stderr",
+    "stdout_sha256": "deb682180736c328f4f75b8805f5cfe72d9570e10cc26bf90055875ad22b0cb9",
+    "stdout_bytes": 12776,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "allowance_insert_recursing",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x10000c8ec",
+      "--stop-address=0x10000d06c",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "symbol": "__RINvMsN_NtNtNtCslJsSqIQKwiA_5alloc11collections5btree4nodeINtB6_6HandleINtB6_7NodeRefNtNtB6_6marker3MutTjjETdjENtB1n_4LeafENtB1n_4EdgeE16insert_recursingNtNtBc_5alloc6GlobalNCNvMs4_NtNtB8_3map5entryINtB2T_11VacantEntryB1D_B1H_E12insert_entry0ECs9CBXGKchvZS_27piping_numerical_robustness",
+    "range_bytes": 1920,
+    "exit": 0,
+    "stdout": "allowance_insert_recursing.stdout",
+    "stderr": "allowance_insert_recursing.stderr",
+    "stdout_sha256": "a4be6adbb6abeb16a82da48f20d92749ccd3177378974b2abdeaaa2aa6613cff",
+    "stdout_bytes": 38360,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "rcm_symbols",
+    "argv": [
+      "/usr/bin/nm",
+      "-n",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/rcm-09e04a758b08a557"
+    ],
+    "exit": 0,
+    "stdout": "rcm_symbols.stdout",
+    "stderr": "rcm_symbols.stderr",
+    "artifact_sha256": "cd4955ba3863095bd7af92c02d3471b42a0da22f7237a150b74f4ac4ab41d90f",
+    "stdout_sha256": "235361366832f9db2ef09aba4c11e6c119ccef7dc906d190d12c335a061510fd",
+    "stdout_bytes": 600292,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "scale_symbols",
+    "argv": [
+      "/usr/bin/nm",
+      "-n",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/scale-7b5e14694df45805"
+    ],
+    "exit": 0,
+    "stdout": "scale_symbols.stdout",
+    "stderr": "scale_symbols.stderr",
+    "artifact_sha256": "7db81a7d5086fe79c8f1b776b80213749915ac313378e4c9d6ae3a27470ae0ae",
+    "stdout_sha256": "d4738e6b8d69f554f3a318bd8309c5391a304e18e074c3d1464db5a3cf675f6d",
+    "stdout_bytes": 812128,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "adjacency_leaf",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x10004b048",
+      "--stop-address=0x10004b140",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/rcm-09e04a758b08a557"
+    ],
+    "range_bytes": 248,
+    "exit": 0,
+    "stdout": "adjacency_leaf.stdout",
+    "stderr": "adjacency_leaf.stderr",
+    "stdout_sha256": "5e7ba3987866d0b4dd1f61d3d24fad7e213e39abeb58b6cb7aca788b925583da",
+    "stdout_bytes": 4689,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "counts_leaf",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x10005aa30",
+      "--stop-address=0x10005ab28",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/scale-7b5e14694df45805"
+    ],
+    "range_bytes": 248,
+    "exit": 0,
+    "stdout": "counts_leaf.stdout",
+    "stderr": "counts_leaf.stderr",
+    "stdout_sha256": "5914a7b5f8ffc5b7edcebc1cb54f25cb35a0ea23831e40a94de84c5612de55d0",
+    "stdout_bytes": 4746,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "rcm_global_allocate",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x10004ee60",
+      "--stop-address=0x10004eea0",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/rcm-09e04a758b08a557"
+    ],
+    "range_bytes": 64,
+    "exit": 0,
+    "stdout": "rcm_global_allocate.stdout",
+    "stderr": "rcm_global_allocate.stderr",
+    "stdout_sha256": "8608ddb673eef17ffadaa37ea64eb517ca050b9a9525b07351d95db9ad01d809",
+    "stdout_bytes": 998,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "scale_global_allocate",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x1000608b8",
+      "--stop-address=0x1000608f8",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/scale-7b5e14694df45805"
+    ],
+    "range_bytes": 64,
+    "exit": 0,
+    "stdout": "scale_global_allocate.stdout",
+    "stderr": "scale_global_allocate.stderr",
+    "stdout_sha256": "b4a91a566641afae6ffb7245599618f0d155759bf9dbe861b3cad57ca24ec70f",
+    "stdout_bytes": 1000,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "rcm_alloc_impl",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x10004e68c",
+      "--stop-address=0x10004e814",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/rcm-09e04a758b08a557"
+    ],
+    "range_bytes": 392,
+    "exit": 0,
+    "stdout": "rcm_alloc_impl.stdout",
+    "stderr": "rcm_alloc_impl.stderr",
+    "stdout_sha256": "e645c574972628e2a0fc9ea67b0834330bc9bc300e801d8b4f998f08b730a73c",
+    "stdout_bytes": 5878,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "scale_alloc_impl",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x10005faec",
+      "--stop-address=0x10005fc74",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/scale-7b5e14694df45805"
+    ],
+    "range_bytes": 392,
+    "exit": 0,
+    "stdout": "scale_alloc_impl.stdout",
+    "stderr": "scale_alloc_impl.stderr",
+    "stdout_sha256": "40ecd7555cb8fa6cbeed6215359cad5900cf16e19ee922d5bf52b9f9e5822304",
+    "stdout_bytes": 5880,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  },
+  {
+    "label": "json_insert_caller",
+    "argv": [
+      "/usr/bin/objdump",
+      "--disassemble",
+      "--demangle",
+      "--start-address=0x100009934",
+      "--stop-address=0x100009aa8",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records"
+    ],
+    "range_bytes": 372,
+    "exit": 0,
+    "stdout": "json_insert_caller.stdout",
+    "stderr": "json_insert_caller.stderr",
+    "note": "Exact bounded range initially inspected in native tool transcript; repeated once solely to preserve raw evidence. No executable execution.",
+    "stdout_sha256": "67f781ec7873e92180d789ce158142b374368c8fae15a2575ff94242f0795497",
+    "stdout_bytes": 5791,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_bytes": 0
+  }
+]

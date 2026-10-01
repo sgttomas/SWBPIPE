@@ -1,0 +1,255 @@
+{
+  "status": "PROPOSED_ARTIFACT_SPECIFIC_FACTS_FOR_INDEPENDENT_REVIEW",
+  "facts": [
+    {
+      "id": "VR-JSON",
+      "actual_key_value": "String,serde_json::Value",
+      "artifact": "RECORDS_RELEASE",
+      "typed_function": "0000000100008584 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry>:",
+      "request_leaf": {
+        "size": 632,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x10000860c",
+        "size_constant_instruction": "0x100008604",
+        "alignment_constant_instruction": "0x100008608"
+      },
+      "request_internal": {
+        "size": 728,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(632+12*8,8)=728",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "No-tree VacantEntry branch at0x1000085ac; alloc result stored as root with height0 at0x100008618. JSON insert caller0x100009a4c calls this exact typed VacantEntry.",
+      "source_route": "entry.rs381-392 -> node.rs224-231 -> LeafNode::new85-93.",
+      "raw_evidence": [
+        "json_vacant.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "register_flow": "Immediately before __rust_alloc, mov w0=size and mov w1=8 zero-extend into x0/x1; source alloc.rs95-101 fixes __rust_alloc(layout.size(),layout.alignment())."
+    },
+    {
+      "id": "VR-CONTROLS",
+      "actual_key_value": "&str,&piping_numerical_robustness::cases::Row",
+      "artifact": "RECORDS_RELEASE",
+      "typed_function": "00000001000309e0 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>>:",
+      "request_leaf": {
+        "size": 280,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x100030ae4",
+        "size_constant_instruction": "0x100030adc",
+        "alignment_constant_instruction": "0x100030ae0"
+      },
+      "request_internal": {
+        "size": 376,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(280+12*8,8)=376",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "Typed FromIterator name includes lane::value_controls closure. The earlier dynamic allocation0x100030a2c is the input Vec, NOT the node. Leaf request follows sorting and is stored with height0 at0x100030af4.",
+      "source_route": "map.rs2539-2553 -> bulk_build_from_sorted_iter1709-1717 -> Root::new/node.rs589-593 -> new_leaf224-231.",
+      "raw_evidence": [
+        "controls_from_iter.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "register_flow": "Immediately before __rust_alloc, mov w0=size and mov w1=8 zero-extend into x0/x1; source alloc.rs95-101 fixes __rust_alloc(layout.size(),layout.alignment())."
+    },
+    {
+      "id": "VR-PUBLICATION",
+      "actual_key_value": "QuantityId,PublishedRow",
+      "artifact": "RECORDS_RELEASE",
+      "typed_function": "00000001000273d4 <<alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry>:",
+      "request_leaf": {
+        "size": 848,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x10002745c",
+        "size_constant_instruction": "0x100027454",
+        "alignment_constant_instruction": "0x100027458"
+      },
+      "request_internal": {
+        "size": 944,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(848+12*8,8)=944",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "Demangled VacantEntry names actual retained QuantityId and PublishedRow. No-tree branch0x1000273fc; root height0 stored0x100027468. VR lane.rs43,195,266-269 identifies the consumer map.",
+      "source_route": "entry.rs381-392 -> node.rs224-231 -> LeafNode::new85-93.",
+      "raw_evidence": [
+        "publication_vacant.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "register_flow": "Immediately before __rust_alloc, mov w0=size and mov w1=8 zero-extend into x0/x1; source alloc.rs95-101 fixes __rust_alloc(layout.size(),layout.alignment())."
+    },
+    {
+      "id": "VR-FLOOR",
+      "actual_key_value": "String,(f64,f64)",
+      "artifact": "RECORDS_RELEASE",
+      "typed_function": "00000001000308a0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>>:",
+      "request_leaf": {
+        "size": 456,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x1000308f0",
+        "size_constant_instruction": "0x1000308e8",
+        "alignment_constant_instruction": "0x1000308ec"
+      },
+      "request_internal": {
+        "size": 552,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(456+12*8,8)=552",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "Typed FromIterator name includes floor::scales_from closure. Nonempty branch constructs a new root, stored at0x100030900 with height0; input collection precedes node allocation.",
+      "source_route": "map.rs2539-2553 -> bulk_build_from_sorted_iter1709-1717 -> Root::new/node.rs589-593 -> new_leaf224-231.",
+      "raw_evidence": [
+        "floor_from_iter.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "register_flow": "Immediately before __rust_alloc, mov w0=size and mov w1=8 zero-extend into x0/x1; source alloc.rs95-101 fixes __rust_alloc(layout.size(),layout.alignment())."
+    },
+    {
+      "id": "VR-ALLOWANCE",
+      "actual_key_value": "(usize,usize),(f64,usize)",
+      "artifact": "RECORDS_RELEASE",
+      "typed_function": "000000010000c8ec <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>>:",
+      "request_leaf": {
+        "size": 368,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x10000ca1c",
+        "size_constant_instruction": "0x10000ca14",
+        "alignment_constant_instruction": "0x10000ca18"
+      },
+      "request_internal": {
+        "size": 464,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(368+12*8,8)=464",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "Demangled Handle<NodeRef<Mut,(usize,usize),(f64,usize),Leaf>,Edge>::insert_recursing names both actual types and Leaf state. First split allocation precedes ascent. Same function explicitly allocates internal464/8 at0x10000cbd4 and0x10000cdd8.",
+      "source_route": "node.rs1050-1087 starts with Leaf insertion; Leaf split1253-1262 calls LeafNode::new; later internal split1288-1306 and root growth237-240.",
+      "raw_evidence": [
+        "allowance_insert_recursing.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "direct_internal_backcheck": {
+        "size": 464,
+        "alignment": 8,
+        "calls": [
+          "0x10000cbd4",
+          "0x10000cdd8"
+        ]
+      },
+      "register_flow": "Immediately before __rust_alloc, mov w0=size and mov w1=8 zero-extend into x0/x1; source alloc.rs95-101 fixes __rust_alloc(layout.size(),layout.alignment())."
+    },
+    {
+      "id": "VR-CASE-STRINGS",
+      "actual_key_value": "String,String",
+      "artifact": "RECORDS_RELEASE",
+      "typed_function": "0000000100030750 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case::{closure#2}::{closure#0}::{closure#0}>>>:",
+      "request_leaf": {
+        "size": 544,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x1000307bc",
+        "size_constant_instruction": "0x1000307b4",
+        "alignment_constant_instruction": "0x1000307b8"
+      },
+      "request_internal": {
+        "size": 640,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(544+12*8,8)=640",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "Typed FromIterator name includes cases::parse_case closures; nonempty branch requests the root and stores height0 at0x1000307cc.",
+      "source_route": "map.rs2539-2553 -> bulk_build_from_sorted_iter1709-1717 -> Root::new/node.rs589-593 -> new_leaf224-231.",
+      "raw_evidence": [
+        "case_from_iter.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "register_flow": "Immediately before __rust_alloc, mov w0=size and mov w1=8 zero-extend into x0/x1; source alloc.rs95-101 fixes __rust_alloc(layout.size(),layout.alignment())."
+    },
+    {
+      "id": "VR-ADJACENCY",
+      "actual_key_value": "usize,SetValZST",
+      "artifact": "RCM_DEBUG",
+      "typed_function": "000000010004b048 <<alloc::boxed::Box<alloc::collections::btree::node::LeafNode<usize, alloc::collections::btree::set_val::SetValZST>>>::try_new_uninit_in>:",
+      "request_leaf": {
+        "size": 104,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x10004e728",
+        "size_constant_instruction": "0x10004b074",
+        "alignment_constant_instruction": "0x10004b06c"
+      },
+      "request_internal": {
+        "size": 200,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(104+12*8,8)=200",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "Actual demangled Box<LeafNode<usize,SetValZST>>::try_new_uninit_in passes Layout words via Global::allocate0x10004b07c. Source rcm::free_adjacency map is BTreeSet<usize>, not a tuple set.",
+      "source_route": "boxed.rs606-616 actual LeafNode specialization -> Global::allocate -> alloc_impl_runtime -> __rust_alloc.",
+      "raw_evidence": [
+        "adjacency_leaf.stdout",
+        "rcm_global_allocate.stdout",
+        "rcm_alloc_impl.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "register_flow": {
+        "constructor": "x0=&Global; x1=8 (first Layout word); x2=104 (second Layout word)",
+        "global_allocate": "moves x1->x0 and x2->x1; supplies w2=0 (nonzeroed)",
+        "alloc_impl_runtime": "stores incoming x0 at sp+0x10 and x1 at sp+0x18; nonzero size branch; reloads sp+0x18 to x0 and sp+0x10 to x1 immediately before __rust_alloc. Thus final x0=size104,x1=alignment8.",
+        "not_assumed": "No inference of Layout field order solely from Rust declaration."
+      }
+    },
+    {
+      "id": "VR-COUNTS-PAIRS",
+      "actual_key_value": "(u32,u32),SetValZST",
+      "artifact": "COUNTS_DEBUG",
+      "typed_function": "000000010005aa30 <<alloc::boxed::Box<alloc::collections::btree::node::LeafNode<(u32, u32), alloc::collections::btree::set_val::SetValZST>>>::try_new_uninit_in>:",
+      "request_leaf": {
+        "size": 104,
+        "alignment": 8,
+        "kind": "COMPILED_ACTUAL_TYPED_CONSTRUCTOR_REQUEST",
+        "allocator_call": "0x10005fb88",
+        "size_constant_instruction": "0x10005aa5c",
+        "alignment_constant_instruction": "0x10005aa54"
+      },
+      "request_internal": {
+        "size": 200,
+        "alignment": 8,
+        "kind": "DERIVED_FROM_PROVEN_LEAF_AND_PINNED_REPR_C_INTERNAL",
+        "arithmetic": "align_up(104+12*8,8)=200",
+        "source_proof_seal": "28440d85fd759f5ecb768575a8d72bc37f2e6d5ab61617cb8f1e0d7d955fbb8e"
+      },
+      "attribution": "Separately demangled Box<LeafNode<(u32,u32),SetValZST>>::try_new_uninit_in passes Layout words via Global::allocate0x10005aa64. Equality with adjacency104/8 is independently observed, not inferred from equal-sized keys.",
+      "source_route": "boxed.rs606-616 actual LeafNode specialization -> Global::allocate -> alloc_impl_runtime -> __rust_alloc.",
+      "raw_evidence": [
+        "counts_leaf.stdout",
+        "scale_global_allocate.stdout",
+        "scale_alloc_impl.stdout"
+      ],
+      "scope": "Only the named inspected artifact; no final-vk_scale, request-occurrence/count or E_max acceptance.",
+      "register_flow": {
+        "constructor": "x0=&Global; x1=8 (first Layout word); x2=104 (second Layout word)",
+        "global_allocate": "moves x1->x0 and x2->x1; supplies w2=0 (nonzeroed)",
+        "alloc_impl_runtime": "stores incoming x0 at sp+0x10 and x1 at sp+0x18; nonzero size branch; reloads sp+0x18 to x0 and sp+0x10 to x1 immediately before __rust_alloc. Thus final x0=size104,x1=alignment8.",
+        "not_assumed": "No inference of Layout field order solely from Rust declaration."
+      }
+    }
+  ],
+  "no_mirror_or_private_layout_inference": true,
+  "counts_eighth_kept_distinct": true,
+  "spring_tuple_ninth": "The (u32,usize,usize) SetValZST symbol was present in scale inventory but its allocation/request/reach was not inspected or credited; outside this eight-specialization assignment. Prefix reach/emptiness premise remains separate.",
+  "runtime_count": 0
+}

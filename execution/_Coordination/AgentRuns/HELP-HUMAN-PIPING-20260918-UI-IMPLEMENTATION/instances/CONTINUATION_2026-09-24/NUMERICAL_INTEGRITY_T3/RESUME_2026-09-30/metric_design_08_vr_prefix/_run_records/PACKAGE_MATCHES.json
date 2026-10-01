@@ -1,0 +1,47 @@
+[
+  {
+    "origin": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/de.rs",
+    "sha256": "4998d7e252eb513be85b298e287048b4fb283882e9ba7df905f572f07200f3f3",
+    "bytes": 86840,
+    "matches_sealed_authenticated_member": true,
+    "archive_checksum": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+    "raw_snapshot": "_run_records/serde_json_src__de.rs.txt",
+    "consulted_selection": "immediate Value/string/key/u64/sequence/map parser paths only"
+  },
+  {
+    "origin": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/read.rs",
+    "sha256": "17a2efe49e5a6937c8d7d4a5c0b9eac84453de0f86bf8e7ee421387e82341bb3",
+    "bytes": 33041,
+    "matches_sealed_authenticated_member": true,
+    "archive_checksum": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+    "raw_snapshot": "_run_records/serde_json_src__read.rs.txt",
+    "consulted_selection": "immediate Value/string/key/u64/sequence/map parser paths only"
+  },
+  {
+    "origin": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/value/de.rs",
+    "sha256": "ceda1bf415aafde89caa83bf275811b70d393717d4e1038e0c61822d2da02993",
+    "bytes": 41251,
+    "matches_sealed_authenticated_member": true,
+    "archive_checksum": "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14",
+    "raw_snapshot": "_run_records/serde_json_src__value__de.rs.txt",
+    "consulted_selection": "immediate Value/string/key/u64/sequence/map parser paths only"
+  },
+  {
+    "origin": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/src/de/mod.rs",
+    "sha256": "5ec8602d593915e0cf480b0ce67b02f6ab066dac34725237d2c7b4a6ef12a845",
+    "bytes": 83879,
+    "matches_sealed_authenticated_member": true,
+    "archive_checksum": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
+    "raw_snapshot": "_run_records/serde_core_src__de__mod.rs.txt",
+    "consulted_selection": "immediate Value/string/key/u64/sequence/map parser paths only"
+  },
+  {
+    "origin": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/src/de/impls.rs",
+    "sha256": "2f8e2ef9d343875bb996319e69feae0dee2287e2548cedd8d3c752b64812331c",
+    "bytes": 97134,
+    "matches_sealed_authenticated_member": true,
+    "archive_checksum": "67dca2c9c51e58a4791a4b1ed58308b39c64224d349a935ab5039aa360942a48",
+    "raw_snapshot": "_run_records/serde_core_src__de__impls.rs.txt",
+    "consulted_selection": "immediate Value/string/key/u64/sequence/map parser paths only"
+  }
+]

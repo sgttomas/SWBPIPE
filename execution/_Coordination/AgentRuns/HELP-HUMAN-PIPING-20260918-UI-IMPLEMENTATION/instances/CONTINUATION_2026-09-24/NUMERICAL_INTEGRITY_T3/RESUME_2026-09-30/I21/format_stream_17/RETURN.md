@@ -1,0 +1,15 @@
+# I21 FORMAT/STREAM17 return
+
+Same TASK /root/t3_recovery_manager/i21_k6c, parent WORKING_ITEMS /root/t3_recovery_manager. Full grant NUMbaddf21244aa2cc5539348fdce03b78216666710 read; actual start2026-10-01 18:54:39 UTC, deadline19:14:39 UTC. Frozen40129/source15/reviewed K0/H facts retained. All output is additive; raw provenance is under _run_records.
+
+LEAVES.md and ARITHMETIC.json return these source terms:
+
+- Actual Option<RowClass> mismatch Debug<=22 bytes, general Option<=59; class mismatch length I+K+92. Dynamic failure/control/input-derived templates and their source/clone/outer-format alternatives are explicit. No floating RowClass field exists. Reused primitive/default helpers add no separate registered scratch on these built-in paths.
+- Hash collect moves the first of8 eight-byte hex Strings into the result; one later chunk overlaps its growth. Returned hash<=128 requested bytes; join<=144 requested/208 move bytes. Add the separately retained padded message; do not add both old-growth buffers simultaneously.
+- Authenticated itoa1.0.18 u64 formatting uses fixed stack/static storage:0 registered helper/active-old bytes. No u128/floating/custom branch is imported.
+- Normal Value output streams without a whole-line String. Handled writer failure owns a9-byte message plus one private StringError Box, io::Custom Box and serde_json::ErrorImpl Box, moved through the chain once. The extra term is9+S_StringError+S_IOCustom+S_JSONErrorImpl, active-old0. Those three exact private requests remain unbound; no public-header/field-sum/mirror guess. No successful-I/O assumption removes this branch.
+- Parity fixed labels and format helpers are bounded, while P_STATIC_STRUCTURAL and P_STATIC_FRAME still need complete source-routing maxima for their &'static str payloads. Static lifetime alone is not a length bound. The precise type/branch formulas are returned; no broad error/function-tree audit was started.
+
+Refusal-text argument construction precedes outer formatting and later copies. Numeric/IO helper overlap, original Value/caller owners, late records and sample edges remain. Allocation-failure/fatal backend/general panic behavior stops at its explicit interface; it is not assigned zero. Seven consumer-node layouts and the pre-cut union remain with their existing owners. No follow-on is commissioned and no complete E_max/admission/checkpoint/implementation acceptance follows.
+
+_run_records/LIBRARY_BINDING.json authenticates only immediate itoa cache members and cited serde pages, plus original Rust HTML hashes/decodes. _run_records/BINDING.json and RAW_COMMANDS.json bind source/seals and actual portable reads/arithmetic. VERIFICATION.json and SHA256SUMS give checks/write inventory. No Rust/build/test/probe/runtime/solver/model/source-algorithm execution, new tool/dependency/library/install/network, maintained estimator/API/record/source or Git/index changes, scratch writes or delegation. Every Git read used GIT_OPTIONAL_LOCKS=0. No experiment is running; this bounded tranche stops on return.

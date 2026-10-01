@@ -1,0 +1,99 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100009934 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert>:
+100009934: d103c3ff    	sub	sp, sp, #0xf0
+100009938: a9096ffc    	stp	x28, x27, [sp, #0x90]
+10000993c: a90a67fa    	stp	x26, x25, [sp, #0xa0]
+100009940: a90b5ff8    	stp	x24, x23, [sp, #0xb0]
+100009944: a90c57f6    	stp	x22, x21, [sp, #0xc0]
+100009948: a90d4ff4    	stp	x20, x19, [sp, #0xd0]
+10000994c: a90e7bfd    	stp	x29, x30, [sp, #0xe0]
+100009950: 910383fd    	add	x29, sp, #0xe0
+100009954: aa0003f5    	mov	x21, x0
+100009958: aa0803f3    	mov	x19, x8
+10000995c: f9400018    	ldr	x24, [x0]
+100009960: b40005d8    	cbz	x24, 0x100009a18 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0xe4>
+100009964: a900cfe2    	stp	x2, x19, [sp, #0x8]
+100009968: f94006ba    	ldr	x26, [x21, #0x8]
+10000996c: a940ec37    	ldp	x23, x27, [x1, #0x8]
+100009970: f90003e1    	str	x1, [sp]
+100009974: 9105a308    	add	x8, x24, #0x168
+100009978: 7944e71c    	ldrh	w28, [x24, #0x272]
+10000997c: 8b1c0789    	add	x9, x28, x28, lsl #1
+100009980: d37df133    	lsl	x19, x9, #3
+100009984: 92800019    	mov	x25, #-0x1              ; =-1
+100009988: b40002b3    	cbz	x19, 0x1000099dc <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0xa8>
+10000998c: 91006114    	add	x20, x8, #0x18
+100009990: a940a101    	ldp	x1, x8, [x8, #0x8]
+100009994: eb080376    	subs	x22, x27, x8
+100009998: 9a883362    	csel	x2, x27, x8, lo
+10000999c: aa1703e0    	mov	x0, x23
+1000099a0: 94069d2c    	bl	0x1001b0e50 <dyld_stub_binder+0x1001b0e50>
+1000099a4: 93407c08    	sxtw	x8, w0
+1000099a8: 7100001f    	cmp	w0, #0x0
+1000099ac: 9a8802c8    	csel	x8, x22, x8, eq
+1000099b0: f100011f    	cmp	x8, #0x0
+1000099b4: 1a9fd7e8    	cset	w8, gt
+1000099b8: 5a9f5108    	csinv	w8, w8, wzr, pl
+1000099bc: 91000739    	add	x25, x25, #0x1
+1000099c0: d1006273    	sub	x19, x19, #0x18
+1000099c4: 12001d09    	and	w9, w8, #0xff
+1000099c8: aa1403e8    	mov	x8, x20
+1000099cc: 7100053f    	cmp	w9, #0x1
+1000099d0: 54fffdc0    	b.eq	0x100009988 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0x54>
+1000099d4: 34000109    	cbz	w9, 0x1000099f4 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0xc0>
+1000099d8: 14000002    	b	0x1000099e0 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0xac>
+1000099dc: aa1c03f9    	mov	x25, x28
+1000099e0: b40003fa    	cbz	x26, 0x100009a5c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0x128>
+1000099e4: 8b190f08    	add	x8, x24, x25, lsl #3
+1000099e8: f9413d18    	ldr	x24, [x8, #0x278]
+1000099ec: d100075a    	sub	x26, x26, #0x1
+1000099f0: 17ffffe1    	b	0x100009974 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0x40>
+1000099f4: f94003e8    	ldr	x8, [sp]
+1000099f8: f9400101    	ldr	x1, [x8]
+1000099fc: b4000081    	cbz	x1, 0x100009a0c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0xd8>
+100009a00: aa1703e0    	mov	x0, x23
+100009a04: 52800022    	mov	w2, #0x1                ; =1
+100009a08: 940002d1    	bl	0x10000a54c <__rustc::__rust_dealloc>
+100009a0c: aa1903f5    	mov	x21, x25
+100009a10: a940cfe2    	ldp	x2, x19, [sp, #0x8]
+100009a14: 14000018    	b	0x100009a74 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0x140>
+100009a18: a9405c28    	ldp	x8, x23, [x1]
+100009a1c: b100051f    	cmn	x8, #0x1
+100009a20: 54000280    	b.eq	0x100009a70 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0x13c>
+100009a24: f9400829    	ldr	x9, [x1, #0x10]
+100009a28: a901dfe8    	stp	x8, x23, [sp, #0x18]
+100009a2c: a902d7e9    	stp	x9, x21, [sp, #0x28]
+100009a30: a903fff8    	stp	x24, xzr, [sp, #0x38]
+100009a34: f90027f9    	str	x25, [sp, #0x48]
+100009a38: ad400440    	ldp	q0, q1, [x2]
+100009a3c: ad0287e0    	stp	q0, q1, [sp, #0x50]
+100009a40: 9101c3e8    	add	x8, sp, #0x70
+100009a44: 910063e0    	add	x0, sp, #0x18
+100009a48: 910143e1    	add	x1, sp, #0x50
+100009a4c: 97ffface    	bl	0x100008584 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry>
+100009a50: 52801fe8    	mov	w8, #0xff               ; =255
+100009a54: 39000268    	strb	w8, [x19]
+100009a58: 1400000c    	b	0x100009a88 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0x154>
+100009a5c: a940cfe2    	ldp	x2, x19, [sp, #0x8]
+100009a60: f94003e1    	ldr	x1, [sp]
+100009a64: f9400028    	ldr	x8, [x1]
+100009a68: b100051f    	cmn	x8, #0x1
+100009a6c: 54fffdc1    	b.ne	0x100009a24 <<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert+0xf0>
+100009a70: aa1703f8    	mov	x24, x23
+100009a74: 8b151708    	add	x8, x24, x21, lsl #5
+100009a78: ad400500    	ldp	q0, q1, [x8]
+100009a7c: ad000660    	stp	q0, q1, [x19]
+100009a80: ad400440    	ldp	q0, q1, [x2]
+100009a84: ad000500    	stp	q0, q1, [x8]
+100009a88: a94e7bfd    	ldp	x29, x30, [sp, #0xe0]
+100009a8c: a94d4ff4    	ldp	x20, x19, [sp, #0xd0]
+100009a90: a94c57f6    	ldp	x22, x21, [sp, #0xc0]
+100009a94: a94b5ff8    	ldp	x24, x23, [sp, #0xb0]
+100009a98: a94a67fa    	ldp	x26, x25, [sp, #0xa0]
+100009a9c: a9496ffc    	ldp	x28, x27, [sp, #0x90]
+100009aa0: 9103c3ff    	add	sp, sp, #0xf0
+100009aa4: d65f03c0    	ret
