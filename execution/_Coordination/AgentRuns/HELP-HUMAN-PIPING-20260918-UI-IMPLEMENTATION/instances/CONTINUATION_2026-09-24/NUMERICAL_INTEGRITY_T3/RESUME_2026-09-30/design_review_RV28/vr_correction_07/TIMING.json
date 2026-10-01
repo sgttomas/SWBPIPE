@@ -1,0 +1,10 @@
+{
+  "actual_start_utc": "2026-10-01 20:56:04 UTC",
+  "deadline_utc": "2026-10-01 21:01:04 UTC",
+  "completed_utc": "2026-10-01 20:58:55 UTC",
+  "within_five_minutes": true,
+  "status": "VERIFIED_BOTH_VRNUM_FINDINGS_CLOSED",
+  "replacements_checked": 96,
+  "common_outcome_maxima_unchanged": 48,
+  "full_Emax_accepted": false
+}

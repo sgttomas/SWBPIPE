@@ -1,0 +1,93 @@
+{
+  "agent": "/root/rv28_a1_design",
+  "parent": "/root",
+  "role": "TASK",
+  "mechanism": "collaboration.followup_task",
+  "instruction_basis": "same active session; sealed prior RV28 instruction/skill bindings",
+  "source_records": [
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_11_vr_correction/SHA256SUMS",
+      "sha256": "21bc713d669f4b4dcfe618a3454a874fef97edba230920b56647f3d63d8b8b14",
+      "bytes": 1209
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_10_vr_numbers/SHA256SUMS",
+      "sha256": "a5390504ba0198ebe280877b75d8b374a38c266e780a7e3dc0d7a280f1fb9a9c",
+      "bytes": 1927
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/vr_numbers_06/SHA256SUMS",
+      "sha256": "cd7e0f6108c88245d8bb729c381528644bcfba0cbb292aca225176a74fcda626",
+      "bytes": 1396
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_11_vr_correction/RETURN.md",
+      "sha256": "8233d6285c5bca479a19a3e22943918c830026808392b29ee0e5b35b10ee323f",
+      "bytes": 898
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_11_vr_correction/CORRECTION.md",
+      "sha256": "ed7df26851651636eb629d2892a1b6c786eb524ddfe824c9a5a1337a76a6d45f",
+      "bytes": 4568
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/vr_numbers_06/REVIEW.md",
+      "sha256": "761ba334de8591a55fc5fbc53b572239d58e18731d7b9f7ce8a048a916bce299",
+      "bytes": 18127
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_11_vr_correction/OVERLAY.json",
+      "sha256": "2c33ec0ec63da1cfad5804507d628df7d047f993c0601a1780264d21367db8a7",
+      "bytes": 27338
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_10_vr_numbers/VR_CALLER_TABLE.json",
+      "sha256": "bb826225e161882b656a33b4c63f55fc07049a9c7484590f07b5feccb94eb102",
+      "bytes": 116594
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_11_vr_correction/_run_records/DESCRIPTORS.json",
+      "sha256": "632c09c226605b2a1c99a30ce32bb013308e60cd96a10ba15597433a0440bfa0",
+      "bytes": 9383
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/vr_numbers_06/_run_records/DOMINANCE_AND_SUMMARY.json",
+      "sha256": "2bb37114b7632a8e93bf50369e0defd857b5ad603b67d70175d24adf870c91a9",
+      "bytes": 24877
+    },
+    {
+      "origin": "<K6C>",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl",
+      "sha256": "16357afa5efeaaac3ab5798bb6f632104bec1e2dfada288f5b0936bfe6188759",
+      "bytes": 986182
+    }
+  ],
+  "seals": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_11_vr_correction",
+      "sha256": "21bc713d669f4b4dcfe618a3454a874fef97edba230920b56647f3d63d8b8b14",
+      "entries": 13
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_10_vr_numbers",
+      "sha256": "a5390504ba0198ebe280877b75d8b374a38c266e780a7e3dc0d7a280f1fb9a9c",
+      "entries": 21
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/vr_numbers_06",
+      "sha256": "cd7e0f6108c88245d8bb729c381528644bcfba0cbb292aca225176a74fcda626",
+      "entries": 15
+    }
+  ],
+  "limits": "No source algorithm or broader proof rerun; only overlay metadata and integer arithmetic"
+}
