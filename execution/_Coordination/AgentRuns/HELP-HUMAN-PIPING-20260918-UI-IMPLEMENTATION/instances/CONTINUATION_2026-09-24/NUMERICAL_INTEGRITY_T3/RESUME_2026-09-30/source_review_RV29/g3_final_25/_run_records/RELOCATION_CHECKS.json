@@ -1,0 +1,90 @@
+{
+  "old_commit": "53d42d712d69bf1b1eddeefa7b98ec3f52fc20ad",
+  "candidate": "9ef9508dea8205297631299b3c384a3cd5185bef",
+  "ledger_sha256": "e7615c8be1e3438a5f15ca455969ee4c52ac8e4848820804397ab68e8ede76b7",
+  "packets": [
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g1_final_12/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g1_final_12/",
+      "seal": "680eff7b2797d98915f482b18ebaa524197fce3c0598b044a56c36bd6c994b2e",
+      "payloads": 9
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g2_runtime_13/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g2_runtime_13/",
+      "seal": "7d7f42ed9a3d304561d8c144ceec1ea06b1f4b2e8e11934761f466eea8d5ef65",
+      "payloads": 7
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g3_prefix_tail_17/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g3_prefix_tail_17/",
+      "seal": "170435fa72384ed2d38415b2796c2239e2aa0309f537e50017033cbbdde5fae8",
+      "payloads": 11
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g4_runtime_14/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g4_runtime_14/",
+      "seal": "53aea54c352e64fef4068856c38814435c20ae3e10176120fc03d6320aa4f426",
+      "payloads": 8
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/tail_correction_16/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/tail_correction_16/",
+      "seal": "5f023a439f24a30a1cd0b8fa23f0b563b801cd34ac3dcc3a32903022fce65eaa",
+      "payloads": 3
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/tail_sources_15/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/tail_sources_15/",
+      "seal": "88e81e3312981c01f3be14466da1aca02bb0cd9c574877f5143f1206923f1540",
+      "payloads": 7
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/preemption_18/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/preemption_18/",
+      "seal": "e935a23f4645e8207437c02948d03a04cff1f1de67e03ba350d4aa8ec10d74e6",
+      "payloads": 5
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/r33_source_19/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/r33_source_19/",
+      "seal": "637b6dc526684ee27d084ae8607d5e8d97ea8c90ed42abd57178b901c5237591",
+      "payloads": 5
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/r51_contingent_20/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/r51_contingent_20/",
+      "seal": "4df103102f2da72afe8e75bcd4e84484116a08c04ed1bffff7527e4c50f2fff5",
+      "payloads": 4
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/r46_diagnosis_22/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/r46_diagnosis_22/",
+      "seal": "aef93612ec9da1a8a98badc13009bb33572f050abeedabfcfbc0743af1b3bd90",
+      "payloads": 11
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g3_mid_21/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g3_mid_21/",
+      "seal": "76ee6b776d0d2c4ba968e19da18dc655dbecbc56f92b147829ee6bcdf761a760",
+      "payloads": 7
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/g3_runtime05_23/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/g3_runtime05_23/",
+      "seal": "e1659a65dc9aaa9e59c1072977c6dd3606c9d5bd8e5d6cccfcd78c8757263f2a",
+      "payloads": 6
+    },
+    {
+      "old_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/r33_runtime_24/",
+      "new_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/_run_records/r33_runtime_24/",
+      "seal": "c3f1a346b2c61b4e95a32afc8cf4f0955c4d12599422f63da099e5449959ba8a",
+      "payloads": 6
+    }
+  ],
+  "payloads_byte_preserved": 89,
+  "manifests_byte_preserved": 13,
+  "full_repository_delta": "Exactly102 file relocations plus new portable ledger; no other paths changed.",
+  "source_tests_policy_unchanged": true,
+  "candidate_complete_core_tree_equals40129": true
+}

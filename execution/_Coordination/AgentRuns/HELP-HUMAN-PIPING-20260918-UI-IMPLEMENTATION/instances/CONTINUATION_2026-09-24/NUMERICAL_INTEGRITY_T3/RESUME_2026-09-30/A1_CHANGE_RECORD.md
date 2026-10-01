@@ -58,7 +58,7 @@ part of this slice.
   actual full-core S11 check and both corrected R52 filters. Earlier wrong-
   witness stops and the focused R46 survivor remain uncredited. The R46 issue
   was a recovered filter-mapping error; the original historical vector test
-  remains unchanged. The final G3 aggregate review is active. V-K's frozen
+  remains unchanged. RV29 g3_final_25 closes the complete G3 aggregate. V-K's frozen
   seeded-fault replay is active under its separate bounded grant.
 - The interim hosted GEN-8 failure on4972f4ef was a records-placement issue.
   Thirteen complete sealed review packets moved under source_review_RV29/
