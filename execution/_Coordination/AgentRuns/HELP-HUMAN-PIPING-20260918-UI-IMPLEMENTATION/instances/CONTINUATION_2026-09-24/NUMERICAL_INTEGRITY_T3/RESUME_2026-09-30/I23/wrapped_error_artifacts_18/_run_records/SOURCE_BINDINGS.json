@@ -1,0 +1,107 @@
+{
+  "bindings": [
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/alloc/boxed/convert.rs.html",
+      "original_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/boxed/convert.rs.html",
+      "html_sha256": "0239fc72eb170e1a5c3600fc679b0065a9693dd271636859b841f0b3e2d14edb",
+      "decoded_sha256": "1534b6cd36659f2753a6633dd4bd25d7f9bbccb0ff1d83e3adc5fb52569fb45e",
+      "line_count": 748,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "ranges": [
+        [
+          558,
+          596
+        ],
+        [
+          613,
+          642
+        ]
+      ],
+      "source_anchors_contiguous": true
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/std/io/error.rs.html",
+      "original_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/std/io/error.rs.html",
+      "html_sha256": "7bfc905735929092cbd205a011ece4109b09eae40b34fc44307ef62be5c9c2cb",
+      "decoded_sha256": "6b6127919e98b35a41610e750edc601de89f8f8475a399d37d49b50365e3b730",
+      "line_count": 762,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "ranges": [
+        [
+          193,
+          201
+        ],
+        [
+          252,
+          260
+        ],
+        [
+          287,
+          289
+        ]
+      ],
+      "source_anchors_contiguous": true
+    },
+    {
+      "origin": "<TOOLCHAIN>/share/doc/rust/html/src/alloc/alloc.rs.html",
+      "original_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/alloc.rs.html",
+      "html_sha256": "5d6e77e2da23fb76f22e57af724fd61bf8ccdfbee55e916a6eccac2eb686b858",
+      "decoded_sha256": "afc8eece58d63942328cab563fad1b180b50afdadc9141d40e5d98a6df90cd70",
+      "line_count": 578,
+      "metadata": {
+        "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+        "data-channel": "1.97.1"
+      },
+      "ranges": [
+        [
+          91,
+          102
+        ]
+      ],
+      "source_anchors_contiguous": true
+    },
+    {
+      "origin": "<SERDE_JSON>/src/error.rs",
+      "original_path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/error.rs",
+      "sha256": "a13add05a63adf53d89e37effa03221d897a60486cfe360a5a958c0dd2a7e90d",
+      "bytes": 17221,
+      "ranges": [
+        [
+          15,
+          22
+        ],
+        [
+          230,
+          241
+        ],
+        [
+          326,
+          334
+        ]
+      ],
+      "matches_existing_archive_authenticated_member_binding": true
+    },
+    {
+      "origin": "<SERDE_JSON>/src/value/mod.rs",
+      "original_path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/value/mod.rs",
+      "sha256": "6331d59ea362a74b6cd3d302d08114a63a73a384ff56fef737de29edea2f8d91",
+      "bytes": 30963,
+      "ranges": [
+        [
+          222,
+          255
+        ]
+      ],
+      "matches_existing_archive_authenticated_member_binding": true
+    }
+  ],
+  "extraction": "One-off stdlib HTMLParser; keep pre.rust text, omit numbered data-nosnippet anchors, decode entities. No reusable extraction tool created.",
+  "identity_limit": "Pinned installed source metadata and existing authenticated package member binding; final artifact correspondence not inferred.",
+  "format_review_limit": "format_stream_17 used only as locator/source identity input; its topology/owner proof is neither reviewed nor accepted in this assignment."
+}

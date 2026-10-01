@@ -1,0 +1,37 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+00000001001a91c8 <<serde_json::error::Error>::io>:
+1001a91c8: d10143ff    	sub	sp, sp, #0x50
+1001a91cc: a9034ff4    	stp	x20, x19, [sp, #0x30]
+1001a91d0: a9047bfd    	stp	x29, x30, [sp, #0x40]
+1001a91d4: 910103fd    	add	x29, sp, #0x40
+1001a91d8: 52800028    	mov	w8, #0x1                ; =1
+1001a91dc: a90083e8    	stp	x8, x0, [sp, #0x8]
+1001a91e0: a9027fff    	stp	xzr, xzr, [sp, #0x20]
+1001a91e4: 97f984dd    	bl	0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+1001a91e8: 52800500    	mov	w0, #0x28               ; =40
+1001a91ec: 52800101    	mov	w1, #0x8                ; =8
+1001a91f0: 97f984d6    	bl	0x10000a548 <__rustc::__rust_alloc>
+1001a91f4: b4000140    	cbz	x0, 0x1001a921c <<serde_json::error::Error>::io+0x54>
+1001a91f8: 3cc083e0    	ldur	q0, [sp, #0x8]
+1001a91fc: 3cc183e1    	ldur	q1, [sp, #0x18]
+1001a9200: ad000400    	stp	q0, q1, [x0]
+1001a9204: f94017e8    	ldr	x8, [sp, #0x28]
+1001a9208: f9001008    	str	x8, [x0, #0x20]
+1001a920c: a9447bfd    	ldp	x29, x30, [sp, #0x40]
+1001a9210: a9434ff4    	ldp	x20, x19, [sp, #0x30]
+1001a9214: 910143ff    	add	sp, sp, #0x50
+1001a9218: d65f03c0    	ret
+1001a921c: 52800100    	mov	w0, #0x8                ; =8
+1001a9220: 52800501    	mov	w1, #0x28               ; =40
+1001a9224: 94001d79    	bl	0x1001b0808 <alloc::alloc::handle_alloc_error>
+1001a9228: d4200020    	brk	#0x1
+1001a922c: aa0003f3    	mov	x19, x0
+1001a9230: 910023e0    	add	x0, sp, #0x8
+1001a9234: 97fa5be2    	bl	0x1000401bc <core::ptr::drop_glue::<serde_json::error::ErrorImpl>>
+1001a9238: aa1303e0    	mov	x0, x19
+1001a923c: 94001eb1    	bl	0x1001b0d00 <dyld_stub_binder+0x1001b0d00>
+1001a9240: 94001de0    	bl	0x1001b09c0 <core::panicking::panic_in_cleanup>

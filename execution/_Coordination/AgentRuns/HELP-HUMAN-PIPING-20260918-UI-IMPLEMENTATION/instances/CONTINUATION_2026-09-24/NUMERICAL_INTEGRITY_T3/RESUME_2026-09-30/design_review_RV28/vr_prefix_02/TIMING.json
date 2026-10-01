@@ -1,0 +1,9 @@
+{
+  "actual_start_utc": "2026-10-01 19:36:25 UTC",
+  "deadline_utc": "2026-10-01 19:56:25 UTC",
+  "completed_utc": "2026-10-01 19:45:06 UTC",
+  "within_20_minutes": true,
+  "component_verified": false,
+  "finding": "RV28-PREFIX-1",
+  "full_Emax_or_admission": false
+}

@@ -1,0 +1,37 @@
+{
+  "source": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/vr_node_artifacts_17/_run_records/vk_records_symbols.stdout",
+  "source_sha256": "d379941b14504540abf874cd9578a76183ef423ab877ee2255cb6f7805baa307",
+  "scope": "Saved exact-artifact nm inventory reused; no new general library/symbol scan. Only named constructors/direct caller forwarding disassembled.",
+  "selected": [
+    {
+      "line": 529,
+      "text": "000000010003c8c0 t __RNvYNtNvXs_NtCsczK73Jpc8Qh_10serde_json5valueNtB9_5ValueNtNtCsgtPOCBgevO_4core3fmt7Display3fmt15WriterFormatterNtNtCsa9BKTri5B3M_3std2io5Write9write_allBb_",
+      "next_symbol": "000000010003c998 t __RINvNtCsczK73Jpc8Qh_10serde_json3ser18format_escaped_strQNtNvXs_NtB4_5valueNtB10_5ValueNtNtCsgtPOCBgevO_4core3fmt7Display3fmt15WriterFormatterNtB2_15PrettyFormatterEB4_"
+    },
+    {
+      "line": 531,
+      "text": "000000010003cae4 t __RINvNtCsczK73Jpc8Qh_10serde_json3ser18format_escaped_strQNtNvXs_NtB4_5valueNtB10_5ValueNtNtCsgtPOCBgevO_4core3fmt7Display3fmt15WriterFormatterNtB2_16CompactFormatterEB4_",
+      "next_symbol": "000000010003cc30 t __RINvXNtNtCsczK73Jpc8Qh_10serde_json5value3serNtB5_5ValueNtNtCsh9wvNnyuGvr_10serde_core3ser9Serialize9serializeQINtNtB7_3ser10SerializerQNtNvXs_B5_BH_NtNtCsgtPOCBgevO_4core3fmt7Display3fmt15WriterFormatterEEB7_"
+    },
+    {
+      "line": 532,
+      "text": "000000010003cc30 t __RINvXNtNtCsczK73Jpc8Qh_10serde_json5value3serNtB5_5ValueNtNtCsh9wvNnyuGvr_10serde_core3ser9Serialize9serializeQINtNtB7_3ser10SerializerQNtNvXs_B5_BH_NtNtCsgtPOCBgevO_4core3fmt7Display3fmt15WriterFormatterEEB7_",
+      "next_symbol": "000000010003ceb8 t __RINvXNtNtCsczK73Jpc8Qh_10serde_json5value3serNtB5_5ValueNtNtCsh9wvNnyuGvr_10serde_core3ser9Serialize9serializeQINtNtB7_3ser10SerializerQNtNvXs_B5_BH_NtNtCsgtPOCBgevO_4core3fmt7Display3fmt15WriterFormatterNtB1O_15PrettyFormatterEEB7_"
+    },
+    {
+      "line": 1521,
+      "text": "000000010016fa64 T __RINvMs3_NtNtCsa9BKTri5B3M_3std2io5errorNtB6_5Error3newReEBa_",
+      "next_symbol": "000000010016fb84 t __RINvMs_NtNtNtCslJsSqIQKwiA_5alloc11collections5btree6removeINtNtB7_4node6HandleINtBY_7NodeRefNtNtBY_6marker3MutjNtNtNtNtNtNtCsa9BKTri5B3M_3std3sys3pal4unix14stack_overflow11thread_info10ThreadInfoNtB1v_4LeafENtB1v_2KVE14remove_leaf_kvNCNvMs5_NtNtB7_3map5entryINtB3S_13OccupiedEntryjB1M_E9remove_kv0NtNtBb_5alloc6GlobalEB1Y_"
+    },
+    {
+      "line": 1587,
+      "text": "0000000100172aa8 t __RINvNtCsgtPOCBgevO_4core3ptr9drop_glueNtNvXsf_NtNtCslJsSqIQKwiA_5alloc5boxed7convertINtBK_3BoxDNtNtB4_5error5ErrorNtNtB4_6marker4SyncNtB1Q_4SendEL_EINtNtB4_7convert4FromNtNtBM_6string6StringE4from11StringErrorECsa9BKTri5B3M_3std",
+      "next_symbol": "0000000100172ac0 t __RINvNtCsgtPOCBgevO_4core3ptr9drop_glueSINtNtB4_6option6OptionIBC_NtNtNtNtCsa9BKTri5B3M_3std12backtrace_rs9symbolize5gimli7MappingEEEB19_"
+    },
+    {
+      "line": 2146,
+      "text": "00000001001a91c8 T __RNvMs0_NtCsczK73Jpc8Qh_10serde_json5errorNtB5_5Error2io",
+      "next_symbol": "00000001001a9244 T __RNvMs0_NtCsczK73Jpc8Qh_10serde_json5errorNtB5_5Error6syntax"
+    }
+  ]
+}

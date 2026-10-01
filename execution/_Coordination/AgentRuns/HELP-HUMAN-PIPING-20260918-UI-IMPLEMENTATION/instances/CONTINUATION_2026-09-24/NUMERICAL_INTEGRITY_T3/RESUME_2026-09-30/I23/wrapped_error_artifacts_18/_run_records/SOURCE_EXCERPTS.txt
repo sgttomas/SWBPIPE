@@ -1,0 +1,187 @@
+alloc/boxed/convert.rs
+{"origin": "<TOOLCHAIN>/share/doc/rust/html/src/alloc/boxed/convert.rs.html", "original_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/boxed/convert.rs.html", "html_sha256": "0239fc72eb170e1a5c3600fc679b0065a9693dd271636859b841f0b3e2d14edb", "decoded_sha256": "1534b6cd36659f2753a6633dd4bd25d7f9bbccb0ff1d83e3adc5fb52569fb45e", "line_count": 748, "metadata": {"data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)", "data-channel": "1.97.1"}, "ranges": [[558, 596], [613, 642]], "source_anchors_contiguous": true}
+
+558:     }
+559: }
+560: 
+561: #[cfg(not(no_global_oom_handling))]
+562: #[stable(feature = "rust1", since = "1.0.0")]
+563: impl<'a> From<String> for Box<dyn Error + Send + Sync + 'a> {
+564:     /// Converts a [`String`] into a box of dyn [`Error`] + [`Send`] + [`Sync`].
+565:     ///
+566:     /// # Examples
+567:     ///
+568:     /// ```
+569:     /// use std::error::Error;
+570:     ///
+571:     /// let a_string_error = "a string error".to_string();
+572:     /// let a_boxed_error = Box::<dyn Error + Send + Sync>::from(a_string_error);
+573:     /// assert!(
+574:     ///     size_of::<Box<dyn Error + Send + Sync>>() == size_of_val(&a_boxed_error))
+575:     /// ```
+576:     #[inline]
+577:     fn from(err: String) -> Box<dyn Error + Send + Sync + 'a> {
+578:         struct StringError(String);
+579: 
+580:         impl Error for StringError {}
+581: 
+582:         impl fmt::Display for StringError {
+583:             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+584:                 fmt::Display::fmt(&self.0, f)
+585:             }
+586:         }
+587: 
+588:         // Purposefully skip printing "StringError(..)"
+589:         impl fmt::Debug for StringError {
+590:             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+591:                 fmt::Debug::fmt(&self.0, f)
+592:             }
+593:         }
+594: 
+595:         Box::new(StringError(err))
+596:     }
+
+613:     fn from(str_err: String) -> Box<dyn Error + 'a> {
+614:         let err1: Box<dyn Error + Send + Sync> = From::from(str_err);
+615:         let err2: Box<dyn Error> = err1;
+616:         err2
+617:     }
+618: }
+619: 
+620: #[cfg(not(no_global_oom_handling))]
+621: #[stable(feature = "rust1", since = "1.0.0")]
+622: impl<'a> From<&str> for Box<dyn Error + Send + Sync + 'a> {
+623:     /// Converts a [`str`] into a box of dyn [`Error`] + [`Send`] + [`Sync`].
+624:     ///
+625:     /// [`str`]: prim@str
+626:     ///
+627:     /// # Examples
+628:     ///
+629:     /// ```
+630:     /// use std::error::Error;
+631:     ///
+632:     /// let a_str_error = "a str error";
+633:     /// let a_boxed_error = Box::<dyn Error + Send + Sync>::from(a_str_error);
+634:     /// assert!(
+635:     ///     size_of::<Box<dyn Error + Send + Sync>>() == size_of_val(&a_boxed_error))
+636:     /// ```
+637:     #[inline]
+638:     fn from(err: &str) -> Box<dyn Error + Send + Sync + 'a> {
+639:         From::from(String::from(err))
+640:     }
+641: }
+642: 
+
+std/io/error.rs
+{"origin": "<TOOLCHAIN>/share/doc/rust/html/src/std/io/error.rs.html", "original_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/std/io/error.rs.html", "html_sha256": "7bfc905735929092cbd205a011ece4109b09eae40b34fc44307ef62be5c9c2cb", "decoded_sha256": "6b6127919e98b35a41610e750edc601de89f8f8475a399d37d49b50365e3b730", "line_count": 762, "metadata": {"data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)", "data-channel": "1.97.1"}, "ranges": [[193, 201], [252, 260], [287, 289]], "source_anchors_contiguous": true}
+
+193: // As with `SimpleMessage`: `#[repr(align(4))]` here is just because
+194: // repr_bitpacked's encoding requires it. In practice it almost certainly be
+195: // already be this high or higher.
+196: #[derive(Debug)]
+197: #[repr(align(4))]
+198: struct Custom {
+199:     kind: ErrorKind,
+200:     error: Box<dyn error::Error + Send + Sync>,
+201: }
+
+252:     #[stable(feature = "rust1", since = "1.0.0")]
+253:     #[cfg_attr(not(test), rustc_diagnostic_item = "io_error_new")]
+254:     #[inline(never)]
+255:     pub fn new<E>(kind: ErrorKind, error: E) -> Error
+256:     where
+257:         E: Into<Box<dyn error::Error + Send + Sync>>,
+258:     {
+259:         Self::_new(kind, error.into())
+260:     }
+
+287:     fn _new(kind: ErrorKind, error: Box<dyn error::Error + Send + Sync>) -> Error {
+288:         Error { repr: Repr::new_custom(Box::new(Custom { kind, error })) }
+289:     }
+
+alloc/alloc.rs
+{"origin": "<TOOLCHAIN>/share/doc/rust/html/src/alloc/alloc.rs.html", "original_path": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/alloc.rs.html", "html_sha256": "5d6e77e2da23fb76f22e57af724fd61bf8ccdfbee55e916a6eccac2eb686b858", "decoded_sha256": "afc8eece58d63942328cab563fad1b180b50afdadc9141d40e5d98a6df90cd70", "line_count": 578, "metadata": {"data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)", "data-channel": "1.97.1"}, "ranges": [[91, 102]], "source_anchors_contiguous": true}
+
+91: #[stable(feature = "global_alloc", since = "1.28.0")]
+92: #[must_use = "losing the pointer will leak memory"]
+93: #[inline]
+94: #[cfg_attr(miri, track_caller)] // even without panics, this helps for Miri backtraces
+95: pub unsafe fn alloc(layout: Layout) -> *mut u8 {
+96:     unsafe {
+97:         // Make sure we don't accidentally allow omitting the allocator shim in
+98:         // stable code until it is actually stabilized.
+99:         __rust_no_alloc_shim_is_unstable_v2();
+100: 
+101:         __rust_alloc(layout.size(), layout.alignment())
+102:     }
+
+{"origin": "<SERDE_JSON>/src/error.rs", "original_path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/error.rs", "sha256": "a13add05a63adf53d89e37effa03221d897a60486cfe360a5a958c0dd2a7e90d", "bytes": 17221, "ranges": [[15, 22], [230, 241], [326, 334]], "matches_existing_archive_authenticated_member_binding": true}
+
+15: /// This type represents all possible errors that can occur when serializing or
+16: /// deserializing JSON data.
+17: pub struct Error {
+18:     /// This `Box` allows us to keep the size of `Error` as small as possible. A
+19:     /// larger `Error` type was substantially slower due to all the functions
+20:     /// that pass around `Result<T, Error>`.
+21:     err: Box<ErrorImpl>,
+22: }
+
+230: struct ErrorImpl {
+231:     code: ErrorCode,
+232:     line: usize,
+233:     column: usize,
+234: }
+235: 
+236: pub(crate) enum ErrorCode {
+237:     /// Catchall for syntax error messages
+238:     Message(Box<str>),
+239: 
+240:     /// Some I/O error occurred while serializing or deserializing.
+241:     Io(io::Error),
+
+326:     pub fn io(error: io::Error) -> Self {
+327:         Error {
+328:             err: Box::new(ErrorImpl {
+329:                 code: ErrorCode::Io(error),
+330:                 line: 0,
+331:                 column: 0,
+332:             }),
+333:         }
+334:     }
+
+{"origin": "<SERDE_JSON>/src/value/mod.rs", "original_path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/value/mod.rs", "sha256": "6331d59ea362a74b6cd3d302d08114a63a73a384ff56fef737de29edea2f8d91", "bytes": 30963, "ranges": [[222, 255]], "matches_existing_archive_authenticated_member_binding": true}
+
+222:     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+223:         struct WriterFormatter<'a, 'b: 'a> {
+224:             inner: &'a mut fmt::Formatter<'b>,
+225:         }
+226: 
+227:         impl<'a, 'b> io::Write for WriterFormatter<'a, 'b> {
+228:             fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+229:                 // Safety: the serializer below only emits valid utf8 when using
+230:                 // the default formatter.
+231:                 let s = unsafe { str::from_utf8_unchecked(buf) };
+232:                 tri!(self.inner.write_str(s).map_err(io_error));
+233:                 Ok(buf.len())
+234:             }
+235: 
+236:             fn flush(&mut self) -> io::Result<()> {
+237:                 Ok(())
+238:             }
+239:         }
+240: 
+241:         fn io_error(_: fmt::Error) -> io::Error {
+242:             // Error value does not matter because Display impl just maps it
+243:             // back to fmt::Error.
+244:             io::Error::new(io::ErrorKind::Other, "fmt error")
+245:         }
+246: 
+247:         let alternate = f.alternate();
+248:         let mut wr = WriterFormatter { inner: f };
+249:         if alternate {
+250:             // {:#}
+251:             super::ser::to_writer_pretty(&mut wr, self).map_err(|_| fmt::Error)
+252:         } else {
+253:             // {}
+254:             super::ser::to_writer(&mut wr, self).map_err(|_| fmt::Error)
+255:         }
