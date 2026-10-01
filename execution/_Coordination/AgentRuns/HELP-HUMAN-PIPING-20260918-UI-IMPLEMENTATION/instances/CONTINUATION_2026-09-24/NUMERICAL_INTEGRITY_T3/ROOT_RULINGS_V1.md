@@ -3771,3 +3771,28 @@ existing guard5387, no cargo/rustc process. Fresh origin/main remains546e05a159.
 The remote PR1070 interim head2e1adc4015 has passing completed checks; that is
 not final-head review/dispatch/DEC-025/GEN-8 closure. Maintained A1 code remains
 at the reviewed40129 basis. ROOT retains all Git/index authority.
+
+
+## Conditional H arithmetic verified; VR phase corrections pending (ROOT, 2026-10-01)
+
+ROOT read and verified the full RV30 h_numeric_23/RETURN.md and h_summary_24
+backcheck, with the additive h_numeric_summary_correction_01. Accept the H
+numeric19 source/owner/arithmetic candidate conditionally on its stated ordinary-
+production source/type/library/request-site/entry assumptions. H23-F1 and H23-N1
+are closed. Exact byte figures and comparison bases are at h_numeric_23's
+“Numerical result and historical boundary”; the MiB display is truncated and
+not an outward-rounded upper. Actual Python floating products and both integer
+conversions govern the projected-RSS summary, not an exact-real replacement.
+
+This closes the conditional H arithmetic review only. Final artifact/profile
+correspondence, maintained checked estimator, same-binary validation, corrected
+chronological admission/ascent/RSS replay and W1-T4 measurements remain. No
+complete E_max, K6c checkpoint0, run admission, W1 limit or F2a acceptance follows.
+
+ROOT read and verified RV28 vr_numbers_06/REVIEW.md. Its two SHOULD-FIX findings
+remain pending a bounded additive correction and same-reviewer backcheck:
+retained failures during expected-list initialization and persistent typed LIST
+during nonselected diagnostics. The review's “Exact numerical consequence”
+proves both repairs are dominated by the existing common-outcome maximum on
+the fixed roster; that does not make the original named phase addends complete.
+The VR kernel join stays unreleased until those corrections are verified.
