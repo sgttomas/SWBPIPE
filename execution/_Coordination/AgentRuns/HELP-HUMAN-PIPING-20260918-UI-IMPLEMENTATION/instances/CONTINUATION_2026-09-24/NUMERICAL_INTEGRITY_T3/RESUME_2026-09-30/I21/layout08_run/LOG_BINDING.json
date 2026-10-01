@@ -1,0 +1,31 @@
+{
+  "raw_log": {
+    "path": "<I21_LAYOUT08_SCRATCH>/logs/BUILD_LAYOUT08.log",
+    "sha256": "98191c9031e5468a24587ea77b24c63bca09fc16da25c1ca23ec2bf08981fe66",
+    "bytes": 21415
+  },
+  "portable_log": {
+    "path": "BUILD_LAYOUT08.portable.log",
+    "sha256": "436f611cf18467eacbd41d060659bc5beff32a7d181bdc11baa9ba18ad1ff6db",
+    "bytes": 15737
+  },
+  "raw_rustc_info": {
+    "path": "<T3_HOST_ROOT>/k6c-layout08-target/.rustc_info.json",
+    "sha256": "861ea73551bcec05d77547b17eabd5768eb47e4c9da2a9a53d47545b29045dc0"
+  },
+  "portable_rustc_info": {
+    "path": "RUSTC_INFO.portable.json",
+    "sha256": "f5be47522fc41754d96ac8189b6e68c666df65ebd06547538b0fb507b74c4bda"
+  },
+  "transformation": "UTF-8 decode, deterministic longest-prefix-first replacement of granted scratch,target,toolchain,VENV,COORD,K6C,host-home paths with placeholders; preserve all other bytes and line endings. No rewriting raw files.",
+  "placeholders": [
+    "<I21_LAYOUT08_SCRATCH>",
+    "<VENV>",
+    "<T3_HOST_ROOT>/k6c-layout08-target",
+    "<COORD>",
+    "<K6C_WT>",
+    "<RUST_TOOLCHAIN>",
+    "<HOST_HOME>"
+  ],
+  "time_scope": "time -l wrapped env/cargo; statistics are command resource output, not proof of compiler peak or per-node/model memory. No E_max inference."
+}

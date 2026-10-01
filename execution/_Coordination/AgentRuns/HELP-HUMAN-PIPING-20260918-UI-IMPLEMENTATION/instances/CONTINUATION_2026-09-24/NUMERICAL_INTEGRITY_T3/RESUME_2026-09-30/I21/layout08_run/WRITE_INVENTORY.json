@@ -1,0 +1,23 @@
+{
+  "packet": "<K6C_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run",
+  "packet_hashes": "Final SHA256SUMS lists every payload; manifest itself is the final additional packet file.",
+  "logs": [
+    {
+      "path": "<I21_LAYOUT08_SCRATCH>/logs/BUILD_LAYOUT08.log",
+      "sha256": "98191c9031e5468a24587ea77b24c63bca09fc16da25c1ca23ec2bf08981fe66",
+      "bytes": 21415
+    }
+  ],
+  "target": {
+    "root": "<T3_HOST_ROOT>/k6c-layout08-target",
+    "files": 80,
+    "total_bytes": 18225971,
+    "hash_inventory": "TARGET_FILES.json",
+    "inventory_sha256": "24b9c0aad9910e0582096932f004784c6b9e5b59c3d2f8b128d065def5514eec"
+  },
+  "source_archive": "No write; all228 files and exact set unchanged. Original source.tar and all old seals preserved.",
+  "prior_empty_directory": "<K6C_WT>/k6c-layout08-target was not used by this run; creation/disclosure belongs to sealed prep.",
+  "other_changes": "No maintained edits, Git/index writes, allocator/observer/guard changes, dependency installation or delegated task.",
+  "claim_boundary": "No private node alignment or complete E_max; same RV30 runtime backcheck required"
+}
+

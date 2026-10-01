@@ -1,0 +1,70 @@
+{
+  "start_utc": "2026-10-01 13:28:20 UTC",
+  "deadline_utc": "2026-10-01 13:48:20 UTC",
+  "source_check": {
+    "grant_sha256": "caf4cd732be5bdb2110879921473d3b12dc99200e8863e9594e72b5e8b515e4f",
+    "archive_files_checked": 228,
+    "archive_mismatches": [],
+    "archive_exact_file_set": true,
+    "seals": [
+      {
+        "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_prep",
+        "sha256": "d52b1f699836434850b696690f0bc8ba4ac6638e98f57f74784438bd729e0716",
+        "mismatches": []
+      },
+      {
+        "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/layout08_03",
+        "sha256": "ac2808c2c7a211bf8b1c19beeb361f5f3917e10718fc277bf7c1da27d1a8cbd2",
+        "mismatches": []
+      }
+    ],
+    "manifests_locks_checked": 18,
+    "allocator": {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/alloc.rs",
+      "sha256": "0bb07a2346d0fedf9411ec9e93ab427b4fc4eafbb9de01c412067e3fbe7e4ba0",
+      "unchanged": true
+    },
+    "source_tar_sha256": "008e627242d766a48573780e959437a0ab9f6a16d443f623d7d15a993063435b",
+    "configs": [],
+    "relevant_environment": {
+      "RUSTUP_TOOLCHAIN": "stable"
+    },
+    "cargo_resolution": "<HOST_HOME>/.cargo/bin/cargo",
+    "installed_binaries": [
+      {
+        "name": "cargo",
+        "path": "<RUST_TOOLCHAIN>/bin/cargo",
+        "sha256": "7672ead309d505577c018fff2cafb3433601f073e38cbe87359ac1f7b944bbf5",
+        "bytes": 31867672
+      },
+      {
+        "name": "rustc",
+        "path": "<RUST_TOOLCHAIN>/bin/rustc",
+        "sha256": "210df6794001b73ec3d453878707fa1e0bdcb63c427024a6e6574bbe5615a4da",
+        "bytes": 412504
+      }
+    ],
+    "static_version_info": "<div id=\"versioninfo\">\n  <img src=\"https://www.rust-lang.org/logos/rust-logo-32x32-blk.png\" width=\"32\" height=\"32\" alt=\"Rust logo\"><br>\n  <span class=\"white-sticker\"><a href=\"https://www.rust-lang.org\">Rust</a> 1.97.1</span><br>\n  <a href=\"https://github.com/rust-lang/rust/commit/8bab26f4f68e0e26f0bb7960be334d5b520ea452\"\n    class=\"hash white-sticker\">8bab26f4f</a>\n</div>\n",
+    "channel_versions": {
+      "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+      "cargo": "0.98.0 (c980f4866 2026-06-30)",
+      "rust-std": "1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    "target_component_present": true,
+    "future_target_empty": true,
+    "logs_dir_outside_archive": true,
+    "version_process_executed": false
+  },
+  "guard": {
+    "pid": 5387,
+    "start_log": "2026-09-27 19:36:20 memguard start floor=35% pid=5387",
+    "preflight_memorystatus_level_percent": 95,
+    "existing_unchanged": true
+  },
+  "command_status": "Awaiting manager independent gate and explicit ONE command release; no Rust process executed.",
+  "native_root_clarification": {
+    "via": "/root/t3_recovery_manager",
+    "text": "ROOT confirms exact path-only override: scratch/i21/layout08/logs/BUILD_LAYOUT08.log. Preserve all payload argv/env/cwd/target/source. Record native clarification; separate mkdir/check succeeds before launch, no archive write/permission change. No new brief needed.",
+    "effect": "Only tee destination differs from frozen RUNTIME_COMMAND; source and all other command components unchanged."
+  }
+}
