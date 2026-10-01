@@ -3313,3 +3313,12 @@ missing-suite recovery), and GEN-8 are recorded in
 IMPLEMENTATION/RESUME_RECORDS_MERGE/RECORD.md. No numerical repair is accepted.
 AUD-T3-01 remains BLOCKING, F2a held and K6c unaccepted. Original raw evidence
 remains preserved; no pruning is authorized. The owner stopped the response drift.
+
+## A1 first compile: bounded matcher repair (ROOT, 2026-10-01)
+
+The B compile stopped before tests on two new-test type-inference errors and
+one exhaustive existing test matcher. ROOT grants only the diagnostic
+PublicationEnclosure arm in FK/tests/retained_k4/method_tests.rs as a fifth
+maintained path, plus explicit Wide::<4> in the new tests. Existing expected
+tokens/fixtures/assertions remain protected. The committed B compile addendum
+sets the exact scope; this is no availability or numerical acceptance.
