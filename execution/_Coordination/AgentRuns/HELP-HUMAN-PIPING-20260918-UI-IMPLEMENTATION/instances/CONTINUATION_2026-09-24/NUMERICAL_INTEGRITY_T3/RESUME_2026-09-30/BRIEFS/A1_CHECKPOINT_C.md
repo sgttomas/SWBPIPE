@@ -68,3 +68,17 @@ primitives and hook, and retained policy is distinct from legacy policy.
 T9/both-entry are not triggered for this bounded delta. Source review, kernel/H/
 VR evidence, full-SHA CI, exact-final-head Mac DEC-025 and GEN-8 remain mandatory.
 If scope/callers change, re-evaluate product reach before relying on this ruling.
+
+## ROOT independent oracle output release
+
+The frozen oracle TASK may now independently compare the repaired C17 raw output:
+<wt>/scratch/i22/verification_c/span_fix_01/runs/C17/stdout.tsv, SHA256
+54fc25452f385d5078c5c416c65e6566afa4124f75d3dc791ed9c3fe65b1a831.
+ROOT rehashed it and read its dd1 source/policy/selection/row bindings. Use the
+unchanged sealed bare-b comparator and independently frozen source truth; write
+only additive oracle_fresh/addendum_05_repaired_outputs and own scratch. No Rust
+run or implementation-derived expected value is allowed. Verify the two formerly
+false rows directly against source equilibrium as well. ROOT may release the
+remaining fixed-case raw files as their single runs finish, by exact path/hash
+record. This validates claims in raw output, not binary execution/probe integrity
+or bound construction; those remain separate ROOT/reviewer evidence checks.
