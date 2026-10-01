@@ -1,0 +1,26 @@
+{
+  "commit": "2e1adc4015e833780a354bc0ee8ba0946b17cce6",
+  "archive_sha256": "c379f710cb41dc47cf4b3ccc18d2e2bc5aa2c5f59720388174ef0d356db852f6",
+  "packets": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_runtime_02",
+      "seal": "d6aee79a73097ae9b4e422e441ad6b00e924062bfff40ce8fedc7fa09f03bc91",
+      "payloads": 18
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/vk_f03_diagnostic_01",
+      "seal": "cf3e83b1c6d70dd7210b8baeecc4139809370523a16bc9c7605f6e78ab293459",
+      "payloads": 22
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/vk_runtime_02",
+      "seal": "a62013505a7d05735574954a5a8cd29d8a16d1b8b29c76955e8fda814ba296d1",
+      "payloads": 6
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/vk_f03_diagnostic_01",
+      "seal": "a2095430a71f8cdb4f9f819fcea56d15b89a2e759c2fe530add0c01572d49365",
+      "payloads": 5
+    }
+  ]
+}
