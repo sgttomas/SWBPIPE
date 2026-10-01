@@ -3719,7 +3719,11 @@ This does not close the remaining V-K matrix or final A1 gates.
 ## Prefix receiver correction and wrapped-error facts (ROOT, 2026-10-01)
 
 ROOT read RV28's full prefix review, the additive correction09 and its same-
-reviewer backcheck. RV28-PREFIX-1 is closed at source-design level: the fresh
+reviewer backcheck. [Correction (ROOT, 2026-10-01): the full backcheck read and
+ROOT payload-seal verification occurred at19:55:57 UTC, immediately after the
+original19:55:40 entry; that entry initially relied on the reviewer's sealed
+handback summary. The subsequent full check agrees, with no changed verdict.]
+RV28-PREFIX-1 is closed at source-design level: the fresh
 free-DOF receiver and layout construction/growth coexist at the stated Counts
 initializer edges, and all receiver temporaries die before the cut. Reuse
 packet08 only with correction09 and the backcheck. The existing successful
