@@ -3425,3 +3425,14 @@ E1/E2's new-publication variants have independent RV29 runtime confirmation,
 and the full FK and H/VR preflights passed. This is not A1 merge acceptance:
 historical fault work and final-head gates remain, draft PR1070 stays unmerged,
 F2a is held, and K6c has no accepted complete E_max.
+
+## Owner resumption and bounded patch retry succeeded (ROOT, 2026-10-01)
+
+The owner directed: “Please resume and carry on as you intended.” ROOT stated
+and acted on this as authorization for the previously requested ten-minute
+existing-apply_patch retry. G01's exact frozen postimage, intended Phi assertion
+failure and both untouched controls passed their required checks; evidence is
+RESUME_2026-09-30/verification/tool_resume_01 on A1. No host configuration,
+permission, environment or tool development occurred. Prior failed evidence
+remains sealed. The operational hold is lifted prospectively for bounded work;
+A1 remains BLOCKING pending final verification/merge, F2a held, K6c unaccepted.
