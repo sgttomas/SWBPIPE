@@ -1,0 +1,9 @@
+{
+  "checked_utc": "2026-10-01T21:41:00.233047+00:00",
+  "source_files": 189,
+  "source_bytes_modes_unchanged": true,
+  "all4binaries_rawfingerprints_unchanged": true,
+  "debug_dependency_fingerprints_unchanged": true,
+  "no_owned_process": true,
+  "guard": "5387     1 03-20:04:41 /bin/bash <wt>/guard/memguard.sh"
+}
