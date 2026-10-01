@@ -3738,3 +3738,36 @@ and topology distinction”; it is not a process peak or final vk_scale fact.
 Static-message pools remain under separate independent review. Complete K0/H/VR
 numbers, checked implementation, final-build binding, admission and W1 remain
 unaccepted; the next H numeric task is source arithmetic, not a new tool.
+
+
+## V-K F17 criterion gap and conditional numeric candidates (ROOT, 2026-10-01)
+
+ROOT read the full runtime05 child/manager returns and RV29 vk_completed_34
+review, verified every manifest payload, and preserved them in A1 commit
+1453a780bd. Accept only the reviewed P14/P16/P20–P26 scope and its distinctions:
+P16 is a fresh baseline; P20 restores F04; F08/F10/F13 reach their registered
+bitwise, canonical-byte and numerical predicates with actual returned controls.
+All source figures and qualifications remain at that review's table.
+
+Runtime05/RETURN.md records P28's successful original RF-WEAK return and P29's
+missing RF-SKEW CLASS witness. Preserve the stop: P30–P53 are unrun. Neither
+Ceiling nor FLOOR differences qualify for F17's protected CLASS criterion.
+A source diagnosis and a separately reviewed, bounded existing-record diagnostic
+are being prepared. They grant no acceptance amendment. Any measured conflict
+requiring a protected-criterion change returns to the owner under project
+AGENTS.md, Software checks. A1 acceptance/merge and F2a reliance remain held.
+
+ROOT read manager/h_numeric_19/RETURN.md and the VR caller candidate's full
+RETURN, SUMMARY and METHOD_AND_JOIN. Their source-arithmetic candidates are
+preserved, not accepted E_max: H is under RV30 independent review; VR is under
+RV28 review with five explicit kernel joins still outstanding. Numeric maxima,
+units and conditional artifact/owner qualifications are at those source tables.
+The binary half-heap check and calibrated runner admission are separate; no
+chronological admission, required measurement or final production correspondence
+is inferred. No supporting tool development is authorized.
+
+Resumption check at20:38:18 UTC: actual M5 Max,18 cores,137438953472 bytes,
+existing guard5387, no cargo/rustc process. Fresh origin/main remains546e05a159.
+The remote PR1070 interim head2e1adc4015 has passing completed checks; that is
+not final-head review/dispatch/DEC-025/GEN-8 closure. Maintained A1 code remains
+at the reviewed40129 basis. ROOT retains all Git/index authority.
