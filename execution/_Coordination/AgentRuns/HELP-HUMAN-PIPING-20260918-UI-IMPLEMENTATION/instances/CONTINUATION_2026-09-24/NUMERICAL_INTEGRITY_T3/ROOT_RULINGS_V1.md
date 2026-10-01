@@ -3669,3 +3669,29 @@ No generic Ceiling, Pivot location or seed name substitutes for its criterion.
 K6c's latest prefix, formatting and eight artifact-specific node-pair returns
 are preserved as proposals awaiting independent review. No complete E_max,
 checkpoint0, implementation, admission, W1 or F2a acceptance is granted.
+
+
+## Owner resumed T3; F02 and actual VR node facts (ROOT, 2026-10-01)
+
+The owner explicitly directed “You may resume now.” ROOT verified the saved
+M5/guard/process/Git state and restored bounded native work. Main546e05a was
+already an ancestor of numerics, so no redundant merge commit or rebase was
+created. RESUME_2026-09-30/RESUME_2026-10-01_1934.json binds entry checks and
+supplied instruction origins. Old runtime deadlines remain historical; new
+source/review grants are in the resumption briefs.
+
+ROOT read and verified RV29 vk_mid_30. Accept F02's exact registered value
+witness and P10/P12 controls within that review's scope. Its full F03 provenance,
+controls and sequences are verified, but the source/soft-root consequence still
+awaits independent review; P09/P13 retain unqualified status. The original
+criterion does not impose an unrecorded universal reconstruction of every private
+omitted term, nor permit a generic failure/enum to replace the named warrant.
+
+ROOT read and verified RV30 vr_nodes_17. The eight actual leaf/internal pairs
+are usable only on their separately bound release/debug artifact bases; see
+its result table and “Build provenance and remaining limits” for units and
+qualifications. Real source representation and typed allocation argument flows
+supply those facts, not mirror layouts or equal-size type substitutions. Final
+ordinary-production vk_scale correspondence and actual populations remain open.
+The prefix and formatting proposals remain under independent review, with no
+complete E_max, checkpoint0, implementation or admission acceptance.
