@@ -1,0 +1,222 @@
+{
+  "role": "TASK I21, parent WORKING_ITEMS /root/t3_recovery_manager; no delegation",
+  "product": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "instruction_basis": "Inherited Root/TASK/project/COMMON sealed I21 basis; no new skill/workflow selected",
+  "sealed_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_03_exact/SHA256SUMS",
+      "sha256": "3ed736b36c456d5d8ad6d9d89bf633a51fb383d96d858e8b391444dc8a8b2610",
+      "payloads_verified": 12
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11/SHA256SUMS",
+      "sha256": "26c8e211e312cc73fcd5d1b8a5c400618c057599e30f1b2ba1a740a83def2567",
+      "payloads_verified": 13
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/external_inputs_06/SHA256SUMS",
+      "sha256": "6891d130f64764a7bfdde7c66fd44db9656bc4ab10cf41af7117fb49ec20674c",
+      "payloads_verified": 5
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_11/SHA256SUMS",
+      "sha256": "f006c022535cc1bfbc8e8e4dcea2a729a0887f5dae71ad2dd96b819408ac9907",
+      "payloads_verified": 8
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/SHA256SUMS",
+      "sha256": "024339a4e87285bb001c0fe44fe3a4051c0e89165cf0cd38b54d01a2dd42f87c",
+      "payloads_verified": 47
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_13/SHA256SUMS",
+      "sha256": "ec5754a160d6b8ccd1e30aa0091d4eb150ba6ccca974e8c04755f623a601b2d0",
+      "payloads_verified": 12
+    }
+  ],
+  "source_blobs": [
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990",
+      "bytes": 14774
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/compare.rs",
+      "sha256": "54843240c5f1f3cb2894e67f05bfae84a31ef8d3e96b3d7b1895591b163680e4",
+      "bytes": 5517
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs",
+      "sha256": "882f0047fb9e3474703b7fb2fa723ffc4544066a3b0919a3cd5e42b68742f9aa",
+      "bytes": 6811
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/exact.rs",
+      "sha256": "a336e9c787dd1a2a0c99e7065c6822a398ebeed0eddb9af2e1cdae476165b855",
+      "bytes": 22279
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "bytes": 18171
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+      "bytes": 18488
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17",
+      "bytes": 41558
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "bytes": 17973
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "bytes": 24432
+    },
+    {
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870
+    }
+  ],
+  "external_path_mapping": "<wt> in sealed I23 input records resolves to the existing T3 worktree-host root, sibling parent of K6C_WT; files read only, no recovery/generation",
+  "grant": {
+    "commit": "55609ac9ed6aebba20421a45a7a8e74842e4daa4",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_SOURCE_14_FINITE_CALLERS.md",
+    "sha256": "7922ab8b7781854d7defa9149a49f293b78e5561b1719972943a68e1d3f5051f",
+    "bytes": 1854
+  },
+  "exact_input_files": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_chain.jsonl",
+      "sha256": "0006e7a5ca4cf4d96c9284a5b09622902c3a71c07f24607924127062f10a1757"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_skew.jsonl",
+      "sha256": "bcc795a4d4b4b88a89b421a09f6ec78a97b69a8d4b136be49b57a5e13d084ce0"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_weak.jsonl",
+      "sha256": "58228206b15c7dd571ad716940d1055ac20542e5dd1e7f03851aaf1d59a07ff1"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_large.jsonl",
+      "sha256": "16357afa5efeaaac3ab5798bb6f632104bec1e2dfada288f5b0936bfe6188759"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_invariance.jsonl",
+      "sha256": "81094b99ebcf6054b925221c54b7ec5022348b69c4a36029715da7ea4328f082"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_range.jsonl",
+      "sha256": "ae74938cdfc12a398f51728fee5304cf68e70acedd5df1b433e1f353db8a5a88"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_zero.jsonl",
+      "sha256": "f38dc7b506bf966f834b2ec2f90a5b01f32d719c41f64b57eeda0555a5c9ca4b"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_finite.jsonl",
+      "sha256": "92a6ea403f4bb33efdfa43078386cc0befdb272b2ccf9d8fa2f7d1f231b1de98"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_mech.jsonl",
+      "sha256": "8f0d8723b44c95216fa72fae47ad452025f9c280f1874a46f0f680bd840c3079"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/cases/rf_cancel.jsonl",
+      "sha256": "b8011780a15a498dad4065dc23d6dbe3464cce82251dbbebc2dc7fce7fb3f2f5"
+    }
+  ],
+  "external_raw_files": [
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-AX.json",
+      "sha256": "f05afa36126c1adfb2d61f35bd99e98e845ca3727b2bebf34573e116815b49a8",
+      "bytes": 286643
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n01000-ROT.json",
+      "sha256": "27d23bb9770c724e6d2879012e934c233c424b16846b1b52337b0f8fac6b395f",
+      "bytes": 286643
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-AX.json",
+      "sha256": "8035f34456d150de931797b44cfc9e2ba016fc8bae5d78bff1a5f918c6852115",
+      "bytes": 300622
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n01000-ROT.json",
+      "sha256": "df1e956484195236b452584f3cdc450953357784bc73bafa8b6a4a036ac4777d",
+      "bytes": 329920
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-AX.json",
+      "sha256": "32ecf3e4dc9725cf33f7374e6b075c826197a98047d9b0d0082e51bf6497bc98",
+      "bytes": 322718
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n01000-ROT.json",
+      "sha256": "4f505009dde44025289b4c08731dc1c4b275403140a87f86a7a4dce75816a61d",
+      "bytes": 341177
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-AX.json",
+      "sha256": "239ccb63dfd1584d9056f3f2ce86d79056f9fef1c2589317797ded2e6c790d40",
+      "bytes": 2932655
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CHAIN-n10000-ROT.json",
+      "sha256": "0c79de8dffe4044889be6b80a8bdbe430c88fd23800227568d900d61a580bf66",
+      "bytes": 2932655
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-AX.json",
+      "sha256": "ff4cb28dd53b7a66b4c0364b2d9af7ab7abaa67f33f4ad2e8c8d8528c37a9319",
+      "bytes": 3082946
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-TREE-n10000-ROT.json",
+      "sha256": "2179d5d397ec15668fba52528fdd8c888dc4b51cf2db972c9d8702c199c20818",
+      "bytes": 3393452
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-AX.json",
+      "sha256": "1fc2b76151557f23404b95262fe461b067a19e8254eb25cd7a14974cb82df083",
+      "bytes": 3324795
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "path": "<wt>/scratch/i17/b_models/RF-LARGE-CONT-n10000-ROT.json",
+      "sha256": "c7d027f0fd5bdfb26f0a58a721e47c92dc4fb7185285e22359373a7ae4d78ff9",
+      "bytes": 3519524
+    }
+  ]
+}

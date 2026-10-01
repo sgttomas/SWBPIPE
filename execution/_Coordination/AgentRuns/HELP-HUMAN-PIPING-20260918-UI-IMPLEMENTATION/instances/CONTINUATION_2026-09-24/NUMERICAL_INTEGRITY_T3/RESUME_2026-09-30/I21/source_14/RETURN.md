@@ -1,0 +1,17 @@
+# I21 source14 return — finite comparison callers
+
+Same TASK /root/t3_recovery_manager/i21_k6c; parent WORKING_ITEMS /root/t3_recovery_manager. Full grant NUM55609ac9ed6aebba20421a45a7a8e74842e4daa4 read. Actual start2026-10-01 16:49:20 UTC; deadline17:09:20 UTC. Frozen40129 and sealed metric_design_03_exact/RV30 exact_11 are the basis. No prior packet changed.
+
+FINITE_CALLERS.md returns a finite source proposal, subject to independent review:
+
+- Direct scalar and two-component magnitude inputs are finite under their actual production Binary64Outcome contract. Magnitude multiplication is Exact arithmetic, not a potentially overflowing f64 square.
+- Actual twist/extension observation divides the published j-end torque/axial value by kt/ka; it does not subtract displacement values. Coordinate differences are in member_length/body_extent.
+- Integer-only bounds on original input bits/decimal lexemes propose finite body/coupled/member floors for all213 cases and all12 s_full paths. All fixed coefficients are proved positive normal; minimum lower exponent-1021, maximum upper991. No float norm, coefficient, floor, Exact predicate or solver was evaluated.
+- All24 RF-LARGE cases selected by actual vk_scale pass the coefficient>=1 sufficient bound for observed division. This closes that finite-from_f64 premise on the bound fixed inputs; it does not close the global allocation envelope or admission.
+- The wider fixed lane retains138 actual twist/extension rows in18 cases whose small coefficients require a bound on the selected published numerator. Their identities and coefficient bounds are explicit. Finite tags/reference values/old successful runs do not supply that bound. MAX/k supplies only a tag-level overflow condition, not a demonstrated certified solver value. NotCovered still calls holds; expected-unresolved-list mismatch recording does not suppress a Selected comparison.
+
+At the open scalar assertion path, Exact::from_f64 rejects the infinite quotient before allocating that operand's Nat, while E/S and selected caller owners remain live. No panic/runtime bound is assigned or investigated. ROOT must dispose the precise selected-numerator or separately bounded nonfinite-path obligation; no fixture, oracle, criterion, record or API was changed.
+
+Proof artifacts: MODEL_SCALARS.json; final FIXED_INEQUALITIES_ALL.json (373 equal-bound groups preserving68977 member identities and all open row identities); OBSERVATION_GAPS.json; INEQUALITY_SUMMARY.json. Initial FIXED_INEQUALITIES.json is explicitly superseded, retained only as derivation evidence. Every one of the exact12 external raw input files was checked at the existing sealed I23 path against its expected/actual hash, without generation/source replay; source11 was not amended. BINDING.json, RAW_COMMANDS.json, VERIFICATION.json and SHA256SUMS bind actual commands, hashes and write inventory.
+
+All writes are K6C R/I21/source_14; no scratch. Git reads explicitly used GIT_OPTIONAL_LOCKS=0. No Rust/build/runtime/solver/model generation/test/probe/measurement, new tool/framework, panic/library programme, network/install, maintained source/API/estimate/record/admission or Git/index mutation, or delegation. No experiment is running. Other exact/serializer/sparse/runtime/private-layout/final-A1 obligations remain unchanged; no full E_max/W1/F2a/admission acceptance. This bounded tranche ends on return.

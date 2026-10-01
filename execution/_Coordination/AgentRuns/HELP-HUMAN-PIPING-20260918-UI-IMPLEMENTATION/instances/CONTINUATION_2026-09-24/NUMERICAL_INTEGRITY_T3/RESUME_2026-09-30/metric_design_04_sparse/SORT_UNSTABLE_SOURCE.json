@@ -1,0 +1,29 @@
+{
+  "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/slice/mod.rs.html",
+  "html_sha256": "2807e62a5f4a46715c31382308350b6cb4e9ec52b93afc2a394e658523f4cfc8",
+  "decoded_sha256": "737a95f38cd1a84f5a82448842d39381db2f0aa432d25f8ecfe429539ebec825",
+  "transformation": "one-off isolate pre.rust/code, remove numeric data-nosnippet anchors, strip tags, html.unescape, preserve lines",
+  "rustdoc_basis": "installed Rust1.97.1 full8bab26f4f68e0e26f0bb7960be334d5b520ea452; final compiler correspondence remains separate",
+  "excerpts": [
+    {
+      "start": 3080,
+      "end": 3087,
+      "text": "    /// Sorts the slice in ascending order **without** preserving the initial order of equal elements.\n    ///\n    /// This sort is unstable (i.e., may reorder equal elements), in-place (i.e., does not\n    /// allocate), and *O*(*n* \\* log(*n*)) worst-case.\n    ///\n    /// If the implementation of [`Ord`] for `T` does not implement a [total order], the function\n    /// may panic; even if the function exits normally, the resulting order of elements in the slice\n    /// is unspecified. See also the note on panicking below."
+    },
+    {
+      "start": 3132,
+      "end": 3145,
+      "text": "    #[stable(feature = \"sort_unstable\", since = \"1.20.0\")]\n    #[inline]\n    pub fn sort_unstable(&mut self)\n    where\n        T: Ord,\n    {\n        sort::unstable::sort(self, &mut T::lt);\n    }\n\n    /// Sorts the slice in ascending order with a comparison function, **without** preserving the\n    /// initial order of equal elements.\n    ///\n    /// This sort is unstable (i.e., may reorder equal elements), in-place (i.e., does not\n    /// allocate), and *O*(*n* \\* log(*n*)) worst-case."
+    },
+    {
+      "start": 3196,
+      "end": 3205,
+      "text": "    /// Sorts the slice in ascending order with a key extraction function, **without** preserving\n    /// the initial order of equal elements.\n    ///\n    /// This sort is unstable (i.e., may reorder equal elements), in-place (i.e., does not\n    /// allocate), and *O*(*n* \\* log(*n*)) worst-case.\n    ///\n    /// If the implementation of [`Ord`] for `K` does not implement a [total order], the function\n    /// may panic; even if the function exits normally, the resulting order of elements in the slice\n    /// is unspecified. See also the note on panicking below.\n    ///"
+    },
+    {
+      "start": 3239,
+      "end": 3247,
+      "text": "    #[stable(feature = \"sort_unstable\", since = \"1.20.0\")]\n    #[inline]\n    pub fn sort_unstable_by_key<K, F>(&mut self, mut f: F)\n    where\n        F: FnMut(&T) -> K,\n        K: Ord,\n    {\n        sort::unstable::sort(self, &mut |a, b| f(a).lt(&f(b)));\n    }"
+    }
+  ]
+}

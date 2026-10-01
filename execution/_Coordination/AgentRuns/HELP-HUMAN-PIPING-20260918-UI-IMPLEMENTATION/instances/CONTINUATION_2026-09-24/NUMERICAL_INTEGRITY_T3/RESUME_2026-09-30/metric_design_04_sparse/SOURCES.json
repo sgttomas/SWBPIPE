@@ -1,0 +1,169 @@
+[
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+    "sha256": "525e6993e37df919535004dc418439a6b919036b7ca4fe588d51a514a393fe01",
+    "bytes": 10913,
+    "consulted_selection": "1-250 dense=false branch; remainder not part of new proof",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+    "sha256": "44ed44fa41c0a4270c697d5ba742f73c6cc3a7e3e46a6af5eb443097866791a3",
+    "bytes": 8947,
+    "consulted_selection": "full display; proof uses1-105",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/sparse_direct/src/structural.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "sha256": "51e010af1ef62c95faf854c6308aec7a0f0be7123546083be993f6090b257b12",
+    "bytes": 45604,
+    "consulted_selection": "20-153,204-277,480-623,760-812 plus symbol discovery",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/sparse_direct/src/lib.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+    "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+    "bytes": 75482,
+    "consulted_selection": "48-160,178-192,220-245,290-332,475-504,592-697,865-980,1031-1106,1106-1183,1184-1487,1488-1518,1519-1813,1875-2008; direct owner/helper source",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+    "bytes": 117294,
+    "consulted_selection": "191-374,552-611,707-799,918-986,1386-1414,1428-1552,1553-1805,1973-2059,2108-2154 plus allocation-site discovery",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+    "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67",
+    "bytes": 10875,
+    "consulted_selection": "15-64,68-220,212-308; all immediate fixed-array rounding helper bodies",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  {
+    "origin": "<K6C> git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b",
+    "bytes": 92593,
+    "consulted_selection": "type aliases28-29,319-619,711-804,829-852,1278-1294,1740-1808,1830-1907 plus symbol discovery",
+    "canonical_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/lib.rs"
+    ],
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  {
+    "origin": "<NUM> git f960d862a3f12f73d2ef5e54f420c99b67e85ce3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/K6C_SPARSE_CALLER_DESIGN.md",
+    "sha256": "5e11104a5e6b154458464ddfc21f19b69c9444af0983b7f81a673240a4e8f2a9",
+    "consulted_selection": "full brief"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_01/FORMULAS.md",
+    "sha256": "c7f23bdfc53d6057aaab6187b8607ed55d198396f3c1767961aa329fc53042cc",
+    "bytes": 24658,
+    "consulted_selection": "193-226 sparse roster; additive correction of lower-entry descriptor"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/LIBRARY_CONTRACTS.md",
+    "sha256": "f1b8264e388f9d9dd3fa73f5280bf558459a2ad1a757977557a8fc24a19a59a4",
+    "bytes": 17996,
+    "consulted_selection": "inherited43-131 allocation/clone basis;195-280 tree/sort section freshly read"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_06/CORRECTION.md",
+    "sha256": "e224a53327dd3b0a3ecbcc74ff938b06d3895b400274628aeb8c77df681b2a07",
+    "bytes": 15858,
+    "consulted_selection": "inherited reviewed construction/owner distinction; no new full body read this leg"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_07/QUEUE.md",
+    "sha256": "d9bd10a1bd4af61ce0025a6510b8031deb164324401df766c8cf96bc15864058",
+    "bytes": 5525,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/DESCRIPTOR_MAP.md",
+    "sha256": "e56fb9767188f161c96aaeac0c221b004a8ad065719248669bbb9907716d4c33",
+    "bytes": 20951,
+    "consulted_selection": "45-100 and inherited capacity/descriptor basis"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/FACTS.json",
+    "sha256": "ca6a1f859e5484b5bfbb117644847e5c93b1c73e228f9a394f44e544d5b55c07",
+    "bytes": 18939,
+    "consulted_selection": "selected Expansion/binary64/public type labels"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/SOURCE_BINDING.json",
+    "sha256": "601dc9058bc111216eeb35e0ba620eca48f3eeeca18e2c2c1b33a587c6bcaf50",
+    "bytes": 6697,
+    "consulted_selection": "inherited actual production/layout source binding"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_11/FORMULAS_AND_GAPS.md",
+    "sha256": "e93ef4c7389627a3398784188510951e8879bb8b440fc9f94f594ccd65da4ce1",
+    "bytes": 16860,
+    "consulted_selection": "inherited prior full reading; new195-259 request returned empty (shorter file); no new claim relies on that empty excerpt"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_11/VR_ENVELOPE.md",
+    "sha256": "590a1c3a55d18f0ffdaa5e2d0d9cbc0df02035bcce7d91477fa08e24d50a9ad7",
+    "bytes": 9524,
+    "consulted_selection": "inherited prior full reading"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_caller_07/RETURN.md",
+    "sha256": "e76e05ecfd830a8c7127db61497aae0d011b3e33b7182089783f275baa58948c",
+    "bytes": 12470,
+    "consulted_selection": "inherited prior full reading, including six-buffer eccentricity and late owners"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_01/SOURCES.json",
+    "sha256": "9afc3b3e4f198e44ed9792afd98192eb9f2fecb8ff326eb5e09abfef122eb034",
+    "bytes": 19767,
+    "consulted_selection": "inherited Root/full HELPS_HUMANS/project/COMMON origin and hash evidence only"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_03_exact/SHA256SUMS",
+    "sha256": "3ed736b36c456d5d8ad6d9d89bf633a51fb383d96d858e8b391444dc8a8b2610",
+    "bytes": 976,
+    "consulted_selection": "prior packet preservation only; no reopening of V-EXACT"
+  },
+  {
+    "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/slice/mod.rs.html",
+    "html_sha256": "2807e62a5f4a46715c31382308350b6cb4e9ec52b93afc2a394e658523f4cfc8",
+    "decoded_sha256": "737a95f38cd1a84f5a82448842d39381db2f0aa432d25f8ecfe429539ebec825",
+    "consulted_selection": "sort_unstable/by_key no-allocation API and forwarding bodies"
+  }
+]

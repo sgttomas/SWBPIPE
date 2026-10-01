@@ -1,0 +1,35 @@
+{
+  "actual_start_utc": "2026-10-01 16:49:20 UTC",
+  "deadline_utc": "2026-10-01 17:09:20 UTC",
+  "completion_utc": "2026-10-01T17:04:40.748523+00:00",
+  "input_cases": 213,
+  "embedded": 201,
+  "external_raw_hashes_rechecked": 12,
+  "member_identities": 68977,
+  "member_groups": 373,
+  "proposed_floor_finiteness_cases": 213,
+  "proposed_full_maxima_floor_finiteness_cases": 12,
+  "actual_vk_scale_RF_LARGE_cases_with_finite_observation_sufficient_bound": 24,
+  "broader_lane_open_observation_cases": 18,
+  "broader_lane_open_observation_rows": 138,
+  "status": "Source-derived proposal pending independent review; open numerator conditions are not demonstrated certified solver failures. No full E_max/admission acceptance.",
+  "checked": "JSON syntax; fixed counts; explicit integer inequalities; preserved input seals; portable paths; complete write inventory. No product/numerical test.",
+  "descriptor_compaction": {
+    "FIXED_INEQUALITIES_ALL.json": {
+      "precompact_sha256": "cf54974c158edfdd1549ec6bcab6d2048ce57931eb35eab1c37584e8217a535c",
+      "bytes": 2184305,
+      "semantic_roundtrip_equal": true
+    },
+    "FIXED_INEQUALITIES.json": {
+      "precompact_sha256": "67edc584d187bdc3a5b7900a2a4bf7e73fa05a365993be2be77b15e589058cf5",
+      "bytes": 1721632,
+      "semantic_roundtrip_equal": true
+    }
+  },
+  "runtime_Rust_model_solver_probe_jobs": 0,
+  "running_experiment": false,
+  "scratch_writes": 0,
+  "writes": "K6C R/I21/source_14 only",
+  "prior_seals": "All listed prior payloads verified unchanged",
+  "git": "Every read GIT_OPTIONAL_LOCKS=0; no index mutations"
+}

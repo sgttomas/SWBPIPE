@@ -1,0 +1,276 @@
+{
+  "status": "Missing source proof, not a demonstrated actual solver failure; no runtime executed",
+  "rows": 138,
+  "cases": [
+    {
+      "id": "RF-WEAK-W-AX-rho1e-08",
+      "rows": 1,
+      "first": {
+        "row_index": 67,
+        "key": "tw.C",
+        "member": "C",
+        "coefficient": "kt",
+        "lower_pow2": -6,
+        "upper_pow2": -4,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-WEAK-W-AX-rho1e-12",
+      "rows": 2,
+      "first": {
+        "row_index": 67,
+        "key": "tw.C",
+        "member": "C",
+        "coefficient": "kt",
+        "lower_pow2": -19,
+        "upper_pow2": -17,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-08",
+      "rows": 1,
+      "first": {
+        "row_index": 67,
+        "key": "tw.C",
+        "member": "C",
+        "coefficient": "kt",
+        "lower_pow2": -7,
+        "upper_pow2": -5,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-WEAK-W-3D-rho1e-12",
+      "rows": 2,
+      "first": {
+        "row_index": 67,
+        "key": "tw.C",
+        "member": "C",
+        "coefficient": "kt",
+        "lower_pow2": -20,
+        "upper_pow2": -18,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CHAIN-L-240",
+      "rows": 10,
+      "first": {
+        "row_index": 49,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -700,
+        "upper_pow2": -698,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CHAIN-E-1000",
+      "rows": 10,
+      "first": {
+        "row_index": 49,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -980,
+        "upper_pow2": -978,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CHAIN-LEF-small",
+      "rows": 10,
+      "first": {
+        "row_index": 49,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -880,
+        "upper_pow2": -878,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CHAIN-SIM-b",
+      "rows": 10,
+      "first": {
+        "row_index": 49,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -120,
+        "upper_pow2": -118,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-SKEW-L-240",
+      "rows": 2,
+      "first": {
+        "row_index": 29,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -702,
+        "upper_pow2": -698,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-SKEW-E-1000",
+      "rows": 2,
+      "first": {
+        "row_index": 29,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -982,
+        "upper_pow2": -978,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-SKEW-LEF-small",
+      "rows": 2,
+      "first": {
+        "row_index": 29,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -882,
+        "upper_pow2": -878,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-SKEW-SIM-b",
+      "rows": 2,
+      "first": {
+        "row_index": 29,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -122,
+        "upper_pow2": -118,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CONT-L-240",
+      "rows": 20,
+      "first": {
+        "row_index": 92,
+        "key": "tw.A1",
+        "member": "A1",
+        "coefficient": "kt",
+        "lower_pow2": -702,
+        "upper_pow2": -698,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CONT-E-1000",
+      "rows": 20,
+      "first": {
+        "row_index": 92,
+        "key": "tw.A1",
+        "member": "A1",
+        "coefficient": "kt",
+        "lower_pow2": -982,
+        "upper_pow2": -978,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CONT-LEF-small",
+      "rows": 20,
+      "first": {
+        "row_index": 92,
+        "key": "tw.A1",
+        "member": "A1",
+        "coefficient": "kt",
+        "lower_pow2": -882,
+        "upper_pow2": -878,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-CONT-SIM-b",
+      "rows": 20,
+      "first": {
+        "row_index": 92,
+        "key": "tw.A1",
+        "member": "A1",
+        "coefficient": "kt",
+        "lower_pow2": -122,
+        "upper_pow2": -118,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-THIN-A",
+      "rows": 2,
+      "first": {
+        "row_index": 23,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -821,
+        "upper_pow2": -819,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    },
+    {
+      "id": "RF-RANGE-THIN-B",
+      "rows": 2,
+      "first": {
+        "row_index": 23,
+        "key": "tw.M1",
+        "member": "M1",
+        "coefficient": "kt",
+        "lower_pow2": -1021,
+        "upper_pow2": -1019,
+        "actual_coefficient_proved_below_one": true,
+        "required_missing_bound": "finite selected published numerator magnitude small enough for division by this coefficient; case expected/control values are not an observed-output guarantee"
+      },
+      "all_coefficients_proved_below_one": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "body_span_exponents": [
+    -239,
+    244
+  ],
+  "member_chord_exponents": [
+    -240,
+    241
+  ],
+  "coefficient_lower_min": -1021,
+  "coefficient_upper_max": 991,
+  "row_coupled_upper_max": 993,
+  "row_member_floor_upper_max": 996,
+  "full_coupled_upper_max": 24,
+  "member_identities": 68977,
+  "member_groups": 373
+}
