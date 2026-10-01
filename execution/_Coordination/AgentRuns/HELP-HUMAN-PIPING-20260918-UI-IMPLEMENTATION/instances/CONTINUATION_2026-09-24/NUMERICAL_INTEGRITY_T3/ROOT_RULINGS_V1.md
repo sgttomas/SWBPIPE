@@ -3436,3 +3436,18 @@ RESUME_2026-09-30/verification/tool_resume_01 on A1. No host configuration,
 permission, environment or tool development occurred. Prior failed evidence
 remains sealed. The operational hold is lifted prospectively for bounded work;
 A1 remains BLOCKING pending final verification/merge, F2a held, K6c unaccepted.
+
+## K6c narrow layout bindings independently checked (ROOT, 2026-10-01)
+
+ROOT read I21 layout08_run and RV30 layout08_03/backcheck_run and verified
+their seals. The actual three kernel node-request pairs and five named type
+size/alignment facts are usable in the conditional kernel ledger on their
+exact immutable40129/Rust1.97.1/aarch64 release basis. RV30 independently checked
+the complete raw samples, source/build/binary and no-extra-allocation/drop
+conditions. Source_07's queue recurrence is also independently checked.
+
+This is deliberately narrow: no private node alignment is inferred, the
+process subtraction baseline is not an allowance, and no complete E_max,
+admission or W1 acceptance follows. C1/C2/O2/W1 remain open. No allocator,
+observer, guard, dependency or maintained code was changed. Later final-source
+reconciliation and full-bound review remain required before reliance.
