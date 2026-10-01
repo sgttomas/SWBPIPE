@@ -1,0 +1,78 @@
+{
+  "pages": [
+    {
+      "source11_path": "<SERDE_JSON>/Cargo.toml",
+      "installed_path": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/Cargo.toml",
+      "archive_member": "serde_json-1.0.151/Cargo.toml",
+      "source11_sha256": "00b920255c320a278bf25b962b491263a19d8c90e12e4a91c1d823db71eabb2f",
+      "archive_sha256": "00b920255c320a278bf25b962b491263a19d8c90e12e4a91c1d823db71eabb2f",
+      "installed_sha256": "00b920255c320a278bf25b962b491263a19d8c90e12e4a91c1d823db71eabb2f",
+      "bytes": 3118,
+      "source11_archive_local_three_way_match": true
+    },
+    {
+      "source11_path": "<SERDE_JSON>/src/macros.rs",
+      "installed_path": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/macros.rs",
+      "archive_member": "serde_json-1.0.151/src/macros.rs",
+      "source11_sha256": "94dda91c847e819a95e64d655eb066dfa44ed69712064016c3fe862c34ef92e6",
+      "archive_sha256": "94dda91c847e819a95e64d655eb066dfa44ed69712064016c3fe862c34ef92e6",
+      "installed_sha256": "94dda91c847e819a95e64d655eb066dfa44ed69712064016c3fe862c34ef92e6",
+      "bytes": 10361,
+      "source11_archive_local_three_way_match": true
+    },
+    {
+      "source11_path": "<SERDE_JSON>/src/map.rs",
+      "installed_path": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/map.rs",
+      "archive_member": "serde_json-1.0.151/src/map.rs",
+      "source11_sha256": "b5a2fd1ee865e6cfd83ef2da0a2e1057f892465ac7ede8a78a11354a60526f33",
+      "archive_sha256": "b5a2fd1ee865e6cfd83ef2da0a2e1057f892465ac7ede8a78a11354a60526f33",
+      "installed_sha256": "b5a2fd1ee865e6cfd83ef2da0a2e1057f892465ac7ede8a78a11354a60526f33",
+      "bytes": 35057,
+      "source11_archive_local_three_way_match": true
+    },
+    {
+      "source11_path": "<SERDE_JSON>/src/value/mod.rs",
+      "installed_path": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/value/mod.rs",
+      "archive_member": "serde_json-1.0.151/src/value/mod.rs",
+      "source11_sha256": "6331d59ea362a74b6cd3d302d08114a63a73a384ff56fef737de29edea2f8d91",
+      "archive_sha256": "6331d59ea362a74b6cd3d302d08114a63a73a384ff56fef737de29edea2f8d91",
+      "installed_sha256": "6331d59ea362a74b6cd3d302d08114a63a73a384ff56fef737de29edea2f8d91",
+      "bytes": 30963,
+      "source11_archive_local_three_way_match": true
+    },
+    {
+      "source11_path": "<SERDE_JSON>/src/value/ser.rs",
+      "installed_path": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_json-1.0.151/src/value/ser.rs",
+      "archive_member": "serde_json-1.0.151/src/value/ser.rs",
+      "source11_sha256": "11f2b7daa1eba826d4086d5497f73729478dd7647bff77deccde5e47b0f126f2",
+      "archive_sha256": "11f2b7daa1eba826d4086d5497f73729478dd7647bff77deccde5e47b0f126f2",
+      "installed_sha256": "11f2b7daa1eba826d4086d5497f73729478dd7647bff77deccde5e47b0f126f2",
+      "bytes": 28223,
+      "source11_archive_local_three_way_match": true
+    },
+    {
+      "source11_path": "<SERDE_CORE>/src/ser/impls.rs",
+      "installed_path": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/src/ser/impls.rs",
+      "archive_member": "serde_core-1.0.229/src/ser/impls.rs",
+      "source11_sha256": "5ee7efc439345e8665da0bd79bc06c02a0506e5fd0f3a4cf11af0c7197eaa643",
+      "archive_sha256": "5ee7efc439345e8665da0bd79bc06c02a0506e5fd0f3a4cf11af0c7197eaa643",
+      "installed_sha256": "5ee7efc439345e8665da0bd79bc06c02a0506e5fd0f3a4cf11af0c7197eaa643",
+      "bytes": 29535,
+      "source11_archive_local_three_way_match": true
+    },
+    {
+      "source11_path": "<SERDE_CORE>/src/ser/mod.rs",
+      "installed_path": "<CARGO_HOME>/registry/src/index.crates.io-1949cf8c6b5b557f/serde_core-1.0.229/src/ser/mod.rs",
+      "archive_member": "serde_core-1.0.229/src/ser/mod.rs",
+      "source11_sha256": "ec097d92c8545356961e977a4c9650361cadd1d3a243d805ae7b0e0e589ae803",
+      "archive_sha256": "ec097d92c8545356961e977a4c9650361cadd1d3a243d805ae7b0e0e589ae803",
+      "installed_sha256": "ec097d92c8545356961e977a4c9650361cadd1d3a243d805ae7b0e0e589ae803",
+      "bytes": 65231,
+      "source11_archive_local_three_way_match": true
+    }
+  ],
+  "expected_cited_pages": 7,
+  "matched_cited_pages": 7,
+  "all_source11_page_hashes_preserved": true,
+  "absent_cargo_checksum_manifests_remain_absent": true
+}
