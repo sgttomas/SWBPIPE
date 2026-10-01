@@ -1,0 +1,141 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "archive": {
+    "path": "<wt>/scratch/i23/discriminators_g2/immutable_40129_fk.tar",
+    "sha256": "25c4d1299803d4b60770ea9cc7487564f4e40c6bc93400c2bb607d5241a0aa95"
+  },
+  "warrants": [
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "lines": [
+        372,
+        447
+      ],
+      "claim": "Unchanged formula and exact mutated ceil(q/2^53) step. Small-scale plain-return guards and outer directed sum remain.",
+      "text": "}\n\n/// b = fl\u2191(2^-64\u00b7S*), for S* \u2265 0: exact whenever 2^-64\u00b7S* is representable,\n/// at least 2^-1074 for any 0 < S*, and 0 only at S* = 0.\npub fn absolute_bound(s_star: f64) -> f64 {\n    let two64 = 18_446_744_073_709_551_616.0_f64;\n    let nearest = s_star / two64;\n    if nearest * two64 < s_star {\n        next_up(nearest)\n    } else {\n        nearest\n    }\n}\n\n/// The verified-accuracy class of a published row of a scaled kind.\n#[derive(Debug, Clone, Copy, PartialEq)]\npub enum RowClass {\n    RelativeVerified,\n    /// Withheld from reliance, with its absolute bound b (bits).\n    AbsoluteVerified {\n        bound_bits: u64,\n    },\n    /// Rule 2a (no threshold).\n    InputDerived,\n    /// A value the publication could not give (underflow or overflow): no\n    /// class; F2a decides its standing (ROOT's K4 ruling O9).\n    Unpublishable,\n}\n\n/// An `absolute_verified` row's bound. D1 revision 5a.3's amendment A1\n/// (ROOT's ruling on RV19-6): where 0 < S\\* < 2^-988 a row can reach |q| \u2248 S\\*,\n/// so its bound carries its own publication rounding,\n/// b_row = fl\u2191(fl\u2191(2^-64\u00b7S\\*) + fl\u2191(2^-53\u00b7|q|) + 2^-1074), the sum rounded\n/// upward once, decided exactly. Elsewhere b = fl\u2191(2^-64\u00b7S\\*) is unchanged:\n/// an absolute row there has |q| < 2^-34\u00b7S\\*, whose rounding is below 2^-23\u00b7b\n/// (R7 \u00a75.2); and b = 0 at S\\* = 0.\npub(crate) fn row_bound(value: f64, s_star: f64) -> f64 {\n    let small = f64::from_bits(0x0230_0000_0000_0000); // 2^-988\n    let b = absolute_bound(s_star);\n    if s_star == 0.0 || s_star >= small {\n        return b;\n    }\n    // fl\u2191(2^-53\u00b7|q|): the scaling back is exact, so the comparison decides.\n    let two53 = 9_007_199_254_740_992.0_f64;\n    let q = value.abs();\n    let nearest = q / two53;\n    let rounding = if nearest * two53 < q {\n        next_up(nearest)\n    } else {\n        nearest\n    };\n    // The three terms span at most 2,100 bits: the sum and its upward\n    // rounding are exact (no refusal is reachable).\n    (|| -> Option<f64> {\n        let mut num = ExactWideSum::new();\n        num.add_binary64(b, false).ok()?;\n        num.add_binary64(rounding, false).ok()?;\n        num.add_binary64(f64::from_bits(1), false).ok()?;\n        let mut den = ExactWideSum::new();\n        den.add_binary64(1.0, false).ok()?;\n        let mut ctx = WideContext::<16>::new(1024).ok()?;\n        directed_ratio(&mut ctx, &num, &den, Direction::Up).ok()\n    })()\n    .unwrap_or(f64::INFINITY)\n}\n\n/// D1 \u00a74.1.6 item 1 on the published value: `absolute_verified` iff\n/// |q| < fl(R\u00b7S\\*), and always when S\\* < 2^-988, with the bound of\n/// `row_bound` (amendment A1).\npub fn classify(value: f64, s_star: f64) -> RowClass {\n    if relative_class(value, s_star) {\n        RowClass::RelativeVerified\n    } else {\n        RowClass::AbsoluteVerified {\n            bound_bits: row_bound(value, s_star).to_bits(),\n        }\n"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "lines": [
+        147,
+        187
+      ],
+      "claim": "Original exact-bit and weak-inequality operands audited individually. Branch activation alone does not make the > predicate discriminating.",
+      "text": "#[test]\nfn amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988() {\n    // D1 revision 5a.3 amendment A1 (ROOT's ruling on RV19-6): where\n    // 0 < S* < 2^-988, b_row = fl\u2191(fl\u2191(2^-64\u00b7S*) + fl\u2191(2^-53\u00b7|q|) + 2^-1074).\n    let s = support::pow2(-995);\n    // q = S* (TINY-S-995's scale): 2^-1059 + 2^-1048 + 2^-1074, exact.\n    assert_eq!(row_bound(s, s).to_bits(), 0x0000_0000_0400_8001);\n    assert_eq!(\n        classify(s, s),\n        RowClass::AbsoluteVerified {\n            bound_bits: 0x0000_0000_0400_8001\n        }\n    );\n    // A zero row: 2^-1059 + 2^-1074.\n    assert_eq!(row_bound(0.0, s).to_bits(), 0x8001);\n    // It covers the row's own rounding (at most 2^-53\u00b7|q| + 2^-1075) beside b.\n    for q in [\n        s,\n        -0.75 * s,\n        f64::from_bits(s.to_bits() - 1),\n        3.0 * support::pow2(-1060),\n    ] {\n        let b = row_bound(q, s);\n        assert!(\n            b > absolute_bound(s) + q.abs() * support::pow2(-53),\n            \"{q:e}\"\n        );\n    }\n    // Just below 2^-988, where 2^-53\u00b7|q| is normal: the sum rounded upward\n    // once (GEN's value).\n    let below = f64::from_bits(0x022F_FFFF_FFFF_FFFF);\n    assert_eq!(row_bound(below, below).to_bits(), 0x0000_0002_0040_0001);\n    // At 2^-988 and above, and at S* = 0, the plain rule.\n    let at = support::pow2(-988);\n    assert_eq!(row_bound(0.5 * at, at), absolute_bound(at));\n    assert_eq!(row_bound(1.0, 1.0), absolute_bound(1.0));\n    assert_eq!(row_bound(0.0, 0.0), 0.0);\n}\n\n#[test]\nfn stress_scales_and_intensified_factors_match_bit_for_bit() {\n"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "lines": [
+        58,
+        113
+      ],
+      "claim": "Existing corpus filter compares every row class/bound bits at line96; no solver/publication-certificate prerequisite.",
+      "text": "fn the_classification_matches_the_binary64_reimplementation_bit_for_bit() {\n    // SD-J1.\n    let mut sets = 0;\n    let mut counts = [0usize; 4];\n    let mut layout = Vec::new();\n    let mut values = Vec::new();\n    let mut expected = Vec::new();\n    let mut scales: Vec<(u32, Kind, u64)> = Vec::new();\n    let mut extents = Vec::new();\n    for line in VECTORS.lines() {\n        let f: Vec<&str> = line.split_whitespace().collect();\n        match f[0] {\n            \"set\" => {\n                layout.clear();\n                values.clear();\n                expected.clear();\n                scales.clear();\n                extents = f[3..].iter().map(|h| hex(h)).collect();\n            }\n            \"row\" => {\n                layout.push(QuantityMeta {\n                    id: QuantityId::Displacement(Dof::from_global(layout.len())),\n                    kind: Kind::ALL[f[1].parse::<usize>().unwrap()],\n                    body: f[2].parse().unwrap(),\n                    input_derived: f[3] == \"1\",\n                });\n                values.push(outcome(f[4]));\n                expected.push(class(f[5]));\n            }\n            \"scales\" => {\n                let b: u32 = f[1].parse().unwrap();\n                for (k, h) in f[2..].iter().enumerate() {\n                    scales.push((b, Kind::ALL[k], u64::from_str_radix(h, 16).unwrap()));\n                }\n            }\n            \"end\" => {\n                let publication = classify_rows(&layout, &values, &extents);\n                let got: Vec<RowClass> = publication.rows.iter().map(|r| r.class).collect();\n                assert_eq!(got, expected, \"set {sets}\");\n                assert_eq!(publication.body_scales, scales, \"set {sets}\");\n                for c in &got {\n                    counts[match c {\n                        RowClass::RelativeVerified => 0,\n                        RowClass::AbsoluteVerified { .. } => 1,\n                        RowClass::InputDerived => 2,\n                        RowClass::Unpublishable => 3,\n                    }] += 1;\n                }\n                sets += 1;\n            }\n            _ => {}\n        }\n    }\n    // 405 sets, and A1's four (ROOT's ruling on RV19-6).\n    assert_eq!(sets, 409);\n    assert!(counts.iter().all(|&c| c > 50), \"{counts:?}\");\n"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/K4_REVIEW.md",
+      "sha256": "87accdff7a323be982afb3962dd72b05bb3a20ff7fad1519314f841c5e94bf07",
+      "lines": [
+        451,
+        470
+      ],
+      "claim": "Historical review D.4 explicitly attributes RV19-D2 kill to classification set19, not the A1 unit test.",
+      "text": "### D.4 Amendment A1 (check 2)\n\n- **Derivation, checked independently.** |q_pub \u2212 q\\*| \u2264 |q_pub \u2212 q_p| + |q_p \u2212 q\\*|.\n  - **Rounding to nearest.** For a normal result, the half-spacing of the binade that holds fl(x) is at most 2^-53\u00b7|fl(x)|. This holds at a binade boundary too: rounding up to 2^e from below costs at most 2^(e\u221254). So |q_pub \u2212 q_p| \u2264 2^-53\u00b7|q_pub|. For a subnormal result the bound is 2^-1075. A nonzero q_p that rounds to zero is `Unpublishable` and carries no bound.\n  - **The candidate.** In a body and kind with S\\* < 2^-988, M_q = S\\*_2p. The accepted candidate gives |q_p \u2212 q\\*| \u2264 2^-64\u00b7S\\*_2p, within R7 \u00a75.2's factor.\n  - **S\\*_2p against S\\*_pub.** With RV19-1's fix, S\\*_2p exceeds S\\*_pub by at most a relative 2^-64 + 2^-52 plus 2^-1075 absolute (subnormal publication and the binary64 coupling). 2^-64 of that absolute part is below the 2^-1074 \u2212 2^-1075 that b_row's last term leaves spare.\n  - **So** |q_pub \u2212 q\\*| \u2264 b_row\u00b7(1 + 2^-22), or (1 + 2^-21) at 512. Where S\\* \u2265 2^-988, an absolute row has |q| < 2^-34\u00b7S\\*, and a subnormal row's 2^-1075 is \u2264 2^-23\u00b7b, since b \u2265 2^-1052. So the plain b holds there, and b = 0 holds at S\\* = 0. Relative rows are normal numbers.\n  - The derivation holds.\n- **The code** (`row_bound`, `adaptive.rs:376`):\n  - it returns `absolute_bound` when S\\* = 0 or S\\* \u2265 2^-988;\n  - otherwise fl\u2191(2^-53\u00b7|q|) is `q / 2^53`, stepped up when the exact scaling back falls short. That is exact, including into the subnormal range, where it yields 2^-1074 for any nonzero q below 2^-1022;\n  - the three terms go into one `ExactWideSum`, rounded upward once by `directed_ratio(\u2026, Up)` over 1. That is the least binary64 \u2265 the exact sum;\n  - the unreachable fallback is +\u221e, never a low bound;\n  - `classify` passes it the published binary64 q and the classification's S\\* (coupled, floored at 512).\n  - The unit test's five pinned values match my hand computation (`0x4008001`, `0x8001`, `0x200400001`, and the two plain cases).\n- **The mutants:**\n  - A1R (reverted) is killed by the controls test at TINY-S-995 (819.2 at end.1.i.2), the A1 unit test, classification set 19 and item 6a's test. **So TINY-S-995's 128-bit expectation is precise enough.**\n  - RV19-D1 (A1 without its 2^-1074 term) is killed by the A1 unit test, item 6a and the classification vectors.\n  - RV19-D2 (fl(2^-53\u00b7|q|) to nearest) is killed by the classification vectors (set 19).\n- **The bounds that move.** My publication diff shows 26 PT-B rows and 45 PTF-B rows, and nothing else among the 115 publications selected at both heads. TINY-S-995 is new; K4's controls test prints its 24 rows.\n"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/_run_records/k4_review/delta/mutations/logs/RV19-D2.log",
+      "sha256": "b57f075f862863b67cded1a7a7ea9131ca8b58e737c6483376aaf916b1c3e21c",
+      "lines": [
+        5,
+        10
+      ],
+      "claim": "Historical mutant log shows the exact now-selected A1 unit test ok and classification bit-for-bit FAILED.",
+      "text": "running 114 tests\ntest structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988 ... ok\ntest structural::retained::adaptive::classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else ... ok\ntest structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit ... ok\ntest structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit ... FAILED\ntest structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly ... ok\n"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/_run_records/k4_review/delta/mutations/logs/RV19-D2.log",
+      "sha256": "b57f075f862863b67cded1a7a7ea9131ca8b58e737c6483376aaf916b1c3e21c",
+      "lines": [
+        123,
+        128
+      ],
+      "claim": "Historical set19 numeric bound_bits2 versus3; historical observation only.",
+      "text": "---- structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit stdout ----\n\nthread 'structural::retained::adaptive::classification_tests::the_classification_matches_the_binary64_reimplementation_bit_for_bit' (13171902) panicked at src/structural/retained/../../../tests/retained_k4/classification_tests.rs:96:17:\nassertion `left == right` failed: set 19\n  left: [InputDerived, AbsoluteVerified { bound_bits: 6613100253197216144 }, AbsoluteVerified { bound_bits: 5914052027039813378 }, AbsoluteVerified { bound_bits: 6613100253197216144 }, InputDerived, InputDerived, AbsoluteVerified { bound_bits: 3920668511468581248 }, RelativeVerified, AbsoluteVerified { bound_bits: 2074879203422066283 }, AbsoluteVerified { bound_bits: 2074879203422066283 }, Unpublishable, AbsoluteVerified { bound_bits: 6675357538199893425 }, AbsoluteVerified { bound_bits: 2074879203422066283 }, InputDerived, AbsoluteVerified { bound_bits: 2074879203422066283 }, AbsoluteVerified { bound_bits: 6675357538199893425 }, RelativeVerified, RelativeVerified, RelativeVerified, RelativeVerified, AbsoluteVerified { bound_bits: 2 }, AbsoluteVerified { bound_bits: 5851766445463236142 }, RelativeVerified]\n right: [InputDerived, AbsoluteVerified { bound_bits: 6613100253197216144 }, AbsoluteVerified { bound_bits: 5914052027039813378 }, AbsoluteVerified { bound_bits: 6613100253197216144 }, InputDerived, InputDerived, AbsoluteVerified { bound_bits: 3920668511468581248 }, RelativeVerified, AbsoluteVerified { bound_bits: 2074879203422066283 }, AbsoluteVerified { bound_bits: 2074879203422066283 }, Unpublishable, AbsoluteVerified { bound_bits: 6675357538199893425 }, AbsoluteVerified { bound_bits: 2074879203422066283 }, InputDerived, AbsoluteVerified { bound_bits: 2074879203422066283 }, AbsoluteVerified { bound_bits: 6675357538199893425 }, RelativeVerified, RelativeVerified, RelativeVerified, RelativeVerified, AbsoluteVerified { bound_bits: 3 }, AbsoluteVerified { bound_bits: 5851766445463236142 }, RelativeVerified]\n"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/RETURN.md",
+      "sha256": "78b576e8efd6667fd0f6b629308a5fd8066230cb25e1c5a2de3bfdb6f444c226",
+      "lines": [
+        815,
+        841
+      ],
+      "claim": "Historical implementation A1 account records the unit formula/expected values and protected amendment context.",
+      "text": "- `classify` receives the classification's S\\* (coupled, and floored by \u03a6 at 512) and the published binary64 q.\n- GEN's `row_bound` computes the same with Fractions and `fl_up`. `classification.txt` gains four targeted sets, and Rust matches every set bit for bit:\n  - TINY-S-995's scale, with a subnormal and a zero row;\n  - S\\* just below 2^-988, where 2^-53\u00b7|q| is normal;\n  - S\\* at 2^-988 exactly, where the plain rule applies;\n  - a coupled case.\n- The unit test `amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988` pins five values:\n  - q = S\\* = 2^-995 gives `0x4008001`;\n  - a zero row gives `0x8001`;\n  - just below 2^-988 gives `0x200400001`;\n  - at 2^-988 and at S\\* = 0 the plain rule applies.\n\n**Bound bits that change** (every selected control of the controls test compared with fl\u2191(2^-64\u00b7S\\*)):\n- PT-B, 26 rows: an operand prescribing 2^-1000;\n- PTF-B, 45 rows: likewise;\n- TINY-S-995, 24 rows.\n\nNo other control's bound moves. In `classification.txt`, five rows of the seeded sets change (each in a body and kind whose S\\* lies below 2^-988), and so do the four targeted rows below 2^-988 (sets 402 and 403). `item_6a_floors_force_and_moment_by_phi\u2026`'s zero row under a subnormal \u03a6 now carries 2\u00b72^-1074 instead of 2^-1074.\n\n**TINY-S-995** (RV19's model, GEN and `outcomes.txt`) is selected at 128:\n- Every row of its body is `absolute_verified` below S\\* = 2^-988.\n- Under A1 every row is within its claim against GEN's exact solution.\n- Under the reverted amendment, **A1R**, the controls test fails on TINY-S-995: its worst row, end.1.i.2, is 819.2 times the allowance. RV19 measured 222 to 819 on seven rows (\u00a7A1.8).\n\nTINY-S-900 beside it is selected at 128, with the plain rule.\n\n**Routed:**\n"
+    }
+  ],
+  "set19": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+    "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2",
+    "start_line": 282,
+    "text": "set 19 3 0000000000000000 40cbfbe76c8b4396 40958d4fdf3b645a\nrow 3 0 1 N:ad4e973fade61d66 I\nrow 2 1 0 N:cf3f680fa62a027d A:5bc673a47fdda990\nrow 0 1 0 N:94b80cc9a3539634 A:5212eefc0ee30f02\nrow 2 1 0 N:273755d52e8b6bc3 A:5bc673a47fdda990\nrow 3 0 1 N:326e80b538b29470 I\nrow 3 2 1 N:2594028987e99f8c I\nrow 2 2 0 N:8d76530e2f229c2b A:3669033d1424f180\nrow 3 0 0 N:1f561066423a663d R\nrow 1 0 0 N:986f2cd8e8695d3c A:1ccb73a46fd1566b\nrow 1 0 0 N:0ebbc11d3caea5e6 A:1ccb73a46fd1566b\nrow 0 0 0 U- U\nrow 3 1 0 N:4a73c2c63411c936 A:5ca3a2503d2175b1\nrow 1 0 0 N:95b9816894fcb520 A:1ccb73a46fd1566b\nrow 1 2 1 N:d5b780da77da7995 I\nrow 1 0 0 N:852069f835065622 A:1ccb73a46fd1566b\nrow 3 1 0 N:9e7308ae4af3a1e0 A:5ca3a2503d2175b1\nrow 1 1 0 N:5535a6940262ee2e R\nrow 2 1 0 N:dfc673a47fdda990 R\nrow 2 2 0 N:3a69033d1424f180 R\nrow 0 0 0 N:4952fd18a5804df4 R\nrow 1 2 0 S:000e0eb8edf1a91a A:0000000000000003\nrow 1 1 0 N:b763f8789bfd04a6 A:5135a6940262ee2e\nrow 1 0 0 N:a0cb73a46fd1566b R\nscales 0 4952fd18a5804df4 20cb73a46fd1566b 0000000000000000 1f561066423a663d\nscales 1 5612eefc0ee30f02 5535a6940262ee2e 5fc673a47fdda990 60a3a2503d2175b1\nscales 2 00b2ef7aa2d08657 000e0eb8edf1a91a 3a69033d1424f180 3b10d894c8d4c90d\nend"
+  },
+  "fault": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D2.patch",
+    "sha256": "1017231c7a4f3a1b9986a9d07264de215411ceafb503b21c33572cc582387c21",
+    "text": "--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n+++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@ -415,11 +415,7 @@\n     let two53 = 9_007_199_254_740_992.0_f64;\n     let q = value.abs();\n     let nearest = q / two53;\n-    let rounding = if nearest * two53 < q {\n-        next_up(nearest)\n-    } else {\n-        nearest\n-    };\n+    let rounding = nearest;\n     // The three terms span at most 2,100 bits: the sum and its upward\n     // rounding are exact (no refusal is reachable).\n     (|| -> Option<f64> {\n",
+    "original_registration": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/REVIEW/_run_records/k4_review/final/mutations/rv19_mut.py.txt",
+      "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "09b83beed0ea8442b68e08e69d3b3521eb661efabb301922669d89375227fbae",
+      "line": 20
+    },
+    "unchanged_source_anchor_count": 1
+  },
+  "current_R46_mapping": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/g3_preparation_01/MANIFEST.json",
+    "sha256": "5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6",
+    "entry": {
+      "group": "RV19",
+      "id": "RV19-D2",
+      "patch": "patches/RV19__RV19-D2.patch",
+      "patch_sha256": "1017231c7a4f3a1b9986a9d07264de215411ceafb503b21c33572cc582387c21",
+      "filters": [
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "target": "--lib",
+      "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "test_source": {
+        "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+        "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+        "assertion_lines": [
+          153,
+          178
+        ]
+      },
+      "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988.",
+      "mapping_note": "",
+      "status": "PREPARED_METADATA_ONLY_UNRUN",
+      "runtime_status": "UNRUN_BY_RV29",
+      "patch_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D2.patch",
+      "runtime_id": "R46",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095"
+        }
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R46",
+      "target_root": "<wt>/a1-protected-target/g3/R46"
+    }
+  },
+  "diagnosis": "Current narrowed mapping omitted the actual historical discriminator. The fault is active, source-faithful and not generally equivalent; its specific selected unit filter has insufficient assertions."
+}
