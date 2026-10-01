@@ -1,0 +1,16 @@
+SOURCE-ONLY PREPARATION: NOT EXECUTED. Requires ROOT/RV30 exact-overlay review and a new explicit runtime-slot release.
+
+Working directory: <I21_LAYOUT08_SCRATCH>/archive
+PTY: true
+Log: <I21_LAYOUT08_SCRATCH>/BUILD_LAYOUT08.log (outside archive)
+Target: <T3_HOST_ROOT>/k6c-layout08-target (outside archive and product checkout)
+
+set -o pipefail
+/usr/bin/time -l env -u FK_SEEDED_FAULT -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_WRAPPER -u RUSTC_WORKSPACE_WRAPPER -u RUSTC_BOOTSTRAP RUSTUP_TOOLCHAIN=1.97.1 RUSTUP_AUTO_INSTALL=0 CARGO_INCREMENTAL=0 RUST_TEST_THREADS=2 CARGO_TARGET_DIR='<T3_HOST_ROOT>/k6c-layout08-target' cargo run --release --offline --locked -j 4 --verbose --target aarch64-apple-darwin --manifest-path '<I21_LAYOUT08_SCRATCH>/archive/projects/chirality-piping/core/solver/performance_harness/Cargo.toml' --example i21_kernel_layout 2>&1 | tee '<I21_LAYOUT08_SCRATCH>/BUILD_LAYOUT08.log'
+
+No --features, --test, target-type cfg, toolchain recovery, online dependency resolution, numerical input or model is supplied.
+RUST_TEST_THREADS is inherited grant discipline, not evidence of allocator isolation; no libtest harness is built.
+The existing M5 guard and inherited operator supervision must be verified by ROOT before release; this command neither replaces nor reconfigures them.
+The time utility wraps env/cargo; future reported resource data must describe that nesting and must not be presented as an isolated rustc or probe peak.
+No new cap or automatic deadline is invented here. An unavailable tool/dependency or failed isolation check returns no binding; do not retry via installation or workaround.
+

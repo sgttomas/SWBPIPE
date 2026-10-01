@@ -1,0 +1,217 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs
+@@ -8,6 +8,8 @@
+ /// crate names this module. `PrecisionState` and `RetainedSolve::state` stay
+ /// crate-private (ROOT's ruling C-2).
+ pub mod retained_api {
++    // I21 layout08 archive-only diagnostic export; no target definition changes.
++    pub use super::retained::adaptive::i21_layout08_node_requests;
+     pub use super::retained::adaptive::{
+         absolute_bound, body_extent, classify, classify_rows, classify_rows_floored,
+         coupled_scales, intensified_k, solve_case, solve_cases, stress_scale, threshold,
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -4523,3 +4523,135 @@
+ #[cfg(test)]
+ #[path = "../../../tests/retained_k4/publication_tests.rs"]
+ mod publication_tests;
++
++
++/// I21 layout08: fixed-purpose archive-only request witness; never a product API.
++/// No formatting, heap report, worker, solver or tracker offer occurs here.
++/// Callbacks must be the unchanged K6Alloc current/calls in a standalone process.
++#[doc(hidden)]
++#[inline(never)]
++pub fn i21_layout08_node_requests(
++    current: fn() -> usize,
++    calls: fn() -> u64,
++) -> ([[usize; 5]; 3], [[u64; 5]; 3], [bool; 3]) {
++    use std::collections::{BTreeMap, BTreeSet};
++    use std::hint::black_box;
++
++    let mut bytes = [[0usize; 5]; 3];
++    let mut counts = [[0u64; 5]; 3];
++    let mut contents = [false; 3];
++
++    // Exact specialization 0; all operands preconstructed on the stack.
++    {
++        let operands: [(u32, usize); 12] = std::array::from_fn(|i| (i as u32, i));
++        let mut operands = operands.into_iter();
++        let mut tree: BTreeMap<u32, usize> = BTreeMap::new();
++        let (key, value) = black_box(operands.next().unwrap());
++        bytes[0][0] = current();
++        counts[0][0] = calls();
++        let mut unique = tree.insert(key, value).is_none();
++        black_box(&tree);
++        bytes[0][1] = current();
++        counts[0][1] = calls();
++
++        // Exactly ten insertions fit the existing eleven-entry root leaf.
++        for _ in 1..11 {
++            let (key, value) = black_box(operands.next().unwrap());
++            unique &= tree.insert(key, value).is_none();
++        }
++        // Extract the twelfth operand before the split-window baseline.
++        let (key, value) = black_box(operands.next().unwrap());
++        bytes[0][2] = current();
++        counts[0][2] = calls();
++        unique &= tree.insert(key, value).is_none();
++        black_box(&tree);
++        bytes[0][3] = current();
++        counts[0][3] = calls();
++
++        // No assertion/formatting: retain content verdict for the caller.
++        contents[0] = unique && tree.len() == 12 && tree.iter().enumerate().all(|(i, (&k, &v))| k == i as u32 && v == i);
++        black_box(&tree);
++        drop(tree);
++        bytes[0][4] = current();
++        counts[0][4] = calls();
++    }
++
++    // Exact specialization 1; all operands preconstructed on the stack.
++    {
++        let operands: [((RuleTest, u32, Kind), BoundedExtremeTracker); 12] =
++            std::array::from_fn(|i| ((RuleTest::Disagreement, i as u32, Kind::Force),
++                BoundedExtremeTracker::new(Direction::Up)));
++        let mut operands = operands.into_iter();
++        let mut tree: BTreeMap<(RuleTest, u32, Kind), BoundedExtremeTracker> = BTreeMap::new();
++        let (key, value) = black_box(operands.next().unwrap());
++        bytes[1][0] = current();
++        counts[1][0] = calls();
++        let mut unique = tree.insert(key, value).is_none();
++        black_box(&tree);
++        bytes[1][1] = current();
++        counts[1][1] = calls();
++
++        // Exactly ten insertions fit the existing eleven-entry root leaf.
++        for _ in 1..11 {
++            let (key, value) = black_box(operands.next().unwrap());
++            unique &= tree.insert(key, value).is_none();
++        }
++        // Extract the twelfth operand before the split-window baseline.
++        let (key, value) = black_box(operands.next().unwrap());
++        bytes[1][2] = current();
++        counts[1][2] = calls();
++        unique &= tree.insert(key, value).is_none();
++        black_box(&tree);
++        bytes[1][3] = current();
++        counts[1][3] = calls();
++
++        // No assertion/formatting: retain content verdict for the caller.
++        contents[1] = unique && tree.len() == 12 && tree.iter().enumerate().all(|(i, (&(test, body, kind), value))|
++            test == RuleTest::Disagreement && body == i as u32 && kind == Kind::Force
++                && value.lazy.is_empty() && value.table.is_empty()
++                && value.offered == 0 && value.best.is_none() && value.limit == TRACKER_ROWS);
++        black_box(&tree);
++        drop(tree);
++        bytes[1][4] = current();
++        counts[1][4] = calls();
++    }
++
++    // Exact specialization 2; all operands preconstructed on the stack.
++    {
++        let operands: [(RuleTest, u32, Kind); 12] =
++            std::array::from_fn(|i| (RuleTest::Disagreement, i as u32, Kind::Force));
++        let mut operands = operands.into_iter();
++        let mut tree: BTreeSet<(RuleTest, u32, Kind)> = BTreeSet::new();
++        let key = black_box(operands.next().unwrap());
++        bytes[2][0] = current();
++        counts[2][0] = calls();
++        let mut unique = tree.insert(key);
++        black_box(&tree);
++        bytes[2][1] = current();
++        counts[2][1] = calls();
++
++        // Exactly ten insertions fit the existing eleven-entry root leaf.
++        for _ in 1..11 {
++            let key = black_box(operands.next().unwrap());
++            unique &= tree.insert(key);
++        }
++        // Extract the twelfth operand before the split-window baseline.
++        let key = black_box(operands.next().unwrap());
++        bytes[2][2] = current();
++        counts[2][2] = calls();
++        unique &= tree.insert(key);
++        black_box(&tree);
++        bytes[2][3] = current();
++        counts[2][3] = calls();
++
++        // No assertion/formatting: retain content verdict for the caller.
++        contents[2] = unique && tree.len() == 12 && tree.iter().enumerate().all(|(i, &(test, body, kind))|
++            test == RuleTest::Disagreement && body == i as u32 && kind == Kind::Force);
++        black_box(&tree);
++        drop(tree);
++        bytes[2][4] = current();
++        counts[2][4] = calls();
++    }
++
++    (bytes, counts, contents)
++}
+--- /dev/null
++++ b/projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs
+@@ -0,0 +1,65 @@
++//! Archive-only I21 layout08: no solver/model/thread or input parsing.
++//! The entire registered-allocator path is main -> fixed hook -> scalar samples.
++//! All output is after all baseline-to-drop trials have finished.
++#[path = "../src/bin/k6_observe/alloc.rs"]
++mod alloc;
++
++#[global_allocator]
++static ALLOC: alloc::K6Alloc = alloc::K6Alloc;
++
++use open_pipe_stress_frame_kernel::structural::retained_api;
++use std::mem::{align_of, size_of};
++
++fn main() {
++    let layouts = [
++        (size_of::<(u32, retained_api::SpringKind)>(), align_of::<(u32, retained_api::SpringKind)>()),
++        (size_of::<retained_api::Dof>(), align_of::<retained_api::Dof>()),
++        (size_of::<(u32, u64, u64)>(), align_of::<(u32, u64, u64)>()),
++        (size_of::<(u32, f64)>(), align_of::<(u32, f64)>()),
++        (size_of::<(u32, u64)>(), align_of::<(u32, u64)>()),
++    ];
++    let (bytes, calls, contents) =
++        retained_api::i21_layout08_node_requests(alloc::current, alloc::calls);
++
++    // All three trials have ended. Validate without any heap report/format.
++    let mut node_requests = [None; 3];
++    let mut all_bound = !cfg!(test) && !cfg!(debug_assertions);
++    for i in 0..3 {
++        let m = bytes[i];
++        let c = calls[i];
++        let leaf = m[1].checked_sub(m[0]);
++        let split = m[3].checked_sub(m[2]);
++        let internal = split.and_then(|delta| leaf.and_then(|l| delta.checked_sub(l)));
++        let total = leaf.and_then(|l| l.checked_mul(2))
++            .and_then(|twice| internal.and_then(|v| twice.checked_add(v)));
++        let valid = !cfg!(test) && !cfg!(debug_assertions) && contents[i]
++            && c[1].checked_sub(c[0]) == Some(1)
++            && c[2] == c[1] && m[2] == m[1]
++            && c[3].checked_sub(c[2]) == Some(2)
++            && c[4] == c[3] && m[4] == m[0]
++            && leaf.is_some_and(|v| v > 0)
++            && internal.is_some_and(|v| v > 0)
++            && total == m[3].checked_sub(m[0]);
++        node_requests[i] = if valid { leaf.zip(internal) } else { None };
++        all_bound &= valid;
++    }
++
++    // First formatting/output: no measured container or sampling window remains.
++    println!("I21_LAYOUT08 cfg_test={} debug_assertions={}", cfg!(test), cfg!(debug_assertions));
++    let tree_labels = ["geometry_u32_usize", "tracker_rule_body_kind", "holding_rule_body_kind"];
++    for i in 0..3 {
++        println!("RAW {} bytes={:?} calls={:?} contents={}", tree_labels[i], bytes[i], calls[i], contents[i]);
++        match node_requests[i] {
++            Some((leaf, internal)) => println!("REQUEST {} leaf={} internal={} alignment=UNBOUND", tree_labels[i], leaf, internal),
++            None => println!("NO_BINDING {}", tree_labels[i]),
++        }
++    }
++    let layout_labels = ["NotAssessed_u32_SpringKind", "Dof", "Resolution_u32_u64_u64", "Theta_u32_f64", "Certified_u32_u64"];
++    for i in 0..5 {
++        println!("LAYOUT {} size={} align={}", layout_labels[i], layouts[i].0, layouts[i].1);
++    }
++    println!("RESULT {}", if all_bound { "COUNTERS_AND_CONTENT_PASS" } else { "NO_BINDING" });
++    if !all_bound {
++        std::process::exit(1);
++    }
++}

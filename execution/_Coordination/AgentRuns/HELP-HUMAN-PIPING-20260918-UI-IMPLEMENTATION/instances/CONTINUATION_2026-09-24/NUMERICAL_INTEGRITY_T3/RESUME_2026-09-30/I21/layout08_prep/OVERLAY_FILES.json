@@ -1,0 +1,20 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+    "kind": "modified",
+    "before_sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+    "after_sha256": "4b666c45c0ab8a902350dcba52ff6a9f7af2882e73a6df2c936b4156230be39a"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "kind": "modified",
+    "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+    "after_sha256": "f3403e5e8c1a0378f29567ca1192274fdf3c8511d12ed01137c1daecb62d52e8"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs",
+    "kind": "new",
+    "before_sha256": null,
+    "after_sha256": "f03d34aa4889800d2c679aaca9d7aeab02b939626117a6d92135672961feb5df"
+  }
+]

@@ -1,0 +1,135 @@
+{
+  "scope": "three exact containers and five actual layout targets only",
+  "hook_start_line": 4533,
+  "rows": [
+    {
+      "label": "geometry_u32_usize",
+      "kind": "actual node request bytes, prospective only",
+      "actual_container_type": "std::collections::BTreeMap<u32,usize>",
+      "node_specializations": [
+        "LeafNode for that exact K,V",
+        "InternalNode for that exact K,V"
+      ],
+      "private_set_value": null,
+      "production_origin": "retained/factor.rs:146",
+      "hook_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "hook_type_line": 4548,
+      "sample_row": 0,
+      "sample_columns": [
+        "baseline before first insert",
+        "after first insert",
+        "before twelfth insert, after eleventh",
+        "after twelfth insert",
+        "after drop"
+      ],
+      "leaf_expression": "bytes[1]-bytes[0] checked",
+      "internal_expression": "(bytes[3]-bytes[2])-leaf checked",
+      "private_alignment": "UNBOUND"
+    },
+    {
+      "label": "tracker_rule_body_kind",
+      "kind": "actual node request bytes, prospective only",
+      "actual_container_type": "std::collections::BTreeMap<(RuleTest,u32,Kind),BoundedExtremeTracker>",
+      "node_specializations": [
+        "LeafNode for that exact K,V",
+        "InternalNode for that exact K,V"
+      ],
+      "private_set_value": null,
+      "production_origin": "retained/adaptive.rs:809-812,2136",
+      "hook_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "hook_type_line": 4585,
+      "sample_row": 1,
+      "sample_columns": [
+        "baseline before first insert",
+        "after first insert",
+        "before twelfth insert, after eleventh",
+        "after twelfth insert",
+        "after drop"
+      ],
+      "leaf_expression": "bytes[1]-bytes[0] checked",
+      "internal_expression": "(bytes[3]-bytes[2])-leaf checked",
+      "private_alignment": "UNBOUND"
+    },
+    {
+      "label": "holding_rule_body_kind",
+      "kind": "actual node request bytes, prospective only",
+      "actual_container_type": "std::collections::BTreeSet<(RuleTest,u32,Kind)>",
+      "node_specializations": [
+        "LeafNode for that exact K,V",
+        "InternalNode for that exact K,V"
+      ],
+      "private_set_value": "actual std SetValZST through BTreeSet",
+      "production_origin": "retained/adaptive.rs:809-812; std set.rs:82,900-904 uses actual SetValZST",
+      "hook_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "hook_type_line": 4624,
+      "sample_row": 2,
+      "sample_columns": [
+        "baseline before first insert",
+        "after first insert",
+        "before twelfth insert, after eleventh",
+        "after twelfth insert",
+        "after drop"
+      ],
+      "leaf_expression": "bytes[1]-bytes[0] checked",
+      "internal_expression": "(bytes[3]-bytes[2])-leaf checked",
+      "private_alignment": "UNBOUND"
+    },
+    {
+      "label": "NotAssessed_u32_SpringKind",
+      "kind": "actual size_of and align_of, prospective only",
+      "actual_type": "(u32,retained_api::SpringKind)",
+      "production_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "production_line": 104,
+      "production_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "example_path": "projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs",
+      "layout_array_index": 0,
+      "no_mirror": true
+    },
+    {
+      "label": "Dof",
+      "kind": "actual size_of and align_of, prospective only",
+      "actual_type": "retained_api::Dof",
+      "production_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "production_line": 63,
+      "production_sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "example_path": "projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs",
+      "layout_array_index": 1,
+      "no_mirror": true
+    },
+    {
+      "label": "Resolution_u32_u64_u64",
+      "kind": "actual size_of and align_of, prospective only",
+      "actual_type": "(u32,u64,u64)",
+      "production_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "production_line": 3407,
+      "production_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "example_path": "projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs",
+      "layout_array_index": 2,
+      "no_mirror": true
+    },
+    {
+      "label": "Theta_u32_f64",
+      "kind": "actual size_of and align_of, prospective only",
+      "actual_type": "(u32,f64)",
+      "production_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "production_line": 3413,
+      "production_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "example_path": "projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs",
+      "layout_array_index": 3,
+      "no_mirror": true
+    },
+    {
+      "label": "Certified_u32_u64",
+      "kind": "actual size_of and align_of, prospective only",
+      "actual_type": "(u32,u64)",
+      "production_path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "production_line": 3416,
+      "production_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "example_path": "projects/chirality-piping/core/solver/performance_harness/examples/i21_kernel_layout.rs",
+      "layout_array_index": 4,
+      "no_mirror": true
+    }
+  ],
+  "hook_return": "([[usize;5];3],[[u64;5];3],[bool;3]) stack tuples/arrays: bytes,successful calls,post-sample content verdicts; no report struct/Vec or heap allocation",
+  "alignment_limits": "Five accessible actual types report align_of. Private BTree node requested alignment remains unknown; never inferred from bytes or pointers."
+}
