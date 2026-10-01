@@ -87,6 +87,20 @@ Fresh independent design correction and design review precede implementation;
 F2a remains held and final K6c measurements wait for settled retained code.
 This records candidate includes the escalation and pins its independently checked diagnostic evidence before merge.
 
+**Current recovery checkpoint (ROOT, 2026-10-01):** A1's corrected source is in
+draft PR1070, with independent design/source review and exact-oracle evidence.
+The owner approved the scoped F17 certificate-prevention amendment; RF-SKEW and
+RF-CANCEL controls/results are independently qualified within that scope. S1 and
+S2 corrected VALUE witnesses are qualified; their original incorrectly narrowed
+survivors remain uncredited. Original P37-P47 are released in a bounded block;
+R02's observation gap and P48-P53 remain open. Full final-head review, hosted CI
+dispatch, Mac DEC-025 and GEN-8 precede A1 merge. AUD-T3-01 remains BLOCKING and
+F2a reliance held until closure. K6c's conditional caller/kernel reference tables
+are under independent review; their join, checked implementation, final artifact
+qualification, admission and W1-T4 measurements remain. See the append-only T3
+rulings and RESUME_2026-09-30 packets for exact findings and scope. Raw audit
+evidence has been preserved; no pruning is authorized by this checkpoint.
+
 ## Predecessor and recovery
 
 The immutable predecessor is [WORK_GRAPH.json at 44a30112](https://github.com/sgttomas/chirality/blob/44a30112a2d4af21768a9eef822ad1974a3869ec/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json), branch `codex/swbpipe-continuation-20260919`. Its directory and historical graph files remain preserved. Its old pauses, worker assignments, provisional mappings and intermediate statuses are historical.

@@ -3998,3 +3998,27 @@ does not expose the numerical estimate/charge values. Only an attributable
 existing named R7/acceptance change could qualify that current observation;
 work-only or certificate-only drift cannot. A missing witness remains a stop,
 not permission for new instrumentation or a waiver. All final A1 gates remain.
+
+
+## S2 corrected VALUE witness qualified; remaining A1 validation (ROOT, 2026-10-01)
+
+ROOT read the full RV29 vk_s2_result_41/REVIEW.md, verified all payloads and
+seal97cb6c7a3542616af3e9a86ca8e43d5e4c85e94608ae1c71fccabd5436c7bd6f,
+and accepts the corrected S2 observation under the unchanged nonzero-reaction
+VALUE criterion. The review's Actual numerical witness and Controls and history
+sections state the exact case/key/reference attribution and actual returned
+controls. P35 remains permanently zero-credit; its actual P36 return is closed.
+The expired earlier preparation remains history, not an execution or authority.
+
+Close the S2 runtime window. Release original P37-P47 only under the fresh
+BRIEFS/A1_VK_REMAINDER_09.md grant. R02's unprinted numerical-field gap remains;
+existing scalar and TREE100 tests are bounded investigation inputs, not P49
+credit or an amended criterion. P48-P53 remain held pending ROOT's next grant.
+No source, oracle, protected criterion or F17 scope changes. A1 acceptance,
+final-head gates, merge and F2a reliance remain open.
+
+The sealed caller14 and kernel_reference22 K6c instantiations have been preserved
+for independent reviews RV28 reference_callers_10 and RV30 kernel_reference_27.
+These are conditional source-arithmetic candidates; composition, result ordering,
+context/code translation, artifact qualification, admission and measurements
+remain. They do not block A1's independent completion path.
