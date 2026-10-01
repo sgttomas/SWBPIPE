@@ -1,0 +1,8 @@
+{
+  "actual_start_utc": "2026-10-01T17:13:14+00:00",
+  "actual_end_utc": "2026-10-01T17:26:37.379167+00:00",
+  "elapsed_seconds": 803.379167,
+  "limit_seconds": 1500,
+  "within_timebox": true,
+  "no_extension": true
+}

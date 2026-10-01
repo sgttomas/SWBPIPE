@@ -1,0 +1,1 @@
+{"status": "PASS", "scope": "author arithmetic/inventory self-check; independent mathematical review still required", "rows": 138, "cases": 18, "maximum_quotient_upper_pow2": 1020, "all_roster_identities_equal": true, "all_source14_sealed_payloads_match": 10, "bounds_finite_at_binary64_powers": true}

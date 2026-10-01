@@ -1,0 +1,10 @@
+{
+  "sort_unstable_source": {
+    "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/slice/mod.rs.html",
+    "html_sha256": "2807e62a5f4a46715c31382308350b6cb4e9ec52b93afc2a394e658523f4cfc8",
+    "decoded_sha256": "737a95f38cd1a84f5a82448842d39381db2f0aa432d25f8ecfe429539ebec825",
+    "excerpts_equal": true
+  },
+  "allocation_contract": "source02 retained pinned Vec/clone/tree/stable-sort contracts; source07 queues; earlier reviewed six-buffer correction retained",
+  "new_library_audit": false
+}

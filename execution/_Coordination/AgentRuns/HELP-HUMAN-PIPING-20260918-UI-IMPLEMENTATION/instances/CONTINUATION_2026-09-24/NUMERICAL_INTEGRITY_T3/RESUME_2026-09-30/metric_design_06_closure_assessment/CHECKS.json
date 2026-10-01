@@ -1,0 +1,80 @@
+{
+  "sealed_inputs": [
+    {
+      "packet": "I21/source_11",
+      "seal_sha256": "f006c022535cc1bfbc8e8e4dcea2a729a0887f5dae71ad2dd96b819408ac9907",
+      "payloads_verified": 8
+    },
+    {
+      "packet": "I21/source_12",
+      "seal_sha256": "024339a4e87285bb001c0fe44fe3a4051c0e89165cf0cd38b54d01a2dd42f87c",
+      "payloads_verified": 47
+    },
+    {
+      "packet": "I21/source_13",
+      "seal_sha256": "ec5754a160d6b8ccd1e30aa0091d4eb150ba6ccca974e8c04755f623a601b2d0",
+      "payloads_verified": 12
+    },
+    {
+      "packet": "I21/source_14",
+      "seal_sha256": "cc1d424a102334cafb891945566ad9180301154734d81de101592eed6154c4bf",
+      "payloads_verified": 10
+    },
+    {
+      "packet": "source_review_RV30/h_request_bindings_10",
+      "seal_sha256": "454142b93e83808c808ce9408d9c49e2a6ad593ff9fdc411a5e6fc9346a24cf3",
+      "payloads_verified": 14
+    },
+    {
+      "packet": "source_review_RV30/exact_11",
+      "seal_sha256": "26c8e211e312cc73fcd5d1b8a5c400618c057599e30f1b2ba1a740a83def2567",
+      "payloads_verified": 13
+    },
+    {
+      "packet": "source_review_RV30/serde_binding_08",
+      "seal_sha256": "f103733fdf3b859c1beced82df56707ed5d35c7e75982118ad6ab1b8cdc93756",
+      "payloads_verified": 6
+    },
+    {
+      "packet": "source_review_RV30/vr_caller_07",
+      "seal_sha256": "cb4691166bc6d239eaec4bb9de7f12d0d02dae3dac5b3caaa33bea6cfd39ff05",
+      "payloads_verified": 8
+    },
+    {
+      "packet": "metric_design_03_exact",
+      "seal_sha256": "3ed736b36c456d5d8ad6d9d89bf633a51fb383d96d858e8b391444dc8a8b2610",
+      "payloads_verified": 12
+    },
+    {
+      "packet": "metric_design_04_sparse",
+      "seal_sha256": "6bb5f803a7ff00f6ae67a09788895ccd3bd6359650d509f5582cf4d956b4c514",
+      "payloads_verified": 10
+    }
+  ],
+  "sparse_existing_equation_substitution": [
+    {
+      "f": 60000,
+      "factor_values_upper_bytes": 14400240000,
+      "exceeds_backstop": true
+    },
+    {
+      "f": 45000,
+      "factor_values_upper_bytes": 8100180000,
+      "exceeds_backstop": true
+    }
+  ],
+  "historical_binary_half_heap_cap": 4026531840,
+  "active_source15_read": false,
+  "active_selected_numerator_read": false,
+  "unsealed_finite_callers_review_read": false,
+  "targeted_sparse_review_lookup": "no matching sparse path in RV30 filename inventory at read time; rg exit1 means no match, not review rejection",
+  "contract_alternatives": "all UNSELECTED",
+  "no_new_proof_or_runtime_work": true,
+  "provisional_parent_review_update": {
+    "local_term": "HFactor validation arm omits live order/first16f",
+    "proposed_repair": "max(n+16f, existing factor arm)",
+    "status": "pending repair/final review; no composed-bound undercount established",
+    "sealed_metric_design_04_preserved": true,
+    "active_review_contents_read": false
+  }
+}
