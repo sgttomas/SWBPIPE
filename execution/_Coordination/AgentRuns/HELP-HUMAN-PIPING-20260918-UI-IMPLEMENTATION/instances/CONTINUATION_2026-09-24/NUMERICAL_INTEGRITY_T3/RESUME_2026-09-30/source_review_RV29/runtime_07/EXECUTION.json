@@ -1,0 +1,19 @@
+{
+  "completed_utc": "2026-10-01T10:23:00.992932+00:00",
+  "mechanism": "delegated-harness-native TASK /root/rv29_a1_source reporting directly to /root",
+  "mode": "source/read-only plus standard-library hashing/arithmetic",
+  "python": "existing project .venv/bin/python -B",
+  "rust_invocations": 0,
+  "pytest_invocations": 0,
+  "patches_authored_or_installed": 0,
+  "git_index_mutations": 0,
+  "delegation": 0,
+  "writes": "only additive source_review_RV29/runtime_07",
+  "git_reads": "GIT_OPTIONAL_LOCKS=0; frozen git show blobs",
+  "checker_schema_repairs": [
+    "E1 initial baseline record omits source_id: validated its base source and target binding and resolved it as base.",
+    "E1 fingerprint aliases use PM_TARGET while E2 uses RUN_TARGET: resolved each recorded alias to its declared preserved target."
+  ],
+  "checker_repairs_changed_inputs_or_expectations": false,
+  "instruction_skill_basis": "Inherited actual origins/hashes in ../preparation_01/BASIS.json; no skill-origin rebinding."
+}
