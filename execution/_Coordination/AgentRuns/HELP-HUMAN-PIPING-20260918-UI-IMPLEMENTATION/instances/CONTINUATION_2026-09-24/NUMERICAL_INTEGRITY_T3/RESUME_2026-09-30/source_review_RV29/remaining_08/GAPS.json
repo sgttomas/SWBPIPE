@@ -1,0 +1,50 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "entries": [
+    {
+      "id": "K4-M9",
+      "status": "EXISTING_PIVOT_ROUTE_QUALIFIED_NOT_READY",
+      "finding": "Proposed factor test first requires PIVOT selected and otherwise panics without its typed attempts. This is weaker evidence than the intended erroneous precision-dependent Pivot verdict; no generic PIVOT-not-selected or certificate failure may be credited.",
+      "finite_next": "First locate a typed Pivot failure on the registered N05/N06 or PIVOT route using existing outcome diagnostics. If not available, the narrow independent helper diagnostic is pivot2^-100, scale1, m1, p128: correct expression2^28-2^-100-64>0, erroneous p53 expression2^-47-2^-100-64<0. No model or solver framework needed; this prose is not a test patch/grant.",
+      "patch": "patches/R7_K4__K4-M9.patch",
+      "patch_sha256": "ac2a904d11b4da0a3b56864b1e71628c979f80e6c71929633de1637057829c78",
+      "registered_disposition": "kill",
+      "runtime_claim": false
+    },
+    {
+      "id": "K4-M11",
+      "status": "EXISTING_EXACT_ASSERTION_HAS_PUBLICATION_PREREQUISITE",
+      "finding": "Existing TWO-SPAN factor test requires Selected before checking [(128,192,1),(256,320,1)] residual basis/corrections. Pure build_shared tests supply q explicitly and therefore bypass this mutation in scheduled precision dispatch.",
+      "finite_next": "One separately granted finite run of the existing the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis filter can settle it if the exact basis assertion is reached. If stopped earlier, retain that invalid result; require a focused actual scheduled-attempt basis witness on unchanged TWO-SPAN, not public-certificate rejection or copied work totals.",
+      "patch": "patches/R7_K4__K4-M11.patch",
+      "patch_sha256": "74cc984b92142cc5ca271f3efc3789b3a82f1755de6b770ef0c115b0a919d99e",
+      "registered_disposition": "kill",
+      "runtime_claim": false
+    },
+    {
+      "id": "K4-M32",
+      "status": "CURRENT_PROPOSED_RCOND_ASSERTIONS_NOT_SHARP_ENOUGH",
+      "finding": "The direct constructed matrix test pins broad rcond<2^-127/pass-refuse brackets, not the exact equilibrated norm; source reading does not establish that replacing norm(Ktilde) by norm(K) crosses those brackets. No survivor/equivalence is inferred.",
+      "finite_next": "Use a named existing current control if its required Condition verdict actually changes. Otherwise a single scalar constructed K=[16] gives S=1/4, Ktilde=[1], inverse estimate1, expected rcond1 versus mutant1/16; current factor/condition source makes this exact without a solver oracle. Reuse existing constructed/path_source helper only after separate diagnostic review; no patch authored here.",
+      "patch": "patches/R7_K4__K4-M32.patch",
+      "patch_sha256": "e46e4d4938e00b3102a265631c8e0a5c33fc62a970bc4887a1560e46e1cb114a",
+      "registered_disposition": "kill",
+      "runtime_claim": false
+    }
+  ],
+  "no_retirements": true,
+  "no_runtime_authorization": true,
+  "preserved_resolved_mapping_history": [
+    {
+      "id": "K4-M37",
+      "status": "CURRENT_PATCH_WRONG_SEAM_MASKED_BY_SHAPE_VALIDATION",
+      "finding": "Passing None as decision.floor at candidate512 causes certificate Shape at adaptive.rs3315 before publication_with; original intent is no floor in classification while R7 still has it.",
+      "finite_next": "Author one semantically adapted patch at publication_with floor application (adaptive.rs2696), preserving supplied floor and metadata validation. Existing classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else directly checks the shared producer; no added test or fabricated certificate is needed. Review exact revised patch before grant.",
+      "patch": "patches/R7_K4__K4-M37.patch",
+      "patch_sha256": "e609f6de188c4ed9088dbe258e6b93f05d842c819803f54654bcaa78450c23e1",
+      "registered_disposition": "kill",
+      "runtime_claim": false,
+      "resolved_by": "M37_CORRECTION_REVIEW.json; old bytes remain unready, corrected new bytes ready."
+    }
+  ]
+}

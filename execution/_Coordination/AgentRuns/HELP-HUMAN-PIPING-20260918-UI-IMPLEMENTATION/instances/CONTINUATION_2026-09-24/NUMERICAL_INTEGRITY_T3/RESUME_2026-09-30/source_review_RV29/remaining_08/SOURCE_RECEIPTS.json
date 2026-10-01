@@ -1,0 +1,197 @@
+[
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+    "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+    "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+    "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+    "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+    "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+    "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+    "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+    "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+    "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+    "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+    "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+    "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+    "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+    "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+    "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+    "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+    "sha256": "70263358b79168453eb5c2955d0213bc6cb15d944cd8134119327b4365ab70e8"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+    "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt",
+    "sha256": "d1e2a11a0198a71e3bfa0d220255fea469222802a83274748389dba19c7db404"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+    "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+    "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+    "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+    "sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+    "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+    "sha256": "53f7176da76546eca377d1da96d4698ec5d71a624412ecadde7ffd464b2be037"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+    "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+    "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+    "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+    "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+    "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+    "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+    "sha256": "143f50af64cbfa3ad60f38cdab06bfde9c89dff1918cb5ff8ff2378e69cf5c26"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/PLAN_A3_5A3.md",
+    "sha256": "07186550030622c0032081bba8e10f3e25f25514268c93d73bf3de026ff76e31"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_records.rs",
+    "sha256": "a7117146b03200b17fef7a614b5a617dc24801c89fe8ccce82a6694c4ffc5cc3"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/run_seeded_faults.py",
+    "sha256": "e800ccb6a90e7584513594ae2f42b305dabdbc295a7df19a1b3082ab429ab6bd"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+    "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/adapter.rs",
+    "sha256": "53d8a3b2046b2bb55c26fef7d4d1a9f2e1f255a08ddb7a231f2e827538cba66d"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/lane.rs",
+    "sha256": "5a0c85153ae43825e5804151946cdb2a5421dbe0572530731af7a3748ce34794"
+  },
+  {
+    "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/parity.rs",
+    "sha256": "622ccacd0e9fde5c732b6f60fe68f1a445b6386abc569cbd8d9e2cc9cfb7b0f0"
+  }
+]

@@ -1,0 +1,1037 @@
+{
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "entries": [
+    {
+      "group": "R7_K4",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M1",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "1a74eac8f1f001ff35077cd7d5a4f46d26933010f337d40a3cdf758ae9297596"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M2",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "0a810d8286ceca6cc2c2513825167e7bdc0573846aff798bffa84cc984d155e7"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M3",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "08974da0ac1bbfff7ed62628d05af3ad315510b5dd57c5e80c1f03d946ed2727"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M4",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "5aec428dfc9437a619738a4f9708b92e450e6a5b957a91c0ab84f8092bd98d2e"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M5",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "caf207eede2ea7ee1129e8968b450db94c78c57571a5386623f6b0800ce6676c"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M6",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "591c27caf0dfc352093affc48d95d6d078d72776b5559fa0204ce0f53f654b2e"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M7",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "fcee72e64b6af3d2c999b3d1f304d6c483835f72dcfeab082328d33d74aaf014"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M8",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "7131afef127f31543b4fd7e7c88266e1205b20b3059245b9617e4280b6aa94fd"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M9",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "92fcc43846c337e3018cbbfe6ed50023fb46f504d11d4c4be53fb9e4f1cad838"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M10",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "cbea559b255bca32f62ec98990c91d2cb6778ead9d77f85df82ecb4da49b0df2"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M11",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "70271070f6ad8d7b99b31589426186e09733b48e4dfdbc23e91a897f5fe75c8f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M12",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "ae0e46f8504f3d6a639490fe08d582cf3e920e1eabee9a91f097f52bc93a195a"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M13",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "f050bf022fa6b6f5f36b2225a93f5f28e7bb8823c57e9a56b167ff2b58c378bb"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M15",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "21b77f580ae940ca573c669bf6f35f0e8a0410a085c8c497b2a7ac5918a96c72"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M18",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "38ac05d2464043a292d96c2570703dadac39174dce6175cbc624b59530deb556"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M20",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "6ebf68e2e72f9a80c8b5c568107da060a049c11fd5595bdf291d922b044636e0"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M22",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "8836516e8166561bf51479f82276e0c32d806ab564b667e6fe0cc84b9bf5403f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M23",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "5c7fa6bc014d784127ee33f02ea76a540f38e8f1d2e40767ca4bdc9e1251e1b1"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M25",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "4e9c2e18ee6546010cb49d6ed9e4a3f9aa6f42f65c320f612460ff4e303902ba"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M26",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "f06395d1422dd23187e1d7c661b381c83651d665e83735b423300ff3fb396dfb"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M28",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "c3879ff417dee403af1925f7678882661507a3bb3f955bb299eba7427a2f2cd4"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M29",
+      "registered_disposition": "kill",
+      "status": "G2_PRIOR_OVERLAY_REVIEW_UNCHANGED",
+      "patch_sha256": "18ceb5db9bcc0a47329894c9a6953a4dc1312a2a78dfe2b81c78b56b293657c7"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M16",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "5ecfb781a080555568e3510edb7fbc39107f9abe544029975023d846696c6919"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M17",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "ff0f44b10bf12c3252198ffaa0c5fae03c65223722be67343b2f640ed14ddd7e"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M21",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "883b2505953d54884fce950ffbe9a236aa81f15a01aaea9efb87a31ded9e2368"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M24",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "ed93d2de7a05a8aae09a0cfab2a7196f03a77a41614966c9df5a1574190c58bc"
+    },
+    {
+      "group": "R7_K4",
+      "id": "R7-M27",
+      "registered_disposition": "guard",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "3dadaf47a167c390e79a69aa52ba48c37328de5fb1c173a6091f4efa0795befe"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M34",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "616a3b27180707b2c80dd6838176530e0f53464c5b928e06f7e58beabbce7c9a"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M35",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "60cd5338e9ce48cc44c34e2e48f6396849791cb3d76e362b317205bc3d6013cb"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M36",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "36d6940ec8a678a0f857f1950e8766c0ac2eaa25c15eb6701ce0a0074d256738"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M37",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_CORRECTED_PATCH_READY",
+      "patch_sha256": "809471ddeb17c83f7279c711be98bbbb4da6d413e7725a36d87f71ce3f02312f",
+      "old_patch_sha256": "e609f6de188c4ed9088dbe258e6b93f05d842c819803f54654bcaa78450c23e1"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M38",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "40f5a053f6b7fbc39b33f26a6f00a003900e66a51c21d7229e3c7c21cdcb5190"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M39",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "91e758440b96c7e49e5d25c51886009fa962846efcb2e99eff53a03799d8c76c"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M40",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "115676999e212fb59c54d994fcfb4087e24e694299e5676692dbe63d1f460fe8"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M24",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "c7644d6c0486393855950749d8fd349151258c5e10130c32e0a509b49b6efd86"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M1",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "ebe5072c062773a0b60293a578ea131711d77ecde580b67c0f79b65aa6d4d966"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M2",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "a718338ef292bf41f7522133131dcc7fdb4a2d1a7b0c192404da3dd4ebf19763"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M3",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "0584b6798761b6bc8681aaa789962fe41fd552ba5fa68a506c9d81b4918d7d3f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M4",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "2dc5fa8b5a0c40f8338851dc3275383647bad86d3e26ae1211350ebb335dc4bd"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M5",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "8efbfb95b18a613e58eebd16913fc60890a66f823e64f339aa52c02e79530c3f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M6",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "189edb71ffff9aad25b9272f7038f6a46cbd79ac0bef654623db16e57ee7fcc9"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M7",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "082986b9446f27c4c603a225d5b9aebe84b2f062894834ede9cb0e22b1e0042f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M8",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "f2dc707d0252f1473f4290a0f55676255045f6cc3cfd9f6c029ebb2b04d296ef"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M9",
+      "registered_disposition": "kill",
+      "status": "EXPLICIT_MAPPING_GAP",
+      "patch_sha256": "ac2a904d11b4da0a3b56864b1e71628c979f80e6c71929633de1637057829c78"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M10",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "fa4983cdacbdc394ee412235327ea7e49c61cb020476ada831b071cfb649e696"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M11",
+      "registered_disposition": "kill",
+      "status": "EXPLICIT_MAPPING_GAP",
+      "patch_sha256": "74cc984b92142cc5ca271f3efc3789b3a82f1755de6b770ef0c115b0a919d99e"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M12",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "9cc721d84d4bc50e7a570b1b5b4eee9e00a617272dca02cbbbda9b1b7c038dfb"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M13",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "875c62df0ef00b47bb0f764620e9bbd388bb4b81a55be658aae1962e561c3106"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M14a",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "fdfc245f59a3766de79b5349fc19f8825cd52c2bf9f72dd12e3b68c8aab584d9"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M14b",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "92200683c02f7a2959501195f4cc8ce65e170963bae27427f18c621fa42779b3"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M15",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "c3a7a9dc89f6a986b58e657d411c9b15405e17bfe1d293187214baf90cd0bf44"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M16",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "09e806f4e7fe03fe6f6861b63d5a54beff372c3385b6207ffa406175ca79290b"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M17",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "111cb058364090a2ad528254881c3e92492c779cca32a9f17e1afd78192343db"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M18",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "4aa19dfd6734b794ebcbffea10be455dbe27c9ab191a22462887e851d4dd63ff"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M19",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "07afc4ba3b4e1ac3453991458132564d757a40d1098d349fd0da3e7e640d307a"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M20",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "99eab5b3f45f4c27f53bde12687e5a52b239fc686c92a8e467ef38986e3cb128"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M21",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "908a2479cd5c7d9a44832e8e7cc157f796cff8f5ce5b4a05d28ff657e3085caa"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M22",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "4accbc2bb7db1c272596281a1ff8d05cd36deb8b1a0c302ec7b1a313e1a9ed47"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M23",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "c701360780d23d3d5944202c45334a5b1f49a5362a23d9865bf457f1198db98f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M25a",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "1abddefa13720d956451a9abeb38c688faf682a060d704162ed959af96e1cf5a"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M25b",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "5c8a2c281c525bded53ef376cd0ed4988b7bae10c08eaac1daacbf376db39d24"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M26",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "a1475e7cd1c34b724b140f32b84f5db3342f51051f5a09b2a50cc88722adb53e"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M27",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "4d21bb1aed9bc8793726ad064eb13ee8ce34003eac505aed31b8795dd2508255"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M28",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "aaeb3421bf93aab87f989db9848797d2ae96588e8afae0141d4b98b2b66ed2f6"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M29",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "e5fda42c83a70b5e88be8ae5bc1544be7d2b05b56430faa94cbecc5ad6c647c8"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M30i",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "8773977e4b75c2d4cccb2ab28e551889dfe52ba1b97bd0ddaf1ec4820f3887c9"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M31",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "3878c159079b45c7de97f822d0714ea81d45f5654061aa1542ff193d1f0096c8"
+    },
+    {
+      "group": "R7_K4",
+      "id": "NONE-S11",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M32",
+      "registered_disposition": "kill",
+      "status": "EXPLICIT_MAPPING_GAP",
+      "patch_sha256": "e46e4d4938e00b3102a265631c8e0a5c33fc62a970bc4887a1560e46e1cb114a"
+    },
+    {
+      "group": "R7_K4",
+      "id": "K4-M33",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "a6c80630d5525e813ef1103434bb87f6a8dd35044b4171dec3161d86c7667af2"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D1",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "495ce640a3a372a249a7ef1542aae883f0667e62de82aa93218c7f9e9fa7cded"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D2",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "d35edfbd16a3d963b475134cd4b8b8d96efaadedc5e2d9a8c713da2dd42ac93f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D3",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "0335560acba9af1f7ec1cc0dfc7dae7386d3f979c0323789826b63f75d3d5be9"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D4",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "d694426ac8facb8ca8472ed6f56aeb6df497699185fd330ab0b203ca0d12fc85"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D5",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "b26b7c52ca017556b0a4dd0625d59ad976375ccfa7c33f94d04e669fa5a194f2"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D6",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "df36980e707c7285021262babf5439756d9779f39cd0b164b3c0b4f195bd71f3"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D7",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "4e8078e56d48ca2aef00619b1acf9e6feb989e889dabe859589d2c2980c1323d"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D10",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "04936cab74395135e6f9514b89d93680600686fabd977d326879e440ba25e697"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D13",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "92642f26d3636e3759452ad4c9de41356476b9a9d3634d35b3a88522a1f1033a"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D14",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "48eb60010611d447a67b98bcdb2b68f91e2e582418ae7372d5b1baf3bf28518f"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D15",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "7e7dc62002d4e0cf42819134026ead88c23514a6dd53ef0b5a20d27a7b848070"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D16a",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "a2e78e4b9d5e580a3b85cd808c77228b3baaced22df9c312fd2fefab39357ccf"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D16b",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "2070e735346f61d22c7ca409a5bc10b475e1686e7aba4043069bc5bfd6201850"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D17",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "99018fd3791abae4a3065a1b10f08938ea8dedd62339dbb0574ec0b495fcf259"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D20",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "473365a9b511a9d2b3ea5cd50f1943f09cae303815d19fd4c943a1d3d42b93d2"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D25",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "ba64121e73cc18f3620085c7014210d262d13930bbbb2589ac7d5ec3ad3384eb"
+    },
+    {
+      "group": "R7_K4",
+      "id": "D13b",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "2b591d95fc4bd98edffca9bc4dfd52bc7cf61e79f732ea73df930627c497f373"
+    },
+    {
+      "group": "RV19",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-1R",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "848113a0babff91c5f4d96978222cb80a0b93ff659793b2b0943a2e703799a02"
+    },
+    {
+      "group": "RV19",
+      "id": "A1R",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "441541fe3317832251eae3bd34c0aab4d9d027992e83f7be320910589ce79055"
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-D1",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "cfb7d35e1d94a80b1cf98ee09e661925221b8c30191f40925403a27281cd3f7a"
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-D2",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "1017231c7a4f3a1b9986a9d07264de215411ceafb503b21c33572cc582387c21"
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-D3",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "e2569efd5781f5008ebf4f05bfbcc08c196b58f23f4e6f1a06d15d7a36e7169e"
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-D4",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "686472406176677f4b7ccaaa0e16bd823d484ece3acde47795de13daab3a528d"
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-D4u",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "a8eece486ac5890bec5fc411a9b1d5e34113132e1c0495f63b0cc98dc9f4ca18"
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-M2",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "860cadc15b0506899cfb7b26898558881485197b57f490571a3685689332393d"
+    },
+    {
+      "group": "RV19",
+      "id": "RV19-M6",
+      "registered_disposition": "kill",
+      "status": "ADDITIONAL_52_SOURCE_READY",
+      "patch_sha256": "00dfe1e856abf04cdf0bd3f85f2ed4401c1aa6ed293023401fd66d37f9f21865"
+    },
+    {
+      "group": "RV23",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M1-unavailable-as-0",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "4d3acd5fdc39487c194fef9e75b560e9f5b8f22cb339da1ca628746687f42294"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M1b-refused-bound-formed-as-0",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "36c14cfe1dc1636ed5cce1b8b741f1b472ed785edb769b43d723ed7279cdf1bb"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M2-B-is-max",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "498220667c169351f8a5daa80842e3769cc4462a127834dae4fbad88604e69c9"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M3a-no-bound-stop-becomes-uc",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "153c6373f17ba473e9a0e776716b858c16bdaefbce3cc52f5f05bbc4ade10b26"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M3b-no-bound-stop-dropped",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "b3c6f48369ddbfe3cf4f509ea478d81978e057aeaffbfe798b2fba92f0a03b24"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M4a-precedence-swapped-in-certificates",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "c223d957937321737c50d0f49349467e4d7ded921bfc59d24689c338252975ae"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M4b-precedence-swapped-in-verify-state",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "43fd73adae37c399607c4685b56dfb87b7178896a29e8fbeefd942eecb913c45"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M5-partial-stage-unrecorded-build-verify-shared",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "ee489f0bd197e7a6914e7992971cd3a2b3473c0cce6684b8d304ecb4f63459fd"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M5b-partial-stage-unrecorded-solve-case-at",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "9c4388db445b9fe0865ce3ee6d09ab680fbd06a92a27e28c7722d5aafb1f4c48"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M5c-partial-stage-to-the-wrong-stage-verify-state",
+      "registered_disposition": "historical_reachable_path_equivalent_survivor",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "8d9134d248e3ef400a3b2fe680ef0eeac4b795a5912c24d92b9710a4d19b7d44"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M6-refusal-evidence-not-recorded",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "1d2a2af65de1aecbdcccc4f8a27e6bc0f0bfce3909210a64a189f582c1eecae6"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M6b-refusal-not-marked-on-its-block",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "d5e495f3a8b1323e7bbc6bc69d4e3da7c23efd7f4503da33f43c2f46199455b7"
+    },
+    {
+      "group": "RV23",
+      "id": "RV23-M7-reset-removed",
+      "registered_disposition": "historical_reachable_path_equivalent_survivor",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "88f5c84a6e6a2dc8838fe276b88a45e5184eb40c6007e80d323158cc56b49587"
+    },
+    {
+      "group": "RV23",
+      "id": "I19-M5-refusal-not-per-block",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "5c7ac2d7a344bf8a3caf3ed1f90736166bac9a0f761ded552fd995ca7cd8b37b"
+    },
+    {
+      "group": "RV23",
+      "id": "I19-M6-budget-as-refusal",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "178bc0bfa5ca47e41a4131f53c692520a6cc83308b8ae6c7ceb1df097fd0903e"
+    },
+    {
+      "group": "RV23",
+      "id": "I19-M7-refused-block-without-data-stops",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "af1e5c812c8304e7f17532d3bd2eda60e049518abfad8558c831e7d7cf4ead08"
+    },
+    {
+      "group": "RV23",
+      "id": "I19-M8-pre-KF3-any-refusal-stops",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "aa0b69fd2aa5c40b7267e17cbc1774990122a89eb02e4aa34a7bde77a45c8728"
+    },
+    {
+      "group": "RV23",
+      "id": "I19-M4d-partial-stage-unrecorded-verify-state",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "13f79200460cac56104effe49815b3cd2257762e4fb4ac13fdfa57a8fd942606"
+    },
+    {
+      "group": "RV23_1",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV23_1",
+      "id": "RV23-1-M1-uc-refusals-dropped-in-verify-precision",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "ee4373c674310c530b84b4b4676712dfa3127ccad36bca13d33591e7d129974f"
+    },
+    {
+      "group": "RV23_1",
+      "id": "RV23-1-M2-uc-refusals-dropped-in-build-verify-shared",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "309b68dff81cbe06f9f7d706c8e64339c8037be5547cff32e8a77a3e4b6edd02"
+    },
+    {
+      "group": "RV23_1",
+      "id": "RV23-1-M3-s-refusals-dropped-in-shift-schedule",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "e4f1629a5aa8f708fca9d34dc26db13834b508661bb225a40925e2274c3514d8"
+    },
+    {
+      "group": "RV23_1",
+      "id": "RV23-1-M3a-kept-results-refusals-dropped",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "2b48e5732b519d71b3f8ccdf471ee457a6a2ad079a47eaf12de6c6e286f11482"
+    },
+    {
+      "group": "RV23_1",
+      "id": "RV23-1-M3b-in-flight-refusals-dropped",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "6530796367455e0a63280ac4b55245cf31bf3de1f75581f1eaad7b4e38afc8ed"
+    },
+    {
+      "group": "RV23_1",
+      "id": "RV23-M4b-precedence-swapped-in-verify-state",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "43fd73adae37c399607c4685b56dfb87b7178896a29e8fbeefd942eecb913c45"
+    },
+    {
+      "group": "RV23C",
+      "id": "NONE",
+      "registered_disposition": "baseline_control",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": null
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23-M4b-precedence-swapped-in-verify-state",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "43fd73adae37c399607c4685b56dfb87b7178896a29e8fbeefd942eecb913c45"
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23C-M1-cached-failure-drops-its-refusals",
+      "registered_disposition": "historical_suite_survivor_optional_forced_probe",
+      "status": "HISTORICAL_DISPOSITION_OR_BASELINE_CARRIED",
+      "patch_sha256": "e193ed785a0e8679a0b3c0d06b33c8708737b5b8f144105828e4b2b6d4c6b991"
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23C-M2-verify-precision-ignores-a-stopped-builds-refusals",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "5dd15addc37a263a7fe5f7e43875485e0407a7b51ddae2db0fa6b16343dae5b2"
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23C-M3-schedule-stop-drops-kept-results",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "048bc556466dbb2df174bdc50f2acb9d35b234dde9aa5c51cb736304609c53b4"
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23C-M4-schedule-stop-drops-in-flight",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "71f98bc456d41396ab348a8ffb5574d3ba0eb4bc25e3739ea15620bc8a191083"
+    },
+    {
+      "group": "RV23C",
+      "id": "RV23C-M5-stopped-shared-build-returns-no-refusals",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "8306794b3f0b8319d09ccf3bbf4ef80fb63e2890c095331374a8dd8be37b4374"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M1",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "36c14cfe1dc1636ed5cce1b8b741f1b472ed785edb769b43d723ed7279cdf1bb"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M2",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "498220667c169351f8a5daa80842e3769cc4462a127834dae4fbad88604e69c9"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M3",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "b3c6f48369ddbfe3cf4f509ea478d81978e057aeaffbfe798b2fba92f0a03b24"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M4a",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "a81047ec02caeb049dc42059d9d34e5a686944600ce0845578bb1049f7633b91"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M4b",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "9c4388db445b9fe0865ce3ee6d09ab680fbd06a92a27e28c7722d5aafb1f4c48"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M4c",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "ee489f0bd197e7a6914e7992971cd3a2b3473c0cce6684b8d304ecb4f63459fd"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M4d",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "13f79200460cac56104effe49815b3cd2257762e4fb4ac13fdfa57a8fd942606"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M5",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "5c7ac2d7a344bf8a3caf3ed1f90736166bac9a0f761ded552fd995ca7cd8b37b"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M6",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "178bc0bfa5ca47e41a4131f53c692520a6cc83308b8ae6c7ceb1df097fd0903e"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M7",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "af1e5c812c8304e7f17532d3bd2eda60e049518abfad8558c831e7d7cf4ead08"
+    },
+    {
+      "group": "A2_ORIGINAL",
+      "id": "M8",
+      "registered_disposition": "kill",
+      "status": "PRIOR_66_UNCHANGED",
+      "patch_sha256": "aa0b69fd2aa5c40b7267e17cbc1774990122a89eb02e4aa34a7bde77a45c8728"
+    }
+  ],
+  "counts": {
+    "previous_ready": 66,
+    "additional_ready": 52,
+    "prior_G2_overlay": 8,
+    "mapping_gaps": 3,
+    "historical_guard_equivalent_optional": 7,
+    "baseline_controls": 6,
+    "total_source_control_entries": 142
+  },
+  "nonbehavioral_dispositions_unchanged": [
+    {
+      "id": "R7-M14",
+      "disposition": "nonbehavioral_derived",
+      "meaning": "W residual over assembled entries; covered by t1, kept for ROOT ruling, not a newly registered behavioral mutant.",
+      "origin": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/PLAN_A3_5A3.md",
+        "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "sha256": "07186550030622c0032081bba8e10f3e25f25514268c93d73bf3de026ff76e31",
+        "line": 633,
+        "section": "7.2"
+      }
+    },
+    {
+      "id": "R7-M19",
+      "disposition": "historically_retired_with_F",
+      "meaning": "Retired with F in original disposition; not newly dropped or declared equivalent.",
+      "origin": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/IMPLEMENTATION/K4/PLAN_A3_5A3.md",
+        "revision": "40129a225d73860ac2a53da9a2fa73869df668f3",
+        "sha256": "07186550030622c0032081bba8e10f3e25f25514268c93d73bf3de026ff76e31",
+        "line": 635,
+        "section": "7.2"
+      }
+    }
+  ],
+  "V_K": "Separate15 registered faults, NONE and UNKNOWN: VK_MAPS.json.",
+  "unreviewed_boundary": "No remaining active protected_01 patch is merely mechanically checked after this pass: every one is prior-reviewed, newly mapped, G2-prior-reviewed, or a named gap. Historical derivations/equivalences are carried, not re-proven here. No G02+ current runtime or final candidate gate was reviewed."
+}
