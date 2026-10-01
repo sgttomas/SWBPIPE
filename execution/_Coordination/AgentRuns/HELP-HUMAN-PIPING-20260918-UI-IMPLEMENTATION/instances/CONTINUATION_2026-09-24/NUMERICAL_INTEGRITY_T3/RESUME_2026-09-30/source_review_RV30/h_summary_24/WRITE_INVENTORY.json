@@ -1,0 +1,12 @@
+{
+  "write_root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_summary_24",
+  "files": [
+    "BINDING.json",
+    "RETURN.md",
+    "SHA256SUMS",
+    "VERIFICATION.json",
+    "WRITE_INVENTORY.json",
+    "_run_records/COMMANDS_AND_RESULTS.json"
+  ],
+  "other_writes": []
+}

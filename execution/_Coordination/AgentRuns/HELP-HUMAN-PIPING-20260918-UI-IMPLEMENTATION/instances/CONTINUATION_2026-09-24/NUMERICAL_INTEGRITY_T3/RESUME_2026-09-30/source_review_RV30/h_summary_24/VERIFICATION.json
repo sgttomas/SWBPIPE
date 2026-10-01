@@ -1,0 +1,20 @@
+{
+  "role": "TASK Type2 RV30",
+  "native_task": "/root/rv30_k6c_kernel",
+  "parent": "/root HELP_HUMAN Agent0",
+  "actual_start_utc": "2026-10-01 20:50:14 UTC",
+  "deadline_utc": "2026-10-01 20:55:14 UTC",
+  "completed_utc": "2026-10-01 20:51:40 UTC",
+  "H23_F1": "CLOSED by additive correction; actual Python floating products and two int conversions retained",
+  "H23_N1": "CLOSED by explicit truncation and authoritative byte-column label",
+  "correction_seal_verified": "ba6b5c3805f89f8be60c52943bdd63a3a74c530e68f5244507a7e6541a4b5f00",
+  "payloads_rehashed": 31,
+  "old_seals_unchanged": true,
+  "numerical_rederivation": false,
+  "runtime_or_build": false,
+  "Git_or_index": false,
+  "delegation": false,
+  "conditional_disposition": "Ready for ROOT disposition together with h_numeric_23; no complete Emax/implementation/final-artifact/admission acceptance",
+  "instructions": "Inherited kernel_01/INSTRUCTION_BINDING.json; current narrow parent grant; no new skill/workflow selected",
+  "enforcement": "Prompt write fence on unrestricted host; not an OS sandbox"
+}
