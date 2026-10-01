@@ -3436,3 +3436,41 @@ RESUME_2026-09-30/verification/tool_resume_01 on A1. No host configuration,
 permission, environment or tool development occurred. Prior failed evidence
 remains sealed. The operational hold is lifted prospectively for bounded work;
 A1 remains BLOCKING pending final verification/merge, F2a held, K6c unaccepted.
+
+## K6c narrow layout bindings independently checked (ROOT, 2026-10-01)
+
+ROOT read I21 layout08_run and RV30 layout08_03/backcheck_run and verified
+their seals. The actual three kernel node-request pairs and five named type
+size/alignment facts are usable in the conditional kernel ledger on their
+exact immutable40129/Rust1.97.1/aarch64 release basis. RV30 independently checked
+the complete raw samples, source/build/binary and no-extra-allocation/drop
+conditions. Source_07's queue recurrence is also independently checked.
+
+This is deliberately narrow: no private node alignment is inferred, the
+process subtraction baseline is not an allowance, and no complete E_max,
+admission or W1 acceptance follows. C1/C2/O2/W1 remain open. No allocator,
+observer, guard, dependency or maintained code was changed. Later final-source
+reconciliation and full-bound review remain required before reliance.
+
+## K6c H caller composition reviewed conditionally (ROOT, 2026-10-01)
+
+ROOT read I21 source_10 and RV30 h_caller_05 and verified both seals. The
+finite application-owner composition, grammar and sample-edge distinctions
+are usable as conditional terms. RV30 found no blocking defect in that scope.
+Adopt its N1 geometry-leaf narrowing and N2 registered-allocator boundary:
+the remaining floating-format premise does not require a general geometry
+error audit, and private Thread layouts are not a K6 requested-byte obligation.
+The original source_10 packet remains unchanged; the review is additive.
+
+H-R0 is only surviving registered owners and later reached growth on the finite
+main-thread path; H-R1 is the selected stdout mutex child; H-R2 is the directly
+reached byte-write/flush path and dropped errors; H-F0 is finite default-f64
+Debug. Planned path/model inputs and checked final implementation remain to
+bind. These are precise open premises, not free estimator inputs or measured
+allowances. No full E_max, prelaunch admission, W1 or F2a acceptance follows.
+VR's finite caller composition continues separately under its source-only brief.
+
+The source_10 and h_caller_05 records cited here are on the separately preserved
+K6c branch at `79ab5428470ca747a484ea145ea979e5bb965c96`, under
+RESUME_2026-09-30/I21/source_10 and source_review_RV30/h_caller_05.
+Their presence on that branch is not a merged K6c implementation.
