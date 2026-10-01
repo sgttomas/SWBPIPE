@@ -1,0 +1,29 @@
+{
+  "correction_seal_sha256": "a1c386580a441091c575051e57a86593682af074291adeea1bc28a079de47ebc",
+  "payload_entries_verified": [
+    {
+      "origin": "<A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/mutations_e1/pm03_correction_01/OVERRIDE.json",
+      "sha256": "f5cb93bb3630448d4a773e0027c569eb6c016bfef21fa73cf5c5ed030cb5d741"
+    },
+    {
+      "origin": "<A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/mutations_e1/pm03_correction_01/PATCH_DELTA.diff",
+      "sha256": "fc38f5a8e0eb7e062f26614a92b720c5ae042ee42be3ccc305b18108ed824bd3"
+    },
+    {
+      "origin": "<A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/mutations_e1/pm03_correction_01/PM03.patch",
+      "sha256": "b689954d60c7640ef2ddd5670a8a1e2949f28d44e85813889236e76c5219f38b"
+    },
+    {
+      "origin": "<A1_WT>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/mutations_e1/pm03_correction_01/RETURN.md",
+      "sha256": "4d6dd2a9a2b1feebfab27d47e4a527b77bb415fa6536f4cc081cf1244d427a2c"
+    }
+  ],
+  "original_patch_origin": "164e6a2d4c76a114fec0c1c09b6613f38e68d065:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/mutations_e/patches/PM03.patch",
+  "original_patch_sha256": "180783dcddba7f73af5b12fe832cc704bf5ff1073c72dfffdaacc6239b89bfd8",
+  "corrected_patch_sha256": "b689954d60c7640ef2ddd5670a8a1e2949f28d44e85813889236e76c5219f38b",
+  "source_origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+  "source_before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+  "source_after_in_memory_sha256": "7d1c6750677afa21a161c95bbbb987f138e983bccf3408f06658462223b19225",
+  "prior_role_skill_basis": "../../preparation_01/BASIS.json",
+  "method": "read-only byte comparison and in-memory hunk application using existing VENV Python -B; no source file written"
+}
