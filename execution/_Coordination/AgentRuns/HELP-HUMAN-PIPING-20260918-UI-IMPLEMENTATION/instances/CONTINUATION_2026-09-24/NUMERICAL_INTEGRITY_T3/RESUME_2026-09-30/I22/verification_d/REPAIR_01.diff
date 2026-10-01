@@ -1,0 +1,40 @@
+--- initial/publication_tests.rs
++++ repaired/publication_tests.rs
+@@ -1366,7 +1366,7 @@
+ 
+ // Raw identities deliberately distinguish +0 from -0 and include outcome tags,
+ // bound bits, scales, and subnormal precision bits. Floating PartialEq does not.
+-#[derive(Debug, Clone, PartialEq, Eq)]
++#[derive(Debug, Clone, PartialEq)]
+ pub(super) struct PublicationBits {
+     rows: Vec<(QuantityId, Kind, u32, [u64; 3], RowClass)>,
+     scales: Vec<(u32, Kind, u64)>,
+@@ -1545,14 +1545,20 @@
+         .position(|m| m.id == QuantityId::DisplacementMagnitude(1))
+         .unwrap();
+     let x = w(f64::from_bits(0x3ff0_0000_0000_0401));
+-    for state in [&mut f.candidate, &mut f.verification] {
+-        let (PrecisionState::P128(s) | PrecisionState::P256(s)) = state else {
+-            unreachable!()
+-        };
+-        let s = Arc::make_mut(s);
+-        s.recovered.values[d] = x;
+-        s.recovered.values[m] = x;
+-    }
++    let PrecisionState::P128(candidate) = &mut f.candidate else {
++        unreachable!()
++    };
++    let candidate = Arc::get_mut(candidate).expect("fresh candidate has one owner");
++    candidate.recovered.values[d] = x;
++    candidate.recovered.values[m] = x;
++    // Release only the transient verifier alias, then restore exact pairing.
++    f.report.state = f.candidate.clone();
++    let PrecisionState::P256(verification) = &mut f.verification else {
++        unreachable!()
++    };
++    let verification = Arc::get_mut(verification).expect("fresh verifier has one owner");
++    verification.recovered.values[d] = x;
++    verification.recovered.values[m] = x;
+     f.report.state = f.verification.clone();
+     let VerificationState::V256(r) = &mut f.report.report else {
+         unreachable!()
