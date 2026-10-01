@@ -19,8 +19,9 @@ The accepted draft publication is moved unchanged into the result with private
 upward-rounded error radii. New exact arithmetic work is included in the
 existing stop-rule/case/invocation accounting. The policy advances to
 M03-INTEGRITY-MP-v2. Legacy binary64/ExactAccumulator accounting boundaries,
-precision ceiling, input domain and public result schema are preserved.
-There is no public radius accessor or product facade integration.
+precision ceiling and input domain are preserved. Typed kernel attempt and
+terminal reasons extend the kernel API; there is no public radius accessor
+or product facade/schema integration.
 
 ## Maintained changes
 
