@@ -1,0 +1,50 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm ... FAILED\n\nfailures:\n\n---- structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm stdout ----\n\nthread 'structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm' (25393957) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:100:9:\nassertion `left == right` failed: F2-m110-p128 Uc\n  left: [\"+fffffffffffffffffffffffffff40004p107\", \"+8aaaaaaaaaaaaaaaaaaaaaaaaaa8471ep3\", \"+935555555555555555555555554be3a8p-12\", \"+800935fef7c252e576ac9eeb1963bdaep108\"]\n right: [\"+fffffffffffffffffffffffffff40007p107\", \"+8aaaaaaaaaaaaaaaaaaaaaaaaaa8471ep3\", \"+935555555555555555555555554be3a9p-12\", \"+800935fef7c252e576ac9eeb1963bdafp108\"]\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::bound::tests::v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.04s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.56s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n        9.46 real        13.57 user         0.71 sys\n          1265483776  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              152303  page reclaims\n               10442  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                 985  voluntary context switches\n                7033  involuntary context switches\n           281202024  instructions retired\n           124614082  cycles elapsed\n             6210016  peak memory footprint\n",
+  "stdout_sha256": "657a13da144ae3676dff0ea50ad062f619c25b6563c42b702c480c25158183c9",
+  "stderr_raw_sha256": "12db8255f640a05ef18eb23b51dc22ef0e856afc2794543fe885859e0ed1223e",
+  "source_bindings": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "00dc1b611ed758f092038af95dce5d99bad2f4827b05314af39c52d9853f7c9a"
+  },
+  "test": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+    "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9",
+    "line": 167,
+    "function": "v4s_f2_family_bounds_equal_the_emulation_and_are_never_below_the_exact_norm"
+  },
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "b13d962d283dd869f732be8f86c87c314d2b98f2f57040c4db543a31f1e406b9"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-11:39:30 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

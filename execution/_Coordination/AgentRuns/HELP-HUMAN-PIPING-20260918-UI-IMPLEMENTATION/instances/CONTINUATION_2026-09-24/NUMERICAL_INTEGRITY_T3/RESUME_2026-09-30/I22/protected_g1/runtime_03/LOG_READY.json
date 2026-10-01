@@ -1,0 +1,16 @@
+{
+  "resolved_log_root": "<G1_S>/runtime_03/logs",
+  "log_mode": "0o755",
+  "source_mode_unchanged": "0o555",
+  "source": "<G1_S>/G02",
+  "cwd": "<G1_S>/G02/projects/chirality-piping/core/solver/frame_kernel",
+  "target": "<G1_TARGET>/G02",
+  "target_empty": true,
+  "G02_postimage": "00dc1b611ed758f092038af95dce5d99bad2f4827b05314af39c52d9853f7c9a",
+  "bound_tests": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9",
+  "lock": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "baseline_binary": "2c9ff111dd423d73fd6def78ceff60421b6570523c713dcfda7075811c02e970",
+  "baseline_fingerprint": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+  "G02_patch_reapplied": false,
+  "Cargo_started": false
+}
