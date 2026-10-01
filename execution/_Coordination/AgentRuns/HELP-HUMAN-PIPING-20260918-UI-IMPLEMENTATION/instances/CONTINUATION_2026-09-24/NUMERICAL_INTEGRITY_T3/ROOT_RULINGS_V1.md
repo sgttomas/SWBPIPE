@@ -3632,3 +3632,19 @@ refusal-argument/Phase.fields clarifications. The single K0 assembly actually
 started17:51:15 UTC with a fixed18:21:15 end; manager/k0_assembly_16 records the
 native dispatch. No further proof programme, estimator implementation, contract
 alternative, E_max, admission or W1 acceptance is granted by that assignment.
+
+
+## G3 independently closed (ROOT, 2026-10-01)
+
+ROOT read g3_final_25/REVIEW.md and verified the whole-packet seal
+ ea44ed6892482a455382ed9337697e92a3d553baa6c270bf014d66f24022ae08.
+Accept its bounded G3 closure, including the exact registration/control
+reconciliation, corrected historical R46 mapping, original qualified R51 and
+both R52 predicates. Figures and qualifications are at its registration table
+and full-command reconciliation; prior wrong-witness failures and the focused
+survivor remain uncredited. RV29 also independently verified the complete
+byte/mode/blob-preserving evidence relocation. The records are committed on
+A1 at ab2d4ce9522d317a2310ca5545a719a8f8423367.
+
+V-K remains active under its own bounded grant. This ruling supplies no final
+A1, F2a, E_max or W1 acceptance; exact-candidate review and all final gates remain.
