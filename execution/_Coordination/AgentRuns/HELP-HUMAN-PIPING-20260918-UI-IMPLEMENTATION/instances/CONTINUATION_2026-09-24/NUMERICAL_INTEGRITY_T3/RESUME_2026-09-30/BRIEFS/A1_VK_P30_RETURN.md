@@ -20,3 +20,13 @@ Write only A1 R/I22/vk_p30_return_01 and corresponding manager subtree plus the
 two original unused P30 streams. No build/retry/source/test/oracle/criterion/
 record/Git/index changes or new tool. No P31–P53 release or automatic follow-on.
 Failure or bound expiration stops. Seal and return for independent review.
+
+## ROOT release after diagnostic handback
+
+ROOT read full I22 and manager F17 diagnostic returns, verified all payloads,
+and received their quiescent confirmation. Both release controls restored their
+complete frozen records; the diagnosis supplies no CLASS credit. The diagnostic
+window is closed. ROOT now releases exactly P30 under this brief in a fresh
+five-minute block measured from actual manager receipt, with no additional call.
+The prior PREPARED status is historical; this release grants only that actual
+unmutated returned-control obligation. P29's criterion gap and P31–P53 holds remain.
