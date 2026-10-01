@@ -53,13 +53,21 @@ part of this slice.
   in source_review_RV29/runtime_07, and the G1/G2/G4 subsets in their final
   reviews. Failed compiler/prelaunch experiments remain preserved without
   fault-detection credit.
-- G3's exact R09/R10 diagnostics have completed and are receiving independent
-  backcheck; their earlier loop failures remain uncredited. Original upper
-  expectations and tests stay unchanged. The prepared remainder is active with
-  independent per-copy releases and immediate hard checks before Cargo. V-K is
-  prepared and unrun. Final review
-  confirmation, full-SHA hosted dispatch, exact-final-head Mac DEC-025 and GEN-8
-  remain required. This record is not a passing final-gate claim.
+- G3's complete runtime evidence is supplied, including the independently
+  checked R09/R10 tail and R33 N05 witnesses, restored historical R46 filter,
+  actual full-core S11 check and both corrected R52 filters. Earlier wrong-
+  witness stops and the focused R46 survivor remain uncredited. The R46 issue
+  was a recovered filter-mapping error; the original historical vector test
+  remains unchanged. The final G3 aggregate review is active. V-K's frozen
+  seeded-fault replay is active under its separate bounded grant.
+- The interim hosted GEN-8 failure on4972f4ef was a records-placement issue.
+  Thirteen complete sealed review packets moved under source_review_RV29/
+  _run_records without payload or manifest changes; use the portable prefix
+  map in REVIEW_EVIDENCE_RELOCATION_2026-10-01.json for current replay. The
+  unchanged GEN-8 check passes on clean9ef9508dea; see
+  verification/gen8_portability_04/RETURN.md. Final review confirmation,
+  full-SHA hosted dispatch, exact-final-head Mac DEC-025 and GEN-8 still remain.
+  No interim check is presented as the final merge gate.
 
 ROOT's static registry reconciliation on2026-10-01 keys each entry by its
 original group and ID: G1 assigns66 registrations, G2 eight, G3 fifty-two and
