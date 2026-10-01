@@ -3812,3 +3812,40 @@ Release BRIEFS/I21_VR_KERNEL_JOIN.md for one bounded numeric composition and
 like-for-like historical peak comparison. Ordinary-production correspondence,
 checked implementation/deduplication, admission replay and required measurements
 remain. A1's F17 owner-decision hold is unchanged and independently managed.
+
+
+## Owner adopted the scoped F17 validation amendment (ROOT, 2026-10-01)
+
+The owner answered “Approve the scoped F17 amendment (Recommended)” to the
+explicit question recorded in RESUME_2026-09-30/OWNER_DECISION_F17_2026-10-01.md:
+accept independently verified certificate rejection when A1 prevents publication,
+preserve normal accuracy/class checks and reachable CLASS witnesses, and permit
+the same rule for RF-CANCEL only after its own controlled run and independent
+review. This is an actual owner decision, not inferred from elapsed time.
+
+Adopt the exact independently reviewed scope in RV29
+vk_f17_runtime_36/OWNER_DECISION_TEXT.md (review seal
+a779da2a62c1fce29c0005e6e945ce785f1f76ea6e56d0b1303436bc5c284070;
+A1 evidence commit80c35e37466435e408268eb19e037e56f5a787cf).
+ROOT read the full review/proposal, verified every payload and accepts the
+controlled RF-SKEW release result as certificate prevention after standing R7,
+within its exact source/case/control scope. P30's actual debug return is closed.
+P29 remains permanently unqualified with zero CLASS credit. The protected twist
+rows were not observed: an earlier different force row prevented whole-case
+publication. No per-row class witness is invented.
+
+The original unmutated correspondence/exception lists, references, tolerances,
+class checks and stored records remain. Actual CLASS evidence remains required
+on registered not-covered comparisons outside prescribed exceptions wherever
+publication reaches them. Only source-linked PublicRelative, SharperExact or
+SharperBinary64 rejection in the reviewed relative branch after R7 can qualify
+the alternative. Generic Ceiling, FLOOR/work/record drift, missing publication,
+AbsoluteBound, malformed/terminal/budget/arithmetic/verification failure or
+another fault receives no substitute credit. Unexplained attribution/control
+failure remains a hold. Any changed source/corpus reopens affected warrants.
+
+The same rule is prospective only for the remaining originally registered
+F17 RF-CANCEL family on this unchanged A1 source. It grants no unrun credit,
+no certificate bypass and no other fault amendment. ROOT separately releases
+the prepared remaining original schedule. Complete V-K/A1, final-head gates,
+merge, E_max, W1 and F2a acceptance remain open.

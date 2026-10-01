@@ -1,9 +1,9 @@
 # Owner decision — F17 under A1 publication certification
 
-Status: READY FOR OWNER DECISION; NOT ADOPTED. ROOT recommends approval of
-the scoped amendment below. All diagnostic evidence and the actual P30 control
-have completed independent review; A1 acceptance/merge remains held pending
-the owner decision and all remaining gates.
+Status: OWNER APPROVED on 2026-10-01. The owner explicitly answered “Approve the scoped F17 amendment (Recommended)”.
+The adopted scope is the independently reviewed amendment below. All diagnostic evidence and the actual P30 control
+have completed independent review. The F17 decision is closed; complete A1
+acceptance/merge remains subject to the remaining work and final gates.
 
 Approve an A1-specific amendment to the F17 validation route, or retain the original CLASS-only route and hold the affected acceptance.
 
@@ -28,4 +28,4 @@ Decision authority: projects/chirality-piping/AGENTS.md, Software checks:
 “Never weaken a protected test, tolerance, oracle or limit to obtain a pass.”
 It requires bringing a measured conflict with a protected criterion to the
 owner and blocking affected acceptance while independent work continues.
-No response or elapsed time constitutes approval.
+The explicit owner reply supplies adoption; no unrun evidence or final acceptance is implied.

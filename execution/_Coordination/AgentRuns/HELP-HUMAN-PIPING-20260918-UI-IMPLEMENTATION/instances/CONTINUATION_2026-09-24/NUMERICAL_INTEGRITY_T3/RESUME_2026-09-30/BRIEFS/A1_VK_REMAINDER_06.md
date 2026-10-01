@@ -41,3 +41,13 @@ unused P31–P53 streams. No Git/index, Type2 delegation, cleanup or automatic
 extension/follow-on. Each five-minute process boundary and overall twenty-five-
 minute block applies. Seal results for independent review. No full V-K/A1,
 merge, complete E_max, W1 or F2a acceptance is granted by preparation.
+
+## ROOT release following explicit owner adoption
+
+The owner explicitly approved the scoped F17 amendment. ROOT recorded the
+exact decision and independently reviewed scope in ROOT_RULINGS_V1.md.
+The original PREPARED state is historical. Release this exact P31–P53 block
+now, under its twenty-five-minute actual dispatch bound and all stated stops.
+If P31 lacks CLASS, its separate diagnostic/review still has to be commissioned;
+only planned P32 normal restoration may precede the required stop. The owner
+adoption itself does not supply numerical credit to any unrun observation.
