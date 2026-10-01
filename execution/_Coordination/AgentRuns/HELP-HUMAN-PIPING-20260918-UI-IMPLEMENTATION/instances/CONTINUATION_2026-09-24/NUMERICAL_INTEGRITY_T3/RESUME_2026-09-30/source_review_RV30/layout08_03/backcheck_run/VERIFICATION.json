@@ -1,0 +1,40 @@
+{
+  "status": "backcheck_complete_narrow_request_and_actual_layout_facts_usable",
+  "actual_start_utc": "2026-10-01T13:37:46+00:00",
+  "deadline_utc": "2026-10-01T13:52:46+00:00",
+  "actual_completion_utc": "2026-10-01T13:41:33.869779+00:00",
+  "elapsed_seconds": 227.869779,
+  "blocking_findings": 0,
+  "checked": {
+    "sealed_packets": 4,
+    "archive_files": 228,
+    "target_files": 80,
+    "compiler_invocations": 10,
+    "FK_H_example_fingerprints": 3,
+    "node_request_rows": 3,
+    "actual_layout_rows": 5,
+    "raw_log_portable_transform": "exact",
+    "rustc_info_portable_transform": "exact",
+    "runtime_exit": 0,
+    "baseline612": "subtraction only",
+    "private_node_alignment": "UNBOUND"
+  },
+  "no_new_runtime_execution": true,
+  "no_Git_operations": true,
+  "no_delegation": true,
+  "remaining": [
+    "C1 input capacities",
+    "C2 all-fixture descriptors",
+    "O2 final-A1 reconciliation",
+    "W1 H/prefix and VR global caller-consumer composition",
+    "private BTree node alignment",
+    "full E_max/admission/runtime qualification"
+  ],
+  "write_fence": "<K6C>/<R>/source_review_RV30/layout08_03/backcheck_run",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "executable": "<VENV>/bin/python"
+  }
+}
