@@ -1,0 +1,49 @@
+{
+  "status": "source_queue_valid_proposal_ready_for_concrete_overlay_review",
+  "actual_start_utc": "2026-10-01T13:09:48+00:00",
+  "deadline_utc": "2026-10-01T13:29:48+00:00",
+  "actual_completion_utc": "2026-10-01T13:13:43.516298+00:00",
+  "elapsed_seconds": 235.516298,
+  "no_blocking_design_findings": true,
+  "actual_request_measurements": 0,
+  "private_node_alignment_bound": false,
+  "actual_layout_measurements": 0,
+  "checks": {
+    "source07_seal": "all nine payloads verified unchanged",
+    "doc_decodes": "three independently match",
+    "queue_arithmetic": "source integer deductions checked",
+    "source_windows": "first leaf and twelfth right leaf/new root checked",
+    "five_types": "exact source/reexport expressions checked",
+    "optimizer_and_isolation": "explicit limits recorded; not runtime verified",
+    "target_diff_command": [
+      "git",
+      "-C",
+      "<WT>/k6c",
+      "diff",
+      "1908c542966a11d3f64ad875ec2dfe4188a5e772",
+      "--",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_07/QUEUE.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_07/PROPOSAL.md"
+    ],
+    "target_diff_stdout": "",
+    "target_diff_stderr": "",
+    "version_info_sha256": "b2fc08d52652fca5363f67bb547459ef4ce83daa51d6e1a0ff97f3100cc9a02e"
+  },
+  "unrun": [
+    "Rust",
+    "build",
+    "probe",
+    "solver/model",
+    "network",
+    "Git/index mutation",
+    "delegation"
+  ],
+  "write_fence": "<K6C>/<R>/source_review_RV30/source07_02",
+  "claim_boundary": "Proposal readiness only, not implementation review/runtime grant/node measurement/full E_max or admission acceptance",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "executable": "<VENV>/bin/python"
+  }
+}
