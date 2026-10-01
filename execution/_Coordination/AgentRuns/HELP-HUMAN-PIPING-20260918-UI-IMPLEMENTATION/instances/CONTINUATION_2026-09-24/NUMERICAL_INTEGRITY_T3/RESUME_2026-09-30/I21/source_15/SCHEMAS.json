@@ -1,0 +1,399 @@
+{
+  "source": "40129",
+  "method": "Manually enumerated actual finite key lists, checked each literal exists in frozen source; integer byte/variant-schema arithmetic only, no Rust formatting/serialization or generated cases.",
+  "schemas": {
+    "stage": {
+      "keys": [
+        "formation",
+        "assembly",
+        "residual_formation",
+        "factor",
+        "condition",
+        "rhs",
+        "solve",
+        "refinement",
+        "recovery",
+        "stop_rule",
+        "bounded_gate",
+        "scale",
+        "estimate",
+        "charge",
+        "bound",
+        "shift",
+        "bounded_formation",
+        "wide_formation",
+        "uc"
+      ],
+      "count": 19,
+      "key_bytes": 159
+    },
+    "attempt": {
+      "keys": [
+        "precision",
+        "role",
+        "outcome",
+        "residual_basis",
+        "corrections",
+        "gate",
+        "own_work",
+        "exact_sum_work",
+        "stages",
+        "shared_work",
+        "shared_stages",
+        "shared_built_here",
+        "stop_rule_work",
+        "verification_work",
+        "verification_shared_work",
+        "verification_shared_built_here",
+        "storage",
+        "verification"
+      ],
+      "count": 18,
+      "key_bytes": 222
+    },
+    "storage": {
+      "keys": [
+        "pattern_entries",
+        "profile_entries",
+        "limbs_per_entry"
+      ],
+      "count": 3,
+      "key_bytes": 45
+    },
+    "verification": {
+      "keys": [
+        "data_blocks",
+        "shift_factorizations",
+        "uc_missing",
+        "g_max",
+        "g_violation"
+      ],
+      "count": 5,
+      "key_bytes": 57
+    },
+    "tally": {
+      "keys": [
+        "rows",
+        "pass",
+        "pass_absolute_range",
+        "not_covered",
+        "structural_zero",
+        "expected_unresolved",
+        "fail"
+      ],
+      "count": 7,
+      "key_bytes": 76
+    },
+    "record_common": {
+      "keys": [
+        "schema",
+        "id",
+        "family",
+        "k4src_sha256",
+        "outcome",
+        "case_limit",
+        "invocation_charged"
+      ],
+      "count": 7,
+      "key_bytes": 61
+    },
+    "record_selected_extra": {
+      "keys": [
+        "selected_precision",
+        "verification_precision",
+        "corrections",
+        "geometry",
+        "absolute_verified_rows",
+        "unpublishable_rows",
+        "published_rows"
+      ],
+      "count": 7,
+      "key_bytes": 113
+    },
+    "record_tail": {
+      "keys": [
+        "attempts",
+        "report"
+      ],
+      "count": 2,
+      "key_bytes": 14
+    },
+    "source_refused": {
+      "keys": [
+        "schema",
+        "id",
+        "family",
+        "k4src_sha256",
+        "outcome",
+        "attempts",
+        "report"
+      ],
+      "count": 7,
+      "key_bytes": 47
+    },
+    "phase": {
+      "keys": [
+        "elapsed_ns",
+        "heap_peak",
+        "heap_peak_move",
+        "heap_current"
+      ],
+      "count": 4,
+      "key_bytes": 45
+    },
+    "start": {
+      "keys": [
+        "kind",
+        "case",
+        "members",
+        "heap_cap_bytes",
+        "model_sha256",
+        "committed_model_sha256",
+        "case_limit",
+        "invocation_limit"
+      ],
+      "count": 8,
+      "key_bytes": 89
+    },
+    "counts": {
+      "keys": [
+        "kind",
+        "case",
+        "k4src_sha256",
+        "nodes",
+        "members",
+        "springs",
+        "stations",
+        "constraints",
+        "loads",
+        "dofs",
+        "free_dofs",
+        "bodies",
+        "pattern_entries",
+        "profile_entries",
+        "half_bandwidth",
+        "blocks",
+        "rows",
+        "source_encoding_len",
+        "estimate_max_bytes",
+        "estimate_sel128_bytes",
+        "estimate_fixed_bytes",
+        "estimate_model_bytes",
+        "estimate_decide_bytes"
+      ],
+      "count": 23,
+      "key_bytes": 255
+    },
+    "w1": {
+      "keys": [
+        "kind",
+        "case",
+        "outcome",
+        "selected_precision",
+        "verification_precision",
+        "attempts",
+        "corrections",
+        "invocation_charged",
+        "published_rows",
+        "counts_match_storage"
+      ],
+      "count": 10,
+      "key_bytes": 126
+    },
+    "report": {
+      "keys": [
+        "kind",
+        "case",
+        "rows",
+        "pass",
+        "pass_absolute_range",
+        "not_covered",
+        "structural_zero",
+        "expected_unresolved",
+        "fail",
+        "accounted",
+        "failures",
+        "failures_head",
+        "not_covered_rows",
+        "not_covered_committed",
+        "not_covered_equal",
+        "not_covered_rows_s_full",
+        "class_mismatches",
+        "controls_discriminated",
+        "controls_non_discriminating",
+        "controls_undiscriminated",
+        "controls_unexpectedly_failing"
+      ],
+      "count": 21,
+      "key_bytes": 309
+    },
+    "record_wrapper": {
+      "keys": [
+        "kind",
+        "case",
+        "record"
+      ],
+      "count": 3,
+      "key_bytes": 14
+    },
+    "rcm": {
+      "keys": [
+        "kind",
+        "case",
+        "equal"
+      ],
+      "count": 3,
+      "key_bytes": 13
+    },
+    "binary64_success": {
+      "keys": [
+        "kind",
+        "case",
+        "sparse"
+      ],
+      "count": 3,
+      "key_bytes": 14
+    },
+    "binary64_error": {
+      "keys": [
+        "kind",
+        "case",
+        "error"
+      ],
+      "count": 3,
+      "key_bytes": 13
+    },
+    "summary": {
+      "keys": [
+        "kind",
+        "case",
+        "repeats_heap_peak",
+        "repeats_heap_peak_move"
+      ],
+      "count": 4,
+      "key_bytes": 47
+    },
+    "counts_only_summary": {
+      "keys": [
+        "kind",
+        "case",
+        "counts_only",
+        "repeats_heap_peak",
+        "repeats_heap_peak_move"
+      ],
+      "count": 5,
+      "key_bytes": 58
+    },
+    "half_cap_refusal": {
+      "keys": [
+        "kind",
+        "case",
+        "reason",
+        "estimate_max_bytes",
+        "half_cap_bytes"
+      ],
+      "count": 5,
+      "key_bytes": 46
+    },
+    "noop_start": {
+      "keys": [
+        "kind",
+        "noop",
+        "heap_cap_bytes"
+      ],
+      "count": 3,
+      "key_bytes": 22
+    },
+    "noop_summary": {
+      "keys": [
+        "kind",
+        "repeats_heap_peak",
+        "repeats_heap_peak_move"
+      ],
+      "count": 3,
+      "key_bytes": 43
+    },
+    "fail": {
+      "keys": [
+        "kind",
+        "reason"
+      ],
+      "count": 2,
+      "key_bytes": 10
+    },
+    "selected_record_root": {
+      "keys": [
+        "schema",
+        "id",
+        "family",
+        "k4src_sha256",
+        "outcome",
+        "case_limit",
+        "invocation_charged",
+        "selected_precision",
+        "verification_precision",
+        "corrections",
+        "geometry",
+        "absolute_verified_rows",
+        "unpublishable_rows",
+        "published_rows",
+        "attempts",
+        "report"
+      ],
+      "count": 16,
+      "key_bytes": 188
+    },
+    "other_record_root": {
+      "keys": [
+        "schema",
+        "id",
+        "family",
+        "k4src_sha256",
+        "outcome",
+        "case_limit",
+        "invocation_charged",
+        "attempts",
+        "report"
+      ],
+      "count": 9,
+      "key_bytes": 75
+    }
+  },
+  "format_grammar": {
+    "role_max": 25,
+    "quantity_id_max": 61,
+    "attempt_reason_max": 161,
+    "attempt_outcome_max": 171,
+    "gate_max": 38,
+    "geometry_formula": "2+23*B+27*min(directional_spring_count,2*N); each nonempty (node,kind) group consumes at least one directional spring",
+    "selected_outcome_max": 16,
+    "other_outcome_formula": "100+D_geometry",
+    "source_refused_outcome_formula": "14+D_source_error; source-error input temporary separate",
+    "max_key_value_entries_selected_record": 274,
+    "max_objects_selected_record": 21,
+    "max_attempt_arrays": 1,
+    "source_refused_prefix_bytes": 14
+  },
+  "record_scalar_types": "u64/u32/u8/usize64/bool/Option of these; no serialized f64 field in actual record/wrappers",
+  "input_lengths": "Use actual bound Case id/family/hash/row/control/committed-not-covered lengths from source09; dynamic diagnostics keep named format leaf bounds.",
+  "counts": {
+    "attempts_max": 4,
+    "verification_objects_max": 3,
+    "reference_rows": "R",
+    "failure_entries_max": "R+4",
+    "failure_head_max": "min(50,R+4)",
+    "not_covered_rows_max": "R",
+    "not_covered_full_max": "R",
+    "class_mismatches_max": "2R",
+    "control_strings_combined_max": "C",
+    "committed_not_covered": "actual input Nc"
+  },
+  "retained_selected_instantiation": {
+    "node_request_symbol": "M_J=max(actual JSON leaf request,actual JSON internal request)",
+    "node_count_upper": 60,
+    "key_bytes_max": 2775,
+    "constant_bytes_excluding_array_id_family_geometry": 3808,
+    "formula": "60*M_J +4*size_of::<Value>()+|case.id|+|case.family|+D_geometry+3808",
+    "assumptions": "A<=4,V<=3,all4 gates conservatively present; normal-production feature/target basis; bytes are source bounds, not measured allocations"
+  }
+}
