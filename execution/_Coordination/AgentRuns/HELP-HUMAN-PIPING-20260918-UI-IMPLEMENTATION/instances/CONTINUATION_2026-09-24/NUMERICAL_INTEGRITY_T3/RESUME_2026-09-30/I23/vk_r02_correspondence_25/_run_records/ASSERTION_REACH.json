@@ -1,0 +1,42 @@
+{
+  "exact_filter": "structural::retained::adaptive::references_tests::rf_large_tree_ax_at_100_members_is_selected_at_128_and_honest",
+  "phases": [
+    {
+      "order": 1,
+      "source": "references_tests476-478,409-423",
+      "path": "r1_cases_from(R1_LARGE) selects literalTREE100 and run_lane solves the first FKsource; sourcevalidation/refusals or reference/floor failures can stop the test before anysecondsolve."
+    },
+    {
+      "order": 2,
+      "source": "references_tests425-428",
+      "independent_checks": "Selected-at128 count exactly1; not_covered0; passes>=20. Wrong selectedprecision can be an actual outcome observation, but only for thisFKsource; genericcertificate refusal remains nonqualifying under frozenR02mapping."
+    },
+    {
+      "order": 3,
+      "source": "references_tests431-450",
+      "path": "honest_large independently selects same named models5a3 source, requires exactexpectations, solves again, requiresSelected then calls models::g5a. Sameinput withinFK was checked; not equalVRinput."
+    },
+    {
+      "order": 4,
+      "source": "models.rs601-700",
+      "expected_side_self_reference": "G5a shapes/checks resolution and calls productione_hat at635 to compute hat used in sanity/lowerbound checks. UnderVK-R02 this helper is alsofaulted. Passing those checks doesnotindependentlyprove coupling; failure before701masks laternumericchecks."
+    },
+    {
+      "order": 5,
+      "source": "models.rs701-710",
+      "independent_literal_assertions": "Actual public RetainedEvidence.verification_estimate entries mustnotNaN andmustbe<=0.25; verification_charge entries mustnotNaN andmustbe<=1.0. Error text includesestimate/charge,body,kind andactualvalue. These literalbounds do not call e_hat, unlike earlierexpected-sidehat.",
+      "limit": "They are acceptance-limit checks, not frozen exactnumericratio or independentrecomputation ofe_hat. Valuesalreadyderivefrom the productiondecision using the samehat; unchangedSelected verdict can leave them passing. Loopdoesnotadd a newnonemptyassertion. No killpredicted."
+    },
+    {
+      "order": 6,
+      "source": "references_tests449-455",
+      "path": "Only afterG5a succeeds, compare_honest checks originalGENhighprecisionexpectations onsecondFKsource. No oracle rewritten."
+    }
+  ],
+  "seed_reach": [
+    "adaptive.rs calls verification resolution_hats andstoprule e_hat; verify.rs324 actualVK-R02 returnsuncoupledE.",
+    "FKlibtest compilescfg(test), so actualseedsiteisavailable withoutmutation-controlsfeature.",
+    "First seedread isonceperprocess. Anypossiblefuturecontrol/fault invocation mustbe fresh with explicitNONE/VK-R02."
+  ],
+  "qualification": "No failurebeforethe intendednamedobservable may be renamed as estimate/chargeevidence; noFKsource failure automatically establishes the originalVR/P49target because75memberreferencevectors differ."
+}
