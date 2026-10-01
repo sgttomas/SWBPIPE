@@ -3695,3 +3695,42 @@ supply those facts, not mirror layouts or equal-size type substitutions. Final
 ordinary-production vk_scale correspondence and actual populations remain open.
 The prefix and formatting proposals remain under independent review, with no
 complete E_max, checkpoint0, implementation or admission acceptance.
+
+
+## F03 attribution closed; honest runtime-plan supersession (ROOT, 2026-10-01)
+
+ROOT read the complete designer source consequence and RV29
+vk_f03_attribution_31/REVIEW.md, verified the seals and accepted its separate
+release F03 outcome witness for BOTH registered families. Exact root-minimum
+and material-decrease checks, CHAIN formed Rayleigh argument, SKEW linkage,
+zero/tie qualifications and full runtime/control basis are at those sources.
+The original whole-mutant criterion does not require a root-only counterfactual
+or disclosure of every private omitted term. It still requires the proved
+material soft-root link; generic Ceiling/Pivot/seed labels were not substituted.
+
+P09/P13 remain unqualified debug attempts. Supersede P15 explicitly as UNRUN:
+its RF-SKEW registration is covered by the independently qualified release
+witness. P14 retains its actual debug rf_chain returned-control role. P16 runs
+as a fresh debug rf_skew NONE baseline, never a return for unrun P15. Then
+P17–P53 retain original order, predicates and controls under the fresh bounded
+BRIEFS/A1_VK_REMAINDER_03.md grant. All old schedule/evidence bytes remain.
+This does not close the remaining V-K matrix or final A1 gates.
+
+## Prefix receiver correction and wrapped-error facts (ROOT, 2026-10-01)
+
+ROOT read RV28's full prefix review, the additive correction09 and its same-
+reviewer backcheck. RV28-PREFIX-1 is closed at source-design level: the fresh
+free-DOF receiver and layout construction/growth coexist at the stated Counts
+initializer edges, and all receiver temporaries die before the cut. Reuse
+packet08 only with correction09 and the backcheck. The existing successful
+single-main entry proof supplies its pre-args registered peak; final VR
+correspondence and stated failed-startup/foreign/panic interfaces stay explicit.
+
+ROOT read RV30 format_stream_18 and wrapped_errors_19 and verified their seals.
+The finite formatter/hash/stream topology and the three actual request facts
+are usable only within their reviewed source/artifact scopes. The conditional
+wrapped-error substitution and units are in wrapped_errors_19's “Direct caller
+and topology distinction”; it is not a process peak or final vk_scale fact.
+Static-message pools remain under separate independent review. Complete K0/H/VR
+numbers, checked implementation, final-build binding, admission and W1 remain
+unaccepted; the next H numeric task is source arithmetic, not a new tool.
