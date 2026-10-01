@@ -1,0 +1,47 @@
+{
+  "checked_utc": "2026-10-01T21:14:19.746152+00:00",
+  "P31": {
+    "exact_filter": "rf_cancel",
+    "passing_tests": 0,
+    "failing_tests": 1,
+    "unresolved_ceiling_cases": 38,
+    "CLASS_lines": 0,
+    "FLOOR_lines": [
+      "RF-CANCEL: FAILURE FLOOR RF-CANCEL-F-G1e80-GnG-ORTHO: not covered [], committed [\"u.N1.UY\"]",
+      "RF-CANCEL: FAILURE FLOOR RF-CANCEL-F-G1e80-GnG-INPLANE: not covered [], committed [\"Mb.M2.mid\"]",
+      "RF-CANCEL: FAILURE FLOOR RF-CANCEL-M-G1e80-GnG-ORTHO: not covered [], committed [\"u.N1.UY\"]"
+    ],
+    "qualification": "UNQUALIFIED, zeroCLASScredit, no preventiondiagnostic commissioned"
+  },
+  "P32": {
+    "exact_filter": "rf_cancel",
+    "passing_tests": 1,
+    "failing_tests": 0,
+    "raw_stdout": "\nrunning 1 test\nRF-CANCEL: rows 1444: passes 1441, absolute-range passes 0, not covered 3 | structural zeros 0, expected unresolved 0, failures 0\nRF-CANCEL: outcomes {\"selected\": 38}\nRF-CANCEL: controls discriminated 90, non-discriminating 62\ntest rf_cancel ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 9 filtered out; finished in 1.64s\n\n",
+    "qualification": "actual original returnedcontrol passes full assertions"
+  },
+  "raw_streams": [
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/P31.stdout",
+      "sha256": "893a13ba22d2ee6bb817fb26107b1b292e2a2519e5b8b38c80abcd1e6af6f054",
+      "bytes": 4059
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/P31.stderr",
+      "sha256": "c120fe4606318fec7cc3ce601d822cb4cfc8f3111e20728acba1d613368b74a7",
+      "bytes": 941
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/P32.stdout",
+      "sha256": "73082815e445d120840d60fd935d13b777b8ae79d8ecd8d29b74eda52d8f79ba",
+      "bytes": 361
+    },
+    {
+      "path": "<wt>/scratch/i23/vk_prep/logs/P32.stderr",
+      "sha256": "3909ccfafad4b6e8cd699c964f318561dabff55fefeaa11e122e00f53aea4ad0",
+      "bytes": 777
+    }
+  ],
+  "limit": "Stop beforeP33. No original remaining schedule or separate diagnostic authorization.",
+  "P33_P53_all42streams_absent": true
+}

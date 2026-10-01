@@ -1,0 +1,24 @@
+{
+  "verified_utc": "2026-10-01T21:15:29.592200+00:00",
+  "child_seal": "074b968b5ba56f55775a7926236927fc917fad3d32010843c37e1fca06f674c2",
+  "payloads_verified": 12,
+  "source_files": 189,
+  "artifact_fingerprints_dependencies_unchanged": true,
+  "actual_commands_and_raw_copies_match": true,
+  "executions": [
+    {
+      "process": "P31",
+      "launch": "2026-10-01T21:11:53.451Z",
+      "exit": 101
+    },
+    {
+      "process": "P32",
+      "launch": "2026-10-01T21:12:53.270Z",
+      "exit": 0
+    }
+  ],
+  "guard": "  PID  PPID     ELAPSED COMMAND\n 5387     1 03-19:39:10 /bin/bash <wt>/guard/memguard.sh\n",
+  "owned_runtime_jobs": [],
+  "slot_released": true,
+  "I21": "continues source arithmetic only to21:27:07"
+}
