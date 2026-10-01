@@ -1,0 +1,29 @@
+{
+  "completed_utc": "2026-10-01 21:58:40 UTC",
+  "dispatch_start_utc": "2026-10-01 21:50:29 UTC",
+  "actual_tool_start_utc": "2026-10-01 21:51:07 UTC",
+  "hard_end_utc": "2026-10-01 22:00:29 UTC",
+  "result": "Concrete descriptor/domain/five-field compatibility gap before implementation",
+  "cells": [
+    "API-CONTEXT",
+    "KERNEL-193-INSTANTIATION",
+    "VR-CALLER-193",
+    "RESULT-5",
+    "INPUT/LAUNCH-DOMAIN"
+  ],
+  "existing_assertions_preserved": true,
+  "implementation_authorized_or_performed": false,
+  "verified_input_seals": 3,
+  "verified_input_payloads": 27,
+  "frozen_application_files": 4,
+  "json_parse": "PASS",
+  "portable_paths": "PASS",
+  "source_basis": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "reference_profile_selection": "ROOT NUM4b359ce8c8fd0e1e78307dd08d2a4b6880f40688",
+  "no_runtime_or_product_algorithm_execution": true,
+  "no_git_index_or_maintained_edits": true,
+  "no_running_experiment": true,
+  "no_delegation_or_followon": true,
+  "raw_provenance": "_run_records",
+  "write_fence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/api_compatibility_21"
+}

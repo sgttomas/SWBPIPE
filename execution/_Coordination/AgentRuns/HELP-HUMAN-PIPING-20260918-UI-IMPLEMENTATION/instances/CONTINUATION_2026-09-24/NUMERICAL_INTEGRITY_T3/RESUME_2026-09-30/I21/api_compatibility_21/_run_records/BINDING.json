@@ -1,0 +1,63 @@
+{
+  "role": "TASK I21, existing native child of WORKING_ITEMS recovery manager; no delegation",
+  "instruction_basis": "Inherited Root/TASK/Piping/COMMON origins; current native ten-minute bounded assignment and ROOT selected ruling; no new skill/workflow",
+  "dispatch_start_utc": "2026-10-01 21:50:29 UTC",
+  "actual_tool_start_utc": "2026-10-01 21:51:07 UTC",
+  "hard_end_utc": "2026-10-01 22:00:29 UTC",
+  "sealed_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_join_25",
+      "seal": "41d6335e1b60a28e982b15a16b376a695ff57dd66b44d2d01445235d23dab1e1",
+      "payloads": 11
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_review_RV28/profile_binding_08",
+      "seal": "ab850fcf83f1b35df4980eae3d4ec5df01638ab23ce6faa71e66fd70c46b9564",
+      "payloads": 7
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_12_profile_binding",
+      "seal": "e43a9eb361b3f99b261bef0899db5b44c0d021de8f1af3dc24faabc91860d123",
+      "payloads": 9
+    }
+  ],
+  "frozen_source_files": [
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "8df1d6de492de1ec8c16c47f2dc9aae22ca213757f98e89071e852f339fd1edb",
+      "bytes": 2824
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b",
+      "bytes": 15378
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+      "bytes": 18488
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "commit": "40129a225d73860ac2a53da9a2fa73869df668f3",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6",
+      "bytes": 18171
+    }
+  ],
+  "root_selection": {
+    "commit": "4b359ce8c8fd0e1e78307dd08d2a4b6880f40688",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/ROOT_RULINGS_V1.md",
+    "sha256": "49a18b70f3aad3e86bc900df7a95f6ab97f6d1959dae395b40a1615148637811",
+    "selected_lines": "3878-3909"
+  },
+  "existing_census": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_09/FIXTURE_INPUTS.json",
+    "sha256": "fd7aed3c52089362fd6e84fb23c9fc056a2864b873371ec43fc5d68d77147a26",
+    "use": "Sealed scalar metadata only; no production parser/model/graph execution"
+  },
+  "write_fence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/api_compatibility_21",
+  "git_policy": "GIT_OPTIONAL_LOCKS=0 on every read; no Git/index writes"
+}
