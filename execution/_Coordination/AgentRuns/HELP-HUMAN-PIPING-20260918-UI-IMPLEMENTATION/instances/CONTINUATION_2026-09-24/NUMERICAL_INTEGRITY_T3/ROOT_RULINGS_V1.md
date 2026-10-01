@@ -3175,3 +3175,38 @@ closedAt 2026-10-01T04:44:25Z, with head
 response branch still points to that head. Nothing was merged or deleted.
 Its numerical results, conditional designs, guard and unfinished K6c packet
 retain the limits stated in the preceding ruling and scope handoff.
+
+## Resumption dispatch and raw-evidence return (ROOT, 2026-09-30)
+
+The native WORKING_ITEMS recovery manager /root/t3_recovery_manager and its
+fresh I22/I21 TASKs are running source-only checkpoint work. ROOT's independent
+oracle /root/a1_exact_oracle was stopped after it disclosed premature expected-
+answer exposure; its only return is provenance, not an accepted oracle result.
+A fresh /root/a1_oracle_fresh excludes old expected-answer/output records until
+its independent derivation is frozen. DISPATCH.json and DISPATCH_UPDATES.jsonl
+record parentage, supplied bases and scopes. No Rust experiment has been granted.
+
+The preservation TASK returned a sealed packet in RESUME_2026-09-30/evidence.
+ROOT verified its seal and file hashes and independently restored both compressed
+gate files to their original recorded hashes (ROOT_EVIDENCE_CHECK.json).
+The evidence README gives inventory, final-head bindings, transformations and
+restore instructions. ROOT accepts the existing-policy size warnings for the
+two canonical gate gzip copies; no storage tool or policy is changed.
+This prepares Git recovery of sanitized logs and original gate bytes; independent
+records review and remote integration remain pending. The original raw scratch
+and current Mac baseline stay intact; no pruning is authorized. The generator-
+input/sparse-checkout limitation remains separately disclosed.
+
+The manager disclosed uncertainty about optional index stat-cache refresh from
+its initial read-only git status commands. No explicit mutation was reported;
+the record does not assert a complete no-write history. Subsequent delegated
+Git reads require GIT_OPTIONAL_LOCKS=0. No index repair or historical rewrite
+is authorized by this clarification.
+
+- **Evidence location correction (same ROOT integration):** GEN-8 detected the
+  literal scan patterns in the returned COMMANDS.md as an unclassified active
+  surface. The complete sealed packet was relocated byte-for-byte to
+  RESUME_2026-09-30/_run_records/aud_t3_04/. EVIDENCE_RELOCATION.json maps its
+  original return prefix to the current one; the original seal is unchanged.
+  No test, checker or sealed evidence text was edited. The first GEN-8 failure
+  remains recorded; rerun is required before the records candidate merges.
