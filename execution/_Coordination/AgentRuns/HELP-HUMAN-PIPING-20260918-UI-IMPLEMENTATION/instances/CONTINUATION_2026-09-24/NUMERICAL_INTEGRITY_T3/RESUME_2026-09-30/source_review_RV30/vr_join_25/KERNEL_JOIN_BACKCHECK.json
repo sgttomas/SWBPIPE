@@ -1,0 +1,1113 @@
+{
+  "method": "Independent VR source/constructor/PREP/finish arithmetic; algebraic substitution into the H23 independently checked kernel equations after equality of every structural input is checked. H source_constructor is removed. No H caller amount enters. No author calculator is executed or imported.",
+  "checks": 4128,
+  "kernel_phase_pairs": 2112,
+  "joined_phase_metric_values": 960,
+  "rows": [
+    {
+      "id": "RF-LARGE-CHAIN-n00010-AX",
+      "SRC0": 3488,
+      "clone": 2752,
+      "base": 78294,
+      "Kpad": 2633894,
+      "delta_from_proven_H_kernel": 634,
+      "constructor": {
+        "requested": 9920,
+        "moving": 9920
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 71080,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 53874,
+          "active_old": 10240,
+          "stationary_selected_upper": 2722768
+        },
+        {
+          "verification": 512,
+          "report": 118152,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 61938,
+          "active_old": 10240,
+          "stationary_selected_upper": 2730832
+        },
+        {
+          "verification": 1024,
+          "report": 212296,
+          "decision": 208,
+          "cert": 35000,
+          "finish": 78066,
+          "active_old": 17284,
+          "stationary_selected_upper": 2746960
+        }
+      ],
+      "solve_requested": 21653557,
+      "solve_moving": 22734901,
+      "stationary_outcome": 2746960,
+      "joined_requested": 21691809,
+      "joined_moving": 22773153
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00010-ROT",
+      "SRC0": 3488,
+      "clone": 2752,
+      "base": 78294,
+      "Kpad": 2633894,
+      "delta_from_proven_H_kernel": 634,
+      "constructor": {
+        "requested": 9920,
+        "moving": 9920
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 71080,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 53874,
+          "active_old": 10240,
+          "stationary_selected_upper": 2722768
+        },
+        {
+          "verification": 512,
+          "report": 118152,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 61938,
+          "active_old": 10240,
+          "stationary_selected_upper": 2730832
+        },
+        {
+          "verification": 1024,
+          "report": 212296,
+          "decision": 208,
+          "cert": 35000,
+          "finish": 78066,
+          "active_old": 17284,
+          "stationary_selected_upper": 2746960
+        }
+      ],
+      "solve_requested": 21653557,
+      "solve_moving": 22734901,
+      "stationary_outcome": 2746960,
+      "joined_requested": 21692551,
+      "joined_moving": 22773895
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-AX",
+      "SRC0": 3324,
+      "clone": 2668,
+      "base": 76784,
+      "Kpad": 2632384,
+      "delta_from_proven_H_kernel": 588,
+      "constructor": {
+        "requested": 9756,
+        "moving": 9756
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 71080,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 51588,
+          "active_old": 10240,
+          "stationary_selected_upper": 2718972
+        },
+        {
+          "verification": 512,
+          "report": 118152,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 59652,
+          "active_old": 10240,
+          "stationary_selected_upper": 2727036
+        },
+        {
+          "verification": 1024,
+          "report": 212296,
+          "decision": 208,
+          "cert": 35000,
+          "finish": 75780,
+          "active_old": 17284,
+          "stationary_selected_upper": 2743164
+        }
+      ],
+      "solve_requested": 21652047,
+      "solve_moving": 22733391,
+      "stationary_outcome": 2743164,
+      "joined_requested": 21688113,
+      "joined_moving": 22769457
+    },
+    {
+      "id": "RF-LARGE-TREE-n00010-ROT",
+      "SRC0": 3822,
+      "clone": 3006,
+      "base": 82672,
+      "Kpad": 2638272,
+      "delta_from_proven_H_kernel": 620,
+      "constructor": {
+        "requested": 10254,
+        "moving": 10254
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 71080,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 60734,
+          "active_old": 10240,
+          "stationary_selected_upper": 2734006
+        },
+        {
+          "verification": 512,
+          "report": 118152,
+          "decision": 192,
+          "cert": 35000,
+          "finish": 68798,
+          "active_old": 10240,
+          "stationary_selected_upper": 2742070
+        },
+        {
+          "verification": 1024,
+          "report": 212296,
+          "decision": 208,
+          "cert": 35000,
+          "finish": 84926,
+          "active_old": 17284,
+          "stationary_selected_upper": 2758198
+        }
+      ],
+      "solve_requested": 21657935,
+      "solve_moving": 22739279,
+      "stationary_outcome": 2758198,
+      "joined_requested": 21695548,
+      "joined_moving": 22776892
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-AX",
+      "SRC0": 3874,
+      "clone": 3034,
+      "base": 80193,
+      "Kpad": 2551793,
+      "delta_from_proven_H_kernel": 721,
+      "constructor": {
+        "requested": 10306,
+        "moving": 10306
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 73960,
+          "decision": 192,
+          "cert": 35120,
+          "finish": 55332,
+          "active_old": 10240,
+          "stationary_selected_upper": 2642245
+        },
+        {
+          "verification": 512,
+          "report": 122952,
+          "decision": 192,
+          "cert": 35120,
+          "finish": 63396,
+          "active_old": 10240,
+          "stationary_selected_upper": 2650309
+        },
+        {
+          "verification": 1024,
+          "report": 220936,
+          "decision": 208,
+          "cert": 35120,
+          "finish": 79524,
+          "active_old": 17284,
+          "stationary_selected_upper": 2666437
+        }
+      ],
+      "solve_requested": 21583711,
+      "solve_moving": 22665055,
+      "stationary_outcome": 2666437,
+      "joined_requested": 21624562,
+      "joined_moving": 22705906
+    },
+    {
+      "id": "RF-LARGE-CONT-n00010-ROT",
+      "SRC0": 4212,
+      "clone": 3332,
+      "base": 85254,
+      "Kpad": 2556854,
+      "delta_from_proven_H_kernel": 658,
+      "constructor": {
+        "requested": 10644,
+        "moving": 10644
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 73960,
+          "decision": 192,
+          "cert": 35120,
+          "finish": 63337,
+          "active_old": 10240,
+          "stationary_selected_upper": 2655311
+        },
+        {
+          "verification": 512,
+          "report": 122952,
+          "decision": 192,
+          "cert": 35120,
+          "finish": 71401,
+          "active_old": 10240,
+          "stationary_selected_upper": 2663375
+        },
+        {
+          "verification": 1024,
+          "report": 220936,
+          "decision": 208,
+          "cert": 35120,
+          "finish": 87529,
+          "active_old": 17284,
+          "stationary_selected_upper": 2679503
+        }
+      ],
+      "solve_requested": 21588772,
+      "solve_moving": 22670116,
+      "stationary_outcome": 2679503,
+      "joined_requested": 21630484,
+      "joined_moving": 22711828
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-AX",
+      "SRC0": 26296,
+      "clone": 23272,
+      "base": 646662,
+      "Kpad": 25862102,
+      "delta_from_proven_H_kernel": 2892,
+      "constructor": {
+        "requested": 35096,
+        "moving": 35096
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 683080,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 382970,
+          "active_old": 81920,
+          "stationary_selected_upper": 26527448
+        },
+        {
+          "verification": 512,
+          "report": 1138152,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 460154,
+          "active_old": 88060,
+          "stationary_selected_upper": 26604632
+        },
+        {
+          "verification": 1024,
+          "report": 2048296,
+          "decision": 208,
+          "cert": 282376,
+          "finish": 614522,
+          "active_old": 165244,
+          "stationary_selected_upper": 26759000
+        }
+      ],
+      "solve_requested": 47302575,
+      "solve_moving": 48240559,
+      "stationary_outcome": 26759000,
+      "joined_requested": 47579334,
+      "joined_moving": 48517318
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n00100-ROT",
+      "SRC0": 26296,
+      "clone": 23272,
+      "base": 646662,
+      "Kpad": 25862102,
+      "delta_from_proven_H_kernel": 2892,
+      "constructor": {
+        "requested": 35096,
+        "moving": 35096
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 683080,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 382970,
+          "active_old": 81920,
+          "stationary_selected_upper": 26527448
+        },
+        {
+          "verification": 512,
+          "report": 1138152,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 460154,
+          "active_old": 88060,
+          "stationary_selected_upper": 26604632
+        },
+        {
+          "verification": 1024,
+          "report": 2048296,
+          "decision": 208,
+          "cert": 282376,
+          "finish": 614522,
+          "active_old": 165244,
+          "stationary_selected_upper": 26759000
+        }
+      ],
+      "solve_requested": 47302575,
+      "solve_moving": 48240559,
+      "stationary_outcome": 26759000,
+      "joined_requested": 47579864,
+      "joined_moving": 48517848
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-AX",
+      "SRC0": 28643,
+      "clone": 24859,
+      "base": 674009,
+      "Kpad": 25889449,
+      "delta_from_proven_H_kernel": 3005,
+      "constructor": {
+        "requested": 37443,
+        "moving": 37443
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 683080,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 425294,
+          "active_old": 81920,
+          "stationary_selected_upper": 26597119
+        },
+        {
+          "verification": 512,
+          "report": 1138152,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 502478,
+          "active_old": 88060,
+          "stationary_selected_upper": 26674303
+        },
+        {
+          "verification": 1024,
+          "report": 2048296,
+          "decision": 208,
+          "cert": 282376,
+          "finish": 656846,
+          "active_old": 165244,
+          "stationary_selected_upper": 26828671
+        }
+      ],
+      "solve_requested": 47329922,
+      "solve_moving": 48267906,
+      "stationary_outcome": 26828671,
+      "joined_requested": 47593007,
+      "joined_moving": 48530991
+    },
+    {
+      "id": "RF-LARGE-TREE-n00100-ROT",
+      "SRC0": 36610,
+      "clone": 28586,
+      "base": 740199,
+      "Kpad": 25955639,
+      "delta_from_proven_H_kernel": 5883,
+      "constructor": {
+        "requested": 45410,
+        "moving": 45410
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 683080,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 523707,
+          "active_old": 81920,
+          "stationary_selected_upper": 26761722
+        },
+        {
+          "verification": 512,
+          "report": 1138152,
+          "decision": 192,
+          "cert": 282376,
+          "finish": 600891,
+          "active_old": 88060,
+          "stationary_selected_upper": 26838906
+        },
+        {
+          "verification": 1024,
+          "report": 2048296,
+          "decision": 208,
+          "cert": 282376,
+          "finish": 755259,
+          "active_old": 165244,
+          "stationary_selected_upper": 26993274
+        }
+      ],
+      "solve_requested": 47396112,
+      "solve_moving": 48334096,
+      "stationary_outcome": 26993274,
+      "joined_requested": 47674412,
+      "joined_moving": 48612396
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-AX",
+      "SRC0": 35261,
+      "clone": 28549,
+      "base": 705211,
+      "Kpad": 25028811,
+      "delta_from_proven_H_kernel": 5358,
+      "constructor": {
+        "requested": 44061,
+        "moving": 44061
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 687304,
+          "decision": 192,
+          "cert": 283576,
+          "finish": 462764,
+          "active_old": 81920,
+          "stationary_selected_upper": 25775151
+        },
+        {
+          "verification": 512,
+          "report": 1145192,
+          "decision": 192,
+          "cert": 283576,
+          "finish": 539948,
+          "active_old": 88060,
+          "stationary_selected_upper": 25852335
+        },
+        {
+          "verification": 1024,
+          "report": 2060968,
+          "decision": 208,
+          "cert": 283576,
+          "finish": 694316,
+          "active_old": 165244,
+          "stationary_selected_upper": 26006703
+        }
+      ],
+      "solve_requested": 46518106,
+      "solve_moving": 47456090,
+      "stationary_outcome": 26006703,
+      "joined_requested": 46807471,
+      "joined_moving": 47745455
+    },
+    {
+      "id": "RF-LARGE-CONT-n00100-ROT",
+      "SRC0": 35454,
+      "clone": 30942,
+      "base": 742668,
+      "Kpad": 25066268,
+      "delta_from_proven_H_kernel": 2280,
+      "constructor": {
+        "requested": 44254,
+        "moving": 44254
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 687304,
+          "decision": 192,
+          "cert": 283576,
+          "finish": 525712,
+          "active_old": 81920,
+          "stationary_selected_upper": 25875556
+        },
+        {
+          "verification": 512,
+          "report": 1145192,
+          "decision": 192,
+          "cert": 283576,
+          "finish": 602896,
+          "active_old": 88060,
+          "stationary_selected_upper": 25952740
+        },
+        {
+          "verification": 1024,
+          "report": 2060968,
+          "decision": 208,
+          "cert": 283576,
+          "finish": 757264,
+          "active_old": 165244,
+          "stationary_selected_upper": 26107108
+        }
+      ],
+      "solve_requested": 46555563,
+      "solve_moving": 47493547,
+      "stationary_outcome": 26107108,
+      "joined_requested": 46859140,
+      "joined_moving": 47797124
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-AX",
+      "SRC0": 231080,
+      "clone": 228472,
+      "base": 6144230,
+      "Kpad": 257958070,
+      "delta_from_proven_H_kernel": 2446,
+      "constructor": {
+        "requested": 319080,
+        "moving": 319080
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 6686344,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 3215178,
+          "active_old": 655360,
+          "stationary_selected_upper": 263470632
+        },
+        {
+          "verification": 512,
+          "report": 11143592,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 3983562,
+          "active_old": 876460,
+          "stationary_selected_upper": 264239016
+        },
+        {
+          "verification": 1024,
+          "report": 20058088,
+          "decision": 208,
+          "cert": 2297384,
+          "finish": 5520330,
+          "active_old": 1644844,
+          "stationary_selected_upper": 265775784
+        }
+      ],
+      "solve_requested": 329534006,
+      "solve_moving": 347163190,
+      "stationary_outcome": 265775784,
+      "joined_requested": 337948600,
+      "joined_moving": 481972600
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n01000-ROT",
+      "SRC0": 231080,
+      "clone": 228472,
+      "base": 6144230,
+      "Kpad": 257958070,
+      "delta_from_proven_H_kernel": 2446,
+      "constructor": {
+        "requested": 319080,
+        "moving": 319080
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 6686344,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 3215178,
+          "active_old": 655360,
+          "stationary_selected_upper": 263470632
+        },
+        {
+          "verification": 512,
+          "report": 11143592,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 3983562,
+          "active_old": 876460,
+          "stationary_selected_upper": 264239016
+        },
+        {
+          "verification": 1024,
+          "report": 20058088,
+          "decision": 208,
+          "cert": 2297384,
+          "finish": 5520330,
+          "active_old": 1644844,
+          "stationary_selected_upper": 265775784
+        }
+      ],
+      "solve_requested": 329534006,
+      "solve_moving": 347163190,
+      "stationary_outcome": 265775784,
+      "joined_requested": 337949334,
+      "joined_moving": 481973334
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-AX",
+      "SRC0": 252830,
+      "clone": 246942,
+      "base": 6452224,
+      "Kpad": 258266064,
+      "delta_from_proven_H_kernel": -2294,
+      "constructor": {
+        "requested": 340830,
+        "moving": 340830
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 6686344,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 3698270,
+          "active_old": 655360,
+          "stationary_selected_upper": 264261718
+        },
+        {
+          "verification": 512,
+          "report": 11143592,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 4466654,
+          "active_old": 876460,
+          "stationary_selected_upper": 265030102
+        },
+        {
+          "verification": 1024,
+          "report": 20058088,
+          "decision": 208,
+          "cert": 2297384,
+          "finish": 6003422,
+          "active_old": 1644844,
+          "stationary_selected_upper": 266566870
+        }
+      ],
+      "solve_requested": 329842000,
+      "solve_moving": 347471184,
+      "stationary_outcome": 266566870,
+      "joined_requested": 337985943,
+      "joined_moving": 482009943
+    },
+    {
+      "id": "RF-LARGE-TREE-n01000-ROT",
+      "SRC0": 317978,
+      "clone": 284890,
+      "base": 7099448,
+      "Kpad": 258913288,
+      "delta_from_proven_H_kernel": 10558,
+      "constructor": {
+        "requested": 405978,
+        "moving": 405978
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 6686344,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 4678674,
+          "active_old": 721618,
+          "stationary_selected_upper": 265889346
+        },
+        {
+          "verification": 512,
+          "report": 11143592,
+          "decision": 192,
+          "cert": 2297384,
+          "finish": 5447058,
+          "active_old": 876460,
+          "stationary_selected_upper": 266657730
+        },
+        {
+          "verification": 1024,
+          "report": 20058088,
+          "decision": 208,
+          "cert": 2297384,
+          "finish": 6983826,
+          "active_old": 1644844,
+          "stationary_selected_upper": 268194498
+        }
+      ],
+      "solve_requested": 330489224,
+      "solve_moving": 348118408,
+      "stationary_outcome": 268194498,
+      "joined_requested": 338031093,
+      "joined_moving": 482055093
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-AX",
+      "SRC0": 307170,
+      "clone": 284362,
+      "base": 6797659,
+      "Kpad": 249641259,
+      "delta_from_proven_H_kernel": 8441,
+      "constructor": {
+        "requested": 395170,
+        "moving": 395170
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 6974344,
+          "decision": 192,
+          "cert": 2309384,
+          "finish": 4078995,
+          "active_old": 655360,
+          "stationary_selected_upper": 256029638
+        },
+        {
+          "verification": 512,
+          "report": 11623592,
+          "decision": 192,
+          "cert": 2309384,
+          "finish": 4847379,
+          "active_old": 876460,
+          "stationary_selected_upper": 256798022
+        },
+        {
+          "verification": 1024,
+          "report": 20922088,
+          "decision": 208,
+          "cert": 2309384,
+          "finish": 6384147,
+          "active_old": 1644844,
+          "stationary_selected_upper": 258334790
+        }
+      ],
+      "solve_requested": 319297195,
+      "solve_moving": 336926379,
+      "stationary_outcome": 258334790,
+      "joined_requested": 319903830,
+      "joined_moving": 337533014
+    },
+    {
+      "id": "RF-LARGE-CONT-n01000-ROT",
+      "SRC0": 350538,
+      "clone": 308170,
+      "base": 7205096,
+      "Kpad": 250048696,
+      "delta_from_proven_H_kernel": 18908,
+      "constructor": {
+        "requested": 438538,
+        "moving": 438538
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 6974344,
+          "decision": 192,
+          "cert": 2309384,
+          "finish": 4691838,
+          "active_old": 712626,
+          "stationary_selected_upper": 257049918
+        },
+        {
+          "verification": 512,
+          "report": 11623592,
+          "decision": 192,
+          "cert": 2309384,
+          "finish": 5460222,
+          "active_old": 876460,
+          "stationary_selected_upper": 257818302
+        },
+        {
+          "verification": 1024,
+          "report": 20922088,
+          "decision": 208,
+          "cert": 2309384,
+          "finish": 6996990,
+          "active_old": 1644844,
+          "stationary_selected_upper": 259355070
+        }
+      ],
+      "solve_requested": 319704632,
+      "solve_moving": 337333816,
+      "stationary_outcome": 259355070,
+      "joined_requested": 320362221,
+      "joined_moving": 337991405
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-AX",
+      "SRC0": 2944520,
+      "clone": 2280472,
+      "base": 60523942,
+      "Kpad": 2578321782,
+      "delta_from_proven_H_kernel": 663856,
+      "constructor": {
+        "requested": 3824520,
+        "moving": 3824520
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 66030856,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 27867242,
+          "active_old": 5242880,
+          "stationary_selected_upper": 2624966472
+        },
+        {
+          "verification": 512,
+          "report": 110051112,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 35547626,
+          "active_old": 8760460,
+          "stationary_selected_upper": 2632646856
+        },
+        {
+          "verification": 1024,
+          "report": 198091624,
+          "decision": 208,
+          "cert": 18777448,
+          "finish": 50908394,
+          "active_old": 16440844,
+          "stationary_selected_upper": 2648007624
+        }
+      ],
+      "solve_requested": 3122245622,
+      "solve_moving": 3263279094,
+      "stationary_outcome": 2648007624,
+      "joined_requested": 29394128434,
+      "joined_moving": 43794368434
+    },
+    {
+      "id": "RF-LARGE-CHAIN-n10000-ROT",
+      "SRC0": 2944520,
+      "clone": 2280472,
+      "base": 60523942,
+      "Kpad": 2578321782,
+      "delta_from_proven_H_kernel": 663856,
+      "constructor": {
+        "requested": 3824520,
+        "moving": 3824520
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 66030856,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 27867242,
+          "active_old": 5242880,
+          "stationary_selected_upper": 2624966472
+        },
+        {
+          "verification": 512,
+          "report": 110051112,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 35547626,
+          "active_old": 8760460,
+          "stationary_selected_upper": 2632646856
+        },
+        {
+          "verification": 1024,
+          "report": 198091624,
+          "decision": 208,
+          "cert": 18777448,
+          "finish": 50908394,
+          "active_old": 16440844,
+          "stationary_selected_upper": 2648007624
+        }
+      ],
+      "solve_requested": 3122245622,
+      "solve_moving": 3263279094,
+      "stationary_outcome": 2648007624,
+      "joined_requested": 29394129202,
+      "joined_moving": 43794369202
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-AX",
+      "SRC0": 3292188,
+      "clone": 2471980,
+      "base": 63787294,
+      "Kpad": 2581585134,
+      "delta_from_proven_H_kernel": 734008,
+      "constructor": {
+        "requested": 4172188,
+        "moving": 4172188
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 66030856,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 32771030,
+          "active_old": 5242880,
+          "stationary_selected_upper": 2633133612
+        },
+        {
+          "verification": 512,
+          "report": 110051112,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 40451414,
+          "active_old": 8760460,
+          "stationary_selected_upper": 2640813996
+        },
+        {
+          "verification": 1024,
+          "report": 198091624,
+          "decision": 208,
+          "cert": 18777448,
+          "finish": 55812182,
+          "active_old": 16440844,
+          "stationary_selected_upper": 2656174764
+        }
+      ],
+      "solve_requested": 3125508974,
+      "solve_moving": 3266542446,
+      "stationary_outcome": 2656174764,
+      "joined_requested": 29394368050,
+      "joined_moving": 43794608050
+    },
+    {
+      "id": "RF-LARGE-TREE-n10000-ROT",
+      "SRC0": 3665586,
+      "clone": 2860578,
+      "base": 70015370,
+      "Kpad": 2587813210,
+      "delta_from_proven_H_kernel": 566720,
+      "constructor": {
+        "requested": 4545586,
+        "moving": 4545586
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 66030856,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 42597400,
+          "active_old": 7226206,
+          "stationary_selected_upper": 2649188058
+        },
+        {
+          "verification": 512,
+          "report": 110051112,
+          "decision": 192,
+          "cert": 18777448,
+          "finish": 50277784,
+          "active_old": 8760460,
+          "stationary_selected_upper": 2656868442
+        },
+        {
+          "verification": 1024,
+          "report": 198091624,
+          "decision": 208,
+          "cert": 18777448,
+          "finish": 65638552,
+          "active_old": 16440844,
+          "stationary_selected_upper": 2672229210
+        }
+      ],
+      "solve_requested": 3131737050,
+      "solve_moving": 3272770522,
+      "stationary_outcome": 2672229210,
+      "joined_requested": 29394825566,
+      "joined_moving": 43795065566
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-AX",
+      "SRC0": 3569439,
+      "clone": 2849095,
+      "base": 72225479,
+      "Kpad": 2500269079,
+      "delta_from_proven_H_kernel": 569244,
+      "constructor": {
+        "requested": 4449439,
+        "moving": 4449439
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 68910856,
+          "decision": 192,
+          "cert": 35674664,
+          "finish": 53355108,
+          "active_old": 10485760,
+          "stationary_selected_upper": 2589298851
+        },
+        {
+          "verification": 512,
+          "report": 114851112,
+          "decision": 192,
+          "cert": 35674664,
+          "finish": 61035492,
+          "active_old": 10485760,
+          "stationary_selected_upper": 2596979235
+        },
+        {
+          "verification": 1024,
+          "report": 206731624,
+          "decision": 208,
+          "cert": 35674664,
+          "finish": 76396260,
+          "active_old": 16440844,
+          "stationary_selected_upper": 2612340003
+        }
+      ],
+      "solve_requested": 3024992919,
+      "solve_moving": 3166026391,
+      "stationary_outcome": 2612340003,
+      "joined_requested": 16793033660,
+      "joined_moving": 24893213660
+    },
+    {
+      "id": "RF-LARGE-CONT-n10000-ROT",
+      "SRC0": 3926462,
+      "clone": 3091838,
+      "base": 76228976,
+      "Kpad": 2504272576,
+      "delta_from_proven_H_kernel": 587496,
+      "constructor": {
+        "requested": 4806462,
+        "moving": 4806462
+      },
+      "finish_alternatives": [
+        {
+          "verification": 256,
+          "report": 68910856,
+          "decision": 192,
+          "cert": 35674664,
+          "finish": 59471686,
+          "active_old": 10485760,
+          "stationary_selected_upper": 2599418926
+        },
+        {
+          "verification": 512,
+          "report": 114851112,
+          "decision": 192,
+          "cert": 35674664,
+          "finish": 67152070,
+          "active_old": 10485760,
+          "stationary_selected_upper": 2607099310
+        },
+        {
+          "verification": 1024,
+          "report": 206731624,
+          "decision": 208,
+          "cert": 35674664,
+          "finish": 82512838,
+          "active_old": 16440844,
+          "stationary_selected_upper": 2622460078
+        }
+      ],
+      "solve_requested": 3028996416,
+      "solve_moving": 3170029888,
+      "stationary_outcome": 2622460078,
+      "joined_requested": 16793318994,
+      "joined_moving": 24893498994
+    }
+  ],
+  "errors": []
+}

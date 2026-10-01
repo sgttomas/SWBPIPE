@@ -1,0 +1,23 @@
+{
+  "role": "TASK Type2 RV30",
+  "native_task": "/root/rv30_k6c_kernel",
+  "parent": "/root HELP_HUMAN Agent0",
+  "mechanism": "Existing delegated-harness-native direct child; bounded follow-up; no descendants",
+  "actual_start_utc": "2026-10-01 21:23:36 UTC",
+  "deadline_utc": "2026-10-01 21:48:36 UTC",
+  "candidate": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/vr_join_20",
+    "seal": "d3a7860d4ff78b3878496536a8897aab2f2f451ab067214c7c17bed3a0a2fb11",
+    "commit_reported_by_ROOT": "922d6cf596753c99f59a71e6b92d36f1c6b90caf"
+  },
+  "numerical_source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "instructions": {
+    "origin": "../kernel_01/INSTRUCTION_BINDING.json",
+    "sha256": "73add1e67bb2631831aec3d3afbc0ee4e33eed8af8e223086096deb4c08801ea",
+    "effective_context": "Inherited Root/TASK/Piping/COMMON and selected software-code-review skill; current root AGENTS remains supplied. No new role/workflow/skill selection."
+  },
+  "enforcement": "Unrestricted shared host; prompt-only additive write fence, not an OS sandbox",
+  "write_fence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_join_25",
+  "raw_provenance": "_run_records",
+  "grant": "Grant25-minute independent full VR kernel/caller join and historical review. Candidate K6C922d6cf596753c99f59a71e6b92d36f1c6b90caf R/I21/vr_join_20, seal d3a7860d4ff78b3878496536a8897aab2f2f451ab067214c7c17bed3a0a2fb11 (17payloads). ROOT read full RETURN/SUMMARY/JOIN_CONTRACT and verifiedall. Use your closed H23/H24 proof plus independently verified corrected VR caller10/overlay11/RV28review06/backcheck07. Re-derive VR-specific SRC0/exactclone/constructor/IDs/capacity/prescribed/spring/support descriptor facts from actual24 metadata and source. Check purekernel phase/returned-union max, exclusion of constructor/Hcallers/deadReport, oneactivegrow, all5interfaces,96overlayreplacements and24/twometric maxima; independently check36like-for-like histories and source/model/count/artifact/window limits. Do not execute/import author's calculator or product algorithms; use bounded metadata/integer arithmetic. Preserve fixed conditional ordinary-profile/finalartifact, admission and measurement boundaries; no new library/proof programme. Write only source_review_RV30/vr_join_25, actualstart/end, no Rust/runtime/compiler/Git/index/delegation. Return clear findings/complete conditional-proof disposition within25minutes; no automatic extension."
+}

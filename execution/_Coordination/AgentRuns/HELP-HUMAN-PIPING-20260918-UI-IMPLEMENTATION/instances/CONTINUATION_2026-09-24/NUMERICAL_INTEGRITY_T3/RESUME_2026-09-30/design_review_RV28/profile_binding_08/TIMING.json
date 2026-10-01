@@ -1,0 +1,9 @@
+{
+  "actual_start_utc": "2026-10-01 21:31:40 UTC",
+  "deadline_utc": "2026-10-01 21:41:40 UTC",
+  "completed_utc": "2026-10-01 21:36:54 UTC",
+  "within_ten_minutes": true,
+  "status": "VERIFIED_PROSPECTIVE_TECHNICAL_INTERFACE",
+  "implementation_or_artifact_qualified": false,
+  "owner_product_or_full_Emax_acceptance": false
+}

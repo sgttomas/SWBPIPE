@@ -1,0 +1,178 @@
+{
+  "agent": "/root/rv28_a1_design",
+  "parent": "/root",
+  "role": "TASK",
+  "mechanism": "collaboration.followup_task",
+  "source_records": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_12_profile_binding/SHA256SUMS",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "e43a9eb361b3f99b261bef0899db5b44c0d021de8f1af3dc24faabc91860d123",
+      "bytes": 830
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_12_profile_binding/PROPOSAL.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "3f0185f0d62e447e090bdc4bedfbb6187048266e6cfa20a8140e8cfdff2e4605",
+      "bytes": 7148
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_12_profile_binding/RETURN.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "a11f25fc3d4c5d462b30bdf5f33fa9122a4dc7a7ebc6d1022a135a5f48389aa2",
+      "bytes": 1320
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_12_profile_binding/_run_records/ROOT_SCOPE.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "c5d16c6158e3497ed4ccda91d4b3e324976fa5ee173c56d46b361244b1dca376",
+      "bytes": 1326
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_12_profile_binding/_run_records/PARENT_CLARIFICATION.txt",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "7c3108238abf5bd7b408b0e25a43f58db7e51e961888cd73704595bb8503c4a1",
+      "bytes": 714
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_12_profile_binding/_run_records/SOURCES.json",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "ae811a73a02aa2f64e6e0cbe1e0e6aa5cdeb76a35ceef9c4b491422603e1061d",
+      "bytes": 10459
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/DESIGN_AND_PLAN.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "263a368314f8786ec1716cf9a6dd8408073857321faa890e3334d8b5488a2223",
+      "bytes": 17937
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/w1/counts.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "753d20c6a99151ff91e19d4c52d0cfebb815d52c28e297a79cdb5f7495955a3b",
+      "bytes": 23333
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/k6/counts.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "baafa84572229fa7fbf3bab5e2e8b5c8b879354928116e79e5ef70b62cc6bf53",
+      "bytes": 18345
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/main.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "42d82fbfb3e21c11c647f6b2f83aaa21ee6ded6617601f14790e1c282f60b77d",
+      "bytes": 40216
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/tests/k6b_bin.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "1747048b81031622a8ab70f4af00c2170f96962ff68590b9a1d3b96921df6f64",
+      "bytes": 7671
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/tests/k6b_w1.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "09faf31674c432c189ac02361f5bbf01214419f0f490ac78440eed973529c100",
+      "bytes": 27077
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/tests/k6_counts.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "7062d20d96f182af40c52a8425214e508d146dd2930e789837ef793793ccade2",
+      "bytes": 10883
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/Cargo.toml",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "ba730845fa377a8f2b0f4d910b317a1c1bbc5000881a8a433a2ca0e10f4f7c8a",
+      "bytes": 1136
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/runner/k6_runner.py",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "94f20955a6176c1859531bc2b7e1ecc5545eab4fcbc1051f95079540d01ecab1",
+      "bytes": 66453
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b",
+      "bytes": 15378
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/examples/vk_scale.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "abd891ca57a6c4281ed71379b6502f70f1c212e1d96a933bf7dd5106e5b7d511",
+      "bytes": 18488
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "8df1d6de492de1ec8c16c47f2dc9aae22ca213757f98e89071e852f339fd1edb",
+      "bytes": 2824
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/feature_guard.rs",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "99d3c61885aa1e6b548b200da795be73fee7a9225390e628c903083107ff2b1b",
+      "bytes": 5987
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/Cargo.toml",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "a732e02ee75c5069a4a85e3732d317ce360c23f413573df026eee9c350c27f11",
+      "bytes": 697
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/numerical_robustness/runner/vk_scale_runner.py",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "7bd83d7e356f4b94712617f9ebe41731e2eed001f20cd1eb6e157d4a8b02a6de",
+      "bytes": 17655
+    },
+    {
+      "path": "projects/chirality-piping/tools/release/check_release_readiness.py",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "c386cdef9fe16ae0239dc509cb29dbadf0f6ce138cf7c0b7ab40867cb34e930f",
+      "bytes": 8456
+    },
+    {
+      "path": "projects/chirality-piping/tools/ci/numerical_ci.py",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "c1763b3be06836dc44a9f1a4c456207f102cf6feac12cf85c5a0ef19fab1ae37",
+      "bytes": 5423
+    },
+    {
+      "path": ".github/workflows/piping-desktop-e2e.yml",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "6d38e7420cf6a38eb2a58b5da422b82c5a141c7272aab27c3d4ed3aee6316338",
+      "bytes": 9237
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/DESIGN_AND_PLAN.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "263a368314f8786ec1716cf9a6dd8408073857321faa890e3334d8b5488a2223",
+      "bytes": 17937
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/K0_CANDIDATE.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "12970e6f5c3e945dfe4280de4f533e58375198d9a95453a310786ed2b206bdad",
+      "bytes": 3495
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/k0_assembly_16/RETURN.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "b34aee2e901cd6198c907f790b92c01aff191ff2c9cf37e328788c22c56f52f5",
+      "bytes": 11916
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/k0_assembly_16/BLOCKING_CELLS.md",
+      "origin": "<K6C> current file matched to supplied hash where provided",
+      "sha256": "df0d7832de12090a18a7ad70c87bdb215038651465db4d78ab89dff219b9dc9a",
+      "bytes": 6722
+    }
+  ],
+  "instruction_basis": "same active session, prior sealed Root/TASK/Piping/skill records",
+  "scope": "all provided identities checked; semantic design assessment is in REVIEW.md"
+}
