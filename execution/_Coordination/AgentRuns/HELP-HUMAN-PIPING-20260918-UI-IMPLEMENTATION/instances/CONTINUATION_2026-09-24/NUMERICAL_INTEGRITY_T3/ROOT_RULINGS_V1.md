@@ -3210,3 +3210,38 @@ is authorized by this clarification.
   original return prefix to the current one; the original seal is unchanged.
   No test, checker or sealed evidence text was edited. The first GEN-8 failure
   remains recorded; rerun is required before the records candidate merges.
+
+## AUD-T3-01 escalated to BLOCKING: C17 source witness (ROOT, 2026-09-30)
+
+ROOT read the unchanged C17 raw output, rehashed it and the G0 binary, checked
+the independently frozen exact truth and recomputed the interval inequality.
+The independent oracle TASK separately confirmed it without changing its frozen
+truth or comparator. I22/c_01 and oracle_fresh/addendum_02_C17 preserve the result.
+
+C17 is an admitted unmutated PrimitiveSource selected at p128/P256. D:0 and M:0
+publish +0, AbsoluteVerified with bound bits 0000001000000000. Exact primitive
+force balance gives 9*2^-1041 in model length units; b=2^-1038, so error/b=9/8.
+Even b*(1+2^-22) is too small: the exact qualified ratio is 4718592/4194305.
+These are two false kernel row publications, not merely a proof counterexample.
+
+Raw stdout SHA256: 841167ed887a71b0e2a904647e1f217758fad304baaaf0d669f5c47035dc797a.
+Binary SHA256: bcbe897204ec702b99529d25e6d0213d0132af5e6086e0397fae3a8f8ef8a08f.
+Source: 3bddc2b05f6106e969c7cf43373b230845c7cc66, FK-identical to d01ad98...
+The run uses the unchanged probe, no seeded feature, and the G2 fixed limits.
+The source-level comparator and independent derivation are in the A1 worktree's
+RESUME_2026-09-30 records; ROOT is preserving them as their own pinned Git basis.
+
+AUD-T3-01 is BLOCKING under the audit's existing escalation rule. F2a reliance
+remains held. C18-C24 are unrun; the C sequence stopped after this first witness,
+with no repeat, source repair or new search. The corrected post-read path error
+does not change any solver output. B remains honest within its recorded coverage.
+
+No product/native false publication is established. The literal C17 numeric
+transport is excluded by the current product magnitude profile; equivalent
+product/unit exclusion is not proved. This qualification does not excuse a
+false publication by the admitted kernel API.
+
+A fresh HELPS_HUMANS design assignment now independently derives a warranted
+correction and its contract/availability effects. A fresh design reviewer must
+re-derive it before reliance. No new bound, cutoff or implementation is selected
+by this escalation. K6c stays unaccepted and tied to the settled A1 kernel.
