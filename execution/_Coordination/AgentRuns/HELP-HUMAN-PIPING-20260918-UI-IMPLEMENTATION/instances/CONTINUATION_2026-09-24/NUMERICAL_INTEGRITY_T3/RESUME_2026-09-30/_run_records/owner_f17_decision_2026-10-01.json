@@ -1,0 +1,12 @@
+{
+  "actor": "owner",
+  "recorded_by": "ROOT /root HELP_HUMAN Agent 0",
+  "source": "direct user reply to functions.request_user_input_async",
+  "questionItemId": "[\"request_user_input_async\",\"call_TX5dOVxBFkgEGg4Uq7BPCLzQ\",0]",
+  "question": "Approve the reviewed F17-only validation amendment: accept independently verified certificate rejection when A1 prevents publication, preserve all normal accuracy/class checks and reachable CLASS witnesses, and permit the same rule for RF-CANCEL only after its own controlled run and independent review?",
+  "answer": "Approve the scoped F17 amendment (Recommended)",
+  "observed_before_root_clock_utc": "2026-10-01 21:08:45 UTC",
+  "adoption_commit": "098fbd4df23db6eaf844b0741fde70c182fef063",
+  "scope_record": "RESUME_2026-09-30/OWNER_DECISION_F17_2026-10-01.md",
+  "limits": "No unrun credit, other-fault amendment or final A1/E_max/W1/F2a acceptance."
+}
