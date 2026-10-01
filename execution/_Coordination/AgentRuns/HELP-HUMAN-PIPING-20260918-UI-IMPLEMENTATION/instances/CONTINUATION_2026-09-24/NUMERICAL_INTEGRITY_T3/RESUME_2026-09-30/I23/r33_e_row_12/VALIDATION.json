@@ -1,0 +1,24 @@
+{
+  "status": "PASS_STATIC_PREPARATION_ONLY",
+  "checked_at_utc": "2026-10-01T17:13:26Z",
+  "copies": 2,
+  "files_hashed": 232,
+  "all_original_files_except_append_match": true,
+  "original_test_prefix_exact": true,
+  "exact_overlay_application": true,
+  "case_precision_selection_proved": true,
+  "coverage_expected": 1,
+  "fixed_oracle_digest_verified_from_explicit_records": true,
+  "production_fault_applied": false,
+  "empty_targets": 2,
+  "empty_logs": 2,
+  "distinct_inodes": 232,
+  "runtime": 0,
+  "unverified": [
+    "Compilation",
+    "fresh one-case baseline",
+    "actual D2 E-row numeric assertion",
+    "returned control"
+  ],
+  "no_wrong_digest_invented": true
+}

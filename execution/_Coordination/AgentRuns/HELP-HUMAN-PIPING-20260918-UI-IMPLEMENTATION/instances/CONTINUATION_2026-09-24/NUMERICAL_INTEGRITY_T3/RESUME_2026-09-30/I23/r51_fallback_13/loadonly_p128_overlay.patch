@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs
+@@ -650,3 +650,12 @@
+     assert_eq!(with, vec![true, true]);
+     assert_eq!(without, vec![true, false]);
+ }
++
++
++#[test]
++fn i23_r51_loadonly_y345_p128_retains_bounded_fallback() {
++    // Contingent isolation of the existing named R7-M12 witness only.
++    // SCALE remains state3; only this case's typed ResidualGate can qualify.
++    let checked = e_unit(|name| name == "LOADONLY-y345", &[128]);
++    assert_eq!(checked, 1, "I23 R51 exactly one LOADONLY-y345/p128 case");
++}
