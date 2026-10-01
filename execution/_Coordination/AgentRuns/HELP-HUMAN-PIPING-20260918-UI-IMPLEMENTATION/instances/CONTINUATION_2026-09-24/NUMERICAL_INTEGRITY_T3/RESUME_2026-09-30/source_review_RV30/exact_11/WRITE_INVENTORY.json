@@ -1,0 +1,21 @@
+{
+  "only_written_directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11",
+  "files": [
+    "ARITHMETIC_RECHECK.json",
+    "CALLER_SOURCE_BINDING.json",
+    "CARRIED_CONTRACTS.json",
+    "DESCRIPTOR_RECHECK.json",
+    "FINDINGS.json",
+    "GRANT.json",
+    "INPUT_BINDING.json",
+    "INTEGER_PARSE_RECHECK.json",
+    "PRIOR_SEALS_UNCHANGED.json",
+    "REACHABILITY.json",
+    "RETURN.md",
+    "SHA256SUMS",
+    "VERIFICATION.json",
+    "WRITE_INVENTORY.json"
+  ],
+  "scratch_files": [],
+  "prior_files_or_seals_changed": false
+}

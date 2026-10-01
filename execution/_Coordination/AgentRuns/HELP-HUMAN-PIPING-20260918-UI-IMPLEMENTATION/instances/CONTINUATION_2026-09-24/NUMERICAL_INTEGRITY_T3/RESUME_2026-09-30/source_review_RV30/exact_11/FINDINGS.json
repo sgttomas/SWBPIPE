@@ -1,0 +1,31 @@
+{
+  "blocking_defects_found": [],
+  "conditional_derivation_status": "reviewed source-consistent for selected successful paths",
+  "descriptor_replay": "all213 complete case groups/counts/first locations match",
+  "numeric_rows_recomputed": 10,
+  "per_owner_ceiling_only": true,
+  "statement_qualification": {
+    "decimal_digits_only_caller": "production only; cfg(test) also directly calls at553"
+  },
+  "open_premises": [
+    {
+      "id": "V-EXACT-FINITE",
+      "scope": "values reaching from_f64 from derived observation/floor paths must be finite, or preserve a bounded assertion/runtime path",
+      "existing_packet_gap": true
+    },
+    {
+      "id": "V-EXACT-TARGET",
+      "scope": "public U sizeof expression and pinned allocation-contract correspondence on final build",
+      "existing_packet_gap": true
+    },
+    {
+      "id": "V-EXACT-INTEGRATION",
+      "scope": "checked translation, composed per-call maxima and caller union; no full E_max yet",
+      "existing_packet_gap": true
+    }
+  ],
+  "new_probe_needed_for_U": false,
+  "H_artifact_facts_transferred": false,
+  "full_E_max_accepted": false,
+  "implementation_admission_accepted": false
+}

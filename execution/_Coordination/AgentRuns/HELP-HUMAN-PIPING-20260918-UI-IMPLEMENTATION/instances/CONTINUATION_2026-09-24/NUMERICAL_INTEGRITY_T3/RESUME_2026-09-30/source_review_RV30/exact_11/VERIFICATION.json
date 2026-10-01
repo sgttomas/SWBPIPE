@@ -1,0 +1,42 @@
+{
+  "status": "conditional source derivation reviewed; no blocking defect found",
+  "actual_start_utc": "2026-10-01T16:36:37+00:00",
+  "completion_utc": "2026-10-01T16:46:36.017346+00:00",
+  "deadline_utc": "2026-10-01T17:01:37+00:00",
+  "elapsed_seconds": 599.017346,
+  "packet_seal": "3ed736b36c456d5d8ad6d9d89bf633a51fb383d96d858e8b391444dc8a8b2610",
+  "all_packet_payloads_verified": 12,
+  "packet_named_frozen_files_matched": 16,
+  "immediate_source11_caller_paths_matched": 7,
+  "integer_parse_originals_and_selected_excerpts_matched": 2,
+  "cases_exact_replayed": 213,
+  "reference_rows": 27752,
+  "value_control_entries": 5085,
+  "unique_selected_strings": 9522,
+  "memory_shapes": 259,
+  "row_shape_groups": 2242,
+  "control_shape_groups": 1389,
+  "integer_bit_rows_recomputed": 10,
+  "prior_RV30_packets_unchanged": 12,
+  "checked_boundary": "exact.rs production1-512, immediate compare/lane/floor call sites, case scale selection, sparse-parity gate, metadata-only ten-family scan, selected integer parse and carried allocation contracts",
+  "not_checked": [
+    "finite derived floor/twist/extension results for all fixed models",
+    "arbitrary public Exact callers or dense-parity aggregate",
+    "future checked estimator implementation and whole-caller union",
+    "whole process E_max or admission",
+    "final-H transfer of prior artifact facts"
+  ],
+  "activity_counts": {
+    "Git": 0,
+    "index": 0,
+    "Rust_Cargo_build": 0,
+    "test_solver_probe_runtime": 0,
+    "model_or_numeric_algorithm_execution": 0,
+    "maintained_source_change": 0,
+    "new_tools": 0,
+    "network_install": 0,
+    "delegation": 0
+  },
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/exact_11",
+  "scratch": []
+}
