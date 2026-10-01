@@ -1,0 +1,70 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-vk-target/release/examples/vk_records:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+00000001000273d4 <<alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry>:
+1000273d4: d10203ff    	sub	sp, sp, #0x80
+1000273d8: a90557f6    	stp	x22, x21, [sp, #0x50]
+1000273dc: a9064ff4    	stp	x20, x19, [sp, #0x60]
+1000273e0: a9077bfd    	stp	x29, x30, [sp, #0x70]
+1000273e4: 9101c3fd    	add	x29, sp, #0x70
+1000273e8: aa0103f5    	mov	x21, x1
+1000273ec: aa0003f4    	mov	x20, x0
+1000273f0: aa0803f3    	mov	x19, x8
+1000273f4: aa0003e8    	mov	x8, x0
+1000273f8: f8408d09    	ldr	x9, [x8, #0x8]!
+1000273fc: b4000289    	cbz	x9, 0x10002744c <<alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry+0x78>
+100027400: 3dc00100    	ldr	q0, [x8]
+100027404: 3d800be0    	str	q0, [sp, #0x20]
+100027408: f9400908    	ldr	x8, [x8, #0x10]
+10002740c: f9001be8    	str	x8, [sp, #0x30]
+100027410: f9401288    	ldr	x8, [x20, #0x20]
+100027414: f81d03a8    	stur	x8, [x29, #-0x30]
+100027418: b9402a88    	ldr	w8, [x20, #0x28]
+10002741c: b81d83a8    	stur	w8, [x29, #-0x28]
+100027420: 910023e8    	add	x8, sp, #0x8
+100027424: 910083e0    	add	x0, sp, #0x20
+100027428: d100c3a1    	sub	x1, x29, #0x30
+10002742c: 9100b284    	add	x4, x20, #0x2c
+100027430: aa1503e2    	mov	x2, x21
+100027434: aa1403e3    	mov	x3, x20
+100027438: 97ff92ca    	bl	0x10000bf60 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow, alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry::{closure#0}>>
+10002743c: f9400296    	ldr	x22, [x20]
+100027440: f94007e0    	ldr	x0, [sp, #0x8]
+100027444: 3cc103e0    	ldur	q0, [sp, #0x10]
+100027448: 14000014    	b	0x100027498 <<alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry+0xc4>
+10002744c: f9400296    	ldr	x22, [x20]
+100027450: 97ff8c42    	bl	0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+100027454: 52806a00    	mov	w0, #0x350              ; =848
+100027458: 52800101    	mov	w1, #0x8                ; =8
+10002745c: 97ff8c3b    	bl	0x10000a548 <__rustc::__rust_alloc>
+100027460: b4000340    	cbz	x0, 0x1000274c8 <<alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry+0xf4>
+100027464: f901601f    	str	xzr, [x0, #0x2c0]
+100027468: a9007ec0    	stp	x0, xzr, [x22]
+10002746c: 52800028    	mov	w8, #0x1                ; =1
+100027470: 79069c08    	strh	w8, [x0, #0x34e]
+100027474: f9401288    	ldr	x8, [x20, #0x20]
+100027478: f9016408    	str	x8, [x0, #0x2c8]
+10002747c: b9402a88    	ldr	w8, [x20, #0x28]
+100027480: ad4006a0    	ldp	q0, q1, [x21]
+100027484: ad000400    	stp	q0, q1, [x0]
+100027488: ad4106a0    	ldp	q0, q1, [x21, #0x20]
+10002748c: ad010400    	stp	q0, q1, [x0, #0x20]
+100027490: 6f00e400    	movi.2d	v0, #0000000000000000
+100027494: b902d008    	str	w8, [x0, #0x2d0]
+100027498: f9400ac8    	ldr	x8, [x22, #0x10]
+10002749c: 91000508    	add	x8, x8, #0x1
+1000274a0: f9000ac8    	str	x8, [x22, #0x10]
+1000274a4: f9400288    	ldr	x8, [x20]
+1000274a8: f9000260    	str	x0, [x19]
+1000274ac: 3c808260    	stur	q0, [x19, #0x8]
+1000274b0: f9000e68    	str	x8, [x19, #0x18]
+1000274b4: a9477bfd    	ldp	x29, x30, [sp, #0x70]
+1000274b8: a9464ff4    	ldp	x20, x19, [sp, #0x60]
+1000274bc: a94557f6    	ldp	x22, x21, [sp, #0x50]
+1000274c0: 910203ff    	add	sp, sp, #0x80
+1000274c4: d65f03c0    	ret
+1000274c8: 52800100    	mov	w0, #0x8                ; =8
+1000274cc: 52806a01    	mov	w1, #0x350              ; =848
+1000274d0: 940624ce    	bl	0x1001b0808 <alloc::alloc::handle_alloc_error>

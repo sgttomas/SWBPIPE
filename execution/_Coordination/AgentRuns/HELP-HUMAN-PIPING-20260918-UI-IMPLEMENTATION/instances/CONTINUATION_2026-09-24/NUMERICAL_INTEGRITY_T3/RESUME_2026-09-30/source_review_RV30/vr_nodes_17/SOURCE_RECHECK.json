@@ -1,0 +1,105 @@
+{
+  "pages": [
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/collections/btree/node.rs.html",
+      "html_sha256": "e1aab1c78967c048ff7bfae71b6b50b3e855b562c1ccf6185553d3bc15b65cf3",
+      "decoded_sha256": "2200ca0a4fe38592c314dc7f5f40bbb160e06b6f9e4abd1eb5bc40701540ab25"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/collections/btree/set.rs.html",
+      "html_sha256": "0567ea8d3ca36f8571f436df0682ac6c7048a890b799b47db7da67b03e54f370",
+      "decoded_sha256": "a7be8e5e576fac0975d0af0f24407ddd709751820bbb1f5059d55f08414a4888"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/collections/btree/map.rs.html",
+      "html_sha256": "6d6de6e166f56726d754979adaad4a2b92c2d85682ab5eb4dc49769c9243a445",
+      "decoded_sha256": "f58ece50e59502b344616a4c7dcbb13987b5b5ef6b2c4038888ceefaac5635d1"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/collections/btree/set_val.rs.html",
+      "html_sha256": "eec5c58eec72963cdc634f287f43fbfdfbdfaf9c21cebf889418fab5fef1a3a5",
+      "decoded_sha256": "354ab9c955b7f068a9bb7727357aa66b104acc176170ccf37b01945d302d8ec1"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/boxed.rs.html",
+      "html_sha256": "a2eb236f909a34b90d15cf6fa553223d268a8fc2ed1450da943413c3f8fdad42",
+      "decoded_sha256": "31fe2ec856527253e2a78279f44b7dec14b73d9f1114a75584b031dcd6f64418"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/mem/maybe_uninit.rs.html",
+      "html_sha256": "f7d5002303c55d0037aacf86f7353c55c6ec63d5b823c905d167cc61725b0272",
+      "decoded_sha256": "cd1152779de3a6bc96b29997e8a95d3beb9ff1018f99223b429ed0df66baa8ef"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/core/ptr/non_null.rs.html",
+      "html_sha256": "c3f6693cc1acf2fdae2212d156a10a18a197766db5c7ee211844a642ea2f15aa",
+      "decoded_sha256": "45a80ce121ed0183b435207d99f6017224b0b5fbfa7c7ecca8f8831a56e2baf2"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/alloc.rs.html",
+      "html_sha256": "5d6e77e2da23fb76f22e57af724fd61bf8ccdfbee55e916a6eccac2eb686b858",
+      "decoded_sha256": "afc8eece58d63942328cab563fad1b180b50afdadc9141d40e5d98a6df90cd70"
+    },
+    {
+      "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/reference/type-layout.html",
+      "html_sha256": "3d66d4848f03cb3ffbf406171d1871608922336eb6327b93d1d28e6dec0f9641"
+    }
+  ],
+  "source_bindings": [
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/decoded/alloc__collections__btree__node.rs",
+      "sha256": "2200ca0a4fe38592c314dc7f5f40bbb160e06b6f9e4abd1eb5bc40701540ab25"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/decoded/alloc__collections__btree__map.rs",
+      "sha256": "f58ece50e59502b344616a4c7dcbb13987b5b5ef6b2c4038888ceefaac5635d1"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/decoded/alloc__alloc.rs",
+      "sha256": "afc8eece58d63942328cab563fad1b180b50afdadc9141d40e5d98a6df90cd70"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/rcm.rs",
+      "sha256": "313ad702a84d4ea97f22c31b6213698d7ad035db09a92b3ed619fe78a9415d0e"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/scale.rs",
+      "sha256": "bd6242ff6a7ab8b7528bd483bc60e6a5ccb51b5476b08bcceaae45f725f0a40b"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/rcm.rs",
+      "sha256": "1d82829c31a1358ab7d673c8d8b009799f2a9100c935d4d5a5bca9c70c4843a9"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/tests/scale.rs",
+      "sha256": "8df1d6de492de1ec8c16c47f2dc9aae22ca213757f98e89071e852f339fd1edb"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/lane.rs",
+      "sha256": "3512f36ebc9e2b947528af5babe32b92094f46894ab9be858c72330c8f8bb990"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/floor.rs",
+      "sha256": "882f0047fb9e3474703b7fb2fa723ffc4544066a3b0919a3cd5e42b68742f9aa"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/parity.rs",
+      "sha256": "525e6993e37df919535004dc418439a6b919036b7ca4fe588d51a514a393fe01"
+    },
+    {
+      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/validation/benchmarks/numerical_robustness/src/cases.rs",
+      "sha256": "54b6ad68cb94514a18882988b293f6ff709d3b36c37ae2cc7abe2047539b1ca6"
+    }
+  ],
+  "entry": {
+    "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/alloc/collections/btree/map/entry.rs.html",
+    "html_sha256": "cd4c96bbb8e5b763db6afb9cfcde6c6fb926706252de2e8bb712b76d608f6299",
+    "decoded_sha256": "2a07121ec5b1a4d1aa822868b1064bbdae911ee02cda8b34f4dd53e53876f116",
+    "metadata": {
+      "data-rustdoc-version": "1.97.1 (8bab26f4f 2026-07-14)",
+      "data-channel": "1.97.1"
+    }
+  },
+  "source16_leaf_default_Rust_and_internal_C_distinguished": true,
+  "source16_marker_not_unit": true
+}

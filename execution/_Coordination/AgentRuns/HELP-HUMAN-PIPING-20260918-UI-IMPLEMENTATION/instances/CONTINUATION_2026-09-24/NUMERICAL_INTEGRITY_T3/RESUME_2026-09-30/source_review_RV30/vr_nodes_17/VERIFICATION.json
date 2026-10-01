@@ -1,0 +1,25 @@
+{
+  "start_utc": "2026-10-01T19:36:10+00:00",
+  "completion_utc": "2026-10-01T19:41:16.584331+00:00",
+  "deadline_utc": "2026-10-01T19:56:10+00:00",
+  "elapsed_seconds": 306.584331,
+  "eight_request_pairs_independent": true,
+  "narrow_disassemblies_exact_match": 13,
+  "existing_binary_hashes_match": 3,
+  "existing_metadata_hashes_match": 19,
+  "source16_payloads_verified": 9,
+  "artifact17_payloads_verified": 44,
+  "no_new_blocking_findings": true,
+  "source_or_artifact_changed": false,
+  "activity_counts": {
+    "binary_execution": 0,
+    "Rust_build_test_probe": 0,
+    "archive_reader": 0,
+    "Git_index": 0,
+    "maintained_edit": 0,
+    "new_tools_or_library_programme": 0,
+    "delegation": 0
+  },
+  "final_correspondence_full_Emax_acceptance": false,
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17"
+}

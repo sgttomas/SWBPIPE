@@ -1,0 +1,32 @@
+{
+  "directory": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/vr_nodes_17",
+  "files": [
+    "FINDINGS.json",
+    "GRANT.json",
+    "INPUT_BINDING.json",
+    "REQUEST_RECHECK.json",
+    "RETURN.md",
+    "SHA256SUMS",
+    "SOURCE_RECHECK.json",
+    "VERIFICATION.json",
+    "WRITE_INVENTORY.json",
+    "_run_records/ARTIFACT_RECHECK.json",
+    "_run_records/BRIEF_BINDING.json",
+    "_run_records/COMMANDS_AND_RESULTS.json",
+    "_run_records/adjacency_leaf.stdout",
+    "_run_records/allowance_insert_recursing.stdout",
+    "_run_records/case_from_iter.stdout",
+    "_run_records/controls_from_iter.stdout",
+    "_run_records/counts_leaf.stdout",
+    "_run_records/floor_from_iter.stdout",
+    "_run_records/json_insert_caller.stdout",
+    "_run_records/json_vacant.stdout",
+    "_run_records/publication_vacant.stdout",
+    "_run_records/rcm_alloc_impl.stdout",
+    "_run_records/rcm_global_allocate.stdout",
+    "_run_records/scale_alloc_impl.stdout",
+    "_run_records/scale_global_allocate.stdout"
+  ],
+  "scratch": [],
+  "prior_edits": false
+}

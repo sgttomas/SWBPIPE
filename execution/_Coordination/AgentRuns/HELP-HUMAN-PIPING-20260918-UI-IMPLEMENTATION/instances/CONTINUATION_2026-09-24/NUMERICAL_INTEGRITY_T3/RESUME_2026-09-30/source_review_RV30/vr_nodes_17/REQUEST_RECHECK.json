@@ -1,0 +1,176 @@
+{
+  "facts": [
+    {
+      "id": "VR-JSON",
+      "leaf": [
+        632,
+        8
+      ],
+      "internal": [
+        728,
+        8
+      ],
+      "callsite_excerpt": [
+        "100008600: 940007d6    \tbl\t0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+        "100008604: 52804f00    \tmov\tw0, #0x278              ; =632",
+        "100008608: 52800101    \tmov\tw1, #0x8                ; =8",
+        "10000860c: 940007cf    \tbl\t0x10000a548 <__rustc::__rust_alloc>",
+        "100008610: b4000320    \tcbz\tx0, 0x100008674 <<alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry+0xf0>",
+        "100008614: f900b01f    \tstr\txzr, [x0, #0x160]",
+        "100008618: a9007ec0    \tstp\tx0, xzr, [x22]",
+        "10000861c: 3dc00260    \tldr\tq0, [x19]",
+        "100008620: f9400a68    \tldr\tx8, [x19, #0x10]",
+        "100008624: 52800029    \tmov\tw9, #0x1                ; =1"
+      ]
+    },
+    {
+      "id": "VR-CONTROLS",
+      "leaf": [
+        280,
+        8
+      ],
+      "internal": [
+        376,
+        8
+      ],
+      "callsite_excerpt": [
+        "100030ad8: 97ff66a0    \tbl\t0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+        "100030adc: 52802300    \tmov\tw0, #0x118              ; =280",
+        "100030ae0: 52800101    \tmov\tw1, #0x8                ; =8",
+        "100030ae4: 97ff6699    \tbl\t0x10000a548 <__rustc::__rust_alloc>",
+        "100030ae8: b40003e0    \tcbz\tx0, 0x100030b64 <<alloc::collections::btree::map::BTreeMap<&str, &piping_numerical_robustness::cases::Row> as core::iter::traits::collect::FromIterator<(&str, &piping_numerical_robustness::cases::Row)>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Row>, piping_numerical_robustness::lane::value_controls::{closure#0}>>+0x184>",
+        "100030aec: f900581f    \tstr\txzr, [x0, #0xb0]",
+        "100030af0: 7902241f    \tstrh\twzr, [x0, #0x112]",
+        "100030af4: a9007fe0    \tstp\tx0, xzr, [sp]",
+        "100030af8: a9017fff    \tstp\txzr, xzr, [sp, #0x10]",
+        "100030afc: 52800308    \tmov\tw8, #0x18               ; =24"
+      ]
+    },
+    {
+      "id": "VR-PUBLICATION",
+      "leaf": [
+        848,
+        8
+      ],
+      "internal": [
+        944,
+        8
+      ],
+      "callsite_excerpt": [
+        "100027450: 97ff8c42    \tbl\t0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+        "100027454: 52806a00    \tmov\tw0, #0x350              ; =848",
+        "100027458: 52800101    \tmov\tw1, #0x8                ; =8",
+        "10002745c: 97ff8c3b    \tbl\t0x10000a548 <__rustc::__rust_alloc>",
+        "100027460: b4000340    \tcbz\tx0, 0x1000274c8 <<alloc::collections::btree::map::entry::VacantEntry<open_pipe_stress_frame_kernel::structural::retained::recover::QuantityId, open_pipe_stress_frame_kernel::structural::retained::adaptive::PublishedRow>>::insert_entry+0xf4>",
+        "100027464: f901601f    \tstr\txzr, [x0, #0x2c0]",
+        "100027468: a9007ec0    \tstp\tx0, xzr, [x22]",
+        "10002746c: 52800028    \tmov\tw8, #0x1                ; =1",
+        "100027470: 79069c08    \tstrh\tw8, [x0, #0x34e]",
+        "100027474: f9401288    \tldr\tx8, [x20, #0x20]"
+      ]
+    },
+    {
+      "id": "VR-FLOOR",
+      "leaf": [
+        456,
+        8
+      ],
+      "internal": [
+        552,
+        8
+      ],
+      "callsite_excerpt": [
+        "1000308e4: 97ff671d    \tbl\t0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+        "1000308e8: 52803900    \tmov\tw0, #0x1c8              ; =456",
+        "1000308ec: 52800101    \tmov\tw1, #0x8                ; =8",
+        "1000308f0: 97ff6716    \tbl\t0x10000a548 <__rustc::__rust_alloc>",
+        "1000308f4: b4000540    \tcbz\tx0, 0x10003099c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, (f64, f64)> as core::iter::traits::collect::FromIterator<(alloc::string::String, (f64, f64))>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<piping_numerical_robustness::cases::Member>, piping_numerical_robustness::floor::scales_from::{closure#0}>>+0xfc>",
+        "1000308f8: f900581f    \tstr\txzr, [x0, #0xb0]",
+        "1000308fc: 7903841f    \tstrh\twzr, [x0, #0x1c2]",
+        "100030900: a901ffe0    \tstp\tx0, xzr, [sp, #0x18]",
+        "100030904: 52800508    \tmov\tw8, #0x28               ; =40",
+        "100030908: 9b0856c8    \tmadd\tx8, x22, x8, x21"
+      ]
+    },
+    {
+      "id": "VR-ALLOWANCE",
+      "leaf": [
+        368,
+        8
+      ],
+      "internal": [
+        464,
+        8
+      ],
+      "callsite_excerpt": [
+        "10000ca10: 97fff6d2    \tbl\t0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+        "10000ca14: 52802e00    \tmov\tw0, #0x170              ; =368",
+        "10000ca18: 52800101    \tmov\tw1, #0x8                ; =8",
+        "10000ca1c: 97fff6cb    \tbl\t0x10000a548 <__rustc::__rust_alloc>",
+        "10000ca20: b4002d40    \tcbz\tx0, 0x10000cfc8 <<alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, (usize, usize), (f64, usize), alloc::collections::btree::node::marker::Leaf>, alloc::collections::btree::node::marker::Edge>>::insert_recursing::<alloc::alloc::Global, <alloc::collections::btree::map::entry::VacantEntry<(usize, usize), (f64, usize)>>::insert_entry::{closure#0}>+0x6dc>",
+        "10000ca24: aa0003f4    \tmov\tx20, x0",
+        "10000ca28: f900b01f    \tstr\txzr, [x0, #0x160]",
+        "10000ca2c: 7942d6c8    \tldrh\tw8, [x22, #0x16a]",
+        "10000ca30: aa3503e9    \tmvn\tx9, x21",
+        "10000ca34: 8b090101    \tadd\tx1, x8, x9"
+      ]
+    },
+    {
+      "id": "VR-CASE-STRINGS",
+      "leaf": [
+        544,
+        8
+      ],
+      "internal": [
+        640,
+        8
+      ],
+      "callsite_excerpt": [
+        "1000307b0: 97ff676a    \tbl\t0x10000a558 <__rustc::__rust_no_alloc_shim_is_unstable_v2>",
+        "1000307b4: 52804400    \tmov\tw0, #0x220              ; =544",
+        "1000307b8: 52800101    \tmov\tw1, #0x8                ; =8",
+        "1000307bc: 97ff6763    \tbl\t0x10000a548 <__rustc::__rust_alloc>",
+        "1000307c0: b40004e0    \tcbz\tx0, 0x10003085c <<alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String> as core::iter::traits::collect::FromIterator<(alloc::string::String, alloc::string::String)>>::from_iter::<core::iter::adapters::map::Map<serde_json::map::Iter, piping_numerical_robustness::cases::parse_case::{closure#2}::{closure#0}::{closure#0}>>+0x10c>",
+        "1000307c4: f900001f    \tstr\txzr, [x0]",
+        "1000307c8: 7904341f    \tstrh\twzr, [x0, #0x21a]",
+        "1000307cc: a901ffe0    \tstp\tx0, xzr, [sp, #0x18]",
+        "1000307d0: 52800608    \tmov\tw8, #0x30               ; =48",
+        "1000307d4: 9b0856c8    \tmadd\tx8, x22, x8, x21"
+      ]
+    },
+    {
+      "id": "VR-ADJACENCY",
+      "leaf": [
+        104,
+        8
+      ],
+      "internal": [
+        200,
+        8
+      ],
+      "full_forwarding_files": [
+        "adjacency_leaf.stdout",
+        "rcm_global_allocate.stdout",
+        "rcm_alloc_impl.stdout"
+      ]
+    },
+    {
+      "id": "VR-COUNTS-PAIRS",
+      "leaf": [
+        104,
+        8
+      ],
+      "internal": [
+        200,
+        8
+      ],
+      "full_forwarding_files": [
+        "counts_leaf.stdout",
+        "scale_global_allocate.stdout",
+        "scale_alloc_impl.stdout"
+      ]
+    }
+  ],
+  "eight_nominal_types_independent": true,
+  "internals_derived_from_repr_C_not_mirror": true
+}

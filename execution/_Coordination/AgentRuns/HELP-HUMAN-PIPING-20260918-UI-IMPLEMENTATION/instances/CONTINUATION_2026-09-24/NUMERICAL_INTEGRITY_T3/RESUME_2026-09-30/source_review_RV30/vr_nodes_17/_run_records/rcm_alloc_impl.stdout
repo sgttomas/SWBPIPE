@@ -1,0 +1,104 @@
+
+/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-consumer-vr-target/debug/deps/rcm-09e04a758b08a557:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010004e68c <<alloc::alloc::Global>::alloc_impl_runtime>:
+10004e68c: d103c3ff    	sub	sp, sp, #0xf0
+10004e690: a90e7bfd    	stp	x29, x30, [sp, #0xe0]
+10004e694: 910383fd    	add	x29, sp, #0xe0
+10004e698: f9000be0    	str	x0, [sp, #0x10]
+10004e69c: f9000fe1    	str	x1, [sp, #0x18]
+10004e6a0: b90027e2    	str	w2, [sp, #0x24]
+10004e6a4: f9002fe0    	str	x0, [sp, #0x58]
+10004e6a8: f90033e1    	str	x1, [sp, #0x60]
+10004e6ac: 3901bbe2    	strb	w2, [sp, #0x6e]
+10004e6b0: f9003bff    	str	xzr, [sp, #0x70]
+10004e6b4: f81983bf    	stur	xzr, [x29, #-0x68]
+10004e6b8: f81a83a1    	stur	x1, [x29, #-0x58]
+10004e6bc: b5000161    	cbnz	x1, 0x10004e6e8 <<alloc::alloc::Global>::alloc_impl_runtime+0x5c>
+10004e6c0: 14000001    	b	0x10004e6c4 <<alloc::alloc::Global>::alloc_impl_runtime+0x38>
+10004e6c4: f9400be8    	ldr	x8, [sp, #0x10]
+10004e6c8: aa0803e9    	mov	x9, x8
+10004e6cc: f81b03a9    	stur	x9, [x29, #-0x50]
+10004e6d0: f90007e8    	str	x8, [sp, #0x8]
+10004e6d4: aa0803e9    	mov	x9, x8
+10004e6d8: f81b83a9    	stur	x9, [x29, #-0x48]
+10004e6dc: f81c03a8    	stur	x8, [x29, #-0x40]
+10004e6e0: f81c83bf    	stur	xzr, [x29, #-0x38]
+10004e6e4: 14000004    	b	0x10004e6f4 <<alloc::alloc::Global>::alloc_impl_runtime+0x68>
+10004e6e8: b94027e8    	ldr	w8, [sp, #0x24]
+10004e6ec: 37000248    	tbnz	w8, #0x0, 0x10004e734 <<alloc::alloc::Global>::alloc_impl_runtime+0xa8>
+10004e6f0: 1400000b    	b	0x10004e71c <<alloc::alloc::Global>::alloc_impl_runtime+0x90>
+10004e6f4: f9400be0    	ldr	x0, [sp, #0x10]
+10004e6f8: f00006e1    	adrp	x1, 0x10012d000 <dyld_stub_binder+0x10012d000>
+10004e6fc: 9135e021    	add	x1, x1, #0xd78
+10004e700: 97fff2a8    	bl	0x10004b1a0 <<core::ptr::non_null::NonNull<_>>::new_unchecked::precondition_check>
+10004e704: 14000001    	b	0x10004e708 <<alloc::alloc::Global>::alloc_impl_runtime+0x7c>
+10004e708: f94007e8    	ldr	x8, [sp, #0x8]
+10004e70c: f90017e8    	str	x8, [sp, #0x28]
+10004e710: f9001bff    	str	xzr, [sp, #0x30]
+10004e714: 14000001    	b	0x10004e718 <<alloc::alloc::Global>::alloc_impl_runtime+0x8c>
+10004e718: 1400001b    	b	0x10004e784 <<alloc::alloc::Global>::alloc_impl_runtime+0xf8>
+10004e71c: 97fed4c3    	bl	0x100003a28 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+10004e720: f9400fe0    	ldr	x0, [sp, #0x18]
+10004e724: f9400be1    	ldr	x1, [sp, #0x10]
+10004e728: 97fed4bc    	bl	0x100003a18 <__rustc::__rust_alloc>
+10004e72c: f9001fe0    	str	x0, [sp, #0x38]
+10004e730: 14000007    	b	0x10004e74c <<alloc::alloc::Global>::alloc_impl_runtime+0xc0>
+10004e734: 97fed4bd    	bl	0x100003a28 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+10004e738: f9400fe0    	ldr	x0, [sp, #0x18]
+10004e73c: f9400be1    	ldr	x1, [sp, #0x10]
+10004e740: 97fed4b9    	bl	0x100003a24 <__rustc::__rust_alloc_zeroed>
+10004e744: f9001fe0    	str	x0, [sp, #0x38]
+10004e748: 14000001    	b	0x10004e74c <<alloc::alloc::Global>::alloc_impl_runtime+0xc0>
+10004e74c: f9401fe8    	ldr	x8, [sp, #0x38]
+10004e750: b5000188    	cbnz	x8, 0x10004e780 <<alloc::alloc::Global>::alloc_impl_runtime+0xf4>
+10004e754: 14000001    	b	0x10004e758 <<alloc::alloc::Global>::alloc_impl_runtime+0xcc>
+10004e758: f9002bff    	str	xzr, [sp, #0x50]
+10004e75c: f90027ff    	str	xzr, [sp, #0x48]
+10004e760: 900004c9    	adrp	x9, 0x1000e6000 <dyld_stub_binder+0x1000e6000>
+10004e764: 900004c8    	adrp	x8, 0x1000e6000 <dyld_stub_binder+0x1000e6000>
+10004e768: 912f8108    	add	x8, x8, #0xbe0
+10004e76c: f945f129    	ldr	x9, [x9, #0xbe0]
+10004e770: f9400508    	ldr	x8, [x8, #0x8]
+10004e774: f90017e9    	str	x9, [sp, #0x28]
+10004e778: f9001be8    	str	x8, [sp, #0x30]
+10004e77c: 14000002    	b	0x10004e784 <<alloc::alloc::Global>::alloc_impl_runtime+0xf8>
+10004e780: 14000006    	b	0x10004e798 <<alloc::alloc::Global>::alloc_impl_runtime+0x10c>
+10004e784: f94017e0    	ldr	x0, [sp, #0x28]
+10004e788: f9401be1    	ldr	x1, [sp, #0x30]
+10004e78c: a94e7bfd    	ldp	x29, x30, [sp, #0xe0]
+10004e790: 9103c3ff    	add	sp, sp, #0xf0
+10004e794: d65f03c0    	ret
+10004e798: f9401fe0    	ldr	x0, [sp, #0x38]
+10004e79c: f00006e1    	adrp	x1, 0x10012d000 <dyld_stub_binder+0x10012d000>
+10004e7a0: 91364021    	add	x1, x1, #0xd90
+10004e7a4: 97fff27f    	bl	0x10004b1a0 <<core::ptr::non_null::NonNull<_>>::new_unchecked::precondition_check>
+10004e7a8: 14000001    	b	0x10004e7ac <<alloc::alloc::Global>::alloc_impl_runtime+0x120>
+10004e7ac: f9400fe8    	ldr	x8, [sp, #0x18]
+10004e7b0: f9401fe9    	ldr	x9, [sp, #0x38]
+10004e7b4: f9002be9    	str	x9, [sp, #0x50]
+10004e7b8: f9402be9    	ldr	x9, [sp, #0x50]
+10004e7bc: f81d03a9    	stur	x9, [x29, #-0x30]
+10004e7c0: f90027e9    	str	x9, [sp, #0x48]
+10004e7c4: f94027e9    	ldr	x9, [sp, #0x48]
+10004e7c8: f81d83a9    	stur	x9, [x29, #-0x28]
+10004e7cc: f90023e9    	str	x9, [sp, #0x40]
+10004e7d0: f94023e9    	ldr	x9, [sp, #0x40]
+10004e7d4: f90003e9    	str	x9, [sp]
+10004e7d8: f81e03a9    	stur	x9, [x29, #-0x20]
+10004e7dc: f81e83a9    	stur	x9, [x29, #-0x18]
+10004e7e0: f81f03a9    	stur	x9, [x29, #-0x10]
+10004e7e4: f81f83a8    	stur	x8, [x29, #-0x8]
+10004e7e8: 14000001    	b	0x10004e7ec <<alloc::alloc::Global>::alloc_impl_runtime+0x160>
+10004e7ec: f94003e0    	ldr	x0, [sp]
+10004e7f0: f00006e1    	adrp	x1, 0x10012d000 <dyld_stub_binder+0x10012d000>
+10004e7f4: 9135e021    	add	x1, x1, #0xd78
+10004e7f8: 97fff26a    	bl	0x10004b1a0 <<core::ptr::non_null::NonNull<_>>::new_unchecked::precondition_check>
+10004e7fc: 14000001    	b	0x10004e800 <<alloc::alloc::Global>::alloc_impl_runtime+0x174>
+10004e800: f9400fe8    	ldr	x8, [sp, #0x18]
+10004e804: f94003e9    	ldr	x9, [sp]
+10004e808: f90017e9    	str	x9, [sp, #0x28]
+10004e80c: f9001be8    	str	x8, [sp, #0x30]
+10004e810: 17ffffc2    	b	0x10004e718 <<alloc::alloc::Global>::alloc_impl_runtime+0x8c>
