@@ -3451,3 +3451,21 @@ process subtraction baseline is not an allowance, and no complete E_max,
 admission or W1 acceptance follows. C1/C2/O2/W1 remain open. No allocator,
 observer, guard, dependency or maintained code was changed. Later final-source
 reconciliation and full-bound review remain required before reliance.
+
+## K6c H caller composition reviewed conditionally (ROOT, 2026-10-01)
+
+ROOT read I21 source_10 and RV30 h_caller_05 and verified both seals. The
+finite application-owner composition, grammar and sample-edge distinctions
+are usable as conditional terms. RV30 found no blocking defect in that scope.
+Adopt its N1 geometry-leaf narrowing and N2 registered-allocator boundary:
+the remaining floating-format premise does not require a general geometry
+error audit, and private Thread layouts are not a K6 requested-byte obligation.
+The original source_10 packet remains unchanged; the review is additive.
+
+H-R0 is only surviving registered owners and later reached growth on the finite
+main-thread path; H-R1 is the selected stdout mutex child; H-R2 is the directly
+reached byte-write/flush path and dropped errors; H-F0 is finite default-f64
+Debug. Planned path/model inputs and checked final implementation remain to
+bind. These are precise open premises, not free estimator inputs or measured
+allowances. No full E_max, prelaunch admission, W1 or F2a acceptance follows.
+VR's finite caller composition continues separately under its source-only brief.
