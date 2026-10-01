@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584 ... FAILED
+
+failures:
+
+---- structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584 stdout ----
+
+thread 'structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584' (25365246) panicked at src/structural/retained/../../../tests/retained_k4/verify_tests.rs:13:5:
+assertion `left == right` failed
+  left: 1.0507614211323843e-286
+ right: 1.4088407314736535e-132
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::verify::tests::phi_is_exact_where_the_product_is_normal_and_rounded_up_below_2_to_the_minus_584
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+
