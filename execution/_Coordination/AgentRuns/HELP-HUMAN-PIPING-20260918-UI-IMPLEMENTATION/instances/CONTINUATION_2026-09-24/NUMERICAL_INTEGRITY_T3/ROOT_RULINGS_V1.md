@@ -3347,3 +3347,13 @@ The priced work and budgets do not change. The original sealed ledger stays
 unchanged; RV29 provides an additive correction. The C span brief permits only
 the warranted new-test expectation/rationale repair before the next bounded
 run. This is no production defect closure or blanket permission to rebaseline.
+
+## A1 S11 inventory: declare the added integer site (ROOT, 2026-10-01)
+
+The full fixed-head FK suite found one source-inventory mismatch in addition
+to the two legacy work-golden assertions. ROOT and RV29 classified the added
+run_schedule c+=1 as the existing integer precision-schedule index advancing
+after certificate rejection. The exact S11 inventory row may change5 to6 with
+that annotation; all scanner rules/other rows remain. The dedicated committed
+brief bounds the edit/check and same-reviewer backcheck. No floating summation
+site or protected numerical criterion is excused.
