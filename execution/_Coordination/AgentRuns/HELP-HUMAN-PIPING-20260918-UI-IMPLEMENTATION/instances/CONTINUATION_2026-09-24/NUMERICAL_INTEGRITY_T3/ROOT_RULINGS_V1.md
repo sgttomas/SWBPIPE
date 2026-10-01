@@ -3796,3 +3796,19 @@ during nonselected diagnostics. The review's “Exact numerical consequence”
 proves both repairs are dominated by the existing common-outcome maximum on
 the fixed roster; that does not make the original named phase addends complete.
 The VR kernel join stays unreleased until those corrections are verified.
+
+
+## Corrected VR caller interfaces accepted for bounded join (ROOT, 2026-10-01)
+
+ROOT read the full metric_design_11_vr_correction/CORRECTION.md and RV28
+vr_correction_07/BACKCHECK.md, verified their seals and all payloads, and accepts
+the original caller candidate only together with the authenticated overlay.
+RV28-VRNUM-1/-2 are closed. The corrected interfaces retain prior failure owners
+and the initialized typed LIST at the reviewed phases; the common-outcome
+maximum is unchanged on the fixed roster. Exact replacements, units and limits
+are in that backcheck. This grants no implicit kernel value or complete E_max.
+
+Release BRIEFS/I21_VR_KERNEL_JOIN.md for one bounded numeric composition and
+like-for-like historical peak comparison. Ordinary-production correspondence,
+checked implementation/deduplication, admission replay and required measurements
+remain. A1's F17 owner-decision hold is unchanged and independently managed.

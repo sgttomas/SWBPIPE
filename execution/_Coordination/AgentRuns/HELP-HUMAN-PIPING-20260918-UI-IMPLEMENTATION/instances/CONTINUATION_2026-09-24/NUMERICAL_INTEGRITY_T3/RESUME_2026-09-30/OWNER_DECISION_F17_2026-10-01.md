@@ -10,7 +10,8 @@ alongside the original CLASS route. Keep every original normal-case numerical,
 class-correspondence, exception and stored-record check. Retain the original CLASS requirement on registered not-covered comparison
 rows outside prescribed InputDerived exceptions wherever their case publishes. Where the new A1 gate
 withholds publication first, require controlled, source-linked evidence of a
-named relative-publication predicate rejecting the forced relative draft after
+named PublicRelative, SharperExact or SharperBinary64 predicate rejecting
+the forced relative draft after
 standing R7 acceptance, with full attempt records and successful normal controls.
 
 The already observed RF-SKEW route is the concrete application. The same rule
@@ -18,7 +19,7 @@ may be used prospectively only for the remaining originally registered F17
 family after its own bounded run, source/case binding, controls and independent
 review. This gives no credit to an unrun case or family. It applies to no other
 fault and does not accept a generic Ceiling, budget/arithmetic/verification
-failure, malformed certificate or absence of publication as a substitute.
+failure, AbsoluteBound, malformed certificate or absence of publication as a substitute.
 
 ## Evidence and limits
 

@@ -45,3 +45,13 @@ requested/moving totals. Preserve actual consumer/window/model/input identities
 and historical artifact qualifications. This is a like-for-like peak comparison,
 not a chronological admission replay or final-candidate measurement. Do not use
 any observed value as a source-upper input. Return any failing row explicitly.
+
+## ROOT release after component backchecks
+
+ROOT read full H review23/summary24 and VR review06/correction11/backcheck07,
+verified all seals and payloads, and accepted their conditional source/numeric
+facts. H summary correction01 and VR overlay11 must accompany their original
+sealed candidates. RV28-VRNUM-1/-2 are closed; all final-build/implementation/
+admission limits remain. This now releases the above25-minute existing
+manager/I21 source-arithmetic assignment, measured from actual child dispatch.
+A1 F17 owner decision remains separate and does not authorize more A1 runtime.
