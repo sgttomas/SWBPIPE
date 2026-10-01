@@ -1,0 +1,307 @@
+{
+  "status": "ADDITIVE_PREDICTION_CORRECTION_PENDING_RV29",
+  "cause": "I23 incorrectly substituted minimal significant limbs for ExactWideSum.used; inclusive terminal-zero addition and shift_up spare limbs must be retained.",
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "traces": [
+    {
+      "runtime_id": "R09",
+      "registration": "K4-M2",
+      "fixed_corpus_line": 6,
+      "precision": 128,
+      "width_limbs": 4,
+      "steps": [
+        {
+          "term_exponent": 0,
+          "used_before": 0,
+          "shift_up": {
+            "shift_bits": 0,
+            "words": 0,
+            "bits": 0,
+            "rule": "old_used+words+1 when anchor lowers"
+          },
+          "add_raw": {
+            "trimmed_limbs": 1,
+            "inclusive_iterations": 2,
+            "offset": 0,
+            "terminal_index": 2
+          },
+          "anchor_after": 0,
+          "used_after": 2,
+          "physical_limb_hex": [
+            "0000000000000001",
+            "0000000000000000"
+          ],
+          "nonzero_bit_positions": [
+            0
+          ]
+        },
+        {
+          "term_exponent": -128,
+          "used_before": 2,
+          "shift_up": {
+            "shift_bits": 128,
+            "words": 2,
+            "bits": 0,
+            "rule": "old_used+words+1 when anchor lowers"
+          },
+          "add_raw": {
+            "trimmed_limbs": 1,
+            "inclusive_iterations": 2,
+            "offset": 0,
+            "terminal_index": 2
+          },
+          "anchor_after": -128,
+          "used_after": 5,
+          "physical_limb_hex": [
+            "0000000000000001",
+            "0000000000000000",
+            "0000000000000001",
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "nonzero_bit_positions": [
+            0,
+            128
+          ]
+        },
+        {
+          "term_exponent": -428,
+          "used_before": 5,
+          "shift_up": {
+            "shift_bits": 300,
+            "words": 4,
+            "bits": 44,
+            "rule": "old_used+words+1 when anchor lowers"
+          },
+          "add_raw": {
+            "trimmed_limbs": 1,
+            "inclusive_iterations": 2,
+            "offset": 0,
+            "terminal_index": 2
+          },
+          "anchor_after": -428,
+          "used_after": 10,
+          "physical_limb_hex": [
+            "0000000000000001",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000100000000000",
+            "0000000000000000",
+            "0000100000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "nonzero_bit_positions": [
+            0,
+            300,
+            428
+          ]
+        }
+      ],
+      "net_returns_used_without_trimming": 10,
+      "fault": {
+        "top": 10,
+        "start": 5,
+        "low_bits_dropped": 320,
+        "new_anchor": -108,
+        "remaining_integer": "324518553658426726783156020576256",
+        "remaining_set_bits": [
+          108
+        ],
+        "lost_original_bits": [
+          300,
+          0
+        ],
+        "result_exact": "1",
+        "predicted_token": "+8p0",
+        "mechanism": "Both halfway and tail discarded; direct exact1, no retained midpoint/tie."
+      },
+      "protected_expected_value": "1+2^-127",
+      "protected_expected_token": "+80000000000000000000000000000001p0",
+      "protected_rational_oracle_unchanged": true,
+      "runtime_observation": false
+    },
+    {
+      "runtime_id": "R10",
+      "registration": "K4-M3",
+      "fixed_corpus_line": 2,
+      "precision": 128,
+      "width_limbs": 4,
+      "steps": [
+        {
+          "term_exponent": 0,
+          "used_before": 0,
+          "shift_up": {
+            "shift_bits": 0,
+            "words": 0,
+            "bits": 0,
+            "rule": "old_used+words+1 when anchor lowers"
+          },
+          "add_raw": {
+            "trimmed_limbs": 1,
+            "inclusive_iterations": 2,
+            "offset": 0,
+            "terminal_index": 2
+          },
+          "anchor_after": 0,
+          "used_after": 2,
+          "physical_limb_hex": [
+            "0000000000000001",
+            "0000000000000000"
+          ],
+          "nonzero_bit_positions": [
+            0
+          ]
+        },
+        {
+          "term_exponent": -128,
+          "used_before": 2,
+          "shift_up": {
+            "shift_bits": 128,
+            "words": 2,
+            "bits": 0,
+            "rule": "old_used+words+1 when anchor lowers"
+          },
+          "add_raw": {
+            "trimmed_limbs": 1,
+            "inclusive_iterations": 2,
+            "offset": 0,
+            "terminal_index": 2
+          },
+          "anchor_after": -128,
+          "used_after": 5,
+          "physical_limb_hex": [
+            "0000000000000001",
+            "0000000000000000",
+            "0000000000000001",
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "nonzero_bit_positions": [
+            0,
+            128
+          ]
+        },
+        {
+          "term_exponent": -133,
+          "used_before": 5,
+          "shift_up": {
+            "shift_bits": 5,
+            "words": 0,
+            "bits": 5,
+            "rule": "old_used+words+1 when anchor lowers"
+          },
+          "add_raw": {
+            "trimmed_limbs": 1,
+            "inclusive_iterations": 2,
+            "offset": 0,
+            "terminal_index": 2
+          },
+          "anchor_after": -133,
+          "used_after": 6,
+          "physical_limb_hex": [
+            "0000000000000021",
+            "0000000000000000",
+            "0000000000000020",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "nonzero_bit_positions": [
+            0,
+            5,
+            133
+          ]
+        }
+      ],
+      "net_returns_used_without_trimming": 6,
+      "fault": {
+        "top": 6,
+        "window_top_minus1": 0,
+        "leading_zeros": 64,
+        "faulty_bits": 320,
+        "cut": 192,
+        "original_nonzero_bits": [
+          133,
+          5,
+          0
+        ],
+        "remaining_integer": "0",
+        "zero_rule": "from_integer_rounded sees all-zero magnitude and returns signed_zero(false)",
+        "predicted_token": "Z+",
+        "mechanism": "Retained spare high zero limbs inflate faulty bit count; all live bits are cleared."
+      },
+      "protected_expected_value": "1+2^-127",
+      "protected_expected_token": "+80000000000000000000000000000001p0",
+      "protected_rational_oracle_unchanged": true,
+      "runtime_observation": false
+    }
+  ],
+  "superseded_fields": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_far_tail_09/ARITHMETIC.json",
+      "json_pointer": "/unchanged_fault_prediction",
+      "superseded": "used_limbs7, discarded_low_bits128, midpoint fraction/truncated_value and tie mechanism",
+      "replacement": "R09 trace: used2->5->10, start5, drop320, anchor-108, remaining exact1/+8p0."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_far_tail_09/RETURN.md",
+      "location": "paragraph beginning Independent exact fractions; sentence describing seven-limb net/128-bit trim/midpoint",
+      "replacement": "Baseline rational proof unchanged. Fault removes both halfway and tail directly, with physical used10/drop320."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_r10_tail_10/ARITHMETIC.json",
+      "json_pointer": "/witnesses/0/fault_prediction",
+      "replacement": "R09 direct1/+8p0 by physical used10/drop320, not tie rounding."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_r10_tail_10/ARITHMETIC.json",
+      "json_pointer": "/witnesses/1/fault_prediction",
+      "replacement": "R10 physical used6; faulty bits320; cut192; zero magnitude -> signed_zero(false) -> Z+."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_r10_tail_10/PROPOSAL.json",
+      "json_pointer": "/cases/1/qualifying_assertion/required_context",
+      "superseded": "expected original upper token versus mutant numeric +8p0",
+      "replacement": "For R10 only: unchanged line2 p128 exact three terms; run_targeted original line102 expects original upper token and mutant actual token must be canonical Z+. No other failure qualifies."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_r10_tail_10/RETURN.md",
+      "location": "paragraph beginning The original wide_sum tests; sentence R10 truncation clears6 bits leaving1",
+      "replacement": "R10 retained used6 yields faulty bits320/cut192, clearing all live bits and yielding Z+."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV29/remaining_08/ARITHMETIC_WITNESSES.json",
+      "json_pointer": "/K4-M2/used_limbs and /K4-M2/low_bits_dropped_by_mutant",
+      "relation": "RV29 tail_sources_15 already identifies these older reviewer fields as superseded; independently corroborated here without editing them."
+    }
+  ],
+  "old_packets_preserved": [
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_far_tail_09",
+      "seal_sha256": "e06c7f1777114494b6a58edc5f34784b82c2e62b73efcaab88fd86a582d8afbe",
+      "ARITHMETIC_sha256": "fb51f2108dda0edc406c699cf7f65db6ec2dfb92960ef40a695c6616286df2d8",
+      "PROPOSAL_sha256": "a71ce997948bad14d882a56b14b317914edb635b835a2131afc8b7d7ddce0e0e",
+      "RETURN_sha256": "aeb4ba8fc616c41f79b14c4065acc6b22c665984d1d4788c41cca3d453899381"
+    },
+    {
+      "packet": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_r10_tail_10",
+      "seal_sha256": "d099ae512ef5c7523ba491e0244480aa7a32a39efe2fc0ca44839c1994d43499",
+      "ARITHMETIC_sha256": "473290e7a2fda31abaf2f2ff6ff22536dc1f025618d7e899aa3be613876ce586",
+      "PROPOSAL_sha256": "ffc90d73e5bf051adae9b1588dff545b03bab1c2dc7d981cf7a37bb3de93520a",
+      "RETURN_sha256": "6e7a36263f091b5988267aaa0735398e86e3bf5643d6762221f63bafdb3d70e6"
+    }
+  ],
+  "old_copy_file_hashes_rechecked_unchanged": 580,
+  "unchanged": [
+    "both protected upper expectations",
+    "original corpus rows2/6",
+    "all original tests and exact new selectors",
+    "unchanged K4-M2/K4-M3 production patches",
+    "both overlays and every prepared copy",
+    "all targets"
+  ],
+  "no_runtime_or_new_oracle": true
+}

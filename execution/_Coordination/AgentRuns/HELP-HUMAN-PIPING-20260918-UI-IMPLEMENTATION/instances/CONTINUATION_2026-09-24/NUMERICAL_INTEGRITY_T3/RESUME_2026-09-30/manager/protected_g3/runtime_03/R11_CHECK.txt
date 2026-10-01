@@ -1,0 +1,5 @@
+PASS R11 K4-M4 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs": "4618dbee0831fc95eedfc3757c78c08e0a073c3e64b224a7253408149b46ae76"}
+filters ["structural::retained::wide_sum::tests::zero_negation_absolute_value_and_reuse"]
+target --lib
+semantic Exact cancelled and empty sums are positive zero, not negative zero.

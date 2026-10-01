@@ -1,0 +1,18 @@
+{
+  "registration": "R7_K4::K4-M2",
+  "runtime_id": "R09",
+  "required_witness": {
+    "line": 6,
+    "text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-428 = +80000000000000000000000000000001p0"
+  },
+  "first_actual_witness": {
+    "line": 2,
+    "text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-133 = +80000000000000000000000000000001p0"
+  },
+  "corpus_sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6",
+  "assertion": "wide_sum_tests.rs:102",
+  "required_witness_reached": false,
+  "verdict": "NO_KILL_UNEXPECTED_WITNESS",
+  "returned_control": "UNRUN",
+  "later_groups": "R10-R52 UNRUN"
+}

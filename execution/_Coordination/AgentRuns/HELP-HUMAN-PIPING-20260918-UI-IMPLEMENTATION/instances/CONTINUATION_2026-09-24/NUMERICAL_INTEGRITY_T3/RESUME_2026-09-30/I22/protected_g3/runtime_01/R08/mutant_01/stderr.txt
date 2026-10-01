@@ -1,0 +1,24 @@
+
+thread 'structural::retained::wide_sum::tests::rv12_counterexample_is_rounded_once_and_a_fold_misrounds_it' (25929820) panicked at src/structural/retained/../../../tests/retained_k4/wide_sum_tests.rs:169:5:
+assertion `left == right` failed
+  left: "+80000000000000000000000000000002p0"
+ right: "+80000000000000000000000000000001p0"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+        0.00 real         0.00 user         0.00 sys
+             4571136  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 636  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   1  voluntary context switches
+                   9  involuntary context switches
+            35060216  instructions retired
+            14390537  cycles elapsed
+             1737064  peak memory footprint

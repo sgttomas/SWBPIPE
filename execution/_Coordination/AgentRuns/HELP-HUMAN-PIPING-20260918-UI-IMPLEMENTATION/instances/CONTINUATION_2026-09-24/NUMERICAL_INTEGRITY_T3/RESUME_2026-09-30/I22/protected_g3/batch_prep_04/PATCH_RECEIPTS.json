@@ -1,0 +1,762 @@
+[
+  {
+    "id": "R15",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R15/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n@@\n     let mut out = Vec::with_capacity(free.len());\n     for &i in free {\n         sum.clear();\n-        ledger.add_to(i, sum, false)?;\n+        let _ = ledger;\n+        let mut f = Wide::<L>::ZERO;\n+        for l in source.loads() {\n+            if l.dof.global() == i {\n+                f = ctx.add(&f, &Wide::<L>::from_f64(l.value)?)?;\n+            }\n+        }\n+        sum.add_wide(&f, false)?;\n         for index in structure.pattern.row_range(i) {\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "bf3f96",
+      "wall_time_seconds": 7.292e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2  <wt>/scratch/i22/protected_g3/R15/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n92642f26d3636e3759452ad4c9de41356476b9a9d3634d35b3a88522a1f1033a  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D13.patch\n"
+    },
+    "post": {
+      "chunk_id": "20ee13",
+      "wall_time_seconds": 8.542e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "a236cc5b515ec5debbcdffb711cc9172dec6ef796a333d4bb3df20ea53dab433  <wt>/scratch/i22/protected_g3/R15/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n"
+    }
+  },
+  {
+    "id": "R16",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R16/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n@@\n-            entries[index]\n-                .1\n-                .add(load.value)\n-                .map_err(LedgerRefusal::Accumulator)?;\n+            let folded = entries[index].1.round().unwrap_or(0.0) + load.value;\n+            let mut acc = ExactAccumulator::new();\n+            acc.add(folded).map_err(LedgerRefusal::Accumulator)?;\n+            entries[index].1 = acc;\n             entries[index].2 |= load.value != 0.0;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "d909f1",
+      "wall_time_seconds": 7.041e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e  <wt>/scratch/i22/protected_g3/R16/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n2b591d95fc4bd98edffca9bc4dfd52bc7cf61e79f732ea73df930627c497f373  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D13b.patch\n"
+    },
+    "post": {
+      "chunk_id": "f197e5",
+      "wall_time_seconds": 6.833e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "33abe3ddecd8880ccbbf180fa6f016bdc81da5e58dde61164213c25929ea68ed  <wt>/scratch/i22/protected_g3/R16/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n"
+    }
+  },
+  {
+    "id": "R17",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R17/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n                 d.add_integer(false, &net.magnitude, net.exponent)?;\n             }\n         }\n+        let mut folded = {\n+            let mut t = ExactWideSum::new();\n+            ledger.add_to(i, &mut t, false)?;\n+            t.round(ctx_q)?\n+        };\n         let mut count = 0u64;\n@@\n             count += 1;\n             r.add_product(ctx_q, kij, &uj, true)?;\n+            let prod = ctx_q.mul(kij, &uj)?;\n+            folded = ctx_q.sub(&folded, &prod)?;\n             let negative = kij.is_sign_negative() != uj.is_sign_negative();\n             d.add_product(ctx_q, kij, &uj, negative)?;\n         }\n+        r.clear();\n+        r.add_wide(&folded, false)?;\n         let m = 2 * count + 2;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "01dcc1",
+      "wall_time_seconds": 7.292e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R17/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n9cc721d84d4bc50e7a570b1b5b4eee9e00a617272dca02cbbbda9b1b7c038dfb  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M12.patch\n"
+    },
+    "post": {
+      "chunk_id": "6abbe6",
+      "wall_time_seconds": 6.584e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "1aded03a9754a282d680b911d71df8d1acce82404adf239c63fdde7cf818464b  <wt>/scratch/i22/protected_g3/R17/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R18",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R18/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n     let mut run = || -> Result<Shared<L, R>, AttemptStop> {\n         let t0 = lme(&ctx) + sum.work().limb_multiply_equivalents();\n         let g = guard.with_base(0);\n-        let members = form_members(&mut ctx, &mut sum, &g, source)?;\n-        let directional = form_directional(&mut ctx, &mut sum, source)?;\n+        let mut c128 = WideContext::<L>::new(128).expect(\"supported precision\");\n+        let members = form_members(&mut c128, &mut sum, &g, source)?;\n+        let directional = form_directional(&mut c128, &mut sum, source)?;\n         let t1 = lme(&ctx) + sum.work().limb_multiply_equivalents();\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "34d75c",
+      "wall_time_seconds": 6.958e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R18/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n875c62df0ef00b47bb0f764620e9bbd388bb4b81a55be658aae1962e561c3106  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M13.patch\n"
+    },
+    "post": {
+      "chunk_id": "c270e4",
+      "wall_time_seconds": 7.083e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "b0884a75e59d52003b113ba52a48c2ec2cc980abeffb40b13fc95713284b1283  <wt>/scratch/i22/protected_g3/R18/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R19",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R19/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n     for (body, &extent) in extents.iter().enumerate() {\n         let [tr, ro, fo, mo] = s[body];\n-        if extent == 0.0 {\n+        if extent == 0.0 || extent == extent {\n             out.push([tr, ro, fo, mo]);\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "0fd544",
+      "wall_time_seconds": 6.916e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R19/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\nc3a7a9dc89f6a986b58e657d411c9b15405e17bfe1d293187214baf90cd0bf44  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M15.patch\n"
+    },
+    "post": {
+      "chunk_id": "1737f8",
+      "wall_time_seconds": 7.166e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "905bbb4f52eef89fb8c6d5854a89972d1b2aea087951386bcfb9a8b47228338f  <wt>/scratch/i22/protected_g3/R19/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R20",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R20/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n         let mut trackers: TrackerSet<(RuleTest, u32, Kind)> = TrackerSet::new();\n         for (index, meta) in layout.iter().enumerate() {\n+            if matches!(meta.id, QuantityId::Reaction(_)) {\n+                continue;\n+            }\n             let q2 = &verification[index];\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "2ff5eb",
+      "wall_time_seconds": 7.084e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R20/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n09e806f4e7fe03fe6f6861b63d5a54beff372c3385b6207ffa406175ca79290b  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M16.patch\n"
+    },
+    "post": {
+      "chunk_id": "f700b4",
+      "wall_time_seconds": 8.167e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "6c0a61235e5fb984c1d1f783d48720e7b0d584fc5deec867062df65ab186fca3  <wt>/scratch/i22/protected_g3/R20/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R21",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R21/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n@@\n         let (negative, magnitude, used) = self.net();\n         let anchor = i64::try_from(self.anchor).map_err(|_| SumRefusal::Exponent)?;\n-        self.work.rounded_limbs += used as u64;\n         Ok(context.from_integer(negative, &magnitude[..used.max(1)], anchor)?)\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "6d5764",
+      "wall_time_seconds": 6.417e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188  <wt>/scratch/i22/protected_g3/R21/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n4aa19dfd6734b794ebcbffea10be455dbe27c9ab191a22462887e851d4dd63ff  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M18.patch\n"
+    },
+    "post": {
+      "chunk_id": "7df1ed",
+      "wall_time_seconds": 6.667e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "30333a27bbecedeebfc133d87f4b6960d814de131e0fcf5f50eaac45eb5716ce  <wt>/scratch/i22/protected_g3/R21/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs\n"
+    }
+  },
+  {
+    "id": "R22",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R22/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n     pub(crate) fn test(&self, used: u64) -> Result<(), AttemptStop> {\n-        if used > self.case_room {\n+        if false && used > self.case_room {\n             Err(AttemptStop::Budget(BudgetScope::Case))\n-        } else if used > self.invocation_room {\n+        } else if false && used > self.invocation_room {\n             Err(AttemptStop::Budget(BudgetScope::Invocation))\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "925265",
+      "wall_time_seconds": 7e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R22/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n99eab5b3f45f4c27f53bde12687e5a52b239fc686c92a8e467ef38986e3cb128  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M20.patch\n"
+    },
+    "post": {
+      "chunk_id": "5ddb2c",
+      "wall_time_seconds": 7.333e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "43bae83494220326796dc9aeb063ede548923e1d904e41c0e043a9e7175122b0  <wt>/scratch/i22/protected_g3/R22/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R23",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R23/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n             body,\n             rigid_parameters,\n         }) => {\n-            return Err((\n-                Refusal::MechanismWitnessed {\n-                    body,\n-                    rigid_parameters,\n-                },\n-                Vec::new(),\n-            ))\n+            let _ = (body, rigid_parameters);\n+            Vec::new()\n         }\n         Err(GeometryRefusal::Unavailable { body, error }) => {\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "1b59c0",
+      "wall_time_seconds": 7.541e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R23/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n908a2479cd5c7d9a44832e8e7cc157f796cff8f5ce5b4a05d28ff657e3085caa  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M21.patch\n"
+    },
+    "post": {
+      "chunk_id": "894b54",
+      "wall_time_seconds": 7.125e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "9118eaf157f780cf69b54c2619e0557e1318fd9f25ad155b9c31cd2cd213e8a8  <wt>/scratch/i22/protected_g3/R23/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R24",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R24/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n fn prepare_group(source: &PrimitiveSource) -> Result<GroupPrep, (Refusal, Vec<BodyGeometry>)> {\n-    let geometry = match geometry_first(source) {\n+    let geometry = match Ok::<Vec<BodyGeometry>, GeometryRefusal>(geometry_first(source).unwrap_or_default()) {\n         Ok(g) => g,\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "5f310b",
+      "wall_time_seconds": 6.916e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R24/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n4e8078e56d48ca2aef00619b1acf9e6feb989e889dabe859589d2c2980c1323d  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D7.patch\n"
+    },
+    "post": {
+      "chunk_id": "0e994e",
+      "wall_time_seconds": 7.625e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "7e4509d0cc611b9f13bf9a9898f7b84d714799757086ebf6edb17fe279d19d6e  <wt>/scratch/i22/protected_g3/R24/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R25",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R25/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n@@\n     let (ez, _) = normalize(ctx, sum, &zc)?;\n+    let (ex, ey, ez) = {\n+        let d = [xj[0] - xi[0], xj[1] - xi[1], xj[2] - xi[2]];\n+        let n = (d[0] * d[0] + d[1] * d[1] + d[2] * d[2]).sqrt();\n+        let fx = [d[0] / n, d[1] / n, d[2] / n];\n+        let y = m.y_reference;\n+        let pr = y[0] * fx[0] + y[1] * fx[1] + y[2] * fx[2];\n+        let c = [y[0] - pr * fx[0], y[1] - pr * fx[1], y[2] - pr * fx[2]];\n+        let cn = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt();\n+        let fy = [c[0] / cn, c[1] / cn, c[2] / cn];\n+        let fz = [fx[1] * fy[2] - fx[2] * fy[1], fx[2] * fy[0] - fx[0] * fy[2], fx[0] * fy[1] - fx[1] * fy[0]];\n+        let _ = (ex, ey, ez);\n+        (\n+            [lift::<L>(fx[0])?, lift::<L>(fx[1])?, lift::<L>(fx[2])?],\n+            [lift::<L>(fy[0])?, lift::<L>(fy[1])?, lift::<L>(fy[2])?],\n+            [lift::<L>(fz[0])?, lift::<L>(fz[1])?, lift::<L>(fz[2])?],\n+        )\n+    };\n     let inv_length = ctx.div(&Wide::<L>::ONE, &length)?;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "c810e0",
+      "wall_time_seconds": 1.1334e-05,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2  <wt>/scratch/i22/protected_g3/R25/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n4accbc2bb7db1c272596281a1ff8d05cd36deb8b1a0c302ec7b1a313e1a9ed47  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M22.patch\n"
+    },
+    "post": {
+      "chunk_id": "088a2f",
+      "wall_time_seconds": 8.458e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "baa31eccc939a8f0249d7a4fb2fecbd2c0f9c0f746780aee89ddb38896ce4d49  <wt>/scratch/i22/protected_g3/R25/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n"
+    }
+  },
+  {
+    "id": "R26",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R26/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n@@\n         let iz = ctx.mul(&inv_length, &ez[k])?;\n         b[0][k] = ex[k].neg();\n-        b[0][6 + k] = ex[k];\n+        b[0][6 + k] = ex[k].neg();\n         b[1][3 + k] = ex[k].neg();\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "124b10",
+      "wall_time_seconds": 7.792e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2  <wt>/scratch/i22/protected_g3/R26/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\nd694426ac8facb8ca8472ed6f56aeb6df497699185fd330ab0b203ca0d12fc85  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D4.patch\n"
+    },
+    "post": {
+      "chunk_id": "60271e",
+      "wall_time_seconds": 8.458e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "eb7a72ab40cf041627ce1a54fbe5aa31ab34cf2456fa4ad413766a3aa41f91fe  <wt>/scratch/i22/protected_g3/R26/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n"
+    }
+  },
+  {
+    "id": "R27",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R27/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n@@\n     let mut out = Vec::with_capacity(source.directional_springs().len());\n     for s in source.directional_springs() {\n+        let dn = s.direction;\n+        let nn = (dn[0] * dn[0] + dn[1] * dn[1] + dn[2] * dn[2]).sqrt();\n         let n = [\n-            lift::<L>(s.direction[0])?,\n-            lift::<L>(s.direction[1])?,\n-            lift::<L>(s.direction[2])?,\n+            lift::<L>(dn[0] / nn)?,\n+            lift::<L>(dn[1] / nn)?,\n+            lift::<L>(dn[2] / nn)?,\n         ];\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "2427de",
+      "wall_time_seconds": 8.084e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2  <wt>/scratch/i22/protected_g3/R27/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\nc701360780d23d3d5944202c45334a5b1f49a5362a23d9865bf457f1198db98f  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M23.patch\n"
+    },
+    "post": {
+      "chunk_id": "057a43",
+      "wall_time_seconds": 8.167e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "5c16695a8a1e3e4e4289b25501f99b59b3230f2c2dc26086c8dfbd8be4cdf086  <wt>/scratch/i22/protected_g3/R27/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n"
+    }
+  },
+  {
+    "id": "R28",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R28/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n pub fn absolute_bound(s_star: f64) -> f64 {\n     let two64 = 18_446_744_073_709_551_616.0_f64;\n     let nearest = s_star / two64;\n-    if nearest * two64 < s_star {\n+    if false && nearest * two64 < s_star {\n         next_up(nearest)\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "cb36da",
+      "wall_time_seconds": 8.792e-06,
+      "exit_code": 0,
+      "original_token_count": 162,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R28/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n1abddefa13720d956451a9abeb38c688faf682a060d704162ed959af96e1cf5a  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M25a.patch\n"
+    },
+    "post": {
+      "chunk_id": "12445e",
+      "wall_time_seconds": 8e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "f224a32b892cb4775105961c5f5b0f576272a2f460b3829b7b5bdf3c0163f4d3  <wt>/scratch/i22/protected_g3/R28/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R29",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R29/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\n@@\n fn determinant_nonzero(a: [f64; 3], b: [f64; 3], c: [f64; 3]) -> Option<bool> {\n+    if a[0] == a[0] {\n+        let det = a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0])\n+            + a[2] * (b[0] * c[1] - b[1] * c[0]);\n+        return Some(det != 0.0);\n+    }\n     let mut c128 = WideContext::<4>::new(128).ok()?;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "2c2dab",
+      "wall_time_seconds": 9.083e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc  <wt>/scratch/i22/protected_g3/R29/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\na1475e7cd1c34b724b140f32b84f5db3342f51051f5a09b2a50cc88722adb53e  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M26.patch\n"
+    },
+    "post": {
+      "chunk_id": "e0c259",
+      "wall_time_seconds": 8.5e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "73cb1e597307da44fa0d61fd0711dbdf22509de728840748ab846f34467991de  <wt>/scratch/i22/protected_g3/R29/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\n"
+    }
+  },
+  {
+    "id": "R30",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R30/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs\n@@\n         let index = source.member_index(s.member).unwrap();\n         let q = &q_all[index];\n         let actions = &end_actions[index];\n-        let t = lift::<L>(s.fraction)?;\n+        let t = lift::<L>(1.0 - s.fraction)?;\n         let moment = |ctx: &mut WideContext<L>,\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "055629",
+      "wall_time_seconds": 7.833e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388  <wt>/scratch/i22/protected_g3/R30/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs\n4d21bb1aed9bc8793726ad064eb13ee8ce34003eac505aed31b8795dd2508255  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M27.patch\n"
+    },
+    "post": {
+      "chunk_id": "e0e453",
+      "wall_time_seconds": 7.917e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "66021e14e60abfd62a80ea15e5cbda521bda48cd430a8978045d4b45d88badf6  <wt>/scratch/i22/protected_g3/R30/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs\n"
+    }
+  },
+  {
+    "id": "R31",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R31/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\n@@\n     nodes\n         .iter()\n         .copied()\n-        .min_by_key(|&node| (degrees[node], node))\n+        .min_by_key(|&node| (degrees[node], std::cmp::Reverse(node)))\n }\n \n fn pseudo_peripheral_start(seed: usize, neighbors: &[Vec<usize>], degrees: &[usize]) -> usize {\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "8450b1",
+      "wall_time_seconds": 7.542e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc  <wt>/scratch/i22/protected_g3/R31/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\naaeb3421bf93aab87f989db9848797d2ae96588e8afae0141d4b98b2b66ed2f6  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M28.patch\n"
+    },
+    "post": {
+      "chunk_id": "a39bea",
+      "wall_time_seconds": 8e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "c68165f267cabecd5b417f8148275c421bc59a352bd5399e845ecdff123f680a  <wt>/scratch/i22/protected_g3/R31/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\n"
+    }
+  },
+  {
+    "id": "R32",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R32/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n             let Ok(k) = self.prescribed.binary_search_by_key(&dof.global(), |t| t.0) else {\n                 continue;\n             };\n-            *value = exact_publication(&self.prescribed[k].1);\n+            let _ = exact_publication(&self.prescribed[k].1);\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "368f9a",
+      "wall_time_seconds": 6.875e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R32/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\na6c80630d5525e813ef1103434bb87f6a8dd35044b4171dec3161d86c7667af2  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M33.patch\n"
+    },
+    "post": {
+      "chunk_id": "7a15f7",
+      "wall_time_seconds": 6.75e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "24e06fbd8d71a5f3e9c63f220a83b7ea951388049f5ad721b1204fb3ec0ee1be  <wt>/scratch/i22/protected_g3/R32/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R33",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R33/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n         #[cfg(test)]\n         seed::apply(&mut ctx, &mut u)?;\n+        for v in u.iter_mut() {\n+            *v = Wide::<L>::from_f64(super::recover::publish_value(v).value().unwrap_or(0.0))?;\n+        }\n         let base = t3 - lme(&ctx) - sum.work().limb_multiply_equivalents();\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "6240be",
+      "wall_time_seconds": 7.542e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R33/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\nd35edfbd16a3d963b475134cd4b8b8d96efaadedc5e2d9a8c713da2dd42ac93f  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D2.patch\n"
+    },
+    "post": {
+      "chunk_id": "93a61e",
+      "wall_time_seconds": 8.042e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "80fe217b2ba601f7dc6e98e232c824ff864fd5ddbfa94d4cef275ed50a69c2f4  <wt>/scratch/i22/protected_g3/R33/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R34",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R34/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n@@\n         ledger.add_to(i, sum, false)?;\n         for index in structure.pattern.row_range(i) {\n             let c = structure.pattern.column(index);\n-            if source.constraint(c).is_some() && !u[c].is_zero() {\n+            if false && source.constraint(c).is_some() && !u[c].is_zero() {\n                 sum.add_product(ctx, &k[index], &u[c], true)?;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "ca3820",
+      "wall_time_seconds": 8.083e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2  <wt>/scratch/i22/protected_g3/R34/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n0335560acba9af1f7ec1cc0dfc7dae7386d3f979c0323789826b63f75d3d5be9  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D3.patch\n"
+    },
+    "post": {
+      "chunk_id": "b2837d",
+      "wall_time_seconds": 6.792e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "69658eb86e67695eb756bbb77974465013de06385f289afe9c50b1d6e1d2f513  <wt>/scratch/i22/protected_g3/R34/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs\n"
+    }
+  },
+  {
+    "id": "R35",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R35/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n     // A solved verification that becomes the next candidate.\n     let mut pending: Option<(PrecisionState, usize)> = None;\n     let mut c = 0;\n-    while c < 3 {\n+    while c < 1 {\n         let p = PRECISIONS[c];\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "99611f",
+      "wall_time_seconds": 1.2792e-05,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R35/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\nb26b7c52ca017556b0a4dd0625d59ad976375ccfa7c33f94d04e669fa5a194f2  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D5.patch\n"
+    },
+    "post": {
+      "chunk_id": "328607",
+      "wall_time_seconds": 8.334e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "9dd3b64bc54697f40fca9f71b974c239c280c5a318256a139e997997b9bdee25  <wt>/scratch/i22/protected_g3/R35/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R36",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R36/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n     let mut floor = None;\n     let big_p = i64::from(verification_precision);\n     let mut run = || -> Result<bool, AttemptStop> {\n+        if report.is_some() {\n+            return Ok(true);\n+        }\n         let spent = |ctx: &WideContext<M>,\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "96ca59",
+      "wall_time_seconds": 8.041e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R36/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\ndf36980e707c7285021262babf5439756d9779f39cd0b164b3c0b4f195bd71f3  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D6.patch\n"
+    },
+    "post": {
+      "chunk_id": "8caf61",
+      "wall_time_seconds": 8.5e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "90cb5e201b011c891ff1eb13eeaea745da0696e2a65fccd49b2ba490a6a9eb4a  <wt>/scratch/i22/protected_g3/R36/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R37",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R37/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\n@@\n-    let order = reverse_cuthill_mckee(&adjacency);\n+    let order: Vec<usize> = (0..adjacency.len()).collect();\n+    let _ = reverse_cuthill_mckee;\n     let mut rank = vec![0usize; free.len()];\n     for (k, &a) in order.iter().enumerate() {\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "ba91ba",
+      "wall_time_seconds": 7.584e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc  <wt>/scratch/i22/protected_g3/R37/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\n04936cab74395135e6f9514b89d93680600686fabd977d326879e440ba25e697  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D10.patch\n"
+    },
+    "post": {
+      "chunk_id": "136741",
+      "wall_time_seconds": 8e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "e573cb596385529a60dcacdcdebb92b4e2f70a589b4049b94726f39a1e9b9b14  <wt>/scratch/i22/protected_g3/R37/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs\n"
+    }
+  },
+  {
+    "id": "R38",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R38/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n@@\n-                entries[index]\n-                    .1\n-                    .add_product(factor, load.value)\n-                    .map_err(LedgerRefusal::Accumulator)?;\n+                let folded = entries[index].1.round().unwrap_or(0.0) + factor * load.value;\n+                let mut acc = ExactAccumulator::new();\n+                acc.add(folded).map_err(LedgerRefusal::Accumulator)?;\n+                entries[index].1 = acc;\n                 entries[index].2 |= factor != 0.0 && load.value != 0.0;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "d09215",
+      "wall_time_seconds": 8.5e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e  <wt>/scratch/i22/protected_g3/R38/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n48eb60010611d447a67b98bcdb2b68f91e2e582418ae7372d5b1baf3bf28518f  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D14.patch\n"
+    },
+    "post": {
+      "chunk_id": "22c8ab",
+      "wall_time_seconds": 7.917e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "2b77809fa20ef56d47e84d570a4516bc023eff224fc706c9921450b334509a1f  <wt>/scratch/i22/protected_g3/R38/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n"
+    }
+  },
+  {
+    "id": "R39",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs\n@@\n         let mut d = [zero; 12];\n         for block in 0..4 {\n             for r in 0..3 {\n-                sum.clear();\n+                let mut acc = zero;\n                 for c in 0..3 {\n-                    sum.add_product(ctx, &m.axes[r][c], &u[dofs[3 * block + c]], false)?;\n+                    let t = ctx.mul(&m.axes[r][c], &u[dofs[3 * block + c]])?;\n+                    acc = ctx.add(&acc, &t)?;\n                 }\n-                d[3 * block + r] = sum.round(ctx)?;\n+                d[3 * block + r] = acc;\n             }\n         }\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "5ec3cf",
+      "wall_time_seconds": 7.666e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388  <wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs\n2070e735346f61d22c7ca409a5bc10b475e1686e7aba4043069bc5bfd6201850  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D16b.patch\n"
+    },
+    "post": {
+      "chunk_id": "6c1330",
+      "wall_time_seconds": 9.25e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "f9ac982ae25d60e1b882acf9a5579e300b1b69c1436cc5c33b46617652ac61f4  <wt>/scratch/i22/protected_g3/R39/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs\n"
+    }
+  },
+  {
+    "id": "R40",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R40/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n pub fn threshold(s_star: f64) -> f64 {\n-    f64::from_bits(FLOOR_RATIO_BITS) * s_star\n+    (1e9 / 18_446_744_073_709_551_616.0) * s_star\n }\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "23fc35",
+      "wall_time_seconds": 7.958e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R40/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n473365a9b511a9d2b3ea5cd50f1943f09cae303815d19fd4c943a1d3d42b93d2  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D20.patch\n"
+    },
+    "post": {
+      "chunk_id": "d9c519",
+      "wall_time_seconds": 7.541e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "f5aad009c3c9388df6758a6a4d6f9f80f8aa7488fd6c73fc28c3e65a8e1b6309  <wt>/scratch/i22/protected_g3/R40/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R41",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R41/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n pub fn intensified_k(i: f64) -> f64 {\n-    let k = f64::from_bits(K_SQRT2_BITS);\n+    let k = 1.0f64;\n     let nearest = k * i;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "c12d5b",
+      "wall_time_seconds": 7.958e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R41/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\nba64121e73cc18f3620085c7014210d262d13930bbbb2589ac7d5ec3ad3384eb  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__D25.patch\n"
+    },
+    "post": {
+      "chunk_id": "4d28b2",
+      "wall_time_seconds": 8.083e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "6d03c7ad32d4a6c333ebe4301a50bd9feb955a716621e4391552f54a9efc735a  <wt>/scratch/i22/protected_g3/R41/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R42",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R42/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n-        let skip: Vec<bool> = candidate\n-            .iter()\n-            .map(|q| !q.is_zero() && q.to_binary64().value().is_none())\n-            .collect();\n+        let skip: Vec<bool> = vec![false; candidate.len()];\n         let mut scales = scales_at(&mut ctx, layout, verification, extents, &skip)?;\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "5fc2f8",
+      "wall_time_seconds": 8.125e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R42/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n848113a0babff91c5f4d96978222cb80a0b93ff659793b2b0943a2e703799a02  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-1R.patch\n"
+    },
+    "post": {
+      "chunk_id": "9d3ae9",
+      "wall_time_seconds": 7.667e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "ff631b1d4ffb062e0ccb8095696bf538e70bb140f29df706f1a8f86e1a667d97  <wt>/scratch/i22/protected_g3/R42/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R43",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R43/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n-        let skip: Vec<bool> = candidate\n+        let skip: Vec<bool> = verification\n             .iter()\n             .map(|q| !q.is_zero() && q.to_binary64().value().is_none())\n             .collect();\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "6fd925",
+      "wall_time_seconds": 8.417e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R43/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n686472406176677f4b7ccaaa0e16bd823d484ece3acde47795de13daab3a528d  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D4.patch\n"
+    },
+    "post": {
+      "chunk_id": "882b31",
+      "wall_time_seconds": 7.75e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "17cecaafcd06c6b44727dd1d5fb70724a40a3294b32ce8dc4d7348f2b7d3c60a  <wt>/scratch/i22/protected_g3/R43/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R44",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R44/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n         RowClass::RelativeVerified\n     } else {\n         RowClass::AbsoluteVerified {\n-            bound_bits: row_bound(value, s_star).to_bits(),\n+            bound_bits: absolute_bound(s_star).to_bits(),\n         }\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "19223e",
+      "wall_time_seconds": 7.333e-06,
+      "exit_code": 0,
+      "original_token_count": 160,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R44/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n441541fe3317832251eae3bd34c0aab4d9d027992e83f7be320910589ce79055  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__A1R.patch\n"
+    },
+    "post": {
+      "chunk_id": "f16815",
+      "wall_time_seconds": 8.125e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "5df66c8c3d7c5fdcff0f4a9d0b558bb69aab18863b59bafbfe4769d2978f6008  <wt>/scratch/i22/protected_g3/R44/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R45",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R45/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n         let mut num = ExactWideSum::new();\n         num.add_binary64(b, false).ok()?;\n         num.add_binary64(rounding, false).ok()?;\n-        num.add_binary64(f64::from_bits(1), false).ok()?;\n         let mut den = ExactWideSum::new();\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "cb2c84",
+      "wall_time_seconds": 1.8667e-05,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R45/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\ncfb7d35e1d94a80b1cf98ee09e661925221b8c30191f40925403a27281cd3f7a  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D1.patch\n"
+    },
+    "post": {
+      "chunk_id": "f05ba9",
+      "wall_time_seconds": 7.125e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "4af5934d5750534dade4fcd9fba422b58545ed31bf1b16c64dd570a1a1e1cc99  <wt>/scratch/i22/protected_g3/R45/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R46",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R46/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n     let two53 = 9_007_199_254_740_992.0_f64;\n     let q = value.abs();\n     let nearest = q / two53;\n-    let rounding = if nearest * two53 < q {\n-        next_up(nearest)\n-    } else {\n-        nearest\n-    };\n+    let rounding = nearest;\n     // The three terms span at most 2,100 bits: the sum and its upward\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "f16963",
+      "wall_time_seconds": 7.292e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R46/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n1017231c7a4f3a1b9986a9d07264de215411ceafb503b21c33572cc582387c21  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D2.patch\n"
+    },
+    "post": {
+      "chunk_id": "d9509e",
+      "wall_time_seconds": 7.375e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095  <wt>/scratch/i22/protected_g3/R46/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R47",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R47/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs\n@@\n             o.prep.source.stiffness_encoding() != identity\n                 || o.prep.layout != first.prep.layout\n                 || o.prep.source.stations() != stations\n-                || o.prep.source.supports() != supports\n         }) {\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "4f1483",
+      "wall_time_seconds": 7.5e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1  <wt>/scratch/i22/protected_g3/R47/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs\ne2569efd5781f5008ebf4f05bfbcc08c196b58f23f4e6f1a06d15d7a36e7169e  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-D3.patch\n"
+    },
+    "post": {
+      "chunk_id": "02865f",
+      "wall_time_seconds": 8e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "54c1dbeda7fc8f08cf829d480e77f7b75153723a831508bd3a84313d63ddded3  <wt>/scratch/i22/protected_g3/R47/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs\n"
+    }
+  },
+  {
+    "id": "R48",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R48/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs\n@@\n                 n.sr2 = wmax(&n.sr2, &sr2_row[a]);\n                 n.sid = wmax(&n.sid, &delta[a].abs().mul_pow2(-scale[a])?);\n             }\n-            n.sas = wmax(&n.sas_one, &n.sas_inf);\n+            n.sas = n.sas_inf;\n             norms.push(n);\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "6fc96d",
+      "wall_time_seconds": 8.209e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987  <wt>/scratch/i22/protected_g3/R48/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs\n860cadc15b0506899cfb7b26898558881485197b57f490571a3685689332393d  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-M2.patch\n"
+    },
+    "post": {
+      "chunk_id": "f32140",
+      "wall_time_seconds": 6.958e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "871728d5f80c1961b4a5530b4565b9964e4a82b35a9ec97e2df8b02135caebfc  <wt>/scratch/i22/protected_g3/R48/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs\n"
+    }
+  },
+  {
+    "id": "R49",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R49/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs\n@@\n                     let offset = source.directional_springs()[k].kind.offset();\n-                    if (offset..offset + 3).contains(&c) {\n-                        sum.add_wide(&directional_e[k][c - offset], false)?;\n-                    }\n+                    let _ = (offset, k);\n                 }\n             }\n             out.push(Some(stage(ctx, sum, rounding)?));\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "2bced3",
+      "wall_time_seconds": 6.667e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987  <wt>/scratch/i22/protected_g3/R49/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs\n00dfe1e856abf04cdf0bd3f85f2ed4401c1aa6ed293023401fd66d37f9f21865  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/RV19__RV19-M6.patch\n"
+    },
+    "post": {
+      "chunk_id": "1fb8b4",
+      "wall_time_seconds": 6.791e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "dd998d77d3a1dcad54b7282267fd4ae135f9006aadc6998ee436e9674c489341  <wt>/scratch/i22/protected_g3/R49/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs\n"
+    }
+  },
+  {
+    "id": "R50",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R50/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n@@\n         let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();\n+        let mut folded = 0.0f64;\n         for load in source.loads() {\n+            folded += load.value;\n+            let _ = folded;\n             let dof = load.dof.global();\n             let index = match entries.binary_search_by_key(&dof, |e| e.0) {\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "844635",
+      "wall_time_seconds": 6.958e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e  <wt>/scratch/i22/protected_g3/R50/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n3878c159079b45c7de97f822d0714ea81d45f5654061aa1542ff193d1f0096c8  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__K4-M31.patch\n"
+    },
+    "post": {
+      "chunk_id": "4dfb31",
+      "wall_time_seconds": 7.791e-06,
+      "exit_code": 0,
+      "original_token_count": 66,
+      "output": "638da25162c5fd8cec3c7e55f4f84e5d126312289ce1fec12476e2d9282c3839  <wt>/scratch/i22/protected_g3/R50/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs\n"
+    }
+  },
+  {
+    "id": "R51",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R51/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n                 fallback_work = total(&ctx, &ctx_q, &ctx16, &ctx64, &sum) - tf;\n                 stages.bounded_gate = fallback_work;\n                 current = Stage::Refinement;\n-                match chosen {\n+                let _ = chosen;\n+                match None::<(usize, f64)> {\n                     Some((k, ratio)) => {\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "bbac4c",
+      "wall_time_seconds": 7e-06,
+      "exit_code": 0,
+      "original_token_count": 161,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R51/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\nae0e46f8504f3d6a639490fe08d582cf3e920e1eabee9a91f097f52bc93a195a  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/protected_01/patches/R7_K4__R7-M12.patch\n"
+    },
+    "post": {
+      "chunk_id": "da1495",
+      "wall_time_seconds": 7.459e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "ea4014ea6b761948d66891e05cce1f6f07c6b0af011e7783667ba5bb5b7c6e02  <wt>/scratch/i22/protected_g3/R51/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  },
+  {
+    "id": "R52",
+    "tool": "apply_patch",
+    "input": "*** Begin Patch\n*** Update File: <wt>/scratch/i22/protected_g3/R52/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n@@\n         .map(|(b, (&s, &e))| {\n             let mut c = coupled_scales(s, e);\n-            if let Some(phi) = floor {\n+            if let Some(phi) = floor.filter(|_| false) {\n                 c[Kind::Force.index()] = c[Kind::Force.index()].max(phi[b][0]);\n                 c[Kind::Moment.index()] = c[Kind::Moment.index()].max(phi[b][1]);\n*** End Patch",
+    "result": {},
+    "pre": {
+      "chunk_id": "598e73",
+      "wall_time_seconds": 6.625e-06,
+      "exit_code": 0,
+      "original_token_count": 163,
+      "output": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9  <wt>/scratch/i22/protected_g3/R52/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n809471ddeb17c83f7279c711be98bbbb4da6d413e7725a36d87f71ce3f02312f  <wt>/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/m37_correction_03/K4-M37_publication_floor.patch\n"
+    },
+    "post": {
+      "chunk_id": "7969f4",
+      "wall_time_seconds": 6.375e-06,
+      "exit_code": 0,
+      "original_token_count": 67,
+      "output": "a8599ba9345d2d0cfc521f7b17676311f42d9e8e27b1aa1d2a1697606a207f9d  <wt>/scratch/i22/protected_g3/R52/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs\n"
+    }
+  }
+]

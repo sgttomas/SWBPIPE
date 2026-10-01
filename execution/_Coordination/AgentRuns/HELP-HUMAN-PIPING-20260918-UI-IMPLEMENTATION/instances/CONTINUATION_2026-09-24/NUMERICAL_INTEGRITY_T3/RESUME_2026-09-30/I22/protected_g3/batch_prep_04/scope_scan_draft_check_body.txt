@@ -1,0 +1,39 @@
+from pathlib import Path
+import json,hashlib,os,subprocess
+wt=Path(c['wt']); pp=Path(c['prep']); g=c['group']; b=c['binding']
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+def no_link(p):
+ for q in [p,*p.parents]:assert not q.is_symlink(),str(q)
+root=Path(b['source']);target=Path(b['target']);logs=Path(b['logs'])
+assert root==wt/'scratch/i22/protected_g3'/g['runtime_id']
+assert target==wt/'a1-protected-target/g3'/g['runtime_id']
+assert logs==wt/'scratch/i22/protected_g3/logs'/g['runtime_id']
+for q in [root,target,logs]:no_link(q);assert q.resolve()==q
+assert sha(pp/'ROOT_MANIFEST.json')=='5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6'
+assert sha(pp/'SOURCE_MANIFESTS.json')=='bb8e649fa4a7c3992c22c8f132417324865e93d89a4a6757247babf811ba7d8b'
+scope=g['source_scope'];source=json.loads((pp/'SOURCE_MANIFESTS.json').read_text())['scope_files'][scope]
+expected={x['path']:x['sha256'] for x in source}
+for x in c['expected_images']:expected[x['path']]=x['after_sha256']
+actual=[x for x in (root/scope).rglob('*') if x.is_file()]
+assert set(expected)=={x.relative_to(root).as_posix() for x in actual}
+seen=set()
+for rel,want in expected.items():
+ q=root/rel;no_link(q);st=q.stat()
+ assert st.st_nlink==1 and (st.st_dev,st.st_ino) not in seen
+ seen.add((st.st_dev,st.st_ino));assert sha(q)==want,('POSTIMAGE',rel)
+assert not list(target.iterdir()),'FIRST_BUILD_TARGET_NOT_EMPTY'
+assert logs.is_dir() and os.access(logs,os.W_OK)
+assert not list(logs.iterdir()),'FIRST_BUILD_LOG_NOT_EMPTY'
+base=Path(c['baseline_source']);no_link(base)
+for f in json.loads((pp/'SOURCE_MANIFESTS.json').read_text())['scope_files']['projects/chirality-piping/core/solver/frame_kernel']:assert sha(base/f['path'])==f['sha256']
+binary=Path(c['baseline']['binary']['path']);fp=Path(c['baseline']['fingerprint']['path'])
+no_link(binary);no_link(fp);assert sha(binary)==g['baseline_binding']['sha256'];assert sha(binary)==c['baseline']['binary']['sha256']
+assert sha(fp)==c['baseline']['fingerprint']['sha256']
+meta=json.loads(fp.read_text());assert meta['features']=='[]' and meta['rustflags']==[]
+frozen=next(x for x in json.loads((pp/'ROOT_MANIFEST.json').read_text())['entries'] if x['runtime_id']==g['runtime_id'])
+for key in ['files','filters','source_scope','source_root','target_root','baseline_binding','patch_sha256']:assert g[key]==frozen[key],('FROZEN_BINDING',key)
+assert sha(pp/'RUNTIME_BOUNDARY.json')=='588b62980d16e8f785e97566cae762474bd955c7c062ef40c9c11db703c158a5'
+op=next(x for x in json.loads((pp/'RUNTIME_BOUNDARY.json').read_text())['commands'] if x['runtime_id']==g['runtime_id'])
+assert c['compile']==op['future_compile'] and c['filters']==frozen['filters']
+guard=subprocess.check_output(['ps','-p','5387','-o','pid=,ppid=,etime=,command='],text=True).strip();assert 'memguard.sh' in guard
+print(json.dumps({'status':'PASS','id':g['runtime_id'],'files':len(expected),'baseline_binary_sha256':sha(binary),'guard_pid':5387}))

@@ -1,0 +1,5 @@
+PASS R04 K4-M36 complete 116 files=frozenexactpostimages+original; protectedtests/lock/corpora/patch/controlbinary/source-target-logcontainment/nlink/emptytarget/guard5387.
+postimages {"projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs": "319da46c2b6c60f592f28421ddec2a20f32838d3b7cdfb21bfab87fe431994fc"}
+filters ["structural::retained::adaptive::scale_tests::blocks_are_the_free_free_components_and_data_follows_7a"]
+target --lib
+semantic BLOCK-PRESC with-prescription data flags must be [true,true], without must be [true,false].

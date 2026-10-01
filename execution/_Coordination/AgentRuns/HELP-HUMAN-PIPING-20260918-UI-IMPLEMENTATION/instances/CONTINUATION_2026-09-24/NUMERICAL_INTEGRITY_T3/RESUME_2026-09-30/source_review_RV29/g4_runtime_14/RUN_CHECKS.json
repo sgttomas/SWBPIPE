@@ -1,0 +1,415 @@
+{
+  "counts": {
+    "build": 4,
+    "list": 5,
+    "baseline": 2,
+    "mutant": 3,
+    "control": 3
+  },
+  "rows": [
+    {
+      "kind": "build",
+      "id": "BASELINE_SCALARS",
+      "name": "build",
+      "source_id": "BASELINE_SCALARS",
+      "filter": null,
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_stderr_sha256": "2a865e9c56d749f7f95d4c6fe13477296ca4012eda4798da84971de523fd3e88",
+      "launch_utc": "2026-10-01T15:11:25.504Z",
+      "completed_utc": "2026-10-01T15:11:36.610Z",
+      "real_seconds": 9.12
+    },
+    {
+      "kind": "list",
+      "id": "BASELINE_SCALARS",
+      "name": "list_01",
+      "source_id": "BASELINE_SCALARS",
+      "filter": "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision",
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "613d6c25927f4d73bb14a525fdd80923b8d2523f3ea28f42b4ab0f5e94d97ff4",
+      "raw_stderr_sha256": "e8406b775eb2a40f3e931bf1651959ccae162f6ca425e9e872c28b0ea30a30e5",
+      "launch_utc": "2026-10-01T15:11:40.904Z",
+      "completed_utc": "2026-10-01T15:11:41.975Z",
+      "real_seconds": 0.81
+    },
+    {
+      "kind": "baseline",
+      "id": "BASELINE_SCALARS",
+      "name": "baseline_01",
+      "source_id": "BASELINE_SCALARS",
+      "filter": "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision",
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "304dfe922dfedb3b089aee8107214a8c4db1702342b88ca6929d28bd70b9421c",
+      "raw_stderr_sha256": "c0cb104608ddacedd65c321ee99af6449b7975a9be44a15435079119ff55e80d",
+      "launch_utc": "2026-10-01T15:11:44.778Z",
+      "completed_utc": "2026-10-01T15:11:45.046Z",
+      "real_seconds": 0.0
+    },
+    {
+      "kind": "list",
+      "id": "BASELINE_SCALARS",
+      "name": "list_02",
+      "source_id": "BASELINE_SCALARS",
+      "filter": "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "f304db6eb40dfad59b3a59fe07c72cecdece800bdfd4a4b52942c9ddb5320460",
+      "raw_stderr_sha256": "d1f0604399f968d4587a1f8a48f594d06c193eb817e768cbe099ec0c6436fb07",
+      "launch_utc": "2026-10-01T15:11:53.052Z",
+      "completed_utc": "2026-10-01T15:11:53.328Z",
+      "real_seconds": 0.0
+    },
+    {
+      "kind": "baseline",
+      "id": "BASELINE_SCALARS",
+      "name": "baseline_02",
+      "source_id": "BASELINE_SCALARS",
+      "filter": "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "8357022cadf9f43dfb50b7e7e539a2a5a91ee61f84d0c7c16b6bb7da2a00b3ae",
+      "raw_stderr_sha256": "8b882639d68eca8a0ba61b6db8487c5a94e83e6831016364c618b5ae17c9387b",
+      "launch_utc": "2026-10-01T15:11:56.549Z",
+      "completed_utc": "2026-10-01T15:11:56.825Z",
+      "real_seconds": 0.01
+    },
+    {
+      "kind": "build",
+      "id": "K4-M9",
+      "name": "build",
+      "source_id": "K4-M9",
+      "filter": null,
+      "exit": 0,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "697c2510740834d6d2ad079a5790be0953e8270b4ebf24fdd4f7edfd58571cb0"
+      },
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "14c6578c60b503ec430deb0e832977b5dc1ea1f60ffdaf1e007b7f086da253b4",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_stderr_sha256": "7b07d20627880d6fa2ad5b5768df02a40369e68455704dacbd53e25e1cd8025b",
+      "launch_utc": "2026-10-01T15:14:06.256Z",
+      "completed_utc": "2026-10-01T15:14:17.447Z",
+      "real_seconds": 8.7
+    },
+    {
+      "kind": "list",
+      "id": "K4-M9",
+      "name": "list_01",
+      "source_id": "K4-M9",
+      "filter": "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision",
+      "exit": 0,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "697c2510740834d6d2ad079a5790be0953e8270b4ebf24fdd4f7edfd58571cb0"
+      },
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "14c6578c60b503ec430deb0e832977b5dc1ea1f60ffdaf1e007b7f086da253b4",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "613d6c25927f4d73bb14a525fdd80923b8d2523f3ea28f42b4ab0f5e94d97ff4",
+      "raw_stderr_sha256": "f7d99511b2bead7f7a25add91ff573a80522ba5e5de062154a02ea54af7a75ff",
+      "launch_utc": "2026-10-01T15:14:25.714Z",
+      "completed_utc": "2026-10-01T15:14:26.780Z",
+      "real_seconds": 0.8
+    },
+    {
+      "kind": "mutant",
+      "id": "K4-M9",
+      "name": "mutant_01",
+      "source_id": "K4-M9",
+      "filter": "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision",
+      "exit": 101,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "697c2510740834d6d2ad079a5790be0953e8270b4ebf24fdd4f7edfd58571cb0"
+      },
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "14c6578c60b503ec430deb0e832977b5dc1ea1f60ffdaf1e007b7f086da253b4",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "fa5c29fb843ab44615e5edc4cbdfdd840dc82d79f49f9a07b5b72ef6092f09db",
+      "raw_stderr_sha256": "722ed6a16894f2984b8110dd905294024f07ce53e3da58d7147557cf5d26c90f",
+      "launch_utc": "2026-10-01T15:14:33.397Z",
+      "completed_utc": "2026-10-01T15:14:33.666Z",
+      "real_seconds": 0.0
+    },
+    {
+      "kind": "control",
+      "id": "K4-M9",
+      "name": "control_01",
+      "source_id": "BASELINE_SCALARS",
+      "filter": "structural::retained::factor::tests::i23_k4_m9_pivot_inequality_uses_requested_precision",
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "304dfe922dfedb3b089aee8107214a8c4db1702342b88ca6929d28bd70b9421c",
+      "raw_stderr_sha256": "61fe87eca812d8c6d0ebd3d1c2e7a9f640f04dae04b05867e0e033ea296f2d53",
+      "launch_utc": "2026-10-01T15:14:42.892Z",
+      "completed_utc": "2026-10-01T15:14:43.165Z",
+      "real_seconds": 0.0
+    },
+    {
+      "kind": "build",
+      "id": "K4-M32",
+      "name": "build",
+      "source_id": "K4-M32",
+      "filter": null,
+      "exit": 0,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "e6b478a51708afc4e1ed67f7a761623d443fb88ae1411de9efdc4f9012677f27"
+      },
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "02069df7c43fe59b5d5d488a9cd9da736433db70e84f8a15777e805ea8c08e41",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_stderr_sha256": "4e7d068c4baa39f6e3a7aa4ac509af6d7f76da97c73d8aa59fd560d3adbf91b0",
+      "launch_utc": "2026-10-01T15:16:24.642Z",
+      "completed_utc": "2026-10-01T15:16:33.038Z",
+      "real_seconds": 8.15
+    },
+    {
+      "kind": "list",
+      "id": "K4-M32",
+      "name": "list_01",
+      "source_id": "K4-M32",
+      "filter": "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+      "exit": 0,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "e6b478a51708afc4e1ed67f7a761623d443fb88ae1411de9efdc4f9012677f27"
+      },
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "02069df7c43fe59b5d5d488a9cd9da736433db70e84f8a15777e805ea8c08e41",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "f304db6eb40dfad59b3a59fe07c72cecdece800bdfd4a4b52942c9ddb5320460",
+      "raw_stderr_sha256": "a07b37691bd40cfe5098e67cc127c67a329e9f83255c7ba420c51b14cc313ab6",
+      "launch_utc": "2026-10-01T15:16:43.830Z",
+      "completed_utc": "2026-10-01T15:16:44.877Z",
+      "real_seconds": 0.79
+    },
+    {
+      "kind": "mutant",
+      "id": "K4-M32",
+      "name": "mutant_01",
+      "source_id": "K4-M32",
+      "filter": "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+      "exit": 101,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs": "e6b478a51708afc4e1ed67f7a761623d443fb88ae1411de9efdc4f9012677f27"
+      },
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "02069df7c43fe59b5d5d488a9cd9da736433db70e84f8a15777e805ea8c08e41",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "d4faaae555b201d02f4a9e78ba9aa1b4fa346bcf6c9d01415dfac0d34e148106",
+      "raw_stderr_sha256": "665ae46549f0397afd53c3422c72a220bc343a6f6abfd1a41d60c8f0adb659d6",
+      "launch_utc": "2026-10-01T15:16:56.748Z",
+      "completed_utc": "2026-10-01T15:16:57.033Z",
+      "real_seconds": 0.01
+    },
+    {
+      "kind": "control",
+      "id": "K4-M32",
+      "name": "control_01",
+      "source_id": "BASELINE_SCALARS",
+      "filter": "structural::retained::factor::tests::i23_k4_m32_scalar_rcond_uses_equilibrated_norm",
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "68e272332ca571fda0b0b5ed1a0ebfc0f3b9dc9049d0bb4b8913856b04d842b3",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "8357022cadf9f43dfb50b7e7e539a2a5a91ee61f84d0c7c16b6bb7da2a00b3ae",
+      "raw_stderr_sha256": "16dffd15d01c6f77bf1b7b3423e75f51e6a61e425d83c1170755a2de051800eb",
+      "launch_utc": "2026-10-01T15:17:03.797Z",
+      "completed_utc": "2026-10-01T15:17:04.084Z",
+      "real_seconds": 0.01
+    },
+    {
+      "kind": "build",
+      "id": "K4-M11",
+      "name": "build",
+      "source_id": "K4-M11",
+      "filter": null,
+      "exit": 0,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "7641875d7236cff9f7f47562e70830de04909f39cf2a0b77c4d3b287ec461864"
+      },
+      "test_sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "6c571b9f94407b6f38bdce74f457e315c51a29af31363084af812a7872e55877",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_stderr_sha256": "06e8d9d0420fcb61b8c708ca2ff84de595f432cae4f3e36ccad5e1a340d99fe8",
+      "launch_utc": "2026-10-01T15:18:42.127Z",
+      "completed_utc": "2026-10-01T15:19:01.318Z",
+      "real_seconds": 8.22
+    },
+    {
+      "kind": "list",
+      "id": "K4-M11",
+      "name": "list_01",
+      "source_id": "K4-M11",
+      "filter": "structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis",
+      "exit": 0,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "7641875d7236cff9f7f47562e70830de04909f39cf2a0b77c4d3b287ec461864"
+      },
+      "test_sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "6c571b9f94407b6f38bdce74f457e315c51a29af31363084af812a7872e55877",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "201a84581129e0871a26db37ca8f1fb4422c5572dd5071505022520ed0c8f6fd",
+      "raw_stderr_sha256": "a15249f1563517958101d43bf94e88a30872b173bf4280ec0e3051a985ed3031",
+      "launch_utc": "2026-10-01T15:19:10.424Z",
+      "completed_utc": "2026-10-01T15:19:11.518Z",
+      "real_seconds": 0.83
+    },
+    {
+      "kind": "mutant",
+      "id": "K4-M11",
+      "name": "mutant_01",
+      "source_id": "K4-M11",
+      "filter": "structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis",
+      "exit": 101,
+      "source_images": {
+        "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "7641875d7236cff9f7f47562e70830de04909f39cf2a0b77c4d3b287ec461864"
+      },
+      "test_sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "6c571b9f94407b6f38bdce74f457e315c51a29af31363084af812a7872e55877",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "8dcc1736ec53eef2652f7ff160ef27a81d0097003bd5c7796149bce686601aa4",
+      "raw_stderr_sha256": "48def193927afdca7235903d97c97482d5892e8feeea33973051d69c3613284c",
+      "launch_utc": "2026-10-01T15:19:22.685Z",
+      "completed_utc": "2026-10-01T15:19:23.002Z",
+      "real_seconds": 0.04
+    },
+    {
+      "kind": "control",
+      "id": "K4-M11",
+      "name": "control_01",
+      "source_id": "BASELINE_ORIGINAL",
+      "filter": "structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis",
+      "exit": 0,
+      "source_images": {},
+      "test_sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "binary_sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a",
+      "fingerprint_sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "raw_stdout_sha256": "625733bd61717b512d34962de975fd44851a7660530af1ed2135d4ffa5a15313",
+      "raw_stderr_sha256": "ce4c39b10fbc6c9b954d785711f653061c46b80773f9dbb38222059d57521cae",
+      "launch_utc": "2026-10-01T15:19:35.501Z",
+      "completed_utc": "2026-10-01T15:19:35.835Z",
+      "real_seconds": 0.06
+    }
+  ],
+  "manager_build_releases": {
+    "BASELINE_SCALARS": {
+      "id": "BASELINE_SCALARS",
+      "at": "2026-10-01T15:11:08Z",
+      "by": "manager"
+    },
+    "K4-M9": {
+      "id": "K4-M9",
+      "at": "2026-10-01T15:13:01Z",
+      "by": "manager"
+    },
+    "K4-M32": {
+      "id": "K4-M32",
+      "at": "2026-10-01T15:15:42Z",
+      "by": "manager"
+    },
+    "K4-M11": {
+      "id": "K4-M11",
+      "at": "2026-10-01T15:17:57Z",
+      "by": "manager"
+    }
+  },
+  "five_binary_hashes": {
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/BASELINE_SCALARS/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904": "a9f4219227e21499fa007c6502778b06031573d96717d5f42ba6aeeea1c44f9c",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/K4-M9/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904": "14c6578c60b503ec430deb0e832977b5dc1ea1f60ffdaf1e007b7f086da253b4",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/K4-M32/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904": "02069df7c43fe59b5d5d488a9cd9da736433db70e84f8a15777e805ea8c08e41",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/K4-M11/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904": "6c571b9f94407b6f38bdce74f457e315c51a29af31363084af812a7872e55877",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+  },
+  "five_original_fingerprints": {
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/BASELINE_SCALARS/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/K4-M9/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/K4-M32/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-diagnostic-target/g4/K4-M11/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1-fk-root-baseline-target/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8"
+  },
+  "all17_preserved_fingerprints_exact_raw_bytes": true,
+  "explicit_NONE_every_command": true,
+  "fresh_scalar_passes": 2,
+  "same_filter_returned_controls": 3,
+  "M11_initial_baseline_reused": {
+    "result_sha256": "c0dbedd3a44baef75d92751a39e906518c7be00f3cf6b332b954ce52009fd86a",
+    "stdout_sha256": "c226d7d4afe5949cbee2c292a88a15b59a67f5666a4a503bf7075ff612105810",
+    "filter": "structural::retained::factor::tests::the_p_plus_64_residual_takes_one_correction_on_two_span_and_records_its_basis",
+    "exact_passes": 1,
+    "binary": {
+      "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+      "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+    },
+    "cwd": "<wt>/scratch/i22/mutations_e1/base/projects/chirality-piping/core/solver/frame_kernel",
+    "no_rebuild_or_repeat": true
+  },
+  "grants": [
+    {
+      "origin": "NUM@56ebdf3e3d0fa5f4b74fd7552f931bec84739612:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_G4_RUNTIME_01.md",
+      "sha256": "245b4056845517aae7ab16ba4f964462207740726eac1ac772ce2b0b9ba1add8",
+      "full_text_read": true
+    },
+    {
+      "origin": "NUM@49874f6b84b8a1f409d704e74416ba8a7b9f9778:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_G4_M11_CONTROL_CWD.md",
+      "sha256": "efe99d9e8758f7ab88b0e1aeb227dab6e6d44c9f90a04ac9f39c8274e58e81f9",
+      "full_text_read": true
+    }
+  ],
+  "warnings": {
+    "BASELINE_SCALARS": [],
+    "K4-M9": [],
+    "K4-M32": [
+      "warning: unused variable: `a`",
+      "warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)"
+    ],
+    "K4-M11": []
+  },
+  "start_utc": "2026-10-01T15:07:06Z",
+  "deadline_utc": "2026-10-01T15:27:06Z",
+  "last_command_completed_utc": "2026-10-01T15:19:35.835Z",
+  "aggregate_completed_utc": "2026-10-01T15:19:44.276Z",
+  "maximum_time_l_real_seconds": 9.12,
+  "maximum_recorded_command_interval_seconds": 19.191,
+  "no_runtime_by_reviewer": true
+}

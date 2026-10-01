@@ -1,0 +1,72 @@
+{
+  "method": "Independent integer/Fraction interpretation of two fixed existing tokens; no production/generator arithmetic run",
+  "corpus": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+    "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6"
+  },
+  "witnesses": [
+    {
+      "runtime_id": "R09",
+      "registration": "K4-M2",
+      "line_number_one_based": 6,
+      "line_text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-428 = +80000000000000000000000000000001p0",
+      "line_with_newline_sha256": "1d31357f7aa231c78cd27c4df17781141d835895cee05f588cb0b3b80603502a",
+      "width_limbs": 4,
+      "precision": 128,
+      "term_count": 3,
+      "terms": [
+        "w:+8p0",
+        "w:+8p-128",
+        "w:+8p-428"
+      ],
+      "expected_token": "+80000000000000000000000000000001p0",
+      "exact_sum_fraction": "693167423530203714894603546035770925861146304820288629878888340842064705112457874153659537776671034973702184040114229663426936833/693167423530203714894603546035770925859109268843954143792619895153655326951406405759993601526034894524347802740350892957243539456",
+      "midpoint": "1+2^-128",
+      "positive_tail": "2^-428",
+      "correct_nearest": "1+2^-127",
+      "distance_to_lower": "2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397377/693167423530203714894603546035770925859109268843954143792619895153655326951406405759993601526034894524347802740350892957243539456",
+      "distance_to_upper": "2037035976334486086268445688409378161051468393665936250636140449354381299763336706183397375/693167423530203714894603546035770925859109268843954143792619895153655326951406405759993601526034894524347802740350892957243539456",
+      "fault_prediction": {
+        "cleared_bits": 128,
+        "exact_truncated_fraction": "340282366920938463463374607431768211457/340282366920938463463374607431768211456",
+        "result": "1",
+        "reason": "L+1=5 limb window drops128 low bits; tail removed, midpoint ties to even1."
+      },
+      "runtime_observation": false
+    },
+    {
+      "runtime_id": "R10",
+      "registration": "K4-M3",
+      "line_number_one_based": 2,
+      "line_text": "sum 4 128 3 w:+8p0 w:+8p-128 w:+8p-133 = +80000000000000000000000000000001p0",
+      "line_with_newline_sha256": "aef4e424e4c40009f57bc010680a828b5252ba83209dd5c0710b3b963fd29590",
+      "width_limbs": 4,
+      "precision": 128,
+      "term_count": 3,
+      "terms": [
+        "w:+8p0",
+        "w:+8p-128",
+        "w:+8p-133"
+      ],
+      "expected_token": "+80000000000000000000000000000001p0",
+      "exact_sum_fraction": "10889035741470030830827987437816582766625/10889035741470030830827987437816582766592",
+      "midpoint": "1+2^-128",
+      "positive_tail": "2^-133",
+      "correct_nearest": "1+2^-127",
+      "distance_to_lower": "33/10889035741470030830827987437816582766592",
+      "distance_to_upper": "31/10889035741470030830827987437816582766592",
+      "fault_prediction": {
+        "cleared_bits": 6,
+        "exact_truncated_fraction": "1",
+        "result": "1",
+        "reason": "134-bit exact magnitude truncated to128 bits clears6 low bits, removing half+tail, leaving1."
+      },
+      "runtime_observation": false
+    }
+  ],
+  "R09_prior_witness": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/r09_far_tail_09/ARITHMETIC.json",
+    "sha256": "fb51f2108dda0edc406c699cf7f65db6ec2dfb92960ef40a695c6616286df2d8",
+    "unchanged": true
+  }
+}

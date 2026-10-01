@@ -1,0 +1,1041 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_IMPLEMENTED",
+  "prepared_utc": "2026-10-01T16:09:54.092Z",
+  "quiescent_utc": "2026-10-01T16:08:24.578Z",
+  "original_runtime_checkpoint_utc": "2026-10-01T16:23:26Z",
+  "scope": {
+    "ids": [
+      "R15",
+      "R16",
+      "R17",
+      "R18",
+      "R19",
+      "R20",
+      "R21",
+      "R22",
+      "R23",
+      "R24",
+      "R25",
+      "R26",
+      "R27",
+      "R28",
+      "R29",
+      "R30",
+      "R31",
+      "R32",
+      "R33",
+      "R34",
+      "R35",
+      "R36",
+      "R37",
+      "R38",
+      "R39",
+      "R40",
+      "R41",
+      "R42",
+      "R43",
+      "R44",
+      "R45",
+      "R46",
+      "R47",
+      "R48",
+      "R49",
+      "R50",
+      "R51",
+      "R52"
+    ],
+    "copies": 38,
+    "full_source_files": 4852,
+    "fault_filters": 39,
+    "returned_controls": 39,
+    "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+    "root_manifest_sha256": "5194a1b926f01b1bc4372ec6771a76a75e2d80fbeb000a3b93855268113837f6",
+    "R09_R10": "Remain separately uncredited/open; their diagnostic runtime is excluded",
+    "R50": "Full-core560-file source, freshly compile S11 against actual mutated include inputs",
+    "R52": "Only reviewed corrected m37_correction_03 patch and both frozen filters"
+  },
+  "assessment": "Feasible using the existing apply_patch tool, existing inline read-only identity/containment checks, and existing sequential launcher/capture/note steps. NOT safe by merely pre-filling release entries in the current launcher: its full source check is post-execution. An explicit authorized prelaunch sequencing change is necessary.",
+  "existing_helpers": [
+    {
+      "name": "pg3_launch_fn",
+      "origin": "Existing functions.store orchestration in this TASK",
+      "current_prelaunch_throw_gates": [
+        "owned job already active",
+        "Date.now() at/after fixed end",
+        "missing manager release entry for a build",
+        "external log mkdir nonzero",
+        "guard ps nonzero or memguard.sh missing",
+        "unbound cwd/source",
+        "unbound binary for nonbuild invocation"
+      ],
+      "missing": "No full source/test/lock/corpus hash or fresh containment comparison occurs before its tools.exec_command(Cargo). It must not be represented as already providing that gate."
+    },
+    {
+      "name": "pg3_capture_fn",
+      "origin": "Existing functions.store orchestration in this TASK",
+      "existing_fail_closed_block": "Before writing/capturing output, loads SOURCE_MANIFESTS.json for exact source_scope; substitutes only g.files after_sha256 for a mutant; asserts exact regular-file set and every file SHA256; then asserts exact binary/fingerprint and empty features/rustflags. These source assertions currently execute AFTER the Rust process. Failed Python asserts make exec_command nonzero, and JS throws rather than advancing.",
+      "reuse": "Run its existing full file-set/hash assertion block as a separate read-only check immediately BEFORE calling pg3_launch_fn. Bind copied scalar values to that one frozen ID, and fail closed on every nonzero result."
+    },
+    {
+      "name": "Initial G3 READINESS inline Python check",
+      "origin": "Existing functions.exec preflight that wrote runtime_01/READINESS.json",
+      "existing_checks": [
+        "each source/target/log resolves exactly",
+        "no symlink ancestor",
+        "each source file nlink1 and distinct inode; complete original file set/hash",
+        "dedicated target empty before its first build",
+        "external sibling logs empty/writable at first preparation",
+        "original baseline binaries/fingerprints and33 existing passes",
+        "all23 original S11 compiled-input hashes",
+        "guard5387"
+      ],
+      "reuse": "Repeat the existing containment/path/nlink/target/log and current guard portions immediately before each released build, together with full postimage hashes. Check distinct inodes against the frozen batch inventory; never chmod or repair a failed path."
+    },
+    {
+      "name": "pg3_poll_fn + pg3_note_fn",
+      "origin": "Existing functions.store orchestration",
+      "role": "One active PTY; record completion and full raw artifacts; model reviews exact named semantic assertion; run same-filter untouched control only within release; record result. No next experiment after survivor/compile/selection/setup/unrelated/assertion gap."
+    }
+  ],
+  "proposed_sequence": [
+    "ROOT explicitly authorizes a source-only pass over the remaining38 original copies. Read each frozen patch; use only existing apply_patch with unique context in its owned copy; check every affected preimage before and postimage after; stop on the first mismatch. No Cargo, converter, replacement applicator or new framework.",
+    "Manager independently checks every full source scope, protected tests/lock/corpora, affected exact postimages, baseline physical binaries/raw fingerprints, containment/inodes, exact target and external log paths, current guard and frozen filters. R50 receives the560-file/full-core check and actual mutated S11 include-input binding.",
+    "Manager issues explicit INDIVIDUAL conditional releases, each naming runtime ID, registration, every affected path+postimage hash, exact ordered filters and matching baseline bindings, source/target/log roots, fixed deadline and stop conditions. No wildcard batch release and no child self-release. Independent checks are completed before any released build.",
+    "Immediately before each sequential build, child runs the reused full-file/postimage and containment/target/log/binary/guard checks as a hard prerequisite. JS tests exit_code and throws/returns before any Cargo call on failure; a hash printed to the log is insufficient. Match the one ID to its manager-issued condition record.",
+    "Use unchanged pg3_launch_fn argv and current environment once prerequisite succeeds. One Cargo, existing PTY/time-l, five-minute checks. Verify exact one-test list, run only frozen filters, manually review the precise semantic failure, run its SAME-filter original baseline control, and inspect PASS before advancing. Any unexpected result stops all remaining runtime; already-patched later copies remain preserved APPLIED_UNRUN.",
+    "Stop at original16:23:26 if unfinished. No implication of enough time to complete38 builds/78 tests; preparation/review consumes the same remaining block. ROOT must explicitly rule on any different time budget; no extension is proposed or assumed here."
+  ],
+  "write_fences": {
+    "evidence": "R/I22/protected_g3/runtime_03 (or ROOT-named additive successor)",
+    "sources": "<wt>/scratch/i22/protected_g3/R15 through R52 only",
+    "targets": "<wt>/a1-protected-target/g3/R15 through R52 only",
+    "logs": "<wt>/scratch/i22/protected_g3/logs/R15 through R52 only",
+    "controls": "Existing E1 FK cwd and frozen full-FK lib/S11 binaries; no initial baseline repeats",
+    "excluded": "No maintained path, source/test/corpus/expected-value change beyond frozen faults; no Git/index, tool/env/permission/install/cleanup, new case, diagnostic, V-K or delegation"
+  },
+  "implementation_done": false,
+  "runtime_after_pause": false,
+  "exact_remaining_releases": [
+    {
+      "runtime_id": "R15",
+      "registration": "R7_K4::D13",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R15",
+      "target_root": "<wt>/a1-protected-target/g3/R15",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R15",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+          "after_sha256": "a236cc5b515ec5debbcdffb711cc9172dec6ef796a333d4bb3df20ea53dab433"
+        }
+      ],
+      "filters": [
+        "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "92642f26d3636e3759452ad4c9de41356476b9a9d3634d35b3a88522a1f1033a",
+      "qualifying_semantic_assertion": "Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail."
+    },
+    {
+      "runtime_id": "R16",
+      "registration": "R7_K4::D13b",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R16",
+      "target_root": "<wt>/a1-protected-target/g3/R16",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R16",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+          "before_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+          "after_sha256": "33abe3ddecd8880ccbbf180fa6f016bdc81da5e58dde61164213c25929ea68ed"
+        }
+      ],
+      "filters": [
+        "structural::retained::ledger::tests::the_ledger_enters_a_prescribed_coupled_rhs_exactly_even_when_its_tail_decides_a_tie"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "2b591d95fc4bd98edffca9bc4dfd52bc7cf61e79f732ea73df930627c497f373",
+      "qualifying_semantic_assertion": "Direct reduced_rhs equals 1+2^-127: preserve ledger 2^-128+2^-400 until coupled term1 joins; early p128/binary64/top128 rounding loses the tail."
+    },
+    {
+      "runtime_id": "R17",
+      "registration": "R7_K4::K4-M12",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R17",
+      "target_root": "<wt>/a1-protected-target/g3/R17",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R17",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "1aded03a9754a282d680b911d71df8d1acce82404adf239c63fdde7cf818464b"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "9cc721d84d4bc50e7a570b1b5b4eee9e00a617272dca02cbbbda9b1b7c038dfb",
+      "qualifying_semantic_assertion": "Fixed correction count and E-row tokens after solve_case_at using exact residual expansion; only specific numeric/correction mismatch counts."
+    },
+    {
+      "runtime_id": "R18",
+      "registration": "R7_K4::K4-M13",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R18",
+      "target_root": "<wt>/a1-protected-target/g3/R18",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R18",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "b0884a75e59d52003b113ba52a48c2ec2cc980abeffb40b13fc95713284b1283"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "875c62df0ef00b47bb0f764620e9bbd388bb4b81a55be658aae1962e561c3106",
+      "qualifying_semantic_assertion": "Fixed SCALE A-bar/E rows at p>128 must reflect same-p build_shared formation, not retained128 coefficients."
+    },
+    {
+      "runtime_id": "R19",
+      "registration": "R7_K4::K4-M15",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R19",
+      "target_root": "<wt>/a1-protected-target/g3/R19",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R19",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "905bbb4f52eef89fb8c6d5854a89972d1b2aea087951386bcfb9a8b47228338f"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "c3a7a9dc89f6a986b58e657d411c9b15405e17bfe1d293187214baf90cd0bf44",
+      "qualifying_semantic_assertion": "Second underflow straddle must pass: tr=2^-1075 and extent2^-60 yield rotational scale2^-1015 and allowance2^-1079; uncoupled rotation2^-1020 yields2^-1084 and wrongly rejects delta2^-1080."
+    },
+    {
+      "runtime_id": "R20",
+      "registration": "R7_K4::K4-M16",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R20",
+      "target_root": "<wt>/a1-protected-target/g3/R20",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R20",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "6c0a61235e5fb984c1d1f783d48720e7b0d584fc5deec867062df65ab186fca3"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::tests::every_published_quantity_takes_part_in_the_stop_rule"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "09e806f4e7fe03fe6f6861b63d5a54beff372c3385b6207ffa406175ca79290b",
+      "qualifying_semantic_assertion": "Perturbed Reaction row requires (Ok(false),Some(index)) just like each other kind; reaction omission returns no failure."
+    },
+    {
+      "runtime_id": "R21",
+      "registration": "R7_K4::K4-M18",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R21",
+      "target_root": "<wt>/a1-protected-target/g3/R21",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R21",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+          "before_sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+          "after_sha256": "30333a27bbecedeebfc133d87f4b6960d814de131e0fcf5f50eaac45eb5716ce"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::tests::a_sums_rounding_charges_the_limbs_it_rounds"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "4aa19dfd6734b794ebcbffea10be455dbe27c9ab191a22462887e851d4dd63ff",
+      "qualifying_semantic_assertion": "Wide net rounding must add 17..20 rounded limbs; omitted charge gives0."
+    },
+    {
+      "runtime_id": "R22",
+      "registration": "R7_K4::K4-M20",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R22",
+      "target_root": "<wt>/a1-protected-target/g3/R22",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R22",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "43bae83494220326796dc9aeb063ede548923e1d904e41c0e043a9e7175122b0"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "99eab5b3f45f4c27f53bde12687e5a52b239fc686c92a8e467ef38986e3cb128",
+      "qualifying_semantic_assertion": "After unchanged unlimited baseline, needed-1 must produce Case budget; invocation needed-1 must produce Invocation budget."
+    },
+    {
+      "runtime_id": "R23",
+      "registration": "R7_K4::K4-M21",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R23",
+      "target_root": "<wt>/a1-protected-target/g3/R23",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R23",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "9118eaf157f780cf69b54c2619e0557e1318fd9f25ad155b9c31cd2cd213e8a8"
+        }
+      ],
+      "filters": [
+        "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "908a2479cd5c7d9a44832e8e7cc157f796cff8f5ce5b4a05d28ff657e3085caa",
+      "qualifying_semantic_assertion": "Named N02/N03-RZ/N04 must be Refused MechanismWitnessed with no geometry attempts, not numerically escalated after bypassing geometry."
+    },
+    {
+      "runtime_id": "R24",
+      "registration": "R7_K4::D7",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R24",
+      "target_root": "<wt>/a1-protected-target/g3/R24",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R24",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "7e4509d0cc611b9f13bf9a9898f7b84d714799757086ebf6edb17fe279d19d6e"
+        }
+      ],
+      "filters": [
+        "structural::retained::factor::tests::witnessed_mechanisms_are_refused_before_any_attempt_and_the_rx_companion_solves"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "4e8078e56d48ca2aef00619b1acf9e6feb989e889dabe859589d2c2980c1323d",
+      "qualifying_semantic_assertion": "Named N02/N03-RZ/N04 must be Refused MechanismWitnessed with no geometry attempts, not numerically escalated after bypassing geometry."
+    },
+    {
+      "runtime_id": "R25",
+      "registration": "R7_K4::K4-M22",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R25",
+      "target_root": "<wt>/a1-protected-target/g3/R25",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R25",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+          "after_sha256": "baa31eccc939a8f0249d7a4fb2fecbd2c0f9c0f746780aee89ddb38896ce4d49"
+        }
+      ],
+      "filters": [
+        "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "4accbc2bb7db1c272596281a1ff8d05cd36deb8b1a0c302ec7b1a313e1a9ed47",
+      "qualifying_semantic_assertion": "rigid_mode_check bound lhs<=64*2^-p*A for exact rigid motion; named member/row/motion numeric inequality."
+    },
+    {
+      "runtime_id": "R26",
+      "registration": "R7_K4::D4",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R26",
+      "target_root": "<wt>/a1-protected-target/g3/R26",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R26",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+          "after_sha256": "eb7a72ab40cf041627ce1a54fbe5aa31ab34cf2456fa4ad413766a3aa41f91fe"
+        }
+      ],
+      "filters": [
+        "structural::retained::assemble::tests::every_element_annihilates_the_rigid_motions_to_within_64_units_of_2_to_minus_p"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "d694426ac8facb8ca8472ed6f56aeb6df497699185fd330ab0b203ca0d12fc85",
+      "qualifying_semantic_assertion": "rigid_mode_check bound lhs<=64*2^-p*A for exact rigid motion; named member/row/motion numeric inequality."
+    },
+    {
+      "runtime_id": "R27",
+      "registration": "R7_K4::K4-M23",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R27",
+      "target_root": "<wt>/a1-protected-target/g3/R27",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R27",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+          "after_sha256": "5c16695a8a1e3e4e4289b25501f99b59b3230f2c2dc26086c8dfbd8be4cdf086"
+        }
+      ],
+      "filters": [
+        "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "c701360780d23d3d5944202c45334a5b1f49a5362a23d9865bf457f1198db98f",
+      "qualifying_semantic_assertion": "Fixed DIRECTIONAL-SPAN formation K entry tokens at exact precision; binary64-normalized directions differ."
+    },
+    {
+      "runtime_id": "R28",
+      "registration": "R7_K4::K4-M25a",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R28",
+      "target_root": "<wt>/a1-protected-target/g3/R28",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R28",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "f224a32b892cb4775105961c5f5b0f576272a2f460b3829b7b5bdf3c0163f4d3"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "1abddefa13720d956451a9abeb38c688faf682a060d704162ed959af96e1cf5a",
+      "qualifying_semantic_assertion": "absolute_bound(minimum subnormal)>0 and equals minsubnormal; nearest mutant returns0."
+    },
+    {
+      "runtime_id": "R29",
+      "registration": "R7_K4::K4-M26",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R29",
+      "target_root": "<wt>/a1-protected-target/g3/R29",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R29",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+          "before_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+          "after_sha256": "73cb1e597307da44fa0d61fd0711dbdf22509de728840748ab846f34467991de"
+        }
+      ],
+      "filters": [
+        "structural::retained::factor::tests::the_span_decision_is_exact"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "a1475e7cd1c34b724b140f32b84f5db3342f51051f5a09b2a50cc88722adb53e",
+      "qualifying_semantic_assertion": "a,b,c with exact determinant2^-104 span space; binary64 determinant loses it."
+    },
+    {
+      "runtime_id": "R30",
+      "registration": "R7_K4::K4-M27",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R30",
+      "target_root": "<wt>/a1-protected-target/g3/R30",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R30",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+          "before_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+          "after_sha256": "66021e14e60abfd62a80ea15e5cbda521bda48cd430a8978045d4b45d88badf6"
+        }
+      ],
+      "filters": [
+        "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "4d21bb1aed9bc8793726ad064eb13ee8ce34003eac505aed31b8795dd2508255",
+      "qualifying_semantic_assertion": "Final same-source doubled quarter station st.1.4 must be1.5 (2*0.75); substituting1-t gives0.5."
+    },
+    {
+      "runtime_id": "R31",
+      "registration": "R7_K4::K4-M28",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R31",
+      "target_root": "<wt>/a1-protected-target/g3/R31",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R31",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+          "before_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+          "after_sha256": "c68165f267cabecd5b417f8148275c421bc59a352bd5399e845ecdff123f680a"
+        }
+      ],
+      "filters": [
+        "structural::retained::factor::tests::the_rcm_port_orders_sparse_directs_small_graphs_as_sparse_direct_does"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "aaeb3421bf93aab87f989db9848797d2ae96588e8afae0141d4b98b2b66ed2f6",
+      "qualifying_semantic_assertion": "Exact four sparse_direct graph orders; descending-index tie breaks change a pinned order."
+    },
+    {
+      "runtime_id": "R32",
+      "registration": "R7_K4::K4-M33",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R32",
+      "target_root": "<wt>/a1-protected-target/g3/R32",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R32",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "24e06fbd8d71a5f3e9c63f220a83b7ea951388049f5ad721b1204fb3ec0ee1be"
+        }
+      ],
+      "filters": [
+        "structural::retained::combine::tests::a_combined_prescribed_value_is_published_from_its_exact_sum_rounded_once"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "a6c80630d5525e813ef1103434bb87f6a8dd35044b4171dec3161d86c7667af2",
+      "qualifying_semantic_assertion": "Published input-derived u.2.1 is fixed 0x3ff0000000000001, not the p-rounded tie at1."
+    },
+    {
+      "runtime_id": "R33",
+      "registration": "R7_K4::D2",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R33",
+      "target_root": "<wt>/a1-protected-target/g3/R33",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R33",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "80fe217b2ba601f7dc6e98e232c824ff864fd5ddbfa94d4cef275ed50a69c2f4"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "d35edfbd16a3d963b475134cd4b8b8d96efaadedc5e2d9a8c713da2dd42ac93f",
+      "qualifying_semantic_assertion": "Fixed E-row tokens from the solved retained u on N05/N06 at p128/256; mutating u to binary64 before recover changes the same stored u consumed here."
+    },
+    {
+      "runtime_id": "R34",
+      "registration": "R7_K4::D3",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R34",
+      "target_root": "<wt>/a1-protected-target/g3/R34",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R34",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+          "before_sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+          "after_sha256": "69658eb86e67695eb756bbb77974465013de06385f289afe9c50b1d6e1d2f513"
+        }
+      ],
+      "filters": [
+        "structural::retained::assemble::tests::the_reduced_rhs_enters_prescribed_columns_exactly_and_rounds_once"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "0335560acba9af1f7ec1cc0dfc7dae7386d3f979c0323789826b63f75d3d5be9",
+      "qualifying_semantic_assertion": "PRESCRIBED reduced rhs equals separately formed exact -sum(K_ic*u_c); omitted prescribed columns violate row equality."
+    },
+    {
+      "runtime_id": "R35",
+      "registration": "R7_K4::D5",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R35",
+      "target_root": "<wt>/a1-protected-target/g3/R35",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R35",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "9dd3b64bc54697f40fca9f71b974c239c280c5a318256a139e997997b9bdee25"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::tests::a_ceiling_case_is_unresolved_with_its_attempts"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "b26b7c52ca017556b0a4dd0625d59ad976375ccfa7c33f94d04e669fa5a194f2",
+      "qualifying_semantic_assertion": "SKEW-K1E-300 records exactly candidate precisions[128,256,512]; loop capped at1 records only128. No selected publication prerequisite."
+    },
+    {
+      "runtime_id": "R36",
+      "registration": "R7_K4::D6",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R36",
+      "target_root": "<wt>/a1-protected-target/g3/R36",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R36",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "90cb5e201b011c891ff1eb13eeaea745da0696e2a65fccd49b2ba490a6a9eb4a"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "df36980e707c7285021262babf5439756d9779f39cd0b164b3c0b4f195bd71f3",
+      "qualifying_semantic_assertion": "Fixed above-boundary row must reject StopRule index0; screen-only acceptance returnsNone."
+    },
+    {
+      "runtime_id": "R37",
+      "registration": "R7_K4::D10",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R37",
+      "target_root": "<wt>/a1-protected-target/g3/R37",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R37",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+          "before_sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+          "after_sha256": "e573cb596385529a60dcacdcdebb92b4e2f70a589b4049b94726f39a1e9b9b14"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::scale_tests::factors_l_and_d_bits_are_pinned_and_the_shifted_loop_without_a_shift_reproduces_them"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "04936cab74395135e6f9514b89d93680600686fabd977d326879e440ba25e697",
+      "qualifying_semantic_assertion": "Fixed BOUNDS per-model L/D encoding includes actual order_free mapping; list order must not replace RCM."
+    },
+    {
+      "runtime_id": "R38",
+      "registration": "R7_K4::D14",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R38",
+      "target_root": "<wt>/a1-protected-target/g3/R38",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R38",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+          "before_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+          "after_sha256": "2b77809fa20ef56d47e84d570a4516bc023eff224fc706c9921450b334509a1f"
+        }
+      ],
+      "filters": [
+        "structural::retained::ledger::tests::canonical_encodings_equal_the_generators_independent_bytes"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "48eb60010611d447a67b98bcdb2b68f91e2e582418ae7372d5b1baf3bf28518f",
+      "qualifying_semantic_assertion": "Fixed cled B1-C canonical bytes encode net1e-8; sequential binary64 product fold yields zero. No operand solving/publication."
+    },
+    {
+      "runtime_id": "R39",
+      "registration": "R7_K4::D16b",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R39",
+      "target_root": "<wt>/a1-protected-target/g3/R39",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R39",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+          "before_sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+          "after_sha256": "f9ac982ae25d60e1b882acf9a5579e300b1b69c1436cc5c33b46617652ac61f4"
+        }
+      ],
+      "filters": [
+        "structural::retained::recover::tests::a_recovered_action_is_one_exact_expansion_where_a_sequential_fold_loses_a_term"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "2070e735346f61d22c7ca409a5bc10b475e1686e7aba4043069bc5bfd6201850",
+      "qualifying_semantic_assertion": "Direct recover axial action remains nonzero and within1e-12 of -(EA/L)*(2/3)*2^-200; code-order fold loses term."
+    },
+    {
+      "runtime_id": "R40",
+      "registration": "R7_K4::D20",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R40",
+      "target_root": "<wt>/a1-protected-target/g3/R40",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R40",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "f5aad009c3c9388df6758a6a4d6f9f80f8aa7488fd6c73fc28c3e65a8e1b6309"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "473365a9b511a9d2b3ea5cd50f1943f09cae303815d19fd4c943a1d3d42b93d2",
+      "qualifying_semantic_assertion": "threshold(1) equals fixed FLOOR_RATIO_BITS, not rounded1e9*2^-64."
+    },
+    {
+      "runtime_id": "R41",
+      "registration": "R7_K4::D25",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R41",
+      "target_root": "<wt>/a1-protected-target/g3/R41",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R41",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "6d03c7ad32d4a6c333ebe4301a50bd9feb955a716621e4391552f54a9efc735a"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::classification_tests::stress_scales_and_intensified_factors_match_bit_for_bit"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "ba64121e73cc18f3620085c7014210d262d13930bbbb2589ac7d5ec3ad3384eb",
+      "qualifying_semantic_assertion": "Fixed kint corpus numeric bits retain sqrt2 factor; substituting1 changes them."
+    },
+    {
+      "runtime_id": "R42",
+      "registration": "RV19::RV19-1R",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R42",
+      "target_root": "<wt>/a1-protected-target/g3/R42",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R42",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "ff631b1d4ffb062e0ccb8095696bf538e70bb140f29df706f1a8f86e1a667d97"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "848113a0babff91c5f4d96978222cb80a0b93ff659793b2b0943a2e703799a02",
+      "qualifying_semantic_assertion": "Candidate overflow membership determines first straddle StopRule index1 and opposite straddleNone; skip-all or verifier membership flips required verdict."
+    },
+    {
+      "runtime_id": "R43",
+      "registration": "RV19::RV19-D4",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R43",
+      "target_root": "<wt>/a1-protected-target/g3/R43",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R43",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "17cecaafcd06c6b44727dd1d5fb70724a40a3294b32ce8dc4d7348f2b7d3c60a"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "686472406176677f4b7ccaaa0e16bd823d484ece3acde47795de13daab3a528d",
+      "qualifying_semantic_assertion": "Candidate overflow membership determines first straddle StopRule index1 and opposite straddleNone; skip-all or verifier membership flips required verdict."
+    },
+    {
+      "runtime_id": "R44",
+      "registration": "RV19::A1R",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R44",
+      "target_root": "<wt>/a1-protected-target/g3/R44",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R44",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "5df66c8c3d7c5fdcff0f4a9d0b558bb69aab18863b59bafbfe4769d2978f6008"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "441541fe3317832251eae3bd34c0aab4d9d027992e83f7be320910589ce79055",
+      "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988."
+    },
+    {
+      "runtime_id": "R45",
+      "registration": "RV19::RV19-D1",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R45",
+      "target_root": "<wt>/a1-protected-target/g3/R45",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R45",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "4af5934d5750534dade4fcd9fba422b58545ed31bf1b16c64dd570a1a1e1cc99"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "cfb7d35e1d94a80b1cf98ee09e661925221b8c30191f40925403a27281cd3f7a",
+      "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988."
+    },
+    {
+      "runtime_id": "R46",
+      "registration": "RV19::RV19-D2",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R46",
+      "target_root": "<wt>/a1-protected-target/g3/R46",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R46",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "3151195bd41cd8b6b22a960521954fc2295ec006f2e200ce21312485582fc095"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::classification_tests::amendment_a1_gives_each_row_its_publication_rounding_below_2_to_the_minus_988"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "1017231c7a4f3a1b9986a9d07264de215411ceafb503b21c33572cc582387c21",
+      "qualifying_semantic_assertion": "Fixed small-row bounds and raw class bits include row rounding+h and upward rounding, including just below2^-988."
+    },
+    {
+      "runtime_id": "R47",
+      "registration": "RV19::RV19-D3",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R47",
+      "target_root": "<wt>/a1-protected-target/g3/R47",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R47",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+          "before_sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+          "after_sha256": "54c1dbeda7fc8f08cf829d480e77f7b75153723a831508bd3a84313d63ddded3"
+        }
+      ],
+      "filters": [
+        "structural::retained::combine::tests::operands_whose_stations_or_support_groups_differ_are_withheld"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "e2569efd5781f5008ebf4f05bfbcc08c196b58f23f4e6f1a06d15d7a36e7169e",
+      "qualifying_semantic_assertion": "A+C have identical station/stiffness/layout ids but different spring membership; require immediate OperandsDiffer and empty attempts at that named combination."
+    },
+    {
+      "runtime_id": "R48",
+      "registration": "RV19::RV19-M2",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R48",
+      "target_root": "<wt>/a1-protected-target/g3/R48",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R48",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "871728d5f80c1961b4a5530b4565b9964e4a82b35a9ec97e2df8b02135caebfc"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::method_tests::the_sas_norm_is_the_larger_of_the_one_and_infinity_norms"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "860cadc15b0506899cfb7b26898558881485197b57f490571a3685689332393d",
+      "qualifying_semantic_assertion": "Transposed-entry perturbation creates one-norm > infinity-norm; r.norms.sas must equal larger, with found>0 control."
+    },
+    {
+      "runtime_id": "R49",
+      "registration": "RV19::RV19-M6",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R49",
+      "target_root": "<wt>/a1-protected-target/g3/R49",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R49",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+          "before_sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+          "after_sha256": "dd998d77d3a1dcad54b7282267fd4ae135f9006aadc6998ee436e9674c489341"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "00dfe1e856abf04cdf0bd3f85f2ed4401c1aa6ed293023401fd66d37f9f21865",
+      "qualifying_semantic_assertion": "Fixed SCALE GROUP-DIR/GROUP-DIR-X E-row tokens include directional contributors in support E."
+    },
+    {
+      "runtime_id": "R50",
+      "registration": "R7_K4::K4-M31",
+      "source_scope": "projects/chirality-piping/core",
+      "source_root": "<wt>/scratch/i22/protected_g3/R50",
+      "target_root": "<wt>/a1-protected-target/g3/R50",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R50",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+          "before_sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+          "after_sha256": "638da25162c5fd8cec3c7e55f4f84e5d126312289ce1fec12476e2d9282c3839"
+        }
+      ],
+      "filters": [
+        "site_table_is_exactly_the_accumulations_of_the_scanned_files"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/s11_site_table-c8ba14d9f767e011",
+        "sha256": "ffed9c0f948b771acfd3de71242f38a41dda478839afe7d54de2020f21f9165a"
+      },
+      "patch_sha256": "3878c159079b45c7de97f822d0714ea81d45f5654061aa1542ff193d1f0096c8",
+      "qualifying_semantic_assertion": "Registered static-policy exact site ledger.rs/from_source count0 becomes1 by newly inserted folded += load.value; named exact-site mismatch required."
+    },
+    {
+      "runtime_id": "R51",
+      "registration": "R7_K4::R7-M12",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R51",
+      "target_root": "<wt>/a1-protected-target/g3/R51",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R51",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "ea4014ea6b761948d66891e05cce1f6f07c6b0af011e7783667ba5bb5b7c6e02"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "ae0e46f8504f3d6a639490fe08d582cf3e920e1eabee9a91f097f52bc93a195a",
+      "qualifying_semantic_assertion": "LOADONLY-y345 p128 must form the fixed SCALE state with3 corrections; specifically reported ResidualGate instead of that state is the registered loss of bounded fallback. No certificate is called on this direct solve path."
+    },
+    {
+      "runtime_id": "R52",
+      "registration": "R7_K4::K4-M37",
+      "source_scope": "projects/chirality-piping/core/solver/frame_kernel",
+      "source_root": "<wt>/scratch/i22/protected_g3/R52",
+      "target_root": "<wt>/a1-protected-target/g3/R52",
+      "logs_root": "<wt>/scratch/i22/protected_g3/logs/R52",
+      "files": [
+        {
+          "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+          "before_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+          "after_sha256": "a8599ba9345d2d0cfc521f7b17676311f42d9e8e27b1aa1d2a1697606a207f9d"
+        }
+      ],
+      "filters": [
+        "structural::retained::adaptive::classification_tests::item_6a_floors_force_and_moment_by_phi_where_it_binds_and_nowhere_else",
+        "structural::retained::adaptive::publication_tests::pc21_24_floor_precision_kind_and_original_coupling"
+      ],
+      "baseline_binding": {
+        "path": "<wt>/a1-fk-root-baseline-target/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+        "sha256": "cd5967f30c1ca9d8957d02126d2639e943435b84f86c5d02c0b21c904af8e00a"
+      },
+      "patch_sha256": "809471ddeb17c83f7279c711be98bbbb4da6d413e7725a36d87f71ce3f02312f",
+      "qualifying_semantic_assertion": "Pure classification binding Force class at296; valid accepted p512 draft Force scale bits at982. Compiler, Shape, other certificate error or Accepted precondition panic never counts."
+    }
+  ],
+  "initial_executor_local_proposal_boundary_utc": "2026-10-01T16:13:24Z",
+  "proposal_boundary_note": "Manager clarified ROOT's 5-minute request ends approximately16:12 UTC; this proposal was prepared16:09:54.092Z, before that boundary. Original runtime checkpoint remains16:23:26.",
+  "existing_helper_text_sha256": {
+    "pg3_launch_fn": "3708de522804fc325280e11857ef93509e7885404f836017d8e6b5b70a533e85",
+    "pg3_capture_fn": "8cfb0b11dd96527a09e13c4263155d9ccaca73192069dcfa79b99252302d5962",
+    "pg3_poll_fn": "0bedbb71571495ca6be16f3296fff732043b163ae7ba85819a37d49795ca1558",
+    "pg3_note_fn": "a65e2f1376821ad3b22d1d478be3b35908b0a3a7d7418cc05fa7745f6d408bb2"
+  }
+}
