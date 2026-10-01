@@ -3387,3 +3387,41 @@ The ten generated family JSONs and kernel_lane/SHA256SUMS may be refreshed to
 include the new certificate work. No other observation or criterion is granted.
 The failed preflight and original hashes remain evidence. Same-reviewer
 backcheck and an affected-suite rerun are required; this is not A1 closure.
+
+## A1 historical fault mappings selected for bounded replay (ROOT, 2026-10-01)
+
+ROOT read I23's exact patches and RV29 protected_06. The precise selected subset
+and runtime fences are in RESUME_2026-09-30/BRIEFS/A1_G1_PROTECTED.md. Reconstructed
+A2 patches retain original IDs without claiming missing original bytes. D4u's
+current underflow-only variant preserves both old overflow assertions and must
+reach the old underflow criterion. This selects a faithful finite discriminator,
+not a weakened expectation or an executed kill.
+
+The historically optional RV23C-N1 cache probe remains optional: independent
+source comparison confirms its failure path unchanged. R7 derivation/retired
+and RV23-N4 reachable-path qualifications remain their sourced dispositions.
+All other unreviewed or masked mappings remain open; the new certificate's mere
+refusal is not evidence that an intended old numerical assertion was exercised.
+No design contract, availability claim or A1 closure is accepted here.
+
+## G1 host-tool stop; owner direction required (ROOT, 2026-10-01)
+
+G1 passed all selected unmutated baselines, then stopped before any mutant
+execution. The existing system patch command reported a system temporary-file
+permission error while returning exit0. The mandatory postimage check found
+the original source unchanged and prevented continuation. Exact command, raw
+hashes and expected/actual source hashes are in
+RESUME_2026-09-30/I22/protected_g1/runtime_01 on A1. No kill or survivor is claimed.
+
+The owner's explicit instruction to stop and report tool blockers governs.
+No TMPDIR or permission change, retry, alternative patch mechanism or host-tool
+development was performed. ROOT requested direction for a bounded trial of
+the existing apply_patch tool on the already frozen G01 patch, with no host
+configuration change. That question is pending; no approval is assumed.
+Further experiment work is held. Existing source-only returns and evidence
+preservation may finish, with no new host jobs.
+
+E1/E2's new-publication variants have independent RV29 runtime confirmation,
+and the full FK and H/VR preflights passed. This is not A1 merge acceptance:
+historical fault work and final-head gates remain, draft PR1070 stays unmerged,
+F2a is held, and K6c has no accepted complete E_max.
