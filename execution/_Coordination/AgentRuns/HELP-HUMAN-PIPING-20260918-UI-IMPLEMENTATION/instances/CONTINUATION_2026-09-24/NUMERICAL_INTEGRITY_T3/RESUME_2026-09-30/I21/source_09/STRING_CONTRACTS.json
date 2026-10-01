@@ -1,0 +1,90 @@
+{
+  "scope": "Only fixed input String backing-capacity/clone construction relevant to caller-to-kernel seam; no error/float/serde/IO/runtime audit",
+  "basis": "Installed Rust1.97.1 full8bab26f4f68e0e26f0bb7960be334d5b520ea452; original HTML hashes bound, original bytes unchanged",
+  "transformation": "One-off existing Python HTMLParser retaining code text, dropping data-nosnippet line-number anchors, decoding entities/preserving source whitespace; only indicated excerpts retained here. Full decoded-page hashes recorded; actual commands in RAW_COMMANDS.",
+  "classification": "Pinned implementation derivations, not general public API growth guarantees",
+  "pages": [
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/alloc/fmt.rs.html",
+      "html_sha256": "706bc307d3012c7399878ecba993c6f401b3e55d761ced3bff4a88283e888e24",
+      "decoded_sha256": "5787ee1ac366050193db15b5ac46d74fde2bdcc0ce096e9962b2bf39c5d49510",
+      "decoded_lines": 660,
+      "excerpts": [
+        {
+          "start": 635,
+          "end": 665,
+          "text": "635\t/// Please note that using [`format!`] might be preferable.\n636\t/// Example:\n637\t///\n638\t/// ```\n639\t/// let s = format!(\"Hello, {}!\", \"world\");\n640\t/// assert_eq!(s, \"Hello, world!\");\n641\t/// ```\n642\t///\n643\t/// [`format_args!`]: core::format_args\n644\t/// [`format!`]: crate::format\n645\t#[cfg(not(no_global_oom_handling))]\n646\t#[must_use]\n647\t#[stable(feature = \"rust1\", since = \"1.0.0\")]\n648\t#[inline]\n649\tpub fn format(args: Arguments<'_>) -> string::String {\n650\t    fn format_inner(args: Arguments<'_>) -> string::String {\n651\t        let capacity = args.estimated_capacity();\n652\t        let mut output = string::String::with_capacity(capacity);\n653\t        output\n654\t            .write_fmt(args)\n655\t            .expect(\"a formatting trait implementation returned an error when the underlying stream did not\");\n656\t        output\n657\t    }\n658\t\n659\t    args.as_str().map_or_else(|| format_inner(args), crate::borrow::ToOwned::to_owned)\n660\t}"
+        }
+      ]
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/core/fmt/mod.rs.html",
+      "html_sha256": "8a8523c5f69288b9ae43153fac6003998cc8588e50abd45c1b41b1003bab5daf",
+      "decoded_sha256": "0b01f8c3ef1a7c1a75eaf468456a2fc10a608d9f9191b56e1793f8b9bfb29b23",
+      "decoded_lines": 3190,
+      "excerpts": [
+        {
+          "start": 744,
+          "end": 790,
+          "text": "744\t}\n745\t\n746\t#[doc(hidden)]\n747\t#[unstable(feature = \"fmt_internals\", issue = \"none\")]\n748\timpl<'a> Arguments<'a> {\n749\t    /// Estimates the length of the formatted text.\n750\t    ///\n751\t    /// This is intended to be used for setting initial `String` capacity\n752\t    /// when using `format!`. Note: this is neither the lower nor upper bound.\n753\t    #[inline]\n754\t    pub fn estimated_capacity(&self) -> usize {\n755\t        if let Some(s) = self.as_str() {\n756\t            return s.len();\n757\t        }\n758\t        // Iterate over the template, counting the length of literal pieces.\n759\t        let mut length = 0usize;\n760\t        let mut starts_with_placeholder = false;\n761\t        let mut template = self.template;\n762\t        loop {\n763\t            // SAFETY: We can assume the template is valid.\n764\t            unsafe {\n765\t                let n = template.read();\n766\t                template = template.add(1);\n767\t                if n == 0 {\n768\t                    // End of template.\n769\t                    break;\n770\t                } else if n < 128 {\n771\t                    // Short literal string piece.\n772\t                    length += n as usize;\n773\t                    template = template.add(n as usize);\n774\t                } else if n == 128 {\n775\t                    // Long literal string piece.\n776\t                    let len = usize::from(u16::from_le_bytes(template.cast_array().read()));\n777\t                    length += len;\n778\t                    template = template.add(2 + len);\n779\t                } else {\n780\t                    assert_unchecked(n >= 0xC0);\n781\t                    // Placeholder piece.\n782\t                    if length == 0 {\n783\t                        starts_with_placeholder = true;\n784\t                    }\n785\t                    // Skip remainder of placeholder:\n786\t                    let skip = (n & 1 != 0) as usize * 4 // flags (32 bit)\n787\t                        + (n & 2 != 0) as usize * 2  // width     (16 bit)\n788\t                        + (n & 4 != 0) as usize * 2  // precision (16 bit)\n789\t                        + (n & 8 != 0) as usize * 2; // arg_index (16 bit)\n790\t                    template = template.add(skip as usize);"
+        },
+        {
+          "start": 790,
+          "end": 806,
+          "text": "790\t                    template = template.add(skip as usize);\n791\t                }\n792\t            }\n793\t        }\n794\t\n795\t        if starts_with_placeholder && length < 16 {\n796\t            // If the format string starts with a placeholder,\n797\t            // don't preallocate anything, unless length\n798\t            // of literal pieces is significant.\n799\t            0\n800\t        } else {\n801\t            // There are some placeholders, so any additional push\n802\t            // will reallocate the string. To avoid that,\n803\t            // we're \"pre-doubling\" the capacity here.\n804\t            length.wrapping_mul(2)\n805\t        }\n806\t    }"
+        }
+      ]
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/alloc/string.rs.html",
+      "html_sha256": "1503955efcdc8b2c1cc4bf8e69e0c19b2272b4e0569f8cf9b38717cc5517b154",
+      "decoded_sha256": "68d7464cc83b0064bac9b600b72b4feb7c90eb5efc92def549b7eb586c6537ed",
+      "decoded_lines": 3619,
+      "excerpts": [
+        {
+          "start": 1100,
+          "end": 1130,
+          "text": "1100\t    ///\n1101\t    /// s.push_str(\"bar\");\n1102\t    ///\n1103\t    /// assert_eq!(\"foobar\", s);\n1104\t    /// ```\n1105\t    #[cfg(not(no_global_oom_handling))]\n1106\t    #[inline]\n1107\t    #[stable(feature = \"rust1\", since = \"1.0.0\")]\n1108\t    #[rustc_confusables(\"append\", \"push\")]\n1109\t    #[rustc_diagnostic_item = \"string_push_str\"]\n1110\t    pub fn push_str(&mut self, string: &str) {\n1111\t        self.vec.extend_from_slice(string.as_bytes())\n1112\t    }\n1113\t\n1114\t    #[cfg(not(no_global_oom_handling))]\n1115\t    #[inline]\n1116\t    fn push_str_slice(&mut self, slice: &[&str]) {\n1117\t        // use saturating arithmetic to ensure that in the case of an overflow, reserve() throws OOM\n1118\t        let additional: Saturating<usize> = slice.iter().map(|x| Saturating(x.len())).sum();\n1119\t        self.reserve(additional.0);\n1120\t        let (ptr, len, cap) = core::mem::take(self).into_raw_parts();\n1121\t        unsafe {\n1122\t            let mut dst = ptr.add(len);\n1123\t            for new in slice {\n1124\t                core::ptr::copy_nonoverlapping(new.as_ptr(), dst, new.len());\n1125\t                dst = dst.add(new.len());\n1126\t            }\n1127\t            *self = String::from_raw_parts(ptr, len + additional.0, cap);\n1128\t        }\n1129\t    }\n1130\t"
+        },
+        {
+          "start": 2360,
+          "end": 2382,
+          "text": "2360\t\n2361\t#[cfg(not(no_global_oom_handling))]\n2362\t#[stable(feature = \"rust1\", since = \"1.0.0\")]\n2363\timpl Clone for String {\n2364\t    fn clone(&self) -> Self {\n2365\t        String { vec: self.vec.clone() }\n2366\t    }\n2367\t\n2368\t    /// Clones the contents of `source` into `self`.\n2369\t    ///\n2370\t    /// This method is preferred over simply assigning `source.clone()` to `self`,\n2371\t    /// as it avoids reallocation if possible.\n2372\t    fn clone_from(&mut self, source: &Self) {\n2373\t        self.vec.clone_from(&source.vec);\n2374\t    }\n2375\t}\n2376\t\n2377\t#[cfg(not(no_global_oom_handling))]\n2378\t#[stable(feature = \"rust1\", since = \"1.0.0\")]\n2379\timpl FromIterator<char> for String {\n2380\t    fn from_iter<I: IntoIterator<Item = char>>(iter: I) -> String {\n2381\t        let mut buf = String::new();\n2382\t        buf.extend(iter);"
+        },
+        {
+          "start": 3350,
+          "end": 3377,
+          "text": "3350\t    }\n3351\t}\n3352\t\n3353\t#[cfg(not(no_global_oom_handling))]\n3354\t#[stable(feature = \"rust1\", since = \"1.0.0\")]\n3355\timpl fmt::Write for String {\n3356\t    #[inline]\n3357\t    fn write_str(&mut self, s: &str) -> fmt::Result {\n3358\t        self.push_str(s);\n3359\t        Ok(())\n3360\t    }\n3361\t\n3362\t    #[inline]\n3363\t    fn write_char(&mut self, c: char) -> fmt::Result {\n3364\t        self.push(c);\n3365\t        Ok(())\n3366\t    }\n3367\t}\n3368\t\n3369\t/// An iterator over the [`char`]s of a string.\n3370\t///\n3371\t/// This struct is created by the [`into_chars`] method on [`String`].\n3372\t/// See its documentation for more.\n3373\t///\n3374\t/// [`char`]: prim@char\n3375\t/// [`into_chars`]: String::into_chars\n3376\t#[cfg_attr(not(no_global_oom_handling), derive(Clone))]\n3377\t#[must_use = \"iterators are lazy and do nothing unless consumed\"]"
+        },
+        {
+          "start": 3120,
+          "end": 3140,
+          "text": "3120\t#[stable(feature = \"rust1\", since = \"1.0.0\")]\n3121\timpl From<&str> for String {\n3122\t    /// Converts a `&str` into a [`String`].\n3123\t    ///\n3124\t    /// The result is allocated on the heap.\n3125\t    #[inline]\n3126\t    fn from(s: &str) -> String {\n3127\t        s.to_owned()\n3128\t    }\n3129\t}\n3130\t\n3131\t#[cfg(not(no_global_oom_handling))]\n3132\t#[stable(feature = \"from_mut_str_for_string\", since = \"1.44.0\")]\n3133\timpl From<&mut str> for String {\n3134\t    /// Converts a `&mut str` into a [`String`].\n3135\t    ///\n3136\t    /// The result is allocated on the heap.\n3137\t    #[inline]\n3138\t    fn from(s: &mut str) -> String {\n3139\t        s.to_owned()\n3140\t    }"
+        },
+        {
+          "start": 3040,
+          "end": 3098,
+          "text": "3040\t                n -= 100;\n3041\t            }\n3042\t            buf.push((b'0' + n / 10) as char);\n3043\t            n %= 10;\n3044\t        }\n3045\t        buf.push((b'0' + n) as char);\n3046\t        buf\n3047\t    }\n3048\t}\n3049\t\n3050\t#[cfg(not(no_global_oom_handling))]\n3051\tmacro_rules! to_string_str {\n3052\t    {$($type:ty,)*} => {\n3053\t        $(\n3054\t            impl SpecToString for $type {\n3055\t                #[inline]\n3056\t                fn spec_to_string(&self) -> String {\n3057\t                    let s: &str = self;\n3058\t                    String::from(s)\n3059\t                }\n3060\t            }\n3061\t        )*\n3062\t    };\n3063\t}\n3064\t\n3065\t#[cfg(not(no_global_oom_handling))]\n3066\tto_string_str! {\n3067\t    Cow<'_, str>,\n3068\t    String,\n3069\t    // Generic/generated code can sometimes have multiple, nested references\n3070\t    // for strings, including `&&&str`s that would never be written\n3071\t    // by hand.\n3072\t    &&&&&&&&&&&&str,\n3073\t    &&&&&&&&&&&str,\n3074\t    &&&&&&&&&&str,\n3075\t    &&&&&&&&&str,\n3076\t    &&&&&&&&str,\n3077\t    &&&&&&&str,\n3078\t    &&&&&&str,\n3079\t    &&&&&str,\n3080\t    &&&&str,\n3081\t    &&&str,\n3082\t    &&str,\n3083\t    &str,\n3084\t    str,\n3085\t}\n3086\t\n3087\t#[cfg(not(no_global_oom_handling))]\n3088\timpl SpecToString for fmt::Arguments<'_> {\n3089\t    #[inline]\n3090\t    fn spec_to_string(&self) -> String {\n3091\t        crate::fmt::format(*self)\n3092\t    }\n3093\t}\n3094\t\n3095\t#[stable(feature = \"rust1\", since = \"1.0.0\")]\n3096\timpl AsRef<str> for String {\n3097\t    #[inline]\n3098\t    fn as_ref(&self) -> &str {"
+        }
+      ]
+    },
+    {
+      "origin": "<RUST_TOOLCHAIN>/share/doc/rust/html/src/alloc/str.rs.html",
+      "html_sha256": "829d6b32b7d885acbab164ae4368eb1db81ba2eeeb53171b1d468827b74d0b99",
+      "decoded_sha256": "ef6974342cf6a89eb7ce00d32a7fa49bfa88a4e9058bbfe4ca6bee2436bad8bf",
+      "decoded_lines": 893,
+      "excerpts": [
+        {
+          "start": 242,
+          "end": 268,
+          "text": "242\t}\n243\t\n244\t#[cfg(not(no_global_oom_handling))]\n245\t#[stable(feature = \"rust1\", since = \"1.0.0\")]\n246\timpl ToOwned for str {\n247\t    type Owned = String;\n248\t\n249\t    #[inline]\n250\t    fn to_owned(&self) -> String {\n251\t        unsafe { String::from_utf8_unchecked(self.as_bytes().to_owned()) }\n252\t    }\n253\t\n254\t    #[inline]\n255\t    fn clone_into(&self, target: &mut String) {\n256\t        target.clear();\n257\t        target.push_str(self);\n258\t    }\n259\t}\n260\t\n261\t/// Methods for string slices.\n262\timpl str {\n263\t    /// Converts a `Box<str>` into a `Box<[u8]>` without copying or allocating.\n264\t    ///\n265\t    /// # Examples\n266\t    ///\n267\t    /// ```\n268\t    /// let s = \"this is a string\";"
+        }
+      ]
+    }
+  ],
+  "derived": {
+    "formatted_nonempty": "F(L)=max(8,2L): initial capacity<=2*literalbytes<=2L; String writes append via byte Vec and RawVec growth. Only fixed finite templates with known final UTF-8 length used.",
+    "clone": "String.clone -> Vec.clone, exact logical L; str.to_string -> String::from -> str.to_owned -> byte-slice.to_owned exact L under pinned clone contract.",
+    "move": "Only one active old growing buffer is added; no blanket1.5 of every retained String."
+  }
+}
