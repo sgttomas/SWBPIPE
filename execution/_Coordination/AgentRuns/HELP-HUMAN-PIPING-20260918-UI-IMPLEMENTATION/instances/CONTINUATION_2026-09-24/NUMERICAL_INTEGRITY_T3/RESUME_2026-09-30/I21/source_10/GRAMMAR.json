@@ -1,0 +1,214 @@
+{
+  "usize_digits": 20,
+  "u32_digits": 10,
+  "dof_debug_len": 39,
+  "member_property_max_len": 15,
+  "source_error_grammar": [
+    [
+      "NoNodes",
+      7
+    ],
+    [
+      "NonFiniteCoordinate",
+      40
+    ],
+    [
+      "NodeOutOfRange",
+      35
+    ],
+    [
+      "DuplicateMemberId",
+      36
+    ],
+    [
+      "RepeatedMemberNode",
+      41
+    ],
+    [
+      "ZeroLength",
+      33
+    ],
+    [
+      "DegenerateAxis",
+      37
+    ],
+    [
+      "DuplicateSpringId",
+      36
+    ],
+    [
+      "NonPositiveSpring",
+      36
+    ],
+    [
+      "ZeroDirection",
+      32
+    ],
+    [
+      "NonFiniteDirection",
+      37
+    ],
+    [
+      "DuplicateStationId",
+      37
+    ],
+    [
+      "StationOutOfRange",
+      36
+    ],
+    [
+      "DuplicateSupportId",
+      37
+    ],
+    [
+      "SupportMismatch",
+      34
+    ],
+    [
+      "NonFiniteProperty",
+      67
+    ],
+    [
+      "NonPositiveProperty",
+      69
+    ],
+    [
+      "SubnormalDerivedPrimitive",
+      75
+    ],
+    [
+      "DuplicateConstraint",
+      68
+    ],
+    [
+      "NonFiniteValue",
+      63
+    ],
+    [
+      "EmptyLoadSource",
+      64
+    ],
+    [
+      "UnknownMember",
+      57
+    ]
+  ],
+  "source_error_max": 75,
+  "stage_line_fields_without_error_text": [
+    [
+      "kind",
+      7
+    ],
+    [
+      "repeat",
+      1
+    ],
+    [
+      "stage",
+      13
+    ],
+    [
+      "ok",
+      5
+    ],
+    [
+      "elapsed_ns",
+      39
+    ],
+    [
+      "heap_current_begin",
+      20
+    ],
+    [
+      "heap_current_end",
+      20
+    ],
+    [
+      "heap_peak",
+      20
+    ],
+    [
+      "heap_peak_move",
+      20
+    ],
+    [
+      "alloc_calls",
+      20
+    ],
+    [
+      "error",
+      4
+    ]
+  ],
+  "stage_line_null_error_length_upper": 315,
+  "stage_line_error_length_upper": "313+6D_error",
+  "S_max": 10,
+  "J_max": 9,
+  "prefix_list_retained_upper": 387,
+  "sum_error_max": 19,
+  "wide_error_max": 32,
+  "certificate_issue_max": 19,
+  "unresolved_rows": [
+    [
+      "Ceiling",
+      7
+    ],
+    [
+      "Budget",
+      18
+    ],
+    [
+      "ExactSumSpan",
+      12
+    ],
+    [
+      "ExponentRange",
+      13
+    ],
+    [
+      "ZeroDiagonal",
+      49
+    ],
+    [
+      "Arithmetic",
+      44
+    ],
+    [
+      "ResolutionScaleUnencodable",
+      66
+    ],
+    [
+      "CertifiedBoundUnencodable",
+      46
+    ],
+    [
+      "PublicationCertificate",
+      88
+    ]
+  ],
+  "unresolved_max": 88,
+  "refusal": {
+    "mechanism_constant": 71,
+    "mechanism_plus": "6*D_f64_Debug",
+    "geometry_constant": 49,
+    "geometry_plus": "D_geometry_error",
+    "negative": 67,
+    "ledger": 51,
+    "structure": 9
+  },
+  "classification": "Source-token/digit arithmetic for non-pretty derived Debug and the exact H Line builder; no Rust formatter/model execution or numerical oracle generation.",
+  "source_error_output_capacity": 150,
+  "unresolved_wrapped_length": 100,
+  "unresolved_output_capacity": 200,
+  "stage_nonerror_line_capacity": 630,
+  "stage_numeric_temp_capacity_upper": 78,
+  "stage_nonerror_known_extra": 708,
+  "stage_nonerror_line_old_upper": 315,
+  "unknown_leaves": [
+    "D64_Debug and float formatter heap/active-old scratch",
+    "Complete reachable StructuralError Debug leaf/message bound",
+    "T_stdio_emit and O_stdio_emit",
+    "Runtime live/active-old owner bounds"
+  ],
+  "formula_scope": "The708+315 branch excludes outcome,Caller,ErrString where absent,stdout1024 and every unresolved runtime/stdio term. It is not a whole-window bound."
+}
