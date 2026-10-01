@@ -1,0 +1,581 @@
+{
+  "checkpoint_utc": "2026-10-01T14:10:19Z",
+  "recorded_utc": "2026-10-01T14:10:27Z",
+  "basis": "No patch/test/launch occurred from completed G38 control by14:09:32 through this observation; exact boundary state is therefore unchanged.",
+  "original_deadline_retained": "2026-10-01T14:10:19.074Z",
+  "followon": {
+    "commit": "d3af6b127da2a10bbdedee9c9d9eef54e0f43cb3",
+    "sha256": "0550a4b49ce5099ec0e596ac38eaf82c35464cfddba4ff49a56e6552401478e0",
+    "start_utc": "2026-10-01T14:10:19Z",
+    "end_utc": "2026-10-01T14:40:19Z",
+    "scope": "Remaining original G1 groups only, no repeats/new scope/further extension"
+  },
+  "source": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "runtime_manifest_sha256": "bd4dae325f30af11bb9ec1479f255f73912b96b7d4e50a066825aee725644e90",
+  "runtime04_completed": [
+    {
+      "id": "G05",
+      "aliases": [
+        "R7_K4::K4-M17"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G05",
+        "at": "2026-10-01T13:22:24Z",
+        "by": "manager",
+        "scope": "exact mutant + untouched baseline control"
+      }
+    },
+    {
+      "id": "G06",
+      "aliases": [
+        "R7_K4::K4-M19"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G06",
+        "at": "2026-10-01T13:23:54Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G07",
+      "aliases": [
+        "R7_K4::K4-M25b"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G07",
+        "at": "2026-10-01T13:25:02Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G08",
+      "aliases": [
+        "R7_K4::K4-M29"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G08",
+        "at": "2026-10-01T13:26:05Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G09",
+      "aliases": [
+        "R7_K4::K4-M30i"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G09",
+        "at": "2026-10-01T13:27:27Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G10",
+      "aliases": [
+        "R7_K4::D1"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G10",
+        "at": "2026-10-01T13:29:20Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G11",
+      "aliases": [
+        "R7_K4::D15"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G11",
+        "at": "2026-10-01T13:30:31Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G12",
+      "aliases": [
+        "R7_K4::D16a"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G12",
+        "at": "2026-10-01T13:32:10Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G13",
+      "aliases": [
+        "R7_K4::D17"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G13",
+        "at": "2026-10-01T13:33:18Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G14",
+      "aliases": [
+        "RV19::RV19-D4u"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G14",
+        "at": "2026-10-01T13:34:46Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G15",
+      "aliases": [
+        "A2_ORIGINAL::M1",
+        "RV23::RV23-M1b-refused-bound-formed-as-0"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G15",
+        "at": "2026-10-01T13:35:55Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G16",
+      "aliases": [
+        "A2_ORIGINAL::M2",
+        "RV23::RV23-M2-B-is-max"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G16",
+        "at": "2026-10-01T13:37:02Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G17",
+      "aliases": [
+        "A2_ORIGINAL::M3",
+        "RV23::RV23-M3b-no-bound-stop-dropped"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G17",
+        "at": "2026-10-01T13:38:11Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G18",
+      "aliases": [
+        "A2_ORIGINAL::M4a"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G18",
+        "at": "2026-10-01T13:39:29Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G19",
+      "aliases": [
+        "A2_ORIGINAL::M4b",
+        "RV23::RV23-M5b-partial-stage-unrecorded-solve-case-at"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G19",
+        "at": "2026-10-01T13:40:20Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G20",
+      "aliases": [
+        "A2_ORIGINAL::M4c",
+        "RV23::RV23-M5-partial-stage-unrecorded-build-verify-shared"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G20",
+        "at": "2026-10-01T13:41:36Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G21",
+      "aliases": [
+        "A2_ORIGINAL::M4d",
+        "RV23::I19-M4d-partial-stage-unrecorded-verify-state"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G21",
+        "at": "2026-10-01T13:43:28Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G22",
+      "aliases": [
+        "A2_ORIGINAL::M5",
+        "RV23::I19-M5-refusal-not-per-block"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G22",
+        "at": "2026-10-01T13:44:49Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G23",
+      "aliases": [
+        "A2_ORIGINAL::M6",
+        "RV23::I19-M6-budget-as-refusal"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G23",
+        "at": "2026-10-01T13:45:56Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G24",
+      "aliases": [
+        "A2_ORIGINAL::M7",
+        "RV23::I19-M7-refused-block-without-data-stops"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G24",
+        "at": "2026-10-01T13:47:21Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G25",
+      "aliases": [
+        "A2_ORIGINAL::M8",
+        "RV23::I19-M8-pre-KF3-any-refusal-stops"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G25",
+        "at": "2026-10-01T13:49:13Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G26",
+      "aliases": [
+        "R7_K4::R7-M1"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G26",
+        "at": "2026-10-01T13:50:44Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G27",
+      "aliases": [
+        "R7_K4::R7-M2"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G27",
+        "at": "2026-10-01T13:51:30Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G28",
+      "aliases": [
+        "R7_K4::R7-M6"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G28",
+        "at": "2026-10-01T13:52:53Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G29",
+      "aliases": [
+        "R7_K4::R7-M10"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G29",
+        "at": "2026-10-01T13:54:57Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G30",
+      "aliases": [
+        "R7_K4::R7-M11"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G30",
+        "at": "2026-10-01T13:56:28Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G31",
+      "aliases": [
+        "R7_K4::R7-M18"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G31",
+        "at": "2026-10-01T13:58:23Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G32",
+      "aliases": [
+        "R7_K4::R7-M20"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G32",
+        "at": "2026-10-01T14:00:12Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G33",
+      "aliases": [
+        "R7_K4::R7-M22"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G33",
+        "at": "2026-10-01T14:01:29Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G34",
+      "aliases": [
+        "R7_K4::R7-M23"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G34",
+        "at": "2026-10-01T14:02:40Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G35",
+      "aliases": [
+        "R7_K4::R7-M16"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G35",
+        "at": "2026-10-01T14:04:51Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G36",
+      "aliases": [
+        "R7_K4::K4-M6"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G36",
+        "at": "2026-10-01T14:05:59Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G37",
+      "aliases": [
+        "R7_K4::K4-M10"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G37",
+        "at": "2026-10-01T14:07:39Z",
+        "by": "manager"
+      }
+    },
+    {
+      "id": "G38",
+      "aliases": [
+        "R7_K4::K4-M14a"
+      ],
+      "control": "PASS",
+      "release": {
+        "id": "G38",
+        "at": "2026-10-01T14:08:56Z",
+        "by": "manager"
+      }
+    }
+  ],
+  "earlier_completed": {
+    "G01": "ROOT tool_resume_01; separately bound",
+    "G02_G04": "runtime_03 qualified semantic results and return controls"
+  },
+  "current": null,
+  "unrun": [
+    {
+      "id": "G39",
+      "aliases": [
+        "R7_K4::K4-M14b"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G40",
+      "aliases": [
+        "RV23::RV23-M1-unavailable-as-0"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G41",
+      "aliases": [
+        "RV23::RV23-M3a-no-bound-stop-becomes-uc"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G42",
+      "aliases": [
+        "RV23::RV23-M4a-precedence-swapped-in-certificates"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G43",
+      "aliases": [
+        "RV23::RV23-M4b-precedence-swapped-in-verify-state",
+        "RV23_1::RV23-M4b-precedence-swapped-in-verify-state",
+        "RV23C::RV23-M4b-precedence-swapped-in-verify-state"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G44",
+      "aliases": [
+        "RV23::RV23-M6-refusal-evidence-not-recorded"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G45",
+      "aliases": [
+        "RV23::RV23-M6b-refusal-not-marked-on-its-block"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G46",
+      "aliases": [
+        "RV23_1::RV23-1-M1-uc-refusals-dropped-in-verify-precision"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G47",
+      "aliases": [
+        "RV23_1::RV23-1-M2-uc-refusals-dropped-in-build-verify-shared"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G48",
+      "aliases": [
+        "RV23_1::RV23-1-M3-s-refusals-dropped-in-shift-schedule"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G49",
+      "aliases": [
+        "RV23_1::RV23-1-M3a-kept-results-refusals-dropped"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G50",
+      "aliases": [
+        "RV23_1::RV23-1-M3b-in-flight-refusals-dropped"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G51",
+      "aliases": [
+        "RV23C::RV23C-M2-verify-precision-ignores-a-stopped-builds-refusals"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G52",
+      "aliases": [
+        "RV23C::RV23C-M3-schedule-stop-drops-kept-results"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G53",
+      "aliases": [
+        "RV23C::RV23C-M4-schedule-stop-drops-in-flight"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    },
+    {
+      "id": "G54",
+      "aliases": [
+        "RV23C::RV23C-M5-stopped-shared-build-returns-no-refusals"
+      ],
+      "source": "unmodified40129 prepared copy",
+      "release": "not granted"
+    }
+  ],
+  "group_counts": {
+    "runtime04": 34,
+    "prior": 4,
+    "total_completed": 38,
+    "unrun": 16
+  },
+  "registrations_completed": 48,
+  "owned_jobs_running": 0
+}

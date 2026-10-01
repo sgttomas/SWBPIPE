@@ -1,0 +1,3 @@
+PASS:runtime04 all50group verdicts/exactsingle-test semantic failures and50basepass outputs verified;62 explicit registration aliases.51 actualbinary hashes and allsource/test/lock/postimages/features/guards match.
+Manager independently gated EVERY G05_r1–G54 source beforeCargo; specific per-groupcheck files/releases preserved. Exact toolargv/completion ordering and finalseal verification follow childfreeze.
+Original invalidG05 compilation is excluded. EarlierG01ROOT andG02–4runtime03 add4physical/4aliases; total54/66 after separatepacket review.

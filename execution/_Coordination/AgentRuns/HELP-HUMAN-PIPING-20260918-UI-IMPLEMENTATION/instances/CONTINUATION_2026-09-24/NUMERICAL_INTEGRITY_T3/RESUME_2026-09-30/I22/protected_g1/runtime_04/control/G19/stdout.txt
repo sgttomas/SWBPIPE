@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.71s
+

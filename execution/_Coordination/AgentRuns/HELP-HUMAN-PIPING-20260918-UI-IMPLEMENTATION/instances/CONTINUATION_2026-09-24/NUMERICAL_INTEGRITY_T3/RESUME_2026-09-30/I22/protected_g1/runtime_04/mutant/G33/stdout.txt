@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row ... FAILED
+
+failures:
+
+---- structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row stdout ----
+
+thread 'structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row' (25547384) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1757:5:
+assertion `left == right` failed
+  left: None
+ right: Some(StopRule { index: 0 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.01s
+

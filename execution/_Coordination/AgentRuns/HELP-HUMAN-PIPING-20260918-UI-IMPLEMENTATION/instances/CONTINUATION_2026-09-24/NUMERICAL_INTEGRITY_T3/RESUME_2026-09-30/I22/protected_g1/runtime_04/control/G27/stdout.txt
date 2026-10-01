@@ -1,0 +1,6 @@
+
+running 1 test
+test structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64 ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.00s
+

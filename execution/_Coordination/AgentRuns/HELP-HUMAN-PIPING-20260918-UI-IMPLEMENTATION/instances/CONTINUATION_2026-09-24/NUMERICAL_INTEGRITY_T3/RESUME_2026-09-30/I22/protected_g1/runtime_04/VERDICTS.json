@@ -1,0 +1,791 @@
+{
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "start_utc": "2026-10-01T13:21:47.151Z",
+  "fixed_end_utc": "2026-10-01T14:10:19.074Z",
+  "new_gate": "Manager verifies and explicitly releases EACH mutant Cargo group",
+  "prior_results": "G01 ROOT; G02-G04 prior qualified results with controls, independently reviewable; old wrong G05 not credited",
+  "groups": [
+    {
+      "id": "G05",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M17",
+          "assertion": "Successful solve_case_at charged total equals its stages.total; double-recording ctx breaks this identity before any publication.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Correct manager-verified G05_r1 compiled; kf3_tests.rs319 fails specifically N05 p128 solve_case_at unlimited-success stage/charged identity:40222 versus57116. This is the reviewed double-recorded own context before publication, unlike invalid prior G05."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G06",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M19",
+          "assertion": "meter.charged equals sum of recorded full work, including verification; needed succeeds and needed-1 stops at the correct budget.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; adaptive_tests347 specifically N05 invocation full-work equality fails1736672 versus recorded1768542, the missing31870 verification charge. This is the reviewed verification charge criterion, not an unrelated golden."
+        }
+      ],
+      "filter": "structural::retained::adaptive::tests::a_case_limit_is_exhausted_exactly_where_its_work_ends",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G07",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M25b",
+          "assertion": "classify(small,small) remains AbsoluteVerified when small is the binary64 just below 2^-988.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; classification_tests133 directly fails classify(small,small) AbsoluteVerified for just below2^-988. This is the required removed small-scale rule, not a later publication error."
+        }
+      ],
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G08",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M29",
+          "assertion": "classify(threshold(1),1) is RelativeVerified; only values strictly below threshold are absolute.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; classification_tests122 at exact threshold(1) returns AbsoluteVerified rather than required RelativeVerified. This is the reviewed strict-versus-inclusive boundary assertion."
+        }
+      ],
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G09",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M30i",
+          "assertion": "SKEW operands selected at 256 cancel to a combination selected at 128 with exact positive-zero rows.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; combine_tests302 selected precision is256 instead of required128 for the cancelling SKEW combination. This directly detects tying the combination start to operand precision."
+        }
+      ],
+      "filter": "structural::retained::combine::tests::a_combination_escalates_independently_of_its_operands",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G10",
+      "aliases": [
+        {
+          "id": "R7_K4::D1",
+          "assertion": "Retained assembled entries equal the independent Fraction emulation at p; entrywise binary64 rounding must change the expected value.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; assemble_tests107 M-AX p128 entry(0,0) loses retained tail: +8e500b30ba6e2p29 versus exact Fraction emulation +8e500b30ba6e21872ccep29. Direct assembled-entry assertion qualifies."
+        }
+      ],
+      "filter": "structural::retained::assemble::tests::assembled_entries_equal_the_fraction_emulation_bit_for_bit",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G11",
+      "aliases": [
+        {
+          "id": "R7_K4::D15",
+          "assertion": "Specifically CEIL5A3 combination must lose its required R7 verdict: 128 Pivot /256 verification-estimate /512 StopRule, or its explicitly pinned unwarranted acceptance. K4-M24 overwrites tied512; D15 also256. Generic certificate/unwrap/earlier unrelated tuple drift is NOT a kill.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests269 fails specifically CEIL5A3 required256 verification_estimate:37 and512 stop_rule:37 verdicts, replaced by publication_enclosure35/37.128 Pivot unchanged. Credit is exact loss of named combination R7 verdicts, not generic certificate or Ceiling."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::every_control_follows_gens_schedule_and_r7s_expectations_honestly",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G12",
+      "aliases": [
+        {
+          "id": "R7_K4::D16a",
+          "assertion": "The duplicate-operand assembled entry preserves the weak member that the demonstrated sequential p fold loses.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; assemble_tests636 p128 duplicate-operand entry becomes exact zero Z+ instead of the frozen positive weak-member contribution +bde9...0001p-281. Direct expected weak-term assertion qualifies."
+        }
+      ],
+      "filter": "structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G13",
+      "aliases": [
+        {
+          "id": "R7_K4::D17",
+          "assertion": "The shared relative_class predicate must classify a below-threshold and below-2^-988 row AbsoluteVerified; the patch reaches both pure and metered production classification.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; classification_tests123 directly fails the below-threshold AbsoluteVerified assertion under always-relative classification. This is the named shared relative_class fault."
+        }
+      ],
+      "filter": "structural::retained::adaptive::classification_tests::the_classifications_boundaries_hold_exactly",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G14",
+      "aliases": [
+        {
+          "id": "RV19::RV19-D4u",
+          "assertion": "Both original overflow verdict assertions pass. The first original underflow-straddle verdict (tiny candidate, above_tiny verifier) must be Some(StopRule index 1); the scoped fault makes it None. Only failure at this underflow assertion is a kill.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; first original underflow-straddle assertion at method_tests1664 fails None versus Some(StopRule{index:1}). Both earlier original overflow verdict assertions completed unchanged. This is the reviewed current assertion-preserving underflow diagnostic, not historical assertion-deleting bytes."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_a_row_the_candidate_cannot_publish_sets_no_s_star",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G15",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M1",
+          "assertion": "Refused Uc must be None, B must use S, not false zero. Specifically bounds[0].uc == None, while its refused Uc yields B=S>0.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests375 refused block uc is Some(Z+) instead of None. Exact unavailable-as-zero assertion qualifies this explicitly reconstructed original A2 fault."
+        },
+        {
+          "id": "RV23::RV23-M1b-refused-bound-formed-as-0",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical exact pre/post/filter result; bound_tests375 directly exposes refused-bound-as-zero corruption. This shared alias does not imply a second independent kill."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G16",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M2",
+          "assertion": "B uses the minimum available bound, not maximum. Specifically certified(Some(uc1),Some(s1)) == Some(uc1) when s1>uc1.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests468 reached both-available certified(Some(uc1),Some(s1)) assertion, returning larger s1 rather than expected smaller uc1. Earlier refused/unaffected-block checks passed. This is the reconstructed min/max fault."
+        },
+        {
+          "id": "RV23::RV23-M2-B-is-max",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical frozen source/filter; direct both-available B=min(Uc,S) assertion at468 fails with the larger bound. One shared result, not duplicate independent credit."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G17",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M3",
+          "assertion": "No available bound on data requires the named refusal stop. Specifically (B,uc_missing,stop) == (None,None,Some((0,r))) for the refused data block.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests512 data block without any bound loses the required recorded Span/Backward/row20 refusal stop: tuple(None,None,None) vs(None,None,Some((0,r))). Exact original-A2 reconstruction criterion."
+        },
+        {
+          "id": "RV23::RV23-M3b-no-bound-stop-dropped",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical source/filter directly loses the no-bound data-block refusal stop at512. Credit only the named stop-loss assertion, not unexecuted later precedence/no-data assertions."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G18",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4a",
+          "assertion": "Stopped shared build stage total must equal charged total. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; kf3_tests352 specifically stopped N05 p128 build_shared at room5497 has staged0 versus charged27348. This is the named partial shared-build closure omission; unlimited earlier check passed."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G19",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4b",
+          "assertion": "Stopped solve stage total must equal charged total. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; stopped N05p128 solve_case_at room1256 directly violates stages/charged equality104 versus10142 atkf3_tests352. Named partial-solve stage omission."
+        },
+        {
+          "id": "RV23::RV23-M5b-partial-stage-unrecorded-solve-case-at",
+          "assertion": "The exact named build records the partial work in its current stage and stages.total()==charged total; wrong-stage variant must fail that stage-specific check, not an unrelated total.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical binding/filter; stopped solve_case_at partial work not recorded, exact stage-total assertion104 vs10142. No duplicate independent experiment."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G20",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4c",
+          "assertion": "Stopped verify-shared Uc work remains staged. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; stopped verify-shared partial Uc work violates stages.total==charged total70511067 versus77980119 atkf3_tests519 after expected Budget stop. Named stage accounting omission."
+        },
+        {
+          "id": "RV23::RV23-M5-partial-stage-unrecorded-build-verify-shared",
+          "assertion": "The stopped build has stages.total()==total and 0<stages.uc<full.stages.uc.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same exact physical source/filter; stopped build stage-total equality at519 fails because partial Uc charge is unstaged. No separate independent kill asserted."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_inside_uc_stages_the_partial_uc_work",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G21",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M4d",
+          "assertion": "Stopped verify_state work remains staged. Compare stages.total()==charged total at the named build, with a nonzero partially charged stage.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; stopped N05p256 verify_state room995 stages0 versuscharged1040 atkf3_tests352. The specifically named partial verifier-stage closure fails."
+        },
+        {
+          "id": "RV23::I19-M4d-partial-stage-unrecorded-verify-state",
+          "assertion": "The exact named build records the partial work in its current stage and stages.total()==charged total; wrong-stage variant must fail that stage-specific check, not an unrelated total.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same exact frozen source/filter loses stopped verify_state partial work at352, not unrelated total or stage. Shared single result."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G22",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M5",
+          "assertion": "Other block remains bit-identical and unaffected by one block refusal. Specifically bounds[1] == ba[0] and its refusal remains None.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests394 unaffected block equality fails: bounds[1] becomes refused Span/Backward20 with zero fields, while standalone ba[0] has finite uc and no refusal. Exact block-isolation discriminator."
+        },
+        {
+          "id": "RV23::I19-M5-refusal-not-per-block",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical source/filter directly corrupts the unaffected block versus standalone at394. Credit applies to named cross-block refusal contamination, not earlier generic failure."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G23",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M6",
+          "assertion": "Budget stop propagates as budget, not a bound refusal. Specifically refusable(Err(Budget)) == Err(Budget) and the refusal slot stays None.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; direct refusable Budget(Invocation) check atbound_tests580 returns Ok(None) instead of propagating Err(Budget(Invocation)). Exact budget-vs-refusal discriminator."
+        },
+        {
+          "id": "RV23::I19-M6-budget-as-refusal",
+          "assertion": "refusable propagates Budget and leaves its refusal slot None.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical direct refusable assertion at580 shows swallowed invocation budget; shared semantic result, not downstream unwrap or generic failure."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G24",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M7",
+          "assertion": "No-data refused block must not stop the case. Specifically the no-data tuple is (None,None,None), despite recorded refusal.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests516 no-data tuple contains a Span/Backward20 stop instead of(None,None,None). Earlier data-block stop assertion passed. This directly catches erroneous no-data stop."
+        },
+        {
+          "id": "RV23::I19-M7-refused-block-without-data-stops",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same exact source/filter reaches the specifically required no-data tuple at516 and adds an impermissible refusal stop. Shared single result."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G25",
+      "aliases": [
+        {
+          "id": "A2_ORIGINAL::M8",
+          "assertion": "A2 finite alternatives/no-data cases retain their protected selection. uc_bounds must return Ok(bounds) after a block refusal, allowing finite S or no-data handling.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests370 is exactly the reviewed uc_bounds(...).unwrap fixed call, now Err(Span) rather than required Ok(bounds) after one block refusal. Qualifies only this explicitly reviewed return discriminator, not a generic unrelated unwrap."
+        },
+        {
+          "id": "RV23::I19-M8-pre-KF3-any-refusal-stops",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical source/filter returns Span at the required uc_bounds call line370, preventing A2 bound alternatives. Review explicitly accepts this exact call as the pre-KF3-stop discriminator; later assertions were not reached."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G26",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M1",
+          "assertion": "Rule (a) changes verdict at the exact V allowance boundary; 2^(8-P)*e_hat must participate.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1522 one-ulp-above exact rule(a) V allowance returns None instead of StopRule index0. Required 2^(8-P)e_hat participation is directly discriminated."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G27",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M2",
+          "assertion": "e_hat([1,8],2) == [4,8] and e_hat([5,8],2) == [5,10].",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; verify_tests45 e_hat([1,8],2) returns[1,8] instead of fixed[4,8]. Direct force/moment coupling scalar assertion qualifies."
+        }
+      ],
+      "filter": "structural::retained::verify::tests::e_hat_couples_force_and_moment_through_the_body_extent_in_binary64",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G28",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M6",
+          "assertion": "E uses the exact net ledger load after cancellation, not the sum of absolute authored terms; identify the per-row E mismatch.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; scale_tests185 specifically LEDGER-AT-RESTRAINT p128 E rows digest mismatches fixed independent emulation. The digest serializes per-row E at this earlier formation seam; this is the reviewed E-row value mismatch, not arbitrary records/work drift."
+        }
+      ],
+      "filter": "structural::retained::adaptive::scale_tests::e_unit_g_the_bounded_operator_and_e_equal_the_generators_emulation_at_every_precision",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G29",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M10",
+          "assertion": "g passes exactly at 2^(P-16), rejects above, and the selected member exponent must reflect geometry rather than zero.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1862 geometry-derived g exponent is0 instead of240 at the fixed boundary member. This is the reviewed g-formation assertion, before dependent gate tests."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_the_g_check_passes_at_2_to_the_p_minus_16_and_fails_above",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G30",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M11",
+          "assertion": "Above the exact estimate allowance, verdict is VerificationEstimate at the expected row, before later gates.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1538 exact above-estimate boundary returns None rather than VerificationEstimate index0, after rule(a) checks pass. Direct named estimate predicate omission."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G31",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M18",
+          "assertion": "q_w = min(3P/2+64,1024), and W/charge match independent emulation at that precision, not P+64.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1036 N01P256 charge header precision is320 instead of required448, directly identifying q_w=P+64 rather than3P/2+64. This is the reviewed precision assertion, not generic record drift."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::e_charge_and_e_estimate_equal_the_emulation_at_every_verification",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G32",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M20",
+          "assertion": "Theta above 1/2 rejects with Rejection::Theta at the designated block.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1553 above-half Theta returns None rather than Theta{block:0} after earlier rule boundaries pass. Exact reviewed theta predicate omission."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G33",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M22",
+          "assertion": "The translation-row W-plus enters the rule-(a) comparison at its exact boundary.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1757 translation-row Wplus boundary returns None instead of StopRule index0. Direct old rule(a) Wplus contribution discriminator."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G34",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M23",
+          "assertion": "A reported g violation rejects with the expected member id after earlier gates pass.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1570 returns later Charge index0 instead of required GValidity member7. Named member validity/order assertion directly detects the omitted g check."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_decides_each_test_exactly_at_its_boundary_in_r7s_order",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G35",
+      "aliases": [
+        {
+          "id": "R7_K4::R7-M16",
+          "assertion": "The bounded gate selects the best eligible state, not the last; observe GateTest state/index selection at the constructed boundary.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; method_tests1801 bounded-gate selected indexSome(4) instead of fixed bestSome(2). Direct best-versus-last eligible state assertion."
+        }
+      ],
+      "filter": "structural::retained::adaptive::method_tests::sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G36",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M6",
+          "assertion": "Accessor returns signed positive-minus-negative net with canonical zero, not positive magnitude alone.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; ledger_tests110 [100000,0.3,-100000] returns positive accumulator magnitude instead of exact cancelled net0.3 at exponent-54. Direct signed-net accessor assertion, not downstream result."
+        }
+      ],
+      "filter": "structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G37",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M10",
+          "assertion": "After pivots pass, the condition screen returns Condition at 128 and succeeds at 256.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; factor_tests152 after passing pivots at128 condition screen yields Ok(Z+) instead of Err(Condition). Direct required rcond escalation assertion."
+        }
+      ],
+      "filter": "structural::retained::factor::tests::a_constructed_ill_conditioned_matrix_whose_pivots_pass_escalates_on_rcond_at_128_only",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G38",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M14a",
+          "assertion": "Rule threshold derives from verification q_2p, not candidate q_p, at a straddling exact predicate boundary.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; adaptive_tests246 above_ulp candidate is wrongly admitted against verifierone. Exact candidate-versus-verifier scale boundary assertion fails, as reviewed."
+        }
+      ],
+      "filter": "structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G39",
+      "aliases": [
+        {
+          "id": "R7_K4::K4-M14b",
+          "assertion": "The exact disagreement tolerance is 2^-64, not 2^-53.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; adaptive_tests246 above2^-64 boundary is wrongly admitted when tolerance becomes2^-53. Exact reviewed disagreement-tolerance assertion."
+        }
+      ],
+      "filter": "structural::retained::adaptive::tests::the_predicate_is_decided_exactly_at_its_boundary",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G40",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M1-unavailable-as-0",
+          "assertion": "The refused block has uc=None, B=S; unaffected block equals standalone, and where both bounds exist B=min(Uc,S). Require the assertion corresponding to this entry's named corruption.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests450 certificates B for refused Uc becomes Some(Z+) instead of finite formed S. Earlier uc=None and unaffected block assertions passed; distinct certificate unavailable-as-zero criterion qualifies."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_refused_uc_is_unavailable_for_its_block_and_b_is_s",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G41",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M3a-no-bound-stop-becomes-uc",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests512 changes required data-block refusal stop to uc_missingSome0: tuple(None,Some0,None) instead of(None,None,Some SpanBackward20). Direct named refusal-versus-uc criterion."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G42",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M4a-precedence-swapped-in-certificates",
+          "assertion": "With data and no bound, the recorded refusal stops; without data no stop; refusal outranks another block's missing-Uc marker.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests539 with block0 uc_missing loses block1 SpanBackward20 refusal: (Some0,None) instead of(Some0,Some(1,r)). Earlier single-block data/no-data checks passed; exact cross-block precedence criterion."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G43",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M4b-precedence-swapped-in-verify-state",
+          "assertion": "verify_state returns the recorded Span/Exponent refusal despite a different block missing Uc.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; kf3_tests643 verify_state error is None instead of Some(Span) with another block missingUc. Exact refusal-precedence assertion qualifies."
+        },
+        {
+          "id": "RV23_1::RV23-M4b-precedence-swapped-in-verify-state",
+          "assertion": "verify_state returns the recorded Span/Exponent refusal despite a different block missing Uc.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Byte-identical fullsource/filter registration shares the same direct verify_state Span precedence failure at643; no independent duplicate kill."
+        },
+        {
+          "id": "RV23C::RV23-M4b-precedence-swapped-in-verify-state",
+          "assertion": "verify_state returns the recorded Span/Exponent refusal despite a different block missing Uc.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Same physical exact-source/filter outcome loses required Span at643; shared criterion result, not cached non-budget probe coverage."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_in_verify_state_a_refusal_stop_outranks_uc",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G44",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M6-refusal-evidence-not-recorded",
+          "assertion": "The proposed filter initially completes KF3-UC-SPAN and asserts verification p256 has exactly one refusal at kf3_tests.rs547. That completed-run assertion discriminates this patch; the later stopped-build loop is not the mutated site and is not cached non-budget coverage.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; specifically initial completed-run assertion kf3_tests547 finds p256 refusalcount0 instead of1. This is the reviewed completed record site; later stopped-build loop was not reached and no cached non-budget qualification is claimed."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G45",
+      "aliases": [
+        {
+          "id": "RV23::RV23-M6b-refusal-not-marked-on-its-block",
+          "assertion": "Require direct refusable(Err(Exponent)) recording assertion: slot must contain the expected Exponent/Pivot/row4 refusal. Do not credit an arbitrary downstream panic.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; direct refusable slot assertion bound_tests601 is None instead of Exponent/Pivot/row4. This is the exact reviewed recording criterion; no downstream panic used."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G46",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M1-uc-refusals-dropped-in-verify-precision",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; stopped-path evidence comparison kf3_tests569 delta1 is empty instead of block0/Uc/Span/Backward/row66. Initial completed-run refusal assertion passed. Exact stopped verify_precision propagation failure; no cached non-budget claim."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G47",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M2-uc-refusals-dropped-in-build-verify-shared",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; kf3_tests569 stopped delta1 loses block0/Uc/SpanBackwardrow66 when shared build returns no refusal list. Initial completed count passes. Direct named stopped-build evidence failure; no cached non-budget claim."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G48",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M3-s-refusals-dropped-in-shift-schedule",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; exact stopped-shift evidence sweep atbound_tests763 records0 in-flight and0 completed-results stops retaining both required S refusals, violating required positive retention counts. The inspected sweep increments only after exact block/pass/row evidence survives; this is named refusal-retention criterion, not generic work drift."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G49",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M3a-kept-results-refusals-dropped",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; exact S-refusal retention level regresses from1 to0 at room36651/bound_tests756 when completed-results propagation is removed. Level1 requires exact want[0] refusal, so this directly detects lost previously kept evidence."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G50",
+      "aliases": [
+        {
+          "id": "RV23_1::RV23-1-M3b-in-flight-refusals-dropped",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; bound_tests763 exactretention sweep sees0 in-flight stops but4011 completed-results stops retaining both records. This specifically isolates lost in-flight S-refusal evidence; kept-results path remains present."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G51",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M2-verify-precision-ignores-a-stopped-builds-refusals",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Compiled; stopped delta1 evidence atkf3_tests569 empty instead of block0/Uc/SpanBackwardrow66; completed-run count passed. Exact reviewed stopped propagation assertion, not optional cached non-budget path."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G52",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M3-schedule-stop-drops-kept-results",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Qualified at bound_tests.rs:756: room 36651 reports retention level 0 after prior level 1. This exact kept-results-only omission loses already completed S-refusal evidence when the schedule stops. No compile, unrelated or cached-path credit."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G53",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M4-schedule-stop-drops-in-flight",
+          "assertion": "Stopped shift schedule retains both previously completed and in-flight S-refusal evidence with original block/pass/row.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Qualified at bound_tests.rs:763: zero in-flight retention observations versus 4011 kept-result observations. Exact in-flight-only omission loses S-refusal evidence at stopped schedules; the earlier outcome/row/pass classification and monotonic checks were reached without other failure. No cached-path credit."
+        }
+      ],
+      "filter": "structural::retained::bound::tests::kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    },
+    {
+      "id": "G54",
+      "aliases": [
+        {
+          "id": "RV23C::RV23C-M5-stopped-shared-build-returns-no-refusals",
+          "assertion": "A budget stop after Uc refusal retains exact block/kind/pass/row in attempt evidence, without crediting the separately qualified cached non-budget path.",
+          "status": "QUALIFIED_SHARED_RESULT",
+          "review": "Qualified at kf3_tests.rs:569: budget delta 1 produced an empty refusal vector instead of exact block 0, Uc, Span, Backward, row 66. The completed-run refusal count had passed; the stopped-build evidence assertion detects the intended Vec::new omission. No cached non-budget path credit."
+        }
+      ],
+      "filter": "structural::retained::adaptive::kf3_tests::kf3_a_budget_stop_after_the_uc_refusal_keeps_it_in_the_evidence",
+      "status": "KILLED",
+      "returned_baseline_control": "PASS"
+    }
+  ],
+  "owned_job_running": false,
+  "followon_authorization": {
+    "commit": "d3af6b127da2a10bbdedee9c9d9eef54e0f43cb3",
+    "sha256": "0550a4b49ce5099ec0e596ac38eaf82c35464cfddba4ff49a56e6552401478e0",
+    "start_utc": "2026-10-01T14:10:19Z",
+    "end_utc": "2026-10-01T14:40:19Z",
+    "scope": "Remaining original G1 groups only, no repeats/new scope/further extension"
+  },
+  "final_status": "COMPLETE",
+  "completed_utc": "2026-10-01T14:39:52.204Z"
+}

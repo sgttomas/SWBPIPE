@@ -1,0 +1,31 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)
+warning: unused import: `block_refusals`
+  --> src/structural/retained/adaptive.rs:33:20
+   |
+33 | use super::bound::{block_refusals, free_blocks, BlockRatios, BlockRefusa...
+   |                    ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_frame_kernel` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_frame_kernel --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.31s
+     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)
+error: test failed, to rerun pass `--lib`
+       23.47 real        28.04 user         0.48 sys
+          1286782976  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              161168  page reclaims
+                4910  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   2  signals received
+                  67  voluntary context switches
+                4802  involuntary context switches
+           222651030  instructions retired
+            85196703  cycles elapsed
+             6324704  peak memory footprint

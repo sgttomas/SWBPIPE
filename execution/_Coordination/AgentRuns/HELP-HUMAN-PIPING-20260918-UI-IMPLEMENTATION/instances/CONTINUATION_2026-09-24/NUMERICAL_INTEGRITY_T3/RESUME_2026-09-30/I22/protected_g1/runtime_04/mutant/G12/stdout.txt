@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member ... FAILED
+
+failures:
+
+---- structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member stdout ----
+
+thread 'structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member' (25452394) panicked at src/structural/retained/../../../tests/retained_k4/assemble_tests.rs:636:9:
+assertion `left == right` failed: p 128
+  left: "Z+"
+ right: "+bde9b7948fea80260900000000000001p-281"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::assemble::tests::the_duplicate_operand_entry_is_one_exact_sum_where_a_sequential_fold_loses_the_weak_member
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.02s
+

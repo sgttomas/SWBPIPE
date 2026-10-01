@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without ... FAILED
+
+failures:
+
+---- structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without stdout ----
+
+thread 'structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without' (25472813) panicked at src/structural/retained/../../../tests/retained_k4/bound_tests.rs:512:5:
+assertion `left == right` failed
+  left: (None, None, None)
+ right: (None, None, Some((0, BoundRefusal { kind: Span, pass: Backward, row: 20 })))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::bound::tests::kf3_neither_bound_stops_a_block_with_data_and_not_one_without
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.03s
+

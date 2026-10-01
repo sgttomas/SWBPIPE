@@ -1,0 +1,50 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row ... FAILED\n\nfailures:\n\n---- structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row stdout ----\n\nthread 'structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row' (25547384) panicked at src/structural/retained/../../../tests/retained_k4/method_tests.rs:1757:5:\nassertion `left == right` failed\n  left: None\n right: Some(StopRule { index: 0 })\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::adaptive::method_tests::sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.01s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.69s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n        8.53 real        13.14 user         0.34 sys\n          1318305792  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              163217  page reclaims\n                 100  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                  46  voluntary context switches\n                1377  involuntary context switches\n           206889924  instructions retired\n            75406960  cycles elapsed\n             6275552  peak memory footprint\n",
+  "stdout_sha256": "74bb8f6ca185d787569a081ddbd3ead02c708facbb02728abef74afbf4287a1d",
+  "stderr_raw_sha256": "35ea8652f8746f460bee6a3d382ef850d3f29df6650addaf0d8916bdd4eb54a6",
+  "source_bindings": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs": "05399400dbf913832a6a8065090936926df880915102d33639bf1fd4a0c79f55"
+  },
+  "test": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+    "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+    "line": 1705,
+    "function": "sd_g5_charge_boundaries_at_p_256_and_p_512_and_the_translation_row"
+  },
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "565a493080f28a12111b8383395af09bc6001b96b256a908d0a2ba8682b150bd"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-12:25:46 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}

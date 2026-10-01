@@ -1,0 +1,20 @@
+
+running 1 test
+test structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero ... FAILED
+
+failures:
+
+---- structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero stdout ----
+
+thread 'structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero' (25584031) panicked at src/structural/retained/../../../tests/retained_k4/ledger_tests.rs:110:9:
+assertion `left == right` failed: [100000.0, 0.3, -100000.0]
+  left: (false, [12111080117924737843, 97], -54)
+ right: (false, [5404319552844595], -54)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    structural::retained::ledger::tests::the_accessor_nets_once_with_the_quantum_and_a_zero_is_plus_zero
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.02s
+

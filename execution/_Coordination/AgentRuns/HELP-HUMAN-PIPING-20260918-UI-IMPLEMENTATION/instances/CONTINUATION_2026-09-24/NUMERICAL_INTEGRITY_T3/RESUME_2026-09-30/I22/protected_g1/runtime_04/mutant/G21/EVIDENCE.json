@@ -1,0 +1,50 @@
+{
+  "stdout": "\nrunning 1 test\ntest structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path ... FAILED\n\nfailures:\n\n---- structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path stdout ----\n\nthread 'structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path' (25490883) panicked at src/structural/retained/../../../tests/retained_k4/kf3_tests.rs:352:9:\nassertion `left == right` failed: N05 256 verify_state: room 995 (false)\n  left: 0\n right: 1040\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    structural::retained::adaptive::kf3_tests::kf3_every_build_stages_its_charged_work_on_every_path\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 390 filtered out; finished in 0.19s\n\n",
+  "stderr": "   Compiling open_pipe_stress_frame_kernel v0.1.0 (<SOURCE_ROOT>/projects/chirality-piping/core/solver/frame_kernel)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.36s\n     Running unittests src/lib.rs (<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904)\nerror: test failed, to rerun pass `--lib`\n       10.39 real        13.67 user         0.60 sys\n          1256931328  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              154297  page reclaims\n                9607  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   2  signals received\n                 516  voluntary context switches\n                5884  involuntary context switches\n           279022089  instructions retired\n           116240097  cycles elapsed\n             6406624  peak memory footprint\n",
+  "stdout_sha256": "bbe570f94d29de4f1c8b30b6db2396bafd6385844f16fd5d1fecad02ab4e9d53",
+  "stderr_raw_sha256": "805c01219451e4b56da4e15cfb95fc1c6794a7639f908ace0a38356d2c63c228",
+  "source_bindings": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs": "64e83486001f853f1f0a0b2d7d4d947476f39e18c4f14994e675506ba2371417"
+  },
+  "test": {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+    "sha256": "1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f",
+    "line": 423,
+    "function": "kf3_every_build_stages_its_charged_work_on_every_path"
+  },
+  "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "binary": {
+    "path": "<RUN_TARGET>/debug/deps/open_pipe_stress_frame_kernel-716dc63302c0c904",
+    "sha256": "68fa7e5fc159c3738156df25c878d69788387966728b03f78e163cf02b94721c"
+  },
+  "features": [
+    {
+      "path": "<RUN_TARGET>/debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/test-lib-open_pipe_stress_frame_kernel.json",
+      "sha256": "2f00e219d0a8134327c671b3863efaf7b936e1128ab0379be0997a0ee199e4a8",
+      "metadata": {
+        "rustc": 11722972603611519644,
+        "features": "[]",
+        "declared_features": "[\"mutation-controls\"]",
+        "target": 10814701284944778693,
+        "profile": 8945848500906766827,
+        "path": 10763286916239946207,
+        "deps": [],
+        "local": [
+          {
+            "CheckDepInfo": {
+              "dep_info": "debug/.fingerprint/open_pipe_stress_frame_kernel-716dc63302c0c904/dep-test-lib-open_pipe_stress_frame_kernel",
+              "checksum": false
+            }
+          }
+        ],
+        "rustflags": [],
+        "config": 9396254390672932401,
+        "compile_kind": 0
+      }
+    }
+  ],
+  "guard_after": {
+    "exit": 0,
+    "stdout": " 5387     1 03-12:07:57 /bin/bash <HOME>/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/guard/memguard.sh\n"
+  }
+}
