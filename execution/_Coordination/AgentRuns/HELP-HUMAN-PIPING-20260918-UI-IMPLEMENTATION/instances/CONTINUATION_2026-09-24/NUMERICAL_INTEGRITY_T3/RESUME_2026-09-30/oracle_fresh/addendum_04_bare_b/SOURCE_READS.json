@@ -1,0 +1,46 @@
+{
+  "origins": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/A1_CHECKPOINT_B.md",
+      "revision": "bb6f9b75ea859560a45f2ff049a02e19098c1c2f",
+      "sha256": "645f86c3f96723667cc131340350f5dbed0233a04b4c0014d127ce8c2fa0c002"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I22_IMPLEMENTATION_A.md",
+      "revision": "bb6f9b75ea859560a45f2ff049a02e19098c1c2f",
+      "sha256": "4edcfc56d22a839cf9e4fdaba4c5474c35fa3becc12a1fc9e359255a1a94e597"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/DESIGN_PROPOSAL.md",
+      "revision": "accepted hash-bound existing file",
+      "sha256": "926dea73178b0ecde07203fdf7fc85e5ce752b1a5f6ead7cf31a30673249b178"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/design_a1/addendum_01/CORRECTION.md",
+      "revision": "accepted hash-bound existing file",
+      "sha256": "30c907589e80a60407acc139a5805d9941b5df1a5b9dd5a2f1dc845159bae80a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/TRUTH.json",
+      "revision": "accepted hash-bound existing file",
+      "sha256": "1772d703e032a71587b922a2f6d825718f777c9dae78d1041fbd874210ee87ea"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/exact_oracle.py",
+      "revision": "accepted hash-bound existing file",
+      "sha256": "fa8ea6f303148d9babb5d9fe6c53f64377b13cb130d03d076d4cec7d3f4c15e0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_03_source_controls/TRUTH.json",
+      "revision": "accepted hash-bound existing file",
+      "sha256": "aac399bfb68bbb8b1cbcce08cc2901229535e88860dc5cc812cf08c9fe3ba0ee"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_03_source_controls/source_controls.py",
+      "revision": "accepted hash-bound existing file",
+      "sha256": "e5b416885b0cedd2f8fed814e0f1561c92c0a313bc5afdbc054c212575755c6e"
+    }
+  ],
+  "new_implementation_or_repaired_outputs_read": false,
+  "registry_note": "B01-B16 and C17 identities reconstructed from independently frozen primitive definitions; extra identities copied from their independently frozen encoding. No truth was recalculated or changed."
+}

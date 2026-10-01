@@ -112,6 +112,9 @@ pub(super) fn tokens(attempts: &[AttemptRecord], layout: &[QuantityMeta]) -> Vec
                         AttemptReason::Charge { quantity, .. } => {
                             format!("charge:{}", index(quantity))
                         }
+                        AttemptReason::PublicationEnclosure { quantity, predicate, .. } => {
+                            format!("publication_enclosure:{}:{predicate:?}", index(quantity))
+                        }
                         AttemptReason::Stop(s) => panic!("{s:?}"),
                     }
                 ),

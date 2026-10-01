@@ -1,0 +1,88 @@
+{
+  "scope": "source identities only; no solver or new truth",
+  "input_handoff_sha256": "fdc86cca269c660e88a9a977990bf52bf3beadd08b67dc8fe8ab30358fdcd091",
+  "decoder_origin": "addendum_03_source_controls/verify_packet.py",
+  "decoder_sha256": "b3ca42858002289c51c8723351bb7637a4d9c142f6392cbbab27d8dd8fa4d064",
+  "checks": [
+    {
+      "case": "B01",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B02",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B03",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B04",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B05",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B06",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B07",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B08",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B09",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B10",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B11",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B12",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B13",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B14",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B15",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "B16",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "C17",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "EXTRA-FM-01",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "EXTRA-MF-01",
+      "decoded_source_matches_previously_frozen_input": true
+    },
+    {
+      "case": "EXTRA-ZR-01",
+      "decoded_source_matches_previously_frozen_input": true
+    }
+  ]
+}

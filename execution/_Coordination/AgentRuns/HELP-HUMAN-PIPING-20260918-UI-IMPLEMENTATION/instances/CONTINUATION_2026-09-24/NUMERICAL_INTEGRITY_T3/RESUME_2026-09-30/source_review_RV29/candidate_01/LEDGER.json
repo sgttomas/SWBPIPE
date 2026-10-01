@@ -1,0 +1,929 @@
+{
+  "status": "FROZEN BEFORE NEW COUNTER OBSERVATION",
+  "candidate": "3cf296e36645d97e4c657c8ad1a6322bc4163f16",
+  "adaptive_sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+  "H_success": [
+    {
+      "call": "H.add_binary64(1)",
+      "exact_operand_range": "single bit exponent 0; trimmed limb count 1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 2
+    },
+    {
+      "call": "H.add_wide(0,true)",
+      "exact_operand_range": "zero; early return",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 0,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 2
+    },
+    {
+      "call": "H.make_absolute -> signum",
+      "exact_operand_range": "positive prefix [0,2); value 1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 2,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 4
+    },
+    {
+      "call": "H.add_wide(h,false)",
+      "exact_operand_range": "single bit -1074; anchor 0 -> -1074; new_used=2+16+1=19",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 38,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 40,
+      "checkpoint": true,
+      "candidate_line": 2978,
+      "cumulative_candidate_local_lme": 44,
+      "one_below_room": 43
+    },
+    {
+      "call": "predicate: difference.add_binary64(b=2)",
+      "exact_operand_range": "single bit exponent1; trimmed1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": null,
+      "new_lme": 2,
+      "cumulative_candidate_local_lme": 46
+    },
+    {
+      "call": "predicate: difference.add_scaled(H,true,1,0)",
+      "exact_operand_range": "H used19 both signs; trimmed17; anchor1 -> -1074, shift1075",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 56,
+        "shift_limbs": 38,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": null,
+      "new_lme": 94,
+      "cumulative_candidate_local_lme": 140
+    },
+    {
+      "call": "predicate: difference.signum; collect/check",
+      "exact_operand_range": "2-(1+h)>0; padded used19",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 19,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": true,
+      "candidate_line": 3020,
+      "new_lme": 19,
+      "cumulative_candidate_local_lme": 159,
+      "one_below_room": 158
+    },
+    {
+      "call": "n=num.clone; n.is_zero",
+      "exact_operand_range": "inherits H counters (4,38,2,0); signum reads used=19",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 19,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 19,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 178,
+      "one_below_room": 177
+    },
+    {
+      "call": "n.round: net + magnitude + ctx.from_integer",
+      "exact_operand_range": "exact 1+h; actual occupied indices [0,17); padded used=19; RN1024=1",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 38,
+        "rounded_limbs": 19
+      },
+      "context_lme": 32,
+      "context_operation": "Round@L16",
+      "max_span_evidence": 1075,
+      "new_lme": 89,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 267,
+      "one_below_room": 266
+    },
+    {
+      "call": "den.add_binary64(1)",
+      "exact_operand_range": "single bit 0; trimmed limb count 1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 269,
+      "one_below_room": 268
+    },
+    {
+      "call": "d=den.clone; d.round",
+      "exact_operand_range": "inherits den counters (2,0,0,0); single bit but padded used=2; RN1024=1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 4,
+        "rounded_limbs": 2
+      },
+      "context_lme": 32,
+      "context_operation": "Round@L16",
+      "max_span_evidence": 1,
+      "new_lme": 38,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 307,
+      "one_below_room": 306
+    },
+    {
+      "call": "ctx.div(nv,dv)",
+      "exact_operand_range": "1/1=1; binary64 conversion is unpriced",
+      "used_after": null,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 17442,
+      "context_operation": "Div@L16",
+      "max_span_evidence": null,
+      "new_lme": 17442,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 17749,
+      "one_below_room": 17748
+    },
+    {
+      "call": "reaches(1): t.add_scaled(den,2^52,-52)",
+      "exact_operand_range": "both source prefixes used=2; 4 multiply limbs + 2 raw-add limbs; anchor 0",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 6,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 6,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17755
+    },
+    {
+      "call": "reaches(1): t.add_scaled(H,true,1,0)",
+      "exact_operand_range": "both source prefixes used=19; 38 multiply limbs + 18 raw-add limbs; span1075; anchor shift1074",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 56,
+        "shift_limbs": 38,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 94,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17849
+    },
+    {
+      "call": "reaches(1): t.signum",
+      "exact_operand_range": "1-(1+h)=-h; used19",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 19,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 19,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 17868,
+      "one_below_room": 17867
+    },
+    {
+      "call": "reaches(up): t.add_scaled(den,2^52+1,-52)",
+      "exact_operand_range": "53 significant bits [-52,0]; 4 multiply + 2 raw-add; anchor -52",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 6,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 53,
+      "new_lme": 6,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17874
+    },
+    {
+      "call": "reaches(up): t.add_scaled(H,true,1,0)",
+      "exact_operand_range": "1075 significant bits [-1074,0]; anchor shift1022 gives used=2+15+1=18",
+      "used_after": 18,
+      "delta": {
+        "term_limbs": 56,
+        "shift_limbs": 36,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 92,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17966
+    },
+    {
+      "call": "reaches(up): t.signum",
+      "exact_operand_range": "2^-52-h > 0; used18",
+      "used_after": 18,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 18,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 18,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 17984,
+      "one_below_room": 17983
+    },
+    {
+      "call": "reaches(next_down(up)=1): t.add_scaled(den,2^52,-52)",
+      "exact_operand_range": "same as first reaches(1), freshly zeroed scratch",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 6,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 6,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17990
+    },
+    {
+      "call": "reaches(next_down(up)=1): t.add_scaled(H,true,1,0)",
+      "exact_operand_range": "same as first reaches(1)",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 56,
+        "shift_limbs": 38,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 94,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 18084
+    },
+    {
+      "call": "reaches(next_down(up)=1): t.signum",
+      "exact_operand_range": "-h < 0; Up correction exits with 1+2^-52",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 19,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 19,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 18103,
+      "one_below_room": 18102
+    },
+    {
+      "call": "round_up final checked(Ok(c))",
+      "exact_operand_range": "no additional work; prior reaches already checked identical total",
+      "used_after": null,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": true,
+      "candidate_line": 2889,
+      "new_lme": 0,
+      "cumulative_candidate_local_lme": 18103,
+      "one_below_room": 18102
+    },
+    {
+      "call": "certify_rows final checked(Accepted)",
+      "exact_operand_range": "no additional LME for finite/class/radius/Box writes",
+      "used_after": null,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": true,
+      "candidate_line": 3296,
+      "new_lme": 0,
+      "cumulative_candidate_local_lme": 18103,
+      "one_below_room": 18102
+    }
+  ],
+  "H_numeric_rejected_b1": [
+    {
+      "call": "H.add_binary64(1)",
+      "exact_operand_range": "single bit exponent 0; trimmed limb count 1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 2
+    },
+    {
+      "call": "H.add_wide(0,true)",
+      "exact_operand_range": "zero; early return",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 0,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 2
+    },
+    {
+      "call": "H.make_absolute -> signum",
+      "exact_operand_range": "positive prefix [0,2); value 1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 2,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 4
+    },
+    {
+      "call": "H.add_wide(h,false)",
+      "exact_operand_range": "single bit -1074; anchor 0 -> -1074; new_used=2+16+1=19",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 38,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1075,
+      "new_lme": 40,
+      "checkpoint": true,
+      "candidate_line": 2978,
+      "cumulative_candidate_local_lme": 44,
+      "one_below_room": 43
+    },
+    {
+      "call": "predicate: difference.add_binary64(b=1)",
+      "exact_operand_range": "single bit exponent0; trimmed1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": null,
+      "new_lme": 2,
+      "cumulative_candidate_local_lme": 46
+    },
+    {
+      "call": "predicate: difference.add_scaled(H,true,1,0)",
+      "exact_operand_range": "H used19; anchor0 -> -1074 shift1074; same padded used19",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 56,
+        "shift_limbs": 38,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": null,
+      "new_lme": 94,
+      "cumulative_candidate_local_lme": 140
+    },
+    {
+      "call": "predicate: difference.signum; collect/check",
+      "exact_operand_range": "1-(1+h)=-h<0; numeric rejection after collect/check",
+      "used_after": 19,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 19,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": true,
+      "candidate_line": 3020,
+      "new_lme": 19,
+      "cumulative_candidate_local_lme": 159,
+      "one_below_room": 158
+    }
+  ],
+  "small_A1_bound_once": [
+    {
+      "call": "num.add_binary64(b=h)",
+      "exact_operand_range": "single bit -1074; padded used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 2
+    },
+    {
+      "call": "num.add_binary64(rounding=h)",
+      "exact_operand_range": "same single-bit add; accumulated value2h; recorded highest TERM stays -1074",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 4
+    },
+    {
+      "call": "num.add_binary64(h)",
+      "exact_operand_range": "same single-bit add; value3h (2 significant bits), used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 6,
+      "one_below_room": 5
+    },
+    {
+      "call": "n=num.clone; n.is_zero",
+      "exact_operand_range": "inherits num counters (6,0,0,0); value3h; used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 2,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 8,
+      "one_below_room": 7
+    },
+    {
+      "call": "n.round: net + magnitude + ctx.from_integer",
+      "exact_operand_range": "exact3h, occupied one limb; used2; RN1024 exact",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 4,
+        "rounded_limbs": 2
+      },
+      "context_lme": 32,
+      "context_operation": "Round@L16",
+      "max_span_evidence": 1,
+      "new_lme": 38,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 46,
+      "one_below_room": 45
+    },
+    {
+      "call": "den.add_binary64(1)",
+      "exact_operand_range": "single bit0; padded used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 2,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 48,
+      "one_below_room": 47
+    },
+    {
+      "call": "d=den.clone; d.round",
+      "exact_operand_range": "inherits den counters (2,0,0,0); used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 4,
+        "rounded_limbs": 2
+      },
+      "context_lme": 32,
+      "context_operation": "Round@L16",
+      "max_span_evidence": 1,
+      "new_lme": 38,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 86,
+      "one_below_room": 85
+    },
+    {
+      "call": "ctx.div(nv,dv)",
+      "exact_operand_range": "3h/1=3h; binary64 conversion exact, unpriced",
+      "used_after": null,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 17442,
+      "context_operation": "Div@L16",
+      "max_span_evidence": null,
+      "new_lme": 17442,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 17528,
+      "one_below_room": 17527
+    },
+    {
+      "call": "reaches(3h): t.add_scaled(den,3,-1074)",
+      "exact_operand_range": "both used2 prefixes; value3h; 2 significant bits; anchor -1074",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 6,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 2,
+      "new_lme": 6,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17534
+    },
+    {
+      "call": "reaches(3h): t.add_scaled(num,true,1,0)",
+      "exact_operand_range": "both used2 prefixes; 4 multiply + 2 raw-add; no anchor shift",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 6,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 2,
+      "new_lme": 6,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17540
+    },
+    {
+      "call": "reaches(3h): t.signum",
+      "exact_operand_range": "exact zero from two nonempty magnitudes; used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 2,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 2,
+      "new_lme": 2,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 17542,
+      "one_below_room": 17541
+    },
+    {
+      "call": "reaches(2h): t.add_scaled(den,2,-1074)",
+      "exact_operand_range": "trim low zero; anchor -1073; significant one bit",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 6,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 1,
+      "new_lme": 6,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17548
+    },
+    {
+      "call": "reaches(2h): t.add_scaled(num,true,1,0)",
+      "exact_operand_range": "3h lowers anchor by1; new_used=2+0+1=3; 2*3 shifts",
+      "used_after": 3,
+      "delta": {
+        "term_limbs": 6,
+        "shift_limbs": 6,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 2,
+      "new_lme": 12,
+      "checkpoint": false,
+      "cumulative_candidate_local_lme": 17560
+    },
+    {
+      "call": "reaches(2h): t.signum",
+      "exact_operand_range": "-h < 0; used3; exits with3h",
+      "used_after": 3,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 3,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "context_operation": null,
+      "max_span_evidence": 2,
+      "new_lme": 3,
+      "checkpoint": true,
+      "cumulative_candidate_local_lme": 17563,
+      "one_below_room": 17562
+    },
+    {
+      "call": "round_up final checked",
+      "exact_operand_range": "same total as preceding reaches check",
+      "used_after": null,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": true,
+      "candidate_line": 2889,
+      "new_lme": 0,
+      "cumulative_candidate_local_lme": 17563,
+      "one_below_room": 17562
+    }
+  ],
+  "terminal_Span_publication_h": [
+    {
+      "call": "publication_h: add_binary64(1)",
+      "exact_operand_range": "single bit0",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": null,
+      "new_lme": 2,
+      "cumulative_candidate_local_lme": 2
+    },
+    {
+      "call": "add_wide(v=0,true)",
+      "exact_operand_range": "zero",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": null,
+      "new_lme": 0,
+      "cumulative_candidate_local_lme": 2
+    },
+    {
+      "call": "make_absolute: signum",
+      "exact_operand_range": "used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 2,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": null,
+      "new_lme": 2,
+      "cumulative_candidate_local_lme": 4
+    },
+    {
+      "call": "add_wide(W_plus=2^-8128) -> Span; collect Err",
+      "exact_operand_range": "proposed span8129; refusal before raw charge; old prefix retained",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": false,
+      "candidate_line": 2978,
+      "new_lme": 0,
+      "cumulative_candidate_local_lme": 4
+    }
+  ],
+  "terminal_Exponent_round_up": [
+    {
+      "call": "form num.add_integer(1,2^62+1); collect",
+      "exact_operand_range": "within i64 anchor; outside Wide exponent range; span1",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 2,
+        "shift_limbs": 0,
+        "net_limbs": 0,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": true,
+      "candidate_line": null,
+      "new_lme": 2,
+      "cumulative_candidate_local_lme": 2,
+      "one_below_room": 1
+    },
+    {
+      "call": "round_up n.signum; clone_delta",
+      "exact_operand_range": "inherited construction2 excluded; sign used2",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 2,
+        "rounded_limbs": 0
+      },
+      "context_lme": 0,
+      "checkpoint": true,
+      "candidate_line": 2850,
+      "new_lme": 2,
+      "cumulative_candidate_local_lme": 4,
+      "one_below_room": 3
+    },
+    {
+      "call": "n.round -> Exponent; clone_delta Err",
+      "exact_operand_range": "net4 + rounded2 + contextRound32 before checked_exponent refusal",
+      "used_after": 2,
+      "delta": {
+        "term_limbs": 0,
+        "shift_limbs": 0,
+        "net_limbs": 4,
+        "rounded_limbs": 2
+      },
+      "context_lme": 32,
+      "checkpoint": false,
+      "candidate_line": 2865,
+      "new_lme": 38,
+      "cumulative_candidate_local_lme": 42
+    }
+  ],
+  "totals": {
+    "H_success": 18103,
+    "H_reject": 159,
+    "small_A1_bound_once": 17563,
+    "span_h": 4,
+    "exponent_round_up_with_collected_formation": 42
+  },
+  "expected_mutant_arithmetic": {
+    "PM16_a_remove_all_clone_delta_and_reaches_sumwork": {
+      "H_success": 17667,
+      "small_A1_bound": 17514
+    },
+    "PM16_b_replace_each_clone_delta_by_full_sumwork": {
+      "H_success": 18212,
+      "small_A1_bound": 17579
+    },
+    "status": "conditional exact patch definitions; unexecuted"
+  },
+  "limits": "These are one-row algebra/helper paths. Any prior stage/other rows are an external independently known base B. Small-A1 inputs alone do not specify row H, so its row certificate total is not invented. Actual full-case costs remain unobserved."
+}
