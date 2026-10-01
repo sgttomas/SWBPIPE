@@ -3527,3 +3527,35 @@ under review. Complete caller composition, checked implementation, final A1,
 admission replay and measurements remain open; W1/F2a are not released.
 These K6c packets are preserved at branch commit
 8d80dbdb326514e167ccf16b8e173bd91c7441f4 under RESUME_2026-09-30.
+
+
+## A1 named-witness continuity and K6c finite callers (ROOT, 2026-10-01)
+
+ROOT read RV29 g3_prefix_tail_17 and the later preemption_18/r33_source_19
+reviews. G3's prefix and corrected tail diagnostics are independently closed
+as recorded in g3_prefix_tail_17; original earlier-case failures retain no
+named-witness credit. Runtime04's R33 failure occurs on N01 before its named
+N05/N06 witness, and remains uncredited. ROOT's runtime05 disposition permits
+its unchanged original control and the remaining original schedule while an
+additive N05/p128 diagnostic preserves the same helper and fixed oracle.
+The exact conditional runtime grant is BRIEFS/A1_R33_NAMED_RUNTIME.md.
+R51's source-only contingency is not an observed failure and stays unrun if
+its original test qualifies. No numerical criterion or source expectation is
+weakened; A1 remains open and F2a held until complete verification and merge.
+
+ROOT read I21 source14 and RV30 finite_callers_12 and verified their seals.
+The fixed-input floor inequalities and finite-from_f64 premise on the actual
+vk_scale caller roster are usable conditional facts, with scope and figures
+at finite_callers_12/RETURN.md sections “Actual basis and integer input check”
+and “Actual observation routes and remaining138 rows”. The broader lane's
+selected-numerator obligations remain open. A separate bounded numerical
+consequence derivation has been assigned; finite tags and old passing runs
+are not substitutes. No whole-process E_max or admission is accepted.
+
+The K6c proposal and review are preserved on its branch at
+4ee34724be3d4895016ba7ce9909f5e31a4770be. K6C's maintained adaptive.rs still
+matches its own older committed KF3 source (Git blob5448ca262ab0346c138052e39b9a205b82739842),
+with no working-tree modification. Its difference from the explicitly frozen
+A1 basis is the not-yet-integrated A1 correction, not an unexpected source edit.
+RV30 correctly reviewed the separately preserved full-hash-matched40129 bytes.
+Final A1/build reconciliation remains required before implementation reliance.
