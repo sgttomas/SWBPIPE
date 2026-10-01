@@ -1,0 +1,14 @@
+{
+  "end_utc": "2026-10-01T22:42:25Z",
+  "child9_manager5_payloads_verified": true,
+  "source_input_skill_hashes_unchanged": true,
+  "debug_lane_release_example_fingerprints_unchanged": true,
+  "frozen_maps_fields_argv_unchanged": true,
+  "zero_reaction_references_checked_exactly": 150,
+  "nonzero_reaction_candidate_references_checked_exactly": 36,
+  "frozen_projection_rechecks": 12,
+  "remaining_audit_count": 5,
+  "new_runtime_count": 0,
+  "retarget_authorized_or_executed": false,
+  "P35_no_credit_P36held": true
+}

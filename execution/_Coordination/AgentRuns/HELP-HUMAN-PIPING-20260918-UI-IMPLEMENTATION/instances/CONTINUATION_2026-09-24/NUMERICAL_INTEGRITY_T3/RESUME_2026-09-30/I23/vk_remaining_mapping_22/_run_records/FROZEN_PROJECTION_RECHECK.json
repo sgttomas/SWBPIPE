@@ -1,0 +1,286 @@
+{
+  "frozen_fields_sha256": "821812844a705a85761a48096146fa77afe81af4e020b60ebb3e0762036af2ba",
+  "source_status": "Existing frozen baseline/projection facts, not newly executed baseline evidence. No closed numerical proof reopened.",
+  "cases": [
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+      "file_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+      "expected_projection": {
+        "id": "RF-RANGE-THIN-A",
+        "outcome": "Unresolved Ceiling [Restrained]",
+        "selected_precision": null,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 512,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 576,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 1024,
+            "role": "Verification",
+            "outcome": "Solved",
+            "gate": "Coalesced",
+            "residual_basis": 1024,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_range.json",
+      "file_sha256": "8f52bad3c76687fc0ee5d0c9cbc0643702a0a87e02b24d74664b85cfb340b9a2",
+      "expected_projection": {
+        "id": "RF-RANGE-THIN-B",
+        "outcome": "Unresolved Ceiling [Restrained]",
+        "selected_precision": null,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Rejected(StopRule { quantity: Displacement(Dof { node: 1, component: Uy }), body: 0, kind: Translation })",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(StopRule { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 512,
+            "role": "VerificationThenCandidate",
+            "outcome": "Rejected(Charge { quantity: EndAction { member: 1, end: I, component: Ux }, body: 0, kind: Force })",
+            "gate": "Coalesced",
+            "residual_basis": 576,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          },
+          {
+            "precision": 1024,
+            "role": "Verification",
+            "outcome": "Solved",
+            "gate": "Coalesced",
+            "residual_basis": 1024,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 0,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "file_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+      "expected_projection": {
+        "id": "RF-LARGE-CHAIN-n00100-AX",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Accepted",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "Verification",
+            "outcome": "Verified",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 1,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_large.json",
+      "file_sha256": "3dbe85d7e338499cc7c2642290f439cc0488a44921af66ce408ebdbaea29d53e",
+      "expected_projection": {
+        "id": "RF-LARGE-TREE-n00100-AX",
+        "outcome": "Selected at 128",
+        "selected_precision": 128,
+        "attempts": [
+          {
+            "precision": 128,
+            "role": "Candidate",
+            "outcome": "Accepted",
+            "gate": "Coalesced",
+            "residual_basis": 192,
+            "verification": null
+          },
+          {
+            "precision": 256,
+            "role": "Verification",
+            "outcome": "Verified",
+            "gate": "Coalesced",
+            "residual_basis": 320,
+            "verification": {
+              "data_blocks": 1,
+              "g_max": 0,
+              "g_violation": null,
+              "shift_factorizations": 1,
+              "uc_missing": null
+            }
+          }
+        ]
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE122-TORQUE",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE122-PERP",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE122-UNLOADED",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE345-RZ",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-K0",
+        "outcome": "Refused MechanismWitnessed { body: 0 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-DISC-CHAIN100",
+        "outcome": "Refused MechanismWitnessed { body: 1 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-DISC-CHAIN100-SPRING",
+        "outcome": "Refused MechanismWitnessed { body: 1 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    },
+    {
+      "file": "projects/chirality-piping/validation/benchmarks/numerical_robustness/observations/kernel_lane/rf_mech.json",
+      "file_sha256": "c6f368a0b0efcdc552b547d9044222d70a8eb264e7c9d85fbce2deb8c594b007",
+      "expected_projection": {
+        "id": "RF-MECH-LINE-IN-CHAIN1000",
+        "outcome": "Refused MechanismWitnessed { body: 1 } []",
+        "selected_precision": null,
+        "attempts": []
+      },
+      "archive_projection_matches": true
+    }
+  ]
+}
