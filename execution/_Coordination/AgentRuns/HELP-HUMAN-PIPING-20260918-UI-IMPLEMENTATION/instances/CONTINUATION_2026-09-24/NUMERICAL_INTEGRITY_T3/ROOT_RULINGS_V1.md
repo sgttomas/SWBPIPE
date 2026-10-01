@@ -3474,3 +3474,56 @@ The source_10 and h_caller_05 records cited here are on the separately preserved
 K6c branch at `79ab5428470ca747a484ea145ea979e5bb965c96`, under
 RESUME_2026-09-30/I21/source_10 and source_review_RV30/h_caller_05.
 Their presence on that branch is not a merged K6c implementation.
+
+## A1 completed verification subsets and exact-tail correction (ROOT, 2026-10-01)
+
+ROOT read and verified RV29 g1_final_12, g2_runtime_13 and g4_runtime_14.
+Those selected subsets are closed with their precise assertion/control and
+source/build qualifications. Counts and exceptions remain at their REVIEW
+sections; the extra G01 baseline and all uncredited operational attempts are
+preserved. This is not complete historical coverage or A1 acceptance.
+
+G3's R09/R10 whole-loop attempts stopped at earlier corpus rows and receive
+no credit for the explicitly required witnesses. Their original controls were
+subsequently run under separate grants. The additive diagnostics retain the
+same rows, original upper expectations, production faults and original test
+prefix. RV29 tail_sources_15 corrected both I23's and its own earlier prediction
+arithmetic because ExactWideSum.used includes spare zero limbs. Correction11
+and tail_correction_16 preserve those errors and change only the predicted
+fault behavior/eligibility: R09 yields +8p0 directly; R10 yields Z+.
+No protected unmutated expectation, criterion or original corpus changed.
+
+The original G3 window was closed at its quiescent R14 boundary. ROOT selected
+the bounded reuse of existing source checks before Cargo, retaining postchecks,
+then independently reviewed that exact helper delta and preparation seals.
+Each remaining copy still needs its own manager-issued conditional release
+and an immediate hard source/binding check before build. Sequential semantic
+inspection, controls and stop rules remain. No new host guard/tool was built.
+Fresh runtime grants are in A1_TAIL_RUNTIME_AND_G3_REMAINDER.md; old deadlines
+remain historical, and no automatic extension is granted.
+
+## K6c direct-path proof and artifact request facts (ROOT, 2026-10-01)
+
+ROOT read source13, metric_design_02, I23 private_request_artifacts_08 and
+RV30 h_request_bindings_10. H12-F1's public Mutex/Once forwarding gap is closed
+by the additive source proof. The two allocation arguments are usable only on
+the review's exact layout08 executable basis: the named pal mutex and first
+ThreadInfo registry leaf. See h_request_bindings_10 RETURN sections1–2 for
+values, units, source attribution and native instruction evidence. They were
+not inferred from the observed startup baseline or a mirror type.
+
+The library archive-reader incompatibility was preserved and that lookup
+stopped; the separately authorized existing executable supplied the evidence.
+No runtime witness, library rebuild or tool replacement occurred. Final-H
+specialization/build correspondence remains mandatory; this does not supply
+a final-H or whole-process E_max bound. The direct witness proposal remains
+unrun and unselected because existing executable evidence was available.
+
+VR caller identities/schema conclusions remain conditional on their stated
+construction/configuration premises. RV30 vr_caller_07 and serde_binding_08
+plus external_inputs_06 supply the checked source, package-byte and input
+bindings without a fresh canonical replay. V-EXACT derivation is separately
+under review. Complete caller composition, checked implementation, final A1,
+admission replay and measurements remain open; W1/F2a are not released.
+These K6c packets are preserved at branch commit
+8d80dbdb326514e167ccf16b8e173bd91c7441f4 under RESUME_2026-09-30.
