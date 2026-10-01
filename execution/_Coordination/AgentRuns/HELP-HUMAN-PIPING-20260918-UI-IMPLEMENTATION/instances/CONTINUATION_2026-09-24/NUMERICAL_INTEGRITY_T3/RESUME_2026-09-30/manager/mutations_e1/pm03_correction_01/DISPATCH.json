@@ -10,5 +10,7 @@
   "scope": "Full additive revised PM03 patch+hashes/one-line delta/additive override, only Wide::<4> to Wide::<L> in injected scale lift; same mutation/test semantics; text applicability only",
   "write_fence": "<A1_WT>/<R>/I22/mutations_e1/pm03_correction_01/**",
   "timebox_minutes": 10,
-  "status": "actual followup returned; child start acknowledgement pending; Rust prohibited"
+  "actual_start_utc":"2026-10-01 09:19:16 UTC",
+  "deadline_utc":"2026-10-01 09:29:16 UTC",
+  "status":"completed;four-entry child seal and one-token correction independently verified; Rust prohibited pending review/regrant"
 }
