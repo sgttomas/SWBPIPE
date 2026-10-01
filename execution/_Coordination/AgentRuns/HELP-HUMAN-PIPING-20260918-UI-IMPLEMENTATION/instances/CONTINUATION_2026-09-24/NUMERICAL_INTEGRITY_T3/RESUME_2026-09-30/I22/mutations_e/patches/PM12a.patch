@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -3038,11 +3038,11 @@
+             if let Some(failed) = compare(PublicationPredicate::PublicRelative, &mut |s| {
+                 s.add_binary64(x.abs(), false)?;
+                 s.add_scaled(h, true, 1_000_000_000, 0)?;
+                 Ok(())
+             })? {
+-                return Ok(Some(failed));
++                let _ = failed; // PM12a
+             }
+             let m = Wide::<4>::from_f64(x.abs().max(scale))?;
+             let abs_x = Wide::<4>::from_f64(x.abs())?;
+             if let Some(failed) = compare(PublicationPredicate::SharperExact, &mut |s| {
+                 s.add_wide_scaled(&m, false, 1, -64)?;

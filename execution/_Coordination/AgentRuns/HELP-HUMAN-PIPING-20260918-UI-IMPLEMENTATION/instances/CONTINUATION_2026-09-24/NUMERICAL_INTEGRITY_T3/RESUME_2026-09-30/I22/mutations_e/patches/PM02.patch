@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2951,11 +2951,11 @@
+     Wide<L>: SupportedWidth,
+ {
+     let p = i64::from(report.precision);
+     let mut h = ExactWideSum::new();
+     let formed = (|| {
+-        h.add_binary64(x, false)?;
++        h.add_wide(v, false)?; // PM02: retained/verifier value replaces final x
+         h.add_wide(v, true)?;
+         h.make_absolute();
+         match meta.kind {
+             Kind::Force | Kind::Moment => {
+                 h.add_wide_scaled(required_error(&report.e_rows, index)?, false, 69, -p)?;

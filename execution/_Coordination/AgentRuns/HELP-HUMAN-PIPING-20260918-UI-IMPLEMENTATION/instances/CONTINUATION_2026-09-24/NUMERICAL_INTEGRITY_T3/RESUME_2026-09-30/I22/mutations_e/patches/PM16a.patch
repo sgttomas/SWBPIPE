@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2810,11 +2810,11 @@
+         &mut self,
+         sum: &ExactWideSum,
+         before: SumWork,
+         result: Result<T, AttemptStop>,
+     ) -> Result<T, AttemptStop> {
+-        self.sums.merge(&sum_work_delta(sum.work(), before));
++        let _ = (sum, before); // PM16a: omit only clone delta aggregation
+         self.checked(result)
+     }
+ 
+     fn reaches(
+         &mut self,

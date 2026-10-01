@@ -1,0 +1,2043 @@
+{
+  "candidate": "40129a225d73860ac2a53da9a2fa73869df668f3",
+  "diff_base": "f1183b94624f4d1c84db5d6bb6d593694d2cba66",
+  "prior_role_skill_instruction_basis": "../preparation_01/BASIS.json",
+  "records": [
+    {
+      "origin": "f1183b94624f4d1c84db5d6bb6d593694d2cba66:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "sha256": "7163b82577fa318c93a1348809474d5b1f6125e1646b4786601edce091ef57b6",
+      "bytes": 39044
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "sha256": "97e5e103adbbb89705fe23fe1b08168d634bb12fb16426a10fc9eb3b116c9d14",
+      "bytes": 39831
+    },
+    {
+      "origin": "f1183b94624f4d1c84db5d6bb6d593694d2cba66:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "sha256": "a463e84949d12782858e957547f3592e51ff839f4142320f6b8c04411427e5cd",
+      "bytes": 37952
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "sha256": "1bce482dccc5c4dd06292d35d97ef6a4ec0c8ba7de0f9b9cb4440558cfd3ccac",
+      "bytes": 39564
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "sha256": "b04eb95536437274e400b85050bf082bf193587b5f0d2f78524fb78a0e699c0d",
+      "bytes": 61828
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+      "sha256": "4e5618a8d809e6ffa4ddd73024c206cc45eac6d5404a2f2034674552e1a95db9",
+      "bytes": 160870
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "bytes": 117294
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "8059cdcf4b16b3ccc989f66321991fc3a5ec66f4441c476e5af9827bd50b837d",
+      "bytes": 117294
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/SHA256SUMS",
+      "sha256": "2c6af55be464b7a69f90594051585290fb930a7528da21273b41b589f058dbb1",
+      "bytes": 10737
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/B_BEFORE_AFTER.json",
+      "sha256": "872ce9d9e08d7c3678fbfb63e8d664aee1ef0fcaecc34be8b7db7e6050744803",
+      "bytes": 34407
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/COMMANDS.json",
+      "sha256": "4b803053f0fdf7a57ae11e7c0bb2807763204d2a7508a04fa0b841cd7b027b1a",
+      "bytes": 67005
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/FINAL_IDENTITIES.json",
+      "sha256": "93b0250e40d2d4ed3269fd20423e67206b1d434ae125b44a29f56d8ba35926fb",
+      "bytes": 8553
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/FK.stderr.portable",
+      "sha256": "5587c06e50033c2e8a3053be20785d51b43790d7b264e772968ab4b4964f08d9",
+      "bytes": 1064
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/FK.stdout",
+      "sha256": "217bb7a2847dda41deff42fe5d133912a99428dae5e7e71dc1bfb884a91ff80a",
+      "bytes": 2825
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/H.stderr.portable",
+      "sha256": "a0bace78bce25b83b85abdba1cba840b0bdf2059a387b6a96784155c31abf2c5",
+      "bytes": 933
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/H.stdout",
+      "sha256": "21b2213dd60888109333e58056a5c8dc148b1d12c0d115bdf19ec76dc40e0fa4",
+      "bytes": 267
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/PRESCRIPTION.diff",
+      "sha256": "05113d867c96efde7f54c9241733f6887cf4700fed33b129e9da51785a25f423",
+      "bytes": 951
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/PRESCRIPTION.stderr.portable",
+      "sha256": "e318ea2250c656147dc501ac95ef42d52b7a501d3aa6b5e89bea8b581b247dbf",
+      "bytes": 1064
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/PRESCRIPTION.stdout",
+      "sha256": "cbbe5fa51beef4f437bf1e23642a0c6dcc2fe08a30df88607eaaae042f736657",
+      "bytes": 223
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/PROBE.diff",
+      "sha256": "8045f802bc1a1ed08a5ac42b84332586e3977ace751b1232f0772f1e4da64cd5",
+      "bytes": 4256
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/PROBE_BUILD.stderr.portable",
+      "sha256": "14537704c9a6f863f6c96d23ac55452808de43a885a1236c7180b0a29f85f033",
+      "bytes": 2258
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/PROBE_BUILD.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/PROVENANCE.json",
+      "sha256": "d8bf2b671701cf092c6195107280cf2d69e8b1035439710da6d98cb22e6e6955",
+      "bytes": 7964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/RAW_OUTPUT_HASHES.json",
+      "sha256": "8a0d5be99ae28af517c869c9dd7fe72a2193e7467c7867d5b4744838c8617e8e",
+      "bytes": 8951
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/RESULTS.md",
+      "sha256": "5aec80ee24c7bfbe38b6cae515a65a19d5ec61cffc263208a6aebdb73938fb65",
+      "bytes": 4573
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/RETURN.md",
+      "sha256": "91e0c6fc0fea630cd556ea6d6bbb8633ce23c5c34e0f6a624b93bbd2bec1e0da",
+      "bytes": 7622
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/S11.diff",
+      "sha256": "45b37a2fb6e42629e8aa9dc0c359ef5ac5f1ed0a7a63e94dbf63a2a2902a9298",
+      "bytes": 1591
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/S11.stderr.portable",
+      "sha256": "121a3bada00c1b534637f36788ddcb98ab2dda1b3c48efffccd969d3cacfa399",
+      "bytes": 1052
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/S11.stdout",
+      "sha256": "808ead6c55a9d2f1b147e33912c1260be68706c7e0d8d2828869a8b028432dca",
+      "bytes": 277
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/SPAN_FIX.diff",
+      "sha256": "a00f32b8a1a697a69f5b439cdffda6a120726659de9d579cd5f32154a940870c",
+      "bytes": 918
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B01/BARE_B.json",
+      "sha256": "efbf7b76e37778db096d02d04841536d34adc24508f0a256bd40ab88d7a6b35a",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B01/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B01/compare.stdout",
+      "sha256": "439ff6a2f8454dc8c99650a3b884606130bdaa6329d24b09f1daf5d13246aa3d",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B01/stderr.txt",
+      "sha256": "ab9ddcff3771cb5726f89be34510dc5d7af82dec117183d6083fcf42b4e241d2",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B01/stdout.tsv",
+      "sha256": "5cce9889b9eb5c0e614d66d654158a363bd9b8109bdb1bd00a10579cdd57ea32",
+      "bytes": 17944
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B02/BARE_B.json",
+      "sha256": "4684da18d7c9725dfb81793e8f74aaeb99a09191918b691b7afd674d53061cf5",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B02/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B02/compare.stdout",
+      "sha256": "daeffaa085a528b986f84d83629766cff0af95611246305a1ec1193ea4b60d07",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B02/stderr.txt",
+      "sha256": "553ebb444dfd6a5a8583a2bb756d060b994e19eaae81e57299184af21d3c3588",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B02/stdout.tsv",
+      "sha256": "6d1728ff21f7b288eec509eddbc181d315c6ad9a045892327dbaa5ff4a1db9e4",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B03/BARE_B.json",
+      "sha256": "bd6b2943da4aa4d72c5f9c89f8f01876aa634e568d1a0d8751d35d3a2065581c",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B03/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B03/compare.stdout",
+      "sha256": "cd20430284f929084dcd4dd02b79d8601bcfd8b5fd2bc278738ae6608db507bd",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B03/stderr.txt",
+      "sha256": "80fd11b3897d1e043ccd01038baffbbe9ec68a0ed19e6d24b0730abe7b2d94b5",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B03/stdout.tsv",
+      "sha256": "c0b8df64af9cf26a063be7a88c148fdc5ac7501b5fe4bf06948f0053cb64c998",
+      "bytes": 13788
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B04/BARE_B.json",
+      "sha256": "e76d5c079a4067a936b5866a877736bdf76f47213119a54cca540c42fad8e52f",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B04/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B04/compare.stdout",
+      "sha256": "e65ae270c914ad5fdd9aaa6750f4cf60c67f4221d4e812e0ecd4479c60b41c64",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B04/stderr.txt",
+      "sha256": "7a525058a6be69598ab778749f323f1d6cdd8a6f204accd9aa0e5109072453bb",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B04/stdout.tsv",
+      "sha256": "855cea653c0130ed7d90f6e5bb9f9e05467e03a63a69e76e9a8e96c3abbdcb53",
+      "bytes": 13880
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B05/BARE_B.json",
+      "sha256": "97b75319f2711c3bebf725ae5a6187ea57b718bbe7363553cbffedcbb0e99615",
+      "bytes": 14976
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B05/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B05/compare.stdout",
+      "sha256": "827c9ac7c8e3d0d51a1e96bb26ba2578c75002119cfa2f6caa34deddd5609829",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B05/stderr.txt",
+      "sha256": "e80cee0eb3cfd84c504c717df30cb6cea4e5e2618c79a64cd57aecbbe50fe8d5",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B05/stdout.tsv",
+      "sha256": "0c27624dfd19c9378a7d3ad41f36a5efb084ae3f16cc71f3c7f3305973fef476",
+      "bytes": 17936
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B06/BARE_B.json",
+      "sha256": "c7d7c51c76da478df6ccdac369a445f3b3f4a68262b6028198c541fe83fd0464",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B06/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B06/compare.stdout",
+      "sha256": "831f8da50e6ab1a1ed9b241fc442623fe370f984c7683fb4ac3e9c3208819c96",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B06/stderr.txt",
+      "sha256": "ec0cb7e42cc709057e4b96926ca59069d6e90200570d7986c202e1747ee3f0fb",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B06/stdout.tsv",
+      "sha256": "a6fec6bdd365320d6fc3a140ea9dc3ef92fd1fe1b730aa218fb604e78c2bfd03",
+      "bytes": 17936
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B07/BARE_B.json",
+      "sha256": "ab0a9a333991c69a5560d7329f466ddbc112f51f9258404eee45ffe65f17d9cc",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B07/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B07/compare.stdout",
+      "sha256": "40ca2938d8248aab66e1d2156288551083bc3af2b3cab715e2be77993a13bce6",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B07/stderr.txt",
+      "sha256": "20b306b215f78807d6af8f20e01503d7313ceeddefd8a903d9999bda130638aa",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B07/stdout.tsv",
+      "sha256": "c5720dc07483c77b9d8b84e26db50368b1d5c30038ea3518dee430283d77056a",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B08/BARE_B.json",
+      "sha256": "bd336628efe1e5a8dc4430fd86b5d8a6662708e432ff0f9fed9841b45d3f7072",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B08/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B08/compare.stdout",
+      "sha256": "a2fad6f2ffbedabd648a4e1af671a4d4c1f113e72108a102277eaff68a3987e4",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B08/stderr.txt",
+      "sha256": "d654d07abab3f4770747baa9800e8cc381b9a8b6c9a6b72406006a5aa262f60a",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B08/stdout.tsv",
+      "sha256": "f010a04e3ba6bbef1ce520f4e0dbf5139e1ae09f6a88e4a3e82ce90537ee3ec5",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B09/BARE_B.json",
+      "sha256": "fb4eb5b86d3e76e2ab4ae142771c14aeea6d6d0e4d00a3fa05b7fe0d465485bc",
+      "bytes": 14956
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B09/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B09/compare.stdout",
+      "sha256": "c67a80afbd57e76ae3fc4cd84f8840449982fb29755952b608c6dd8315191f28",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B09/stderr.txt",
+      "sha256": "fed142a0a4ca1487e0aaf47de9a0aead9ab8560efa288a4af3e57ba924032b93",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B09/stdout.tsv",
+      "sha256": "fdf839129346eed888a43b0a2905749cde3b8c23696364f5d0dd5a75c97a64d5",
+      "bytes": 13919
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B10/BARE_B.json",
+      "sha256": "4ef0d3058e3da547b55f5ac11f61d85cdbb5da4ae5138cb9a1414038df086fb3",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B10/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B10/compare.stdout",
+      "sha256": "84136d388d7b1cc260d6cee3afee13119a39dd36e012d13f160ffa8061a48538",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B10/stderr.txt",
+      "sha256": "30c7222871e9639900ee4d5b5c8a130e46eb7c64810d3391fd188f78ca2b5554",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B10/stdout.tsv",
+      "sha256": "da7c11071045f9a56704d0c13eca6053d759e3f786d1f393608d8d618335e785",
+      "bytes": 14012
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B11/BARE_B.json",
+      "sha256": "cccf9e48522ddec1724cca4c5a7229936f1fa45b02552da50a50824105d35231",
+      "bytes": 14960
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B11/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B11/compare.stdout",
+      "sha256": "2c7747270c46b27dad303e8760cd3418c0f4b3f3a196ea6e4c861ffe1b0401d1",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B11/stderr.txt",
+      "sha256": "aa0e7717c7a019ee90e7a80292522c83ae447589f10fe5b3e0794bb39eb4478a",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B11/stdout.tsv",
+      "sha256": "50368bac8d6fdf57bb842f914cecbadd24dc12ed51ec700ad2acb27e74b9522a",
+      "bytes": 17944
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B12/BARE_B.json",
+      "sha256": "932dbfa54d08af2e0c0550ca97d41e650b2d45d70919117094e3584fd04eaead",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B12/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B12/compare.stdout",
+      "sha256": "10ac5cd0db7edffc60fcb0e17e764f82bf8eeada06c4b225908396be582838bd",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B12/stderr.txt",
+      "sha256": "df7d461376772aa3eaa405970fbe0e810e0f196447e8a71142afd15456c7933f",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B12/stdout.tsv",
+      "sha256": "b494bc613510c7ff022b73636594151b54949a6c248a71f61834252ba0619cc0",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B13/BARE_B.json",
+      "sha256": "41f0879a011eb03c09c1a162b2280306c054c38be397570a889a67a5c46c0f2c",
+      "bytes": 14958
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B13/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B13/compare.stdout",
+      "sha256": "0b34a0280c8a991797893fe22a0bbc736f861fd5cd92e02457699303232e995b",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B13/stderr.txt",
+      "sha256": "b2e63cd74db74a8853e20771a0675e3087360a0ebe5561103c2749205e70f5a8",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B13/stdout.tsv",
+      "sha256": "aebcbbaa31a200627ab2fce796410540e631add8f24448a592891fe848480152",
+      "bytes": 17657
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B14/BARE_B.json",
+      "sha256": "ee1b289047d6261995a900b0fe9404ba6cd6426674594dfffc736f9289dce1a4",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B14/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B14/compare.stdout",
+      "sha256": "aae31e8677dd4b3c348ce898e5b4f0cb6e9b3f839fc36bc6b85894c71a0d8b68",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B14/stderr.txt",
+      "sha256": "fc5c196a4ee294c865a99205d12f5170c1a2ed16068b7ff449ba3b7d6e043346",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B14/stdout.tsv",
+      "sha256": "9dca3282629ad27130d713efb2d7c9d856dc7eba13777dedde61548ea0fc7a7c",
+      "bytes": 17603
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B15/BARE_B.json",
+      "sha256": "294939f9139f8316e980fd2f64fe75750a9f8aa9b8c0abf3fb4e90f284aff05f",
+      "bytes": 14805
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B15/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B15/compare.stdout",
+      "sha256": "ef8d9c28af19bb02fecfc5add3a93f9e566d87159491063a9e136c78e992eb39",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B15/stderr.txt",
+      "sha256": "c798f38b775fa4bb53c1b53400549f9c6504621dc7324ea330999d52143b8639",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B15/stdout.tsv",
+      "sha256": "703323363c4c2de15a4969321783c455db58b1d14f6ad6078ef93ed0019d6ff5",
+      "bytes": 17808
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B16/BARE_B.json",
+      "sha256": "2088b70f8098d5ffb902c7509f5c5420955c0f4b5423a877f24c9f68af22b1cb",
+      "bytes": 14666
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B16/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B16/compare.stdout",
+      "sha256": "395d59268c6dd5e6f0b7a095af96eb3979808b627ce8e6737364a5b45a322bf1",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B16/stderr.txt",
+      "sha256": "d0374aeae7b755a779e1ac6572ee9b4546ab9dc0e887b6de3ae5498f459da3c1",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B16/stdout.tsv",
+      "sha256": "6edf011510e5da25cc1bf1f63fc4c50d33ac3e19cc10d2797914ff367f17917d",
+      "bytes": 17793
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/C17/BARE_B.json",
+      "sha256": "33905f99a2ab465ce8208f0eb26b85ef7bcf176f834c2529d3b351d6e24e7061",
+      "bytes": 19394
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/C17/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/C17/compare.stdout",
+      "sha256": "c9e5fb7b578f1088bd97550c6536b9a0d24052073c340901669f416b1097fada",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/C17/stderr.txt",
+      "sha256": "9391684e9eac1a2108cd5628cb7e4bf101297ccc8aae7b9eb31065721a4a547d",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/C17/stdout.tsv",
+      "sha256": "54fc25452f385d5078c5c416c65e6566afa4124f75d3dc791ed9c3fe65b1a831",
+      "bytes": 16306
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-FM-01/BARE_B.json",
+      "sha256": "b5174d5b1979aa99eef980dc4a9bbf743e46a66a67a63456370cf76e4db310f9",
+      "bytes": 16256
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-FM-01/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-FM-01/compare.stdout",
+      "sha256": "c76a29ff09cd5059ec27a85d4470be0d96b34ac846cc273dfaa8a68a21c6169c",
+      "bytes": 121
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-FM-01/stderr.txt",
+      "sha256": "cc6ad7da49de8d707e8c2c5f21e86700d3b4aefc3905175472d86652ef09e30b",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-FM-01/stdout.tsv",
+      "sha256": "040079a37f54e20302caf1b9bffc83f49cb4c88bfffbf4b28526a9e266ada8bb",
+      "bytes": 15171
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-MF-01/BARE_B.json",
+      "sha256": "65300af4fe7b76a15e22c660651cd73fa6beb5f752c560904c314296f6f7627b",
+      "bytes": 16240
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-MF-01/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-MF-01/compare.stdout",
+      "sha256": "f01c3e5ed4ec1006d7daf7930ba463360ee070bb34bcd1ca36d0bcdd74373f6d",
+      "bytes": 121
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-MF-01/stderr.txt",
+      "sha256": "f9711776215fb8856f23afb3c3cb33286778cf70a16b714c6b897005edaab007",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-MF-01/stdout.tsv",
+      "sha256": "986daba50aaedc4d40416c19a42bf976c1282fda3cb3444831361c9077a2b35f",
+      "bytes": 15084
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-ZR-01/BARE_B.json",
+      "sha256": "bffd22289439d7dd83a284841e2db2ba0916355bfd9a9a918b720703bb357663",
+      "bytes": 874
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-ZR-01/compare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-ZR-01/compare.stdout",
+      "sha256": "a270cf35ce798eeac39f355bc398eb6e74f520fff095ff4589cbb725f296cc1a",
+      "bytes": 122
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-ZR-01/stderr.txt",
+      "sha256": "88a72679d241f8de78621072bdbde84264961640b6313a5308cf573e313b5c4b",
+      "bytes": 777
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/EXTRA-ZR-01/stdout.tsv",
+      "sha256": "4bc33ac043e550ae12979fc899606217482f7913e71f86f5e1264e928f3b4a14",
+      "bytes": 7877
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/SHA256SUMS",
+      "sha256": "210847fca5044d3c89c3f29256d487d682e0c52ae5313f24f7797663aed9754e",
+      "bytes": 1272
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/AUTHORED_01.diff",
+      "sha256": "7a00fe152f7c245e26cad28fa12ef98ec9b8c2ec82b09325c7df32bad467ba02",
+      "bytes": 28103
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/COMMANDS.json",
+      "sha256": "5ff5a79d808a5c584d423b143914b2a4607be823d06be600ae8e0ebe1d0957d3",
+      "bytes": 29798
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/PM_MAP.md",
+      "sha256": "2097de8372c9c69851bde9a9788fe694d320e08fec2296c04c61e808b554be1c",
+      "bytes": 9025
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/REPAIR_01.diff",
+      "sha256": "281011ca66caa2ad1890c9b10e806ebe1ca4180cf515728b4527b258a2f0436c",
+      "bytes": 1732
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/RETURN.md",
+      "sha256": "80b03a03cb27c4f473f93fe82a6ae06d11f4e482719088821b2a551a26b9a203",
+      "bytes": 8324
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/SOURCE_HASHES.json",
+      "sha256": "60a578ea1cf387dfaa5cb2bdfb2b7ba9589817fda2e0c81bef2815c01613923b",
+      "bytes": 5550
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/TESTS.diff",
+      "sha256": "ce0f19db4791505ebad29662490cdc4001113827385fad87f0a257432102424f",
+      "bytes": 28474
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/golden_01.stderr.portable",
+      "sha256": "bc2302ebb464238fede6121fd00aadab80de5c9581c57486f49c8100627b883d",
+      "bytes": 953
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/golden_01.stdout",
+      "sha256": "f91ebc28c1a49b50f3d7f0740405152f065f43507234b66d3ee4944f9e72142e",
+      "bytes": 184
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/kf1_01.stderr.portable",
+      "sha256": "d99a8bb212e352cc11deef4c2a1cf196efe4f99a78463f869936ea4378616654",
+      "bytes": 953
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/kf1_01.stdout",
+      "sha256": "406b0ed430c90fffd81c54328f9cdf9e4dca5c4c96375de1aa8c624ff30b568b",
+      "bytes": 226
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/publication_01.stderr.portable",
+      "sha256": "672351343a2736f62dbc0f9b22adba3929119421358b490c7eddd753e6dfd09d",
+      "bytes": 3252
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/publication_01.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/publication_02.stderr.portable",
+      "sha256": "88f9a1fd10637921a39f1c19bf430560dbec179e86569813797bad70ecee91cf",
+      "bytes": 1064
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/publication_02.stdout",
+      "sha256": "00f823f7ee4f301a4f515944cc8544d42f01666b2c01ae4223c6468c379255d0",
+      "bytes": 2954
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/accessor_01/SHA256SUMS",
+      "sha256": "50d4c94a61aa4cbd53d590c40649371f5cbd4da93df6fc48bd49385b82d4f807",
+      "bytes": 479
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/accessor_01/ACCESSOR.diff",
+      "sha256": "d5553f48c443fa6a86ddccb95c6f684a138c505a74fb2af5b7169e12ffa8419a",
+      "bytes": 1259
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/accessor_01/COMMANDS.json",
+      "sha256": "fb0971dcaebada66c7cd980711e6f2698ad60f7a150118c4af0024ede2aa2fea",
+      "bytes": 1530
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/accessor_01/HASHES.json",
+      "sha256": "309861417339294b64e617f490b611a2c463c905682efd0ae93f79549124f885",
+      "bytes": 586
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/accessor_01/RETURN.md",
+      "sha256": "ee9efead9fb7fa6fc5418dbe58176c0460416bb35e830e938d6633985dcacd06",
+      "bytes": 1609
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/accessor_01/TEST.stderr.portable",
+      "sha256": "9a5c497dfa20b7df527aaf3a39e556ffb9de4a273cb0d5c05d8953d418861ad0",
+      "bytes": 1064
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_d/accessor_01/TEST.stdout",
+      "sha256": "5a72eac6ee54f02ca89a076461879a6cf0efdc2e374de975797d3c2fbe08be86",
+      "bytes": 243
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/FREEZE_MANIFEST.json",
+      "sha256": "65bb5b909a2e9245b69116c2e509c416afde7d898e3b1a433563aa35b6005ac6",
+      "bytes": 2346
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/BOUNDARY_CHECKS.json",
+      "sha256": "dbe1ccb05e8a4ee6046450fa24f63c8320074d961c2496b7975295fe5fec0ef2",
+      "bytes": 10913
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/CHECKPOINT_0.md",
+      "sha256": "b8dd38d40d01d1ceed582e79b44400441e97dac30a13c92e06f8fe9af049766a",
+      "bytes": 9810
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/RAW_CHECK_OUTPUTS.txt",
+      "sha256": "ca579ed5ded894ee09ca85c4d62f37ee1663d1b366eee65bfeacfa5ee4c611eb",
+      "bytes": 384
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/REGISTRY_CHECKS.json",
+      "sha256": "f25bdd9e4d996ba5b76434cc1a207100a0eaf3a51c8e372514a3f5e62d301759",
+      "bytes": 2256
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/SOURCE_IDENTITIES.json",
+      "sha256": "4f0865d132225612cd11f43ca715038d8b485646e6eb6f7bf8f51fc922e8d7f2",
+      "bytes": 32081
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/SOURCE_READS.json",
+      "sha256": "df73985085c3d25c7f28b61b699322818e13c754ff995a25e9e2e03c9e468745",
+      "bytes": 3379
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/bare_b_compare.py",
+      "sha256": "eeac3a5d827633eeeddbe87f7cb604474304aa5360082e3d5c083a2016c1b289",
+      "bytes": 10201
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_04_bare_b/boundary_checks.py",
+      "sha256": "ec80365409c007a3eb410c369c88ee1e885bbf343d23beb4ea493890e37ec9da",
+      "bytes": 5890
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.MANIFEST.json",
+      "sha256": "7307446fa9f61a94cd16d475efcd6c833b1ef50faeb2ef7dc42d3757d67f5305",
+      "bytes": 1968
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.AUTHORITY.json",
+      "sha256": "2372cf9a97ce4516ba97f6fe4d57fc1c5b5cf45aa0868a09d34e6bcd507a6774",
+      "bytes": 415
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.COMPARISON.json",
+      "sha256": "33905f99a2ab465ce8208f0eb26b85ef7bcf176f834c2529d3b351d6e24e7061",
+      "bytes": 19394
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.EQUILIBRIUM.json",
+      "sha256": "6b344a03a740b6b399821e22533bb56128dccb6f62ebec318378b65b20145aab",
+      "bytes": 1659
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.RETURN.md",
+      "sha256": "a6b7eb858eb7e7c06e5a15e9ccbb0ca998905e0c3773aef26ab73b2b3b25334c",
+      "bytes": 2299
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.RUN.json",
+      "sha256": "e863a5d1f57c70e699dd2ceb549ad1d4b36f7ae939c4b0e98bb46a7f5fc43fd8",
+      "bytes": 1342
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.comparison.stdout.txt",
+      "sha256": "c9e5fb7b578f1088bd97550c6536b9a0d24052073c340901669f416b1097fada",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/C17.stdout.tsv",
+      "sha256": "54fc25452f385d5078c5c416c65e6566afa4124f75d3dc791ed9c3fe65b1a831",
+      "bytes": 16306
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/MANIFEST.json",
+      "sha256": "09f78c43567762ccfd7dd4201b4cdd55aaea41a37074c393b5b4148ff8e93a94",
+      "bytes": 16932
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B01/COMPARISON.json",
+      "sha256": "efbf7b76e37778db096d02d04841536d34adc24508f0a256bd40ab88d7a6b35a",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B01/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B01/comparison.stdout.txt",
+      "sha256": "439ff6a2f8454dc8c99650a3b884606130bdaa6329d24b09f1daf5d13246aa3d",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B01/stdout.tsv",
+      "sha256": "5cce9889b9eb5c0e614d66d654158a363bd9b8109bdb1bd00a10579cdd57ea32",
+      "bytes": 17944
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B02/COMPARISON.json",
+      "sha256": "4684da18d7c9725dfb81793e8f74aaeb99a09191918b691b7afd674d53061cf5",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B02/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B02/comparison.stdout.txt",
+      "sha256": "daeffaa085a528b986f84d83629766cff0af95611246305a1ec1193ea4b60d07",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B02/stdout.tsv",
+      "sha256": "6d1728ff21f7b288eec509eddbc181d315c6ad9a045892327dbaa5ff4a1db9e4",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B03/COMPARISON.json",
+      "sha256": "bd6b2943da4aa4d72c5f9c89f8f01876aa634e568d1a0d8751d35d3a2065581c",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B03/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B03/comparison.stdout.txt",
+      "sha256": "cd20430284f929084dcd4dd02b79d8601bcfd8b5fd2bc278738ae6608db507bd",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B03/stdout.tsv",
+      "sha256": "c0b8df64af9cf26a063be7a88c148fdc5ac7501b5fe4bf06948f0053cb64c998",
+      "bytes": 13788
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B04/COMPARISON.json",
+      "sha256": "e76d5c079a4067a936b5866a877736bdf76f47213119a54cca540c42fad8e52f",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B04/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B04/comparison.stdout.txt",
+      "sha256": "e65ae270c914ad5fdd9aaa6750f4cf60c67f4221d4e812e0ecd4479c60b41c64",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B04/stdout.tsv",
+      "sha256": "855cea653c0130ed7d90f6e5bb9f9e05467e03a63a69e76e9a8e96c3abbdcb53",
+      "bytes": 13880
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B05/COMPARISON.json",
+      "sha256": "97b75319f2711c3bebf725ae5a6187ea57b718bbe7363553cbffedcbb0e99615",
+      "bytes": 14976
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B05/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B05/comparison.stdout.txt",
+      "sha256": "827c9ac7c8e3d0d51a1e96bb26ba2578c75002119cfa2f6caa34deddd5609829",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B05/stdout.tsv",
+      "sha256": "0c27624dfd19c9378a7d3ad41f36a5efb084ae3f16cc71f3c7f3305973fef476",
+      "bytes": 17936
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B06/COMPARISON.json",
+      "sha256": "c7d7c51c76da478df6ccdac369a445f3b3f4a68262b6028198c541fe83fd0464",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B06/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B06/comparison.stdout.txt",
+      "sha256": "831f8da50e6ab1a1ed9b241fc442623fe370f984c7683fb4ac3e9c3208819c96",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B06/stdout.tsv",
+      "sha256": "a6fec6bdd365320d6fc3a140ea9dc3ef92fd1fe1b730aa218fb604e78c2bfd03",
+      "bytes": 17936
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B07/COMPARISON.json",
+      "sha256": "ab0a9a333991c69a5560d7329f466ddbc112f51f9258404eee45ffe65f17d9cc",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B07/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B07/comparison.stdout.txt",
+      "sha256": "40ca2938d8248aab66e1d2156288551083bc3af2b3cab715e2be77993a13bce6",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B07/stdout.tsv",
+      "sha256": "c5720dc07483c77b9d8b84e26db50368b1d5c30038ea3518dee430283d77056a",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B08/COMPARISON.json",
+      "sha256": "bd336628efe1e5a8dc4430fd86b5d8a6662708e432ff0f9fed9841b45d3f7072",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B08/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B08/comparison.stdout.txt",
+      "sha256": "a2fad6f2ffbedabd648a4e1af671a4d4c1f113e72108a102277eaff68a3987e4",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B08/stdout.tsv",
+      "sha256": "f010a04e3ba6bbef1ce520f4e0dbf5139e1ae09f6a88e4a3e82ce90537ee3ec5",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B09/COMPARISON.json",
+      "sha256": "fb4eb5b86d3e76e2ab4ae142771c14aeea6d6d0e4d00a3fa05b7fe0d465485bc",
+      "bytes": 14956
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B09/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B09/comparison.stdout.txt",
+      "sha256": "c67a80afbd57e76ae3fc4cd84f8840449982fb29755952b608c6dd8315191f28",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B09/stdout.tsv",
+      "sha256": "fdf839129346eed888a43b0a2905749cde3b8c23696364f5d0dd5a75c97a64d5",
+      "bytes": 13919
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B10/COMPARISON.json",
+      "sha256": "4ef0d3058e3da547b55f5ac11f61d85cdbb5da4ae5138cb9a1414038df086fb3",
+      "bytes": 14972
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B10/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B10/comparison.stdout.txt",
+      "sha256": "84136d388d7b1cc260d6cee3afee13119a39dd36e012d13f160ffa8061a48538",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B10/stdout.tsv",
+      "sha256": "da7c11071045f9a56704d0c13eca6053d759e3f786d1f393608d8d618335e785",
+      "bytes": 14012
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B11/COMPARISON.json",
+      "sha256": "cccf9e48522ddec1724cca4c5a7229936f1fa45b02552da50a50824105d35231",
+      "bytes": 14960
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B11/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B11/comparison.stdout.txt",
+      "sha256": "2c7747270c46b27dad303e8760cd3418c0f4b3f3a196ea6e4c861ffe1b0401d1",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B11/stdout.tsv",
+      "sha256": "50368bac8d6fdf57bb842f914cecbadd24dc12ed51ec700ad2acb27e74b9522a",
+      "bytes": 17944
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B12/COMPARISON.json",
+      "sha256": "932dbfa54d08af2e0c0550ca97d41e650b2d45d70919117094e3584fd04eaead",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B12/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B12/comparison.stdout.txt",
+      "sha256": "10ac5cd0db7edffc60fcb0e17e764f82bf8eeada06c4b225908396be582838bd",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B12/stdout.tsv",
+      "sha256": "b494bc613510c7ff022b73636594151b54949a6c248a71f61834252ba0619cc0",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B13/COMPARISON.json",
+      "sha256": "41f0879a011eb03c09c1a162b2280306c054c38be397570a889a67a5c46c0f2c",
+      "bytes": 14958
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B13/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B13/comparison.stdout.txt",
+      "sha256": "0b34a0280c8a991797893fe22a0bbc736f861fd5cd92e02457699303232e995b",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B13/stdout.tsv",
+      "sha256": "aebcbbaa31a200627ab2fce796410540e631add8f24448a592891fe848480152",
+      "bytes": 17657
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B14/COMPARISON.json",
+      "sha256": "ee1b289047d6261995a900b0fe9404ba6cd6426674594dfffc736f9289dce1a4",
+      "bytes": 14964
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B14/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B14/comparison.stdout.txt",
+      "sha256": "aae31e8677dd4b3c348ce898e5b4f0cb6e9b3f839fc36bc6b85894c71a0d8b68",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B14/stdout.tsv",
+      "sha256": "9dca3282629ad27130d713efb2d7c9d856dc7eba13777dedde61548ea0fc7a7c",
+      "bytes": 17603
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B15/COMPARISON.json",
+      "sha256": "294939f9139f8316e980fd2f64fe75750a9f8aa9b8c0abf3fb4e90f284aff05f",
+      "bytes": 14805
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B15/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B15/comparison.stdout.txt",
+      "sha256": "ef8d9c28af19bb02fecfc5add3a93f9e566d87159491063a9e136c78e992eb39",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B15/stdout.tsv",
+      "sha256": "703323363c4c2de15a4969321783c455db58b1d14f6ad6078ef93ed0019d6ff5",
+      "bytes": 17808
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B16/COMPARISON.json",
+      "sha256": "2088b70f8098d5ffb902c7509f5c5420955c0f4b5423a877f24c9f68af22b1cb",
+      "bytes": 14666
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B16/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B16/comparison.stdout.txt",
+      "sha256": "395d59268c6dd5e6f0b7a095af96eb3979808b627ce8e6737364a5b45a322bf1",
+      "bytes": 113
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/B16/stdout.tsv",
+      "sha256": "6edf011510e5da25cc1bf1f63fc4c50d33ac3e19cc10d2797914ff367f17917d",
+      "bytes": 17793
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-FM-01/COMPARISON.json",
+      "sha256": "b5174d5b1979aa99eef980dc4a9bbf743e46a66a67a63456370cf76e4db310f9",
+      "bytes": 16256
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-FM-01/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-FM-01/comparison.stdout.txt",
+      "sha256": "c76a29ff09cd5059ec27a85d4470be0d96b34ac846cc273dfaa8a68a21c6169c",
+      "bytes": 121
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-FM-01/stdout.tsv",
+      "sha256": "040079a37f54e20302caf1b9bffc83f49cb4c88bfffbf4b28526a9e266ada8bb",
+      "bytes": 15171
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-MF-01/COMPARISON.json",
+      "sha256": "65300af4fe7b76a15e22c660651cd73fa6beb5f752c560904c314296f6f7627b",
+      "bytes": 16240
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-MF-01/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-MF-01/comparison.stdout.txt",
+      "sha256": "f01c3e5ed4ec1006d7daf7930ba463360ee070bb34bcd1ca36d0bcdd74373f6d",
+      "bytes": 121
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-MF-01/stdout.tsv",
+      "sha256": "986daba50aaedc4d40416c19a42bf976c1282fda3cb3444831361c9077a2b35f",
+      "bytes": 15084
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-ZR-01/COMPARISON.json",
+      "sha256": "bffd22289439d7dd83a284841e2db2ba0916355bfd9a9a918b720703bb357663",
+      "bytes": 874
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-ZR-01/comparison.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-ZR-01/comparison.stdout.txt",
+      "sha256": "a270cf35ce798eeac39f355bc398eb6e74f520fff095ff4589cbb725f296cc1a",
+      "bytes": 122
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/EXTRA-ZR-01/stdout.tsv",
+      "sha256": "4bc33ac043e550ae12979fc899606217482f7913e71f86f5e1264e928f3b4a14",
+      "bytes": 7877
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/RELEASE.json",
+      "sha256": "3da752e2b07a689822bb092d9fb5e4ee879f68c607445d9f7a6b1cc7706efd0d",
+      "bytes": 4125
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/RETURN.md",
+      "sha256": "66cb9a50f0a6537ea6edc18002f4579c72cd47e9a0965e09cbad8f595ae1879d",
+      "bytes": 2912
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/RUNS.json",
+      "sha256": "34a9fff678c1b89a7e6f5b14fee471354fa3fdbe549a0252afe2ef9d4629a061",
+      "bytes": 27259
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/oracle_fresh/addendum_05_repaired_outputs/remaining_fixed_01/SUMMARY.json",
+      "sha256": "362ed0931e1ca8e695565e530580c4d836ae4c8fd7769957c4d1b35b6517c9a0",
+      "bytes": 9781
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/.gitignore",
+      "sha256": "9183125d49601eb295964d719d75fa0e6b3d6981d6a310d8e1d1e9cd5dc65f8e",
+      "bytes": 31
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+      "bytes": 173
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/Cargo.toml",
+      "sha256": "994d118576eb881668f3048f9b4d05f899ceb7599c1cd5f05cbe18f70172b7dc",
+      "bytes": 467
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/README.md",
+      "sha256": "7d731b1ce74592b3d6d73ee0321b9d7085eca69a8b04c214de3d776dbb0512a0",
+      "bytes": 4071
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/exact_sum.rs",
+      "sha256": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67",
+      "bytes": 10875
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests.rs",
+      "sha256": "5738a338b32a86ed3eadd9cb0565a2cbb7ef6fb630781ff170ee6feae49b2efd",
+      "bytes": 7886
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/exact_sum/tests/k1_reference.rs",
+      "sha256": "e21fdbb56654ca05b5d2e8f9b9be74b987ea676522d034c691756c84fd5ab347",
+      "bytes": 56744
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "627404d6c0de08e6c681dcc876b39efc68fa04b5c155636785e2abb0f4faff0b",
+      "bytes": 92593
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/load_ledger.rs",
+      "sha256": "8924d2822d9df02f6f8d34e1d030be1d78eb91d08d098eef307b5feebb7eb389",
+      "bytes": 38863
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/rigid_body.rs",
+      "sha256": "3e5b9be185428f1652775f60cbb98b9d30e08bff4ce2a9b2bb83ccf662d30a1b",
+      "bytes": 51441
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary.rs",
+      "sha256": "90ed530a04ac775acf55f81f7ac5c3b0a451c9fd9f0011b5bd4cf22b3a30f84d",
+      "bytes": 98158
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals.rs",
+      "sha256": "9e378891a347d162f20fcdc32b424f4e8f0d664e61dcd6cebd4ef8c90d65c764",
+      "bytes": 39085
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/functionals/tests.rs",
+      "sha256": "5d1574025e6ca3aac412f8b9cab11bdbc5a4f8016c8384daa87ded4e4c4fc312",
+      "bytes": 19020
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/exact_boundary/s11k_tests.rs",
+      "sha256": "0d74db5a2951ad62ec9777c99f37b274522efc948286fdfa997f4d4b611f2a2f",
+      "bytes": 3238
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check.rs",
+      "sha256": "052b093c256ba186bdd0ea66c891660c0dae8a7a344fc1d132a4746afcc00ece",
+      "bytes": 30981
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/formation_check_tests.rs",
+      "sha256": "f3f88ddc91e4ed744f8754685adf0acdfbc3007e23ff58ca372845af8aef321e",
+      "bytes": 12526
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/kf2_witness_tests.rs",
+      "sha256": "4a805ef758361151f837159686109aa67ad46003785a667d32e4911d8a270f29",
+      "bytes": 45996
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/assemble.rs",
+      "sha256": "057fa8a431bde050d0aa448c347dd1c92fbd4929ad6cc8ecce5837c9255d20f2",
+      "bytes": 29280
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/bound.rs",
+      "sha256": "b6e5a99386da9858af8ff95a1fb326d722523540f5c6e4b59c2bcd27130c0100",
+      "bytes": 46099
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/combine.rs",
+      "sha256": "b40ab81311a80720cc19bbbe03fccad4f4f371cc78e2b51e4eec8ab2079a32f1",
+      "bytes": 6203
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/directed.rs",
+      "sha256": "8aaace7bc8fb65a8a1f60e5e6e630ee54b62bd43ed7c108a2fe193b372b74af4",
+      "bytes": 6085
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/factor.rs",
+      "sha256": "e21fc61e6ae84e7c609da9f2d14c3769c4f203a9baa6bcd25025843056af22dc",
+      "bytes": 29088
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/ledger.rs",
+      "sha256": "66a48fb2a49c84e8e294bb741888fc53f72edcb6b7a3a4331fdeafaa7221ac4e",
+      "bytes": 8977
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/mod.rs",
+      "sha256": "78bb76773dd4fd4d799b5668f21a679f0ebf9c088ec5fff655e13a0453d6dc2a",
+      "bytes": 2687
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/recover.rs",
+      "sha256": "e452e3467608a4680359a36d30b6a580d72a12b778d506ff8118646257b7d388",
+      "bytes": 17973
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/seeded.rs",
+      "sha256": "ce8069a705d7dd7a0ea7a87fa82180757d804b0bd7268097cf5859f8e1a3a0f8",
+      "bytes": 4843
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/source.rs",
+      "sha256": "46c85ba0d9e0c45f6d19bfd188ce8cc52e4d773b96d3b7e8d0746b78e5582ca9",
+      "bytes": 24432
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/verify.rs",
+      "sha256": "31780a6a888decc64e2ebec2fcfbeff45c144a6f0d0169f0584d53fcccb89987",
+      "bytes": 47344
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide.rs",
+      "sha256": "5d35b70d45680f769354bbc6694c78186354d235a7af29891a9b09e7b4a293ad",
+      "bytes": 37105
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
+      "sha256": "76d96ee2a0d183ab8b288c41b0075b2cb2feb74016b7a3efcfa3f6eb6bb09d17",
+      "bytes": 41558
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
+      "sha256": "80441f99a0fdcb4544d5b95e1012bc5bf291089ff8cebbdcdcaac437d565a188",
+      "bytes": 19741
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_n5_base_signature.txt",
+      "sha256": "00c5807dda62356b64d26391ffddd7af6e8d895e676b94053902661816480eab",
+      "bytes": 1201
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/s11f_tests.rs",
+      "sha256": "f827b708de329c0e2af074f281cc464f4eb44baf63824db6bdb420d62ad8aaf0",
+      "bytes": 7242
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/s11k_tests.rs",
+      "sha256": "b23900274b77c8d472a54e1bd024013ad73f20a440e4a34209a0c39e126c1e99",
+      "bytes": 24319
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse.rs",
+      "sha256": "43c1f369a2fafef0dda00503f06b602bb3f0996c1c7f5fe398dce1145d735ee6",
+      "bytes": 75482
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/src/structural/sparse/tests.rs",
+      "sha256": "e1b93a639c6751f9bb80af3e10f61d519711fb5210e9e5237167c67db590c2dc",
+      "bytes": 53548
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k1_k2a_interaction.rs",
+      "sha256": "cf241452b7a82c75e26ab248df22900317fd35b0001ec5a36bb5f5f361c55959",
+      "bytes": 7911
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k2a/rf_range_models.rs",
+      "sha256": "3463d22784a252d18f6bc232f4c8616eefc712679c1c7f5bd8137e7413b0c7c5",
+      "bytes": 41223
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k2a_checked_formation.rs",
+      "sha256": "0fa172eba552b24093034c59731fe50911e4e6eb411abc6b6f490028f7c3f4d9",
+      "bytes": 30752
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k2b_force_scaling.rs",
+      "sha256": "9013583e1d4ff054d8429cb8a2252c8cc647c04f89e3be466c0f87df11127690",
+      "bytes": 49999
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/SHA256SUMS",
+      "sha256": "4b00b516b299a3cd5622322759166bcc57ae6150ed45a1017e19a07393528f0d",
+      "bytes": 489
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_sample.txt",
+      "sha256": "533bd223cf3e2ef9e345e3ed075fb1c3c65c054eac6a170b81237d0dc534cc9f",
+      "bytes": 1563054
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/b1_summary.txt",
+      "sha256": "bab3b6805a0244b3a6d0ce9c161914247cda69732289e84c7fccfc7c3a9d932a",
+      "bytes": 382
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/cases.txt",
+      "sha256": "75657e9344c20ab480d79b4a628a435a8a0b65e61a8ed1d8d76a67e43e41d049",
+      "bytes": 14192
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/gen_k5_vectors.py",
+      "sha256": "2e4a850c119d51297ca284368cab76dadf5ad3e3cce4e3fb061b77f5fc82aec0",
+      "bytes": 34959
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal.txt",
+      "sha256": "7e41bf9cdf8df85aa2efdcb0d0ed6fa1c346d3bafdfdc547cbe80d44e9410f46",
+      "bytes": 124639
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained/subnormal_summary.txt",
+      "sha256": "63ad0f619553c10d03b81d2c118daa765b41eb6106e8b9153f0ee75bdaa11c90",
+      "bytes": 509
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_constrained_bodies.rs",
+      "sha256": "ca7ffd1ef859aecdc0c6ae62c9b4e7e653dbd03d25fcdf27e7de3264fa561a5c",
+      "bytes": 41958
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/k5_scale.rs",
+      "sha256": "c19da33fe74a22818b73153d05411e47349fcf02ca7c3b9ee86f89b99ec985a3",
+      "bytes": 5142
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/m03_skew_scope.rs",
+      "sha256": "824fc637c995672e810ae01c0a7020776e913beed1d7f7c645a2a769a3f0204b",
+      "bytes": 37207
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/SHA256SUMS",
+      "sha256": "3aebae45d93eb3bc017298f42d316d81a6ef2004a5e86ff414f485b418917fa9",
+      "bytes": 1857
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
+      "sha256": "7163b82577fa318c93a1348809474d5b1f6125e1646b4786601edce091ef57b6",
+      "bytes": 39044
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
+      "sha256": "18fbc5ad623e8f287bebf66e32fe035e438732a0930e513f54ea6508c70f3eb5",
+      "bytes": 25394
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
+      "sha256": "4d5e5701e41410737b395f981ad97153d2148ab574886ed1f89f7e3010f38dd9",
+      "bytes": 26726
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/bounds.txt",
+      "sha256": "7da51ef1390bdc0cf9c577882d5059c34798c3047b6a74aa32dae5d28f88d67d",
+      "bytes": 1315252
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/charge.txt",
+      "sha256": "536728b20e0361ade45f165bf0e7672cc76dec2ecbde5703a8eb1be172e15536",
+      "bytes": 858762
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification.txt",
+      "sha256": "b6beb3626298d979a99e6b3c21096fa391d6907bc295487f88d1c706c94da9d2",
+      "bytes": 453667
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
+      "sha256": "3fed7c2a6711cbeab98047a36d0fd7a24a9e822266e36438ca4b142ed401f207",
+      "bytes": 12770
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
+      "sha256": "a384ff4aafd56060d17da5ace27ed0e95430bb9dcd979d15e98c8710081bced5",
+      "bytes": 20689
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed.txt",
+      "sha256": "028826667311510992d8f9d2e3fa260d16485fcac095febd8288b498e20a6b59",
+      "bytes": 363299
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
+      "sha256": "f9bd1f58e6430a92cb9b61aac5856c4bceaac3448fb45b18948b5390ac84c0fb",
+      "bytes": 4025
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/directional_span_exact.txt",
+      "sha256": "f11545a8f761ed90fc2a92eabd3f14047c6524c9c3aaf4437e901f0344bcaa28",
+      "bytes": 3051
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/encodings.txt",
+      "sha256": "70263358b79168453eb5c2955d0213bc6cb15d944cd8134119327b4365ab70e8",
+      "bytes": 14120
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/estimate.txt",
+      "sha256": "972b4650e6a31f9e452c15df7d5394af52dd62c21da6809167356ce65f60112e",
+      "bytes": 178606
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
+      "sha256": "01e880888f8281554569532beb506bfb946a6320a99448c6ffdae27fc0da9309",
+      "bytes": 15261
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/formation.txt",
+      "sha256": "d1e2a11a0198a71e3bfa0d220255fea469222802a83274748389dba19c7db404",
+      "bytes": 359900
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/gen_k4_vectors.py",
+      "sha256": "8c8f22aa8492736624045f866f5f8b47e9b3ee4639e1d038e02fa2425b6c7aa7",
+      "bytes": 207630
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
+      "sha256": "a463e84949d12782858e957547f3592e51ff839f4142320f6b8c04411427e5cd",
+      "bytes": 37952
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3.txt",
+      "sha256": "729e7ef86ba0b61353a167a610d53910e0deddb357c71948dd742993fca6f75a",
+      "bytes": 1276676
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
+      "sha256": "1c02ea1f82c7087829ab9ec6845a2f0389d1f60829fceec6c01aafa51e3d726f",
+      "bytes": 24433
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger.txt",
+      "sha256": "afd2e629bbd92c9586742223b9c58e4d4230949df985151e1bbade6b4dfc45c6",
+      "bytes": 363299
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
+      "sha256": "029a06cc764643761e783532e89c288bf07ffec87ddeb4383fd4ea4090f4c922",
+      "bytes": 13467
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
+      "sha256": "c55c8f60d898b748511774a3306629eb99a7945ba584548659107dc5d050bdea",
+      "bytes": 68584
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.rs",
+      "sha256": "201506548f494b59fa877521bf531953b57e08df802a1289d506fed603db58e6",
+      "bytes": 29374
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models.txt",
+      "sha256": "5aa07e539fa5c62a1650cd11dae9054f221171fe58e80655e19a97d99a76cd9e",
+      "bytes": 139021
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/models5a3.txt",
+      "sha256": "330bb31eecd0c5b509cca765fa881b6d04bb9ab0fba36c7b5f129cf300720c1b",
+      "bytes": 2042335
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/o8_states.txt",
+      "sha256": "70857094e753c2fd07ee331bfd4a535363a1356a507dda091eb6cc20057c197d",
+      "bytes": 412
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/outcomes.txt",
+      "sha256": "53f7176da76546eca377d1da96d4698ec5d71a624412ecadde7ffd464b2be037",
+      "bytes": 9452
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/profiles.txt",
+      "sha256": "15cbbe044dc82bafd6856d5411b2718dfed016732360a43b0417be48cd8793cb",
+      "bytes": 229836
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/publication_tests.rs",
+      "sha256": "12c65218ebbc5a442a6da1e0bf90623c1efa809f1f8d4d0dd1221ce03998a04e",
+      "bytes": 15133
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_cases.txt",
+      "sha256": "7be020420dc1c5b1d0bc37ddce13f98e193e0f15c28bc317a66e0f1cd342b230",
+      "bytes": 1008014
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/r1_large.txt",
+      "sha256": "7e3ecee649825d99ab82fb061c2925245435ecae5de6d843cb4350e0c03d94fb",
+      "bytes": 800523
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
+      "sha256": "1540a9675c873ed1922e685302c7ea8302d3117844aa10895b9e21e447c251f7",
+      "bytes": 9262
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
+      "sha256": "e57a84b56e64aa664a77d95b3fa4921fe9e79aa5d1eda9f95fee4cc6229d5c16",
+      "bytes": 25640
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale.txt",
+      "sha256": "f7bfeb0b965682dbdb1f7668c411a0bb6da5c5d05d5caf7e14ddf4cc5544b9c2",
+      "bytes": 263926
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
+      "sha256": "daf0d44cd7959491262cf2719e00303efa97eb75aec17c5b5f25ee34c1f14554",
+      "bytes": 23123
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/source_tests.rs",
+      "sha256": "dced0f7858b908c2bf66530820e4874507858d9e733a7110a07686cb4eed7802",
+      "bytes": 7143
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams.txt",
+      "sha256": "c36c867884ee4d1841284a990393c7c39d85a2719e1fb1ab6c91f6b5611e382e",
+      "bytes": 3741
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/streams_sample.txt",
+      "sha256": "e7789d1eb976b29dffade7e18619fb4553ee70872dec9e0fe44ffb916f94ae67",
+      "bytes": 1312529
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential.txt",
+      "sha256": "89e0f239949d41c1c65cce9c42c4f0c510bdd07319c866beb900af7a9f240f8b",
+      "bytes": 6699
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_differential_sample.txt",
+      "sha256": "cf4bca4503272c203413ffff4d204bed6e8e102c24b7034a9d17547942d8fa24",
+      "bytes": 1327183
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/sum_targeted.txt",
+      "sha256": "b4480589b78fa4eb4cf7a71bf91c43f22dbe6ba3602845f35082c18e852cd4a6",
+      "bytes": 98671
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/support.rs",
+      "sha256": "db546b9c509954389e6107aeb9cdb81c338d4b0f7aba7a41d8b45fb723b4643e",
+      "bytes": 18322
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
+      "sha256": "3de53d2d018cb7286bed092760398b69f59c92214fcaf20c09e269feddd4d135",
+      "bytes": 2707
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
+      "sha256": "94ee29a25bee27b2a21f31212a49a1ac7c6cee72796aa95a13158ab5bc0dcbc8",
+      "bytes": 20003
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/SHA256SUMS",
+      "sha256": "3b931423d9478735b1f0a24551eb1e35e64670281a04c3f28b015cd35fdc88c2",
+      "bytes": 403
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/atan.txt",
+      "sha256": "55f467cb431dd34c789b93fce93a4a0bdb95025c26dabae5fd45e7804529da2d",
+      "bytes": 681564
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential.txt",
+      "sha256": "fdd083bfc4b597bb56406bbf0440ef64429357ca5a4c3be67ca2e300fb414fc7",
+      "bytes": 1204
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/differential_sample.txt",
+      "sha256": "8c6fb63acc06e3626335107b6d2459762e76b49addc4166a3b902d302bb751e6",
+      "bytes": 263974
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/gen_wide_vectors.py",
+      "sha256": "3136619e559de5aabc16b16e04b7535f283eae81dbad1283075b3e4475179b95",
+      "bytes": 42740
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/split.txt",
+      "sha256": "cd716781a7847879ebf58e1132719d760c29a68aa4debae8308bd3c00f10734a",
+      "bytes": 61378
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/targeted.txt",
+      "sha256": "a8843bfbf8e33668a9a9c9e04edabb5e155526037d865ae9208dd65e4f4a048a",
+      "bytes": 265929
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide/wide_tests.rs",
+      "sha256": "a6e1e661bd1fdfd1edc14a60b360e36a4323fc8d756bd154cff0be2b048eb42a",
+      "bytes": 39591
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/SHA256SUMS",
+      "sha256": "23d85546fe7a1d69ce4cb37c9dd18595881946edb8b6cd5217def78bc8f8e711",
+      "bytes": 575
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/conversion.txt",
+      "sha256": "f8daaf68c39c8962337828419cb3d2bb71f152e01bb4ee0af755fbb637e2a7c6",
+      "bytes": 50294
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential.txt",
+      "sha256": "211fbf9912cb9a276d87a2f3ee9a927bc8e436f4cc1670bd1035c991eabd0a33",
+      "bytes": 7532
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/differential_sample.txt",
+      "sha256": "fb2bc225e3287ebd1fdd02236ca83f32c659e99b8d044547b6f9246f9c6d191a",
+      "bytes": 2911961
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/eft.txt",
+      "sha256": "498398c18e2887d0b5b2f6d10c4a171e7ceec0a67ff96fb40bdb047811a37a30",
+      "bytes": 346417
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/gen_wide_k3_vectors.py",
+      "sha256": "ca48d1bd65540eb3da7f30acbbdd4fa553fe03fed432f2b18afd960e2ba4da29",
+      "bytes": 38703
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/k3_tests.rs",
+      "sha256": "81020d3add105dcc042b458e201778addd6566976a0eccb5bc12927fdda09d34",
+      "bytes": 86574
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l16.txt",
+      "sha256": "d50b3d308d5a88647c30cd559c2eea54354977ac6343b98aa187fcec1449471d",
+      "bytes": 1202466
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l4.txt",
+      "sha256": "6e2343d6774446baf94f39df42a66404b1f08dca3ee6634c56bece02c1c10eec",
+      "bytes": 102483
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/retained_wide_k3/targeted_l8.txt",
+      "sha256": "9b3afcb29531a426c417d8ae01fc0072178822818df44ca63c2163781b4cc13d",
+      "bytes": 338497
+    },
+    {
+      "origin": "dd1f70d8ba85b19f7d948bca6ee08a44bbb12ae1:projects/chirality-piping/core/solver/frame_kernel/tests/s11_site_table.rs",
+      "sha256": "b15aa8b82382808da06814a4355b7c6e553e7efd292d5332510328ff2411b121",
+      "bytes": 36558
+    },
+    {
+      "origin": "520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/AUDIT/AUDIT_RESPONSE_SCOPE_HANDOFF_2026-09-30.md",
+      "sha256": "f2ca90b942bc4a9058473596dbb094d8b6739cd48f50d81b281d812cd445c218",
+      "bytes": 5313
+    },
+    {
+      "origin": "520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/src/main.rs",
+      "sha256": "9e054fa80fff5c2192b1bfef5ad031d24c4d9dd3ab2407b6f9df517cc74d740a",
+      "bytes": 8875
+    },
+    {
+      "origin": "520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/src/cases.rs",
+      "sha256": "b925980a3b5b3c206e9e419f6e9fd1fffdedab7feffc1173650f92ecf2ea3b8c",
+      "bytes": 6167
+    },
+    {
+      "origin": "520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/Cargo.toml",
+      "sha256": "2d98b4b273b52c0da69b64a7a70c984127d0df7b01a52a3f1b6e03a29eee1f59",
+      "bytes": 389
+    },
+    {
+      "origin": "520d7dfb790bcedabc03e92b9692884ce295be54:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260930-T3-AUDIT-RESPONSE/instances/A1-DIAGNOSIS/continuation_01/Cargo.lock",
+      "sha256": "ca870fd55afca7aebeadd4410bb77a2a40391ac80a7ff95c36ab6b55fe66bc4d",
+      "bytes": 342
+    },
+    {
+      "origin": "bb8b2fb42860b919f851f7c9ffb8a7e6b2c70cc4:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/RV29_D_BACKCHECK.md",
+      "sha256": "72913816ea4d47ffb502af515f039e83e07153458b9d20c1c0342786fbacb8a9",
+      "bytes": 1399
+    },
+    {
+      "origin": "bb8b2fb42860b919f851f7c9ffb8a7e6b2c70cc4:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/verification/ROOT_REPAIRED_B_FIELD_COMPARISON.json",
+      "sha256": "c67166bb1c3a13b526949ff7f1fd72f84845bab5a99e500338989705c364eb32",
+      "bytes": 33768
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/B_BEFORE_AFTER.json",
+      "sha256": "872ce9d9e08d7c3678fbfb63e8d664aee1ef0fcaecc34be8b7db7e6050744803",
+      "bytes": 34407
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B01/stdout.tsv",
+      "sha256": "f8b8781df709efdb98b17d0d689b0f5c6eb45e460dc944e45a55fac58e7e7a3e",
+      "bytes": 13804
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B01/stdout.tsv",
+      "sha256": "5cce9889b9eb5c0e614d66d654158a363bd9b8109bdb1bd00a10579cdd57ea32",
+      "bytes": 17944
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B02/stdout.tsv",
+      "sha256": "a293af61d547adba0ff93fe8d3df3824340f5c9919578e177b0f9e9cddad6c19",
+      "bytes": 15293
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B02/stdout.tsv",
+      "sha256": "6d1728ff21f7b288eec509eddbc181d315c6ad9a045892327dbaa5ff4a1db9e4",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B03/stdout.tsv",
+      "sha256": "073e7f894b07e239031e8ee7d0c04836daeabf43e4df4876cba38e4d2bdb7182",
+      "bytes": 13784
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B03/stdout.tsv",
+      "sha256": "c0b8df64af9cf26a063be7a88c148fdc5ac7501b5fe4bf06948f0053cb64c998",
+      "bytes": 13788
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B04/stdout.tsv",
+      "sha256": "09c4edc4043704d672a7ee8cecb593d749602544ca59c7903a17035ff0eadb73",
+      "bytes": 13877
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B04/stdout.tsv",
+      "sha256": "855cea653c0130ed7d90f6e5bb9f9e05467e03a63a69e76e9a8e96c3abbdcb53",
+      "bytes": 13880
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B05/stdout.tsv",
+      "sha256": "e99f67363834762d39d676315deef74af56d65d4c6f2ae1fe111a369474e115b",
+      "bytes": 13796
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B05/stdout.tsv",
+      "sha256": "0c27624dfd19c9378a7d3ad41f36a5efb084ae3f16cc71f3c7f3305973fef476",
+      "bytes": 17936
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B06/stdout.tsv",
+      "sha256": "8c704167c46a6901670ea76b472c16628c858d5247e7f03e4362df257bc3d571",
+      "bytes": 13796
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B06/stdout.tsv",
+      "sha256": "a6fec6bdd365320d6fc3a140ea9dc3ef92fd1fe1b730aa218fb604e78c2bfd03",
+      "bytes": 17936
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B07/stdout.tsv",
+      "sha256": "a824b99f5f24b2a0fe54962f410c8506078081fcd9275cd62b3e24ff402c39f4",
+      "bytes": 15293
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B07/stdout.tsv",
+      "sha256": "c5720dc07483c77b9d8b84e26db50368b1d5c30038ea3518dee430283d77056a",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B08/stdout.tsv",
+      "sha256": "96aec113b5f1231738957edbfd630c789d13fbd0be9d895592abaf53400dcf8d",
+      "bytes": 15293
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B08/stdout.tsv",
+      "sha256": "f010a04e3ba6bbef1ce520f4e0dbf5139e1ae09f6a88e4a3e82ce90537ee3ec5",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B09/stdout.tsv",
+      "sha256": "bfc5178d8c51765d307664013839398ccb30cff8658ba87fce31ac884230927e",
+      "bytes": 13915
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B09/stdout.tsv",
+      "sha256": "fdf839129346eed888a43b0a2905749cde3b8c23696364f5d0dd5a75c97a64d5",
+      "bytes": 13919
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B10/stdout.tsv",
+      "sha256": "9d9edf448803b805a58f9d74bc7116a1c07e2d1ef5b9c0221f8733dfca88d9ae",
+      "bytes": 14009
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B10/stdout.tsv",
+      "sha256": "da7c11071045f9a56704d0c13eca6053d759e3f786d1f393608d8d618335e785",
+      "bytes": 14012
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B11/stdout.tsv",
+      "sha256": "ed614d95374b031d5265582fadc65b5a0a35182bff91e0a3f192b9e7a1e2bfb6",
+      "bytes": 13804
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B11/stdout.tsv",
+      "sha256": "50368bac8d6fdf57bb842f914cecbadd24dc12ed51ec700ad2acb27e74b9522a",
+      "bytes": 17944
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B12/stdout.tsv",
+      "sha256": "5f2620a353b9f3b51d5ff46a831fd8a593e2de355d4ee8d29c88a676d90be34c",
+      "bytes": 15293
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B12/stdout.tsv",
+      "sha256": "b494bc613510c7ff022b73636594151b54949a6c248a71f61834252ba0619cc0",
+      "bytes": 17975
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B13/stdout.tsv",
+      "sha256": "ff480408836fc33c40bf4ea1da40223d1bdf54b5920beca3e1a935e5ec176f1c",
+      "bytes": 13517
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B13/stdout.tsv",
+      "sha256": "aebcbbaa31a200627ab2fce796410540e631add8f24448a592891fe848480152",
+      "bytes": 17657
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B14/stdout.tsv",
+      "sha256": "712d8004f5c19c11da0549dc83c8a7881331b18b0e373e6c18672201ac018893",
+      "bytes": 14921
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B14/stdout.tsv",
+      "sha256": "9dca3282629ad27130d713efb2d7c9d856dc7eba13777dedde61548ea0fc7a7c",
+      "bytes": 17603
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B15/stdout.tsv",
+      "sha256": "b13fb2ca9177e2cde022df772d41c589ecb0c1e4f9181fbcb5bde9e8b15e4b01",
+      "bytes": 13670
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B15/stdout.tsv",
+      "sha256": "703323363c4c2de15a4969321783c455db58b1d14f6ad6078ef93ed0019d6ff5",
+      "bytes": 17808
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/b_01/cases/B16/stdout.tsv",
+      "sha256": "787b2dcbf8ac0ceb268b6728b0d0d9ff82f27ec40e5f7782ae141177509b2dae",
+      "bytes": 15114
+    },
+    {
+      "origin": "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I22/verification_c/span_fix_01/cases/B16/stdout.tsv",
+      "sha256": "6edf011510e5da25cc1bf1f63fc4c50d33ac3e19cc10d2797914ff367f17917d",
+      "bytes": 17793
+    }
+  ],
+  "timestamp_utc": "2026-10-01T08:32:02.725030+00:00"
+}

@@ -1,0 +1,15 @@
+--- a/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
++++ b/projects/chirality-piping/core/solver/frame_kernel/src/structural/retained/adaptive.rs
+@@ -2956,11 +2956,11 @@
+         h.add_binary64(x, false)?;
+         h.add_wide(v, true)?;
+         h.make_absolute();
+         match meta.kind {
+             Kind::Force | Kind::Moment => {
+-                h.add_wide_scaled(required_error(&report.e_rows, index)?, false, 69, -p)?;
++                // PM06: 69*2^-P*E_q omitted
+                 let w = required_error(&report.w, index)?;
+                 h.add_wide(w, false)?;
+                 h.add_wide_scaled(w, false, 1, -p)?;
+                 h.add_wide(required_error(&report.charge, index)?, false)?;
+             }
