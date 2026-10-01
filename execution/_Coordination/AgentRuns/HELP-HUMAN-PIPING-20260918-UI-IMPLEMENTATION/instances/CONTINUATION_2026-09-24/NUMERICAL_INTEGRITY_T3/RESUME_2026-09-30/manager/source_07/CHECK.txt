@@ -1,0 +1,3 @@
+PASS:all3 installed original HTML/decoded source hashes and pinned1.97.1 version binding match. Nine-entry child seal separately verifies.
+Manager read actual factor.rs marking/enqueue/scope paths and existing K6Alloc current/calls/layout-size charging implementation; complete QUEUE and PROPOSAL read.
+Queue source formula is a bounded derivation, node/internal request-byte witness remains a proposal. Private alignments remain unbound; no overlay/probe/build or new tool executed.

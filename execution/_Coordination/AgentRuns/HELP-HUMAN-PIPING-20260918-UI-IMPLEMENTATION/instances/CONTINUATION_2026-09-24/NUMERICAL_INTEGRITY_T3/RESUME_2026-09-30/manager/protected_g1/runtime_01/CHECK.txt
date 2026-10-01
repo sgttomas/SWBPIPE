@@ -1,0 +1,3 @@
+PASS:28 exact baseline stdout/tool-exit records pass one test each, sequential and below5min checkpoint; source/test/binary/features/guards match.
+PASS:single system patch exit0 nevertheless emitted Permission denied; raw stdout hash verified, G01 and maintained verify.rs remain original31780a6a... rather than required053e9d2f....
+Zero mutant Rust tests, controls or kills;54 physical experiments unrun,66 registrations uncredited. No patch retry/temp/permission/alternate mechanism attempted by manager.
