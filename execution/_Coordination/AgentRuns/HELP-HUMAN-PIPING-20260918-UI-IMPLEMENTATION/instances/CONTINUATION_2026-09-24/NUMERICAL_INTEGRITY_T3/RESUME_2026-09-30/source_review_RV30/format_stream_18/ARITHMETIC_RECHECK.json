@@ -1,0 +1,83 @@
+{
+  "actual_literal_lengths": {
+    "structural zero with a nonzero reference": 40,
+    "unresolved R1 key ": 18,
+    "source refused: ": 16,
+    "fmt error": 9,
+    "InvalidInput()": 14,
+    "Range()": 7,
+    "NumericallyUnresolved()": 23,
+    "SourceRefused ": 14
+  },
+  "stated_literal_uppers": {
+    "structural zero with a nonzero reference": 40,
+    "unresolved R1 key ": 18,
+    "source refused: ": 16,
+    "fmt error": 9,
+    "InvalidInput()": 14,
+    "Range()": 7,
+    "NumericallyUnresolved()": 23,
+    "SourceRefused ": 14
+  },
+  "general_option_RowClass": 59,
+  "reached_option_RowClass": 22,
+  "actual_template_constants": {
+    "source_refusal_row": 94,
+    "source_refusal_case": 93,
+    "hash_mismatch": 56,
+    "exhausted_meter": 36,
+    "expected_outcome_mismatch": 39,
+    "mechanism_published": 55,
+    "multibody": 20,
+    "not_selected": 16,
+    "final_row_failure": 6,
+    "class_mismatch": 92,
+    "control_name": 1,
+    "input_derived_key": 1
+  },
+  "stated_template_uppers": {
+    "source_refusal_row": 94,
+    "source_refusal_case": 93,
+    "hash_mismatch": 56,
+    "exhausted_meter": 36,
+    "expected_outcome_mismatch": 39,
+    "mechanism_published": 55,
+    "multibody": 20,
+    "not_selected": 16,
+    "final_row_failure": 6,
+    "class_mismatch": 92,
+    "control_name": 1,
+    "input_derived_key": 1
+  },
+  "actual_Frame_variant_constants": {
+    "NonFiniteInput": 32824,
+    "NonPositiveInput": 32826,
+    "DegenerateAxis": 29,
+    "InvalidOrientation": 33,
+    "NumericalRange": 27
+  },
+  "actual_fixed_Frame_variant_constants": {
+    "InvalidNodeIndex": 87,
+    "RepeatedElementNodeIndex": 61,
+    "InvalidMatrixDimensions": 82,
+    "InvalidVectorLength": 84,
+    "RepeatedRestrainedDof": 51,
+    "RestrainedDofOutOfRange": 87,
+    "RepeatedPrescribedDof": 51,
+    "PrescribedDofOutOfRange": 87,
+    "SingularSystem": 46
+  },
+  "hash_result_capacity_upper": 128,
+  "hash_join_R": 144,
+  "hash_join_M": 208,
+  "two_unavailable_errors_R": 300,
+  "two_unavailable_errors_M": 375,
+  "feature_evidence": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout_04/BUILD_VR.log",
+    "sha256": "d4a9c38e99eb0f069aad280f909f5e9d79cc0f8e76fe7837691294433d568af0",
+    "line": 13,
+    "enabled_cfg_no_panic": false,
+    "scope": "historical layout04 only"
+  },
+  "no_formatter_hash_serializer_runtime_executed": true
+}

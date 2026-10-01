@@ -1,0 +1,42 @@
+{
+  "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/format_stream_17",
+  "seal": "d4334acba6dc4bdc7865af958311407480865a5d8a53442fa9c55068f4b70081",
+  "payloads": [
+    {
+      "path": "ARITHMETIC.json",
+      "sha256": "126ef0e34af294479a4481917ef261fe923191dd9dda334ca0bce4bbb5a56aa8"
+    },
+    {
+      "path": "LEAVES.md",
+      "sha256": "19e303e31961007359e10ce5c9861d02e7680e96a8868ced1dc1e3d65bc7c88b"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "43719c1efe43849408b1be2a1da0c2061d8221716685f748e5eed788be55e30e"
+    },
+    {
+      "path": "VERIFICATION.json",
+      "sha256": "2a3beca1523979a4f5b996b1897910793af549a12ed8d8882e72c80656df70d2"
+    },
+    {
+      "path": "_run_records/BINDING.json",
+      "sha256": "f36cf912c241b874284b8aac0a4d0be3fe759bbbd414993828c557f718f527d0"
+    },
+    {
+      "path": "_run_records/LIBRARY_BINDING.json",
+      "sha256": "41cd911e50d4690dbf254dce54ed20b5b9667f6570251364aa165dac79b3a3e7"
+    },
+    {
+      "path": "_run_records/RAW_COMMANDS.json",
+      "sha256": "e21022eebe627fff039439b4ecea274b66290d13b20a242e9101e31707b711ae"
+    },
+    {
+      "path": "_run_records/decoded/alloc__string.rs",
+      "sha256": "68d7464cc83b0064bac9b600b72b4feb7c90eb5efc92def549b7eb586c6537ed"
+    },
+    {
+      "path": "_run_records/decoded/core__fmt__num.rs",
+      "sha256": "e3db1034a79b77973f7ebb280a9543fd2508c5a5e73481ba924a3c7c9694b2fe"
+    }
+  ]
+}
