@@ -1,0 +1,98 @@
+{
+  "status": "SOURCE_ONLY_FIXED_INPUT_PROPOSAL",
+  "trace": [
+    {
+      "operation": "extend prefix",
+      "len_before": 0,
+      "additional": 20,
+      "required_len": 20,
+      "old_capacity": 0,
+      "new_capacity": 20,
+      "grow": true,
+      "active_old_bytes": 0,
+      "scratch_current_bytes": 20,
+      "scratch_old_plus_new_bytes": 20
+    },
+    {
+      "operation": "push first decoded quote",
+      "len_before": 20,
+      "additional": 1,
+      "required_len": 21,
+      "old_capacity": 20,
+      "new_capacity": 40,
+      "grow": true,
+      "active_old_bytes": 20,
+      "scratch_current_bytes": 40,
+      "scratch_old_plus_new_bytes": 60
+    },
+    {
+      "operation": "extend middle",
+      "len_before": 21,
+      "additional": 49,
+      "required_len": 70,
+      "old_capacity": 40,
+      "new_capacity": 80,
+      "grow": true,
+      "active_old_bytes": 40,
+      "scratch_current_bytes": 80,
+      "scratch_old_plus_new_bytes": 120
+    },
+    {
+      "operation": "push second decoded quote",
+      "len_before": 70,
+      "additional": 1,
+      "required_len": 71,
+      "old_capacity": 80,
+      "new_capacity": 80,
+      "grow": false,
+      "active_old_bytes": 0,
+      "scratch_current_bytes": 80,
+      "scratch_old_plus_new_bytes": 80
+    },
+    {
+      "operation": "extend empty closing suffix",
+      "len_before": 71,
+      "additional": 0,
+      "required_len": 71,
+      "old_capacity": 80,
+      "new_capacity": 80,
+      "grow": false,
+      "active_old_bytes": 0,
+      "scratch_current_bytes": 80,
+      "scratch_old_plus_new_bytes": 80
+    }
+  ],
+  "scratch_retained_during_parse_bytes": 80,
+  "scratch_construction_old_plus_new_upper_bytes": 120,
+  "max_active_old_increment_bytes": 40,
+  "scratch_after_from_str_returns_bytes": 0,
+  "capacity_kind": "Exact requested-capacity recurrence on reviewed implementation, not observed allocator capacity/size class. All small arithmetic checked; no parser execution.",
+  "before_escape": "Deserializer scratch starts Vec::new. All prior strings and keys are unescaped, so borrowed StrRead path never appends scratch. Each parse clears len but does not shrink. No numeric tokens use alternate scratch.",
+  "escape_route": "At each backslash copy preceding raw segment, consume backslash, parse_escape quote pushes one byte; closing quote copies empty suffix and returns Reference::Copied. Only quote arms, no Unicode/retry scratch.",
+  "value_overlap": "de.rs1430 calls Value visitor.visit_str while80B scratch remains borrowed; value/de.rs79 creates independent71B String backing. Current scratch+new Value-string portion is151B; the71B belongs to Value and must not be charged twice if whole Value bound already contains it.",
+  "growth_overlap": "At middle extend,40B old scratch and80B new scratch may overlap:120B scratch construction upper, active-old increment40B. Decoded Value source String has not yet been copied then. Do not add120 and80 for one scratch owner.",
+  "lifetimes": [
+    {
+      "phase": "parse/construction",
+      "owners": "Existing raw input String + completed/partial Value owners + scratch current/growing old; parent map/key and Value-construction temporaries remain as separately reviewed."
+    },
+    {
+      "phase": "end-of-parse",
+      "owners": "Raw input + completed Value +80B scratch; source Value String71B included in Value. from_trait owns de and drops it before returning Value."
+    },
+    {
+      "phase": "typed LIST construction",
+      "owners": "Raw input + Value + existing typed LIST construction owners; scratch0. Preserve established78B retained typed LIST separately."
+    },
+    {
+      "phase": "OnceLock ready",
+      "owners": "Existing retained typed78B LIST only from this initializer; raw input and Value dropped at closure exit, scratch already dropped."
+    }
+  ],
+  "safe_additive_form": "Add at most120B scratch to an already valid parse-construction owner union; add80B to parse retained/end union. Keep typed78B in its own phase, not scratch. These are finite upper components, not a whole Emax.",
+  "raw_input_content_bytes": 1357,
+  "raw_input_capacity": "Existing separately proved read_to_string owner bound; file length1357 is not newly asserted equal to buffer capacity.",
+  "typed78_status": "Existing reviewed retained owner carried, not reparsed or rederived here.",
+  "remaining_scratch_gap": null,
+  "excluded": "Malformed input, panic/OOM/errors, general escaped JSON, arbitrary unknown strings, full Emax/admission."
+}
