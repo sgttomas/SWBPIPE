@@ -1,0 +1,222 @@
+{
+  "source12_seal": "024339a4e87285bb001c0fe44fe3a4051c0e89165cf0cd38b54d01a2dd42f87c",
+  "source12_payloads": [
+    {
+      "path": "ARITHMETIC.json",
+      "match": true
+    },
+    {
+      "path": "BINDING.json",
+      "match": true
+    },
+    {
+      "path": "H_LEAVES.md",
+      "match": true
+    },
+    {
+      "path": "LIBRARY_SOURCE.json",
+      "match": true
+    },
+    {
+      "path": "RAW_COMMANDS.json",
+      "match": true
+    },
+    {
+      "path": "RETURN.md",
+      "match": true
+    },
+    {
+      "path": "VERIFICATION.json",
+      "match": true
+    },
+    {
+      "path": "decoded/alloc__boxed.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/alloc__boxed__convert.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__alloc__global.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__fmt__float.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__fmt__mod.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__num__imp__bignum.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__num__imp__flt2dec__mod.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__num__imp__flt2dec__strategy__dragon.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__num__imp__flt2dec__strategy__grisu.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/core__num__imp__fmt.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__io__buffered__bufwriter.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__io__buffered__linewriter.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__io__buffered__linewritershim.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__io__error.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__io__error__repr_bitpacked.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__io__mod.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__io__stdio.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__panicking.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__rt.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sync__once_lock.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sync__reentrant_lock.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__args__unix.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__backtrace.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__fd__unix.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__io__error__unix.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__pal__unix__conf.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__pal__unix__mod.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__pal__unix__stack_overflow.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__pal__unix__stack_overflow__thread_info.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__pal__unix__sync__mutex.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__stdio__unix.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__sync__mutex__mod.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__sync__mutex__pthread.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__sync__once__mod.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__sync__once__queue.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__sync__once_box.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__sys__thread__unix.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__thread__current.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__thread__main_thread.rs",
+      "match": true
+    },
+    {
+      "path": "decoded/std__thread__mod.rs",
+      "match": true
+    }
+  ],
+  "prior_metric_design_01": [
+    {
+      "path": "CHECKS.json",
+      "match": true
+    },
+    {
+      "path": "COMMANDS.md",
+      "match": true
+    },
+    {
+      "path": "PROPOSAL.md",
+      "match": true
+    },
+    {
+      "path": "RETURN.md",
+      "match": true
+    },
+    {
+      "path": "RUN.json",
+      "match": true
+    },
+    {
+      "path": "SOURCES.json",
+      "match": true
+    }
+  ],
+  "active_rv30_h_leaves_09_consumed": false,
+  "numeric_request_values_bound": false,
+  "runtime_work_performed": false
+}

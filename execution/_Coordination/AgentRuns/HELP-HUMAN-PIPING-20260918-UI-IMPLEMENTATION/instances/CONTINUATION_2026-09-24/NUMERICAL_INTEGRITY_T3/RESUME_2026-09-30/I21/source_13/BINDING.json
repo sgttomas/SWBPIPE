@@ -1,0 +1,72 @@
+{
+  "grant": {
+    "commit": "28c4168ca885f367afff45b54b14eb1e7b6b8600",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/BRIEFS/I21_SOURCE_13_SYNC_FACADES.md",
+    "sha256": "552abda465dbc95abf91af5196b4ffe3fe8f44bcf13e15aa9a1e7c12e4c66ba6",
+    "bytes": 1643
+  },
+  "role": "TASK /root/t3_recovery_manager/i21_k6c; parent WORKING_ITEMS /root/t3_recovery_manager; no delegation",
+  "inherited_instruction_basis": "Root/TASK/project/COMMON and sealed I21 inputs remain; no new role/workflow/skill selected",
+  "source12_seal": "024339a4e87285bb001c0fe44fe3a4051c0e89165cf0cd38b54d01a2dd42f87c",
+  "source12_payloads_verified": 47,
+  "source12_retained_helpers": [
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sys/sync/mutex/mod.rs.html",
+      "html_sha256": "d42b19eb7a4b5263045c27a7b376c446f10cf59b1c50a0a4c5aa0f9da138e132",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__mutex__mod.rs",
+      "decoded_sha256": "1c715675a2bc34471b96de58f7aaaf2db411289cf838d17edc61cb2d6b006aa2"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sys/sync/mutex/pthread.rs.html",
+      "html_sha256": "bbaa1eb8c323874842f6af2c8e8bf14f93a3da1ead95c0a22b6d17c009ed0688",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__mutex__pthread.rs",
+      "decoded_sha256": "1aa80435780abe34a365179635e92fb5935894fb9b4f615eb45b336958c28035"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sys/sync/once/mod.rs.html",
+      "html_sha256": "26e007d5d9f41beab035f8bf0d91de86f24bb62198e456a560070a70e3b80a54",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__once__mod.rs",
+      "decoded_sha256": "4e9b50925535fe54275f6e3aa1bb26b093d15e4a6168935bdb92d1117271293c"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sys/sync/once/queue.rs.html",
+      "html_sha256": "d92d6818faa21cf3908ab173a46555777a31992d1f80631ebb223c9df2d2ff3d",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__once__queue.rs",
+      "decoded_sha256": "1a3ea2d31b22571e557bfa9bb66efdb4a706b1405bc58f4dce6b94d3a36d412a"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sync/once_lock.rs.html",
+      "html_sha256": "a70b85b4363024cc75df1c8d312454148813ab1b272610ca249e0d6176082b65",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sync__once_lock.rs",
+      "decoded_sha256": "7d8fdb47c28498eb28407402488b630c86734ca1f682892f9d05edd12a746d43"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sys/pal/unix/stack_overflow/thread_info.rs.html",
+      "html_sha256": "ecc168d90cbe2ed0ba12666eb75f323577336a12d3b2016067e7c02ad427067f",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__pal__unix__stack_overflow__thread_info.rs",
+      "decoded_sha256": "96744c68778f452bd0a3bd447acb1448bc2493eb68637f7371f55e57acf190fe"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/panicking.rs.html",
+      "html_sha256": "c634adf36275c1e027bbdcbccc2ac8341c2de8509a445ec4c1391ec7a8d501c6",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__panicking.rs",
+      "decoded_sha256": "8aa4e1a2a94dec487185e927606fc449602aeb8bd49e4d26f9789c184376cbb1"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/core/alloc/global.rs.html",
+      "html_sha256": "047073eec6377dd8730b03dc036db2e44ab3965ce3981638314806c5d72a0529",
+      "decoded_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/core__alloc__global.rs",
+      "decoded_sha256": "3c33d30d18b51d866ea3d6a76599fe1daa884addf79c189ff05f5008d3d40ee2"
+    }
+  ],
+  "version_info": {
+    "origin": "<RUST>/share/doc/rust/html/version_info.html",
+    "sha256": "b2fc08d52652fca5363f67bb547459ef4ce83daa51d6e1a0ff97f3100cc9a02e",
+    "full_commit": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+    "version": "1.97.1"
+  },
+  "basis": "Product40129a225d73860ac2a53da9a2fa73869df668f3; installed Rust1.97.1/aarch64-apple-darwin source; no new build",
+  "active_review": "Not consumed as accepted final verdict; same RV30 backcheck pending",
+  "metric_design_02": "Not used; no witness execution authority consumed",
+  "writes": "K6C R/I21/source_13 only; no scratch"
+}

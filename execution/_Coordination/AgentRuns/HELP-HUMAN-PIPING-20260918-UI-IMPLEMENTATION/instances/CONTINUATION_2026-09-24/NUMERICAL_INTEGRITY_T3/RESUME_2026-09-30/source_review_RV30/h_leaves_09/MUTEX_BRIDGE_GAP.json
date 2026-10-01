@@ -1,0 +1,10 @@
+{
+  "location": "H_LEAVES.md:26,90-102,111-114",
+  "known_source": "decoded/std__sys__pal__unix__stack_overflow__thread_info.rs:30,40,117 uses crate::sync::Mutex<()>; stdout ReentrantLock uses sys::Mutex directly",
+  "missing_source": "Pinned public crate::sync::Mutex<()> representation and new/lock/unlock forwarding/no-extra-child path are not among forty supplied pages",
+  "classification": "P2 missing verification for complete two-request closure; no demonstrated extra allocation or undercount.",
+  "effect": "Retain both facade source warrants alongside two private request-size cells before claiming all source identities closed. H-R2/F0 do not depend on these first-initialization bridges.",
+  "minimum_repair": "Supply the selected public wrapper source link and show inline fields/forwarding with no extra registered child on this path; no new layout/probe, mirror, or guessed size needed",
+  "review_boundary": "No missing page opened and no design proposal inspected",
+  "additional_Once_bridge": "once_lock.rs imports crate::sync::Once at7, stores it at111 and calls call_once_force at542; supplied sys::once selector/queue is downstream, but the public Once forwarding/no-surviving-child path is absent."
+}

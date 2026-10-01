@@ -1,0 +1,14 @@
+{
+  "cases": 213,
+  "rows": 27752,
+  "controls": 5085,
+  "unique": 9522,
+  "digits_max": 40,
+  "p10_min": -2903,
+  "p10_max": 273,
+  "max_decimal_chunks": 5,
+  "zero_strings": 1,
+  "rf_large_cases": 24,
+  "memory_shapes": 259,
+  "final_descriptor_bytes": 739292
+}

@@ -1,0 +1,33 @@
+{
+  "basis": "global interval overapproximation of DESCRIPTORS plus finite binary64 representation; source integer arithmetic only",
+  "equations": {
+    "P10": "[-2903,273]",
+    "B_decimal": "4*40=160",
+    "T10": "[-2912,264]",
+    "dyadic_p2": "[-1074,971]",
+    "squared_dyadic_p2": "[-2148,1942]",
+    "floor_p2": "[-1108,937]",
+    "magnitude_bound_square_p10": "[-5824,546]",
+    "largest_final_lift": "25802+2148+4*(546-(-5824))=53430"
+  },
+  "rows": {
+    "decimal_input_bits": 160,
+    "control_difference_bits": 12865,
+    "finite_observation_difference_bits": 13939,
+    "control_final_comparison_aligned_bits": 25605,
+    "scalar_final_comparison_aligned_bits": 28724,
+    "magnitude_square_sum_bits": 4197,
+    "magnitude_upper_lower_bits": 12901,
+    "magnitude_squared_bound_bits": 25802,
+    "magnitude_final_comparison_aligned_bits": 53430,
+    "floor_final_comparison_aligned_bits": 13972
+  },
+  "max_logical_u32_limbs": 1670,
+  "generic_u32_capacity_ceiling": 3340,
+  "generic_u32_retained_request_ceiling": 13360,
+  "limitations": "Per-Nat ceiling only, not whole live expression scratch or E_max. Use named live-DAG recurrences; multiplication accumulator is separately u64. Range helper is bounded by the same ceiling. Final target/library binding and finite input premises retained.",
+  "max_shift_append_length_bound": 875,
+  "max_multiplication_u64_accumulator_length_bound": 809,
+  "max_add_sub_reserved_u32_capacity_bound": 437,
+  "range_aligned_bits_upper": 13939
+}

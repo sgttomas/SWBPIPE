@@ -1,0 +1,57 @@
+{
+  "status": "H_R2_H_F0_checked_startup_composition_conditional_on_two_public_facade_source_links",
+  "actual_start_utc": "2026-10-01T15:23:57+00:00",
+  "deadline_utc": "2026-10-01T15:43:57+00:00",
+  "actual_completion_utc": "2026-10-01T15:31:55.225200+00:00",
+  "elapsed_seconds": 478.2252,
+  "findings": [
+    {
+      "id": "RV30-H12-F1",
+      "priority": 2,
+      "kind": "missing verification, not demonstrated allocation defect",
+      "scope": "public Mutex<()> and public Once forwarding/no-surviving-child links absent from supplied packet; blocks describing only two numeric request premises as complete source closure"
+    }
+  ],
+  "checked": {
+    "child_payloads": 47,
+    "library_pages": 40,
+    "product_inputs": 3,
+    "D64_upper": 32788,
+    "D_ErrorSolve": 196808,
+    "Outer_end_extra": 2756016,
+    "byte_write_flush_extra": "0 beyond initialized owners on exact dropped-result path",
+    "float_conversion_helper_extra": 0,
+    "beta": "<=1; take1 for conservative source bound",
+    "name_child": "<=4 bytes on stated direct path",
+    "ThreadInfo_entries": "<=1"
+  },
+  "private_request_sizes_inferred": false,
+  "baseline612_used": false,
+  "minimum_numeric_requests": [
+    "actual pal::Mutex request M_mutex",
+    "actual leaf<usize,ThreadInfo> request L_info"
+  ],
+  "additional_premises": [
+    "public sync facade forwarding/no surviving child",
+    "direct main-thread/name/no competing initializer scope",
+    "source/compiler/stdlib/target/finalA1 reconciliation",
+    "H-I0/C0 inputs and checked integration"
+  ],
+  "not_performed": [
+    "new library expansion",
+    "designer proposal read",
+    "Rust/build/test/runtime/probe/model/solver",
+    "source repair",
+    "tool development",
+    "Git/index",
+    "network/install",
+    "delegation"
+  ],
+  "write_fence": "<K6C>/<R>/source_review_RV30/h_leaves_09",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "python": "3.13.14",
+    "executable": "<VENV>/bin/python"
+  }
+}

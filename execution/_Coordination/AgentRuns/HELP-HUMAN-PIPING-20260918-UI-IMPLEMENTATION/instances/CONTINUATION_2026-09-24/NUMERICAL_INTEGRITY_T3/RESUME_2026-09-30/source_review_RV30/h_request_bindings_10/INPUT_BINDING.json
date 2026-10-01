@@ -1,0 +1,138 @@
+{
+  "packets": [
+    {
+      "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_13",
+      "seal": "ec5754a160d6b8ccd1e30aa0091d4eb150ba6ccca974e8c04755f623a601b2d0",
+      "all_payloads_verified": 12,
+      "payloads": [
+        {
+          "path": "BINDING.json",
+          "sha256": "d0efdd63d8d8475dc25ecf274b1db90437df9ffc4ead8d3b0f85a16f1afa8272"
+        },
+        {
+          "path": "BRIDGES.md",
+          "sha256": "f2aa77ebcced3c4e257011617209d29d0e5b2cb78aaa4719bc97e901c416f0ff"
+        },
+        {
+          "path": "LIBRARY_SOURCE.json",
+          "sha256": "13cd8b732696a7c0451ce3cef9061559ef134de4adf92aee36664c4d344e47f9"
+        },
+        {
+          "path": "RAW_COMMANDS.json",
+          "sha256": "052a56ecebcce3c44febf7a9dc73e467aa80adfc5e0c5db080a984122cfec4ec"
+        },
+        {
+          "path": "RETURN.md",
+          "sha256": "f32c79240a7749846398d070c25bc4694c8423d7e298e1a9bb2994715af0510f"
+        },
+        {
+          "path": "VERIFICATION.json",
+          "sha256": "57c26acdc95a5bfb394b573b8f2d86a569a42bae38b2265d06f158fe27b553b5"
+        },
+        {
+          "path": "decoded/std__sync__mod.rs",
+          "sha256": "21060e7149f0f24bb1511ae1fa6c31021f6730f9161276b44ddf0c7bb5f284c0"
+        },
+        {
+          "path": "decoded/std__sync__once.rs",
+          "sha256": "513f1d12e51c34cc7d6eb34dbe2442f28f42748553b6037fa63ff5ad73c20099"
+        },
+        {
+          "path": "decoded/std__sync__poison.rs",
+          "sha256": "540646690dc3bffebb4bfcb412b07020a2e13c0312a5fd6f46c2b72ed565fba1"
+        },
+        {
+          "path": "decoded/std__sync__poison__mutex.rs",
+          "sha256": "5e45f2804aaee6b2dd24af91b471757cd15010058b03b39b4cbba90809e3fb8c"
+        },
+        {
+          "path": "decoded/std__sys__sync__mod.rs",
+          "sha256": "e57838920a0f8c38ef94dc6ab0724e59e4b3335a603b7e63f70c16d354da6816"
+        },
+        {
+          "path": "decoded/std__thread__functions.rs",
+          "sha256": "37d4de9ec99ab4dd221b64f76b724eb74d25f23957417e1d00ef118896af53de"
+        }
+      ]
+    },
+    {
+      "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/a1/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/manager/source_13",
+      "seal": "22b2513e3c2a7eef31f17c0f83fb9e493b2d4f2c3a0226b3e30020ccf6ddd76c",
+      "all_payloads_verified": 3,
+      "payloads": [
+        {
+          "path": "DISPATCH.md",
+          "sha256": "67154b30f52e25f57ce18b797df1c8d946dac11a0fa59ef1833a1b9922903bf0"
+        },
+        {
+          "path": "RETURN.md",
+          "sha256": "f5e665c5d27f07bf2bad102ed5348ae574ff2a51d674af6f06dab4053dcaaecb"
+        },
+        {
+          "path": "VERIFICATION.txt",
+          "sha256": "b0bc99dae45c372727b18f8fc61e02e27525af607dfacf6707bdbe5861504150"
+        }
+      ]
+    },
+    {
+      "packet": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I23/private_request_artifacts_08",
+      "seal": "7c39a134ab9be73bdfb778f7982f50a77ec59299b431a011bf1d1ed08759f186",
+      "all_payloads_verified": 12,
+      "payloads": [
+        {
+          "path": "ARTIFACT_BINDING.json",
+          "sha256": "1468d2d10d231302cc16face5328a6203affb414db8aaf05cd4afcd2fa9a7451"
+        },
+        {
+          "path": "BRIEF_SNAPSHOT.md",
+          "sha256": "5e64a1df1e950c686890afa2b3510cd97bcfa8e468f67779956eee5523ba22a9"
+        },
+        {
+          "path": "LIBSTD_READER_LIMIT.txt",
+          "sha256": "92d20f2c5368884e9e1150b025b601213d4dd1127b1795a842d6438a1ba17def"
+        },
+        {
+          "path": "LOOKUP_LIMITS.json",
+          "sha256": "3ea69c7b8ae04ffc5554c22ebfa39feb6ba43da9cd78a54b105276affd90c2ea"
+        },
+        {
+          "path": "PROVENANCE.json",
+          "sha256": "3066c64612e0ec66a771219e66a48beddec4c4d833ae363eec0b2cbdf3452e2c"
+        },
+        {
+          "path": "REQUEST_FACTS.json",
+          "sha256": "c3184320bd75625bad82d85fe53a409ffd6d49d4fc2073d49843be6af80e8170"
+        },
+        {
+          "path": "RETURN.md",
+          "sha256": "c50a8b25c8892b9af48d26d7eb718315058fae092587b7167884b4ad380dd5bf"
+        },
+        {
+          "path": "SOURCE_ATTRIBUTION.json",
+          "sha256": "d6b4eb7d13e3d6c4a6ad71f393dd2192d3eb60d43235289a25413da6f32bcd7a"
+        },
+        {
+          "path": "mutex_callsite.txt",
+          "sha256": "9f6a3d5b32b5e301e863de4af9d057ff3b17fa750199f912b596a9f846a85cec"
+        },
+        {
+          "path": "registry_callsite.txt",
+          "sha256": "7df2469fa691c9bac3d1161b6b4cd83515edf14d84d5d15a7f174870be0f2987"
+        },
+        {
+          "path": "reviewed_example_dylibs.txt",
+          "sha256": "84ef977eb1ea1ec2e087aa9717516b0d909c910840a6c837a8becd365918809d"
+        },
+        {
+          "path": "reviewed_example_symbols.txt",
+          "sha256": "7d2871f275da3aa547314c3631c75792855572daa9cf55599d042f41eaa8b118"
+        }
+      ]
+    }
+  ],
+  "binary": {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-layout08-target/aarch64-apple-darwin/release/examples/i21_kernel_layout",
+    "sha256": "63ea631507802f2a0ec939299b5dba2b7bdfb08728cb432be45d20c9e6938607",
+    "bytes": 469520
+  }
+}

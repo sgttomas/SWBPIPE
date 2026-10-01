@@ -1,0 +1,153 @@
+{
+  "reviewed_binary": {
+    "path": "<wt>/k6c-layout08-target/aarch64-apple-darwin/release/examples/i21_kernel_layout",
+    "sha256": "63ea631507802f2a0ec939299b5dba2b7bdfb08728cb432be45d20c9e6938607",
+    "bytes": 469520,
+    "kind": "already reviewed diagnostic example; not final H"
+  },
+  "current_installed_artifacts": [
+    {
+      "path": "<RUST>/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.dylib",
+      "bytes": 1437296,
+      "sha256": "dbc16afd689f0f633f3bc81b9c42a1ad793ce00a8a52412f26de20322338139d",
+      "kind": ".dylib",
+      "time_relation": "current installed sysroot bytes; historical linkage inference separately qualified"
+    },
+    {
+      "path": "<RUST>/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.rlib",
+      "bytes": 9525632,
+      "sha256": "72a7109a61061be9678f8cd64abf4cde56f9a5959347148c1f42af6e5c82375f",
+      "kind": ".rlib",
+      "time_relation": "current installed sysroot bytes; historical linkage inference separately qualified"
+    },
+    {
+      "path": "<RUST>/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.rmeta",
+      "bytes": 8383534,
+      "sha256": "987c49f29b13ebec919627f71552392fd270965de7a4f617192e308289667d8c",
+      "kind": ".rmeta",
+      "time_relation": "current installed sysroot bytes; historical linkage inference separately qualified"
+    },
+    {
+      "path": "<RUST>/lib/rustlib/aarch64-apple-darwin/lib/liballoc-4eb19a7bc969a107.rlib",
+      "bytes": 760904,
+      "sha256": "963cee6d507fb27b513b4f0b4bd6346a59df297d668fa1437af036d5bfe09bea",
+      "kind": ".rlib",
+      "time_relation": "current installed sysroot bytes; historical linkage inference separately qualified"
+    },
+    {
+      "path": "<RUST>/lib/rustlib/aarch64-apple-darwin/lib/liballoc-4eb19a7bc969a107.rmeta",
+      "bytes": 7405153,
+      "sha256": "49ed63ba4a69032f6e4d44a7b9daee881b44dffe82229b2e36bce1ce3216cc62",
+      "kind": ".rmeta",
+      "time_relation": "current installed sysroot bytes; historical linkage inference separately qualified"
+    },
+    {
+      "path": "<RUST>/lib/rustlib/aarch64-apple-darwin/lib/libcore-df38416008f914c9.rlib",
+      "bytes": 2433912,
+      "sha256": "cafd6a4392187f286668b6390052d284b00431484ae761d3e1a47105548d076e",
+      "kind": ".rlib",
+      "time_relation": "current installed sysroot bytes; historical linkage inference separately qualified"
+    },
+    {
+      "path": "<RUST>/lib/rustlib/aarch64-apple-darwin/lib/libcore-df38416008f914c9.rmeta",
+      "bytes": 62154696,
+      "sha256": "d176f829bc08a8bc63e1042140cb0428240a9b1b14c8f3ad65d08dfa44e762c6",
+      "kind": ".rmeta",
+      "time_relation": "current installed sysroot bytes; historical linkage inference separately qualified"
+    }
+  ],
+  "linked_dynamic_libraries_output": "reviewed_example_dylibs.txt",
+  "build_records": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/BINDING.json",
+      "sha256": "a1052dbd5d0ebc3e89e97db5f800735f124ecfd371e66cdabb7dad6e4ad6b382",
+      "bytes": 3395
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/LIBRARY_SOURCE.json",
+      "sha256": "6779dc6095c7c500d0368a948dcba19911af6736c3af139c8393328273e1c43a",
+      "bytes": 18590
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/H_LEAVES.md",
+      "sha256": "63ce58a4b2524c072ebb218a169216c6b4339e802433dad8c017f3d9a8bb3f8e",
+      "bytes": 17921
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/RETURN.md",
+      "sha256": "ecc1a588cba9d6aa90e9d4a6a47d55e3278ce3af3655be1240ec93b90fb9647c",
+      "bytes": 3744
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_02/PROPOSAL.md",
+      "sha256": "6371c3089b2e8105b27f70ffe85bc041d2f93fd354b5e35c608eaab56f8d4979",
+      "bytes": 13061
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/EXECUTION.json",
+      "sha256": "d38ff3aa00f253d5bf9fcb43e64a2f1b84f75c16c75db7199fccd4b28c7d2095",
+      "bytes": 18321
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/TARGET_FILES.json",
+      "sha256": "24b9c0aad9910e0582096932f004784c6b9e5b59c3d2f8b128d065def5514eec",
+      "bytes": 19055
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/RUSTC_INFO.portable.json",
+      "sha256": "f5be47522fc41754d96ac8189b6e68c666df65ebd06547538b0fb507b74c4bda",
+      "bytes": 3489
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/BUILD_LAYOUT08.portable.log",
+      "sha256": "436f611cf18467eacbd41d060659bc5beff32a7d181bdc11baa9ba18ad1ff6db",
+      "bytes": 15737
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/layout08_run/RETURN.md",
+      "sha256": "133b856f83340979dd63192a8abeb8ff438b1ecfb1df2e2561838d699f6f7811",
+      "bytes": 4825
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/layout08_03/backcheck_run/COMPILER_BACKCHECK.json",
+      "sha256": "e2ae9a49e89bcd2bd73698b0d7f2f9b580effa5cc4c5ba010b5cebe633e5954c",
+      "bytes": 1577
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/layout08_03/backcheck_run/BINDING_CHECK.json",
+      "sha256": "e258bbeca4a483aeb391d516dc3b5749a309918a6fdc9554c238448c4f93e3e5",
+      "bytes": 19426
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/layout08_03/backcheck_run/RETURN.md",
+      "sha256": "11912c7c3fb6702611f111730f9eec82d4d61d653c6aeaa5fe352def5044124f",
+      "bytes": 8631
+    }
+  ],
+  "example_compile_argv_record": "     Running `<RUST_TOOLCHAIN>/bin/rustc --crate-name i21_kernel_layout --edition=2021 examples/i21_kernel_layout.rs --error-format=json --json=diagnostic-rendered-ansi,artifacts,future-incompat --crate-type bin --emit=dep-info,link -C opt-level=3 -C embed-bitcode=no --check-cfg 'cfg(docsrs,test)' --check-cfg 'cfg(feature, values())' -C metadata=af03e1ac38adcb86 -C extra-filename=-630cf96b4ef0e2d3 --out-dir <T3_HOST_ROOT>/k6c-layout08-target/aarch64-apple-darwin/release/examples --target aarch64-apple-darwin -C strip=debuginfo -L dependency=<T3_HOST_ROOT>/k6c-layout08-target/aarch64-apple-darwin/release/deps -L dependency=<T3_HOST_ROOT>/k6c-layout08-target/release/deps --extern open_pipe_stress_frame_kernel=<T3_HOST_ROOT>/k6c-layout08-target/aarch64-apple-darwin/release/deps/libopen_pipe_stress_frame_kernel-2f0462f403bf0419.rlib --extern open_pipe_stress_nonlinear_integration=<T3_HOST_ROOT>/k6c-layout08-target/aarch64-apple-darwin/release/deps/libopen_pipe_stress_nonlinear_integration-f4b1ee346ed2442a.rlib --extern open_pipe_stress_solver_diagnostics=<T3_HOST_ROOT>/k6c-layout08-target/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_diagnostics-a8cdf236c7f09d21.rlib --extern open_pipe_stress_solver_performance_harness=<T3_HOST_ROOT>/k6c-layout08-target/aarch64-apple-darwin/release/deps/libopen_pipe_stress_solver_performance_harness-c6dc4e4fa88356c5.rlib --extern open_pipe_stress_sparse_direct=<T3_HOST_ROOT>/k6c-layout08-target/aarch64-apple-darwin/release/deps/libopen_pipe_stress_sparse_direct-2e8fb1883249da8a.rlib`",
+  "fingerprints_verified_unchanged": [
+    {
+      "path": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_performance_harness-630cf96b4ef0e2d3/example-i21_kernel_layout.json",
+      "features": "[]",
+      "rustflags": [],
+      "profile": 2040997289075261528,
+      "sha256": "377c5d3b96bd3ff6aa54c8e633b6b8b65a5b4dd54614ec98079ae504ebe2b5df"
+    },
+    {
+      "path": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_performance_harness-c6dc4e4fa88356c5/lib-open_pipe_stress_solver_performance_harness.json",
+      "features": "[]",
+      "rustflags": [],
+      "profile": 2040997289075261528,
+      "sha256": "928d52e2f3993588e6eb2cd078cb95485f011f7a04612f4e3daadfb34f38e338"
+    },
+    {
+      "path": "aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_frame_kernel-2f0462f403bf0419/lib-open_pipe_stress_frame_kernel.json",
+      "features": "[]",
+      "rustflags": [],
+      "profile": 2040997289075261528,
+      "sha256": "35ab0cb7195c146f225e9c98a1c475ed843469331af967880c1e6a63baab94d2"
+    }
+  ],
+  "sysroot_linkage_status": "Inferred from reviewed toolchain path/full commit/target and matching nominal crate disambiguators. No contemporaneous linker input file-hash list found; current sysroot hashes are not silently backdated.",
+  "no_LTO_override_in_recorded_argv": "No explicit -C lto option in the example compiler line; do not infer more than recorded."
+}

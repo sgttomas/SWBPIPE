@@ -1,0 +1,146 @@
+[
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/H_LEAVES.md",
+    "sha256": "63ce58a4b2524c072ebb218a169216c6b4339e802433dad8c017f3d9a8bb3f8e",
+    "bytes": 17921,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/RETURN.md",
+    "sha256": "ecc1a588cba9d6aa90e9d4a6a47d55e3278ce3af3655be1240ec93b90fb9647c",
+    "bytes": 3744,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/BINDING.json",
+    "sha256": "a1052dbd5d0ebc3e89e97db5f800735f124ecfd371e66cdabb7dad6e4ad6b382",
+    "bytes": 3395,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/SHA256SUMS",
+    "sha256": "024339a4e87285bb001c0fe44fe3a4051c0e89165cf0cd38b54d01a2dd42f87c",
+    "bytes": 4628,
+    "consulted_selection": "seal check"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/LIBRARY_SOURCE.json",
+    "sha256": "6779dc6095c7c500d0368a948dcba19911af6736c3af139c8393328273e1c43a",
+    "bytes": 18590,
+    "consulted_selection": "metadata read; first12000 chars displayed"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__mutex__mod.rs",
+    "sha256": "1c715675a2bc34471b96de58f7aaaf2db411289cf838d17edc61cb2d6b006aa2",
+    "bytes": 1151,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__mutex__pthread.rs",
+    "sha256": "1aa80435780abe34a365179635e92fb5935894fb9b4f615eb45b336958c28035",
+    "bytes": 2485,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__pal__unix__sync__mutex.rs",
+    "sha256": "1df3c112f84ccfa7ff048aa88a604dc6029b405f59e0aa96d35381b589aa9b17",
+    "bytes": 5515,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__pal__unix__stack_overflow__thread_info.rs",
+    "sha256": "96744c68778f452bd0a3bd447acb1448bc2493eb68637f7371f55e57acf190fe",
+    "bytes": 5638,
+    "consulted_selection": "full"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__sync__once_box.rs",
+    "sha256": "395ab1241ab919abedd060b790527a605763b5a94260e51e702ba2df5852ad6c",
+    "bytes": 2752,
+    "consulted_selection": "45-85"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__rt.rs",
+    "sha256": "f435576c645fb30eaca560e819c2a113b556452d79c0303f49ffd4487018c01f",
+    "bytes": 7538,
+    "consulted_selection": "90-125"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__sys__pal__unix__stack_overflow.rs",
+    "sha256": "ab878f2cb5448911a0b6eb8ed2bc58d623c405597dc33b57751de7c4241d89de",
+    "bytes": 30397,
+    "consulted_selection": "110-205"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/std__thread__current.rs",
+    "sha256": "1084535565799fa30c42320309fa2cf4d95aacdfb022ce301b17b0a299e52109",
+    "bytes": 10501,
+    "consulted_selection": "190-240"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/decoded/core__alloc__global.rs",
+    "sha256": "3c33d30d18b51d866ea3d6a76599fe1daa884addf79c189ff05f5008d3d40ee2",
+    "bytes": 13192,
+    "consulted_selection": "90-160"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/decoded/alloc__collections__btree__node.rs",
+    "sha256": "2200ca0a4fe38592c314dc7f5f40bbb160e06b6f9e4abd1eb5bc40701540ab25",
+    "bytes": 79123,
+    "consulted_selection": "35-125"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_02/VERSION_BINDING.json",
+    "sha256": "6a1412652f15467dddac6687aa841eb4a942f2b68ff8a06cc8c716f2420e6b80",
+    "bytes": 3492,
+    "consulted_selection": "1-100"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_05/FACTS.json",
+    "sha256": "ca6a1f859e5484b5bfbb117644847e5c93b1c73e228f9a394f44e544d5b55c07",
+    "bytes": 18939,
+    "consulted_selection": "first1500 chars only; no request number relied upon"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/I21/source_12/RAW_COMMANDS.json",
+    "sha256": "d2807608a84870fa19b65484bd25a571d2d14405f971fe889a51fec75db78f20",
+    "bytes": 386866,
+    "consulted_selection": "rg Mutex|mutex|RUST|toolchain|rustup; first3500 bytes displayed"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_01/SHA256SUMS",
+    "sha256": "e9421aac1e8444ad5c105988f3db4a9d47a86158b35880a479883f7c120717ba",
+    "bytes": 464,
+    "consulted_selection": "preservation identity only"
+  },
+  {
+    "origin": "<K6C>/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/metric_design_01/SOURCES.json",
+    "sha256": "9afc3b3e4f198e44ed9792afd98192eb9f2fecb8ff326eb5e09abfef122eb034",
+    "bytes": 19767,
+    "consulted_selection": "inherited instruction manifest identity only"
+  },
+  {
+    "origin": "/Users/ryan/.rustup/toolchains/1.97.1-aarch64-apple-darwin/share/doc/rust/html/src/std/sync/poison/mutex.rs.html",
+    "sha256": "ada4260b27fc881280779c4b3b5743ecc2d13af65089aa7103382566a3fbf35c",
+    "decoded_path": "std__sync__poison__mutex.rs.txt",
+    "decoded_sha256": "5e45f2804aaee6b2dd24af91b471757cd15010058b03b39b4cbba90809e3fb8c",
+    "transformation": "isolate pre.rust/code; remove numeric data-nosnippet anchors; strip tags; HTML-unescape; preserve whitespace",
+    "consulted_selection": "170-210,280-345,425-460 then exact struct/new/lock/guard-construction/drop locations",
+    "rustdoc_version": "1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  {
+    "origin": "<K6C> Git 40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/alloc.rs",
+    "sha256": "0bb07a2346d0fedf9411ec9e93ab427b4fc4eafbb9de01c412067e3fbe7e4ba0",
+    "bytes": 7487,
+    "consulted_selection": "full",
+    "read_argv": [
+      "git",
+      "show",
+      "40129a225d73860ac2a53da9a2fa73869df668f3:projects/chirality-piping/core/solver/performance_harness/src/bin/k6_observe/alloc.rs"
+    ],
+    "env": {
+      "GIT_OPTIONAL_LOCKS": "0"
+    },
+    "exit_code": 0
+  }
+]

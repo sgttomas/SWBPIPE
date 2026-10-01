@@ -1,0 +1,2 @@
+<wt>/k6c-layout08-target/aarch64-apple-darwin/release/examples/i21_kernel_layout:
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)

@@ -1,0 +1,63 @@
+
+<wt>/k6c-layout08-target/aarch64-apple-darwin/release/examples/i21_kernel_layout:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+0000000100039010 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>>:
+100039010: d102c3ff    	sub	sp, sp, #0xb0
+100039014: a90857f6    	stp	x22, x21, [sp, #0x80]
+100039018: a9094ff4    	stp	x20, x19, [sp, #0x90]
+10003901c: a90a7bfd    	stp	x29, x30, [sp, #0xa0]
+100039020: 910283fd    	add	x29, sp, #0xa0
+100039024: aa0003f4    	mov	x20, x0
+100039028: f0000008    	adrp	x8, 0x10003c000 <GCC_except_table10+0x8>
+10003902c: 91338108    	add	x8, x8, #0xce0
+100039030: ad400900    	ldp	q0, q2, [x8]
+100039034: ad0183e0    	stp	q0, q0, [sp, #0x30]
+100039038: 3d800be2    	str	q2, [sp, #0x20]
+10003903c: ad410500    	ldp	q0, q1, [x8, #0x20]
+100039040: ad0003e1    	stp	q1, q0, [sp]
+100039044: ad0283e2    	stp	q2, q0, [sp, #0x50]
+100039048: 3d801fe1    	str	q1, [sp, #0x70]
+10003904c: 97ff248d    	bl	0x100002280 <__rustc::__rust_no_alloc_shim_is_unstable_v2>
+100039050: 52800800    	mov	w0, #0x40               ; =64
+100039054: 52800101    	mov	w1, #0x8                ; =8
+100039058: 97ff207f    	bl	0x100001254 <__rustc::__rust_alloc>
+10003905c: b4000300    	cbz	x0, 0x1000390bc <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>+0xac>
+100039060: aa0003f3    	mov	x19, x0
+100039064: ad4107e0    	ldp	q0, q1, [sp, #0x20]
+100039068: ad000001    	stp	q1, q0, [x0]
+10003906c: ad4007e0    	ldp	q0, q1, [sp]
+100039070: ad010001    	stp	q1, q0, [x0, #0x20]
+100039074: 97ff6e7f    	bl	0x100014a70 <<std::sys::pal::unix::sync::mutex::Mutex>::init>
+100039078: d2800015    	mov	x21, #0x0               ; =0
+10003907c: c8f5fe93    	casal	x21, x19, [x20]
+100039080: f10002bf    	cmp	x21, #0x0
+100039084: 54000100    	b.eq	0x1000390a4 <<std::sys::sync::once_box::OnceBox<std::sys::pal::unix::sync::mutex::Mutex>>::initialize::<<std::sys::sync::mutex::pthread::Mutex>::get::{closure#0}>+0x94>
+100039088: aa1303e0    	mov	x0, x19
+10003908c: 94000633    	bl	0x10003a958 <dyld_stub_binder+0x10003a958>
+100039090: aa1303e0    	mov	x0, x19
+100039094: 52800801    	mov	w1, #0x40               ; =64
+100039098: 52800102    	mov	w2, #0x8                ; =8
+10003909c: 97ff20ab    	bl	0x100001348 <__rustc::__rust_dealloc>
+1000390a0: aa1503f3    	mov	x19, x21
+1000390a4: aa1303e0    	mov	x0, x19
+1000390a8: a94a7bfd    	ldp	x29, x30, [sp, #0xa0]
+1000390ac: a9494ff4    	ldp	x20, x19, [sp, #0x90]
+1000390b0: a94857f6    	ldp	x22, x21, [sp, #0x80]
+1000390b4: 9102c3ff    	add	sp, sp, #0xb0
+1000390b8: d65f03c0    	ret
+1000390bc: 52800100    	mov	w0, #0x8                ; =8
+1000390c0: 52800801    	mov	w1, #0x40               ; =64
+1000390c4: 94000483    	bl	0x10003a2d0 <alloc::alloc::handle_alloc_error>
+1000390c8: d4200020    	brk	#0x1
+1000390cc: aa0003f4    	mov	x20, x0
+1000390d0: aa1303e0    	mov	x0, x19
+1000390d4: 97ff3ae3    	bl	0x100007c60 <core::ptr::drop_glue::<core::pin::Pin<alloc::boxed::Box<std::sys::pal::unix::sync::mutex::Mutex>>>>
+1000390d8: aa1403e0    	mov	x0, x20
+1000390dc: 940005aa    	bl	0x10003a784 <dyld_stub_binder+0x10003a784>
+1000390e0: aa0003f4    	mov	x20, x0
+1000390e4: 910103e0    	add	x0, sp, #0x40
+1000390e8: 9400061c    	bl	0x10003a958 <dyld_stub_binder+0x10003a958>
+1000390ec: aa1403e0    	mov	x0, x20
+1000390f0: 940005a5    	bl	0x10003a784 <dyld_stub_binder+0x10003a784>

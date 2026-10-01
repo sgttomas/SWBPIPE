@@ -1,0 +1,23 @@
+[
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-layout08-target/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_performance_harness-630cf96b4ef0e2d3/example-i21_kernel_layout.json",
+    "sha256": "377c5d3b96bd3ff6aa54c8e633b6b8b65a5b4dd54614ec98079ae504ebe2b5df",
+    "features": "[]",
+    "rustflags": [],
+    "profile": 2040997289075261528
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-layout08-target/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_solver_performance_harness-c6dc4e4fa88356c5/lib-open_pipe_stress_solver_performance_harness.json",
+    "sha256": "928d52e2f3993588e6eb2cd078cb95485f011f7a04612f4e3daadfb34f38e338",
+    "features": "[]",
+    "rustflags": [],
+    "profile": 2040997289075261528
+  },
+  {
+    "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c-layout08-target/aarch64-apple-darwin/release/.fingerprint/open_pipe_stress_frame_kernel-2f0462f403bf0419/lib-open_pipe_stress_frame_kernel.json",
+    "sha256": "35ab0cb7195c146f225e9c98a1c475ed843469331af967880c1e6a63baab94d2",
+    "features": "[]",
+    "rustflags": [],
+    "profile": 2040997289075261528
+  }
+]

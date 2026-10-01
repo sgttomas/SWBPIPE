@@ -1,0 +1,44 @@
+{
+  "sites": [
+    {
+      "file": "mutex_callsite.txt",
+      "selected_lines": [
+        "100039050: 52800800    \tmov\tw0, #0x40               ; =64",
+        "100039054: 52800101    \tmov\tw1, #0x8                ; =8",
+        "100039058: 97ff207f    \tbl\t0x100001254 <__rustc::__rust_alloc>",
+        "100039074: 97ff6e7f    \tbl\t0x100014a70 <<std::sys::pal::unix::sync::mutex::Mutex>::init>",
+        "10003907c: c8f5fe93    \tcasal\tx21, x19, [x20]",
+        "100039094: 52800801    \tmov\tw1, #0x40               ; =64",
+        "100039098: 52800102    \tmov\tw2, #0x8                ; =8",
+        "10003909c: 97ff20ab    \tbl\t0x100001348 <__rustc::__rust_dealloc>"
+      ]
+    },
+    {
+      "file": "registry_callsite.txt",
+      "selected_lines": [
+        "100023e2c: f946a11b    \tldr\tx27, [x8, #0xd40]",
+        "100023e30: b400057b    \tcbz\tx27, 0x100023edc <std::sys::pal::unix::stack_overflow::thread_info::set_current_info+0x2c8>",
+        "100023ee0: 52804400    \tmov\tw0, #0x220              ; =544",
+        "100023ee4: 52800101    \tmov\tw1, #0x8                ; =8",
+        "100023ee8: 97ff74db    \tbl\t0x100001254 <__rustc::__rust_alloc>",
+        "100023ef8: a9007d00    \tstp\tx0, xzr, [x8]",
+        "100023f00: 79043408    \tstrh\tw8, [x0, #0x21a]",
+        "100023f04: a900681f    \tstp\txzr, x26, [x0]",
+        "100023f0c: a9062009    \tstp\tx9, x8, [x0, #0x60]",
+        "100023f10: a9074c15    \tstp\tx21, x19, [x0, #0x70]",
+        "100023f14: f9004014    \tstr\tx20, [x0, #0x80]",
+        "100023f24: f906a909    \tstr\tx9, [x8, #0xd50]"
+      ]
+    }
+  ],
+  "interpretation": "AArch64 w0/w1 writes zero-extend x0/x1, scalar size and alignment arguments to the identified __rust_alloc shim; byte request facts for this executable only. Allocation-failure handlers use different lowered argument order and were not mistaken for allocation calls.",
+  "mutex_request": [
+    64,
+    8
+  ],
+  "registry_first_leaf_request": [
+    544,
+    8
+  ],
+  "sum_substitution_only": 1700
+}

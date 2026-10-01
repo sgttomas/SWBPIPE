@@ -1,0 +1,60 @@
+{
+  "transformation": "One-off read-only HTML extraction: isolate pre.rust/code, remove numeric line anchors and tags, html.unescape; source not executed. Original hashes and contiguous source lines verified.",
+  "full_commit": "8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+  "pages": [
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sync/mod.rs.html",
+      "html_sha256": "447933e66088324f8545921adab8892b2306fcabdca32439065f4e3588e317a6",
+      "decoded_path": "decoded/std__sync__mod.rs",
+      "decoded_sha256": "21060e7149f0f24bb1511ae1fa6c31021f6730f9161276b44ddf0c7bb5f284c0",
+      "lines": 307,
+      "line_anchors_contiguous": true,
+      "version": "1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sync/poison/mutex.rs.html",
+      "html_sha256": "ada4260b27fc881280779c4b3b5743ecc2d13af65089aa7103382566a3fbf35c",
+      "decoded_path": "decoded/std__sync__poison__mutex.rs",
+      "decoded_sha256": "5e45f2804aaee6b2dd24af91b471757cd15010058b03b39b4cbba90809e3fb8c",
+      "lines": 946,
+      "line_anchors_contiguous": true,
+      "version": "1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sync/poison.rs.html",
+      "html_sha256": "b1c808f90cf15e86ae10b9815625a7683ca077805f8ae4427160f865190d20c6",
+      "decoded_path": "decoded/std__sync__poison.rs",
+      "decoded_sha256": "540646690dc3bffebb4bfcb412b07020a2e13c0312a5fd6f46c2b72ed565fba1",
+      "lines": 389,
+      "line_anchors_contiguous": true,
+      "version": "1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sync/once.rs.html",
+      "html_sha256": "736699ae7fcaff36a366fabcf94cb45c195b671a1228c0b2ee0fa19d76425846",
+      "decoded_path": "decoded/std__sync__once.rs",
+      "decoded_sha256": "513f1d12e51c34cc7d6eb34dbe2442f28f42748553b6037fa63ff5ad73c20099",
+      "lines": 402,
+      "line_anchors_contiguous": true,
+      "version": "1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/thread/functions.rs.html",
+      "html_sha256": "d3967c468211ac9d5281ed24caa9fbf94e1ce4ae5773a5f1ad9214b793c7e266",
+      "decoded_path": "decoded/std__thread__functions.rs",
+      "decoded_sha256": "37d4de9ec99ab4dd221b64f76b724eb74d25f23957417e1d00ef118896af53de",
+      "lines": 696,
+      "line_anchors_contiguous": true,
+      "version": "1.97.1 (8bab26f4f 2026-07-14)"
+    },
+    {
+      "origin": "<RUST>/share/doc/rust/html/src/std/sys/sync/mod.rs.html",
+      "html_sha256": "28ecb234b4704a800126bf38b280a4e4a3c554fb84198235ff4909835eac8ec1",
+      "decoded_path": "decoded/std__sys__sync__mod.rs",
+      "decoded_sha256": "e57838920a0f8c38ef94dc6ab0724e59e4b3335a603b7e63f70c16d354da6816",
+      "lines": 14,
+      "line_anchors_contiguous": true,
+      "version": "1.97.1 (8bab26f4f 2026-07-14)"
+    }
+  ]
+}

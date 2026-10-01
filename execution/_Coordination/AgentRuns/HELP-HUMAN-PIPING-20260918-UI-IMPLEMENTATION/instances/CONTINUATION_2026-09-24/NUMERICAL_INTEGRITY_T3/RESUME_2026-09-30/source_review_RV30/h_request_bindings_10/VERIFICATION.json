@@ -1,0 +1,40 @@
+{
+  "status": "complete within bounded review; source gap closed and exact-artifact facts usable with stated limits",
+  "actual_start_utc": "2026-10-01T15:45:00+00:00",
+  "actual_completion_utc": "2026-10-01T15:51:41.242630+00:00",
+  "deadline_utc": "2026-10-01T16:05:00+00:00",
+  "elapsed_seconds": 401.24263,
+  "source13_payloads_verified": 12,
+  "manager_source13_payloads_verified": 3,
+  "I23_payloads_verified": 12,
+  "new_facade_original_HTML_decodes_matched": 6,
+  "retained_source12_helper_original_decodes_matched": 8,
+  "source12_payloads_unchanged": 47,
+  "two_native_disassemblies_exact_match": true,
+  "native_disassembly_invocations": 2,
+  "binary_sha256": "63ea631507802f2a0ec939299b5dba2b7bdfb08728cb432be45d20c9e6938607",
+  "prior_RV30_packets_all_payloads_unchanged": 11,
+  "source_repair": "RV30-H12-F1 closed",
+  "final_H_correspondence": false,
+  "complete_E_max": false,
+  "admission_acceptance": false,
+  "read_only_script_error": {
+    "tool_chunk": "9077f3",
+    "exception": "KeyError: sha256 during optional heterogeneous metadata printing",
+    "timing": "after both objdump exit0 results and equality evidence were written",
+    "recovery": "corrected metadata read; no objdump or runtime retry"
+  },
+  "activity_counts": {
+    "Git": 0,
+    "index": 0,
+    "Rust_Cargo_build": 0,
+    "numerical_runtime_probe": 0,
+    "archive_reader_attempts": 0,
+    "source_repairs": 0,
+    "new_tools": 0,
+    "network_install": 0,
+    "delegation": 0
+  },
+  "write_fence": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-control-layer-8a41be/.claude/t3/k6c/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_INTEGRITY_T3/RESUME_2026-09-30/source_review_RV30/h_request_bindings_10",
+  "scratch_writes": []
+}

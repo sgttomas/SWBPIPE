@@ -1,0 +1,4 @@
+<RUST>/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.rlib:lib.rmeta: no symbols
+<RUST>/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.rlib:lib.rmeta-link: no symbols
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/nm: error: <RUST>/lib/rustlib/aarch64-apple-darwin/lib/libstd-4f24f0876fd27385.rlib(std-4f24f0876fd27385.std.7648081134ee26d8-cgu.0.rcgu.o): Unknown attribute kind (105) (Producer: 'LLVM22.1.6-rust-1.97.1-stable' Reader: 'LLVM APPLE_1_2100.1.1.101_0')
+
