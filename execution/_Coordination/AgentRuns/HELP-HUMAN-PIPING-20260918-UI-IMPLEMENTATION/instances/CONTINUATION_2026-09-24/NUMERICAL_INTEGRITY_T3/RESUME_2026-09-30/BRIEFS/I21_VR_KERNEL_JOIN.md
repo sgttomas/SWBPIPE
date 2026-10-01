@@ -38,3 +38,10 @@ One-off exact integer source arithmetic and original fixed metadata reads are
 permitted as evidence. No Rust/compiler/build/probe/runtime, maintained source,
 API/counts/record/admission changes, Git/index writes, Type2 delegation, installs,
 new host tools or cleanup. Seal and return for independent owner/numeric review.
+
+The numeric return must also compare the36 original V-K/KF3 recorded global
+peaks from canonical K0's immutable inventory against the matching complete VR
+requested/moving totals. Preserve actual consumer/window/model/input identities
+and historical artifact qualifications. This is a like-for-like peak comparison,
+not a chronological admission replay or final-candidate measurement. Do not use
+any observed value as a source-upper input. Return any failing row explicitly.
