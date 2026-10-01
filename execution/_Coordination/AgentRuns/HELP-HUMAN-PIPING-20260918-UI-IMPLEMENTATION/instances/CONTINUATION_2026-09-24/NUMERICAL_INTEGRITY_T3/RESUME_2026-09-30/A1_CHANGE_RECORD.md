@@ -50,9 +50,14 @@ part of this slice.
   VR rerun passed; see verification/vr_record_refresh_01/RETURN.md and
   verification/vr_rerun_02/RETURN.md.
 - RV29 independently confirmed the new-publication fault variants and controls
-  in source_review_RV29/runtime_07. Failed compiler/prelaunch experiments remain
-  preserved without fault-detection credit.
-- Historical rule and V-K fault verification is still in progress. Final review
+  in source_review_RV29/runtime_07, and the G1/G2/G4 subsets in their final
+  reviews. Failed compiler/prelaunch experiments remain preserved without
+  fault-detection credit.
+- G3's exact R09/R10 diagnostics have completed and are receiving independent
+  backcheck; their earlier loop failures remain uncredited. Original upper
+  expectations and tests stay unchanged. The prepared remainder is active with
+  independent per-copy releases and immediate hard checks before Cargo. V-K is
+  prepared and unrun. Final review
   confirmation, full-SHA hosted dispatch, exact-final-head Mac DEC-025 and GEN-8
   remain required. This record is not a passing final-gate claim.
 
